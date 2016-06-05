@@ -1,0 +1,9 @@
+development: &default
+  secret_token: somethingsecret
+  authorization_header: 'X-Lapis-Token' # Change it on public/api/index.html as well (line 43)
+
+test:
+  <<: *default
+
+production:
+  <<: *default

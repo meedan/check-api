@@ -1,0 +1,19 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "/",
+  "apis": [
+    {
+      "path": "api/v1/base_api.{format}",
+      "description": "BaseApi"
+    },
+    {
+      "path": "api/v1/graphql.{format}",
+      "description": "GraphQL"
+    }
+  ],
+  "info": {
+    "title": "Checkdesk",
+    "description": "Verify breaking news online"
+  }
+}

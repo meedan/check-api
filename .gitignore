@@ -1,0 +1,17 @@
+/.bundle
+/db/*.sqlite3
+/db/*.sqlite3-journal
+db/schema.rb
+/log/*.log
+/tmp/cache
+/tmp/pids
+/tmp/sessions
+/tmp/sockets
+config/database.yml
+config/config.yml
+config/initializers/errbit.rb
+config/initializers/secret_token.rb
+*.sw*
+*~
+public/assets
+tmp/restart.txt

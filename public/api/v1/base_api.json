@@ -1,0 +1,40 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "/",
+  "resourcePath": "base_api",
+  "apis": [
+    {
+      "path": "api/version",
+      "operations": [
+        {
+          "summary": "Get current version",
+          "notes": "Use this method in order to get the current version of this application",
+          "responseMessages": [
+            {
+              "code": 200,
+              "responseModel": {
+                "query": {
+                },
+                "headers": {
+                  "x-Lapis-Token": "test"
+                }
+              },
+              "message": "The version of this application"
+            },
+            {
+              "code": 401,
+              "responseModel": {
+                "query": {
+                }
+              },
+              "message": "Access denied"
+            }
+          ],
+          "method": "get",
+          "nickname": "Api::V1::BaseApi#version"
+        }
+      ]
+    }
+  ]
+}
