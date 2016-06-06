@@ -1033,7 +1033,7 @@ table {
   width: 200px;
 }
 #header form#api_selector .input input#input_baseUrl {
-  width: 400px;
+  width: 130px;
 }
 #header form#api_selector .input a#explore {
   display: block;
