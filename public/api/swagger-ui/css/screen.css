@@ -276,6 +276,7 @@ table {
   padding-bottom: 10px;
   font-weight: bold;
   font-size: 25px;
+  margin-top: 30px;
 }
 .swagger-ui-wrap p.big,
 .swagger-ui-wrap div.big p {
@@ -1009,6 +1010,8 @@ table {
 #header {
   background-color: #89bf04;
   padding: 14px;
+  width: 100%;
+  position: fixed;
 }
 #header a#logo {
   font-size: 1.5em;
@@ -1030,7 +1033,7 @@ table {
   margin: 0 10px 0 0;
 }
 #header form#api_selector .input input#input_apiKey {
-  width: 200px;
+  width: 150px;
 }
 #header form#api_selector .input input#input_baseUrl {
   width: 130px;
@@ -1067,4 +1070,18 @@ table {
   min-height: 30px;
   text-align: center;
   padding-top: 10px;
+}
+#twitter-login, #facebook-login {
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  text-indent: -5000em;
+}
+
+#twitter-login {
+  background: transparent url(../images/twitter.png) no-repeat left center;
+}
+
+#facebook-login {
+  background: transparent url(../images/facebook.png) no-repeat left center;
 }

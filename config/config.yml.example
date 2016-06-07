@@ -1,6 +1,10 @@
 development: &default
-  secret_token: somethingsecret
-  authorization_header: 'X-Lapis-Token' # Change it on public/api/index.html as well (line 43)
+  secret_token: 
+  authorization_header: 'X-Checkdesk-Token'
+  twitter_consumer_key: 
+  twitter_consumer_secret: 
+  facebook_app_id: 
+  facebook_app_secret: 
 
 test:
   <<: *default

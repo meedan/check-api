@@ -17,7 +17,7 @@
                 "query": {
                 },
                 "headers": {
-                  "x-Lapis-Token": "test"
+                  "x-Checkdesk-Token": "test"
                 }
               },
               "message": "The version of this application"
@@ -33,6 +33,25 @@
           ],
           "method": "get",
           "nickname": "Api::V1::BaseApi#version"
+        }
+      ]
+    },
+    {
+      "path": "api/me",
+      "operations": [
+        {
+          "summary": "Information about current user",
+          "notes": "Use this method in order to get information about current user, either by session or token",
+          "responseMessages": [
+            {
+              "code": 200,
+              "responseModel": {
+              },
+              "message": "Information about current user, or nil if not authenticated"
+            }
+          ],
+          "method": "get",
+          "nickname": "Api::V1::BaseApi#me"
         }
       ]
     }

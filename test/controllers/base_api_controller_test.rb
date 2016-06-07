@@ -9,6 +9,7 @@ class BaseApiControllerTest < ActionController::TestCase
           match '/test' => 'test#test', via: [:get, :post]
           match '/notify' => 'test#notify', via: [:post]
           get 'version', to: 'base_api#version'
+          get 'me', to: 'base_api#me'
         end
       end
     end
@@ -95,5 +96,37 @@ class BaseApiControllerTest < ActionController::TestCase
     @controller = Api::V1::BaseApiController.new
     get :version
     assert_response :success
+  end
+
+  test "should get current user from session" do
+    @controller = Api::V1::BaseApiController.new
+    u = create_user name: 'Test User'
+    session['checkdesk.user'] = u.id
+    get :me
+    assert_response :success
+    response = JSON.parse(@response.body)
+    assert_equal 'Test User', response['data']['name']
+    assert_equal 'session', response['data']['source']
+  end
+
+  test "should get current user from token" do
+    @controller = Api::V1::BaseApiController.new
+    u = create_user name: 'Test User'
+    header = CONFIG['authorization_header'] || 'X-Token'
+    @request.headers.merge!({ header => u.token })
+    get :me
+    assert_response :success
+    response = JSON.parse(@response.body)
+    assert_equal 'Test User', response['data']['name']
+    assert_equal 'token', response['data']['source']
+  end
+
+  test "should not get current user" do
+    @controller = Api::V1::BaseApiController.new
+    u = create_user
+    get :me
+    assert_response :success
+    response = JSON.parse(@response.body)
+    assert_equal({ 'type' => 'user' }, response)
   end
 end

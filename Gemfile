@@ -64,3 +64,6 @@ gem 'unicorn'
 gem 'htmlentities', require: false, group: :development
 gem 'graphql'
 gem 'graphql-relay'
+gem 'devise'
+gem 'omniauth-twitter'
+gem 'omniauth-facebook'

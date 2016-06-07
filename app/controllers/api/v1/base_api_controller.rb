@@ -7,7 +7,7 @@ module Api
 
       before_filter :remove_empty_params_and_headers
       before_filter :set_custom_response_headers
-      before_filter :authenticate_from_token!
+      before_filter :authenticate_from_token!, except: [:me]
       # Verify payload for webhook methods
       # before_filter :verify_payload!
 
@@ -18,6 +18,28 @@ module Api
         render_success 'version', name
       end
 
+      def me
+        header = CONFIG['authorization_header'] || 'X-Token'
+        token = request.headers[header]
+        user = nil
+        source = nil
+        
+        if token
+          user = User.where(token: token).last
+          source = 'token'
+        elsif session['checkdesk.user']
+          user = User.where(id: session['checkdesk.user']).last
+          source = 'session'
+        end
+
+        unless user.nil?
+          user = user.as_json
+          user[:source] = source
+        end
+
+        render_success 'user', user
+      end
+
       private
 
       def authenticate_from_token!
@@ -26,6 +48,14 @@ module Api
         key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).exists?
         (render_unauthorized and return false) unless key
       end
+
+      # def authenticate_from_user_token!
+      #   header = CONFIG['authorization_header'] || 'X-Token'
+      #   token = request.headers[header]
+      #   user = User.where(token: token).exists?
+      #   sign_in(user, store: false)
+      #   (render_unauthorized and return false) unless user
+      # end
 
       def verify_payload!
         begin

@@ -7,6 +7,10 @@ require 'webmock'
 require 'mocha/test_unit'
 require 'sample_data'
 
+class ActionController::TestCase
+  include Devise::TestHelpers
+end
+
 class Api::V1::TestController < Api::V1::BaseApiController
   before_filter :verify_payload!, only: [:notify]
   skip_before_filter :authenticate_from_token!, only: [:notify]

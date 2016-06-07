@@ -40,7 +40,7 @@
     $('#input_apiKey').change(function() {
       var key = $('#input_apiKey')[0].value;
       if (key && key.trim() != "") {
-        window.authorizations.add('token', new ApiKeyAuthorization('X-Lapis-Token', key, 'header'));
+        window.authorizations.add('token', new ApiKeyAuthorization('X-Checkdesk-Token', key, 'header'));
       }
     });
 
@@ -70,6 +70,8 @@
       <div class='input'><input placeholder="http auth user" id="http_user" name="http_user" type="text"/></div>
       <div class='input'><input placeholder="http auth password" id="http_pass" name="http_pass" type="text"/></div>
       <div class='input'><a id="explore" href="#">Explore</a></div>
+      <a href="/api/users/auth/twitter?destination=/api" id="twitter-login">Twitter</a>
+      <a href="/api/users/auth/facebook?destination=/api" id="facebook-login">Facebook</a>
     </form>
   </div>
 </div>
