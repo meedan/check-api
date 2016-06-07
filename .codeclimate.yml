@@ -7,3 +7,4 @@ exclude_paths:
 - "public/coverage"
 - "test"
 - "public/javascripts"
+- "lib/sample_data.rb"

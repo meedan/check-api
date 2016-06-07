@@ -1,5 +1,5 @@
 class Swagger::Docs::Config
-  def self.transform_path(path, api_version)
+  def self.transform_path(path, _api_version)
     path
   end
 end

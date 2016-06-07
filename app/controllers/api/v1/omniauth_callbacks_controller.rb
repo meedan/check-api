@@ -13,7 +13,8 @@ module Api
           session['checkdesk.user'] = user.id
           sign_in(user)
         end
-        redirect_to (destination || '/')
+        destination ||= '/'
+        redirect_to destination
       end
     end
   end

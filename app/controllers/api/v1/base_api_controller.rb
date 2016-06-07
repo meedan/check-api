@@ -65,8 +65,8 @@ module Api
           else
             render_unauthorized and return
           end
-        rescue Exception => e
-          render_error(e.message, 'UNKNOWN') and return
+        rescue
+          render_error('Could not verify payload', 'UNKNOWN') and return
         end
       end
 
@@ -76,11 +76,11 @@ module Api
       end
   
       def get_params
-        params.reject{ |k, v| ['id', 'action', 'controller', 'format'].include?(k) }
+        params.reject{ |k, _v| ['id', 'action', 'controller', 'format'].include?(k) }
       end
 
       def remove_empty_params_and_headers
-        params.reject!{ |k, v| v.blank? }
+        params.reject!{ |_k, v| v.blank? }
         request.headers.each{ |k, v| request.headers[k] = nil if (k =~ /HTTP_/).present? && v.blank? }
       end
 
@@ -128,7 +128,7 @@ module Api
       # end
 
       # def render_not_implemented
-      #   render json: { success: true, message: 'TODO' }, status: 200
+      #   render json: { success: true, message: 'Not implemented yet' }, status: 200
       # end
 
       # def render_deleted

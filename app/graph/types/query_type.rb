@@ -5,7 +5,7 @@ QueryType = GraphQL::ObjectType.define do
   field :about do
     type AboutType
     description 'Information about the application'
-    resolve -> (obj, args, ctx) do
+    resolve -> (_obj, _args, _ctx) do
       OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: 'About' })
     end
   end

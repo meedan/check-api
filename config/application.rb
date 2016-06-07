@@ -9,12 +9,12 @@ Bundler.require(*Rails.groups)
 module Checkdesk
   class Application < Rails::Application
     config.generators do |g|
-               g.javascripts false
-               g.stylesheets false
-               g.template_engine false
-               g.helper false
-               g.assets false
-             end
+      g.javascripts false
+      g.stylesheets false
+      g.template_engine false
+      g.helper false
+      g.assets false
+    end
     config.action_dispatch.default_headers.merge!({'Access-Control-Allow-Origin' => '*', 'Access-Control-Request-Method' => '*'})
     config.autoload_paths << Rails.root.join('app', 'graph', 'mutations')
     config.autoload_paths << Rails.root.join('app', 'graph', 'types')

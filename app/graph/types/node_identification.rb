@@ -1,10 +1,9 @@
 GraphQL::Relay::GlobalNodeIdentification.instance_variable_set(:@instance, nil)
-NodeIdentification = 
-  GraphQL::Relay::GlobalNodeIdentification.define do
-  
-  object_from_id -> (id, ctx) do
+NodeIdentification = GraphQL::Relay::GlobalNodeIdentification.define do
+  object_from_id -> (id, _ctx) do
     type_name, id = NodeIdentification.from_global_id(id)
-    type_name == 'About' ? OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: 'About' }) : type_name.find(id)
+    name = Rails.application.class.parent_name
+    type_name == 'About' ? OpenStruct.new({ name: name, version: VERSION, id: 1, type: 'About' }) : type_name.find(id)
   end
   
   type_from_object -> (object) do

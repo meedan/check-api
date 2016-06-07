@@ -17,9 +17,10 @@ class ApiKey < ActiveRecord::Base
   private
 
   def generate_access_token
-    begin
+    loop do
       self.access_token = SecureRandom.hex
-    end while ApiKey.where(access_token: access_token).exists?
+      break unless ApiKey.where(access_token: access_token).exists?
+    end
   end
 
   def calculate_expiration_date

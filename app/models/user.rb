@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  attr_accessible
+
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
          :omniauthable, :omniauth_providers => [:twitter, :facebook]
@@ -30,7 +32,7 @@ class User < ActiveRecord::Base
     JSON.parse(Base64.decode64(token.gsub('++n', "\n")))
   end
 
-  def as_json(options = {})
+  def as_json(_options = {})
     {
       name: self.name,
       email: self.email,
