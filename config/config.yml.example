@@ -5,6 +5,8 @@ development: &default
   twitter_consumer_secret: 
   facebook_app_id: 
   facebook_app_secret: 
+  elasticsearch_host:
+  elasticsearch_port:
 
 test:
   <<: *default

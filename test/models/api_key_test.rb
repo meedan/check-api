@@ -27,6 +27,7 @@ class ApiKeyTest < ActiveSupport::TestCase
   end
 
   test "should have application" do
+    assert_equal [nil], ApiKey.applications
     ApiKey.stubs(:applications).returns([nil, 'test'])
     k1 = create_api_key
     assert_nil k1.application
