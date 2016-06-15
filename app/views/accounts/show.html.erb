@@ -1,4 +1,11 @@
 <p id="notice"><%= notice %></p>
-
+<p>
+  <strong>URL:</strong>
+  <%= @account.url %>
+</p>
+<p>
+  <strong>data:</strong>
+  <%= @account.data %>
+</p>
 <%= link_to 'Edit', edit_account_path(@account) %> |
 <%= link_to 'Back', accounts_path %>

@@ -27,7 +27,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'cancancan', '~> 1.10'
 gem 'bootstrap-sass', '~> 3.2.0.0'
-
+# Use pender
+gem 'pender_client', git: 'git@github.com:meedan/pender-client.git'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -73,4 +74,3 @@ gem 'graphql-relay'
 gem 'devise'
 gem 'omniauth-twitter'
 gem 'omniauth-facebook'
-gem 'protected_attributes'
