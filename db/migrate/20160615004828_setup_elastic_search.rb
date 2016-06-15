@@ -1,5 +1,5 @@
 class SetupElasticSearch < ActiveRecord::Migration
-  MODELS = [Annotation]
+  MODELS = [Comment]
 
   def up
     MODELS.each do |model|

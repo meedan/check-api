@@ -4,6 +4,8 @@ module Annotation
   included do
     include CheckdeskElasticSearchModel
     include ActiveModel::Validations
+    
+    index_name [Rails.application.engine_name, Rails.env, 'annotations'].join('_')
 
     attribute :type, String
     before_validation :set_type
