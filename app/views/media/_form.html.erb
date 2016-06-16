@@ -16,6 +16,11 @@
     <%= f.text_field :url %>
   </div>
 
+ <div class="field">
+    <%= f.label :data %><br>
+    <%= f.text_field :data %>
+  </div>
+
   <div>
     <%= f.label 'Projects' %><br>
     <%= f.collection_select(:project_id, Project.all, :id, :title) %>
