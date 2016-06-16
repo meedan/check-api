@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:meedan/pender-client.git
+  remote: https://bf1f07f7497b971a9e95189454bc2b0073f98e8d:x-oauth-basic@github.com/meedan/pender-client.git
   revision: 5c0e0764a45f5a864548b4f5cd0c24226e22fbe9
   specs:
     pender_client (0.0.1)
