@@ -3,7 +3,7 @@ FROM seapy/rails-nginx-unicorn-pro:v1.1-ruby2.3.0-nginx1.8.1
 MAINTAINER Meedan(hello@meedan.com)
 
 # Add here other packages you need to install
-RUN apt-get install vim -y
+RUN apt-get install vim libpq-dev -y
 
 # Nginx config
 COPY docker/nginx.conf /etc/nginx/sites-enabled/default
