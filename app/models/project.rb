@@ -3,5 +3,5 @@ class Project < ActiveRecord::Base
   has_many :media
   has_many :projectSources
   has_many :sources , :through => :projectSources
-  mount_uploader :lead_image, LeadImageUploader
+  mount_uploader :lead_image, ImageUploader
 end

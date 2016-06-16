@@ -1,10 +1,9 @@
 class CreateTeams < ActiveRecord::Migration
   def change
     create_table :teams do |t|
-      t.name :string
-      t.description :text
-      t.logo :string
-      t.archived :boolean
+      t.string :name
+      t.string :logo
+
       t.timestamps null: false
     end
   end
