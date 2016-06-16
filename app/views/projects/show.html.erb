@@ -10,5 +10,11 @@
   <%= @project.description %>
 </p>
 
+
+<p>
+  <strong>Lead image:</strong>
+  <%= link_to 'Download image', @project.lead_image_url %>
+</p>
+
 <%= link_to 'Edit', edit_project_path(@project) %> |
 <%= link_to 'Back', projects_path %>

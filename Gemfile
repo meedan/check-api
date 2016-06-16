@@ -27,8 +27,10 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'cancancan', '~> 1.10'
 gem 'bootstrap-sass', '~> 3.2.0.0'
+gem 'carrierwave', '~> 0.9'
 # Use pender
 gem 'pender_client', git: 'git@github.com:meedan/pender-client.git'
+gem 'paper_trail'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

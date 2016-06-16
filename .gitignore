@@ -14,5 +14,6 @@ config/initializers/secret_token.rb
 *.sw*
 *~
 public/assets
+public/uploads
 tmp/restart.txt
 /.project
