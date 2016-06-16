@@ -1,6 +1,6 @@
 class Project < ActiveRecord::Base
   attr_accessible
-
+  has_paper_trail
   belongs_to :user
   has_many :media
   has_many :projectSources
