@@ -1,4 +1,5 @@
 class Source < ActiveRecord::Base
+  attr_accessible
 
   has_many :accounts
   has_many :projectSources

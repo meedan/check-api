@@ -1,4 +1,6 @@
 class Medium < ActiveRecord::Base
+  attr_accessible
+
   belongs_to :project
   belongs_to :account
   belongs_to :user

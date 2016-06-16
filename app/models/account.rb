@@ -1,4 +1,6 @@
 class Account < ActiveRecord::Base
+  attr_accessible
+
   belongs_to :user
   belongs_to :source
   has_many :media
