@@ -48,6 +48,10 @@ GEM
     auto_localize (0.1)
       bing_translator
     awesome_print (1.6.1)
+    axiom-types (0.1.1)
+      descendants_tracker (~> 0.0.4)
+      ice_nine (~> 0.11.0)
+      thread_safe (~> 0.3, >= 0.3.1)
     bcrypt (3.1.11)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
@@ -62,6 +66,8 @@ GEM
     cancancan (1.15.0)
     codeclimate-test-reporter (0.5.1)
       simplecov (>= 0.7.1, < 1.0.0)
+    coercible (1.0.0)
+      descendants_tracker (~> 0.0.1)
     coffee-rails (4.1.1)
       coffee-script (>= 2.2.0)
       railties (>= 4.0.0, < 5.1.x)
@@ -74,6 +80,8 @@ GEM
       safe_yaml (~> 1.0.0)
     daemons (1.2.3)
     debug_inspector (0.0.2)
+    descendants_tracker (0.0.4)
+      thread_safe (~> 0.3, >= 0.3.1)
     devise (4.1.1)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -81,6 +89,26 @@ GEM
       responders
       warden (~> 1.2.3)
     docile (1.1.5)
+    elasticsearch (1.0.17)
+      elasticsearch-api (= 1.0.17)
+      elasticsearch-transport (= 1.0.17)
+    elasticsearch-api (1.0.17)
+      multi_json
+    elasticsearch-model (0.1.9)
+      activesupport (> 3)
+      elasticsearch (> 0.4)
+      hashie
+    elasticsearch-persistence (0.1.9)
+      activemodel (> 3)
+      activesupport (> 3)
+      elasticsearch (> 0.4)
+      elasticsearch-model (>= 0.1)
+      hashie
+      virtus
+    elasticsearch-transport (1.0.17)
+      faraday
+      multi_json
+    equalizer (0.0.11)
     erubis (2.7.0)
     eventmachine (1.2.0.1)
     execjs (2.7.0)
@@ -101,6 +129,7 @@ GEM
       rack
       socksify
     i18n (0.7.0)
+    ice_nine (0.11.2)
     jbuilder (2.5.0)
       activesupport (>= 3.0.0, < 5.1)
       multi_json (~> 1.2)
@@ -234,7 +263,6 @@ GEM
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
     socksify (1.7.0)
-    spring (1.7.1)
     sprockets (3.6.0)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
@@ -266,6 +294,11 @@ GEM
       raindrops (~> 0.7)
     uuid (2.3.8)
       macaddr (~> 1.0)
+    virtus (1.0.5)
+      axiom-types (~> 0.1)
+      coercible (~> 1.0)
+      descendants_tracker (~> 0.0, >= 0.0.3)
+      equalizer (~> 0.0, >= 0.0.9)
     warden (1.2.6)
       rack (>= 1.0)
     wasabi (3.5.0)
@@ -294,6 +327,7 @@ DEPENDENCIES
   codeclimate-test-reporter
   coffee-rails (~> 4.1.0)
   devise
+  elasticsearch-persistence
   gem-licenses
   graphql
   graphql-relay
@@ -313,7 +347,6 @@ DEPENDENCIES
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   simplecov
-  spring
   sqlite3
   swagger-docs (= 0.1.9)
   thin
