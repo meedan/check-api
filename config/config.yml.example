@@ -1,10 +1,12 @@
 development: &default
-  secret_token: 
+  secret_token:
   authorization_header: 'X-Checkdesk-Token'
-  twitter_consumer_key: 
-  twitter_consumer_secret: 
-  facebook_app_id: 
-  facebook_app_secret: 
+  twitter_consumer_key:
+  twitter_consumer_secret:
+  facebook_app_id:
+  facebook_app_secret:
+  pender_host:
+  pender_key:
   elasticsearch_host:
   elasticsearch_port:
 

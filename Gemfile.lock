@@ -1,3 +1,9 @@
+GIT
+  remote: git@github.com:meedan/pender-client.git
+  revision: 5c0e0764a45f5a864548b4f5cd0c24226e22fbe9
+  specs:
+    pender_client (0.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -338,6 +344,7 @@ DEPENDENCIES
   mocha
   omniauth-facebook
   omniauth-twitter
+  pender_client!
   pg (~> 0.15)
   protected_attributes
   railroady
