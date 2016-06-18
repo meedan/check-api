@@ -1,5 +1,5 @@
 class Comment
-  include Annotation
+  include AnnotationBase
 
   attribute :text, String, presence: true
   validates_presence_of :text

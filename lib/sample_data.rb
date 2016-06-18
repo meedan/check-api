@@ -41,4 +41,8 @@ module SampleData
     sleep 1 if Rails.env.test?
     c.reload
   end
+
+  def create_annotation(options = {})
+    Annotation.create(options)
+  end
 end
