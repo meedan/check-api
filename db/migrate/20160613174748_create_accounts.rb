@@ -4,7 +4,7 @@ class CreateAccounts < ActiveRecord::Migration
       t.belongs_to :user, index: true
       t.belongs_to :source, index: true
       t.string :url
-      t.json :data
+      t.column :data, :json
       t.timestamps null: false
     end
   end

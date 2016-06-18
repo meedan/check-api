@@ -1,23 +1,18 @@
-# Dockerfile
-FROM seapy/rails-nginx-unicorn-pro:v1.1-ruby2.3.0-nginx1.8.1
-MAINTAINER Meedan(hello@meedan.com)
+FROM ruby
+MAINTAINER Karim Ratib <karim@meedan.com>
 
-# Add here other packages you need to install
-RUN apt-get install vim libpq-dev -y
+RUN apt-get update -qq && apt-get install -y vim libpq-dev nodejs
 
-# Nginx config
-COPY docker/nginx.conf /etc/nginx/sites-enabled/default
-
-# Install Rails App
-COPY Gemfile /app/Gemfile
-COPY Gemfile.lock /app/Gemfile.lock
-RUN cd /app && bundle install --without development test
-COPY . /app
-RUN cd /app && bundle exec rake db:migrate
-COPY docker/create-dev-key.rb /app/create-dev-key.rb
-RUN cd /app && ruby create-dev-key.rb
-
+RUN mkdir -p /app
 WORKDIR /app
 
-# Nginx port number
-EXPOSE 80
+COPY Gemfile Gemfile.lock /app/
+RUN gem install bundler && bundle install --jobs 20 --retry 5
+
+COPY . /app
+
+EXPOSE 3000
+ENV RAILS_ENV development
+
+ENTRYPOINT ["bundle", "exec"]
+CMD ["rails", "server", "-b", "0.0.0.0"]

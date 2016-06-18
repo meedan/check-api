@@ -5,7 +5,7 @@ class CreateMedia < ActiveRecord::Migration
       t.belongs_to :project, index: true
       t.belongs_to :account, index: true
       t.string :url
-      t.json :data
+      t.column :data, :json
       t.timestamps null: false
     end
   end
