@@ -3,7 +3,7 @@ class Project < ActiveRecord::Base
   has_paper_trail
   belongs_to :user
   has_many :media
-  has_many :projectSources
-  has_many :sources , :through => :projectSources
+  has_many :project_sources
+  has_many :sources , :through => :project_sources
   mount_uploader :lead_image, ImageUploader
 end

@@ -1,3 +1,4 @@
+# :nocov:
 class AccountsController < ApplicationController
   before_action :set_account, only: [:show, :edit, :update, :destroy]
 
@@ -72,3 +73,4 @@ class AccountsController < ApplicationController
       params.require(:account).permit(:url, :data)
     end
 end
+# :nocov:
