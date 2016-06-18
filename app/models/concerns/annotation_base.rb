@@ -60,7 +60,7 @@ module AnnotationBase
     end
 
     # We don't have associations, so we don't need it
-    def reflect_on_all_associations(macro = nil)
+    def reflect_on_all_associations(_macro = nil)
       []
     end
 

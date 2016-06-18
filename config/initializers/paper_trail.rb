@@ -8,11 +8,11 @@ module PaperTrail
         @klass = klass
       end
       
-      def serialize(attr, val)
+      def serialize(_attr, val)
         val.to_s
       end
                       
-      def deserialize(attr, val)
+      def deserialize(_attr, val)
         val
       end
     end
