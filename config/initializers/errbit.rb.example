@@ -4,4 +4,5 @@ Airbrake.configure do |config|
   config.port    = %errbit_port%
   config.secure  = config.port == 443
   config.development_environments = []
+  config.environment_name = `hostname`  
 end
