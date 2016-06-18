@@ -8,8 +8,13 @@ module AnnotationBase
     
     module ClassMethods
       def has_annotations
-        define_method :annotations do
-          query = { bool: { must: [ { match: { annotated_type: self.class.name } }, { match: { annotated_id: self.id.to_s } } ] } }
+        define_method :annotations do |context=nil|
+          matches = [{ match: { annotated_type: self.class.name } }, { match: { annotated_id: self.id.to_s } }]
+          unless context.nil?
+            matches << { match: { context_type: context.class.name } } 
+            matches << { match: { context_id: context.id.to_s } } 
+          end
+          query = { bool: { must: matches } }
           Annotation.search(query: query).results.map(&:load)
         end
 
@@ -33,6 +38,8 @@ module AnnotationBase
     attribute :version_index, Integer
     attribute :annotated_type, String
     attribute :annotated_id, String
+    attribute :context_type, String
+    attribute :context_id, String
 
     before_validation :set_type_and_event
 
@@ -140,6 +147,16 @@ module AnnotationBase
   def annotated=(obj)
     self.annotated_type = obj.class.name
     self.annotated_id = obj.id
+  end
+
+  def context
+    return nil if self.context_type.blank? && self.context_id.blank?
+    self.context_type.constantize.find(self.context_id)
+  end
+
+  def context=(obj)
+    self.context_type = obj.class.name
+    self.context_id = obj.id
   end
 
   private

@@ -136,4 +136,35 @@ class CommentTest < ActiveSupport::TestCase
     c = create_comment
     assert_equal 'annotation', c._type
   end
+
+  test "should have context" do
+    c = create_comment
+    s = SampleModel.create
+    assert_nil c.context
+    c.context = s
+    c.save
+    assert_equal s, c.context
+  end
+
+  test "should get annotations from context" do
+    context1 = SampleModel.create
+    context2 = SampleModel.create
+    annotated = SampleModel.create
+
+    c1 = create_comment
+    c1.context = context1
+    c1.annotated = annotated
+    c1.save
+
+    c2 = create_comment
+    c2.context = context2
+    c2.annotated = annotated
+    c2.save
+
+    sleep 1
+
+    assert_equal [c1.id, c2.id].sort, annotated.annotations.map(&:id).sort
+    assert_equal [c1.id], annotated.annotations(context1).map(&:id)
+    assert_equal [c2.id], annotated.annotations(context2).map(&:id)
+  end
 end
