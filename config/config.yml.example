@@ -7,8 +7,8 @@ development: &default
   facebook_app_secret:
   pender_host:
   pender_key:
-  elasticsearch_host:
-  elasticsearch_port:
+  elasticsearch_host: elasticsearch
+  elasticsearch_port: 9200
 
 test:
   <<: *default
