@@ -8,3 +8,6 @@ exclude_paths:
 - "test"
 - "public/javascripts"
 - "lib/sample_data.rb"
+- "app/controllers/*.rb"
+paths:
+- "app/controllers/application_controller.rb"
