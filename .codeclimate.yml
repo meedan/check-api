@@ -9,5 +9,5 @@ exclude_paths:
 - "public/javascripts"
 - "lib/sample_data.rb"
 - "app/controllers/*.rb"
-paths:
-- "app/controllers/application_controller.rb"
+- "!app/controllers/application_controller.rb"
+- "db/migrate"
