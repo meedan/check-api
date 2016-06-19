@@ -140,23 +140,32 @@ module AnnotationBase
   end
 
   def annotated
-    return nil if self.annotated_type.blank? && self.annotated_id.blank?
-    self.annotated_type.constantize.find(self.annotated_id)
+    self.load_polymorphic('annotated')
   end
 
   def annotated=(obj)
-    self.annotated_type = obj.class.name
-    self.annotated_id = obj.id
+    self.set_polymorphic('annotated', obj)
   end
 
   def context
-    return nil if self.context_type.blank? && self.context_id.blank?
-    self.context_type.constantize.find(self.context_id)
+    self.load_polymorphic('context')
   end
 
   def context=(obj)
-    self.context_type = obj.class.name
-    self.context_id = obj.id
+    self.set_polymorphic('context', obj)
+  end
+
+  protected
+
+  def load_polymorphic(name)
+    type, id = self.send("#{name}_type"), self.send("#{name}_id")
+    return nil if type.blank? && id.blank?
+    type.constantize.find(id)
+  end
+
+  def set_polymorphic(name, obj)
+    self.send("#{name}_type=", obj.class.name)
+    self.send("#{name}_id=", obj.id)
   end
 
   private
