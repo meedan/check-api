@@ -1,5 +1,5 @@
 module SampleData
-  
+
   # Methods to generate random data
 
   def random_string(length = 10)
@@ -45,4 +45,47 @@ module SampleData
   def create_annotation(options = {})
     Annotation.create(options)
   end
+
+  def create_account(options = {})
+    account = Account.new
+    account.url = options[:url] || random_url
+    account.save
+    account.reload
+  end
+
+  def create_project(options = {})
+    project = Project.new
+    project.title = options[:title] || random_string
+    project.description = options[:description] || random_string(40)
+    project.save
+    project.reload
+  end
+
+  def create_team(options = {})
+    team = Team.new
+    team.name = options[:name] || random_string
+    team.archived = options[:archived] || false
+    team.save
+    team.reload
+  end
+
+  def create_media(options = {})
+    account = create_account
+    project = create_project
+    m = Medium.new
+    m.url = options[:url] || random_url
+    m.project_id = project.id
+    m.account_id = account.id
+    m.save
+    m.reload
+  end
+
+  def create_source(options = {})
+    source = Source.new
+    source.name = options[:name] || random_string
+    source.slogan = options[:slogan] || random_string(20)
+    source.save
+    source.reload
+  end
+
 end

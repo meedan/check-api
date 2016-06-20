@@ -7,8 +7,10 @@ class Account < ActiveRecord::Base
 
   validates_presence_of :url
   before_save :set_pender_metadata
-  
-  serialize :data
+
+  if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
+    serialize :data
+  end
 
   private
 
