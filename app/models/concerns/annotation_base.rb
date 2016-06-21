@@ -74,6 +74,21 @@ module AnnotationBase
     def column_names
       self.attribute_set.to_a.map(&:name)
     end
+
+    def columns
+      objs = []
+      self.attribute_set.to_a.each do |a|
+        objs << OpenStruct.new({
+          name: a.name.to_s,
+          sql_type: a.type.to_s.gsub('Axiom::Types::', '')
+        })
+      end
+      objs
+    end
+
+    def abstract_class?
+      false
+    end
   end
 
   def versions(options = {})

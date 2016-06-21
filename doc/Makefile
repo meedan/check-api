@@ -5,6 +5,7 @@
 
 INKSCAPE = inkscape
 RAKE = bundle exec rake
+BEXEC = bundle exec 
 
 all: controllers_brief.png controllers_complete.png models_brief.png models_complete.png api.txt licenses.csv api-docs.json api.md
 
@@ -24,13 +25,13 @@ models_brief.png: models_brief.svg
 	$(INKSCAPE) --export-png='models_brief.png' models_brief.svg
 
 models_brief.svg:
-	cd .. && $(RAKE) diagram:models:brief && cd -
+	cd .. && $(BEXEC) railroady -M -s app/models/annotations/*,app/models/*.rb -b | dot -Tsvg > doc/models_brief.svg && cd -
 
 models_complete.png: models_complete.svg
 	$(INKSCAPE) --export-png='models_complete.png' models_complete.svg
 
 models_complete.svg:
-	cd .. && $(RAKE) diagram:models:complete && cd -
+	cd .. && $(BEXEC) railroady -M -s app/models/annotations/*,app/models/*.rb | dot -Tsvg > doc/models_complete.svg && cd -
 
 api.txt:
 	echo "API Endpoints - `LANG=en_US date --utc`" > api.txt
