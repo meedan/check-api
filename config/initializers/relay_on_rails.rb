@@ -4,4 +4,4 @@
 # end
 # And then here:
 # RelayOnRailsSchema = GraphQL::Schema.new(query: QueryType, mutation: MutationType)
-RelayOnRailsSchema = GraphQL::Schema.new(query: QueryType)
+RelayOnRailsSchema = GraphQL::Schema.new(query: QueryType, mutation: MutationType)

@@ -1,6 +1,13 @@
+# ...and a query root
 QueryType = GraphQL::ObjectType.define do
-  name 'Query'
-  description 'The query root for this schema'
+  name "Query"
+  description "The query root of this schema"
+
+  field :node, field: NodeIdentification.field
+
+  field :root, RootLevelType do
+    resolve -> (obj, args, ctx) { RootLevel::STATIC }
+  end
 
   field :about do
     type AboutType
@@ -10,7 +17,5 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  # Add other fields here, one per model you want to expose (then add a type at app/graph/types)
-
-  field :node, field: NodeIdentification.field
+  # End Of Queries
 end
