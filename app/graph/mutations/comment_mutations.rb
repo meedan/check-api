@@ -7,8 +7,6 @@ module CommentMutations
     input_field :context_type, !types.String
     input_field :annotated_id, !types.String
     input_field :annotated_type, !types.String
-    input_field :version_index, !types.Int
-    input_field :annotation_type, !types.String
 
     return_field :comment, CommentType
 
