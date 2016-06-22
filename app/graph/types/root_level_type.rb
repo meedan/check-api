@@ -5,6 +5,11 @@ RootLevelType = GraphQL::ObjectType.define do
   interfaces [NodeIdentification.interface]
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('RootLevel')
+  connection :comments, CommentType.connection_type do
+    resolve ->(object, args, ctx){
+      Comment.all
+    }
+  end
   connection :project_sources, ProjectSourceType.connection_type do
     resolve ->(object, args, ctx){
       ProjectSource.all
