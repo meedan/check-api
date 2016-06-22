@@ -4,7 +4,11 @@ class CreateAccounts < ActiveRecord::Migration
       t.belongs_to :user, index: true
       t.belongs_to :source, index: true
       t.string :url
-      t.column :data, :json
+      if ActiveRecord::Base.connection.class.name === 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
+        t.json :data
+      else
+        t.text :data
+      end
       t.timestamps null: false
     end
   end

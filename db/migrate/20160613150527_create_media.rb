@@ -5,7 +5,11 @@ class CreateMedia < ActiveRecord::Migration
       t.belongs_to :project, index: true
       t.belongs_to :account, index: true
       t.string :url
-      t.column :data, :json
+      if ActiveRecord::Base.connection.class.name === 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
+        t.json :data
+      else
+        t.text :data
+      end
       t.timestamps null: false
     end
   end

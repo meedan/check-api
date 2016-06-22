@@ -1,3 +1,4 @@
+# :nocov:
 class MediaController < ApplicationController
   before_action :set_medium, only: [:show, :edit, :update, :destroy]
 
@@ -72,3 +73,4 @@ class MediaController < ApplicationController
       params.require(:medium).permit(:url, :data)
     end
 end
+# :nocov:

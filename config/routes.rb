@@ -1,12 +1,15 @@
 require 'api_constraints'
 
 Rails.application.routes.draw do
+  # Later, remove from here...
   resources :sources
   resources :teams
   resources :users
   resources :accounts
   resources :media
   resources :projects
+  # ...until here
+
   namespace :api, defaults: { format: 'json' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       get 'version', to: 'base_api#version'

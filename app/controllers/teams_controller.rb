@@ -1,3 +1,4 @@
+# :nocov:
 class TeamsController < ApplicationController
   before_action :set_team, only: [:show, :edit, :update, :destroy]
 
@@ -72,3 +73,4 @@ class TeamsController < ApplicationController
       params.fetch(:team, {})
     end
 end
+# :nocov:

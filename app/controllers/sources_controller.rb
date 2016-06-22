@@ -1,3 +1,4 @@
+# :nocov:
 class SourcesController < ApplicationController
   before_action :set_source, only: [:show, :edit, :update, :destroy]
 
@@ -72,3 +73,4 @@ class SourcesController < ApplicationController
       params.require(:source).permit(:name, :slogan)
     end
 end
+# :nocov:
