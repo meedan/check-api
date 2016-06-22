@@ -26,7 +26,6 @@ module SampleData
     u = User.new
     u.name = options[:name] || random_string
     u.login = options[:login] || random_string
-    u.profile_image = options[:profile_image] || random_url
     u.uuid = options[:uuid] || random_string
     u.provider = options[:provider] || %w(twitter facebook).sample
     u.token = options[:token] || random_string(50)

@@ -12,7 +12,6 @@ class User < ActiveRecord::Base
     user.email = auth.info.email
     user.password ||= Devise.friendly_token[0,20]
     user.name = auth.info.name
-    user.profile_image = auth.info.image
     user.uuid = auth.uid
     user.provider = auth.provider
     user.token = token
@@ -37,7 +36,6 @@ class User < ActiveRecord::Base
     {
       name: self.name,
       email: self.email,
-      profile_image: self.profile_image,
       uuid: self.uuid,
       provider: self.provider,
       token: self.token
