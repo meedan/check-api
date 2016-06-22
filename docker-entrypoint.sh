@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 bundle exec rake db:create
 bundle exec rake db:migrate
 export SECRET_KEY_BASE=$(bundle exec rake secret)
