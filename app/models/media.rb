@@ -1,5 +1,5 @@
-class Medium < ActiveRecord::Base
-  attr_accessible :data, :url, :account_id, :project_id, :user_id
+class Media < ActiveRecord::Base
+  attr_accessible
 
   belongs_to :project
   belongs_to :account
