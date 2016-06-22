@@ -1,4 +1,4 @@
-class Medium < ActiveRecord::Base
+class Media < ActiveRecord::Base
   attr_accessible
 
   belongs_to :project

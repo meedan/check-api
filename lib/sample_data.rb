@@ -72,7 +72,7 @@ module SampleData
   def create_media(options = {})
     account = create_account
     project = create_project
-    m = Medium.new
+    m = Media.new
     m.url = options[:url] || random_url
     m.project_id = project.id
     m.account_id = account.id

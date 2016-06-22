@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   resources :teams
   resources :users
   resources :accounts
-  resources :media
+  resources :medias
   resources :projects
   # ...until here
 

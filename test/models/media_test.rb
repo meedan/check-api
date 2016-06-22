@@ -1,15 +1,14 @@
 require 'test_helper'
 
-class MediumTest < ActiveSupport::TestCase
-
+class MediaTest < ActiveSupport::TestCase
   test "should create media" do
-    assert_difference 'Medium.count' do
+    assert_difference 'Media.count' do
       create_media
     end
   end
 
   test "should not save media without url" do
-    media = Medium.new
+    media = Media.new
     assert_not  media.save
   end
 
