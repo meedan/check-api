@@ -65,6 +65,7 @@ You can update the schema file by running `rake lapis:graphql:update_schema_json
 
 * Remove directories `app/assets`, `app/controllers` (the ones not under `api`, created by scaffold), `app/helpers`, `app/views`
 * Remove from `config/routes.rb` the routes that are not under the `api` namespace
+* Check the `types` and `mutations` under `app/graph` and review the fields that need to be exposed and whether they are mandatory
 
 ### Credits
 
