@@ -6,6 +6,8 @@ class Source < ActiveRecord::Base
   has_many :projects , :through => :project_sources
   belongs_to :user
 
+  has_annotations
+
   mount_uploader :avatar, ImageUploader
   validates_presence_of :name
 

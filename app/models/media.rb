@@ -8,6 +8,8 @@ class Media < ActiveRecord::Base
   validates_presence_of :url
   before_save :set_pender_metadata
 
+  has_annotations
+
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
     serialize :data
   end
