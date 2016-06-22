@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
   attr_accessible
+  has_one :source
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
