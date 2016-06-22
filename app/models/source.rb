@@ -1,6 +1,6 @@
 class Source < ActiveRecord::Base
   attr_accessible
-
+  has_paper_trail on: [:update]
   has_many :accounts
   has_many :project_sources
   has_many :projects , :through => :project_sources
