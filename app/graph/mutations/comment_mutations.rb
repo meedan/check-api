@@ -10,8 +10,7 @@ module CommentMutations
 
     return_field :comment, CommentType
 
-    resolve -> (inputs, ctx) {
-      root = RootLevel::STATIC
+    resolve -> (inputs, _ctx) {
       attr = inputs.keys.inject({}) do |memo, key|
         memo[key] = inputs[key] unless key == "clientMutationId"
         memo

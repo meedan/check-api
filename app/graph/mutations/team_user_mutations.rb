@@ -7,8 +7,7 @@ module TeamUserMutations
 
     return_field :team_user, TeamUserType
 
-    resolve -> (inputs, ctx) {
-      root = RootLevel::STATIC
+    resolve -> (inputs, _ctx) {
       attr = inputs.keys.inject({}) do |memo, key|
         memo[key] = inputs[key] unless key == "clientMutationId"
         memo

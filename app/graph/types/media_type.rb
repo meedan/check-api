@@ -15,7 +15,7 @@ MediaType = GraphQL::ObjectType.define do
     field :project do
     type -> { ProjectType }
 
-    resolve -> (media, args, ctx) {
+    resolve -> (media, _args, _ctx) {
       media.project
     }
   end
@@ -23,7 +23,7 @@ MediaType = GraphQL::ObjectType.define do
   field :account do
     type -> { AccountType }
 
-    resolve -> (media, args, ctx) {
+    resolve -> (media, _args, _ctx) {
       media.account
     }
   end
@@ -31,7 +31,7 @@ MediaType = GraphQL::ObjectType.define do
   field :user do
     type UserType
 
-    resolve -> (media, args, ctx) {
+    resolve -> (media, _args, _ctx) {
       media.user
     }
   end

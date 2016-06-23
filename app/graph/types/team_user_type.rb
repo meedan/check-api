@@ -12,7 +12,7 @@ TeamUserType = GraphQL::ObjectType.define do
     field :team do
     type -> { TeamType }
 
-    resolve -> (team_user, args, ctx) {
+    resolve -> (team_user, _args, _ctx) {
       team_user.team
     }
   end
@@ -20,7 +20,7 @@ TeamUserType = GraphQL::ObjectType.define do
   field :user do
     type UserType
 
-    resolve -> (team_user, args, ctx) {
+    resolve -> (team_user, _args, _ctx) {
       team_user.user
     }
   end

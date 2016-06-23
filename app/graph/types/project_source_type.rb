@@ -12,7 +12,7 @@ ProjectSourceType = GraphQL::ObjectType.define do
     field :project do
     type -> { ProjectType }
 
-    resolve -> (project_source, args, ctx) {
+    resolve -> (project_source, _args, _ctx) {
       project_source.project
     }
   end
@@ -20,7 +20,7 @@ ProjectSourceType = GraphQL::ObjectType.define do
   field :source do
     type -> { SourceType }
 
-    resolve -> (project_source, args, ctx) {
+    resolve -> (project_source, _args, _ctx) {
       project_source.source
     }
   end
