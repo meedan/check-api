@@ -12,7 +12,7 @@ MediaType = GraphQL::ObjectType.define do
   field :account_id, types.Int
   field :project_id, types.Int
   field :user_id, types.Int
-    field :project do
+  field :project do
     type -> { ProjectType }
 
     resolve -> (media, _args, _ctx) {

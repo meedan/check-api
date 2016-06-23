@@ -9,7 +9,7 @@ TeamUserType = GraphQL::ObjectType.define do
   field :created_at, types.String
   field :user_id, types.Int
   field :team_id, types.Int
-    field :team do
+  field :team do
     type -> { TeamType }
 
     resolve -> (team_user, _args, _ctx) {

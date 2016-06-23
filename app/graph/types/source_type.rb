@@ -10,7 +10,7 @@ SourceType = GraphQL::ObjectType.define do
   field :avatar, types.String
   field :slogan, types.String
   field :name, types.String
-    connection :accounts, -> { AccountType.connection_type } do
+  connection :accounts, -> { AccountType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.accounts
     }

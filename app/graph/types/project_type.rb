@@ -11,7 +11,7 @@ ProjectType = GraphQL::ObjectType.define do
   field :description, types.String
   field :title, types.String
   field :user_id, types.Int
-    field :user do
+  field :user do
     type UserType
 
     resolve -> (project, _args, _ctx) {

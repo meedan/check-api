@@ -12,3 +12,4 @@ exclude_paths:
 - "!app/controllers/application_controller.rb"
 - "db/migrate"
 - "app/graphql"
+- "doc"

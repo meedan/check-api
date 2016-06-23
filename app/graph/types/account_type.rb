@@ -11,7 +11,7 @@ AccountType = GraphQL::ObjectType.define do
   field :url, types.String
   field :source_id, types.Int
   field :user_id, types.Int
-    field :user do
+  field :user do
     type UserType
 
     resolve -> (account, _args, _ctx) {
