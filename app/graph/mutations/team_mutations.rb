@@ -2,22 +2,14 @@ module TeamMutations
 
   Create = GraphQL::Relay::Mutation.define do
     name 'CreateTeam'
-    input_field :archived, !types.Boolean
-    input_field :logo, !types.String
+    input_field :archived, types.Boolean
+    input_field :logo, types.String
     input_field :name, !types.String
 
     return_field :team, TeamType
 
-    resolve -> (inputs, ctx) {
-      root = RootLevel::STATIC
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId"
-        memo
-      end
-
-      team = Team.create(attr)
-
-      { team: team }
+    resolve -> (inputs, _ctx) {
+      GraphqlCrudOperations.create('team', inputs)
     }
   end
 
@@ -32,14 +24,7 @@ module TeamMutations
     return_field :team, TeamType
 
     resolve -> (inputs, ctx) {
-      team = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
-        memo
-      end
-
-      team.update(attr)
-      { team: team }
+      GraphqlCrudOperations.update('team', inputs, ctx)
     }
   end
 
@@ -49,9 +34,7 @@ module TeamMutations
     input_field :id, !types.ID
 
     resolve -> (inputs, ctx) {
-      team = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      team.destroy
-      { }
+      GraphqlCrudOperations.destroy(inputs, ctx)
     }
   end
 end

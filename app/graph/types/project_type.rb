@@ -11,27 +11,27 @@ ProjectType = GraphQL::ObjectType.define do
   field :description, types.String
   field :title, types.String
   field :user_id, types.Int
-    field :user do
+  field :user do
     type UserType
 
-    resolve -> (project, args, ctx) {
+    resolve -> (project, _args, _ctx) {
       project.user
     }
   end
-  connection :media, -> { MediumType.connection_type } do
-    resolve ->(project, args, ctx) {
-      project.media
+  connection :medias, -> { MediaType.connection_type } do
+    resolve ->(project, _args, _ctx) {
+      project.medias
     }
   end
 
   connection :project_sources, -> { ProjectSourceType.connection_type } do
-    resolve ->(project, args, ctx) {
+    resolve ->(project, _args, _ctx) {
       project.project_sources
     }
   end
 
   connection :sources, -> { SourceType.connection_type } do
-    resolve ->(project, args, ctx) {
+    resolve ->(project, _args, _ctx) {
       project.sources
     }
   end

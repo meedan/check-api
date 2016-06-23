@@ -1,12 +1,14 @@
 class Media < ActiveRecord::Base
   attr_accessible
-
+  has_paper_trail on: [:update]
   belongs_to :project
   belongs_to :account
   belongs_to :user
 
   validates_presence_of :url
   before_save :set_pender_metadata
+
+  has_annotations
 
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
     serialize :data

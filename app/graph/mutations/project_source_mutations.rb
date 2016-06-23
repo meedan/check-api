@@ -7,16 +7,8 @@ module ProjectSourceMutations
 
     return_field :project_source, ProjectSourceType
 
-    resolve -> (inputs, ctx) {
-      root = RootLevel::STATIC
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId"
-        memo
-      end
-
-      project_source = ProjectSource.create(attr)
-
-      { project_source: project_source }
+    resolve -> (inputs, _ctx) {
+      GraphqlCrudOperations.create('project_source', inputs)
     }
   end
 
@@ -30,14 +22,7 @@ module ProjectSourceMutations
     return_field :project_source, ProjectSourceType
 
     resolve -> (inputs, ctx) {
-      project_source = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
-        memo
-      end
-
-      project_source.update(attr)
-      { project_source: project_source }
+      GraphqlCrudOperations.update('project_source', inputs, ctx)
     }
   end
 
@@ -47,9 +32,7 @@ module ProjectSourceMutations
     input_field :id, !types.ID
 
     resolve -> (inputs, ctx) {
-      project_source = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      project_source.destroy
-      { }
+      GraphqlCrudOperations.destroy(inputs, ctx)
     }
   end
 end

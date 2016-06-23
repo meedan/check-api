@@ -1,34 +1,37 @@
-module AccountMutations
+module MediaMutations
 
   Create = GraphQL::Relay::Mutation.define do
-    name 'CreateAccount'
+    name 'CreateMedia'
     input_field :url, !types.String
-    input_field :source_id, !types.Int
+    input_field :account_id, !types.Int
+    input_field :project_id, !types.Int
     input_field :user_id, !types.Int
 
-    return_field :account, AccountType
+    return_field :media, MediaType
 
     resolve -> (inputs, _ctx) {
-      GraphqlCrudOperations.create('account', inputs)
+      GraphqlCrudOperations.create('media', inputs)
     }
   end
 
   Update = GraphQL::Relay::Mutation.define do
-    name 'UpdateAccount'
+    name 'UpdateMedia'
     input_field :url, types.String
-    input_field :source_id, types.Int
+    input_field :account_id, types.Int
+    input_field :project_id, types.Int
     input_field :user_id, types.Int
+
     input_field :id, !types.ID
 
-    return_field :account, AccountType
+    return_field :media, MediaType
 
     resolve -> (inputs, ctx) {
-      GraphqlCrudOperations.update('account', inputs, ctx)
+      GraphqlCrudOperations.update('media', inputs, ctx)
     }
   end
 
   Destroy = GraphQL::Relay::Mutation.define do
-    name "DestroyAccount"
+    name "DestroyMedia"
 
     input_field :id, !types.ID
 

@@ -6,7 +6,7 @@ QueryType = GraphQL::ObjectType.define do
   field :node, field: NodeIdentification.field
 
   field :root, RootLevelType do
-    resolve -> (obj, args, ctx) { RootLevel::STATIC }
+    resolve -> (_obj, _args, _ctx) { RootLevel::STATIC }
   end
 
   field :about do
