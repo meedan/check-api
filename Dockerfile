@@ -1,7 +1,7 @@
 FROM ruby
 MAINTAINER Karim Ratib <karim@meedan.com>
 
-RUN apt-get update -qq && apt-get install -y vim libpq-dev nodejs
+RUN apt-get update -qq && apt-get install -y vim libpq-dev nodejs --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root and tini for signal handling
 RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 6380DC428747F6C393FEACA59A84159D7001A4E5 \

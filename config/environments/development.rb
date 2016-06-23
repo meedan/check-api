@@ -41,4 +41,8 @@ Rails.application.configure do
 
   # Whitelist docker access
   config.web_console.whitelisted_ips = '172.17.0.0/16'
+
+  # Enable the logstasher logs for the current environment
+  config.logstasher.enabled = true
+  config.logger = Logger.new(STDOUT)
 end
