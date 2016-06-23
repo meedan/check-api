@@ -26,9 +26,9 @@ AccountType = GraphQL::ObjectType.define do
     }
   end
 
-  connection :media, -> { MediumType.connection_type } do
+  connection :medias, -> { MediaType.connection_type } do
     resolve ->(account, args, ctx) {
-      account.media
+      account.medias
     }
   end
 

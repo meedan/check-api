@@ -3,8 +3,6 @@ module ApiKeyMutations
   Create = GraphQL::Relay::Mutation.define do
     name 'CreateApiKey'
     input_field :application, !types.String
-    input_field :expire_at, !types.String
-    input_field :access_token, !types.String
 
     return_field :api_key, ApiKeyType
 

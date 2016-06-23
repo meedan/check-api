@@ -2,7 +2,6 @@ module AccountMutations
 
   Create = GraphQL::Relay::Mutation.define do
     name 'CreateAccount'
-    input_field :data, !types.String
     input_field :url, !types.String
     input_field :source_id, !types.Int
     input_field :user_id, !types.Int
@@ -24,11 +23,9 @@ module AccountMutations
 
   Update = GraphQL::Relay::Mutation.define do
     name 'UpdateAccount'
-    input_field :data, types.String
     input_field :url, types.String
     input_field :source_id, types.Int
     input_field :user_id, types.Int
-
     input_field :id, !types.ID
 
     return_field :account, AccountType

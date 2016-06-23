@@ -18,9 +18,9 @@ ProjectType = GraphQL::ObjectType.define do
       project.user
     }
   end
-  connection :media, -> { MediumType.connection_type } do
+  connection :medias, -> { MediaType.connection_type } do
     resolve ->(project, args, ctx) {
-      project.media
+      project.medias
     }
   end
 

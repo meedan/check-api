@@ -2,8 +2,8 @@ module ProjectMutations
 
   Create = GraphQL::Relay::Mutation.define do
     name 'CreateProject'
-    input_field :lead_image, !types.String
-    input_field :description, !types.String
+    input_field :lead_image, types.String
+    input_field :description, types.String
     input_field :title, !types.String
     input_field :user_id, !types.Int
 

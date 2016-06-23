@@ -1,10 +1,10 @@
-MediumType = GraphQL::ObjectType.define do
-  name 'Medium'
-  description 'Medium type'
+MediaType = GraphQL::ObjectType.define do
+  name 'Media'
+  description 'Media type'
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('Medium')
+  field :id, field: GraphQL::Relay::GlobalIdField.new('Media')
   field :updated_at, types.String
   field :created_at, types.String
   field :data, types.String
@@ -15,24 +15,24 @@ MediumType = GraphQL::ObjectType.define do
     field :project do
     type -> { ProjectType }
 
-    resolve -> (medium, args, ctx) {
-      medium.project
+    resolve -> (media, args, ctx) {
+      media.project
     }
   end
 
   field :account do
     type -> { AccountType }
 
-    resolve -> (medium, args, ctx) {
-      medium.account
+    resolve -> (media, args, ctx) {
+      media.account
     }
   end
 
   field :user do
     type UserType
 
-    resolve -> (medium, args, ctx) {
-      medium.user
+    resolve -> (media, args, ctx) {
+      media.user
     }
   end
 # End of fields

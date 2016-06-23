@@ -2,8 +2,8 @@ module SourceMutations
 
   Create = GraphQL::Relay::Mutation.define do
     name 'CreateSource'
-    input_field :avatar, !types.String
-    input_field :slogan, !types.String
+    input_field :avatar, types.String
+    input_field :slogan, types.String
     input_field :name, !types.String
 
     return_field :source, SourceType

@@ -2,8 +2,8 @@ module TeamMutations
 
   Create = GraphQL::Relay::Mutation.define do
     name 'CreateTeam'
-    input_field :archived, !types.Boolean
-    input_field :logo, !types.String
+    input_field :archived, types.Boolean
+    input_field :logo, types.String
     input_field :name, !types.String
 
     return_field :team, TeamType

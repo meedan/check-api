@@ -3,10 +3,10 @@ module CommentMutations
   Create = GraphQL::Relay::Mutation.define do
     name 'CreateComment'
     input_field :text, !types.String
-    input_field :context_id, !types.String
-    input_field :context_type, !types.String
-    input_field :annotated_id, !types.String
-    input_field :annotated_type, !types.String
+    input_field :context_id, types.String
+    input_field :context_type, types.String
+    input_field :annotated_id, types.String
+    input_field :annotated_type, types.String
 
     return_field :comment, CommentType
 
