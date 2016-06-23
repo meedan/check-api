@@ -8,14 +8,7 @@ module TeamUserMutations
     return_field :team_user, TeamUserType
 
     resolve -> (inputs, _ctx) {
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId"
-        memo
-      end
-
-      team_user = TeamUser.create(attr)
-
-      { team_user: team_user }
+      GraphqlCrudOperations.create('team_user', inputs)
     }
   end
 
@@ -29,14 +22,7 @@ module TeamUserMutations
     return_field :team_user, TeamUserType
 
     resolve -> (inputs, ctx) {
-      team_user = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
-        memo
-      end
-
-      team_user.update(attr)
-      { team_user: team_user }
+      GraphqlCrudOperations.update('team_user', inputs, ctx)
     }
   end
 
@@ -46,9 +32,7 @@ module TeamUserMutations
     input_field :id, !types.ID
 
     resolve -> (inputs, ctx) {
-      team_user = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      team_user.destroy
-      { }
+      GraphqlCrudOperations.destroy(inputs, ctx)
     }
   end
 end

@@ -9,14 +9,7 @@ module AccountMutations
     return_field :account, AccountType
 
     resolve -> (inputs, _ctx) {
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId"
-        memo
-      end
-
-      account = Account.create(attr)
-
-      { account: account }
+      GraphqlCrudOperations.create('account', inputs)
     }
   end
 
@@ -30,14 +23,7 @@ module AccountMutations
     return_field :account, AccountType
 
     resolve -> (inputs, ctx) {
-      account = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
-        memo
-      end
-
-      account.update(attr)
-      { account: account }
+      GraphqlCrudOperations.update('account', inputs, ctx)
     }
   end
 
@@ -47,9 +33,7 @@ module AccountMutations
     input_field :id, !types.ID
 
     resolve -> (inputs, ctx) {
-      account = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      account.destroy
-      { }
+      GraphqlCrudOperations.destroy(inputs, ctx)
     }
   end
 end

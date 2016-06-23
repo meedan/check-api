@@ -10,14 +10,7 @@ module UserMutations
     return_field :user, UserType
 
     resolve -> (inputs, _ctx) {
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId"
-        memo
-      end
-
-      user = User.create(attr)
-
-      { user: user }
+      GraphqlCrudOperations.create('user', inputs)
     }
   end
 
@@ -33,14 +26,7 @@ module UserMutations
     return_field :user, UserType
 
     resolve -> (inputs, ctx) {
-      user = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
-        memo
-      end
-
-      user.update(attr)
-      { user: user }
+      GraphqlCrudOperations.update('user', inputs, ctx)
     }
   end
 
@@ -50,9 +36,7 @@ module UserMutations
     input_field :id, !types.ID
 
     resolve -> (inputs, ctx) {
-      user = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      user.destroy
-      { }
+      GraphqlCrudOperations.destroy(inputs, ctx)
     }
   end
 end

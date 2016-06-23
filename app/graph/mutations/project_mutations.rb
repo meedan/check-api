@@ -10,14 +10,7 @@ module ProjectMutations
     return_field :project, ProjectType
 
     resolve -> (inputs, _ctx) {
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId"
-        memo
-      end
-
-      project = Project.create(attr)
-
-      { project: project }
+      GraphqlCrudOperations.create('project', inputs)
     }
   end
 
@@ -33,14 +26,7 @@ module ProjectMutations
     return_field :project, ProjectType
 
     resolve -> (inputs, ctx) {
-      project = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
-        memo
-      end
-
-      project.update(attr)
-      { project: project }
+      GraphqlCrudOperations.update('project', inputs, ctx)
     }
   end
 
@@ -50,9 +36,7 @@ module ProjectMutations
     input_field :id, !types.ID
 
     resolve -> (inputs, ctx) {
-      project = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      project.destroy
-      { }
+      GraphqlCrudOperations.destroy(inputs, ctx)
     }
   end
 end

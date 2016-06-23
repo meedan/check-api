@@ -11,14 +11,7 @@ module CommentMutations
     return_field :comment, CommentType
 
     resolve -> (inputs, _ctx) {
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId"
-        memo
-      end
-
-      comment = Comment.create(attr)
-
-      { comment: comment }
+      GraphqlCrudOperations.create('comment', inputs)
     }
   end
 
@@ -37,14 +30,7 @@ module CommentMutations
     return_field :comment, CommentType
 
     resolve -> (inputs, ctx) {
-      comment = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      attr = inputs.keys.inject({}) do |memo, key|
-        memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
-        memo
-      end
-
-      comment.update(attr)
-      { comment: comment }
+      GraphqlCrudOperations.update('comment', inputs, ctx)
     }
   end
 
@@ -54,9 +40,7 @@ module CommentMutations
     input_field :id, !types.ID
 
     resolve -> (inputs, ctx) {
-      comment = NodeIdentification.object_from_id((inputs[:id]), ctx)
-      comment.destroy
-      { }
+      GraphqlCrudOperations.destroy(inputs, ctx)
     }
   end
 end
