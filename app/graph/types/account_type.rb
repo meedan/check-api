@@ -11,24 +11,24 @@ AccountType = GraphQL::ObjectType.define do
   field :url, types.String
   field :source_id, types.Int
   field :user_id, types.Int
-    field :user do
+  field :user do
     type UserType
 
-    resolve -> (account, args, ctx) {
+    resolve -> (account, _args, _ctx) {
       account.user
     }
   end
   field :source do
     type -> { SourceType }
 
-    resolve -> (account, args, ctx) {
+    resolve -> (account, _args, _ctx) {
       account.source
     }
   end
 
-  connection :media, -> { MediumType.connection_type } do
-    resolve ->(account, args, ctx) {
-      account.media
+  connection :medias, -> { MediaType.connection_type } do
+    resolve ->(account, _args, _ctx) {
+      account.medias
     }
   end
 

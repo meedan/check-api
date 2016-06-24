@@ -75,6 +75,20 @@ module AnnotationBase
       self.attribute_set.to_a.map(&:name)
     end
 
+    def columns_hash
+      hash = {}
+      self.attribute_set.to_a.each do |a|
+        name = a.name.to_s
+        type = a.type.to_s.gsub('Axiom::Types::', '').downcase.to_sym
+        type = :datetime if type === :time
+        hash[name] = OpenStruct.new({
+          name: name,
+          type: type 
+        })
+      end
+      hash
+    end
+
     def columns
       objs = []
       self.attribute_set.to_a.each do |a|
