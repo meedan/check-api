@@ -8,4 +8,10 @@ class Project < ActiveRecord::Base
   mount_uploader :lead_image, ImageUploader
   validates_presence_of :title
 
+private
+  def user_id_callback(value)
+    user = User.find_by name: value
+    ret_value =  user.id
+  end
+
 end
