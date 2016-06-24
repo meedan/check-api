@@ -25,4 +25,5 @@ ENV RAILS_ENV development
 COPY ./docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 EXPOSE 3000
-ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
+ENTRYPOINT ["tini", "--"]
+CMD ["/docker-entrypoint.sh"]
