@@ -19,4 +19,14 @@ class Media < ActiveRecord::Base
   def set_pender_metadata
     self.data =  PenderClient::Request.get_medias(CONFIG['pender_host'], { url: self.url }, CONFIG['pender_key'])
   end
+
+  def user_id_callback(value)
+    user = User.find_by name: value
+    ret_value =  user.id
+  end
+
+  def account_id_callback(value)
+    account = Account.find_by url: value
+    ret_value = account.id
+  end
 end

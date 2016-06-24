@@ -30,6 +30,9 @@ namespace :db do
               row.each_with_index do |value, index|
                 value = JSON.parse(value) unless (value =~ /^[\[\{]/).nil?
                 method = header[index]
+                if data.respond_to?(method + '_callback')
+                  value = data.send(method + '_callback', value)
+                end
                 if data.respond_to?(method + '=')
                   data.send(method + '=', value)
                 elsif data.respond_to?(method)
