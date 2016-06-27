@@ -11,7 +11,7 @@ class Project < ActiveRecord::Base
 private
   def user_id_callback(value)
     user = User.find_by name: value
-    ret_value =  user.id
+    user.id
   end
 
 end
