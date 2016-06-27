@@ -1,42 +1,18 @@
 module ProjectMutations
+  create_fields = {
+    lead_image: 'str',
+    description: 'str',
+    title: '!str',
+    user_id: '!int'
+  }
 
-  Create = GraphQL::Relay::Mutation.define do
-    name 'CreateProject'
-    input_field :lead_image, types.String
-    input_field :description, types.String
-    input_field :title, !types.String
-    input_field :user_id, !types.Int
+  update_fields = {
+    lead_image: 'str',
+    description: 'str',
+    title: 'str',
+    user_id: 'int',
+    id: '!id'
+  }
 
-    return_field :project, ProjectType
-
-    resolve -> (inputs, _ctx) {
-      GraphqlCrudOperations.create('project', inputs)
-    }
-  end
-
-  Update = GraphQL::Relay::Mutation.define do
-    name 'UpdateProject'
-    input_field :lead_image, types.String
-    input_field :description, types.String
-    input_field :title, types.String
-    input_field :user_id, types.Int
-
-    input_field :id, !types.ID
-
-    return_field :project, ProjectType
-
-    resolve -> (inputs, ctx) {
-      GraphqlCrudOperations.update('project', inputs, ctx)
-    }
-  end
-
-  Destroy = GraphQL::Relay::Mutation.define do
-    name "DestroyProject"
-
-    input_field :id, !types.ID
-
-    resolve -> (inputs, ctx) {
-      GraphqlCrudOperations.destroy(inputs, ctx)
-    }
-  end
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project', create_fields, update_fields)
 end
