@@ -3,7 +3,7 @@ require 'codeclimate-test-reporter'
 CodeClimate::TestReporter.start
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
-require 'webmock'
+require 'webmock/minitest'
 require 'mocha/test_unit'
 require 'sample_data'
 
