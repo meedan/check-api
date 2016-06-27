@@ -1,17 +1,17 @@
 module ProjectMutations
   create_fields = {
-    lead_image: types.String,
-    description: types.String,
-    title: !types.String,
-    user_id: !types.Int
+    lead_image: 'str',
+    description: 'str',
+    title: '!str',
+    user_id: '!int'
   }
 
   update_fields = {
-    lead_image: types.String,
-    description: types.String,
-    title: types.String,
-    user_id: types.Int,
-    id: !types.ID
+    lead_image: 'str',
+    description: 'str',
+    title: 'str',
+    user_id: 'int',
+    id: '!id'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project', create_fields, update_fields)

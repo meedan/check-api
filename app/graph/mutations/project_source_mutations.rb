@@ -1,13 +1,13 @@
 module ProjectSourceMutations
   create_fields = {  
-    source_id: !types.Int,
-    project_id: !types.Int
+    source_id: '!int',
+    project_id: '!int'
   }
 
   update_fields = {  
-    source_id: types.Int,
-    project_id: types.Int,
-    id: !types.ID
+    source_id: 'int',
+    project_id: 'int',
+    id: '!id'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_source', create_fields, update_fields)

@@ -1,15 +1,15 @@
 module SourceMutations
   create_fields = {  
-    avatar: types.String,
-    slogan: types.String,
-    name: !types.String
+    avatar: 'str',
+    slogan: 'str',
+    name: '!str'
   }
 
   update_fields = {
-    avatar: types.String,
-    slogan: types.String,
-    name: types.String,
-    id: !types.ID
+    avatar: 'str',
+    slogan: 'str',
+    name: 'str',
+    id: '!id'
   }
   
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('source', create_fields, update_fields)

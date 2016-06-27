@@ -1,17 +1,17 @@
 module UserMutations
   create_fields = {
-    email: !types.String,
-    profile_image: types.String,
-    login: !types.String,
-    name: !types.String
+    email: '!str',
+    profile_image: 'str',
+    login: '!str',
+    name: '!str'
   }
 
   update_fields = {
-    email: types.String,
-    profile_image: types.String,
-    login: types.String,
-    name: types.String,
-    id: !types.ID
+    email: 'str',
+    profile_image: 'str',
+    login: 'str',
+    name: 'str',
+    id: '!id'
   }
   
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('user', create_fields, update_fields)

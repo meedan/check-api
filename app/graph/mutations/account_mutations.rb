@@ -1,15 +1,15 @@
 module AccountMutations
   create_fields = {
-    url: !types.String,
-    source_id: !types.Int,
-    user_id: !types.Int
+    url: '!str',
+    source_id: '!int',
+    user_id: '!int'
   }
 
   update_fields = {
-    url: types.String,
-    source_id: types.Int,
-    user_id: types.Int,
-    id: !types.ID
+    url: 'str',
+    source_id: 'int',
+    user_id: 'int',
+    id: '!id'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('account', create_fields, update_fields)

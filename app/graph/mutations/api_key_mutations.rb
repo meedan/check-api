@@ -1,11 +1,11 @@
 module ApiKeyMutations
-  create_fields = { application: !types.String }
+  create_fields = { application: '!str' }
 
   update_fields = {  
-    application: types.String,
-    expire_at: types.String,
-    access_token: types.String,
-    id: !types.ID
+    application: 'str',
+    expire_at: 'str',
+    access_token: 'str',
+    id: '!id'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('api_key', create_fields, update_fields)

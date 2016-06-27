@@ -1,15 +1,15 @@
 module TeamMutations
   create_fields = {
-    archived: types.Boolean,
-    logo: types.String,
-    name: !types.String
+    archived: 'bool',
+    logo: 'str',
+    name: '!str'
   }
 
   update_fields = {
-    archived: types.Boolean,
-    logo: types.String,
-    name: types.String,
-    id: !types.ID
+    archived: 'bool',
+    logo: 'str',
+    name: 'str',
+    id: '!id'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields)
