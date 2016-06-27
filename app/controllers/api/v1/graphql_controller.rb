@@ -3,7 +3,7 @@ module Api
     class GraphqlController < Api::V1::BaseApiController
       include GraphqlDoc
       
-      skip_before_filter :authenticate_from_token!, only: [:options]
+      skip_before_filter :authenticate_from_token! # , only: [:options]
       after_filter :set_access_headers
 
       def create
