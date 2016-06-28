@@ -1,8 +1,8 @@
 module AccountMutations
   create_fields = {
     url: '!str',
-    source_id: '!int',
-    user_id: '!int'
+    source_id: 'int',
+    user_id: 'int'
   }
 
   update_fields = {

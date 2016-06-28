@@ -1,5 +1,5 @@
 class GraphqlCrudOperations
-  def self.create(type, inputs)
+  def self.create(type, inputs, _ctx)
     attr = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
       memo
@@ -11,7 +11,7 @@ class GraphqlCrudOperations
   end
 
   def self.update(type, inputs, ctx)
-    obj = NodeIdentification.object_from_id((inputs[:id]), ctx)
+    obj = NodeIdentification.object_from_id(inputs[:id], ctx)
     attr = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
       memo
@@ -22,9 +22,9 @@ class GraphqlCrudOperations
   end
 
   def self.destroy(inputs, ctx)
-    obj = NodeIdentification.object_from_id((inputs[:id]), ctx)
+    obj = NodeIdentification.object_from_id(inputs[:id], ctx)
     obj.destroy
-    { }
+    { deletedId: inputs[:id] }
   end
 
   def self.define_create(type, create_fields)
@@ -36,7 +36,7 @@ class GraphqlCrudOperations
   end
 
   def self.define_create_or_update(action, type, fields)
-    return GraphQL::Relay::Mutation.define do
+    GraphQL::Relay::Mutation.define do
       mapping = {
         'str'  => types.String,
         '!str' => !types.String,
@@ -62,10 +62,12 @@ class GraphqlCrudOperations
   end
 
   def self.define_destroy(type)
-    return GraphQL::Relay::Mutation.define do
+    GraphQL::Relay::Mutation.define do
       name "Destroy#{type.camelize}"
 
       input_field :id, !types.ID
+
+      return_field :deletedId, types.ID
 
       resolve -> (inputs, ctx) {
         GraphqlCrudOperations.destroy(inputs, ctx)

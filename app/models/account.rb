@@ -1,5 +1,5 @@
 class Account < ActiveRecord::Base
-  attr_accessible
+  attr_accessible :url, :user_id, :source_id
   has_paper_trail on: [:create, :update]
   belongs_to :user
   belongs_to :source
