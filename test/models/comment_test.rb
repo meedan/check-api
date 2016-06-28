@@ -167,4 +167,16 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal [c1.id], annotated.annotations(context1).map(&:id)
     assert_equal [c2.id], annotated.annotations(context2).map(&:id)
   end
+
+  test "should get columns as array" do
+    assert_kind_of Array, Comment.columns
+  end
+
+  test "should get columns as hash" do
+    assert_kind_of Hash, Comment.columns_hash
+  end
+
+  test "should not be abstract" do
+    assert_not Comment.abstract_class?
+  end
 end

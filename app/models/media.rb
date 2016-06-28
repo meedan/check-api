@@ -1,6 +1,6 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  has_paper_trail on: [:update]
+  has_paper_trail on: [:create, :update]
   belongs_to :project
   belongs_to :account
   belongs_to :user
@@ -21,12 +21,12 @@ class Media < ActiveRecord::Base
   end
 
   def user_id_callback(value)
-    user = User.find_by name: value
-    user.id
+    user = User.where(name: value).last
+    user.nil? ? nil : user.id
   end
 
   def account_id_callback(value)
-    account = Account.find_by url: value
-    account.id
+    account = Account.where(url: value).last
+    account.nil? ? nil : account.id
   end
 end

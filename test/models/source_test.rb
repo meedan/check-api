@@ -1,7 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class SourceTest < ActiveSupport::TestCase
-
   test "should create source" do
     assert_difference 'Source.count' do
       create_source
