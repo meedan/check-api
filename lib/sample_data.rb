@@ -64,6 +64,7 @@ module SampleData
   def create_team(options = {})
     team = Team.new
     team.name = options[:name] || random_string
+    team.logo = options[:logo]
     team.archived = options[:archived] || false
     team.save!
     team.reload
@@ -86,6 +87,8 @@ module SampleData
     source = Source.new
     source.name = options[:name] || random_string
     source.slogan = options[:slogan] || random_string(20)
+    source.user = options[:user] || create_user
+    source.avatar = options[:avatar]
     source.save!
     source.reload
   end
@@ -114,5 +117,14 @@ module SampleData
       m = create_media({ url: url, account: a }.merge(options))
     end
     m
+  end
+
+  def create_valid_account(options = {})
+    a = nil
+    url = 'https://www.youtube.com/user/MeedanTube'
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      a = create_account({ url: url }.merge(options))
+    end
+    a
   end
 end
