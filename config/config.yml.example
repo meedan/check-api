@@ -12,6 +12,7 @@ development: &default
 
 test:
   <<: *default
+  pender_key: 'test'
 
 production:
   <<: *default

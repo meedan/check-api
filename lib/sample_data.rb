@@ -10,10 +10,6 @@ module SampleData
     rand(max) + 1
   end
 
-  def random_url
-    'http://' + random_string + '.com'
-  end
-
   def random_email
     random_string + '@' + random_string + '.com'
   end
@@ -47,8 +43,11 @@ module SampleData
 
   def create_account(options = {})
     account = Account.new
-    account.url = options[:url] || random_url
-    account.save
+    account.url = options[:url]
+    account.data = options[:data] || {}
+    account.user = options[:user] || create_user
+    account.source = options[:source] || create_source
+    account.save!
     account.reload
   end
 
@@ -56,26 +55,31 @@ module SampleData
     project = Project.new
     project.title = options[:title] || random_string
     project.description = options[:description] || random_string(40)
-    project.save
+    project.user = options[:user] || create_user
+    project.lead_image = options[:lead_image]
+    project.save!
     project.reload
   end
 
   def create_team(options = {})
     team = Team.new
     team.name = options[:name] || random_string
+    team.logo = options[:logo]
     team.archived = options[:archived] || false
-    team.save
+    team.save!
     team.reload
   end
 
   def create_media(options = {})
-    account = create_account
-    project = create_project
+    account = options[:account] || create_account
+    project = options[:project] || create_project
+    user = options[:user] || create_user
     m = Media.new
-    m.url = options[:url] || random_url
+    m.url = options[:url]
     m.project_id = project.id
     m.account_id = account.id
-    m.save
+    m.user_id = user.id
+    m.save!
     m.reload
   end
 
@@ -83,8 +87,44 @@ module SampleData
     source = Source.new
     source.name = options[:name] || random_string
     source.slogan = options[:slogan] || random_string(20)
-    source.save
+    source.user = options[:user] || create_user
+    source.avatar = options[:avatar]
+    source.save!
     source.reload
   end
 
+  def create_project_source(options = {})
+    ps = ProjectSource.new
+    ps.project = options[:project] || create_project
+    ps.source = options[:source] || create_source
+    ps.save!
+    ps.reload
+  end
+
+  def create_team_user(options = {})
+    tu = TeamUser.new
+    tu.team = options[:team] || create_team
+    tu.user = options[:user] || create_user
+    tu.save!
+    tu.reload
+  end
+
+  def create_valid_media(options = {})
+    m = nil
+    url = 'https://www.youtube.com/user/MeedanTube'
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      a = create_account(url: url)
+      m = create_media({ url: url, account: a }.merge(options))
+    end
+    m
+  end
+
+  def create_valid_account(options = {})
+    a = nil
+    url = 'https://www.youtube.com/user/MeedanTube'
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      a = create_account({ url: url }.merge(options))
+    end
+    a
+  end
 end

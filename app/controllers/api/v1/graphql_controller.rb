@@ -10,7 +10,7 @@ module Api
         query_string = params[:query]
         query_variables = params[:variables] || {}
         query_variables = {} if query_variables == 'null'
-        query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables)
+        query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: true)
         render json: query.result
       end
 
