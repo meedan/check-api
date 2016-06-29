@@ -3,7 +3,7 @@ MAINTAINER Karim Ratib <karim@meedan.com>
 
 RUN apt-get update -qq && apt-get install -y vim libpq-dev nodejs --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
-# grab gosu for easy step-down from root and tini for signal handling
+# grab tini for signal handling
 RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 6380DC428747F6C393FEACA59A84159D7001A4E5 \
   && curl -o /usr/local/bin/tini -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini" \
   && curl -o /usr/local/bin/tini.asc -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini.asc" \
