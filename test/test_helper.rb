@@ -144,12 +144,14 @@ class ActiveSupport::TestCase
   def assert_graphql_read_collection(type, fields = {})
     authenticate_with_token
     type.camelize.constantize.delete_all
-    x1 = send("create_#{type}")
-    x2 = send("create_#{type}")
+    
+    obj = send("create_#{type}")
     
     node = '{ '
     fields.each do |name, key|
-      node += "#{name} { #{key} }, "
+      obj.send(name).send('<<', [send("create_#{name.singularize}")])
+      obj.save!
+      node += "#{name} { edges { node { #{key} } } }, "
     end
     node.gsub!(/, $/, ' }')
     
@@ -157,10 +159,8 @@ class ActiveSupport::TestCase
     yield if block_given?
     
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    assert_equal 2, edges.size
     
-    fields.each { |name, key| assert_equal x1.send(name).send(key), edges[0]['node'][name][key] }
-    fields.each { |name, key| assert_equal x2.send(name).send(key), edges[1]['node'][name][key] }
+    fields.each { |name, key| assert_equal obj.send(name).first.send(key), edges[0]['node'][name]['edges'][0]['node'][key] }
     
     assert_response :success
   end

@@ -235,4 +235,20 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read object from team user" do
     assert_graphql_read_object('team_user', { 'team' => 'name', 'user' => 'name' })
   end
+
+  test "should read collection from source" do
+    assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id' })
+  end
+
+  test "should read collection from project" do
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url', 'project_sources' => 'project_id' })
+  end
+
+  test "should read collection from team" do
+    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name' })
+  end
+
+  test "should read collection from account" do
+    assert_graphql_read_collection('account', { 'medias' => 'url' })
+  end
 end
