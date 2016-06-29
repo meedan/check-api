@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  attr_accessible
+  attr_accessible :email, :login, :name, :profile_image, :password, :password_confirmation
   has_one :source
 
   devise :database_authenticatable, :registerable,

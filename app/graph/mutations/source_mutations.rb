@@ -2,13 +2,15 @@ module SourceMutations
   create_fields = {  
     avatar: 'str',
     slogan: 'str',
-    name: '!str'
+    name: '!str',
+    user_id: 'int'
   }
 
   update_fields = {
     avatar: 'str',
     slogan: 'str',
     name: 'str',
+    user_id: 'int',
     id: '!id'
   }
   

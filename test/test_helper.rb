@@ -35,6 +35,8 @@ class ActiveSupport::TestCase
   def setup
     Rails.cache.clear if File.exists?(File.join(Rails.root, 'tmp', 'cache'))
     Rails.application.reload_routes!
+    # URL mocked by pender-client
+    @url = 'https://www.youtube.com/user/MeedanTube'
   end
 
   # This will run after any test
@@ -51,5 +53,67 @@ class ActiveSupport::TestCase
       api_key ||= create_api_key
       @request.headers.merge!({ header => api_key.access_token })
     end
+  end
+
+  # CRUD helpers for GraphQL types
+
+  def assert_graphql_create(type, request_params = {}, response_fields = ['id'])
+    authenticate_with_token
+    
+    klass = type.camelize
+
+    input = '{'
+    request_params.merge({ clientMutationId: '1' }).each do |key, value|
+      input += "#{key}: #{value.to_json}, "
+    end
+    input.gsub!(/, $/, '}')
+    
+    query = "mutation create { create#{klass}(input: #{input}) { #{type} { #{response_fields.join(',')} } } }"
+    
+    assert_difference "#{klass}.count" do
+      post :create, query: query
+      yield if block_given?
+    end
+    
+    assert_response :success
+  end
+
+  def assert_graphql_read(type, field = 'id')
+    authenticate_with_token
+    type.camelize.constantize.delete_all
+    x1 = send("create_#{type}")
+    x2 = send("create_#{type}")
+    post :create, query: "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
+    yield if block_given?
+    edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
+    assert_equal 2, edges.size
+    assert_equal x1.send(field), edges[0]['node'][field]
+    assert_equal x2.send(field), edges[1]['node'][field]
+    assert_response :success
+  end
+
+  def assert_graphql_update(type, attr, from, to)
+    authenticate_with_token
+    obj = send("create_#{type}", { attr => from })
+    klass = obj.class.to_s
+    assert_equal from, obj.send(attr)
+    id = NodeIdentification.to_global_id(klass, obj.id)
+    input = '{ clientMutationId: "1", id: "' + id.to_s + '", ' + attr.to_s + ': ' + to.to_json + ' }'
+    post :create, query: "mutation update { update#{klass}(input: #{input}) { #{type} { #{attr} } } }"
+    yield if block_given?
+    assert_response :success
+    assert_equal to, obj.reload.send(attr)
+  end
+
+  def assert_graphql_destroy(type)
+    authenticate_with_token
+    obj = send("create_#{type}")
+    klass = obj.class.name
+    id = NodeIdentification.to_global_id(klass, obj.id)
+    assert_difference "#{klass}.count", -1 do
+      post :create, query: "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
+      yield if block_given?
+    end
+    assert_response :success
   end
 end

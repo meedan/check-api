@@ -42,10 +42,15 @@ module SampleData
   end
 
   def create_account(options = {})
+    return create_valid_account(options) unless options.has_key?(:url)
     account = Account.new
     account.url = options[:url]
     account.data = options[:data] || {}
-    account.user = options[:user] || create_user
+    if options.has_key?(:user_id)
+      account.user_id = options[:user_id]
+    else
+      account.user = options[:user] || create_user
+    end
     account.source = options[:source] || create_source
     account.save!
     account.reload
@@ -71,14 +76,15 @@ module SampleData
   end
 
   def create_media(options = {})
+    return create_valid_media(options) if options[:url].blank?
     account = options[:account] || create_account
     project = options[:project] || create_project
     user = options[:user] || create_user
     m = Media.new
     m.url = options[:url]
-    m.project_id = project.id
-    m.account_id = account.id
-    m.user_id = user.id
+    m.project_id = options[:project_id] || project.id
+    m.account_id = options[:account_id] || account.id
+    m.user_id = options[:user_id] || user.id
     m.save!
     m.reload
   end
@@ -95,16 +101,20 @@ module SampleData
 
   def create_project_source(options = {})
     ps = ProjectSource.new
-    ps.project = options[:project] || create_project
-    ps.source = options[:source] || create_source
+    project = options[:project] || create_project
+    source = options[:source] || create_source
+    ps.project_id = options[:project_id] || project.id
+    ps.source_id = options[:source_id] || source.id
     ps.save!
     ps.reload
   end
 
   def create_team_user(options = {})
     tu = TeamUser.new
-    tu.team = options[:team] || create_team
-    tu.user = options[:user] || create_user
+    team = options[:team] || create_team
+    user = options[:user] || create_user
+    tu.team_id = options[:team_id] || team.id
+    tu.user_id = options[:user_id] || user.id
     tu.save!
     tu.reload
   end
@@ -123,7 +133,8 @@ module SampleData
     a = nil
     url = 'https://www.youtube.com/user/MeedanTube'
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      a = create_account({ url: url }.merge(options))
+      options.merge!({ url: url })
+      a = create_account(options)
     end
     a
   end

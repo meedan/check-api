@@ -3,7 +3,7 @@ module ProjectMutations
     lead_image: 'str',
     description: 'str',
     title: '!str',
-    user_id: '!int'
+    user_id: 'int'
   }
 
   update_fields = {
