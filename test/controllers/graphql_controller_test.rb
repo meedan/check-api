@@ -215,4 +215,24 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should destroy user" do
     assert_graphql_destroy('user')
   end
+
+  test "should read object from project" do
+    assert_graphql_read_object('project', { 'user' => 'name' })
+  end
+
+  test "should read object from account" do
+    assert_graphql_read_object('account', { 'user' => 'name', 'source' => 'name' })
+  end
+
+  test "should read object from media" do
+    assert_graphql_read_object('media', { 'project' => 'title', 'account' => 'url', 'user' => 'name' })
+  end
+
+  test "should read object from project source" do
+    assert_graphql_read_object('project_source', { 'project' => 'title', 'source' => 'name' })
+  end
+
+  test "should read object from team user" do
+    assert_graphql_read_object('team_user', { 'team' => 'name', 'user' => 'name' })
+  end
 end

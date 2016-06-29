@@ -116,4 +116,52 @@ class ActiveSupport::TestCase
     end
     assert_response :success
   end
+
+  def assert_graphql_read_object(type, fields = {})
+    authenticate_with_token
+    type.camelize.constantize.delete_all
+    x1 = send("create_#{type}")
+    x2 = send("create_#{type}")
+    
+    node = '{ '
+    fields.each do |name, key|
+      node += "#{name} { #{key} }, "
+    end
+    node.gsub!(/, $/, ' }')
+
+    post :create, query: "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+    yield if block_given?
+    
+    edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
+    assert_equal 2, edges.size
+    
+    fields.each { |name, key| assert_equal x1.send(name).send(key), edges[0]['node'][name][key] }
+    fields.each { |name, key| assert_equal x2.send(name).send(key), edges[1]['node'][name][key] }
+    
+    assert_response :success
+  end
+
+  def assert_graphql_read_collection(type, fields = {})
+    authenticate_with_token
+    type.camelize.constantize.delete_all
+    x1 = send("create_#{type}")
+    x2 = send("create_#{type}")
+    
+    node = '{ '
+    fields.each do |name, key|
+      node += "#{name} { #{key} }, "
+    end
+    node.gsub!(/, $/, ' }')
+    
+    post :create, query: "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+    yield if block_given?
+    
+    edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
+    assert_equal 2, edges.size
+    
+    fields.each { |name, key| assert_equal x1.send(name).send(key), edges[0]['node'][name][key] }
+    fields.each { |name, key| assert_equal x2.send(name).send(key), edges[1]['node'][name][key] }
+    
+    assert_response :success
+  end
 end
