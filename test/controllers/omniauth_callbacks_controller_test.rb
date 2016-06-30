@@ -64,6 +64,23 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     assert_redirected_to '/api'
   end
 
+  test "should redirect to destination after Facebook authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
+    request.env['omniauth.params'] = { 'destination' => '/close.html' }
+    get :facebook
+    assert_redirected_to '/close.html'
+  end
+
+  test "should logout" do
+    u = create_user
+    assert_nil request.env['warden'].user
+    authenticate_with_user(u)
+    assert_equal u, request.env['warden'].user
+    get :logout, destination: '/api'
+    assert_redirected_to '/api'
+    assert_nil request.env['warden'].user
+  end
+
   def teardown
     OmniAuth.config.test_mode = false
   end

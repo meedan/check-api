@@ -4,6 +4,14 @@ GIT
   specs:
     pender_client (0.0.1)
 
+GIT
+  remote: https://github.com/caiosba/graphiql-rails.git
+  revision: d03dd94f8d28bbae3d3b13e568ad48b1c79cff7c
+  ref: d03dd94
+  specs:
+    graphiql-rails (1.2.0)
+      rails
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -130,8 +138,6 @@ GEM
     gem-licenses (0.2.1)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
-    graphiql-rails (1.2.0)
-      rails
     graphql (0.14.0)
     graphql-formatter (0.1.1)
       colorize
@@ -353,7 +359,7 @@ DEPENDENCIES
   devise
   elasticsearch-persistence
   gem-licenses
-  graphiql-rails
+  graphiql-rails!
   graphql
   graphql-formatter
   graphql-relay

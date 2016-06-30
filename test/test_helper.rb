@@ -55,10 +55,15 @@ class ActiveSupport::TestCase
     end
   end
 
+  def authenticate_with_user(user = create_user)
+    @request.env['devise.mapping'] = Devise.mappings[:api_user]
+    sign_in user
+  end
+
   # CRUD helpers for GraphQL types
 
   def assert_graphql_create(type, request_params = {}, response_fields = ['id'])
-    authenticate_with_token
+    authenticate_with_user
     
     klass = type.camelize
 
@@ -79,10 +84,11 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read(type, field = 'id')
-    authenticate_with_token
     type.camelize.constantize.delete_all
     x1 = send("create_#{type}")
     x2 = send("create_#{type}")
+    user = type == 'user' ? x1 : create_user
+    authenticate_with_user(user)
     post :create, query: "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
@@ -93,7 +99,7 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_update(type, attr, from, to)
-    authenticate_with_token
+    authenticate_with_user
     obj = send("create_#{type}", { attr => from })
     klass = obj.class.to_s
     assert_equal from, obj.send(attr)
@@ -106,7 +112,7 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_destroy(type)
-    authenticate_with_token
+    authenticate_with_user
     obj = send("create_#{type}")
     klass = obj.class.name
     id = NodeIdentification.to_global_id(klass, obj.id)
@@ -118,7 +124,7 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read_object(type, fields = {})
-    authenticate_with_token
+    authenticate_with_user
     type.camelize.constantize.delete_all
     x1 = send("create_#{type}")
     x2 = send("create_#{type}")
@@ -142,7 +148,7 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read_collection(type, fields = {})
-    authenticate_with_token
+    authenticate_with_user
     type.camelize.constantize.delete_all
     
     obj = send("create_#{type}")

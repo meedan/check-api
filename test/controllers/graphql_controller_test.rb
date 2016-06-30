@@ -9,11 +9,11 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should not access GraphQL if not authenticated" do
     post :create, query: 'query Query { about { name, version } }'
-    assert_response 401
+    assert_response 302
   end
 
   test "should access GraphQL if authenticated" do
-    authenticate_with_token
+    authenticate_with_user
     post :create, query: 'query Query { about { name, version } }'
     assert_response :success
     data = JSON.parse(@response.body)['data']['about']
@@ -22,7 +22,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should get node from global id" do
-    authenticate_with_token
+    authenticate_with_user
     id = Base64.encode64('About/1')
     post :create, query: "query Query { node(id: \"#{id}\") { id } }"
     assert_equal id, JSON.parse(@response.body)['data']['node']['id']
@@ -31,6 +31,15 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get options" do
     process :options, 'OPTIONS'
     assert_response :success
+  end
+
+  test "should get current user" do
+    u = create_user name: 'Test User'
+    authenticate_with_user(u)
+    post :create, query: 'query Query { me { name } }'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['me']
+    assert_equal 'Test User', data['name']
   end
 
   # Test CRUD operations for each model
@@ -46,7 +55,6 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should update account" do
-    authenticate_with_token
     u1 = create_user
     u2 = create_user
     assert_graphql_update('account', :user_id, u1.id, u2.id)

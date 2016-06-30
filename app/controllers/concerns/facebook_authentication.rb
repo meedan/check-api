@@ -1,12 +1,12 @@
 module FacebookAuthentication
   extend ActiveSupport::Concern
 
-  included do
-    skip_before_filter :authenticate_user_from_provider_token!, only: [:facebook]
-  end
-
   # OAuth callback
   def facebook
-    start_session_and_redirect('/api')
+    destination = '/api'
+    if request.env.has_key?('omniauth.params')
+      destination = request.env['omniauth.params']['destination'] unless request.env['omniauth.params']['destination'].blank?
+    end
+    start_session_and_redirect(destination)
   end
 end

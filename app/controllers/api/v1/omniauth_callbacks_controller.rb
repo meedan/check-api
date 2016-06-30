@@ -4,6 +4,11 @@ module Api
       include TwitterAuthentication
       include FacebookAuthentication
 
+      def logout
+        sign_out current_api_user
+        redirect_to (params[:destination] || '/')
+      end
+
       protected
 
       def start_session_and_redirect(destination = '/')

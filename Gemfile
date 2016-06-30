@@ -80,5 +80,5 @@ gem 'protected_attributes'
 gem 'elasticsearch-persistence', require: 'elasticsearch/persistence/model'
 gem 'paper_trail'
 
-gem 'graphiql-rails'
+gem 'graphiql-rails', git: 'https://github.com/caiosba/graphiql-rails.git', ref: 'd03dd94'
 gem 'graphql-formatter'

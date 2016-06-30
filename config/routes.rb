@@ -22,6 +22,9 @@ Rails.application.routes.draw do
       end
       devise_for :users, controllers: { sessions: nil, registrations: nil, omniauth_callbacks: 'api/v1/omniauth_callbacks' },
                          skip: [:registrations, :sessions]
+      devise_scope :api_user do
+        get '/users/logout', to: 'omniauth_callbacks#logout'
+      end
     end
   end
 end

@@ -9,6 +9,8 @@ development: &default
   pender_key:
   elasticsearch_host:
   elasticsearch_port:
+  elasticsearch_log: true
+  graphql_debug: true
 
 test:
   <<: *default
