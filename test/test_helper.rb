@@ -84,15 +84,17 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read(type, field = 'id')
-    type.camelize.constantize.delete_all
+    klass = type.camelize.constantize
+    u = create_user
+    klass.delete_all
     x1 = send("create_#{type}")
     x2 = send("create_#{type}")
-    user = type == 'user' ? x1 : create_user
+    user = type == 'user' ? x1 : u
     authenticate_with_user(user)
     post :create, query: "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    assert_equal 2, edges.size
+    assert_equal klass.count, edges.size
     assert_equal x1.send(field), edges[0]['node'][field]
     assert_equal x2.send(field), edges[1]['node'][field]
     assert_response :success

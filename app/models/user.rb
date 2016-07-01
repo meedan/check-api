@@ -1,10 +1,14 @@
 class User < ActiveRecord::Base
   attr_accessible :email, :login, :name, :profile_image, :password, :password_confirmation
+  attr_accessor :url
+
   has_one :source
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
          :omniauthable, :omniauth_providers => [:twitter, :facebook]
+
+  after_create :create_source_and_account
 
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
@@ -14,7 +18,9 @@ class User < ActiveRecord::Base
     user.name = auth.info.name
     user.uuid = auth.uid
     user.provider = auth.provider
+    user.profile_image = auth.info.image
     user.token = token
+    user.url = auth.url
     user.save!
     user.reload
   end
@@ -48,5 +54,23 @@ class User < ActiveRecord::Base
 
   def password_required?
     super && self.provider.blank?
+  end
+
+  private
+
+  def create_source_and_account
+    source = Source.new
+    source.user = self
+    source.name = self.name
+    source.avatar = self.profile_image
+    source.save!
+
+    if !self.provider.blank? && !self.url.blank?
+      account = Account.new
+      account.user = self
+      account.source = source
+      account.url = self.url
+      account.save!
+    end
   end
 end

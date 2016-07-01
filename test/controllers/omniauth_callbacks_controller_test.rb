@@ -10,7 +10,8 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
       uid: '654321',
       info: {
         name: 'Test',
-        image: 'http://twitter.com/test/image.png'
+        image: 'http://twitter.com/test/image.png',
+        nickname: 'test'
       },
       credentials: {
         token: '123456',
@@ -30,6 +31,9 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
       }
     })
     request.env['devise.mapping'] = Devise.mappings[:api_user]
+    ['https://twitter.com/test', 'https://facebook.com/654321'].each do |url|
+      WebMock.stub_request(:get, CONFIG['pender_host'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{}}')
+    end
   end
 
   test "should redirect to root after Twitter authentication" do

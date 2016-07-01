@@ -23,10 +23,11 @@ module SampleData
     u.name = options[:name] || random_string
     u.login = options[:login] || random_string
     u.uuid = options[:uuid] || random_string
-    u.provider = options[:provider] || %w(twitter facebook).sample
+    u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.token = options[:token] || random_string(50)
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
     u.password = options[:password] || random_string
+    u.url = options[:url] if options.has_key?(:url)
     u.save!
     u.reload
   end
@@ -93,7 +94,7 @@ module SampleData
     source = Source.new
     source.name = options[:name] || random_string
     source.slogan = options[:slogan] || random_string(20)
-    source.user = options[:user] || create_user
+    source.user = options[:user]
     source.avatar = options[:avatar]
     source.save!
     source.reload

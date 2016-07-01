@@ -161,6 +161,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read source" do
+    Source.delete_all
     assert_graphql_read('source', 'name')
   end
 
