@@ -101,7 +101,7 @@ class BaseApiControllerTest < ActionController::TestCase
   test "should get current user from session" do
     @controller = Api::V1::BaseApiController.new
     u = create_user name: 'Test User'
-    session['checkdesk.user'] = u.id
+    authenticate_with_user(u)
     get :me
     assert_response :success
     response = JSON.parse(@response.body)

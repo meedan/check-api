@@ -1,6 +1,8 @@
 class Api::V1::SessionsController < Devise::SessionsController
   before_action :configure_sign_in_params, only: [:create]
 
+  include SessionsDoc
+
   # POST /resource/sign_in
   def create
     # super

@@ -10,6 +10,14 @@
     {
       "path": "api/v1/graphql.{format}",
       "description": "GraphQL"
+    },
+    {
+      "path": "api/v1/sessions.{format}",
+      "description": "Sessions"
+    },
+    {
+      "path": "api/v1/registrations.{format}",
+      "description": "Registrations"
     }
   ],
   "info": {

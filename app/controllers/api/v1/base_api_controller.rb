@@ -27,9 +27,9 @@ module Api
         if token
           user = User.where(token: token).last
           source = 'token'
-        elsif session['checkdesk.user']
-          user = User.where(id: session['checkdesk.user']).last
-          source = 'session'
+        else
+          user = current_api_user
+          source = 'session' unless user.nil?
         end
 
         unless user.nil?
