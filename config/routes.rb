@@ -20,8 +20,7 @@ Rails.application.routes.draw do
         match '/' => 'graphql#create', via: [:post]
         match '/' => 'graphql#options', via: [:options]
       end
-      devise_for :users, controllers: { sessions: nil, registrations: nil, omniauth_callbacks: 'api/v1/omniauth_callbacks' },
-                         skip: [:registrations, :sessions]
+      devise_for :users, controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', omniauth_callbacks: 'api/v1/omniauth_callbacks' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'
       end

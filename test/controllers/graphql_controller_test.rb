@@ -9,7 +9,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should not access GraphQL if not authenticated" do
     post :create, query: 'query Query { about { name, version } }'
-    assert_response 302
+    assert_response 401
   end
 
   test "should access GraphQL if authenticated" do

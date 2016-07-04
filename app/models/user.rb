@@ -6,9 +6,10 @@ class User < ActiveRecord::Base
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
-         :omniauthable, :omniauth_providers => [:twitter, :facebook]
+         :omniauthable, omniauth_providers: [:twitter, :facebook]
 
   after_create :create_source_and_account
+  before_save :set_token, :set_login
 
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
@@ -42,6 +43,7 @@ class User < ActiveRecord::Base
     {
       name: self.name,
       email: self.email,
+      login: self.login,
       uuid: self.uuid,
       provider: self.provider,
       token: self.token
@@ -49,7 +51,7 @@ class User < ActiveRecord::Base
   end
 
   def email_required?
-    false
+    self.provider.blank?
   end
 
   def password_required?
@@ -71,6 +73,20 @@ class User < ActiveRecord::Base
       account.source = source
       account.url = self.url
       account.save!
+    end
+  end
+
+  def set_token
+    self.token = User.token('checkdesk', self.id, Devise.friendly_token[0, 8], Devise.friendly_token[0, 8]) if self.token.blank?
+  end
+
+  def set_login
+    if self.login.blank?
+      if self.email.blank?
+        self.login = self.name.tr(' ', '-').downcase
+      else
+        self.login = self.email.split('@')[0]
+      end
     end
   end
 end

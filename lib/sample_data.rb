@@ -21,12 +21,13 @@ module SampleData
   def create_user(options = {})
     u = User.new
     u.name = options[:name] || random_string
-    u.login = options[:login] || random_string
+    u.login = options.has_key?(:login) ? options[:login] : random_string
     u.uuid = options[:uuid] || random_string
     u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
-    u.token = options[:token] || random_string(50)
+    u.token = options.has_key?(:token) ? options[:token] : random_string(50)
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
     u.password = options[:password] || random_string
+    u.password_confirmation = options[:password_confirmation] || u.password
     u.url = options[:url] if options.has_key?(:url)
     u.save!
     u.reload

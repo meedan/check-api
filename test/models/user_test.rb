@@ -75,4 +75,29 @@ class UserTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should set token if blank" do
+    u = create_user token: ''
+    assert_not_equal '', u.reload.token
+  end
+
+  test "should not set token if not blank" do
+    u = create_user token: 'test'
+    assert_equal 'test', u.reload.token
+  end
+
+  test "should not set login if not blank" do
+    u = create_user login: 'test'
+    assert_equal 'test', u.reload.login
+  end
+
+  test "should set login from name" do
+    u = create_user login: '', name: 'Foo Bar', email: ''
+    assert_equal 'foo-bar', u.reload.login
+  end
+
+  test "should set login from email" do
+    u = create_user login: '', name: 'Foo Bar', email: 'foobar@test.com'
+    assert_equal 'foobar', u.reload.login
+  end
 end
