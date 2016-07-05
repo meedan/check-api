@@ -1,5 +1,5 @@
 class TeamUser < ActiveRecord::Base
-  attr_accessible :team_id, :user_id
+  attr_accessible
 
   belongs_to :team
   belongs_to :user

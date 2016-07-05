@@ -6,7 +6,8 @@ module Api
 
       def logout
         sign_out current_api_user
-        redirect_to (params[:destination] || '/')
+        destination = params[:destination] || '/'
+        redirect_to destination
       end
 
       protected

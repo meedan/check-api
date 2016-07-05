@@ -15,7 +15,12 @@ module SampleData
   end
 
   def create_api_key(options = {})
-    ApiKey.create! options
+    a = ApiKey.new
+    options.each do |key, value|
+      a.send("#{key}=", value)
+    end
+    a.save!
+    a.reload
   end
 
   def create_user(options = {})

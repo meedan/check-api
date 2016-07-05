@@ -5,7 +5,7 @@ class ApiKey < ActiveRecord::Base
   before_validation :generate_access_token, on: :create
   before_validation :calculate_expiration_date, on: :create
   
-  attr_accessible :application
+  attr_accessible
 
   # Reimplement this method in your application
   def self.applications

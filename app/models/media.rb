@@ -1,5 +1,5 @@
 class Media < ActiveRecord::Base
-  attr_accessible :url, :user_id, :project_id, :account_id
+  attr_accessible
   has_paper_trail on: [:create, :update]
   belongs_to :project
   belongs_to :account
