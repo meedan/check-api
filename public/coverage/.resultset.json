@@ -1254,34 +1254,6 @@
         null,
         null
       ],
-      "/home/caiosba/Meedan/checkdesk/app/helpers/application_helper.rb": [
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/helpers/accounts_helper.rb": [
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/helpers/media_helper.rb": [
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/helpers/projects_helper.rb": [
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/helpers/sources_helper.rb": [
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/helpers/teams_helper.rb": [
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/helpers/users_helper.rb": [
-        1,
-        null
-      ],
       "/home/caiosba/Meedan/checkdesk/lib/lapis_webhook.rb": [
         1,
         1,
@@ -1305,33 +1277,6 @@
         1,
         1,
         null,
-        null,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/models/account.rb": [
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        null,
-        1,
-        1,
-        null,
-        1,
-        1,
-        null,
-        null,
-        1,
-        null,
-        1,
-        55,
-        null,
-        null,
-        1,
-        1,
-        1,
         null,
         null
       ],
@@ -1403,6 +1348,14 @@
         null,
         null
       ],
+      "/home/caiosba/Meedan/checkdesk/app/models/project_source.rb": [
+        1,
+        1,
+        null,
+        1,
+        1,
+        null
+      ],
       "/home/caiosba/Meedan/checkdesk/app/models/project.rb": [
         1,
         1,
@@ -1419,6 +1372,33 @@
         1,
         2,
         2,
+        null,
+        null
+      ],
+      "/home/caiosba/Meedan/checkdesk/app/models/account.rb": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        null,
+        1,
+        1,
+        null,
+        1,
+        1,
+        null,
+        null,
+        1,
+        null,
+        1,
+        55,
+        null,
+        null,
+        1,
+        1,
+        1,
         null,
         null
       ],
@@ -1454,6 +1434,24 @@
         2,
         2,
         null,
+        null
+      ],
+      "/home/caiosba/Meedan/checkdesk/app/models/team_user.rb": [
+        1,
+        1,
+        null,
+        1,
+        1,
+        null
+      ],
+      "/home/caiosba/Meedan/checkdesk/app/models/team.rb": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
         null
       ],
       "/home/caiosba/Meedan/checkdesk/app/controllers/api/v1/registrations_controller.rb": [
@@ -1517,21 +1515,85 @@
         null,
         null
       ],
-      "/home/caiosba/Meedan/checkdesk/app/models/annotations/annotation.rb": [
+      "/home/caiosba/Meedan/checkdesk/app/controllers/api/v1/graphql_controller.rb": [
+        1,
+        1,
+        1,
+        1,
+        null,
         1,
         1,
         null,
         1,
         null,
         1,
-        12,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        null,
+        null,
+        1,
+        1,
         null,
         null,
         1,
         null,
         1,
+        53,
+        null,
+        null,
+        null,
+        null
+      ],
+      "/home/caiosba/Meedan/checkdesk/app/models/root_level.rb": [
+        1,
         1,
         null,
+        1,
+        1,
+        null,
+        null
+      ],
+      "/home/caiosba/Meedan/checkdesk/app/models/api_key.rb": [
+        1,
+        1,
+        1,
+        null,
+        1,
+        1,
+        null,
+        1,
+        null,
+        null,
+        1,
+        5,
+        null,
+        null,
+        16,
+        null,
+        1,
+        null,
+        1,
+        14,
+        14,
+        14,
+        null,
+        null,
+        null,
+        1,
+        14,
+        null,
+        null
+      ],
+      "/home/caiosba/Meedan/checkdesk/app/models/annotations/comment.rb": [
+        1,
+        1,
+        null,
+        1,
+        1,
         null
       ],
       "/home/caiosba/Meedan/checkdesk/app/models/concerns/checkdesk_elastic_search_model.rb": [
@@ -1569,50 +1631,20 @@
         null,
         null
       ],
-      "/home/caiosba/Meedan/checkdesk/app/models/annotations/comment.rb": [
-        1,
-        1,
-        null,
-        1,
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/models/ability.rb": [
+      "/home/caiosba/Meedan/checkdesk/app/models/annotations/annotation.rb": [
         1,
         1,
         null,
         1,
         null,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/models/api_key.rb": [
         1,
-        1,
-        1,
+        12,
         null,
-        1,
-        1,
-        null,
-        1,
-        null,
-        null,
-        1,
-        4,
-        null,
-        null,
-        16,
         null,
         1,
         null,
         1,
-        14,
-        14,
-        14,
-        null,
-        null,
-        null,
         1,
-        14,
         null,
         null
       ],
@@ -1642,74 +1674,6 @@
         null,
         1,
         2,
-        null,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/models/project_source.rb": [
-        1,
-        1,
-        null,
-        1,
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/controllers/api/v1/graphql_controller.rb": [
-        1,
-        1,
-        1,
-        1,
-        null,
-        1,
-        1,
-        null,
-        1,
-        null,
-        1,
-        52,
-        52,
-        52,
-        52,
-        52,
-        52,
-        null,
-        null,
-        1,
-        1,
-        null,
-        null,
-        1,
-        null,
-        1,
-        53,
-        null,
-        null,
-        null,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/models/team.rb": [
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/models/team_user.rb": [
-        1,
-        1,
-        null,
-        1,
-        1,
-        null
-      ],
-      "/home/caiosba/Meedan/checkdesk/app/models/root_level.rb": [
-        1,
-        1,
-        null,
-        1,
-        1,
         null,
         null
       ],
@@ -1767,9 +1731,17 @@
         3,
         null,
         null
+      ],
+      "/home/caiosba/Meedan/checkdesk/app/models/ability.rb": [
+        1,
+        1,
+        null,
+        1,
+        null,
+        null
       ]
     },
-    "timestamp": 1467761175
+    "timestamp": 1467766122
   },
   "Unknown Test Framework": {
     "coverage": {
