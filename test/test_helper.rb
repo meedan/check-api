@@ -192,13 +192,13 @@ class ActiveSupport::TestCase
       log.puts <<-eos
 #### #{action.split('_').map(&:capitalize).join(' ')} #{type.split('_').map(&:capitalize).join(' ')}
 
-** Query **
+**Query**
 
-```json
+```
 #{query}
 ```
 
-** Result **
+**Result**
 
 ```json
 #{JSON.pretty_generate(JSON.parse(response))}
