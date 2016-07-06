@@ -74,11 +74,13 @@ class ActiveSupport::TestCase
     input.gsub!(/, $/, '}')
     
     query = "mutation create { create#{klass}(input: #{input}) { #{type} { #{response_fields.join(',')} } } }"
-    
+
     assert_difference "#{klass}.count" do
       post :create, query: query
       yield if block_given?
     end
+
+    document_graphql_query('create', type, query, @response.body)
     
     assert_response :success
   end
@@ -91,13 +93,15 @@ class ActiveSupport::TestCase
     x2 = send("create_#{type}")
     user = type == 'user' ? x1 : u
     authenticate_with_user(user)
-    post :create, query: "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
+    query = "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
+    post :create, query: query 
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
     assert_equal klass.count, edges.size
     assert_equal x1.send(field), edges[0]['node'][field]
     assert_equal x2.send(field), edges[1]['node'][field]
     assert_response :success
+    document_graphql_query('read', type, query, @response.body)
   end
 
   def assert_graphql_update(type, attr, from, to)
@@ -107,10 +111,12 @@ class ActiveSupport::TestCase
     assert_equal from, obj.send(attr)
     id = NodeIdentification.to_global_id(klass, obj.id)
     input = '{ clientMutationId: "1", id: "' + id.to_s + '", ' + attr.to_s + ': ' + to.to_json + ' }'
-    post :create, query: "mutation update { update#{klass}(input: #{input}) { #{type} { #{attr} } } }"
+    query = "mutation update { update#{klass}(input: #{input}) { #{type} { #{attr} } } }"
+    post :create, query: query 
     yield if block_given?
     assert_response :success
     assert_equal to, obj.reload.send(attr)
+    document_graphql_query('update', type, query, @response.body)
   end
 
   def assert_graphql_destroy(type)
@@ -118,11 +124,13 @@ class ActiveSupport::TestCase
     obj = send("create_#{type}")
     klass = obj.class.name
     id = NodeIdentification.to_global_id(klass, obj.id)
+    query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
     assert_difference "#{klass}.count", -1 do
-      post :create, query: "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
+      post :create, query: query 
       yield if block_given?
     end
     assert_response :success
+    document_graphql_query('destroy', type, query, @response.body)
   end
 
   def assert_graphql_read_object(type, fields = {})
@@ -137,7 +145,8 @@ class ActiveSupport::TestCase
     end
     node.gsub!(/, $/, ' }')
 
-    post :create, query: "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+    query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+    post :create, query: query 
     yield if block_given?
     
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
@@ -147,6 +156,7 @@ class ActiveSupport::TestCase
     fields.each { |name, key| assert_equal x2.send(name).send(key), edges[1]['node'][name][key] }
     
     assert_response :success
+    document_graphql_query('read_object', type, query, @response.body)
   end
 
   def assert_graphql_read_collection(type, fields = {})
@@ -163,7 +173,8 @@ class ActiveSupport::TestCase
     end
     node.gsub!(/, $/, ' }')
     
-    post :create, query: "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+    query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+    post :create, query: query
     yield if block_given?
     
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
@@ -171,5 +182,30 @@ class ActiveSupport::TestCase
     fields.each { |name, key| assert_equal obj.send(name).first.send(key), edges[0]['node'][name]['edges'][0]['node'][key] }
     
     assert_response :success
+    document_graphql_query('read_collection', type, query, @response.body)
+  end
+
+  # Document GraphQL queries in Markdown format
+  def document_graphql_query(action, type, query, response)
+    if ENV['DOCUMENT']
+      log = File.open(File.join(Rails.root, 'doc', 'graphql.md'), 'a+')
+      log.puts <<-eos
+#### #{action.split('_').map(&:capitalize).join(' ')} #{type.split('_').map(&:capitalize).join(' ')}
+
+** Query **
+
+```json
+#{query}
+```
+
+** Result **
+
+```json
+#{JSON.pretty_generate(JSON.parse(response))}
+```
+
+      eos
+      log.close
+    end
   end
 end
