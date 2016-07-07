@@ -15,7 +15,10 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: 'json' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       get 'version', to: 'base_api#version'
-      get 'me', to: 'base_api#me'
+      scope '/me' do
+        match '/' => 'base_api#me', via: [:get]
+        match '/' => 'base_api#options', via: [:options]
+      end
       scope '/graphql' do
         match '/' => 'graphql#create', via: [:post]
         match '/' => 'graphql#options', via: [:options]

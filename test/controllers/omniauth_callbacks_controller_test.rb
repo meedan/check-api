@@ -46,7 +46,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
     assert_nil session['checkdesk.user']
     get :twitter
-    assert_not_nil session['checkdesk.user']
+    assert_not_nil session['checkdesk.current_user_id']
   end
 
   test "should redirect to destination after Twitter authentication" do
@@ -59,7 +59,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     assert_nil session['checkdesk.user']
     get :facebook
-    assert_not_nil session['checkdesk.user']
+    assert_not_nil session['checkdesk.current_user_id']
   end
 
   test "should redirect to API page after Facebook authentication" do

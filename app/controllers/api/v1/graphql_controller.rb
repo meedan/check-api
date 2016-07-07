@@ -5,8 +5,6 @@ module Api
       
       skip_before_filter :authenticate_from_token!
       before_action :authenticate_user!, only: [:create], if: -> { params[:query].to_s.match(/^query About \{about/).nil? }
-      
-      after_filter :set_access_headers
 
       def create
         query_string = params[:query]
@@ -19,12 +17,6 @@ module Api
 
       def options
         render text: ''
-      end
-
-      private
-
-      def set_access_headers
-        headers['Access-Control-Allow-Headers'] = [CONFIG['authorization_header'], 'Content-Type'].join(',')
       end
     end
   end

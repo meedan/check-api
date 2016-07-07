@@ -11,6 +11,7 @@ development: &default
   elasticsearch_port:
   elasticsearch_log: true
   graphql_debug: true
+  checkdesk_client: http://localhost:3333
 
 test:
   <<: *default

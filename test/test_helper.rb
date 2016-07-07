@@ -20,6 +20,10 @@ class Api::V1::TestController < Api::V1::BaseApiController
     render_success
   end
 
+  def options
+    render text: ''
+  end
+
   def notify
     render_success 'success', @payload
   end

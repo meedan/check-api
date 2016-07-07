@@ -16,7 +16,7 @@ module Api
         auth = request.env['omniauth.auth']
         user = User.from_omniauth(auth)
         unless user.nil?
-          session['checkdesk.user'] = user.id
+          session['checkdesk.current_user_id'] = user.id
           sign_in(user)
         end
         destination ||= '/'
