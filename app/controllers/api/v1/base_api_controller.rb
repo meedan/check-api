@@ -49,13 +49,13 @@ module Api
         (render_unauthorized and return false) unless key
       end
 
-      # def authenticate_from_user_token!
-      #   header = CONFIG['authorization_header'] || 'X-Token'
-      #   token = request.headers[header]
-      #   user = User.where(token: token).exists?
-      #   sign_in(user, store: false)
-      #   (render_unauthorized and return false) unless user
-      # end
+      # User token or session
+      def authenticate_user!
+        header = CONFIG['authorization_header'] || 'X-Token'
+        token = request.headers[header].to_s
+        user = User.where(token: token).last
+        (token && user) ? sign_in(user, store: false) : authenticate_api_user!
+      end
 
       def verify_payload!
         begin

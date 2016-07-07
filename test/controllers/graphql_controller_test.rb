@@ -42,6 +42,15 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Test User', data['name']
   end
 
+  test "should get current user if logged in with token" do
+    u = create_user name: 'Test User'
+    authenticate_with_user_token(u.token)
+    post :create, query: 'query Query { me { name } }'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['me']
+    assert_equal 'Test User', data['name']
+  end
+
   # Test CRUD operations for each model
 
   test "should create account" do

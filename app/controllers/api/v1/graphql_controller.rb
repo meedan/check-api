@@ -4,7 +4,7 @@ module Api
       include GraphqlDoc
       
       skip_before_filter :authenticate_from_token!
-      before_action :authenticate_api_user!, only: [:create], if: -> { params[:query].to_s.match(/^query About \{about/).nil? }
+      before_action :authenticate_user!, only: [:create], if: -> { params[:query].to_s.match(/^query About \{about/).nil? }
       
       after_filter :set_access_headers
 

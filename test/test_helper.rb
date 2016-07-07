@@ -55,6 +55,14 @@ class ActiveSupport::TestCase
     end
   end
 
+  def authenticate_with_user_token(token = nil)
+    unless @request.nil?
+      header = CONFIG['authorization_header'] || 'X-Token'
+      token ||= create_user.token
+      @request.headers.merge!({ header => token })
+    end
+  end
+
   def authenticate_with_user(user = create_user)
     @request.env['devise.mapping'] = Devise.mappings[:api_user]
     sign_in user
