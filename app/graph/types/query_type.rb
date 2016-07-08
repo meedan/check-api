@@ -16,5 +16,13 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  field :me do
+    type UserType
+    description 'Information about the current user'
+    resolve -> (_obj, _args, ctx) do
+      ctx[:current_user]
+    end
+  end
+
   # End Of Queries
 end

@@ -7,7 +7,7 @@ RootLevelType = GraphQL::ObjectType.define do
   field :id, field: GraphQL::Relay::GlobalIdField.new('RootLevel')
   connection :comments, CommentType.connection_type do
     resolve ->(_object, _args, _ctx){
-      Comment.all
+      Comment.all.to_a.sort{ |a, b| a.created_at <=> b.created_at }
     }
   end
   connection :project_sources, ProjectSourceType.connection_type do

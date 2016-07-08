@@ -7,7 +7,8 @@ module Api
 
       before_filter :remove_empty_params_and_headers
       before_filter :set_custom_response_headers
-      before_filter :authenticate_from_token!, except: [:me]
+      before_filter :authenticate_from_token!, except: [:me, :options]
+      after_filter :set_access_headers
       # Verify payload for webhook methods
       # before_filter :verify_payload!
 
@@ -27,9 +28,9 @@ module Api
         if token
           user = User.where(token: token).last
           source = 'token'
-        elsif session['checkdesk.user']
-          user = User.where(id: session['checkdesk.user']).last
-          source = 'session'
+        else
+          user = current_api_user
+          source = 'session' unless user.nil?
         end
 
         unless user.nil?
@@ -38,6 +39,11 @@ module Api
         end
 
         render_success 'user', user
+      end
+
+      # Needed for pre-flight check
+      def options
+        render text: ''
       end
 
       private
@@ -49,13 +55,13 @@ module Api
         (render_unauthorized and return false) unless key
       end
 
-      # def authenticate_from_user_token!
-      #   header = CONFIG['authorization_header'] || 'X-Token'
-      #   token = request.headers[header]
-      #   user = User.where(token: token).exists?
-      #   sign_in(user, store: false)
-      #   (render_unauthorized and return false) unless user
-      # end
+      # User token or session
+      def authenticate_user!
+        header = CONFIG['authorization_header'] || 'X-Token'
+        token = request.headers[header].to_s
+        user = User.where(token: token).last
+        (token && user) ? sign_in(user, store: false) : authenticate_api_user!
+      end
 
       def verify_payload!
         begin
@@ -89,51 +95,11 @@ module Api
         response.headers['Accept'] ||= ApiConstraints.accept(1)
       end
 
-      # Renderization methods
-
-      def render_success(type = 'success', object = nil)
-        json = { type: type }
-        json[:data] = object unless object.nil?
-        render json: json, status: 200
+      def set_access_headers
+        headers['Access-Control-Allow-Headers'] = [CONFIG['authorization_header'], 'Content-Type', 'Accept'].join(',')
+        headers['Access-Control-Allow-Credentials'] = 'true'
+        headers['Access-Control-Allow-Origin'] = CONFIG['checkdesk_client']
       end
-
-      def render_error(message, code, status = 400)
-        render json: { type: 'error',
-                       data: {
-                         message: message,
-                         code: LapisConstants::ErrorCodes::const_get(code)
-                       }
-                     },
-                     status: status
-      end
-
-      def render_unauthorized
-        render_error 'Unauthorized', 'UNAUTHORIZED', 401
-      end
-
-      # def render_unknown_error
-      #   render_error 'Unknown error', 'UNKNOWN'
-      # end
-
-      # def render_invalid
-      #   render_error 'Invalid value', 'INVALID_VALUE'
-      # end
-
-      # def render_parameters_missing
-      #   render_error 'Parameters missing', 'MISSING_PARAMETERS'
-      # end
-
-      # def render_not_found
-      #   render_error 'Id not found', 'ID_NOT_FOUND', 404
-      # end
-
-      # def render_not_implemented
-      #   render json: { success: true, message: 'Not implemented yet' }, status: 200
-      # end
-
-      # def render_deleted
-      #   render_error 'This object was deleted', 'ID_NOT_FOUND', 410
-      # end
     end
   end
 end

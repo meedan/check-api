@@ -3,7 +3,9 @@ module UserMutations
     email: '!str',
     profile_image: 'str',
     login: '!str',
-    name: '!str'
+    name: '!str',
+    password: '!str',
+    password_confirmation: '!str'
   }
 
   update_fields = {
@@ -11,6 +13,8 @@ module UserMutations
     profile_image: 'str',
     login: 'str',
     name: 'str',
+    password: 'str',
+    password_confirmation: 'str',
     id: '!id'
   }
   

@@ -9,8 +9,9 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should create source" do
+    u = create_user
     assert_difference 'Source.count' do
-      create_source
+      create_source user: u
     end
   end
 

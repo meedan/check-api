@@ -1,7 +1,8 @@
 ## Checkdesk
 
 [![Code Climate](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/gpa.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed) 
-[![Issue Count](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/issue_count.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed)
+[![Issue Count](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/issue_count.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed) 
+[![Test Coverage](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/coverage.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/coverage)
 
 Verify breaking news online
 
@@ -60,12 +61,6 @@ There are rake tasks for a few tasks (besides Rails' default ones). Run them thi
 There is a GraphQL interface that exposes the data model as a GraphQL schema. The GraphQL files should be under `app/graph`.
 
 You can update the schema file by running `rake lapis:graphql:update_schema_json`.
-
-### Things to fix
-
-* Remove directories `app/assets`, `app/controllers` (the ones not under `api`, created by scaffold), `app/helpers`, `app/views`
-* Remove from `config/routes.rb` the routes that are not under the `api` namespace
-* Check the `types` and `mutations` under `app/graph` and review the fields that need to be exposed and whether they are mandatory
 
 ### Credits
 

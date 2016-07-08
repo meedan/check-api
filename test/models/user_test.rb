@@ -48,4 +48,56 @@ class UserTest < ActiveSupport::TestCase
     assert_equal exp, info
   end
 
+  test "should create source when user is created" do
+    u = nil
+    assert_difference 'Source.count' do
+      u = create_user
+    end
+    assert_equal u.source, Source.last
+  end
+
+  test "should not create account if user has no url" do
+    assert_no_difference 'Account.count' do
+      create_user url: nil, provider: 'facebook'
+    end
+  end
+
+  test "should not create account if user has no provider" do
+    assert_no_difference 'Account.count' do
+      create_user provider: '', url: 'http://meedan.com'
+    end
+  end
+
+  test "should create account if user has provider and url" do
+    assert_difference 'Account.count' do
+      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+        create_user provider: 'youtube', url: 'https://www.youtube.com/user/MeedanTube'
+      end
+    end
+  end
+
+  test "should set token if blank" do
+    u = create_user token: ''
+    assert_not_equal '', u.reload.token
+  end
+
+  test "should not set token if not blank" do
+    u = create_user token: 'test'
+    assert_equal 'test', u.reload.token
+  end
+
+  test "should not set login if not blank" do
+    u = create_user login: 'test'
+    assert_equal 'test', u.reload.login
+  end
+
+  test "should set login from name" do
+    u = create_user login: '', name: 'Foo Bar', email: ''
+    assert_equal 'foo-bar', u.reload.login
+  end
+
+  test "should set login from email" do
+    u = create_user login: '', name: 'Foo Bar', email: 'foobar@test.com'
+    assert_equal 'foobar', u.reload.login
+  end
 end

@@ -9,7 +9,10 @@ class BaseApiControllerTest < ActionController::TestCase
           match '/test' => 'test#test', via: [:get, :post]
           match '/notify' => 'test#notify', via: [:post]
           get 'version', to: 'base_api#version'
-          get 'me', to: 'base_api#me'
+          scope '/me' do
+            match '/' => 'base_api#me', via: [:get]
+            match '/' => 'base_api#options', via: [:options]
+          end
         end
       end
     end
@@ -101,7 +104,7 @@ class BaseApiControllerTest < ActionController::TestCase
   test "should get current user from session" do
     @controller = Api::V1::BaseApiController.new
     u = create_user name: 'Test User'
-    session['checkdesk.user'] = u.id
+    authenticate_with_user(u)
     get :me
     assert_response :success
     response = JSON.parse(@response.body)
@@ -128,5 +131,11 @@ class BaseApiControllerTest < ActionController::TestCase
     assert_response :success
     response = JSON.parse(@response.body)
     assert_equal({ 'type' => 'user' }, response)
+  end
+
+  test "should get options" do
+    @controller = Api::V1::BaseApiController.new
+    process :options, 'OPTIONS'
+    assert_response :success
   end
 end

@@ -7,7 +7,7 @@ INKSCAPE = inkscape
 RAKE = bundle exec rake
 BEXEC = bundle exec 
 
-all: controllers_brief.png controllers_complete.png models_brief.png models_complete.png api.txt licenses.csv api-docs.json api.md
+all: controllers_brief.png controllers_complete.png models_brief.png models_complete.png api.txt licenses.csv api-docs.json api.md graphql.md
 
 controllers_brief.png: controllers_brief.svg
 	$(INKSCAPE) --export-png='controllers_brief.png' controllers_brief.svg
@@ -45,6 +45,9 @@ api-docs.json:
 
 api.md:
 	cd .. && $(RAKE) swagger:docs:markdown && cd -
+
+graphql.md:
+	cd .. && $(RAKE) lapis:graphql:docs && cd -
 
 clean:
 	rm -f *.png *.svg *.txt *.csv *.json

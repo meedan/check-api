@@ -103,6 +103,12 @@ module AnnotationBase
     def abstract_class?
       false
     end
+
+    def delete_all
+      self.delete_index
+      self.create_index
+      sleep 1
+    end
   end
 
   def versions(options = {})

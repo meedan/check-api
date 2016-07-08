@@ -15,18 +15,25 @@ module SampleData
   end
 
   def create_api_key(options = {})
-    ApiKey.create! options
+    a = ApiKey.new
+    options.each do |key, value|
+      a.send("#{key}=", value)
+    end
+    a.save!
+    a.reload
   end
 
   def create_user(options = {})
     u = User.new
     u.name = options[:name] || random_string
-    u.login = options[:login] || random_string
+    u.login = options.has_key?(:login) ? options[:login] : random_string
     u.uuid = options[:uuid] || random_string
-    u.provider = options[:provider] || %w(twitter facebook).sample
-    u.token = options[:token] || random_string(50)
+    u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
+    u.token = options.has_key?(:token) ? options[:token] : random_string(50)
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
     u.password = options[:password] || random_string
+    u.password_confirmation = options[:password_confirmation] || u.password
+    u.url = options[:url] if options.has_key?(:url)
     u.save!
     u.reload
   end
@@ -42,10 +49,15 @@ module SampleData
   end
 
   def create_account(options = {})
+    return create_valid_account(options) unless options.has_key?(:url)
     account = Account.new
     account.url = options[:url]
     account.data = options[:data] || {}
-    account.user = options[:user] || create_user
+    if options.has_key?(:user_id)
+      account.user_id = options[:user_id]
+    else
+      account.user = options[:user] || create_user
+    end
     account.source = options[:source] || create_source
     account.save!
     account.reload
@@ -71,14 +83,15 @@ module SampleData
   end
 
   def create_media(options = {})
+    return create_valid_media(options) if options[:url].blank?
     account = options[:account] || create_account
     project = options[:project] || create_project
     user = options[:user] || create_user
     m = Media.new
     m.url = options[:url]
-    m.project_id = project.id
-    m.account_id = account.id
-    m.user_id = user.id
+    m.project_id = options[:project_id] || project.id
+    m.account_id = options[:account_id] || account.id
+    m.user_id = options[:user_id] || user.id
     m.save!
     m.reload
   end
@@ -87,7 +100,7 @@ module SampleData
     source = Source.new
     source.name = options[:name] || random_string
     source.slogan = options[:slogan] || random_string(20)
-    source.user = options[:user] || create_user
+    source.user = options[:user]
     source.avatar = options[:avatar]
     source.save!
     source.reload
@@ -95,16 +108,20 @@ module SampleData
 
   def create_project_source(options = {})
     ps = ProjectSource.new
-    ps.project = options[:project] || create_project
-    ps.source = options[:source] || create_source
+    project = options[:project] || create_project
+    source = options[:source] || create_source
+    ps.project_id = options[:project_id] || project.id
+    ps.source_id = options[:source_id] || source.id
     ps.save!
     ps.reload
   end
 
   def create_team_user(options = {})
     tu = TeamUser.new
-    tu.team = options[:team] || create_team
-    tu.user = options[:user] || create_user
+    team = options[:team] || create_team
+    user = options[:user] || create_user
+    tu.team_id = options[:team_id] || team.id
+    tu.user_id = options[:user_id] || user.id
     tu.save!
     tu.reload
   end
@@ -123,7 +140,8 @@ module SampleData
     a = nil
     url = 'https://www.youtube.com/user/MeedanTube'
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      a = create_account({ url: url }.merge(options))
+      options.merge!({ url: url })
+      a = create_account(options)
     end
     a
   end

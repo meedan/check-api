@@ -1,10 +1,15 @@
 class User < ActiveRecord::Base
-  attr_accessible
+  attr_accessible :email, :login, :name, :profile_image, :password, :password_confirmation
+  attr_accessor :url
+
   has_one :source
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
-         :omniauthable, :omniauth_providers => [:twitter, :facebook]
+         :omniauthable, omniauth_providers: [:twitter, :facebook]
+
+  after_create :create_source_and_account
+  before_save :set_token, :set_login
 
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
@@ -14,7 +19,9 @@ class User < ActiveRecord::Base
     user.name = auth.info.name
     user.uuid = auth.uid
     user.provider = auth.provider
+    user.profile_image = auth.info.image
     user.token = token
+    user.url = auth.url
     user.save!
     user.reload
   end
@@ -36,6 +43,7 @@ class User < ActiveRecord::Base
     {
       name: self.name,
       email: self.email,
+      login: self.login,
       uuid: self.uuid,
       provider: self.provider,
       token: self.token
@@ -43,10 +51,42 @@ class User < ActiveRecord::Base
   end
 
   def email_required?
-    false
+    self.provider.blank?
   end
 
   def password_required?
     super && self.provider.blank?
+  end
+
+  private
+
+  def create_source_and_account
+    source = Source.new
+    source.user = self
+    source.name = self.name
+    source.avatar = self.profile_image
+    source.save!
+
+    if !self.provider.blank? && !self.url.blank?
+      account = Account.new
+      account.user = self
+      account.source = source
+      account.url = self.url
+      account.save!
+    end
+  end
+
+  def set_token
+    self.token = User.token('checkdesk', self.id, Devise.friendly_token[0, 8], Devise.friendly_token[0, 8]) if self.token.blank?
+  end
+
+  def set_login
+    if self.login.blank?
+      if self.email.blank?
+        self.login = self.name.tr(' ', '-').downcase
+      else
+        self.login = self.email.split('@')[0]
+      end
+    end
   end
 end
