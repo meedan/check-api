@@ -96,7 +96,7 @@ module Api
       end
 
       def set_access_headers
-        headers['Access-Control-Allow-Headers'] = [CONFIG['authorization_header'], 'Content-Type'].join(',')
+        headers['Access-Control-Allow-Headers'] = [CONFIG['authorization_header'], 'Content-Type', 'Accept'].join(',')
         headers['Access-Control-Allow-Credentials'] = 'true'
         headers['Access-Control-Allow-Origin'] = CONFIG['checkdesk_client']
       end
