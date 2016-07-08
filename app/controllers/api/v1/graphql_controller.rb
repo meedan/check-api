@@ -14,10 +14,6 @@ module Api
         query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { current_user: current_api_user })
         render json: query.result
       end
-
-      def options
-        render text: ''
-      end
     end
   end
 end

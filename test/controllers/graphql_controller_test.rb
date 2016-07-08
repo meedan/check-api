@@ -28,11 +28,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal id, JSON.parse(@response.body)['data']['node']['id']
   end
 
-  test "should get options" do
-    process :options, 'OPTIONS'
-    assert_response :success
-  end
-
   test "should get current user" do
     u = create_user name: 'Test User'
     authenticate_with_user(u)

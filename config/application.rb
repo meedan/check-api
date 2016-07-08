@@ -15,7 +15,13 @@ module Checkdesk
       g.helper false
       g.assets false
     end
-    config.action_dispatch.default_headers.merge!({ 'Access-Control-Request-Method' => '*' })
+    client = YAML.load_file("#{Rails.root}/config/config.yml")[Rails.env]['checkdesk_client']
+    config.action_dispatch.default_headers.merge!({
+      'Access-Control-Request-Method' => '*',
+      'Access-Control-Allow-Origin' => client,
+      'Access-Control-Allow-Methods' => 'GET,POST,DELETE,OPTIONS',
+      'Access-Control-Allow-Credentials' => 'true'
+    })
     config.autoload_paths << Rails.root.join('app', 'graph', 'mutations')
     config.autoload_paths << Rails.root.join('app', 'graph', 'types')
     # Settings in config/environments/* take precedence over those specified here.
