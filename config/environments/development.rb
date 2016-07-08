@@ -40,7 +40,7 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 
   # Whitelist docker access
-  config.web_console.whitelisted_ips = '172.17.0.0/16'
+  config.web_console.whitelisted_ips = '172.0.0.0/8'
 
   # Enable the logstasher logs for the current environment
   config.logstasher.enabled = true
