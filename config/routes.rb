@@ -14,7 +14,7 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: 'json' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-      scope ':pattern', constraints: { pattern: /me|graphql|users\/sign_out/ } do
+      scope ':pattern', constraints: { pattern: /me|graphql|users\/sign_out|users\/sign_in|users/ } do
         match '/' => 'base_api#options', via: [:options]
       end
       get 'version', to: 'base_api#version'

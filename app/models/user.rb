@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
          :omniauthable, omniauth_providers: [:twitter, :facebook]
 
   after_create :create_source_and_account
-  before_save :set_token, :set_login
+  before_save :set_token, :set_login, :set_uuid
 
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
@@ -88,5 +88,9 @@ class User < ActiveRecord::Base
         self.login = self.email.split('@')[0]
       end
     end
+  end
+
+  def set_uuid
+    self.uuid = ('checkdesk_' + Digest::MD5.hexdigest(self.email)) if self.uuid.blank?
   end
 end
