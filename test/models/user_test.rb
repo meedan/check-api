@@ -100,4 +100,11 @@ class UserTest < ActiveSupport::TestCase
     u = create_user login: '', name: 'Foo Bar', email: 'foobar@test.com'
     assert_equal 'foobar', u.reload.login
   end
+
+  test "should set uuid" do
+    assert_difference 'User.count', 2 do
+      create_user login: '', name: 'Foo Bar', email: 'foobar1@test.com', provider: '', uuid: ''
+      create_user login: '', name: 'Foo Bar', email: 'foobar2@test.com', provider: '', uuid: ''
+    end
+  end
 end
