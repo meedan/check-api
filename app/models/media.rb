@@ -29,4 +29,10 @@ class Media < ActiveRecord::Base
     account = Account.where(url: value).last
     account.nil? ? nil : account.id
   end
+
+  def project_id_callback(value, ids)
+    project = ids[value]
+    project.nil? ? nil : project
+  end
+
 end
