@@ -1,5 +1,5 @@
-FROM ruby
-MAINTAINER Karim Ratib <karim@meedan.com>
+FROM meedan/ruby
+MAINTAINER Meedan <sysops@meedan.com>
 
 RUN apt-get update -qq && apt-get install -y vim libpq-dev nodejs --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
