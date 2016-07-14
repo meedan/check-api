@@ -1,14 +1,14 @@
 development: &default
-  secret_token:
+  secret_token: somethingsecret
   authorization_header: 'X-Checkdesk-Token'
   twitter_consumer_key:
   twitter_consumer_secret:
   facebook_app_id:
   facebook_app_secret:
-  pender_host:
-  pender_key:
-  elasticsearch_host:
-  elasticsearch_port:
+  pender_host: http://pender:3000
+  pender_key: dev
+  elasticsearch_host: elasticsearch
+  elasticsearch_port: 9200
   elasticsearch_log: true
   graphql_debug: true
   checkdesk_client: http://localhost:3333
