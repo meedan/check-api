@@ -12,7 +12,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should create account" do
     assert_difference 'Account.count' do
       PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-        create_account(url: @url)
+        create_valid_account
       end
     end
   end

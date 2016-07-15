@@ -6,6 +6,10 @@ module SampleData
     (0...length).map{ (65 + rand(26)).chr }.join
   end
 
+  def random_url
+    'http://' + random_string + '.com'
+  end
+
   def random_number(max = 50)
     rand(max) + 1
   end
@@ -128,22 +132,17 @@ module SampleData
   end
 
   def create_valid_media(options = {})
-    m = nil
-    url = 'https://www.youtube.com/user/MeedanTube'
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      a = create_account(url: url)
-      m = create_media({ url: url, account: a }.merge(options))
-    end
-    m
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = random_url
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '"}}')
+    create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
   end
 
   def create_valid_account(options = {})
-    a = nil
-    url = 'https://www.youtube.com/user/MeedanTube'
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      options.merge!({ url: url })
-      a = create_account(options)
-    end
-    a
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = random_url
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '"}}')
+    options.merge!({ url: url })
+    create_account(options)
   end
 end

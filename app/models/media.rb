@@ -11,14 +11,11 @@ class Media < ActiveRecord::Base
   validates :url, uniqueness: true
   validate :validate_pender_result
 
-  before_save :set_pender_metadata
-
   has_annotations
 
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
     serialize :data
   end
-
 
   def user_id_callback(value)
     user = User.where(name: value).last
@@ -34,5 +31,4 @@ class Media < ActiveRecord::Base
     project = ids[value]
     project.nil? ? nil : project
   end
-
 end
