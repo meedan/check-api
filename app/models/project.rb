@@ -6,7 +6,7 @@ class Project < ActiveRecord::Base
   has_many :project_sources
   has_many :sources , through: :project_sources
   mount_uploader :lead_image, ImageUploader
-  validates_presence_of :title, :description, :lead_image
+  validates_presence_of :title, :description
 
   has_annotations
 
