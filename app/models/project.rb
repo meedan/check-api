@@ -6,10 +6,10 @@ class Project < ActiveRecord::Base
   has_many :project_sources
   has_many :sources , through: :project_sources
   mount_uploader :lead_image, ImageUploader
-  validates_presence_of :title
+  validates_presence_of :title, :description, :lead_image
 
   private
-  
+
   def user_id_callback(value)
     user = User.where(name: value).last
     user.nil? ? nil : user.id

@@ -9,5 +9,5 @@ class Source < ActiveRecord::Base
   has_annotations
 
   mount_uploader :avatar, ImageUploader
-  validates_presence_of :name
+  validates_presence_of :name, :slogan, :avatar
 end

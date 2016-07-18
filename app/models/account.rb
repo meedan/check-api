@@ -9,7 +9,8 @@ class Account < ActiveRecord::Base
 
   validates_presence_of :url
   validates :url, uniqueness: true
-  validate :validate_pender_result
+  validate :validate_pender_result, on: :create
+  attr_readonly :url
 
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
     serialize :data

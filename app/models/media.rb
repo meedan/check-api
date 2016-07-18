@@ -9,8 +9,8 @@ class Media < ActiveRecord::Base
 
   validates_presence_of :url
   validates :url, uniqueness: true
-  validate :validate_pender_result
-
+  validate :validate_pender_result, on: :create
+  attr_readonly :url
   has_annotations
 
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
