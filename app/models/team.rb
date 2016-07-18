@@ -5,4 +5,7 @@ class Team < ActiveRecord::Base
   has_many :users, through: :team_users
   mount_uploader :logo, ImageUploader
   validates_presence_of :name, :description, :logo
+
+  has_annotations
+
 end

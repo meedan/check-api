@@ -8,6 +8,8 @@ class Project < ActiveRecord::Base
   mount_uploader :lead_image, ImageUploader
   validates_presence_of :title, :description, :lead_image
 
+  has_annotations
+
   private
 
   def user_id_callback(value)
