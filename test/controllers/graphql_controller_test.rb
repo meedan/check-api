@@ -145,7 +145,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create project" do
-    assert_graphql_create('project', { title: 'test' })
+    assert_graphql_create('project', { title: 'test', description: 'test' })
   end
 
   test "should read project" do
@@ -161,7 +161,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create source" do
-    assert_graphql_create('source', { name: 'test' })
+    assert_graphql_create('source', { name: 'test', slogan: 'test' })
   end
 
   test "should read source" do
@@ -178,7 +178,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create team" do
-    assert_graphql_create('team', { name: 'test' })
+    assert_graphql_create('team', { name: 'test', description: 'test' })
   end
 
   test "should read team" do

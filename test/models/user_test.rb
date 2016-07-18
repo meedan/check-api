@@ -107,4 +107,10 @@ class UserTest < ActiveSupport::TestCase
       create_user login: '', name: 'Foo Bar', email: 'foobar2@test.com', provider: '', uuid: ''
     end
   end
+
+  test "should get team from callback" do
+    u = create_user
+    t = create_team name: 'test'
+    assert_equal t.id, u.send(:team_callback, 'test')
+  end
 end

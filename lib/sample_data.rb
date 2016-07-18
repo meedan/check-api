@@ -74,6 +74,7 @@ module SampleData
     project.description = options[:description] || random_string(40)
     project.user = options[:user] || create_user
     project.lead_image = options[:lead_image]
+    project.archived = options[:archived] || false
     project.save!
     project.reload
   end
@@ -81,8 +82,15 @@ module SampleData
   def create_team(options = {})
     team = Team.new
     team.name = options[:name] || random_string
-    team.logo = options[:logo]
+    if options.has_key?(:logo)
+      team.logo = options[:logo]
+    else
+      File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+        team.logo = f
+      end
+    end
     team.archived = options[:archived] || false
+    team.description = options[:description] || random_string
     team.save!
     team.reload
   end

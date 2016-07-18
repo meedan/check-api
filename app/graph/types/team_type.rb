@@ -9,7 +9,7 @@ TeamType = GraphQL::ObjectType.define do
   field :created_at, types.String
   field :archived, types.Boolean
   field :logo, types.String
-  field :name, types.String
+  field :name, !types.String
   field :description, !types.String
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve ->(team, _args, _ctx) {
