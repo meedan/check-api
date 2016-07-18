@@ -65,6 +65,7 @@ class User < ActiveRecord::Base
     source.user = self
     source.name = self.name
     source.avatar = self.profile_image
+    source.slogan = self.name
     source.save!
 
     if !self.provider.blank? && !self.url.blank?

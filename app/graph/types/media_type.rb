@@ -8,7 +8,7 @@ MediaType = GraphQL::ObjectType.define do
   field :updated_at, types.String
   field :created_at, types.String
   field :data, types.String
-  field :url, types.String
+  field :url, !types.String
   field :account_id, types.Int
   field :project_id, types.Int
   field :user_id, types.Int

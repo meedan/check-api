@@ -1,7 +1,7 @@
 module ProjectMutations
   create_fields = {
-    lead_image: 'str',
-    description: 'str',
+    lead_image: '!str',
+    description: '!str',
     title: '!str',
     user_id: 'int'
   }

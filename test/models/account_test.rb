@@ -58,4 +58,18 @@ class AccountTest < ActiveSupport::TestCase
     @account.save!
     assert_equal u.id, @account.send(:user_id_callback, 'test')
   end
+
+  test "should not update url when account is updated" do
+    url = @account.url
+    @account.url = 'http://meedan.com'
+    @account.save!
+    assert_not_equal @account.url, url
+  end
+
+  test "should not duplicate account url" do
+    a = Account.new
+    a.url = @account.url
+    assert_not a.save
+  end
+
 end

@@ -44,7 +44,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should get account id" do
-    m = create_valid_media 
+    m = create_valid_media
     assert_nil m.send(:account_id_callback, 'http://meedan.com')
     assert_equal m.account.id, m.send(:account_id_callback, m.account.url)
   end
@@ -62,4 +62,22 @@ class MediaTest < ActiveSupport::TestCase
     m.save!
     assert_equal 2, m.reload.versions.size
   end
+
+  test "should not update url when media is updated" do
+    m = create_valid_media
+    m = m.reload
+    url = m.url
+    m.url = 'http://meedan.com'
+    m.save
+    assert_not_equal m.url, url
+  end
+
+  test "should not duplicate media url" do
+    m = create_valid_media
+    m2 = Media.new
+    m2.url = m.url
+    assert_not m2.save
+  end
+
+
 end
