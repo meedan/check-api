@@ -46,10 +46,16 @@ namespace :db do
                   raise "#{data} does not respond to #{method}!"
                 end
               end
-              data.save!
-              unless old_id.nil? || old_id == 0
-                mapping_ids[old_id] = data.id
+
+              if data.valid?
+                data.save!
+                unless old_id.nil? || old_id == 0
+                  mapping_ids[old_id] = data.id
+                end
+              else
+                puts "Failed to save #{model} [#{data.errors.messages}]"
               end
+
             end
           end
 
