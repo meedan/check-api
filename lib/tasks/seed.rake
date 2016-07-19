@@ -13,7 +13,7 @@ namespace :db do
 
       mapping_ids = Hash.new()
 
-      Dir.glob(File.join(Rails.root, 'db', 'data', '*.csv')).sort.each do |file|
+      Dir.glob(File.join(Rails.root, 'db', 'data', '**/*.csv')).sort.each do |file|
 
         if ignore.include?(file.gsub(/^.*\//, ''))
           puts "Ignoring #{file}..."
@@ -21,7 +21,6 @@ namespace :db do
           puts "Parsing #{file}..."
           name = file.gsub(/.*[0-9]_([^\.]+)\.csv/, '\1')
           model = name.singularize.camelize.constantize
-          mapping_ids[name] = Hash.new()
           header = []
           model.delete_all
           #ActiveRecord::Base.connection.execute("ALTER TABLE #{name} AUTO_INCREMENT = 1")
@@ -35,9 +34,9 @@ namespace :db do
                 value = JSON.parse(value) unless (value =~ /^[\[\{]/).nil?
                 method = header[index]
                 if data.respond_to?(method + '_callback')
-                  value = data.send(method + '_callback', value)
+                  value = data.send(method + '_callback', value, mapping_ids)
                 end
-                if (method == name + '_id')
+                if (method == 'id')
                   old_id = value
                 elsif data.respond_to?(method + '=')
                   data.send(method + '=', value)
@@ -49,7 +48,7 @@ namespace :db do
               end
               data.save!
               unless old_id.nil? || old_id == 0
-                mapping_ids[name][old_id] = data.id
+                mapping_ids[old_id] = data.id
               end
             end
           end

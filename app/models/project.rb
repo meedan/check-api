@@ -10,10 +10,9 @@ class Project < ActiveRecord::Base
 
   has_annotations
 
-  private
-
   def user_id_callback(value)
     user = User.where(name: value).last
     user.nil? ? nil : user.id
   end
+
 end
