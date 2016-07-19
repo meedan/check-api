@@ -79,5 +79,27 @@ class MediaTest < ActiveSupport::TestCase
     assert_not m2.save
   end
 
+  test "should get project from callback" do
+    m = create_valid_media
+    assert_equal 2, m.project_id_callback(1, [1, 2, 3])
+  end
 
+  test "should set URL from Pender" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    assert_equal 'http://test.com/normalized', m.reload.url
+  end
+
+  test "should not create media if Pender returns error" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"error","data":{"message":"Error"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    assert_raises ActiveRecord::RecordInvalid do
+      create_media(account: create_valid_account, url: url)
+    end
+  end
 end

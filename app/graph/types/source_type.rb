@@ -7,7 +7,7 @@ SourceType = GraphQL::ObjectType.define do
   field :id, field: GraphQL::Relay::GlobalIdField.new('Source')
   field :updated_at, types.String
   field :created_at, types.String
-  field :avatar, !types.String
+  field :avatar, types.String
   field :slogan, !types.String
   field :name, !types.String
   connection :accounts, -> { AccountType.connection_type } do

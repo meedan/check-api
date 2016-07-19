@@ -1,6 +1,6 @@
 module SourceMutations
   create_fields = {
-    avatar: '!str',
+    avatar: 'str',
     slogan: '!str',
     name: '!str',
     user_id: 'int'

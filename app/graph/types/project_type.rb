@@ -7,7 +7,7 @@ ProjectType = GraphQL::ObjectType.define do
   field :id, field: GraphQL::Relay::GlobalIdField.new('Project')
   field :updated_at, types.String
   field :created_at, types.String
-  field :lead_image, !types.String
+  field :lead_image, types.String
   field :description, !types.String
   field :title, !types.String
   field :user_id, types.Int
