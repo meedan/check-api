@@ -45,8 +45,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should get account id" do
     m = create_valid_media
-    assert_nil m.send(:account_id_callback, 'http://meedan.com')
-    assert_equal m.account.id, m.send(:account_id_callback, m.account.url)
+    assert_equal 2, m.account_id_callback(1, [1, 2, 3])
   end
 
   test "should create version when media is created" do
@@ -121,8 +120,4 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get project from callback" do
-    m = create_valid_media
-    assert_equal 2, m.project_id_callback(1, [1, 2, 3])
-  end
 end

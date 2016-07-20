@@ -10,7 +10,7 @@ class TeamUser < ActiveRecord::Base
   end
 
   def team_id_callback(value, _mapping_ids = nil)
-    team_id = _mapping_ids[value]
+    _mapping_ids[value]
   end
 
 end
