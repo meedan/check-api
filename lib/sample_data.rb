@@ -98,11 +98,9 @@ module SampleData
   def create_media(options = {})
     return create_valid_media(options) if options[:url].blank?
     account = options[:account] || create_account
-    project = options[:project] || create_project
     user = options[:user] || create_user
     m = Media.new
     m.url = options[:url]
-    m.project_id = options[:project_id] || project.id
     m.account_id = options[:account_id] || account.id
     m.user_id = options[:user_id] || user.id
     m.save!
@@ -127,6 +125,16 @@ module SampleData
     ps.source_id = options[:source_id] || source.id
     ps.save!
     ps.reload
+  end
+
+  def create_project_media(options = {})
+    pm = ProjectMedia.new
+    project = options[:project] || create_project
+    media = options[:source] || create_valid_media
+    pm.project_id = options[:project_id] || project.id
+    pm.media_id = options[:media_id] || media.id
+    pm.save!
+    pm.reload
   end
 
   def create_team_user(options = {})

@@ -1,10 +1,10 @@
 class Media < ActiveRecord::Base
   attr_accessible
   has_paper_trail on: [:create, :update]
-  belongs_to :project
   belongs_to :account
   belongs_to :user
-
+  has_many :project_medias
+  has_many :projects , through: :project_medias
   include PenderData
 
   validates_presence_of :url

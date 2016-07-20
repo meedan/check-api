@@ -58,7 +58,6 @@ class MediaTest < ActiveSupport::TestCase
     m = create_valid_media
     assert_equal 1, m.versions.size
     m = m.reload
-    m.project = create_project
     m.save!
     assert_equal 2, m.reload.versions.size
   end
@@ -79,10 +78,28 @@ class MediaTest < ActiveSupport::TestCase
     assert_not m2.save
   end
 
-  test "should get project from callback" do
+  test "should have project medias" do
+    pm1 = create_project_media
+    pm2 = create_project_media
     m = create_valid_media
-    assert_equal 2, m.project_id_callback(1, [1, 2, 3])
+    assert_equal [], m.project_medias
+    m.project_medias << pm1
+    m.project_medias << pm2
+    assert_equal [pm1, pm2], m.project_medias
   end
+
+  test "should have projects" do
+    p1 = create_project
+    p2 = create_project
+    pm1 = create_project_media project: p1
+    pm2 = create_project_media project: p2
+    m = create_valid_media
+    assert_equal [], m.project_medias
+    m.project_medias << pm1
+    m.project_medias << pm2
+    assert_equal [p1, p2], m.projects
+  end
+
 
   test "should set URL from Pender" do
     pender_url = CONFIG['pender_host'] + '/api/medias'

@@ -3,6 +3,8 @@ class User < ActiveRecord::Base
   attr_accessor :url
 
   has_one :source
+  has_many :team_users
+  has_many :teams, through: :team_users
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
