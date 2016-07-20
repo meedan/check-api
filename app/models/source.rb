@@ -11,9 +11,8 @@ class Source < ActiveRecord::Base
   mount_uploader :avatar, ImageUploader
   validates_presence_of :name, :slogan
 
-  def user_id_callback(value, mapping_ids)
+  def user_id_callback(value, _mapping_ids = nil)
     user = User.where(name: value).last
     user.nil? ? nil : user.id
   end
-
 end

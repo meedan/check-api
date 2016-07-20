@@ -58,6 +58,7 @@ class MediaTest < ActiveSupport::TestCase
     m = create_valid_media
     assert_equal 1, m.versions.size
     m = m.reload
+    m.user = create_user
     m.save!
     assert_equal 2, m.reload.versions.size
   end
@@ -118,5 +119,10 @@ class MediaTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordInvalid do
       create_media(account: create_valid_account, url: url)
     end
+  end
+
+  test "should get project from callback" do
+    m = create_valid_media
+    assert_equal 2, m.project_id_callback(1, [1, 2, 3])
   end
 end

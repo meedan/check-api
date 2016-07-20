@@ -16,12 +16,12 @@ class Account < ActiveRecord::Base
     serialize :data
   end
 
-  def user_id_callback(value, mapping_ids)
+  def user_id_callback(value, _mapping_ids = nil)
     user = User.where(name: value).last
     user.nil? ? nil : user.id
   end
 
-  def source_id_callback(value, mapping_ids)
+  def source_id_callback(value, _mapping_ids = nil)
     source = Source.where(name: value).last
     source.nil? ? nil : source.id
   end
