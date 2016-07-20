@@ -4,13 +4,13 @@ class TeamUser < ActiveRecord::Base
   belongs_to :team
   belongs_to :user
 
-  def user_id_callback(value, mapping_ids)
+  def user_id_callback(value, _mapping_ids = nil)
     user = User.where(name: value).last
     user.nil? ? nil : user.id
   end
 
-  def team_id_callback(value, mapping_ids)
-    team_id = mapping_ids[value]
+  def team_id_callback(value, _mapping_ids = nil)
+    team_id = _mapping_ids[value]
   end
 
 end

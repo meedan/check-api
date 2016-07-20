@@ -8,7 +8,7 @@ class Media < ActiveRecord::Base
   include PenderData
 
   validates_presence_of :url
-  validates :url, uniqueness: true
+  #validates :url, uniqueness: true
   validate :validate_pender_result, on: :create
   attr_readonly :url
   has_annotations
@@ -17,18 +17,13 @@ class Media < ActiveRecord::Base
     serialize :data
   end
 
-  def user_id_callback(value)
+  def user_id_callback(value, _mapping_ids = nil)
     user = User.where(name: value).last
     user.nil? ? nil : user.id
   end
 
-  def account_id_callback(value)
-    account = Account.where(url: value).last
-    account.nil? ? nil : account.id
+  def account_id_callback(value, _mapping_ids = nil)
+    account_id = _mapping_ids[value]
   end
 
-  def project_id_callback(value, ids)
-    project = ids[value]
-    project.nil? ? nil : project
-  end
 end

@@ -8,7 +8,7 @@ class Account < ActiveRecord::Base
   include PenderData
 
   validates_presence_of :url
-  validates :url, uniqueness: true
+  #validates :url, uniqueness: true
   validate :validate_pender_result, on: :create
   attr_readonly :url
 
