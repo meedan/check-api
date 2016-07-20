@@ -12,6 +12,7 @@ development: &default
   elasticsearch_log: true
   graphql_debug: true
   checkdesk_client: http://localhost:3333
+  terms_of_service: 'Your content of TOS'
 
 test:
   <<: *default

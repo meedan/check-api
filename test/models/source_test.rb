@@ -80,4 +80,10 @@ class SourceTest < ActiveSupport::TestCase
     sleep 1
     assert_equal [c1.id, c2.id].sort, s.reload.annotations.map(&:id).sort
   end
+
+  test "should get user from callback" do
+    u = create_user name: 'test'
+    s = create_source
+    assert_equal u.id, s.user_id_callback('test')
+  end
 end

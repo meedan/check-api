@@ -72,4 +72,15 @@ class AccountTest < ActiveSupport::TestCase
     assert_not a.save
   end
 
+  test "should get user from callback" do
+    u = create_user name: 'test'
+    a = create_valid_account
+    assert_equal u.id, a.user_id_callback('test')
+  end
+
+  test "should get source from callback" do
+    s = create_source name: 'test'
+    a = create_valid_account
+    assert_equal s.id, a.source_id_callback('test')
+  end
 end
