@@ -14,7 +14,7 @@
       <img src="./assets/0.10.0/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" style="display:none;">
-      <div class="timestamp">Generated <abbr class="timeago" title="2016-07-18T20:25:37-03:00">2016-07-18T20:25:37-03:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2016-07-20T01:56:17-03:00">2016-07-20T01:56:17-03:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
@@ -25,15 +25,15 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         16.13
+         16.11
        </span>
     </span> hits/line)
   </h2>
   <a name="AllFiles"></a>
   <div>
     <b>54</b> files in total.
-    <b>894</b> relevant lines. 
-    <span class="green"><b>894</b> lines covered</span> and
+    <b>895</b> relevant lines. 
+    <span class="green"><b>895</b> lines covered</span> and
     <span class="red"><b>0</b> lines missed </span>
   </div>
   <table class="file_list">
@@ -243,9 +243,9 @@
       <tr>
         <td class="strong"><a href="#cb7d76f03f258c9f6f329fc795488b9ae0121229" class="src_link" title="app/graph/types/about_type.rb">app/graph/types/about_type.rb</a></td>
         <td class="green strong">100.0 %</td>
+        <td>9</td>
         <td>8</td>
-        <td>7</td>
-        <td>7</td>
+        <td>8</td>
         <td>0</td>
         <td>1.0</td>
       </tr>
@@ -437,7 +437,7 @@
         <td>16</td>
         <td>16</td>
         <td>0</td>
-        <td>5.7</td>
+        <td>5.4</td>
       </tr>
       
       <tr>
@@ -720,7 +720,7 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         23.39
+         23.38
        </span>
     </span> hits/line)
   </h2>
@@ -792,7 +792,7 @@
         <td>16</td>
         <td>16</td>
         <td>0</td>
-        <td>5.7</td>
+        <td>5.4</td>
       </tr>
       
       <tr>
@@ -1095,15 +1095,15 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         3.31
+         3.3
        </span>
     </span> hits/line)
   </h2>
   <a name="Ungrouped"></a>
   <div>
     <b>27</b> files in total.
-    <b>370</b> relevant lines. 
-    <span class="green"><b>370</b> lines covered</span> and
+    <b>371</b> relevant lines. 
+    <span class="green"><b>371</b> lines covered</span> and
     <span class="red"><b>0</b> lines missed </span>
   </div>
   <table class="file_list">
@@ -1233,9 +1233,9 @@
       <tr>
         <td class="strong"><a href="#cb7d76f03f258c9f6f329fc795488b9ae0121229" class="src_link" title="app/graph/types/about_type.rb">app/graph/types/about_type.rb</a></td>
         <td class="green strong">100.0 %</td>
+        <td>9</td>
         <td>8</td>
-        <td>7</td>
-        <td>7</td>
+        <td>8</td>
         <td>0</td>
         <td>1.0</td>
       </tr>
@@ -5250,8 +5250,8 @@
     <h3>app/graph/types/about_type.rb</h3>
     <h4><span class="green">100.0 %</span> covered</h4>
     <div>
-      <b>7</b> relevant lines. 
-      <span class="green"><b>7</b> lines covered</span> and
+      <b>8</b> relevant lines. 
+      <span class="green"><b>8</b> lines covered</span> and
       <span class="red"><b>0</b> lines missed.</span>
     </div>
   </div>
@@ -5301,7 +5301,13 @@
           <code class="ruby">  field :version, types.String, &#39;Application version&#39;</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="8">
+        <li class="covered" data-hits="1" data-linenumber="8">
+          <span class="hits">1</span>
+          
+          <code class="ruby">  field :tos, types.String, &#39;Terms of Service&#39;</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="9">
           
           
           <code class="ruby">end</code>
@@ -7014,7 +7020,7 @@
         <li class="covered" data-hits="1" data-linenumber="15">
           <span class="hits">1</span>
           
-          <code class="ruby">      OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: &#39;About&#39; })</code>
+          <code class="ruby">      OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: &#39;About&#39;, tos: CONFIG[&#39;terms_of_service&#39;] })</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="16">
@@ -8595,8 +8601,8 @@
           <code class="ruby">  def self.applications</code>
         </li>
       
-        <li class="covered" data-hits="9" data-linenumber="12">
-          <span class="hits">9</span>
+        <li class="covered" data-hits="5" data-linenumber="12">
+          <span class="hits">5</span>
           
           <code class="ruby">    [nil]</code>
         </li>
