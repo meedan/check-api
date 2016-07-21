@@ -24,8 +24,8 @@ class Media < ActiveRecord::Base
     user.nil? ? nil : user.id
   end
 
-  def account_id_callback(value, _mapping_ids)
-    _mapping_ids[value]
+  def account_id_callback(value, mapping_ids)
+    mapping_ids[value]
   end
 
 end
