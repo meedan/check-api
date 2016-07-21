@@ -97,9 +97,4 @@ class User < ActiveRecord::Base
     self.uuid = ('checkdesk_' + Digest::MD5.hexdigest(self.email)) if self.uuid.blank?
   end
 
-  def team_callback(value)
-    team = Team.where(name: value).last
-    team.nil? ? nil : team.id
-  end
-
 end

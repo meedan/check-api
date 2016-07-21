@@ -5,7 +5,7 @@ class TeamUser < ActiveRecord::Base
   belongs_to :user
 
   def user_id_callback(value, _mapping_ids = nil)
-    user = User.where(name: value).last
+    user = User.where(email: value).last
     user.nil? ? nil : user.id
   end
 
