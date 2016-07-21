@@ -12,7 +12,7 @@ class Media < ActiveRecord::Base
   include PenderData
 
   validates_presence_of :url
-  validates :url, uniqueness: true
+  #validates :url, uniqueness: true
   validate :validate_pender_result, on: :create
 
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
@@ -20,7 +20,7 @@ class Media < ActiveRecord::Base
   end
 
   def user_id_callback(value, _mapping_ids = nil)
-    user = User.where(name: value).last
+    user = User.where(email: value).last
     user.nil? ? nil : user.id
   end
 

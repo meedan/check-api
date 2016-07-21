@@ -59,8 +59,14 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should get user id through callback" do
     p = create_project
-    assert_nil p.send(:user_id_callback, 'test', Hash.new)
-    u = create_user name: 'test'
-    assert_equal u.id, p.send(:user_id_callback, 'test', Hash.new)
+    assert_nil p.send(:user_id_callback, 'test@test.com')
+    u = create_user email: 'test@test.com'
+    assert_equal u.id, p.send(:user_id_callback, 'test@test.com')
   end
+
+  test "should get team from callback" do
+    p = create_project
+    assert_equal 2, p.team_id_callback(1, [1, 2, 3])
+  end
+
 end

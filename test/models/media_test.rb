@@ -38,9 +38,9 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should get user id" do
     m = create_valid_media
-    assert_nil m.send(:user_id_callback, 'test')
-    u = create_user(name: 'test')
-    assert_equal u.id, m.send(:user_id_callback, 'test')
+    assert_nil m.send(:user_id_callback, 'test@test.com')
+    u = create_user(email: 'test@test.com')
+    assert_equal u.id, m.send(:user_id_callback, 'test@test.com')
   end
 
   test "should get account id" do

@@ -82,8 +82,8 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should get user from callback" do
-    u = create_user name: 'test'
+    u = create_user email: 'test@test.com'
     s = create_source
-    assert_equal u.id, s.user_id_callback('test')
+    assert_equal u.id, s.user_id_callback('test@test.com')
   end
 end
