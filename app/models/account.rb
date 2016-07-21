@@ -8,7 +8,7 @@ class Account < ActiveRecord::Base
   include PenderData
 
   validates_presence_of :url
-  #validates :url, uniqueness: true
+  validates :url, uniqueness: true, unless: 'CONFIG["allow_duplicated_urls"]'
   validate :validate_pender_result, on: :create
   attr_readonly :url
 
