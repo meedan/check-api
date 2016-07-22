@@ -209,15 +209,15 @@ class ActiveSupport::TestCase
       end
       log = File.open(file, 'a+')
       log.puts <<-eos
-### #{action.split('_').map(&:capitalize).join(' ')} 
+### __#{action.split('_').map(&:capitalize).join(' ')}__
 
-#### **Query**
+#### __Query__
 
 ```graphql
 #{query}
 ```
 
-#### **Result**
+#### __Result__
 
 ```json
 #{JSON.pretty_generate(JSON.parse(response))}
