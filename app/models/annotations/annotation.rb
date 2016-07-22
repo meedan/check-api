@@ -7,6 +7,10 @@ class Annotation
     self.annotation_type.camelize.constantize.find(self.id)
   end
 
+  def self.all_sorted(order = 'asc', field = 'created_at')
+    Annotation.search(query: { match_all: {} }, sort: [{ field => { order: order }}, '_score']).results
+  end
+
   private
 
   def cant_instantiate_abstract_class

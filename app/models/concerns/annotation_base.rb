@@ -8,19 +8,34 @@ module AnnotationBase
     
     module ClassMethods
       def has_annotations
-        define_method :annotations do |context=nil|
+        define_method :annotation_query do |context=nil|
           matches = [{ match: { annotated_type: self.class.name } }, { match: { annotated_id: self.id.to_s } }]
           unless context.nil?
             matches << { match: { context_type: context.class.name } } 
             matches << { match: { context_id: context.id.to_s } } 
           end
-          query = { bool: { must: matches } }
-          Annotation.search(query: query).results.map(&:load)
+          { bool: { must: matches } }
+        end
+
+        define_method :annotations do |context=nil|
+          query = self.annotation_query(context)
+          Annotation.search(query: query, sort: [{ created_at: { order: 'asc' }}, '_score']).results.map(&:load)
         end
 
         define_method :add_annotation do |annotation|
           annotation.annotated = self
           annotation.save
+        end
+
+        define_method :annotators do |context=nil|
+          query = self.annotation_query(context)
+          aggs = { g: { terms: { field: :annotator_id } } }
+          annotators = []
+          Annotation.search(query: query, aggs: aggs).response['aggregations']['g']['buckets'].each do |result|
+            # result['doc_count'] is the number of annotations by this user
+            annotators << User.find(result['key'])
+          end
+          annotators
         end
       end
     end
@@ -40,6 +55,8 @@ module AnnotationBase
     attribute :annotated_id, String
     attribute :context_type, String
     attribute :context_id, String
+    attribute :annotator_type, String
+    attribute :annotator_id, String
 
     before_validation :set_type_and_event
 
@@ -188,6 +205,19 @@ module AnnotationBase
 
   def context=(obj)
     self.set_polymorphic('context', obj)
+  end
+
+  def annotator
+    self.load_polymorphic('annotator')
+  end
+
+  def annotator=(obj)
+    self.set_polymorphic('annotator', obj)
+  end
+
+  # Overwrite in the annotation type and expose the specific fields of that type
+  def content
+    {}.to_json
   end
 
   protected

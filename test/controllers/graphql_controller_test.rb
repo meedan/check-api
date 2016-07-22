@@ -166,7 +166,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read source" do
     Source.delete_all
-    assert_graphql_read('source', 'name')
+    assert_graphql_read('source', 'image')
   end
 
   test "should update source" do
@@ -250,7 +250,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from source" do
-    assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id' })
+    assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
+                                               'annotations' => 'content', 'medias' => 'url', 'collaborators' => 'name' })
   end
 
   test "should read collection from media" do
@@ -267,5 +268,9 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read collection from account" do
     assert_graphql_read_collection('account', { 'medias' => 'url' })
+  end
+
+  test "should read object from annotation" do
+    assert_graphql_read_object('annotation', { 'annotator' => 'name' })
   end
 end

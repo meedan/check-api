@@ -27,5 +27,4 @@ class Media < ActiveRecord::Base
   def account_id_callback(value, mapping_ids)
     mapping_ids[value]
   end
-
 end

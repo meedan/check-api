@@ -55,4 +55,9 @@ RootLevelType = GraphQL::ObjectType.define do
       ApiKey.all
     }
   end
+  connection :annotations, AnnotationType.connection_type do
+    resolve ->(_object, _args, _ctx){
+      Annotation.all_sorted
+    }
+  end
 end

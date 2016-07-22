@@ -86,4 +86,34 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source
     assert_equal u.id, s.user_id_callback('test@test.com')
   end
+
+  test "should get image" do
+    url = 'http://checkdesk.org/users/1/photo.png'
+    u = create_user profile_image: url
+    s = create_source user: u
+    assert_equal url, s.image
+  end
+
+  test "should get medias" do
+    s = create_source
+    m = create_valid_media(account: create_valid_account(source: s))
+    assert_equal [m], s.medias
+  end
+
+  test "should get collaborators" do
+    u1 = create_user
+    u2 = create_user
+    u3 = create_user
+    s1 = create_source
+    s2 = create_source
+    c1 = create_comment annotator: u1, annotated: s1
+    c2 = create_comment annotator: u1, annotated: s1
+    c3 = create_comment annotator: u1, annotated: s1
+    c4 = create_comment annotator: u2, annotated: s1
+    c5 = create_comment annotator: u2, annotated: s1
+    c6 = create_comment annotator: u3, annotated: s2
+    c7 = create_comment annotator: u3, annotated: s2
+    assert_equal [u1, u2].sort, s1.collaborators
+    assert_equal [u3].sort, s2.collaborators
+  end
 end
