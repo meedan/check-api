@@ -132,7 +132,7 @@ Use this method in order to create a new user account
     "login": "t",
     "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
     "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJZZUNO++nYjFONyIsInNlY3JldCI6InlUaExUNTJ2In0=++n"
+    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJGSG1H++nLURIaSIsInNlY3JldCI6Ijd5eHNHd29XIn0=++n"
   }
 }
 ```
