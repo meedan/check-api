@@ -11,7 +11,7 @@ namespace :lapis do
     task docs: :environment do
       path = File.join(Rails.root, 'doc', 'graphql.md')
       f = File.open(path, 'w+')
-      f.puts('### GraphQL')
+      f.puts('# GraphQL Documentation')
       f.puts
       f.puts('You can test the GraphQL endpoint by going to `/graphiql`. The available actions are:')
       f.puts
