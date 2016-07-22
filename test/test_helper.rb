@@ -201,17 +201,23 @@ class ActiveSupport::TestCase
   # Document GraphQL queries in Markdown format
   def document_graphql_query(action, type, query, response)
     if ENV['DOCUMENT']
-      log = File.open(File.join(Rails.root, 'doc', 'graphql.md'), 'a+')
+      file = File.join(Rails.root, 'doc', 'graphql', "#{type}.md")
+      unless File.exist?(file)
+        log = File.open(file, 'w+')
+        log.puts("## #{type.split('_').map(&:capitalize).join(' ')}")
+        log.close
+      end
+      log = File.open(file, 'a+')
       log.puts <<-eos
-## #{action.split('_').map(&:capitalize).join(' ')} #{type.split('_').map(&:capitalize).join(' ')}
+### #{action.split('_').map(&:capitalize).join(' ')} 
 
-### **Query**
+#### **Query**
 
 ```graphql
 #{query}
 ```
 
-### **Result**
+#### **Result**
 
 ```json
 #{JSON.pretty_generate(JSON.parse(response))}
