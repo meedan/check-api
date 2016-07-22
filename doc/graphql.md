@@ -3,277 +3,167 @@
 You can test the GraphQL endpoint by going to *"/graphiql"*. The available actions are:
 
     * [Account](#account)
-      * [<strong>Read Collection</strong>](#read-collection)
+      * [<strong>Update Account</strong>](#update-account)
         * [<strong>Query</strong>](#query)
         * [<strong>Result</strong>](#result)
-      * [<strong>Read Object</strong>](#read-object)
+      * [<strong>Destroy Account</strong>](#destroy-account)
         * [<strong>Query</strong>](#query-1)
         * [<strong>Result</strong>](#result-1)
-      * [<strong>Create</strong>](#create)
+      * [<strong>Read Object Account</strong>](#read-object-account)
         * [<strong>Query</strong>](#query-2)
         * [<strong>Result</strong>](#result-2)
-      * [<strong>Update</strong>](#update)
+      * [<strong>Read Account</strong>](#read-account)
         * [<strong>Query</strong>](#query-3)
         * [<strong>Result</strong>](#result-3)
-      * [<strong>Destroy</strong>](#destroy)
+      * [<strong>Create Account</strong>](#create-account)
         * [<strong>Query</strong>](#query-4)
         * [<strong>Result</strong>](#result-4)
-      * [<strong>Read</strong>](#read)
+      * [<strong>Read Collection Account</strong>](#read-collection-account)
         * [<strong>Query</strong>](#query-5)
         * [<strong>Result</strong>](#result-5)
     * [Api Key](#api-key)
-      * [<strong>Read</strong>](#read-1)
+      * [<strong>Update Api Key</strong>](#update-api-key)
         * [<strong>Query</strong>](#query-6)
         * [<strong>Result</strong>](#result-6)
-      * [<strong>Update</strong>](#update-1)
+      * [<strong>Read Api Key</strong>](#read-api-key)
         * [<strong>Query</strong>](#query-7)
         * [<strong>Result</strong>](#result-7)
-      * [<strong>Destroy</strong>](#destroy-1)
+      * [<strong>Create Api Key</strong>](#create-api-key)
         * [<strong>Query</strong>](#query-8)
         * [<strong>Result</strong>](#result-8)
-      * [<strong>Create</strong>](#create-1)
+      * [<strong>Destroy Api Key</strong>](#destroy-api-key)
         * [<strong>Query</strong>](#query-9)
         * [<strong>Result</strong>](#result-9)
     * [Comment](#comment)
-      * [<strong>Read</strong>](#read-2)
+      * [<strong>Create Comment</strong>](#create-comment)
         * [<strong>Query</strong>](#query-10)
         * [<strong>Result</strong>](#result-10)
-      * [<strong>Update</strong>](#update-2)
+      * [<strong>Destroy Comment</strong>](#destroy-comment)
         * [<strong>Query</strong>](#query-11)
         * [<strong>Result</strong>](#result-11)
-      * [<strong>Create</strong>](#create-2)
+      * [<strong>Update Comment</strong>](#update-comment)
         * [<strong>Query</strong>](#query-12)
         * [<strong>Result</strong>](#result-12)
-      * [<strong>Destroy</strong>](#destroy-2)
+      * [<strong>Read Comment</strong>](#read-comment)
         * [<strong>Query</strong>](#query-13)
         * [<strong>Result</strong>](#result-13)
     * [Media](#media)
-      * [<strong>Read Collection</strong>](#read-collection-1)
+      * [<strong>Read Object Media</strong>](#read-object-media)
         * [<strong>Query</strong>](#query-14)
         * [<strong>Result</strong>](#result-14)
-      * [<strong>Create</strong>](#create-3)
+      * [<strong>Read Media</strong>](#read-media)
         * [<strong>Query</strong>](#query-15)
         * [<strong>Result</strong>](#result-15)
-      * [<strong>Read</strong>](#read-3)
+      * [<strong>Destroy Media</strong>](#destroy-media)
         * [<strong>Query</strong>](#query-16)
         * [<strong>Result</strong>](#result-16)
-      * [<strong>Update</strong>](#update-3)
+      * [<strong>Read Collection Media</strong>](#read-collection-media)
         * [<strong>Query</strong>](#query-17)
         * [<strong>Result</strong>](#result-17)
-      * [<strong>Destroy</strong>](#destroy-3)
+      * [<strong>Update Media</strong>](#update-media)
         * [<strong>Query</strong>](#query-18)
         * [<strong>Result</strong>](#result-18)
-      * [<strong>Read Object</strong>](#read-object-1)
+      * [<strong>Create Media</strong>](#create-media)
         * [<strong>Query</strong>](#query-19)
         * [<strong>Result</strong>](#result-19)
     * [Project](#project)
-      * [<strong>Read Object</strong>](#read-object-2)
+      * [<strong>Read Object Project</strong>](#read-object-project)
         * [<strong>Query</strong>](#query-20)
         * [<strong>Result</strong>](#result-20)
-      * [<strong>Read Collection</strong>](#read-collection-2)
+      * [<strong>Destroy Project</strong>](#destroy-project)
         * [<strong>Query</strong>](#query-21)
         * [<strong>Result</strong>](#result-21)
-      * [<strong>Read</strong>](#read-4)
+      * [<strong>Update Project</strong>](#update-project)
         * [<strong>Query</strong>](#query-22)
         * [<strong>Result</strong>](#result-22)
-      * [<strong>Destroy</strong>](#destroy-4)
+      * [<strong>Create Project</strong>](#create-project)
         * [<strong>Query</strong>](#query-23)
         * [<strong>Result</strong>](#result-23)
-      * [<strong>Create</strong>](#create-4)
+      * [<strong>Read Project</strong>](#read-project)
         * [<strong>Query</strong>](#query-24)
         * [<strong>Result</strong>](#result-24)
-      * [<strong>Update</strong>](#update-4)
+      * [<strong>Read Collection Project</strong>](#read-collection-project)
         * [<strong>Query</strong>](#query-25)
         * [<strong>Result</strong>](#result-25)
     * [Project Source](#project-source)
-      * [<strong>Read Object</strong>](#read-object-3)
+      * [<strong>Update Project Source</strong>](#update-project-source)
         * [<strong>Query</strong>](#query-26)
         * [<strong>Result</strong>](#result-26)
-      * [<strong>Update</strong>](#update-5)
+      * [<strong>Create Project Source</strong>](#create-project-source)
         * [<strong>Query</strong>](#query-27)
         * [<strong>Result</strong>](#result-27)
-      * [<strong>Destroy</strong>](#destroy-5)
+      * [<strong>Read Project Source</strong>](#read-project-source)
         * [<strong>Query</strong>](#query-28)
         * [<strong>Result</strong>](#result-28)
-      * [<strong>Create</strong>](#create-5)
+      * [<strong>Read Object Project Source</strong>](#read-object-project-source)
         * [<strong>Query</strong>](#query-29)
         * [<strong>Result</strong>](#result-29)
-      * [<strong>Read</strong>](#read-5)
+      * [<strong>Destroy Project Source</strong>](#destroy-project-source)
         * [<strong>Query</strong>](#query-30)
         * [<strong>Result</strong>](#result-30)
     * [Source](#source)
-      * [<strong>Read</strong>](#read-6)
+      * [<strong>Create Source</strong>](#create-source)
         * [<strong>Query</strong>](#query-31)
         * [<strong>Result</strong>](#result-31)
-      * [<strong>Destroy</strong>](#destroy-6)
+      * [<strong>Read Source</strong>](#read-source)
         * [<strong>Query</strong>](#query-32)
         * [<strong>Result</strong>](#result-32)
-      * [<strong>Read Collection</strong>](#read-collection-3)
+      * [<strong>Destroy Source</strong>](#destroy-source)
         * [<strong>Query</strong>](#query-33)
         * [<strong>Result</strong>](#result-33)
-      * [<strong>Create</strong>](#create-6)
+      * [<strong>Update Source</strong>](#update-source)
         * [<strong>Query</strong>](#query-34)
         * [<strong>Result</strong>](#result-34)
-      * [<strong>Update</strong>](#update-6)
+      * [<strong>Read Collection Source</strong>](#read-collection-source)
         * [<strong>Query</strong>](#query-35)
         * [<strong>Result</strong>](#result-35)
     * [Team](#team)
-      * [<strong>Create</strong>](#create-7)
+      * [<strong>Create Team</strong>](#create-team)
         * [<strong>Query</strong>](#query-36)
         * [<strong>Result</strong>](#result-36)
-      * [<strong>Destroy</strong>](#destroy-7)
+      * [<strong>Destroy Team</strong>](#destroy-team)
         * [<strong>Query</strong>](#query-37)
         * [<strong>Result</strong>](#result-37)
-      * [<strong>Read</strong>](#read-7)
+      * [<strong>Read Team</strong>](#read-team)
         * [<strong>Query</strong>](#query-38)
         * [<strong>Result</strong>](#result-38)
-      * [<strong>Update</strong>](#update-7)
+      * [<strong>Update Team</strong>](#update-team)
         * [<strong>Query</strong>](#query-39)
         * [<strong>Result</strong>](#result-39)
-      * [<strong>Read Collection</strong>](#read-collection-4)
+      * [<strong>Read Collection Team</strong>](#read-collection-team)
         * [<strong>Query</strong>](#query-40)
         * [<strong>Result</strong>](#result-40)
     * [Team User](#team-user)
-      * [<strong>Create</strong>](#create-8)
+      * [<strong>Destroy Team User</strong>](#destroy-team-user)
         * [<strong>Query</strong>](#query-41)
         * [<strong>Result</strong>](#result-41)
-      * [<strong>Read Object</strong>](#read-object-4)
+      * [<strong>Update Team User</strong>](#update-team-user)
         * [<strong>Query</strong>](#query-42)
         * [<strong>Result</strong>](#result-42)
-      * [<strong>Destroy</strong>](#destroy-8)
+      * [<strong>Read Team User</strong>](#read-team-user)
         * [<strong>Query</strong>](#query-43)
         * [<strong>Result</strong>](#result-43)
-      * [<strong>Update</strong>](#update-8)
+      * [<strong>Read Object Team User</strong>](#read-object-team-user)
         * [<strong>Query</strong>](#query-44)
         * [<strong>Result</strong>](#result-44)
-      * [<strong>Read</strong>](#read-8)
+      * [<strong>Create Team User</strong>](#create-team-user)
         * [<strong>Query</strong>](#query-45)
         * [<strong>Result</strong>](#result-45)
     * [User](#user)
-      * [<strong>Update</strong>](#update-9)
+      * [<strong>Read User</strong>](#read-user)
         * [<strong>Query</strong>](#query-46)
         * [<strong>Result</strong>](#result-46)
-      * [<strong>Read</strong>](#read-9)
+      * [<strong>Destroy User</strong>](#destroy-user)
         * [<strong>Query</strong>](#query-47)
         * [<strong>Result</strong>](#result-47)
-      * [<strong>Destroy</strong>](#destroy-9)
+      * [<strong>Update User</strong>](#update-user)
         * [<strong>Query</strong>](#query-48)
         * [<strong>Result</strong>](#result-48)
-      * [<strong>Create</strong>](#create-9)
+      * [<strong>Create User</strong>](#create-user)
         * [<strong>Query</strong>](#query-49)
         * [<strong>Result</strong>](#result-49)
 ## Account
-### __Read Collection__
-
-#### __Query__
-
-```graphql
-query read { root { accounts { edges { node { medias { edges { node { url } } } } } } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "root": {
-      "accounts": {
-        "edges": [
-          {
-            "node": {
-              "medias": {
-                "edges": [
-                  {
-                    "node": {
-                      "url": "http://KOBSLGECBG.com"
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          {
-            "node": {
-              "medias": {
-                "edges": [
-
-                ]
-              }
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-### __Read Object__
-
-#### __Query__
-
-```graphql
-query read { root { accounts { edges { node { user { name }, source { name } } } } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "root": {
-      "accounts": {
-        "edges": [
-          {
-            "node": {
-              "user": {
-                "name": "RXXKJPSHTA"
-              },
-              "source": {
-                "name": "SOTYXFAJDJ"
-              }
-            }
-          },
-          {
-            "node": {
-              "user": {
-                "name": "GZJTRBJQFC"
-              },
-              "source": {
-                "name": "CXKFPTTWDW"
-              }
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-### __Create__
-
-#### __Query__
-
-```graphql
-mutation create { createAccount(input: {url: "https://www.youtube.com/user/MeedanTube", clientMutationId: "1"}) { account { id } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "createAccount": {
-      "account": {
-        "id": "QWNjb3VudC8x\n"
-      }
-    }
-  }
-}
-```
-
-### __Update__
+### __Update Account__
 
 #### __Query__
 
@@ -296,7 +186,7 @@ mutation update { updateAccount(input: { clientMutationId: "1", id: "QWNjb3VudC8
 }
 ```
 
-### __Destroy__
+### __Destroy Account__
 
 #### __Query__
 
@@ -317,7 +207,50 @@ mutation destroy { destroyAccount(input: { clientMutationId: "1", id: "QWNjb3Vud
 }
 ```
 
-### __Read__
+### __Read Object Account__
+
+#### __Query__
+
+```graphql
+query read { root { accounts { edges { node { user { name }, source { name } } } } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "root": {
+      "accounts": {
+        "edges": [
+          {
+            "node": {
+              "user": {
+                "name": "BUHOOOCYSD"
+              },
+              "source": {
+                "name": "TRYMNGSGOA"
+              }
+            }
+          },
+          {
+            "node": {
+              "user": {
+                "name": "XTRSAXIUMN"
+              },
+              "source": {
+                "name": "XNOBLTAWXO"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### __Read Account__
 
 #### __Query__
 
@@ -335,12 +268,79 @@ query read { root { accounts { edges { node { url } } } } }
         "edges": [
           {
             "node": {
-              "url": "http://TGPSGSOGHO.com"
+              "url": "http://SOJSQDCKVW.com"
             }
           },
           {
             "node": {
-              "url": "http://FOTOFLWTBD.com"
+              "url": "http://PLBQTXMFBO.com"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### __Create Account__
+
+#### __Query__
+
+```graphql
+mutation create { createAccount(input: {url: "https://www.youtube.com/user/MeedanTube", clientMutationId: "1"}) { account { id } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "createAccount": {
+      "account": {
+        "id": "QWNjb3VudC8x\n"
+      }
+    }
+  }
+}
+```
+
+### __Read Collection Account__
+
+#### __Query__
+
+```graphql
+query read { root { accounts { edges { node { medias { edges { node { url } } } } } } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "root": {
+      "accounts": {
+        "edges": [
+          {
+            "node": {
+              "medias": {
+                "edges": [
+                  {
+                    "node": {
+                      "url": "http://DYBQVFLSQV.com"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "node": {
+              "medias": {
+                "edges": [
+
+                ]
+              }
             }
           }
         ]
@@ -351,7 +351,30 @@ query read { root { accounts { edges { node { url } } } } }
 ```
 
 ## Api Key
-### __Read__
+### __Update Api Key__
+
+#### __Query__
+
+```graphql
+mutation update { updateApiKey(input: { clientMutationId: "1", id: "QXBpS2V5LzE=
+", application: "bar" }) { api_key { application } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "updateApiKey": {
+      "api_key": {
+        "application": "bar"
+      }
+    }
+  }
+}
+```
+
+### __Read Api Key__
 
 #### __Query__
 
@@ -384,51 +407,7 @@ query read { root { api_keys { edges { node { application } } } } }
 }
 ```
 
-### __Update__
-
-#### __Query__
-
-```graphql
-mutation update { updateApiKey(input: { clientMutationId: "1", id: "QXBpS2V5LzE=
-", application: "bar" }) { api_key { application } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "updateApiKey": {
-      "api_key": {
-        "application": "bar"
-      }
-    }
-  }
-}
-```
-
-### __Destroy__
-
-#### __Query__
-
-```graphql
-mutation destroy { destroyApiKey(input: { clientMutationId: "1", id: "QXBpS2V5LzE=
-" }) { deletedId } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "destroyApiKey": {
-      "deletedId": "QXBpS2V5LzE=\n"
-    }
-  }
-}
-```
-
-### __Create__
+### __Create Api Key__
 
 #### __Query__
 
@@ -450,13 +429,13 @@ mutation create { createApiKey(input: {application: "test", clientMutationId: "1
 }
 ```
 
-## Comment
-### __Read__
+### __Destroy Api Key__
 
 #### __Query__
 
 ```graphql
-query read { root { comments { edges { node { text } } } } }
+mutation destroy { destroyApiKey(input: { clientMutationId: "1", id: "QXBpS2V5LzE=
+" }) { deletedId } }
 ```
 
 #### __Result__
@@ -464,32 +443,63 @@ query read { root { comments { edges { node { text } } } } }
 ```json
 {
   "data": {
-    "root": {
-      "comments": {
-        "edges": [
-          {
-            "node": {
-              "text": "JDMEBFBYIFDBYIKQETVQKITFDAGAQPIZLPVUSRUSTSUYOJZMJB"
-            }
-          },
-          {
-            "node": {
-              "text": "XXCLCPXMWIATYVLCAEMNXXNWGBALVDUOWGPAKNGCVSQXGZRHAE"
-            }
-          }
-        ]
+    "destroyApiKey": {
+      "deletedId": "QXBpS2V5LzE=\n"
+    }
+  }
+}
+```
+
+## Comment
+### __Create Comment__
+
+#### __Query__
+
+```graphql
+mutation create { createComment(input: {text: "test", clientMutationId: "1"}) { comment { id } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "createComment": {
+      "comment": {
+        "id": "Q29tbWVudC9BVllUaTFPLTVjcG1wUlhNQXg4aA==\n"
       }
     }
   }
 }
 ```
 
-### __Update__
+### __Destroy Comment__
 
 #### __Query__
 
 ```graphql
-mutation update { updateComment(input: { clientMutationId: "1", id: "Q29tbWVudC9BVllUaHhOVDVjcG1wUlhNQXg4Wg==
+mutation destroy { destroyComment(input: { clientMutationId: "1", id: "Q29tbWVudC9BVllUaTFpSjVjcG1wUlhNQXg4aQ==
+" }) { deletedId } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "destroyComment": {
+      "deletedId": "Q29tbWVudC9BVllUaTFpSjVjcG1wUlhNQXg4aQ==\n"
+    }
+  }
+}
+```
+
+### __Update Comment__
+
+#### __Query__
+
+```graphql
+mutation update { updateComment(input: { clientMutationId: "1", id: "Q29tbWVudC9BVllUaTJ5YzVjcG1wUlhNQXg4ag==
 ", text: "bar" }) { comment { text } } }
 ```
 
@@ -507,12 +517,12 @@ mutation update { updateComment(input: { clientMutationId: "1", id: "Q29tbWVudC9
 }
 ```
 
-### __Create__
+### __Read Comment__
 
 #### __Query__
 
 ```graphql
-mutation create { createComment(input: {text: "test", clientMutationId: "1"}) { comment { id } } }
+query read { root { comments { edges { node { text } } } } }
 ```
 
 #### __Result__
@@ -520,21 +530,109 @@ mutation create { createComment(input: {text: "test", clientMutationId: "1"}) { 
 ```json
 {
   "data": {
-    "createComment": {
-      "comment": {
-        "id": "Q29tbWVudC9BVllUaHh6bzVjcG1wUlhNQXg4YQ==\n"
+    "root": {
+      "comments": {
+        "edges": [
+          {
+            "node": {
+              "text": "ONPALICZBWBJJWGDPERLLGOREVIUAHAOHRESRRNQFHKFSSAUNC"
+            }
+          },
+          {
+            "node": {
+              "text": "FWRTZSCHNQLZJVNXMYOWQAVYBDPYCFJSNIBFCRBTQANEFYHGUU"
+            }
+          }
+        ]
       }
     }
   }
 }
 ```
 
-### __Destroy__
+## Media
+### __Read Object Media__
 
 #### __Query__
 
 ```graphql
-mutation destroy { destroyComment(input: { clientMutationId: "1", id: "Q29tbWVudC9BVllUaHlFdTVjcG1wUlhNQXg4Yg==
+query read { root { medias { edges { node { account { url }, user { name } } } } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "root": {
+      "medias": {
+        "edges": [
+          {
+            "node": {
+              "account": {
+                "url": "http://JCEBTVALHA.com"
+              },
+              "user": {
+                "name": "JSJSGXVXPK"
+              }
+            }
+          },
+          {
+            "node": {
+              "account": {
+                "url": "http://OYHYKPNVZK.com"
+              },
+              "user": {
+                "name": "KSHQDIHYSP"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### __Read Media__
+
+#### __Query__
+
+```graphql
+query read { root { medias { edges { node { url } } } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "root": {
+      "medias": {
+        "edges": [
+          {
+            "node": {
+              "url": "http://AHSSXESEWP.com"
+            }
+          },
+          {
+            "node": {
+              "url": "http://SRGNZIZNQX.com"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### __Destroy Media__
+
+#### __Query__
+
+```graphql
+mutation destroy { destroyMedia(input: { clientMutationId: "1", id: "TWVkaWEvMQ==
 " }) { deletedId } }
 ```
 
@@ -543,15 +641,14 @@ mutation destroy { destroyComment(input: { clientMutationId: "1", id: "Q29tbWVud
 ```json
 {
   "data": {
-    "destroyComment": {
-      "deletedId": "Q29tbWVudC9BVllUaHlFdTVjcG1wUlhNQXg4Yg==\n"
+    "destroyMedia": {
+      "deletedId": "TWVkaWEvMQ==\n"
     }
   }
 }
 ```
 
-## Media
-### __Read Collection__
+### __Read Collection Media__
 
 #### __Query__
 
@@ -573,7 +670,7 @@ query read { root { medias { edges { node { projects { edges { node { title } } 
                 "edges": [
                   {
                     "node": {
-                      "title": "LXXXNTYUWJ"
+                      "title": "EXSOBBRLVQ"
                     }
                   }
                 ]
@@ -587,62 +684,7 @@ query read { root { medias { edges { node { projects { edges { node { title } } 
 }
 ```
 
-### __Create__
-
-#### __Query__
-
-```graphql
-mutation create { createMedia(input: {url: "https://www.youtube.com/user/MeedanTube", clientMutationId: "1"}) { media { id } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "createMedia": {
-      "media": {
-        "id": "TWVkaWEvMQ==\n"
-      }
-    }
-  }
-}
-```
-
-### __Read__
-
-#### __Query__
-
-```graphql
-query read { root { medias { edges { node { url } } } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "root": {
-      "medias": {
-        "edges": [
-          {
-            "node": {
-              "url": "http://YZZRUZZQDA.com"
-            }
-          },
-          {
-            "node": {
-              "url": "http://TGEBYZPALP.com"
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-### __Update__
+### __Update Media__
 
 #### __Query__
 
@@ -665,13 +707,12 @@ mutation update { updateMedia(input: { clientMutationId: "1", id: "TWVkaWEvMQ==
 }
 ```
 
-### __Destroy__
+### __Create Media__
 
 #### __Query__
 
 ```graphql
-mutation destroy { destroyMedia(input: { clientMutationId: "1", id: "TWVkaWEvMQ==
-" }) { deletedId } }
+mutation create { createMedia(input: {url: "https://www.youtube.com/user/MeedanTube", clientMutationId: "1"}) { media { id } } }
 ```
 
 #### __Result__
@@ -679,50 +720,9 @@ mutation destroy { destroyMedia(input: { clientMutationId: "1", id: "TWVkaWEvMQ=
 ```json
 {
   "data": {
-    "destroyMedia": {
-      "deletedId": "TWVkaWEvMQ==\n"
-    }
-  }
-}
-```
-
-### __Read Object__
-
-#### __Query__
-
-```graphql
-query read { root { medias { edges { node { account { url }, user { name } } } } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "root": {
-      "medias": {
-        "edges": [
-          {
-            "node": {
-              "account": {
-                "url": "http://VNYRMVRUII.com"
-              },
-              "user": {
-                "name": "MJYQEDWTZC"
-              }
-            }
-          },
-          {
-            "node": {
-              "account": {
-                "url": "http://IPDLFOVPND.com"
-              },
-              "user": {
-                "name": "KWNBPPMPAH"
-              }
-            }
-          }
-        ]
+    "createMedia": {
+      "media": {
+        "id": "TWVkaWEvMQ==\n"
       }
     }
   }
@@ -730,7 +730,7 @@ query read { root { medias { edges { node { account { url }, user { name } } } }
 ```
 
 ## Project
-### __Read Object__
+### __Read Object Project__
 
 #### __Query__
 
@@ -749,14 +749,14 @@ query read { root { projects { edges { node { user { name } } } } } }
           {
             "node": {
               "user": {
-                "name": "GNAJYJWMWO"
+                "name": "JLRKKQLTBE"
               }
             }
           },
           {
             "node": {
               "user": {
-                "name": "XSEYKNYBEB"
+                "name": "IGWTNTWEXU"
               }
             }
           }
@@ -767,123 +767,7 @@ query read { root { projects { edges { node { user { name } } } } } }
 }
 ```
 
-### __Read Collection__
-
-#### __Query__
-
-```graphql
-query read { root { projects { edges { node { sources { edges { node { name } } }, medias { edges { node { url } } }, project_sources { edges { node { project_id } } } } } } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "root": {
-      "projects": {
-        "edges": [
-          {
-            "node": {
-              "sources": {
-                "edges": [
-                  {
-                    "node": {
-                      "name": "UCMDWLGMUP"
-                    }
-                  },
-                  {
-                    "node": {
-                      "name": "EEJPJYSCWU"
-                    }
-                  }
-                ]
-              },
-              "medias": {
-                "edges": [
-                  {
-                    "node": {
-                      "url": "http://ODYNONEHWX.com"
-                    }
-                  }
-                ]
-              },
-              "project_sources": {
-                "edges": [
-                  {
-                    "node": {
-                      "project_id": 1
-                    }
-                  },
-                  {
-                    "node": {
-                      "project_id": 1
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          {
-            "node": {
-              "sources": {
-                "edges": [
-
-                ]
-              },
-              "medias": {
-                "edges": [
-
-                ]
-              },
-              "project_sources": {
-                "edges": [
-
-                ]
-              }
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-### __Read__
-
-#### __Query__
-
-```graphql
-query read { root { projects { edges { node { title } } } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "root": {
-      "projects": {
-        "edges": [
-          {
-            "node": {
-              "title": "VOXULZEFTX"
-            }
-          },
-          {
-            "node": {
-              "title": "SCUAJEHGTB"
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-### __Destroy__
+### __Destroy Project__
 
 #### __Query__
 
@@ -904,29 +788,7 @@ mutation destroy { destroyProject(input: { clientMutationId: "1", id: "UHJvamVjd
 }
 ```
 
-### __Create__
-
-#### __Query__
-
-```graphql
-mutation create { createProject(input: {title: "test", description: "test", clientMutationId: "1"}) { project { id } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "createProject": {
-      "project": {
-        "id": "UHJvamVjdC8x\n"
-      }
-    }
-  }
-}
-```
-
-### __Update__
+### __Update Project__
 
 #### __Query__
 
@@ -949,13 +811,34 @@ mutation update { updateProject(input: { clientMutationId: "1", id: "UHJvamVjdC8
 }
 ```
 
-## Project Source
-### __Read Object__
+### __Create Project__
 
 #### __Query__
 
 ```graphql
-query read { root { project_sources { edges { node { project { title }, source { name } } } } } }
+mutation create { createProject(input: {title: "test", description: "test", clientMutationId: "1"}) { project { id } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "createProject": {
+      "project": {
+        "id": "UHJvamVjdC8x\n"
+      }
+    }
+  }
+}
+```
+
+### __Read Project__
+
+#### __Query__
+
+```graphql
+query read { root { projects { edges { node { title } } } } }
 ```
 
 #### __Result__
@@ -964,25 +847,98 @@ query read { root { project_sources { edges { node { project { title }, source {
 {
   "data": {
     "root": {
-      "project_sources": {
+      "projects": {
         "edges": [
           {
             "node": {
-              "project": {
-                "title": "GMPEDBRLLC"
+              "title": "TJWWPJFLYO"
+            }
+          },
+          {
+            "node": {
+              "title": "PORAURHLSC"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### __Read Collection Project__
+
+#### __Query__
+
+```graphql
+query read { root { projects { edges { node { sources { edges { node { name } } }, medias { edges { node { url } } }, project_sources { edges { node { project_id } } } } } } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "root": {
+      "projects": {
+        "edges": [
+          {
+            "node": {
+              "sources": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "XMZMXYFXTM"
+                    }
+                  },
+                  {
+                    "node": {
+                      "name": "RCNZTLRAUV"
+                    }
+                  }
+                ]
               },
-              "source": {
-                "name": "VHXZIJNCGX"
+              "medias": {
+                "edges": [
+                  {
+                    "node": {
+                      "url": "http://MGCMJGQJMR.com"
+                    }
+                  }
+                ]
+              },
+              "project_sources": {
+                "edges": [
+                  {
+                    "node": {
+                      "project_id": 1
+                    }
+                  },
+                  {
+                    "node": {
+                      "project_id": 1
+                    }
+                  }
+                ]
               }
             }
           },
           {
             "node": {
-              "project": {
-                "title": "CUBQIVPIVH"
+              "sources": {
+                "edges": [
+
+                ]
               },
-              "source": {
-                "name": "RNCEKPTEKC"
+              "medias": {
+                "edges": [
+
+                ]
+              },
+              "project_sources": {
+                "edges": [
+
+                ]
               }
             }
           }
@@ -993,7 +949,8 @@ query read { root { project_sources { edges { node { project { title }, source {
 }
 ```
 
-### __Update__
+## Project Source
+### __Update Project Source__
 
 #### __Query__
 
@@ -1016,28 +973,7 @@ mutation update { updateProjectSource(input: { clientMutationId: "1", id: "UHJva
 }
 ```
 
-### __Destroy__
-
-#### __Query__
-
-```graphql
-mutation destroy { destroyProjectSource(input: { clientMutationId: "1", id: "UHJvamVjdFNvdXJjZS8x
-" }) { deletedId } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "destroyProjectSource": {
-      "deletedId": "UHJvamVjdFNvdXJjZS8x\n"
-    }
-  }
-}
-```
-
-### __Create__
+### __Create Project Source__
 
 #### __Query__
 
@@ -1059,7 +995,7 @@ mutation create { createProjectSource(input: {source_id: 1, project_id: 1, clien
 }
 ```
 
-### __Read__
+### __Read Project Source__
 
 #### __Query__
 
@@ -1092,8 +1028,94 @@ query read { root { project_sources { edges { node { source_id } } } } }
 }
 ```
 
+### __Read Object Project Source__
+
+#### __Query__
+
+```graphql
+query read { root { project_sources { edges { node { project { title }, source { name } } } } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "root": {
+      "project_sources": {
+        "edges": [
+          {
+            "node": {
+              "project": {
+                "title": "BLLFIVYQKV"
+              },
+              "source": {
+                "name": "LAVGPPARYH"
+              }
+            }
+          },
+          {
+            "node": {
+              "project": {
+                "title": "DZCXGOJOLM"
+              },
+              "source": {
+                "name": "ZBBCOPSXDP"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### __Destroy Project Source__
+
+#### __Query__
+
+```graphql
+mutation destroy { destroyProjectSource(input: { clientMutationId: "1", id: "UHJvamVjdFNvdXJjZS8x
+" }) { deletedId } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "destroyProjectSource": {
+      "deletedId": "UHJvamVjdFNvdXJjZS8x\n"
+    }
+  }
+}
+```
+
 ## Source
-### __Read__
+### __Create Source__
+
+#### __Query__
+
+```graphql
+mutation create { createSource(input: {name: "test", slogan: "test", clientMutationId: "1"}) { source { id } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "createSource": {
+      "source": {
+        "id": "U291cmNlLzI=\n"
+      }
+    }
+  }
+}
+```
+
+### __Read Source__
 
 #### __Query__
 
@@ -1111,12 +1133,12 @@ query read { root { sources { edges { node { name } } } } }
         "edges": [
           {
             "node": {
-              "name": "IYUYYFZDPN"
+              "name": "TBREVHNULE"
             }
           },
           {
             "node": {
-              "name": "VXSZDCIFZK"
+              "name": "MMMTSSMWXE"
             }
           }
         ]
@@ -1126,7 +1148,7 @@ query read { root { sources { edges { node { name } } } } }
 }
 ```
 
-### __Destroy__
+### __Destroy Source__
 
 #### __Query__
 
@@ -1147,7 +1169,30 @@ mutation destroy { destroySource(input: { clientMutationId: "1", id: "U291cmNlLz
 }
 ```
 
-### __Read Collection__
+### __Update Source__
+
+#### __Query__
+
+```graphql
+mutation update { updateSource(input: { clientMutationId: "1", id: "U291cmNlLzI=
+", name: "bar" }) { source { name } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "updateSource": {
+      "source": {
+        "name": "bar"
+      }
+    }
+  }
+}
+```
+
+### __Read Collection Source__
 
 #### __Query__
 
@@ -1169,12 +1214,12 @@ query read { root { sources { edges { node { projects { edges { node { title } }
                 "edges": [
                   {
                     "node": {
-                      "title": "TRFXNVPNPZ"
+                      "title": "GNHOUIWFAO"
                     }
                   },
                   {
                     "node": {
-                      "title": "JBFOVQGVYE"
+                      "title": "ZOCBTKDYAR"
                     }
                   }
                 ]
@@ -1183,7 +1228,7 @@ query read { root { sources { edges { node { projects { edges { node { title } }
                 "edges": [
                   {
                     "node": {
-                      "url": "http://KIFQXVIXEV.com"
+                      "url": "http://QZQADVHYVH.com"
                     }
                   }
                 ]
@@ -1306,53 +1351,8 @@ query read { root { sources { edges { node { projects { edges { node { title } }
 }
 ```
 
-### __Create__
-
-#### __Query__
-
-```graphql
-mutation create { createSource(input: {name: "test", slogan: "test", clientMutationId: "1"}) { source { id } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "createSource": {
-      "source": {
-        "id": "U291cmNlLzI=\n"
-      }
-    }
-  }
-}
-```
-
-### __Update__
-
-#### __Query__
-
-```graphql
-mutation update { updateSource(input: { clientMutationId: "1", id: "U291cmNlLzI=
-", name: "bar" }) { source { name } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "updateSource": {
-      "source": {
-        "name": "bar"
-      }
-    }
-  }
-}
-```
-
 ## Team
-### __Create__
+### __Create Team__
 
 #### __Query__
 
@@ -1374,7 +1374,7 @@ mutation create { createTeam(input: {name: "test", description: "test", clientMu
 }
 ```
 
-### __Destroy__
+### __Destroy Team__
 
 #### __Query__
 
@@ -1395,7 +1395,7 @@ mutation destroy { destroyTeam(input: { clientMutationId: "1", id: "VGVhbS8x
 }
 ```
 
-### __Read__
+### __Read Team__
 
 #### __Query__
 
@@ -1413,12 +1413,12 @@ query read { root { teams { edges { node { name } } } } }
         "edges": [
           {
             "node": {
-              "name": "DLYOWKNJIM"
+              "name": "FAMRJKEJAY"
             }
           },
           {
             "node": {
-              "name": "SCTOEAQNDK"
+              "name": "CNFUXYSTQF"
             }
           }
         ]
@@ -1428,7 +1428,7 @@ query read { root { teams { edges { node { name } } } } }
 }
 ```
 
-### __Update__
+### __Update Team__
 
 #### __Query__
 
@@ -1451,7 +1451,7 @@ mutation update { updateTeam(input: { clientMutationId: "1", id: "VGVhbS8x
 }
 ```
 
-### __Read Collection__
+### __Read Collection Team__
 
 #### __Query__
 
@@ -1487,12 +1487,12 @@ query read { root { teams { edges { node { team_users { edges { node { user_id }
                 "edges": [
                   {
                     "node": {
-                      "name": "JSLWUEELYL"
+                      "name": "ZITCMGRJOU"
                     }
                   },
                   {
                     "node": {
-                      "name": "RYCRKECZNX"
+                      "name": "PZMYHCNPOQ"
                     }
                   }
                 ]
@@ -1521,72 +1521,7 @@ query read { root { teams { edges { node { team_users { edges { node { user_id }
 ```
 
 ## Team User
-### __Create__
-
-#### __Query__
-
-```graphql
-mutation create { createTeamUser(input: {team_id: 1, user_id: 1, clientMutationId: "1"}) { team_user { id } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "createTeamUser": {
-      "team_user": {
-        "id": "VGVhbVVzZXIvMQ==\n"
-      }
-    }
-  }
-}
-```
-
-### __Read Object__
-
-#### __Query__
-
-```graphql
-query read { root { team_users { edges { node { team { name }, user { name } } } } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "root": {
-      "team_users": {
-        "edges": [
-          {
-            "node": {
-              "team": {
-                "name": "BCSNMGICMI"
-              },
-              "user": {
-                "name": "UWIVNYDYZL"
-              }
-            }
-          },
-          {
-            "node": {
-              "team": {
-                "name": "UZOCDTJCWS"
-              },
-              "user": {
-                "name": "NPRFCTLNNJ"
-              }
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-### __Destroy__
+### __Destroy Team User__
 
 #### __Query__
 
@@ -1607,7 +1542,7 @@ mutation destroy { destroyTeamUser(input: { clientMutationId: "1", id: "VGVhbVVz
 }
 ```
 
-### __Update__
+### __Update Team User__
 
 #### __Query__
 
@@ -1630,7 +1565,7 @@ mutation update { updateTeamUser(input: { clientMutationId: "1", id: "VGVhbVVzZX
 }
 ```
 
-### __Read__
+### __Read Team User__
 
 #### __Query__
 
@@ -1663,8 +1598,127 @@ query read { root { team_users { edges { node { user_id } } } } }
 }
 ```
 
+### __Read Object Team User__
+
+#### __Query__
+
+```graphql
+query read { root { team_users { edges { node { team { name }, user { name } } } } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "root": {
+      "team_users": {
+        "edges": [
+          {
+            "node": {
+              "team": {
+                "name": "MBZHQXNUCJ"
+              },
+              "user": {
+                "name": "AQJPKIBZOA"
+              }
+            }
+          },
+          {
+            "node": {
+              "team": {
+                "name": "UYBVRPMIAP"
+              },
+              "user": {
+                "name": "ABOLLMWZMC"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### __Create Team User__
+
+#### __Query__
+
+```graphql
+mutation create { createTeamUser(input: {team_id: 1, user_id: 1, clientMutationId: "1"}) { team_user { id } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "createTeamUser": {
+      "team_user": {
+        "id": "VGVhbVVzZXIvMQ==\n"
+      }
+    }
+  }
+}
+```
+
 ## User
-### __Update__
+### __Read User__
+
+#### __Query__
+
+```graphql
+query read { root { users { edges { node { email } } } } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "root": {
+      "users": {
+        "edges": [
+          {
+            "node": {
+              "email": "arefrzttpj@leokszmmkl.com"
+            }
+          },
+          {
+            "node": {
+              "email": "yzysjpknpc@xrbgfmptse.com"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### __Destroy User__
+
+#### __Query__
+
+```graphql
+mutation destroy { destroyUser(input: { clientMutationId: "1", id: "VXNlci8y
+" }) { deletedId } }
+```
+
+#### __Result__
+
+```json
+{
+  "data": {
+    "destroyUser": {
+      "deletedId": "VXNlci8y\n"
+    }
+  }
+}
+```
+
+### __Update User__
 
 #### __Query__
 
@@ -1687,61 +1741,7 @@ mutation update { updateUser(input: { clientMutationId: "1", id: "VXNlci8y
 }
 ```
 
-### __Read__
-
-#### __Query__
-
-```graphql
-query read { root { users { edges { node { email } } } } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "root": {
-      "users": {
-        "edges": [
-          {
-            "node": {
-              "email": "kgixygfqhe@njjvwnbpjc.com"
-            }
-          },
-          {
-            "node": {
-              "email": "xyxjbdpclq@hkwidupmxd.com"
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-### __Destroy__
-
-#### __Query__
-
-```graphql
-mutation destroy { destroyUser(input: { clientMutationId: "1", id: "VXNlci8y
-" }) { deletedId } }
-```
-
-#### __Result__
-
-```json
-{
-  "data": {
-    "destroyUser": {
-      "deletedId": "VXNlci8y\n"
-    }
-  }
-}
-```
-
-### __Create__
+### __Create User__
 
 #### __Query__
 

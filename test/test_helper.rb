@@ -209,7 +209,7 @@ class ActiveSupport::TestCase
       end
       log = File.open(file, 'a+')
       log.puts <<-eos
-### __#{action.split('_').map(&:capitalize).join(' ')}__
+### __#{action.split('_').map(&:capitalize).join(' ')} #{type.split('_').map(&:capitalize).join(' ')}__
 
 #### __Query__
 
