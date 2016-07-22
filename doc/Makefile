@@ -50,4 +50,4 @@ graphql.md:
 	cd .. && $(RAKE) lapis:graphql:docs && cd -
 
 clean:
-	rm -f *.png *.svg *.txt *.csv *.json
+	rm -f *.png *.svg *.txt *.csv *.json *.md

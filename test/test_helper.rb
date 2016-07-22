@@ -204,7 +204,9 @@ class ActiveSupport::TestCase
       file = File.join(Rails.root, 'doc', 'graphql', "#{type}.md")
       unless File.exist?(file)
         log = File.open(file, 'w+')
+        log.puts('')
         log.puts("## #{type.split('_').map(&:capitalize).join(' ')}")
+        log.puts('')
         log.close
       end
       log = File.open(file, 'a+')
