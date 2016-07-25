@@ -108,4 +108,23 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should send welcome email when user is created" do
+    stub_config 'send_welcome_email_on_registration', true do
+      assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+        create_user provider: ''
+      end
+      assert_no_difference 'ActionMailer::Base.deliveries.size' do
+        create_user provider: 'twitter'
+        create_user provider: 'facebook'
+      end
+    end
+
+    stub_config 'send_welcome_email_on_registration', false do
+      assert_no_difference 'ActionMailer::Base.deliveries.size' do
+        create_user provider: ''
+        create_user provider: 'twitter'
+        create_user provider: 'facebook'
+      end
+    end
+  end
 end

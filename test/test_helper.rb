@@ -34,6 +34,15 @@ class ActiveSupport::TestCase
 
   include SampleData
 
+  def stub_config(key, value)
+    CONFIG.each do |k, v|
+      CONFIG.stubs(:[]).with(k).returns(v) if k != key
+    end
+    CONFIG.stubs(:[]).with(key).returns(value)
+    yield
+    CONFIG.unstub(:[])
+  end
+
   # This will run before any test
 
   def setup

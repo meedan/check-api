@@ -15,10 +15,11 @@ module Checkdesk
       g.helper false
       g.assets false
     end
-    client = YAML.load_file("#{Rails.root}/config/config.yml")[Rails.env]['checkdesk_client']
+    
+    cfg = YAML.load_file("#{Rails.root}/config/config.yml")[Rails.env]
     config.action_dispatch.default_headers.merge!({
       'Access-Control-Request-Method' => '*',
-      'Access-Control-Allow-Origin' => client,
+      'Access-Control-Allow-Origin' => cfg['checkdesk_client'],
       'Access-Control-Allow-Methods' => 'GET,POST,DELETE,OPTIONS',
       'Access-Control-Allow-Credentials' => 'true'
     })
@@ -41,5 +42,17 @@ module Checkdesk
     config.autoload_paths << "#{config.root}/app/models/annotations"
     config.autoload_paths += %W(#{config.root}/lib)
 
+    config.action_mailer.delivery_method = :smtp
+    
+    if !cfg['gmail_username'].blank? && !cfg['gmail_password'].blank? && !Rails.env.test?
+      config.action_mailer.smtp_settings = {
+        address:              'smtp.gmail.com',
+        port:                 587,
+        user_name:            cfg['gmail_username'],
+        password:             cfg['gmail_password'],
+        authentication:       'plain',
+        enable_starttls_auto: true
+      }
+    end
   end
 end

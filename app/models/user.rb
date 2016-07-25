@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable,
          :omniauthable, omniauth_providers: [:twitter, :facebook]
 
-  after_create :create_source_and_account
+  after_create :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
 
   def self.from_omniauth(auth)
@@ -97,4 +97,7 @@ class User < ActiveRecord::Base
     self.uuid = ('checkdesk_' + Digest::MD5.hexdigest(self.email)) if self.uuid.blank?
   end
 
+  def send_welcome_email
+    RegistrationMailer.welcome_email(self).deliver_now if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
+  end
 end
