@@ -46,4 +46,13 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [tu1, tu2], t.team_users
     assert_equal [u1, u2], t.users
   end
+
+  test "should get logo from callback" do
+    t = create_team
+    assert_nil t.logo_callback('')
+    file = 'http://checkdesk.org/users/1/photo.png'
+    assert_nil t.logo_callback(file)
+    # should add a case for valid file path
+  end
+
 end

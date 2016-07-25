@@ -116,4 +116,13 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal [u1, u2].sort, s1.collaborators
     assert_equal [u3].sort, s2.collaborators
   end
+
+  test "should get avatar from callback" do
+    s = create_source
+    assert_nil s.avatar_callback('')
+    file = 'http://checkdesk.org/users/1/photo.png'
+    assert_nil s.avatar_callback(file)
+    # should add a case for valid file path
+  end
+
 end

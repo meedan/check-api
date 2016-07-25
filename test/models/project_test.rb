@@ -69,4 +69,12 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 2, p.team_id_callback(1, [1, 2, 3])
   end
 
+  test "should get lead image from callback" do
+    p = create_project
+    assert_nil p.lead_image_callback('')
+    file = 'http://checkdesk.org/users/1/photo.png'
+    assert_nil p.lead_image_callback(file)
+    # should add a case for valid file path
+  end
+
 end
