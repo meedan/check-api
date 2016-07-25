@@ -15,6 +15,12 @@ module ActiveRecordExtensions
       end
     end
   end
+
+  def user_callback(value)
+    user = User.where(email: value).last
+    user.nil? ? nil : user.id
+  end
+
 end
 
 ActiveRecord::Base.send(:include, ActiveRecordExtensions)

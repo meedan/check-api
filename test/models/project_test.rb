@@ -74,7 +74,8 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil p.lead_image_callback('')
     file = 'http://checkdesk.org/users/1/photo.png'
     assert_nil p.lead_image_callback(file)
-    # should add a case for valid file path
+    file = 'http://lorempixel.com/400/200/'
+    assert_not_nil t.logo_callback(file)
   end
 
 end

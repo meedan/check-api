@@ -14,8 +14,7 @@ class Project < ActiveRecord::Base
   has_annotations
 
   def user_id_callback(value, _mapping_ids = nil)
-    user = User.where(email: value).last
-    user.nil? ? nil : user.id
+    user_callback(value)
   end
 
   def team_id_callback(value, mapping_ids = nil)
