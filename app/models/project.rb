@@ -22,4 +22,16 @@ class Project < ActiveRecord::Base
     mapping_ids[value]
   end
 
+  def lead_image_callback(value, _mapping_ids = nil)
+    unless value.blank?
+      extn = File.extname  value
+      name = File.basename value, extn
+      file = Tempfile.new [name, ".#{value.split('.').last}"]
+      file.binmode # note that our tempfile must be in binary mode
+      file.write open(value).read
+      file.rewind
+      file
+    end
+  end
+
 end

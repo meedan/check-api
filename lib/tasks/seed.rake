@@ -8,6 +8,7 @@ namespace :db do
     # Create data from CSV files under db/data
     task sample: :environment do
       require 'csv'
+      require 'open-uri'
 
       ignore = ENV['ignore'].blank? ? [] : ENV['ignore'].split(',')
 
@@ -37,6 +38,7 @@ namespace :db do
                 if data.respond_to?(method + '_callback')
                   value = data.send(method + '_callback', value, mapping_ids)
                 end
+
                 if (method == 'id')
                   old_id = value
                 elsif data.respond_to?(method + '=')
