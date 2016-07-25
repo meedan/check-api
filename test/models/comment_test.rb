@@ -35,7 +35,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal [], s1.annotations
     s2 = SampleModel.create!
     assert_equal [], s2.annotations
-    
+
     c1a = create_comment
     assert_nil c1a.annotated
     c1b = create_comment
@@ -44,7 +44,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_nil c2a.annotated
     c2b = create_comment
     assert_nil c2b.annotated
-    
+
     s1.add_annotation c1a
     c1b.annotated = s1
     c1b.save
@@ -52,7 +52,7 @@ class CommentTest < ActiveSupport::TestCase
     s2.add_annotation c2a
     c2b.annotated = s2
     c2b.save
-    
+
     sleep 1
 
     assert_equal s1, c1a.annotated
@@ -201,4 +201,17 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal [u1, u2].sort, s1.annotators
     assert_equal [u3].sort, s2.annotators
   end
+
+  test "should get annotator id" do
+    c = create_comment
+    assert_nil c.send(:annotator_id_callback, 'test@test.com')
+    u = create_user(email: 'test@test.com')
+    assert_equal u.id, c.send(:annotator_id_callback, 'test@test.com')
+  end
+
+  test "should get target id" do
+    c = create_comment
+    assert_equal 2, c.target_id_callback(1, [1, 2, 3])
+  end
+
 end

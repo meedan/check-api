@@ -39,8 +39,10 @@ namespace :db do
                   value = data.send(method + '_callback', value, mapping_ids)
                 end
 
-                if (method == 'id')
+                if method == 'id'
                   old_id = value
+                elsif method == 'target_id'
+                  target = Media.find(value)
                 elsif data.respond_to?(method + '=')
                   data.send(method + '=', value)
                 elsif data.respond_to?(method)
@@ -51,9 +53,12 @@ namespace :db do
               end
 
               if data.valid?
-                data.save!
+                data.save
                 unless old_id.nil? || old_id == 0
                   mapping_ids[old_id] = data.id
+                end
+                if model == 'Comment'
+                  target.add_annotation(data)
                 end
               else
                 puts "Failed to save #{model} [#{data.errors.messages}]"
