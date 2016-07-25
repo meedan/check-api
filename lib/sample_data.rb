@@ -49,6 +49,12 @@ module SampleData
     c.reload
   end
 
+  def create_tag(options = {})
+    t = Tag.create({ tag: random_string(50), annotator: create_user }.merge(options))
+    sleep 1 if Rails.env.test?
+    t.reload
+  end
+
   def create_annotation(options = {})
     Annotation.create(options)
   end
