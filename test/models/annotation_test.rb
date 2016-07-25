@@ -15,4 +15,8 @@ class CommentTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should have empty content by default" do
+    assert_equal '{}', Annotation.new.content
+  end
 end
