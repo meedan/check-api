@@ -12,8 +12,7 @@ class Source < ActiveRecord::Base
   validates_presence_of :name, :slogan
 
   def user_id_callback(value, _mapping_ids = nil)
-    user = User.where(email: value).last
-    user.nil? ? nil : user.id
+    user_callback(value)
   end
 
   def avatar_callback(value, _mapping_ids = nil)
