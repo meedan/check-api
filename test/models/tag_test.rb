@@ -124,7 +124,7 @@ class TagTest < ActiveSupport::TestCase
     t = t.reload
     assert_equal 'Version 4', t.tag
 
-    assert_equal t, t.versions.size
+    assert_equal 4, t.versions.size
   end
 
   test "should return whether it has an attribute" do
