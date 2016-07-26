@@ -156,7 +156,6 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read_object(type, fields = {})
-    authenticate_with_user
     type.camelize.constantize.delete_all
 
     x1 = nil
@@ -176,7 +175,11 @@ class ActiveSupport::TestCase
     node.gsub!(/, $/, ' }')
 
     query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+
+    type === 'user' ? authenticate_with_user(x1) : authenticate_with_user
+
     post :create, query: query 
+    
     yield if block_given?
     
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
@@ -190,7 +193,6 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read_collection(type, fields = {})
-    authenticate_with_user
     type.camelize.constantize.delete_all
     
     obj = send("create_#{type}")
@@ -215,7 +217,10 @@ class ActiveSupport::TestCase
     node.gsub!(/, $/, ' }')
     
     query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+    type === 'user' ? authenticate_with_user(obj) : authenticate_with_user
+    
     post :create, query: query
+    
     yield if block_given?
     
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']

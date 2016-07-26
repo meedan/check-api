@@ -1,4 +1,4 @@
-API Endpoints - Fri Jul 22 22:43:10 UTC 2016
+API Endpoints - Tue Jul 26 01:32:12 UTC 2016
        
      1	DELETE   /accounts/:id
      2	DELETE   /api/users

@@ -11,5 +11,23 @@ UserType = GraphQL::ObjectType.define do
   field :profile_image, types.String
   field :login, types.String
   field :name, types.String
-  # End of fields
+
+  field :source do
+    type SourceType
+    resolve -> (user, _args, _ctx) do
+      user.source
+    end
+  end
+
+  connection :teams, -> { TeamType.connection_type } do
+    resolve ->(user, _args, _ctx) {
+      user.teams
+    }
+  end
+
+  connection :projects, -> { ProjectType.connection_type } do
+    resolve ->(user, _args, _ctx) {
+      user.projects
+    }
+  end
 end

@@ -273,4 +273,12 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read object from annotation" do
     assert_graphql_read_object('annotation', { 'annotator' => 'name' })
   end
+
+  test "should read object from user" do
+    assert_graphql_read_object('user', { 'source' => 'name' })
+  end
+
+  test "should read collection from user" do
+    assert_graphql_read_collection('user', { 'teams' => 'name', 'projects' => 'title' })
+  end
 end

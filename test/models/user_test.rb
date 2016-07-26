@@ -127,4 +127,13 @@ class UserTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should have projects" do
+    p1 = create_project
+    p2 = create_project
+    u = create_user
+    u.projects << p1
+    u.projects << p2
+    assert_equal [p1, p2].sort, u.projects.sort
+  end
 end
