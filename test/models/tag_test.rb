@@ -202,4 +202,30 @@ class TagTest < ActiveSupport::TestCase
     assert_equal [u3].sort, s2.annotators
   end
 
+  test "should get annotator" do
+    t = create_tag
+    assert_nil t.send(:annotator_callback, 'test@test.com')
+    u = create_user(email: 'test@test.com')
+    assert_equal u, t.send(:annotator_callback, 'test@test.com')
+  end
+
+  test "should get target id" do
+    t = create_tag
+    assert_equal 2, t.target_id_callback(1, [1, 2, 3])
+  end
+
+  test "should set annotator if not set" do
+    u1 = create_user
+    u2 = create_user
+    t = create_tag annotator: nil, current_user: u2
+    assert_equal u2, t.annotator
+  end
+
+  test "should set not annotator if set" do
+    u1 = create_user
+    u2 = create_user
+    t = create_tag annotator: u1, current_user: u2
+    assert_equal u1, t.annotator
+  end
+
 end

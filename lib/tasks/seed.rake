@@ -32,6 +32,7 @@ namespace :db do
               # TODO: add a check for model exists
               data = model.new
               old_id = 0
+              target_id = 0
               row.each_with_index do |value, index|
                 value = JSON.parse(value) unless (value =~ /^[\[\{]/).nil?
                 method = header[index]
@@ -42,7 +43,7 @@ namespace :db do
                 if method == 'id'
                   old_id = value
                 elsif method == 'target_id'
-                  target = Media.find(value)
+                  target_id = value
                 elsif data.respond_to?(method + '=')
                   data.send(method + '=', value)
                 elsif data.respond_to?(method)
@@ -51,14 +52,19 @@ namespace :db do
                   raise "#{data} does not respond to #{method}!"
                 end
               end
-
               if data.valid?
                 data.save
                 unless old_id.nil? || old_id == 0
                   mapping_ids[old_id] = data.id
                 end
-                if model == 'Comment'
-                  target.add_annotation(data)
+                if defined?(data._type) && data._type.to_s == 'annotation'
+                  # target is one of media, project or source
+                  target = Media.where(id: target_id).last
+                  target = Project.where(id: target_id).last if target.nil?
+                  target = Source.where(id: target_id).last if target.nil?
+                  unless target.nil?
+                    target.add_annotation(data)
+                  end
                 end
               else
                 puts "Failed to save #{model} [#{data.errors.messages}]"

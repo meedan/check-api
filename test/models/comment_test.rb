@@ -202,11 +202,11 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal [u3].sort, s2.annotators
   end
 
-  test "should get annotator id" do
+  test "should get annotator" do
     c = create_comment
-    assert_nil c.send(:annotator_id_callback, 'test@test.com')
+    assert_nil c.send(:annotator_callback, 'test@test.com')
     u = create_user(email: 'test@test.com')
-    assert_equal u.id, c.send(:annotator_id_callback, 'test@test.com')
+    assert_equal u, c.send(:annotator_callback, 'test@test.com')
   end
 
   test "should get target id" do
