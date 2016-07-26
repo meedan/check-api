@@ -16,5 +16,4 @@ class Comment
   def target_id_callback(value, mapping_ids)
     mapping_ids[value]
   end
-
 end

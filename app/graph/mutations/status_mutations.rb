@@ -1,6 +1,6 @@
-module CommentMutations
+module StatusMutations
   create_fields = {
-    text: '!str',
+    status: '!str',
     context_id: 'str',
     context_type: 'str',
     annotated_id: 'str',
@@ -8,7 +8,7 @@ module CommentMutations
   }
     
   update_fields = {
-    text: 'str',
+    status: 'str',
     context_id: 'str',
     context_type: 'str',
     annotated_id: 'str',
@@ -16,5 +16,5 @@ module CommentMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('comment', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('status', create_fields, update_fields)
 end

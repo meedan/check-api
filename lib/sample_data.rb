@@ -55,6 +55,12 @@ module SampleData
     t.reload
   end
 
+  def create_status(options = {})
+    s = Status.create({ status: 'verified', annotator: create_user }.merge(options))
+    sleep 1 if Rails.env.test?
+    s.reload
+  end
+
   def create_annotation(options = {})
     Annotation.create(options)
   end

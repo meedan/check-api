@@ -281,4 +281,36 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read collection from user" do
     assert_graphql_read_collection('user', { 'teams' => 'name', 'projects' => 'title' })
   end
+
+  test "should create status" do
+    assert_graphql_create('status', { status: 'verified' }) { sleep 1 }
+  end
+
+  test "should read statuses" do
+    assert_graphql_read('status', 'status') { sleep 1 }
+  end
+
+  test "should update status" do
+    assert_graphql_update('status', 'status', 'in progress', 'verified') { sleep 1 }
+  end
+
+  test "should destroy status" do
+    assert_graphql_destroy('status') { sleep 1 }
+  end
+
+  test "should create tag" do
+    assert_graphql_create('tag', { tag: 'egypt' }) { sleep 1 }
+  end
+
+  test "should read tags" do
+    assert_graphql_read('tag', 'tag') { sleep 1 }
+  end
+
+  test "should update tag" do
+    assert_graphql_update('tag', 'tag', 'egypt', 'Egypt') { sleep 1 }
+  end
+
+  test "should destroy tag" do
+    assert_graphql_destroy('tag') { sleep 1 }
+  end
 end

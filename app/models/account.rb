@@ -24,5 +24,4 @@ class Account < ActiveRecord::Base
     source = Source.where(name: value).last
     source.nil? ? nil : source.id
   end
-
 end

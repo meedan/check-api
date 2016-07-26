@@ -72,7 +72,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 1, c.versions.count
     v = c.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', '1'], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when comment is updated" do
@@ -214,4 +214,17 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 2, c.target_id_callback(1, [1, 2, 3])
   end
 
+  test "should set annotator if not set" do
+    u1 = create_user
+    u2 = create_user
+    c = create_comment annotator: nil, current_user: u2
+    assert_equal u2, c.annotator
+  end
+
+  test "should set not annotator if set" do
+    u1 = create_user
+    u2 = create_user
+    c = create_comment annotator: u1, current_user: u2
+    assert_equal u1, c.annotator
+  end
 end

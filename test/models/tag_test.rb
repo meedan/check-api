@@ -72,7 +72,7 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 1, t.versions.count
     v = t.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'tag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', '1'], 'tag' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'tag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', t.annotator_id], 'tag' => ['', 'test' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when tag is updated" do

@@ -46,7 +46,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    [Media, Account, Source].each{ |m| m.destroy_all }
+    [Media, Account, Source, User].each{ |m| m.destroy_all }
     Rails.cache.clear if File.exists?(File.join(Rails.root, 'tmp', 'cache'))
     Rails.application.reload_routes!
     # URL mocked by pender-client

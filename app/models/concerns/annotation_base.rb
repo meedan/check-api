@@ -58,7 +58,7 @@ module AnnotationBase
     attribute :annotator_type, String
     attribute :annotator_id, String
 
-    before_validation :set_type_and_event
+    before_validation :set_type_and_event, :set_annotator
 
     has_paper_trail on: [:update], save_changes: true
 
@@ -196,7 +196,7 @@ module AnnotationBase
   end
 
   def annotated=(obj)
-    self.set_polymorphic('annotated', obj)
+    self.set_polymorphic('annotated', obj) unless obj.nil?
   end
 
   def context
@@ -204,7 +204,7 @@ module AnnotationBase
   end
 
   def context=(obj)
-    self.set_polymorphic('context', obj)
+    self.set_polymorphic('context', obj) unless obj.nil?
   end
 
   def annotator
@@ -212,12 +212,20 @@ module AnnotationBase
   end
 
   def annotator=(obj)
-    self.set_polymorphic('annotator', obj)
+    self.set_polymorphic('annotator', obj) unless obj.nil?
   end
 
   # Overwrite in the annotation type and expose the specific fields of that type
   def content
     {}.to_json
+  end
+
+  def current_user
+    @current_user
+  end
+
+  def current_user=(user)
+    @current_user = user
   end
 
   protected
@@ -243,5 +251,9 @@ module AnnotationBase
   def reset_changes
     @changes = nil
     self.reload
+  end
+
+  def set_annotator
+    self.annotator = self.current_user if self.annotator.nil? && !self.current_user.nil?
   end
 end

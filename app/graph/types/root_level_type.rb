@@ -60,4 +60,14 @@ RootLevelType = GraphQL::ObjectType.define do
       Annotation.all_sorted
     }
   end
+  connection :tags, TagType.connection_type do
+    resolve ->(_object, _args, _ctx){
+      Tag.all.to_a.sort{ |a, b| a.created_at <=> b.created_at }
+    }
+  end
+  connection :statuses, StatusType.connection_type do
+    resolve ->(_object, _args, _ctx){
+      Status.all.to_a.sort{ |a, b| a.created_at <=> b.created_at }
+    }
+  end
 end
