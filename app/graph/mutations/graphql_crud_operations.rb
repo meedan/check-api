@@ -118,8 +118,8 @@ class GraphqlCrudOperations
         'str' => types.String
       }
 
-      fields.each do |name, type|
-        field name, mapping[type]
+      fields.each do |name, field_type|
+        field name, mapping[field_type]
       end
       
       field :annotator do
