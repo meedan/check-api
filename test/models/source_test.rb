@@ -123,7 +123,7 @@ class SourceTest < ActiveSupport::TestCase
     file = 'http://checkdesk.org/users/1/photo.png'
     assert_nil s.avatar_callback(file)
     file = 'http://lorempixel.com/400/200/'
-    assert_not_nil t.logo_callback(file)
+    assert_not_nil s.avatar_callback(file)
   end
 
 end
