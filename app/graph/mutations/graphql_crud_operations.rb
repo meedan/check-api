@@ -97,4 +97,38 @@ class GraphqlCrudOperations
       GraphqlCrudOperations.define_destroy(type)
     ]
   end
+
+  def self.define_annotation_type(type, fields = {})
+    GraphQL::ObjectType.define do
+      name type.capitalize
+      description "#{type.capitalize} type"
+    
+      interfaces [NodeIdentification.interface]
+    
+      field :id, field: GraphQL::Relay::GlobalIdField.new(type.capitalize)
+      field :annotation_type, types.String
+      field :updated_at, types.String
+      field :created_at, types.String
+      field :context_id, types.String
+      field :context_type, types.String
+      field :annotated_id, types.String
+      field :annotated_type, types.String
+
+      mapping = {
+        'str' => types.String
+      }
+
+      fields.each do |name, type|
+        field name, mapping[type]
+      end
+      
+      field :annotator do
+        type UserType
+    
+        resolve -> (annotation, _args, _ctx) {
+          annotation.annotator
+        }
+      end
+    end
+  end
 end
