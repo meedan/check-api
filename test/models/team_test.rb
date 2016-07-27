@@ -52,7 +52,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_nil t.logo_callback('')
     file = 'http://checkdesk.org/users/1/photo.png'
     assert_nil t.logo_callback(file)
-    file = 'http://lorempixel.com/400/200/'
+    file = 'http://dummyimage.com/100x100/000/fff.png'
     assert_not_nil t.logo_callback(file)
   end
 end
