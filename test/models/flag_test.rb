@@ -33,58 +33,58 @@ class FlagTest < ActiveSupport::TestCase
   test "should create version when flag is created" do
     f =  nil
     assert_difference 'PaperTrail::Version.count', 2 do
-      f =  create_flag(flag: 'spam')
+      f =  create_flag(flag: 'Spam')
     end
     assert_equal 1, f.versions.count
     v = f.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'flag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', f.annotator_id], 'flag' => ['', 'spam' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'flag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', f.annotator_id], 'flag' => ['', 'Spam' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when flag is updated" do
-    f =  create_flag(flag: 'spam')
-    f.flag = 'graphic content'
+    f =  create_flag(flag: 'Spam')
+    f.flag = 'Graphic Content'
     f.save
     assert_equal 2, f.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'flag' => ['spam', 'graphic content'] }, JSON.parse(v.object_changes))
+    assert_equal({ 'flag' => ['Spam', 'Graphic Content'] }, JSON.parse(v.object_changes))
   end
 
   test "should revert" do
-    f =  create_flag(flag: 'spam')
-    f.flag = 'graphic content'; f.save
-    f.flag = 'fact checking'; f.save
+    f =  create_flag(flag: 'Spam')
+    f.flag = 'Graphic Content'; f.save
+    f.flag = 'Fact Checking'; f.save
     assert_equal 3, f.versions.size
 
     f.revert
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic Content', f.flag
     f =  f.reload
-    assert_equal 'fact checking', f.flag
+    assert_equal 'Fact Checking', f.flag
 
     f.revert_and_save
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic Content', f.flag
     f =  f.reload
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic Content', f.flag
 
     f.revert
-    assert_equal 'spam', f.flag
+    assert_equal 'Spam', f.flag
     f.revert
-    assert_equal 'spam', f.flag
+    assert_equal 'Spam', f.flag
 
     f.revert(-1)
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic Content', f.flag
     f.revert(-1)
-    assert_equal 'fact checking', f.flag
+    assert_equal 'Fact Checking', f.flag
     f.revert(-1)
-    assert_equal 'fact checking', f.flag
+    assert_equal 'Fact Checking', f.flag
 
 
     f =  f.reload
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic Content', f.flag
     f.revert_and_save(-1)
     f =  f.reload
-    assert_equal 'fact checking', f.flag
+    assert_equal 'Fact Checking', f.flag
 
     assert_equal 3, f.versions.size
   end
@@ -190,4 +190,12 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal u1, f.annotator
   end
 
+  test "should not create flag with invalid value" do
+    assert_no_difference 'Flag.count' do
+      create_flag flag: 'invalid'
+    end
+    assert_difference 'Flag.count' do
+      create_flag flag: 'Spam'
+    end
+  end
 end

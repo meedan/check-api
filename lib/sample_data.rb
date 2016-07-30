@@ -56,13 +56,13 @@ module SampleData
   end
 
   def create_status(options = {})
-    s = Status.create({ status: 'verified', annotator: create_user, annotated: create_source }.merge(options))
+    s = Status.create({ status: 'Credible', annotator: create_user, annotated: create_source }.merge(options))
     sleep 1 if Rails.env.test?
     s.reload
   end
 
   def create_flag(options = {})
-    f = Flag.create({ flag: 'spam', annotator: create_user }.merge(options))
+    f = Flag.create({ flag: 'Spam', annotator: create_user }.merge(options))
     sleep 1 if Rails.env.test?
     f.reload
   end

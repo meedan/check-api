@@ -3,8 +3,8 @@ class Status
 
   attribute :status, String, presence: true
   validates_presence_of :status
-  #media status {Not Applicable, In Progress, Undetermined, Verified, False}
-  #source status {Credible, Not Credible, Slightly Credible, Sockpuppet}
+  validates :status, included: { values: ['Credible', 'Not Credible', 'Slightly Credible', 'Sockpuppet'] }
+  
   def content
     { status: self.status }.to_json
   end

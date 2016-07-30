@@ -67,62 +67,62 @@ class StatusTest < ActiveSupport::TestCase
   test "should create version when status is created" do
     st = nil
     assert_difference 'PaperTrail::Version.count', 3 do
-      st = create_status(status: 'test')
+      st = create_status(status: 'Credible')
     end
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', '2'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'status' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', st.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'status' => ['', 'Credible' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when status is updated" do
-    st = create_status(status: 'Verified')
-    st.status = 'False'
+    st = create_status(status: 'Slightly Credible')
+    st.status = 'Sockpuppet'
     st.save
     assert_equal 2, st.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'status' => ['Verified', 'False'] }, JSON.parse(v.object_changes))
+    assert_equal({ 'status' => ['Slightly Credible', 'Sockpuppet'] }, JSON.parse(v.object_changes))
   end
 
   test "should revert" do
-    st = create_status(status: 'In Progress')
-    st.status = 'Undetermined'; st.save
-    st.status = 'Verified'; st.save
-    st.status = 'False'; st.save
+    st = create_status(status: 'Credible')
+    st.status = 'Not Credible'; st.save
+    st.status = 'Slightly Credible'; st.save
+    st.status = 'Sockpuppet'; st.save
     assert_equal 4, st.versions.size
 
     st.revert
-    assert_equal 'Verified', st.status
+    assert_equal 'Slightly Credible', st.status
     st = st.reload
-    assert_equal 'False', st.status
+    assert_equal 'Sockpuppet', st.status
 
     st.revert_and_save
-    assert_equal 'Verified', st.status
+    assert_equal 'Slightly Credible', st.status
     st = st.reload
-    assert_equal 'Verified', st.status
+    assert_equal 'Slightly Credible', st.status
 
     st.revert
-    assert_equal 'Undetermined', st.status
+    assert_equal 'Not Credible', st.status
     st.revert
-    assert_equal 'In Progress', st.status
+    assert_equal 'Credible', st.status
     st.revert
-    assert_equal 'In Progress', st.status
+    assert_equal 'Credible', st.status
 
     st.revert(-1)
-    assert_equal 'Undetermined', st.status
+    assert_equal 'Not Credible', st.status
     st.revert(-1)
-    assert_equal 'Verified', st.status
+    assert_equal 'Slightly Credible', st.status
     st.revert(-1)
-    assert_equal 'False', st.status
+    assert_equal 'Sockpuppet', st.status
     st.revert(-1)
-    assert_equal 'False', st.status
+    assert_equal 'Sockpuppet', st.status
 
     st = st.reload
-    assert_equal 'Verified', st.status
+    assert_equal 'Slightly Credible', st.status
     st.revert_and_save(-1)
     st = st.reload
-    assert_equal 'False', st.status
+    assert_equal 'Sockpuppet', st.status
 
     assert_equal 4, st.versions.size
   end
@@ -228,4 +228,12 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal u1, st.annotator
   end
 
+  test "should not create status with invalid value" do
+    assert_no_difference 'Status.count' do
+      create_status status: 'invalid'
+    end
+    assert_difference 'Status.count' do
+      create_status status: 'Credible'
+    end
+  end
 end

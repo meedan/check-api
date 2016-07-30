@@ -285,7 +285,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create status" do
-    assert_graphql_create('status', { status: 'verified' }) { sleep 1 }
+    assert_graphql_create('status', { status: 'Credible' }) { sleep 1 }
   end
 
   test "should read statuses" do
@@ -293,7 +293,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should update status" do
-    assert_graphql_update('status', 'status', 'in progress', 'verified') { sleep 1 }
+    assert_graphql_update('status', 'status', 'Credible', 'Not Credible') { sleep 1 }
   end
 
   test "should destroy status" do

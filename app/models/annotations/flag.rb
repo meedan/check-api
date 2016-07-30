@@ -3,7 +3,8 @@ class Flag
 
   attribute :flag, String, presence: true
   validates_presence_of :flag
-  # Media flags  {spam, graphic content, fact checking}
+  validates :flag, included: { values: ['Spam', 'Graphic Content', 'Fact Checking'] }
+  
   def content
     { flag: self.flag }.to_json
   end
