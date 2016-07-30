@@ -29,7 +29,7 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parent)
   end
 
-  def self.update(type, inputs, ctx, parent = nil)
+  def self.update(_type, inputs, ctx, parent = nil)
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
     obj.current_user = ctx[:current_user]
     
