@@ -61,6 +61,12 @@ module SampleData
     s.reload
   end
 
+  def create_flag(options = {})
+    f = Flag.create({ flag: 'spam', annotator: create_user }.merge(options))
+    sleep 1 if Rails.env.test?
+    f.reload
+  end
+
   def create_annotation(options = {})
     if options.has_key?(:annotation_type) && options[:annotation_type].blank?
       Annotation.create(options)
