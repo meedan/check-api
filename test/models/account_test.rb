@@ -83,4 +83,9 @@ class AccountTest < ActiveSupport::TestCase
     a = create_valid_account
     assert_equal s.id, a.source_id_callback('test')
   end
+
+  test "should get provider" do
+    a = create_valid_account
+    assert_equal 'twitter', a.provider
+  end
 end

@@ -1,4 +1,4 @@
-module  TagMutations
+module TagMutations
   create_fields = {
     tag: '!str',
     context_id: 'str',
@@ -16,5 +16,5 @@ module  TagMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tag', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tag', create_fields, update_fields, 'source')
 end

@@ -205,8 +205,11 @@ class ActiveSupport::TestCase
       elsif name === 'collaborators'
         obj.add_annotation create_comment(annotator: create_user)
         sleep 1
-      elsif name === 'annotations'
+      elsif name === 'annotations' || name === 'comments'
         obj.add_annotation(create_comment) if obj.annotations.empty?
+        sleep 1
+      elsif name === 'tags'
+        obj.add_annotation(create_tag)
         sleep 1
       else
         obj.send(name).send('<<', [send("create_#{name.singularize}")])

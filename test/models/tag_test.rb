@@ -36,13 +36,13 @@ class TagTest < ActiveSupport::TestCase
     s2 = SampleModel.create!
     assert_equal [], s2.annotations
 
-    t1a = create_tag
+    t1a = create_tag annotated: nil
     assert_nil t1a.annotated
-    t1b = create_tag
+    t1b = create_tag annotated: nil
     assert_nil t1b.annotated
-    t2a = create_tag
+    t2a = create_tag annotated: nil
     assert_nil t2a.annotated
-    t2b = create_tag
+    t2b = create_tag annotated: nil
     assert_nil t2b.annotated
 
     s1.add_annotation t1a
@@ -66,13 +66,13 @@ class TagTest < ActiveSupport::TestCase
 
   test "should create version when tag is created" do
     t = nil
-    assert_difference 'PaperTrail::Version.count', 2 do
+    assert_difference 'PaperTrail::Version.count', 3 do
       t = create_tag(tag: 'test')
     end
     assert_equal 1, t.versions.count
     v = t.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'tag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', t.annotator_id], 'tag' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'tag'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', '2'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', t.annotator_id], 'tag' => ['', 'test' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when tag is updated" do
@@ -164,8 +164,8 @@ class TagTest < ActiveSupport::TestCase
     sleep 1
 
     assert_equal [t1.id, t2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [t1.id], annotated.annotations(context1).map(&:id)
-    assert_equal [t2.id], annotated.annotations(context2).map(&:id)
+    assert_equal [t1.id], annotated.annotations(nil, context1).map(&:id)
+    assert_equal [t2.id], annotated.annotations(nil, context2).map(&:id)
   end
 
   test "should get columns as array" do

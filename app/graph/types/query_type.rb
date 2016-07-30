@@ -24,5 +24,14 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  field :source do
+    type SourceType
+    description 'Information about the source with given id'
+    argument :id, !types.ID
+    resolve -> (_obj, args, _ctx) do
+      Source.find(args['id'])
+    end
+  end
+
   # End Of Queries
 end

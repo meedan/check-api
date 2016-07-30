@@ -47,4 +47,8 @@ MutationType = GraphQL::ObjectType.define do
   field :createStatus, field: StatusMutations::Create.field
   field :updateStatus, field: StatusMutations::Update.field
   field :destroyStatus, field: StatusMutations::Destroy.field
+
+  # field :createAnnotation, field: AnnotationMutations::Create.field
+  # field :updateAnnotation, field: AnnotationMutations::Update.field
+  field :destroyAnnotation, field: AnnotationMutations::Destroy.field
 end

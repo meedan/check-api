@@ -16,6 +16,10 @@ class Account < ActiveRecord::Base
     serialize :data
   end
 
+  def provider
+    self.data['provider']
+  end
+
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
   end

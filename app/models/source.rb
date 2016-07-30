@@ -27,7 +27,20 @@ class Source < ActiveRecord::Base
     self.user.nil? ? self.avatar.to_s : self.user.profile_image
   end
 
+  def description
+    return self.slogan unless self.slogan == self.name
+    self.accounts.first.data['description'] unless self.accounts.empty?
+  end
+
   def collaborators
     self.annotators
+  end
+
+  def tags
+    self.annotations('tag')
+  end
+
+  def comments
+    self.annotations('comment')
   end
 end

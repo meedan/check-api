@@ -44,25 +44,29 @@ module SampleData
   end
 
   def create_comment(options = {})
-    c = Comment.create({ text: random_string(50), annotator: create_user }.merge(options))
+    c = Comment.create({ text: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
     sleep 1 if Rails.env.test?
     c.reload
   end
 
   def create_tag(options = {})
-    t = Tag.create({ tag: random_string(50), annotator: create_user }.merge(options))
+    t = Tag.create({ tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
     sleep 1 if Rails.env.test?
     t.reload
   end
 
   def create_status(options = {})
-    s = Status.create({ status: 'verified', annotator: create_user }.merge(options))
+    s = Status.create({ status: 'verified', annotator: create_user, annotated: create_source }.merge(options))
     sleep 1 if Rails.env.test?
     s.reload
   end
 
   def create_annotation(options = {})
-    Annotation.create(options)
+    if options.has_key?(:annotation_type) && options[:annotation_type].blank?
+      Annotation.create(options)
+    else
+      create_comment(options)
+    end
   end
 
   def create_account(options = {})
@@ -169,7 +173,9 @@ module SampleData
   def create_valid_account(options = {})
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '"}}')
+    options[:data] ||= {}
+    data = { url: url, provider: 'twitter' }.merge(options[:data]) 
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
     options.merge!({ url: url })
     create_account(options)
   end
