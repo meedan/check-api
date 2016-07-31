@@ -24,23 +24,16 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  field :source do
-    type SourceType
-    description 'Information about the source with given id'
-    argument :id, !types.ID
-    resolve -> (_obj, args, _ctx) do
-      Source.find(args['id'])
+  # Getters by ID
+
+  [:source, :user].each do |type|
+    field type do
+      type "#{type.to_s.camelize}Type".constantize
+      description "Information about the #{type} with given id"
+      argument :id, !types.ID
+      resolve -> (_obj, args, _ctx) do
+        type.to_s.camelize.constantize.find(args['id'])
+      end
     end
   end
-
-  field :user do
-    type UserType
-    description 'Information about the user with given id'
-    argument :id, !types.ID
-    resolve -> (_obj, args, _ctx) do
-      User.find(args['id'])
-    end
-  end
-
-  # End Of Queries
 end
