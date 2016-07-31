@@ -33,5 +33,14 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  field :user do
+    type UserType
+    description 'Information about the user with given id'
+    argument :id, !types.ID
+    resolve -> (_obj, args, _ctx) do
+      User.find(args['id'])
+    end
+  end
+
   # End Of Queries
 end

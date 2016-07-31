@@ -333,4 +333,13 @@ class GraphqlControllerTest < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['source']
     assert_equal 'Test', data['name']
   end
+
+  test "should get user from id" do
+    authenticate_with_user
+    u = create_user name: 'Test'
+    post :create, query: 'query Source { user(id: "' + u.id.to_s + '") { name } }'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['user']
+    assert_equal 'Test', data['name']
+  end
 end
