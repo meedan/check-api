@@ -11,6 +11,7 @@ SourceType = GraphQL::ObjectType.define do
   field :description, !types.String
   field :name, !types.String
   field :dbid, types.Int
+  field :user_id, types.Int
   
   connection :accounts, -> { AccountType.connection_type } do
     resolve ->(source, _args, _ctx) {

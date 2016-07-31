@@ -130,7 +130,7 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source name: 'foo', slogan: 'bar'
     assert_equal 'bar', s.description
     s = create_source name: 'foo', slogan: 'foo'
-    assert_nil s.description
+    assert_equal '', s.description
     s.accounts << create_valid_account(data: { description: 'test' })
     assert_equal 'test', s.description
   end
