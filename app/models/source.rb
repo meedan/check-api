@@ -29,7 +29,7 @@ class Source < ActiveRecord::Base
 
   def description
     return self.slogan unless self.slogan == self.name
-    self.accounts.first.data['description'] unless self.accounts.empty?
+    self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s 
   end
 
   def collaborators
