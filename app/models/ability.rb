@@ -49,7 +49,7 @@ class Ability
     can :read, :all
     can :create, [Media, Source, Account]
     can :update, [Media, Source, Account], :user_id => user.id
-    cannot :destory, :all
+    cannot :destroy, :all
     cannot :manage, [Team, User, Project]
   end
 
