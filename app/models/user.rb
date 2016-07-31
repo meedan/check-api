@@ -14,6 +14,11 @@ class User < ActiveRecord::Base
   after_create :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
 
+  ROLES = %w[contributor journalist editor owner admin]
+  def role?(base_role)
+    ROLES.index(base_role.to_s) <= ROLES.index(role)
+  end
+
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
     user = User.where(provider: auth.provider, uuid: auth.uid).first || User.new
