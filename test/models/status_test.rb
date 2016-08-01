@@ -230,16 +230,16 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should not create status with invalid value" do
     assert_no_difference 'Status.count' do
-      create_status status: 'invalid', annotated_type: 'Media'
+      create_status status: 'invalid', annotated: create_valid_media
     end
     assert_no_difference 'Status.count' do
-      create_status status: 'invalid', annotated_type: 'Source'
+      create_status status: 'invalid'
     end
     assert_difference 'Status.count' do
-      create_status status: 'Credible', annotated_type: 'Source'
+      create_status status: 'Credible'
     end
     assert_difference 'Status.count' do
-      create_status status: 'Verified', annotated_type: 'Media'
+      create_status status: 'Verified', annotated: create_valid_media
     end
   end
 end
