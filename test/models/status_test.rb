@@ -242,4 +242,11 @@ class StatusTest < ActiveSupport::TestCase
       create_status status: 'Verified', annotated: create_valid_media
     end
   end
+
+  test "should not create status with invalid annotated" do
+    assert_no_difference 'Status.count' do
+      create_status status: 'Verified', annotated: create_project
+    end
+  end
+
 end
