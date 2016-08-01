@@ -39,6 +39,7 @@ module SampleData
     u.password = options[:password] || random_string
     u.password_confirmation = options[:password_confirmation] || u.password
     u.url = options[:url] if options.has_key?(:url)
+    u.role = options[:role] || 'contributor'
     u.save!
     u.reload
   end

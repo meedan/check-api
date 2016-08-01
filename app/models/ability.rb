@@ -2,7 +2,7 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    user ||= User.new
+    @user = user ||= User.new
 
     # Define User abilities
     if user.role? :admin
@@ -35,22 +35,18 @@ class Ability
 
   def editor_perms
     can :manage, [User, Project, Media, Source, Account]
-    cannot :manage, Team
   end
 
   def journalist_perms
     can :create, [User, Project]
     can :update, [User, Media, Source, Account]
     can :update, Project, [:title, :description]
-    cannot :manage, Team
   end
 
   def contributor_perms
     can :read, :all
     can :create, [Media, Source, Account]
-    can :update, [Media, Source, Account], :user_id => user.id
-    cannot :destroy, :all
-    cannot :manage, [Team, User, Project]
+    can :update, [Media, Source, Account], :user_id => @user.id
   end
 
 end

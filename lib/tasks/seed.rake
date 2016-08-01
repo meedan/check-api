@@ -23,7 +23,7 @@ namespace :db do
           name = file.gsub(/.*[0-9]_([^\.]+)\.csv/, '\1')
           model = name.singularize.camelize.constantize
           header = []
-          #model.delete_all
+          model.delete_all
           #ActiveRecord::Base.connection.execute("ALTER TABLE #{name} AUTO_INCREMENT = 1")
           CSV.foreach(file, quote_char: '`') do |row|
             if header.blank?
