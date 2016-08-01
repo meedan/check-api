@@ -43,29 +43,29 @@ class FlagTest < ActiveSupport::TestCase
 
   test "should create version when flag is updated" do
     f =  create_flag(flag: 'Spam')
-    f.flag = 'Graphic Content'
+    f.flag = 'Graphic content'
     f.save
     assert_equal 2, f.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'flag' => ['Spam', 'Graphic Content'] }, JSON.parse(v.object_changes))
+    assert_equal({ 'flag' => ['Spam', 'Graphic content'] }, JSON.parse(v.object_changes))
   end
 
   test "should revert" do
     f =  create_flag(flag: 'Spam')
-    f.flag = 'Graphic Content'; f.save
-    f.flag = 'Fact Checking'; f.save
+    f.flag = 'Graphic content'; f.save
+    f.flag = 'Needing fact-checking'; f.save
     assert_equal 3, f.versions.size
 
     f.revert
-    assert_equal 'Graphic Content', f.flag
+    assert_equal 'Graphic content', f.flag
     f =  f.reload
-    assert_equal 'Fact Checking', f.flag
+    assert_equal 'Needing fact-checking', f.flag
 
     f.revert_and_save
-    assert_equal 'Graphic Content', f.flag
+    assert_equal 'Graphic content', f.flag
     f =  f.reload
-    assert_equal 'Graphic Content', f.flag
+    assert_equal 'Graphic content', f.flag
 
     f.revert
     assert_equal 'Spam', f.flag
@@ -73,18 +73,18 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal 'Spam', f.flag
 
     f.revert(-1)
-    assert_equal 'Graphic Content', f.flag
+    assert_equal 'Graphic content', f.flag
     f.revert(-1)
-    assert_equal 'Fact Checking', f.flag
+    assert_equal 'Needing fact-checking', f.flag
     f.revert(-1)
-    assert_equal 'Fact Checking', f.flag
+    assert_equal 'Needing fact-checking', f.flag
 
 
     f =  f.reload
-    assert_equal 'Graphic Content', f.flag
+    assert_equal 'Graphic content', f.flag
     f.revert_and_save(-1)
     f =  f.reload
-    assert_equal 'Fact Checking', f.flag
+    assert_equal 'Needing fact-checking', f.flag
 
     assert_equal 3, f.versions.size
   end
@@ -198,4 +198,17 @@ class FlagTest < ActiveSupport::TestCase
       create_flag flag: 'Spam'
     end
   end
+
+  test "should not create flag with invalid annotated" do
+    assert_no_difference 'Flag.count' do
+      create_flag annotated: create_source
+    end
+  end
+
+ test "should get flag" do
+    f =  create_flag
+    assert_equal 'Graphic content', f.flag_callback('graphic_journalist')
+    assert_equal 'Invalid', f.flag_callback('Invalid')
+  end
+
 end

@@ -62,7 +62,7 @@ module SampleData
   end
 
   def create_flag(options = {})
-    f = Flag.create({ flag: 'Spam', annotator: create_user }.merge(options))
+    f = Flag.create({ flag: 'Spam', annotator: create_user, annotated: create_valid_media }.merge(options))
     sleep 1 if Rails.env.test?
     f.reload
   end
@@ -180,7 +180,7 @@ module SampleData
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = random_url
     options[:data] ||= {}
-    data = { url: url, provider: 'twitter' }.merge(options[:data]) 
+    data = { url: url, provider: 'twitter' }.merge(options[:data])
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
     options.merge!({ url: url })
     create_account(options)
