@@ -285,7 +285,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create status" do
-    assert_graphql_create('status', { status: 'Credible' }) { sleep 1 }
+    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source' }) { sleep 1 }
   end
 
   test "should read statuses" do

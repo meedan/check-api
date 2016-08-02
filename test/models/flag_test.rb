@@ -1,9 +1,5 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
-class SampleModel < ActiveRecord::Base
-  has_annotations
-end
-
 class FlagTest < ActiveSupport::TestCase
   def setup
     super
@@ -33,7 +29,7 @@ class FlagTest < ActiveSupport::TestCase
   test "should create version when flag is created" do
     f =  nil
     assert_difference 'PaperTrail::Version.count', 2 do
-      f =  create_flag(flag: 'Spam')
+      f =  create_flag(flag: 'Spam', annotated: nil)
     end
     assert_equal 1, f.versions.count
     v = f.versions.last
@@ -101,7 +97,7 @@ class FlagTest < ActiveSupport::TestCase
 
   test "should have context" do
     f =  create_flag
-    s = SampleModel.create
+    s = create_project
     assert_nil f.context
     f.context = s
     f.save
@@ -109,9 +105,9 @@ class FlagTest < ActiveSupport::TestCase
   end
 
    test "should get annotations from context" do
-    context1 = SampleModel.create
-    context2 = SampleModel.create
-    annotated = SampleModel.create
+    context1 = create_project
+    context2 = create_project
+    annotated = create_valid_media
 
     f1 = create_flag
     f1.context = context1
@@ -151,8 +147,8 @@ class FlagTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = SampleModel.create!
-    s2 = SampleModel.create!
+    s1 = create_valid_media
+    s2 = create_valid_media
     f1 = create_flag annotator: u1, annotated: s1
     f2 = create_flag annotator: u1, annotated: s1
     f3 = create_flag annotator: u1, annotated: s1

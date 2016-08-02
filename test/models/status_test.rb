@@ -1,9 +1,5 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
-class SampleModel < ActiveRecord::Base
-  has_annotations
-end
-
 class StatusTest < ActiveSupport::TestCase
   def setup
     super
@@ -31,9 +27,9 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    s1 = SampleModel.create!
+    s1 = create_source
     assert_equal [], s1.annotations
-    s2 = SampleModel.create!
+    s2 = create_source
     assert_equal [], s2.annotations
 
     t1a = create_status annotated: nil
@@ -139,7 +135,7 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should have context" do
     st = create_status
-    s = SampleModel.create
+    s = create_source
     assert_nil st.context
     st.context = s
     st.save
@@ -147,9 +143,9 @@ class StatusTest < ActiveSupport::TestCase
   end
 
    test "should get annotations from context" do
-    context1 = SampleModel.create
-    context2 = SampleModel.create
-    annotated = SampleModel.create
+    context1 = create_project
+    context2 = create_project
+    annotated = create_source
 
     st1 = create_status
     st1.context = context1
@@ -189,8 +185,8 @@ class StatusTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = SampleModel.create!
-    s2 = SampleModel.create!
+    s1 = create_source
+    s2 = create_source
     st1 = create_status annotator: u1, annotated: s1
     st2 = create_status annotator: u1, annotated: s1
     st3 = create_status annotator: u1, annotated: s1
@@ -249,4 +245,8 @@ class StatusTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get annotated type" do
+    s = create_status
+    assert_equal 'Source', s.annotated_type_callback('source')
+  end
 end

@@ -3,7 +3,7 @@ class Flag
 
   attribute :flag, String, presence: true
   validates_presence_of :flag
-  validates :annotated_type, included: {values: ['Media']}
+  validates :annotated_type, included: { values: ['Media', nil] }
   validates :flag, included: { values: ['Spam', 'Graphic content', 'Needing fact-checking', 'Needing deletion', 'Follow story'] }
 
   def content

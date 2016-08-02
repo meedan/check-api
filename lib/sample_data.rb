@@ -56,13 +56,23 @@ module SampleData
   end
 
   def create_status(options = {})
-    s = Status.create({ status: 'Credible', annotator: create_user, annotated: create_source }.merge(options))
+    type = id = nil
+    unless options.has_key?(:annotated) && options[:annotated].nil?
+      a = options.delete(:annotated) || create_source
+      type, id = a.class.name, a.id.to_s
+    end
+    s = Status.create({ status: 'Credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
     sleep 1 if Rails.env.test?
     s.reload
   end
 
   def create_flag(options = {})
-    f = Flag.create({ flag: 'Spam', annotator: create_user, annotated: create_valid_media }.merge(options))
+    type = id = nil
+    unless options.has_key?(:annotated) && options[:annotated].nil?
+      m = options.delete(:annotated) || create_valid_media
+      type, id = m.class.name, m.id.to_s
+    end
+    f = Flag.create({ flag: 'Spam', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
     sleep 1 if Rails.env.test?
     f.reload
   end
