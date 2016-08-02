@@ -6,4 +6,15 @@ class TeamUserTest < ActiveSupport::TestCase
       create_team_user
     end
   end
+
+  test "should get user from callback" do
+    u = create_user email: 'test@local.com'
+    tu = create_team_user
+    assert_equal u.id, tu.user_id_callback('test@local.com')
+  end
+
+  test "should get team from callback" do
+    tu = create_team_user
+    assert_equal 2, tu.team_id_callback(1, [1, 2, 3])
+  end
 end

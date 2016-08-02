@@ -17,6 +17,6 @@ module UserMutations
     password_confirmation: 'str',
     id: '!id'
   }
-  
+
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('user', create_fields, update_fields)
 end

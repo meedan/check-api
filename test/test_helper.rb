@@ -34,9 +34,19 @@ class ActiveSupport::TestCase
 
   include SampleData
 
+  def stub_config(key, value)
+    CONFIG.each do |k, v|
+      CONFIG.stubs(:[]).with(k).returns(v) if k != key
+    end
+    CONFIG.stubs(:[]).with(key).returns(value)
+    yield
+    CONFIG.unstub(:[])
+  end
+
   # This will run before any test
 
   def setup
+    [Media, Account, Source, User].each{ |m| m.destroy_all }
     Rails.cache.clear if File.exists?(File.join(Rails.root, 'tmp', 'cache'))
     Rails.application.reload_routes!
     # URL mocked by pender-client
@@ -146,10 +156,17 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read_object(type, fields = {})
-    authenticate_with_user
     type.camelize.constantize.delete_all
-    x1 = send("create_#{type}")
-    x2 = send("create_#{type}")
+
+    x1 = nil
+    x2 = nil
+    if type === 'annotation'
+      x1 = create_comment
+      x2 = create_comment
+    else
+      x1 = send("create_#{type}")
+      x2 = send("create_#{type}")
+    end
     
     node = '{ '
     fields.each do |name, key|
@@ -158,7 +175,11 @@ class ActiveSupport::TestCase
     node.gsub!(/, $/, ' }')
 
     query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+
+    type === 'user' ? authenticate_with_user(x1) : authenticate_with_user
+
     post :create, query: query 
+    
     yield if block_given?
     
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
@@ -172,21 +193,37 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read_collection(type, fields = {})
-    authenticate_with_user
     type.camelize.constantize.delete_all
     
     obj = send("create_#{type}")
     
     node = '{ '
     fields.each do |name, key|
-      obj.send(name).send('<<', [send("create_#{name.singularize}")])
-      obj.save!
+      if name === 'medias' && obj.is_a?(Source)
+        create_valid_media(account: create_valid_account(source: obj))
+        obj = obj.reload
+      elsif name === 'collaborators'
+        obj.add_annotation create_comment(annotator: create_user)
+        sleep 1
+      elsif name === 'annotations' || name === 'comments'
+        obj.add_annotation(create_comment) if obj.annotations.empty?
+        sleep 1
+      elsif name === 'tags'
+        obj.add_annotation(create_tag)
+        sleep 1
+      else
+        obj.send(name).send('<<', [send("create_#{name.singularize}")])
+        obj.save!
+      end
       node += "#{name} { edges { node { #{key} } } }, "
     end
     node.gsub!(/, $/, ' }')
     
     query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
+    type === 'user' ? authenticate_with_user(obj) : authenticate_with_user
+    
     post :create, query: query
+    
     yield if block_given?
     
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
@@ -200,17 +237,25 @@ class ActiveSupport::TestCase
   # Document GraphQL queries in Markdown format
   def document_graphql_query(action, type, query, response)
     if ENV['DOCUMENT']
-      log = File.open(File.join(Rails.root, 'doc', 'graphql.md'), 'a+')
+      file = File.join(Rails.root, 'doc', 'graphql', "#{type}.md")
+      unless File.exist?(file)
+        log = File.open(file, 'w+')
+        log.puts('')
+        log.puts("## #{type.split('_').map(&:capitalize).join(' ')}")
+        log.puts('')
+        log.close
+      end
+      log = File.open(file, 'a+')
       log.puts <<-eos
-#### #{action.split('_').map(&:capitalize).join(' ')} #{type.split('_').map(&:capitalize).join(' ')}
+### __#{action.split('_').map(&:capitalize).join(' ')} #{type.split('_').map(&:capitalize).join(' ')}__
 
-**Query**
+#### __Query__
 
-```
+```graphql
 #{query}
 ```
 
-**Result**
+#### __Result__
 
 ```json
 #{JSON.pretty_generate(JSON.parse(response))}

@@ -6,6 +6,10 @@ module SampleData
     (0...length).map{ (65 + rand(26)).chr }.join
   end
 
+  def random_url
+    'http://' + random_string + '.com'
+  end
+
   def random_number(max = 50)
     rand(max) + 1
   end
@@ -40,13 +44,45 @@ module SampleData
   end
 
   def create_comment(options = {})
-    c = Comment.create({ text: random_string(50) }.merge(options))
+    c = Comment.create({ text: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
     sleep 1 if Rails.env.test?
     c.reload
   end
 
+  def create_tag(options = {})
+    t = Tag.create({ tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
+    sleep 1 if Rails.env.test?
+    t.reload
+  end
+
+  def create_status(options = {})
+    type = id = nil
+    unless options.has_key?(:annotated) && options[:annotated].nil?
+      a = options.delete(:annotated) || create_source
+      type, id = a.class.name, a.id.to_s
+    end
+    s = Status.create({ status: 'Credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
+    sleep 1 if Rails.env.test?
+    s.reload
+  end
+
+  def create_flag(options = {})
+    type = id = nil
+    unless options.has_key?(:annotated) && options[:annotated].nil?
+      m = options.delete(:annotated) || create_valid_media
+      type, id = m.class.name, m.id.to_s
+    end
+    f = Flag.create({ flag: 'Spam', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
+    sleep 1 if Rails.env.test?
+    f.reload
+  end
+
   def create_annotation(options = {})
-    Annotation.create(options)
+    if options.has_key?(:annotation_type) && options[:annotation_type].blank?
+      Annotation.create(options)
+    else
+      create_comment(options)
+    end
   end
 
   def create_account(options = {})
@@ -59,7 +95,7 @@ module SampleData
     else
       account.user = options[:user] || create_user
     end
-    account.source = options[:source] || create_source
+    account.source = options.has_key?(:source) ? options[:source] : create_source
     account.save!
     account.reload
   end
@@ -70,6 +106,7 @@ module SampleData
     project.description = options[:description] || random_string(40)
     project.user = options[:user] || create_user
     project.lead_image = options[:lead_image]
+    project.archived = options[:archived] || false
     project.save!
     project.reload
   end
@@ -77,8 +114,15 @@ module SampleData
   def create_team(options = {})
     team = Team.new
     team.name = options[:name] || random_string
-    team.logo = options[:logo]
+    if options.has_key?(:logo)
+      team.logo = options[:logo]
+    else
+      File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+        team.logo = f
+      end
+    end
     team.archived = options[:archived] || false
+    team.description = options[:description] || random_string
     team.save!
     team.reload
   end
@@ -86,11 +130,9 @@ module SampleData
   def create_media(options = {})
     return create_valid_media(options) if options[:url].blank?
     account = options[:account] || create_account
-    project = options[:project] || create_project
     user = options[:user] || create_user
     m = Media.new
     m.url = options[:url]
-    m.project_id = options[:project_id] || project.id
     m.account_id = options[:account_id] || account.id
     m.user_id = options[:user_id] || user.id
     m.save!
@@ -117,6 +159,16 @@ module SampleData
     ps.reload
   end
 
+  def create_project_media(options = {})
+    pm = ProjectMedia.new
+    project = options[:project] || create_project
+    media = options[:source] || create_valid_media
+    pm.project_id = options[:project_id] || project.id
+    pm.media_id = options[:media_id] || media.id
+    pm.save!
+    pm.reload
+  end
+
   def create_team_user(options = {})
     tu = TeamUser.new
     team = options[:team] || create_team
@@ -128,22 +180,19 @@ module SampleData
   end
 
   def create_valid_media(options = {})
-    m = nil
-    url = 'https://www.youtube.com/user/MeedanTube'
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      a = create_account(url: url)
-      m = create_media({ url: url, account: a }.merge(options))
-    end
-    m
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = random_url
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '"}}')
+    create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
   end
 
   def create_valid_account(options = {})
-    a = nil
-    url = 'https://www.youtube.com/user/MeedanTube'
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      options.merge!({ url: url })
-      a = create_account(options)
-    end
-    a
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = random_url
+    options[:data] ||= {}
+    data = { url: url, provider: 'twitter', picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test' }.merge(options[:data])
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
+    options.merge!({ url: url })
+    create_account(options)
   end
 end

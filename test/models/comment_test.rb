@@ -35,16 +35,16 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal [], s1.annotations
     s2 = SampleModel.create!
     assert_equal [], s2.annotations
-    
-    c1a = create_comment
+
+    c1a = create_comment annotated: nil
     assert_nil c1a.annotated
-    c1b = create_comment
+    c1b = create_comment annotated: nil
     assert_nil c1b.annotated
-    c2a = create_comment
+    c2a = create_comment annotated: nil
     assert_nil c2a.annotated
-    c2b = create_comment
+    c2b = create_comment annotated: nil
     assert_nil c2b.annotated
-    
+
     s1.add_annotation c1a
     c1b.annotated = s1
     c1b.save
@@ -52,7 +52,7 @@ class CommentTest < ActiveSupport::TestCase
     s2.add_annotation c2a
     c2b.annotated = s2
     c2b.save
-    
+
     sleep 1
 
     assert_equal s1, c1a.annotated
@@ -66,13 +66,13 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should create version when comment is created" do
     c = nil
-    assert_difference 'PaperTrail::Version.count' do
+    assert_difference 'PaperTrail::Version.count', 3 do
       c = create_comment(text: 'test')
     end
     assert_equal 1, c.versions.count
-    v = PaperTrail::Version.last
+    v = c.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'comment'], 'text' => ['', 'test'] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', c.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when comment is updated" do
@@ -164,8 +164,8 @@ class CommentTest < ActiveSupport::TestCase
     sleep 1
 
     assert_equal [c1.id, c2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [c1.id], annotated.annotations(context1).map(&:id)
-    assert_equal [c2.id], annotated.annotations(context2).map(&:id)
+    assert_equal [c1.id], annotated.annotations(nil, context1).map(&:id)
+    assert_equal [c2.id], annotated.annotations(nil, context2).map(&:id)
   end
 
   test "should get columns as array" do
@@ -178,5 +178,53 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should not be abstract" do
     assert_not Comment.abstract_class?
+  end
+
+  test "should have content" do
+    c = create_comment
+    assert_equal ['text'], JSON.parse(c.content).keys
+  end
+
+  test "should have annotators" do
+    u1 = create_user
+    u2 = create_user
+    u3 = create_user
+    s1 = SampleModel.create!
+    s2 = SampleModel.create!
+    c1 = create_comment annotator: u1, annotated: s1
+    c2 = create_comment annotator: u1, annotated: s1
+    c3 = create_comment annotator: u1, annotated: s1
+    c4 = create_comment annotator: u2, annotated: s1
+    c5 = create_comment annotator: u2, annotated: s1
+    c6 = create_comment annotator: u3, annotated: s2
+    c7 = create_comment annotator: u3, annotated: s2
+    assert_equal [u1, u2].sort, s1.annotators
+    assert_equal [u3].sort, s2.annotators
+  end
+
+  test "should get annotator" do
+    c = create_comment
+    assert_nil c.send(:annotator_callback, 'test@test.com')
+    u = create_user(email: 'test@test.com')
+    assert_equal u, c.send(:annotator_callback, 'test@test.com')
+  end
+
+  test "should get target id" do
+    c = create_comment
+    assert_equal 2, c.target_id_callback(1, [1, 2, 3])
+  end
+
+  test "should set annotator if not set" do
+    u1 = create_user
+    u2 = create_user
+    c = create_comment annotator: nil, current_user: u2
+    assert_equal u2, c.annotator
+  end
+
+  test "should set not annotator if set" do
+    u1 = create_user
+    u2 = create_user
+    c = create_comment annotator: u1, current_user: u2
+    assert_equal u1, c.annotator
   end
 end

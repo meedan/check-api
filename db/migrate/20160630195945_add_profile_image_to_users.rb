@@ -1,10 +1,6 @@
 class AddProfileImageToUsers < ActiveRecord::Migration
   def change
-    begin
-      remove_column :users, :profile_image
-    rescue
-      # Column doesn't exist
-    end
+    remove_column(:users, :profile_image) if User.column_names.include?('profile_image')
     add_column :users, :profile_image, :string
   end
 end

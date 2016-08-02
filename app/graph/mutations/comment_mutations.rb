@@ -13,10 +13,8 @@ module CommentMutations
     context_type: 'str',
     annotated_id: 'str',
     annotated_type: 'str',
-    version_index: 'int',
-    annotation_type: 'str',
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('comment', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('comment', create_fields, update_fields, 'source')
 end
