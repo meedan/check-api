@@ -1,32 +1,29 @@
 class Media < ActiveRecord::Base
   attr_accessible
+  attr_readonly :url
+
   has_paper_trail on: [:create, :update]
-  belongs_to :project
   belongs_to :account
   belongs_to :user
+  has_many :project_medias
+  has_many :projects , through: :project_medias
+  has_annotations
+
+  include PenderData
 
   validates_presence_of :url
-  before_save :set_pender_metadata
-
-  has_annotations
+  validates :url, uniqueness: true, unless: 'CONFIG["allow_duplicated_urls"]'
+  validate :validate_pender_result, on: :create
 
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
     serialize :data
   end
 
-  private
-
-  def set_pender_metadata
-    self.data =  PenderClient::Request.get_medias(CONFIG['pender_host'], { url: self.url }, CONFIG['pender_key'])
+  def user_id_callback(value, _mapping_ids = nil)
+    user_callback(value)
   end
 
-  def user_id_callback(value)
-    user = User.where(name: value).last
-    user.nil? ? nil : user.id
-  end
-
-  def account_id_callback(value)
-    account = Account.where(url: value).last
-    account.nil? ? nil : account.id
+  def account_id_callback(value, mapping_ids)
+    mapping_ids[value]
   end
 end

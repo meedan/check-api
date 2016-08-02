@@ -12,7 +12,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should create account" do
     assert_difference 'Account.count' do
       PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-        create_account(url: @url)
+        create_valid_account
       end
     end
   end
@@ -53,9 +53,59 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "should get user id from callback" do
-    u = create_user name: 'test'
+    u = create_user email: 'test@test.com'
     @account.user = u
     @account.save!
-    assert_equal u.id, @account.send(:user_id_callback, 'test')
+    assert_equal u.id, @account.send(:user_id_callback, 'test@test.com')
+  end
+
+  test "should not update url when account is updated" do
+    url = @account.url
+    @account.url = 'http://meedan.com'
+    @account.save!
+    assert_not_equal @account.url, url
+  end
+
+  test "should not duplicate account url" do
+    a = Account.new
+    a.url = @account.url
+    assert_not a.save
+  end
+
+  test "should get user from callback" do
+    u = create_user email: 'test@test.com'
+    a = create_valid_account
+    assert_equal u.id, a.user_id_callback('test@test.com')
+  end
+
+  test "should get source from callback" do
+    s = create_source name: 'test'
+    a = create_valid_account
+    assert_equal s.id, a.source_id_callback('test')
+  end
+
+  test "should get provider" do
+    a = create_valid_account
+    assert_equal 'twitter', a.provider
+  end
+
+  test "should not create source if set" do
+    s = create_source
+    a = nil
+    assert_no_difference 'Source.count' do
+      a = create_account(source: s, user_id: nil)
+    end
+    assert_equal s, a.reload.source
+  end
+
+  test "should create source if not set" do
+    a = nil
+    assert_difference 'Source.count' do
+      a = create_account(source: nil, user_id: nil)
+    end
+    s = a.reload.source
+    assert_equal 'Foo Bar', s.name
+    assert_equal 'http://provider/picture.png', s.avatar
+    assert_equal 'Just a test', s.slogan 
   end
 end

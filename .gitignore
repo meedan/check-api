@@ -17,3 +17,4 @@ public/assets
 public/uploads
 tmp/restart.txt
 /.project
+db/data

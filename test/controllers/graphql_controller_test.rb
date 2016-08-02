@@ -90,7 +90,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create comment" do
-    assert_graphql_create('comment', { text: 'test' }) { sleep 1 }
+    s = create_source
+    assert_graphql_create('comment', { text: 'test', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
   end
 
   test "should read comments" do
@@ -145,7 +146,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create project" do
-    assert_graphql_create('project', { title: 'test' })
+    assert_graphql_create('project', { title: 'test', description: 'test' })
   end
 
   test "should read project" do
@@ -161,12 +162,12 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create source" do
-    assert_graphql_create('source', { name: 'test' })
+    assert_graphql_create('source', { name: 'test', slogan: 'test' })
   end
 
   test "should read source" do
     Source.delete_all
-    assert_graphql_read('source', 'name')
+    assert_graphql_read('source', 'image')
   end
 
   test "should update source" do
@@ -178,7 +179,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create team" do
-    assert_graphql_create('team', { name: 'test' })
+    assert_graphql_create('team', { name: 'test', description: 'test' })
   end
 
   test "should read team" do
@@ -238,7 +239,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from media" do
-    assert_graphql_read_object('media', { 'project' => 'title', 'account' => 'url', 'user' => 'name' })
+    assert_graphql_read_object('media', { 'account' => 'url', 'user' => 'name' })
   end
 
   test "should read object from project source" do
@@ -250,7 +251,13 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from source" do
-    assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id' })
+    assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
+                                               'annotations' => 'content', 'medias' => 'url', 'collaborators' => 'name',
+                                               'tags'=> 'tag', 'comments' => 'text' })
+  end
+
+  test "should read collection from media" do
+    assert_graphql_read_collection('media', { 'projects' => 'title' })
   end
 
   test "should read collection from project" do
@@ -263,5 +270,76 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read collection from account" do
     assert_graphql_read_collection('account', { 'medias' => 'url' })
+  end
+
+  test "should read object from annotation" do
+    assert_graphql_read_object('annotation', { 'annotator' => 'name' })
+  end
+
+  test "should read object from user" do
+    assert_graphql_read_object('user', { 'source' => 'name' })
+  end
+
+  test "should read collection from user" do
+    assert_graphql_read_collection('user', { 'teams' => 'name', 'projects' => 'title' })
+  end
+
+  test "should create status" do
+    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source' }) { sleep 1 }
+  end
+
+  test "should read statuses" do
+    assert_graphql_read('status', 'status') { sleep 1 }
+  end
+
+  test "should update status" do
+    assert_graphql_update('status', 'status', 'Credible', 'Not Credible') { sleep 1 }
+  end
+
+  test "should destroy status" do
+    assert_graphql_destroy('status') { sleep 1 }
+  end
+
+  test "should create tag" do
+    s = create_source
+    assert_graphql_create('tag', { tag: 'egypt', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
+  end
+
+  test "should read tags" do
+    assert_graphql_read('tag', 'tag') { sleep 1 }
+  end
+
+  test "should update tag" do
+    assert_graphql_update('tag', 'tag', 'egypt', 'Egypt') { sleep 1 }
+  end
+
+  test "should destroy tag" do
+    assert_graphql_destroy('tag') { sleep 1 }
+  end
+
+  test "should read annotations" do
+    assert_graphql_read('annotation', 'context_id') { sleep 1 }
+  end
+
+  test "should destroy annotation" do
+    assert_graphql_destroy('annotation') { sleep 1 }
+  end
+
+  test "should get source from id" do
+    authenticate_with_user
+    s = create_source name: 'Test'
+    post :create, query: 'query Source { source(id: "' + s.id.to_s + '") { name } }'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['source']
+    assert_equal 'Test', data['name']
+  end
+
+  test "should get user from id" do
+    authenticate_with_user
+    u = create_user name: 'Test'
+    post :create, query: 'query Source { user(id: "' + u.id.to_s + '") { name } }'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['user']
+    assert_equal 'Test', data['name']
   end
 end

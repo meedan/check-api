@@ -2,13 +2,15 @@ module TeamMutations
   create_fields = {
     archived: 'bool',
     logo: 'str',
-    name: '!str'
+    name: '!str',
+    description: '!str'
   }
 
   update_fields = {
     archived: 'bool',
     logo: 'str',
     name: 'str',
+    description: 'str',
     id: '!id'
   }
 

@@ -46,10 +46,38 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal [s1, s2], p.sources
   end
 
+  test "should have annotations" do
+    Annotation.delete_index
+    Annotation.create_index
+    p = create_project
+    c1 = create_comment
+    c2 = create_comment
+    c3 = create_comment
+    p.add_annotation(c1)
+    p.add_annotation(c2)
+    sleep 1
+    assert_equal [c1.id, c2.id].sort, p.reload.annotations.map(&:id).sort
+  end
+
   test "should get user id through callback" do
     p = create_project
-    assert_nil p.send(:user_id_callback, 'test')
-    u = create_user name: 'test'
-    assert_equal u.id, p.send(:user_id_callback, 'test')
+    assert_nil p.send(:user_id_callback, 'test@test.com')
+    u = create_user email: 'test@test.com'
+    assert_equal u.id, p.send(:user_id_callback, 'test@test.com')
   end
+
+  test "should get team from callback" do
+    p = create_project
+    assert_equal 2, p.team_id_callback(1, [1, 2, 3])
+  end
+
+  test "should get lead image from callback" do
+    p = create_project
+    assert_nil p.lead_image_callback('')
+    file = 'http://checkdesk.org/users/1/photo.png'
+    assert_nil p.lead_image_callback(file)
+    file = 'http://dummyimage.com/100x100/000/fff.png'
+    assert_not_nil p.lead_image_callback(file)
+  end
+
 end

@@ -8,6 +8,38 @@ class Source < ActiveRecord::Base
 
   has_annotations
 
-  mount_uploader :avatar, ImageUploader
-  validates_presence_of :name
+  validates_presence_of :name, :slogan
+
+  def user_id_callback(value, _mapping_ids = nil)
+    user_callback(value)
+  end
+
+  def avatar_callback(value, _mapping_ids = nil)
+    image_callback(value)
+  end
+
+  def medias
+    Media.where(account_id: self.account_ids)
+  end
+
+  def image
+    self.avatar
+  end
+
+  def description
+    return self.slogan unless self.slogan == self.name
+    self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s 
+  end
+
+  def collaborators
+    self.annotators
+  end
+
+  def tags
+    self.annotations('tag')
+  end
+
+  def comments
+    self.annotations('comment')
+  end
 end

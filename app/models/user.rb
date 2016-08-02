@@ -3,12 +3,15 @@ class User < ActiveRecord::Base
   attr_accessor :url
 
   has_one :source
+  has_many :team_users
+  has_many :teams, through: :team_users
+  has_many :projects
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
          :omniauthable, omniauth_providers: [:twitter, :facebook]
 
-  after_create :create_source_and_account
+  after_create :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
 
   def self.from_omniauth(auth)
@@ -65,6 +68,7 @@ class User < ActiveRecord::Base
     source.user = self
     source.name = self.name
     source.avatar = self.profile_image
+    source.slogan = self.name
     source.save!
 
     if !self.provider.blank? && !self.url.blank?
@@ -92,5 +96,9 @@ class User < ActiveRecord::Base
 
   def set_uuid
     self.uuid = ('checkdesk_' + Digest::MD5.hexdigest(self.email)) if self.uuid.blank?
+  end
+
+  def send_welcome_email
+    RegistrationMailer.welcome_email(self).deliver_now if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
   end
 end

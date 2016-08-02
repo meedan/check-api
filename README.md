@@ -1,7 +1,7 @@
 ## Checkdesk
 
-[![Code Climate](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/gpa.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed) 
-[![Issue Count](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/issue_count.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed) 
+[![Code Climate](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/gpa.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed)
+[![Issue Count](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/issue_count.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed)
 [![Test Coverage](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/coverage.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/coverage)
 
 Verify breaking news online
@@ -61,6 +61,15 @@ There are rake tasks for a few tasks (besides Rails' default ones). Run them thi
 There is a GraphQL interface that exposes the data model as a GraphQL schema. The GraphQL files should be under `app/graph`.
 
 You can update the schema file by running `rake lapis:graphql:update_schema_json`.
+
+### Migration
+
+Migrate CD2 data
+
+* Add `allow_duplicated_urls: true` to `config.yml`
+* Run `drush eval "_checkdesk_core_export_data_csv();"` in `CD2` instance : This command will output a directory inside `[files directory]/checkdesk_migration`.
+* Copy the output from the above step `[files directory]/checkdesk_migration/[instance_name]` into CD3 `db/data`.
+* Run `rake db:seed:sample`.
 
 ### Credits
 

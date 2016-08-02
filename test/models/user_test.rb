@@ -107,4 +107,33 @@ class UserTest < ActiveSupport::TestCase
       create_user login: '', name: 'Foo Bar', email: 'foobar2@test.com', provider: '', uuid: ''
     end
   end
+
+  test "should send welcome email when user is created" do
+    stub_config 'send_welcome_email_on_registration', true do
+      assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+        create_user provider: ''
+      end
+      assert_no_difference 'ActionMailer::Base.deliveries.size' do
+        create_user provider: 'twitter'
+        create_user provider: 'facebook'
+      end
+    end
+
+    stub_config 'send_welcome_email_on_registration', false do
+      assert_no_difference 'ActionMailer::Base.deliveries.size' do
+        create_user provider: ''
+        create_user provider: 'twitter'
+        create_user provider: 'facebook'
+      end
+    end
+  end
+
+  test "should have projects" do
+    p1 = create_project
+    p2 = create_project
+    u = create_user
+    u.projects << p1
+    u.projects << p2
+    assert_equal [p1, p2].sort, u.projects.sort
+  end
 end

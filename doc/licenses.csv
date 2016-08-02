@@ -39,7 +39,9 @@ Ruby Gem: execjs,Run JavaScript code from Ruby,MIT,https://github.com/rails/exec
 Ruby Gem: faraday,HTTP/REST API client library.,MIT,https://github.com/lostisland/faraday
 Ruby Gem: gem-licenses,Attempts to figure out what licenses various gems use.,MIT,http://github.com/dblock/gem-licenses
 Ruby Gem: globalid,Refer to any model with a URI: gid://app/class/id,MIT,http://www.rubyonrails.org
+Ruby Gem: graphiql-rails,A mountable GraphiQL endpoint for Rails,MIT,http://github.com/rmosolgo/graphiql-rails
 Ruby Gem: graphql,A GraphQL server implementation for Ruby,MIT,http://github.com/rmosolgo/graphql-ruby
+Ruby Gem: graphql-formatter,Pretty prints GraphQL queries,MIT,https://github.com/brandfolder/graphql-formatter
 Ruby Gem: graphql-relay,Relay helpers for GraphQL,MIT,http://github.com/rmosolgo/graphql-relay-ruby
 Ruby Gem: gyoku,Translates Ruby Hashes to XML,MIT,https://github.com/savonrb/gyoku
 Ruby Gem: hashdiff,HashDiff is a diff lib to compute the smallest difference between two hashes.,MIT,https://github.com/liufengyun/hashdiff
@@ -84,6 +86,7 @@ Ruby Gem: rack-test,Simple testing API built on Rack,MIT,http://github.com/bryna
 Ruby Gem: rails,Full-stack web application framework.,MIT,http://www.rubyonrails.org
 Ruby Gem: rails-deprecated_sanitizer,Deprecated sanitizer API extracted from Action View.,MIT,https://github.com/rails/rails-deprecated_sanitizer
 Ruby Gem: rails-dom-testing,Dom and Selector assertions for Rails applications,MIT,https://github.com/rails/rails-dom-testing
+Ruby Gem: rails-graphql-generator,A rails generator for GrapphQL.,MIT,https://github.com/movielala/rails-graphql-generator
 Ruby Gem: rails-html-sanitizer,This gem is responsible to sanitize HTML fragments in Rails applications.,MIT,https://github.com/rails/rails-html-sanitizer
 Ruby Gem: railties,Tools for creating working with and running Rails applications.,MIT,http://www.rubyonrails.org
 Ruby Gem: rainbow,Colorize printed text on ANSI terminals,MIT,https://github.com/sickill/rainbow
@@ -131,13 +134,14 @@ Ruby Gem: systemu,systemu,Ruby,https://github.com/ahoward/systemu
 Ruby Gem: thin,A thin and fast web server,Ruby,http://code.macournoyer.com/thin/
 Ruby Gem: byebug,Ruby 2.0 fast debugger - base + CLI,BSD,http://github.com/deivid-rodriguez/byebug
 Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],BSD,https://bitbucket.org/ged/ruby-pg
+Ruby Gem: colorize,Add color methods to String class,GPLv2,http://github.com/fazibear/colorize
+Ruby Gem: railroady,Ruby on Rails 3/4 model and controller UML class diagram generator.,GPLv2,http://github.com/preston/railroady
+Ruby Gem: thin,A thin and fast web server,GPLv2,http://code.macournoyer.com/thin/
 Ruby Gem: eventmachine,Ruby/EventMachine library,gpl-2.0,http://rubyeventmachine.com
 Ruby Gem: kgio,kinder gentler I/O for Ruby,LGPLv2.1,http://bogomips.org/kgio/
 Ruby Gem: raindrops,real-time stats for preforking Rack servers,LGPLv2.1,http://raindrops.bogomips.org/
 Ruby Gem: logstash-event,Library that contains the classes required to create LogStash events,apache license (2.0),https://github.com/logstash/logstash
 Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],gpl,https://bitbucket.org/ged/ruby-pg
-Ruby Gem: railroady,Ruby on Rails 3/4 model and controller UML class diagram generator.,GPLv2,http://github.com/preston/railroady
-Ruby Gem: thin,A thin and fast web server,GPLv2,http://code.macournoyer.com/thin/
 Ruby Gem: sqlite3,This module allows Ruby programs to interface with the SQLite3 database engine (http://www.sqlite.org),bsd-3,https://github.com/sparklemotion/sqlite3-ruby
 Ruby Gem: unicorn,Rack HTTP server for fast clients and Unix,gpl-2.0+,http://unicorn.bogomips.org/
 Ruby Gem: unicorn,Rack HTTP server for fast clients and Unix,ruby-1.8,http://unicorn.bogomips.org/

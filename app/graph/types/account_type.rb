@@ -8,7 +8,8 @@ AccountType = GraphQL::ObjectType.define do
   field :updated_at, types.String
   field :created_at, types.String
   field :data, types.String
-  field :url, types.String
+  field :url, !types.String
+  field :provider, types.String
   field :source_id, types.Int
   field :user_id, types.Int
   field :user do
