@@ -19,7 +19,7 @@ class Flag
     mapping_ids[value]
   end
 
-  def flag_callback(value, mapping_ids = nil)
+  def flag_callback(value, _mapping_ids = nil)
     flags = Hash[
       'spam' => 'Spam',
       'graphic_journalist' => 'Graphic content',
@@ -31,5 +31,4 @@ class Flag
     ]
     flags[value].nil? ? value : flags[value]
   end
-
 end
