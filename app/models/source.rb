@@ -8,7 +8,6 @@ class Source < ActiveRecord::Base
 
   has_annotations
 
-  mount_uploader :avatar, ImageUploader
   validates_presence_of :name, :slogan
 
   def user_id_callback(value, _mapping_ids = nil)
@@ -24,7 +23,7 @@ class Source < ActiveRecord::Base
   end
 
   def image
-    self.user.nil? ? self.avatar.to_s : self.user.profile_image
+    self.avatar
   end
 
   def description

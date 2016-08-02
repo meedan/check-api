@@ -95,7 +95,7 @@ module SampleData
     else
       account.user = options[:user] || create_user
     end
-    account.source = options[:source] || create_source
+    account.source = options.has_key?(:source) ? options[:source] : create_source
     account.save!
     account.reload
   end
@@ -190,7 +190,7 @@ module SampleData
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = random_url
     options[:data] ||= {}
-    data = { url: url, provider: 'twitter' }.merge(options[:data])
+    data = { url: url, provider: 'twitter', picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test' }.merge(options[:data])
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
     options.merge!({ url: url })
     create_account(options)
