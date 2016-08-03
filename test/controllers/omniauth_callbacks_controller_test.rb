@@ -32,7 +32,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     })
     request.env['devise.mapping'] = Devise.mappings[:api_user]
     ['https://twitter.com/test', 'https://facebook.com/654321'].each do |url|
-      WebMock.stub_request(:get, CONFIG['pender_host'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{}}')
+      WebMock.stub_request(:get, CONFIG['pender_host'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"type":"profile"}}')
     end
   end
 

@@ -109,10 +109,20 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal 'Just a test', s.slogan 
   end
 
-  test "should not create source that is not a profile" do
+  test "should not create account that is not a profile" do
     assert_no_difference 'Account.count' do
       assert_raises ActiveRecord::RecordInvalid do
         create_account(data: { type: 'item' })
+      end
+    end
+  end
+
+  test "should not create account with duplicated URL" do
+    assert_no_difference 'Account.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+          create_account(url: @url)
+        end
       end
     end
   end

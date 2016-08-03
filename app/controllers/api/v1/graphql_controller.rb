@@ -14,7 +14,7 @@ module Api
         begin
           query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { current_user: current_api_user })
           render json: query.result
-        rescue Exception => e
+        rescue ActiveRecord::RecordInvalid => e
           render json: { error: e.message }, status: 400
         end
       end
