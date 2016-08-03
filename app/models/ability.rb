@@ -1,11 +1,8 @@
 class Ability
   include CanCan::Ability
 
-  def initialize(user)
+  def initialize(user, team)
     @user = user ||= User.new
-
-    # team = xx should load the current team
-    team = @user.teams.last
     # Define User abilities
     if user.has_role? :admin, team
       global_admin_perms
@@ -37,12 +34,10 @@ class Ability
     can :create, Project
     can [:update, :destroy], Project, :user_id => @user.id
     can :manage, [Media, Source, Account, Flag, Comment, Status, Tag]
-    can :update, [Media, Source, Account], :user_id => @user.id
   end
 
   def journalist_perms
-    can :create, Project
-    can :update, Project
+    can [:create, :update], Project
     can [:create, :update], [Media, Source, Account, Flag, Comment, Status, Tag], :user_id => @user.id
   end
 

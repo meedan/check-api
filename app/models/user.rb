@@ -14,14 +14,16 @@ class User < ActiveRecord::Base
   after_create :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
 
-  ROLES = %w[contributor journalist editor owner admin]
-  def role?(base_role)
-    ROLES.index(base_role.to_s) <= ROLES.index(role)
+  def role(team)
+    tu = TeamUser.where(team_id: team.id, user_id: self.id)
+    user_role = tu.nil? ? nil : tu.last.role
+    user_role.to_s
   end
 
   def has_role?(role, team)
-     tu = TeamUser.where(team_id: team.id, user_id: self.id, role: role)
-     tu.nil? ? false : true
+     tu = TeamUser.where(team_id: team.id, user_id: self.id)
+     user_role = tu.nil? ? nil : tu.last.role
+     role.to_s == user_role.to_s
   end
 
 
