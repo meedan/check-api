@@ -11,8 +11,12 @@ module Api
         query_variables = params[:variables] || {}
         query_variables = {} if query_variables == 'null'
         debug = !!CONFIG['graphql_debug']
-        query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { current_user: current_api_user })
-        render json: query.result
+        begin
+          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { current_user: current_api_user })
+          render json: query.result
+        rescue Exception => e
+          render json: { error: e.message }, status: 400
+        end
       end
     end
   end
