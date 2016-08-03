@@ -1,9 +1,5 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
-class SampleModel < ActiveRecord::Base
-  has_annotations
-end
-
 class FlagTest < ActiveSupport::TestCase
   def setup
     super
@@ -33,58 +29,58 @@ class FlagTest < ActiveSupport::TestCase
   test "should create version when flag is created" do
     f =  nil
     assert_difference 'PaperTrail::Version.count', 2 do
-      f =  create_flag(flag: 'spam')
+      f =  create_flag(flag: 'Spam', annotated: nil)
     end
     assert_equal 1, f.versions.count
     v = f.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'flag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', f.annotator_id], 'flag' => ['', 'spam' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'flag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', f.annotator_id], 'flag' => ['', 'Spam' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when flag is updated" do
-    f =  create_flag(flag: 'spam')
-    f.flag = 'graphic content'
+    f =  create_flag(flag: 'Spam')
+    f.flag = 'Graphic content'
     f.save
     assert_equal 2, f.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'flag' => ['spam', 'graphic content'] }, JSON.parse(v.object_changes))
+    assert_equal({ 'flag' => ['Spam', 'Graphic content'] }, JSON.parse(v.object_changes))
   end
 
   test "should revert" do
-    f =  create_flag(flag: 'spam')
-    f.flag = 'graphic content'; f.save
-    f.flag = 'fact checking'; f.save
+    f =  create_flag(flag: 'Spam')
+    f.flag = 'Graphic content'; f.save
+    f.flag = 'Needing fact-checking'; f.save
     assert_equal 3, f.versions.size
 
     f.revert
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic content', f.flag
     f =  f.reload
-    assert_equal 'fact checking', f.flag
+    assert_equal 'Needing fact-checking', f.flag
 
     f.revert_and_save
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic content', f.flag
     f =  f.reload
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic content', f.flag
 
     f.revert
-    assert_equal 'spam', f.flag
+    assert_equal 'Spam', f.flag
     f.revert
-    assert_equal 'spam', f.flag
+    assert_equal 'Spam', f.flag
 
     f.revert(-1)
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic content', f.flag
     f.revert(-1)
-    assert_equal 'fact checking', f.flag
+    assert_equal 'Needing fact-checking', f.flag
     f.revert(-1)
-    assert_equal 'fact checking', f.flag
+    assert_equal 'Needing fact-checking', f.flag
 
 
     f =  f.reload
-    assert_equal 'graphic content', f.flag
+    assert_equal 'Graphic content', f.flag
     f.revert_and_save(-1)
     f =  f.reload
-    assert_equal 'fact checking', f.flag
+    assert_equal 'Needing fact-checking', f.flag
 
     assert_equal 3, f.versions.size
   end
@@ -101,33 +97,33 @@ class FlagTest < ActiveSupport::TestCase
 
   test "should have context" do
     f =  create_flag
-    s = SampleModel.create
+    s = create_project
     assert_nil f.context
-    f.contexflag = s
+    f.context = s
     f.save
     assert_equal s, f.context
   end
 
    test "should get annotations from context" do
-    context1 = SampleModel.create
-    context2 = SampleModel.create
-    annotated = SampleModel.create
+    context1 = create_project
+    context2 = create_project
+    annotated = create_valid_media
 
     f1 = create_flag
-    f1.contexflag = context1
+    f1.context = context1
     f1.annotated = annotated
     f1.save
 
     f2 = create_flag
-    f2.contexflag = context2
+    f2.context = context2
     f2.annotated = annotated
     f2.save
 
     sleep 1
 
     assert_equal [f1.id, f2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [f1.id], annotated.annotations(context1).map(&:id)
-    assert_equal [f2.id], annotated.annotations(context2).map(&:id)
+    assert_equal [f1.id], annotated.annotations(nil, context1).map(&:id)
+    assert_equal [f2.id], annotated.annotations(nil, context2).map(&:id)
   end
 
   test "should get columns as array" do
@@ -151,8 +147,8 @@ class FlagTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = SampleModel.create!
-    s2 = SampleModel.create!
+    s1 = create_valid_media
+    s2 = create_valid_media
     f1 = create_flag annotator: u1, annotated: s1
     f2 = create_flag annotator: u1, annotated: s1
     f3 = create_flag annotator: u1, annotated: s1
@@ -188,6 +184,27 @@ class FlagTest < ActiveSupport::TestCase
     u2 = create_user
     f =  create_flag annotator: u1, current_user: u2
     assert_equal u1, f.annotator
+  end
+
+  test "should not create flag with invalid value" do
+    assert_no_difference 'Flag.count' do
+      create_flag flag: 'invalid'
+    end
+    assert_difference 'Flag.count' do
+      create_flag flag: 'Spam'
+    end
+  end
+
+  test "should not create flag with invalid annotated" do
+    assert_no_difference 'Flag.count' do
+      create_flag annotated: create_source
+    end
+  end
+
+ test "should get flag" do
+    f =  create_flag
+    assert_equal 'Graphic content', f.flag_callback('graphic_journalist')
+    assert_equal 'Invalid', f.flag_callback('Invalid')
   end
 
 end

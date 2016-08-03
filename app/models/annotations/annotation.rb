@@ -4,7 +4,11 @@ class Annotation
   before_validation :cant_instantiate_abstract_class
 
   def load
-    self.annotation_type.camelize.constantize.find(self.id)
+    begin
+      self.annotation_type.camelize.constantize.find(self.id)
+    rescue
+      nil
+    end
   end
 
   private

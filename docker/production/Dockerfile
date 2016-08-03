@@ -1,6 +1,6 @@
 # checkdesk-api
 
-FROM dreg.meedan.net/meedan/ruby
+FROM meedan/ruby
 MAINTAINER sysops@meedan.com
 
 #

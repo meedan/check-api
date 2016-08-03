@@ -2,9 +2,12 @@ class Status
   include AnnotationBase
 
   attribute :status, String, presence: true
+  
   validates_presence_of :status
-  #media status {Not Applicable, In Progress, Undetermined, Verified, False}
-  #source status {Credible, Not Credible, Slightly Credible, Sockpuppet}
+  validates :annotated_type, included: { values: ['Media', 'Source', nil] }
+  validates :status, included: { values: ['Credible', 'Not Credible', 'Slightly Credible', 'Sockpuppet'] }, if: lambda { |o| o.annotated_type == 'Source' }
+  validates :status, included: { values: ['Not Applicable', 'In Progress', 'Undetermined', 'Verified', 'False'] }, if: lambda { |o| o.annotated_type == 'Media' }
+
   def content
     { status: self.status }.to_json
   end
@@ -14,8 +17,11 @@ class Status
     user.nil? ? nil : user
   end
 
-  def target_id_callback(value, mapping_ids)
+  def target_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
   end
 
+  def annotated_type_callback(value, _mapping_ids = nil)
+    value.camelize
+  end
 end

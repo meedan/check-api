@@ -83,4 +83,29 @@ class AccountTest < ActiveSupport::TestCase
     a = create_valid_account
     assert_equal s.id, a.source_id_callback('test')
   end
+
+  test "should get provider" do
+    a = create_valid_account
+    assert_equal 'twitter', a.provider
+  end
+
+  test "should not create source if set" do
+    s = create_source
+    a = nil
+    assert_no_difference 'Source.count' do
+      a = create_account(source: s, user_id: nil)
+    end
+    assert_equal s, a.reload.source
+  end
+
+  test "should create source if not set" do
+    a = nil
+    assert_difference 'Source.count' do
+      a = create_account(source: nil, user_id: nil)
+    end
+    s = a.reload.source
+    assert_equal 'Foo Bar', s.name
+    assert_equal 'http://provider/picture.png', s.avatar
+    assert_equal 'Just a test', s.slogan 
+  end
 end

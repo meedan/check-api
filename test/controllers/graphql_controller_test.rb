@@ -90,7 +90,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create comment" do
-    assert_graphql_create('comment', { text: 'test' }) { sleep 1 }
+    s = create_source
+    assert_graphql_create('comment', { text: 'test', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
   end
 
   test "should read comments" do
@@ -251,7 +252,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read collection from source" do
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
-                                               'annotations' => 'content', 'medias' => 'url', 'collaborators' => 'name' })
+                                               'annotations' => 'content', 'medias' => 'url', 'collaborators' => 'name',
+                                               'tags'=> 'tag', 'comments' => 'text' })
   end
 
   test "should read collection from media" do
@@ -283,7 +285,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create status" do
-    assert_graphql_create('status', { status: 'verified' }) { sleep 1 }
+    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source' }) { sleep 1 }
   end
 
   test "should read statuses" do
@@ -291,7 +293,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should update status" do
-    assert_graphql_update('status', 'status', 'in progress', 'verified') { sleep 1 }
+    assert_graphql_update('status', 'status', 'Credible', 'Not Credible') { sleep 1 }
   end
 
   test "should destroy status" do
@@ -299,7 +301,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create tag" do
-    assert_graphql_create('tag', { tag: 'egypt' }) { sleep 1 }
+    s = create_source
+    assert_graphql_create('tag', { tag: 'egypt', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
   end
 
   test "should read tags" do
@@ -312,5 +315,31 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should destroy tag" do
     assert_graphql_destroy('tag') { sleep 1 }
+  end
+
+  test "should read annotations" do
+    assert_graphql_read('annotation', 'context_id') { sleep 1 }
+  end
+
+  test "should destroy annotation" do
+    assert_graphql_destroy('annotation') { sleep 1 }
+  end
+
+  test "should get source from id" do
+    authenticate_with_user
+    s = create_source name: 'Test'
+    post :create, query: 'query Source { source(id: "' + s.id.to_s + '") { name } }'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['source']
+    assert_equal 'Test', data['name']
+  end
+
+  test "should get user from id" do
+    authenticate_with_user
+    u = create_user name: 'Test'
+    post :create, query: 'query Source { user(id: "' + u.id.to_s + '") { name } }'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['user']
+    assert_equal 'Test', data['name']
   end
 end

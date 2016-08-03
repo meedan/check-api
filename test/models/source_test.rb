@@ -90,8 +90,7 @@ class SourceTest < ActiveSupport::TestCase
   test "should get image" do
     url = 'http://checkdesk.org/users/1/photo.png'
     u = create_user profile_image: url
-    s = create_source user: u
-    assert_equal url, s.image
+    assert_equal url, u.source.image
   end
 
   test "should get medias" do
@@ -126,4 +125,37 @@ class SourceTest < ActiveSupport::TestCase
     assert_not_nil s.avatar_callback(file)
   end
 
+  test "should have description" do
+    s = create_source name: 'foo', slogan: 'bar'
+    assert_equal 'bar', s.description
+    s = create_source name: 'foo', slogan: 'foo'
+    assert_equal '', s.description
+    s.accounts << create_valid_account(data: { description: 'test' })
+    assert_equal 'test', s.description
+  end
+
+  test "should get tags" do
+    s = create_source
+    t = create_tag
+    c = create_comment
+    s.add_annotation t
+    s.add_annotation c
+    sleep 1
+    assert_equal [t], s.tags
+  end
+
+  test "should get comments" do
+    s = create_source
+    t = create_tag
+    c = create_comment
+    s.add_annotation t
+    s.add_annotation c
+    sleep 1
+    assert_equal [c], s.comments
+  end
+
+  test "should get db id" do
+    s = create_source
+    assert_equal s.id, s.dbid
+  end
 end

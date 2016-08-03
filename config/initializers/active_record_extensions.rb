@@ -25,6 +25,13 @@ module ActiveRecordExtensions
     user.nil? ? nil : user.id
   end
 
+  def dbid
+    self.id
+  end
+
+  def is_annotation?
+    false
+  end
 end
 
 ActiveRecord::Base.send(:include, ActiveRecordExtensions)

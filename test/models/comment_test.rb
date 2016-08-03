@@ -36,13 +36,13 @@ class CommentTest < ActiveSupport::TestCase
     s2 = SampleModel.create!
     assert_equal [], s2.annotations
 
-    c1a = create_comment
+    c1a = create_comment annotated: nil
     assert_nil c1a.annotated
-    c1b = create_comment
+    c1b = create_comment annotated: nil
     assert_nil c1b.annotated
-    c2a = create_comment
+    c2a = create_comment annotated: nil
     assert_nil c2a.annotated
-    c2b = create_comment
+    c2b = create_comment annotated: nil
     assert_nil c2b.annotated
 
     s1.add_annotation c1a
@@ -66,13 +66,13 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should create version when comment is created" do
     c = nil
-    assert_difference 'PaperTrail::Version.count', 2 do
+    assert_difference 'PaperTrail::Version.count', 3 do
       c = create_comment(text: 'test')
     end
     assert_equal 1, c.versions.count
     v = c.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', c.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when comment is updated" do
@@ -164,8 +164,8 @@ class CommentTest < ActiveSupport::TestCase
     sleep 1
 
     assert_equal [c1.id, c2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [c1.id], annotated.annotations(context1).map(&:id)
-    assert_equal [c2.id], annotated.annotations(context2).map(&:id)
+    assert_equal [c1.id], annotated.annotations(nil, context1).map(&:id)
+    assert_equal [c2.id], annotated.annotations(nil, context2).map(&:id)
   end
 
   test "should get columns as array" do

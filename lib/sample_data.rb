@@ -45,31 +45,45 @@ module SampleData
   end
 
   def create_comment(options = {})
-    c = Comment.create({ text: random_string(50), annotator: create_user }.merge(options))
+    c = Comment.create({ text: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
     sleep 1 if Rails.env.test?
     c.reload
   end
 
   def create_tag(options = {})
-    t = Tag.create({ tag: random_string(50), annotator: create_user }.merge(options))
+    t = Tag.create({ tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
     sleep 1 if Rails.env.test?
     t.reload
   end
 
   def create_status(options = {})
-    st = Status.create({ status: 'In Progress', annotator: create_user }.merge(options))
+    type = id = nil
+    unless options.has_key?(:annotated) && options[:annotated].nil?
+      a = options.delete(:annotated) || create_source
+      type, id = a.class.name, a.id.to_s
+    end
+    s = Status.create({ status: 'Credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
     sleep 1 if Rails.env.test?
-    st.reload
+    s.reload
   end
 
   def create_flag(options = {})
-    f = Flag.create({ flag: 'spam', annotator: create_user }.merge(options))
+    type = id = nil
+    unless options.has_key?(:annotated) && options[:annotated].nil?
+      m = options.delete(:annotated) || create_valid_media
+      type, id = m.class.name, m.id.to_s
+    end
+    f = Flag.create({ flag: 'Spam', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
     sleep 1 if Rails.env.test?
     f.reload
   end
 
   def create_annotation(options = {})
-    Annotation.create(options)
+    if options.has_key?(:annotation_type) && options[:annotation_type].blank?
+      Annotation.create(options)
+    else
+      create_comment(options)
+    end
   end
 
   def create_account(options = {})
@@ -82,7 +96,7 @@ module SampleData
     else
       account.user = options[:user] || create_user
     end
-    account.source = options[:source] || create_source
+    account.source = options.has_key?(:source) ? options[:source] : create_source
     account.save!
     account.reload
   end
@@ -176,7 +190,9 @@ module SampleData
   def create_valid_account(options = {})
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '"}}')
+    options[:data] ||= {}
+    data = { url: url, provider: 'twitter', picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test' }.merge(options[:data])
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
     options.merge!({ url: url })
     create_account(options)
   end

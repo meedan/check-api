@@ -47,6 +47,8 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
+    Annotation.delete_index
+    Annotation.create_index
     p = create_project
     c1 = create_comment
     c2 = create_comment
