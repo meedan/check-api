@@ -3,7 +3,8 @@ class GraphqlCrudOperations
     attrs.each do |key, value|
       obj.send("#{key}=", value)
     end
-    obj.save
+    obj.save!
+    
     name = obj.class.name.underscore
     ret = { name.to_sym => obj }
     
