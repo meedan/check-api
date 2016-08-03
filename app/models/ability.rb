@@ -4,20 +4,18 @@ class Ability
   def initialize(user)
     @user = user ||= User.new
 
+    # team = xx should load the current team
+    team = @user.teams.last
     # Define User abilities
-    if user.role? :admin
+    if user.has_role? :admin, team
       global_admin_perms
-    end
-    if user.role? :owner
+    elsif user.has_role? :owner, team
       owner_perms
-    end
-    if user.role? :editor
+    elsif user.has_role? :editor, team
       editor_perms
-    end
-    if user.role? :journalist
+    elsif user.has_role? :journalist, team
       journalist_perms
-    end
-    if user.role? :contributor
+    elsif user.has_role? :contributor, team
       contributor_perms
     end
 
@@ -47,6 +45,7 @@ class Ability
     can :read, :all
     can :create, [Media, Source, Account]
     can :update, [Media, Source, Account], :user_id => @user.id
+    cannot :create, Project
   end
 
 end

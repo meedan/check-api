@@ -19,6 +19,12 @@ class User < ActiveRecord::Base
     ROLES.index(base_role.to_s) <= ROLES.index(role)
   end
 
+  def has_role?(role, team)
+     tu = TeamUser.where(team_id: team.id, user_id: self.id, role: role)
+     tu.nil? ? false : true
+  end
+
+
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
     user = User.where(provider: auth.provider, uuid: auth.uid).first || User.new
