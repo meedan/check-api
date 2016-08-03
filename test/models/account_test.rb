@@ -108,4 +108,12 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal 'http://provider/picture.png', s.avatar
     assert_equal 'Just a test', s.slogan 
   end
+
+  test "should not create source that is not a profile" do
+    assert_no_difference 'Account.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_account(data: { type: 'item' })
+      end
+    end
+  end
 end

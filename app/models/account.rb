@@ -12,6 +12,7 @@ class Account < ActiveRecord::Base
   validates_presence_of :url
   validates :url, uniqueness: true, unless: 'CONFIG["allow_duplicated_urls"]'
   validate :validate_pender_result, on: :create
+  validate :pender_result_is_a_profile, on: :create
 
   after_create :create_source
 
@@ -45,5 +46,9 @@ class Account < ActiveRecord::Base
       self.source = source
       self.save!
     end
+  end
+
+  def pender_result_is_a_profile
+    errors.add(:base, 'Sorry, this is not a profile') if !self.data.nil? && self.data['type'] != 'profile'
   end
 end
