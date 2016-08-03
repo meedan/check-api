@@ -234,6 +234,17 @@ class ActiveSupport::TestCase
     document_graphql_query('read_collection', type, query, @response.body)
   end
 
+  def assert_graphql_get_by_id(type, field, value)
+    authenticate_with_user
+    obj = send("create_#{type}", { field.to_sym => value })
+    query = "query GetById { #{type}(id: \"#{obj.id}\") { #{field} } }"
+    post :create, query: query 
+    assert_response :success
+    document_graphql_query('get_by_id', type, query, @response.body)
+    data = JSON.parse(@response.body)['data'][type]
+    assert_equal value, data[field]
+  end
+
   # Document GraphQL queries in Markdown format
   def document_graphql_query(action, type, query, response)
     if ENV['DOCUMENT']

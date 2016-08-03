@@ -252,6 +252,10 @@ module AnnotationBase
     self.id == annotation.id
   end
 
+  def save!
+    save
+  end
+
   protected
 
   def load_polymorphic(name)

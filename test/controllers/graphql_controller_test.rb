@@ -325,21 +325,34 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_destroy('annotation') { sleep 1 }
   end
 
-  test "should get source from id" do
-    authenticate_with_user
-    s = create_source name: 'Test'
-    post :create, query: 'query Source { source(id: "' + s.id.to_s + '") { name } }'
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['source']
-    assert_equal 'Test', data['name']
+  test "should get source by id" do
+    assert_graphql_get_by_id('source', 'name', 'Test')
   end
 
-  test "should get user from id" do
+  test "should get user by id" do
+    assert_graphql_get_by_id('user', 'name', 'Test')
+  end
+
+  test "should get team by id" do
+    assert_graphql_get_by_id('team', 'name', 'Test')
+  end
+
+  test "should return validation error" do
     authenticate_with_user
-    u = create_user name: 'Test'
-    post :create, query: 'query Source { user(id: "' + u.id.to_s + '") { name } }'
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['user']
-    assert_equal 'Test', data['name']
+    url = 'https://www.youtube.com/user/MeedanTube'
+    
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      query = 'mutation create { createAccount(input: { clientMutationId: "1", url: "' + url + '" }) { account { id } } }'
+      
+      assert_difference 'Account.count' do
+        post :create, query: query
+      end
+      assert_response :success
+
+      assert_no_difference 'Account.count' do
+        post :create, query: query
+      end
+      assert_response 400
+    end
   end
 end
