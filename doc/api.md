@@ -85,30 +85,14 @@ Use this method in order to sign in
 200: Signed in
 ```json
 {
-  "type": "user",
-  "data": {
-    "name": "Test",
-    "email": "t@test.com",
-    "login": "t",
-    "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
-    "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJnWUFD++nOHdIUSIsInNlY3JldCI6IkFqZlYxd3lhIn0=++n"
-  }
+  "error": "Invalid Email or password."
 }
 ```
 
 401: Could not sign in
 ```json
 {
-  "type": "user",
-  "data": {
-    "name": "Test",
-    "email": "t@test.com",
-    "login": "t",
-    "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
-    "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJnWUFD++nOHdIUSIsInNlY3JldCI6IkFqZlYxd3lhIn0=++n"
-  }
+  "error": "Invalid Email or password."
 }
 ```
 
@@ -141,10 +125,14 @@ Use this method in order to create a new user account
 200: Account created
 ```json
 {
-  "type": "error",
+  "type": "user",
   "data": {
-    "message": "Could not create user: Validation failed: Email has already been taken",
-    "code": 4
+    "name": "Test",
+    "email": "t@test.com",
+    "login": "t",
+    "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
+    "provider": "",
+    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJZVlRf++nc1VQSiIsInNlY3JldCI6IlB0U1ptYVYzIn0=++n"
   }
 }
 ```
