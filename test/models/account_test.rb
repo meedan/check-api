@@ -106,7 +106,7 @@ class AccountTest < ActiveSupport::TestCase
     s = a.reload.source
     assert_equal 'Foo Bar', s.name
     assert_equal 'http://provider/picture.png', s.avatar
-    assert_equal 'Just a test', s.slogan 
+    assert_equal 'Just a test', s.slogan
   end
 
   test "should not create account that is not a profile" do
@@ -126,4 +126,10 @@ class AccountTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should related account to team" do
+    a = create_valid_account(team: create_team)
+    assert_kind_of Team, a.team
+  end
+
 end

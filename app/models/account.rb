@@ -1,12 +1,13 @@
 class Account < ActiveRecord::Base
   include PenderData
-  
+
   attr_accessible
   attr_readonly :url
-  
+
   has_paper_trail on: [:create, :update]
   belongs_to :user
   belongs_to :source
+  belongs_to :team
   has_many :medias
 
   validates_presence_of :url

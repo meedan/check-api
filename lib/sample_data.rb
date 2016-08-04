@@ -95,6 +95,11 @@ module SampleData
     else
       account.user = options[:user] || create_user
     end
+    if options.has_key?(:team_id)
+      account.team_id = options[:team_id]
+    elsif options.has_key?(:team)
+      account.team = options[:team]
+    end
     account.source = options.has_key?(:source) ? options[:source] : create_source
     account.save!
     account.reload
