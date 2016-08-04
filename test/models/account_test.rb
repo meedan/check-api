@@ -127,9 +127,13 @@ class AccountTest < ActiveSupport::TestCase
     end
   end
 
-  test "should related account to team" do
-    a = create_valid_account(team: create_team)
-    assert_kind_of Team, a.team
+  test "should related accounts to team" do
+    t = create_team
+    a1 = create_valid_account(team: t)
+    a2 = create_valid_account(team: t)
+    a3 = create_valid_account
+    assert_kind_of Team, a1.team
+    assert_equal [a1.id, a2.id].sort, t.reload.accounts.map(&:id).sort
   end
 
 end
