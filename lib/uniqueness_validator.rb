@@ -1,5 +1,5 @@
 class UniquenessValidator < ActiveModel::EachValidator
-  def validate_each(record, attribute, value)
+  def validate_each(record, attribute, _value)
     fields = options[:fields] + [attribute]
     matches = []
     fields.each do |field|
