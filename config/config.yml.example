@@ -5,7 +5,7 @@ development: &default
   twitter_consumer_secret:
   facebook_app_id:
   facebook_app_secret:
-  pender_host: http://pender:3000
+  pender_host: http://pender:3200
   pender_key: dev
   elasticsearch_host: elasticsearch
   elasticsearch_port: 9200
