@@ -11,9 +11,9 @@ class Account < ActiveRecord::Base
   has_many :medias
 
   validates_presence_of :url
-  validates :url, uniqueness: true, unless: 'CONFIG["allow_duplicated_urls"]'
   validate :validate_pender_result, on: :create
   validate :pender_result_is_a_profile, on: :create
+  validate :url_is_unique, on: :create
 
   after_create :create_source
 
@@ -51,5 +51,14 @@ class Account < ActiveRecord::Base
 
   def pender_result_is_a_profile
     errors.add(:base, 'Sorry, this is not a profile') if !self.data.nil? && self.data['type'] != 'profile'
+  end
+
+  def url_is_unique
+    if !CONFIG['allow_duplicated_urls']
+      existing = Account.where(url: self.url).where('source_id IS NOT NULL').first
+      unless existing.nil?
+        errors.add(:base, "Account with this URL exists and has source id #{existing.source_id}")
+      end
+    end
   end
 end

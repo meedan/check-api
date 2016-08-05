@@ -119,11 +119,12 @@ class AccountTest < ActiveSupport::TestCase
 
   test "should not create account with duplicated URL" do
     assert_no_difference 'Account.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      exception = assert_raises ActiveRecord::RecordInvalid do
         PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
           create_account(url: @url)
         end
       end
+      assert_equal "Validation failed: Account with this URL exists and has source id #{@account.source_id}", exception.message
     end
   end
 
