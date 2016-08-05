@@ -13,7 +13,7 @@ class Account < ActiveRecord::Base
   validates_presence_of :url
   validate :validate_pender_result, on: :create
   validate :pender_result_is_a_profile, on: :create
-  validate :url_is_unique
+  validate :url_is_unique, on: :create
 
   after_create :create_source
 
