@@ -106,7 +106,7 @@ class AccountTest < ActiveSupport::TestCase
     s = a.reload.source
     assert_equal 'Foo Bar', s.name
     assert_equal 'http://provider/picture.png', s.avatar
-    assert_equal 'Just a test', s.slogan 
+    assert_equal 'Just a test', s.slogan
   end
 
   test "should not create account that is not a profile" do
@@ -126,4 +126,14 @@ class AccountTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should related accounts to team" do
+    t = create_team
+    a1 = create_valid_account(team: t)
+    a2 = create_valid_account(team: t)
+    a3 = create_valid_account
+    assert_kind_of Team, a1.team
+    assert_equal [a1.id, a2.id].sort, t.reload.accounts.map(&:id).sort
+  end
+
 end

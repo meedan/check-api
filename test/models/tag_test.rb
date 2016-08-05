@@ -228,4 +228,24 @@ class TagTest < ActiveSupport::TestCase
     assert_equal u1, t.annotator
   end
 
+  test "should not have same tag applied to same object" do
+    s1 = create_source
+    s2 = create_source
+    assert_difference 'Tag.count', 4 do
+      assert_nothing_raised do
+        create_tag tag: 'foo', annotated: s1
+        create_tag tag: 'foo', annotated: s2
+        create_tag tag: 'bar', annotated: s1
+        create_tag tag: 'bar', annotated: s2
+      end
+    end
+    assert_no_difference 'Tag.count' do
+      assert_raises RuntimeError do
+        create_tag tag: 'foo', annotated: s1
+        create_tag tag: 'foo', annotated: s2
+        create_tag tag: 'bar', annotated: s1
+        create_tag tag: 'bar', annotated: s2
+      end
+    end
+  end
 end

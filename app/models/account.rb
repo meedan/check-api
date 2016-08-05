@@ -1,12 +1,13 @@
 class Account < ActiveRecord::Base
   include PenderData
-  
+
   attr_accessible
   attr_readonly :url
-  
+
   has_paper_trail on: [:create, :update]
   belongs_to :user
   belongs_to :source
+  belongs_to :team
   has_many :medias
 
   validates_presence_of :url
@@ -41,7 +42,7 @@ class Account < ActiveRecord::Base
       source = Source.new
       source.avatar = data['picture']
       source.name = data['title'].blank? ? 'Untitled' : data['title']
-      source.slogan = data['description'].blank? ? 'No description available' : data['description']
+      source.slogan = data['description'].to_s
       source.save!
       self.source = source
       self.save!

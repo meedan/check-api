@@ -8,7 +8,7 @@ class Source < ActiveRecord::Base
 
   has_annotations
 
-  validates_presence_of :name, :slogan
+  validates_presence_of :name
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
