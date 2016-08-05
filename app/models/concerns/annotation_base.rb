@@ -69,6 +69,7 @@ module AnnotationBase
     has_paper_trail on: [:update], save_changes: true
 
     after_save do
+      Annotation.gateway.client.indices.refresh
       self.send(:record_update, true) unless self.attribute_changed?(:version_index)
       reset_changes
     end

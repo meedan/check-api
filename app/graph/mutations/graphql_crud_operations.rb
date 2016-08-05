@@ -9,7 +9,6 @@ class GraphqlCrudOperations
     ret = { name.to_sym => obj }
     
     unless parent.nil?
-      sleep 1
       child, parent = obj, obj.send(parent)
       ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
       ret[:parent] = parent
