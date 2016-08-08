@@ -206,7 +206,7 @@ module SampleData
     contact = Contact.new
     contact.location = options[:location] || random_string
     contact.phone = options[:phone] || random_string
-    contact.phone = options[:web] || random_url
+    contact.web = options[:web] || random_url
     if options.has_key?(:team_id)
       contact.team_id = options[:team_id]
     else
