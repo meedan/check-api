@@ -8,9 +8,21 @@ class Team < ActiveRecord::Base
   mount_uploader :logo, ImageUploader
   validates_presence_of :name, :description
 
+  after_create :add_user_to_team, unless: "current_user.nil?"
+
   has_annotations
 
   def logo_callback(value, _mapping_ids = nil)
     image_callback(value)
   end
+
+  private
+
+  def add_user_to_team
+    tu = TeamUser.new
+    tu.user = current_user
+    tu.team = self
+    tu.save!
+  end
+
 end

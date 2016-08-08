@@ -55,4 +55,12 @@ class TeamTest < ActiveSupport::TestCase
     file = 'http://dummyimage.com/100x100/000/fff.png'
     assert_not_nil t.logo_callback(file)
   end
+
+  test "should add user to team on team creation" do
+    u = create_user
+    current_user = u
+    t = create_team_user
+    assert_equal [u.id], t.users.map(&:id)
+  end
+
 end
