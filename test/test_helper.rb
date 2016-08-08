@@ -192,7 +192,7 @@ class ActiveSupport::TestCase
     document_graphql_query('read_object', type, query, @response.body)
   end
 
-  def assert_graphql_read_collection(type, fields = {})
+  def assert_graphql_read_collection(type, fields = {}, order = 'ASC')
     type.camelize.constantize.delete_all
     
     obj = send("create_#{type}")
@@ -228,7 +228,8 @@ class ActiveSupport::TestCase
     
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
     
-    fields.each { |name, key| assert_equal obj.send(name).first.send(key), edges[0]['node'][name]['edges'][0]['node'][key] }
+    nindex = order === 'ASC' ? 0 : (type.camelize.constantize.count - 1)
+    fields.each { |name, key| assert_equal obj.send(name).first.send(key), edges[nindex]['node'][name]['edges'][0]['node'][key] }
     
     assert_response :success
     document_graphql_query('read_collection', type, query, @response.body)

@@ -58,9 +58,14 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should add user to team on team creation" do
     u = create_user
-    current_user = u
-    t = create_team_user
-    assert_equal [u.id], t.users.map(&:id)
+    assert_difference 'TeamUser.count' do
+      create_team current_user: u
+    end
   end
 
+  test "should not add user to team on team creation" do
+    assert_no_difference 'TeamUser.count' do
+      create_team current_user: nil
+    end
+  end
 end

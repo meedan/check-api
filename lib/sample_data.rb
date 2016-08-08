@@ -128,6 +128,7 @@ module SampleData
     end
     team.archived = options[:archived] || false
     team.description = options[:description] || random_string
+    team.current_user = options[:current_user]
     team.save!
     team.reload
   end
