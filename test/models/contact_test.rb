@@ -17,4 +17,12 @@ class ContactTest < ActiveSupport::TestCase
     assert_equal [c1.id, c2.id].sort, t.reload.contacts.map(&:id).sort
   end
 
+  test "should not create contact with invalid phone number" do
+    assert_no_difference 'Contact.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_contact phone: "invalid"
+      end
+    end
+  end
+
 end

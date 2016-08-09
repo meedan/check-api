@@ -18,6 +18,10 @@ module SampleData
     random_string + '@' + random_string + '.com'
   end
 
+  def randon_valid_phone
+    "00201".to_s + random_number(2).to_s +  8.times.map{rand(9)}.join
+  end
+
   def create_api_key(options = {})
     a = ApiKey.new
     options.each do |key, value|
@@ -205,7 +209,7 @@ module SampleData
   def create_contact(options = {})
     contact = Contact.new
     contact.location = options[:location] || random_string
-    contact.phone = options[:phone] || random_string
+    contact.phone = options[:phone] || randon_valid_phone
     contact.web = options[:web] || random_url
     if options.has_key?(:team_id)
       contact.team_id = options[:team_id]

@@ -28,6 +28,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'cancancan', '~> 1.10'
 gem 'bootstrap-sass', '~> 3.2.0.0'
 gem 'carrierwave', '~> 0.9'
+gem 'phony_rails'
 # Use pender
 # token created in `meedan-docker-ro@github.com` account using this method:
 # https://gist.github.com/sebboh/f1dfe4f096746c45f3e9ea06a09743a0
