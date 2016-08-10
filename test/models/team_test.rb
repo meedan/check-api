@@ -55,4 +55,17 @@ class TeamTest < ActiveSupport::TestCase
     file = 'http://dummyimage.com/100x100/000/fff.png'
     assert_not_nil t.logo_callback(file)
   end
+
+  test "should add user to team on team creation" do
+    u = create_user
+    assert_difference 'TeamUser.count' do
+      create_team current_user: u
+    end
+  end
+
+  test "should not add user to team on team creation" do
+    assert_no_difference 'TeamUser.count' do
+      create_team current_user: nil
+    end
+  end
 end
