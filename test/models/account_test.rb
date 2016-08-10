@@ -137,4 +137,12 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal [a1.id, a2.id].sort, t.reload.accounts.map(&:id).sort
   end
 
+  test "should not duplicate account url [DB validation]" do
+    a1 = create_valid_account
+    a2 = create_valid_account
+    assert_raises ActiveRecord::RecordNotUnique do
+      a2.update_attribute('url', a1.url)
+    end
+  end
+
 end

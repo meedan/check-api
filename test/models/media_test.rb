@@ -120,4 +120,12 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not duplicate media url [DB validation]" do
+    m1 = create_valid_media
+    m2 = create_valid_media
+    assert_raises ActiveRecord::RecordNotUnique do
+      m2.update_attribute('url', m1.url)
+    end
+  end
+
 end
