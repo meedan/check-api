@@ -1,23 +1,29 @@
-# Dockerfile
-FROM seapy/rails-nginx-unicorn-pro:v1.1-ruby2.3.0-nginx1.8.1
-MAINTAINER Meedan(hello@meedan.com)
+FROM meedan/ruby
+MAINTAINER Meedan <sysops@meedan.com>
 
-# Add here other packages you need to install
-RUN apt-get install vim libpq-dev -y
+RUN apt-get update -qq && apt-get install -y vim libpq-dev nodejs --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
-# Nginx config
-COPY docker/nginx.conf /etc/nginx/sites-enabled/default
+# grab tini for signal handling
+RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 6380DC428747F6C393FEACA59A84159D7001A4E5 \
+  && curl -o /usr/local/bin/tini -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini" \
+  && curl -o /usr/local/bin/tini.asc -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini.asc" \
+  && gpg --verify /usr/local/bin/tini.asc \
+  && rm /usr/local/bin/tini.asc \
+  && chmod +x /usr/local/bin/tini
 
-# Install Rails App
-COPY Gemfile /app/Gemfile
-COPY Gemfile.lock /app/Gemfile.lock
-RUN cd /app && bundle install --without development test
-COPY . /app
-RUN cd /app && bundle exec rake db:migrate
-COPY docker/create-dev-key.rb /app/create-dev-key.rb
-RUN cd /app && ruby create-dev-key.rb
-
+# install our app
+RUN mkdir -p /app
 WORKDIR /app
+COPY Gemfile Gemfile.lock /app/
+RUN gem install bundler && bundle install --jobs 20 --retry 5
+COPY . /app
 
-# Nginx port number
-EXPOSE 80
+# the Rails stage can be overridden from the caller
+ENV RAILS_ENV development
+
+# startup
+COPY ./docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+EXPOSE 3000
+ENTRYPOINT ["tini", "--"]
+CMD ["/docker-entrypoint.sh"]

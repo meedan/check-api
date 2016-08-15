@@ -18,7 +18,7 @@ ENV APP checkdesk-api
 #
 
 # nginx for checkdesk-api
-COPY docker/production/nginx.conf /etc/nginx/sites-available/${APP}
+COPY production/nginx.conf /etc/nginx/sites-available/${APP}
 RUN ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP}
 RUN rm /etc/nginx/sites-enabled/default
 
@@ -51,7 +51,7 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
 USER root
 
 # deployment scripts
-COPY docker/production/bin /opt/bin
+COPY production/bin /opt/bin
 RUN chmod 755 /opt/bin/*
 
 # copy in the code
