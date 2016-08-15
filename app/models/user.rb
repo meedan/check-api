@@ -71,7 +71,7 @@ class User < ActiveRecord::Base
     source.slogan = self.name
     source.save!
 
-    if !self.provider.blank? && !self.url.blank?
+    if !self.provider.blank? && !self.url.blank? && self.provider != 'slack'
       account = Account.new
       account.user = self
       account.source = source
