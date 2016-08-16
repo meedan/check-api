@@ -34,6 +34,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
       provider: 'slack',
       uid: '654321',
       info: {
+        name: 'melsawy',
         team: 'Meedan',
         user: 'melsawy',
         team_id: 'T02528QUL',
