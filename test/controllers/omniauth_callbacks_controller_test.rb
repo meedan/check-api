@@ -30,6 +30,21 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
         secret: 'top_secret'
       }
     })
+    OmniAuth.config.mock_auth[:slack] = OmniAuth::AuthHash.new({
+      provider: 'slack',
+      uid: '654321',
+      info: {
+        team: 'Meedan',
+        user: 'melsawy',
+        team_id: 'T02528QUL',
+        user_id: 'U02528YJJ',
+        image: 'http://slack.com/test/image.png'
+      },
+      credentials: {
+        token: '123456',
+        secret: 'top_secret'
+      }
+    })
     request.env['devise.mapping'] = Devise.mappings[:api_user]
     ['https://twitter.com/test', 'https://facebook.com/654321'].each do |url|
       WebMock.stub_request(:get, CONFIG['pender_host'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"type":"profile"}}')
@@ -73,6 +88,12 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     request.env['omniauth.params'] = { 'destination' => '/close.html' }
     get :facebook
     assert_redirected_to '/close.html'
+  end
+
+  test "should redirect to root after Slack authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
+    get :slack
+    assert_redirected_to '/'
   end
 
   test "should logout" do
