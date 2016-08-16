@@ -24,5 +24,12 @@ TeamType = GraphQL::ObjectType.define do
       team.users
     }
   end
+
+  connection :contacts, ContactType.connection_type do
+    resolve -> (team, _args, _ctx) {
+      team.contacts
+    }
+  end
+
 # End of fields
 end

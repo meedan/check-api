@@ -28,6 +28,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'cancancan', '~> 1.10'
 gem 'bootstrap-sass', '~> 3.2.0.0'
 gem 'carrierwave', '~> 0.9'
+gem 'phony_rails'
 gem 'webmock'
 gem 'mocha'
 gem 'simplecov', require: false, group: :test
