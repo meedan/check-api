@@ -3,7 +3,7 @@ module TeamMutations
     archived: 'bool',
     logo: 'str',
     name: '!str',
-    description: '!str'
+    description: 'str'
   }
 
   update_fields = {
