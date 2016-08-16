@@ -4,6 +4,7 @@ group :development, :test do
   gem 'byebug'
   gem 'rubocop'
   gem 'rails-graphql-generator'
+  gem 'web-console', '~> 2.0'
 end
 
 # Use pender
