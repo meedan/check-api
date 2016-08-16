@@ -6,7 +6,8 @@ class Team < ActiveRecord::Base
   has_many :team_users
   has_many :users, through: :team_users
   mount_uploader :logo, ImageUploader
-  validates_presence_of :name, :description
+  
+  validates_presence_of :name
 
   after_create :add_user_to_team
 

@@ -10,7 +10,7 @@ TeamType = GraphQL::ObjectType.define do
   field :archived, types.Boolean
   field :logo, types.String
   field :name, !types.String
-  field :description, !types.String
+  field :description, types.String
   field :dbid, types.Int
 
   connection :team_users, -> { TeamUserType.connection_type } do

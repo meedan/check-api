@@ -4,6 +4,9 @@ group :development, :test do
   gem 'byebug'
   gem 'rubocop'
   gem 'rails-graphql-generator'
+end
+
+group :development do
   gem 'web-console', '~> 2.0'
 end
 
