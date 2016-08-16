@@ -1,6 +1,5 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  attr_readonly :url
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
