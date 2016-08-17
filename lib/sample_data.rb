@@ -140,12 +140,13 @@ module SampleData
 
   def create_media(options = {})
     return create_valid_media(options) if options[:url].blank?
-    account = options[:account] || create_account
-    user = options[:user] || create_user
+    account = options.has_key?(:account) ? options[:account] : create_account
+    user = options.has_key?(:user) ? options[:user] : create_user
     m = Media.new
     m.url = options[:url]
-    m.account_id = options[:account_id] || account.id
-    m.user_id = options[:user_id] || user.id
+    m.account_id = options.has_key?(:account_id) ? options[:account_id] : account.id
+    m.current_user = options[:current_user] if options.has_key?(:current_user)
+    m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
     m.save!
     m.reload
   end
