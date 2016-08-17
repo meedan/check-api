@@ -10,20 +10,22 @@ class TeamTest < ActiveSupport::TestCase
   test "should not save team without name" do
     t = Team.new
     assert_not t.save
-  end
 
+  end
   test "should not save team with invalid subdomains" do
     t = create_team
-    t.subdomain = ''
+    t.subdomain = ""
     assert_not t.save
-    t.subdomain = 'www'
+    t.subdomain = "www"
     assert_not t.save
-    t.subdomain = ' some spaces '
+    t.subdomain = "".rjust(64, "a")
     assert_not t.save
-    t.subdomain = 'correct-الصهث-unicode'
+    t.subdomain = " some spaces "
+    assert_not t.save
+    t.subdomain = "correct-الصهث-unicode"
     assert t.save
     t1 = create_team
-    t1.subdomain = 'correct-الصهث-unicode'
+    t1.subdomain = "correct-الصهث-unicode"
     assert_not t1.save
   end
 
