@@ -179,7 +179,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create team" do
-    assert_graphql_create('team', { name: 'test', description: 'test' })
+    assert_graphql_create('team', { name: 'test', description: 'test', subdomain: 'test' })
   end
 
   test "should read team" do

@@ -123,6 +123,7 @@ module SampleData
   def create_team(options = {})
     team = Team.new
     team.name = options[:name] || random_string
+    team.subdomain = options[:subdomain] || Team.subdomain_from_name(team.name)
     if options.has_key?(:logo)
       team.logo = options[:logo]
     else

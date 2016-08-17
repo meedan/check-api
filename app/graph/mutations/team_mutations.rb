@@ -3,6 +3,7 @@ module TeamMutations
     archived: 'bool',
     logo: 'str',
     name: '!str',
+    subdomain: '!str',
     description: '!str'
   }
 

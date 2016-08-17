@@ -8,8 +8,23 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not save team without name" do
-    team = Team.new
-    assert_not  team.save
+    t = Team.new
+    assert_not t.save
+  end
+
+  test "should not save team with invalid subdomains" do
+    t = create_team
+    t.subdomain = ''
+    assert_not t.save
+    t.subdomain = 'www'
+    assert_not t.save
+    t.subdomain = ' some spaces '
+    assert_not t.save
+    t.subdomain = 'correct-الصهث-unicode'
+    assert t.save
+    t1 = create_team
+    t1.subdomain = 'correct-الصهث-unicode'
+    assert_not t1.save
   end
 
   test "should create version when team is created" do

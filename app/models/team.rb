@@ -8,8 +8,13 @@ class Team < ActiveRecord::Base
   has_many :contacts
 
   mount_uploader :logo, ImageUploader
-  
+
   validates_presence_of :name
+
+  validates_presence_of :subdomain
+  validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens'
+  validates :subdomain, length: { minimum: 4 }
+  validates :subdomain, uniqueness: true
 
   after_create :add_user_to_team
 
@@ -28,6 +33,10 @@ class Team < ActiveRecord::Base
       tu.team = self
       tu.save!
     end
+  end
+
+  def self.subdomain_from_name(name)
+    name.parameterize.underscore.dasherize.ljust(4, '-')
   end
 
 end
