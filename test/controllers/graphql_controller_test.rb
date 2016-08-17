@@ -265,7 +265,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from team" do
-    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name' })
+    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name', 'contacts' =>  'location' })
   end
 
   test "should read collection from account" do
@@ -358,11 +358,11 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should create contact" do
     t = create_team
-    assert_graphql_create('contact', { location: 'my location', phone: '123456', team_id: t.id })
+    assert_graphql_create('contact', { location: 'my location', phone: '00201099998888', team_id: t.id })
   end
 
   test "should read contact" do
-    assert_graphql_read('contact', 'phone')
+    assert_graphql_read('contact', 'location')
   end
 
   test "should update contact" do
@@ -373,4 +373,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_destroy('contact')
   end
 
+  test "should read object from contact" do
+    assert_graphql_read_object('contact', { 'team' => 'name' })
+  end
 end

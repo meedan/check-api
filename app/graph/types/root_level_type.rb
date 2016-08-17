@@ -70,4 +70,9 @@ RootLevelType = GraphQL::ObjectType.define do
       Status.all_sorted
     }
   end
+  connection :contacts, ContactType.connection_type do
+    resolve ->(_object, _args, _ctx){
+      Contact.all
+    }
+  end
 end
