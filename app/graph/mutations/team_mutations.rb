@@ -4,7 +4,7 @@ module TeamMutations
     logo: 'str',
     name: '!str',
     subdomain: '!str',
-    description: '!str'
+    description: 'str'
   }
 
   update_fields = {
