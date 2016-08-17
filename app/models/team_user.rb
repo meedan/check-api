@@ -4,6 +4,10 @@ class TeamUser < ActiveRecord::Base
   belongs_to :team
   belongs_to :user
 
+  validates :status, presence: true
+  validates :status, inclusion: { in: %w(member requested invited banned),
+    message: "%{value} is not a valid team member status" }
+
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
   end

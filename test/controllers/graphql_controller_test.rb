@@ -197,7 +197,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should create team user" do
     t = create_team
     u = create_user
-    assert_graphql_create('team_user', { team_id: t.id, user_id: u.id })
+    assert_graphql_create('team_user', { team_id: t.id, user_id: u.id, status: 'member' })
   end
 
   test "should read team user" do

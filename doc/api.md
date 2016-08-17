@@ -92,7 +92,7 @@ Use this method in order to sign in
     "login": "t",
     "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
     "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJZVlRf++nc1VQSiIsInNlY3JldCI6IlB0U1ptYVYzIn0=++n"
+    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJ5RnVL++nYkRRbiIsInNlY3JldCI6IjZKNjFpYUJGIn0=++n"
   }
 }
 ```
@@ -107,7 +107,7 @@ Use this method in order to sign in
     "login": "t",
     "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
     "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJZVlRf++nc1VQSiIsInNlY3JldCI6IlB0U1ptYVYzIn0=++n"
+    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJ5RnVL++nYkRRbiIsInNlY3JldCI6IjZKNjFpYUJGIn0=++n"
   }
 }
 ```

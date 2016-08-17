@@ -1,4 +1,4 @@
-API Endpoints - Fri Aug  5 04:25:19 UTC 2016
+API Endpoints - Wed Aug 17 23:23:18 UTC 2016
        
      1	DELETE   /accounts/:id
      2	DELETE   /api/users
@@ -21,29 +21,29 @@ API Endpoints - Fri Aug  5 04:25:19 UTC 2016
     19	GET      /api/users/sign_in
     20	GET      /api/users/sign_up
     21	GET      /api/version
-    22	GET  /           graphiql/rails/editors#show
-    23	GET      /medias
-    24	GET      /medias/:id
-    25	GET      /medias/:id/edit
-    26	GET      /medias/new
-    27	GET      /projects
-    28	GET      /projects/:id
-    29	GET      /projects/:id/edit
-    30	GET      /projects/new
-    31	GET      /sources
-    32	GET      /sources/:id
-    33	GET      /sources/:id/edit
-    34	GET      /sources/new
-    35	GET      /teams
-    36	GET      /teams/:id
-    37	GET      /teams/:id/edit
-    38	GET      /teams/new
-    39	GET      /users
-    40	GET      /users/:id
-    41	GET      /users/:id/edit
-    42	GET      /users/new
-    43	GraphiQL::Rails::Engine:
-    44	GraphiQL::Rails::Engine {:graphql_path=>"/api/graphql"}
+    22	GET      /medias
+    23	GET      /medias/:id
+    24	GET      /medias/:id/edit
+    25	GET      /medias/new
+    26	GET      /projects
+    27	GET      /projects/:id
+    28	GET      /projects/:id/edit
+    29	GET      /projects/new
+    30	GET      /sources
+    31	GET      /sources/:id
+    32	GET      /sources/:id/edit
+    33	GET      /sources/new
+    34	GET      /teams
+    35	GET      /teams/:id
+    36	GET      /teams/:id/edit
+    37	GET      /teams/new
+    38	GET      /users
+    39	GET      /users/:id
+    40	GET      /users/:id/edit
+    41	GET      /users/new
+    42	GET  /           graphiql/rails/editors#show
+    43	GraphiQL::Rails::Engine {:graphql_path=>"/api/graphql"}
+    44	GraphiQL::Rails::Engine:
     45	PATCH    /accounts/:id
     46	PATCH    /api/users
     47	PATCH    /api/users/password
@@ -55,17 +55,17 @@ API Endpoints - Fri Aug  5 04:25:19 UTC 2016
     53	POST     /accounts
     54	POST     /api/graphql
     55	POST     /api/users
-    56	POST /api/users/auth/facebook
-    57	POST /api/users/auth/facebook/callback
-    58	POST /api/users/auth/twitter
-    59	POST /api/users/auth/twitter/callback
-    60	POST     /api/users/password
-    61	POST     /api/users/sign_in
-    62	POST     /medias
-    63	POST     /projects
-    64	POST     /sources
-    65	POST     /teams
-    66	POST     /users
+    56	POST     /api/users/password
+    57	POST     /api/users/sign_in
+    58	POST     /medias
+    59	POST     /projects
+    60	POST     /sources
+    61	POST     /teams
+    62	POST     /users
+    63	POST /api/users/auth/facebook
+    64	POST /api/users/auth/facebook/callback
+    65	POST /api/users/auth/twitter
+    66	POST /api/users/auth/twitter/callback
     67	PTIONS  /api/:pattern
     68	PUT      /accounts/:id
     69	PUT      /api/users
