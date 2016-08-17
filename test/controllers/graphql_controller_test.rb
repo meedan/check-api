@@ -340,10 +340,10 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should return validation error" do
     authenticate_with_user
     url = 'https://www.youtube.com/user/MeedanTube'
-    
+
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
       query = 'mutation create { createAccount(input: { clientMutationId: "1", url: "' + url + '" }) { account { id } } }'
-      
+
       assert_difference 'Account.count' do
         post :create, query: query
       end
@@ -355,4 +355,22 @@ class GraphqlControllerTest < ActionController::TestCase
       assert_response 400
     end
   end
+
+  test "should create contact" do
+    t = create_team
+    assert_graphql_create('contact', { location: 'my location', phone: '123456', team_id: t.id })
+  end
+
+  test "should read contact" do
+    assert_graphql_read('contact', 'phone')
+  end
+
+  test "should update contact" do
+    assert_graphql_update('contact', :location, 'foo', 'bar')
+  end
+
+  test "should destroy contact" do
+    assert_graphql_destroy('contact')
+  end
+
 end
