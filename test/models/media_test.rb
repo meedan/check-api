@@ -103,7 +103,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should set URL from Pender" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized"}}'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
     assert_equal 'http://test.com/normalized', m.reload.url
@@ -139,7 +139,7 @@ class MediaTest < ActiveSupport::TestCase
     author_url = 'http://facebook.com/123456'
     author_normal_url = 'http://www.facebook.com/meedan'
 
-    data = { url: media_url, author_url: author_url }
+    data = { url: media_url, author_url: author_url, type: 'item' }
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
 
@@ -168,7 +168,7 @@ class MediaTest < ActiveSupport::TestCase
     author_url = 'http://facebook.com/123456'
     author_normal_url = 'http://www.facebook.com/meedan'
 
-    data = { url: media_url, author_url: author_url }
+    data = { url: media_url, author_url: author_url, type: 'item' }
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
 
@@ -187,5 +187,19 @@ class MediaTest < ActiveSupport::TestCase
     end
 
     assert_equal author_normal_url, m.reload.account.url
+  end
+
+  test "should not create media that is not an item" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    data = { url: url, author_url: url, type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+
+    assert_no_difference 'Media.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_media(url: url)
+      end
+    end
   end
 end

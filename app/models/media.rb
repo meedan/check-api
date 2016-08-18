@@ -13,6 +13,7 @@ class Media < ActiveRecord::Base
   validates_presence_of :url
   validates :url, uniqueness: true, unless: 'CONFIG["allow_duplicated_urls"]'
   validate :validate_pender_result, on: :create
+  validate :pender_result_is_an_item, on: :create
 
   before_validation :set_user, on: :create
   after_create :set_account
@@ -44,5 +45,9 @@ class Media < ActiveRecord::Base
       self.account = Account.where(url: account.url).last
     end
     self.save!
+  end
+
+  def pender_result_is_an_item
+    errors.add(:base, 'Sorry, this is not a valid media item') if !self.data.nil? && self.data['type'] != 'item'
   end
 end

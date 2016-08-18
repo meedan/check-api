@@ -107,9 +107,11 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create media" do
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      assert_graphql_create('media', { url: @url })
-    end
+    url = random_url
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    assert_graphql_create('media', { url: url })
   end
 
   test "should read medias" do

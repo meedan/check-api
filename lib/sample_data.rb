@@ -148,6 +148,10 @@ module SampleData
     m.current_user = options[:current_user] if options.has_key?(:current_user)
     m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
     m.save!
+    if options.has_key?(:data)
+      m.data = options[:data]
+      m.save!
+    end
     m.reload
   end
 
@@ -195,7 +199,7 @@ module SampleData
   def create_valid_media(options = {})
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item"}}')
     create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
   end
 
