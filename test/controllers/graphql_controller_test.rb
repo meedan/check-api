@@ -259,7 +259,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from media" do
-    assert_graphql_read_collection('media', { 'projects' => 'title' })
+    assert_graphql_read_collection('media', { 'projects' => 'title', 'annotations' => 'content', 'tags' => 'tag' }, 'DESC')
   end
 
   test "should read collection from project" do

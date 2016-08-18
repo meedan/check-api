@@ -30,6 +30,10 @@ class Media < ActiveRecord::Base
     mapping_ids[value]
   end
 
+  def tags
+    self.annotations('tag')
+  end
+
   private
 
   def set_user

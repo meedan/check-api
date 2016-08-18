@@ -35,4 +35,16 @@ MediaType = GraphQL::ObjectType.define do
       media.user
     }
   end
+
+  connection :annotations, -> { AnnotationType.connection_type } do
+    resolve ->(media, _args, _ctx) {
+      media.annotations
+    }
+  end
+
+  connection :tags, -> { TagType.connection_type } do
+    resolve ->(media, _args, _ctx) {
+      media.tags
+    }
+  end
 end
