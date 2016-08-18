@@ -14,7 +14,7 @@
       <img src="./assets/0.10.0/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" style="display:none;">
-      <div class="timestamp">Generated <abbr class="timeago" title="2016-08-18T17:20:24-03:00">2016-08-18T17:20:24-03:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2016-08-18T17:42:15-03:00">2016-08-18T17:42:15-03:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
@@ -25,15 +25,15 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         38.22
+         38.24
        </span>
     </span> hits/line)
   </h2>
   <a name="AllFiles"></a>
   <div>
     <b>72</b> files in total.
-    <b>1247</b> relevant lines. 
-    <span class="green"><b>1247</b> lines covered</span> and
+    <b>1248</b> relevant lines. 
+    <span class="green"><b>1248</b> lines covered</span> and
     <span class="red"><b>0</b> lines missed </span>
   </div>
   <table class="file_list">
@@ -567,7 +567,7 @@
         <td>16</td>
         <td>16</td>
         <td>0</td>
-        <td>5.6</td>
+        <td>5.4</td>
       </tr>
       
       <tr>
@@ -603,11 +603,11 @@
       <tr>
         <td class="strong"><a href="#95dd7eb1bf720832205d2878edbfa6d329fd7900" class="src_link" title="app/models/media.rb">app/models/media.rb</a></td>
         <td class="green strong">100.0 %</td>
-        <td>60</td>
-        <td>37</td>
-        <td>37</td>
+        <td>62</td>
+        <td>38</td>
+        <td>38</td>
         <td>0</td>
-        <td>19.0</td>
+        <td>20.3</td>
       </tr>
       
       <tr>
@@ -900,15 +900,15 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         71.34
+         71.33
        </span>
     </span> hits/line)
   </h2>
   <a name="Models"></a>
   <div>
     <b>20</b> files in total.
-    <b>506</b> relevant lines. 
-    <span class="green"><b>506</b> lines covered</span> and
+    <b>507</b> relevant lines. 
+    <span class="green"><b>507</b> lines covered</span> and
     <span class="red"><b>0</b> lines missed </span>
   </div>
   <table class="file_list">
@@ -1002,7 +1002,7 @@
         <td>16</td>
         <td>16</td>
         <td>0</td>
-        <td>5.6</td>
+        <td>5.4</td>
       </tr>
       
       <tr>
@@ -1038,11 +1038,11 @@
       <tr>
         <td class="strong"><a href="#95dd7eb1bf720832205d2878edbfa6d329fd7900" class="src_link" title="app/models/media.rb">app/models/media.rb</a></td>
         <td class="green strong">100.0 %</td>
-        <td>60</td>
-        <td>37</td>
-        <td>37</td>
+        <td>62</td>
+        <td>38</td>
+        <td>38</td>
         <td>0</td>
-        <td>19.0</td>
+        <td>20.3</td>
       </tr>
       
       <tr>
@@ -11667,8 +11667,8 @@
           <code class="ruby">  def self.applications</code>
         </li>
       
-        <li class="covered" data-hits="7" data-linenumber="12">
-          <span class="hits">7</span>
+        <li class="covered" data-hits="5" data-linenumber="12">
+          <span class="hits">5</span>
           
           <code class="ruby">    [nil]</code>
         </li>
@@ -13806,8 +13806,8 @@
     <h3>app/models/media.rb</h3>
     <h4><span class="green">100.0 %</span> covered</h4>
     <div>
-      <b>37</b> relevant lines. 
-      <span class="green"><b>37</b> lines covered</span> and
+      <b>38</b> relevant lines. 
+      <span class="green"><b>38</b> lines covered</span> and
       <span class="red"><b>0</b> lines missed.</span>
     </div>
   </div>
@@ -14118,58 +14118,70 @@
         <li class="covered" data-hits="70" data-linenumber="51">
           <span class="hits">70</span>
           
-          <code class="ruby">    errors.add(:base, &#39;Sorry, this is not a valid media item&#39;) if !self.data.nil? &amp;&amp; self.data[&#39;type&#39;] != &#39;item&#39;</code>
+          <code class="ruby">    unless self.data.nil?</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="52">
+        <li class="covered" data-hits="68" data-linenumber="52">
+          <span class="hits">68</span>
           
-          
-          <code class="ruby">  end</code>
+          <code class="ruby">      errors.add(:base, &#39;Sorry, this is not a valid media item&#39;) unless self.data[&#39;type&#39;] == &#39;item&#39;</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="53">
           
           
-          <code class="ruby"></code>
-        </li>
-      
-        <li class="covered" data-hits="1" data-linenumber="54">
-          <span class="hits">1</span>
-          
-          <code class="ruby">  def url_is_unique</code>
-        </li>
-      
-        <li class="covered" data-hits="70" data-linenumber="55">
-          <span class="hits">70</span>
-          
-          <code class="ruby">    if !CONFIG[&#39;allow_duplicated_urls&#39;]</code>
-        </li>
-      
-        <li class="covered" data-hits="70" data-linenumber="56">
-          <span class="hits">70</span>
-          
-          <code class="ruby">      existing = Media.where(url: self.url).first</code>
-        </li>
-      
-        <li class="covered" data-hits="70" data-linenumber="57">
-          <span class="hits">70</span>
-          
-          <code class="ruby">      errors.add(:base, &quot;Media with this URL exists and has id #{existing.id}&quot;) unless existing.nil?</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="58">
-          
-          
           <code class="ruby">    end</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="59">
+        <li class="never" data-hits="" data-linenumber="54">
           
           
           <code class="ruby">  end</code>
         </li>
       
+        <li class="never" data-hits="" data-linenumber="55">
+          
+          
+          <code class="ruby"></code>
+        </li>
+      
+        <li class="covered" data-hits="1" data-linenumber="56">
+          <span class="hits">1</span>
+          
+          <code class="ruby">  def url_is_unique</code>
+        </li>
+      
+        <li class="covered" data-hits="70" data-linenumber="57">
+          <span class="hits">70</span>
+          
+          <code class="ruby">    if !CONFIG[&#39;allow_duplicated_urls&#39;]</code>
+        </li>
+      
+        <li class="covered" data-hits="70" data-linenumber="58">
+          <span class="hits">70</span>
+          
+          <code class="ruby">      existing = Media.where(url: self.url).first</code>
+        </li>
+      
+        <li class="covered" data-hits="70" data-linenumber="59">
+          <span class="hits">70</span>
+          
+          <code class="ruby">      errors.add(:base, &quot;Media with this URL exists and has id #{existing.id}&quot;) unless existing.nil?</code>
+        </li>
+      
         <li class="never" data-hits="" data-linenumber="60">
+          
+          
+          <code class="ruby">    end</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="61">
+          
+          
+          <code class="ruby">  end</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="62">
           
           
           <code class="ruby">end</code>
