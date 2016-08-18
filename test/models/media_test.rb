@@ -202,4 +202,16 @@ class MediaTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should not create media with duplicated URL" do
+    m = create_valid_media
+    assert_no_difference 'Media.count' do
+      exception = assert_raises ActiveRecord::RecordInvalid do
+        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+          create_media(url: m.url)
+        end
+      end
+      assert_equal "Validation failed: Media with this URL exists and has id #{m.id}", exception.message
+    end
+  end
 end

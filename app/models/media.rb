@@ -11,9 +11,9 @@ class Media < ActiveRecord::Base
   include PenderData
 
   validates_presence_of :url
-  validates :url, uniqueness: true, unless: 'CONFIG["allow_duplicated_urls"]'
   validate :validate_pender_result, on: :create
   validate :pender_result_is_an_item, on: :create
+  validate :url_is_unique, on: :create
 
   before_validation :set_user, on: :create
   after_create :set_account
@@ -49,5 +49,12 @@ class Media < ActiveRecord::Base
 
   def pender_result_is_an_item
     errors.add(:base, 'Sorry, this is not a valid media item') if !self.data.nil? && self.data['type'] != 'item'
+  end
+
+  def url_is_unique
+    if !CONFIG['allow_duplicated_urls']
+      existing = Media.where(url: self.url).first
+      errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
+    end
   end
 end
