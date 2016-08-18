@@ -48,7 +48,9 @@ class Media < ActiveRecord::Base
   end
 
   def pender_result_is_an_item
-    errors.add(:base, 'Sorry, this is not a valid media item') if !self.data.nil? && self.data['type'] != 'item'
+    unless self.data.nil?
+      errors.add(:base, 'Sorry, this is not a valid media item') unless self.data['type'] == 'item'
+    end
   end
 
   def url_is_unique
