@@ -339,6 +339,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_get_by_id('team', 'name', 'Test')
   end
 
+  test "should get media by id" do
+    u = create_user
+    assert_graphql_get_by_id('media', 'user_id', u.id)
+  end
+
   test "should return validation error" do
     authenticate_with_user
     url = 'https://www.youtube.com/user/MeedanTube'
