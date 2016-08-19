@@ -116,6 +116,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read medias" do
     assert_graphql_read('media', 'url')
+    assert_graphql_read('media', 'jsondata')
+    assert_graphql_read('media', 'published')
   end
 
   test "should update media" do
@@ -287,7 +289,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create status" do
-    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source' }) { sleep 1 }
+    s = create_source
+    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
   end
 
   test "should read statuses" do
