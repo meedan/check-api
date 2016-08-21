@@ -34,12 +34,19 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
       provider: 'slack',
       uid: '654321',
       info: {
-        name: 'melsawy',
-        team: 'Meedan',
-        user: 'melsawy',
-        team_id: 'T02528QUL',
-        user_id: 'U02528YJJ',
-        image: 'http://slack.com/test/image.png'
+        name: "Sonny Whether",
+        id: "U0G9QF9C6",
+        email: 'sonny@captain-fabian.co',
+        image_24: 'http://twitter.com/test/image.png',
+        image_32: 'http://twitter.com/test/image.png',
+        image_48:'http://twitter.com/test/image.png',
+        image_72: 'http://twitter.com/test/image.png',
+        image_192:'http://twitter.com/test/image.png',
+        image_512:'http://twitter.com/test/image.png',
+        team: {
+          id: 'T0G9PQBBK',
+          name: 'Meedan',
+        }
       },
       credentials: {
         token: '123456',
@@ -95,6 +102,19 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
     get :slack
     assert_redirected_to '/'
+  end
+
+  test "should set information in session after Slack authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
+    assert_nil session['checkdesk.user']
+    get :slack
+    assert_not_nil session['checkdesk.current_user_id']
+  end
+
+  test "should redirect to destination after Slack authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
+    get :slack, destination: '/close.html'
+    assert_redirected_to '/close.html'
   end
 
   test "should logout" do
