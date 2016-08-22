@@ -85,4 +85,33 @@ class TeamTest < ActiveSupport::TestCase
       create_team current_user: nil
     end
   end
+
+  test "should not upload a logo that is not an image" do
+    assert_no_difference 'Team.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team logo: 'not-an-image.txt'
+      end
+    end
+  end
+
+  test "should not upload a big logo" do
+    assert_no_difference 'Team.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team logo: 'ruby-big.png'
+      end
+    end
+  end
+
+  test "should not upload a small logo" do
+    assert_no_difference 'Team.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team logo: 'ruby-small.png'
+      end
+    end
+  end
+
+  test "should have a default uploaded image" do
+    t = create_team logo: nil
+    assert_match /team\.png$/, t.logo.url
+  end
 end

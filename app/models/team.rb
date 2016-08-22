@@ -10,11 +10,11 @@ class Team < ActiveRecord::Base
   mount_uploader :logo, ImageUploader
 
   validates_presence_of :name
-
   validates_presence_of :subdomain
   validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens'
   validates :subdomain, length: { in: 4..63 }
   validates :subdomain, uniqueness: true
+  validates :logo, size: true
 
   after_create :add_user_to_team
 

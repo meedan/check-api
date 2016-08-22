@@ -114,7 +114,15 @@ module SampleData
     project.title = options[:title] || random_string
     project.description = options[:description] || random_string(40)
     project.user = options[:user] || create_user
-    project.lead_image = options[:lead_image]
+    file = 'rails.png'
+    if options.has_key?(:lead_image)
+      file = options[:lead_image]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        project.lead_image = f
+      end
+    end
     project.archived = options[:archived] || false
     project.save!
     project.reload
@@ -124,10 +132,12 @@ module SampleData
     team = Team.new
     team.name = options[:name] || random_string
     team.subdomain = options[:subdomain] || Team.subdomain_from_name(team.name)
+    file = 'rails.png'
     if options.has_key?(:logo)
-      team.logo = options[:logo]
-    else
-      File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+      file = options[:logo]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
         team.logo = f
       end
     end
