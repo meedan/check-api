@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
-         :omniauthable, omniauth_providers: [:twitter, :facebook]
+         :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
   after_create :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid

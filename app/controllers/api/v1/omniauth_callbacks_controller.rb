@@ -3,6 +3,7 @@ module Api
     class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       include TwitterAuthentication
       include FacebookAuthentication
+      include SlackAuthentication
 
       def logout
         sign_out current_api_user
