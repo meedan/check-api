@@ -6,17 +6,25 @@ MediaType = GraphQL::ObjectType.define do
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('Media')
   field :updated_at, types.String
-  field :created_at, types.String
-  field :data, types.String
   field :url, !types.String
   field :account_id, types.Int
   field :project_id, types.Int
   field :user_id, types.Int
   field :dbid, types.Int
   
-  connection :projects, -> { ProjectType.connection_type } do
+  field :published do
+    type types.String
+
     resolve -> (media, _args, _ctx) {
-      media.projects
+      media.published
+    }
+  end
+  
+  field :jsondata do
+    type types.String
+
+    resolve -> (media, _args, _ctx) {
+      media.jsondata
     }
   end
 
@@ -33,6 +41,24 @@ MediaType = GraphQL::ObjectType.define do
 
     resolve -> (media, _args, _ctx) {
       media.user
+    }
+  end
+
+  connection :projects, -> { ProjectType.connection_type } do
+    resolve -> (media, _args, _ctx) {
+      media.projects
+    }
+  end
+
+  connection :annotations, -> { AnnotationType.connection_type } do
+    resolve ->(media, _args, _ctx) {
+      media.annotations
+    }
+  end
+
+  connection :tags, -> { TagType.connection_type } do
+    resolve ->(media, _args, _ctx) {
+      media.tags
     }
   end
 end

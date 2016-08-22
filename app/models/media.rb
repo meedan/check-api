@@ -30,6 +30,18 @@ class Media < ActiveRecord::Base
     mapping_ids[value]
   end
 
+  def tags
+    self.annotations('tag')
+  end
+
+  def jsondata
+    self.data.to_json
+  end
+
+  def published
+    self.created_at.to_i.to_s
+  end
+
   private
 
   def set_user

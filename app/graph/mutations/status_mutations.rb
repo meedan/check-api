@@ -16,5 +16,5 @@ module StatusMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('status', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('status', create_fields, update_fields, ['media', 'source'])
 end

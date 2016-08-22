@@ -116,6 +116,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read medias" do
     assert_graphql_read('media', 'url')
+    assert_graphql_read('media', 'jsondata')
+    assert_graphql_read('media', 'published')
   end
 
   test "should update media" do
@@ -259,7 +261,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from media" do
-    assert_graphql_read_collection('media', { 'projects' => 'title' })
+    assert_graphql_read_collection('media', { 'projects' => 'title', 'annotations' => 'content', 'tags' => 'tag' }, 'DESC')
   end
 
   test "should read collection from project" do
@@ -287,7 +289,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create status" do
-    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source' }) { sleep 1 }
+    s = create_source
+    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
   end
 
   test "should read statuses" do
@@ -337,6 +340,11 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should get team by id" do
     assert_graphql_get_by_id('team', 'name', 'Test')
+  end
+
+  test "should get media by id" do
+    u = create_user
+    assert_graphql_get_by_id('media', 'user_id', u.id)
   end
 
   test "should return validation error" do

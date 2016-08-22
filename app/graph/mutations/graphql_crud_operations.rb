@@ -1,5 +1,5 @@
 class GraphqlCrudOperations
-  def self.safe_save(obj, attrs, parent = nil)
+  def self.safe_save(obj, attrs, parents = [])
     attrs.each do |key, value|
       obj.send("#{key}=", value)
     end
@@ -8,16 +8,16 @@ class GraphqlCrudOperations
     name = obj.class.name.underscore
     ret = { name.to_sym => obj }
     
-    unless parent.nil?
-      child, parent = obj, obj.send(parent)
+    parents.each do |parent_name|
+      child, parent = obj, obj.send(parent_name)
       ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
-      ret[:parent] = parent
+      ret[parent_name.to_sym] = parent
     end
 
     ret
   end
 
-  def self.create(type, inputs, ctx, parent = nil)
+  def self.create(type, inputs, ctx, parents = [])
     obj = type.camelize.constantize.new
     obj.current_user = ctx[:current_user]
     
@@ -26,10 +26,10 @@ class GraphqlCrudOperations
       memo
     end
     
-    self.safe_save(obj, attrs, parent)
+    self.safe_save(obj, attrs, parents)
   end
 
-  def self.update(_type, inputs, ctx, parent = nil)
+  def self.update(_type, inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
     obj.current_user = ctx[:current_user]
     
@@ -38,28 +38,28 @@ class GraphqlCrudOperations
       memo
     end
 
-    self.safe_save(obj, attrs, parent)
+    self.safe_save(obj, attrs, parents)
   end
 
-  def self.destroy(inputs, ctx, parent = nil)
+  def self.destroy(inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
     obj.destroy
     ret = { deletedId: inputs[:id] }
 
-    ret[:parent] = obj.send(parent) unless parent.nil?
+    parents.each { |parent| ret[parent.to_sym] = obj.send(parent) }
 
     ret
   end
 
-  def self.define_create(type, create_fields, parent = nil)
-    self.define_create_or_update('create', type, create_fields, parent)
+  def self.define_create(type, create_fields, parents = [])
+    self.define_create_or_update('create', type, create_fields, parents)
   end
 
-  def self.define_update(type, update_fields, parent = nil)
-    self.define_create_or_update('update', type, update_fields, parent)
+  def self.define_update(type, update_fields, parents = [])
+    self.define_create_or_update('update', type, update_fields, parents)
   end
 
-  def self.define_create_or_update(action, type, fields, parent = nil)
+  def self.define_create_or_update(action, type, fields, parents = [])
     GraphQL::Relay::Mutation.define do
       mapping = {
         'str'  => types.String,
@@ -80,40 +80,40 @@ class GraphqlCrudOperations
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass 
 
-      unless parent.nil?
+      parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
-        return_field :parent, "#{parent.camelize}Type".constantize
+        return_field parent.to_sym, "#{parent.camelize}Type".constantize
       end
 
       resolve -> (inputs, ctx) {
-        GraphqlCrudOperations.send(action, type, inputs, ctx, parent)
+        GraphqlCrudOperations.send(action, type, inputs, ctx, parents)
       }
     end
   end
 
-  def self.define_destroy(type, parent = nil)
+  def self.define_destroy(type, parents = [])
     GraphQL::Relay::Mutation.define do
       name "Destroy#{type.camelize}"
 
       input_field :id, !types.ID
 
       return_field :deletedId, types.ID
-      unless parent.nil?
-        return_field :parent, "#{parent.camelize}Type".constantize
+      parents.each do |parent|
+        return_field parent.to_sym, "#{parent.camelize}Type".constantize
       end
 
       resolve -> (inputs, ctx) {
-        GraphqlCrudOperations.destroy(inputs, ctx, parent)
+        GraphqlCrudOperations.destroy(inputs, ctx, parents)
       }
     end
   end
 
-  def self.define_crud_operations(type, create_fields, update_fields = {}, parent = nil)
+  def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [])
     update_fields = create_fields if update_fields.empty?
     [
-      GraphqlCrudOperations.define_create(type, create_fields, parent),
-      GraphqlCrudOperations.define_update(type, update_fields, parent),
-      GraphqlCrudOperations.define_destroy(type, parent)
+      GraphqlCrudOperations.define_create(type, create_fields, parents),
+      GraphqlCrudOperations.define_update(type, update_fields, parents),
+      GraphqlCrudOperations.define_destroy(type, parents)
     ]
   end
 
