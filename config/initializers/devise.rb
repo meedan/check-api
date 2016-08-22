@@ -19,7 +19,7 @@ Devise.setup do |config|
   config.sign_out_via = :delete
   config.omniauth :twitter, CONFIG['twitter_consumer_key'], CONFIG['twitter_consumer_secret']
   config.omniauth :facebook, CONFIG['facebook_app_id'], CONFIG['facebook_app_secret'], scope: 'email,publish_actions,public_profile', info_fields: 'name,email,picture,link'
-  config.omniauth :slack, CONFIG['slack_app_id'], CONFIG['slack_app_secret'], scope: 'identity.basic'
+  config.omniauth :slack, CONFIG['slack_app_id'], CONFIG['slack_app_secret'], scope: 'identify'
   config.skip_session_storage = [:http_auth, :token_auth]
   config.warden do |manager|
     manager.failure_app = CustomFailure
