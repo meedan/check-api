@@ -12,6 +12,10 @@ ENV RAILS_ENV production
 ENV GITREPO git@github.com:meedan/checkdesk-api.git
 ENV APP checkdesk-api
 
+#
+# DEPENDENCIES
+#
+RUN apt-get update -qq && apt-get install -y imagemagick
 
 #
 # APP CONFIG

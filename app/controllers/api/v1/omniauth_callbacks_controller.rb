@@ -13,14 +13,19 @@ module Api
 
       protected
 
-      def start_session_and_redirect(destination = '/')
+      def start_session_and_redirect
         auth = request.env['omniauth.auth']
         user = User.from_omniauth(auth)
         unless user.nil?
           session['checkdesk.current_user_id'] = user.id
           sign_in(user)
         end
-        destination ||= '/'
+
+        destination = params[:destination] || '/api'
+        if request.env.has_key?('omniauth.params')
+          destination = request.env['omniauth.params']['destination'] unless request.env['omniauth.params']['destination'].blank?
+        end
+
         redirect_to destination
       end
     end
