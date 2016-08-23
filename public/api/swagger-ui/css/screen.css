@@ -1071,7 +1071,7 @@ table {
   text-align: center;
   padding-top: 10px;
 }
-#twitter-login, #facebook-login {
+#twitter-login, #facebook-login, #slack-login {
   display: inline-block;
   width: 26px;
   height: 26px;
@@ -1084,4 +1084,8 @@ table {
 
 #facebook-login {
   background: transparent url(../images/facebook.png) no-repeat left center;
+}
+
+#slack-login {
+  background: transparent url(../images/slack.png) no-repeat left center;
 }
