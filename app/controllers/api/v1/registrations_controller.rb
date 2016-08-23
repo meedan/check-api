@@ -49,7 +49,7 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
 
   # If you have extra params to permit, append them to the sanitizer.
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :login, :password, :password_confirmation])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :login, :password, :password_confirmation, :image])
   end
 
   # If you have extra params to permit, append them to the sanitizer.

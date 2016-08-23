@@ -136,4 +136,33 @@ class UserTest < ActiveSupport::TestCase
     u.projects << p2
     assert_equal [p1, p2].sort, u.projects.sort
   end
+
+  test "should not upload an image that is not an image" do
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user image: 'not-an-image.txt', profile_image: nil
+      end
+    end
+  end
+
+  test "should not upload a big logo" do
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user image: 'ruby-big.png', profile_image: nil
+      end
+    end
+  end
+
+  test "should not upload a small logo" do
+    assert_no_difference 'Team.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user image: 'ruby-small.png', profile_image: nil
+      end
+    end
+  end
+
+  test "should have a default uploaded image" do
+    u = create_user image: nil, profile_image: nil
+    assert_match /user\.png$/, u.profile_image
+  end
 end

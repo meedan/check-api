@@ -35,7 +35,7 @@ module SampleData
     u = User.new
     u.name = options[:name] || random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
-    u.profile_image = options[:profile_image] || random_url
+    u.profile_image = options.has_key?(:profile_image) ? options[:profile_image] : random_url
     u.uuid = options.has_key?(:uuid) ? options[:uuid] : random_string
     u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.token = options.has_key?(:token) ? options[:token] : random_string(50)
@@ -43,6 +43,17 @@ module SampleData
     u.password = options[:password] || random_string
     u.password_confirmation = options[:password_confirmation] || u.password
     u.url = options[:url] if options.has_key?(:url)
+
+    file = nil
+    if options.has_key?(:image)
+      file = options[:image]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        u.image = f
+      end
+    end
+
     u.save!
     u.reload
   end

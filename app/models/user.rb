@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  attr_accessible :email, :login, :name, :profile_image, :password, :password_confirmation
+  attr_accessible :email, :login, :name, :profile_image, :password, :password_confirmation, :image
   attr_accessor :url
 
   has_one :source
@@ -11,8 +11,11 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable,
          :omniauthable, omniauth_providers: [:twitter, :facebook]
 
-  after_create :create_source_and_account, :send_welcome_email
+  after_create :set_image, :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
+  
+  mount_uploader :image, ImageUploader
+  validates :image, size: true
 
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
@@ -100,5 +103,12 @@ class User < ActiveRecord::Base
 
   def send_welcome_email
     RegistrationMailer.welcome_email(self).deliver_now if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
+  end
+
+  def set_image
+    if self.profile_image.blank?
+      self.profile_image = CONFIG['checkdesk_base_url'] + User.find(self.id).image.url
+      self.save!
+    end
   end
 end
