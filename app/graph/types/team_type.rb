@@ -10,7 +10,10 @@ TeamType = GraphQL::ObjectType.define do
   field :archived, types.Boolean
   field :logo, types.String
   field :name, !types.String
-  field :description, !types.String
+  field :subdomain, !types.String
+  field :description, types.String
+  field :dbid, types.Int
+
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve ->(team, _args, _ctx) {
       team.team_users
@@ -22,5 +25,12 @@ TeamType = GraphQL::ObjectType.define do
       team.users
     }
   end
+
+  connection :contacts, ContactType.connection_type do
+    resolve -> (team, _args, _ctx) {
+      team.contacts
+    }
+  end
+
 # End of fields
 end

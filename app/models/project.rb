@@ -10,6 +10,7 @@ class Project < ActiveRecord::Base
 
   mount_uploader :lead_image, ImageUploader
   validates_presence_of :title, :description
+  validates :lead_image, size: true
 
   has_annotations
 

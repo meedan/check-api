@@ -12,13 +12,17 @@ ENV RAILS_ENV production
 ENV GITREPO git@github.com:meedan/checkdesk-api.git
 ENV APP checkdesk-api
 
+#
+# DEPENDENCIES
+#
+RUN apt-get update -qq && apt-get install -y imagemagick
 
 #
 # APP CONFIG
 #
 
 # nginx for checkdesk-api
-COPY docker/production/nginx.conf /etc/nginx/sites-available/${APP}
+COPY production/nginx.conf /etc/nginx/sites-available/${APP}
 RUN ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP}
 RUN rm /etc/nginx/sites-enabled/default
 
@@ -51,7 +55,7 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
 USER root
 
 # deployment scripts
-COPY docker/production/bin /opt/bin
+COPY production/bin /opt/bin
 RUN chmod 755 /opt/bin/*
 
 # copy in the code

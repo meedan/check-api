@@ -30,16 +30,43 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
         secret: 'top_secret'
       }
     })
+    OmniAuth.config.mock_auth[:slack] = OmniAuth::AuthHash.new({
+      provider: 'slack',
+      uid: '654321',
+      info: {
+        nickname: "melsawy",
+        team: "Meedan",
+        user: "melsawy",
+        team_id: "T02528QUL",
+        user_id: "U02528YJJ",
+        name: "Mohamed El-Sawy",
+        email: "sawy@meedan.com",
+        first_name: "Mohamed",
+        last_name: "El-Sawy",
+        description: nil,
+        image_24: "https://avatars.slack-edge.com/2014-02-12/2172593075_24.jpg",
+        image_48: "https://avatars.slack-edge.com/2014-02-12/2172593075_48.jpg",
+        image: "https://avatars.slack-edge.com/2014-02-12/2172593075_192.jpg",
+        team_domain: "meedan",
+        is_admin: false,
+        is_owner: false,
+        time_zone: "Africa/Cairo"
+      },
+      credentials: {
+        token: '123456',
+        secret: 'top_secret'
+      }
+    })
     request.env['devise.mapping'] = Devise.mappings[:api_user]
     ['https://twitter.com/test', 'https://facebook.com/654321'].each do |url|
-      WebMock.stub_request(:get, CONFIG['pender_host'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{}}')
+      WebMock.stub_request(:get, CONFIG['pender_host'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"type":"profile"}}')
     end
   end
 
   test "should redirect to root after Twitter authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
     get :twitter
-    assert_redirected_to '/'
+    assert_redirected_to '/api'
   end
 
   test "should set information in session after Twitter authentication" do
@@ -72,6 +99,26 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     request.env['omniauth.params'] = { 'destination' => '/close.html' }
     get :facebook
+    assert_redirected_to '/close.html'
+  end
+
+  test "should redirect to root after Slack authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
+    get :slack
+    assert_redirected_to '/api'
+  end
+
+  test "should set information in session after Slack authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
+    assert_nil session['checkdesk.user']
+    get :slack
+    assert_not_nil session['checkdesk.current_user_id']
+  end
+
+  test "should redirect to destination after Slack authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
+    request.env['omniauth.params'] = { 'destination' => '/close.html' }
+    get :slack
     assert_redirected_to '/close.html'
   end
 

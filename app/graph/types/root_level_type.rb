@@ -17,7 +17,7 @@ RootLevelType = GraphQL::ObjectType.define do
   end
   connection :sources, SourceType.connection_type do
     resolve ->(_object, _args, _ctx){
-      Source.all
+      Source.order('created_at DESC').all
     }
   end
   connection :team_users, TeamUserType.connection_type do
@@ -68,6 +68,11 @@ RootLevelType = GraphQL::ObjectType.define do
   connection :statuses, StatusType.connection_type do
     resolve ->(_object, _args, _ctx){
       Status.all_sorted
+    }
+  end
+  connection :contacts, ContactType.connection_type do
+    resolve ->(_object, _args, _ctx){
+      Contact.all
     }
   end
 end

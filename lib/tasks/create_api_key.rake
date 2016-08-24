@@ -1,6 +1,5 @@
 namespace :lapis do
   namespace :api_keys do
-
     task delete_expired: :environment do
       puts "There are #{ApiKey.count} keys. Going to remove the expired ones..."
       ApiKey.destroy_all('expire_at < ?', Time.now)
@@ -10,6 +9,16 @@ namespace :lapis do
     task create: :environment do
       app = ENV['application']
       api_key = ApiKey.create! application: app
+      puts "Created a new API key for #{app} with access token #{api_key.access_token} and that expires at #{api_key.expire_at}"
+    end
+
+    task create_dev: :environment do
+      app = ENV['application']
+      ApiKey.where(access_token: 'dev').destroy_all
+      api_key = ApiKey.create!
+      api_key.access_token = 'dev'
+      api_key.expire_at = api_key.expire_at.since(100.years)
+      api_key.save!
       puts "Created a new API key for #{app} with access token #{api_key.access_token} and that expires at #{api_key.expire_at}"
     end
   end

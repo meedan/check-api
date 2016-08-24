@@ -61,7 +61,12 @@ namespace :db do
                   # target is one of media, project or source
                   target = Media.where(id: target_id).last
                   target = Project.where(id: target_id).last if target.nil?
-                  target = Source.where(id: target_id).last if target.nil?
+                  if target.nil?
+                    # given id related to account not source
+                    # so get the source from account model
+                    a = Account.where(id: target_id).last
+                    target = a.source unless a.nil?
+                  end
                   unless target.nil?
                     target.add_annotation(data)
                   end

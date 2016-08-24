@@ -106,6 +106,43 @@ class AccountTest < ActiveSupport::TestCase
     s = a.reload.source
     assert_equal 'Foo Bar', s.name
     assert_equal 'http://provider/picture.png', s.avatar
-    assert_equal 'Just a test', s.slogan 
+    assert_equal 'Just a test', s.slogan
   end
+
+  test "should not create account that is not a profile" do
+    assert_no_difference 'Account.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_account(data: { type: 'item' })
+      end
+    end
+  end
+
+  test "should not create account with duplicated URL" do
+    assert_no_difference 'Account.count' do
+      exception = assert_raises ActiveRecord::RecordInvalid do
+        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+          create_account(url: @url)
+        end
+      end
+      assert_equal "Validation failed: Account with this URL exists and has source id #{@account.source_id}", exception.message
+    end
+  end
+
+  test "should related accounts to team" do
+    t = create_team
+    a1 = create_valid_account(team: t)
+    a2 = create_valid_account(team: t)
+    a3 = create_valid_account
+    assert_kind_of Team, a1.team
+    assert_equal [a1.id, a2.id].sort, t.reload.accounts.map(&:id).sort
+  end
+
+  test "should not duplicate account url [DB validation]" do
+    a1 = create_valid_account
+    a2 = create_valid_account
+    assert_raises ActiveRecord::RecordNotUnique do
+      a2.update_attribute('url', a1.url)
+    end
+  end
+
 end

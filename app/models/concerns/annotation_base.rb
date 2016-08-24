@@ -69,6 +69,7 @@ module AnnotationBase
     has_paper_trail on: [:update], save_changes: true
 
     after_save do
+      Annotation.gateway.client.indices.refresh
       self.send(:record_update, true) unless self.attribute_changed?(:version_index)
       reset_changes
     end
@@ -207,6 +208,10 @@ module AnnotationBase
     self.annotated
   end
 
+  def media
+    self.annotated
+  end
+
   def annotated
     self.load_polymorphic('annotated')
   end
@@ -253,7 +258,7 @@ module AnnotationBase
   end
 
   def save!
-    save
+    raise 'Sorry, this is not valid' unless self.save
   end
 
   protected

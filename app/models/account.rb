@@ -1,17 +1,18 @@
 class Account < ActiveRecord::Base
   include PenderData
-  
+
   attr_accessible
-  attr_readonly :url
-  
+
   has_paper_trail on: [:create, :update]
   belongs_to :user
   belongs_to :source
+  belongs_to :team
   has_many :medias
 
   validates_presence_of :url
-  validates :url, uniqueness: true, unless: 'CONFIG["allow_duplicated_urls"]'
   validate :validate_pender_result, on: :create
+  validate :pender_result_is_a_profile, on: :create
+  validate :url_is_unique, on: :create
 
   after_create :create_source
 
@@ -40,10 +41,23 @@ class Account < ActiveRecord::Base
       source = Source.new
       source.avatar = data['picture']
       source.name = data['title'].blank? ? 'Untitled' : data['title']
-      source.slogan = data['description'].blank? ? 'No description available' : data['description']
+      source.slogan = data['description'].to_s
       source.save!
       self.source = source
       self.save!
+    end
+  end
+
+  def pender_result_is_a_profile
+    errors.add(:base, 'Sorry, this is not a profile') if !self.data.nil? && self.data['type'] != 'profile'
+  end
+
+  def url_is_unique
+    if !CONFIG['allow_duplicated_urls']
+      existing = Account.where(url: self.url).where('source_id IS NOT NULL').first
+      unless existing.nil?
+        errors.add(:base, "Account with this URL exists and has source id #{existing.source_id}")
+      end
     end
   end
 end
