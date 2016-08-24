@@ -148,6 +148,21 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:destroy, t)
   end
 
+  test "owner permissions for user" do
+    u = create_user
+    tu = create_team_user user: u, role: 'owner'
+    ability = Ability.new(u)
+    assert ability.can?(:destroy, u)
+    u_test = create_user
+    tu_test = create_team_user user: u_test , role: 'editor'
+    assert ability.can?(:destroy, u_test)
+    #tu_test.role = 'journalist'
+    #tu_test.save
+    #assert ability.can?(:destroy, tu_test)
+    #tu_test.role = 'contributor'
+    #tu_test.save
+    #assert ability.can?(:destroy, tu_test)
+  end
 
   test "contributor permissions for source" do
     u = create_user

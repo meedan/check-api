@@ -28,6 +28,7 @@ class Ability
 
   def owner_perms
     can :manage, [Team, Project, Media]
+    can :destroy, User, :team_users => { :role => ['owner', 'editor', 'journalist']}
   end
 
   def editor_perms
