@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
 
   after_create :set_image, :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
-  
+
   mount_uploader :image, ImageUploader
   validates :image, size: true
 
@@ -23,12 +23,17 @@ class User < ActiveRecord::Base
     user_role.to_s
   end
 
-  def has_role?(role, team)
-     tu = TeamUser.where(team_id: team.id, user_id: self.id)
-     user_role = tu.nil? ? nil : tu.last.role
-     role.to_s == user_role.to_s
+  def has_role?(role)
+    t = current_team
+    tu = TeamUser.where(team_id: t.id, user_id: self.id) unless t.nil?
+    user_role = tu.nil? ? nil : tu.last.role
+    role.to_s == user_role.to_s
   end
 
+  def current_team
+    # Assuming that the current user's team is the first team associated with this user
+    self.teams.first
+  end
 
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
