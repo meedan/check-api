@@ -42,10 +42,15 @@ class Media < ActiveRecord::Base
     self.created_at.to_i.to_s
   end
 
+  def media_team
+    project = self.projects.last
+    team = project.team unless project.nil?
+  end
+
   private
 
   def set_user
-    self.user = self.current_user unless self.current_user.nil? 
+    self.user = self.current_user unless self.current_user.nil?
   end
 
   def set_account
