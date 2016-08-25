@@ -15,7 +15,7 @@ ENV APP checkdesk-api
 #
 # DEPENDENCIES
 #
-RUN apt-get update -qq && apt-get install -y imagemagick
+RUN apt-get install -y imagemagick
 
 #
 # APP CONFIG
@@ -64,8 +64,12 @@ RUN chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR}
 USER ${DEPLOYUSER}
 
 
-# config
+# link config files
 RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}/latest
+# link to uploads
+RUN mkdir -p ${DEPLOYDIR}/shared/files/uploads \
+    ln -s ${DEPLOYDIR}/shared/files/uploads \
+    ${DEPLOYDIR}/latest/public/uploads
 
 RUN mv ./latest ./${APP}-$(date -I) && ln -s ./${APP}-$(date -I) ./current
 

@@ -3,7 +3,7 @@
 # start.sh
 # the Dockerfile CMD
 
-UPLOADS=${DEPLOYDIR}/current/public/uploads
+UPLOADS=${DEPLOYDIR}/shared/files/uploads
 
 # TODO only run this on ${PRIMARY} nodes, perhaps in an out-of-band process during major multi-node deployments
 echo "running migrations"
