@@ -50,16 +50,16 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should create version when media is created" do
     m = create_valid_media
-    assert_equal 1, m.versions.size
+    assert_equal 2, m.versions.size
   end
 
   test "should create version when media is updated" do
     m = create_valid_media
-    assert_equal 1, m.versions.size
+    assert_equal 2, m.versions.size
     m = m.reload
     m.user = create_user
     m.save!
-    assert_equal 2, m.reload.versions.size
+    assert_equal 3, m.reload.versions.size
   end
 
   test "should not update url when media is updated" do
@@ -100,11 +100,10 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [p1, p2], m.projects
   end
 
-
   test "should set URL from Pender" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized"}}'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
     assert_equal 'http://test.com/normalized', m.reload.url
@@ -120,4 +119,99 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not duplicate media url [DB validation]" do
+    m1 = create_valid_media
+    m2 = create_valid_media
+    assert_raises ActiveRecord::RecordNotUnique do
+      m2.update_attribute('url', m1.url)
+    end
+  end
+
+  test "should set user" do
+    u = create_user
+    m = create_media current_user: u
+    assert_equal u, m.user
+  end
+
+  test "should assign to existing account" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    media_url = 'http://www.facebook.com/meedan/posts/123456'
+    author_url = 'http://facebook.com/123456'
+    author_normal_url = 'http://www.facebook.com/meedan'
+
+    data = { url: media_url, author_url: author_url, type: 'item' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+
+    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', title: 'Foo', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+
+    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', title: 'Foo', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_normal_url } }).to_return(body: response)
+
+    m = nil
+    
+    a = create_account url: author_normal_url
+
+    assert_no_difference 'Account.count' do
+      m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
+    end
+
+    assert_equal a, m.reload.account
+  end
+
+  test "should assign to newly created account" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    media_url = 'http://www.facebook.com/meedan/posts/123456'
+    author_url = 'http://facebook.com/123456'
+    author_normal_url = 'http://www.facebook.com/meedan'
+
+    data = { url: media_url, author_url: author_url, type: 'item' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+
+    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', title: 'Foo', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+
+    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', title: 'Foo', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_normal_url } }).to_return(body: response)
+
+    m = nil
+    
+    assert_difference 'Account.count' do
+      m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
+    end
+
+    assert_equal author_normal_url, m.reload.account.url
+  end
+
+  test "should not create media that is not an item" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    data = { url: url, author_url: url, type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+
+    assert_no_difference 'Media.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_media(url: url)
+      end
+    end
+  end
+
+  test "should not create media with duplicated URL" do
+    m = create_valid_media
+    assert_no_difference 'Media.count' do
+      exception = assert_raises ActiveRecord::RecordInvalid do
+        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+          create_media(url: m.url)
+        end
+      end
+      assert_equal "Validation failed: Media with this URL exists and has id #{m.id}", exception.message
+    end
+  end
 end

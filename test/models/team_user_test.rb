@@ -7,6 +7,14 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should prevent creating team user with invalid status" do
+    tu = create_team_user
+    tu.status = "invalid status"
+    assert_not tu.save
+    tu.status = "banned"
+    assert tu.save
+  end
+
   test "should get user from callback" do
     u = create_user email: 'test@local.com'
     tu = create_team_user
@@ -17,4 +25,14 @@ class TeamUserTest < ActiveSupport::TestCase
     tu = create_team_user
     assert_equal 2, tu.team_id_callback(1, [1, 2, 3])
   end
+
+  test "should not duplicate team and user [DB validation]" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u
+    assert_raises ActiveRecord::RecordNotUnique do
+      create_team_user team: t, user: u
+    end
+  end
+
 end

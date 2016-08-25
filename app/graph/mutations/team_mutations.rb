@@ -3,7 +3,8 @@ module TeamMutations
     archived: 'bool',
     logo: 'str',
     name: '!str',
-    description: '!str'
+    subdomain: '!str',
+    description: 'str'
   }
 
   update_fields = {

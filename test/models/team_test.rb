@@ -8,8 +8,25 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not save team without name" do
-    team = Team.new
-    assert_not  team.save
+    t = Team.new
+    assert_not t.save
+
+  end
+  test "should not save team with invalid subdomains" do
+    t = create_team
+    t.subdomain = ""
+    assert_not t.save
+    t.subdomain = "www"
+    assert_not t.save
+    t.subdomain = "".rjust(64, "a")
+    assert_not t.save
+    t.subdomain = " some spaces "
+    assert_not t.save
+    t.subdomain = "correct-الصهث-unicode"
+    assert t.save
+    t1 = create_team
+    t1.subdomain = "correct-الصهث-unicode"
+    assert_not t1.save
   end
 
   test "should create version when team is created" do
@@ -67,5 +84,46 @@ class TeamTest < ActiveSupport::TestCase
     assert_no_difference 'TeamUser.count' do
       create_team current_user: nil
     end
+  end
+
+  test "should not upload a logo that is not an image" do
+    assert_no_difference 'Team.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team logo: 'not-an-image.txt'
+      end
+    end
+  end
+
+  test "should not upload a big logo" do
+    assert_no_difference 'Team.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team logo: 'ruby-big.png'
+      end
+    end
+  end
+
+  test "should not upload a small logo" do
+    assert_no_difference 'Team.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team logo: 'ruby-small.png'
+      end
+    end
+  end
+
+  test "should have a default uploaded image" do
+    t = create_team logo: nil
+    assert_match /team\.png$/, t.logo.url
+  end
+
+  test "should have avatar" do
+    t = create_team logo: nil
+    assert_match /^http/, t.avatar
+  end
+
+  test "should have members count" do
+    t = create_team
+    t.users << create_user
+    t.users << create_user
+    assert_equal 2, t.members_count
   end
 end

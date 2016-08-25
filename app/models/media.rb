@@ -1,19 +1,22 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  attr_readonly :url
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
   belongs_to :user
   has_many :project_medias
-  has_many :projects , through: :project_medias
+  has_many :projects, through: :project_medias
   has_annotations
 
   include PenderData
 
   validates_presence_of :url
-  validates :url, uniqueness: true, unless: 'CONFIG["allow_duplicated_urls"]'
   validate :validate_pender_result, on: :create
+  validate :pender_result_is_an_item, on: :create
+  validate :url_is_unique, on: :create
+
+  before_validation :set_user, on: :create
+  after_create :set_account
 
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
     serialize :data
@@ -25,5 +28,47 @@ class Media < ActiveRecord::Base
 
   def account_id_callback(value, mapping_ids)
     mapping_ids[value]
+  end
+
+  def tags
+    self.annotations('tag')
+  end
+
+  def jsondata
+    self.data.to_json
+  end
+
+  def published
+    self.created_at.to_i.to_s
+  end
+
+  private
+
+  def set_user
+    self.user = self.current_user unless self.current_user.nil? 
+  end
+
+  def set_account
+    account = Account.new
+    account.url = self.data['author_url']
+    if account.save
+      self.account = account
+    else
+      self.account = Account.where(url: account.url).last
+    end
+    self.save!
+  end
+
+  def pender_result_is_an_item
+    unless self.data.nil?
+      errors.add(:base, 'Sorry, this is not a valid media item') unless self.data['type'] == 'item'
+    end
+  end
+
+  def url_is_unique
+    if !CONFIG['allow_duplicated_urls']
+      existing = Media.where(url: self.url).first
+      errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
+    end
   end
 end

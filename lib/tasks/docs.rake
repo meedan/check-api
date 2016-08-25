@@ -1,6 +1,6 @@
 namespace :lapis do
   task :docs do
-    puts %x(cd doc && make && cd -)
+    puts %x(cd doc && make clean && make && cd -)
     puts 'Check the documentation under doc/:'
     puts '- Licenses'
     puts '- API endpoints'

@@ -2,7 +2,6 @@ class Account < ActiveRecord::Base
   include PenderData
 
   attr_accessible
-  attr_readonly :url
 
   has_paper_trail on: [:create, :update]
   belongs_to :user

@@ -107,13 +107,17 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create media" do
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      assert_graphql_create('media', { url: @url })
-    end
+    url = random_url
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    assert_graphql_create('media', { url: url })
   end
 
   test "should read medias" do
     assert_graphql_read('media', 'url')
+    assert_graphql_read('media', 'jsondata')
+    assert_graphql_read('media', 'published')
   end
 
   test "should update media" do
@@ -179,7 +183,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create team" do
-    assert_graphql_create('team', { name: 'test', description: 'test' })
+    assert_graphql_create('team', { name: 'test', description: 'test', subdomain: 'test' })
   end
 
   test "should read team" do
@@ -197,7 +201,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should create team user" do
     t = create_team
     u = create_user
-    assert_graphql_create('team_user', { team_id: t.id, user_id: u.id })
+    assert_graphql_create('team_user', { team_id: t.id, user_id: u.id, status: 'member' })
   end
 
   test "should read team user" do
@@ -231,7 +235,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from project" do
-    assert_graphql_read_object('project', { 'user' => 'name' })
+    assert_graphql_read_object('project', { 'team' => 'name' })
   end
 
   test "should read object from account" do
@@ -257,15 +261,15 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from media" do
-    assert_graphql_read_collection('media', { 'projects' => 'title' })
+    assert_graphql_read_collection('media', { 'projects' => 'title', 'annotations' => 'content', 'tags' => 'tag' }, 'DESC')
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url', 'project_sources' => 'project_id' })
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url' })
   end
 
   test "should read collection from team" do
-    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name' })
+    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name', 'contacts' =>  'location', 'projects' => 'title' })
   end
 
   test "should read collection from account" do
@@ -277,15 +281,18 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from user" do
-    assert_graphql_read_object('user', { 'source' => 'name' })
+    User.any_instance.stubs(:current_team).returns(create_team)
+    assert_graphql_read_object('user', { 'source' => 'name', 'current_team' => 'name' })
+    User.any_instance.unstub(:current_team)
   end
 
   test "should read collection from user" do
-    assert_graphql_read_collection('user', { 'teams' => 'name', 'projects' => 'title' })
+    assert_graphql_read_collection('user', { 'teams' => 'name' })
   end
 
   test "should create status" do
-    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source' }) { sleep 1 }
+    s = create_source
+    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
   end
 
   test "should read statuses" do
@@ -337,13 +344,18 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_get_by_id('team', 'name', 'Test')
   end
 
+  test "should get media by id" do
+    u = create_user
+    assert_graphql_get_by_id('media', 'user_id', u.id)
+  end
+
   test "should return validation error" do
     authenticate_with_user
     url = 'https://www.youtube.com/user/MeedanTube'
-    
+
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
       query = 'mutation create { createAccount(input: { clientMutationId: "1", url: "' + url + '" }) { account { id } } }'
-      
+
       assert_difference 'Account.count' do
         post :create, query: query
       end
@@ -354,5 +366,26 @@ class GraphqlControllerTest < ActionController::TestCase
       end
       assert_response 400
     end
+  end
+
+  test "should create contact" do
+    t = create_team
+    assert_graphql_create('contact', { location: 'my location', phone: '00201099998888', team_id: t.id })
+  end
+
+  test "should read contact" do
+    assert_graphql_read('contact', 'location')
+  end
+
+  test "should update contact" do
+    assert_graphql_update('contact', :location, 'foo', 'bar')
+  end
+
+  test "should destroy contact" do
+    assert_graphql_destroy('contact')
+  end
+
+  test "should read object from contact" do
+    assert_graphql_read_object('contact', { 'team' => 'name' })
   end
 end

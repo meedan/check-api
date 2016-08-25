@@ -1,5 +1,6 @@
 class Project < ActiveRecord::Base
   attr_accessible
+  
   has_paper_trail on: [:create, :update]
   belongs_to :user
   belongs_to :team
@@ -9,7 +10,11 @@ class Project < ActiveRecord::Base
   has_many :medias , through: :project_medias
 
   mount_uploader :lead_image, ImageUploader
-  validates_presence_of :title, :description
+  
+  before_validation :set_description_and_team, on: :create
+
+  validates_presence_of :title
+  validates :lead_image, size: true
 
   has_annotations
 
@@ -23,5 +28,16 @@ class Project < ActiveRecord::Base
 
   def lead_image_callback(value, _mapping_ids = nil)
     image_callback(value)
+  end
+
+  def avatar
+    CONFIG['checkdesk_base_url'] + self.lead_image.url
+  end
+
+  private
+
+  def set_description_and_team
+    self.description ||= ''
+    self.team = self.current_user.current_team unless self.current_user.nil?
   end
 end

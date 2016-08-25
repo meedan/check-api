@@ -18,6 +18,10 @@ module SampleData
     random_string + '@' + random_string + '.com'
   end
 
+  def random_valid_phone
+    "00201".to_s + random_number(2).to_s +  8.times.map{rand(9)}.join
+  end
+
   def create_api_key(options = {})
     a = ApiKey.new
     options.each do |key, value|
@@ -31,7 +35,7 @@ module SampleData
     u = User.new
     u.name = options[:name] || random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
-    u.profile_image = options[:profile_image] || random_url
+    u.profile_image = options.has_key?(:profile_image) ? options[:profile_image] : random_url
     u.uuid = options.has_key?(:uuid) ? options[:uuid] : random_string
     u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.token = options.has_key?(:token) ? options[:token] : random_string(50)
@@ -39,6 +43,17 @@ module SampleData
     u.password = options[:password] || random_string
     u.password_confirmation = options[:password_confirmation] || u.password
     u.url = options[:url] if options.has_key?(:url)
+
+    file = nil
+    if options.has_key?(:image)
+      file = options[:image]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        u.image = f
+      end
+    end
+
     u.save!
     u.reload
   end
@@ -110,8 +125,18 @@ module SampleData
     project.title = options[:title] || random_string
     project.description = options[:description] || random_string(40)
     project.user = options[:user] || create_user
-    project.lead_image = options[:lead_image]
+    file = 'rails.png'
+    if options.has_key?(:lead_image)
+      file = options[:lead_image]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        project.lead_image = f
+      end
+    end
     project.archived = options[:archived] || false
+    project.current_user = options[:current_user] if options.has_key?(:current_user)
+    project.team = options[:team] || create_team
     project.save!
     project.reload
   end
@@ -119,10 +144,13 @@ module SampleData
   def create_team(options = {})
     team = Team.new
     team.name = options[:name] || random_string
+    team.subdomain = options[:subdomain] || Team.subdomain_from_name(team.name)
+    file = 'rails.png'
     if options.has_key?(:logo)
-      team.logo = options[:logo]
-    else
-      File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+      file = options[:logo]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
         team.logo = f
       end
     end
@@ -135,13 +163,18 @@ module SampleData
 
   def create_media(options = {})
     return create_valid_media(options) if options[:url].blank?
-    account = options[:account] || create_account
-    user = options[:user] || create_user
+    account = options.has_key?(:account) ? options[:account] : create_account
+    user = options.has_key?(:user) ? options[:user] : create_user
     m = Media.new
     m.url = options[:url]
-    m.account_id = options[:account_id] || account.id
-    m.user_id = options[:user_id] || user.id
+    m.account_id = options.has_key?(:account_id) ? options[:account_id] : account.id
+    m.current_user = options[:current_user] if options.has_key?(:current_user)
+    m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
     m.save!
+    if options.has_key?(:data)
+      m.data = options[:data]
+      m.save!
+    end
     m.reload
   end
 
@@ -181,6 +214,7 @@ module SampleData
     user = options[:user] || create_user
     tu.team_id = options[:team_id] || team.id
     tu.user_id = options[:user_id] || user.id
+    tu.status  = options[:status]  || "member"
     tu.save!
     tu.reload
   end
@@ -188,7 +222,7 @@ module SampleData
   def create_valid_media(options = {})
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item"}}')
     create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
   end
 
@@ -201,4 +235,19 @@ module SampleData
     options.merge!({ url: url })
     create_account(options)
   end
+
+  def create_contact(options = {})
+    contact = Contact.new
+    contact.location = options[:location] || random_string
+    contact.phone = options[:phone] || random_valid_phone
+    contact.web = options[:web] || random_url
+    if options.has_key?(:team_id)
+      contact.team_id = options[:team_id]
+    else
+      contact.team = options[:team] || create_team
+    end
+    contact.save!
+    contact.reload
+  end
+
 end

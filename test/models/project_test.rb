@@ -80,4 +80,48 @@ class ProjectTest < ActiveSupport::TestCase
     assert_not_nil p.lead_image_callback(file)
   end
 
+  test "should not upload a logo that is not an image" do
+    assert_no_difference 'Project.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_project lead_image: 'not-an-image.txt'
+      end
+    end
+  end
+
+  test "should not upload a big logo" do
+    assert_no_difference 'Project.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_project lead_image: 'ruby-big.png'
+      end
+    end
+  end
+
+  test "should not upload a small logo" do
+    assert_no_difference 'Project.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_project lead_image: 'ruby-small.png'
+      end
+    end
+  end
+
+  test "should have a default uploaded image" do
+    p = create_project lead_image: nil
+    assert_match /project\.png$/, p.lead_image.url
+  end
+
+  test "should assign current team to project" do
+    u = create_user
+    t = create_team
+    u.teams << t
+    u.save!
+    p = create_project current_user: nil
+    assert_not_equal t, p.team
+    p = create_project current_user: u
+    assert_equal t, p.team
+  end
+
+  test "should have avatar" do
+    p = create_project lead_image: nil
+    assert_match /^http/, p.avatar
+  end
 end

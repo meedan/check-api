@@ -19,15 +19,16 @@ UserType = GraphQL::ObjectType.define do
     end
   end
 
+  field :current_team do
+    type TeamType
+    resolve -> (user, _args, _ctx) do
+      user.current_team
+    end
+  end
+
   connection :teams, -> { TeamType.connection_type } do
     resolve ->(user, _args, _ctx) {
       user.teams
-    }
-  end
-
-  connection :projects, -> { ProjectType.connection_type } do
-    resolve ->(user, _args, _ctx) {
-      user.projects
     }
   end
 end

@@ -208,6 +208,10 @@ module AnnotationBase
     self.annotated
   end
 
+  def media
+    self.annotated
+  end
+
   def annotated
     self.load_polymorphic('annotated')
   end
@@ -254,7 +258,7 @@ module AnnotationBase
   end
 
   def save!
-    save
+    raise 'Sorry, this is not valid' unless self.save
   end
 
   protected
