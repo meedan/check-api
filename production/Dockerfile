@@ -68,8 +68,7 @@ USER ${DEPLOYUSER}
 RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}/latest
 # link to uploads
 RUN mkdir -p ${DEPLOYDIR}/shared/files/uploads \
-    ln -s ${DEPLOYDIR}/shared/files/uploads \
-    ${DEPLOYDIR}/latest/public/uploads
+    && ln -s ${DEPLOYDIR}/shared/files/uploads ${DEPLOYDIR}/latest/public/uploads
 
 RUN mv ./latest ./${APP}-$(date -I) && ln -s ./${APP}-$(date -I) ./current
 
