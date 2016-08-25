@@ -119,4 +119,11 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team logo: nil
     assert_match /^http/, t.avatar
   end
+
+  test "should have members count" do
+    t = create_team
+    t.users << create_user
+    t.users << create_user
+    assert_equal 2, t.members_count
+  end
 end

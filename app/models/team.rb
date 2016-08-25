@@ -28,6 +28,10 @@ class Team < ActiveRecord::Base
     CONFIG['checkdesk_base_url'] + self.logo.url
   end
 
+  def members_count
+    self.users.count
+  end
+
   private
 
   def add_user_to_team
