@@ -114,4 +114,9 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team logo: nil
     assert_match /team\.png$/, t.logo.url
   end
+
+  test "should have avatar" do
+    t = create_team logo: nil
+    assert_match /^http/, t.avatar
+  end
 end

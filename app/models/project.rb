@@ -11,7 +11,7 @@ class Project < ActiveRecord::Base
 
   mount_uploader :lead_image, ImageUploader
   
-  before_validation :set_description, on: :create
+  before_validation :set_description_and_team, on: :create
 
   validates_presence_of :title
   validates :lead_image, size: true
@@ -30,9 +30,14 @@ class Project < ActiveRecord::Base
     image_callback(value)
   end
 
+  def avatar
+    CONFIG['checkdesk_base_url'] + self.lead_image.url
+  end
+
   private
 
-  def set_description
+  def set_description_and_team
     self.description ||= ''
+    self.team = self.current_user.current_team unless self.current_user.nil?
   end
 end

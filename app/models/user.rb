@@ -47,12 +47,14 @@ class User < ActiveRecord::Base
 
   def as_json(_options = {})
     {
+      dbid: self.id,
       name: self.name,
       email: self.email,
       login: self.login,
       uuid: self.uuid,
       provider: self.provider,
-      token: self.token
+      token: self.token,
+      current_team: self.current_team
     }
   end
 
@@ -62,6 +64,11 @@ class User < ActiveRecord::Base
 
   def password_required?
     super && self.provider.blank?
+  end
+
+  def current_team
+    # Assuming that the current user's team is the first team associated with this user
+    self.teams.first
   end
 
   private

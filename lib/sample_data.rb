@@ -135,6 +135,8 @@ module SampleData
       end
     end
     project.archived = options[:archived] || false
+    project.current_user = options[:current_user] if options.has_key?(:current_user)
+    project.team = options[:team] || create_team
     project.save!
     project.reload
   end

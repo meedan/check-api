@@ -108,4 +108,20 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project lead_image: nil
     assert_match /project\.png$/, p.lead_image.url
   end
+
+  test "should assign current team to project" do
+    u = create_user
+    t = create_team
+    u.teams << t
+    u.save!
+    p = create_project current_user: nil
+    assert_not_equal t, p.team
+    p = create_project current_user: u
+    assert_equal t, p.team
+  end
+
+  test "should have avatar" do
+    p = create_project lead_image: nil
+    assert_match /^http/, p.avatar
+  end
 end

@@ -10,8 +10,10 @@ class GraphqlCrudOperations
     
     parents.each do |parent_name|
       child, parent = obj, obj.send(parent_name)
-      ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
-      ret[parent_name.to_sym] = parent
+      unless parent.nil?
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
+        ret[parent_name.to_sym] = parent
+      end
     end
 
     ret

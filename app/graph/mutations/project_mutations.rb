@@ -12,5 +12,5 @@ module ProjectMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project', create_fields, update_fields, ['team'])
 end

@@ -165,4 +165,13 @@ class UserTest < ActiveSupport::TestCase
     u = create_user image: nil, profile_image: nil
     assert_match /user\.png$/, u.profile_image
   end
+
+  test "should have current team" do
+    u = create_user
+    assert_nil u.current_team
+    t = create_team
+    u.teams << t
+    u.save!
+    assert_equal t, u.reload.current_team
+  end
 end
