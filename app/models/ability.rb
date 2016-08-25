@@ -2,6 +2,7 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
+    alias_action :create, :update, :destroy, :to => :cud
     @user = user ||= User.new
     # Define User abilities
     if user.has_role? :admin
@@ -28,24 +29,27 @@ class Ability
 
   def owner_perms
     can :manage, [Team, Project, Media]
-    can :destroy, User, :team_users => { :role => ['owner', 'editor', 'journalist']}
+    can [:update, :destroy], [User, TeamUser], role: ['owner', 'editor', 'journalist', 'contributor']
   end
 
   def editor_perms
     can :manage, [Project, Media]
     can [:create, :update], Team
+    can [:update, :destroy], [User, TeamUser], role: ['editor', 'journalist', 'contributor']
     #can :manage, [Media, Source, Account, Flag, Comment, Status, Tag]
   end
 
   def journalist_perms
     can :create, [Team, Project, Media]
     can [:update, :destroy], [Project, Media], :user_id => @user.id
+    can [:update, :destroy], [User, TeamUser], role: ['journalist', 'contributor']
     #can [:create, :update], [Media, Source, Account, Flag, Comment, Status, Tag], :user_id => @user.id
   end
 
   def contributor_perms
     can :create, [Team, Media]
     can [:update, :destroy], Media, :user_id => @user.id
+    can :update, User, :id => @user.id
     #can [:create, :update], [Media, Source, Account, Flag, Comment, Status, Tag], :user_id => @user.id
   end
 

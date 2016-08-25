@@ -17,17 +17,15 @@ class User < ActiveRecord::Base
   mount_uploader :image, ImageUploader
   validates :image, size: true
 
-  def role(team)
-    tu = TeamUser.where(team_id: team.id, user_id: self.id)
+  def role
+    t = current_team
+    tu = TeamUser.where(team_id: t.id, user_id: self.id) unless t.nil?
     user_role = tu.nil? ? nil : tu.last.role
     user_role.to_s
   end
 
   def has_role?(role)
-    t = current_team
-    tu = TeamUser.where(team_id: t.id, user_id: self.id) unless t.nil?
-    user_role = tu.nil? ? nil : tu.last.role
-    role.to_s == user_role.to_s
+    role.to_s == self.role
   end
 
   def current_team
