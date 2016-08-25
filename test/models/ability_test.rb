@@ -20,43 +20,54 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user user: u , team: t, role: 'journalist'
-    p = create_project
-    own_project = create_project(user: u)
+    p = create_project team: t
+    own_project = create_project team:t, user: u
     ability = Ability.new(u)
     assert ability.can?(:create, Project)
     assert ability.can?(:update, own_project)
     assert ability.can?(:destroy, own_project)
     assert ability.cannot?(:update, p)
     assert ability.cannot?(:destroy, p)
-
+    # test projects that related to other instances
+    p2 = create_project user: u
+    assert ability.cannot?(:update, p2)
+    assert ability.cannot?(:destroy, p2)
   end
 
   test "editor permissions for project" do
     u = create_user
     t = create_team
     tu = create_team_user user: u , team: t, role: 'editor'
-    p = create_project
-    own_project = create_project(user: u)
+    p = create_project team: t
+    own_project = create_project team: t, user: u
     ability = Ability.new(u)
     assert ability.can?(:create, Project)
     assert ability.can?(:update, p)
     assert ability.can?(:update, own_project)
     assert ability.can?(:destroy, p)
     assert ability.can?(:destroy, own_project)
+    # test projects that related to other instances
+    p2 = create_project
+    assert ability.cannot?(:update, p2)
+    assert ability.cannot?(:destroy, p2)
   end
 
   test "owner permissions for project" do
     u = create_user
     t = create_team
     tu = create_team_user user: u , team: t, role: 'owner'
-    p = create_project
-    own_project = create_project(user: u)
+    p = create_project team: t
+    own_project = create_project team: t, user: u
     ability = Ability.new(u)
     assert ability.can?(:create, Project)
     assert ability.can?(:update, p)
     assert ability.can?(:update, own_project)
     assert ability.can?(:destroy, p)
     assert ability.can?(:destroy, own_project)
+    # test projects that related to other instances
+    p2 = create_project
+    assert ability.cannot?(:update, p2)
+    assert ability.cannot?(:destroy, p2)
   end
 
   test "contributor permissions for media" do
@@ -136,6 +147,11 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:create, Team)
     assert ability.can?(:update, t)
     assert ability.cannot?(:destroy, t)
+    # test other instances
+    t2 = create_team
+    tu_test = create_team_user team: t2, role: 'editor'
+    assert ability.cannot?(:update, t2)
+    assert ability.cannot?(:destroy, t2)
   end
 
   test "owner permissions for team" do
@@ -146,6 +162,12 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:create, Team)
     assert ability.can?(:update, t)
     assert ability.can?(:destroy, t)
+    # test other instances
+    t2 = create_team
+    tu_test = create_team_user team: t2, role: 'owner'
+    assert ability.cannot?(:update, t2)
+    assert ability.cannot?(:destroy, t2)
+
   end
 
   test "contributor permissions for user and teamUser" do

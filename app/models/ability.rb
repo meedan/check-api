@@ -28,20 +28,24 @@ class Ability
   end
 
   def owner_perms
-    can :manage, [Team, Project, Media]
+    can :manage, Team, :team_users => { :user_id => @user.id }
+    can :manage, Project, :team_id => @user.current_team.id
+    can :manage, Media
     can [:update, :destroy], [User, TeamUser], role: ['owner', 'editor', 'journalist', 'contributor']
   end
 
   def editor_perms
-    can :manage, [Project, Media]
-    can [:create, :update], Team
+    can [:create, :update], Team, :team_users => { :user_id => @user.id }
+    can :manage, Project, :team_id => @user.current_team.id
+    can :manage, Media
     can [:update, :destroy], [User, TeamUser], role: ['editor', 'journalist', 'contributor']
     #can :manage, [Media, Source, Account, Flag, Comment, Status, Tag]
   end
 
   def journalist_perms
     can :create, [Team, Project, Media]
-    can [:update, :destroy], [Project, Media], :user_id => @user.id
+    can [:update, :destroy], Project, :team_id => @user.current_team.id, :user_id => @user.id
+    can [:update, :destroy], Media, :user_id => @user.id
     can [:update, :destroy], [User, TeamUser], role: ['journalist', 'contributor']
     #can [:create, :update], [Media, Source, Account, Flag, Comment, Status, Tag], :user_id => @user.id
   end

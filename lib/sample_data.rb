@@ -135,6 +135,7 @@ module SampleData
       end
     end
     project.archived = options[:archived] || false
+    project.team = options[:team] || create_team
     project.save!
     project.reload
   end
