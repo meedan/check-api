@@ -214,4 +214,33 @@ class MediaTest < ActiveSupport::TestCase
       assert_equal "Validation failed: Media with this URL exists and has id #{m.id}", exception.message
     end
   end
+
+  test "should set project" do
+    p = create_project
+    m = nil
+    assert_difference 'ProjectMedia.count' do
+      m = create_valid_media project_id: p.id
+    end
+    assert_equal [p], m.projects
+  end
+
+  test "should not set project" do
+    m = nil
+    assert_no_difference 'ProjectMedia.count' do
+      m = create_valid_media
+    end
+    assert_equal [], m.projects
+  end
+
+  test "should associate with project when validation fails" do
+    p1 = create_project
+    p2 = create_project
+    m = create_valid_media project_id: p1.id
+    assert_no_difference 'Media.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_media project_id: p2.id, url: m.url
+      end
+    end
+    assert_equal [p1, p2], m.reload.projects
+  end
 end

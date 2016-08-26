@@ -51,14 +51,20 @@ MediaType = GraphQL::ObjectType.define do
   end
 
   connection :annotations, -> { AnnotationType.connection_type } do
-    resolve ->(media, _args, _ctx) {
-      media.annotations
+    argument :context_id, types.Int
+
+    resolve ->(media, args, _ctx) {
+      context = args['context_id'].nil? ? nil : Project.find(args['context_id'])
+      media.annotations(nil, context)
     }
   end
 
   connection :tags, -> { TagType.connection_type } do
-    resolve ->(media, _args, _ctx) {
-      media.tags
+    argument :context_id, types.Int
+    
+    resolve ->(media, args, _ctx) {
+      context = args['context_id'].nil? ? nil : Project.find(args['context_id'])
+      media.tags(context)
     }
   end
 end

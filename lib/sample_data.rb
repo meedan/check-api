@@ -170,6 +170,7 @@ module SampleData
     m.account_id = options.has_key?(:account_id) ? options[:account_id] : account.id
     m.current_user = options[:current_user] if options.has_key?(:current_user)
     m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
+    m.project_id = options[:project_id]
     m.save!
     if options.has_key?(:data)
       m.data = options[:data]
