@@ -200,7 +200,7 @@ module SampleData
   def create_project_media(options = {})
     pm = ProjectMedia.new
     project = options[:project] || create_project
-    media = options[:source] || create_valid_media
+    media = options[:media] || create_valid_media
     pm.project_id = options[:project_id] || project.id
     pm.media_id = options[:media_id] || media.id
     pm.save!

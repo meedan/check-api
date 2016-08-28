@@ -72,35 +72,8 @@ class AbilityTest < ActiveSupport::TestCase
 
   test "contributor permissions for media" do
     u = create_user
-    tu = create_team_user user: u , role: 'contributor'
-    m = create_valid_media
-    own_media = create_valid_media(user_id: u.id)
-    ability = Ability.new(u)
-    assert ability.can?(:create, Media)
-    assert ability.can?(:update, own_media)
-    assert ability.cannot?(:update, m)
-    assert ability.can?(:destroy, own_media)
-    assert ability.cannot?(:destroy, m)
-  end
-
-  test "journalist permissions for media" do
-    u = create_user
-    tu = create_team_user user: u , role: 'journalist'
-    ability = Ability.new(u)
-    assert ability.can?(:create, Media)
-    m = create_valid_media
-    own_media = create_valid_media(user_id: u.id)
-    assert ability.cannot?(:update, m)
-    assert ability.can?(:update, own_media)
-    assert ability.cannot?(:destroy, m)
-    assert ability.can?(:destroy, own_media)
-  end
-
-  test "editor permissions for media" do
-    u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u , role: 'editor'
-    pp u.current_team.id
+    tu = create_team_user team: t, user: u , role: 'journalist'
     m = create_valid_media
     p = create_project team: t
     pm = create_project_media project: p, media: m
@@ -108,10 +81,84 @@ class AbilityTest < ActiveSupport::TestCase
     create_project_media project: p, media: own_media
     ability = Ability.new(u)
     assert ability.can?(:create, Media)
-    #assert ability.can?(:update, m)
-    #assert ability.can?(:update, own_media)
-    #assert ability.can?(:destroy, m)
-    #assert ability.can?(:destroy, own_media)
+    assert ability.cannot?(:update, m)
+    assert ability.can?(:update, own_media)
+    assert ability.cannot?(:destroy, m)
+    assert ability.can?(:destroy, own_media)
+    # test medias that related to other instances
+    m2 = create_valid_media
+    create_project_media media: m2
+    own_media = create_valid_media user_id: u.id
+    create_project_media media: own_media
+    assert ability.cannot?(:update, m2)
+    assert ability.cannot?(:update, own_media)
+    assert ability.cannot?(:destroy, m2)
+    assert ability.cannot?(:destroy, own_media)
+  end
+
+  test "journalist permissions for media" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u , role: 'journalist'
+    m = create_valid_media
+    p = create_project team: t
+    pm = create_project_media project: p, media: m
+    own_media = create_valid_media user_id: u.id
+    create_project_media project: p, media: own_media
+    ability = Ability.new(u)
+    assert ability.can?(:create, Media)
+    assert ability.cannot?(:update, m)
+    assert ability.can?(:update, own_media)
+    assert ability.cannot?(:destroy, m)
+    assert ability.can?(:destroy, own_media)
+    # test medias that related to other instances
+    m2 = create_valid_media
+    create_project_media media: m2
+    own_media = create_valid_media user_id: u.id
+    create_project_media media: own_media
+    assert ability.cannot?(:update, m2)
+    assert ability.cannot?(:update, own_media)
+    assert ability.cannot?(:destroy, m2)
+    assert ability.cannot?(:destroy, own_media)
+  end
+
+  test "editor permissions for media" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u , role: 'editor'
+    m = create_valid_media
+    p = create_project team: t
+    pm = create_project_media project: p, media: m
+    own_media = create_valid_media user_id: u.id
+    create_project_media project: p, media: own_media
+    ability = Ability.new(u)
+    assert ability.can?(:create, Media)
+    assert ability.can?(:update, m)
+    assert ability.can?(:update, own_media)
+    assert ability.can?(:destroy, m)
+    assert ability.can?(:destroy, own_media)
+    # test medias that related to other instances
+    m2 = create_valid_media
+    create_project_media media: m2
+    assert ability.cannot?(:update, m2)
+    assert ability.cannot?(:destroy, m2)
+  end
+
+  test "owner permissions for media" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u , role: 'owner'
+    m = create_valid_media
+    p = create_project team: t
+    pm = create_project_media project: p, media: m
+    own_media = create_valid_media user_id: u.id
+    create_project_media project: p, media: own_media
+    ability = Ability.new(u)
+    assert ability.can?(:create, Media)
+    assert ability.can?(:update, m)
+    assert ability.can?(:update, own_media)
+    assert ability.can?(:destroy, m)
+    assert ability.can?(:destroy, own_media)
     # test medias that related to other instances
     m2 = create_valid_media
     create_project_media media: m2

@@ -45,6 +45,7 @@ class Media < ActiveRecord::Base
   def media_team
     project = self.projects.last
     team = project.team unless project.nil?
+    team.id unless team.nil?
   end
 
   private
