@@ -227,9 +227,10 @@ class AbilityTest < ActiveSupport::TestCase
 
   end
 
-  test "contributor permissions for user and teamUser" do
+  test "contributor permissions for user" do
     u = create_user
-    tu = create_team_user user: u, role: 'contributor'
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
     ability = Ability.new(u)
     assert ability.can?(:update, u)
     assert ability.cannot?(:destroy, u)
@@ -237,119 +238,97 @@ class AbilityTest < ActiveSupport::TestCase
     tu_test = create_team_user user: u_test , role: 'owner'
     assert ability.cannot?(:update, u_test)
     assert ability.cannot?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.cannot?(:update, tu_test)
-    assert ability.cannot?(:destroy, tu_test)
-    tu_test.role = 'editor'
-    tu_test.save!
+    u_test = create_user
+    create_team_user team: t, user: u_test , role: 'editor'
     assert ability.cannot?(:update, u_test)
     assert ability.cannot?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.cannot?(:update, tu_test)
-    assert ability.cannot?(:destroy, tu_test)
-    tu_test.role = 'journalist'
-    tu_test.save!
+    u_test = create_user
+    create_team_user team: t, user: u_test , role: 'journalist'
     assert ability.cannot?(:update, u_test)
     assert ability.cannot?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.cannot?(:update, tu_test)
-    assert ability.cannot?(:destroy, tu_test)
+    # tests for other instances
+    u2_test = create_user
+    create_team_user user: u2_test , role: 'contributor'
+    assert ability.cannot?(:update, u2_test)
+    assert ability.cannot?(:destroy, u2_test)
   end
 
-  test "journalist permissions for user and teamUser" do
+  test "journalist permissions for user" do
     u = create_user
-    tu = create_team_user user: u, role: 'journalist'
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'journalist'
     ability = Ability.new(u)
     assert ability.can?(:update, u)
     assert ability.can?(:destroy, u)
-    #tests for TeamUser model
-    assert ability.can?(:update, tu)
-    assert ability.can?(:destroy, tu)
     u_test = create_user
-    tu_test = create_team_user user: u_test , role: 'owner'
+    tu_test = create_team_user team: t, user: u_test , role: 'owner'
     assert ability.cannot?(:update, u_test)
     assert ability.cannot?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.cannot?(:update, tu_test)
-    assert ability.cannot?(:destroy, tu_test)
-    tu_test.role = 'editor'
-    tu_test.save!
+    u_test = create_user
+    create_team_user team: t, user: u_test , role: 'editor'
     assert ability.cannot?(:update, u_test)
     assert ability.cannot?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.cannot?(:update, tu_test)
-    assert ability.cannot?(:destroy, tu_test)
-    tu_test.role = 'contributor'
-    tu_test.save!
+    u_test = create_user
+    create_team_user team: t, user: u_test , role: 'contributor'
     assert ability.can?(:update, u_test)
     assert ability.can?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.can?(:update, tu_test)
-    assert ability.can?(:destroy, tu_test)
+    # tests for other instances
+    u2_test = create_user
+    create_team_user user: u2_test , role: 'contributor'
+    assert ability.cannot?(:update, u2_test)
+    assert ability.cannot?(:destroy, u2_test)
   end
 
-  test "editor permissions for user and teamUser" do
+  test "editor permissions for user" do
     u = create_user
-    tu = create_team_user user: u, role: 'editor'
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'editor'
     ability = Ability.new(u)
     assert ability.can?(:update, u)
     assert ability.can?(:destroy, u)
-    #tests for TeamUser model
-    assert ability.can?(:update, tu)
-    assert ability.can?(:destroy, tu)
     u_test = create_user
-    tu_test = create_team_user user: u_test , role: 'owner'
+    tu_test = create_team_user team: t, user: u_test , role: 'owner'
     assert ability.cannot?(:update, u_test)
     assert ability.cannot?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.cannot?(:update, tu_test)
-    assert ability.cannot?(:destroy, tu_test)
-    tu_test.role = 'journalist'
-    tu_test.save!
+    u_test = create_user
+    create_team_user team: t, user: u_test , role: 'journalist'
     assert ability.can?(:update, u_test)
     assert ability.can?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.can?(:update, tu_test)
-    assert ability.can?(:destroy, tu_test)
-    tu_test.role = 'contributor'
-    tu_test.save!
+    u_test = create_user
+    create_team_user team: t, user: u_test , role: 'contributor'
     assert ability.can?(:update, u_test)
     assert ability.can?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.can?(:update, tu_test)
-    assert ability.can?(:destroy, tu_test)
+    # tests for other instances
+    u2_test = create_user
+    create_team_user user: u2_test , role: 'contributor'
+    assert ability.cannot?(:update, u2_test)
+    assert ability.cannot?(:destroy, u2_test)
   end
 
-  test "owner permissions for user and teamUser" do
+  test "owner permissions for user" do
     u = create_user
-    tu = create_team_user user: u, role: 'owner'
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
     ability = Ability.new(u)
     assert ability.can?(:update, u)
     assert ability.can?(:destroy, u)
-    #tests for TeamUser model
-    assert ability.can?(:update, tu)
-    assert ability.can?(:destroy, tu)
     u_test = create_user
-    tu_test = create_team_user user: u_test , role: 'editor'
+    tu_test = create_team_user team: t, user: u_test , role: 'editor'
     assert ability.can?(:update, u_test)
     assert ability.can?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.can?(:update, tu_test)
-    assert ability.can?(:destroy, tu_test)
     tu_test.role = 'journalist'
     tu_test.save!
     assert ability.can?(:update, u_test)
     assert ability.can?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.can?(:update, tu_test)
-    assert ability.can?(:destroy, tu_test)
     tu_test.role = 'contributor'
     tu_test.save!
     assert ability.can?(:update, u_test)
     assert ability.can?(:destroy, u_test)
-    #tests for TeamUser model
-    assert ability.can?(:update, tu_test)
-    assert ability.can?(:destroy, tu_test)
+    # tests for other instances
+    u2_test = create_user
+    create_team_user user: u2_test , role: 'contributor'
+    assert ability.cannot?(:update, u2_test)
+    assert ability.cannot?(:destroy, u2_test)
   end
 
   test "contributor permissions for source" do
