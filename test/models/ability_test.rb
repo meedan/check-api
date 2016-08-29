@@ -600,4 +600,29 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:destroy, s)
   end
 
+  test "check journalist permissions for project" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t, role: 'journalist'
+    p = create_project team: t
+    p.current_user = u
+    own_project = create_project team:t, user: u
+    own_project.current_user = u
+    assert_raise RuntimeError do
+        p.save!
+    end
+    assert_raise RuntimeError do
+       p.destroy!
+    end
+    own_project.title = 'Project A'
+    own_project.save!
+    assert_equal own_project.title, 'Project A'
+    assert_nothing_raised RuntimeError do
+        own_project.save!
+    end
+    assert_nothing_raised RuntimeError do
+        own_project.destroy!
+    end
+  end
+
 end
