@@ -55,7 +55,7 @@ class Media < ActiveRecord::Base
 
   def last_status(context = nil)
     last = self.annotations('status', context).last
-    last.nil? ? nil : last.status
+    last.nil? ? '' : last.status
   end
 
   private
