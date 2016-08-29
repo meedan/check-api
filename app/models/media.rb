@@ -1,5 +1,6 @@
 class Media < ActiveRecord::Base
   attr_accessible
+  attr_accessor :project_id, :duplicated_of
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
@@ -16,7 +17,8 @@ class Media < ActiveRecord::Base
   validate :url_is_unique, on: :create
 
   before_validation :set_user, on: :create
-  after_create :set_account
+  after_create :set_account, :set_project
+  after_rollback :duplicate
 
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
     serialize :data
@@ -30,8 +32,8 @@ class Media < ActiveRecord::Base
     mapping_ids[value]
   end
 
-  def tags
-    self.annotations('tag')
+  def tags(context = nil)
+    self.annotations('tag', context)
   end
 
   def jsondata
@@ -46,6 +48,15 @@ class Media < ActiveRecord::Base
     project = self.projects.last
     team = project.team unless project.nil?
     team.id unless team.nil?
+  end
+
+  def associate_to_project
+    if !self.project_id.blank? && !ProjectMedia.where(project_id: self.project_id, media_id: self.id).exists?
+      pm = ProjectMedia.new
+      pm.project_id = self.project_id
+      pm.media_id = self.id
+      pm.save!
+    end
   end
 
   private
@@ -74,7 +85,22 @@ class Media < ActiveRecord::Base
   def url_is_unique
     if !CONFIG['allow_duplicated_urls']
       existing = Media.where(url: self.url).first
+      self.duplicated_of = existing
       errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
     end
+  end
+
+  def set_project
+    self.associate_to_project
+  end
+
+  def duplicate
+    dup = self.duplicated_of
+    unless dup.blank?
+      dup.project_id = self.project_id
+      dup.associate_to_project
+      return false
+    end
+    true
   end
 end

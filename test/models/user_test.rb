@@ -181,4 +181,13 @@ class UserTest < ActiveSupport::TestCase
     assert_not u.has_role?'role'
   end
 
+  test "should have current team" do
+    u = create_user
+    assert_nil u.current_team
+    t = create_team
+    u.teams << t
+    u.save!
+    assert_equal t, u.reload.current_team
+  end
+
 end

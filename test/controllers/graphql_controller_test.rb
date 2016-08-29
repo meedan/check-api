@@ -235,7 +235,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from project" do
-    assert_graphql_read_object('project', { 'user' => 'name' })
+    assert_graphql_read_object('project', { 'team' => 'name' })
   end
 
   test "should read object from account" do
@@ -265,11 +265,11 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url', 'project_sources' => 'project_id' })
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url' })
   end
 
   test "should read collection from team" do
-    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name', 'contacts' =>  'location' })
+    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name', 'contacts' =>  'location', 'projects' => 'title' })
   end
 
   test "should read collection from account" do
@@ -281,11 +281,13 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from user" do
-    assert_graphql_read_object('user', { 'source' => 'name' })
+    User.any_instance.stubs(:current_team).returns(create_team)
+    assert_graphql_read_object('user', { 'source' => 'name', 'current_team' => 'name' })
+    User.any_instance.unstub(:current_team)
   end
 
   test "should read collection from user" do
-    assert_graphql_read_collection('user', { 'teams' => 'name', 'projects' => 'title' })
+    assert_graphql_read_collection('user', { 'teams' => 'name' })
   end
 
   test "should create status" do

@@ -32,6 +32,14 @@ class Team < ActiveRecord::Base
     image_callback(value)
   end
 
+  def avatar
+    CONFIG['checkdesk_base_url'] + self.logo.url
+  end
+
+  def members_count
+    self.users.count
+  end
+
   private
 
   def add_user_to_team

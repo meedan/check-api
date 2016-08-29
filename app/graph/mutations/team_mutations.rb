@@ -1,6 +1,7 @@
 module TeamMutations
   create_fields = {
     archived: 'bool',
+    private: 'bool',
     logo: 'str',
     name: '!str',
     subdomain: '!str',
@@ -9,6 +10,7 @@ module TeamMutations
 
   update_fields = {
     archived: 'bool',
+    private: 'bool',
     logo: 'str',
     name: 'str',
     description: 'str',
