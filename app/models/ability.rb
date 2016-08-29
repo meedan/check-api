@@ -39,7 +39,6 @@ class Ability
     can :manage, Project, :team_id => @user.current_team.id
     can :manage, [Media, Comment], :get_team => @user.current_team.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor'] }
-    #can :manage, [Media, Source, Account, Flag, Comment, Status, Tag]
   end
 
   def journalist_perms
@@ -48,7 +47,6 @@ class Ability
     can [:update, :destroy], Media, :get_team => @user.current_team.id, :user_id => @user.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
     can [:update, :destroy], Media, :get_team => @user.current_team.id, :annotator_id => @user
-    #can [:create, :update], [Media, Source, Account, Flag, Comment, Status, Tag], :user_id => @user.id
   end
 
   def contributor_perms
@@ -56,7 +54,6 @@ class Ability
     can [:update, :destroy], Media, :get_team => @user.current_team.id, :user_id => @user.id
     can :update, User, :id => @user.id
     can [:update, :destroy], Media, :get_team => @user.current_team.id, :annotator_id => @user.id
-    #can [:create, :update], [Media, Source, Account, Flag, Comment, Status, Tag], :user_id => @user.id
   end
 
   def anonymous_perms
