@@ -5,6 +5,9 @@ module ActiveRecordExtensions
     attr_accessor :current_user
   end
 
+  before_save :check_ability
+  before_destroy :check_destroy_ability
+
   # Used to migrate data from CD2 to this
   def image_callback(value)
     unless value.blank?
@@ -32,6 +35,26 @@ module ActiveRecordExtensions
   def is_annotation?
     false
   end
+
+  private
+
+  def check_ability
+    unless self.current_user.nil?
+      ability = Ability.new(self.current_user)
+      op = self.new_record ? ':create' : ':update'
+      permission = ability.can?(op, self.class)
+    end
+    permission ||= false
+  end
+
+  def check_destroy_ability
+    unless self.current_user.nil?
+      ability = Ability.new(self.current_user)
+      permission = ability.can?(:destroy, self.class)
+    end
+    permission ||= false
+  end
+
 end
 
 ActiveRecord::Base.send(:include, ActiveRecordExtensions)
