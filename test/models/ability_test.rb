@@ -452,4 +452,66 @@ class AbilityTest < ActiveSupport::TestCase
      assert ability.cannot?(:destory, c)
   end
 
+  test "owner permissions for flag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    ability = Ability.new(u)
+    p = create_project team: t
+    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: p
+    assert ability.can?(:create, f)
+    f.flag = 'Graphic content'
+    assert ability.cannot?(:create, f)
+    # test other instances
+    p.team = nil
+    assert ability.cannot?(:create, f)
+  end
+
+  test "editor permissions for flag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'editor'
+    ability = Ability.new(u)
+    p = create_project team: t
+    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: p
+    assert ability.can?(:create, f)
+    f.flag = 'Graphic content'
+    assert ability.cannot?(:create, f)
+    # test other instances
+    p.team = nil
+    assert ability.cannot?(:create, f)
+  end
+
+  test "journalist permissions for flag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    ability = Ability.new(u)
+    p = create_project team: t
+    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: p
+    assert ability.can?(:create, f)
+    f.flag = 'Graphic content'
+    assert ability.cannot?(:create, f)
+    # test other instances
+    p.team = nil
+    assert ability.cannot?(:create, f)
+  end
+
+  test "contributor permissions for flag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    ability = Ability.new(u)
+    p = create_project team: t
+    f =  create_flag flag: 'Spam', annotator: u, annotated: p
+    assert ability.can?(:create, f)
+    f.flag = 'Graphic content'
+    assert ability.can?(:create, f)
+    f.flag = 'Needing deletion'
+    assert ability.cannot?(:create, f)
+    # test other instances
+    p.team = nil
+    assert ability.cannot?(:create, f)
+  end
+
 end
