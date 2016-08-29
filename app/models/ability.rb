@@ -33,6 +33,7 @@ class Ability
     can :manage, [Media, Comment], :get_team => @user.current_team.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
     can :create, Flag, flag: ['Mark as graphic'], :get_team => @user.current_team.id
+    can [:create, :destroy], Status, :get_team => @user.current_team.id
   end
 
   def editor_perms
@@ -41,7 +42,7 @@ class Ability
     can :manage, [Media, Comment], :get_team => @user.current_team.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor'] }
     can :create, Flag, flag: ['Mark as graphic'], :get_team => @user.current_team.id
-
+    can [:create, :destroy], Status, :get_team => @user.current_team.id
   end
 
   def journalist_perms
@@ -51,6 +52,7 @@ class Ability
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
     can [:update, :destroy], Media, :get_team => @user.current_team.id, :annotator_id => @user
     can :create, Flag, flag: ['Mark as graphic'], :get_team => @user.current_team.id
+    can [:create, :destroy], Status, :get_team => @user.current_team.id, :annotator_id => @user
   end
 
   def contributor_perms

@@ -458,7 +458,9 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     ability = Ability.new(u)
     p = create_project team: t
-    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: p
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: m
     assert ability.can?(:create, f)
     f.flag = 'Graphic content'
     assert ability.cannot?(:create, f)
@@ -473,7 +475,9 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'editor'
     ability = Ability.new(u)
     p = create_project team: t
-    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: p
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: m
     assert ability.can?(:create, f)
     f.flag = 'Graphic content'
     assert ability.cannot?(:create, f)
@@ -488,7 +492,9 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'journalist'
     ability = Ability.new(u)
     p = create_project team: t
-    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: p
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: m
     assert ability.can?(:create, f)
     f.flag = 'Graphic content'
     assert ability.cannot?(:create, f)
@@ -503,7 +509,9 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'contributor'
     ability = Ability.new(u)
     p = create_project team: t
-    f =  create_flag flag: 'Spam', annotator: u, annotated: p
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    f =  create_flag flag: 'Spam', annotator: u, annotated: m
     assert ability.can?(:create, f)
     f.flag = 'Graphic content'
     assert ability.can?(:create, f)
@@ -512,6 +520,23 @@ class AbilityTest < ActiveSupport::TestCase
     # test other instances
     p.team = nil
     assert ability.cannot?(:create, f)
+  end
+
+  test "owner permissions for status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    ability = Ability.new(u)
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s =  create_status status: 'Verified', annotator: u, annotated: m
+    assert ability.can?(:create, s)
+    assert ability.cannot?(:update, s)
+    assert ability.can?(:destroy, s)
+    # test other instances
+    p.team = nil
+    assert ability.cannot?(:create, s)
   end
 
 end
