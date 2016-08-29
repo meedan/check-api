@@ -34,8 +34,11 @@ module Api
         end
 
         unless user.nil?
-          user = user.as_json
-          user[:source] = source
+          user_json = user.as_json
+          user_json[:source] = source
+          user_json[:current_team] = user.current_team.as_json
+          user_json[:current_team][:projects] = user.current_team.projects.as_json if user.current_team
+          user = user_json
         end
 
         render_success 'user', user
