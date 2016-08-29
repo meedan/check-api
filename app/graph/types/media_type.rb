@@ -11,6 +11,7 @@ MediaType = GraphQL::ObjectType.define do
   field :project_id, types.Int
   field :user_id, types.Int
   field :dbid, types.Int
+  field :annotations_count, types.Int
   
   field :last_status do
     type types.String

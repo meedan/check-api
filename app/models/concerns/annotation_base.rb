@@ -28,6 +28,10 @@ module AnnotationBase
           self.annotation_relation(type, context).all
         end
 
+        define_method :annotations_count do |type=nil, context=nil|
+          self.annotation_relation(type, context).count
+        end
+
         define_method :add_annotation do |annotation|
           annotation.annotated = self
           annotation.save
