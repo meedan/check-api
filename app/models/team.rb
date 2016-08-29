@@ -32,6 +32,15 @@ class Team < ActiveRecord::Base
     self.users.count
   end
 
+  def as_json(options = {})
+    {
+      id: self.id,
+      avatar: self.avatar,
+      name: self.name,
+      projects: self.projects
+    }
+  end
+
   private
 
   def add_user_to_team
@@ -46,5 +55,4 @@ class Team < ActiveRecord::Base
   def self.subdomain_from_name(name)
     name.parameterize.underscore.dasherize.ljust(4, '-')
   end
-
 end
