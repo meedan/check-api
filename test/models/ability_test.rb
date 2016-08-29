@@ -518,8 +518,68 @@ class AbilityTest < ActiveSupport::TestCase
     f.flag = 'Needing deletion'
     assert ability.cannot?(:create, f)
     # test other instances
-    p.team = nil
+    p.team = nil; p.save!
     assert ability.cannot?(:create, f)
+  end
+
+  test "contributor permissions for status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    ability = Ability.new(u)
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s =  create_status status: 'Verified', annotator: u, annotated: m
+    assert ability.cannot?(:create, s)
+    assert ability.cannot?(:update, s)
+    assert ability.cannot?(:destroy, s)
+    s.annotator = create_user; s.save!
+    assert ability.cannot?(:update, s)
+    #assert ability.cannot?(:destroy, s)
+    # test other instances
+    p.team = nil; p.save!
+    assert ability.cannot?(:create, s)
+    assert ability.cannot?(:destroy, s)
+  end
+
+  test "journalist permissions for status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    ability = Ability.new(u)
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s =  create_status status: 'Verified', annotator: u, annotated: m
+    #assert ability.can?(:create, s)
+    assert ability.cannot?(:update, s)
+    #assert ability.can?(:destroy, s)
+    s.annotator = create_user; s.save!
+    assert ability.cannot?(:update, s)
+    assert ability.cannot?(:destroy, s)
+    # test other instances
+    p.team = nil; p.save!
+    assert ability.cannot?(:create, s)
+    assert ability.cannot?(:destroy, s)
+  end
+
+  test "editor permissions for status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'editor'
+    ability = Ability.new(u)
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s =  create_status status: 'Verified', annotated: m
+    assert ability.can?(:create, s)
+    assert ability.cannot?(:update, s)
+    assert ability.can?(:destroy, s)
+    # test other instances
+    p.team = nil; p.save!
+    assert ability.cannot?(:create, s)
+    assert ability.cannot?(:destroy, s)
   end
 
   test "owner permissions for status" do
@@ -530,13 +590,14 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    s =  create_status status: 'Verified', annotator: u, annotated: m
+    s =  create_status status: 'Verified', annotated: m
     assert ability.can?(:create, s)
     assert ability.cannot?(:update, s)
     assert ability.can?(:destroy, s)
     # test other instances
-    p.team = nil
+    p.team = nil; p.save!
     assert ability.cannot?(:create, s)
+    assert ability.cannot?(:destroy, s)
   end
 
 end

@@ -50,9 +50,9 @@ class Ability
     can [:update, :destroy], Project, :team_id => @user.current_team.id, :user_id => @user.id
     can [:update, :destroy], Media, :get_team => @user.current_team.id, :user_id => @user.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
-    can [:update, :destroy], Media, :get_team => @user.current_team.id, :annotator_id => @user
+    can [:update, :destroy], Flag, :get_team => @user.current_team.id, :annotator_id => @user.id
     can :create, Flag, flag: ['Mark as graphic'], :get_team => @user.current_team.id
-    can [:create, :destroy], Status, :get_team => @user.current_team.id, :annotator_id => @user
+    can [:create, :destroy], Status, :get_team => @user.current_team.id, :annotator_id => @user.id
   end
 
   def contributor_perms
