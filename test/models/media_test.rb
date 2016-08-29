@@ -152,7 +152,7 @@ class MediaTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: author_normal_url } }).to_return(body: response)
 
     m = nil
-    
+
     a = create_account url: author_normal_url
 
     assert_no_difference 'Account.count' do
@@ -181,7 +181,7 @@ class MediaTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: author_normal_url } }).to_return(body: response)
 
     m = nil
-    
+
     assert_difference 'Account.count' do
       m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
     end
@@ -214,4 +214,13 @@ class MediaTest < ActiveSupport::TestCase
       assert_equal "Validation failed: Media with this URL exists and has id #{m.id}", exception.message
     end
   end
+
+  test "should get media team" do
+    m = create_valid_media
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, media: m
+    assert_equal m.get_team, t.id
+  end
+
 end

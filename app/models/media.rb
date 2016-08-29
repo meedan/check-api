@@ -42,7 +42,7 @@ class Media < ActiveRecord::Base
     self.created_at.to_i.to_s
   end
 
-  def media_team
+  def get_team
     project = self.projects.last
     team = project.team unless project.nil?
     team.id unless team.nil?

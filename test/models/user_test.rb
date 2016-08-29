@@ -165,4 +165,20 @@ class UserTest < ActiveSupport::TestCase
     u = create_user image: nil, profile_image: nil
     assert_match /user\.png$/, u.profile_image
   end
+
+  test "should get user role" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'owner'
+    assert_equal u.role, 'owner'
+  end
+
+  test "varify user role" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'owner'
+    assert u.has_role?'owner'
+    assert_not u.has_role?'role'
+  end
+
 end
