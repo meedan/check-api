@@ -8,6 +8,7 @@ TeamType = GraphQL::ObjectType.define do
   field :updated_at, types.String
   field :created_at, types.String
   field :archived, types.Boolean
+  field :private, types.Boolean
   field :avatar, types.String
   field :name, !types.String
   field :subdomain, !types.String
