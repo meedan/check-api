@@ -58,6 +58,10 @@ class Media < ActiveRecord::Base
     last.nil? ? '' : last.status
   end
 
+  def domain
+    URI.parse(self.url).host.gsub(/^(www|m)\./, '')
+  end
+
   private
 
   def set_user

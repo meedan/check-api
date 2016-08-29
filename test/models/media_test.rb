@@ -250,4 +250,10 @@ class MediaTest < ActiveSupport::TestCase
     create_status status: 'Verified', annotated: m
     assert_equal 'Verified', m.last_status
   end
+
+  test "should get domain" do
+    m = Media.new
+    m.url = 'https://www.youtube.com/watch?v=b708rEG7spI'
+    assert_equal 'youtube.com', m.domain
+  end
 end
