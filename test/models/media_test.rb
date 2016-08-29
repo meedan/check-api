@@ -243,4 +243,11 @@ class MediaTest < ActiveSupport::TestCase
     end
     assert_equal [p1, p2], m.reload.projects
   end
+
+  test "should get last status" do
+    m = create_valid_media
+    assert_nil m.last_status
+    create_status status: 'Verified', annotated: m
+    assert_equal 'Verified', m.last_status
+  end
 end

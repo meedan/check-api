@@ -12,6 +12,17 @@ MediaType = GraphQL::ObjectType.define do
   field :user_id, types.Int
   field :dbid, types.Int
   
+  field :last_status do
+    type types.String
+
+    argument :context_id, types.Int
+
+    resolve ->(media, args, _ctx) {
+      context = args['context_id'].nil? ? nil : Project.find(args['context_id'])
+      media.last_status(context)
+    }
+  end
+  
   field :published do
     type types.String
 
