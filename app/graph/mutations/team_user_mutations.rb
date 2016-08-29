@@ -2,13 +2,15 @@ module TeamUserMutations
   create_fields = {
     user_id: '!int',
     team_id: '!int',
-    status: '!str'
+    status: '!str',
+    role: 'str'
   }
 
   update_fields = {
     user_id: 'int',
     team_id: 'int',
     status: 'str',
+    role: 'str',
     id: '!id'
   }
 
