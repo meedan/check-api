@@ -3,10 +3,9 @@ module ActiveRecordExtensions
 
   included do
     attr_accessor :current_user
+    before_save :check_ability
+    before_destroy :check_destroy_ability
   end
-
-  before_save :check_ability
-  before_destroy :check_destroy_ability
 
   # Used to migrate data from CD2 to this
   def image_callback(value)
@@ -39,20 +38,18 @@ module ActiveRecordExtensions
   private
 
   def check_ability
-    unless self.current_user.nil?
+   unless self.current_user.nil?
       ability = Ability.new(self.current_user)
-      op = self.new_record ? ':create' : ':update'
-      permission = ability.can?(op, self.class)
+      op = self.new_record? ? :create : :update
+      raise "No permission to #{op} #{self.class}" unless ability.can?(op, self)
     end
-    permission ||= false
   end
 
   def check_destroy_ability
     unless self.current_user.nil?
       ability = Ability.new(self.current_user)
-      permission = ability.can?(:destroy, self.class)
+      raise "No permission to delete #{self.class}" unless ability.can?(:destroy, self)
     end
-    permission ||= false
   end
 
 end
