@@ -331,6 +331,127 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:destroy, u2_test)
   end
 
+  test "contributor permissions for comment" do
+     u = create_user
+     t = create_team
+     tu = create_team_user team: t, user: u, role: 'contributor'
+     ability = Ability.new(u)
+     assert ability.can?(:create, Comment)
+     # project comments
+     p = create_project team: t
+     pc = create_comment
+     p.add_annotation pc
+     assert ability.cannot?(:update, pc)
+     assert ability.cannot?(:destory, pc)
+     # media comments
+     m = create_valid_media
+     pm = create_project_media project: p, media: m
+     mc = create_comment
+     m.add_annotation mc
+     assert ability.cannot?(:update, mc)
+     assert ability.cannot?(:destory, mc)
+     # own comments
+     own_comment = create_comment annotator: u
+     p2 = create_project team: t, user: u
+     p2.add_annotation own_comment
+     #pp own_comment
+     #assert ability.can?(:update, own_comment)
+     #assert ability.can?(:destory, own_comment)
+     # other instances
+     p = create_project
+     c = create_comment
+     p.add_annotation c
+     assert ability.cannot?(:update, c)
+     assert ability.cannot?(:destory, c)
+  end
+
+  test "journalist permissions for comment" do
+     u = create_user
+     t = create_team
+     tu = create_team_user team: t, user: u, role: 'journalist'
+     ability = Ability.new(u)
+     assert ability.can?(:create, Comment)
+     # project comments
+     p = create_project team: t
+     pc = create_comment
+     p.add_annotation pc
+     assert ability.cannot?(:update, pc)
+     assert ability.cannot?(:destory, pc)
+     # media comments
+     m = create_valid_media
+     pm = create_project_media project: p, media: m
+     mc = create_comment
+     m.add_annotation mc
+     assert ability.cannot?(:update, mc)
+     assert ability.cannot?(:destory, mc)
+     # own comments
+     own_comment = create_comment annotator: u
+     p2 = create_project team: t
+     p2.add_annotation own_comment
+     #assert ability.can?(:update, own_comment)
+     #assert ability.can?(:destory, own_comment)
+     # other instances
+     p = create_project
+     c = create_comment
+     p.add_annotation c
+     assert ability.cannot?(:update, c)
+     assert ability.cannot?(:destory, c)
+  end
+
+  test "editor permissions for comment" do
+     u = create_user
+     t = create_team
+     tu = create_team_user team: t, user: u, role: 'editor'
+     ability = Ability.new(u)
+     assert ability.can?(:create, Comment)
+     # project comments
+     p = create_project team: t
+     pc = create_comment
+     p.add_annotation pc
+     assert ability.can?(:update, pc)
+     assert ability.can?(:destory, pc)
+     # media comments
+     m = create_valid_media
+     pm = create_project_media project: p, media: m
+     mc = create_comment
+     m.add_annotation mc
+     assert ability.can?(:update, mc)
+     assert ability.can?(:destory, mc)
+     # other instances
+     p = create_project
+     c = create_comment
+     p.add_annotation c
+     assert ability.cannot?(:update, c)
+     assert ability.cannot?(:destory, c)
+  end
+
+  test "owner permissions for comment" do
+     u = create_user
+     t = create_team
+     tu = create_team_user team: t, user: u, role: 'owner'
+     ability = Ability.new(u)
+     assert ability.can?(:create, Comment)
+     # project comments
+     p = create_project team: t
+     pc = create_comment
+     p.add_annotation pc
+     assert ability.can?(:update, pc)
+     assert ability.can?(:destory, pc)
+     # media comments
+     m = create_valid_media
+     pm = create_project_media project: p, media: m
+     mc = create_comment
+     m.add_annotation mc
+     assert ability.can?(:update, mc)
+     assert ability.can?(:destory, mc)
+     # other instances
+     p = create_project
+     c = create_comment
+     p.add_annotation c
+     assert ability.cannot?(:update, c)
+     assert ability.cannot?(:destory, c)
+  end
+
   test "contributor permissions for source" do
     u = create_user
     t = create_team

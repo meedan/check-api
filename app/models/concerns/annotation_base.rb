@@ -4,15 +4,15 @@ module AnnotationBase
   module Association
     def self.included(base)
       base.send :extend, ClassMethods
-    end 
-    
+    end
+
     module ClassMethods
       def has_annotations
         define_method :annotation_query do |type=nil, context=nil|
           matches = [{ match: { annotated_type: self.class.name } }, { match: { annotated_id: self.id.to_s } }]
           unless context.nil?
-            matches << { match: { context_type: context.class.name } } 
-            matches << { match: { context_id: context.id.to_s } } 
+            matches << { match: { context_type: context.class.name } }
+            matches << { match: { context_id: context.id.to_s } }
           end
           matches << { match: { annotation_type: type } } unless type.nil?
           { bool: { must: matches } }
@@ -51,7 +51,7 @@ module AnnotationBase
     include CheckdeskElasticSearchModel
     include ActiveModel::Validations
     include PaperTrail::Model
-    
+
     index_name [Rails.application.engine_name, Rails.env, 'annotations'].join('_')
     document_type 'annotation'
 
@@ -76,7 +76,7 @@ module AnnotationBase
 
     before_save :changes
   end
-  
+
   module ClassMethods
     def has_many(name, scope = nil, options = {}, &extension)
       # Do nothing... instead, we are going to generate each collection we need
@@ -107,7 +107,7 @@ module AnnotationBase
         type = :datetime if type === :time
         hash[name] = OpenStruct.new({
           name: name,
-          type: type 
+          type: type
         })
       end
       hash
@@ -261,6 +261,18 @@ module AnnotationBase
     raise 'Sorry, this is not valid' unless self.save
   end
 
+  def get_team
+    obj = self.annotated
+    unless obj.nil?
+      case self.annotated_type
+      when 'Media'
+        obj.get_team
+      when 'Project'
+          obj.team.id
+      end
+    end
+  end
+
   protected
 
   def load_polymorphic(name)
@@ -289,4 +301,5 @@ module AnnotationBase
   def set_annotator
     self.annotator = self.current_user if self.annotator.nil? && !self.current_user.nil?
   end
+
 end

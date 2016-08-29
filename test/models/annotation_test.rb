@@ -61,4 +61,20 @@ class CommentTest < ActiveSupport::TestCase
     c = create_comment
     assert c.is_annotation?
   end
+
+  test "should get annotation team" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pc = create_comment
+    mc = create_comment
+    p.add_annotation pc
+    pm = create_project_media project: p, media: m
+    m.add_annotation mc
+    assert_equal pc.get_team, t.id
+    assert_equal mc.get_team, t.id
+    c = create_comment
+    assert_nil c.get_team
+  end
+
 end
