@@ -62,6 +62,10 @@ class Media < ActiveRecord::Base
     URI.parse(self.url).host.gsub(/^(www|m)\./, '')
   end
 
+  def project
+    Project.find(self.project_id) if self.project_id
+  end
+
   private
 
   def set_user

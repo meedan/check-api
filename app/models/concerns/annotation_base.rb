@@ -216,6 +216,10 @@ module AnnotationBase
     self.annotated
   end
 
+  def project
+    self.annotated
+  end
+
   def annotated
     self.load_polymorphic('annotated')
   end

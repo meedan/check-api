@@ -36,8 +36,9 @@ class Project < ActiveRecord::Base
 
   def as_json(options = {})
     {
-      id: self.id,
-      title: self.title
+      dbid: self.id,
+      title: self.title,
+      id: Base64.encode64("Project/#{self.id}") 
     }
   end
 
