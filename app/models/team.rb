@@ -32,7 +32,7 @@ class Team < ActiveRecord::Base
     self.users.count
   end
 
-  def as_json(options = {})
+  def as_json(_options = {})
     {
       id: self.id,
       avatar: self.avatar,

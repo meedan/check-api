@@ -34,7 +34,7 @@ class Project < ActiveRecord::Base
     CONFIG['checkdesk_base_url'] + self.lead_image.url
   end
 
-  def as_json(options = {})
+  def as_json(_options = {})
     {
       dbid: self.id,
       title: self.title,

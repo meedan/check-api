@@ -246,7 +246,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should get last status" do
     m = create_valid_media
-    assert_equal '', m.last_status
+    assert_equal 'Undetermined', m.last_status
     create_status status: 'Verified', annotated: m
     assert_equal 'Verified', m.last_status
   end

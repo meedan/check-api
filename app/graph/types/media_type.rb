@@ -13,18 +13,7 @@ MediaType = GraphQL::ObjectType.define do
   field :dbid, types.Int
   field :annotations_count, types.Int
   field :domain, types.String
-  
-  field :last_status do
-    type types.String
-
-    argument :context_id, types.Int
-
-    resolve ->(media, args, _ctx) {
-      context = args['context_id'].nil? ? nil : Project.find(args['context_id'])
-      media.last_status(context)
-    }
-  end
-  
+   
   field :published do
     type types.String
 
@@ -76,8 +65,23 @@ MediaType = GraphQL::ObjectType.define do
     argument :context_id, types.Int
     
     resolve ->(media, args, _ctx) {
-      context = args['context_id'].nil? ? nil : Project.find(args['context_id'])
+      context = get_context(args)
       media.tags(context)
     }
   end
+
+  field :last_status do
+    type types.String
+
+    argument :context_id, types.Int
+
+    resolve ->(media, args, _ctx) {
+      context = get_context(args)
+      media.last_status(context)
+    }
+  end
+end
+
+def get_context(args = {})
+  args['context_id'].nil? ? nil : Project.find(args['context_id'])
 end

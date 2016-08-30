@@ -124,4 +124,8 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project lead_image: nil
     assert_match /^http/, p.avatar
   end
+
+  test "should have a JSON version" do
+    assert_kind_of Hash, create_project.as_json
+  end
 end
