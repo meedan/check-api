@@ -16,7 +16,7 @@ class Team < ActiveRecord::Base
   validates :subdomain, uniqueness: true
   validates :logo, size: true
 
-  after_create :add_user_to_team
+  after_create :add_user_to_team, :create_default_project
 
   has_annotations
 
@@ -50,6 +50,12 @@ class Team < ActiveRecord::Base
       tu.team = self
       tu.save!
     end
+  end
+
+  def create_default_project
+    proj = self.projects.new
+    proj.title = 'Project'
+    proj.save!
   end
 
   def self.subdomain_from_name(name)

@@ -86,6 +86,12 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should create project in team on team creation" do
+    assert_difference 'Project.count' do
+      create_team
+    end
+  end
+
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Team.count' do
       assert_raises ActiveRecord::RecordInvalid do
