@@ -631,7 +631,9 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user user: u , team: t
     ability = Ability.new(u)
     assert ability.can?(:read, t)
+    assert ability.can?(:read, t)
     t2 = create_team private: true
+    tu2 = create_team_user user: u , team: t2, status: 'banned'
     assert ability.cannot?(:read, t2)
     # non private team
     t3 = create_team

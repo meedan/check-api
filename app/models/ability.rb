@@ -70,7 +70,7 @@ class Ability
   # extra permissions for all users
   def extra_perms
     can :read, Team, :private => false
-    can :read, Team, :private => true, :team_users => { :team_id => @user.current_team.id, status: ['member'] }
+    can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
   end
 
 end
