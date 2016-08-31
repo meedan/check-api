@@ -628,11 +628,14 @@ class AbilityTest < ActiveSupport::TestCase
   test "non members should not access private team" do
     u = create_user
     t = create_team private: true
-    tu = create_team_user user: u , team: t, role: 'journalist'
+    tu = create_team_user user: u , team: t
     ability = Ability.new(u)
     assert ability.can?(:read, t)
     t2 = create_team private: true
     assert ability.cannot?(:read, t2)
+    # non private team
+    t3 = create_team
+    assert ability.can?(:read, t3)
   end
 
 end
