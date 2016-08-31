@@ -56,6 +56,7 @@ class Team < ActiveRecord::Base
       tu = TeamUser.new
       tu.user = self.current_user
       tu.team = self
+      tu.role = 'owner'
       tu.save!
     end
   end
