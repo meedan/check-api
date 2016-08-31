@@ -5,7 +5,7 @@
 
 UPLOADS=${DEPLOYDIR}/shared/files/uploads
 
-# TODO only run this on ${PRIMARY} nodes, perhaps in an out-of-band process during major multi-node deployments
+# should only run this on ${PRIMARY} nodes, perhaps in an out-of-band process during major multi-node deployments
 echo "running migrations"
 bundle exec rake db:migrate
 

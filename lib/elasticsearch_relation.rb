@@ -19,6 +19,10 @@ class ElasticsearchRelation
     Annotation.search(@params).results.map(&:load).reject{ |x| x.nil? }
   end
 
+  def count
+    Annotation.search(@params.merge({ size: 0 })).total
+  end
+
   def to_a
     all
   end

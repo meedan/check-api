@@ -7,6 +7,19 @@ module AnnotationBase
     end
 
     module ClassMethods
+      def define_annotators_method
+        define_method :annotators do |context=nil|
+          query = self.annotation_query(context)
+          aggs = { g: { terms: { field: :annotator_id } } }
+          annotators = []
+          Annotation.search(query: query, aggs: aggs).response['aggregations']['g']['buckets'].each do |result|
+            # result['doc_count'] is the number of annotations by this user
+            annotators << User.find(result['key'])
+          end
+          annotators
+        end
+      end
+
       def has_annotations
         define_method :annotation_query do |type=nil, context=nil|
           matches = [{ match: { annotated_type: self.class.name } }, { match: { annotated_id: self.id.to_s } }]
@@ -28,21 +41,16 @@ module AnnotationBase
           self.annotation_relation(type, context).all
         end
 
+        define_method :annotations_count do |type=nil, context=nil|
+          self.annotation_relation(type, context).count
+        end
+
         define_method :add_annotation do |annotation|
           annotation.annotated = self
           annotation.save
         end
 
-        define_method :annotators do |context=nil|
-          query = self.annotation_query(context)
-          aggs = { g: { terms: { field: :annotator_id } } }
-          annotators = []
-          Annotation.search(query: query, aggs: aggs).response['aggregations']['g']['buckets'].each do |result|
-            # result['doc_count'] is the number of annotations by this user
-            annotators << User.find(result['key'])
-          end
-          annotators
-        end
+        define_annotators_method
       end
     end
   end
@@ -209,6 +217,10 @@ module AnnotationBase
   end
 
   def media
+    self.annotated
+  end
+
+  def project
     self.annotated
   end
 

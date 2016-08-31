@@ -77,4 +77,10 @@ class CommentTest < ActiveSupport::TestCase
     assert_nil c.get_team
   end
 
+  test "should have number of annotations" do
+    s = create_source
+    3.times{ create_comment(annotated: s) }
+    assert_equal 3, s.annotations_count
+  end
+
 end

@@ -59,6 +59,19 @@ class Media < ActiveRecord::Base
     end
   end
 
+  def last_status(context = nil)
+    last = self.annotations('status', context).first
+    last.nil? ? 'Undetermined' : last.status
+  end
+
+  def domain
+    URI.parse(self.url).host.gsub(/^(www|m)\./, '')
+  end
+
+  def project
+    Project.find(self.project_id) if self.project_id
+  end
+
   private
 
   def set_user

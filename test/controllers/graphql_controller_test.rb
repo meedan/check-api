@@ -118,6 +118,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('media', 'url')
     assert_graphql_read('media', 'jsondata')
     assert_graphql_read('media', 'published')
+    assert_graphql_read('media', 'last_status')
   end
 
   test "should update media" do
@@ -265,7 +266,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url' })
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url', 'annotations' => 'content' })
   end
 
   test "should read collection from team" do

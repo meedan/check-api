@@ -126,4 +126,8 @@ class TeamTest < ActiveSupport::TestCase
     t.users << create_user
     assert_equal 2, t.members_count
   end
+
+  test "should have a JSON version" do
+    assert_kind_of Hash, create_team.as_json
+  end
 end
