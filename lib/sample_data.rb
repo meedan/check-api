@@ -155,6 +155,7 @@ module SampleData
       end
     end
     team.archived = options[:archived] || false
+    team.private = options[:private] || false
     team.description = options[:description] || random_string
     team.current_user = options[:current_user]
     team.save!

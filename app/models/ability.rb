@@ -6,19 +6,19 @@ class Ability
     @user = user ||= User.new
     # Define User abilities
     if user.has_role? :admin
-      global_admin_perms
+      perms = global_admin_perms
     elsif user.has_role? :owner
-      owner_perms
+      perms = owner_perms
     elsif user.has_role? :editor
-      editor_perms
+      perms = editor_perms
     elsif user.has_role? :journalist
-      journalist_perms
+      perms = journalist_perms
     elsif user.has_role? :contributor
-      contributor_perms
+      perms = contributor_perms
     else
-      anonymous_perms
+      perms = anonymous_perms
     end
-
+    return perms, extra_perms
   end
 
   private
@@ -28,8 +28,8 @@ class Ability
   end
 
   def owner_perms
-    can :manage, Team, :team_users => { :user_id => @user.id }
-    can :manage, Project, :team_id => @user.current_team.id
+    can :cud, Team, :id => @user.current_team.id
+    can :cud, Project, :team_id => @user.current_team.id
     can :manage, [Media, Comment], :get_team => @user.current_team.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
     can :create, Flag, flag: ['Mark as graphic'], :get_team => @user.current_team.id
@@ -37,8 +37,8 @@ class Ability
   end
 
   def editor_perms
-    can [:create, :update], Team, :team_users => { :user_id => @user.id }
-    can :manage, Project, :team_id => @user.current_team.id
+    can [:create, :update], Team, :id => @user.current_team.id
+    can :cud, Project, :team_id => @user.current_team.id
     can :manage, [Media, Comment], :get_team => @user.current_team.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor'] }
     can :create, Flag, flag: ['Mark as graphic'], :get_team => @user.current_team.id
@@ -65,6 +65,12 @@ class Ability
 
   def anonymous_perms
     can :create, Team
+  end
+
+  # extra permissions for all users
+  def extra_perms
+    can :read, Team, :private => false
+    can :read, Team, :private => true, :id => @user.current_team.id
   end
 
 end
