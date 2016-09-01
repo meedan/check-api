@@ -280,7 +280,7 @@ module AnnotationBase
       when 'Media'
         obj.get_team
       when 'Project'
-          obj.team.id
+          [obj.team.id]
       end
     end
   end
