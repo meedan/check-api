@@ -71,8 +71,7 @@ class User < ActiveRecord::Base
     if self.current_team_id.blank?
       self.teams.first
     else
-      Team.where(id: self.current_team_id).last unless self.current_team_id.blank?
-    end
+      Team.where(id: self.current_team_id).last
   end
 
   private
