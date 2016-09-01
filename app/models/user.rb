@@ -72,6 +72,7 @@ class User < ActiveRecord::Base
       self.teams.first
     else
       Team.where(id: self.current_team_id).last
+    end
   end
 
   private
