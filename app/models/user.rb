@@ -16,6 +16,7 @@ class User < ActiveRecord::Base
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
+  validate :user_is_member_in_current_team
 
   def role
     t = current_team
@@ -83,7 +84,10 @@ class User < ActiveRecord::Base
   end
 
   def current_team
-    ct = Team.where(id: self.current_team_id) unless self.current_team_id.blank?
+    if self.current_team_id.blank?
+      self.teams.first
+    else
+      Team.where(id: self.current_team_id).last
   end
 
   private
@@ -133,4 +137,12 @@ class User < ActiveRecord::Base
       self.save!
     end
   end
+
+  def user_is_member_in_current_team
+    unless self.current_team_id.blank?
+      tu = TeamUser.where(user_id: self.id, team_id: self.current_team_id).last
+      errors.add(:base, "User not a memeber in team #{self.current_team_id}") if tu.nil?
+    end
+  end
+
 end
