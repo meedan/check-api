@@ -83,8 +83,7 @@ class User < ActiveRecord::Base
   end
 
   def current_team
-    # Assuming that the current user's team is the first team associated with this user
-    self.teams.first
+    ct = Team.where(id: self.current_team_id) unless self.current_team_id.blank?
   end
 
   private

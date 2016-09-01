@@ -4,6 +4,7 @@ module UserMutations
     profile_image: 'str',
     login: '!str',
     name: '!str',
+    current_team_id: 'int',
     password: '!str',
     password_confirmation: '!str'
   }
@@ -13,6 +14,7 @@ module UserMutations
     profile_image: 'str',
     login: 'str',
     name: 'str',
+    current_team_id: 'int',
     password: 'str',
     password_confirmation: 'str',
     id: '!id'
