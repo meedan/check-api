@@ -103,9 +103,18 @@ class Ability
     can :read, Project do |project|
       if project.team.private
         tu = TeamUser.where(user_id: @user.id, team_id: project.team.id, status: 'member')
-        project.team.private and !tu.last.nil?
+        !tu.last.nil?
       else
         !project.team.private
+      end
+    end
+    can :read, Media do |media|
+      teams = Team.where(id: media.get_team, private: false).map(&:id)
+      if teams.empty?
+        tu = TeamUser.where(user_id: @user.id, team_id: media.get_team, status: 'member').map(&:id)
+        tu.any?
+      else
+        teams.any?
       end
     end
 

@@ -5,6 +5,7 @@ module ActiveRecordExtensions
     attr_accessor :current_user
     before_save :check_ability
     before_destroy :check_destroy_ability
+    #after_find :check_read_ability
   end
 
   # Used to migrate data from CD2 to this
@@ -49,6 +50,13 @@ module ActiveRecordExtensions
     unless self.current_user.nil?
       ability = Ability.new(self.current_user)
       raise "No permission to delete #{self.class}" unless ability.can?(:destroy, self)
+    end
+  end
+
+  def check_read_ability
+    unless self.current_user.nil?
+      ability = Ability.new(self.current_user)
+      raise "No permission to read #{self.class}" unless ability.can?(:read, self)
     end
   end
 

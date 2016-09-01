@@ -645,4 +645,25 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:read, p3)
   end
 
+  test "non members should not access media in private team" do
+    u = create_user
+    t = create_team private: true
+    tu = create_team_user user: u , team: t
+    ability = Ability.new(u)
+    p = create_project team: t
+    m = create_valid_media
+    create_project_media project: p, media: m
+    assert ability.can?(:read, m)
+    t2 = create_team private: true
+    tu2 = create_team_user user: u , team: t2, status: 'banned'
+    p2 = create_project team: t2
+    m2 = create_valid_media
+    create_project_media project: p2, media: m2
+    assert ability.cannot?(:read, m2)
+    # non private team
+    m3 = create_valid_media
+    create_project_media media: m3
+    assert ability.can?(:read, m3)
+  end
+
 end
