@@ -166,12 +166,30 @@ class UserTest < ActiveSupport::TestCase
     assert_match /user\.png$/, u.profile_image
   end
 
-  test "should have current team" do
+  test "should set current team with one of users team" do
+    u = create_user
+    t = create_team
+    u.teams << t; u.save!
+    u.current_team_id = t.id; u.save!
+    assert_equal u.current_team_id, t.id
+    t2 = create_team
+    assert_raises ActiveRecord::RecordInvalid do
+      u.current_team_id = t2.id
+      u.save!
+    end
+  end
+
+  test "should set and retrieve current team" do
     u = create_user
     assert_nil u.current_team
     t = create_team
-    u.teams << t
+    t2 = create_team
+    u.teams << t; u.save!
+    u.teams << t2; u.save!
+    # test fallback for current team
+    assert_equal t, u.current_team
+    u.current_team_id = t.id
     u.save!
-    assert_equal t, u.reload.current_team
+    assert_equal t, u.current_team
   end
 end
