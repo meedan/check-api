@@ -29,11 +29,6 @@ class User < ActiveRecord::Base
     role.to_s == self.role
   end
 
-  def current_team
-    # Assuming that the current user's team is the first team associated with this user
-    self.teams.first
-  end
-
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
     user = User.where(provider: auth.provider, uuid: auth.uid).first || User.new

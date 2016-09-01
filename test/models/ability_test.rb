@@ -166,16 +166,6 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:destroy, m2)
   end
 
-  test "anonymous permissions for team" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t , role: ''
-    ability = Ability.new(u)
-    assert ability.can?(:create, Team)
-    assert ability.cannot?(:update, t)
-    assert ability.cannot?(:destroy, t)
-  end
-
   test "contributor permissions for team" do
     u = create_user
     t = create_team
@@ -631,13 +621,28 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user user: u , team: t
     ability = Ability.new(u)
     assert ability.can?(:read, t)
-    assert ability.can?(:read, t)
     t2 = create_team private: true
     tu2 = create_team_user user: u , team: t2, status: 'banned'
     assert ability.cannot?(:read, t2)
     # non private team
     t3 = create_team
     assert ability.can?(:read, t3)
+  end
+
+  test "non members should not access project in private team" do
+    u = create_user
+    t = create_team private: true
+    tu = create_team_user user: u , team: t
+    ability = Ability.new(u)
+    p = create_project team: t
+    assert ability.can?(:read, p)
+    t2 = create_team private: true
+    tu2 = create_team_user user: u , team: t2, status: 'banned'
+    p2 = create_project team: t2
+    assert ability.cannot?(:read, p2)
+    # non private team
+    p3 = create_project
+    assert ability.can?(:read, p3)
   end
 
 end

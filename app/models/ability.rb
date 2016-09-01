@@ -33,10 +33,16 @@ class Ability
     can :cud, Media do |media|
       media.get_team.include?@user.current_team.id
     end
-    can :manage, Comment, :get_team => @user.current_team.id
+    can :manage, Comment do |comment|
+      comment.get_team.include?@user.current_team.id
+    end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
-    can :create, Flag, flag: ['Mark as graphic'], :get_team => @user.current_team.id
-    can [:create, :destroy], Status, :get_team => @user.current_team.id
+    can :create, Flag do |flag|
+      flag.get_team.include?@user.current_team.id and (flag.flag.to_s == 'Mark as graphic')
+    end
+    can [:create, :destroy], Status do |status|
+      status.get_team.include?@user.current_team.id
+    end
   end
 
   def editor_perms
@@ -45,10 +51,16 @@ class Ability
     can :cud, Media do |media|
       media.get_team.include?@user.current_team.id
     end
-    can :manage, Comment, :get_team => @user.current_team.id
+    can :manage, Comment do |comment|
+      comment.get_team.include?@user.current_team.id
+    end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor'] }
-    can :create, Flag, flag: ['Mark as graphic'], :get_team => @user.current_team.id
-    can [:create, :destroy], Status, :get_team => @user.current_team.id
+    can :create, Flag do |flag|
+      flag.get_team.include?@user.current_team.id and (flag.flag.to_s == 'Mark as graphic')
+    end
+    can [:create, :destroy], Status do |status|
+      status.get_team.include?@user.current_team.id
+    end
   end
 
   def journalist_perms
@@ -58,9 +70,15 @@ class Ability
       media.get_team.include?@user.current_team.id and (media.user_id == @user.id)
     end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
-    can [:update, :destroy], Flag, :get_team => @user.current_team.id, :annotator_id => @user.id
-    can :create, Flag, flag: ['Mark as graphic'], :get_team => @user.current_team.id
-    can [:create, :destroy], Status, :get_team => @user.current_team.id, :annotator_id => @user.id
+    can [:update, :destroy], Flag do |flag|
+      flag.get_team.include?@user.current_team.id and (flag.annotator_id == @user.id)
+    end
+    can :create, Flag do |flag|
+      flag.get_team.include?@user.current_team.id and (flag.flag.to_s == 'Mark as graphic')
+    end
+    can [:create, :destroy], Status do |status|
+      status.get_team.include?@user.current_team.id and (status.annotator_id == @user.id)
+    end
   end
 
   def contributor_perms
@@ -69,18 +87,28 @@ class Ability
       media.get_team.include?@user.current_team.id and (media.user_id == @user.id)
     end
     can :update, User, :id => @user.id
-    can [:update, :destroy], Media, :get_team => @user.current_team.id, :annotator_id => @user.id
-    can :create, Flag, flag: ['Spam', 'Graphic content'], :get_team => @user.current_team.id
+    can :create, Flag do |flag|
+      flag.get_team.include?@user.current_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
+    end
   end
 
   def anonymous_perms
-    can :create, Team
+
   end
 
   # extra permissions for all users
   def extra_perms
     can :read, Team, :private => false
     can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
+    can :read, Project do |project|
+      if project.team.private
+        tu = TeamUser.where(user_id: @user.id, team_id: project.team.id, status: 'member')
+        project.team.private and !tu.last.nil?
+      else
+        !project.team.private
+      end
+    end
+
   end
 
 end
