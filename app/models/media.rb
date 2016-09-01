@@ -45,9 +45,8 @@ class Media < ActiveRecord::Base
   end
 
   def get_team
-    project = self.projects.last
-    team = project.team unless project.nil?
-    team.id unless team.nil?
+    projects = self.projects.map(&:id)
+    teams = Project.where(:id => projects).map(&:team_id).uniq unless projects.empty?
   end
 
   def associate_to_project
