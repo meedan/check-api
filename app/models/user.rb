@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
 
   after_create :set_image, :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
-  
+
   mount_uploader :image, ImageUploader
   validates :image, size: true
 
@@ -67,8 +67,7 @@ class User < ActiveRecord::Base
   end
 
   def current_team
-    # Assuming that the current user's team is the first team associated with this user
-    self.teams.first
+    ct = Team.where(id: self.current_team_id) unless self.current_team_id.blank?
   end
 
   private
