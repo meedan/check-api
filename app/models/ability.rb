@@ -37,6 +37,7 @@ class Ability
       comment.get_team.include?@user.current_team.id
     end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
+    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor']
     can :create, Flag do |flag|
       flag.get_team.include?@user.current_team.id and (flag.flag.to_s == 'Mark as graphic')
     end
@@ -55,6 +56,7 @@ class Ability
       comment.get_team.include?@user.current_team.id
     end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor'] }
+    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor']
     can :create, Flag do |flag|
       flag.get_team.include?@user.current_team.id and (flag.flag.to_s == 'Mark as graphic')
     end
@@ -70,6 +72,7 @@ class Ability
       media.get_team.include?@user.current_team.id and (media.user_id == @user.id)
     end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
+    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['journalist', 'contributor']
     can [:update, :destroy], Flag do |flag|
       flag.get_team.include?@user.current_team.id and (flag.annotator_id == @user.id)
     end
