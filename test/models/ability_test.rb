@@ -511,6 +511,30 @@ class AbilityTest < ActiveSupport::TestCase
      assert ability.cannot?(:destory, c)
   end
 
+  test "check annotation permissions" do
+    # test the create/update/destroy operations
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t
+    c = create_comment annotated: p, annotator: u
+    c.current_user = u
+    assert_raise RuntimeError do
+        c.text = 'update comment'
+        c.save
+    end
+    assert_raise RuntimeError do
+        c.destroy
+    end
+    tu.role = 'owner'; tu.save!
+    c.text = 'for testing';c.save!
+    assert_equal c.text, 'for testing'
+    assert_nothing_raised RuntimeError do
+        c.destroy
+    end
+  end
+
+
   test "owner permissions for flag" do
     u = create_user
     t = create_team

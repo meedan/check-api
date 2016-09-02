@@ -82,7 +82,8 @@ module AnnotationBase
       reset_changes
     end
 
-    before_save :changes
+    before_save :check_ability, :changes
+    before_destroy :check_destroy_ability
   end
 
   module ClassMethods
@@ -176,6 +177,21 @@ module AnnotationBase
       end
     end
     @changes
+  end
+
+  def check_ability
+   unless self.current_user.nil?
+      ability = Ability.new(self.current_user)
+      op = self.new_record? ? :create : :update
+      raise "No permission to #{op} #{self.class}" unless ability.can?(op, self)
+    end
+  end
+
+  def check_destroy_ability
+    unless self.current_user.nil?
+      ability = Ability.new(self.current_user)
+      raise "No permission to delete #{self.class}" unless ability.can?(:destroy, self)
+    end
   end
 
   def attribute_changed?(attr)
