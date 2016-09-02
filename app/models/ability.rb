@@ -101,6 +101,7 @@ class Ability
 
   # extra permissions for all users
   def extra_perms
+    can :create, User
     can :read, Team, :private => false
     can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
     can :read, Project do |project|
