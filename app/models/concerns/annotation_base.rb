@@ -274,9 +274,14 @@ module AnnotationBase
   end
 
   def get_team
-    obj = self.annotated
+    obj = self.context.nil? ? self.annotated : self.context
     unless obj.nil?
-      case self.annotated_type
+      if self.context.nil?
+        type = self.annotated_type
+      else
+        type = self.context_type
+      end
+      case type
       when 'Media'
         obj.get_team
       when 'Project'

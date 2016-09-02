@@ -615,55 +615,82 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "non members should not access private team" do
+  test "read ability for user in public team" do
     u = create_user
-    t = create_team private: true
-    tu = create_team_user user: u , team: t
+    t1 = create_team
+    tu = create_team_user user: u , team: t1
     ability = Ability.new(u)
-    assert ability.can?(:read, t)
     t2 = create_team private: true
-    tu2 = create_team_user user: u , team: t2, status: 'banned'
-    assert ability.cannot?(:read, t2)
-    # non private team
-    t3 = create_team
-    assert ability.can?(:read, t3)
-  end
-
-  test "non members should not access project in private team" do
-    u = create_user
-    t = create_team private: true
-    tu = create_team_user user: u , team: t
-    ability = Ability.new(u)
-    p = create_project team: t
-    assert ability.can?(:read, p)
-    t2 = create_team private: true
-    tu2 = create_team_user user: u , team: t2, status: 'banned'
-    p2 = create_project team: t2
-    assert ability.cannot?(:read, p2)
-    # non private team
-    p3 = create_project
-    assert ability.can?(:read, p3)
-  end
-
-  test "non members should not access media in private team" do
-    u = create_user
-    t = create_team private: true
-    tu = create_team_user user: u , team: t
-    ability = Ability.new(u)
-    p = create_project team: t
+    pa = create_project team: t1
+    pb = create_project team: t2
     m = create_valid_media
-    create_project_media project: p, media: m
+    create_project_media project: pa, media: m
+    create_project_media project: pb, media: m
+    c1 = create_comment annotated: m, context: pa
+    c2 = create_comment annotated: m, context: pb
+    c3 = create_comment annotated: pa
+    c4 = create_comment annotated: pb
+    assert ability.can?(:read, t1)
+    assert ability.cannot?(:read, t2)
+    assert ability.can?(:read, pa)
+    assert ability.cannot?(:read, pb)
     assert ability.can?(:read, m)
+    assert ability.can?(:read, c1)
+    assert ability.cannot?(:read, c2)
+    assert ability.can?(:read, c3)
+    assert ability.cannot?(:read, c4)
+  end
+
+  test "read ability for user in private team with memeber status" do
+    u = create_user
+    t1 = create_team
     t2 = create_team private: true
-    tu2 = create_team_user user: u , team: t2, status: 'banned'
-    p2 = create_project team: t2
-    m2 = create_valid_media
-    create_project_media project: p2, media: m2
-    assert ability.cannot?(:read, m2)
-    # non private team
-    m3 = create_valid_media
-    create_project_media media: m3
-    assert ability.can?(:read, m3)
+    tu = create_team_user user: u , team: t2
+    ability = Ability.new(u)
+    pa = create_project team: t1
+    pb = create_project team: t2
+    m = create_valid_media
+    create_project_media project: pa, media: m
+    create_project_media project: pb, media: m
+    c1 = create_comment annotated: m, context: pa
+    c2 = create_comment annotated: m, context: pb
+    c3 = create_comment annotated: pa
+    c4 = create_comment annotated: pb
+    assert ability.can?(:read, t1)
+    assert ability.can?(:read, t2)
+    assert ability.can?(:read, pa)
+    assert ability.can?(:read, pb)
+    assert ability.can?(:read, m)
+    assert ability.can?(:read, c1)
+    assert ability.can?(:read, c2)
+    assert ability.can?(:read, c3)
+    assert ability.can?(:read, c4)
+  end
+
+   test "read ability for user in private team with non memeber status" do
+    u = create_user
+    t1 = create_team
+    t2 = create_team private: true
+    tu = create_team_user user: u , team: t2, status: 'banned'
+    ability = Ability.new(u)
+    pa = create_project team: t1
+    pb = create_project team: t2
+    m = create_valid_media
+    create_project_media project: pa, media: m
+    create_project_media project: pb, media: m
+    c1 = create_comment annotated: m, context: pa
+    c2 = create_comment annotated: m, context: pb
+    c3 = create_comment annotated: pa
+    c4 = create_comment annotated: pb
+    assert ability.can?(:read, t1)
+    assert ability.cannot?(:read, t2)
+    assert ability.can?(:read, pa)
+    assert ability.cannot?(:read, pb)
+    assert ability.can?(:read, m)
+    assert ability.can?(:read, c1)
+    assert ability.cannot?(:read, c2)
+    assert ability.can?(:read, c3)
+    assert ability.cannot?(:read, c4)
   end
 
 end

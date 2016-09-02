@@ -108,16 +108,15 @@ class Ability
         !project.team.private
       end
     end
-    can :read, Media do |media|
-      teams = Team.where(id: media.get_team, private: false).map(&:id)
+    can :read, [Media, Comment, Flag, Status] do |obj|
+      teams = Team.where(id: obj.get_team, private: false).map(&:id)
       if teams.empty?
-        tu = TeamUser.where(user_id: @user.id, team_id: media.get_team, status: 'member').map(&:id)
+        tu = TeamUser.where(user_id: @user.id, team_id: obj.get_team, status: 'member').map(&:id)
         tu.any?
       else
         teams.any?
       end
     end
-
   end
 
 end
