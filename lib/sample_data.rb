@@ -59,7 +59,12 @@ module SampleData
   end
 
   def create_comment(options = {})
-    c = Comment.create({ text: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
+    options = { text: random_string(50), annotator: create_user, annotated: create_source }.merge(options)
+    c = Comment.new
+    options.each do |key, value|
+      c.send("#{key}=", value)
+    end
+    c.save!
     sleep 1 if Rails.env.test?
     c.reload
   end
