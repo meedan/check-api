@@ -166,6 +166,15 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:destroy, m2)
   end
 
+  test "authenticated permissions for team" do
+    u = create_user
+    ability = Ability.new(u)
+    assert ability.can?(:create, Team)
+    t = create_team
+    assert ability.cannot?(:update, t)
+    assert ability.cannot?(:destroy, t)
+  end
+
   test "contributor permissions for team" do
     u = create_user
     t = create_team

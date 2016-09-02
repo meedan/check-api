@@ -15,6 +15,8 @@ class Ability
       perms = journalist_perms
     elsif user.has_role? :contributor
       perms = contributor_perms
+    elsif user.id
+      perms = authenticated_perms
     else
       perms = anonymous_perms
     end
@@ -93,6 +95,10 @@ class Ability
     can :create, Flag do |flag|
       flag.get_team.include? @user.current_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
     end
+  end
+
+  def authenticated_perms
+    can :create, Team
   end
 
   def anonymous_perms
