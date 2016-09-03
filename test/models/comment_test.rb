@@ -231,7 +231,7 @@ class CommentTest < ActiveSupport::TestCase
   test "should not destroy comment" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'contributor'
     p = create_project team: t
     c = create_comment annotated: p, current_user: u, annotator: u
     assert_raise RuntimeError do
