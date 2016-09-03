@@ -14,9 +14,13 @@ namespace :lapis do
 
     task create_dev: :environment do
       app = ENV['application']
-      ApiKey.where(access_token: 'dev').destroy_all
+      key_name = case ENV['RAILS_ENV']
+        when 'test' then 'test'
+        when 'development' then 'dev'
+      end
+      ApiKey.where(access_token: key_name).destroy_all
       api_key = ApiKey.create!
-      api_key.access_token = 'dev'
+      api_key.access_token = key_name
       api_key.expire_at = api_key.expire_at.since(100.years)
       api_key.save!
       puts "Created a new API key for #{app} with access token #{api_key.access_token} and that expires at #{api_key.expire_at}"
