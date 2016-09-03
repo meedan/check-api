@@ -216,7 +216,7 @@ module SampleData
     user = options[:user] || create_user
     tu.team_id = options[:team_id] || team.id
     tu.user_id = options[:user_id] || user.id
-    tu.role = options[:role] || 'contributor'
+    tu.role = options[:role]
     tu.status  = options[:status]  || "member"
     tu.save!
     tu.reload

@@ -35,4 +35,18 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
+ test "should set a default value for role if not exist" do
+  tu = create_team_user
+  tu.save!
+  assert_equal tu.role, 'contributor'
+ end
+
+  test "should prevent creating team user with invalid role" do
+    tu = create_team_user
+    tu.role = "invalid role"
+    assert_not tu.save
+    tu.role = "owner"
+    assert tu.save
+  end
+
 end
