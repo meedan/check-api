@@ -221,10 +221,21 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal u2, c.annotator
   end
 
-  test "should set not annotator if set" do
+  test "should not set annotator if set" do
     u1 = create_user
     u2 = create_user
     c = create_comment annotator: u1, current_user: u2
     assert_equal u1, c.annotator
+  end
+
+  test "should not destroy comment" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    c = create_comment annotated: p, current_user: u, annotator: u
+    assert_raise RuntimeError do
+      c.destroy
+    end
   end
 end
