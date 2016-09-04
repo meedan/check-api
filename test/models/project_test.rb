@@ -112,11 +112,10 @@ class ProjectTest < ActiveSupport::TestCase
   test "should assign current team to project" do
     u = create_user
     t = create_team
-    u.teams << t
-    u.save!
+    create_team_user user: u, team: t, role: 'owner'
     p = create_project current_user: nil
     assert_not_equal t, p.team
-    p = create_project current_user: u
+    p = create_project team: t, current_user: u
     assert_equal t, p.team
   end
 
