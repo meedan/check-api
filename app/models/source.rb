@@ -22,13 +22,20 @@ class Source < ActiveRecord::Base
     Media.where(account_id: self.account_ids)
   end
 
+  def get_team
+    teams = []
+    projects = self.projects.map(&:id)
+    teams = Project.where(:id => projects).map(&:team_id).uniq unless projects.empty?
+    return teams
+  end
+
   def image
     self.avatar
   end
 
   def description
     return self.slogan unless self.slogan == self.name
-    self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s 
+    self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
   def collaborators

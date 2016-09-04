@@ -4,6 +4,11 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :project
   belongs_to :media
 
+  def get_team
+    p = self.project
+    [p.team_id]
+  end
+
   def media_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
   end

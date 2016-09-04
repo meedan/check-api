@@ -33,8 +33,12 @@ class Ability
     can :manage, Tag
     can :cud, Team, :id => @user.current_team.id
     can :cud, Project, :team_id => @user.current_team.id
-    can :cud, Media do |media|
-      media.get_team.include? @user.current_team.id
+    can :create, [Media, Account, Source]
+    can [:update, :destroy], [Media, Account, Source] do |obj|
+      obj.get_team.include? @user.current_team.id
+    end
+    can :cud, ProjectMedia do |pm|
+      pm.get_team.include? @user.current_team.id
     end
     can :manage, Comment do |comment|
       comment.get_team.include? @user.current_team.id
@@ -53,8 +57,12 @@ class Ability
     can :manage, Tag
     can [:create, :update], Team, :id => @user.current_team.id
     can :cud, Project, :team_id => @user.current_team.id
-    can :cud, Media do |media|
-      media.get_team.include? @user.current_team.id
+    can :create, [Media, Account, Source]
+    can [:update, :destroy], [Media, Account, Source] do |obj|
+      obj.get_team.include? @user.current_team.id
+    end
+    can :cud, ProjectMedia do |pm|
+      pm.get_team.include? @user.current_team.id
     end
     can :manage, Comment do |comment|
       comment.get_team.include? @user.current_team.id
@@ -70,10 +78,13 @@ class Ability
   end
 
   def journalist_perms
-    can :create, [Team, Project, Media, Comment, Tag]
+    can :create, [Team, Project, Media, Account, Source, Comment, Tag]
     can [:update, :destroy], Project, :team_id => @user.current_team.id, :user_id => @user.id
-    can [:update, :destroy], Media do |media|
-      media.get_team.include? @user.current_team.id and (media.user_id == @user.id)
+    can [:update, :destroy], [Media, Account, Source] do |obj|
+      obj.get_team.include? @user.current_team.id and (obj.user_id == @user.id)
+    end
+    can :cud, ProjectMedia do |pm|
+      pm.get_team.include? @user.current_team.id and (pm.media.user_id == @user.id)
     end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
     can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['journalist', 'contributor']
@@ -89,9 +100,12 @@ class Ability
   end
 
   def contributor_perms
-    can :create, [Team, Media, Comment, Tag]
-    can [:update, :destroy], Media do |media|
-      media.get_team.include? @user.current_team.id and (media.user_id == @user.id)
+    can :create, [Team, Media, Account, Source, Comment, Tag]
+    can [:update, :destroy], [Media, Account, Source] do |obj|
+      obj.get_team.include? @user.current_team.id and (obj.user_id == @user.id)
+    end
+    can :cud, ProjectMedia do |pm|
+      pm.get_team.include? @user.current_team.id and (pm.media.user_id == @user.id)
     end
     can :update, User, :id => @user.id
     can :create, Flag do |flag|
@@ -120,7 +134,7 @@ class Ability
         !project.team.private
       end
     end
-    can :read, [Media, Comment, Flag, Status] do |obj|
+    can :read, [Media, Account, Source, Comment, Flag, Status] do |obj|
       teams = Team.where(id: obj.get_team, private: false).map(&:id)
       if teams.empty?
         tu = TeamUser.where(user_id: @user.id, team_id: obj.get_team, status: 'member').map(&:id)

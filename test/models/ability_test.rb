@@ -73,27 +73,37 @@ class AbilityTest < ActiveSupport::TestCase
   test "contributor permissions for media" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u , role: 'journalist'
+    tu = create_team_user team: t, user: u , role: 'contributor'
     m = create_valid_media
     p = create_project team: t
     pm = create_project_media project: p, media: m
     own_media = create_valid_media user_id: u.id
-    create_project_media project: p, media: own_media
+    own_pm = create_project_media project: p, media: own_media
     ability = Ability.new(u)
     assert ability.can?(:create, Media)
     assert ability.cannot?(:update, m)
     assert ability.can?(:update, own_media)
     assert ability.cannot?(:destroy, m)
     assert ability.can?(:destroy, own_media)
+    # tests for project media
+    assert ability.cannot?(:update, pm)
+    assert ability.can?(:update, own_pm)
+    assert ability.cannot?(:destroy, pm)
+    assert ability.can?(:destroy, own_pm)
     # test medias that related to other instances
     m2 = create_valid_media
-    create_project_media media: m2
+    pm2 = create_project_media media: m2
     own_media = create_valid_media user_id: u.id
-    create_project_media media: own_media
+    pm_own = create_project_media media: own_media
     assert ability.cannot?(:update, m2)
     assert ability.cannot?(:update, own_media)
     assert ability.cannot?(:destroy, m2)
     assert ability.cannot?(:destroy, own_media)
+    # tests for project media
+    assert ability.cannot?(:update, pm2)
+    assert ability.cannot?(:update, pm_own)
+    assert ability.cannot?(:destroy, pm2)
+    assert ability.cannot?(:destroy, pm_own)
   end
 
   test "journalist permissions for media" do
@@ -104,22 +114,32 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: m
     own_media = create_valid_media user_id: u.id
-    create_project_media project: p, media: own_media
+    own_pm = create_project_media project: p, media: own_media
     ability = Ability.new(u)
     assert ability.can?(:create, Media)
     assert ability.cannot?(:update, m)
     assert ability.can?(:update, own_media)
     assert ability.cannot?(:destroy, m)
     assert ability.can?(:destroy, own_media)
+    # tests for project media
+    assert ability.cannot?(:update, pm)
+    assert ability.can?(:update, own_pm)
+    assert ability.cannot?(:destroy, pm)
+    assert ability.can?(:destroy, own_pm)
     # test medias that related to other instances
     m2 = create_valid_media
-    create_project_media media: m2
+    pm2 = create_project_media media: m2
     own_media = create_valid_media user_id: u.id
-    create_project_media media: own_media
+    pm_own = create_project_media media: own_media
     assert ability.cannot?(:update, m2)
     assert ability.cannot?(:update, own_media)
     assert ability.cannot?(:destroy, m2)
     assert ability.cannot?(:destroy, own_media)
+    # tests for project media
+    assert ability.cannot?(:update, pm2)
+    assert ability.cannot?(:update, pm_own)
+    assert ability.cannot?(:destroy, pm2)
+    assert ability.cannot?(:destroy, pm_own)
   end
 
   test "editor permissions for media" do
@@ -130,18 +150,26 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: m
     own_media = create_valid_media user_id: u.id
-    create_project_media project: p, media: own_media
+    own_pm = create_project_media project: p, media: own_media
     ability = Ability.new(u)
     assert ability.can?(:create, Media)
     assert ability.can?(:update, m)
     assert ability.can?(:update, own_media)
     assert ability.can?(:destroy, m)
     assert ability.can?(:destroy, own_media)
+    # tests for project media
+    assert ability.can?(:update, pm)
+    assert ability.can?(:update, own_pm)
+    assert ability.can?(:destroy, pm)
+    assert ability.can?(:destroy, own_pm)
     # test medias that related to other instances
     m2 = create_valid_media
-    create_project_media media: m2
+    pm2 = create_project_media media: m2
     assert ability.cannot?(:update, m2)
     assert ability.cannot?(:destroy, m2)
+    # tests for project media
+    assert ability.cannot?(:update, pm2)
+    assert ability.cannot?(:destroy, pm2)
   end
 
   test "owner permissions for media" do
@@ -152,18 +180,26 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: m
     own_media = create_valid_media user_id: u.id
-    create_project_media project: p, media: own_media
+    own_pm = create_project_media project: p, media: own_media
     ability = Ability.new(u)
     assert ability.can?(:create, Media)
     assert ability.can?(:update, m)
     assert ability.can?(:update, own_media)
     assert ability.can?(:destroy, m)
     assert ability.can?(:destroy, own_media)
+    # tests for project media
+    assert ability.can?(:update, pm)
+    assert ability.can?(:update, own_pm)
+    assert ability.can?(:destroy, pm)
+    assert ability.can?(:destroy, own_pm)
     # test medias that related to other instances
     m2 = create_valid_media
-    create_project_media media: m2
+    pm2 = create_project_media media: m2
     assert ability.cannot?(:update, m2)
     assert ability.cannot?(:destroy, m2)
+    # tests for project media
+    assert ability.cannot?(:update, pm2)
+    assert ability.cannot?(:destroy, pm2)
   end
 
   test "authenticated permissions for team" do
