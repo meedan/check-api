@@ -19,7 +19,7 @@ class User < ActiveRecord::Base
   validate :user_is_member_in_current_team
 
   def role
-    t = current_team
+    t = self.current_team
     tu = TeamUser.where(team_id: t.id, user_id: self.id) unless t.nil?
     user_role = tu.nil? ? nil : tu.last.role
     user_role.to_s

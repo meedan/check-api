@@ -173,7 +173,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal u.role, 'owner'
   end
 
-  test "varify user role" do
+  test "verify user role" do
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t , role: 'owner'
