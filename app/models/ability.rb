@@ -34,7 +34,8 @@ class Ability
     can :cud, Team, :id => @user.current_team.id
     can :cud, Project, :team_id => @user.current_team.id
     can :create, [Media, Account, Source]
-    can [:update, :destroy], [Media, Account, Source] do |obj|
+    can :update, [Account, Source]
+    can [:update, :destroy], Media do |obj|
       obj.get_team.include? @user.current_team.id
     end
     can :cud, ProjectMedia do |pm|
@@ -61,7 +62,8 @@ class Ability
     can [:create, :update], Team, :id => @user.current_team.id
     can :cud, Project, :team_id => @user.current_team.id
     can :create, [Media, Account, Source]
-    can [:update, :destroy], [Media, Account, Source] do |obj|
+    can :update, [Account, Source]
+    can [:update, :destroy], Media do |obj|
       obj.get_team.include? @user.current_team.id
     end
     can :cud, ProjectMedia do |pm|
@@ -86,7 +88,8 @@ class Ability
   def journalist_perms
     can :create, [Team, Project, Media, Account, Source, Comment, Tag]
     can [:update, :destroy], Project, :team_id => @user.current_team.id, :user_id => @user.id
-    can [:update, :destroy], [Media, Account, Source] do |obj|
+    can :update, [Account, Source]
+    can [:update, :destroy], Media do |obj|
       obj.get_team.include? @user.current_team.id and (obj.user_id == @user.id)
     end
     can :cud, ProjectMedia do |pm|
@@ -110,9 +113,10 @@ class Ability
 
   def contributor_perms
     can :create, [Team, Media, Account, Source, Comment, Tag]
-    can [:update, :destroy], [Media, Account, Source] do |obj|
+    can [:update, :destroy], Media do |obj|
       obj.get_team.include? @user.current_team.id and (obj.user_id == @user.id)
     end
+    can :update, [Account, Source]
     can :cud, ProjectMedia do |pm|
       pm.get_team.include? @user.current_team.id and (pm.media.user_id == @user.id)
     end
@@ -146,7 +150,8 @@ class Ability
         !project.team.private
       end
     end
-    can :read, [Media, Account, Source, Comment, Flag, Status] do |obj|
+    can :read, [Account, Source]
+    can :read, [Media, Comment, Flag, Status] do |obj|
       teams = Team.where(id: obj.get_team, private: false).map(&:id)
       if teams.empty?
         tu = TeamUser.where(user_id: @user.id, team_id: obj.get_team, status: 'member').map(&:id)

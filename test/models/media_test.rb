@@ -129,7 +129,10 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should set user" do
     u = create_user
-    m = create_media current_user: u
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    m = create_media project_id: p.id, current_user: u
     assert_equal u, m.user
   end
 
