@@ -222,7 +222,7 @@ class MediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m
     assert_equal m.get_team, t.id
   end
-  
+
   test "should set project" do
     p = create_project
     m = nil
@@ -263,6 +263,16 @@ class MediaTest < ActiveSupport::TestCase
     m = Media.new
     m.url = 'https://www.youtube.com/watch?v=b708rEG7spI'
     assert_equal 'youtube.com', m.domain
+  end
+
+  test "owner should create media" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    assert_nothing_raised RuntimeError do
+      m = create_valid_media project_id: p.id, current_user: u
+    end
   end
 
 end

@@ -17,7 +17,7 @@ class Media < ActiveRecord::Base
   validate :url_is_unique, on: :create
 
   before_validation :set_user, on: :create
-  after_create :set_account, :set_project
+  after_create :set_project, :set_account
   after_rollback :duplicate
 
   if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
