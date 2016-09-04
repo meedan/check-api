@@ -33,6 +33,11 @@ class Account < ActiveRecord::Base
     source.nil? ? nil : source.id
   end
 
+  def get_team
+    s = self.source
+    s.get_team
+  end
+
   private
 
   def create_source

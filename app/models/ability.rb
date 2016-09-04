@@ -40,6 +40,9 @@ class Ability
     can :cud, ProjectMedia do |pm|
       pm.get_team.include? @user.current_team.id
     end
+    can :cud, ProjectSource do |ps|
+      ps.get_team.include? @user.current_team.id
+    end
     can :manage, Comment do |comment|
       comment.get_team.include? @user.current_team.id
     end
@@ -64,6 +67,9 @@ class Ability
     can :cud, ProjectMedia do |pm|
       pm.get_team.include? @user.current_team.id
     end
+    can :cud, ProjectSource do |ps|
+      ps.get_team.include? @user.current_team.id
+    end
     can :manage, Comment do |comment|
       comment.get_team.include? @user.current_team.id
     end
@@ -86,6 +92,9 @@ class Ability
     can :cud, ProjectMedia do |pm|
       pm.get_team.include? @user.current_team.id and (pm.media.user_id == @user.id)
     end
+    can :cud, ProjectSource do |ps|
+      ps.get_team.include? @user.current_team.id and (pm.source.user_id == @user.id)
+    end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
     can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['journalist', 'contributor']
     can [:update, :destroy], Flag do |flag|
@@ -106,6 +115,9 @@ class Ability
     end
     can :cud, ProjectMedia do |pm|
       pm.get_team.include? @user.current_team.id and (pm.media.user_id == @user.id)
+    end
+    can :cud, ProjectSource do |ps|
+      ps.get_team.include? @user.current_team.id and (pm.source.user_id == @user.id)
     end
     can :update, User, :id => @user.id
     can :create, Flag do |flag|
