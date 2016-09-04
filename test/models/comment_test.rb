@@ -244,6 +244,7 @@ class CommentTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'contributor'
     p = create_project team: t
     c = create_comment annotated: p, current_user: u, annotator: u
+    c.current_user = u
     assert_raise RuntimeError do
       c.destroy
     end
