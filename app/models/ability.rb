@@ -31,7 +31,7 @@ class Ability
 
   def owner_perms
     can :manage, Tag
-    can :create, [Team, Media, Account, Source]
+    can :create, [Team, TeamUser, Media, Account, Source]
     can :update, Media, :user_id => @user.id
     can [:update, :destroy], Team, :id => @user.current_team.id
     can :cud, Project, :team_id => @user.current_team.id
@@ -60,7 +60,7 @@ class Ability
 
   def editor_perms
     can :manage, Tag
-    can :create, [Team, Media, Account, Source]
+    can :create, [Team, TeamUser, Media, Account, Source]
     can :update, Team, :id => @user.current_team.id
     can :cud, Project, :team_id => @user.current_team.id
     can :update, [Account, Source]
@@ -87,7 +87,7 @@ class Ability
   end
 
   def journalist_perms
-    can :create, [Team, Project, Media, Account, Source, Comment, Tag]
+    can :create, [Team, TeamUser, Project, Media, Account, Source, Comment, Tag]
     can [:update, :destroy], Project, :team_id => @user.current_team.id, :user_id => @user.id
     can :update, [Account, Source]
     can [:update, :destroy], Media do |obj|
@@ -113,7 +113,7 @@ class Ability
   end
 
   def contributor_perms
-    can :create, [Team, Media, Account, Source, Comment, Tag]
+    can :create, [Team, TeamUser, Media, Account, Source, Comment, Tag]
     can [:update, :destroy], Media do |obj|
       obj.get_team.include? @user.current_team.id and (obj.user_id == @user.id)
     end
