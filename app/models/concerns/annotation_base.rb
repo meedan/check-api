@@ -291,19 +291,12 @@ module AnnotationBase
 
   def get_team
     obj = self.context.nil? ? self.annotated : self.context
+    team = nil
     unless obj.nil?
-      if self.context.nil?
-        type = self.annotated_type
-      else
-        type = self.context_type
-      end
-      case type
-      when 'Media'
-        obj.get_team
-      when 'Project'
-          [obj.team.id]
-      end
+      type = self.context.nil? ? self.annotated_type : self.context_type
+      team = obj.respond_to?(:team) ? [obj.team.id] : obj.get_team
     end
+    team
   end
 
   protected

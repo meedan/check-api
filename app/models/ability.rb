@@ -32,6 +32,7 @@ class Ability
   def owner_perms
     can :manage, Tag
     can :create, [Team, Media, Account, Source]
+    can :update, Media, :user_id => @user.id
     can [:update, :destroy], Team, :id => @user.current_team.id
     can :cud, Project, :team_id => @user.current_team.id
     can :update, [Account, Source]

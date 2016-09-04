@@ -68,30 +68,9 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_destroy('account')
   end
 
-  test "should create API key" do
-    ApiKey.stubs(:applications).returns(['test', nil])
-    assert_graphql_create('api_key', { application: 'test' })
-    ApiKey.unstub(:applications)
-  end
-
-  test "should read API keys" do
-    ApiKey.delete_all
-    assert_graphql_read('api_key', 'application')
-  end
-
-  test "should update API key" do
-    ApiKey.stubs(:applications).returns(['foo', 'bar', nil])
-    assert_graphql_update('api_key', 'application', 'foo', 'bar')
-    ApiKey.unstub(:applications)
-  end
-
-  test "should destroy API key" do
-    assert_graphql_destroy('api_key')
-  end
-
   test "should create comment" do
-    s = create_source
-    assert_graphql_create('comment', { text: 'test', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
+    p = create_project team: @team
+    assert_graphql_create('comment', { text: 'test', annotated_type: 'Project', annotated_id: p.id.to_s }) { sleep 1 }
   end
 
   test "should read comments" do
@@ -298,10 +277,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read statuses" do
     assert_graphql_read('status', 'status') { sleep 1 }
-  end
-
-  test "should update status" do
-    assert_graphql_update('status', 'status', 'Credible', 'Not Credible') { sleep 1 }
   end
 
   test "should destroy status" do

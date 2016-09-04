@@ -36,10 +36,6 @@ MutationType = GraphQL::ObjectType.define do
   field :updateUser, field: UserMutations::Update.field
   field :destroyUser, field: UserMutations::Destroy.field
 
-  field :createApiKey, field: ApiKeyMutations::Create.field
-  field :updateApiKey, field: ApiKeyMutations::Update.field
-  field :destroyApiKey, field: ApiKeyMutations::Destroy.field
-
   field :createTag, field: TagMutations::Create.field
   field :updateTag, field: TagMutations::Update.field
   field :destroyTag, field: TagMutations::Destroy.field

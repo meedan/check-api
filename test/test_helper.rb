@@ -51,6 +51,7 @@ class ActiveSupport::TestCase
     Rails.application.reload_routes!
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
+    @team = create_team
   end
 
   # This will run after any test
@@ -78,6 +79,7 @@ class ActiveSupport::TestCase
   end
 
   def authenticate_with_user(user = create_user)
+    create_team_user user: user, team: @team, role: 'owner'
     @request.env['devise.mapping'] = Devise.mappings[:api_user]
     sign_in user
   end
@@ -127,8 +129,9 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_update(type, attr, from, to)
-    authenticate_with_user
     obj = send("create_#{type}", { attr => from })
+    user = obj.is_a?(User) ? obj : create_user
+    authenticate_with_user(user)
     klass = obj.class.to_s
     assert_equal from, obj.send(attr)
     id = NodeIdentification.to_global_id(klass, obj.id)

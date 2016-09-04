@@ -50,11 +50,6 @@ RootLevelType = GraphQL::ObjectType.define do
       User.all
     }
   end
-  connection :api_keys, ApiKeyType.connection_type do
-    resolve ->(_object, _args, _ctx){
-      ApiKey.all
-    }
-  end
   connection :annotations, AnnotationType.connection_type do
     resolve ->(_object, _args, _ctx){
       Annotation.all_sorted
