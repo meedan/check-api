@@ -43,6 +43,7 @@ module SampleData
     u.password = options[:password] || random_string
     u.password_confirmation = options[:password_confirmation] || u.password
     u.url = options[:url] if options.has_key?(:url)
+    u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
 
     file = nil
     if options.has_key?(:image)
@@ -213,6 +214,14 @@ module SampleData
     pm.media_id = options[:media_id] || media.id
     pm.save!
     pm.reload
+  end
+
+  def create_team_media(options = {})
+    team = options[:team] || create_team
+    project = options[:project] || create_project(team: team)
+    media = options[:media] || create_valid_media
+    create_project_media project: project, media: media
+    media.reload
   end
 
   def create_team_user(options = {})

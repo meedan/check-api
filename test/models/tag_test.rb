@@ -217,14 +217,20 @@ class TagTest < ActiveSupport::TestCase
   test "should set annotator if not set" do
     u1 = create_user
     u2 = create_user
-    t = create_tag annotator: nil, current_user: u2
+    t = create_team
+    create_team_user team: t, user: u2
+    m = create_team_media
+    t = create_tag annotated: m, annotator: nil, current_user: u2
     assert_equal u2, t.annotator
   end
 
   test "should set not annotator if set" do
     u1 = create_user
     u2 = create_user
-    t = create_tag annotator: u1, current_user: u2
+    t = create_team
+    create_team_user team: t, user: u2
+    m = create_team_media
+    t = create_tag annotated: m, annotator: u1, current_user: u2
     assert_equal u1, t.annotator
   end
 

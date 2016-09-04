@@ -25,8 +25,12 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should have text" do
     assert_no_difference 'Comment.count' do
-      create_comment(text: nil)
-      create_comment(text: '')
+      assert_raise RuntimeError do
+        create_comment(text: nil)
+      end
+      assert_raise RuntimeError do
+        create_comment(text: '')
+      end
     end
   end
 
@@ -217,14 +221,20 @@ class CommentTest < ActiveSupport::TestCase
   test "should set annotator if not set" do
     u1 = create_user
     u2 = create_user
-    c = create_comment annotator: nil, current_user: u2
+    t = create_team
+    create_team_user team: t, user: u2, role: 'contributor'
+    m = create_team_media
+    c = create_comment annotated: m, annotator: nil, current_user: u2
     assert_equal u2, c.annotator
   end
 
   test "should not set annotator if set" do
     u1 = create_user
     u2 = create_user
-    c = create_comment annotator: u1, current_user: u2
+    t = create_team
+    create_team_user team: t, user: u2, role: 'contributor'
+    m = create_team_media
+    c = create_comment annotated: m, annotator: u1, current_user: u2
     assert_equal u1, c.annotator
   end
 

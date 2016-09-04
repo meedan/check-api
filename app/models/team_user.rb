@@ -7,7 +7,7 @@ class TeamUser < ActiveRecord::Base
   validates :status, presence: true
   validates :status, inclusion: { in: %w(member requested invited banned),
     message: "%{value} is not a valid team member status" }
-  validates :role, inclusion: { in: %w(owner editor journalist contributor),
+  validates :role, inclusion: { in: %w(admin owner editor journalist contributor),
     message: "%{value} is not a valid team role" }
 
   before_validation :set_role_default_value, on: :create

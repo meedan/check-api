@@ -175,14 +175,20 @@ class FlagTest < ActiveSupport::TestCase
   test "should set annotator if not set" do
     u1 = create_user
     u2 = create_user
-    f =  create_flag annotator: nil, current_user: u2
+    t = create_team
+    create_team_user team: t, user: u2, role: 'contributor'
+    m = create_team_media team: t
+    f =  create_flag annotated: m, annotator: nil, current_user: u2
     assert_equal u2, f.annotator
   end
 
   test "should set not annotator if set" do
     u1 = create_user
     u2 = create_user
-    f =  create_flag annotator: u1, current_user: u2
+    t = create_team
+    create_team_user team: t, user: u2, role: 'contributor'
+    m = create_team_media team: t
+    f =  create_flag annotated: m, annotator: u1, current_user: u2
     assert_equal u1, f.annotator
   end
 
