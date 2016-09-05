@@ -33,14 +33,15 @@ class Ability
   end
 
   def owner_perms
+    can [:create, :update], TeamUser, :team_id => @user.current_team.id, role: ['owner']
     can :update, Media, :user_id => @user.id
     can [:update, :destroy], Team, :id => @user.current_team.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
-    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor']
   end
 
   def editor_perms
     can :update, Team, :id => @user.current_team.id
+    can [:create, :update], TeamUser, :team_id => @user.current_team.id, role: ['editor']
     can [:update, :destroy], Project, :team_id => @user.current_team.id
     can [:update, :destroy], Media do |obj|
       obj.get_team.include? @user.current_team.id
@@ -58,10 +59,10 @@ class Ability
       status.get_team.include? @user.current_team.id
     end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor'] }
-    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor']
   end
 
   def journalist_perms
+    can [:create, :update], TeamUser, :team_id => @user.current_team.id, role: ['journalist', 'contributor']
     can :create, Project
     can [:update, :destroy], Project, :team_id => @user.current_team.id, :user_id => @user.id
     can :manage, Comment do |comment|
@@ -77,11 +78,10 @@ class Ability
       status.get_team.include? @user.current_team.id and (status.annotator_id == @user.id)
     end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
-    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['journalist', 'contributor']
   end
 
   def contributor_perms
-    can :create, [Team, TeamUser, Media, Account, Source, Comment, Tag]
+    can :create, [Media, Account, Source, Comment, Tag]
     can [:update, :destroy], Media do |obj|
       obj.get_team.include? @user.current_team.id and (obj.user_id == @user.id)
     end
@@ -97,6 +97,7 @@ class Ability
 
   def authenticated_perms
     can :create, Team
+    can :create, TeamUser, :user_id => @user.id, status: ['member', 'requested']
   end
 
   # extra permissions for all users

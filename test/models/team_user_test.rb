@@ -49,4 +49,32 @@ class TeamUserTest < ActiveSupport::TestCase
     assert tu.save
   end
 
+  test "should request to join team" do
+    u = create_user
+    tu = create_team_user user: u, current_user: u, status: 'requested'
+    assert_raise RuntimeError do
+      tu = create_team_user current_user: u, status: 'requested'
+    end
+    assert_raise RuntimeError do
+      tu = create_team_user user: u, current_user: u, status: 'invited'
+    end
+  end
+
+  test "should invited and approve users" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    tu = create_team_user team: t, current_user: u, status: 'invited', role: 'contributor'
+    assert_raise RuntimeError do
+      create_team_user team: t, current_user: u, status: 'invited', role: 'owner'
+    end
+    # test approve
+    tu.status = 'member';tu.save!
+    assert_equal tu.status, 'member'
+    create_team_user team: t, current_user: u, status: 'member', role: 'journalist'
+    assert_raise RuntimeError do
+      create_team_user team: t, current_user: u, status: 'member', role: 'owner'
+    end
+  end
+
 end

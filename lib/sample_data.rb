@@ -232,6 +232,7 @@ module SampleData
     tu.user_id = options[:user_id] || user.id
     tu.role = options[:role]
     tu.status  = options[:status]  || "member"
+    tu.current_user = options[:current_user] if options.has_key?(:current_user)
     tu.save!
     tu.reload
   end
