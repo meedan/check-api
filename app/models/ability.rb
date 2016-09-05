@@ -37,7 +37,6 @@ class Ability
     can :destroy, Team, :id => @user.current_team.id
     can [:create, :update], TeamUser, :team_id => @user.current_team.id, role: ['owner']
     can :destroy, Contact, :team_id => @user.current_team.id
-    can :update, Media, :user_id => @user.id
   end
 
   def editor_perms

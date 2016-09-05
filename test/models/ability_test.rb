@@ -261,6 +261,80 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:destroy, t2)
   end
 
+  test "authenticated permissions for teamUser" do
+    u = create_user
+    ability = Ability.new(u)
+    assert ability.can?(:create, TeamUser)
+    tu = create_team_user user: u
+    assert ability.cannot?(:update, tu)
+    assert ability.cannot?(:destroy, tu)
+  end
+
+  test "contributor permissions for teamUser" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'contributor'
+    ability = Ability.new(u)
+    assert ability.can?(:create, Team)
+    assert ability.cannot?(:update, t)
+    assert ability.cannot?(:destroy, t)
+  end
+
+  test "journalist permissions for teamUser" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'journalist'
+    ability = Ability.new(u)
+    assert ability.can?(:create, Team)
+    u2 = create_user
+    tu2 = create_team_user team: t, role: 'contributor'
+    assert ability.can?(:update, tu2)
+    assert ability.cannot?(:destroy, tu2)
+    tu2.role = 'owner'; tu2.save!
+    assert ability.cannot?(:update, tu2)
+    assert ability.cannot?(:destroy, tu2)
+    # test other instances
+    tu_other = create_team_user
+    assert ability.cannot?(:update, tu_other)
+    assert ability.cannot?(:destroy, tu_other)
+  end
+
+  test "editor permissions for teamUser" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'editor'
+    ability = Ability.new(u)
+    assert ability.can?(:create, Team)
+    u2 = create_user
+    tu2 = create_team_user team: t, role: 'contributor'
+    assert ability.can?(:update, tu2)
+    assert ability.cannot?(:destroy, tu2)
+    tu2.role = 'owner'; tu2.save!
+    assert ability.cannot?(:update, tu2)
+    assert ability.cannot?(:destroy, tu2)
+    # test other instances
+    tu_other = create_team_user
+    assert ability.cannot?(:update, tu_other)
+    assert ability.cannot?(:destroy, tu_other)
+  end
+
+  test "owner permissions for teamUser" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'owner'
+    ability = Ability.new(u)
+    assert ability.can?(:create, Team)
+    u2 = create_user
+    tu2 = create_team_user team: t, role: 'editor'
+    assert ability.can?(:update, tu2)
+    assert ability.cannot?(:destroy, tu2)
+    # test other instances
+    tu_other = create_team_user
+    assert ability.cannot?(:update, tu_other)
+    assert ability.cannot?(:destroy, tu_other)
+  end
+
+
   test "authenticated permissions for contact" do
     u = create_user
     ability = Ability.new(u)
@@ -448,7 +522,6 @@ class AbilityTest < ActiveSupport::TestCase
      own_comment = create_comment annotator: u
      p2 = create_project team: t, user: u
      p2.add_annotation own_comment
-     #pp own_comment
      #assert ability.can?(:update, own_comment)
      #assert ability.can?(:destory, own_comment)
      # other instances
@@ -568,7 +641,6 @@ class AbilityTest < ActiveSupport::TestCase
         c.destroy
     end
   end
-
 
   test "owner permissions for flag" do
     u = create_user
@@ -716,31 +788,6 @@ class AbilityTest < ActiveSupport::TestCase
     p.team = nil; p.save!
     assert ability.cannot?(:create, s)
     assert ability.cannot?(:destroy, s)
-  end
-
-  test "check journalist permissions for project" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t, role: 'journalist'
-    p = create_project team: t
-    p.current_user = u
-    own_project = create_project team:t, user: u
-    own_project.current_user = u
-    assert_raise RuntimeError do
-        p.save!
-    end
-    assert_raise RuntimeError do
-       p.destroy!
-    end
-    own_project.title = 'Project A'
-    own_project.save!
-    assert_equal own_project.title, 'Project A'
-    assert_nothing_raised RuntimeError do
-        own_project.save!
-    end
-    assert_nothing_raised RuntimeError do
-        own_project.destroy!
-    end
   end
 
   test "read ability for user in public team" do

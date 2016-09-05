@@ -60,7 +60,7 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should invited and approve users" do
+  test "should invite and approve users" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
