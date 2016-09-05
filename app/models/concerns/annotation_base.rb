@@ -291,9 +291,8 @@ module AnnotationBase
 
   def get_team
     obj = self.context.nil? ? self.annotated : self.context
-    team = nil
+    team = []
     unless obj.nil?
-      type = self.context.nil? ? self.annotated_type : self.context_type
       team = obj.respond_to?(:team) ? [obj.team.id] : obj.get_team
     end
     team

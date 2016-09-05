@@ -582,9 +582,9 @@ class AbilityTest < ActiveSupport::TestCase
     f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: m
     assert ability.can?(:create, f)
     f.flag = 'Graphic content'
-    assert ability.cannot?(:create, f)
+    assert ability.can?(:create, f)
     # test other instances
-    p.team = nil
+    p.team = nil; p.save!
     assert ability.cannot?(:create, f)
   end
 
@@ -599,9 +599,9 @@ class AbilityTest < ActiveSupport::TestCase
     f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: m
     assert ability.can?(:create, f)
     f.flag = 'Graphic content'
-    assert ability.cannot?(:create, f)
+    assert ability.can?(:create, f)
     # test other instances
-    p.team = nil
+    p.team = nil; p.save!
     assert ability.cannot?(:create, f)
   end
 
@@ -616,9 +616,9 @@ class AbilityTest < ActiveSupport::TestCase
     f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: m
     assert ability.can?(:create, f)
     f.flag = 'Graphic content'
-    assert ability.cannot?(:create, f)
+    assert ability.can?(:create, f)
     # test other instances
-    p.team = nil
+    p.team = nil; p.save!
     assert ability.cannot?(:create, f)
   end
 

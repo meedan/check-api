@@ -18,6 +18,11 @@ class User < ActiveRecord::Base
   validates :image, size: true
   validate :user_is_member_in_current_team
 
+  ROLES = %w[contributor journalist editor owner admin]
+  def role?(base_role)
+    ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.empty?
+  end
+
   def role
     t = self.current_team
     tu = TeamUser.where(team_id: t.id, user_id: self.id) unless t.nil?

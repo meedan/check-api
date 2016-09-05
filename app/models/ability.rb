@@ -5,22 +5,25 @@ class Ability
     alias_action :create, :update, :destroy, :to => :cud
     @user = user ||= User.new
     # Define User abilities
-    if user.has_role? :admin
-      perms = global_admin_perms
-    elsif user.has_role? :owner
-      perms = owner_perms
-    elsif user.has_role? :editor
-      perms = editor_perms
-    elsif user.has_role? :journalist
-      perms = journalist_perms
-    elsif user.has_role? :contributor
-      perms = contributor_perms
-    elsif user.id
-      perms = authenticated_perms
-    else
-      perms = anonymous_perms
+    extra_perms_for_all_users
+    if user.role? :admin
+      global_admin_perms
     end
-    return perms, extra_perms
+    if user.role? :owner
+      owner_perms
+    end
+    if user.role? :editor
+      editor_perms
+    end
+    if user.role? :journalist
+      journalist_perms
+    end
+    if user.role? :contributor
+      contributor_perms
+    end
+    if user.id
+      authenticated_perms
+    end
   end
 
   private
@@ -30,86 +33,51 @@ class Ability
   end
 
   def owner_perms
-    can :manage, Tag
-    can :create, [Team, TeamUser, Media, Account, Source]
     can :update, Media, :user_id => @user.id
     can [:update, :destroy], Team, :id => @user.current_team.id
-    can :cud, Project, :team_id => @user.current_team.id
-    can :update, [Account, Source]
-    can [:update, :destroy], Media do |obj|
-      obj.get_team.include? @user.current_team.id
-    end
-    can :cud, ProjectMedia do |pm|
-      pm.get_team.include? @user.current_team.id
-    end
-    can :cud, ProjectSource do |ps|
-      ps.get_team.include? @user.current_team.id
-    end
-    can :manage, Comment do |comment|
-      comment.get_team.include? @user.current_team.id
-    end
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
     can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor']
-    can :create, Flag do |flag|
-      flag.get_team.include? @user.current_team.id and (flag.flag.to_s == 'Mark as graphic')
-    end
-    can [:create, :destroy], Status do |status|
-      status.get_team.include? @user.current_team.id
-    end
   end
 
   def editor_perms
-    can :manage, Tag
-    can :create, [Team, TeamUser, Media, Account, Source]
     can :update, Team, :id => @user.current_team.id
-    can :cud, Project, :team_id => @user.current_team.id
-    can :update, [Account, Source]
+    can [:update, :destroy], Project, :team_id => @user.current_team.id
     can [:update, :destroy], Media do |obj|
       obj.get_team.include? @user.current_team.id
     end
-    can :cud, ProjectMedia do |pm|
-      pm.get_team.include? @user.current_team.id
-    end
-    can :cud, ProjectSource do |ps|
-      ps.get_team.include? @user.current_team.id
+    can :cud, [ProjectMedia, ProjectSource] do |obj|
+      obj.get_team.include? @user.current_team.id
     end
     can :manage, Comment do |comment|
       comment.get_team.include? @user.current_team.id
     end
-    can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor'] }
-    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor']
-    can :create, Flag do |flag|
-      flag.get_team.include? @user.current_team.id and (flag.flag.to_s == 'Mark as graphic')
+    can [:update, :destroy], Flag do |flag|
+      flag.get_team.include? @user.current_team.id
     end
     can [:create, :destroy], Status do |status|
       status.get_team.include? @user.current_team.id
     end
+    can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor'] }
+    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['editor', 'journalist', 'contributor']
   end
 
   def journalist_perms
-    can :create, [Team, TeamUser, Project, Media, Account, Source, Comment, Tag]
+    can :create, Project
     can [:update, :destroy], Project, :team_id => @user.current_team.id, :user_id => @user.id
-    can :update, [Account, Source]
-    can [:update, :destroy], Media do |obj|
-      obj.get_team.include? @user.current_team.id and (obj.user_id == @user.id)
-    end
-    can :cud, ProjectMedia do |pm|
-      pm.get_team.include? @user.current_team.id and (pm.media.user_id == @user.id)
-    end
-    can :cud, ProjectSource do |ps|
-      ps.get_team.include? @user.current_team.id and (pm.source.user_id == @user.id)
-    end
-    can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
-    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['journalist', 'contributor']
-    can [:update, :destroy], Flag do |flag|
-      flag.get_team.include? @user.current_team.id and (flag.annotator_id == @user.id)
+    can :manage, Comment do |comment|
+      comment.get_team.include? @user.current_team.id and (comment.media.user_id == @user.id)
     end
     can :create, Flag do |flag|
       flag.get_team.include? @user.current_team.id and (flag.flag.to_s == 'Mark as graphic')
+    end
+    can [:update, :destroy], Flag do |flag|
+      flag.get_team.include? @user.current_team.id and (flag.annotator_id == @user.id)
     end
     can [:create, :destroy], Status do |status|
       status.get_team.include? @user.current_team.id and (status.annotator_id == @user.id)
     end
+    can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['journalist', 'contributor'] }
+    can [:update, :destroy], TeamUser, :team_id => @user.current_team.id, role: ['journalist', 'contributor']
   end
 
   def contributor_perms
@@ -118,28 +86,21 @@ class Ability
       obj.get_team.include? @user.current_team.id and (obj.user_id == @user.id)
     end
     can :update, [Account, Source]
-    can :cud, ProjectMedia do |pm|
-      pm.get_team.include? @user.current_team.id and (pm.media.user_id == @user.id)
+    can :cud, [ProjectMedia, ProjectSource] do |obj|
+      obj.get_team.include? @user.current_team.id and (obj.media.user_id == @user.id)
     end
-    can :cud, ProjectSource do |ps|
-      ps.get_team.include? @user.current_team.id and (pm.source.user_id == @user.id)
-    end
-    can :update, User, :id => @user.id
     can :create, Flag do |flag|
       flag.get_team.include? @user.current_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
     end
+    can :update, User, :id => @user.id
   end
 
   def authenticated_perms
     can :create, Team
   end
 
-  def anonymous_perms
-
-  end
-
   # extra permissions for all users
-  def extra_perms
+  def extra_perms_for_all_users
     can :create, User
     can :read, Team, :private => false
     can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
