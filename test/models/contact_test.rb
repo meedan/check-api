@@ -6,6 +6,37 @@ class ContactTest < ActiveSupport::TestCase
     assert_difference 'Contact.count' do
       create_contact
     end
+    assert_difference 'Contact.count' do
+      u = create_user
+      t = create_team current_user: u
+      create_contact team: t, current_user: u
+    end
+  end
+
+  test "should update and destroy contact" do
+    u = create_user
+    t = create_team current_user: u
+    c = create_contact team: t, current_user: u
+    c.current_user = u
+    c.location = 'location'; c.save!
+    c.reload
+    assert_equal c.location, 'location'
+    # update contact as editor
+    u2 = create_user
+    tu = create_team_user team: t, user: u2, role: 'editor'
+    c.current_user = u2
+    c.location = 'location_mod'; c.save!
+    c.reload
+    assert_equal c.location, 'location_mod'
+    assert_raise RuntimeError do
+      c.current_user = u2
+      c.destroy
+    end
+    tu.role = 'journalist'; tu.save!
+    assert_raise RuntimeError do
+      c.current_user = u2
+      c.save!
+    end
   end
 
   test "should relate contacts to team" do

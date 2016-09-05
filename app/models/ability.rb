@@ -35,6 +35,7 @@ class Ability
   def owner_perms
     can :destroy, Team, :id => @user.current_team.id
     can [:create, :update], TeamUser, :team_id => @user.current_team.id, role: ['owner']
+    can :destroy, Contact, :team_id => @user.current_team.id
     can :update, Media, :user_id => @user.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
   end
@@ -42,6 +43,7 @@ class Ability
   def editor_perms
     can :update, Team, :id => @user.current_team.id
     can [:create, :update], TeamUser, :team_id => @user.current_team.id, role: ['editor']
+    can [:create, :update], Contact, :team_id => @user.current_team.id
     can [:update, :destroy], Project, :team_id => @user.current_team.id
     can [:update, :destroy], Media do |obj|
       obj.get_team.include? @user.current_team.id

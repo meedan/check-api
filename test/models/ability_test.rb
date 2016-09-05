@@ -259,7 +259,66 @@ class AbilityTest < ActiveSupport::TestCase
     tu_test = create_team_user team: t2, role: 'owner'
     assert ability.cannot?(:update, t2)
     assert ability.cannot?(:destroy, t2)
+  end
 
+  test "authenticated permissions for contact" do
+    u = create_user
+    ability = Ability.new(u)
+    assert ability.cannot?(:create, Contact)
+    c = create_contact
+    assert ability.cannot?(:update, c)
+    assert ability.cannot?(:destroy, c)
+  end
+
+  test "contributor permissions for contact" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'contributor'
+    ability = Ability.new(u)
+    c = create_contact team: t
+    assert ability.cannot?(:create, Contact)
+    assert ability.cannot?(:update, c)
+    assert ability.cannot?(:destroy, c)
+  end
+
+  test "journalist permissions for contact" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'journalist'
+    ability = Ability.new(u)
+    c = create_contact team: t
+    assert ability.cannot?(:create, Contact)
+    assert ability.cannot?(:update, c)
+    assert ability.cannot?(:destroy, c)
+  end
+
+  test "editor permissions for contact" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'editor'
+    ability = Ability.new(u)
+    c = create_contact team: t
+    assert ability.can?(:create, Contact)
+    assert ability.can?(:update, c)
+    assert ability.cannot?(:destroy, c)
+    # test other instances
+    c1 = create_contact
+    assert ability.cannot?(:update, c1)
+  end
+
+  test "owner permissions for contact" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t , role: 'owner'
+    ability = Ability.new(u)
+    c = create_contact team: t
+    assert ability.can?(:create, Contact)
+    assert ability.can?(:update, c)
+    assert ability.can?(:destroy, c)
+    # test other instances
+    c1 = create_contact
+    assert ability.cannot?(:update, c1)
+    assert ability.cannot?(:destroy, c1)
   end
 
   test "contributor permissions for user" do

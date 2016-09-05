@@ -264,6 +264,7 @@ module SampleData
     else
       contact.team = options[:team] || create_team
     end
+    contact.current_user = options[:current_user] if options.has_key?(:current_user)
     contact.save!
     contact.reload
   end
