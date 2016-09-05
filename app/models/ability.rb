@@ -88,7 +88,10 @@ class Ability
       obj.get_team.include? @user.current_team.id and (obj.user_id == @user.id)
     end
     can :update, [Account, Source]
-    can :cud, [ProjectMedia, ProjectSource] do |obj|
+    can :cud, ProjectSource do |obj|
+      obj.get_team.include? @user.current_team.id
+    end
+    can :cud, ProjectMedia do |obj|
       obj.get_team.include? @user.current_team.id and (obj.media.user_id == @user.id)
     end
     can :create, Flag do |flag|

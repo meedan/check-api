@@ -96,7 +96,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pender_url = CONFIG['pender_host'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    assert_graphql_create('media', { url: url })
+    assert_graphql_create('media', { url: url, project_id: @project.id })
   end
 
   test "should read medias" do
@@ -117,7 +117,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should create project source" do
     s = create_source
-    p = create_project
+    p = create_project team: @team
     assert_graphql_create('project_source', { source_id: s.id, project_id: p.id })
   end
 
@@ -126,9 +126,9 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should update project source" do
-    s1 = create_source
-    s2 = create_source
-    assert_graphql_update('project_source', :source_id, s1.id, s2.id)
+    p1 = create_project team: @team
+    p2 = create_project team: @team
+    assert_graphql_update('project_source', :project_id, p1.id, p2.id)
   end
 
   test "should destroy project source" do
@@ -185,9 +185,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create team user" do
-    t = create_team
     u = create_user
-    assert_graphql_create('team_user', { team_id: t.id, user_id: u.id, status: 'member' })
+    assert_graphql_create('team_user', { team_id: @team.id, user_id: u.id, status: 'member' })
   end
 
   test "should read team user" do
@@ -195,17 +194,12 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should update team user" do
-    t1 = create_team
-    t2 = create_team
-    assert_graphql_update('team_user', :team_id, t1.id, t2.id)
+    t = create_team
+    assert_graphql_update('team_user', :team_id, t.id, @team.id)
   end
 
   test "should destroy team user" do
     assert_graphql_destroy('team_user')
-  end
-
-  test "should create user" do
-    assert_graphql_create('user', { email: 'user@test.test', login: 'test', name: 'Test', password: '12345678', password_confirmation: '12345678' })
   end
 
   test "should read user" do
@@ -278,6 +272,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should create status" do
     s = create_source
+    p = create_project team: @team
+    create_project_source project: p, source: s
     assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
   end
 
@@ -296,10 +292,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read tags" do
     assert_graphql_read('tag', 'tag') { sleep 1 }
-  end
-
-  test "should update tag" do
-    assert_graphql_update('tag', 'tag', 'egypt', 'Egypt') { sleep 1 }
   end
 
   test "should destroy tag" do
@@ -351,8 +343,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create contact" do
-    t = create_team
-    assert_graphql_create('contact', { location: 'my location', phone: '00201099998888', team_id: t.id })
+    assert_graphql_create('contact', { location: 'my location', phone: '00201099998888', team_id: @team.id })
   end
 
   test "should read contact" do

@@ -63,8 +63,11 @@ module SampleData
   def create_comment(options = {})
     options = { text: random_string(50), annotator: create_user, annotated: create_source }.merge(options)
     c = Comment.new
+    if options.has_key?(:team)
+      options[:context] = create_project(team: options[:team])
+    end
     options.each do |key, value|
-      c.send("#{key}=", value)
+      c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
     c.save!
     sleep 1 if Rails.env.test?
@@ -143,7 +146,8 @@ module SampleData
     end
     project.archived = options[:archived] || false
     project.current_user = options[:current_user] if options.has_key?(:current_user)
-    project.team = options[:team] || create_team
+    team = options[:team] || create_team
+    project.team_id = options[:team_id] || team.id
     project.save!
     project.reload
   end
@@ -178,6 +182,9 @@ module SampleData
     m.account_id = options.has_key?(:account_id) ? options[:account_id] : account.id
     m.current_user = options[:current_user] if options.has_key?(:current_user)
     m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
+    if options.has_key?(:team)
+      options[:project_id] = create_project(team: options[:team]).id
+    end
     m.project_id = options[:project_id]
     m.save!
     if options.has_key?(:data)

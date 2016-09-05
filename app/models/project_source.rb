@@ -8,5 +8,4 @@ class ProjectSource < ActiveRecord::Base
     p = self.project
     [p.team_id]
   end
-
 end

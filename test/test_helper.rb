@@ -52,6 +52,7 @@ class ActiveSupport::TestCase
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
     @team = create_team
+    @project = create_project team: @team
   end
 
   # This will run after any test
@@ -79,7 +80,7 @@ class ActiveSupport::TestCase
   end
 
   def authenticate_with_user(user = create_user)
-    create_team_user user: user, team: @team, role: 'owner'
+    create_team_user(user: user, team: @team, role: 'owner') if user.current_team.nil?
     @request.env['devise.mapping'] = Devise.mappings[:api_user]
     sign_in user
   end
@@ -113,8 +114,8 @@ class ActiveSupport::TestCase
     klass = type.camelize.constantize
     u = create_user
     klass.delete_all
-    x1 = send("create_#{type}")
-    x2 = send("create_#{type}")
+    x1 = send("create_#{type}", { team: @team })
+    x2 = send("create_#{type}", { team: @team })
     user = type == 'user' ? x1 : u
     authenticate_with_user(user)
     query = "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
@@ -129,9 +130,11 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_update(type, attr, from, to)
-    obj = send("create_#{type}", { attr => from })
+    obj = send("create_#{type}", { team: @team }.merge({ attr => from }))
     user = obj.is_a?(User) ? obj : create_user
+    create_team_user(user: user, team: obj, role: 'owner') if obj.is_a?(Team)
     authenticate_with_user(user)
+
     klass = obj.class.to_s
     assert_equal from, obj.send(attr)
     id = NodeIdentification.to_global_id(klass, obj.id)
@@ -146,7 +149,7 @@ class ActiveSupport::TestCase
 
   def assert_graphql_destroy(type)
     authenticate_with_user
-    obj = send("create_#{type}")
+    obj = send("create_#{type}", { team: @team })
     klass = obj.class.name
     id = NodeIdentification.to_global_id(klass, obj.id)
     query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
@@ -186,7 +189,7 @@ class ActiveSupport::TestCase
     yield if block_given?
     
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    assert_equal 2, edges.size
+    assert_equal type.camelize.constantize.count, edges.size
     
     fields.each { |name, key| assert_equal x1.send(name).send(key), edges[0]['node'][name][key] }
     fields.each { |name, key| assert_equal x2.send(name).send(key), edges[1]['node'][name][key] }
