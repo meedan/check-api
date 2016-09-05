@@ -33,9 +33,9 @@ class Ability
   end
 
   def owner_perms
+    can :destroy, Team, :id => @user.current_team.id
     can [:create, :update], TeamUser, :team_id => @user.current_team.id, role: ['owner']
     can :update, Media, :user_id => @user.id
-    can [:update, :destroy], Team, :id => @user.current_team.id
     can [:update, :destroy], User, :team_users => { :team_id => @user.current_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
   end
 

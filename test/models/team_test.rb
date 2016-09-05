@@ -5,6 +5,36 @@ class TeamTest < ActiveSupport::TestCase
     assert_difference 'Team.count' do
       create_team
     end
+    assert_difference 'Team.count' do
+      u = create_user
+      create_team current_user: u
+    end
+  end
+
+  test "should update and destroy team" do
+    u = create_user
+    t = create_team current_user: u
+    t.current_user = u
+    t.name = 'meedan'; t.save!
+    t.reload
+    assert_equal t.name, 'meedan'
+    # update team as editor
+    u2 = create_user
+    tu = create_team_user team: t, user: u2, role: 'editor'
+    t.current_user = u2
+    t.name = 'meedan_mod'; t.save!
+    t.reload
+    assert_equal t.name, 'meedan_mod'
+    assert_raise RuntimeError do
+      t.current_user = u2
+      t.destroy
+    end
+    tu.role = 'journalist'; tu.save!
+    assert_raise RuntimeError do
+      t.current_user = u2
+      t.save!
+    end
+
   end
 
   test "should not save team without name" do
