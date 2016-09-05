@@ -228,4 +228,13 @@ class UserTest < ActiveSupport::TestCase
     assert_equal t, u.current_team
   end
 
+  test "should get user teams" do
+     u = create_user
+     t1 = create_team
+     create_team_user team: t1, user: u
+     t2 = create_team
+     create_team_user team: t2, user: u, status: 'requested'
+     assert_equal [t1.name, t2.name], JSON.parse(u.user_teams).keys
+  end
+
 end
