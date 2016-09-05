@@ -46,6 +46,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Test User', data['name']
   end
 
+  test "should return 404 if object does not exist" do
+    authenticate_with_user
+    post :create, query: 'query GetById { media(id: "999999999999999999999999999") { id } }'
+    assert_response 404
+  end
+
   # Test CRUD operations for each model
 
   test "should create account" do

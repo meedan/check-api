@@ -16,6 +16,8 @@ module Api
           render json: query.result
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique => e
           render json: { error: e.message }, status: 400
+        rescue ActiveRecord::RecordNotFound => e
+          render json: { error: e.message }, status: 404
         end
       end
     end
