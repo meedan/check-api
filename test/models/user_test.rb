@@ -8,6 +8,26 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should update and destroy user" do
+    u = create_user
+    t = create_team current_user: u
+    u2 = create_user current_user: u
+    create_team_user team: t, user: u2, role: 'editor'
+    u2.current_user = u
+    u2.save!
+    # update user as editor
+    assert_raise RuntimeError do
+      u.current_user = u2
+      u.save!
+    end
+    assert_raise RuntimeError do
+      u.current_user = u2
+      u.save!
+    end
+    u2.current_user = u
+    u2.destroy
+  end
+
   test "should not require password if there is a provider" do
     assert_nothing_raised do
       create_user password: '', provider: 'twitter'

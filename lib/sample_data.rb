@@ -44,6 +44,7 @@ module SampleData
     u.password_confirmation = options[:password_confirmation] || u.password
     u.url = options[:url] if options.has_key?(:url)
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
+    u.current_user = options[:current_user] if options.has_key?(:current_user)
 
     file = nil
     if options.has_key?(:image)

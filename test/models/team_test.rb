@@ -34,14 +34,13 @@ class TeamTest < ActiveSupport::TestCase
       t.current_user = u2
       t.save!
     end
-
   end
 
   test "should not save team without name" do
     t = Team.new
     assert_not t.save
-
   end
+
   test "should not save team with invalid subdomains" do
     t = create_team
     t.subdomain = ""
