@@ -14,3 +14,4 @@ exclude_paths:
 - "db/migrate"
 - "app/graphql"
 - "doc"
+- "app/models/ability.rb"

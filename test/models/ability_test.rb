@@ -659,40 +659,6 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:create, f)
   end
 
-  test "editor permissions for flag" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'editor'
-    ability = Ability.new(u)
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: m
-    assert ability.can?(:create, f)
-    f.flag = 'Graphic content'
-    assert ability.can?(:create, f)
-    # test other instances
-    p.team = nil; p.save!
-    assert ability.cannot?(:create, f)
-  end
-
-  test "journalist permissions for flag" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    ability = Ability.new(u)
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    f =  create_flag flag: 'Mark as graphic', annotator: u, annotated: m
-    assert ability.can?(:create, f)
-    f.flag = 'Graphic content'
-    assert ability.can?(:create, f)
-    # test other instances
-    p.team = nil; p.save!
-    assert ability.cannot?(:create, f)
-  end
-
   test "contributor permissions for flag" do
     u = create_user
     t = create_team
@@ -842,7 +808,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:read, c4)
   end
 
-   test "read ability for user in private team with non memeber status" do
+  test "read ability for user in private team with non memeber status" do
     u = create_user
     t1 = create_team
     t2 = create_team private: true
@@ -868,4 +834,69 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:read, c4)
   end
 
+  test "admins can do anything" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t, role: 'admin'
+    p = create_project team: t
+    own_project = create_project team: t, user: u
+    ability = Ability.new(u)
+    assert ability.can?(:create, Project)
+    assert ability.can?(:update, p)
+    assert ability.can?(:update, own_project)
+    assert ability.can?(:destroy, p)
+    assert ability.can?(:destroy, own_project)
+    p2 = create_project
+    assert ability.can?(:update, p2)
+    assert ability.can?(:destroy, p2)
+  end
+
+  test "editor permissions for flag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    f = create_flag flag: 'Mark as graphic', annotator: u, annotated: m
+    ability = Ability.new(u)
+    assert ability.can?(:update, f)
+    assert ability.can?(:destroy, f)
+    p.team = nil; p.save!
+    assert ability.cannot?(:update, f)
+    assert ability.cannot?(:destroy, f)
+  end
+
+  test "journalist permissions for flag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    f = create_flag flag: 'Mark as graphic', annotator: u, annotated: m
+    ability = Ability.new(u)
+    assert ability.can?(:update, f)
+    assert ability.can?(:destroy, f)
+    p.team = nil; p.save!
+    assert ability.cannot?(:update, f)
+    assert ability.cannot?(:destroy, f)
+  end
+
+  test "contributor permissions for project source" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t, role: 'contributor'
+    p1 = create_project team: t
+    p2 = create_project
+    ps1 = create_project_source project: p1
+    ps2 = create_project_source project: p2
+    ability = Ability.new(u)
+    assert ability.can?(:create, ps1)
+    assert ability.can?(:update, ps1)
+    assert ability.can?(:destroy, ps1)
+    assert ability.cannot?(:create, ps2)
+    assert ability.cannot?(:update, ps2)
+    assert ability.cannot?(:destroy, ps2)
+  end
 end

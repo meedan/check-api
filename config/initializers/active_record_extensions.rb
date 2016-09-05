@@ -2,7 +2,10 @@ module ActiveRecordExtensions
   extend ActiveSupport::Concern
 
   included do
+    include CheckdeskPermissions
+
     attr_accessor :current_user
+
     before_save :check_ability
     before_destroy :check_destroy_ability
     # after_find :check_read_ability
@@ -35,31 +38,6 @@ module ActiveRecordExtensions
   def is_annotation?
     false
   end
-
-  private
-
-  def check_ability
-   unless self.current_user.nil?
-      ability = Ability.new(self.current_user)
-      op = self.new_record? ? :create : :update
-      raise "No permission to #{op} #{self.class}" unless ability.can?(op, self)
-    end
-  end
-
-  def check_destroy_ability
-    unless self.current_user.nil?
-      ability = Ability.new(self.current_user)
-      raise "No permission to delete #{self.class}" unless ability.can?(:destroy, self)
-    end
-  end
-
-  # def check_read_ability
-  #   unless self.current_user.nil?
-  #     ability = Ability.new(self.current_user)
-  #     raise "No permission to read #{self.class}" unless ability.can?(:read, self)
-  #   end
-  # end
-
 end
 
 ActiveRecord::Base.send(:include, ActiveRecordExtensions)
