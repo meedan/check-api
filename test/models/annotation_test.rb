@@ -71,10 +71,10 @@ class CommentTest < ActiveSupport::TestCase
     p.add_annotation pc
     pm = create_project_media project: p, media: m
     m.add_annotation mc
-    assert_equal pc.get_team, t.id
-    assert_equal mc.get_team, t.id
+    assert_equal pc.get_team, [t.id]
+    assert_equal mc.get_team, [t.id]
     c = create_comment
-    assert_nil c.get_team
+    assert_empty c.get_team
   end
 
   test "should have number of annotations" do
