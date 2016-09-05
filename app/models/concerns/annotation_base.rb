@@ -60,7 +60,7 @@ module AnnotationBase
     include ActiveModel::Validations
     include PaperTrail::Model
 
-    index_name [Rails.application.engine_name, Rails.env, 'annotations'].join('_')
+    index_name CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
     document_type 'annotation'
 
     attribute :annotation_type, String

@@ -21,6 +21,7 @@ development: &default
   gmail_username: # In order to use GMail's SMTP
   gmail_password: # In order to use GMail's SMTP
   send_welcome_email_on_registration: false
+  elasticsearch_index:
 
 test:
   <<: *default
