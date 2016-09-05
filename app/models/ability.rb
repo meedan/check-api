@@ -6,23 +6,23 @@ class Ability
     @user = user ||= User.new
     # Define User abilities
     extra_perms_for_all_users
-    if user.role? :admin
-      global_admin_perms
-    end
-    if user.role? :owner
-      owner_perms
-    end
-    if user.role? :editor
-      editor_perms
-    end
-    if user.role? :journalist
-      journalist_perms
+    if user.id
+      authenticated_perms
     end
     if user.role? :contributor
       contributor_perms
     end
-    if user.id
-      authenticated_perms
+    if user.role? :journalist
+      journalist_perms
+    end
+    if user.role? :editor
+      editor_perms
+    end
+    if user.role? :owner
+      owner_perms
+    end
+    if user.role? :admin
+      global_admin_perms
     end
   end
 
