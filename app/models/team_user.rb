@@ -20,6 +20,15 @@ class TeamUser < ActiveRecord::Base
     mapping_ids[value]
   end
 
+  def as_json(_options = {})
+    {
+      id: self.team.id,
+      name: self.team.name,
+      role: self.role,
+      status: self.status
+    }
+  end
+
   private
 
   def set_role_default_value

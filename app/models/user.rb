@@ -71,7 +71,9 @@ class User < ActiveRecord::Base
       uuid: self.uuid,
       provider: self.provider,
       token: self.token,
-      current_team: self.current_team
+      current_team: self.current_team,
+      teams: self.teams,
+      pending_teams: self.teams('requested')
     }
   end
 
@@ -89,6 +91,19 @@ class User < ActiveRecord::Base
     else
       Team.where(id: self.current_team_id).last
     end
+  end
+
+  def teams(type = nil)
+    if type.nil?
+      team_users = TeamUser.where(user_id: self.id)
+    else
+      team_users = TeamUser.where(user_id: self.id, status: type)
+    end
+    teams = Hash.new
+    team_users.each do |tu|
+      teams[tu.team.name] = tu.as_json
+    end
+    teams.to_json
   end
 
   private
