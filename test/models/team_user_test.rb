@@ -26,11 +26,11 @@ class TeamUserTest < ActiveSupport::TestCase
     assert_equal 2, tu.team_id_callback(1, [1, 2, 3])
   end
 
-  test "should not duplicate team and user [DB validation]" do
+  test "should not duplicate team and user" do
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u
-    assert_raises ActiveRecord::RecordNotUnique do
+    assert_raises ActiveRecord::RecordInvalid do
       create_team_user team: t, user: u
     end
   end
