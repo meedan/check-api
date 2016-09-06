@@ -16,6 +16,13 @@ class CommentTest < ActiveSupport::TestCase
     assert_difference 'Comment.count' do
       create_comment(text: 'test')
     end
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'contributor'
+    p = create_valid_media team: t, current_user: u
+    assert_difference 'Comment.count' do
+      create_comment annotated: p, current_user: u, annotator: u
+    end
   end
 
   test "should set type automatically" do
@@ -223,7 +230,7 @@ class CommentTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'contributor'
-    m = create_team_media
+    m = create_valid_media team: t, current_user: u
     c = create_comment annotated: m, annotator: nil, current_user: u2
     assert_equal u2, c.annotator
   end
@@ -233,7 +240,7 @@ class CommentTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'contributor'
-    m = create_team_media
+    m = create_valid_media team: t, current_user: u
     c = create_comment annotated: m, annotator: u1, current_user: u2
     assert_equal u1, c.annotator
   end
