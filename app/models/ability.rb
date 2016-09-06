@@ -89,7 +89,7 @@ class Ability
     end
     can :update, [Account, Source]
     can :cud, ProjectSource do |obj|
-      obj.get_team.include? @user.current_team.id
+      obj.get_team.include? @user.current_team.id and (obj.source.user_id == @user.id)
     end
     can :cud, ProjectMedia do |obj|
       obj.get_team.include? @user.current_team.id and (obj.media.user_id == @user.id)
