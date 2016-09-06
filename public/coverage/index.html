@@ -14,7 +14,7 @@
       <img src="./assets/0.10.0/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" style="display:none;">
-      <div class="timestamp">Generated <abbr class="timeago" title="2016-09-05T18:43:44-03:00">2016-09-05T18:43:44-03:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2016-09-05T22:13:29-03:00">2016-09-05T22:13:29-03:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
@@ -623,7 +623,7 @@
       <tr>
         <td class="strong"><a href="#2ff7b80c00a5ff7cf5f01a879f83114dd3dd19cf" class="src_link" title="app/models/project.rb">app/models/project.rb</a></td>
         <td class="green strong">100.0 %</td>
-        <td>51</td>
+        <td>54</td>
         <td>28</td>
         <td>28</td>
         <td>0</td>
@@ -673,7 +673,7 @@
       <tr>
         <td class="strong"><a href="#4c3b580a8e85fe2ecc67a93da50f020707d6b2ac" class="src_link" title="app/models/team.rb">app/models/team.rb</a></td>
         <td class="green strong">100.0 %</td>
-        <td>59</td>
+        <td>60</td>
         <td>35</td>
         <td>35</td>
         <td>0</td>
@@ -1088,7 +1088,7 @@
       <tr>
         <td class="strong"><a href="#2ff7b80c00a5ff7cf5f01a879f83114dd3dd19cf" class="src_link" title="app/models/project.rb">app/models/project.rb</a></td>
         <td class="green strong">100.0 %</td>
-        <td>51</td>
+        <td>54</td>
         <td>28</td>
         <td>28</td>
         <td>0</td>
@@ -1138,7 +1138,7 @@
       <tr>
         <td class="strong"><a href="#4c3b580a8e85fe2ecc67a93da50f020707d6b2ac" class="src_link" title="app/models/team.rb">app/models/team.rb</a></td>
         <td class="green strong">100.0 %</td>
-        <td>59</td>
+        <td>60</td>
         <td>35</td>
         <td>35</td>
         <td>0</td>
@@ -12915,8 +12915,8 @@
           <code class="ruby">  def self.applications</code>
         </li>
       
-        <li class="covered" data-hits="5" data-linenumber="12">
-          <span class="hits">5</span>
+        <li class="covered" data-hits="4" data-linenumber="12">
+          <span class="hits">4</span>
           
           <code class="ruby">    [nil]</code>
         </li>
@@ -16206,64 +16206,82 @@
         <li class="never" data-hits="" data-linenumber="41">
           
           
-          <code class="ruby">      id: Base64.encode64(&quot;Project/#{self.id}&quot;) </code>
+          <code class="ruby">      id: Base64.encode64(&quot;Project/#{self.id}&quot;),</code>
         </li>
       
-        <li class="covered" data-hits="3" data-linenumber="42">
-          <span class="hits">3</span>
+        <li class="never" data-hits="" data-linenumber="42">
           
-          <code class="ruby">    }</code>
+          
+          <code class="ruby">      team: {</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="43">
           
           
-          <code class="ruby">  end</code>
+          <code class="ruby">        dbid: self.team_id</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="44">
           
           
-          <code class="ruby"></code>
+          <code class="ruby">      }</code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="45">
-          <span class="hits">1</span>
+        <li class="covered" data-hits="3" data-linenumber="45">
+          <span class="hits">3</span>
           
-          <code class="ruby">  private</code>
+          <code class="ruby">    }</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="46">
           
           
+          <code class="ruby">  end</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="47">
+          
+          
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="47">
+        <li class="covered" data-hits="1" data-linenumber="48">
+          <span class="hits">1</span>
+          
+          <code class="ruby">  private</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="49">
+          
+          
+          <code class="ruby"></code>
+        </li>
+      
+        <li class="covered" data-hits="1" data-linenumber="50">
           <span class="hits">1</span>
           
           <code class="ruby">  def set_description_and_team</code>
         </li>
       
-        <li class="covered" data-hits="566" data-linenumber="48">
+        <li class="covered" data-hits="566" data-linenumber="51">
           <span class="hits">566</span>
           
           <code class="ruby">    self.description ||= &#39;&#39;</code>
         </li>
       
-        <li class="covered" data-hits="566" data-linenumber="49">
+        <li class="covered" data-hits="566" data-linenumber="52">
           <span class="hits">566</span>
           
           <code class="ruby">    self.team = self.current_user.current_team unless self.current_user.nil?</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="50">
+        <li class="never" data-hits="" data-linenumber="53">
           
           
           <code class="ruby">  end</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="51">
+        <li class="never" data-hits="" data-linenumber="54">
           
           
           <code class="ruby">end</code>
@@ -17118,136 +17136,142 @@
         <li class="never" data-hits="" data-linenumber="37">
           
           
-          <code class="ruby">      id: self.id,</code>
+          <code class="ruby">      dbid: self.id,</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="38">
           
           
-          <code class="ruby">      avatar: self.avatar,</code>
+          <code class="ruby">      id: Base64.encode64(&quot;Team/#{self.id}&quot;),</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="39">
           
           
-          <code class="ruby">      name: self.name,</code>
+          <code class="ruby">      avatar: self.avatar,</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="40">
           
           
+          <code class="ruby">      name: self.name,</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="41">
+          
+          
           <code class="ruby">      projects: self.projects</code>
         </li>
       
-        <li class="covered" data-hits="3" data-linenumber="41">
+        <li class="covered" data-hits="3" data-linenumber="42">
           <span class="hits">3</span>
           
           <code class="ruby">    }</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="42">
+        <li class="never" data-hits="" data-linenumber="43">
           
           
           <code class="ruby">  end</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="43">
+        <li class="never" data-hits="" data-linenumber="44">
           
           
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="44">
+        <li class="covered" data-hits="1" data-linenumber="45">
           <span class="hits">1</span>
           
           <code class="ruby">  private</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="45">
+        <li class="never" data-hits="" data-linenumber="46">
           
           
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="46">
+        <li class="covered" data-hits="1" data-linenumber="47">
           <span class="hits">1</span>
           
           <code class="ruby">  def add_user_to_team</code>
         </li>
       
-        <li class="covered" data-hits="630" data-linenumber="47">
+        <li class="covered" data-hits="630" data-linenumber="48">
           <span class="hits">630</span>
           
           <code class="ruby">    unless self.current_user.nil?</code>
         </li>
       
-        <li class="covered" data-hits="9" data-linenumber="48">
+        <li class="covered" data-hits="9" data-linenumber="49">
           <span class="hits">9</span>
           
           <code class="ruby">      tu = TeamUser.new</code>
         </li>
       
-        <li class="covered" data-hits="9" data-linenumber="49">
+        <li class="covered" data-hits="9" data-linenumber="50">
           <span class="hits">9</span>
           
           <code class="ruby">      tu.user = self.current_user</code>
         </li>
       
-        <li class="covered" data-hits="9" data-linenumber="50">
+        <li class="covered" data-hits="9" data-linenumber="51">
           <span class="hits">9</span>
           
           <code class="ruby">      tu.team = self</code>
         </li>
       
-        <li class="covered" data-hits="9" data-linenumber="51">
+        <li class="covered" data-hits="9" data-linenumber="52">
           <span class="hits">9</span>
           
           <code class="ruby">      tu.role = &#39;owner&#39;</code>
         </li>
       
-        <li class="covered" data-hits="9" data-linenumber="52">
+        <li class="covered" data-hits="9" data-linenumber="53">
           <span class="hits">9</span>
           
           <code class="ruby">      tu.save!</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="53">
+        <li class="never" data-hits="" data-linenumber="54">
           
           
           <code class="ruby">    end</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="54">
+        <li class="never" data-hits="" data-linenumber="55">
           
           
           <code class="ruby">  end</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="55">
+        <li class="never" data-hits="" data-linenumber="56">
           
           
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="56">
+        <li class="covered" data-hits="1" data-linenumber="57">
           <span class="hits">1</span>
           
           <code class="ruby">  def self.subdomain_from_name(name)</code>
         </li>
       
-        <li class="covered" data-hits="632" data-linenumber="57">
+        <li class="covered" data-hits="632" data-linenumber="58">
           <span class="hits">632</span>
           
           <code class="ruby">    name.parameterize.underscore.dasherize.ljust(4, &#39;-&#39;)</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="58">
+        <li class="never" data-hits="" data-linenumber="59">
           
           
           <code class="ruby">  end</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="59">
+        <li class="never" data-hits="" data-linenumber="60">
           
           
           <code class="ruby">end</code>

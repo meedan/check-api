@@ -38,7 +38,10 @@ class Project < ActiveRecord::Base
     {
       dbid: self.id,
       title: self.title,
-      id: Base64.encode64("Project/#{self.id}") 
+      id: Base64.encode64("Project/#{self.id}"),
+      team: {
+        dbid: self.team_id
+      }
     }
   end
 
