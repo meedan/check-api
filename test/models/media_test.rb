@@ -13,6 +13,46 @@ class MediaTest < ActiveSupport::TestCase
     assert_difference 'Media.count' do
       create_valid_media
     end
+    u = create_user
+    t = create_team current_user: u
+    assert_difference 'Media.count' do
+      create_valid_media team: t, current_user: u
+    end
+  end
+
+  test "should update and destroy media" do
+    u = create_user
+    t = create_team current_user: u
+    p = create_project team: t, current_user: u
+    m = create_valid_media project_id: p.id, current_user: u
+    assert_nothing_raised RuntimeError do
+      m.current_user = u
+      m.save!
+    end
+    u2 = create_user
+    tu = create_team_user team: t, user: u2, role: 'journalist'
+    assert_raise RuntimeError do
+      m.current_user = u2
+      m.save!
+    end
+    assert_raise RuntimeError do
+      m.current_user = u2
+      m.destroy!
+    end
+    own_media = create_valid_media project_id: p.id, user: u2, current_user: u2
+    own_media.current_user = u2
+    assert_nothing_raised RuntimeError do
+      own_media.current_user = u2
+      own_media.save!
+    end
+    assert_nothing_raised RuntimeError do
+      own_media.current_user = u2
+      own_media.destroy!
+    end
+    assert_nothing_raised RuntimeError do
+      m.current_user = u
+      m.destroy!
+    end
   end
 
   test "should not save media without url" do
@@ -266,16 +306,6 @@ class MediaTest < ActiveSupport::TestCase
     m = Media.new
     m.url = 'https://www.youtube.com/watch?v=b708rEG7spI'
     assert_equal 'youtube.com', m.domain
-  end
-
-  test "owner should create media" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    assert_nothing_raised RuntimeError do
-      m = create_valid_media project_id: p.id, current_user: u
-    end
   end
 
 end

@@ -220,6 +220,7 @@ module SampleData
     media = options[:media] || create_valid_media
     pm.project_id = options[:project_id] || project.id
     pm.media_id = options[:media_id] || media.id
+    pm.current_user = options[:current_user] if options.has_key?(:current_user)
     pm.save!
     pm.reload
   end
