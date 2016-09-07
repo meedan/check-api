@@ -220,16 +220,9 @@ module SampleData
     media = options[:media] || create_valid_media
     pm.project_id = options[:project_id] || project.id
     pm.media_id = options[:media_id] || media.id
+    pm.current_user = options[:current_user] if options.has_key?(:current_user)
     pm.save!
     pm.reload
-  end
-
-  def create_team_media(options = {})
-    team = options[:team] || create_team
-    project = options[:project] || create_project(team: team)
-    media = options[:media] || create_valid_media
-    create_project_media project: project, media: media
-    media.reload
   end
 
   def create_team_user(options = {})

@@ -177,7 +177,7 @@ class FlagTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'contributor'
-    m = create_team_media team: t
+    m = create_valid_media team: t, current_user: u2
     f =  create_flag annotated: m, annotator: nil, current_user: u2
     assert_equal u2, f.annotator
   end
@@ -187,7 +187,7 @@ class FlagTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'contributor'
-    m = create_team_media team: t
+    m = create_valid_media team: t, current_user: u2
     f =  create_flag annotated: m, annotator: u1, current_user: u2
     assert_equal u1, f.annotator
   end

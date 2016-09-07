@@ -215,7 +215,7 @@ class StatusTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
-    m = create_team_media
+    m = create_valid_media team: t, current_user: u2
     st = create_status annotated: m, annotator: nil, current_user: u2
     assert_equal u2, st.annotator
   end
@@ -225,7 +225,7 @@ class StatusTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
-    m = create_team_media
+    m = create_valid_media team: t, current_user: u2
     st = create_status annotated: m, annotator: u1, current_user: u2
     assert_equal u1, st.annotator
   end

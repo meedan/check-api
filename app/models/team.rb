@@ -34,7 +34,8 @@ class Team < ActiveRecord::Base
 
   def as_json(_options = {})
     {
-      id: self.id,
+      dbid: self.id,
+      id: Base64.encode64("Team/#{self.id}"),
       avatar: self.avatar,
       name: self.name,
       projects: self.projects

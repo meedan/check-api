@@ -20,14 +20,13 @@ class User < ActiveRecord::Base
 
   ROLES = %w[contributor journalist editor owner admin]
   def role?(base_role)
-    ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.empty?
+    ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.nil?
   end
 
   def role
     t = self.current_team
-    tu = TeamUser.where(team_id: t.id, user_id: self.id) unless t.nil?
-    user_role = tu.nil? ? nil : tu.last.role
-    user_role.to_s
+    tu = TeamUser.where(team_id: t.id, user_id: self.id, status: 'member').last unless t.nil?
+    user_role = tu.nil? ? nil : tu.role.to_s
   end
 
   def has_role?(role)

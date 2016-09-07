@@ -9,6 +9,7 @@ class TeamUser < ActiveRecord::Base
     message: "%{value} is not a valid team member status" }
   validates :role, inclusion: { in: %w(admin owner editor journalist contributor),
     message: "%{value} is not a valid team role" }
+  validates :user_id, uniqueness: { scope: :team_id, message: "User already joined this team" }
 
   before_validation :set_role_default_value, on: :create
 
