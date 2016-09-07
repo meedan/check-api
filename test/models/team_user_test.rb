@@ -77,4 +77,17 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not approve myself" do
+    u = create_user
+    t = create_team current_user: u
+    u2 = create_user
+    tu = create_team_user team: t, user: u2, status: 'requested', role: 'journalist', current_user: u2
+    # test approve
+    assert_raise RuntimeError do
+      tu.status = 'member'
+      tu.current_user = u2
+      tu.save!
+    end
+  end
+
 end
