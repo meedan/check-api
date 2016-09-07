@@ -32,4 +32,10 @@ UserType = GraphQL::ObjectType.define do
       user.teams
     }
   end
+
+  connection :team_users, -> { TeamUserType.connection_type } do
+    resolve ->(user, _args, _ctx) {
+      user.team_users
+    }
+  end
 end

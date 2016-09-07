@@ -267,7 +267,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from user" do
-    assert_graphql_read_collection('user', { 'teams' => 'name' })
+    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role' })
   end
 
   test "should create status" do
