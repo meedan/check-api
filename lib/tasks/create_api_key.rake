@@ -12,7 +12,7 @@ namespace :lapis do
       puts "Created a new API key for #{app} with access token #{api_key.access_token} and that expires at #{api_key.expire_at}"
     end
 
-    task create_dev: :environment do
+    task create_default: :environment do
       app = ENV['application']
       key_name = case ENV['RAILS_ENV']
         when 'test' then 'test'
