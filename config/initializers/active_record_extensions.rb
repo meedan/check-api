@@ -4,7 +4,7 @@ module ActiveRecordExtensions
   included do
     include CheckdeskPermissions
 
-    attr_accessor :current_user
+    attr_accessor :current_user, :context_team
 
     before_save :check_ability
     before_destroy :check_destroy_ability

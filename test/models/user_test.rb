@@ -190,15 +190,16 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t , role: 'owner'
-    assert_equal u.role, 'owner'
+    assert_equal u.role(t), 'owner'
   end
 
   test "verify user role" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u, team: t , role: 'owner'
-    assert u.has_role?'owner'
-    assert_not u.has_role?'role'
+    tu = create_team_user user: u, team: t , role: 'editor'
+    assert u.role? :editor, t
+    assert u.role? :journalist, t
+    assert_not u.role? :owner, t
   end
 
   test "should set current team with one of users team" do

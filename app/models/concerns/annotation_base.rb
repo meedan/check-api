@@ -263,6 +263,14 @@ module AnnotationBase
     @current_user = user
   end
 
+  def context_team
+    @context_team
+  end
+
+  def context_team=(team)
+    @context_team = team
+  end
+
   def is_annotation?
     true
   end

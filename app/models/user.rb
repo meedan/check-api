@@ -19,18 +19,14 @@ class User < ActiveRecord::Base
   validate :user_is_member_in_current_team
 
   ROLES = %w[contributor journalist editor owner admin]
-  def role?(base_role)
-    ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.nil?
+  def role?(base_role, context_team)
+    ROLES.index(base_role.to_s) <= ROLES.index(self.role(context_team)) unless self.role(context_team).nil?
   end
 
-  def role
-    t = self.current_team
-    tu = TeamUser.where(team_id: t.id, user_id: self.id, status: 'member').last unless t.nil?
+  def role(context_team)
+    context_team = self.current_team if context_team.nil?
+    tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last unless context_team.nil?
     user_role = tu.nil? ? nil : tu.role.to_s
-  end
-
-  def has_role?(role)
-    role.to_s == self.role
   end
 
   def self.from_omniauth(auth)
