@@ -245,6 +245,19 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal u1, c.annotator
   end
 
+  test "should destroy comment" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    c = create_comment annotated: p, current_user: u, annotator: u
+    c.current_user = u
+    c.context_team = t
+    assert_nothing_raised do
+      c.destroy
+    end
+  end
+
   test "should not destroy comment" do
     u = create_user
     t = create_team
@@ -252,6 +265,7 @@ class CommentTest < ActiveSupport::TestCase
     p = create_project team: t
     c = create_comment annotated: p, current_user: u, annotator: u
     c.current_user = u
+    c.context_team = create_team
     assert_raise RuntimeError do
       c.destroy
     end
