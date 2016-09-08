@@ -26,7 +26,7 @@ class User < ActiveRecord::Base
   def role(context_team)
     context_team = self.current_team if context_team.nil?
     tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last unless context_team.nil?
-    user_role = tu.nil? ? nil : tu.role.to_s
+    tu.nil? ? nil : tu.role.to_s
   end
 
   def self.from_omniauth(auth)
