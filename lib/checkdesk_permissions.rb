@@ -11,10 +11,10 @@ module CheckdeskPermissions
   def permissions
     perms = Hash.new
     unless self.current_user.nil?
-      @ability = Ability.new(self.current_user, self.context_team)
-      perms["read #{self.class}"] = @ability.can?(:read, self)
-      perms["update #{self.class}"] = @ability.can?(:update, self)
-      perms["destroy #{self.class}"] = @ability.can?(:destroy, self)
+      ability = Ability.new(self.current_user, self.context_team)
+      perms["read #{self.class}"] = ability.can?(:read, self)
+      perms["update #{self.class}"] = ability.can?(:update, self)
+      perms["destroy #{self.class}"] = ability.can?(:destroy, self)
       perms = perms.merge self.set_create_permissions(self.class.name)
     end
     perms.to_json
@@ -22,21 +22,22 @@ module CheckdeskPermissions
 
   def set_create_permissions(obj)
     create = {
-      'Team' => %w[Project Account TeamUser User Contact],
-      'Account' => %w[media],
-      'Media' => %w[ProjectMedia],
-      'Project' => %w[ProjectSource Source Media ProjectMedia],
-      'Source' => %w[Account ProjectSource Project],
-      'User' => %w[Source TeamUser Team Project]
+      'Team' => [Project, Account, TeamUser, User, Contact],
+      'Account' => [Media],
+      'Media' => [ProjectMedia],
+      'Project' => [ProjectSource, Source, Media, ProjectMedia],
+      'Source' => [Account, ProjectSource, Project],
+      'User' => [Source, TeamUser, Team, Project]
     }
     perms = Hash.new
     unless create[obj].nil?
+      ability = Ability.new(self.current_user, self.context_team)
       create[obj].each do |data|
-        model = data.singularize.camelize.constantize.new
+        model = data.new
         model.current_user = self.current_user
         model.context_team = self.context_team
         data.send('team_id=', self.context_team.id) if model.respond_to?('team_id=')
-        perms["create #{data}"] = @ability.can?(:create, model)
+        perms["create #{data}"] = ability.can?(:create, model)
       end
     end
     perms
