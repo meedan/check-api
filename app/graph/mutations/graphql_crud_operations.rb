@@ -22,6 +22,7 @@ class GraphqlCrudOperations
   def self.create(type, inputs, ctx, parents = [])
     obj = type.camelize.constantize.new
     obj.current_user = ctx[:current_user]
+    obj.context_team = ctx[:context_team]
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
@@ -34,6 +35,7 @@ class GraphqlCrudOperations
   def self.update(_type, inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
     obj.current_user = ctx[:current_user]
+    obj.context_team = ctx[:context_team]
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'

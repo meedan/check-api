@@ -59,6 +59,7 @@ class User < ActiveRecord::Base
 
   def as_json(_options = {})
     {
+      id: Base64.encode64("User/#{self.id}"),
       dbid: self.id,
       name: self.name,
       email: self.email,

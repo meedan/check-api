@@ -3,12 +3,14 @@ module ProjectMutations
     lead_image: 'str',
     description: 'str',
     title: '!str',
+    team_id: 'int'
   }
 
   update_fields = {
     lead_image: 'str',
     description: 'str',
     title: 'str',
+    team_id: 'int',
     id: '!id'
   }
 

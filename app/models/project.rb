@@ -34,21 +34,28 @@ class Project < ActiveRecord::Base
     CONFIG['checkdesk_base_url'] + self.lead_image.url
   end
 
-  def as_json(_options = {})
-    {
+  def as_json(options = {})
+    project = {
       dbid: self.id,
       title: self.title,
-      id: Base64.encode64("Project/#{self.id}"),
-      team: {
-        dbid: self.team_id
-      }
+      id: Base64.encode64("Project/#{self.id}")
     }
+    unless options[:without_team]
+      project[:team] = {
+        id: Base64.encode64("Team/#{self.id}"),
+        dbid: self.team_id,
+        projects: { edges: self.team.projects.collect{ |p| { node: p.as_json(without_team: true) } } }
+      }
+    end
+    project
   end
 
   private
 
   def set_description_and_team
     self.description ||= ''
-    self.team = self.current_user.current_team unless self.current_user.nil?
+    if !self.current_user.nil? && !self.team_id
+      self.team = self.current_user.current_team
+    end
   end
 end
