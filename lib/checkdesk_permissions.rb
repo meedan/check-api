@@ -5,7 +5,6 @@ module CheckdeskPermissions
   end
 
   module ClassMethods
-
     def find_if_can(id, current_user, context_team)
       if current_user.nil?
         self.find(id)
@@ -19,9 +18,7 @@ module CheckdeskPermissions
         end
       end
     end
-
   end
-
 
   def permissions
     perms = Hash.new
@@ -76,5 +73,4 @@ module CheckdeskPermissions
       raise "No permission to delete #{self.class}" unless ability.can?(:destroy, self)
     end
   end
-
 end

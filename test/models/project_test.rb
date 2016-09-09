@@ -165,4 +165,11 @@ class ProjectTest < ActiveSupport::TestCase
   test "should have a JSON version" do
     assert_kind_of Hash, create_project.as_json
   end
+
+  test "should create project with team" do
+    t1 = create_team
+    t2 = create_team
+    p = create_project team_id: t2.id
+    assert_equal t2, p.reload.team
+  end
 end

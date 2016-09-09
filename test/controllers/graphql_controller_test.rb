@@ -52,6 +52,14 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
+  test "should set context team" do
+    authenticate_with_user
+    t = create_team
+    @request.headers.merge!({ 'X-Checkdesk-Context-Team': t.id })
+    post :create, query: 'query Query { about { name, version } }'
+    assert_equal t, assigns(:context_team)
+  end
+
   # Test CRUD operations for each model
 
   test "should create account" do
