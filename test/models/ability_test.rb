@@ -913,4 +913,18 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:update, ps3)
     assert ability.can?(:destroy, ps3)
   end
+
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    t.current_user = u
+    assert_equal ["read Team", "update Team", "destroy Team", "create Project", "create Account", "create TeamUser", "create User", "create Contact"], JSON.parse(t.permissions).keys
+    p  = create_project team: t
+    p.current_user = u
+    assert_equal ["read Project", "update Project", "destroy Project", "create ProjectSource", "create Source", "create Media", "create ProjectMedia"], JSON.parse(p.permissions).keys
+    a = create_account
+    a.current_user = u
+    assert_equal ["read Account", "update Account", "destroy Account", "create Media"], JSON.parse(a.permissions).keys
+  end
+
 end

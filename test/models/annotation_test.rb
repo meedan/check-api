@@ -83,4 +83,14 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 3, s.annotations_count
   end
 
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    p  = create_project team: t
+    pc = create_comment
+    p.add_annotation pc
+    pc.current_user = u
+    assert_equal ['read Comment', 'update Comment', 'destroy Comment'], JSON.parse(pc.permissions).keys
+  end
+
 end
