@@ -32,19 +32,10 @@ module Api
         end
         
         if token
-          user = User.where(token: token).last
-          source = 'token'
+          render_user User.where(token: token).last, 'token'
         else
-          user = current_api_user
-          source = 'session' unless user.nil?
+          render_user current_api_user, 'session'
         end
-
-        unless user.nil?
-          user = user.as_json
-          user[:source] = source
-        end
-
-        render_success 'user', user
       end
 
       # Needed for pre-flight check
@@ -53,6 +44,15 @@ module Api
       end
 
       private
+
+      def render_user(user = nil, source = nil)
+        unless user.nil?
+          user = user.as_json
+          user[:source] = source
+        end
+
+        render_success 'user', user
+      end
 
       def authenticate_from_token!
         header = CONFIG['authorization_header'] || 'X-Token'
