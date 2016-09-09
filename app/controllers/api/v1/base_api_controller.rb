@@ -22,8 +22,6 @@ module Api
       def me
         header = CONFIG['authorization_header'] || 'X-Token'
         token = request.headers[header]
-        user = nil
-        source = nil
 
         if session['checkdesk.error']
           message = session['checkdesk.error']
