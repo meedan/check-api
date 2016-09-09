@@ -1,15 +1,10 @@
 module CheckdeskPermissions
 
-  def find_if_can(id, current_user, current_team)
-    unless self.current_user.nil?
-      ability = Ability.new(current_user, current_team)
-      if ability.can?(:read, self)
-        self.find(id)
-      else
-        raise "Sorry, you can't read this #{self.class.name.downcase}"
-      end
-    else
-      self.find(id)
+  def find_if_can(id, current_user, context_team)
+    model = self.find(id)
+    unless current_user.nil?
+      ability = Ability.new(current_user, context_team)
+      raise "Sorry, you can't read this #{self.class.name.downcase}" if ability.cannot?(:read, model)
     end
   end
 
