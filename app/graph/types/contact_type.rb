@@ -11,6 +11,7 @@ ContactType = GraphQL::ObjectType.define do
   field :phone, types.String
   field :web, types.String
   field :team_id, types.Int
+  field :permissions, types.String
   field :team do
     type -> { TeamType }
 

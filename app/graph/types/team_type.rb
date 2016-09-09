@@ -15,6 +15,7 @@ TeamType = GraphQL::ObjectType.define do
   field :description, types.String
   field :dbid, types.Int
   field :members_count, types.Int
+  field :permissions, types.String
 
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {

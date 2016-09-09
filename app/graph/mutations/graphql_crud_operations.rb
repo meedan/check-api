@@ -4,10 +4,10 @@ class GraphqlCrudOperations
       obj.send("#{key}=", value)
     end
     obj.save!
-    
+
     name = obj.class.name.underscore
     ret = { name.to_sym => obj }
-    
+
     parents.each do |parent_name|
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
@@ -22,19 +22,19 @@ class GraphqlCrudOperations
   def self.create(type, inputs, ctx, parents = [])
     obj = type.camelize.constantize.new
     obj.current_user = ctx[:current_user]
-    
+
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
       memo
     end
-    
+
     self.safe_save(obj, attrs, parents)
   end
 
   def self.update(_type, inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
     obj.current_user = ctx[:current_user]
-    
+
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
       memo
@@ -74,13 +74,13 @@ class GraphqlCrudOperations
       }
 
       name "#{action.camelize}#{type.camelize}"
-   
+
       fields.each do |field_name, field_type|
         input_field field_name, mapping[field_type]
       end
 
       klass = "#{type.camelize}Type".constantize
-      return_field type.to_sym, klass 
+      return_field type.to_sym, klass
 
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
@@ -123,9 +123,9 @@ class GraphqlCrudOperations
     GraphQL::ObjectType.define do
       name type.capitalize
       description "#{type.capitalize} type"
-    
+
       interfaces [NodeIdentification.interface]
-    
+
       field :id, field: GraphQL::Relay::GlobalIdField.new(type.capitalize)
       field :annotation_type, types.String
       field :updated_at, types.String
@@ -135,6 +135,7 @@ class GraphqlCrudOperations
       field :annotated_id, types.String
       field :annotated_type, types.String
       field :content, types.String
+      field :permissions, types.String
 
       mapping = {
         'str' => types.String
@@ -143,10 +144,10 @@ class GraphqlCrudOperations
       fields.each do |name, field_type|
         field name, mapping[field_type]
       end
-      
+
       field :annotator do
         type UserType
-    
+
         resolve -> (annotation, _args, _ctx) {
           annotation.annotator
         }

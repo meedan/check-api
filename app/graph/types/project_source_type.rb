@@ -9,6 +9,7 @@ ProjectSourceType = GraphQL::ObjectType.define do
   field :created_at, types.String
   field :source_id, types.Int
   field :project_id, types.Int
+  field :permissions, types.String
   field :project do
     type -> { ProjectType }
 

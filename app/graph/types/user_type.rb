@@ -12,6 +12,7 @@ UserType = GraphQL::ObjectType.define do
   field :login, types.String
   field :name, types.String
   field :current_team_id, types.Int
+  field :permissions, types.String
 
   field :source do
     type SourceType

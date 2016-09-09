@@ -12,6 +12,7 @@ AccountType = GraphQL::ObjectType.define do
   field :provider, types.String
   field :source_id, types.Int
   field :user_id, types.Int
+  field :permissions, types.String
   field :user do
     type UserType
 

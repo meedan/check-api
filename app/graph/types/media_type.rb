@@ -13,7 +13,8 @@ MediaType = GraphQL::ObjectType.define do
   field :dbid, types.Int
   field :annotations_count, types.Int
   field :domain, types.String
-   
+  field :permissions, types.String
+
   field :published do
     type types.String
 
@@ -21,7 +22,7 @@ MediaType = GraphQL::ObjectType.define do
       media.published
     }
   end
-  
+
   field :jsondata do
     type types.String
 
@@ -63,7 +64,7 @@ MediaType = GraphQL::ObjectType.define do
 
   connection :tags, -> { TagType.connection_type } do
     argument :context_id, types.Int
-    
+
     resolve ->(media, args, _ctx) {
       context = get_context(args)
       media.tags(context)

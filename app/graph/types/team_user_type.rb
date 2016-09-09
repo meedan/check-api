@@ -11,6 +11,7 @@ TeamUserType = GraphQL::ObjectType.define do
   field :team_id, types.Int
   field :status, types.String
   field :role, types.String
+  field :permissions, types.String
   field :team do
     type -> { TeamType }
 

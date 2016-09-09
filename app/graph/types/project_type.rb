@@ -9,6 +9,7 @@ ProjectType = GraphQL::ObjectType.define do
   field :description, types.String
   field :title, !types.String
   field :dbid, types.Int
+  field :permissions, types.String
 
   field :team do
     type TeamType
