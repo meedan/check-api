@@ -6,7 +6,7 @@ class ProjectMedia < ActiveRecord::Base
 
   def get_team
     p = self.project
-    [p.team_id]
+    p.nil? ? [nil] : [p.team_id]
   end
 
   def media_id_callback(value, mapping_ids = nil)

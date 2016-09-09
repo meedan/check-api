@@ -6,6 +6,6 @@ class ProjectSource < ActiveRecord::Base
 
   def get_team
     p = self.project
-    [p.team_id]
+    p.nil? ? [nil] : [p.team_id]
   end
 end
