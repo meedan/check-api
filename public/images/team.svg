@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+    <title>Team icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="square">
+        <g id="Team-icon" stroke="#D1D6DB" stroke-width="6">
+            <g transform="translate(-3.000000, 0.000000)" id="Group">
+                <g transform="translate(44.260814, 43.856884) rotate(-339.000000) translate(-44.260814, -43.856884) translate(9.760814, 10.856884)">
+                    <circle id="Oval-6" cx="34" cy="30" r="28"></circle>
+                    <circle id="Oval-7" fill="#FFFFFF" cx="16.5" cy="8.5" r="7.5"></circle>
+                    <circle id="Oval-7-Copy-2" fill="#FFFFFF" cx="8.42050485" cy="40.1092689" r="7.5"></circle>
+                    <circle id="Oval-7-Copy-3" fill="#FFFFFF" cx="33.6339746" cy="58" r="7.5"></circle>
+                    <circle id="Oval-7-Copy-4" fill="#FFFFFF" cx="60.7618245" cy="37.4567132" r="7.5"></circle>
+                    <circle id="Oval-7-Copy" fill="#FFFFFF" cx="50.0544794" cy="7.74324347" r="7.5"></circle>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

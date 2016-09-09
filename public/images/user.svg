@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+    <title>Member</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="square">
+        <g id="Member" stroke="#D1D6DB" stroke-width="6">
+            <path d="M31,78 C31,78 31,69.2846796 31,59.7826087 C31,50.1956522 35.0535835,47 40,47 C44.9464165,47 50,50.1956522 50,59.7826087 C50,69.3695652 50.0000002,78 50.0000002,78" id="Line"></path>
+            <circle id="Oval-7" transform="translate(40.500000, 35.500000) rotate(-360.000000) translate(-40.500000, -35.500000) " cx="40.5" cy="35.5" r="7.5"></circle>
+        </g>
+    </g>
+</svg>
