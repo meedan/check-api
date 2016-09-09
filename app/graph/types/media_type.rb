@@ -56,8 +56,8 @@ MediaType = GraphQL::ObjectType.define do
   connection :annotations, -> { AnnotationType.connection_type } do
     argument :context_id, types.Int
 
-    resolve ->(media, args, _ctx) {
-      context = args['context_id'].nil? ? nil : Project.find(args['context_id'])
+    resolve ->(media, args, ctx) {
+      context = get_context(args, ctx)
       media.annotations(nil, context)
     }
   end
@@ -65,8 +65,8 @@ MediaType = GraphQL::ObjectType.define do
   connection :tags, -> { TagType.connection_type } do
     argument :context_id, types.Int
 
-    resolve ->(media, args, _ctx) {
-      context = get_context(args)
+    resolve ->(media, args, ctx) {
+      context = get_context(args, ctx)
       media.tags(context)
     }
   end
@@ -76,13 +76,13 @@ MediaType = GraphQL::ObjectType.define do
 
     argument :context_id, types.Int
 
-    resolve ->(media, args, _ctx) {
-      context = get_context(args)
+    resolve ->(media, args, ctx) {
+      context = get_context(args, ctx)
       media.last_status(context)
     }
   end
 end
 
-def get_context(args = {})
-  args['context_id'].nil? ? nil : Project.find(args['context_id'])
+def get_context(args = {}, ctx = {})
+  args['context_id'].nil? ? nil : Project.find_if_can(args['context_id'], ctx[:current_user], ctx[:context_team])
 end

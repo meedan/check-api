@@ -31,8 +31,11 @@ QueryType = GraphQL::ObjectType.define do
       type "#{type.to_s.camelize}Type".constantize
       description "Information about the #{type} with given id"
       argument :id, !types.ID
-      resolve -> (_obj, args, _ctx) do
-        type.to_s.camelize.constantize.find(args['id'])
+      resolve -> (_obj, args, ctx) do
+        obj = type.to_s.camelize.constantize.find_if_can(args['id'], ctx[:current_user], ctx[:context_team])
+        obj.current_user = ctx[:current_user]
+        obj.context_team = ctx[:context_team]
+        obj
       end
     end
   end
