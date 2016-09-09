@@ -14,27 +14,27 @@
       <img src="./assets/0.10.0/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" style="display:none;">
-      <div class="timestamp">Generated <abbr class="timeago" title="2016-09-09T17:15:24-03:00">2016-09-09T17:15:24-03:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2016-09-09T17:31:40-03:00">2016-09-09T17:31:40-03:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
         <div class="file_list_container" id="AllFiles">
   <h2>
     <span class="group_name">All Files</span>
-    (<span class="covered_percent"><span class="green">98.98%</span></span>
+    (<span class="covered_percent"><span class="green">98.92%</span></span>
      covered at
      <span class="covered_strength">
        <span class="green">
-         71.92
+         71.87
        </span>
     </span> hits/line)
   </h2>
   <a name="AllFiles"></a>
   <div>
     <b>75</b> files in total.
-    <b>1571</b> relevant lines. 
+    <b>1572</b> relevant lines. 
     <span class="green"><b>1555</b> lines covered</span> and
-    <span class="red"><b>16</b> lines missed </span>
+    <span class="red"><b>17</b> lines missed </span>
   </div>
   <table class="file_list">
     <thead>
@@ -577,7 +577,7 @@
         <td>16</td>
         <td>16</td>
         <td>0</td>
-        <td>3.8</td>
+        <td>3.6</td>
       </tr>
       
       <tr>
@@ -722,12 +722,12 @@
       
       <tr>
         <td class="strong"><a href="#3576ac61feea84965940cf4a5fe49e3434da3509" class="src_link" title="lib/checkdesk_permissions.rb">lib/checkdesk_permissions.rb</a></td>
-        <td class="red strong">62.79 %</td>
-        <td>74</td>
-        <td>43</td>
+        <td class="red strong">61.36 %</td>
+        <td>76</td>
+        <td>44</td>
         <td>27</td>
-        <td>16</td>
-        <td>231.7</td>
+        <td>17</td>
+        <td>226.5</td>
       </tr>
       
       <tr>
@@ -940,7 +940,7 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         109.2
+         109.19
        </span>
     </span> hits/line)
   </h2>
@@ -1042,7 +1042,7 @@
         <td>16</td>
         <td>16</td>
         <td>0</td>
-        <td>3.8</td>
+        <td>3.6</td>
       </tr>
       
       <tr>
@@ -1304,20 +1304,20 @@
           <div class="file_list_container" id="Libraries">
   <h2>
     <span class="group_name">Libraries</span>
-    (<span class="covered_percent"><span class="yellow">87.4%</span></span>
+    (<span class="covered_percent"><span class="yellow">86.72%</span></span>
      covered at
      <span class="covered_strength">
        <span class="green">
-         159.16
+         157.94
        </span>
     </span> hits/line)
   </h2>
   <a name="Libraries"></a>
   <div>
     <b>9</b> files in total.
-    <b>127</b> relevant lines. 
+    <b>128</b> relevant lines. 
     <span class="green"><b>111</b> lines covered</span> and
-    <span class="red"><b>16</b> lines missed </span>
+    <span class="red"><b>17</b> lines missed </span>
   </div>
   <table class="file_list">
     <thead>
@@ -1345,12 +1345,12 @@
       
       <tr>
         <td class="strong"><a href="#3576ac61feea84965940cf4a5fe49e3434da3509" class="src_link" title="lib/checkdesk_permissions.rb">lib/checkdesk_permissions.rb</a></td>
-        <td class="red strong">62.79 %</td>
-        <td>74</td>
-        <td>43</td>
+        <td class="red strong">61.36 %</td>
+        <td>76</td>
+        <td>44</td>
         <td>27</td>
-        <td>16</td>
-        <td>231.7</td>
+        <td>17</td>
+        <td>226.5</td>
       </tr>
       
       <tr>
@@ -13161,8 +13161,8 @@
           <code class="ruby">  def self.applications</code>
         </li>
       
-        <li class="covered" data-hits="5" data-linenumber="12">
-          <span class="hits">5</span>
+        <li class="covered" data-hits="1" data-linenumber="12">
+          <span class="hits">1</span>
           
           <code class="ruby">    [nil]</code>
         </li>
@@ -19090,11 +19090,11 @@
         <div class="source_table" id="3576ac61feea84965940cf4a5fe49e3434da3509">
   <div class="header">
     <h3>lib/checkdesk_permissions.rb</h3>
-    <h4><span class="red">62.79 %</span> covered</h4>
+    <h4><span class="red">61.36 %</span> covered</h4>
     <div>
-      <b>43</b> relevant lines. 
+      <b>44</b> relevant lines. 
       <span class="green"><b>27</b> lines covered</span> and
-      <span class="red"><b>16</b> lines missed.</span>
+      <span class="red"><b>17</b> lines missed.</span>
     </div>
   </div>
   
@@ -19404,49 +19404,49 @@
         <li class="missed" data-hits="0" data-linenumber="51">
           
           
-          <code class="ruby">        data.send(&#39;team_id=&#39;, self.context_team.id) if model.respond_to?(&#39;team_id=&#39;)</code>
+          <code class="ruby">        if model.respond_to?(:team_id) and !self.context_team.nil?</code>
         </li>
       
         <li class="missed" data-hits="0" data-linenumber="52">
           
           
-          <code class="ruby">        perms[&quot;create #{data}&quot;] = ability.can?(:create, model)</code>
+          <code class="ruby">          model.team_id= self.context_team.id</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="53">
           
           
+          <code class="ruby">        end</code>
+        </li>
+      
+        <li class="missed" data-hits="0" data-linenumber="54">
+          
+          
+          <code class="ruby">        perms[&quot;create #{data}&quot;] = ability.can?(:create, model)</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="55">
+          
+          
           <code class="ruby">      end</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="54">
-          
-          
-          <code class="ruby">    end</code>
-        </li>
-      
-        <li class="missed" data-hits="0" data-linenumber="55">
-          
-          
-          <code class="ruby">    perms</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="56">
           
           
+          <code class="ruby">    end</code>
+        </li>
+      
+        <li class="missed" data-hits="0" data-linenumber="57">
+          
+          
+          <code class="ruby">    perms</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="58">
+          
+          
           <code class="ruby">  end</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="57">
-          
-          
-          <code class="ruby"></code>
-        </li>
-      
-        <li class="covered" data-hits="1" data-linenumber="58">
-          <span class="hits">1</span>
-          
-          <code class="ruby">  private</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="59">
@@ -19458,88 +19458,100 @@
         <li class="covered" data-hits="1" data-linenumber="60">
           <span class="hits">1</span>
           
-          <code class="ruby">  def check_ability</code>
+          <code class="ruby">  private</code>
         </li>
       
-        <li class="covered" data-hits="9415" data-linenumber="61">
-          <span class="hits">9415</span>
-          
-          <code class="ruby">    unless self.current_user.nil?</code>
-        </li>
-      
-        <li class="covered" data-hits="119" data-linenumber="62">
-          <span class="hits">119</span>
-          
-          <code class="ruby">      ability = Ability.new(self.current_user,  self.context_team)</code>
-        </li>
-      
-        <li class="covered" data-hits="119" data-linenumber="63">
-          <span class="hits">119</span>
-          
-          <code class="ruby">      op = self.new_record? ? :create : :update</code>
-        </li>
-      
-        <li class="covered" data-hits="119" data-linenumber="64">
-          <span class="hits">119</span>
-          
-          <code class="ruby">      raise &quot;No permission to #{op} #{self.class}&quot; unless ability.can?(op, self)</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="65">
-          
-          
-          <code class="ruby">    end</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="66">
-          
-          
-          <code class="ruby">  end</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="67">
+        <li class="never" data-hits="" data-linenumber="61">
           
           
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="68">
+        <li class="covered" data-hits="1" data-linenumber="62">
           <span class="hits">1</span>
           
-          <code class="ruby">  def check_destroy_ability</code>
+          <code class="ruby">  def check_ability</code>
         </li>
       
-        <li class="covered" data-hits="31" data-linenumber="69">
-          <span class="hits">31</span>
+        <li class="covered" data-hits="9415" data-linenumber="63">
+          <span class="hits">9415</span>
           
           <code class="ruby">    unless self.current_user.nil?</code>
         </li>
       
-        <li class="covered" data-hits="16" data-linenumber="70">
-          <span class="hits">16</span>
+        <li class="covered" data-hits="119" data-linenumber="64">
+          <span class="hits">119</span>
           
-          <code class="ruby">      ability = Ability.new(self.current_user, self.context_team)</code>
+          <code class="ruby">      ability = Ability.new(self.current_user,  self.context_team)</code>
         </li>
       
-        <li class="covered" data-hits="16" data-linenumber="71">
-          <span class="hits">16</span>
+        <li class="covered" data-hits="119" data-linenumber="65">
+          <span class="hits">119</span>
           
-          <code class="ruby">      raise &quot;No permission to delete #{self.class}&quot; unless ability.can?(:destroy, self)</code>
+          <code class="ruby">      op = self.new_record? ? :create : :update</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="72">
+        <li class="covered" data-hits="119" data-linenumber="66">
+          <span class="hits">119</span>
+          
+          <code class="ruby">      raise &quot;No permission to #{op} #{self.class}&quot; unless ability.can?(op, self)</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="67">
           
           
           <code class="ruby">    end</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="73">
+        <li class="never" data-hits="" data-linenumber="68">
           
           
           <code class="ruby">  end</code>
         </li>
       
+        <li class="never" data-hits="" data-linenumber="69">
+          
+          
+          <code class="ruby"></code>
+        </li>
+      
+        <li class="covered" data-hits="1" data-linenumber="70">
+          <span class="hits">1</span>
+          
+          <code class="ruby">  def check_destroy_ability</code>
+        </li>
+      
+        <li class="covered" data-hits="31" data-linenumber="71">
+          <span class="hits">31</span>
+          
+          <code class="ruby">    unless self.current_user.nil?</code>
+        </li>
+      
+        <li class="covered" data-hits="16" data-linenumber="72">
+          <span class="hits">16</span>
+          
+          <code class="ruby">      ability = Ability.new(self.current_user, self.context_team)</code>
+        </li>
+      
+        <li class="covered" data-hits="16" data-linenumber="73">
+          <span class="hits">16</span>
+          
+          <code class="ruby">      raise &quot;No permission to delete #{self.class}&quot; unless ability.can?(:destroy, self)</code>
+        </li>
+      
         <li class="never" data-hits="" data-linenumber="74">
+          
+          
+          <code class="ruby">    end</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="75">
+          
+          
+          <code class="ruby">  end</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="76">
           
           
           <code class="ruby">end</code>
