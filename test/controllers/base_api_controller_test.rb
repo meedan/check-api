@@ -138,4 +138,26 @@ class BaseApiControllerTest < ActionController::TestCase
     process :options, 'OPTIONS'
     assert_response :success
   end
+
+  test "should return error from session" do
+    @controller = Api::V1::BaseApiController.new
+    u = create_user name: 'Test User'
+    header = CONFIG['authorization_header'] || 'X-Token'
+    @request.headers.merge!({ header => u.token })
+    @request.session['checkdesk.error'] = 'Error message'
+    get :me
+    assert_response 400
+    response = JSON.parse(@response.body)
+    assert_equal 'Error message', response['data']['message']
+  end
+
+  test "should not return error from session" do
+    @controller = Api::V1::BaseApiController.new
+    u = create_user name: 'Test User'
+    header = CONFIG['authorization_header'] || 'X-Token'
+    @request.headers.merge!({ header => u.token })
+    @request.session['checkdesk.error'] = nil
+    get :me
+    assert_response :success
+  end
 end

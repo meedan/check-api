@@ -111,7 +111,7 @@ class User < ActiveRecord::Base
       account.user = self
       account.source = source
       account.url = self.url
-      account.save!
+      account.save
     end
   end
 

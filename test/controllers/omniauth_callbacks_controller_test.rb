@@ -23,6 +23,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
       uid: '654321',
       info: {
         name: 'Test',
+        email: 'test@test.com',
         image: 'http://facebook.com/test/image.png'
       },
       credentials: {
@@ -130,6 +131,19 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     get :logout, destination: '/api'
     assert_redirected_to '/api'
     assert_nil request.env['warden'].user
+  end
+
+  test "should not store error if there is no error from provider" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
+    get :facebook
+    assert_nil session['checkdesk.error']
+  end
+
+  test "should store error if there is error from provider" do
+    create_user email: 'test@test.com'
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
+    get :facebook
+    assert_not_nil session['checkdesk.error']
   end
 
   def teardown

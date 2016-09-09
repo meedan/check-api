@@ -15,7 +15,14 @@ module Api
 
       def start_session_and_redirect
         auth = request.env['omniauth.auth']
-        user = User.from_omniauth(auth)
+        user = nil
+
+        begin
+          user = User.from_omniauth(auth)
+        rescue ActiveRecord::RecordInvalid => e
+          session['checkdesk.error'] = e.message
+        end
+        
         unless user.nil?
           session['checkdesk.current_user_id'] = user.id
           sign_in(user)

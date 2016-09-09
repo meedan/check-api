@@ -238,4 +238,13 @@ class UserTest < ActiveSupport::TestCase
      assert_equal [t1.name, t2.name], JSON.parse(u.user_teams).keys
   end
 
+  test "should not crash if account is not created" do
+    assert_nothing_raised do
+      assert_difference 'User.count' do
+        assert_difference 'Source.count' do
+          create_user name: 'Test', url: 'http://test.com'
+        end
+      end
+    end
+  end
 end

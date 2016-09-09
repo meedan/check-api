@@ -24,6 +24,12 @@ module Api
         token = request.headers[header]
         user = nil
         source = nil
+
+        if session['checkdesk.error']
+          message = session['checkdesk.error']
+          reset_session
+          render_error(message, 'UNKNOWN') and return
+        end
         
         if token
           user = User.where(token: token).last
