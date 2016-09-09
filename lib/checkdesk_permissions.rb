@@ -48,7 +48,9 @@ module CheckdeskPermissions
         model = data.new
         model.current_user = self.current_user
         model.context_team = self.context_team
-        data.send('team_id=', self.context_team.id) if model.respond_to?('team_id=')
+        if model.respond_to?(:team_id) and !self.context_team.nil?
+          model.team_id= self.context_team.id
+        end
         perms["create #{data}"] = ability.can?(:create, model)
       end
     end
