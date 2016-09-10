@@ -885,6 +885,7 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team current_user: u
     t.current_user = u
+    t.context_team = t
     assert_equal ["read Team", "update Team", "destroy Team", "create Project", "create Account", "create TeamUser", "create User", "create Contact"], JSON.parse(t.permissions).keys
     p  = create_project team: t
     p.current_user = u
@@ -894,4 +895,11 @@ class AbilityTest < ActiveSupport::TestCase
     assert_equal ["read Account", "update Account", "destroy Account", "create Media"], JSON.parse(a.permissions).keys
   end
 
+  test "should fallback to to find" do
+    u = create_user
+    assert_equal u, User.find_if_can(u.id, nil, nil)
+  end
+
+  test "should set team when getting permissions" do
+  end
 end

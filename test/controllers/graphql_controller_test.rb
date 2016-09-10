@@ -78,10 +78,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_update('account', :user_id, u1.id, u2.id)
   end
 
-  test "should destroy account" do
-    assert_graphql_destroy('account')
-  end
-
   test "should create comment" do
     p = create_project team: @team
     assert_graphql_create('comment', { text: 'test', annotated_type: 'Project', annotated_id: p.id.to_s }) { sleep 1 }
@@ -172,10 +168,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_update('source', :name, 'foo', 'bar')
   end
 
-  test "should destroy source" do
-    assert_graphql_destroy('source')
-  end
-
   test "should create team" do
     assert_graphql_create('team', { name: 'test', description: 'test', subdomain: 'test' })
   end
@@ -204,10 +196,6 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should update team user" do
     t = create_team
     assert_graphql_update('team_user', :team_id, t.id, @team.id)
-  end
-
-  test "should destroy team user" do
-    assert_graphql_destroy('team_user')
   end
 
   test "should read user" do

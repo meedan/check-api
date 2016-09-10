@@ -79,7 +79,8 @@ class ActiveSupport::TestCase
     end
   end
 
-  def authenticate_with_user(user = create_user)
+  def authenticate_with_user(user = nil)
+    user ||= create_user
     create_team_user(user: user, team: @team, role: 'owner') if user.current_team.nil?
     @request.env['devise.mapping'] = Devise.mappings[:api_user]
     sign_in user
@@ -149,7 +150,7 @@ class ActiveSupport::TestCase
 
   def assert_graphql_destroy(type)
     authenticate_with_user
-    obj = send("create_#{type}", { team: @team })
+    obj = type === 'team' ? @team : send("create_#{type}", { team: @team })
     klass = obj.class.name
     id = NodeIdentification.to_global_id(klass, obj.id)
     query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
@@ -243,7 +244,7 @@ class ActiveSupport::TestCase
 
   def assert_graphql_get_by_id(type, field, value)
     authenticate_with_user
-    obj = send("create_#{type}", { field.to_sym => value })
+    obj = send("create_#{type}", { field.to_sym => value, team: @team })
     query = "query GetById { #{type}(id: \"#{obj.id}\") { #{field} } }"
     post :create, query: query 
     assert_response :success

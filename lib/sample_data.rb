@@ -57,6 +57,11 @@ module SampleData
     end
 
     u.save!
+
+    if options[:team]
+      create_team_user team: options[:team], user: u
+    end
+
     u.reload
   end
 
@@ -75,6 +80,9 @@ module SampleData
   end
 
   def create_tag(options = {})
+    if options[:team]
+      options[:context] = create_project(team: options[:team])
+    end
     t = Tag.create({ tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
     sleep 1 if Rails.env.test?
     t.reload
@@ -85,6 +93,9 @@ module SampleData
     unless options.has_key?(:annotated) && options[:annotated].nil?
       a = options.delete(:annotated) || create_source
       type, id = a.class.name, a.id.to_s
+    end
+    if options[:team]
+      options[:context] = create_project(team: options[:team])
     end
     s = Status.create({ status: 'Credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
     sleep 1 if Rails.env.test?
@@ -125,7 +136,7 @@ module SampleData
     elsif options.has_key?(:team)
       account.team = options[:team]
     end
-    account.source = options.has_key?(:source) ? options[:source] : create_source
+    account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team])
     account.save!
     account.reload
   end
@@ -134,7 +145,7 @@ module SampleData
     project = Project.new
     project.title = options[:title] || random_string
     project.description = options[:description] || random_string(40)
-    project.user = options[:user] || create_user
+    project.user = options.has_key?(:user) ? options[:user] : create_user
     file = 'rails.png'
     if options.has_key?(:lead_image)
       file = options[:lead_image]
@@ -202,12 +213,17 @@ module SampleData
     source.user = options[:user]
     source.avatar = options[:avatar]
     source.save!
+
+    if options[:team]
+      create_project_source(project: create_project(team: options[:team], user: nil), source: source)
+    end
+
     source.reload
   end
 
   def create_project_source(options = {})
     ps = ProjectSource.new
-    project = options[:project] || create_project
+    project = options[:project] || create_project(team: options[:team])
     source = options[:source] || create_source
     ps.project_id = options[:project_id] || project.id
     ps.source_id = options[:source_id] || source.id

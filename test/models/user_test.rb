@@ -251,7 +251,7 @@ class UserTest < ActiveSupport::TestCase
     u.teams << t; u.save!
     u.teams << t2; u.save!
     # test fallback for current team
-    assert_equal t, u.current_team
+    assert_equal t2, u.current_team
     u.current_team_id = t.id
     u.save!
     assert_equal t, u.current_team
