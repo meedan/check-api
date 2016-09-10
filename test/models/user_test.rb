@@ -235,6 +235,12 @@ class UserTest < ActiveSupport::TestCase
       u.current_team_id = t2.id
       u.save!
     end
+    t3 = create_team
+    create_team_user team: t3, user: u, status: 'requested'
+    assert_raises ActiveRecord::RecordInvalid do
+      u.current_team_id = t3.id
+      u.save!
+    end
   end
 
   test "should set and retrieve current team" do
