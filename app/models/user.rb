@@ -83,7 +83,7 @@ class User < ActiveRecord::Base
 
   def current_team
     if self.current_team_id.blank?
-      tu = TeamUser.where(user_id: self.id, status: 'member').first
+      tu = TeamUser.where(user_id: self.id, status: 'member').last
       tu.team unless tu.nil?
     else
       Team.where(id: self.current_team_id).last
