@@ -6,10 +6,19 @@ class ProjectTest < ActiveSupport::TestCase
     assert_difference 'Project.count' do
       create_project
     end
-    assert_difference 'Team.count' do
-      u = create_user
-      t = create_team current_user: u
+    u = create_user
+    t = create_team current_user: u
+    assert_difference 'Project.count' do
       p = create_project team: t, current_user: u
+    end
+  end
+
+  test "should not create project by contributor" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'contributor'
+    assert_raise RuntimeError do
+      create_project team: t, current_user: u, context_team: t
     end
   end
 
