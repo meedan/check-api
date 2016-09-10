@@ -20,6 +20,25 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should read media" do
+    u = create_user
+    t = create_team current_user: create_user
+    m = create_media team: t
+    pu = create_user
+    pt = create_team current_user: pu, private: true
+    pm = create_media team: pt
+    Media.find_if_can(m.id, u, t)
+    assert_raise RuntimeError do
+      Media.find_if_can(pm.id, u, pt)
+    end
+    Media.find_if_can(pm.id, pu, pt)
+    tu = pt.team_users.last
+    tu.status = 'requested'; tu.save!
+    assert_raise RuntimeError do
+      Media.find_if_can(pm.id, pu, pt)
+    end
+  end
+
   test "should update and destroy media" do
     u = create_user
     t = create_team current_user: u

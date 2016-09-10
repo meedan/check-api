@@ -101,25 +101,37 @@ class Ability
   end
 
   def authenticated_perms
+    #can :read, User, :id => @user.id
     can :create, Team
     can :create, TeamUser, :user_id => @user.id, status: ['member', 'requested']
   end
 
   # extra permissions for all users
   def extra_perms_for_all_users
-    can :create, User
+    can [:create, :read], User
     can :read, Team, :private => false
     can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
-    can :read, Project do |project|
-      if project.team.private
-        tu = TeamUser.where(user_id: @user.id, team_id: project.team.id, status: 'member')
+    #can :read, User do |user|
+    #  t = user.teams.where(id: @context_team.id).last
+    #  unless t.nil?
+    #    if t.private
+    #      tu = t.team_users.where(user_id: @user.id, status: 'member')
+    #      !tu.last.nil?
+    #    else
+    #      !t.private
+    #    end
+    #  end
+    #end
+
+    can :read, [Contact, Project, TeamUser] do |obj|
+      if obj.team.private
+        tu = TeamUser.where(user_id: @user.id, team_id: obj.team.id, status: 'member')
         !tu.last.nil?
       else
-        !project.team.private
+        !obj.team.private
       end
     end
-    can :read, [Account, Source]
-    can :read, [Media, Comment, Flag, Status] do |obj|
+    can :read, [Account, Source, Media, ProjectMedia, ProjectSource, Comment, Flag, Status, Tag] do |obj|
       teams = Team.where(id: obj.get_team, private: false).map(&:id)
       if teams.empty?
         tu = TeamUser.where(user_id: @user.id, team_id: obj.get_team, status: 'member').map(&:id)

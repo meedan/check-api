@@ -27,7 +27,29 @@ class UserTest < ActiveSupport::TestCase
     u2.current_user = u
     u2.destroy
   end
-
+=begin
+  test "should read user" do
+    u = create_user
+    t = create_team
+    u1 = create_user
+    create_team_user user: u1, team: t
+    pu = create_user
+    pt = create_team current_user: pu, private: true
+    u2 = create_user
+    create_team_user user: u2, team: pt
+    User.find_if_can(u1.id, u, t)
+    assert_raise RuntimeError do
+      User.find_if_can(u2.id, u, pt)
+    end
+    User.find_if_can(u2.id, pu, pt)
+    User.find_if_can(u.id, u, t)
+    tu = pt.team_users.last
+    tu.status = 'requested'; tu.save!
+    assert_raise RuntimeError do
+      User.find_if_can(u2.id, pu, pt)
+    end
+  end
+=end
   test "should not require password if there is a provider" do
     assert_nothing_raised do
       create_user password: '', provider: 'twitter'

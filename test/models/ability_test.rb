@@ -809,39 +809,6 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:read, c4)
   end
 
-  test "find if can for user in public team" do
-    u = create_user
-    t1 = create_team
-    tu = create_team_user user: u , team: t1
-    t2 = create_team private: true
-    pa = create_project team: t1
-    pb = create_project team: t2
-    m = create_valid_media
-    create_project_media project: pa, media: m
-    create_project_media project: pb, media: m
-    c1 = create_comment annotated: m, context: pa
-    c2 = create_comment annotated: m, context: pb
-    c3 = create_comment annotated: pa
-    c4 = create_comment annotated: pb
-    Team.find_if_can(t1.id, u, t1)
-    assert_raise RuntimeError do
-        Team.find_if_can(t2.id, u, t1)
-    end
-    Project.find_if_can(pa.id, u, t1)
-    assert_raise RuntimeError do
-        Project.find_if_can(pb.id, u, t1)
-    end
-    Media.find_if_can(m.id, u, t1)
-    Comment.find_if_can(c1.id, u, t1)
-    assert_raise RuntimeError do
-        Comment.find_if_can(c2.id, u, t1)
-    end
-    Comment.find_if_can(c3.id, u, t1)
-    assert_raise RuntimeError do
-        Comment.find_if_can(c4.id, u, t1)
-    end
-  end
-
   test "admins can do anything" do
     u = create_user
     t = create_team

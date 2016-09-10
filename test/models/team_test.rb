@@ -11,6 +11,23 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should read team" do
+    u = create_user
+    t = create_team current_user: create_user
+    pu = create_user
+    pt = create_team current_user: pu, private: true
+    Team.find_if_can(t.id, u, t)
+    assert_raise RuntimeError do
+      Team.find_if_can(pt.id, u, pt)
+    end
+    Team.find_if_can(pt.id, pu, pt)
+    tu = pt.team_users.last
+    tu.status = 'requested'; tu.save!
+    assert_raise RuntimeError do
+      Team.find_if_can(pt.id, pu, pt)
+    end
+  end
+
   test "should update and destroy team" do
     u = create_user
     t = create_team current_user: u

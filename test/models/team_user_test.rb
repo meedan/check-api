@@ -49,6 +49,24 @@ class TeamUserTest < ActiveSupport::TestCase
     assert tu.save
   end
 
+  test "should read team user" do
+    u = create_user
+    t = create_team current_user: create_user
+    tu = t.team_users.last
+    pu = create_user
+    pt = create_team current_user: pu, private: true
+    ptu = pt.team_users.last
+    TeamUser.find_if_can(tu.id, u, t)
+    assert_raise RuntimeError do
+      TeamUser.find_if_can(ptu.id, u, pt)
+    end
+    TeamUser.find_if_can(ptu.id, pu, pt)
+    ptu.status = 'requested'; ptu.save!
+    assert_raise RuntimeError do
+      TeamUser.find_if_can(ptu.id, pu, pt)
+    end
+  end
+
   test "should request to join team" do
     u = create_user
     tu = create_team_user user: u, current_user: u, status: 'requested'

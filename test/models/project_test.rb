@@ -46,6 +46,25 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should read project" do
+    u = create_user
+    t = create_team current_user: create_user
+    p = create_project team: t
+    pu = create_user
+    pt = create_team current_user: pu, private: true
+    pp = create_project team: pt
+    Project.find_if_can(p.id, u, t)
+    assert_raise RuntimeError do
+      Project.find_if_can(pp.id, u, pt)
+    end
+    Project.find_if_can(pp.id, pu, pt)
+    tu = pt.team_users.last
+    tu.status = 'requested'; tu.save!
+    assert_raise RuntimeError do
+      Project.find_if_can(pp.id, pu, pt)
+    end
+  end
+
   test "should not save project without title" do
     project = Project.new
     assert_not project.save

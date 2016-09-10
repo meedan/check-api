@@ -39,6 +39,25 @@ class ContactTest < ActiveSupport::TestCase
     end
   end
 
+  test "should read contact" do
+    u = create_user
+    t = create_team current_user: create_user
+    c = create_contact team: t
+    pu = create_user
+    pt = create_team current_user: pu, private: true
+    pc = create_contact team: pt
+    Contact.find_if_can(c.id, u, t)
+    assert_raise RuntimeError do
+      Contact.find_if_can(pc.id, u, pt)
+    end
+    Contact.find_if_can(pc.id, pu, pt)
+    tu = pt.team_users.last
+    tu.status = 'requested'; tu.save!
+    assert_raise RuntimeError do
+      Contact.find_if_can(pc.id, pu, pt)
+    end
+  end
+
   test "should relate contacts to team" do
     t = create_team
     c1 = create_contact team: t

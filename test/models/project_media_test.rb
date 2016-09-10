@@ -62,6 +62,27 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should read project media" do
+    u = create_user
+    t = create_team current_user: create_user
+    m = create_media team: t
+    pm = m.project_medias.last
+    pu = create_user
+    pt = create_team current_user: pu, private: true
+    m = create_media team: pt
+    ppm = m.project_medias.last
+    ProjectMedia.find_if_can(pm.id, u, t)
+    assert_raise RuntimeError do
+      ProjectMedia.find_if_can(ppm.id, u, pt)
+    end
+    ProjectMedia.find_if_can(ppm.id, pu, pt)
+    tu = pt.team_users.last
+    tu.status = 'requested'; tu.save!
+    assert_raise RuntimeError do
+      ProjectMedia.find_if_can(ppm.id, pu, pt)
+    end
+  end
+
   test "should get media from callback" do
     pm = create_project_media
     assert_equal 2, pm.media_id_callback(1, [1, 2, 3])

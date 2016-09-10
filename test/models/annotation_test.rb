@@ -93,4 +93,27 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal ['read Comment', 'update Comment', 'destroy Comment'], JSON.parse(pc.permissions).keys
   end
 
+  test "should read annotation" do
+    u = create_user
+    t = create_team current_user: create_user
+    m = create_media team: t
+    c = create_comment
+    m.add_annotation c
+    pu = create_user
+    pt = create_team current_user: pu, private: true
+    pm = create_media team: pt
+    pc = create_comment
+    pm.add_annotation pc
+    Comment.find_if_can(c.id, u, t)
+    assert_raise RuntimeError do
+      Comment.find_if_can(pc.id, u, pt)
+    end
+    Comment.find_if_can(pc.id, pu, pt)
+    tu = pt.team_users.last
+    tu.status = 'requested'; tu.save!
+    assert_raise RuntimeError do
+      Comment.find_if_can(pc.id, pu, pt)
+    end
+  end
+
 end
