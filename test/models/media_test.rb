@@ -159,6 +159,16 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [p1, p2], m.projects
   end
 
+  test "should set title and description" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"title": "add title","description":"add description","url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    assert_equal 'add title', m.reload.title
+    assert_equal 'add description', m.reload.description
+  end
+
   test "should set URL from Pender" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'

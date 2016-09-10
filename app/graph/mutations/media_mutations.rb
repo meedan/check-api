@@ -3,14 +3,18 @@ module MediaMutations
     url: '!str',
     account_id: 'int',
     project_id: 'int',
-    user_id: 'int'
+    user_id: 'int',
+    title: 'str',
+    description: 'str'
   }
-    
+
   update_fields = {
     url: 'str',
     account_id: 'int',
     project_id: 'int',
     user_id: 'int',
+    title: 'str',
+    description: 'str',
     id: '!id'
   }
 
