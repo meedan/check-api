@@ -96,7 +96,7 @@ class AbilityTest < ActiveSupport::TestCase
     own_media = create_valid_media user_id: u.id
     pm_own = create_project_media media: own_media
     assert ability.cannot?(:update, m2)
-    assert ability.cannot?(:update, own_media)
+    assert ability.can?(:update, own_media)
     assert ability.cannot?(:destroy, m2)
     assert ability.cannot?(:destroy, own_media)
     # tests for project media
@@ -132,7 +132,7 @@ class AbilityTest < ActiveSupport::TestCase
     own_media = create_valid_media user_id: u.id
     pm_own = create_project_media media: own_media
     assert ability.cannot?(:update, m2)
-    assert ability.cannot?(:update, own_media)
+    assert ability.can?(:update, own_media)
     assert ability.cannot?(:destroy, m2)
     assert ability.cannot?(:destroy, own_media)
     # tests for project media

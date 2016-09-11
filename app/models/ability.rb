@@ -82,6 +82,7 @@ class Ability
   def contributor_perms
     can :update, User, :id => @user.id
     can :create, [Media, Account, Source, Comment, Tag]
+    can :update, Media, :user_id => @user.id
     can [:update, :destroy], Media do |obj|
       obj.get_team.include? @context_team.id and (obj.user_id == @user.id)
     end
