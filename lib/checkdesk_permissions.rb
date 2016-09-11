@@ -4,6 +4,15 @@ module CheckdeskPermissions
     base.extend(ClassMethods)
   end
 
+  class AccessDenied < ::StandardError
+    attr_reader :message
+
+    def initialize(message)
+      super
+      @message = message
+    end
+  end
+
   module ClassMethods
     def find_if_can(id, current_user, context_team)
       if current_user.nil?
@@ -14,7 +23,7 @@ module CheckdeskPermissions
         if ability.can?(:read, model)
           model
         else
-          raise "Sorry, you can't read this #{model.class.name.downcase}"
+          raise AccessDenied, "Sorry, you can't read this #{model.class.name.downcase}"
         end
       end
     end

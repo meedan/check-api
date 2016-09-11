@@ -900,6 +900,30 @@ class AbilityTest < ActiveSupport::TestCase
     assert_equal u, User.find_if_can(u.id, nil, nil)
   end
 
-  test "should set team when getting permissions" do
+  test "should read source without user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    s = create_source user: nil
+    ability = Ability.new(u, t)
+    assert ability.can?(:read, s)
+  end
+
+  test "should read own source" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    s = create_source user: u
+    ability = Ability.new(u, t)
+    assert ability.can?(:read, s)
+  end
+
+  test "should not read source from other user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    s = create_source user: create_user
+    ability = Ability.new(u, t)
+    assert ability.cannot?(:read, s)
   end
 end

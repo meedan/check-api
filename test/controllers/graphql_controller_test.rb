@@ -357,4 +357,12 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read object from contact" do
     assert_graphql_read_object('contact', { 'team' => 'name' })
   end
+
+  test "should get access denied on source by id" do
+    authenticate_with_user
+    s = create_source user: create_user
+    query = "query GetById { source(id: \"#{s.id}\") { name } }"
+    post :create, query: query
+    assert_response 403
+  end
 end
