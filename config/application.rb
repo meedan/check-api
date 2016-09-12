@@ -54,5 +54,16 @@ module Checkdesk
         enable_starttls_auto: true
       }
     end
+
+    if !cfg['amazon_ses_host'].blank? && !Rails.env.test?
+      config.action_mailer.smtp_settings = {
+        address:              cfg['amazon_ses_host'],
+        port:                 cfg['amazon_ses_port'],
+        user_name:            cfg['amazon_ses_username'],
+        password:             cfg['amazon_ses_password'],
+        authentication:       :login,
+        enable_starttls_auto: true
+      }
+    end
   end
 end
