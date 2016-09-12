@@ -69,6 +69,7 @@ class User < ActiveRecord::Base
       token: self.token,
       current_team: self.current_team,
       teams: self.user_teams,
+      team_ids: self.team_ids,
       permissions: self.permissions
     }
   end
