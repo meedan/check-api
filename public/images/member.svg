@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+    <title>member</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Production-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="square">
+        <g id="member" stroke-width="12" stroke="#D1D6DB">
+            <g id="Group-2" transform="translate(73.000000, 54.000000)">
+                <g id="Group">
+                    <path d="M0,146 C0,146 6.4396971e-08,121.822014 0,95.4614306 C-6.4972254e-08,68.8653576 11.5207108,60 25.5789471,60 C39.6371833,60 53.9999994,68.8653576 53.9999994,95.4614306 C53.9999994,122.057504 54,146 54,146" id="Line"></path>
+                    <circle id="Oval-7" cx="27" cy="21" r="21"></circle>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
