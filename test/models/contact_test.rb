@@ -47,13 +47,13 @@ class ContactTest < ActiveSupport::TestCase
     pt = create_team current_user: pu, private: true
     pc = create_contact team: pt
     Contact.find_if_can(c.id, u, t)
-    assert_raise RuntimeError do
+    assert_raise CheckdeskPermissions::AccessDenied do
       Contact.find_if_can(pc.id, u, pt)
     end
     Contact.find_if_can(pc.id, pu, pt)
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise RuntimeError do
+    assert_raise CheckdeskPermissions::AccessDenied do
       Contact.find_if_can(pc.id, pu, pt)
     end
   end

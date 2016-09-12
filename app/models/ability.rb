@@ -134,7 +134,7 @@ class Ability
     end
     
     can :read, [Account, Source, Media, ProjectMedia, ProjectSource, Comment, Flag, Status, Tag] do |obj|
-      if obj.respond_to?(:user_id)
+      if obj.is_a?(Source) && obj.respond_to?(:user_id)
         obj.user_id === @user.id || obj.user_id.nil?
       else
         teams = Team.where(id: obj.get_team, private: false).map(&:id)

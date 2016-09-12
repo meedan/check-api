@@ -57,12 +57,12 @@ class TeamUserTest < ActiveSupport::TestCase
     pt = create_team current_user: pu, private: true
     ptu = pt.team_users.last
     TeamUser.find_if_can(tu.id, u, t)
-    assert_raise RuntimeError do
+    assert_raise CheckdeskPermissions::AccessDenied do
       TeamUser.find_if_can(ptu.id, u, pt)
     end
     TeamUser.find_if_can(ptu.id, pu, pt)
     ptu.status = 'requested'; ptu.save!
-    assert_raise RuntimeError do
+    assert_raise CheckdeskPermissions::AccessDenied do
       TeamUser.find_if_can(ptu.id, pu, pt)
     end
   end

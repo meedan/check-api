@@ -28,13 +28,13 @@ class MediaTest < ActiveSupport::TestCase
     pt = create_team current_user: pu, private: true
     pm = create_media team: pt
     Media.find_if_can(m.id, u, t)
-    assert_raise RuntimeError do
+    assert_raise CheckdeskPermissions::AccessDenied do
       Media.find_if_can(pm.id, u, pt)
     end
     Media.find_if_can(pm.id, pu, pt)
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise RuntimeError do
+    assert_raise CheckdeskPermissions::AccessDenied do
       Media.find_if_can(pm.id, pu, pt)
     end
   end

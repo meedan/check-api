@@ -105,13 +105,13 @@ class CommentTest < ActiveSupport::TestCase
     pc = create_comment
     pm.add_annotation pc
     Comment.find_if_can(c.id, u, t)
-    assert_raise RuntimeError do
+    assert_raise CheckdeskPermissions::AccessDenied do
       Comment.find_if_can(pc.id, u, pt)
     end
     Comment.find_if_can(pc.id, pu, pt)
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise RuntimeError do
+    assert_raise CheckdeskPermissions::AccessDenied do
       Comment.find_if_can(pc.id, pu, pt)
     end
   end
