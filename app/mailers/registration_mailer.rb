@@ -4,6 +4,6 @@ class RegistrationMailer < ApplicationMailer
   def welcome_email(user)
     @user = user
     @url = CONFIG['checkdesk_base_url']
-    mail(to: @user.email, subject: 'New account for you on Checkdesk')
+    mail(to: @user.email, subject: 'New account for you on Check')
   end
 end

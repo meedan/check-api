@@ -1,6 +1,6 @@
-# WELCOME TO CHECKDESK
+# WELCOME TO CHECK
 
-Checkdesk is a web application developed by Meedan, Inc, a San Francisco based 501 c3 nonprofit international media and open source technology do-tank. Our goal in developing Checkdesk was to make the world a better place. Really. So, you can take these terms and conditions as our best effort to inform you of your legal obligations as a user and our legal obligations to you as the company that has designed and deployed this software.
+Check is a web application developed by Meedan, Inc, a San Francisco based 501 c3 nonprofit international media and open source technology do-tank. Our goal in developing Check was to make the world a better place. Really. So, you can take these terms and conditions as our best effort to inform you of your legal obligations as a user and our legal obligations to you as the company that has designed and deployed this software.
 
 We recognize that as a user of our services you are extending to us certain aspects of your reputation and identity. We take this seriously and we’ve crafted these Terms of Service (the “Terms”) reflect that.
 
@@ -10,15 +10,15 @@ Now, some of the language that pleases the lawyers.
 
 ## GENERAL
 
-Meedan provides Checkdesk users with the ability to publish, comment on, contextualize, and, generally, attempt to verify social media content from the internet. Collectively these are referred to as “the Services.” The services so defined in the Terms include any services performed by accessing any of the Checkdesk instances served by any of our media partners. The Terms describes Meedan’s offerings to you, the User, and describes your obligations to us, Meedan, and is an agreement between you, the User, and us, Meedan, the service provider (the “Agreement”).
+Meedan provides Check users with the ability to publish, comment on, contextualize, and, generally, attempt to verify social media content from the internet. Collectively these are referred to as “the Services.” The services so defined in the Terms include any services performed by accessing any of the Check instances served by any of our media partners. The Terms describes Meedan’s offerings to you, the User, and describes your obligations to us, Meedan, and is an agreement between you, the User, and us, Meedan, the service provider (the “Agreement”).
 
 In order to use our services you must accept the Terms and Meedan’s Privacy Policy. Moreover, by using our site or services you are implicitly agreeing to be bound by Terms.
 
 We reserve the right to modify the Terms at any time, without prior notice, by making changes to this page. You are responsible for regularly reviewing these terms. Your continued use of the site after such changes serves as an acknowledgment and acceptance of the amended Terms.
 
-## YOUR CHECKDESK ACCOUNT
+## YOUR CHECK ACCOUNT
 
-You must be at least 13 (thirteen) years of age or older to register for a Checkdesk account. Use of the website as either a registered or unregistered User is void where prohibited.
+You must be at least 13 (thirteen) years of age or older to register for a Check account. Use of the website as either a registered or unregistered User is void where prohibited.
 
 In consideration of your use of the site, you agree to:
 
@@ -27,19 +27,19 @@ Maintain the security and confidentiality of your password and identification.
 Maintain and promptly update the Registration Data, and any other information you provide to Company, to keep it accurate, current and complete.
 Be fully responsible for all use of your account and for any actions that take place using your account.
 Accept that your account is not transferrable.
-Notify Meedan immediately if you suspect unauthorized use of your Checkdesk account.
+Notify Meedan immediately if you suspect unauthorized use of your Check account.
 Meedan will not be responsible for any losses arising out of the unauthorized use of your member name, password and/or account, and you agree to indemnify and hold harmless Meedan, its partners, parents, subsidiaries, agents, affiliates and/or licensors, as applicable, for any improper, unauthorized or illegal uses of your account.
 
 Meedan reserves the right to terminate your Account or restrict access to your Account, or to delete any content posted through your Account, with or without notice, for any or for no reason, and without any liability to you.
 
 ## USER CONDUCT
 
-The Checkdesk application allows users to cross-post content from around the web. We are particularly aware that the varying political, social, and cultural sensitivities of our Users demand we take an active approach to ensuring everyone can participate in a respectful, inclusive online environment.
+The Check application allows users to cross-post content from around the web. We are particularly aware that the varying political, social, and cultural sensitivities of our Users demand we take an active approach to ensuring everyone can participate in a respectful, inclusive online environment.
 
 By using the site and agreeing to the Terms, you agree that you will not:
 
 Post content or initiate communications which are unlawful, libelous, abusive, urging violence, promoting intolerance, discriminatory, or otherwise objectionable.
-Use Checkdesk for any illegal purpose.
+Use Check for any illegal purpose.
 Upload, post, email, transmit or otherwise make available any content or initiate any communication that infringes upon patents, trademarks, copyrights, trade secrets, other proprietary rights, or that contains any content or information that you do not have the right to disclose or make available.
 Upload, post, email, transmit or otherwise make available any unsolicited or unauthorized advertising, promotional materials, “junk mail”, “spam”, “chain letters”, “pyramid schemes”, or any other form of solicitation.
 Upload, post, email, transmit or otherwise make available any material that contains software viruses or any other computer code, files, or programs designed to interrupt, destroy or limit the functionality of any computer software or hardware or telecommunications equipment.
@@ -59,12 +59,12 @@ Recognizing the global nature of the internet, you agree to comply with all appl
 
 ## THIRD PARTY LINKS
 
-Checkdesk serves as an aggregation point for content from other websites. We cannot warrant and do not take responsibility for the text, photos, videos, graphics, audio, software, or any other data or content originating from or belonging to these sites. Linking to Third Party sites does not express or imply approval or endorsement of these sites or the content contained therein. You agree that neither Meedan nor the partner or individual managing this Checkdesk instance, bear responsibility or liability for any content accessed or harm caused from any third-party website. These Terms of Service are not in effect should you link from Checkdesk to a Third Party site. We encourage you to review the terms and policies of any site you link to from Checkdesk
+Check serves as an aggregation point for content from other websites. We cannot warrant and do not take responsibility for the text, photos, videos, graphics, audio, software, or any other data or content originating from or belonging to these sites. Linking to Third Party sites does not express or imply approval or endorsement of these sites or the content contained therein. You agree that neither Meedan nor the partner or individual managing this Check instance, bear responsibility or liability for any content accessed or harm caused from any third-party website. These Terms of Service are not in effect should you link from Check to a Third Party site. We encourage you to review the terms and policies of any site you link to from Check
 
 ## CONTENT RIGHTS AND LICENSES
 
 Creative Commons
-All content created on Checkdesk, except where otherwise noted, is licensed under a Creative Commons Attribution Non-Commercial Share-Alike 3.0 Unported License. Others can download, redistribute, translate, remix, tweak, and build upon your contributions non-commercially, as long as they credit you and license their new creations under identical terms. All new work based on yours will carry the same license, so any derivatives will also be non-commercial in nature. This license covers all linguistic data generated on the liveblog.
+All content created on Check, except where otherwise noted, is licensed under a Creative Commons Attribution Non-Commercial Share-Alike 3.0 Unported License. Others can download, redistribute, translate, remix, tweak, and build upon your contributions non-commercially, as long as they credit you and license their new creations under identical terms. All new work based on yours will carry the same license, so any derivatives will also be non-commercial in nature. This license covers all linguistic data generated on the liveblog.
 
 Some rights reserved.
 
@@ -82,11 +82,11 @@ If you are a copyright owner and you believe that your copyrighted materials hav
 
 ## WARRANTIES, DISCLAIMERS AND INDEMNIFICATION?
 
-YOUR USE OF Checkdesk SITES IS AT YOUR OWN RISK. WE ASSUME NO RESPONSIBILITY AND/OR LIABILITY FOR: THE CONTENT OF ANY MATERIAL OR COMMUNICATION CREATED BY YOU, ANY THIRD PARTY OR RECEIVED BY YOU FROM A SOURCE OUTSIDE THE OUR SITE (EVEN IF YOU HAVE LINKED TO THAT SITE FROM the Checkdesk powered liveblog); ANY DIRECT, INDIRECT, CONSEQUENTIAL, PUNITIVE OR INCIDENTAL DAMAGES, LIABILITY AND/OR COSTS, INCLUDING ATTORNEYS FEES, CAUSED BY THE WAY YOU USE THE liveblog MATERIALS OR TECHNOLOGY, INCLUDING BUT NOT LIMITED TO CLAIMS OF SLANDER, LIBEL, INFRINGEMENT, AND/OR PLAGIARISM; ANY DIRECT, INDIRECT, CONSEQUENTIAL, PUNITIVE OR INCIDENTAL DAMAGES, LIABILITY AND/OR COSTS, INCLUDING ATTORNEYS FEES, ARISING FROM Meedan SERVICE INTERRUPTIONS, INTERNET SERVICE INTERRUPTIONS OR CHANGES, EVEN IF THESE DISRUPTIONS ARISE FROM CIRCUMSTANCES UNDER OUR CONTROL; ANY OTHER DIRECT, INDIRECT, CONSEQUENTIAL, PUNITIVE DAMAGES OF ANY KIND, INCLUDING ATTORNEYS FEES, ARISING FROM YOUR PARTICIPATION; PRIVACY IN CONNECTION WITH YOUR USE OF Checkdesk powered liveblog AND/OR OTHER INTERNET ACTIVITIES (EXCEPT IN THE CASE OF ANY WILLFUL OR GROSSLY NEGLIGENT BREACH OF THE PRIVACY POLICY BY Meedan).
+YOUR USE OF Check SITES IS AT YOUR OWN RISK. WE ASSUME NO RESPONSIBILITY AND/OR LIABILITY FOR: THE CONTENT OF ANY MATERIAL OR COMMUNICATION CREATED BY YOU, ANY THIRD PARTY OR RECEIVED BY YOU FROM A SOURCE OUTSIDE THE OUR SITE (EVEN IF YOU HAVE LINKED TO THAT SITE FROM the Check powered liveblog); ANY DIRECT, INDIRECT, CONSEQUENTIAL, PUNITIVE OR INCIDENTAL DAMAGES, LIABILITY AND/OR COSTS, INCLUDING ATTORNEYS FEES, CAUSED BY THE WAY YOU USE THE liveblog MATERIALS OR TECHNOLOGY, INCLUDING BUT NOT LIMITED TO CLAIMS OF SLANDER, LIBEL, INFRINGEMENT, AND/OR PLAGIARISM; ANY DIRECT, INDIRECT, CONSEQUENTIAL, PUNITIVE OR INCIDENTAL DAMAGES, LIABILITY AND/OR COSTS, INCLUDING ATTORNEYS FEES, ARISING FROM Meedan SERVICE INTERRUPTIONS, INTERNET SERVICE INTERRUPTIONS OR CHANGES, EVEN IF THESE DISRUPTIONS ARISE FROM CIRCUMSTANCES UNDER OUR CONTROL; ANY OTHER DIRECT, INDIRECT, CONSEQUENTIAL, PUNITIVE DAMAGES OF ANY KIND, INCLUDING ATTORNEYS FEES, ARISING FROM YOUR PARTICIPATION; PRIVACY IN CONNECTION WITH YOUR USE OF Check powered liveblog AND/OR OTHER INTERNET ACTIVITIES (EXCEPT IN THE CASE OF ANY WILLFUL OR GROSSLY NEGLIGENT BREACH OF THE PRIVACY POLICY BY Meedan).
 
 EVERYTHING ON THE liveblog SITE IS PROVIDED TO YOU “AS IS”, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
-If you do something that, according to the terms of the Privacy Policy and Other Agreements, warrants your termination from the service or expulsion from the Checkdesk liveblog, you accept full responsibility for anything that happens following your expulsion, including indemnifying and holding Meedan harmless from any and all claims by others arising from your conduct and/or use of the Meedan site, and/or the materials and services provided.
+If you do something that, according to the terms of the Privacy Policy and Other Agreements, warrants your termination from the service or expulsion from the Check liveblog, you accept full responsibility for anything that happens following your expulsion, including indemnifying and holding Meedan harmless from any and all claims by others arising from your conduct and/or use of the Meedan site, and/or the materials and services provided.
 
 ## SERVICE UPTIME
 
@@ -118,9 +118,9 @@ If we remove or disable access in response to such a notice, we will make a good
 ### Designated Agent
 Meedan’s Designated Agent to receive notification of alleged infringement under the DMCA is:
 
-Ed Bice 
-Email: TOS@meedan.com 
-Physical Mail: 972 Mission Street, 5th Floor, San Francisco, CA 94103 USA 
+Ed Bice
+Email: TOS@meedan.com
+Physical Mail: 1355 Market, Suite 488, San Francisco, CA 94103 USA
 Upon receipt of proper notification of claimed infringement, Meedan will follow the procedures outlined herein and in the DMCA.
 Infringement Notification
 If you believe that your work has been copied in a way that constitutes copyright infringement, or your intellectual property rights have been otherwise violated, please provide Meedan’s Registered Agent (listed above) the following information in a written communication (preferably via email):
