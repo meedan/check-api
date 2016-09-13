@@ -200,4 +200,13 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project team_id: t2.id
     assert_equal t2, p.reload.team
   end
+
+  test "should set user" do
+    u = create_user
+    t = create_team current_user: u
+    p = create_project team: t, user: nil, current_user: nil
+    assert_nil p.user
+    p = create_project current_user: u, user: nil
+    assert_equal u, p.user
+  end
 end

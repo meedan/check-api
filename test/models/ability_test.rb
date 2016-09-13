@@ -926,4 +926,72 @@ class AbilityTest < ActiveSupport::TestCase
     ability = Ability.new(u, t)
     assert ability.cannot?(:read, s)
   end
+
+  test "should owner destroy annotation from any project from his team" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: u, role: 'owner'
+    p1 = create_project team: t
+    p2 = create_project team: t
+    a1 = create_annotation context: p1
+    a2 = create_annotation context: p1
+    a3 = create_annotation context: p2
+    a4 = create_annotation
+    a = Ability.new(u, t)
+    assert a.can?(:destroy, a1)
+    assert a.can?(:destroy, a2)
+    assert a.can?(:destroy, a3)
+    assert a.cannot?(:destroy, a4)
+  end
+
+  test "should editor destroy annotation from any project from his team" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: u, role: 'editor'
+    p1 = create_project team: t
+    p2 = create_project team: t
+    a1 = create_annotation context: p1
+    a2 = create_annotation context: p1
+    a3 = create_annotation context: p2
+    a4 = create_annotation
+    a = Ability.new(u, t)
+    assert a.can?(:destroy, a1)
+    assert a.can?(:destroy, a2)
+    assert a.can?(:destroy, a3)
+    assert a.cannot?(:destroy, a4)
+  end
+
+  test "should journalist destroy annotation from his project only" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: u, role: 'journalist'
+    p1 = create_project team: t, current_user: u, user: nil
+    p2 = create_project team: t
+    a1 = create_annotation context: p1
+    a2 = create_annotation context: p1
+    a3 = create_annotation context: p2
+    a4 = create_annotation
+    a = Ability.new(u, t)
+    assert a.can?(:destroy, a1)
+    assert a.can?(:destroy, a2)
+    assert a.cannot?(:destroy, a3)
+    assert a.cannot?(:destroy, a4)
+  end
+
+  test "should contributor destroy annotation from him only" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: u, role: 'contributor'
+    p1 = create_project team: t
+    p2 = create_project team: t
+    a1 = create_annotation context: p1, annotator: u
+    a2 = create_annotation context: p1
+    a3 = create_annotation context: p2
+    a4 = create_annotation
+    a = Ability.new(u, t)
+    assert a.can?(:destroy, a1)
+    assert a.cannot?(:destroy, a2)
+    assert a.cannot?(:destroy, a3)
+    assert a.cannot?(:destroy, a4)
+  end
 end

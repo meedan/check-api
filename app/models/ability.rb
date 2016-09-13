@@ -38,6 +38,9 @@ class Ability
     can :destroy, Team, :id => @context_team.id
     can [:create, :update], TeamUser, :team_id => @context_team.id, role: ['owner']
     can :destroy, Contact, :team_id => @context_team.id
+    can :destroy, [Annotation, Comment, Tag, Status, Flag] do |obj|
+      obj.get_team.include? @context_team.id
+    end
   end
 
   def editor_perms
@@ -52,11 +55,8 @@ class Ability
     can :cud, [ProjectMedia, ProjectSource] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can [:update, :destroy], [Comment, Tag] do |obj|
+    can [:update, :destroy], [Comment, Tag, Flag, Annotation] do |obj|
       obj.get_team.include? @context_team.id
-    end
-    can [:update, :destroy], Flag do |flag|
-      flag.get_team.include? @context_team.id
     end
     can [:create, :destroy], Status do |status|
       status.get_team.include? @context_team.id
@@ -76,6 +76,9 @@ class Ability
     end
     can [:create, :destroy], Status do |status|
       status.get_team.include? @context_team.id and (status.annotator_id.to_i == @user.id)
+    end
+    can :destroy, [Comment, Annotation, Status, Tag, Flag] do |obj|
+      obj.context_type === 'Project' && obj.context.user_id === @user.id
     end
   end
 
@@ -98,6 +101,9 @@ class Ability
     end
     can :create, Flag do |flag|
       flag.get_team.include? @context_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
+    end
+    can :destroy, [Comment, Annotation, Status, Tag, Flag] do |obj|
+      obj.annotator_type === 'User' && obj.annotator_id === @user.id
     end
   end
 

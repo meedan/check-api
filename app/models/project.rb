@@ -11,7 +11,7 @@ class Project < ActiveRecord::Base
 
   mount_uploader :lead_image, ImageUploader
   
-  before_validation :set_description_and_team, on: :create
+  before_validation :set_description_and_team_and_user, on: :create
 
   validates_presence_of :title
   validates :lead_image, size: true
@@ -52,10 +52,11 @@ class Project < ActiveRecord::Base
 
   private
 
-  def set_description_and_team
+  def set_description_and_team_and_user
     self.description ||= ''
     if !self.current_user.nil? && !self.team_id
       self.team = self.current_user.current_team
     end
+    self.user ||= self.current_user
   end
 end
