@@ -66,7 +66,7 @@ class Ability
   def journalist_perms
     can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['journalist', 'contributor'] }
     can [:create, :update], TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
-    can :create, Project
+    can :create, Project, :team_id => @context_team.id
     can [:update, :destroy], Project, :team_id => @context_team.id, :user_id => @user.id
     can :create, Flag do |flag|
       flag.get_team.include? @context_team.id and (flag.flag.to_s == 'Mark as graphic')
@@ -138,7 +138,7 @@ class Ability
         !obj.team.private
       end
     end
-    
+
     can :read, [Account, Source, Media, ProjectMedia, ProjectSource, Comment, Flag, Status, Tag] do |obj|
       if obj.is_a?(Source) && obj.respond_to?(:user_id)
         obj.user_id === @user.id || obj.user_id.nil?
