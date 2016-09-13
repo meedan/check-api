@@ -43,8 +43,12 @@ class GraphqlCrudOperations
   end
 
   def self.destroy(inputs, ctx, parents = [])
-    obj = NodeIdentification.object_from_id(inputs[:id], ctx)
+    type, id = NodeIdentification.from_global_id(inputs[:id])
+    obj = type.constantize.find(id)
+    obj.current_user = ctx[:current_user]
+    obj.context_team = ctx[:context_team]
     obj.destroy
+    
     ret = { deletedId: inputs[:id] }
 
     parents.each { |parent| ret[parent.to_sym] = obj.send(parent) }
