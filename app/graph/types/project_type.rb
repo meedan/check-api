@@ -15,7 +15,10 @@ ProjectType = GraphQL::ObjectType.define do
     type TeamType
 
     resolve -> (project, _args, _ctx) {
-      project.team
+      team = project.team
+      team.context_team = project.context_team
+      team.current_user = project.current_user
+      team
     }
   end
 
