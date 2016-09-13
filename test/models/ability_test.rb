@@ -930,7 +930,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "should owner destroy annotation from any project from his team" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: u, role: 'owner'
+    create_team_user user: u, team: t, role: 'owner'
     p1 = create_project team: t
     p2 = create_project team: t
     a1 = create_annotation context: p1
@@ -947,7 +947,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "should editor destroy annotation from any project from his team" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: u, role: 'editor'
+    create_team_user user: u, team: t, role: 'editor'
     p1 = create_project team: t
     p2 = create_project team: t
     a1 = create_annotation context: p1
@@ -964,7 +964,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "should journalist destroy annotation from his project only" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: u, role: 'journalist'
+    create_team_user user: u, team: t, role: 'journalist'
     p1 = create_project team: t, current_user: u, user: nil
     p2 = create_project team: t
     a1 = create_annotation context: p1
@@ -981,7 +981,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "should contributor destroy annotation from him only" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: u, role: 'contributor'
+    create_team_user user: u, team: t, role: 'contributor'
     p1 = create_project team: t
     p2 = create_project team: t
     a1 = create_annotation context: p1, annotator: u
@@ -993,5 +993,15 @@ class AbilityTest < ActiveSupport::TestCase
     assert a.cannot?(:destroy, a2)
     assert a.cannot?(:destroy, a3)
     assert a.cannot?(:destroy, a4)
+  end
+
+  test "should user destroy own request to join a team" do
+    u = create_user
+    t = create_team
+    tu1 = create_team_user user: u, team: t
+    tu2 = create_team_user user: create_user, team: t
+    a = Ability.new(u, t)
+    assert a.can?(:destroy, tu1)
+    assert a.cannot?(:destroy, tu2)
   end
 end

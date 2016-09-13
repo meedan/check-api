@@ -37,7 +37,7 @@ TeamType = GraphQL::ObjectType.define do
 
   connection :projects, -> { ProjectType.connection_type } do
     resolve ->(team, _args, _ctx) {
-      team.projects
+      team.recent_projects
     }
   end
 end

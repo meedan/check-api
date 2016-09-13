@@ -105,6 +105,9 @@ class Ability
     can :destroy, [Comment, Annotation, Status, Tag, Flag] do |obj|
       obj.annotator_type === 'User' && obj.annotator_id === @user.id
     end
+    can :destroy, TeamUser do |obj|
+      obj.user_id === @user.id
+    end
   end
 
   def authenticated_perms

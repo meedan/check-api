@@ -12,8 +12,9 @@ TeamUserType = GraphQL::ObjectType.define do
   field :status, types.String
   field :role, types.String
   field :permissions, types.String
+  
   field :team do
-    type -> { TeamType }
+    type TeamType
 
     resolve -> (team_user, _args, _ctx) {
       team_user.team
@@ -27,5 +28,4 @@ TeamUserType = GraphQL::ObjectType.define do
       team_user.user
     }
   end
-# End of fields
 end

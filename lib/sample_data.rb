@@ -164,6 +164,10 @@ module SampleData
     project.reload
   end
 
+  def create_recent_project(options = {})
+    create_project(options)
+  end
+
   def create_team(options = {})
     team = Team.new
     team.name = options[:name] || random_string

@@ -38,12 +38,16 @@ class Team < ActiveRecord::Base
       id: Base64.encode64("Team/#{self.id}"),
       avatar: self.avatar,
       name: self.name,
-      projects: self.projects
+      projects: self.recent_projects
     }
   end
 
   def owners
     self.users.where('team_users.role' => 'owner')
+  end
+
+  def recent_projects
+    self.projects.order('id DESC')
   end
 
   private
