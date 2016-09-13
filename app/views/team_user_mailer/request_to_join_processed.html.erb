@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>Request to join <%= @team.name %> on Check</p>
+    <% if @accepted %>
+    <p>Your request to join <%= @team.name %> was accepted! Go to the team page at <%= @url %> and start contributing!</p>
+    <% else %>
+    <p>Sorry, but your request to join <%= @team.name %> was rejected.</p>
+    <% end %>
+  </body>
+</html>

@@ -176,4 +176,13 @@ class TeamTest < ActiveSupport::TestCase
   test "should have a JSON version" do
     assert_kind_of Hash, create_team.as_json
   end
+
+  test "should not send email when team is created" do
+    u = create_user
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      assert_difference 'TeamUser.count' do
+        create_team current_user: u
+      end
+    end
+  end
 end

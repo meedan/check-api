@@ -108,4 +108,46 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should send e-mail to owners when user requests to join" do
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      create_team_user
+    end
+
+    t = create_team
+    u = create_user
+    create_team_user team: u, user: u, role: 'owner'
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      create_team_user team: t
+    end
+  end
+
+  test "should send email to requestor when his request is accepted" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: u, user: u, role: 'contributor', status: 'requested'
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      tu.status = 'member'
+      tu.save!
+    end
+  end
+
+  test "should send email to requestor when his request is rejected" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: u, user: u, role: 'contributor', status: 'requested'
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      tu.status = 'banned'
+      tu.save!
+    end
+  end
+
+  test "should not send email to requestor when there is no status change" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: u, user: u, role: 'contributor', status: 'requested'
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      tu.role = 'owner'
+      tu.save!
+    end
+  end
 end

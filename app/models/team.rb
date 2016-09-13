@@ -42,6 +42,10 @@ class Team < ActiveRecord::Base
     }
   end
 
+  def owners
+    self.users.where('team_users.role' => 'owner')
+  end
+
   private
 
   def add_user_to_team
