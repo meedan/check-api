@@ -18,14 +18,13 @@ development: &default
   allow_duplicated_urls: false
   default_mail: root@localhost
   checkdesk_base_url: http://localhost:3000
-  gmail_username: # In order to use GMail's SMTP
-  gmail_password: # In order to use GMail's SMTP
   send_welcome_email_on_registration: false
   elasticsearch_index:
-  amazon_ses_host: # In order to use Amazon SES SMTP
-  amazon_ses_port: # In order to use Amazon SES SMTP
-  amazon_ses_username: # In order to use Amazon SES SMTP
-  amazon_ses_password: # In order to use Amazon SES SMTP
+  # smtp mail settings
+  smtp_host: smtp.gmail.com # google's default smtp
+  smtp_port: 587
+  smtp_user: # usually your gmail account
+  smtp_pass: # usually your gmail account password
 
 test:
   <<: *default

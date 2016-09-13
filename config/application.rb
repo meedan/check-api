@@ -44,24 +44,13 @@ module Checkdesk
 
     config.action_mailer.delivery_method = :smtp
     
-    if !cfg['gmail_username'].blank? && !cfg['gmail_password'].blank? && !Rails.env.test?
+    if !cfg['smtp_user'].blank? && !cfg['smtp_pass'].blank? && !Rails.env.test?
       config.action_mailer.smtp_settings = {
-        address:              'smtp.gmail.com',
-        port:                 587,
-        user_name:            cfg['gmail_username'],
-        password:             cfg['gmail_password'],
+        address:              cfg['smtp_host'],
+        port:                 cfg['smtp_port'],
+        user_name:            cfg['smtp_user'],
+        password:             cfg['smtp_pass'],
         authentication:       'plain',
-        enable_starttls_auto: true
-      }
-    end
-
-    if !cfg['amazon_ses_host'].blank? && !Rails.env.test?
-      config.action_mailer.smtp_settings = {
-        address:              cfg['amazon_ses_host'],
-        port:                 cfg['amazon_ses_port'],
-        user_name:            cfg['amazon_ses_username'],
-        password:             cfg['amazon_ses_password'],
-        authentication:       :login,
         enable_starttls_auto: true
       }
     end
