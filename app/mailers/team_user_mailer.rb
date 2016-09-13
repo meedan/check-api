@@ -8,7 +8,9 @@ class TeamUserMailer < ApplicationMailer
       @url = CONFIG['checkdesk_client'] + '/team/' + team.id.to_s + '/members'
       owners = team.owners
       if !owners.empty? && !owners.include?(@requestor)
-        mail(to: owners.map(&:email), subject: "#{requestor.name} wants to join the #{team.name} team on Check")
+        recipients = owners.map(&:email)
+        Rails.logger.info "Sending e-mail to #{recipients.join(', ')}"
+        mail(to: recipients, subject: "#{requestor.name} wants to join the #{team.name} team on Check")
       end
     end
   end
@@ -20,6 +22,7 @@ class TeamUserMailer < ApplicationMailer
       @accepted = accepted
       @url = CONFIG['checkdesk_client'] + '/team/' + team.id.to_s
       
+      Rails.logger.info "Sending e-mail to #{requestor.email}"
       status = accepted ? "accepted" : "rejected"
       mail(to: requestor.email, subject: "Your request to join #{team.name} on Check was #{status}")
     end 
