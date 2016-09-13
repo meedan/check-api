@@ -206,7 +206,7 @@ class ProjectTest < ActiveSupport::TestCase
     t = create_team current_user: u
     p = create_project team: t, user: nil, current_user: nil
     assert_nil p.user
-    p = create_project current_user: u, user: nil
+    p = create_project current_user: u, user: nil, team: t
     assert_equal u, p.user
   end
 end
