@@ -1,4 +1,4 @@
-Effective 10/10/15
+Effective 09/14/16
 
 Check is a Service we at Meedan, Inc. (\"Meedan\" \"we\" \"us\") created to help the world understand itself a bit better. So, it should come as no surprise to you that we have crafted this Privacy Policy to reflect those values and put into writing our respect for you, your content, your identity, and your rights. 
 This Privacy Policy (\"Policy\") describes how and when Check collects, uses and shares your information when you use our Services. Check receives your information through our mobile applications, websites, APIs, email, SMS, MMS, and perhaps one day through our VR translator goggles. When using any of our Services you consent to the collection, transfer, storage, disclosure, and use of your information as described in this Privacy Policy. 
