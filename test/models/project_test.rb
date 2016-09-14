@@ -142,7 +142,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil p.lead_image_callback('')
     file = 'http://checkdesk.org/users/1/photo.png'
     assert_nil p.lead_image_callback(file)
-    file = 'http://dummyimage.com/100x100/000/fff.png'
+    file = 'http://ca.ios.ba/files/others/rails.png'
     assert_not_nil p.lead_image_callback(file)
   end
 
