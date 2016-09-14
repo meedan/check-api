@@ -6,4 +6,5 @@ AboutType = GraphQL::ObjectType.define do
   field :name, types.String, 'Application name'
   field :version, types.String, 'Application version'
   field :tos, types.String, 'Terms of Service'
+  field :privacy_policy, types.String, 'Privacy Policy'
 end
