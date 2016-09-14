@@ -36,7 +36,12 @@ class Ability
   def owner_perms
     can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['owner'] }
     can :destroy, Team, :id => @context_team.id
-    can [:create, :update], TeamUser, :team_id => @context_team.id, role: ['owner']
+    can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
+    can :update, TeamUser do |obj|
+      roles = %w[owner journalist contributor editor]
+      user_role = obj.user.role @context_team
+      obj.team_id == @context_team.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
+    end
     can :destroy, Contact, :team_id => @context_team.id
     can :destroy, [Annotation, Comment, Tag, Status, Flag] do |obj|
       obj.get_team.include? @context_team.id
@@ -46,7 +51,12 @@ class Ability
   def editor_perms
     can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['editor'] }
     can :update, Team, :id => @context_team.id
-    can [:create, :update], TeamUser, :team_id => @context_team.id, role: ['editor']
+    can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
+    can :update, TeamUser do |obj|
+      roles = %w[editor journalist contributor]
+      user_role = obj.user.role @context_team
+      obj.team_id == @context_team.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
+    end
     can [:create, :update], Contact, :team_id => @context_team.id
     can [:update, :destroy], Project, :team_id => @context_team.id
     can [:update, :destroy], Media do |obj|
@@ -65,7 +75,12 @@ class Ability
 
   def journalist_perms
     can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['journalist', 'contributor'] }
-    can [:create, :update], TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
+    can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
+    can :update, TeamUser do |obj|
+      roles = %w[journalist contributor]
+      user_role = obj.user.role @context_team
+      obj.team_id == @context_team.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
+    end
     can :create, Project, :team_id => @context_team.id
     can [:update, :destroy], Project, :team_id => @context_team.id, :user_id => @user.id
     can :create, Flag do |flag|

@@ -86,7 +86,8 @@ class TeamUserTest < ActiveSupport::TestCase
     assert_raise RuntimeError do
       create_team_user team: t, current_user: u, status: 'invited', role: 'owner'
     end
-    # test approve
+    tu.current_user = u
+    tu.context_team = t
     tu.status = 'member';tu.save!
     assert_equal tu.status, 'member'
     create_team_user team: t, current_user: u, status: 'member', role: 'journalist'
@@ -148,6 +149,20 @@ class TeamUserTest < ActiveSupport::TestCase
     assert_no_difference 'ActionMailer::Base.deliveries.size' do
       tu.role = 'owner'
       tu.save!
+    end
+  end
+
+  test "should not downgrade user role" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'journalist'
+    u2 = create_user
+    tu = create_team_user team: t, user: u2, role: 'owner'
+    tu.current_user = u
+    tu.context_team = t
+    assert_raise RuntimeError do
+      tu.role = 'journalist'
+      tu.save
     end
   end
 end
