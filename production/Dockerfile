@@ -6,11 +6,12 @@ MAINTAINER sysops@meedan.com
 #
 # SYSTEM CONFIG
 #
-ENV DEPLOYUSER cddeploy
-ENV DEPLOYDIR /app
-ENV RAILS_ENV production
-ENV GITREPO git@github.com:meedan/checkdesk-api.git
-ENV APP checkdesk-api
+
+ENV DEPLOYUSER=checkdeploy \
+    DEPLOYDIR=/app \
+    RAILS_ENV=production \
+    GITREPO git@github.com:meedan/check-api.git \
+    APP=check-api
 
 #
 # DEPENDENCIES
