@@ -10,10 +10,8 @@ group :development do
   gem 'web-console', '~> 2.0'
 end
 
-# Use pender
-# token created in `meedan-docker-ro@github.com` account using this method:
-# https://gist.github.com/sebboh/f1dfe4f096746c45f3e9ea06a09743a0
-gem 'pender_client', git: "https://bf1f07f7497b971a9e95189454bc2b0073f98e8d:x-oauth-basic@github.com/meedan/pender-client.git"
+# Use pender from git
+gem 'pender_client', git: "https://github.com/meedan/pender-client.git"
 
 gem 'rails', '4.2.7.1'
 gem 'sqlite3'
