@@ -71,14 +71,14 @@ class Ability
     can :create, Flag do |flag|
       flag.get_team.include? @context_team.id and (flag.flag.to_s == 'Mark as graphic')
     end
-    can [:update, :destroy], Flag do |flag|
+    can :update, Flag do |flag|
       flag.get_team.include? @context_team.id and (flag.annotator_id.to_i == @user.id)
     end
-    can [:create, :destroy], Status do |status|
-      status.get_team.include? @context_team.id and (status.annotator_id.to_i == @user.id)
+    can :create, Status do |obj|
+      obj.get_team.include? @context_team.id and obj.context_type === 'Project' and obj.context.user_id.to_i === @user.id
     end
     can :destroy, [Comment, Annotation, Status, Tag, Flag] do |obj|
-      obj.context_type === 'Project' && obj.context.user_id === @user.id
+      obj.get_team.include? @context_team.id and obj.context_type === 'Project' and obj.context.user_id.to_i === @user.id
     end
   end
 
@@ -96,14 +96,14 @@ class Ability
     can :cud, ProjectMedia do |obj|
       obj.get_team.include? @context_team.id and (obj.media.user_id == @user.id)
     end
-    can [:update, :destroy], [Comment, Tag] do |obj|
+    can :update, [Comment, Tag] do |obj|
       obj.get_team.include? @context_team.id and (obj.annotator_id.to_i == @user.id)
     end
     can :create, Flag do |flag|
       flag.get_team.include? @context_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
     end
-    can :destroy, [Comment, Annotation, Status, Tag, Flag] do |obj|
-      obj.annotator_type === 'User' && obj.annotator_id === @user.id
+    can :destroy, [Comment, Annotation, Tag, Flag] do |obj|
+      obj.get_team.include? @context_team.id and (obj.annotator_id.to_i == @user.id)
     end
     can :destroy, TeamUser do |obj|
       obj.user_id === @user.id

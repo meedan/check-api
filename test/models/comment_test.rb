@@ -258,6 +258,18 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
+  test "journalist should destroy own notes" do
+    u = create_user
+    t = create_team
+    p = create_project user: create_user, team: t
+    create_team_user team: t, user: u, role: 'contributor'
+    m = create_valid_media project_id: p.id
+    c = create_comment annotated: m, context: p, annotator: u
+    c.current_user = u
+    c.context_team = t
+    c.destroy
+  end
+
   test "should not destroy comment" do
     u = create_user
     t = create_team
