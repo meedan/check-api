@@ -10,7 +10,7 @@ MAINTAINER sysops@meedan.com
 ENV DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app \
     RAILS_ENV=production \
-    GITREPO git@github.com:meedan/check-api.git \
+    GITREPO=git@github.com:meedan/check-api.git \
     APP=check-api
 
 #
