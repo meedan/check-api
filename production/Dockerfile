@@ -17,6 +17,11 @@ ENV DEPLOYUSER=checkdeploy \
 # APP CONFIG
 #
 
+#
+# DEPENDENCIES
+#
+RUN apt-get install -y imagemagick
+
 # nginx for checkdesk-api
 COPY production/nginx.conf /etc/nginx/sites-available/${APP}
 RUN ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP}
