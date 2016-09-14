@@ -55,4 +55,4 @@ Yes, we may from time to time change this policy. This Privacy Policy page will 
  
 Since the goal of this Privacy Policy is, in part, to build the trust and respect of you, the user, we welcome any ideas you have for improving this policy. Thanks very much for using our tools. 
 
-TOS@Meedan.com
+hello@Meedan.com
