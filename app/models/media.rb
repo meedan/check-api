@@ -55,6 +55,8 @@ class Media < ActiveRecord::Base
       pm = ProjectMedia.new
       pm.project_id = self.project_id
       pm.media_id = self.id
+      pm.current_user = self.current_user
+      pm.context_team = self.context_team
       pm.save!
     end
   end
