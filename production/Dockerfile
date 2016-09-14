@@ -14,11 +14,6 @@ ENV DEPLOYUSER=checkdeploy \
     APP=check-api
 
 #
-# DEPENDENCIES
-#
-RUN apt-get install -y imagemagick
-
-#
 # APP CONFIG
 #
 
