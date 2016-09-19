@@ -117,7 +117,7 @@ class User < ActiveRecord::Base
         account.source = source
         account.url = self.url
         account.save
-      rescue
+      rescue Errno::ECONNREFUSED
         # Account is not mandatory
       end
     end
