@@ -111,11 +111,15 @@ class User < ActiveRecord::Base
     source.save!
 
     if !self.provider.blank? && !self.url.blank?
-      account = Account.new
-      account.user = self
-      account.source = source
-      account.url = self.url
-      account.save
+      begin
+        account = Account.new
+        account.user = self
+        account.source = source
+        account.url = self.url
+        account.save
+      rescue
+        # Account is not mandatory
+      end
     end
   end
 

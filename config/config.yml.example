@@ -1,17 +1,17 @@
 development: &default
   secret_token: somethingsecret
   authorization_header: 'X-Checkdesk-Token'
-  twitter_consumer_key:
-  twitter_consumer_secret:
-  facebook_app_id:
-  facebook_app_secret:
-  slack_app_id:
-  slack_app_secret:
-  pender_host: http://pender:3200
-  pender_key: dev
-  elasticsearch_host: elasticsearch
+  twitter_consumer_key: test
+  twitter_consumer_secret: test
+  facebook_app_id: 123456
+  facebook_app_secret: test
+  slack_app_id: 123456
+  slack_app_secret: test
+  pender_host: http://localhost:3005
+  pender_key: test
+  elasticsearch_host: 127.0.0.1
   elasticsearch_port: 9200
-  elasticsearch_log: true
+  elasticsearch_log: false
   graphql_debug: true
   checkdesk_client: http://localhost:3333
   terms_of_service: 'Your content of TOS'
@@ -22,15 +22,13 @@ development: &default
   send_welcome_email_on_registration: false
   elasticsearch_index:
   # smtp mail settings
-  smtp_host: smtp.gmail.com # google's default smtp
-  smtp_port: 587
+  smtp_host: # smtp.gmail.com (google's default)
+  smtp_port: # 587 (google's default)
   smtp_user: # usually your gmail account
   smtp_pass: # usually your gmail account password
 
 test:
   <<: *default
-  pender_key: 'test'
 
 production:
   <<: *default
-
