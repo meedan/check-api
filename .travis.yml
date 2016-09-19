@@ -9,7 +9,6 @@ before_script:
 - cp config/database.yml.example config/database.yml
 - cp config/initializers/secret_token.rb.example config/initializers/secret_token.rb 
 - cp config/database.yml.travis config/database.yml
-- RAILS_ENV=test bundle exec rake db:drop
 - RAILS_ENV=test bundle exec rake db:migrate
 script: bundle exec rake test:coverage
 rvm:
