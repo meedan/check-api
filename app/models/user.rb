@@ -117,8 +117,8 @@ class User < ActiveRecord::Base
         account.source = source
         account.url = self.url
         account.save
-      rescue Errno::ECONNREFUSED
-        # Account is not mandatory
+      rescue Errno::ECONNREFUSED => e
+        Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
       end
     end
   end
