@@ -3,13 +3,16 @@ services:
 - elasticsearch
 - postgresql
 addons:
-  postgresql: "9.4"
+  postgresql: '9.4'
+  code_climate:
+    repo_token:
+      secure: qvMZiejNRsUKijgLnyY3mTFcHW6oU/rdbv+dEax7IraguAG1A/aqcV+EpjJ0izs1qll+t6+TRjzhXPQxp5Ft0Ccba8iR6I+SygWTmrTc1EkzjEnsbzo+w1OVehcdP+rRDeioVHFi6wXhwyKPlWQNAnGVpBh5k8++ONUV4acMyBu1WVEaB09GxVUmK0RN5JLTIi3HbSkJUZmu6Wt/uTbDNayc1wTOT6fyl/kCT+wXoD0Z1wMPBgJerdbrMxGLmlclxNI6EF1PrpshKrfy3XzS8kkvB/qmT6Pds9pdePDhFkUBOinG78N0O0y3qwRwqiefDN2IhpGcy+51gzD7eXPPppFJAawn1xNL1Q9buVX4bU6NyNiQdk+iW59O4f/VPwnGIT6jMLNR9rLJB0q/DmlY3dCUMR85wi6StMT9WUnvh64cCO0hOW40uwXCcchwxQT/Ih63cYx+VFDdnuS7Qv1O3JhiutPPh7nmdK0bboyghIqVEWhXZaE74QOYOOzEcrEJ6KhVDGkv8pqVzZehSV98d6dJpqBIjKmJCOroJJGzq8E/ir+vmgmlHRpqkcC8C9nstm/YTZ2nSelPB7ai8heAF+EygqRRfhkdpVRibQqKDwl1KsFwkk7i/3c6dl0kbFOFsu5HdV5HUWwZtwYB3cw2SzIL2PxUvgtD/fCvJIgaNcU=
 bundler_args: "--jobs 3 --retry 3 --without nothing"
 before_script:
 - sleep 10
 - cp config/config.yml.example config/config.yml
 - cp config/database.yml.example config/database.yml
-- cp config/initializers/secret_token.rb.example config/initializers/secret_token.rb 
+- cp config/initializers/secret_token.rb.example config/initializers/secret_token.rb
 - cp config/database.yml.travis config/database.yml
 - psql -c 'create database travis_ci_test;' -U postgres
 - RAILS_ENV=test bundle exec rake db:migrate

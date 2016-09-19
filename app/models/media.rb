@@ -20,9 +20,7 @@ class Media < ActiveRecord::Base
   after_create :set_project, :set_account, :set_title_and_description
   after_rollback :duplicate
 
-  if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
-    serialize :data
-  end
+  serialize(:data) if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)

@@ -16,9 +16,7 @@ class Account < ActiveRecord::Base
 
   after_create :create_source
 
-  if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
-    serialize :data
-  end
+  serialize(:data) if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
 
   def provider
     self.data['provider']

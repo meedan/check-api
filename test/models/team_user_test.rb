@@ -116,7 +116,7 @@ class TeamUserTest < ActiveSupport::TestCase
 
     t = create_team
     u = create_user
-    create_team_user team: u, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'owner'
     assert_difference 'ActionMailer::Base.deliveries.size', 1 do
       create_team_user team: t
     end
@@ -125,7 +125,7 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should send email to requestor when his request is accepted" do
     t = create_team
     u = create_user
-    tu = create_team_user team: u, user: u, role: 'contributor', status: 'requested'
+    tu = create_team_user team: t, user: u, role: 'contributor', status: 'requested'
     assert_difference 'ActionMailer::Base.deliveries.size', 1 do
       tu.status = 'member'
       tu.save!
@@ -135,7 +135,7 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should send email to requestor when his request is rejected" do
     t = create_team
     u = create_user
-    tu = create_team_user team: u, user: u, role: 'contributor', status: 'requested'
+    tu = create_team_user team: t, user: u, role: 'contributor', status: 'requested'
     assert_difference 'ActionMailer::Base.deliveries.size', 1 do
       tu.status = 'banned'
       tu.save!
@@ -145,7 +145,7 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should not send email to requestor when there is no status change" do
     t = create_team
     u = create_user
-    tu = create_team_user team: u, user: u, role: 'contributor', status: 'requested'
+    tu = create_team_user team: t, user: u, role: 'contributor', status: 'requested'
     assert_no_difference 'ActionMailer::Base.deliveries.size' do
       tu.role = 'owner'
       tu.save!

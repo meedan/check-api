@@ -103,6 +103,7 @@ class CommentTest < ActiveSupport::TestCase
     c.text = 'Version 4'; c.save
     assert_equal 4, c.versions.size
 
+    c = c.reload
     c.revert
     assert_equal 'Version 3', c.text
     c = c.reload

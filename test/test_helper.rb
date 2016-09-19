@@ -39,7 +39,7 @@ class ActiveSupport::TestCase
       CONFIG.stubs(:[]).with(k).returns(v) if k != key
     end
     CONFIG.stubs(:[]).with(key).returns(value)
-    yield
+    yield if block_given?
     CONFIG.unstub(:[])
   end
 
