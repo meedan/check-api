@@ -2,7 +2,7 @@
 
 [![Code Climate](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/gpa.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed)
 [![Issue Count](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/issue_count.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed)
-[![Test Coverage](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/coverage.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/coverage)
+[![Test Coverage](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/coverage.svg?1)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/coverage)
 [![Travis](https://travis-ci.org/meedan/check-api.svg?branch=develop)](https://travis-ci.org/meedan/check-api/)
 
 Verify breaking news online
