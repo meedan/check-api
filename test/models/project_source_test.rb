@@ -7,5 +7,5 @@ class ProjectSourceTest < ActiveSupport::TestCase
       create_project_source
     end
   end
-  
+
 end

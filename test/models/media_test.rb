@@ -20,7 +20,7 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should read media" do
+  test "non memebers should not read media in private team" do
     u = create_user
     t = create_team current_user: create_user
     m = create_media team: t

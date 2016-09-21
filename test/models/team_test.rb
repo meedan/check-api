@@ -11,7 +11,7 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should read team" do
+  test "non memebers should not access private team" do
     u = create_user
     t = create_team current_user: create_user
     pu = create_user
@@ -25,6 +25,9 @@ class TeamTest < ActiveSupport::TestCase
     tu.status = 'requested'; tu.save!
     assert_raise CheckdeskPermissions::AccessDenied do
       Team.find_if_can(pt.id, pu, pt)
+    end
+    assert_raise CheckdeskPermissions::AccessDenied do
+      Team.find_if_can(pt, create_user, pt)
     end
   end
 

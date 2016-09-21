@@ -133,20 +133,20 @@ class Ability
 
   # extra permissions for all users
   def extra_perms_for_all_users
-    can [:create, :read], User
+    can :create, User
     can :read, Team, :private => false
     can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
-    #can :read, User do |user|
-    #  t = user.teams.where(id: @context_team.id).last
-    #  unless t.nil?
-    #    if t.private
-    #      tu = t.team_users.where(user_id: @user.id, status: 'member')
-    #      !tu.last.nil?
-    #    else
-    #      !t.private
-    #    end
-    #  end
-    #end
+    can :read, User do |obj|
+      teams  = obj.teams.map(&:private).uniq
+      if teams.empty?
+        @user.id == obj.id
+      elsif teams.include? false
+        teams.size >= 1
+      else
+        tu = @user.teams.joins(:team_users).where(:team_users => {:status =>'member'}).map(&:id).uniq
+        (obj.teams.map(&:id).uniq & tu).size >= 1
+      end
+    end
 
     can :read, [Contact, Project, TeamUser] do |obj|
       if obj.team.private
