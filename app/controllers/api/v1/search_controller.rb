@@ -7,7 +7,11 @@ module Api
 
       def create
         query_string = params[:query]
-        render json: { result: query_string }
+        repository = Elasticsearch::Persistence::Repository.new
+        repository.index = 'checkdesk_application_development_annotations'
+        repository.type = 'annotation'
+        result = repository.search(query: { query_string: {query: query_string}})
+        render json: { result: result }
       end
 
     end
