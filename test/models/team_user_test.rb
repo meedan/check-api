@@ -49,7 +49,7 @@ class TeamUserTest < ActiveSupport::TestCase
     assert tu.save
   end
 
-  test "should read team user" do
+  test "non memebers should not read team user in private team" do
     u = create_user
     t = create_team current_user: create_user
     tu = t.team_users.last
