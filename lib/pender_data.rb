@@ -1,4 +1,5 @@
 module PenderData
+
   def validate_pender_result
     unless self.url.blank?
       result = PenderClient::Request.get_medias(CONFIG['pender_host'], { url: self.url }, CONFIG['pender_key'])
@@ -11,4 +12,12 @@ module PenderData
       end
     end
   end
+
+  def set_pender_result_as_annotation
+    em = Embed.new
+    em.embed = self.data
+    em.annotated = self
+    em.save!
+  end
+
 end

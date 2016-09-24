@@ -113,6 +113,17 @@ module SampleData
     f.reload
   end
 
+  def create_embed(options = {})
+    type = id = nil
+    unless options.has_key?(:annotated) && options[:annotated].nil?
+      p = options.delete(:annotated) || create_project
+      type, id = p.class.name, p.id.to_s
+    end
+    em = Embed.create({ embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
+    sleep 1 if Rails.env.test?
+    em.reload
+  end
+
   def create_annotation(options = {})
     if options.has_key?(:annotation_type) && options[:annotation_type].blank?
       Annotation.create(options)

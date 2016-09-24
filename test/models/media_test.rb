@@ -343,4 +343,10 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'youtube.com', m.domain
   end
 
+  test "should set pender result as annotation" do
+    m = create_project_media
+    result = Annotation.search query: { query_string: { fields: ["annotated_id"], query: m.id}}
+    assert_equal [m.id.to_s], result.map(&:annotated_id)
+  end
+
 end
