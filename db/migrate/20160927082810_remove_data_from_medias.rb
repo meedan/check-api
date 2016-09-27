@@ -1,4 +1,4 @@
-class MovePenderDataToAnnotations < ActiveRecord::Migration
+class RemoveDataFromMedias < ActiveRecord::Migration
   def change
     pender = Bot.where(name: 'Pender').last
     Media.find_each do |media|
@@ -8,5 +8,6 @@ class MovePenderDataToAnnotations < ActiveRecord::Migration
       em.annotator = pender unless pender.nil?
       em.save!
      end
+    remove_column :medias, :data
   end
 end
