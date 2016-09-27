@@ -302,4 +302,21 @@ module SampleData
     contact.reload
   end
 
+  def create_bot(options = {})
+    bot = Bot.new
+    bot.name = options[:name] || random_string
+    file = 'rails.png'
+    if options.has_key?(:avatar)
+      file = options[:avatar]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        bot.avatar = f
+      end
+    end
+    bot.current_user = options[:current_user] if options.has_key?(:current_user)
+    bot.save!
+    bot.reload
+  end
+
 end
