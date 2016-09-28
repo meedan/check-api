@@ -100,9 +100,16 @@ module Api
       end
 
       def set_access_headers
-        headers['Access-Control-Allow-Headers'] = [CONFIG['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team'].join(',')
-        headers['Access-Control-Allow-Credentials'] = 'true'
-        headers['Access-Control-Allow-Origin'] = CONFIG['checkdesk_client']
+        allowed_headers = [CONFIG['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team'].join(',')
+        origin = Regexp.new(CONFIG['checkdesk_client']).match(request.headers['origin']).nil? ? 'localhost' : request.headers['origin']
+        custom_headers = {
+          'Access-Control-Allow-Headers' => allowed_headers,
+          'Access-Control-Allow-Credentials' => 'true',
+          'Access-Control-Request-Method' => '*',
+          'Access-Control-Allow-Methods' => 'GET,POST,DELETE,OPTIONS',
+          'Access-Control-Allow-Origin' => origin 
+        }
+        headers.merge! custom_headers
       end
     end
   end
