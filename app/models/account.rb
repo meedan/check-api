@@ -14,9 +14,8 @@ class Account < ActiveRecord::Base
   validate :pender_result_is_a_profile, on: :create
   validate :url_is_unique, on: :create
 
-  after_create :create_source
+  after_create :set_pender_result_as_annotation, :create_source
 
-  serialize(:data) if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
 
   def provider
     self.data['provider']
@@ -40,7 +39,7 @@ class Account < ActiveRecord::Base
 
   def create_source
     if self.source.nil?
-      data = self.data
+      data = self.pender_data
       source = Source.new
       source.avatar = data['picture']
       source.name = data['title'].blank? ? 'Untitled' : data['title']
@@ -52,7 +51,7 @@ class Account < ActiveRecord::Base
   end
 
   def pender_result_is_a_profile
-    errors.add(:base, 'Sorry, this is not a profile') if !self.data.nil? && self.data['type'] != 'profile'
+    errors.add(:base, 'Sorry, this is not a profile') if !self.pender_data.nil? && self.pender_data['type'] != 'profile'
   end
 
   def url_is_unique

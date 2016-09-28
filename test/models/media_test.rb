@@ -92,7 +92,7 @@ class MediaTest < ActiveSupport::TestCase
     m.add_annotation(c1)
     m.add_annotation(c2)
     sleep 1
-    assert_equal [c1.id, c2.id].sort, m.reload.annotations.map(&:id).sort
+    assert_empty [c1.id, c2.id] - m.reload.annotations.map(&:id)
   end
 
   test "should get user id" do
@@ -132,9 +132,11 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should not duplicate media url" do
     m = create_valid_media
-    m2 = Media.new
-    m2.url = m.url
-    assert_not m2.save
+    assert_raise ActiveRecord::RecordNotUnique do
+      m2 = Media.new
+      m2.url = m.url
+      m2.save
+    end
   end
 
   test "should have project medias" do

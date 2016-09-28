@@ -17,10 +17,9 @@ class Media < ActiveRecord::Base
   validate :url_is_unique, on: :create
 
   before_validation :set_user, on: :create
-  after_create :set_project, :set_account, :set_title_and_description, :set_pender_result_as_annotation
+  after_create :set_pender_result_as_annotation, :set_project, :set_account, :set_title_and_description
   after_rollback :duplicate
 
-  serialize(:data) if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -80,7 +79,7 @@ class Media < ActiveRecord::Base
 
   def set_account
     account = Account.new
-    account.url = self.data['author_url']
+    account.url = self.pender_data['author_url']
     if account.save
       self.account = account
     else
@@ -90,14 +89,14 @@ class Media < ActiveRecord::Base
   end
 
   def set_title_and_description
-    self.title = self.data['title']
-    self.description = self.data['description']
+    self.title = self.pender_data['title']
+    self.description = self.pender_data['description']
     self.save!
   end
 
   def pender_result_is_an_item
-    unless self.data.nil?
-      errors.add(:base, 'Sorry, this is not a valid media item') unless self.data['type'] == 'item'
+    unless self.pender_data.nil?
+      errors.add(:base, 'Sorry, this is not a valid media item') unless self.pender_data['type'] == 'item'
     end
   end
 

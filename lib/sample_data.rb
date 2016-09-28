@@ -136,7 +136,6 @@ module SampleData
     return create_valid_account(options) unless options.has_key?(:url)
     account = Account.new
     account.url = options[:url]
-    account.data = options[:data] || {}
     if options.has_key?(:user_id)
       account.user_id = options[:user_id]
     else
@@ -214,10 +213,6 @@ module SampleData
     end
     m.project_id = options[:project_id]
     m.save!
-    if options.has_key?(:data)
-      m.data = options[:data]
-      m.save!
-    end
     m.reload
   end
 
