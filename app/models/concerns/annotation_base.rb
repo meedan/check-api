@@ -149,6 +149,11 @@ module AnnotationBase
       query = type === 'annotation' ? { match_all: {} } : { bool: { must: [{ match: { annotation_type: type } }] } }
       self.search(query: query, sort: [{ field => { order: order }}, '_score']).results
     end
+
+    def length
+      type = self.name.parameterize
+      self.count({ query: { bool: { must: [{ match: { annotation_type: type } }] } } })
+    end
   end
 
   def versions(options = {})
