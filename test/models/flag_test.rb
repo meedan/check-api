@@ -9,7 +9,7 @@ class FlagTest < ActiveSupport::TestCase
   end
 
   test "should create flag" do
-    assert_difference 'Flag.count' do
+    assert_difference 'Flag.length' do
       create_flag
     end
   end
@@ -20,7 +20,7 @@ class FlagTest < ActiveSupport::TestCase
   end
 
   test "should have flag" do
-    assert_no_difference 'Flag.count' do
+    assert_no_difference 'Flag.length' do
       create_flag(flag: nil)
       create_flag(flag: '')
     end
@@ -121,7 +121,7 @@ class FlagTest < ActiveSupport::TestCase
 
     sleep 1
 
-    assert_equal [f1.id, f2.id].sort, annotated.annotations.map(&:id).sort
+    assert_equal [f1.id, f2.id].sort, annotated.annotations('flag').map(&:id).sort
     assert_equal [f1.id], annotated.annotations(nil, context1).map(&:id)
     assert_equal [f2.id], annotated.annotations(nil, context2).map(&:id)
   end
@@ -193,16 +193,16 @@ class FlagTest < ActiveSupport::TestCase
   end
 
   test "should not create flag with invalid value" do
-    assert_no_difference 'Flag.count' do
+    assert_no_difference 'Flag.length' do
       create_flag flag: 'invalid'
     end
-    assert_difference 'Flag.count' do
+    assert_difference 'Flag.length' do
       create_flag flag: 'Spam'
     end
   end
 
   test "should not create flag with invalid annotated" do
-    assert_no_difference 'Flag.count' do
+    assert_no_difference 'Flag.length' do
       create_flag annotated: create_source
     end
   end

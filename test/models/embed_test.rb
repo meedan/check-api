@@ -13,7 +13,7 @@ class EmbedTest < ActiveSupport::TestCase
   end
 
   test "should create embed" do
-    assert_difference 'Embed.count' do
+    assert_difference 'Embed.length' do
       create_embed(embed: 'test')
     end
   end
@@ -24,7 +24,7 @@ class EmbedTest < ActiveSupport::TestCase
   end
 
   test "should have embed" do
-    assert_no_difference 'Embed.count' do
+    assert_no_difference 'Embed.length' do
       em = Embed.new
       assert_raise RuntimeError do
          em.embed = nil; em.save!

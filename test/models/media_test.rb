@@ -345,8 +345,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should set pender result as annotation" do
     m = create_valid_media
-    result = Annotation.search query: { query_string: { fields: ["annotated_id"], query: m.id}}
-    assert_equal [m.id.to_s], result.map(&:annotated_id)
+    assert_equal [m.id.to_s], m.annotations('embed').map(&:annotated_id)
   end
 
 end
