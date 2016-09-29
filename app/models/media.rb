@@ -101,11 +101,9 @@ class Media < ActiveRecord::Base
   end
 
   def url_is_unique
-    if !CONFIG['allow_duplicated_urls']
-      existing = Media.where(url: self.url).first
-      self.duplicated_of = existing
-      errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
-    end
+    existing = Media.where(url: self.url).first
+    self.duplicated_of = existing
+    errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
   end
 
   def set_project

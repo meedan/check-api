@@ -55,11 +55,9 @@ class Account < ActiveRecord::Base
   end
 
   def url_is_unique
-    if !CONFIG['allow_duplicated_urls']
-      existing = Account.where(url: self.url).where('source_id IS NOT NULL').first
-      unless existing.nil?
-        errors.add(:base, "Account with this URL exists and has source id #{existing.source_id}")
-      end
+    existing = Account.where(url: self.url).where('source_id IS NOT NULL').first
+    unless existing.nil?
+      errors.add(:base, "Account with this URL exists and has source id #{existing.source_id}")
     end
   end
 end
