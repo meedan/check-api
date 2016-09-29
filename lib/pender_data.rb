@@ -31,19 +31,7 @@ module PenderData
   end
 
   def data
-    result = Annotation.search query: {
-      filtered: {
-        query: {
-          query_string: {
-            query: self.id,
-            fields: ["annotated_id"]
-          }
-          },
-          filter: {}
-        }
-      }
-    model = result.last.annotation_type.singularize.camelize.constantize
-    em = model.find(result.last.id)
+    em = self.annotations('embed').last
     em.embed
   end
 

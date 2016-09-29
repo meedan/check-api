@@ -92,7 +92,7 @@ class MediaTest < ActiveSupport::TestCase
     m.add_annotation(c1)
     m.add_annotation(c2)
     sleep 1
-    assert_empty [c1.id, c2.id] - m.reload.annotations.map(&:id)
+    assert_equal [c1.id, c2.id].sort, m.reload.annotations('comment').map(&:id).sort
   end
 
   test "should get user id" do
