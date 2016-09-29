@@ -54,8 +54,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should set context team" do
     authenticate_with_user
-    t = create_team
-    @request.headers.merge!({ 'X-Checkdesk-Context-Team': t.id })
+    t = create_team subdomain: 'context'
+    @request.headers.merge!({ 'origin': 'http://context.localhost:3333' })
     post :create, query: 'query Query { about { name, version } }'
     assert_equal t, assigns(:context_team)
   end
