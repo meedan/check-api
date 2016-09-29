@@ -116,4 +116,10 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get right number of annotations" do
+    f = create_flag
+    c = create_comment
+    assert_equal 1, Flag.length
+    assert_equal 1, Comment.length
+  end
 end

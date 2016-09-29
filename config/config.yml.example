@@ -1,6 +1,6 @@
 development: &default
   secret_token: somethingsecret
-  authorization_header: 'X-Checkdesk-Token'
+  authorization_header: 'X-Check-Token'
   twitter_consumer_key: test
   twitter_consumer_secret: test
   facebook_app_id: 123456
