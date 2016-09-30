@@ -1,4 +1,3 @@
-Ruby Gem: io-console,Console interface,BSD 2-Clause,http://www.ruby-lang.org
 Ruby Gem: actionmailer,Email composition delivery and receiving framework (part of Rails).,MIT,http://www.rubyonrails.org
 Ruby Gem: actionpack,Web-flow and rendering framework putting the VC in MVC (part of Rails).,MIT,http://www.rubyonrails.org
 Ruby Gem: actionview,Rendering framework putting the V in MVC (part of Rails).,MIT,http://www.rubyonrails.org
@@ -32,6 +31,7 @@ Ruby Gem: daemons,A toolkit to create and control daemons in different ways,MIT,
 Ruby Gem: debug_inspector,A Ruby wrapper for the MRI 2.0 debug_inspector API,MIT,https://github.com/banister/debug_inspector
 Ruby Gem: descendants_tracker,Module that adds descendant tracking to a class,MIT,https://github.com/dkubb/descendants_tracker
 Ruby Gem: devise,Flexible authentication solution for Rails with Warden,MIT,https://github.com/plataformatec/devise
+Ruby Gem: did_you_mean,"Did you mean?" experience in Ruby,MIT,https://github.com/yuki24/did_you_mean
 Ruby Gem: docile,Docile keeps your Ruby DSLs tame and well-behaved,MIT,https://ms-ati.github.io/docile/
 Ruby Gem: equalizer,Module to define equality equivalence and inspection methods,MIT,https://github.com/dkubb/equalizer
 Ruby Gem: erubis,a fast and extensible eRuby implementation which supports multi-language,MIT,http://www.kuwata-lab.com/erubis/
@@ -51,7 +51,7 @@ Ruby Gem: httpi,Common interface for Ruby's HTTP libraries,MIT,http://github.com
 Ruby Gem: i18n,New wave Internationalization support for Ruby,MIT,http://github.com/svenfuchs/i18n
 Ruby Gem: ice_nine,Deep Freeze Ruby Objects,MIT,https://github.com/dkubb/ice_nine
 Ruby Gem: jbuilder,Create JSON structures via a Builder-style DSL,MIT,https://github.com/rails/jbuilder
-Ruby Gem: jquery-rails,Use jQuery with Rails 4+,MIT,http://rubygems.org/gems/jquery-rails
+Ruby Gem: jquery-rails,Use jQuery with Rails 4+,MIT,https://github.com/rails/jquery-rails
 Ruby Gem: jwt,JSON Web Token implementation in Ruby,MIT,http://github.com/jwt/ruby-jwt
 Ruby Gem: logstasher,Awesome rails logs,MIT,https://github.com/shadabahmed/logstasher
 Ruby Gem: loofah,Loofah is a general library for manipulating and transforming HTML/XML documents and fragments,MIT,https://github.com/flavorjones/loofah
@@ -60,6 +60,7 @@ Ruby Gem: metaclass,Adds a metaclass method to all Ruby objects,MIT,http://githu
 Ruby Gem: mime-types,The mime-types library provides a library and registry for information about MIME content type definitions,MIT,https://github.com/mime-types/ruby-mime-types/
 Ruby Gem: mime-types-data,mime-types-data provides a registry for information about MIME media type definitions,MIT,https://github.com/mime-types/mime-types-data/
 Ruby Gem: mimemagic,Fast mime detection by extension or content,MIT,https://github.com/minad/mimemagic
+Ruby Gem: mini_magick,Manipulate images with minimal use of memory via ImageMagick / GraphicsMagick,MIT,https://github.com/minimagick/minimagick
 Ruby Gem: mini_portile2,Simplistic port-like solution for developers,MIT,http://github.com/flavorjones/mini_portile
 Ruby Gem: minitest,minitest provides a complete suite of testing facilities supporting TDD BDD mocking and benchmarking,MIT,https://github.com/seattlerb/minitest
 Ruby Gem: mocha,Mocking and stubbing library,MIT,http://gofreerange.com/mocha/docs
@@ -74,6 +75,7 @@ Ruby Gem: omniauth,A generalized Rack framework for multiple-provider authentica
 Ruby Gem: omniauth-facebook,Facebook OAuth2 Strategy for OmniAuth,MIT,https://github.com/mkdynamic/omniauth-facebook
 Ruby Gem: omniauth-oauth,A generic OAuth (1.0/1.0a) strategy for OmniAuth.,MIT,https://github.com/intridea/omniauth-oauth
 Ruby Gem: omniauth-oauth2,An abstract OAuth2 strategy for OmniAuth.,MIT,https://github.com/intridea/omniauth-oauth2
+Ruby Gem: omniauth-slack,OmniAuth strategy for Slack,MIT,https://github.com/kmrshntr/omniauth-slack.git
 Ruby Gem: omniauth-twitter,OmniAuth strategy for Twitter,MIT,https://github.com/arunagw/omniauth-twitter
 Ruby Gem: orm_adapter,orm_adapter provides a single point of entry for using basic features of popular ruby ORMs.  Its target audience is gem authors who want to support many ruby ORMs.,MIT,http://github.com/ianwhite/orm_adapter
 Ruby Gem: paper_trail,Track changes to your models' data. Good for auditing or versioning.,MIT,https://github.com/airblade/paper_trail
@@ -120,6 +122,7 @@ Ruby Gem: warden,Rack middleware that provides authentication for rack applicati
 Ruby Gem: wasabi,A simple WSDL parser,MIT,https://github.com/savonrb/wasabi
 Ruby Gem: web-console,A debugging tool for your Ruby on Rails applications.,MIT,https://github.com/rails/web-console
 Ruby Gem: webmock,Library for stubbing HTTP requests in Ruby.,MIT,http://github.com/bblimke/webmock
+Ruby Gem: io-console,Console interface,BSD 2-Clause,http://www.ruby-lang.org
 Ruby Gem: addressable,URI Implementation,Apache 2.0,https://github.com/sporkmonger/addressable
 Ruby Gem: elasticsearch,Ruby integrations for Elasticsearch,Apache 2.0,http://github.com/elasticsearch/elasticsearch-ruby
 Ruby Gem: elasticsearch-api,Ruby API for Elasticsearch.,Apache 2.0,https://github.com/elasticsearch/elasticsearch-ruby/tree/master/elasticsearch-api
