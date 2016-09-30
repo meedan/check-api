@@ -8,6 +8,7 @@ class Account < ActiveRecord::Base
   belongs_to :source
   belongs_to :team
   has_many :medias
+  has_annotations
 
   validates_presence_of :url
   validate :validate_pender_result, on: :create
