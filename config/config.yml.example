@@ -13,7 +13,10 @@ development: &default
   elasticsearch_port: 9200
   elasticsearch_log: false
   graphql_debug: true
-  checkdesk_client: http://localhost:3333
+  # a single value to accept only a single client
+  # checkdesk_client: http://localhost:3333
+  # a regular expression to accept multiple clients (the first group should return the subdomain)
+  checkdesk_client: '^https?:\/\/([a-zA-Z0-9\-]*)\.?localhost:.*'
   terms_of_service: 'Your content of TOS'
   privacy_policy: 'Your content of privacy policy'
   allow_duplicated_urls: false

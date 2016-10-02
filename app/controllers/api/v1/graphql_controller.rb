@@ -28,8 +28,10 @@ module Api
 
       def load_context_team
         @context_team = nil
-        id = request.headers['X-Checkdesk-Context-Team']
-        @context_team = Team.find(id) if id
+        subdomain = Regexp.new(CONFIG['checkdesk_client']).match(request.headers['origin'])
+        @context_team = Team.where(subdomain: subdomain[1]).first unless subdomain.nil?
+        log = @context_team.nil? ? 'No context team' : "Context team is #{@context_team.name}"
+        Rails.logger.info log
       end
     end
   end
