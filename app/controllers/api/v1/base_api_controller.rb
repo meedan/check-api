@@ -8,7 +8,7 @@ module Api
       before_filter :remove_empty_params_and_headers
       before_filter :set_custom_response_headers
       before_filter :authenticate_from_token!, except: [:me, :options]
-      after_filter :set_access_headers
+
       # Verify payload for webhook methods
       # before_filter :verify_payload!
 
@@ -97,19 +97,6 @@ module Api
       def set_custom_response_headers
         response.headers['X-Build'] = BUILD
         response.headers['Accept'] ||= ApiConstraints.accept(1)
-      end
-
-      def set_access_headers
-        allowed_headers = [CONFIG['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team'].join(',')
-        origin = Regexp.new(CONFIG['checkdesk_client']).match(request.headers['origin']).nil? ? 'localhost' : request.headers['origin']
-        custom_headers = {
-          'Access-Control-Allow-Headers' => allowed_headers,
-          'Access-Control-Allow-Credentials' => 'true',
-          'Access-Control-Request-Method' => '*',
-          'Access-Control-Allow-Methods' => 'GET,POST,DELETE,OPTIONS',
-          'Access-Control-Allow-Origin' => origin 
-        }
-        headers.merge! custom_headers
       end
     end
   end

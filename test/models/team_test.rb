@@ -188,4 +188,15 @@ class TeamTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should set current team when team is created by user" do
+    t1 = create_team
+    u = create_user
+    create_team_user user: u, team: t1
+    u.current_team_id = t1.id
+    u.save!
+    assert_equal t1, u.reload.current_team
+    t2 = create_team current_user: u
+    assert_equal t2, u.reload.current_team
+  end
 end

@@ -38,7 +38,8 @@ class Team < ActiveRecord::Base
       id: Base64.encode64("Team/#{self.id}"),
       avatar: self.avatar,
       name: self.name,
-      projects: self.recent_projects
+      projects: self.recent_projects,
+      subdomain: self.subdomain
     }
   end
 
@@ -53,12 +54,16 @@ class Team < ActiveRecord::Base
   private
 
   def add_user_to_team
-    unless self.current_user.nil?
+    user = self.current_user
+    unless user.nil?
       tu = TeamUser.new
-      tu.user = self.current_user
+      tu.user = user
       tu.team = self
       tu.role = 'owner'
       tu.save!
+
+      user.current_team_id = self.id
+      user.save!
     end
   end
 

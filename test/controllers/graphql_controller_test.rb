@@ -365,4 +365,21 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response 403
   end
+
+  test "should get team by context" do
+    authenticate_with_user
+    t = create_team subdomain: 'context', name: 'Context Team'
+    @request.headers.merge!({ 'origin': 'http://context.localhost:3333' })
+    post :create, query: 'query Team { team { name } }'
+    assert_response :success
+    assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
+  end
+
+  test "should not get team by context" do
+    authenticate_with_user
+    t = create_team subdomain: 'context', name: 'Context Team'
+    @request.headers.merge!({ 'origin': 'http://test.localhost:3333' })
+    post :create, query: 'query Team { team { name } }'
+    assert_response 404
+  end
 end
