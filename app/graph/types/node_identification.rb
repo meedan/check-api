@@ -10,6 +10,7 @@ NodeIdentification = GraphQL::Relay::GlobalNodeIdentification.define do
       obj = type_name.constantize.find_if_can(id, ctx[:current_user], ctx[:context_team])
       obj.current_user = ctx[:current_user]
       obj.context_team = ctx[:context_team]
+      obj.origin = ctx[:origin]
     end
     obj
   end

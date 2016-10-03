@@ -185,6 +185,7 @@ module SampleData
     team.private = options[:private] || false
     team.description = options[:description] || random_string
     team.current_user = options[:current_user] if options.has_key?(:current_user)
+    team.origin = options[:origin] if options.has_key?(:origin)
     team.save!
     team.reload
   end
