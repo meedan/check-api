@@ -76,11 +76,6 @@ class Ability
   def journalist_perms
     can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['journalist', 'contributor'] }
     can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
-    can :update, TeamUser do |obj|
-      roles = %w[journalist contributor]
-      user_role = obj.user.role @context_team
-      obj.team_id == @context_team.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
-    end
     can :create, Project, :team_id => @context_team.id
     can [:update, :destroy], Project, :team_id => @context_team.id, :user_id => @user.id
     can :create, Flag do |flag|

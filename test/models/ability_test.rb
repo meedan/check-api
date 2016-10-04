@@ -275,9 +275,12 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user user: u, team: t , role: 'contributor'
     ability = Ability.new(u, t)
-    assert ability.can?(:create, Team)
-    assert ability.cannot?(:update, t)
-    assert ability.cannot?(:destroy, t)
+    assert ability.can?(:create, TeamUser)
+    assert ability.cannot?(:update, tu)
+    assert ability.can?(:destroy, tu)
+    tu2 = create_team_user
+    assert ability.cannot?(:update, tu2)
+    assert ability.cannot?(:destroy, tu2)
   end
 
   test "journalist permissions for teamUser" do
@@ -285,18 +288,12 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user user: u, team: t , role: 'journalist'
     ability = Ability.new(u, t)
-    assert ability.can?(:create, Team)
-    u2 = create_user
-    tu2 = create_team_user team: t, role: 'contributor'
-    assert ability.can?(:update, tu2)
-    assert ability.cannot?(:destroy, tu2)
-    tu2.role = 'owner'; tu2.save!
+    assert ability.can?(:create, TeamUser)
+    assert ability.cannot?(:update, tu)
+    assert ability.can?(:destroy, tu)
+    tu2 = create_team_user
     assert ability.cannot?(:update, tu2)
     assert ability.cannot?(:destroy, tu2)
-    # test other instances
-    tu_other = create_team_user
-    assert ability.cannot?(:update, tu_other)
-    assert ability.cannot?(:destroy, tu_other)
   end
 
   test "editor permissions for teamUser" do
@@ -304,7 +301,7 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user user: u, team: t , role: 'editor'
     ability = Ability.new(u, t)
-    assert ability.can?(:create, Team)
+    assert ability.can?(:create, TeamUser)
     u2 = create_user
     tu2 = create_team_user team: t, role: 'contributor'
     assert ability.can?(:update, tu2)
@@ -323,7 +320,7 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user user: u, team: t , role: 'owner'
     ability = Ability.new(u, t)
-    assert ability.can?(:create, Team)
+    assert ability.can?(:create, TeamUser)
     u2 = create_user
     tu2 = create_team_user team: t, role: 'editor'
     assert ability.can?(:update, tu2)
