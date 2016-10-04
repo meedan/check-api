@@ -292,10 +292,13 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should not create media with duplicated URL" do
     m = create_valid_media
+    a = create_valid_account
+    u = create_user
     assert_no_difference 'Media.count' do
       exception = assert_raises ActiveRecord::RecordInvalid do
         PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-          create_media(url: m.url)
+          WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+          create_media(url: m.url, account: a, user: u)
         end
       end
       assert_equal "Validation failed: Media with this URL exists and has id #{m.id}", exception.message
