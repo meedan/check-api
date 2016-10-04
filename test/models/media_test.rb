@@ -20,6 +20,15 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "rejected user should not create media" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t, status: 'banned'
+    assert_raise RuntimeError do
+      create_valid_media team: t, current_user: u, context_team: t
+    end
+  end
+
   test "non memebers should not read media in private team" do
     u = create_user
     t = create_team current_user: create_user

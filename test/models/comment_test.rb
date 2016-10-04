@@ -25,6 +25,15 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
+  test "rejected user should not create comment" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, status: 'banned'
+    assert_raise RuntimeError do
+      create_comment current_user: u, annotator: u
+    end
+  end
+
   test "should set type automatically" do
     c = create_comment
     assert_equal 'comment', c.annotation_type
