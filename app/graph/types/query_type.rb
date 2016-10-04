@@ -24,9 +24,27 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  # Get team by id or subdomain
+
+  field :team do
+    type TeamType
+    description 'Information about the context team or the team from given id'
+    argument :id, types.ID
+    resolve -> (_obj, args, ctx) do
+      tid = args['id'].to_i
+      if tid === 0 && !ctx[:context_team].blank?
+        tid = ctx[:context_team].id
+      end
+      obj = Team.find_if_can(tid, ctx[:current_user], ctx[:context_team])
+      obj.current_user = ctx[:current_user]
+      obj.context_team = ctx[:context_team]
+      obj
+    end
+  end
+
   # Getters by ID
 
-  [:source, :user, :team, :media, :project].each do |type|
+  [:source, :user, :media, :project].each do |type|
     field type do
       type "#{type.to_s.camelize}Type".constantize
       description "Information about the #{type} with given id"

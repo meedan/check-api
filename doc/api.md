@@ -87,12 +87,20 @@ Use this method in order to sign in
 {
   "type": "user",
   "data": {
+    "id": "VXNlci8xNzk=\n",
+    "dbid": 179,
     "name": "Test",
     "email": "t@test.com",
     "login": "t",
     "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
     "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJ5RnVL++nYkRRbiIsInNlY3JldCI6IjZKNjFpYUJGIn0=++n"
+    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJtdEpO++nUm83TSIsInNlY3JldCI6IkdHd2JhTlZEIn0=++n",
+    "current_team": null,
+    "teams": "{}",
+    "team_ids": [
+
+    ],
+    "permissions": "{}"
   }
 }
 ```
@@ -102,12 +110,20 @@ Use this method in order to sign in
 {
   "type": "user",
   "data": {
+    "id": "VXNlci8xNzk=\n",
+    "dbid": 179,
     "name": "Test",
     "email": "t@test.com",
     "login": "t",
     "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
     "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJ5RnVL++nYkRRbiIsInNlY3JldCI6IjZKNjFpYUJGIn0=++n"
+    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJtdEpO++nUm83TSIsInNlY3JldCI6IkdHd2JhTlZEIn0=++n",
+    "current_team": null,
+    "teams": "{}",
+    "team_ids": [
+
+    ],
+    "permissions": "{}"
   }
 }
 ```

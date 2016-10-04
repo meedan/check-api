@@ -17,7 +17,7 @@
                 "query": {
                 },
                 "headers": {
-                  "x-Checkdesk-Token": "test"
+                  "x-Check-Token": "test"
                 }
               },
               "message": "The version of this application"

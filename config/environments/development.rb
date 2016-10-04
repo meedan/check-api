@@ -45,4 +45,5 @@ Rails.application.configure do
   # Enable the logstasher logs for the current environment
   config.logstasher.enabled = true
   config.logger = Logger.new(STDOUT)
+  config.log_level = :warn
 end

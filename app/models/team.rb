@@ -1,5 +1,6 @@
 class Team < ActiveRecord::Base
   attr_accessible
+  
   has_paper_trail on: [:create, :update]
   has_many :projects
   has_many :accounts
@@ -14,6 +15,7 @@ class Team < ActiveRecord::Base
   validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens'
   validates :subdomain, length: { in: 4..63 }
   validates :subdomain, uniqueness: true
+  validate :subdomain_is_available
   validates :logo, size: true
 
   after_create :add_user_to_team
@@ -38,7 +40,8 @@ class Team < ActiveRecord::Base
       id: Base64.encode64("Team/#{self.id}"),
       avatar: self.avatar,
       name: self.name,
-      projects: self.recent_projects
+      projects: self.recent_projects,
+      subdomain: self.subdomain
     }
   end
 
@@ -53,16 +56,44 @@ class Team < ActiveRecord::Base
   private
 
   def add_user_to_team
-    unless self.current_user.nil?
+    user = self.current_user
+    unless user.nil?
       tu = TeamUser.new
-      tu.user = self.current_user
+      tu.user = user
       tu.team = self
       tu.role = 'owner'
       tu.save!
+
+      user.current_team_id = self.id
+      user.save!
     end
   end
 
   def self.subdomain_from_name(name)
     name.parameterize.underscore.dasherize.ljust(4, '-')
+  end
+
+  def subdomain_is_available
+    unless self.origin.blank?
+      begin
+        r = Regexp.new CONFIG['checkdesk_client']
+        m = origin.match(r)
+        url = ''
+        
+        if m[1].blank?
+          url = m[0].gsub(/(^https?:\/\/)/, '\1' + self.subdomain + '.')
+        else
+          url = m[0].gsub(m[1], self.subdomain)
+        end
+
+        uri = URI.parse(url)
+        request = Net::HTTP::Head.new(uri)
+        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+        
+        errors.add(:base, 'Subdomain is not available') unless response['X-Check-Web']
+      rescue
+        errors.add(:base, 'Subdomain is not available')
+      end
+    end
   end
 end

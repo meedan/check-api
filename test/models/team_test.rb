@@ -188,4 +188,60 @@ class TeamTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should set current team when team is created by user" do
+    t1 = create_team
+    u = create_user
+    create_team_user user: u, team: t1
+    u.current_team_id = t1.id
+    u.save!
+    assert_equal t1, u.reload.current_team
+    t2 = create_team current_user: u
+    assert_equal t2, u.reload.current_team
+  end
+
+  test "should not create team with reserved subdomain from subdomain origin" do
+    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_return(body: 'Pender', status: 200, headers: {})
+    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team subdomain: 'pender', origin: 'http://team.checkmedia.org'
+      end
+    end
+  end
+
+  test "should not create team with reserved subdomain from origin" do
+    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_return(body: 'Pender', status: 200, headers: {})
+    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team subdomain: 'pender', origin: 'http://checkmedia.org'
+      end
+    end
+  end
+
+  test "should create team with reserved subdomain" do
+    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_return(body: 'Pender', status: 200, headers: {})
+    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
+      assert_nothing_raised do
+        create_team subdomain: 'pender'
+      end
+    end
+  end
+
+  test "should create team with reserved subdomain from origin" do
+    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_return(body: 'Pender', status: 200, headers: { 'X-Check-Web' => '1' })
+    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
+      assert_nothing_raised do
+        create_team subdomain: 'pender', origin: 'http://checkmedia.org'
+      end
+    end
+  end
+
+  test "should not create team with reserved subdomain if error is returned" do
+    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_raise(StandardError)
+    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team subdomain: 'pender', origin: 'http://checkmedia.org'
+      end
+    end
+  end
 end

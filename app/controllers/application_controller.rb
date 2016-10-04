@@ -4,9 +4,9 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   skip_before_filter :verify_authenticity_token
 
-  private
+  after_filter :set_access_headers
 
-  # Renderization methods
+  private
 
   def render_success(type = 'success', object = nil)
     json = { type: type }
@@ -28,27 +28,16 @@ class ApplicationController < ActionController::Base
     render_error 'Unauthorized', 'UNAUTHORIZED', 401
   end
 
-  # def render_unknown_error
-  #   render_error 'Unknown error', 'UNKNOWN'
-  # end
-
-  # def render_invalid
-  #   render_error 'Invalid value', 'INVALID_VALUE'
-  # end
-
-  # def render_parameters_missing
-  #   render_error 'Parameters missing', 'MISSING_PARAMETERS'
-  # end
-
-  # def render_not_found
-  #   render_error 'Id not found', 'ID_NOT_FOUND', 404
-  # end
-
-  # def render_not_implemented
-  #   render json: { success: true, message: 'Not implemented yet' }, status: 200
-  # end
-
-  # def render_deleted
-  #   render_error 'This object was deleted', 'ID_NOT_FOUND', 410
-  # end
+  def set_access_headers
+    allowed_headers = [CONFIG['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team'].join(',')
+    origin = Regexp.new(CONFIG['checkdesk_client']).match(request.headers['origin']).nil? ? 'localhost' : request.headers['origin']
+    custom_headers = {
+      'Access-Control-Allow-Headers' => allowed_headers,
+      'Access-Control-Allow-Credentials' => 'true',
+      'Access-Control-Request-Method' => '*',
+      'Access-Control-Allow-Methods' => 'GET,POST,DELETE,OPTIONS',
+      'Access-Control-Allow-Origin' => origin 
+    }
+    headers.merge! custom_headers
+  end
 end
