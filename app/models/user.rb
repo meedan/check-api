@@ -100,6 +100,10 @@ class User < ActiveRecord::Base
     teams.to_json
   end
 
+  def is_member_of?(team)
+    TeamUser.where(user_id: self.id, team_id: team.id, status: 'member').exists?
+  end
+
   private
 
   def create_source_and_account
@@ -158,5 +162,4 @@ class User < ActiveRecord::Base
       errors.add(:base, "User not a member in team #{self.current_team_id}") if tu.nil?
     end
   end
-
 end

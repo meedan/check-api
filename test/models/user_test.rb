@@ -276,4 +276,13 @@ class UserTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should return whether a user is member of a team" do
+    t1 = create_team
+    t2 = create_team
+    u = create_user
+    create_team_user team: t1, user: u
+    assert u.is_member_of?(t1)
+    assert !u.is_member_of?(t2)
+  end
 end

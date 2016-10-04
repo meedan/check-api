@@ -382,4 +382,36 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: 'query Team { team { name } }'
     assert_response 404
   end
+
+  test "should update current team based on context team" do
+    u = create_user
+
+    t1 = create_team subdomain: 'team1'
+    create_team_user user: u, team: t1
+    t2 = create_team subdomain: 'team2'
+    t3 = create_team subdomain: 'team3'
+    create_team_user user: u, team: t3
+
+    u.current_team_id = t1.id
+    u.save!
+
+    assert_equal t1, u.reload.current_team
+
+    authenticate_with_user(u)
+
+    @request.headers.merge!({ 'origin': 'http://team1.localhost:3333' })
+    post :create, query: 'query Query { me { name } }'
+    assert_response :success
+    assert_equal t1, u.reload.current_team
+
+    @request.headers.merge!({ 'origin': 'http://team2.localhost:3333' })
+    post :create, query: 'query Query { me { name } }'
+    assert_response :success
+    assert_equal t1, u.reload.current_team
+
+    @request.headers.merge!({ 'origin': 'http://team3.localhost:3333' })
+    post :create, query: 'query Query { me { name } }'
+    assert_response :success
+    assert_equal t3, u.reload.current_team
+  end
 end
