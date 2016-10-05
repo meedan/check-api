@@ -169,19 +169,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should set title and description" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"title": "add title","description":"","url":"' + url + '","type":"item"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    assert_equal 'add title', m.reload.title
-    assert_empty m.reload.description
-    # test with not exist key
-    url = 'http://test2.com'
-    response = '{"type":"media","data":{"title": "add title","url":"' + url + '","type":"item"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    assert_nil m.reload.description
+
   end
 
   test "should set URL from Pender" do

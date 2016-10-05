@@ -17,7 +17,7 @@ class Media < ActiveRecord::Base
   validate :url_is_unique, on: :create
 
   before_validation :set_user, on: :create
-  after_create :set_pender_result_as_annotation, :set_project, :set_account, :set_title_and_description
+  after_create :set_pender_result_as_annotation, :set_project, :set_account
   after_rollback :duplicate
 
 
@@ -85,12 +85,6 @@ class Media < ActiveRecord::Base
     else
       self.account = Account.where(url: account.url).last
     end
-    self.save!
-  end
-
-  def set_title_and_description
-    self.title = self.pender_data['title']
-    self.description = self.pender_data['description']
     self.save!
   end
 
