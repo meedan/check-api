@@ -19,3 +19,5 @@ tmp/restart.txt
 /.project
 db/data
 .DS_Store
+tmp/restart.txt
+tmp/puma-*
