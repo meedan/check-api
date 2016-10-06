@@ -168,8 +168,37 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [p1, p2], m.projects
   end
 
-  test "should set title and description" do
-
+  test "should update media attributes" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    p1 = create_project
+    p2 = create_project
+    create_project_media project: p1, media: m
+    create_project_media project: p2, media: m
+    # Update media title and description with context p1
+    options = {title: 'Title A', description: 'Desc A'}
+    m.update_attributes(options, p1)
+    options = {title: 'Title AA', description: 'Desc AA'}
+    m.update_attributes(options, p1)
+    # Update media title and description with context p2
+    options = {title: 'Title B', description: 'Desc B'}
+    m.update_attributes(options, p2)
+    options = {title: 'Title BB', description: 'Desc BB'}
+    m.update_attributes(options, p2)
+    # fetch media data without context
+    assert_equal m.data['title'], 'test media'
+    assert_equal m.data['description'], 'add desc'
+    # fetch media data with p1 as context
+    m.project_id = p1.id
+    assert_equal m.data['title'], 'Title AA'
+    assert_equal m.data['description'], 'Desc AA'
+    # fetch media data with p1 as context
+    m.project_id = p2.id
+    assert_equal m.data['title'], 'Title BB'
+    assert_equal m.data['description'], 'Desc BB'
   end
 
   test "should set URL from Pender" do

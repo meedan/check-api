@@ -71,6 +71,15 @@ class Media < ActiveRecord::Base
     Project.find(self.project_id) if self.project_id
   end
 
+  def update_attributes (options = {}, context = nil)
+    em = Embed.new
+    em.embed = options
+    em.annotated = self
+    em.annotator = self.current_user unless self.current_user.nil?
+    em.context = context unless context.nil?
+    em.save!
+  end
+
   private
 
   def set_user
