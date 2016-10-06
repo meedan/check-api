@@ -55,3 +55,4 @@ gem 'graphiql-rails', git: 'https://github.com/caiosba/graphiql-rails.git', ref:
 gem 'graphql-formatter'
 gem 'nokogiri', '1.6.8'
 gem 'mini_magick'
+gem 'puma'
