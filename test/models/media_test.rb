@@ -189,16 +189,20 @@ class MediaTest < ActiveSupport::TestCase
     options = {title: 'Title BB', description: 'Desc BB'}
     m.update_attributes(options, p2)
     # fetch media data without context
-    assert_equal m.data['title'], 'test media'
-    assert_equal m.data['description'], 'add desc'
+    data = m.data
+    title = data['title']; description = data['description']
+    assert_equal title, 'test media'
+    assert_equal description, 'add desc'
     # fetch media data with p1 as context
-    m.project_id = p1.id
-    assert_equal m.data['title'], 'Title AA'
-    assert_equal m.data['description'], 'Desc AA'
+    data = m.data(p1)
+    title = data['title']; description = data['description']
+    assert_equal title, 'Title AA'
+    assert_equal description, 'Desc AA'
     # fetch media data with p1 as context
-    m.project_id = p2.id
-    assert_equal m.data['title'], 'Title BB'
-    assert_equal m.data['description'], 'Desc BB'
+    data = m.data(p2)
+    title = data['title']; description = data['description']
+    assert_equal title, 'Title BB'
+    assert_equal description, 'Desc BB'
   end
 
   test "should set URL from Pender" do

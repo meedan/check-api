@@ -36,6 +36,11 @@ class Account < ActiveRecord::Base
     s.get_team
   end
 
+  def data
+    em = self.annotations('embed').last
+    em.embed
+  end
+
   private
 
   def create_source

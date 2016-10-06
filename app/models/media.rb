@@ -33,8 +33,22 @@ class Media < ActiveRecord::Base
     self.annotations('tag', context)
   end
 
-  def jsondata
-    self.data.to_json
+  def jsondata(context = nil)
+    self.data(context).to_json
+  end
+
+  def data(context = nil)
+    em_pender = self.annotations('embed').last
+    embed = em_pender.embed
+    unless context.nil?
+      em_u = self.annotations('embed', context)
+      em_u.reverse.each do |obj|
+        obj.embed.each do |k, v|
+          embed[k] = v if embed.has_key?(k)
+        end
+      end
+    end
+    embed
   end
 
   def published
