@@ -33,15 +33,15 @@ class Media < ActiveRecord::Base
     self.annotations('tag', context)
   end
 
-  def jsondata(context = nil)
-    self.data(context).to_json
+  def jsondata
+    self.data.to_json
   end
 
-  def data(context = nil)
+  def data
     em_pender = self.annotations('embed').last
     embed = em_pender.embed
-    unless context.nil?
-      em_u = self.annotations('embed', context)
+    unless self.project.nil?
+      em_u = self.annotations('embed', self.project)
       em_u.reverse.each do |obj|
         obj.embed.each do |k, v|
           embed[k] = v if embed.has_key?(k)
@@ -85,12 +85,12 @@ class Media < ActiveRecord::Base
     Project.find(self.project_id) if self.project_id
   end
 
-  def update_attributes (options = {}, context = nil)
+  def information=(options)
     em = Embed.new
     em.embed = options
     em.annotated = self
     em.annotator = self.current_user unless self.current_user.nil?
-    em.context = context unless context.nil?
+    em.context = self.project unless self.project.nil?
     em.save!
   end
 
