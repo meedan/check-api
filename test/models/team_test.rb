@@ -251,7 +251,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_nil t.setting(:foo)
     t.set_foo = 'bar'
     t.save!
-    assert_equal 'bar', t.reload.setting(:foo)
+    assert_equal 'bar', t.reload.get_foo
 
     assert_raise NoMethodError do
       t.something

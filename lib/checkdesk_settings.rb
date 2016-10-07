@@ -14,17 +14,19 @@ module CheckdeskSettings
 
   def setting(key)
     self.settings ||= {}
-    self.settings[key.to_s] || self.settings[key.to_sym]
+    value = self.settings[key.to_s] || self.settings[key.to_sym]
+    value.to_s unless value.nil?
   end
 
   def method_missing(method, *args, &block)
-    match = /^set_(.+)=$/.match(method)
+    match = /^(set|get)_([^=]+)=?$/.match(method)
     if match.nil?
       super
-    else
-      key = match[1]
+    elsif match[1] === 'set'
       self.settings ||= {}
-      self.settings[key.to_sym] = args.first
+      self.settings[match[2].to_sym] = args.first
+    elsif match[1] === 'get'
+      self.setting(match[2])
     end
   end
 end
