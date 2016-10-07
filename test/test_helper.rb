@@ -169,11 +169,11 @@ class ActiveSupport::TestCase
     x1 = nil
     x2 = nil
     if type === 'annotation'
-      x1 = create_comment
-      x2 = create_comment
+      x1 = create_comment.reload
+      x2 = create_comment.reload
     else
-      x1 = send("create_#{type}")
-      x2 = send("create_#{type}")
+      x1 = send("create_#{type}").reload
+      x2 = send("create_#{type}").reload
     end
     
     node = '{ '

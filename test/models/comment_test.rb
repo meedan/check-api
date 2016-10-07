@@ -96,7 +96,7 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should create version when comment is updated" do
-    c = create_comment(text: 'foo')
+    c = create_comment(text: 'foo').reload
     c.text = 'bar'
     c.save
     assert_equal 2, c.versions.count
