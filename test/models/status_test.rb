@@ -255,4 +255,15 @@ class StatusTest < ActiveSupport::TestCase
     s = create_status
     assert_equal 'Source', s.annotated_type_callback('source')
   end
+
+  test "should notify Slack when status is created" do
+    t = create_team subdomain: 'test'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    m = create_valid_media
+    s = create_status status: 'False', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
+    assert s.sent_to_slack
+  end
 end

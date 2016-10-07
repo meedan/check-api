@@ -22,6 +22,16 @@ class Media < ActiveRecord::Base
 
   serialize(:data) if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
 
+  notifies_slack on: :create,
+                 if: proc { |m| m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
+                 message: proc { |m| "<#{m.origin}/user/#{m.current_user.id}|*#{m.current_user.name}*> added an unverified link: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{m.data['title']}*>" },
+                 channel: proc { |m| m.project.setting(:slack_channel) || m.current_team.setting(:slack_channel) },
+                 webhook: proc { |m| m.current_team.setting(:slack_webhook) }
+
+  def current_team
+    self.project.team if self.project
+  end
+
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
   end

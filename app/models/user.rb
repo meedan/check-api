@@ -18,6 +18,8 @@ class User < ActiveRecord::Base
   validates :image, size: true
   validate :user_is_member_in_current_team
 
+  include CheckdeskSettings
+
   ROLES = %w[contributor journalist editor owner admin]
   def role?(base_role, context_team)
     ROLES.index(base_role.to_s) <= ROLES.index(self.role(context_team)) unless self.role(context_team).nil?

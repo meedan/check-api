@@ -60,6 +60,7 @@ module AnnotationBase
     include ActiveModel::Validations
     include PaperTrail::Model
     include CheckdeskPermissions
+    include CheckdeskNotifications::Slack
 
     index_name CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
     document_type 'annotation'
@@ -276,12 +277,24 @@ module AnnotationBase
     @context_team = team
   end
 
+  def origin
+    @origin
+  end
+
+  def origin=(origin)
+    @origin = origin
+  end
+
   def is_annotation?
     true
   end
 
   def ==(annotation)
     self.id == annotation.id
+  end
+
+  def dbid
+    self.id
   end
 
   def save!
@@ -295,6 +308,10 @@ module AnnotationBase
       team = obj.respond_to?(:team) ? [obj.team.id] : obj.get_team
     end
     team
+  end
+
+  def current_team
+    self.context.team if self.context_type === 'Project'
   end
 
   protected

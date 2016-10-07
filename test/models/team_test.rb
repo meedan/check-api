@@ -244,4 +244,17 @@ class TeamTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should have settings" do
+    t = create_team
+    assert_nil t.settings
+    assert_nil t.setting(:foo)
+    t.set_foo = 'bar'
+    t.save!
+    assert_equal 'bar', t.reload.setting(:foo)
+
+    assert_raise NoMethodError do
+      t.something
+    end
+  end
 end

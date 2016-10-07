@@ -22,6 +22,8 @@ class Team < ActiveRecord::Base
 
   has_annotations
 
+  include CheckdeskSettings
+
   def logo_callback(value, _mapping_ids = nil)
     image_callback(value)
   end

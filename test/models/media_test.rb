@@ -352,4 +352,22 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'youtube.com', m.domain
   end
 
+  test "should get current team" do
+    m = create_media project_id: nil
+    assert_nil m.current_team
+    t = create_team
+    p = create_project team: t
+    m = create_media project_id: p.id
+    assert_equal t, m.current_team
+  end
+
+  test "should notify Slack when media is created" do
+    t = create_team subdomain: 'test'
+    u = create_user
+    create_team_user team: t, user: u
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    m = create_valid_media project_id: p.id, origin: 'http://test.localhost:3333', current_user: u
+    assert m.sent_to_slack
+  end
 end
