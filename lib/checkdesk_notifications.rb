@@ -20,7 +20,6 @@ module CheckdeskNotifications
         url = URI.parse(webhook)
         http = CheckdeskNotifications::Slack::Request.new(url.host, url.port)
         http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         request = Net::HTTP::Post.new(url.request_uri)
         request.set_form_data(data)
         http.request(request)
