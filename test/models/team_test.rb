@@ -62,20 +62,24 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not save team with invalid subdomains" do
-    t = create_team
-    t.subdomain = ""
-    assert_not t.save
-    t.subdomain = "www"
-    assert_not t.save
-    t.subdomain = "".rjust(64, "a")
-    assert_not t.save
-    t.subdomain = " some spaces "
-    assert_not t.save
-    t.subdomain = "correct-الصهث-unicode"
-    assert t.save
-    t1 = create_team
-    t1.subdomain = "correct-الصهث-unicode"
-    assert_not t1.save
+    assert_nothing_raised do
+      create_team subdomain: "correct-الصهث-unicode"
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: ''
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: 'www'
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: ''.rjust(64, 'a')
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: ' some spaces '
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: 'correct-الصهث-unicode'
+    end
   end
 
   test "should create version when team is created" do
