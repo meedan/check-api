@@ -12,10 +12,10 @@ class Team < ActiveRecord::Base
 
   validates_presence_of :name
   validates_presence_of :subdomain
-  validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens'
-  validates :subdomain, length: { in: 4..63 }
-  validates :subdomain, uniqueness: true
-  validate :subdomain_is_available
+  validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens', on: :create
+  validates :subdomain, length: { in: 4..63 }, on: :create
+  validates :subdomain, uniqueness: true, on: :create
+  validate :subdomain_is_available, on: :create
   validates :logo, size: true
 
   after_create :add_user_to_team

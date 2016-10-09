@@ -17,6 +17,8 @@ TeamType = GraphQL::ObjectType.define do
   field :members_count, types.Int
   field :permissions, types.String
   field :get_slack_notifications_enabled, types.String
+  field :get_slack_webhook, types.String
+  field :get_slack_channel, types.String
 
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {
