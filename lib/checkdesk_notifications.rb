@@ -16,6 +16,16 @@ module CheckdeskNotifications
         @slack_options = options
       end
 
+      def request(webhook, data)
+        url = URI.parse(webhook)
+        http = CheckdeskNotifications::Slack::Request.new(url.host, url.port)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        request = Net::HTTP::Post.new(url.request_uri)
+        request.set_form_data(data)
+        http.request(request)
+      end
+
       def notifies_slack(options = {})
         send("after_#{options[:on]}", :notify_slack)
 
@@ -44,8 +54,6 @@ module CheckdeskNotifications
 
         return if webhook.blank? || channel.blank? || message.blank?
 
-        url = URI.parse(webhook)
-
         data = {
           payload: {
             channel: channel,
@@ -53,17 +61,21 @@ module CheckdeskNotifications
           }.to_json
         }
 
-        self.request_slack(url, data)
+        Rails.env === 'test' ? self.request_slack(webhook, data) : CheckdeskNotifications::Slack::Worker.perform_async(webhook, data)
       end
 
-      def request_slack(url, data)
-        http = CheckdeskNotifications::Slack::Request.new(url.host, url.port)
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        request = Net::HTTP::Post.new(url.request_uri)
-        request.set_form_data(data)
-        http.request(request)
+      def request_slack(webhook, data)
+        self.class.request(webhook, data)
         self.sent_to_slack = true
+      end
+    end
+
+    class Worker
+      include ::Sidekiq::Worker
+      include CheckdeskNotifications::Slack::ClassMethods
+
+      def perform(webhook, data)
+        request(webhook, data)
       end
     end
   end

@@ -1,6 +1,11 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class ProjectTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.fake!
+  end
 
   test "should create project" do
     assert_difference 'Project.count' do
@@ -256,5 +261,19 @@ class ProjectTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     p = create_project origin: 'http://test.localhost:3333', context_team: t, team: t, current_user: u
     assert_nil p.sent_to_slack
+  end
+
+  test "should notify Slack in background" do
+    Rails.stubs(:env).returns(:production)
+    t = create_team subdomain: 'test'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
+    p = create_project origin: 'http://test.localhost:3333', current_user: u, context_team: t, team: t
+    assert_equal 1, CheckdeskNotifications::Slack::Worker.jobs.size
+    CheckdeskNotifications::Slack::Worker.drain
+    assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
+    Rails.unstub(:env)
   end
 end
