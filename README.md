@@ -67,7 +67,7 @@ You can update the schema file by running `rake lapis:graphql:update_schema_json
 
 ### Background processing
 
-Somethings run in background, for example: Slack notifications. They are processed using Sidekiq. Start Sidekiq with `bundle exec sidekiq` and monitor through the web interface at `/sidekiq`. We suggest that you protect that path with HTTP authentication.
+Some tasks run in background, for example: Slack notifications. They are processed using Sidekiq. Start Sidekiq with `bundle exec sidekiq` and monitor through the web interface at `/sidekiq`. We suggest that you protect that path with HTTP authentication.
 
 ### Migration
 
