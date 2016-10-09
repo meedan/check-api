@@ -55,6 +55,16 @@ class Team < ActiveRecord::Base
     self.projects.order('id DESC')
   end
 
+  def contact=(info)
+    contact = self.contacts.first || Contact.new
+    info = JSON.parse(info)
+    contact.web = info['web']
+    contact.phone = info['phone']
+    contact.location = info['location']
+    contact.team = self
+    contact.save!
+  end
+
   private
 
   def add_user_to_team

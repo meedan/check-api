@@ -261,4 +261,15 @@ class TeamTest < ActiveSupport::TestCase
       t.something
     end
   end
+
+  test "should set contact" do
+    t = create_team
+    assert_difference 'Contact.count' do
+      t.contact = { location: 'Salvador', phone: '557133330101', web: 'http://meedan.com' }.to_json
+    end
+    assert_no_difference 'Contact.count' do
+      t.contact = { location: 'Bahia' }.to_json
+    end
+    assert_equal 'Bahia', t.reload.contacts.first.location
+  end
 end

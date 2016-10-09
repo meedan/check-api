@@ -5,7 +5,8 @@ module TeamMutations
     logo: 'str',
     name: '!str',
     subdomain: '!str',
-    description: 'str'
+    description: 'str',
+    contact: 'str'
   }
 
   update_fields = {
@@ -17,6 +18,7 @@ module TeamMutations
     set_slack_notifications_enabled: 'str',
     set_slack_webhook: 'str',
     set_slack_channel: 'str',
+    contact: 'str',
     id: '!id'
   }
 
