@@ -4,6 +4,10 @@ module CheckdeskNotifications
       base.send :extend, ClassMethods
     end
 
+    def pusher_channel
+      'check-channel-' + Digest::MD5.hexdigest(self.class.name + ':' + self.id.to_s + ':pusher_channel')
+    end
+
     module ClassMethods
       def pusher_options
         @pusher_options
@@ -53,10 +57,6 @@ module CheckdeskNotifications
         return if event.blank? || target.blank? || data.blank?
 
         Rails.env === 'test' ? self.request_pusher(channel, event, data) : CheckdeskNotifications::Pusher::Worker.perform_async(channel, event, data)
-      end
-
-      def pusher_channel
-        Digest::MD5.hexdigest(self.class.name + ':' + self.id.to_s + ':pusher_channel')
       end
 
       def request_pusher(channel, event, data)
