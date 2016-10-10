@@ -43,13 +43,19 @@ module CheckdeskNotifications
         @sent_to_slack = bool
       end
 
-      def notify_slack
+      def parse_slack_options
         options = self.class.slack_options
         return if options.has_key?(:if) && !options[:if].call(self)
 
         webhook = options[:webhook].call(self)
         channel = options[:channel].call(self)
         message = options[:message].call(self)
+
+        [webhook, channel, message]
+      end
+
+      def notify_slack
+        webhook, channel, message = self.parse_slack_options
 
         return if webhook.blank? || channel.blank? || message.blank?
 

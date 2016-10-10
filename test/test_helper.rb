@@ -53,7 +53,7 @@ class ActiveSupport::TestCase
     @url = 'https://www.youtube.com/user/MeedanTube'
     @team = create_team
     @project = create_project team: @team
-    CheckdeskNotifications::Slack::Request.any_instance.expects(:request).returns(nil)
+    CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
   end
 
   # This will run after any test

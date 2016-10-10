@@ -314,6 +314,10 @@ module AnnotationBase
     self.context.team if self.context_type === 'Project'
   end
 
+  def should_notify?
+    self.current_user.present? && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'Media'
+  end
+
   protected
 
   def load_polymorphic(name)
@@ -342,5 +346,4 @@ module AnnotationBase
   def set_annotator
     self.annotator = self.current_user if self.annotator.nil? && !self.current_user.nil?
   end
-
 end
