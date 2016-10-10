@@ -13,14 +13,14 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should create comment" do
-    assert_difference 'Comment.count' do
+    assert_difference 'Comment.length' do
       create_comment(text: 'test')
     end
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'contributor'
     p = create_valid_media team: t, current_user: u
-    assert_difference 'Comment.count' do
+    assert_difference 'Comment.length' do
       create_comment annotated: p, current_user: u, annotator: u
     end
   end
@@ -40,7 +40,7 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should have text" do
-    assert_no_difference 'Comment.count' do
+    assert_no_difference 'Comment.length' do
       assert_raise RuntimeError do
         create_comment(text: nil)
       end

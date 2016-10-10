@@ -4,14 +4,17 @@ class AccountTest < ActiveSupport::TestCase
   def setup
     super
     @url = 'https://www.youtube.com/user/MeedanTube'
+    s = create_source
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      @account = create_account(url: @url)
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+      @account = create_account(url: @url, source: s)
     end
   end
 
   test "should create account" do
     assert_difference 'Account.count' do
       PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
         create_valid_account
       end
     end
@@ -121,6 +124,7 @@ class AccountTest < ActiveSupport::TestCase
     assert_no_difference 'Account.count' do
       exception = assert_raises ActiveRecord::RecordInvalid do
         PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+          WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
           create_account(url: @url)
         end
       end

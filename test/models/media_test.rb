@@ -83,9 +83,9 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not save media without url" do
+  test "should save media without url" do
     media = Media.new
-    assert_not media.save
+    assert media.save
   end
 
   test "should set pender data for media" do
@@ -101,7 +101,7 @@ class MediaTest < ActiveSupport::TestCase
     m.add_annotation(c1)
     m.add_annotation(c2)
     sleep 1
-    assert_equal [c1.id, c2.id].sort, m.reload.annotations.map(&:id).sort
+    assert_equal [c1.id, c2.id].sort, m.reload.annotations('comment').map(&:id).sort
   end
 
   test "should get user id" do
@@ -168,20 +168,43 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [p1, p2], m.projects
   end
 
-  test "should set title and description" do
+  test "should update media information" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
-    response = '{"type":"media","data":{"title": "add title","description":"","url":"' + url + '","type":"item"}}'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    assert_equal 'add title', m.reload.title
-    assert_empty m.reload.description
-    # test with not exist key
-    url = 'http://test2.com'
-    response = '{"type":"media","data":{"title": "add title","url":"' + url + '","type":"item"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    assert_nil m.reload.description
+    p1 = create_project
+    p2 = create_project
+    create_project_media project: p1, media: m
+    create_project_media project: p2, media: m
+    # Update media title and description with context p1
+    m.project_id = p1.id
+    info = {title: 'Title A', description: 'Desc A'}.to_json
+    m.information= info
+    info = {title: 'Title AA', description: 'Desc AA'}.to_json
+    m.information= info
+    # Update media title and description with context p2
+    m.project_id = p2.id
+    info = {title: 'Title B', description: 'Desc B'}.to_json
+    m.information= info
+    info = {title: 'Title BB', description: 'Desc BB'}.to_json
+    m.information= info
+    # fetch media data without context
+    data = m.data
+    title = data['title']; description = data['description']
+    assert_equal title, 'test media'
+    assert_equal description, 'add desc'
+    # fetch media data with p1 as context
+    data = m.data(p1)
+    title = data['title']; description = data['description']
+    assert_equal title, 'Title AA'
+    assert_equal description, 'Desc AA'
+    # fetch media data with p2 as context
+    data = m.data(p2)
+    title = data['title']; description = data['description']
+    assert_equal title, 'Title BB'
+    assert_equal description, 'Desc BB'
   end
 
   test "should set URL from Pender" do
@@ -292,10 +315,13 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should not create media with duplicated URL" do
     m = create_valid_media
+    a = create_valid_account
+    u = create_user
     assert_no_difference 'Media.count' do
       exception = assert_raises ActiveRecord::RecordInvalid do
         PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-          create_media(url: m.url)
+          WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+          create_media(url: m.url, account: a, user: u)
         end
       end
       assert_equal "Validation failed: Media with this URL exists and has id #{m.id}", exception.message
@@ -352,6 +378,34 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'youtube.com', m.domain
   end
 
+  test "should set pender result as annotation" do
+    m = create_valid_media
+    assert_equal [m.id.to_s], m.annotations('embed').map(&:annotated_id)
+  end
+
+  test "should add claim additions to media" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    assert_not_nil m.data
+    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}
+    m.information= info.to_json
+    data = m.data
+    assert_equal data['title'], 'Title A'
+    assert_equal data['quote'], 'Media quote'
+    # test with empty URL
+    m = Media.new; m.save!
+    assert_nil m.data
+    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
+    m.information= info
+    data = m.data
+    assert_equal data['title'], 'Title A'
+    assert_equal data['description'], 'Desc A'
+    assert_equal data['quote'], 'Media quote'
+  end
+  
   test "should get current team" do
     m = create_media project_id: nil
     assert_nil m.current_team
@@ -360,4 +414,5 @@ class MediaTest < ActiveSupport::TestCase
     m = create_media project_id: p.id
     assert_equal t, m.current_team
   end
+
 end

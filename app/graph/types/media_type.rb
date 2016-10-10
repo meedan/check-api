@@ -6,7 +6,7 @@ MediaType = GraphQL::ObjectType.define do
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('Media')
   field :updated_at, types.String
-  field :url, !types.String
+  field :url, types.String
   field :account_id, types.Int
   field :project_id, types.Int
   field :user_id, types.Int
@@ -14,8 +14,6 @@ MediaType = GraphQL::ObjectType.define do
   field :annotations_count, types.Int
   field :domain, types.String
   field :permissions, types.String
-  field :title, types.String
-  field :description, types.String
 
   field :published do
     type types.String
@@ -27,9 +25,11 @@ MediaType = GraphQL::ObjectType.define do
 
   field :jsondata do
     type types.String
+    argument :context_id, types.Int
 
     resolve -> (media, _args, _ctx) {
-      media.jsondata
+      context = get_context(args, ctx)
+      media.jsondata(context)
     }
   end
 

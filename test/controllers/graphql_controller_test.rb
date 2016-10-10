@@ -64,6 +64,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should create account" do
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
       assert_graphql_create('account', { url: @url })
     end
   end
@@ -105,9 +106,21 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read medias" do
     assert_graphql_read('media', 'url')
-    assert_graphql_read('media', 'jsondata')
     assert_graphql_read('media', 'published')
     assert_graphql_read('media', 'last_status')
+  end
+
+  test "should read medias jsondata" do
+    authenticate_with_user
+    p = create_project team: @team
+    m = create_valid_media project_id: p.id
+    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context: \"#{p}\") } }"
+    post :create, query: query
+    assert_response :success
+    # calling without context
+    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context: nil) } }"
+    post :create, query: query
+    assert_response :success
   end
 
   test "should update media" do
@@ -324,6 +337,7 @@ class GraphqlControllerTest < ActionController::TestCase
     url = 'https://www.youtube.com/user/MeedanTube'
 
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
       query = 'mutation create { createAccount(input: { clientMutationId: "1", url: "' + url + '" }) { account { id } } }'
 
       assert_difference 'Account.count' do
