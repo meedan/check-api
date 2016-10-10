@@ -18,6 +18,8 @@ Verify breaking news online
 * Start the server: `rails s`
 * Go to [http://localhost:3000/api](http://localhost:3000/api) and use the API key you created
 
+You can optionally use Puma, which allows you to restart the Rails server by doing: `touch tmp/restart.txt`. In order to do that, instead of `rails s`, start the server with `bundle exec pumactl start`.
+
 #### Docker-based
 
 * You can also start the application on Docker by running `rake lapis:docker:run` (it will run on port 3000 and your local hostname) - you first need to create an API key after entering the container (`lapis:docker:shell`) before using the web interface
@@ -62,6 +64,10 @@ There are rake tasks for a few tasks (besides Rails' default ones). Run them thi
 There is a GraphQL interface that exposes the data model as a GraphQL schema. The GraphQL files should be under `app/graph`.
 
 You can update the schema file by running `rake lapis:graphql:update_schema_json`.
+
+### Background processing
+
+Some tasks run in background, for example: Slack notifications. They are processed using Sidekiq. Start Sidekiq with `bundle exec sidekiq` and monitor through the web interface at `/sidekiq`. We suggest that you protect that path with HTTP authentication.
 
 ### Migration
 

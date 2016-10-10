@@ -141,6 +141,7 @@ class GraphqlCrudOperations
       field :annotated_type, types.String
       field :content, types.String
       field :permissions, types.String
+      field :dbid, types.String
 
       mapping = {
         'str' => types.String

@@ -72,7 +72,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should create version when status is updated" do
-    st = create_status(status: 'Slightly Credible')
+    st = create_status(status: 'Slightly Credible').reload
     st.status = 'Sockpuppet'
     st.save
     assert_equal 2, st.versions.count
@@ -216,7 +216,7 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
     m = create_valid_media team: t, current_user: u2
-    st = create_status annotated: m, annotator: nil, current_user: u2
+    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: nil, current_user: u2, status: 'False'
     assert_equal u2, st.annotator
   end
 
@@ -226,7 +226,7 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
     m = create_valid_media team: t, current_user: u2
-    st = create_status annotated: m, annotator: u1, current_user: u2
+    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: u1, current_user: u2, status: 'False'
     assert_equal u1, st.annotator
   end
 
@@ -254,5 +254,16 @@ class StatusTest < ActiveSupport::TestCase
   test "should get annotated type" do
     s = create_status
     assert_equal 'Source', s.annotated_type_callback('source')
+  end
+
+  test "should notify Slack when status is created" do
+    t = create_team subdomain: 'test'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    m = create_valid_media
+    s = create_status status: 'False', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
+    assert s.sent_to_slack
   end
 end

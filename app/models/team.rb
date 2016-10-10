@@ -12,15 +12,17 @@ class Team < ActiveRecord::Base
 
   validates_presence_of :name
   validates_presence_of :subdomain
-  validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens'
-  validates :subdomain, length: { in: 4..63 }
-  validates :subdomain, uniqueness: true
-  validate :subdomain_is_available
+  validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens', on: :create
+  validates :subdomain, length: { in: 4..63 }, on: :create
+  validates :subdomain, uniqueness: true, on: :create
+  validate :subdomain_is_available, on: :create
   validates :logo, size: true
 
   after_create :add_user_to_team
 
   has_annotations
+
+  include CheckdeskSettings
 
   def logo_callback(value, _mapping_ids = nil)
     image_callback(value)
@@ -51,6 +53,16 @@ class Team < ActiveRecord::Base
 
   def recent_projects
     self.projects.order('id DESC')
+  end
+
+  def contact=(info)
+    contact = self.contacts.first || Contact.new
+    info = JSON.parse(info)
+    contact.web = info['web']
+    contact.phone = info['phone']
+    contact.location = info['location']
+    contact.team = self
+    contact.save!
   end
 
   private

@@ -160,22 +160,4 @@ class BaseApiControllerTest < ActionController::TestCase
     get :me
     assert_response :success
   end
-
-  test "should not be able to access from an invalid origin" do
-    @controller = Api::V1::BaseApiController.new
-    stub_config('checkdesk_client', '^https?:\/\/[a-zA-Z0-9\-]*\.?localhost:.*') do
-      @request.headers.merge!({ 'origin' => 'http://foo.bar.localhost:3333' })
-      get :me
-      assert_equal 'localhost', @response.headers['Access-Control-Allow-Origin']
-    end
-  end
-
-  test "should be able to access from a valid origin" do
-    @controller = Api::V1::BaseApiController.new
-    stub_config('checkdesk_client', '^https?:\/\/[a-zA-Z0-9\-]*\.?localhost:.*') do
-      @request.headers.merge!({ 'origin' => 'http://test.localhost:3333' })
-      get :me
-      assert_equal 'http://test.localhost:3333', @response.headers['Access-Control-Allow-Origin']
-    end
-  end
 end

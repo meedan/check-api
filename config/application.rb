@@ -36,5 +36,19 @@ module Checkdesk
         enable_starttls_auto: true
       }
     end
+
+    config.middleware.insert_before Warden::Manager, Rack::Cors do
+      allow do
+        origins Regexp.new(cfg['checkdesk_client'])
+        resource '*',
+          headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team'],
+          methods: [:get, :post, :delete, :options]
+      end
+    end
+
+    config.action_dispatch.default_headers.merge!({
+      'Access-Control-Allow-Credentials' => 'true',
+      'Access-Control-Request-Method' => '*'
+    })
   end
 end

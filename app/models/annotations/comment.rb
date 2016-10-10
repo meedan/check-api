@@ -4,6 +4,12 @@ class Comment
   attribute :text, String, presence: true
   validates_presence_of :text
 
+  notifies_slack on: :save,
+                 if: proc { |c| c.should_notify? },
+                 message: proc { |c| "<#{c.origin}/user/#{c.current_user.id}|*#{c.current_user.name}*> added a note on <#{c.origin}/project/#{c.context_id}/media/#{c.annotated_id}|#{c.annotated.data['title']}>: <#{c.origin}/project/#{c.context_id}/media/#{c.annotated_id}#annotation-#{c.dbid}|\"#{c.text}\">" },
+                 channel: proc { |c| c.context.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
+                 webhook: proc { |c| c.current_team.setting(:slack_webhook) }
+
   def content
     { text: self.text }.to_json
   end

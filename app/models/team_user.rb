@@ -13,6 +13,12 @@ class TeamUser < ActiveRecord::Base
   after_create :send_email_to_team_owners
   after_save :send_email_to_requestor
 
+  notifies_slack on: :create,
+                 if: proc { |tu| tu.current_user.present? && tu.team.setting(:slack_notifications_enabled).to_i === 1 },
+                 message: proc { |tu| "<#{tu.origin}/user/#{tu.user.id}|*#{tu.user.name}*> joined <#{tu.origin.gsub(/(https?:\/\/[^\/]+).*/, '\1')}|*#{tu.team.name}*>" },
+                 channel: proc { |tu| tu.team.setting(:slack_channel) },
+                 webhook: proc { |tu| tu.team.setting(:slack_webhook) }
+
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
   end

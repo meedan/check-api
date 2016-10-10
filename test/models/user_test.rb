@@ -286,4 +286,17 @@ class UserTest < ActiveSupport::TestCase
     assert u.is_member_of?(t1)
     assert !u.is_member_of?(t2)
   end
+
+  test "should have settings" do
+    u = create_user
+    assert_nil u.settings
+    assert_nil u.setting(:foo)
+    u.set_foo = 'bar'
+    u.save!
+    assert_equal 'bar', u.reload.setting(:foo)
+
+    assert_raise NoMethodError do
+      u.something
+    end
+  end
 end
