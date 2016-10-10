@@ -11,7 +11,6 @@ class Media < ActiveRecord::Base
 
   include PenderData
 
-  validates_presence_of :url
   validate :validate_pender_result, on: :create
   validate :pender_result_is_an_item, on: :create
   validate :url_is_unique, on: :create
@@ -104,14 +103,16 @@ class Media < ActiveRecord::Base
   end
 
   def set_account
-    account = Account.new
-    account.url = self.pender_data['author_url']
-    if account.save
-      self.account = account
-    else
-      self.account = Account.where(url: account.url).last
+    unless self.pender_data.nil?
+      account = Account.new
+      account.url = self.pender_data['author_url']
+      if account.save
+        self.account = account
+      else
+        self.account = Account.where(url: account.url).last
+      end
+      self.save!
     end
-    self.save!
   end
 
   def pender_result_is_an_item
@@ -121,9 +122,11 @@ class Media < ActiveRecord::Base
   end
 
   def url_is_unique
-    existing = Media.where(url: self.url).first
-    self.duplicated_of = existing
-    errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
+    unless self.url.nil?
+      existing = Media.where(url: self.url).first
+      self.duplicated_of = existing
+      errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
+    end
   end
 
   def set_project

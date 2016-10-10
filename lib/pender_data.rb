@@ -14,12 +14,14 @@ module PenderData
   end
 
   def set_pender_result_as_annotation
-    pender = Bot.where(name: 'Pender').last
-    em = Embed.new
-    em.embed = self.pender_data
-    em.annotated = self
-    em.annotator = pender unless pender.nil?
-    em.save!
+    unless self.pender_data.nil?
+      pender = Bot.where(name: 'Pender').last
+      em = Embed.new
+      em.embed = self.pender_data
+      em.annotated = self
+      em.annotator = pender unless pender.nil?
+      em.save!
+    end
   end
 
   def pender_data
