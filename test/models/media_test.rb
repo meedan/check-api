@@ -83,9 +83,9 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not save media without url" do
+  test "should save media without url" do
     media = Media.new
-    assert_not media.save
+    assert media.save
   end
 
   test "should set pender data for media" do
@@ -180,16 +180,16 @@ class MediaTest < ActiveSupport::TestCase
     create_project_media project: p2, media: m
     # Update media title and description with context p1
     m.project_id = p1.id
-    options = {title: 'Title A', description: 'Desc A'}
-    m.information= options.to_json
-    options = {title: 'Title AA', description: 'Desc AA'}
-    m.information= options.to_json
+    info = {title: 'Title A', description: 'Desc A'}.to_json
+    m.information= info
+    info = {title: 'Title AA', description: 'Desc AA'}.to_json
+    m.information= info
     # Update media title and description with context p2
     m.project_id = p2.id
-    options = {title: 'Title B', description: 'Desc B'}
-    m.information= options.to_json
-    options = {title: 'Title BB', description: 'Desc BB'}
-    m.information= options.to_json
+    info = {title: 'Title B', description: 'Desc B'}.to_json
+    m.information= info
+    info = {title: 'Title BB', description: 'Desc BB'}.to_json
+    m.information= info
     # fetch media data without context
     data = m.data
     title = data['title']; description = data['description']
@@ -381,6 +381,29 @@ class MediaTest < ActiveSupport::TestCase
   test "should set pender result as annotation" do
     m = create_valid_media
     assert_equal [m.id.to_s], m.annotations('embed').map(&:annotated_id)
+  end
+
+  test "should add claim additions to media" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    assert_not_nil m.data
+    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}
+    m.information= info.to_json
+    data = m.data
+    assert_equal data['title'], 'Title A'
+    assert_equal data['quote'], 'Media quote'
+    # test with empty URL
+    m = Media.new; m.save!
+    assert_nil m.data
+    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
+    m.information= info
+    data = m.data
+    assert_equal data['title'], 'Title A'
+    assert_equal data['description'], 'Desc A'
+    assert_equal data['quote'], 'Media quote'
   end
 
 end

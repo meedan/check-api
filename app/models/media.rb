@@ -40,9 +40,10 @@ class Media < ActiveRecord::Base
     #TODO:: change the assumsion for a one Pender result
     em_pender = self.annotations('embed').last
     embed = em_pender.embed unless em_pender.nil?
-    unless context.nil?
-      em_u = self.annotations('embed', context)
-      em_u.reverse.each do |obj|
+    em_u = self.annotations('embed')
+    context_id = context.nil? ? nil : context.id
+    em_u.reverse.each do |obj|
+      if obj.context_id.to_i == context_id.to_i
         obj.embed.each do |k, v|
           # any key can be overriden including URL
           embed[k] = v
