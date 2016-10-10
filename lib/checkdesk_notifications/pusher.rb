@@ -56,7 +56,7 @@ module CheckdeskNotifications
 
         return if event.blank? || target.blank? || data.blank?
 
-        Rails.env === 'test' ? self.request_pusher(channel, event, data) : CheckdeskNotifications::Pusher::Worker.perform_async(channel, event, data)
+        Rails.env === 'test' ? self.request_pusher(channel, event, data) : CheckdeskNotifications::Pusher::Worker.perform_in(1.second, channel, event, data)
       end
 
       def request_pusher(channel, event, data)
