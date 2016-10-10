@@ -85,46 +85,14 @@ Use this method in order to sign in
 200: Signed in
 ```json
 {
-  "type": "user",
-  "data": {
-    "id": "VXNlci8xNzk=\n",
-    "dbid": 179,
-    "name": "Test",
-    "email": "t@test.com",
-    "login": "t",
-    "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
-    "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJtdEpO++nUm83TSIsInNlY3JldCI6IkdHd2JhTlZEIn0=++n",
-    "current_team": null,
-    "teams": "{}",
-    "team_ids": [
-
-    ],
-    "permissions": "{}"
-  }
+  "error": "Invalid Email or password."
 }
 ```
 
 401: Could not sign in
 ```json
 {
-  "type": "user",
-  "data": {
-    "id": "VXNlci8xNzk=\n",
-    "dbid": 179,
-    "name": "Test",
-    "email": "t@test.com",
-    "login": "t",
-    "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
-    "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJtdEpO++nUm83TSIsInNlY3JldCI6IkdHd2JhTlZEIn0=++n",
-    "current_team": null,
-    "teams": "{}",
-    "team_ids": [
-
-    ],
-    "permissions": "{}"
-  }
+  "error": "Invalid Email or password."
 }
 ```
 
@@ -157,10 +125,22 @@ Use this method in order to create a new user account
 200: Account created
 ```json
 {
-  "type": "error",
+  "type": "user",
   "data": {
-    "message": "Could not create user: Validation failed: Email has already been taken",
-    "code": 4
+    "id": "VXNlci8yMDM2\n",
+    "dbid": 2036,
+    "name": "Test",
+    "email": "t@test.com",
+    "login": "t",
+    "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
+    "provider": "",
+    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJFX2Zz++naTNIOSIsInNlY3JldCI6IktZLWVUWWctIn0=++n",
+    "current_team": null,
+    "teams": "{}",
+    "team_ids": [
+
+    ],
+    "permissions": "{}"
   }
 }
 ```

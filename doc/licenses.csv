@@ -26,6 +26,7 @@ Ruby Gem: coffee-rails,CoffeeScript adapter for the Rails asset pipeline.,MIT,ht
 Ruby Gem: coffee-script,Ruby CoffeeScript Compiler,MIT,http://github.com/josh/ruby-coffee-script
 Ruby Gem: coffee-script-source,The CoffeeScript Compiler,MIT,http://jashkenas.github.com/coffee-script/
 Ruby Gem: concurrent-ruby,Modern concurrency tools for Ruby. Inspired by Erlang Clojure Scala Haskell F# C# Java and classic concurrency patterns.,MIT,http://www.concurrent-ruby.com
+Ruby Gem: connection_pool,Generic connection pool for Ruby,MIT,https://github.com/mperham/connection_pool
 Ruby Gem: crack,Really simple JSON and XML parsing ripped from Merb and Rails.,MIT,http://github.com/jnunemaker/crack
 Ruby Gem: daemons,A toolkit to create and control daemons in different ways,MIT,https://github.com/thuehlinger/daemons
 Ruby Gem: debug_inspector,A Ruby wrapper for the MRI 2.0 debug_inspector API,MIT,https://github.com/banister/debug_inspector
@@ -86,6 +87,8 @@ Ruby Gem: phony_rails,This Gem adds useful methods to your Rails app to validate
 Ruby Gem: powerpack,A few useful extensions to core Ruby classes.,MIT,https://github.com/bbatsov/powerpack
 Ruby Gem: protected_attributes,Protect attributes from mass assignment in Active Record models,MIT,https://github.com/rails/protected_attributes
 Ruby Gem: rack,a modular Ruby webserver interface,MIT,http://rack.github.io/
+Ruby Gem: rack-cors,Middleware for enabling Cross-Origin Resource Sharing in Rack apps,MIT,https://github.com/cyu/rack-cors
+Ruby Gem: rack-protection,You should use protection!,MIT,http://github.com/rkh/rack-protection
 Ruby Gem: rack-test,Simple testing API built on Rack,MIT,http://github.com/brynary/rack-test
 Ruby Gem: rails,Full-stack web application framework.,MIT,http://www.rubyonrails.org
 Ruby Gem: rails-deprecated_sanitizer,Deprecated sanitizer API extracted from Action View.,MIT,https://github.com/rails/rails-deprecated_sanitizer
@@ -95,6 +98,7 @@ Ruby Gem: rails-html-sanitizer,This gem is responsible to sanitize HTML fragment
 Ruby Gem: railties,Tools for creating working with and running Rails applications.,MIT,http://www.rubyonrails.org
 Ruby Gem: rainbow,Colorize printed text on ANSI terminals,MIT,https://github.com/sickill/rainbow
 Ruby Gem: rake,Rake is a Make-like program implemented in Ruby,MIT,https://github.com/ruby/rake
+Ruby Gem: redis,A Ruby client library for Redis,MIT,https://github.com/redis/redis-rb
 Ruby Gem: request_store,RequestStore gives you per-request global storage.,MIT,http://github.com/steveklabnik/request_store
 Ruby Gem: responders,A set of Rails responders to dry up your application,MIT,http://github.com/plataformatec/responders
 Ruby Gem: rubocop,Automatic Ruby code style checking tool.,MIT,http://github.com/bbatsov/rubocop
@@ -106,6 +110,7 @@ Ruby Gem: savon,Heavy metal SOAP client,MIT,http://savonrb.com
 Ruby Gem: sdoc,rdoc html with javascript search index.,MIT,http://github.com/voloko/sdoc
 Ruby Gem: simplecov,Code coverage for Ruby 1.9+ with a powerful configuration library and automatic merging of coverage across test suites,MIT,http://github.com/colszowka/simplecov
 Ruby Gem: simplecov-html,Default HTML formatter for SimpleCov code coverage tool for ruby 1.9+,MIT,https://github.com/colszowka/simplecov-html
+Ruby Gem: sinatra,Classy web-development dressed in a DSL,MIT,http://www.sinatrarb.com/
 Ruby Gem: sprockets,Rack-based asset packaging system,MIT,https://github.com/rails/sprockets
 Ruby Gem: sprockets-rails,Sprockets Rails integration,MIT,https://github.com/rails/sprockets-rails
 Ruby Gem: swagger-docs,Generates swagger-ui json files for rails apps with APIs. You add the swagger DSL to your controller classes and then run one rake task to generate the json files.,MIT,https://github.com/richhollis/swagger-docs
@@ -146,8 +151,10 @@ Ruby Gem: kgio,kinder gentler I/O for Ruby,LGPLv2.1,http://bogomips.org/kgio/
 Ruby Gem: raindrops,real-time stats for preforking Rack servers,LGPLv2.1,https://bogomips.org/raindrops/
 Ruby Gem: logstash-event,Library that contains the classes required to create LogStash events,apache license (2.0),https://github.com/logstash/logstash
 Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],gpl,https://bitbucket.org/ged/ruby-pg
+Ruby Gem: puma,Puma is a simple fast threaded and highly concurrent HTTP 1.1 server for Ruby/Rack applications,bsd-3-clause,http://puma.io
 Ruby Gem: railroady,Ruby on Rails 3/4 model and controller UML class diagram generator.,GPLv2,http://github.com/preston/railroady
 Ruby Gem: thin,A thin and fast web server,GPLv2,http://code.macournoyer.com/thin/
+Ruby Gem: sidekiq,Simple efficient background processing for Ruby,LGPLv3,http://sidekiq.org
 Ruby Gem: sqlite3,This module allows Ruby programs to interface with the SQLite3 database engine (http://www.sqlite.org),bsd-3,https://github.com/sparklemotion/sqlite3-ruby
 Ruby Gem: unicorn,Rack HTTP server for fast clients and Unix,gpl-2.0+,http://unicorn.bogomips.org/
 Ruby Gem: unicorn,Rack HTTP server for fast clients and Unix,ruby-1.8,http://unicorn.bogomips.org/
