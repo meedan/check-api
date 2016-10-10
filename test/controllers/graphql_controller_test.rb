@@ -106,9 +106,21 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read medias" do
     assert_graphql_read('media', 'url')
-    assert_graphql_read('media', 'jsondata')
     assert_graphql_read('media', 'published')
     assert_graphql_read('media', 'last_status')
+  end
+
+  test "should read medias jsondata" do
+    authenticate_with_user
+    p = create_project team: @team
+    m = create_valid_media project_id: p.id
+    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context: \"#{p}\") } }"
+    post :create, query: query
+    assert_response :success
+    # calling without context
+    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context: nil) } }"
+    post :create, query: query
+    assert_response :success
   end
 
   test "should update media" do
