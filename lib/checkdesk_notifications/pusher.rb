@@ -48,15 +48,15 @@ module CheckdeskNotifications
 
       def notify_pusher
         event, target, data = self.parse_pusher_options
-        channel = self.pusher_channel(target)
+        channel = target.pusher_channel
 
         return if event.blank? || target.blank? || data.blank?
 
         Rails.env === 'test' ? self.request_pusher(channel, event, data) : CheckdeskNotifications::Pusher::Worker.perform_async(channel, event, data)
       end
 
-      def pusher_channel(target)
-        Digest::MD5.hexdigest(target.class.name + ':' + target.id.to_s + ':pusher_channel')
+      def pusher_channel
+        Digest::MD5.hexdigest(self.class.name + ':' + self.id.to_s + ':pusher_channel')
       end
 
       def request_pusher(channel, event, data)
