@@ -14,7 +14,7 @@ module CheckdeskNotifications
       end
 
       def send_to_pusher(channel, event, data)
-        ::Pusher.trigger(channel, event, { message: data })
+        ::Pusher.trigger(channel, event, { message: data }) unless CONFIG['pusher_key'].blank?
       end
 
       def pusher_options=(options)
