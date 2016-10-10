@@ -21,8 +21,10 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should have status" do
     assert_no_difference 'Status.length' do
-      create_status(status: nil)
-      create_status(status: '')
+      assert_raises RuntimeError do
+        create_status(status: nil)
+        create_status(status: '')
+      end
     end
   end
 
@@ -232,10 +234,14 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should not create status with invalid value" do
     assert_no_difference 'Status.length' do
-      create_status status: 'invalid', annotated: create_valid_media
+      assert_raise RuntimeError do
+        create_status status: 'invalid', annotated: create_valid_media
+      end
     end
     assert_no_difference 'Status.length' do
-      create_status status: 'invalid'
+      assert_raise RuntimeError do
+        create_status status: 'invalid'
+      end
     end
     assert_difference 'Status.length' do
       create_status status: 'Credible'
@@ -247,7 +253,9 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should not create status with invalid annotated" do
     assert_no_difference 'Status.length' do
-      create_status status: 'Verified', annotated: create_project
+      assert_raises RuntimeError do
+        create_status(status: 'False', annotated_type: 'Project', annotated_id: create_project.id)
+      end
     end
   end
 
