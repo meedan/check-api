@@ -33,18 +33,20 @@ class Media < ActiveRecord::Base
     self.annotations('tag', context)
   end
 
-  def jsondata
-    self.data.to_json
+  def jsondata(context = nil)
+    self.data(context).to_json
   end
 
-  def data
+  def data(context = nil)
+    #TODO:: change the assumsion for a one Pender result
     em_pender = self.annotations('embed').last
-    embed = em_pender.embed
-    unless self.project.nil?
-      em_u = self.annotations('embed', self.project)
+    embed = em_pender.embed unless em_pender.nil?
+    unless context.nil?
+      em_u = self.annotations('embed', context)
       em_u.reverse.each do |obj|
         obj.embed.each do |k, v|
-          embed[k] = v if embed.has_key?(k)
+          # any key can be overriden including URL
+          embed[k] = v
         end
       end
     end
@@ -85,9 +87,10 @@ class Media < ActiveRecord::Base
     Project.find(self.project_id) if self.project_id
   end
 
-  def information=(options)
+  def information=(info)
+    info = JSON.parse(info)
     em = Embed.new
-    em.embed = options
+    em.embed = info
     em.annotated = self
     em.annotator = self.current_user unless self.current_user.nil?
     em.context = self.project unless self.project.nil?

@@ -181,30 +181,27 @@ class MediaTest < ActiveSupport::TestCase
     # Update media title and description with context p1
     m.project_id = p1.id
     options = {title: 'Title A', description: 'Desc A'}
-    m.information= options
+    m.information= options.to_json
     options = {title: 'Title AA', description: 'Desc AA'}
-    m.information= options
+    m.information= options.to_json
     # Update media title and description with context p2
     m.project_id = p2.id
     options = {title: 'Title B', description: 'Desc B'}
-    m.information= options
+    m.information= options.to_json
     options = {title: 'Title BB', description: 'Desc BB'}
-    m.information= options
+    m.information= options.to_json
     # fetch media data without context
-    m.project_id = nil
     data = m.data
     title = data['title']; description = data['description']
     assert_equal title, 'test media'
     assert_equal description, 'add desc'
     # fetch media data with p1 as context
-    m.project_id = p1.id
-    data = m.data
+    data = m.data(p1)
     title = data['title']; description = data['description']
     assert_equal title, 'Title AA'
     assert_equal description, 'Desc AA'
     # fetch media data with p2 as context
-    m.project_id = p2.id
-    data = m.data
+    data = m.data(p2)
     title = data['title']; description = data['description']
     assert_equal title, 'Title BB'
     assert_equal description, 'Desc BB'
