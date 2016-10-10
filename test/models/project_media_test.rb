@@ -1,6 +1,12 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class ProjectMediaTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.fake!
+  end
+
   test "should create project media" do
     assert_difference 'ProjectMedia.count' do
       create_project_media
@@ -102,5 +108,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_valid_media project_id: p.id, origin: 'http://test.localhost:3333', current_user: u
     pm = create_project_media project: p, media: m, origin: 'http://localhost:3333', current_user: u, context_team: t
     assert pm.sent_to_slack
+  end
+
+  test "should notify Pusher when project media is created" do
+    pm = create_project_media
+    assert pm.sent_to_pusher
+  end
+
+  test "should notify Pusher in background" do
+    Rails.stubs(:env).returns(:production)
+    assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
+    create_project_media
+    assert_equal 1, CheckdeskNotifications::Pusher::Worker.jobs.size
+    CheckdeskNotifications::Pusher::Worker.drain
+    assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
+    Rails.unstub(:env)
   end
 end

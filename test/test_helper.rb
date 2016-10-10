@@ -54,6 +54,7 @@ class ActiveSupport::TestCase
     @team = create_team
     @project = create_project team: @team
     CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
+    ::Pusher.stubs(:trigger).returns(nil)
   end
 
   # This will run after any test

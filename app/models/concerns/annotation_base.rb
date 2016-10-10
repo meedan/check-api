@@ -61,6 +61,7 @@ module AnnotationBase
     include PaperTrail::Model
     include CheckdeskPermissions
     include CheckdeskNotifications::Slack
+    include CheckdeskNotifications::Pusher
 
     index_name CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
     document_type 'annotation'
