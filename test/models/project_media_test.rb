@@ -119,7 +119,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Rails.stubs(:env).returns(:production)
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
     create_project_media
-    assert_equal 1, CheckdeskNotifications::Pusher::Worker.jobs.size
+    assert_equal 2, CheckdeskNotifications::Pusher::Worker.jobs.size
     CheckdeskNotifications::Pusher::Worker.drain
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
