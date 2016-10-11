@@ -14,6 +14,9 @@ chown -R ${DEPLOYUSER}:www-data ${UPLOADS}
 find ${UPLOADS} -type d -exec chmod 2777 {} \; # set the sticky bit on directories to preserve permissions
 find ${UPLOADS} -type f -exec chmod 0664 {} \; # files are 664
 
+echo "tailing ${DEPLOYDIR}/current/log/${RAILS_ENV}.log"
+tail -f ${DEPLOYDIR}/current/log/${RAILS_ENV}.log &
+
 echo "starting nginx"
 
 nginx
