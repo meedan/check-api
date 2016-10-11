@@ -251,7 +251,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should have settings" do
     t = create_team
-    assert_nil t.settings
+    assert_equal({}, t.settings)
     assert_nil t.setting(:foo)
     t.set_foo = 'bar'
     t.save!

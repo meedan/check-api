@@ -168,7 +168,7 @@ class TeamUserTest < ActiveSupport::TestCase
 
   test "should notify Slack when user joins team" do
     t = create_team subdomain: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     tu = create_team_user team: t, user: u, current_user: u, origin: 'http://test.localhost:3333'
     assert tu.sent_to_slack
