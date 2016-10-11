@@ -11,8 +11,8 @@ class ProjectMedia < ActiveRecord::Base
                  webhook: proc { |pm| m = pm.media; m.current_team.setting(:slack_webhook) }
 
   notifies_pusher on: :create,
-                  event: 'media_added',
-                  target: proc { |pm| pm.project },
+                  event: 'media_updated',
+                  targets: proc { |pm| [pm.project] },
                   data: proc { |pm| pm.media.to_json }
 
   def get_team

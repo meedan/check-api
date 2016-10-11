@@ -13,8 +13,8 @@ module CheckdeskNotifications
         @pusher_options
       end
 
-      def send_to_pusher(channel, event, data)
-        ::Pusher.trigger(channel, event, { message: data }) unless CONFIG['pusher_key'].blank?
+      def send_to_pusher(channels, event, data)
+        ::Pusher.trigger(channels, event, { message: data }) unless CONFIG['pusher_key'].blank?
       end
 
       def pusher_options=(options)
@@ -44,23 +44,24 @@ module CheckdeskNotifications
         return if options.has_key?(:if) && !options[:if].call(self)
 
         event = options[:event]
-        target = options[:target].call(self)
+        targets = options[:targets].call(self)
         data = options[:data].call(self)
 
-        [event, target, data]
+        [event, targets, data]
       end
 
       def notify_pusher
-        event, target, data = self.parse_pusher_options
-        channel = target.pusher_channel
+        event, targets, data = self.parse_pusher_options
+        
+        return if event.blank? || targets.blank? || data.blank?
+        
+        channels = targets.map(&:pusher_channel)
 
-        return if event.blank? || target.blank? || data.blank?
-
-        Rails.env === 'test' ? self.request_pusher(channel, event, data) : CheckdeskNotifications::Pusher::Worker.perform_in(1.second, channel, event, data)
+        Rails.env === 'test' ? self.request_pusher(channels, event, data) : CheckdeskNotifications::Pusher::Worker.perform_in(1.second, channels, event, data)
       end
 
-      def request_pusher(channel, event, data)
-        self.class.send_to_pusher(channel, event, data)
+      def request_pusher(channels, event, data)
+        self.class.send_to_pusher(channels, event, data)
         self.sent_to_pusher = true
       end
     end
@@ -69,8 +70,8 @@ module CheckdeskNotifications
       include ::Sidekiq::Worker
       include CheckdeskNotifications::Pusher::ClassMethods
 
-      def perform(channel, event, data)
-        send_to_pusher(channel, event, data)
+      def perform(channels, event, data)
+        send_to_pusher(channels, event, data)
       end
     end
   end

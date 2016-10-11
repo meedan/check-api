@@ -24,6 +24,11 @@ class Project < ActiveRecord::Base
                  channel: proc { |p| p.setting(:slack_channel) || p.team.setting(:slack_channel) },
                  webhook: proc { |p| p.team.setting(:slack_webhook) }
 
+  notifies_pusher on: :create,
+                  event: 'project_created',
+                  targets: proc { |p| [p.team] },
+                  data: proc { |p| p.to_json }
+
   include CheckdeskSettings
 
   def user_id_callback(value, _mapping_ids = nil)
