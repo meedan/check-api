@@ -16,6 +16,7 @@ MediaType = GraphQL::ObjectType.define do
   field :permissions, types.String
   field :title, types.String
   field :description, types.String
+  field :pusher_channel, types.String
 
   field :published do
     type types.String

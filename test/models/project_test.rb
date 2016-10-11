@@ -276,4 +276,9 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
     Rails.unstub(:env)
   end
+
+  test "should notify Pusher when project is created" do
+    p = create_project
+    assert p.sent_to_pusher
+  end
 end
