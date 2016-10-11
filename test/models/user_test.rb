@@ -304,5 +304,6 @@ class UserTest < ActiveSupport::TestCase
     assert_nothing_raised do
       create_user url: 'http://twitter.com/meedan', provider: 'twitter'
     end
+    Account.any_instance.unstub(:save)
   end
 end
