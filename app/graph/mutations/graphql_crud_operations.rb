@@ -139,7 +139,7 @@ class GraphqlCrudOperations
 
       field :id, field: GraphQL::Relay::GlobalIdField.new(type.capitalize)
       
-      GraphqlCrudOperations.define_annotation_fields.each do |name, type|
+      GraphqlCrudOperations.define_annotation_fields.each do |name|
         field name, types.String
       end
       
