@@ -27,7 +27,7 @@ MediaType = GraphQL::ObjectType.define do
     type types.String
     argument :context_id, types.Int
 
-    resolve -> (media, _args, _ctx) {
+    resolve -> (media, args, ctx) {
       context = get_context(args, ctx)
       media.jsondata(context)
     }

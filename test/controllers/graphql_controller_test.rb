@@ -113,14 +113,38 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read medias jsondata" do
     authenticate_with_user
     p = create_project team: @team
-    m = create_valid_media project_id: p.id
-    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context: \"#{p}\") } }"
+    p2 = create_project team: @team
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    create_project_media project: p, media: m
+    create_project_media project: p2, media: m
+    # Update media title and description with context p
+    m.project_id = p.id
+    info = {title: 'Title A', description: 'Desc A'}.to_json
+    m.information= info
+    # Update media title and description with context p2
+    m.project_id = p2.id
+    info = {title: 'Title B', description: 'Desc B'}.to_json
+    m.information= info
+    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context_id: #{p.id}) } }"
     post :create, query: query
     assert_response :success
+    jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
+    assert_equal 'Title A', JSON.parse(jsondata)['title']
+    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context_id: #{p2.id}) } }"
+    post :create, query: query
+    assert_response :success
+    jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
+    assert_equal 'Title B', JSON.parse(jsondata)['title']
     # calling without context
-    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context: nil) } }"
+    query = "query GetById { media(id: \"#{m.id}\") { jsondata() } }"
     post :create, query: query
     assert_response :success
+    jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
+    assert_equal 'test media', JSON.parse(jsondata)['title']
   end
 
   test "should update media" do
