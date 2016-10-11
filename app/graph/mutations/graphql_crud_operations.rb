@@ -140,8 +140,14 @@ class GraphqlCrudOperations
       field :annotated_id, types.String
       field :annotated_type, types.String
       field :content, types.String
-      field :permissions, types.String
       field :dbid, types.String
+      
+      field :permissions, types.String do
+        resolve -> (annotation, _args, ctx) {
+          annotation.current_user = ctx[:current_user]
+          annotation.permissions
+        }
+      end
 
       mapping = {
         'str' => types.String
