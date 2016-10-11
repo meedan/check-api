@@ -22,3 +22,4 @@ db/data
 tmp/restart.txt
 tmp/puma-*
 dump.rdb
+/vendor/
