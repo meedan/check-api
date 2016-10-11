@@ -52,9 +52,10 @@ module CheckdeskNotifications
 
       def notify_pusher
         event, targets, data = self.parse_pusher_options
-        channels = targets.map(&:pusher_channel)
-
+        
         return if event.blank? || targets.blank? || data.blank?
+        
+        channels = targets.map(&:pusher_channel)
 
         Rails.env === 'test' ? self.request_pusher(channels, event, data) : CheckdeskNotifications::Pusher::Worker.perform_in(1.second, channels, event, data)
       end
