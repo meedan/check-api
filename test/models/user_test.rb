@@ -298,4 +298,11 @@ class UserTest < ActiveSupport::TestCase
       u.something
     end
   end
+
+  test "should not crash when creating user account" do
+    Account.any_instance.stubs(:save).raises(Errno::ECONNREFUSED)
+    assert_nothing_raised do
+      create_user url: 'http://twitter.com/meedan', provider: 'twitter'
+    end
+  end
 end
