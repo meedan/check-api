@@ -272,4 +272,16 @@ class TeamTest < ActiveSupport::TestCase
     end
     assert_equal 'Bahia', t.reload.contacts.first.location
   end
+
+  test "should validate Slack webhook" do
+    t = create_team
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_slack_webhook = 'http://meedan.com'
+      t.save!
+    end
+    assert_nothing_raised do
+      t.set_slack_webhook = 'https://hooks.slack.com/services/123456'
+      t.save!
+    end
+  end
 end
