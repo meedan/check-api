@@ -124,6 +124,12 @@ class GraphqlCrudOperations
     ]
   end
 
+  def self.define_annotation_fields
+    [:annotation_type, :updated_at, :created_at,
+     :context_id, :context_type, :annotated_id,
+     :annotated_type, :content, :dbid ]
+  end
+
   def self.define_annotation_type(type, fields = {})
     GraphQL::ObjectType.define do
       name type.capitalize
@@ -132,15 +138,10 @@ class GraphqlCrudOperations
       interfaces [NodeIdentification.interface]
 
       field :id, field: GraphQL::Relay::GlobalIdField.new(type.capitalize)
-      field :annotation_type, types.String
-      field :updated_at, types.String
-      field :created_at, types.String
-      field :context_id, types.String
-      field :context_type, types.String
-      field :annotated_id, types.String
-      field :annotated_type, types.String
-      field :content, types.String
-      field :dbid, types.String
+      
+      GraphqlCrudOperations.define_annotation_fields.each do |name, type|
+        field name, types.String
+      end
       
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
