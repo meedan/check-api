@@ -10,6 +10,8 @@ ProjectType = GraphQL::ObjectType.define do
   field :title, !types.String
   field :dbid, types.Int
   field :permissions, types.String
+  field :get_slack_channel, types.String
+  field :pusher_channel, types.String
 
   field :team do
     type TeamType

@@ -10,7 +10,7 @@ module ProjectMutations
     lead_image: 'str',
     description: 'str',
     title: 'str',
-    team_id: 'int',
+    set_slack_channel: 'str',
     id: '!id'
   }
 

@@ -20,7 +20,7 @@ ENV DEPLOYUSER=checkdeploy \
 #
 # DEPENDENCIES
 #
-RUN apt-get install -y imagemagick
+RUN apt-get install -y imagemagick redis-server
 
 # nginx for checkdesk-api
 COPY production/nginx.conf /etc/nginx/sites-available/${APP}

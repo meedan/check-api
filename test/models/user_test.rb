@@ -285,4 +285,25 @@ class UserTest < ActiveSupport::TestCase
     assert u.is_member_of?(t1)
     assert !u.is_member_of?(t2)
   end
+
+  test "should have settings" do
+    u = create_user
+    assert_nil u.settings
+    assert_nil u.setting(:foo)
+    u.set_foo = 'bar'
+    u.save!
+    assert_equal 'bar', u.reload.setting(:foo)
+
+    assert_raise NoMethodError do
+      u.something
+    end
+  end
+
+  test "should not crash when creating user account" do
+    Account.any_instance.stubs(:save).raises(Errno::ECONNREFUSED)
+    assert_nothing_raised do
+      create_user url: 'http://twitter.com/meedan', provider: 'twitter'
+    end
+    Account.any_instance.unstub(:save)
+  end
 end

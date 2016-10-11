@@ -26,6 +26,9 @@ development: &default
   smtp_port: 587 # (google's default)
   smtp_user: user@host.com # usually your gmail account
   smtp_pass: 123456 # usually your gmail account password
+  pusher_app_id:
+  pusher_key:
+  pusher_secret:
 
 test:
   <<: *default

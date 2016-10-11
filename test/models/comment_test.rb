@@ -25,6 +25,24 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
+  test "contributor should comment on other reports" do
+    u = create_user
+    t = create_team current_user: u
+    m = create_valid_media team: t, current_user: u
+    # create a comment with contributor user
+    cu = create_user
+    create_team_user team: t, user: cu, role: 'contributor'
+    assert_difference 'Comment.count' do
+      create_comment annotated: m, current_user: cu, annotator: cu
+    end
+    # create a comment with journalist user
+    ju = create_user
+    create_team_user team: t, user: ju, role: 'journalist'
+    assert_difference 'Comment.count' do
+      create_comment annotated: m, current_user: ju, annotator: ju
+    end
+  end
+
   test "rejected user should not create comment" do
     u = create_user
     t = create_team
@@ -96,7 +114,7 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should create version when comment is updated" do
-    c = create_comment(text: 'foo')
+    c = create_comment(text: 'foo').reload
     c.text = 'bar'
     c.save
     assert_equal 2, c.versions.count
@@ -291,5 +309,25 @@ class CommentTest < ActiveSupport::TestCase
     assert_raise RuntimeError do
       c.destroy
     end
+  end
+
+  test "should get team" do
+    c = create_comment
+    assert_nil c.current_team
+    t = create_team
+    p = create_project team: t
+    c = create_comment context: p
+    assert_equal t, c.current_team
+  end
+
+  test "should notify on Slack when comment is created" do
+    t = create_team subdomain: 'test'
+    u = create_user
+    create_team_user team: t, user: u
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    m = create_valid_media
+    c = create_comment origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: m, context: p
+    assert c.sent_to_slack
   end
 end

@@ -352,4 +352,12 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'youtube.com', m.domain
   end
 
+  test "should get current team" do
+    m = create_media project_id: nil
+    assert_nil m.current_team
+    t = create_team
+    p = create_project team: t
+    m = create_media project_id: p.id
+    assert_equal t, m.current_team
+  end
 end

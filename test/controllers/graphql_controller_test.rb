@@ -414,4 +414,17 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal t3, u.reload.current_team
   end
+
+  test "should get media annotations" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team
+    create_team_user user: u, team: t
+    p = create_project team: t
+    m = create_media project_id: p.id
+    create_comment annotated: m, annotator: u
+    query = "query GetById { media(id: \"#{m.id}\") { annotations(first: 1) { edges { node { permissions } } } } }"
+    post :create, query: query 
+    assert_response :success
+  end
 end

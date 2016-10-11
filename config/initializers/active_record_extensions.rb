@@ -3,6 +3,8 @@ module ActiveRecordExtensions
 
   included do
     include CheckdeskPermissions
+    include CheckdeskNotifications::Slack
+    include CheckdeskNotifications::Pusher
 
     attr_accessor :current_user, :context_team, :origin
 

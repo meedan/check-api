@@ -62,20 +62,24 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not save team with invalid subdomains" do
-    t = create_team
-    t.subdomain = ""
-    assert_not t.save
-    t.subdomain = "www"
-    assert_not t.save
-    t.subdomain = "".rjust(64, "a")
-    assert_not t.save
-    t.subdomain = " some spaces "
-    assert_not t.save
-    t.subdomain = "correct-الصهث-unicode"
-    assert t.save
-    t1 = create_team
-    t1.subdomain = "correct-الصهث-unicode"
-    assert_not t1.save
+    assert_nothing_raised do
+      create_team subdomain: "correct-الصهث-unicode"
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: ''
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: 'www'
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: ''.rjust(64, 'a')
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: ' some spaces '
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_team subdomain: 'correct-الصهث-unicode'
+    end
   end
 
   test "should create version when team is created" do
@@ -242,6 +246,42 @@ class TeamTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordInvalid do
         create_team subdomain: 'pender', origin: 'http://checkmedia.org'
       end
+    end
+  end
+
+  test "should have settings" do
+    t = create_team
+    assert_equal({}, t.settings)
+    assert_nil t.setting(:foo)
+    t.set_foo = 'bar'
+    t.save!
+    assert_equal 'bar', t.reload.get_foo
+
+    assert_raise NoMethodError do
+      t.something
+    end
+  end
+
+  test "should set contact" do
+    t = create_team
+    assert_difference 'Contact.count' do
+      t.contact = { location: 'Salvador', phone: '557133330101', web: 'http://meedan.com' }.to_json
+    end
+    assert_no_difference 'Contact.count' do
+      t.contact = { location: 'Bahia' }.to_json
+    end
+    assert_equal 'Bahia', t.reload.contacts.first.location
+  end
+
+  test "should validate Slack webhook" do
+    t = create_team
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_slack_webhook = 'http://meedan.com'
+      t.save!
+    end
+    assert_nothing_raised do
+      t.set_slack_webhook = 'https://hooks.slack.com/services/123456'
+      t.save!
     end
   end
 end

@@ -21,3 +21,4 @@ db/data
 .DS_Store
 tmp/restart.txt
 tmp/puma-*
+dump.rdb

@@ -22,6 +22,10 @@ class Media < ActiveRecord::Base
 
   serialize(:data) if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
 
+  def current_team
+    self.project.team if self.project
+  end
+
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
   end
@@ -52,7 +56,7 @@ class Media < ActiveRecord::Base
     if !self.project_id.blank? && !ProjectMedia.where(project_id: self.project_id, media_id: self.id).exists?
       pm = ProjectMedia.new
       pm.project_id = self.project_id
-      pm.media_id = self.id
+      pm.media = self
       pm.current_user = self.current_user
       pm.context_team = self.context_team
       pm.save!
@@ -117,6 +121,9 @@ class Media < ActiveRecord::Base
     dup = self.duplicated_of
     unless dup.blank?
       dup.project_id = self.project_id
+      dup.context_team = self.context_team
+      dup.current_user = self.current_user
+      dup.origin = self.origin
       dup.associate_to_project
       return false
     end

@@ -60,6 +60,8 @@ module AnnotationBase
     include ActiveModel::Validations
     include PaperTrail::Model
     include CheckdeskPermissions
+    include CheckdeskNotifications::Slack
+    include CheckdeskNotifications::Pusher
 
     index_name CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
     document_type 'annotation'
@@ -276,12 +278,24 @@ module AnnotationBase
     @context_team = team
   end
 
+  def origin
+    @origin
+  end
+
+  def origin=(origin)
+    @origin = origin
+  end
+
   def is_annotation?
     true
   end
 
   def ==(annotation)
     self.id == annotation.id
+  end
+
+  def dbid
+    self.id
   end
 
   def save!
@@ -295,6 +309,14 @@ module AnnotationBase
       team = obj.respond_to?(:team) ? [obj.team.id] : obj.get_team
     end
     team
+  end
+
+  def current_team
+    self.context.team if self.context_type === 'Project'
+  end
+
+  def should_notify?
+    self.current_user.present? && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'Media'
   end
 
   protected
@@ -325,5 +347,4 @@ module AnnotationBase
   def set_annotator
     self.annotator = self.current_user if self.annotator.nil? && !self.current_user.nil?
   end
-
 end

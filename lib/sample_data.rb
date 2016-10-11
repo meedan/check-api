@@ -76,7 +76,7 @@ module SampleData
     end
     c.save!
     sleep 1 if Rails.env.test?
-    c.reload
+    c
   end
 
   def create_tag(options = {})
@@ -94,12 +94,17 @@ module SampleData
       a = options.delete(:annotated) || create_source
       type, id = a.class.name, a.id.to_s
     end
+    options = { status: 'Credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options)
     if options[:team]
       options[:context] = create_project(team: options[:team])
     end
-    s = Status.create({ status: 'Credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
+    s = Status.new
+    options.each do |key, value|
+      s.send("#{key}=", value) if s.respond_to?("#{key}=")
+    end
+    s.save!
     sleep 1 if Rails.env.test?
-    s.reload
+    s
   end
 
   def create_flag(options = {})
@@ -208,7 +213,7 @@ module SampleData
       m.data = options[:data]
       m.save!
     end
-    m.reload
+    m
   end
 
   def create_source(options = {})
@@ -242,9 +247,10 @@ module SampleData
     media = options[:media] || create_valid_media
     pm.project_id = options[:project_id] || project.id
     pm.media_id = options[:media_id] || media.id
+    pm.media = media if media
     pm.current_user = options[:current_user] if options.has_key?(:current_user)
     pm.save!
-    pm.reload
+    pm
   end
 
   def create_team_user(options = {})
@@ -256,6 +262,7 @@ module SampleData
     tu.role = options[:role]
     tu.status  = options[:status]  || "member"
     tu.current_user = options[:current_user] if options.has_key?(:current_user)
+    tu.origin = options[:origin] if options.has_key?(:origin)
     tu.save!
     tu.reload
   end
