@@ -10,6 +10,7 @@ module AnnotationBase
       def define_annotators_method
         define_method :annotators do |context=nil|
           query = self.annotation_query(context)
+          query[:bool][:must] << { match: { annotator_type: 'User' } }
           aggs = { g: { terms: { field: :annotator_id } } }
           annotators = []
           Annotation.search(query: query, aggs: aggs).response['aggregations']['g']['buckets'].each do |result|
