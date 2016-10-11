@@ -414,4 +414,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal t3, u.reload.current_team
   end
+
+  test "should get media annotations" do
+    m = create_media
+    authenticate_with_user
+    query = "query GetById { Media(id: \"#{m.id}\") { annotations(first: 1) { permissions } } }"
+    post :create, query: query 
+    assert_response :success
+  end
 end
