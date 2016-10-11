@@ -6,7 +6,7 @@ class RemoveDataFromAccounts < ActiveRecord::Migration
       em.embed = account.data
       em.annotated = account
       em.annotator = pender unless pender.nil?
-      em.save
+      em.save!
     end
     remove_column :accounts, :data
   end

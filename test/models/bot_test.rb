@@ -9,8 +9,9 @@ class BotTest < ActiveSupport::TestCase
   end
 
   test "should not save bot without name" do
-    project = Project.new
-    assert_not project.save
+    assert_raise ActiveRecord::RecordInvalid do
+      create_bot name: ''
+    end
   end
 
 end
