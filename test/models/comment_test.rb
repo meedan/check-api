@@ -25,6 +25,24 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
+  test "contributor should comment on other reports" do
+    u = create_user
+    t = create_team current_user: u
+    m = create_valid_media team: t, current_user: u
+    # create a comment with contributor user
+    cu = create_user
+    create_team_user team: t, user: cu, role: 'contributor'
+    assert_difference 'Comment.count' do
+      create_comment annotated: m, current_user: cu, annotator: cu
+    end
+    # create a comment with journalist user
+    ju = create_user
+    create_team_user team: t, user: ju, role: 'journalist'
+    assert_difference 'Comment.count' do
+      create_comment annotated: m, current_user: ju, annotator: ju
+    end
+  end
+
   test "rejected user should not create comment" do
     u = create_user
     t = create_team

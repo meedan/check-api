@@ -45,7 +45,7 @@ module CheckdeskPermissions
     create = {
       'Team' => [Project, Account, TeamUser, User, Contact],
       'Account' => [Media],
-      'Media' => [ProjectMedia],
+      'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
       'Project' => [ProjectSource, Source, Media, ProjectMedia],
       'Source' => [Account, ProjectSource, Project],
       'User' => [Source, TeamUser, Team, Project]
