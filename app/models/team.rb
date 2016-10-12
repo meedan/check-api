@@ -10,6 +10,8 @@ class Team < ActiveRecord::Base
 
   mount_uploader :logo, ImageUploader
 
+  before_validation :normalize_subdomain, on: :create
+
   validates_presence_of :name
   validates_presence_of :subdomain
   validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens', on: :create
@@ -115,5 +117,9 @@ class Team < ActiveRecord::Base
     if !webhook.blank? && /\Ahttps?:\/\/hooks\.slack\.com\/services\/[^\s]+\z/.match(webhook).nil?
       errors.add(:base, 'Slack webhook format is wrong')
     end
+  end
+
+  def normalize_subdomain
+    self.subdomain = self.subdomain.downcase
   end
 end

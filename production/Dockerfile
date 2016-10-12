@@ -1,4 +1,4 @@
-# checkdesk-api
+# check-api
 
 FROM meedan/ruby
 MAINTAINER sysops@meedan.com
