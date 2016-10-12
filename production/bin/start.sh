@@ -18,7 +18,10 @@ echo "starting redis"
 redis-server &
 
 echo "starting sidekiq"
-bundle exec sidekiq -L log/sidekiq.log -d
+su ${DEPLOYUSER} -c "bundle exec sidekiq -L log/sidekiq.log -d"
+
+echo "tailing ${DEPLOYDIR}/current/log/${RAILS_ENV}.log"
+tail -f ${DEPLOYDIR}/current/log/${RAILS_ENV}.log &
 
 echo "starting nginx"
 

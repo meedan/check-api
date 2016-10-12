@@ -10,6 +10,11 @@ class ProjectMedia < ActiveRecord::Base
                  channel: proc { |pm| m = pm.media; m.project.setting(:slack_channel) || m.current_team.setting(:slack_channel) },
                  webhook: proc { |pm| m = pm.media; m.current_team.setting(:slack_webhook) }
 
+  notifies_pusher on: :create,
+                  event: 'media_updated',
+                  targets: proc { |pm| [pm.project] },
+                  data: proc { |pm| pm.media.to_json }
+
   def get_team
     p = self.project
     p.nil? ? [] : [p.team_id]

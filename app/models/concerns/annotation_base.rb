@@ -62,6 +62,7 @@ module AnnotationBase
     include PaperTrail::Model
     include CheckdeskPermissions
     include CheckdeskNotifications::Slack
+    include CheckdeskNotifications::Pusher
 
     index_name CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
     document_type 'annotation'
@@ -74,6 +75,12 @@ module AnnotationBase
     attribute :context_id, String
     attribute :annotator_type, String
     attribute :annotator_id, String
+
+    notifies_pusher on: :save,
+                    if: proc { |a| a.annotated_type === 'Media' && a.context_type === 'Project' },
+                    event: 'media_updated',
+                    targets: proc { |a| [a.context, a.annotated] },
+                    data: proc { |a| a.to_json }
 
     before_validation :set_type_and_event, :set_annotator
 

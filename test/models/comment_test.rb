@@ -25,6 +25,24 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
+  test "contributor should comment on other reports" do
+    u = create_user
+    t = create_team current_user: u
+    m = create_valid_media team: t, current_user: u
+    # create a comment with contributor user
+    cu = create_user
+    create_team_user team: t, user: cu, role: 'contributor'
+    assert_difference 'Comment.count' do
+      create_comment annotated: m, current_user: cu, annotator: cu
+    end
+    # create a comment with journalist user
+    ju = create_user
+    create_team_user team: t, user: ju, role: 'journalist'
+    assert_difference 'Comment.count' do
+      create_comment annotated: m, current_user: ju, annotator: ju
+    end
+  end
+
   test "rejected user should not create comment" do
     u = create_user
     t = create_team
@@ -307,9 +325,14 @@ class CommentTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u
     p = create_project team: t
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     m = create_valid_media
     c = create_comment origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: m, context: p
     assert c.sent_to_slack
+  end
+
+  test "should notify Pusher when annotation is created" do
+    c = create_comment annotated: create_valid_media, context: create_project
+    assert c.sent_to_pusher
   end
 end

@@ -251,7 +251,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should have settings" do
     t = create_team
-    assert_nil t.settings
+    assert_equal({}, t.settings)
     assert_nil t.setting(:foo)
     t.set_foo = 'bar'
     t.save!
@@ -271,5 +271,17 @@ class TeamTest < ActiveSupport::TestCase
       t.contact = { location: 'Bahia' }.to_json
     end
     assert_equal 'Bahia', t.reload.contacts.first.location
+  end
+
+  test "should validate Slack webhook" do
+    t = create_team
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_slack_webhook = 'http://meedan.com'
+      t.save!
+    end
+    assert_nothing_raised do
+      t.set_slack_webhook = 'https://hooks.slack.com/services/123456'
+      t.save!
+    end
   end
 end

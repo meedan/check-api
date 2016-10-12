@@ -230,7 +230,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should notify Slack when project is created if there are settings and user and notifications are enabled" do
     t = create_team subdomain: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     p = create_project origin: 'http://test.localhost:3333', current_user: u, context_team: t, team: t
@@ -247,7 +247,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should not notify Slack when project is created if there is no user" do
     t = create_team subdomain: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     p = create_project origin: 'http://test.localhost:3333', context_team: t, team: t
@@ -256,7 +256,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should not notify Slack when project is created if not enabled" do
     t = create_team subdomain: 'test'
-    t.set_slack_notifications_enabled = 0; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 0; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     p = create_project origin: 'http://test.localhost:3333', context_team: t, team: t, current_user: u
@@ -266,7 +266,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should notify Slack in background" do
     Rails.stubs(:env).returns(:production)
     t = create_team subdomain: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'http://test.slack.com'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
@@ -275,5 +275,10 @@ class ProjectTest < ActiveSupport::TestCase
     CheckdeskNotifications::Slack::Worker.drain
     assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
     Rails.unstub(:env)
+  end
+
+  test "should notify Pusher when project is created" do
+    p = create_project
+    assert p.sent_to_pusher
   end
 end

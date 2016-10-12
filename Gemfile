@@ -35,6 +35,7 @@ gem 'airbrake', '4.3.3'
 gem 'codeclimate-test-reporter', group: :test, require: nil
 gem 'awesome_print', require: false, group: :development
 gem 'gem-licenses'
+gem 'logstash-logger'
 gem 'logstasher'
 gem 'auto_localize', '0.1'
 gem 'thin'
@@ -59,3 +60,4 @@ gem 'puma'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'sidekiq'
 gem 'sinatra'
+gem 'pusher'
