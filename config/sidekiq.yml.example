@@ -1,13 +1,4 @@
 ---
-:concurrency: 20
-:logfile: log/sidekiq.log
 :redis_host: 'localhost'
 :redis_port: 6379
-:redis_database: 3
-:queues:
-  - [high, 7]
-  - [average, 5]
-  - [low, 3]
-  - [lowest, 1]
-:web_user: admin
-:web_password: admin
+:redis_database: 1
