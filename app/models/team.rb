@@ -120,6 +120,6 @@ class Team < ActiveRecord::Base
   end
 
   def normalize_subdomain
-    self.subdomain = self.subdomain.downcase
+    self.subdomain = self.subdomain.downcase unless self.subdomain.blank?
   end
 end
