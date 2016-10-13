@@ -6,31 +6,15 @@ module Api
       skip_before_filter :authenticate_from_token!
 
       def create
-        #keyword, filters = build_search_query(params[:query])
-        filters = [{"term": { "annotation_type": "embed"}}]
-        filters << {"term": { "annotator_id": "1"}}
-        filters << {"term": { "context_id": "4"}}
-        keyword = 'report title'
-        result = Annotation.search query: {
-          filtered: {
-            query: {
-              query_string: {
-                query: keyword
-              }
-              },
-              filter: {
-                and: {
-                  filters: [
-                    filters
-                  ]
-                }
-              }
-            }
-          }
-        annotations = Array.new
-        result.each do |obj|
-          model = obj.annotated_type.singularize.camelize.constantize
-          annotations << model.find(obj.annotated_id)
+        keyword, filters = build_search_query(params[:query])
+        query = {
+          filtered: { query: { query_string: { query: keyword } },
+          filter: { and: { filters: [ filters ] } } }
+        }
+        aggs = { g: { terms: { field: :annotated_id } } }
+        annotations = []
+        Annotation.search(query: query, aggs: aggs).response['aggregations']['g']['buckets'].each do |result|
+          annotations << Media.find(result['key'])
         end
         render json: { result: annotations }
       end
@@ -38,14 +22,17 @@ module Api
       def build_search_query(str)
         regex = /((\w+)\:(\w+)|\w+)/
         matches = str.scan regex
+        keyword = ''
         filters = [{"term": { "annotation_type": "embed"}}]
-        #filters << {"term": { "annotator_id": "1"}}
         matches.each do |data|
           if !data[1].nil?
-            case data[0]
-            when 'in:project'
+            case data[1]
+            when 'in'
               p = Project.where(title: data[2]).last
-              filters << {"term": { "context_id": "4"}}
+              filters << {"term": { "context_id": p.id}} unless p.nil?
+            when 'from'
+              u = User.where(name: data[2]).last
+              filters << {"term": { "annotator_id": u.id}} unless u.nil?
             end
           else
             keyword = data[0]
