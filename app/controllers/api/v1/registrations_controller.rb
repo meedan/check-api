@@ -18,7 +18,7 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
     rescue ActiveRecord::RecordInvalid => e
       clean_up_passwords resource
       set_minimum_password_length
-      render_error 'Could not create user: ' + e.message, 'INVALID_VALUE'
+      render_error e.message.gsub(/^Validation failed: Email /, ''), 'INVALID_VALUE'
     end
   end
 
