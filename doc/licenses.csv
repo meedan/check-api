@@ -54,6 +54,7 @@ Ruby Gem: ice_nine,Deep Freeze Ruby Objects,MIT,https://github.com/dkubb/ice_nin
 Ruby Gem: jbuilder,Create JSON structures via a Builder-style DSL,MIT,https://github.com/rails/jbuilder
 Ruby Gem: jquery-rails,Use jQuery with Rails 4+,MIT,https://github.com/rails/jquery-rails
 Ruby Gem: jwt,JSON Web Token implementation in Ruby,MIT,http://github.com/jwt/ruby-jwt
+Ruby Gem: logstash-logger,LogStash Logger for ruby,MIT,http://github.com/dwbutler/logstash-logger
 Ruby Gem: logstasher,Awesome rails logs,MIT,https://github.com/shadabahmed/logstasher
 Ruby Gem: loofah,Loofah is a general library for manipulating and transforming HTML/XML documents and fragments,MIT,https://github.com/flavorjones/loofah
 Ruby Gem: mail,Mail provides a nice Ruby DSL for making sending and reading emails.,MIT,https://github.com/mikel/mail
@@ -86,6 +87,8 @@ Ruby Gem: phony,Fast international phone number (E164 standard) normalizing spli
 Ruby Gem: phony_rails,This Gem adds useful methods to your Rails app to validate display and save phone numbers.,MIT,https://github.com/joost/phony_rails
 Ruby Gem: powerpack,A few useful extensions to core Ruby classes.,MIT,https://github.com/bbatsov/powerpack
 Ruby Gem: protected_attributes,Protect attributes from mass assignment in Active Record models,MIT,https://github.com/rails/protected_attributes
+Ruby Gem: pusher,Pusher API client,MIT,http://github.com/pusher/pusher-http-ruby
+Ruby Gem: pusher-signature,Simple key/secret based authentication for apis,MIT,http://github.com/pusher/pusher-signature
 Ruby Gem: rack,a modular Ruby webserver interface,MIT,http://rack.github.io/
 Ruby Gem: rack-cors,Middleware for enabling Cross-Origin Resource Sharing in Rack apps,MIT,https://github.com/cyu/rack-cors
 Ruby Gem: rack-protection,You should use protection!,MIT,http://github.com/rkh/rack-protection
@@ -99,6 +102,7 @@ Ruby Gem: railties,Tools for creating working with and running Rails application
 Ruby Gem: rainbow,Colorize printed text on ANSI terminals,MIT,https://github.com/sickill/rainbow
 Ruby Gem: rake,Rake is a Make-like program implemented in Ruby,MIT,https://github.com/ruby/rake
 Ruby Gem: redis,A Ruby client library for Redis,MIT,https://github.com/redis/redis-rb
+Ruby Gem: redis-namespace,Namespaces Redis commands.,MIT,http://github.com/resque/redis-namespace
 Ruby Gem: request_store,RequestStore gives you per-request global storage.,MIT,http://github.com/steveklabnik/request_store
 Ruby Gem: responders,A set of Rails responders to dry up your application,MIT,http://github.com/plataformatec/responders
 Ruby Gem: rubocop,Automatic Ruby code style checking tool.,MIT,http://github.com/bbatsov/rubocop
@@ -138,6 +142,7 @@ Ruby Gem: thread_safe,A collection of data structures and utilities to make thre
 Ruby Gem: pkg-config,A pkg-config implementation for Ruby,lgplv2+,https://github.com/ruby-gnome2/pkg-config
 Ruby Gem: socksify,Redirect all TCPSockets through a SOCKS5 proxy,the program or a work on which the program is based,http://socksify.rubyforge.org/
 Ruby Gem: eventmachine,Ruby/EventMachine library,Ruby,http://rubyeventmachine.com
+Ruby Gem: httpclient,gives something like the functionality of libwww-perl (LWP) in Ruby,Ruby,https://github.com/nahi/httpclient
 Ruby Gem: macaddr,macaddr,Ruby,https://github.com/ahoward/macaddr
 Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],Ruby,https://bitbucket.org/ged/ruby-pg
 Ruby Gem: rdoc,RDoc produces HTML and command-line documentation for Ruby projects,Ruby,http://docs.seattlerb.org/rdoc
