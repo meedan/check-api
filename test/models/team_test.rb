@@ -284,4 +284,9 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should downcase subdomain" do
+    t = create_team subdomain: 'NewsLab'
+    assert_equal 'newslab', t.reload.subdomain
+  end
 end
