@@ -11,10 +11,18 @@ module Api
           filtered: { query: { query_string: { query: keyword } },
           filter: { and: { filters: [ filters ] } } }
         }
-        aggs = { g: { terms: { field: :annotated_id } } }
+        #aggs = { g: { terms: { field: :annotated_id } } }
+        aggs = {
+          annotated: {
+            terms: { field: :annotated_id },
+            aggs: { type: { terms: { field: :annotated_type } } }
+          }
+        }
+        result = Annotation.search(query: query, aggs: aggs)
         annotations = []
-        Annotation.search(query: query, aggs: aggs).response['aggregations']['g']['buckets'].each do |result|
-          annotations << Media.find(result['key'])
+        Annotation.search(query: query, aggs: aggs).response['aggregations']['annotated']['buckets'].each do |result|
+          model = result['type']['buckets']['key'].singularize.camelize.constantize
+          annotations << model.find(result['key'])
         end
         render json: { result: annotations }
       end
