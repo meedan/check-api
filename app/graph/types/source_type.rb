@@ -1,4 +1,4 @@
-SourceType = GraphQL::ObjectType.define do
+SourceType = GraphqlCrudOperations.define_default_type do
   name 'Source'
   description 'Source type'
 
