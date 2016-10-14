@@ -281,4 +281,37 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project
     assert p.sent_to_pusher
   end
+
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    p = create_project team: t
+    p.context_team = t
+    p.current_user = u
+    perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create ProjectSource", "create Source", "create Media"].sort
+    # load permissions as owner
+    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    p.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    p.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    # load as journalist
+    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    p.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    # load as contributor
+    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    p.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    # load as authenticated
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    tu.delete
+    p.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+  end
+
 end

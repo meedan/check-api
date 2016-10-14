@@ -360,4 +360,38 @@ class MediaTest < ActiveSupport::TestCase
     m = create_media project_id: p.id
     assert_equal t, m.current_team
   end
+
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    m.context_team = t
+    m.current_user = u
+    perm_keys = ["read Media", "update Media", "destroy Media", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    # load permissions as owner
+    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    m.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    m.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    # load as journalist
+    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    m.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    # load as contributor
+    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    m.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    # load as authenticated
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    tu.delete
+    m.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+  end
+
 end
