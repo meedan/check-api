@@ -8,6 +8,7 @@ class RemoveDataFromMedias < ActiveRecord::Migration
       em.annotator = pender unless pender.nil?
       em.save!
      end
+
     remove_column :medias, :data
   end
 end
