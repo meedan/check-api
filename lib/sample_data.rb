@@ -118,6 +118,17 @@ module SampleData
     f.reload
   end
 
+  def create_embed(options = {})
+    type = id = nil
+    unless options.has_key?(:annotated) && options[:annotated].nil?
+      p = options.delete(:annotated) || create_project
+      type, id = p.class.name, p.id.to_s
+    end
+    em = Embed.create({ embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
+    sleep 1 if Rails.env.test?
+    em.reload
+  end
+
   def create_annotation(options = {})
     if options.has_key?(:annotation_type) && options[:annotation_type].blank?
       Annotation.create(options)
@@ -130,7 +141,6 @@ module SampleData
     return create_valid_account(options) unless options.has_key?(:url)
     account = Account.new
     account.url = options[:url]
-    account.data = options[:data] || {}
     if options.has_key?(:user_id)
       account.user_id = options[:user_id]
     else
@@ -209,11 +219,7 @@ module SampleData
     end
     m.project_id = options[:project_id]
     m.save!
-    if options.has_key?(:data)
-      m.data = options[:data]
-      m.save!
-    end
-    m
+    m.reload
   end
 
   def create_source(options = {})
@@ -297,6 +303,23 @@ module SampleData
     contact.current_user = options[:current_user] if options.has_key?(:current_user)
     contact.save!
     contact.reload
+  end
+
+  def create_bot(options = {})
+    bot = Bot.new
+    bot.name = options[:name] || random_string
+    file = 'rails.png'
+    if options.has_key?(:avatar)
+      file = options[:avatar]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        bot.avatar = f
+      end
+    end
+    bot.current_user = options[:current_user] if options.has_key?(:current_user)
+    bot.save!
+    bot.reload
   end
 
 end

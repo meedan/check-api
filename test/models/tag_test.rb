@@ -13,7 +13,7 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should create tag" do
-    assert_difference 'Tag.count' do
+    assert_difference 'Tag.length' do
       create_tag(tag: 'test')
     end
   end
@@ -24,7 +24,7 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should have tag" do
-    assert_no_difference 'Tag.count' do
+    assert_no_difference 'Tag.length' do
       create_tag(tag: nil)
       create_tag(tag: '')
     end
@@ -237,7 +237,7 @@ class TagTest < ActiveSupport::TestCase
   test "should not have same tag applied to same object" do
     s1 = create_source
     s2 = create_source
-    assert_difference 'Tag.count', 4 do
+    assert_difference 'Tag.length', 4 do
       assert_nothing_raised do
         create_tag tag: 'foo', annotated: s1
         create_tag tag: 'foo', annotated: s2
@@ -245,7 +245,7 @@ class TagTest < ActiveSupport::TestCase
         create_tag tag: 'bar', annotated: s2
       end
     end
-    assert_no_difference 'Tag.count' do
+    assert_no_difference 'Tag.length' do
       assert_raises RuntimeError do
         create_tag tag: 'foo', annotated: s1
         create_tag tag: 'foo', annotated: s2
