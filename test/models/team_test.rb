@@ -289,4 +289,37 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team subdomain: 'NewsLab'
     assert_equal 'newslab', t.reload.subdomain
   end
+
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    team = create_team
+    team.context_team = t
+    team.current_user = u
+    perm_keys = ["read Team", "update Team", "destroy Team", "create Project", "create Account", "create TeamUser", "create User", "create Contact"].sort
+    # load permissions as owner
+    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    team.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    team.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    # load as journalist
+    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    team.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    # load as contributor
+    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    team.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    # load as authenticated
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    tu.delete
+    team.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+  end
+
 end
