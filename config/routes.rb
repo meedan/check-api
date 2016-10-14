@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       get 'version', to: 'base_api#version'
       match '/me' => 'base_api#me', via: [:get]
       match '/graphql' => 'graphql#create', via: [:post]
+      match '/search' => 'search#create', via: [:post]
       devise_for :users, controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', omniauth_callbacks: 'api/v1/omniauth_callbacks' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'

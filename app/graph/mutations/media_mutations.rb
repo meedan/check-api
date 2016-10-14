@@ -1,11 +1,9 @@
 module MediaMutations
   create_fields = {
-    url: '!str',
+    url: 'str',
     account_id: 'int',
     project_id: 'int',
-    user_id: 'int',
-    title: 'str',
-    description: 'str'
+    user_id: 'int'
   }
 
   update_fields = {
@@ -13,8 +11,7 @@ module MediaMutations
     account_id: 'int',
     project_id: 'int',
     user_id: 'int',
-    title: 'str',
-    description: 'str',
+    information: 'str',
     id: '!id'
   }
 

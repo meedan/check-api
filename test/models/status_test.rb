@@ -9,7 +9,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should create status" do
-    assert_difference 'Status.count' do
+    assert_difference 'Status.length' do
       create_status
     end
   end
@@ -20,7 +20,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should have status" do
-    assert_no_difference 'Status.count' do
+    assert_no_difference 'Status.length' do
       assert_raises RuntimeError do
         create_status(status: nil)
         create_status(status: '')
@@ -233,26 +233,26 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should not create status with invalid value" do
-    assert_no_difference 'Status.count' do
-      assert_raises RuntimeError do
+    assert_no_difference 'Status.length' do
+      assert_raise RuntimeError do
         create_status status: 'invalid', annotated: create_valid_media
       end
     end
-    assert_no_difference 'Status.count' do
-      assert_raises RuntimeError do
+    assert_no_difference 'Status.length' do
+      assert_raise RuntimeError do
         create_status status: 'invalid'
       end
     end
-    assert_difference 'Status.count' do
+    assert_difference 'Status.length' do
       create_status status: 'Credible'
     end
-    assert_difference 'Status.count' do
+    assert_difference 'Status.length' do
       create_status status: 'Verified', annotated: create_valid_media
     end
   end
 
   test "should not create status with invalid annotated" do
-    assert_no_difference 'Status.count' do
+    assert_no_difference 'Status.length' do
       assert_raises RuntimeError do
         create_status(status: 'False', annotated_type: 'Project', annotated_id: create_project.id)
       end
