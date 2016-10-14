@@ -13,7 +13,6 @@ MediaType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int
   field :annotations_count, types.Int
   field :domain, types.String
-  field :permissions, types.String
   field :pusher_channel, types.String
 
   field :published do
