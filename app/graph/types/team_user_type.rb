@@ -1,4 +1,4 @@
-TeamUserType = GraphQL::ObjectType.define do
+TeamUserType = GraphqlCrudOperations.define_default_type do
   name 'TeamUser'
   description 'TeamUser type'
 

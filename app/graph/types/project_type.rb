@@ -1,4 +1,4 @@
-ProjectType = GraphQL::ObjectType.define do
+ProjectType = GraphqlCrudOperations.define_default_type do
   name 'Project'
   description 'Project type'
 

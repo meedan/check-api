@@ -427,4 +427,18 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query 
     assert_response :success
   end
+
+  test "should get permissions for child objects" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team
+    create_team_user user: u, team: t
+    p = create_project team: t
+    m = create_media project_id: p.id
+    create_comment annotated: m, annotator: u
+    query = "query GetById { project(id: \"#{p.id}\") { medias(first: 1) { edges { node { permissions } } } } }"
+    post :create, query: query 
+    assert_response :success
+    assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['medias']['edges'][0]['node']['permissions']
+  end
 end

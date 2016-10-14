@@ -1,4 +1,4 @@
-AccountType = GraphQL::ObjectType.define do
+AccountType = GraphqlCrudOperations.define_default_type do
   name 'Account'
   description 'Account type'
 

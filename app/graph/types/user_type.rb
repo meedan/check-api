@@ -1,4 +1,4 @@
-UserType = GraphQL::ObjectType.define do
+UserType = GraphqlCrudOperations.define_default_type do
   name 'User'
   description 'User type'
 
