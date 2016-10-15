@@ -180,4 +180,11 @@ class GraphqlCrudOperations
       end
     end
   end
+
+  def self.load_if_can(klass, id, ctx)
+    obj = klass.find_if_can(id, ctx[:current_user], ctx[:context_team])
+    obj.current_user = ctx[:current_user]
+    obj.context_team = ctx[:context_team]
+    obj
+  end
 end
