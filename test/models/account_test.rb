@@ -4,14 +4,17 @@ class AccountTest < ActiveSupport::TestCase
   def setup
     super
     @url = 'https://www.youtube.com/user/MeedanTube'
+    s = create_source
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
-      @account = create_account(url: @url)
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+      @account = create_account(url: @url, source: s)
     end
   end
 
   test "should create account" do
     assert_difference 'Account.count' do
       PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
         create_valid_account
       end
     end
@@ -121,6 +124,7 @@ class AccountTest < ActiveSupport::TestCase
     assert_no_difference 'Account.count' do
       exception = assert_raises ActiveRecord::RecordInvalid do
         PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+          WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
           create_account(url: @url)
         end
       end
@@ -153,4 +157,37 @@ class AccountTest < ActiveSupport::TestCase
     a = create_valid_account source: s
     assert_equal [t.id], a.get_team
   end
+
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    a = create_valid_account
+    a.context_team = t
+    a.current_user = u
+    perm_keys = ["read Account", "update Account", "destroy Account", "create Media"].sort
+    # load permissions as owner
+    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    a.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    a.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    # load as journalist
+    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    a.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    # load as contributor
+    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    a.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    # load as authenticated
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    tu.delete
+    a.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+  end
+
 end

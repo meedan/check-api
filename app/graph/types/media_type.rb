@@ -6,15 +6,13 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('Media')
   field :updated_at, types.String
-  field :url, !types.String
+  field :url, types.String
   field :account_id, types.Int
   field :project_id, types.Int
   field :user_id, types.Int
   field :dbid, types.Int
   field :annotations_count, types.Int
   field :domain, types.String
-  field :title, types.String
-  field :description, types.String
   field :pusher_channel, types.String
 
   field :published do
@@ -27,9 +25,11 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
   field :jsondata do
     type types.String
+    argument :context_id, types.Int
 
-    resolve -> (media, _args, _ctx) {
-      media.jsondata
+    resolve -> (media, args, ctx) {
+      context = get_context(args, ctx)
+      media.jsondata(context)
     }
   end
 

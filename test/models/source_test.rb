@@ -158,4 +158,37 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source
     assert_equal s.id, s.dbid
   end
+
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    s = create_source
+    s.context_team = t
+    s.current_user = u
+    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create ProjectSource", "create Project"].sort
+    # load permissions as owner
+    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    s.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    s.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    # load as journalist
+    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    s.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    # load as contributor
+    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    s.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    # load as authenticated
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    tu.delete
+    s.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+  end
+
 end

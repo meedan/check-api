@@ -11,16 +11,14 @@ class Media < ActiveRecord::Base
 
   include PenderData
 
-  validates_presence_of :url
   validate :validate_pender_result, on: :create
   validate :pender_result_is_an_item, on: :create
   validate :url_is_unique, on: :create
 
   before_validation :set_user, on: :create
-  after_create :set_project, :set_account, :set_title_and_description
+  after_create :set_pender_result_as_annotation, :set_project, :set_account
   after_rollback :duplicate
 
-  serialize(:data) if ActiveRecord::Base.connection.class.name != 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
 
   def current_team
     self.project.team if self.project
@@ -38,8 +36,25 @@ class Media < ActiveRecord::Base
     self.annotations('tag', context)
   end
 
-  def jsondata
-    self.data.to_json
+  def jsondata(context = nil)
+    self.data(context).to_json
+  end
+
+  def data(context = nil)
+    #TODO:: change the assumsion for a one Pender result
+    em_pender = self.annotations('embed').last
+    embed = em_pender.embed unless em_pender.nil?
+    em_u = self.annotations('embed')
+    context_id = context.nil? ? nil : context.id
+    em_u.reverse.each do |obj|
+      if obj.context_id.to_i == context_id.to_i
+        obj.embed.each do |k, v|
+          # any key can be overriden including URL
+          embed[k] = v
+        end
+      end
+    end
+    embed
   end
 
   def published
@@ -76,6 +91,16 @@ class Media < ActiveRecord::Base
     Project.find(self.project_id) if self.project_id
   end
 
+  def information=(info)
+    info = JSON.parse(info)
+    em = Embed.new
+    em.embed = info
+    em.annotated = self
+    em.annotator = self.current_user unless self.current_user.nil?
+    em.context = self.project unless self.project.nil?
+    em.save!
+  end
+
   private
 
   def set_user
@@ -83,30 +108,26 @@ class Media < ActiveRecord::Base
   end
 
   def set_account
-    account = Account.new
-    account.url = self.data['author_url']
-    if account.save
-      self.account = account
-    else
-      self.account = Account.where(url: account.url).last
+    unless self.pender_data.nil?
+      account = Account.new
+      account.url = self.pender_data['author_url']
+      if account.save
+        self.account = account
+      else
+        self.account = Account.where(url: account.url).last
+      end
+      self.save!
     end
-    self.save!
-  end
-
-  def set_title_and_description
-    self.title = self.data['title']
-    self.description = self.data['description']
-    self.save!
   end
 
   def pender_result_is_an_item
-    unless self.data.nil?
-      errors.add(:base, 'Sorry, this is not a valid media item') unless self.data['type'] == 'item'
+    unless self.pender_data.nil?
+      errors.add(:base, 'Sorry, this is not a valid media item') unless self.pender_data['type'] == 'item'
     end
   end
 
   def url_is_unique
-    if !CONFIG['allow_duplicated_urls']
+    unless self.url.nil?
       existing = Media.where(url: self.url).first
       self.duplicated_of = existing
       errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
