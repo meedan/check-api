@@ -1,7 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class BotTest < ActiveSupport::TestCase
-
   test "should create bot" do
     assert_difference 'Bot.count' do
       create_bot
@@ -14,4 +13,8 @@ class BotTest < ActiveSupport::TestCase
     end
   end
 
+  test "should have profile image" do
+    b = create_bot
+    assert_kind_of String, b.profile_image
+  end
 end

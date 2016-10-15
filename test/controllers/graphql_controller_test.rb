@@ -452,12 +452,13 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get media annotations" do
     u = create_user
     authenticate_with_user(u)
-    t = create_team
+    t = create_team subdomain: 'team'
     create_team_user user: u, team: t
     p = create_project team: t
     m = create_media project_id: p.id
     create_comment annotated: m, annotator: u
-    query = "query GetById { media(id: \"#{m.id}\") { annotations(first: 1) { edges { node { permissions } } } } }"
+    query = "query GetById { media(id: \"#{m.id},#{p.id}\") { annotations(first: 1) { edges { node { permissions } } } } }"
+    @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query 
     assert_response :success
   end
