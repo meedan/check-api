@@ -112,6 +112,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read medias jsondata" do
     authenticate_with_user
+    @request.headers.merge!({ 'origin': "http://#{@team.subdomain}.localhost:3333" })
     p = create_project team: @team
     p2 = create_project team: @team
     pender_url = CONFIG['pender_host'] + '/api/medias'
@@ -129,18 +130,18 @@ class GraphqlControllerTest < ActionController::TestCase
     m.project_id = p2.id
     info = {title: 'Title B', description: 'Desc B'}.to_json
     m.information= info
-    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context_id: #{p.id}) } }"
+    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { jsondata(context_id: #{p.id}) } }"
     post :create, query: query
     assert_response :success
     jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
     assert_equal 'Title A', JSON.parse(jsondata)['title']
-    query = "query GetById { media(id: \"#{m.id}\") { jsondata(context_id: #{p2.id}) } }"
+    query = "query GetById { media(ids: \"#{m.id},#{p2.id}\") { jsondata(context_id: #{p2.id}) } }"
     post :create, query: query
     assert_response :success
     jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
     assert_equal 'Title B', JSON.parse(jsondata)['title']
     # calling without context
-    query = "query GetById { media(id: \"#{m.id}\") { jsondata() } }"
+    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { jsondata() } }"
     post :create, query: query
     assert_response :success
     jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
