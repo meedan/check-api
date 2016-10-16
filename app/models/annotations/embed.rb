@@ -24,7 +24,7 @@ class Embed
 
   def exist_of_title_or_embed
     if self.embed.blank? and self.title.blank?
-      errors.add(:base, "Should fill at least one filed [title or embed]")
+      errors.add(:base, "Should fill at least one field [title or embed]")
     end
   end
 
