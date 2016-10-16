@@ -43,14 +43,13 @@ class Media < ActiveRecord::Base
   def data(context = nil)
     #TODO:: change the assumsion for a one Pender result
     em_pender = self.annotations('embed').last
-    embed = em_pender.embed unless em_pender.nil?
+    embed = JSON.parse(em_pender.embed) unless em_pender.nil?
     em_u = self.annotations('embed')
     context_id = context.nil? ? nil : context.id
     em_u.reverse.each do |obj|
       if obj.context_id.to_i == context_id.to_i
-        obj.embed.each do |k, v|
-          # any key can be overriden including URL
-          embed[k] = v
+        ['title', 'description', 'quote'].each do |k|
+          embed[k] = obj[k] unless obj[k].nil?
         end
       end
     end
@@ -94,7 +93,10 @@ class Media < ActiveRecord::Base
   def information=(info)
     info = JSON.parse(info)
     em = Embed.new
-    em.embed = info
+    ['title', 'description', 'quote'].each do |k|
+      em[k] = info[k] unless info[k].blank?
+    end
+    em.embed = {"oembed": info}.to_json
     em.annotated = self
     em.annotator = self.current_user unless self.current_user.nil?
     em.context = self.project unless self.project.nil?
