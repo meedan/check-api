@@ -96,7 +96,7 @@ class Media < ActiveRecord::Base
     ['title', 'description', 'quote'].each do |k|
       em[k] = info[k] unless info[k].blank?
     end
-    em.embed = {"oembed": info}.to_json
+    em.embed = info.to_json
     em.annotated = self
     em.annotator = self.current_user unless self.current_user.nil?
     em.context = self.project unless self.project.nil?
