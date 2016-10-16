@@ -44,6 +44,7 @@ class Media < ActiveRecord::Base
     #TODO:: change the assumsion for a one Pender result
     em_pender = self.annotations('embed').last
     embed = JSON.parse(em_pender.embed) unless em_pender.nil?
+    # TODO: call annotations with context
     em_u = self.annotations('embed')
     context_id = context.nil? ? nil : context.id
     em_u.reverse.each do |obj|
