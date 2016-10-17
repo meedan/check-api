@@ -58,7 +58,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
     argument :context_id, types.Int
 
     resolve ->(media, args, ctx) {
-      call_method_from_context(:tags, args, ctx)
+      call_method_from_context(media, :tags, args, ctx)
     }
   end
 
@@ -68,7 +68,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
     argument :context_id, types.Int
 
     resolve ->(media, args, ctx) {
-      call_method_from_context(:last_status, args, ctx)
+      call_method_from_context(media, :last_status, args, ctx)
     }
   end
 
@@ -78,7 +78,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
     argument :context_id, types.Int
 
     resolve -> (media, args, ctx) {
-      call_method_from_context(:jsondata, args, ctx)
+      call_method_from_context(media, :jsondata, args, ctx)
     }
   end
 end
@@ -87,7 +87,7 @@ def get_context(args = {}, ctx = {})
   args['context_id'].nil? ? nil : Project.find_if_can(args['context_id'], ctx[:current_user], ctx[:context_team])
 end
 
-def call_method_from_context(method, args, ctx)
+def call_method_from_context(media, method, args, ctx)
   context = get_context(args, ctx)
   media.send(method, context)
 end
