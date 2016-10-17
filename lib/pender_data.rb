@@ -15,9 +15,14 @@ module PenderData
 
   def set_pender_result_as_annotation
     unless self.pender_data.nil?
+      data = self.pender_data
       pender = Bot.where(name: 'Pender').last
       em = Embed.new
-      em.embed = self.pender_data
+      ['title', 'description', 'username'].each do |k|
+        em[k] = data[k]
+      end
+      em.published_at = data['published_at'].to_time.to_i unless data['published_at'].nil?
+      em.embed = data.to_json
       em.annotated = self
       em.annotator = pender unless pender.nil?
       em.save!

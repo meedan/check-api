@@ -13,7 +13,7 @@ module CheckdeskSettings
   end
 
   def setting(key)
-    self.settings ||= {}
+    self.settings = {} if self.settings.blank?
     value = self.settings[key.to_s] || self.settings[key.to_sym]
     value.to_s unless value.nil?
   end
@@ -23,7 +23,7 @@ module CheckdeskSettings
     if match.nil?
       super
     elsif match[1] === 'set'
-      self.settings ||= {}
+      self.settings = {} if self.settings.blank?
       self.settings[match[2].to_sym] = args.first
     elsif match[1] === 'get'
       self.setting(match[2])

@@ -127,14 +127,14 @@ Use this method in order to create a new user account
 {
   "type": "user",
   "data": {
-    "id": "VXNlci8yMDM2\n",
-    "dbid": 2036,
+    "id": "VXNlci8z\n",
+    "dbid": 3,
     "name": "Test",
     "email": "t@test.com",
     "login": "t",
     "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
     "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJFX2Zz++naTNIOSIsInNlY3JldCI6IktZLWVUWWctIn0=++n",
+    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiI4NXBv++nQ3g5aiIsInNlY3JldCI6IlZ4U3R0VXN4In0=++n",
     "current_team": null,
     "teams": "{}",
     "team_ids": [

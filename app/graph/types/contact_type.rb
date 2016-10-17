@@ -1,4 +1,4 @@
-ContactType = GraphQL::ObjectType.define do
+ContactType = GraphqlCrudOperations.define_default_type do
   name 'Contact'
   description 'Contact type'
 

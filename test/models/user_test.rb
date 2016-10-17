@@ -307,4 +307,37 @@ class UserTest < ActiveSupport::TestCase
     end
     Account.any_instance.unstub(:save)
   end
+
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    user = create_user
+    user.context_team = t
+    user.current_user = u
+    perm_keys = ["read User", "update User", "destroy User", "create Source", "create TeamUser", "create Team", "create Project"].sort
+    # load permissions as owner
+    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    user.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    user.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    # load as journalist
+    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    user.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    # load as contributor
+    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    user.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    # load as authenticated
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    tu.delete
+    user.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+  end
+
 end

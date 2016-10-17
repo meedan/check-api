@@ -1,4 +1,4 @@
-MediaType = GraphQL::ObjectType.define do
+MediaType = GraphqlCrudOperations.define_default_type do
   name 'Media'
   description 'Media type'
 
@@ -13,7 +13,6 @@ MediaType = GraphQL::ObjectType.define do
   field :dbid, types.Int
   field :annotations_count, types.Int
   field :domain, types.String
-  field :permissions, types.String
   field :pusher_channel, types.String
 
   field :published do

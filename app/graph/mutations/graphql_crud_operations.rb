@@ -124,6 +124,19 @@ class GraphqlCrudOperations
     ]
   end
 
+  def self.define_default_type(&block)
+    GraphQL::ObjectType.define do
+      field :permissions, types.String do
+        resolve -> (obj, _args, ctx) {
+          obj.current_user = ctx[:current_user]
+          obj.permissions
+        }
+      end
+
+      instance_eval(&block)
+    end
+  end
+
   def self.define_annotation_fields
     [:annotation_type, :updated_at, :created_at,
      :context_id, :context_type, :annotated_id,
@@ -166,5 +179,12 @@ class GraphqlCrudOperations
         }
       end
     end
+  end
+
+  def self.load_if_can(klass, id, ctx)
+    obj = klass.find_if_can(id, ctx[:current_user], ctx[:context_team])
+    obj.current_user = ctx[:current_user]
+    obj.context_team = ctx[:context_team]
+    obj
   end
 end
