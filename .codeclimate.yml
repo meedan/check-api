@@ -8,14 +8,19 @@ engines:
       strings:
       - FIXME
       - BUG
-   rubocop:
-     enabled: true
-   brakeman:
-     enabled: true
-   duplication:
-     enabled: true
-   bundler-audit:
-     enabled: true
+  rubocop:
+    enabled: true
+  brakeman:
+    enabled: true
+  duplication:
+    enabled: true
+  bundler-audit:
+    enabled: true
+ratings:
+  paths:
+  - app/**
+  - lib/**
+  - "**.rb"
 exclude_paths:
 - "app/controllers/concerns/*_doc.rb"
 - "public/api"
