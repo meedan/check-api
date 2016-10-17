@@ -103,7 +103,10 @@ class Ability
     can :cud, ProjectSource do |obj|
       obj.get_team.include? @context_team.id and (obj.source.user_id == @user.id)
     end
-    can :cud, ProjectMedia do |obj|
+    can :create, ProjectMedia do |obj|
+      obj.get_team.include? @context_team.id
+    end
+    can [:update, :destroy], ProjectMedia do |obj|
       obj.get_team.include? @context_team.id and (obj.media.user_id == @user.id)
     end
     can :update, [Comment, Tag] do |obj|
