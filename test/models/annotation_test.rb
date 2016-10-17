@@ -123,7 +123,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 1, Comment.length
   end
 
-  test "should get annotations from context" do
+  test "should get annotations from any context, no context or some context" do
     m = create_valid_media
     p1 = create_project
     p2 = create_project
