@@ -14,6 +14,9 @@ engines:
     enabled: true
   duplication:
     enabled: true
+    config:
+      languages:
+      - ruby
   bundler-audit:
     enabled: true
 ratings:
