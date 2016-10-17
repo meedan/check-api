@@ -82,6 +82,7 @@ module CheckdeskPermissions
       model.project_id = self.project.id if model.respond_to?(:project_id)
       model.context = self.project if model.respond_to?(:context)
     end
+    model
   end
 
   private
