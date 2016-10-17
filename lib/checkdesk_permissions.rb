@@ -41,15 +41,17 @@ module CheckdeskPermissions
     perms.to_json
   end
 
+  CREATE_PERMISSIONS = {
+    'Team' => [Project, Account, TeamUser, User, Contact],
+    'Account' => [Media],
+    'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
+    'Project' => [ProjectSource, Source, Media, ProjectMedia],
+    'Source' => [Account, ProjectSource, Project],
+    'User' => [Source, TeamUser, Team, Project]
+  }
+
   def set_create_permissions(obj)
-    create = {
-      'Team' => [Project, Account, TeamUser, User, Contact],
-      'Account' => [Media],
-      'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
-      'Project' => [ProjectSource, Source, Media, ProjectMedia],
-      'Source' => [Account, ProjectSource, Project],
-      'User' => [Source, TeamUser, Team, Project]
-    }
+    create = CREATE_PERMISSIONS
     perms = Hash.new
     unless create[obj].nil?
       ability = Ability.new(self.current_user, self.context_team)
@@ -61,22 +63,27 @@ module CheckdeskPermissions
           model.team_id = self.context_team.id
         end
 
-        if self.respond_to?(:project)
-          if self.class.name == 'Media' and model.respond_to?(:media_id)
-            model.media_id = self.id
-          end
-          if model.respond_to?(:project_id) and !self.project.nil?
-            model.project_id = self.project.id
-          end
-          if model.respond_to?(:context) and !self.project.nil?
-            model.context = self.project
-          end
-        end
+        model = self.set_project_for_permissions(model)
 
         perms["create #{data}"] = ability.can?(:create, model)
       end
     end
     perms
+  end
+
+  def set_project_for_permissions(model)
+    if self.respond_to?(:project)
+      if self.class.name == 'Media' and model.respond_to?(:media_id)
+        model.media_id = self.id
+      end
+      if model.respond_to?(:project_id) and !self.project.nil?
+        model.project_id = self.project.id
+      end
+      if model.respond_to?(:context) and !self.project.nil?
+        model.context = self.project
+      end
+    end
+    model
   end
 
   private

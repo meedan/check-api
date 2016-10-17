@@ -1,6 +1,13 @@
 languages:
   Ruby: true
   JavaScript: false
+engines:
+  fixme:
+    enabled: true
+    config:
+      strings:
+      - FIXME
+      - BUG
 exclude_paths:
 - "app/controllers/concerns/*_doc.rb"
 - "public/api"
