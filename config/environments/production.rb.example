@@ -52,6 +52,8 @@ Rails.application.configure do
 # https://github.com/dwbutler/logstash-logger#multi-logger
 # Each logger may have its own formatter.
 
+  config.lograge.enabled = true
+
   config.logstash.type = :multi_logger
   config.logstash.outputs = [
     {
@@ -67,9 +69,7 @@ Rails.application.configure do
     }
   ]
 
-
-
-
+  config.logger = LogStashLogger.new(config.logstash)  
 
   # Prepend all log lines with the following tags.
   # config.log_tags = [ :subdomain, :uuid ]
