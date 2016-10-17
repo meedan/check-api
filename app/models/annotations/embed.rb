@@ -7,7 +7,7 @@ class Embed
   attribute :published_at,  Integer
   attribute :quote, String
   attribute :embed, String
-  validate :exist_of_title_or_embed
+  validate :validate_quote_for_media_with_empty_url
 
   def content
     {
@@ -22,9 +22,11 @@ class Embed
 
   private
 
-  def exist_of_title_or_embed
-    if self.embed.blank? and self.title.blank?
-      errors.add(:base, "Should fill at least one field [title or embed]")
+  def validate_quote_for_media_with_empty_url
+    unless self.annotated.nil?
+      if self.annotated_type == 'Media' and self.annotated.url.blank? and self.quote.blank?
+        errors.add(:base, "quote can't be blank")
+      end
     end
   end
 

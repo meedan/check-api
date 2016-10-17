@@ -23,25 +23,16 @@ class EmbedTest < ActiveSupport::TestCase
     assert_equal 'embed', em.annotation_type
   end
 
-  test "should have embed or title" do
+  test "should have quote if media url is blank" do
     assert_no_difference 'Embed.length' do
-      em = Embed.new
+      m = Media.new
+      m.save!
       assert_raise RuntimeError do
-         em.embed = nil; em.title = nil
-         em.save!
+        em = Embed.new
+        em.annotated = m
+        em.quote = ''
+        em.save!
       end
-      assert_raise RuntimeError do
-         em.embed = ''; em.title = ''
-         em.save!
-      end
-    end
-    assert_difference 'Embed.length' do
-      em = Embed.new
-      em.title = 'test'; em.save!
-    end
-    assert_difference 'Embed.length' do
-      em = Embed.new
-      em.embed = 'test'; em.save!
     end
   end
 
