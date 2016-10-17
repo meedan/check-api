@@ -122,4 +122,23 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 1, Flag.length
     assert_equal 1, Comment.length
   end
+
+  test "should get annotations from any context, no context or some context" do
+    m = create_valid_media
+    p1 = create_project
+    p2 = create_project
+    c1 = create_comment context: p1, annotated: m
+    c2 = create_comment context: p2, annotated: m
+    c3 = create_comment context_id: nil, context_type: nil, context: nil, annotated: m
+    f = create_flag context: p1, annotated: m
+    assert_equal [c1], m.annotations('comment', p1)
+    assert_equal [c2], m.annotations('comment', p2)
+    assert_includes m.annotations('comment'), c1
+    assert_includes m.annotations('comment'), c2
+    assert_includes m.annotations('comment'), c3
+    assert_equal [c3], m.annotations('comment', 'none')
+    assert_includes m.annotations('comment', 'some'), c1
+    assert_includes m.annotations('comment', 'some'), c2
+    refute_includes m.annotations('comment', 'some'), c3
+  end
 end

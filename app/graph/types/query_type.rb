@@ -35,25 +35,50 @@ QueryType = GraphQL::ObjectType.define do
       if tid === 0 && !ctx[:context_team].blank?
         tid = ctx[:context_team].id
       end
-      obj = Team.find_if_can(tid, ctx[:current_user], ctx[:context_team])
-      obj.current_user = ctx[:current_user]
-      obj.context_team = ctx[:context_team]
-      obj
+      GraphqlCrudOperations.load_if_can(Team, tid, ctx)
+    end
+  end
+
+  field :project do
+    type ProjectType
+    description 'Information about a project, given its id and its team id'
+    
+    argument :id, !types.ID
+    
+    resolve -> (_obj, args, ctx) do
+      tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+      project = Project.where(id: args['id'], team_id: tid).last
+      id = project.nil? ? 0 : project.id
+      GraphqlCrudOperations.load_if_can(Project, id, ctx)
+    end
+  end
+
+  field :media do
+    type MediaType
+    description 'Information about a media item. The argument should be given like this: "media_id,project_id"'
+    
+    argument :ids, !types.String
+    
+    resolve -> (_obj, args, ctx) do
+      mid, pid = args['ids'].split(',').map(&:to_i)
+      tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+      project = Project.where(id: pid, team_id: tid).last
+      pid = project.nil? ? 0 : project.id
+      project_media = ProjectMedia.where(project_id: pid, media_id: mid).last
+      mid = project_media.nil? ? 0 : project_media.media_id
+      GraphqlCrudOperations.load_if_can(Media, mid, ctx)
     end
   end
 
   # Getters by ID
 
-  [:source, :user, :media, :project].each do |type|
+  [:source, :user].each do |type|
     field type do
       type "#{type.to_s.camelize}Type".constantize
       description "Information about the #{type} with given id"
       argument :id, !types.ID
       resolve -> (_obj, args, ctx) do
-        obj = type.to_s.camelize.constantize.find_if_can(args['id'], ctx[:current_user], ctx[:context_team])
-        obj.current_user = ctx[:current_user]
-        obj.context_team = ctx[:context_team]
-        obj
+        GraphqlCrudOperations.load_if_can(type.to_s.camelize.constantize, args['id'], ctx)
       end
     end
   end

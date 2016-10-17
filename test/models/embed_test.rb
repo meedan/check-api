@@ -23,14 +23,15 @@ class EmbedTest < ActiveSupport::TestCase
     assert_equal 'embed', em.annotation_type
   end
 
-  test "should have embed" do
+  test "should have quote if media url is blank" do
     assert_no_difference 'Embed.length' do
-      em = Embed.new
+      m = Media.new
+      m.save!
       assert_raise RuntimeError do
-         em.embed = nil; em.save!
-      end
-      assert_raise RuntimeError do
-         em.embed = ''; em.save!
+        em = Embed.new
+        em.annotated = m
+        em.quote = ''
+        em.save!
       end
     end
   end
@@ -124,7 +125,7 @@ class EmbedTest < ActiveSupport::TestCase
 
   test "should have content" do
     em = create_embed
-    assert_equal ['embed'], JSON.parse(em.content).keys
+    assert_equal ["title", "description", "username", "published_at", "quote", "embed"].sort, JSON.parse(em.content).keys.sort
   end
 
   test "should have annotators" do

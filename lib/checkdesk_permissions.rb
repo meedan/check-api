@@ -41,8 +41,8 @@ module CheckdeskPermissions
     perms.to_json
   end
 
-  def set_create_permissions(obj)
-    create = {
+  def get_create_permissions
+    {
       'Team' => [Project, Account, TeamUser, User, Contact],
       'Account' => [Media],
       'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
@@ -50,6 +50,10 @@ module CheckdeskPermissions
       'Source' => [Account, ProjectSource, Project],
       'User' => [Source, TeamUser, Team, Project]
     }
+  end
+
+  def set_create_permissions(obj)
+    create = self.get_create_permissions
     perms = Hash.new
     unless create[obj].nil?
       ability = Ability.new(self.current_user, self.context_team)
@@ -57,26 +61,27 @@ module CheckdeskPermissions
         model = data.new
         model.current_user = self.current_user
         model.context_team = self.context_team
-        if model.respond_to?(:team_id) and !self.context_team.nil?
+        
+        if model.respond_to?(:team_id) and self.context_team.present?
           model.team_id = self.context_team.id
         end
 
-        if self.respond_to?(:project)
-          if self.class.name == 'Media' and model.respond_to?(:media_id)
-            model.media_id = self.id
-          end
-          if model.respond_to?(:project_id) and !self.project.nil?
-            model.project_id = self.project.id
-          end
-          if model.respond_to?(:context) and !self.project.nil?
-            model.context = self.project
-          end
-        end
+        model = self.set_project_for_permissions(model) if self.respond_to?(:project)
 
         perms["create #{data}"] = ability.can?(:create, model)
       end
     end
     perms
+  end
+
+  def set_project_for_permissions(model)
+    if self.class.name == 'Media' and model.respond_to?(:media_id)
+      model.media_id = self.id
+    end
+    unless self.project.nil?
+      model.project_id = self.project.id if model.respond_to?(:project_id)
+      model.context = self.project if model.respond_to?(:context)
+    end
   end
 
   private

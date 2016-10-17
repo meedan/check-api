@@ -38,7 +38,7 @@ class Account < ActiveRecord::Base
 
   def data
     em = self.annotations('embed').last
-    em.embed
+    JSON.parse(em.embed)
   end
 
   private

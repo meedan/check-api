@@ -137,6 +137,20 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.field_with_context
+    proc do |name|
+      field name do
+        type types.String
+        
+        argument :context_id, types.Int
+        
+        resolve -> (media, args, ctx) {
+          call_method_from_context(media, name, args, ctx)
+        }
+      end
+    end
+  end
+
   def self.define_annotation_fields
     [:annotation_type, :updated_at, :created_at,
      :context_id, :context_type, :annotated_id,
@@ -179,5 +193,12 @@ class GraphqlCrudOperations
         }
       end
     end
+  end
+
+  def self.load_if_can(klass, id, ctx)
+    obj = klass.find_if_can(id, ctx[:current_user], ctx[:context_team])
+    obj.current_user = ctx[:current_user]
+    obj.context_team = ctx[:context_team]
+    obj
   end
 end
