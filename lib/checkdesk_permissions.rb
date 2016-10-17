@@ -41,17 +41,19 @@ module CheckdeskPermissions
     perms.to_json
   end
 
-  CREATE_PERMISSIONS = {
-    'Team' => [Project, Account, TeamUser, User, Contact],
-    'Account' => [Media],
-    'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
-    'Project' => [ProjectSource, Source, Media, ProjectMedia],
-    'Source' => [Account, ProjectSource, Project],
-    'User' => [Source, TeamUser, Team, Project]
-  }
+  def get_create_permissions
+    {
+      'Team' => [Project, Account, TeamUser, User, Contact],
+      'Account' => [Media],
+      'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
+      'Project' => [ProjectSource, Source, Media, ProjectMedia],
+      'Source' => [Account, ProjectSource, Project],
+      'User' => [Source, TeamUser, Team, Project]
+    }
+  end
 
   def set_create_permissions(obj)
-    create = CREATE_PERMISSIONS
+    create = self.get_create_permissions
     perms = Hash.new
     unless create[obj].nil?
       ability = Ability.new(self.current_user, self.context_team)
@@ -59,7 +61,8 @@ module CheckdeskPermissions
         model = data.new
         model.current_user = self.current_user
         model.context_team = self.context_team
-        if model.respond_to?(:team_id) and !self.context_team.nil?
+        
+        if model.respond_to?(:team_id) and self.context_team.present?
           model.team_id = self.context_team.id
         end
 

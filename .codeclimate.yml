@@ -22,3 +22,4 @@ exclude_paths:
 - "app/graphql"
 - "doc"
 - "app/models/ability.rb"
+- ".codeclimate.yml"
