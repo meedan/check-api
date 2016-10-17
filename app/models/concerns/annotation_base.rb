@@ -24,7 +24,7 @@ module AnnotationBase
       def has_annotations
         define_method :annotation_query do |type=nil, context=nil|
           matches = [{ match: { annotated_type: self.class.name } }, { match: { annotated_id: self.id.to_s } }]
-          unless context.nil?
+          if !context.nil? && context != 'none' && context != 'some'
             matches << { match: { context_type: context.class.name } }
             matches << { match: { context_id: context.id.to_s } }
           end
@@ -35,6 +35,8 @@ module AnnotationBase
         define_method :annotation_relation do |type=nil, context=nil|
           query = self.annotation_query(type, context)
           params = { query: query, sort: [{ created_at: { order: 'desc' }}, '_score'] }
+          params[:filter] = { missing: { field: 'context_id', field: 'context_type' } } if context === 'none'
+          params[:filter] = { exists: { field: 'context_id', field: 'context_type' } } if context === 'some'
           ElasticsearchRelation.new(params)
         end
 
