@@ -66,7 +66,7 @@ module CheckdeskPermissions
           model.team_id = self.context_team.id
         end
 
-        model = self.set_project_for_permissions(model)
+        model = self.set_project_for_permissions(model) if self.respond_to?(:project)
 
         perms["create #{data}"] = ability.can?(:create, model)
       end
@@ -75,18 +75,13 @@ module CheckdeskPermissions
   end
 
   def set_project_for_permissions(model)
-    if self.respond_to?(:project)
-      if self.class.name == 'Media' and model.respond_to?(:media_id)
-        model.media_id = self.id
-      end
-      if model.respond_to?(:project_id) and !self.project.nil?
-        model.project_id = self.project.id
-      end
-      if model.respond_to?(:context) and !self.project.nil?
-        model.context = self.project
-      end
+    if self.class.name == 'Media' and model.respond_to?(:media_id)
+      model.media_id = self.id
     end
-    model
+    unless self.project.nil?
+      model.project_id = self.project.id if model.respond_to?(:project_id)
+      model.context = self.project if model.respond_to?(:context)
+    end
   end
 
   private

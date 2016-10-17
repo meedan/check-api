@@ -62,25 +62,8 @@ MediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :last_status do
-    type types.String
-
-    argument :context_id, types.Int
-
-    resolve ->(media, args, ctx) {
-      call_method_from_context(media, :last_status, args, ctx)
-    }
-  end
-
-  field :jsondata do
-    type types.String
-    
-    argument :context_id, types.Int
-
-    resolve -> (media, args, ctx) {
-      call_method_from_context(media, :jsondata, args, ctx)
-    }
-  end
+  instance_exec :jsondata, &GraphqlCrudOperations.field_with_context
+  instance_exec :last_status, &GraphqlCrudOperations.field_with_context
 end
 
 def get_context(args = {}, ctx = {})
