@@ -65,7 +65,7 @@ Rails.application.configure do
       type: :tcp,
       port: 24242,
       host: ENV['LOGSTASH_HOST'],
-      formatter: :json_lines
+      formatter: :json
     }
   ]
 
