@@ -80,7 +80,7 @@ class Media < ActiveRecord::Base
 
   def last_status(context = nil)
     last = self.annotations('status', context).first
-    last.nil? ? 'Undetermined' : last.status
+    last.nil? ? Status.default_id(self, context) : last.status
   end
 
   def domain

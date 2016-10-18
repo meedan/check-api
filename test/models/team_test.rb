@@ -322,4 +322,51 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
   end
 
+  test "should have custom verification statuses" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' }
+      ]
+    }
+    assert_nothing_raised do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    assert_equal 2, t.get_media_verification_statuses[:statuses].size
+  end
+
+  test "should not save invalid custom verification statuses" do
+    t = create_team
+    value = {
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
+  test "should not save invalid custom verification status" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
 end

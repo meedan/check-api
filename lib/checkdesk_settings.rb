@@ -15,7 +15,9 @@ module CheckdeskSettings
   def setting(key)
     self.settings = {} if self.settings.blank?
     value = self.settings[key.to_s] || self.settings[key.to_sym]
-    value.to_s unless value.nil?
+    unless value.nil?
+      value.is_a?(Numeric) ? value.to_s : value
+    end
   end
 
   def method_missing(method, *args, &block)

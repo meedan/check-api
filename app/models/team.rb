@@ -20,6 +20,8 @@ class Team < ActiveRecord::Base
   validate :subdomain_is_available, on: :create
   validates :logo, size: true
   validate :slack_webhook_format
+  validate :custom_media_statuses_format
+  validate :custom_source_statuses_format
 
   after_create :add_user_to_team
 
@@ -66,6 +68,26 @@ class Team < ActiveRecord::Base
     contact.location = info['location']
     contact.team = self
     contact.save!
+  end
+
+  def verification_statuses(type)
+    statuses = self.send("get_#{type}_verification_statuses") || Status.core_verification_statuses(type)
+    statuses.to_json
+  end
+
+  protected
+
+  def custom_statuses_format(type)
+    statuses = self.send("get_#{type}_verification_statuses")
+    unless statuses.nil?
+      if statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
+        errors.add(:base, 'Invalid format for custom verification statuses')
+      else
+        statuses[:statuses].each do |status|
+          errors.add(:base, 'Invalid format for custom verification status') if status.keys.sort != [:description, :id, :label]
+        end
+      end
+    end
   end
 
   private
@@ -121,5 +143,13 @@ class Team < ActiveRecord::Base
 
   def normalize_subdomain
     self.subdomain = self.subdomain.downcase unless self.subdomain.blank?
+  end
+
+  def custom_media_statuses_format
+    self.custom_statuses_format(:media)
+  end
+
+  def custom_source_statuses_format
+    self.custom_statuses_format(:source)
   end
 end

@@ -274,4 +274,44 @@ class StatusTest < ActiveSupport::TestCase
     s = create_status status: 'False', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
     assert s.sent_to_slack
   end
+  
+  test "should validate status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    
+    assert_difference('Status.length') { create_status annotated: m, context: p, status: 'in_progress' }
+    assert_raises(RuntimeError) { create_status annotated: m, context: p, status: '1' }
+    
+    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing' }] }
+    t.set_media_verification_statuses(value)
+    t.save!
+
+    assert_difference('Status.length') { create_status annotated: m, context: p, status: '1' }
+    assert_raises(RuntimeError) { create_status annotated: m, context: p, status: 'in_progress' }
+
+    assert_difference('Status.length') { create_status annotated: m, context: nil, status: 'in_progress' }
+    assert_raises(RuntimeError) { create_status annotated: m, context: nil, status: '1' }
+  end
+
+  test "should get default id" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    
+    assert_equal 'undetermined', Status.default_id(m.reload, p.reload)
+    
+    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing' }] }
+    t.set_media_verification_statuses(value)
+    t.save!
+    
+    assert_equal '1', Status.default_id(m.reload, p.reload)
+
+    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing' }] }
+    t.set_media_verification_statuses(value)
+    t.save!
+    
+    assert_equal 'first', Status.default_id(m.reload, p.reload)
+    assert_equal 'undetermined', Status.default_id(m.reload)
+  end
 end
