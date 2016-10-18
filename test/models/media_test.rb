@@ -448,4 +448,17 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
   end
 
+  test "should create source for Flickr media" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'https://www.flickr.com/photos/bees/2341623661'
+    profile_url = 'https://www.flickr.com/photos/bees/'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","title":"Flickr","description":"Flickr","author_url":"https://www.flickr.com/photos/bees/"}}'
+    profile_response = '{"type":"media","data":{"url":"' + url + '","type":"item","title":"Flickr","description":"Flickr","author_url":"","username":"","provider":"page"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    WebMock.stub_request(:get, pender_url).with({ query: { url: profile_url } }).to_return(body: profile_response)
+    m = Media.new
+    m.url = url
+    m.save!
+    assert_not_nil m.account.source
+  end
 end
