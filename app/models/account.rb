@@ -57,7 +57,7 @@ class Account < ActiveRecord::Base
   end
 
   def pender_result_is_a_profile
-    errors.add(:base, 'Sorry, this is not a profile') if !self.pender_data.nil? && self.pender_data['provider'] != 'page' && self.self.pender_data['type'] != 'profile'
+    errors.add(:base, 'Sorry, this is not a profile') if !self.pender_data.nil? && self.pender_data['provider'] != 'page' && self.pender_data['type'] != 'profile'
   end
 
   def url_is_unique
