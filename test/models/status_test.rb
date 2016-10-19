@@ -283,7 +283,7 @@ class StatusTest < ActiveSupport::TestCase
     assert_difference('Status.length') { create_status annotated: m, context: p, status: 'in_progress' }
     assert_raises(RuntimeError) { create_status annotated: m, context: p, status: '1' }
     
-    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing' }] }
+    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
@@ -301,13 +301,13 @@ class StatusTest < ActiveSupport::TestCase
     
     assert_equal 'undetermined', Status.default_id(m.reload, p.reload)
     
-    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing' }] }
+    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
     
     assert_equal '1', Status.default_id(m.reload, p.reload)
 
-    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing' }] }
+    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }] }
     t.set_media_verification_statuses(value)
     t.save!
     
