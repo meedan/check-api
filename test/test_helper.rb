@@ -8,7 +8,7 @@ require 'mocha/test_unit'
 require 'sample_data'
 
 class ActionController::TestCase
-  include Devise::TestHelpers
+  include Devise::Test::ControllerHelpers
 end
 
 class Api::V1::TestController < Api::V1::BaseApiController

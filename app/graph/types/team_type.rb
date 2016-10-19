@@ -21,6 +21,22 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_slack_channel, types.String
   field :pusher_channel, types.String
 
+  field :media_verification_statuses do
+    type types.String
+
+    resolve -> (team, _args, _ctx) {
+      team.verification_statuses(:media)
+    }
+  end
+
+  field :source_verification_statuses do
+    type types.String
+
+    resolve -> (team, _args, _ctx) {
+      team.verification_statuses(:source)
+    }
+  end
+
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {
       team.team_users

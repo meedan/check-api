@@ -65,62 +65,62 @@ class StatusTest < ActiveSupport::TestCase
   test "should create version when status is created" do
     st = nil
     assert_difference 'PaperTrail::Version.count', 3 do
-      st = create_status(status: 'Credible')
+      st = create_status(status: 'credible')
     end
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', st.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'status' => ['', 'Credible' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', st.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'status' => ['', 'credible' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when status is updated" do
-    st = create_status(status: 'Slightly Credible').reload
-    st.status = 'Sockpuppet'
+    st = create_status(status: 'slightly_credible').reload
+    st.status = 'sockpuppet'
     st.save
     assert_equal 2, st.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'status' => ['Slightly Credible', 'Sockpuppet'] }, JSON.parse(v.object_changes))
+    assert_equal({ 'status' => ['slightly_credible', 'sockpuppet'] }, JSON.parse(v.object_changes))
   end
 
   test "should revert" do
-    st = create_status(status: 'Credible')
-    st.status = 'Not Credible'; st.save
-    st.status = 'Slightly Credible'; st.save
-    st.status = 'Sockpuppet'; st.save
+    st = create_status(status: 'credible')
+    st.status = 'not_credible'; st.save
+    st.status = 'slightly_credible'; st.save
+    st.status = 'sockpuppet'; st.save
     assert_equal 4, st.versions.size
 
     st.revert
-    assert_equal 'Slightly Credible', st.status
+    assert_equal 'slightly_credible', st.status
     st = st.reload
-    assert_equal 'Sockpuppet', st.status
+    assert_equal 'sockpuppet', st.status
 
     st.revert_and_save
-    assert_equal 'Slightly Credible', st.status
+    assert_equal 'slightly_credible', st.status
     st = st.reload
-    assert_equal 'Slightly Credible', st.status
+    assert_equal 'slightly_credible', st.status
 
     st.revert
-    assert_equal 'Not Credible', st.status
+    assert_equal 'not_credible', st.status
     st.revert
-    assert_equal 'Credible', st.status
+    assert_equal 'credible', st.status
     st.revert
-    assert_equal 'Credible', st.status
+    assert_equal 'credible', st.status
 
     st.revert(-1)
-    assert_equal 'Not Credible', st.status
+    assert_equal 'not_credible', st.status
     st.revert(-1)
-    assert_equal 'Slightly Credible', st.status
+    assert_equal 'slightly_credible', st.status
     st.revert(-1)
-    assert_equal 'Sockpuppet', st.status
+    assert_equal 'sockpuppet', st.status
     st.revert(-1)
-    assert_equal 'Sockpuppet', st.status
+    assert_equal 'sockpuppet', st.status
 
     st = st.reload
-    assert_equal 'Slightly Credible', st.status
+    assert_equal 'slightly_credible', st.status
     st.revert_and_save(-1)
     st = st.reload
-    assert_equal 'Sockpuppet', st.status
+    assert_equal 'sockpuppet', st.status
 
     assert_equal 4, st.versions.size
   end
@@ -218,7 +218,7 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
     m = create_valid_media team: t, current_user: u2
-    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: nil, current_user: u2, status: 'False'
+    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: nil, current_user: u2, status: 'false'
     assert_equal u2, st.annotator
   end
 
@@ -228,7 +228,7 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
     m = create_valid_media team: t, current_user: u2
-    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: u1, current_user: u2, status: 'False'
+    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: u1, current_user: u2, status: 'false'
     assert_equal u1, st.annotator
   end
 
@@ -244,17 +244,17 @@ class StatusTest < ActiveSupport::TestCase
       end
     end
     assert_difference 'Status.length' do
-      create_status status: 'Credible'
+      create_status status: 'credible'
     end
     assert_difference 'Status.length' do
-      create_status status: 'Verified', annotated: create_valid_media
+      create_status status: 'verified', annotated: create_valid_media
     end
   end
 
   test "should not create status with invalid annotated" do
     assert_no_difference 'Status.length' do
       assert_raises RuntimeError do
-        create_status(status: 'False', annotated_type: 'Project', annotated_id: create_project.id)
+        create_status(status: 'false', annotated_type: 'Project', annotated_id: create_project.id)
       end
     end
   end
@@ -271,8 +271,48 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     m = create_valid_media
-    s = create_status status: 'False', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
+    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
     assert s.sent_to_slack
+  end
+  
+  test "should validate status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    
+    assert_difference('Status.length') { create_status annotated: m, context: p, status: 'in_progress' }
+    assert_raises(RuntimeError) { create_status annotated: m, context: p, status: '1' }
+    
+    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
+    t.set_media_verification_statuses(value)
+    t.save!
+
+    assert_difference('Status.length') { create_status annotated: m, context: p, status: '1' }
+    assert_raises(RuntimeError) { create_status annotated: m, context: p, status: 'in_progress' }
+
+    assert_difference('Status.length') { create_status annotated: m, context: nil, status: 'in_progress' }
+    assert_raises(RuntimeError) { create_status annotated: m, context: nil, status: '1' }
+  end
+
+  test "should get default id" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    
+    assert_equal 'undetermined', Status.default_id(m.reload, p.reload)
+    
+    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
+    t.set_media_verification_statuses(value)
+    t.save!
+    
+    assert_equal '1', Status.default_id(m.reload, p.reload)
+
+    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }] }
+    t.set_media_verification_statuses(value)
+    t.save!
+    
+    assert_equal 'first', Status.default_id(m.reload, p.reload)
+    assert_equal 'undetermined', Status.default_id(m.reload)
   end
 
   test "journalist should change status of own report" do
@@ -282,11 +322,11 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media project_id: p.id
     assert_raise RuntimeError do
-      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
     m.user = u; m.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
   end
 
@@ -297,12 +337,11 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media project_id: p.id
     assert_raise RuntimeError do
-      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
     p.user = u; p.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
   end
-
 end

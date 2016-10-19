@@ -658,7 +658,7 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    s =  create_status status: 'Verified', annotator: u, annotated: m
+    s =  create_status status: 'verified', annotator: u, annotated: m
     assert ability.cannot?(:create, s)
     assert ability.cannot?(:update, s)
     assert ability.cannot?(:destroy, s)
@@ -679,7 +679,7 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    s =  create_status status: 'Verified', annotator: u, annotated: m
+    s =  create_status status: 'verified', annotator: u, annotated: m
     #assert ability.can?(:create, s)
     assert ability.cannot?(:update, s)
     #assert ability.can?(:destroy, s)
@@ -700,7 +700,7 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    s =  create_status status: 'Verified', annotated: m
+    s =  create_status status: 'verified', annotated: m
     assert ability.can?(:create, s)
     assert ability.cannot?(:update, s)
     assert ability.can?(:destroy, s)
@@ -718,7 +718,7 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    s =  create_status status: 'Verified', annotated: m
+    s =  create_status status: 'verified', annotated: m
     assert ability.can?(:create, s)
     assert ability.cannot?(:update, s)
     assert ability.can?(:destroy, s)
