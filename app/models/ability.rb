@@ -85,7 +85,10 @@ class Ability
       flag.get_team.include? @context_team.id and (flag.annotator_id.to_i == @user.id)
     end
     can :create, Status do |obj|
-      obj.get_team.include? @context_team.id and obj.context_type === 'Project' and obj.context.user_id.to_i === @user.id
+      obj.get_team.include? @context_team.id and (
+        (obj.context_type === 'Project' and obj.context.user_id.to_i === @user.id) or
+        (obj.annotated_type === 'Media' and obj.annotated.user_id.to_i === @user.id)
+        )
     end
     can :destroy, [Comment, Annotation, Status, Tag, Flag] do |obj|
       obj.get_team.include? @context_team.id and obj.context_type === 'Project' and obj.context.user_id.to_i === @user.id
