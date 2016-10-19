@@ -15,6 +15,7 @@ module CheckdeskPermissions
 
   module ClassMethods
     def find_if_can(id, current_user, context_team)
+      id = id.id if id.is_a?(ActiveRecord::Base)
       if current_user.nil?
         self.find(id)
       else

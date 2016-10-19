@@ -308,7 +308,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source
     p = create_project team: @team
     create_project_source project: p, source: s
-    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
+    assert_graphql_create('status', { status: 'credible', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
   end
 
   test "should read statuses" do
@@ -476,5 +476,16 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query 
     assert_response :success
     assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['medias']['edges'][0]['node']['permissions']
+  end
+
+  test "should get team with statuses" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team subdomain: 'team'
+    create_team_user user: u, team: t, role: 'owner'
+    query = "query GetById { team(id: \"#{t.id}\") { media_verification_statuses, source_verification_statuses } }"
+    @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
+    post :create, query: query 
+    assert_response :success
   end
 end

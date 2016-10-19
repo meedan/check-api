@@ -367,9 +367,9 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should get last status" do
     m = create_valid_media
-    assert_equal 'Undetermined', m.last_status
-    create_status status: 'Verified', annotated: m
-    assert_equal 'Verified', m.last_status
+    assert_equal 'undetermined', m.last_status
+    create_status status: 'verified', annotated: m
+    assert_equal 'verified', m.last_status
   end
 
   test "should get domain" do
