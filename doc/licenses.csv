@@ -54,8 +54,8 @@ Ruby Gem: ice_nine,Deep Freeze Ruby Objects,MIT,https://github.com/dkubb/ice_nin
 Ruby Gem: jbuilder,Create JSON structures via a Builder-style DSL,MIT,https://github.com/rails/jbuilder
 Ruby Gem: jquery-rails,Use jQuery with Rails 4+,MIT,https://github.com/rails/jquery-rails
 Ruby Gem: jwt,JSON Web Token implementation in Ruby,MIT,http://github.com/jwt/ruby-jwt
+Ruby Gem: lograge,Tame Rails' multi-line logging into a single line per request,MIT,https://github.com/roidrage/lograge
 Ruby Gem: logstash-logger,LogStash Logger for ruby,MIT,http://github.com/dwbutler/logstash-logger
-Ruby Gem: logstasher,Awesome rails logs,MIT,https://github.com/shadabahmed/logstasher
 Ruby Gem: loofah,Loofah is a general library for manipulating and transforming HTML/XML documents and fragments,MIT,https://github.com/flavorjones/loofah
 Ruby Gem: mail,Mail provides a nice Ruby DSL for making sending and reading emails.,MIT,https://github.com/mikel/mail
 Ruby Gem: metaclass,Adds a metaclass method to all Ruby objects,MIT,http://github.com/floehopper/metaclass

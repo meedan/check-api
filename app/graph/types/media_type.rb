@@ -23,16 +23,6 @@ MediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :jsondata do
-    type types.String
-    argument :context_id, types.Int
-
-    resolve -> (media, args, ctx) {
-      context = get_context(args, ctx)
-      media.jsondata(context)
-    }
-  end
-
   field :account do
     type -> { AccountType }
 
@@ -68,23 +58,19 @@ MediaType = GraphqlCrudOperations.define_default_type do
     argument :context_id, types.Int
 
     resolve ->(media, args, ctx) {
-      context = get_context(args, ctx)
-      media.tags(context)
+      call_method_from_context(media, :tags, args, ctx)
     }
   end
 
-  field :last_status do
-    type types.String
-
-    argument :context_id, types.Int
-
-    resolve ->(media, args, ctx) {
-      context = get_context(args, ctx)
-      media.last_status(context)
-    }
-  end
+  instance_exec :jsondata, &GraphqlCrudOperations.field_with_context
+  instance_exec :last_status, &GraphqlCrudOperations.field_with_context
 end
 
 def get_context(args = {}, ctx = {})
   args['context_id'].nil? ? nil : Project.find_if_can(args['context_id'], ctx[:current_user], ctx[:context_team])
+end
+
+def call_method_from_context(media, method, args, ctx)
+  context = get_context(args, ctx)
+  media.send(method, context)
 end

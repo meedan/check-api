@@ -94,7 +94,7 @@ module SampleData
       a = options.delete(:annotated) || create_source
       type, id = a.class.name, a.id.to_s
     end
-    options = { status: 'Credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options)
+    options = { status: 'credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options)
     if options[:team]
       options[:context] = create_project(team: options[:team])
     end

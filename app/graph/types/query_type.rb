@@ -66,7 +66,9 @@ QueryType = GraphQL::ObjectType.define do
       pid = project.nil? ? 0 : project.id
       project_media = ProjectMedia.where(project_id: pid, media_id: mid).last
       mid = project_media.nil? ? 0 : project_media.media_id
-      GraphqlCrudOperations.load_if_can(Media, mid, ctx)
+      media = GraphqlCrudOperations.load_if_can(Media, mid, ctx)
+      media.project_id = pid if media
+      media
     end
   end
 

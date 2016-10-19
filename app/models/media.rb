@@ -41,7 +41,7 @@ class Media < ActiveRecord::Base
   end
 
   def data(context = nil)
-    #TODO:: change the assumsion for a one Pender result
+    # TODO: change the assumption for a one Pender result
     em_pender = self.annotations('embed').last
     embed = JSON.parse(em_pender.embed) unless em_pender.nil?
     # TODO: call annotations with context
@@ -80,11 +80,12 @@ class Media < ActiveRecord::Base
 
   def last_status(context = nil)
     last = self.annotations('status', context).first
-    last.nil? ? 'Undetermined' : last.status
+    last.nil? ? Status.default_id(self, context) : last.status
   end
 
   def domain
-    URI.parse(self.url).host.gsub(/^(www|m)\./, '')
+    host = URI.parse(self.url).host
+    host.nil? ? nil : host.gsub(/^(www|m)\./, '')
   end
 
   def project
@@ -94,9 +95,7 @@ class Media < ActiveRecord::Base
   def information=(info)
     info = JSON.parse(info)
     em = Embed.new
-    ['title', 'description', 'quote'].each do |k|
-      em[k] = info[k] unless info[k].blank?
-    end
+    %w(title description quote).each{ |k| em.send("#{k}=", info[k]) unless info[k].blank? }
     em.embed = info.to_json
     em.annotated = self
     em.annotator = self.current_user unless self.current_user.nil?

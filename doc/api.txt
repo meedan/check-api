@@ -1,4 +1,4 @@
-API Endpoints - Thu Oct 13 20:41:29 UTC 2016
+API Endpoints - Wed Oct 19 19:58:09 UTC 2016
        
      1	DELETE   /accounts/:id
      2	DELETE   /api/users
@@ -54,26 +54,27 @@ API Endpoints - Thu Oct 13 20:41:29 UTC 2016
     52	PATCH    /users/:id
     53	POST     /accounts
     54	POST     /api/graphql
-    55	POST     /api/users
-    56	POST /api/users/auth/facebook
-    57	POST /api/users/auth/facebook/callback
-    58	POST /api/users/auth/slack
-    59	POST /api/users/auth/slack/callback
-    60	POST /api/users/auth/twitter
-    61	POST /api/users/auth/twitter/callback
-    62	POST     /api/users/password
-    63	POST     /api/users/sign_in
-    64	POST     /medias
-    65	POST     /projects
-    66	POST     /sources
-    67	POST     /teams
-    68	POST     /users
-    69	PTIONS  /api/:pattern
-    70	PUT      /accounts/:id
-    71	PUT      /api/users
-    72	PUT      /api/users/password
-    73	PUT      /medias/:id
-    74	PUT      /projects/:id
-    75	PUT      /sources/:id
-    76	PUT      /teams/:id
-    77	PUT      /users/:id
+    55	POST     /api/search
+    56	POST     /api/users
+    57	POST /api/users/auth/facebook
+    58	POST /api/users/auth/facebook/callback
+    59	POST /api/users/auth/slack
+    60	POST /api/users/auth/slack/callback
+    61	POST /api/users/auth/twitter
+    62	POST /api/users/auth/twitter/callback
+    63	POST     /api/users/password
+    64	POST     /api/users/sign_in
+    65	POST     /medias
+    66	POST     /projects
+    67	POST     /sources
+    68	POST     /teams
+    69	POST     /users
+    70	PTIONS  /api/:pattern
+    71	PUT      /accounts/:id
+    72	PUT      /api/users
+    73	PUT      /api/users/password
+    74	PUT      /medias/:id
+    75	PUT      /projects/:id
+    76	PUT      /sources/:id
+    77	PUT      /teams/:id
+    78	PUT      /users/:id

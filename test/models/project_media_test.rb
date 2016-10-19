@@ -19,15 +19,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_difference 'ProjectMedia.count' do
       create_project_media project: p, media: m, current_user: u
     end
-    # journalist should assign own media only
+    # journalist should assign any media
     tu.role = 'journalist'; tu.save;
-    m2 = create_valid_media
-    assert_raise RuntimeError do
-      create_project_media project: p, media: m, current_user: u
-    end
-    m2.user_id = u.id;m2.save!
     assert_difference 'ProjectMedia.count' do
-      create_project_media project: p, media: m2, current_user: u
+      pm = create_project_media project: p, media: m, current_user: u
+      assert_raise RuntimeError do
+        pm.current_user = u
+        pm.project = create_project team: t
+        pm.save!
+      end
+    end
+    m2 = create_valid_media
+    m2.user_id = u.id; m2.save!
+    assert_difference 'ProjectMedia.count' do
+      pm = create_project_media project: p, media: m2, current_user: u
+      pm.project = create_project team: t
+      pm.save!
     end
   end
 

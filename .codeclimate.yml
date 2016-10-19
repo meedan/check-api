@@ -1,6 +1,29 @@
 languages:
   Ruby: true
   JavaScript: false
+engines:
+  fixme:
+    enabled: true
+    config:
+      strings:
+      - FIXME
+      - BUG
+  rubocop:
+    enabled: true
+  brakeman:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - ruby
+  bundler-audit:
+    enabled: true
+ratings:
+  paths:
+  - app/**
+  - lib/**
+  - "**.rb"
 exclude_paths:
 - "app/controllers/concerns/*_doc.rb"
 - "public/api"
@@ -15,3 +38,4 @@ exclude_paths:
 - "app/graphql"
 - "doc"
 - "app/models/ability.rb"
+- ".codeclimate.yml"

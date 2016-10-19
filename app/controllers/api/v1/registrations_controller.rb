@@ -29,7 +29,7 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
 
     resource_updated = update_resource(resource, account_update_params)
     if resource_updated
-      sign_in resource, scope: resource_name, bypass: true
+      sign_in resource, scope: resource_name, bypass_sign_in: true
       render_success 'user', resource
     else
       clean_up_passwords resource
