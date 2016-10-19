@@ -17,7 +17,7 @@ class Status
                  channel: proc { |s| s.context.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
                  webhook: proc { |s| s.current_team.setting(:slack_webhook) }
 
-  before_validation :store_previous_status
+  before_validation :store_previous_status, :normalize_status
 
   def self.core_verification_statuses(annotated_type)
     statuses = begin
@@ -63,6 +63,10 @@ class Status
 
   def annotated_type_callback(value, _mapping_ids = nil)
     value.camelize
+  end
+
+  def normalize_status
+    self.status = self.status.tr(' ', '_').downcase
   end
 
   def self.default_id(annotated, context = nil)

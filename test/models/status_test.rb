@@ -344,4 +344,12 @@ class StatusTest < ActiveSupport::TestCase
       s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
   end
+
+  test "should normalize status" do
+    s = nil
+    assert_difference 'Status.length' do
+      s = create_status status: 'Not Credible'
+    end
+    assert_equal 'not_credible', s.reload.status
+  end
 end
