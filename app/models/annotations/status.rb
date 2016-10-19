@@ -22,7 +22,7 @@ class Status
   def self.core_verification_statuses(annotated_type)
     statuses = begin
       "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize.collect do |status|
-        { id: status.downcase.gsub(' ', '_'), label: status, description: status, style: '' }
+        { id: status.downcase.tr(' ', '_'), label: status, description: status, style: '' }
       end
     rescue NameError
       []
