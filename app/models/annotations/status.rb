@@ -1,19 +1,9 @@
 class Status
   include AnnotationBase
 
-  MEDIA_CORE_VERIFICATION_STATUSES = [
-    { id: 'not_applicable', label: 'Not Applicable', description: 'Not Applicable', style: '' },
-    { id: 'in_progress', label: 'In Progress', description: 'In Progress', style: '' },
-    { id: 'verified', label: 'Verified', description: 'Verified', style: '' },
-    { id: 'false', label: 'False', description: 'False', style: '' }
-  ]
+  MEDIA_CORE_VERIFICATION_STATUSES = ['Not Applicable', 'In Progress', 'Verified', 'False']
 
-  SOURCE_CORE_VERIFICATION_STATUSES = [
-    { id: 'credible', label: 'Credible', description: 'Credible', style: '' },
-    { id: 'not_credible', label: 'Not Credible', description: 'Not Credible', style: '' },
-    { id: 'slightly_credible', label: 'Slightly Credible', description: 'Slightly Credible', style: '' },
-    { id: 'sockpuppet', label: 'Sockpuppet', description: 'Sockpuppet', style: '' }
-  ]
+  SOURCE_CORE_VERIFICATION_STATUSES = ['Credible', 'Not Credible', 'Slightly Credible', 'Sockpuppet']
 
   attribute :status, String, presence: true
   
@@ -31,7 +21,9 @@ class Status
 
   def self.core_verification_statuses(annotated_type)
     statuses = begin
-      "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize
+      "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize.collect do |status|
+        { id: status.downcase.gsub(' ', '_'), label: status, description: status, style: '' }
+      end
     rescue NameError
       []
     end
