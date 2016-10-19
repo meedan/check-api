@@ -104,6 +104,15 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('media', { url: url, project_id: @project.id })
   end
 
+  test "should create media with information" do
+    url = random_url
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    info = {title: 'title', description: 'description', quote: 'media quote'}.to_json
+    assert_graphql_create('media', { url: url, project_id: @project.id, information: info })
+  end
+
   test "should read medias" do
     assert_graphql_read('media', 'url')
     assert_graphql_read('media', 'published')
@@ -459,7 +468,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_comment annotated: m, annotator: u
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { annotations(first: 1) { edges { node { permissions } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
-    post :create, query: query 
+    post :create, query: query
     assert_response :success
   end
 
@@ -473,7 +482,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_comment annotated: m, annotator: u
     query = "query GetById { project(id: \"#{p.id}\") { medias(first: 1) { edges { node { permissions } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
-    post :create, query: query 
+    post :create, query: query
     assert_response :success
     assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['medias']['edges'][0]['node']['permissions']
   end
@@ -485,7 +494,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     query = "query GetById { team(id: \"#{t.id}\") { media_verification_statuses, source_verification_statuses } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
-    post :create, query: query 
+    post :create, query: query
     assert_response :success
   end
 end

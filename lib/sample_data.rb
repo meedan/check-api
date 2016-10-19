@@ -218,6 +218,7 @@ module SampleData
       options[:project_id] = create_project(team: options[:team]).id
     end
     m.project_id = options[:project_id]
+    m.information = options[:information] if options.has_key?(:information)
     m.save!
     m.reload
   end
