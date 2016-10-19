@@ -376,6 +376,8 @@ class MediaTest < ActiveSupport::TestCase
     m = Media.new
     m.url = 'https://www.youtube.com/watch?v=b708rEG7spI'
     assert_equal 'youtube.com', m.domain
+    m.url = 'localhost'
+    assert_nil m.domain
   end
 
   test "should set pender result as annotation" do

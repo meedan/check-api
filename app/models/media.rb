@@ -84,7 +84,8 @@ class Media < ActiveRecord::Base
   end
 
   def domain
-    URI.parse(self.url).host.gsub(/^(www|m)\./, '')
+    host = URI.parse(self.url).host
+    host.nil? ? nil : host.gsub(/^(www|m)\./, '')
   end
 
   def project
