@@ -322,11 +322,11 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media project_id: p.id
     assert_raise RuntimeError do
-      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
     m.user = u; m.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
   end
 
@@ -337,11 +337,11 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media project_id: p.id
     assert_raise RuntimeError do
-      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
     p.user = u; p.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
   end
 end
