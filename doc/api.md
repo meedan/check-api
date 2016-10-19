@@ -127,14 +127,14 @@ Use this method in order to create a new user account
 {
   "type": "user",
   "data": {
-    "id": "VXNlci8z\n",
-    "dbid": 3,
+    "id": "VXNlci8xMjgyOQ==\n",
+    "dbid": 12829,
     "name": "Test",
     "email": "t@test.com",
     "login": "t",
     "uuid": "checkdesk_44a0e02612a6a98445d56550038e20ae",
     "provider": "",
-    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiI4NXBv++nQ3g5aiIsInNlY3JldCI6IlZ4U3R0VXN4In0=++n",
+    "token": "eyJwcm92aWRlciI6ImNoZWNrZGVzayIsImlkIjoiIiwidG9rZW4iOiJ2XzJF++ncUdhdCIsInNlY3JldCI6IkNOZWs5S1o5In0=++n",
     "current_team": null,
     "teams": "{}",
     "team_ids": [
@@ -150,7 +150,7 @@ Use this method in order to create a new user account
 {
   "type": "error",
   "data": {
-    "message": "Could not create user: Validation failed: Email has already been taken",
+    "message": "It looks like your email is already taken. If you're having trouble logging in, please contact check@meedan.com, and we'll get back to you right away.",
     "code": 4
   }
 }
@@ -161,7 +161,7 @@ Use this method in order to create a new user account
 {
   "type": "error",
   "data": {
-    "message": "Could not create user: Validation failed: Email has already been taken",
+    "message": "It looks like your email is already taken. If you're having trouble logging in, please contact check@meedan.com, and we'll get back to you right away.",
     "code": 4
   }
 }
@@ -172,7 +172,7 @@ Use this method in order to create a new user account
 {
   "type": "error",
   "data": {
-    "message": "Could not create user: Validation failed: Email has already been taken",
+    "message": "It looks like your email is already taken. If you're having trouble logging in, please contact check@meedan.com, and we'll get back to you right away.",
     "code": 4
   }
 }
@@ -183,7 +183,7 @@ Use this method in order to create a new user account
 {
   "type": "error",
   "data": {
-    "message": "Could not create user: Validation failed: Email has already been taken",
+    "message": "It looks like your email is already taken. If you're having trouble logging in, please contact check@meedan.com, and we'll get back to you right away.",
     "code": 4
   }
 }
@@ -194,7 +194,7 @@ Use this method in order to create a new user account
 {
   "type": "error",
   "data": {
-    "message": "Could not create user: Validation failed: Email has already been taken",
+    "message": "It looks like your email is already taken. If you're having trouble logging in, please contact check@meedan.com, and we'll get back to you right away.",
     "code": 4
   }
 }

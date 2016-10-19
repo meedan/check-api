@@ -66,7 +66,7 @@ class Status
   end
 
   def normalize_status
-    self.status = self.status.tr(' ', '_').downcase
+    self.status = self.status.tr(' ', '_').downcase unless self.status.blank?
   end
 
   def self.default_id(annotated, context = nil)
