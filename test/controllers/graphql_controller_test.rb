@@ -308,7 +308,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source
     p = create_project team: @team
     create_project_source project: p, source: s
-    assert_graphql_create('status', { status: 'Credible', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
+    assert_graphql_create('status', { status: 'credible', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
   end
 
   test "should read statuses" do

@@ -84,7 +84,7 @@ class Team < ActiveRecord::Base
         errors.add(:base, 'Invalid format for custom verification statuses')
       else
         statuses[:statuses].each do |status|
-          errors.add(:base, 'Invalid format for custom verification status') if status.keys.sort != [:description, :id, :label]
+          errors.add(:base, 'Invalid format for custom verification status') if status.keys.sort != [:description, :id, :label, :style]
         end
       end
     end

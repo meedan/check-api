@@ -328,8 +328,8 @@ class TeamTest < ActiveSupport::TestCase
       label: 'Field label',
       default: '1',
       statuses: [
-        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status' },
-        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' }
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
       ]
     }
     assert_nothing_raised do

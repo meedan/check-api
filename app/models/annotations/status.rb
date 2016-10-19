@@ -5,11 +5,11 @@ class Status
     label: 'Status',
     default: 'undetermined',
     statuses: [
-      { id: 'not_applicable', label: 'Not Applicable', description: 'Not Applicable' },
-      { id: 'in_progress', label: 'In Progress', description: 'In Progress' },
-      { id: 'undetermined', label: 'Undetermined', description: 'Undetermined' },
-      { id: 'verified', label: 'Verified', description: 'Verified' },
-      { id: 'false', label: 'False', description: 'False' }
+      { id: 'not_applicable', label: 'Not Applicable', description: 'Not Applicable', style: '' },
+      { id: 'in_progress', label: 'In Progress', description: 'In Progress', style: '' },
+      { id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' },
+      { id: 'verified', label: 'Verified', description: 'Verified', style: '' },
+      { id: 'false', label: 'False', description: 'False', style: '' }
     ]
   }
 
@@ -17,11 +17,19 @@ class Status
     label: 'Status',
     default: 'undetermined',
     statuses: [
-      { id: 'undetermined', label: 'Undetermined', description: 'Undetermined' },
-      { id: 'credible', label: 'Credible', description: 'Credible' },
-      { id: 'not_credible', label: 'Not Credible', description: 'Not Credible' },
-      { id: 'slightly_credible', label: 'Slightly Credible', description: 'Slightly Credible' },
-      { id: 'sockpuppet', label: 'Sockpuppet', description: 'Sockpuppet' }
+      { id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' },
+      { id: 'credible', label: 'Credible', description: 'Credible', style: '' },
+      { id: 'not_credible', label: 'Not Credible', description: 'Not Credible', style: '' },
+      { id: 'slightly_credible', label: 'Slightly Credible', description: 'Slightly Credible', style: '' },
+      { id: 'sockpuppet', label: 'Sockpuppet', description: 'Sockpuppet', style: '' }
+    ]
+  }
+
+  DEFAULT_CORE_VERIFICATION_STATUSES = {
+    label: 'Status',
+    default: 'undetermined',
+    statuses: [
+      { id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }
     ]
   }
 
@@ -40,12 +48,16 @@ class Status
   before_validation :store_previous_status
 
   def self.core_verification_statuses(annotated_type)
-    "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize
+    begin
+      "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize
+    rescue NameError
+      DEFAULT_CORE_VERIFICATION_STATUSES
+    end
   end
   
   def store_previous_status
     self.previous_annotated_status = self.annotated.last_status(self.context) if self.annotated.respond_to?(:last_status)
-    self.previous_annotated_status ||= Status.default_id(self, self.context)
+    self.previous_annotated_status ||= Status.default_id(self.annotated, self.context)
   end
 
   def previous_annotated_status
@@ -74,6 +86,7 @@ class Status
   end
 
   def self.default_id(annotated, context = nil)
+    return nil if annotated.nil?
     statuses = Status.possible_values(annotated, context)
     statuses[:default].blank? ? statuses[:statuses].first[:id] : statuses[:default]
   end
@@ -82,14 +95,14 @@ class Status
     type = annotated.class.name
     statuses = Status.core_verification_statuses(type)
     getter = "get_#{type.downcase}_verification_statuses"
-    statuses = context.team.send(getter) if context && context.team && context.team.send(getter)
+    statuses = context.team.send(getter) if context && context.respond_to?(:team) && context.team && context.team.send(getter)
     statuses
   end
 
   private
 
   def status_is_valid
-    unless self.annotated_type.blank?
+    if !self.annotated_type.blank?
       values = Status.possible_values(self.annotated, self.context)
       errors.add(:base, 'Status not valid') unless values[:statuses].collect{ |s| s[:id] }.include?(self.status)
     end
