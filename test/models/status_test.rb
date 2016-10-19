@@ -314,4 +314,34 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 'first', Status.default_id(m.reload, p.reload)
     assert_equal 'undetermined', Status.default_id(m.reload)
   end
+
+  test "journalist should change status of own report" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    assert_raise RuntimeError do
+      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+    end
+    m.user = u; m.save!
+    assert_difference 'Status.length' do
+      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+    end
+  end
+
+  test "journalist should change status of own project" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    assert_raise RuntimeError do
+      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+    end
+    p.user = u; p.save!
+    assert_difference 'Status.length' do
+      s = create_status status: 'Verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+    end
+  end
 end
