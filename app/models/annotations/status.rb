@@ -1,37 +1,19 @@
 class Status
   include AnnotationBase
 
-  MEDIA_CORE_VERIFICATION_STATUSES = {
-    label: 'Status',
-    default: 'undetermined',
-    statuses: [
-      { id: 'not_applicable', label: 'Not Applicable', description: 'Not Applicable', style: '' },
-      { id: 'in_progress', label: 'In Progress', description: 'In Progress', style: '' },
-      { id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' },
-      { id: 'verified', label: 'Verified', description: 'Verified', style: '' },
-      { id: 'false', label: 'False', description: 'False', style: '' }
-    ]
-  }
+  MEDIA_CORE_VERIFICATION_STATUSES = [
+    { id: 'not_applicable', label: 'Not Applicable', description: 'Not Applicable', style: '' },
+    { id: 'in_progress', label: 'In Progress', description: 'In Progress', style: '' },
+    { id: 'verified', label: 'Verified', description: 'Verified', style: '' },
+    { id: 'false', label: 'False', description: 'False', style: '' }
+  ]
 
-  SOURCE_CORE_VERIFICATION_STATUSES = {
-    label: 'Status',
-    default: 'undetermined',
-    statuses: [
-      { id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' },
-      { id: 'credible', label: 'Credible', description: 'Credible', style: '' },
-      { id: 'not_credible', label: 'Not Credible', description: 'Not Credible', style: '' },
-      { id: 'slightly_credible', label: 'Slightly Credible', description: 'Slightly Credible', style: '' },
-      { id: 'sockpuppet', label: 'Sockpuppet', description: 'Sockpuppet', style: '' }
-    ]
-  }
-
-  DEFAULT_CORE_VERIFICATION_STATUSES = {
-    label: 'Status',
-    default: 'undetermined',
-    statuses: [
-      { id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }
-    ]
-  }
+  SOURCE_CORE_VERIFICATION_STATUSES = [
+    { id: 'credible', label: 'Credible', description: 'Credible', style: '' },
+    { id: 'not_credible', label: 'Not Credible', description: 'Not Credible', style: '' },
+    { id: 'slightly_credible', label: 'Slightly Credible', description: 'Slightly Credible', style: '' },
+    { id: 'sockpuppet', label: 'Sockpuppet', description: 'Sockpuppet', style: '' }
+  ]
 
   attribute :status, String, presence: true
   
@@ -48,11 +30,17 @@ class Status
   before_validation :store_previous_status
 
   def self.core_verification_statuses(annotated_type)
-    begin
+    statuses = begin
       "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize
     rescue NameError
-      DEFAULT_CORE_VERIFICATION_STATUSES
+      []
     end
+
+    {
+      label: 'Status',
+      default: 'undetermined',
+      statuses: [{ id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }] + statuses
+    }
   end
   
   def store_previous_status
