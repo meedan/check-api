@@ -42,14 +42,11 @@ class Media < ActiveRecord::Base
   end
 
   def data(context = nil)
-    # TODO: change the assumption for a one Pender result
-    em_pender = self.annotations('embed').last
+    em_pender = self.annotations('embed', 'none').last
     embed = JSON.parse(em_pender.embed) unless em_pender.nil?
-    # TODO: call annotations with context
-    em_u = self.annotations('embed')
-    context_id = context.nil? ? nil : context.id
-    em_u.reverse.each do |obj|
-      if obj.context_id.to_i == context_id.to_i
+    if context
+      em_u = self.annotations('embed', context)
+      em_u.reverse.each do |obj|
         ['title', 'description', 'quote'].each do |k|
           embed[k] = obj[k] unless obj[k].nil?
         end
@@ -93,6 +90,15 @@ class Media < ActiveRecord::Base
     Project.find(self.project_id) if self.project_id
   end
 
+  def create_new_embed
+    em = Embed.new
+    em.embed = self.information
+    em.annotated = self
+    em.annotator = self.current_user unless self.current_user.nil?
+    em.context = self.project unless self.project.nil?
+    em
+  end
+
   private
 
   def set_user
@@ -133,12 +139,21 @@ class Media < ActiveRecord::Base
   def set_information
     unless self.information.blank?
       info = JSON.parse(self.information)
-      em = Embed.new
+      em_context = self.project.nil? ? nil : self.annotations('embed', self.project).last
+      em_none = self.annotations('embed', 'none').last
+      if em_context.nil? and em_none.nil?
+        em = self.create_new_embed
+      elsif self.project.nil?
+        em = em_none.nil? ? self.create_new_embed : em_none
+      else
+        em = em_context.nil? ? (em_none.nil? ? self.create_new_embed : em_none) : em_context
+        if em.context.nil?
+          em.context = self.project
+          em.id = nil
+        end
+      end
+      pp em
       %w(title description quote).each{ |k| em.send("#{k}=", info[k]) unless info[k].blank? }
-      em.embed = info.to_json
-      em.annotated = self
-      em.annotator = self.current_user unless self.current_user.nil?
-      em.context = self.project unless self.project.nil?
       em.save!
     end
   end
