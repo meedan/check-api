@@ -13,7 +13,7 @@ class Status
 
   notifies_slack on: :save,
                  if: proc { |s| s.should_notify? },
-                 message: proc { |s| "<#{s.origin}/user/#{s.current_user.id}|*#{s.current_user.name}*> changed the verification status on <#{s.origin}/project/#{s.context_id}/media/#{s.annotated_id}|#{s.annotated.data['title']}> from *#{s.previous_annotated_status}* to *#{s.status}*" },
+                 message: proc { |s| "<#{s.origin}/user/#{s.current_user.id}|*#{s.current_user.name}*> changed the verification status on <#{s.origin}/project/#{s.context_id}/media/#{s.annotated_id}|#{s.annotated.data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
                  channel: proc { |s| s.context.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
                  webhook: proc { |s| s.current_team.setting(:slack_webhook) }
 
@@ -81,6 +81,11 @@ class Status
     getter = "get_#{type.downcase}_verification_statuses"
     statuses = context.team.send(getter) if context && context.respond_to?(:team) && context.team && context.team.send(getter)
     statuses
+  end
+
+  def id_to_label(id)
+    values = Status.possible_values(self.annotated, self.context)
+    values[:statuses].select{ |s| s[:id] === id }.first[:label]
   end
 
   private
