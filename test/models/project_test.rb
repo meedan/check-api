@@ -27,7 +27,7 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
-  test "should update and destroy team" do
+  test "should update and destroy project" do
     u = create_user
     t = create_team current_user: u
     p = create_project team: t, current_user: u
@@ -50,7 +50,7 @@ class ProjectTest < ActiveSupport::TestCase
     own_project.title = 'Project A'
     own_project.save!
     assert_equal own_project.title, 'Project A'
-    assert_nothing_raised RuntimeError do
+    assert_raise RuntimeError do
       own_project.current_user = u2
       own_project.destroy!
     end

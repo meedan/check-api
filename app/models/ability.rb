@@ -34,7 +34,7 @@ class Ability
   end
 
   def owner_perms
-    can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['owner'] }
+    can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser do |obj|
@@ -43,13 +43,20 @@ class Ability
       obj.team_id == @context_team.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
     end
     can :destroy, Contact, :team_id => @context_team.id
+    can :destroy, Project, :team_id => @context_team.id
+    can :destroy, Media do |obj|
+      obj.get_team.include? @context_team.id
+    end
+    can :destroy, [ProjectMedia, ProjectSource] do |obj|
+      obj.get_team.include? @context_team.id
+    end
     can :destroy, [Annotation, Comment, Tag, Status, Flag] do |obj|
       obj.get_team.include? @context_team.id
     end
   end
 
   def editor_perms
-    can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['editor'] }
+    can :update, User, :team_users => { :team_id => @context_team.id, role: ['editor'] }
     can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
     can :update, TeamUser do |obj|
@@ -58,26 +65,26 @@ class Ability
       obj.team_id == @context_team.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
     end
     can [:create, :update], Contact, :team_id => @context_team.id
-    can [:update, :destroy], Project, :team_id => @context_team.id
-    can [:update, :destroy], Media do |obj|
+    can :update, Project, :team_id => @context_team.id
+    can :update, Media do |obj|
       obj.get_team.include? @context_team.id
     end
-    can :cud, [ProjectMedia, ProjectSource] do |obj|
+    can [:create, :update], [ProjectMedia, ProjectSource] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can [:update, :destroy], [Comment, Tag, Flag, Annotation] do |obj|
+    can :update, [Comment, Tag, Flag, Annotation] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can [:create, :destroy], Status do |status|
+    can :create, Status do |status|
       status.get_team.include? @context_team.id
     end
   end
 
   def journalist_perms
-    can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['journalist', 'contributor'] }
+    can :update, User, :team_users => { :team_id => @context_team.id, role: ['journalist', 'contributor'] }
     can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
     can :create, Project, :team_id => @context_team.id
-    can [:update, :destroy], Project, :team_id => @context_team.id, :user_id => @user.id
+    can :update, Project, :team_id => @context_team.id, :user_id => @user.id
     can :create, Flag do |flag|
       flag.get_team.include? @context_team.id and (flag.flag.to_s == 'Mark as graphic')
     end
@@ -90,26 +97,23 @@ class Ability
         (obj.annotated_type === 'Media' and obj.annotated.user_id.to_i === @user.id)
         )
     end
-    can :destroy, [Comment, Annotation, Status, Tag, Flag] do |obj|
-      obj.get_team.include? @context_team.id and obj.context_type === 'Project' and obj.context.user_id.to_i === @user.id
-    end
   end
 
   def contributor_perms
     can :update, User, :id => @user.id
     can :create, [Media, Account, Source, Comment, Tag, Embed]
     can :update, Media, :user_id => @user.id
-    can [:update, :destroy], Media do |obj|
+    can :update, Media do |obj|
       obj.get_team.include? @context_team.id and (obj.user_id == @user.id)
     end
     can :update, [Account, Source]
-    can :cud, ProjectSource do |obj|
+    can [:create, :update], ProjectSource do |obj|
       obj.get_team.include? @context_team.id and (obj.source.user_id == @user.id)
     end
     can :create, ProjectMedia do |obj|
       obj.get_team.include? @context_team.id
     end
-    can [:update, :destroy], ProjectMedia do |obj|
+    can :update, ProjectMedia do |obj|
       obj.get_team.include? @context_team.id and (obj.media.user_id == @user.id)
     end
     can :update, [Comment, Tag] do |obj|
@@ -117,9 +121,6 @@ class Ability
     end
     can :create, Flag do |flag|
       flag.get_team.include? @context_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
-    end
-    can :destroy, [Comment, Annotation, Tag, Flag] do |obj|
-      obj.get_team.include? @context_team.id and (obj.annotator_id.to_i == @user.id)
     end
     can :destroy, TeamUser do |obj|
       obj.user_id === @user.id

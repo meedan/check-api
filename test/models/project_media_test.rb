@@ -65,7 +65,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm_own.project_id = p2.id; pm_own.save!
     pm_own.reload
     assert_equal pm_own.project_id, p2.id
-    assert_nothing_raised RuntimeError do
+    assert_raise RuntimeError do
       pm_own.current_user = u2
       pm_own.destroy!
     end

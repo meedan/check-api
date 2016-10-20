@@ -73,7 +73,7 @@ class MediaTest < ActiveSupport::TestCase
       own_media.current_user = u2
       own_media.save!
     end
-    assert_nothing_raised RuntimeError do
+    assert_raise RuntimeError do
       own_media.current_user = u2
       own_media.destroy!
     end

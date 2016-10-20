@@ -275,8 +275,7 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should destroy comment" do
     u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'contributor'
+    t = create_team current_user: u
     p = create_project team: t
     c = create_comment annotated: p, current_user: u, annotator: u
     c.current_user = u
@@ -286,16 +285,18 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
-  test "journalist should destroy own notes" do
+  test "journalist should not destroy own notes" do
     u = create_user
     t = create_team
     p = create_project user: create_user, team: t
     create_team_user team: t, user: u, role: 'contributor'
     m = create_valid_media project_id: p.id
     c = create_comment annotated: m, context: p, annotator: u
-    c.current_user = u
-    c.context_team = t
-    c.destroy
+    assert_raise RuntimeError do
+      c.current_user = u
+      c.context_team = t
+      c.destroy
+    end
   end
 
   test "should not destroy comment" do
