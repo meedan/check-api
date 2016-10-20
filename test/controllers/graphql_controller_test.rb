@@ -134,11 +134,11 @@ class GraphqlControllerTest < ActionController::TestCase
     # Update media title and description with context p
     m.project_id = p.id
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    m.information= info
+    m.information= info; m.save!
     # Update media title and description with context p2
     m.project_id = p2.id
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    m.information= info
+    m.information= info; m.save!
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { jsondata(context_id: #{p.id}) } }"
     post :create, query: query
     assert_response :success
