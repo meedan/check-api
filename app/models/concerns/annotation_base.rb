@@ -158,7 +158,7 @@ module AnnotationBase
     def all_sorted(order = 'asc', field = 'created_at')
       type = self.name.parameterize
       query = type === 'annotation' ? { match_all: {} } : { bool: { must: [{ match: { annotation_type: type } }] } }
-      self.search(query: query, sort: [{ field => { order: order }}, '_score']).results
+      self.search(query: query, sort: [{ field => { order: order }}, '_score'], size: 10000).results
     end
 
     def length
