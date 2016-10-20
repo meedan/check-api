@@ -35,9 +35,6 @@ gem 'airbrake', '4.3.3'
 gem 'codeclimate-test-reporter', group: :test, require: nil
 gem 'awesome_print', require: false, group: :development
 gem 'gem-licenses'
-gem 'lograge'
-gem 'logstash-event'
-gem 'logstash-logger'
 gem 'auto_localize', '0.1'
 gem 'thin'
 gem 'swagger-docs', '0.1.9'
