@@ -1,6 +1,6 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  attr_accessor :project_id, :duplicated_of
+  attr_accessor :project_id, :duplicated_of, :information
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
@@ -17,6 +17,7 @@ class Media < ActiveRecord::Base
 
   before_validation :set_user, on: :create
   after_create :set_pender_result_as_annotation, :set_project, :set_account
+  after_save :set_information
   after_rollback :duplicate
 
 
@@ -92,17 +93,6 @@ class Media < ActiveRecord::Base
     Project.find(self.project_id) if self.project_id
   end
 
-  def information=(info)
-    info = JSON.parse(info)
-    em = Embed.new
-    %w(title description quote).each{ |k| em.send("#{k}=", info[k]) unless info[k].blank? }
-    em.embed = info.to_json
-    em.annotated = self
-    em.annotator = self.current_user unless self.current_user.nil?
-    em.context = self.project unless self.project.nil?
-    em.save!
-  end
-
   private
 
   def set_user
@@ -138,6 +128,19 @@ class Media < ActiveRecord::Base
 
   def set_project
     self.associate_to_project
+  end
+
+  def set_information
+    unless self.information.blank?
+      info = JSON.parse(self.information)
+      em = Embed.new
+      %w(title description quote).each{ |k| em.send("#{k}=", info[k]) unless info[k].blank? }
+      em.embed = info.to_json
+      em.annotated = self
+      em.annotator = self.current_user unless self.current_user.nil?
+      em.context = self.project unless self.project.nil?
+      em.save!
+    end
   end
 
   def duplicate

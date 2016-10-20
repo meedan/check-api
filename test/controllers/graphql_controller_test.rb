@@ -104,6 +104,15 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('media', { url: url, project_id: @project.id })
   end
 
+  test "should create media with information" do
+    url = random_url
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    info = {title: 'title', description: 'description', quote: 'media quote'}.to_json
+    assert_graphql_create('media', { url: url, project_id: @project.id, information: info })
+  end
+
   test "should read medias" do
     assert_graphql_read('media', 'url')
     assert_graphql_read('media', 'published')
@@ -125,11 +134,11 @@ class GraphqlControllerTest < ActionController::TestCase
     # Update media title and description with context p
     m.project_id = p.id
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    m.information= info
+    m.information= info; m.save!
     # Update media title and description with context p2
     m.project_id = p2.id
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    m.information= info
+    m.information= info; m.save!
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { jsondata(context_id: #{p.id}) } }"
     post :create, query: query
     assert_response :success
@@ -459,7 +468,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_comment annotated: m, annotator: u
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { annotations(first: 1) { edges { node { permissions } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
-    post :create, query: query 
+    post :create, query: query
     assert_response :success
   end
 
@@ -473,7 +482,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_comment annotated: m, annotator: u
     query = "query GetById { project(id: \"#{p.id}\") { medias(first: 1) { edges { node { permissions } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
-    post :create, query: query 
+    post :create, query: query
     assert_response :success
     assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['medias']['edges'][0]['node']['permissions']
   end
@@ -484,6 +493,31 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team subdomain: 'team'
     create_team_user user: u, team: t, role: 'owner'
     query = "query GetById { team(id: \"#{t.id}\") { media_verification_statuses, source_verification_statuses } }"
+    @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
+    post :create, query: query
+    assert_response :success
+  end
+
+  test "should get media statuses" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team subdomain: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    m = create_media project_id: p.id
+    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { verification_statuses } }"
+    @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
+    post :create, query: query 
+    assert_response :success
+  end
+
+  test "should get source statuses" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team subdomain: 'team'
+    create_team_user user: u, team: t
+    s = create_source team: t
+    query = "query GetById { source(id: \"#{s.id}\") { verification_statuses } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query 
     assert_response :success

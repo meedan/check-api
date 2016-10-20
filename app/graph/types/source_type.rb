@@ -62,5 +62,11 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-# End of fields
+  field :verification_statuses do
+    type types.String
+
+    resolve ->(media, _args, ctx) {
+      ctx[:context_team].blank? ? Status.core_verification_statuses(:source).to_json : ctx[:context_team].verification_statuses(:source)
+    }
+  end
 end

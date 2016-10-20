@@ -73,7 +73,7 @@ class MediaTest < ActiveSupport::TestCase
       own_media.current_user = u2
       own_media.save!
     end
-    assert_nothing_raised RuntimeError do
+    assert_raise RuntimeError do
       own_media.current_user = u2
       own_media.destroy!
     end
@@ -181,15 +181,15 @@ class MediaTest < ActiveSupport::TestCase
     # Update media title and description with context p1
     m.project_id = p1.id
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    m.information= info
+    m.information= info; m.save!
     info = {title: 'Title AA', description: 'Desc AA'}.to_json
-    m.information= info
+    m.information= info;  m.save!
     # Update media title and description with context p2
     m.project_id = p2.id
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    m.information= info
+    m.information= info;  m.save!
     info = {title: 'Title BB', description: 'Desc BB'}.to_json
-    m.information= info
+    m.information= info;  m.save!
     # fetch media data without context
     data = m.data
     title = data['title']; description = data['description']
@@ -393,7 +393,7 @@ class MediaTest < ActiveSupport::TestCase
     m = create_media(account: create_valid_account, url: url)
     assert_not_nil m.data
     info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}
-    m.information= info.to_json
+    m.information= info.to_json; m.save!
     data = m.data
     assert_equal data['title'], 'Title A'
     assert_equal data['quote'], 'Media quote'
@@ -401,13 +401,21 @@ class MediaTest < ActiveSupport::TestCase
     m = Media.new; m.save!
     assert_nil m.data
     info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
-    m.information= info
+    m.information= info; m.save!
     data = m.data
     assert_equal data['title'], 'Title A'
     assert_equal data['description'], 'Desc A'
     assert_equal data['quote'], 'Media quote'
   end
-  
+
+  test "should add claim additions to media creation" do
+    m = Media.new;
+    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
+    m.information= info
+    m.save!
+    assert_equal 1, m.annotations('embed').count
+  end
+
   test "should get current team" do
     m = create_media project_id: nil
     assert_nil m.current_team

@@ -1,12 +1,11 @@
 # This class tries to reproduce an ActiveRecord relation
 class ElasticsearchRelation
   def initialize(params = {})
-    @params = params
+    @params = { size: 10000 }.merge(params)
   end
 
   def offset(x)
     @params[:from] = x
-    @params[:size] ||= 10
     self
   end
 
@@ -20,7 +19,7 @@ class ElasticsearchRelation
   end
 
   def count
-    Annotation.search(@params.merge({ size: 0 })).total
+    Annotation.search(@params).total
   end
 
   def to_a

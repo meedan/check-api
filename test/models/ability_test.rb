@@ -25,7 +25,7 @@ class AbilityTest < ActiveSupport::TestCase
     ability = Ability.new(u, t)
     assert ability.can?(:create, Project)
     assert ability.can?(:update, own_project)
-    assert ability.can?(:destroy, own_project)
+    assert ability.cannot?(:destroy, own_project)
     assert ability.cannot?(:update, p)
     assert ability.cannot?(:destroy, p)
     # test projects that related to other instances
@@ -44,8 +44,8 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:create, Project)
     assert ability.can?(:update, p)
     assert ability.can?(:update, own_project)
-    assert ability.can?(:destroy, p)
-    assert ability.can?(:destroy, own_project)
+    assert ability.cannot?(:destroy, p)
+    assert ability.cannot?(:destroy, own_project)
     # test projects that related to other instances
     p2 = create_project
     assert ability.cannot?(:update, p2)
@@ -84,12 +84,12 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:update, m)
     assert ability.can?(:update, own_media)
     assert ability.cannot?(:destroy, m)
-    assert ability.can?(:destroy, own_media)
+    assert ability.cannot?(:destroy, own_media)
     # tests for project media
     assert ability.cannot?(:update, pm)
     assert ability.can?(:update, own_pm)
     assert ability.cannot?(:destroy, pm)
-    assert ability.can?(:destroy, own_pm)
+    assert ability.cannot?(:destroy, own_pm)
     # test medias that related to other instances
     m2 = create_valid_media
     pm2 = create_project_media media: m2
@@ -120,12 +120,12 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:update, m)
     assert ability.can?(:update, own_media)
     assert ability.cannot?(:destroy, m)
-    assert ability.can?(:destroy, own_media)
+    assert ability.cannot?(:destroy, own_media)
     # tests for project media
     assert ability.cannot?(:update, pm)
     assert ability.can?(:update, own_pm)
     assert ability.cannot?(:destroy, pm)
-    assert ability.can?(:destroy, own_pm)
+    assert ability.cannot?(:destroy, own_pm)
     # test medias that related to other instances
     m2 = create_valid_media
     pm2 = create_project_media media: m2
@@ -155,13 +155,13 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:create, Media)
     assert ability.can?(:update, m)
     assert ability.can?(:update, own_media)
-    assert ability.can?(:destroy, m)
-    assert ability.can?(:destroy, own_media)
+    assert ability.cannot?(:destroy, m)
+    assert ability.cannot?(:destroy, own_media)
     # tests for project media
     assert ability.can?(:update, pm)
     assert ability.can?(:update, own_pm)
-    assert ability.can?(:destroy, pm)
-    assert ability.can?(:destroy, own_pm)
+    assert ability.cannot?(:destroy, pm)
+    assert ability.cannot?(:destroy, own_pm)
     # test medias that related to other instances
     m2 = create_valid_media
     pm2 = create_project_media media: m2
@@ -424,7 +424,7 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'journalist'
     ability = Ability.new(u, t)
     assert ability.can?(:update, u)
-    assert ability.can?(:destroy, u)
+    assert ability.cannot?(:destroy, u)
     u_test = create_user
     tu_test = create_team_user team: t, user: u_test , role: 'owner'
     assert ability.cannot?(:update, u_test)
@@ -436,7 +436,7 @@ class AbilityTest < ActiveSupport::TestCase
     u_test = create_user
     tu_test = create_team_user team: t, user: u_test , role: 'contributor'
     assert ability.can?(:update, u_test)
-    assert ability.can?(:destroy, u_test)
+    assert ability.cannot?(:destroy, u_test)
     # tests for other instances
     u2_test = create_user
     tu2_test = create_team_user user: u2_test , role: 'contributor'
@@ -450,7 +450,7 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'editor'
     ability = Ability.new(u, t)
     assert ability.can?(:update, u)
-    assert ability.can?(:destroy, u)
+    assert ability.cannot?(:destroy, u)
     u_test = create_user
     tu_test = create_team_user team: t, user: u_test , role: 'owner'
     assert ability.cannot?(:update, u_test)
@@ -458,11 +458,11 @@ class AbilityTest < ActiveSupport::TestCase
     u_test = create_user
     tu_test = create_team_user team: t, user: u_test , role: 'journalist'
     assert ability.can?(:update, u_test)
-    assert ability.can?(:destroy, u_test)
+    assert ability.cannot?(:destroy, u_test)
     u_test = create_user
     tu_test = create_team_user team: t, user: u_test , role: 'contributor'
     assert ability.can?(:update, u_test)
-    assert ability.can?(:destroy, u_test)
+    assert ability.cannot?(:destroy, u_test)
     # tests for other instances
     u2_test = create_user
     tu2_test = create_team_user user: u2_test , role: 'contributor'
@@ -512,7 +512,7 @@ class AbilityTest < ActiveSupport::TestCase
      own_comment = create_comment annotator: u
      m.add_annotation own_comment
      assert ability.can?(:update, own_comment)
-     assert ability.can?(:destroy, own_comment)
+     assert ability.cannot?(:destroy, own_comment)
      # other instances
      p = create_project
      c = create_comment
@@ -537,7 +537,7 @@ class AbilityTest < ActiveSupport::TestCase
      own_comment = create_comment annotator: u
      m.add_annotation own_comment
      assert ability.can?(:update, own_comment)
-     assert ability.can?(:destroy, own_comment)
+     assert ability.cannot?(:destroy, own_comment)
      # other instances
      p = create_project
      c = create_comment
@@ -557,7 +557,7 @@ class AbilityTest < ActiveSupport::TestCase
      mc = create_comment
      m.add_annotation mc
      assert ability.can?(:update, mc)
-     assert ability.can?(:destroy, mc)
+     assert ability.cannot?(:destroy, mc)
      # other instances
      p = create_project
      c = create_comment
@@ -664,7 +664,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:destroy, s)
     s.annotator = create_user; s.save!
     assert ability.cannot?(:update, s)
-    #assert ability.cannot?(:destroy, s)
+    assert ability.cannot?(:destroy, s)
     # test other instances
     p.team = nil; p.save!
     assert ability.cannot?(:create, s)
@@ -676,18 +676,17 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user team: t, user: u, role: 'journalist'
     ability = Ability.new(u, t)
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    s =  create_status status: 'verified', annotator: u, annotated: m
-    #assert ability.can?(:create, s)
+    p = create_project team: t, user: u
+    m = create_valid_media project_id: p.id
+    s =  create_status status: 'verified', context: p, annotator: u, annotated: m
+    assert ability.can?(:create, s)
     assert ability.cannot?(:update, s)
-    #assert ability.can?(:destroy, s)
+    assert ability.cannot?(:destroy, s)
     s.annotator = create_user; s.save!
     assert ability.cannot?(:update, s)
     assert ability.cannot?(:destroy, s)
     # test other instances
-    p.team = nil; p.save!
+    p.team = create_team; p.save!
     assert ability.cannot?(:create, s)
     assert ability.cannot?(:destroy, s)
   end
@@ -703,7 +702,7 @@ class AbilityTest < ActiveSupport::TestCase
     s =  create_status status: 'verified', annotated: m
     assert ability.can?(:create, s)
     assert ability.cannot?(:update, s)
-    assert ability.can?(:destroy, s)
+    assert ability.cannot?(:destroy, s)
     # test other instances
     p.team = nil; p.save!
     assert ability.cannot?(:create, s)
@@ -833,7 +832,7 @@ class AbilityTest < ActiveSupport::TestCase
     f = create_flag flag: 'Mark as graphic', annotator: u, annotated: m
     ability = Ability.new(u, t)
     assert ability.can?(:update, f)
-    assert ability.can?(:destroy, f)
+    assert ability.cannot?(:destroy, f)
     p.team = nil; p.save!
     assert ability.cannot?(:update, f)
     assert ability.cannot?(:destroy, f)
@@ -849,7 +848,7 @@ class AbilityTest < ActiveSupport::TestCase
     f = create_flag flag: 'Mark as graphic', annotator: u, annotated: m
     ability = Ability.new(u, t)
     assert ability.can?(:update, f)
-    assert ability.can?(:destroy, f)
+    assert ability.cannot?(:destroy, f)
     p.team = nil; p.save!
     assert ability.cannot?(:update, f)
     assert ability.cannot?(:destroy, f)
@@ -875,7 +874,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:destroy, ps2)
     assert ability.can?(:create, ps3)
     assert ability.can?(:update, ps3)
-    assert ability.can?(:destroy, ps3)
+    assert ability.cannot?(:destroy, ps3)
   end
 
   test "should get permissions" do
@@ -892,7 +891,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert_equal ["read Account", "update Account", "destroy Account", "create Media"], JSON.parse(a.permissions).keys
   end
 
-  test "should fallback to to find" do
+  test "should fallback to find" do
     u = create_user
     assert_equal u, User.find_if_can(u.id, nil, nil)
   end
@@ -941,7 +940,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert a.cannot?(:destroy, a4)
   end
 
-  test "should editor destroy annotation from any project from his team" do
+  test "should not editor destroy annotation from any project from his team" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
@@ -952,13 +951,13 @@ class AbilityTest < ActiveSupport::TestCase
     a3 = create_annotation context: p2
     a4 = create_annotation
     a = Ability.new(u, t)
-    assert a.can?(:destroy, a1)
-    assert a.can?(:destroy, a2)
-    assert a.can?(:destroy, a3)
+    assert a.cannot?(:destroy, a1)
+    assert a.cannot?(:destroy, a2)
+    assert a.cannot?(:destroy, a3)
     assert a.cannot?(:destroy, a4)
   end
 
-  test "should journalist destroy annotation from his project only" do
+  test "should not journalist destroy annotation from his project only" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'journalist'
@@ -969,13 +968,13 @@ class AbilityTest < ActiveSupport::TestCase
     a3 = create_annotation context: p2
     a4 = create_annotation
     a = Ability.new(u, t)
-    assert a.can?(:destroy, a1)
-    assert a.can?(:destroy, a2)
+    assert a.cannot?(:destroy, a1)
+    assert a.cannot?(:destroy, a2)
     assert a.cannot?(:destroy, a3)
     assert a.cannot?(:destroy, a4)
   end
 
-  test "should contributor destroy annotation from him only" do
+  test "should not contributor destroy annotation from him only" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'contributor'
@@ -986,7 +985,7 @@ class AbilityTest < ActiveSupport::TestCase
     a3 = create_annotation context: p2
     a4 = create_annotation
     a = Ability.new(u, t)
-    assert a.can?(:destroy, a1)
+    assert a.cannot?(:destroy, a1)
     assert a.cannot?(:destroy, a2)
     assert a.cannot?(:destroy, a3)
     assert a.cannot?(:destroy, a4)
