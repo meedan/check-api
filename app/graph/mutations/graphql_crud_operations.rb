@@ -151,6 +151,19 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.field_verification_statuses
+    proc do |classname|
+      field :verification_statuses do
+        type types.String
+
+        resolve ->(_obj, _args, ctx) {
+          team = ctx[:context_team] || Team.new
+          team.verification_statuses(classname)
+        }
+      end
+    end
+  end
+
   def self.define_annotation_fields
     [:annotation_type, :updated_at, :created_at,
      :context_id, :context_type, :annotated_id,

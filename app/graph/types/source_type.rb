@@ -61,13 +61,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
       source.tags
     }
   end
-
-  field :verification_statuses do
-    type types.String
-
-    resolve ->(_source, _args, ctx) {
-      team = ctx[:context_team] || Team.new
-      team.verification_statuses(:source)
-    }
-  end
+  
+  instance_exec :source, &GraphqlCrudOperations.field_verification_statuses
 end
