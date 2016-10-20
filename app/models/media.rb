@@ -42,14 +42,12 @@ class Media < ActiveRecord::Base
   end
 
   def data(context = nil)
-    em_pender = self.annotations('embed', 'none').last
+    context = context.nil? ? 'none' : context
+    em_pender = self.annotations('embed', context).last
     embed = JSON.parse(em_pender.embed) unless em_pender.nil?
-    if context
-      em_u = self.annotations('embed', context)
-      em_u.reverse.each do |obj|
-        ['title', 'description', 'quote'].each do |k|
-          embed[k] = obj[k] unless obj[k].nil?
-        end
+    unless embed.nil?
+      ['title', 'description', 'quote'].each do |k|
+        embed[k] = em_pender[k] unless em_pender[k].nil?
       end
     end
     embed
@@ -152,7 +150,6 @@ class Media < ActiveRecord::Base
           em.id = nil
         end
       end
-      pp em
       %w(title description quote).each{ |k| em.send("#{k}=", info[k]) unless info[k].blank? }
       em.save!
     end
