@@ -1,7 +1,7 @@
 # This class tries to reproduce an ActiveRecord relation
 class ElasticsearchRelation
   def initialize(params = {})
-    @params = params.merge({ size: 10000 })
+    @params = { size: 10000 }.merge(params)
   end
 
   def offset(x)
