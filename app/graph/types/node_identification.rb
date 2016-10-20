@@ -11,6 +11,7 @@ NodeIdentification = GraphQL::Relay::GlobalNodeIdentification.define do
       obj.current_user = ctx[:current_user]
       obj.context_team = ctx[:context_team]
       obj.origin = ctx[:origin] if obj.respond_to?('origin=')
+      obj.project_id ||= ctx[:context_project].id if obj.respond_to?('project_id=') && ctx[:context_project].present?
     end
     obj
   end

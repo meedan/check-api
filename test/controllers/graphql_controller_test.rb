@@ -60,6 +60,16 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal t, assigns(:context_team)
   end
 
+  test "should set context project" do
+    authenticate_with_user
+    t = create_team subdomain: 'context'
+    p = create_project team: t
+    @request.headers.merge!({ 'origin': 'http://context.localhost:3333' })
+    @request.env['HTTP_REFERER'] = "http://context.localhost:3333/project/#{p.id}"
+    post :create, query: 'query Query { about { name, version } }'
+    assert_equal p, assigns(:context_project)
+  end
+
   # Test CRUD operations for each model
 
   test "should create account" do
