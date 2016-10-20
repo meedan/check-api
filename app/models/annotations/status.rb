@@ -1,9 +1,9 @@
 class Status
   include AnnotationBase
 
-  MEDIA_CORE_VERIFICATION_STATUSES = ['Not Applicable', 'In Progress', 'Verified', 'False']
+  MEDIA_CORE_VERIFICATION_STATUSES = ['Undetermined', 'Not Applicable', 'In Progress', 'Verified', 'False']
 
-  SOURCE_CORE_VERIFICATION_STATUSES = ['Credible', 'Not Credible', 'Slightly Credible', 'Sockpuppet']
+  SOURCE_CORE_VERIFICATION_STATUSES = ['Undetermined', 'Credible', 'Not Credible', 'Slightly Credible', 'Sockpuppet']
 
   attribute :status, String, presence: true
   
@@ -25,13 +25,13 @@ class Status
         { id: status.downcase.tr(' ', '_'), label: status, description: status, style: '' }
       end
     rescue NameError
-      []
+      [{ id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }]
     end
 
     {
       label: 'Status',
       default: 'undetermined',
-      statuses: [{ id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }] + statuses
+      statuses: statuses
     }
   end
   

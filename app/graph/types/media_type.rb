@@ -62,6 +62,14 @@ MediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :verification_statuses do
+    type types.String
+
+    resolve ->(media, _args, ctx) {
+      ctx[:context_team].blank? ? Status.core_verification_statuses(:media).to_json : ctx[:context_team].verification_statuses(:media)
+    }
+  end
+
   instance_exec :jsondata, &GraphqlCrudOperations.field_with_context
   instance_exec :last_status, &GraphqlCrudOperations.field_with_context
 end
