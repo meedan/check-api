@@ -129,6 +129,7 @@ class GraphqlCrudOperations
       field :permissions, types.String do
         resolve -> (obj, _args, ctx) {
           obj.current_user = ctx[:current_user]
+          obj.project_id = ctx[:context_project].id if obj.respond_to?(:project_id) && ctx[:context_project].present?
           obj.permissions
         }
       end
