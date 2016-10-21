@@ -6,8 +6,7 @@ class TeamUserMailer < ApplicationMailer
       @team = team
       @requestor = requestor
       @url = URI.join(origin, "/members")
-      @handle = requestor.provider.blank? ? requestor.email : "#{requestor.login} at #{requester.provider}"
-      puts @handle
+      @handle = requestor.provider.blank? ? requestor.email : "#{requestor.login} at #{requestor.provider}"
       owners = team.owners
       if !owners.empty? && !owners.include?(@requestor)
         recipients = owners.map(&:email).reject{ |m| m.blank? }
