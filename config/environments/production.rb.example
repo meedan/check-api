@@ -46,30 +46,7 @@ Rails.application.configure do
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
-  config.log_level = :debug
-
-# send logs to production.log and to logstash
-# https://github.com/dwbutler/logstash-logger#multi-logger
-# Each logger may have its own formatter.
-
-  config.lograge.enabled = true
-
-  config.logstash.type = :multi_logger
-  config.logstash.outputs = [
-    {
-      type: :file,
-      path: 'log/production.log',
-      formatter: ::Logger::Formatter
-    },
-    {
-      type: :tcp,
-      port: 24242,
-      host: ENV['LOGSTASH_HOST'],
-      formatter: :json
-    }
-  ]
-
-  config.logger = LogStashLogger.new(config.logstash)  
+  config.log_level = :info
 
   # Prepend all log lines with the following tags.
   # config.log_tags = [ :subdomain, :uuid ]
