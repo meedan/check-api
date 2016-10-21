@@ -40,7 +40,7 @@ class Ability
     can :update, TeamUser do |obj|
       roles = %w[owner journalist contributor editor]
       user_role = obj.user.role @context_team
-      obj.team_id == @context_team.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
+      obj.team_id == @context_team.id and obj.user_id != @user.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
     end
     can :destroy, Contact, :team_id => @context_team.id
     can :destroy, Project, :team_id => @context_team.id
@@ -62,7 +62,7 @@ class Ability
     can :update, TeamUser do |obj|
       roles = %w[editor journalist contributor]
       user_role = obj.user.role @context_team
-      obj.team_id == @context_team.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
+      obj.team_id == @context_team.id and obj.user_id != @user.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
     end
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
