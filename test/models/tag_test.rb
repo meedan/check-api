@@ -237,20 +237,37 @@ class TagTest < ActiveSupport::TestCase
   test "should not have same tag applied to same object" do
     s1 = create_source
     s2 = create_source
+    p = create_project
     assert_difference 'Tag.length', 4 do
       assert_nothing_raised do
-        create_tag tag: 'foo', annotated: s1
-        create_tag tag: 'foo', annotated: s2
-        create_tag tag: 'bar', annotated: s1
-        create_tag tag: 'bar', annotated: s2
+        create_tag tag: 'foo', annotated: s1, context: p
+        create_tag tag: 'foo', annotated: s2, context: p
+        create_tag tag: 'bar', annotated: s1, context: p
+        create_tag tag: 'bar', annotated: s2, context: p
       end
     end
     assert_no_difference 'Tag.length' do
       assert_raises RuntimeError do
-        create_tag tag: 'foo', annotated: s1
-        create_tag tag: 'foo', annotated: s2
-        create_tag tag: 'bar', annotated: s1
-        create_tag tag: 'bar', annotated: s2
+        create_tag tag: 'foo', annotated: s1, context: p
+        create_tag tag: 'foo', annotated: s2, context: p
+        create_tag tag: 'bar', annotated: s1, context: p
+        create_tag tag: 'bar', annotated: s2, context: p
+      end
+    end
+  end
+
+  test "should not tell that one tag contained in another is a duplicate" do
+    s = create_source
+    p = create_project
+    assert_difference 'Tag.length', 2 do
+      assert_nothing_raised do
+        create_tag tag: 'foo bar', annotated: s, context: p
+        create_tag tag: 'foo', annotated: s, context: p
+      end
+    end
+    assert_no_difference 'Tag.length' do
+      assert_raises RuntimeError do
+        create_tag tag: 'foo', annotated: s, context: p
       end
     end
   end

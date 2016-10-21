@@ -5,7 +5,7 @@ class UniquenessValidator < ActiveModel::EachValidator
     fields.each do |field|
       matches << { match: { field => record.send(field).to_s } }
     end
-    existing = Annotation.search(query: { bool: { must: matches } }).results
+    existing = record.class.search(query: { bool: { must: matches } }).results.select{ |a| a.send(attribute) === record.send(attribute) }
     unless existing.empty?
       message = "This #{attribute} already exists"
       record.errors[attribute] << message
