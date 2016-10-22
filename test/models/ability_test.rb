@@ -753,7 +753,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:read, c4)
   end
 
-  test "read ability for user in private team with memeber status" do
+  test "read ability for user in private team with member status" do
     u = create_user
     t1 = create_team
     t2 = create_team private: true
@@ -779,7 +779,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:read, c4)
   end
 
-  test "read ability for user in private team with non memeber status" do
+  test "read ability for user in private team with non member status" do
     u = create_user
     t1 = create_team
     t2 = create_team private: true
