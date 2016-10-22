@@ -60,7 +60,7 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
-  test "non memebers should not read project in private team" do
+  test "non members should not read project in private team" do
     u = create_user
     t = create_team current_user: create_user
     p = create_project team: t

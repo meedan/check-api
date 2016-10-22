@@ -93,7 +93,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal ['read Comment', 'update Comment', 'destroy Comment'], JSON.parse(pc.permissions).keys
   end
 
-  test "non memebers should not read annotations in private team" do
+  test "non members should not read annotations in private team" do
     u = create_user
     t = create_team current_user: create_user
     m = create_media team: t
