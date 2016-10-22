@@ -5,7 +5,7 @@ class TeamUserMailer < ApplicationMailer
     if team && requestor
       @team = team
       @requestor = requestor
-      @url = URI.join(origin, "/members")
+      @url = origin.blank? ? '' : URI.join(origin, "/members")
       @handle = requestor.provider.blank? ? requestor.email : "#{requestor.login} at #{requestor.provider}"
       owners = team.owners
       if !owners.empty? && !owners.include?(@requestor)
@@ -23,7 +23,7 @@ class TeamUserMailer < ApplicationMailer
       @team = team
       @requestor = requestor
       @accepted = accepted
-      @url = URI.join(origin, "/")
+      @url = origin.blank? ? '' : URI.join(origin, "/")
       Rails.logger.info "Sending e-mail to #{requestor.email}"
       status = accepted ? "accepted" : "rejected"
       mail(to: requestor.email, subject: "Your request to join #{team.name} on Check was #{status}")
