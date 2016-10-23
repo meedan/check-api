@@ -75,6 +75,15 @@ class Team < ActiveRecord::Base
     statuses.to_json
   end
 
+  def recipients(requestor)
+    owners = self.owners
+    recipients = []
+    if !owners.empty? && !owners.include?(requestor)
+      recipients = owners.map(&:email).reject{ |m| m.blank? }
+    end
+    recipients
+  end
+
   protected
 
   def custom_statuses_format(type)
