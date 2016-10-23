@@ -6,55 +6,87 @@ module Api
       skip_before_filter :authenticate_from_token!
 
       def create
+        # search will include keywords, projects, tags, status, categories
         #keyword, filters = build_search_query(params[:query])
-        options = {keyword: 'title_context_a', project: 'testingtesting', tag: 'sports'}
-        querya_ids = build_search_query_a(options)
-        queryb_ids = build_search_query_b(options)
-        ids = querya_ids & queryb_ids
+        options = {keyword: 'title_a for testing', project: ["1", "2"], tags: ['sports', 'news'], status: ['verified']}
+        # query_a to fetch keyword/context
+        ids = build_search_query_a(options)
+        # query_b to fetch tags/categories
+        unless options[:tags].blank?
+          result_ids = build_search_query_b(options)
+          # get intesect between query_a & query_b to get medias that match user options
+          # which related to keywords, context, tags
+          ids = ids & result_ids
+        end
+        # query_c to fetch status
+        unless options[:status].blank?
+          ids = build_search_query_c(ids, options[:status])
+        end
         result = Array.new
         ids.each {|id| result << Media.find(id)}
         render json: { result: result }
       end
 
       def build_search_query_a(options)
-        keyword = options.has_key?(:keyword) ? options[:keyword] : ''
+        if options[:keyword].blank?
+          query = { match_all: {} }
+        else
+          query = { query_string: { query: options[:keyword], fields:  %w(title description quote) } }
+        end
         filters = [{"term": { "annotation_type": "embed"}}]
         filters << {"term": { "annotated_type": "media"}}
-        if options.has_key?(:project)
-          p = Project.where(title: options[:project]).last
-          filters << {"term": { "context_id": p.id}} unless p.nil?
-        end
-        if options.has_key?(:from)
-          u = User.where(name: options[:from]).last
-          filters << {"term": { "annotator_id": u.id}} unless u.nil?
-        end
-        # data filter
-        #filters <<  {"range": { "published_at": { "from": options[:from], "to": options[:to]}}}
-        query = {
-          filtered: {
-            query: { query_string: { query: keyword } },
-            filter: { bool: { must: [ filters ] } }
-          }
-        }
-        get_query_result(query)
+        filters << {"terms": { "context_id": options[:project]}} unless options[:project].blank?
+        filter = { bool: { must: [ filters ] } }
+        get_query_result(query, filter)
       end
 
       def build_search_query_b(options)
+        query = { match_all: {} }
         filters = Array.new
-        if options.has_key?(:tag)
-          filters << [{"term": { "tag": options[:tag]}}]
-        end
-        query = {
-          filtered: {
-            query: { match_all: {} },
-            filter: {bool: {should: filters  } }
-          }
-        }
-        get_query_result(query)
+        filters << [{"terms": { "tag": options[:tags]}}] unless options[:tags].blank?
+        filter = {bool: { should: filters  } }
+        filter[:bool][:must] = { "terms": {"context_id": options[:project]} } unless options[:project].blank?
+        get_query_result(query, filter)
       end
 
+      def build_search_query_c(media_ids, status)
+        Rails.logger.debug("Calling status query #{media_ids}")
+        q = {
+          filtered: {
+            query: { terms: { annotated_id: media_ids } },
+           filter: { bool: { must: [ {term: {annotation_type: "status" } } ] } }
+         }
+       }
+       g = {
+        annotated: {
+            terms: { field: :annotated_id},
+            aggs: {
+              latest_status: {
+                top_hits: {
+                  sort: [ { created_at: { order: :desc} } ],
+                  _source: { "include": [ "status"] },
+                  size: 1
+                }
+              }
+            }
+          }
+        }
+        ids = []
+        Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
+          if status.include? result[:latest_status][:hits][:hits][0]["_source"][:status]
+            ids << result['key']
+          end
+        end
+        ids
+      end
 
-      def get_query_result(query)
+      def get_query_result(query, filter)
+        q = {
+          filtered: {
+            query: query,
+            filter: filter
+          }
+        }
         g = {
           annotated: {
             terms: { field: :annotated_id },
@@ -62,9 +94,7 @@ module Api
           }
         }
         ids = []
-        Annotation.search(query: query, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
-          #model = result['type']['buckets']['key'].singularize.camelize.constantize
-          #annotations << Media.find(result['key'])
+        Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
           ids << result['key']
         end
         ids
