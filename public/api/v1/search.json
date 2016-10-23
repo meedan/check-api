@@ -35,8 +35,8 @@
           ],
           "parameters": [
             {
-              "paramType": "query",
-              "name": "query",
+              "paramType": "body",
+              "name": "body",
               "type": "string",
               "description": "Search query",
               "required": true

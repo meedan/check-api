@@ -7,20 +7,19 @@ module Api
 
       def create
         # search will include keywords, projects, tags, status, categories
-        #keyword, filters = build_search_query(params[:query])
-        options = {keyword: 'title_a for testing', project: ["1", "2"], tags: ['sports', 'news'], status: ['verified']}
+        options = JSON.parse(params["_json"])
         # query_a to fetch keyword/context
         ids = build_search_query_a(options)
         # query_b to fetch tags/categories
-        unless options[:tags].blank?
+        unless options["tags"].blank?
           result_ids = build_search_query_b(options)
           # get intesect between query_a & query_b to get medias that match user options
           # which related to keywords, context, tags
           ids = ids & result_ids
         end
         # query_c to fetch status
-        unless options[:status].blank?
-          ids = build_search_query_c(ids, options[:status])
+        unless options["status"].blank?
+          ids = build_search_query_c(ids, options["status"])
         end
         result = Array.new
         ids.each {|id| result << Media.find(id)}
@@ -28,14 +27,14 @@ module Api
       end
 
       def build_search_query_a(options)
-        if options[:keyword].blank?
+        if options["keyword"].blank?
           query = { match_all: {} }
         else
-          query = { query_string: { query: options[:keyword], fields:  %w(title description quote) } }
+          query = { query_string: { query: options["keyword"], fields:  %w(title description quote) } }
         end
         filters = [{"term": { "annotation_type": "embed"}}]
         filters << {"term": { "annotated_type": "media"}}
-        filters << {"terms": { "context_id": options[:project]}} unless options[:project].blank?
+        filters << {"terms": { "context_id": options["project"]}} unless options["project"].blank?
         filter = { bool: { must: [ filters ] } }
         get_query_result(query, filter)
       end
@@ -43,9 +42,9 @@ module Api
       def build_search_query_b(options)
         query = { match_all: {} }
         filters = Array.new
-        filters << [{"terms": { "tag": options[:tags]}}] unless options[:tags].blank?
+        filters << [{"terms": { "tag": options["tags"]}}] unless options["tags"].blank?
         filter = {bool: { should: filters  } }
-        filter[:bool][:must] = { "terms": {"context_id": options[:project]} } unless options[:project].blank?
+        filter[:bool][:must] = { "terms": {"context_id": options["project"]} } unless options["project"].blank?
         get_query_result(query, filter)
       end
 
