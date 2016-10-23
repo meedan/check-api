@@ -471,4 +471,18 @@ class MediaTest < ActiveSupport::TestCase
     m.save!
     assert_not_nil m.account.source
   end
+
+  test "should create reports claims" do
+    m = Media.new
+    m.url = ''
+    m.information= {quote: 'Media quote A'}.to_json; m.save!
+    m.save!
+    assert_difference 'Media.count' do
+      m = Media.new
+      m.url = ''
+      m.information= {quote: 'Media quote B'}.to_json; m.save!
+      m.save!
+    end
+  end
+
 end

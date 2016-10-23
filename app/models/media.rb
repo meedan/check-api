@@ -15,7 +15,7 @@ class Media < ActiveRecord::Base
   validate :pender_result_is_an_item, on: :create
   validate :url_is_unique, on: :create
 
-  before_validation :set_user, on: :create
+  before_validation :set_url_nil_if_empty, :set_user, on: :create
   after_create :set_pender_result_as_annotation, :set_project, :set_account
   after_save :set_information
   after_rollback :duplicate
@@ -94,6 +94,10 @@ class Media < ActiveRecord::Base
   end
 
   private
+
+  def set_url_nil_if_empty
+    self.url = nil if self.url.blank?
+  end
 
   def set_user
     self.user = self.current_user unless self.current_user.nil?
