@@ -129,6 +129,7 @@ class GraphqlCrudOperations
       field :permissions, types.String do
         resolve -> (obj, _args, ctx) {
           obj.current_user = ctx[:current_user]
+          obj.project_id ||= ctx[:context_project].id if obj.is_a?(Media) && ctx[:context_project].present?
           obj.permissions
         }
       end
@@ -146,6 +147,19 @@ class GraphqlCrudOperations
         
         resolve -> (media, args, ctx) {
           call_method_from_context(media, name, args, ctx)
+        }
+      end
+    end
+  end
+
+  def self.field_verification_statuses
+    proc do |classname|
+      field :verification_statuses do
+        type types.String
+
+        resolve ->(_obj, _args, ctx) {
+          team = ctx[:context_team] || Team.new
+          team.verification_statuses(classname)
         }
       end
     end

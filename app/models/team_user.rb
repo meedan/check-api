@@ -39,13 +39,13 @@ class TeamUser < ActiveRecord::Base
   private
 
   def send_email_to_team_owners
-    TeamUserMailer.request_to_join(self.team, self.user).deliver_now
+    TeamUserMailer.request_to_join(self.team, self.user, self.origin).deliver_now
   end
 
   def send_email_to_requestor
     if self.status_was === 'requested' && ['member', 'banned'].include?(self.status)
       accepted = self.status === 'member'
-      TeamUserMailer.request_to_join_processed(self.team, self.user, accepted).deliver_now
+      TeamUserMailer.request_to_join_processed(self.team, self.user, accepted, self.origin).deliver_now
     end
   end
 

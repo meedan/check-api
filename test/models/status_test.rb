@@ -352,4 +352,23 @@ class StatusTest < ActiveSupport::TestCase
     end
     assert_equal 'not_credible', s.reload.status
   end
+
+  test "should display status label" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Foo', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Bar', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+    m = create_valid_media
+    p = create_project team: t
+    s = create_status status: '1', context: p, annotated: m
+    assert_equal 'Foo', s.id_to_label('1')
+    assert_equal 'Bar', s.id_to_label('2')
+  end
 end

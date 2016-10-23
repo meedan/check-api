@@ -11,7 +11,7 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "non memebers should not access private team" do
+  test "non members should not access private team" do
     u = create_user
     t = create_team current_user: create_user
     pu = create_user

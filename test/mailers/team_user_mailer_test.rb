@@ -12,27 +12,27 @@ class TeamUserMailerTest < ActionMailer::TestCase
     create_team_user team: t, user: u, role: 'contributor'
     r = create_user
 
-    email = TeamUserMailer.request_to_join(t, u)
-    
+    email = TeamUserMailer.request_to_join(t, u, 'http://team.localhost:3333')
+
     assert_emails 1 do
       email.deliver_now
     end
-    
+
     assert_equal [CONFIG['default_mail']], email.from
     assert_equal ['owner1@mail.com', 'owner2@mail.com'], email.to
-    assert_match "/team/#{t.id}/members", email.body.parts.first.to_s
+    assert_match "/members", email.body.parts.first.to_s
   end
 
   test "should send request to join accepted email" do
     t = create_team
     u = create_user email: 'user@mail.com'
 
-    email = TeamUserMailer.request_to_join_processed(t, u, true)
-    
+    email = TeamUserMailer.request_to_join_processed(t, u, true, 'http://team.localhost:3333')
+
     assert_emails 1 do
       email.deliver_now
     end
-    
+
     assert_equal [CONFIG['default_mail']], email.from
     assert_equal ['user@mail.com'], email.to
     assert_match "accepted", email.body.parts.first.to_s
@@ -42,12 +42,12 @@ class TeamUserMailerTest < ActionMailer::TestCase
     t = create_team
     u = create_user email: 'user@mail.com'
 
-    email = TeamUserMailer.request_to_join_processed(t, u, false)
-    
+    email = TeamUserMailer.request_to_join_processed(t, u, false, 'http://team.localhost:3333')
+
     assert_emails 1 do
       email.deliver_now
     end
-    
+
     assert_equal [CONFIG['default_mail']], email.from
     assert_equal ['user@mail.com'], email.to
     assert_match "rejected", email.body.parts.first.to_s

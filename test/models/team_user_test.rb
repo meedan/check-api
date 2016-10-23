@@ -49,7 +49,7 @@ class TeamUserTest < ActiveSupport::TestCase
     assert tu.save
   end
 
-  test "non memebers should not read team user in private team" do
+  test "non members should not read team user in private team" do
     u = create_user
     t = create_team current_user: create_user
     tu = t.team_users.last
@@ -152,7 +152,7 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not downgrade user role" do
+  test "should not downgrade higher roles" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'journalist'
@@ -163,6 +163,26 @@ class TeamUserTest < ActiveSupport::TestCase
     assert_raise RuntimeError do
       tu.role = 'journalist'
       tu.save
+    end
+  end
+
+  test "should not change own role" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    assert_raise RuntimeError do
+      tu.context_team = t
+      tu.current_user = u
+      tu.role = 'editor'
+      tu.save!
+    end
+    u2 = create_user
+    tu2 = create_team_user team: t, user: u2, role: 'owner'
+    assert_nothing_raised RuntimeError do
+      tu2.context_team = t
+      tu2.current_user = u
+      tu2.role = 'editor'
+      tu2.save!
     end
   end
 

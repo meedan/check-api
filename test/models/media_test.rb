@@ -29,7 +29,7 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "non memebers should not read media in private team" do
+  test "non members should not read media in private team" do
     u = create_user
     t = create_team current_user: create_user
     m = create_media team: t
@@ -378,6 +378,8 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'youtube.com', m.domain
     m.url = 'localhost'
     assert_nil m.domain
+    m.url = nil
+    assert_nil m.domain
   end
 
   test "should set pender result as annotation" do
@@ -471,4 +473,22 @@ class MediaTest < ActiveSupport::TestCase
     m.save!
     assert_not_nil m.account.source
   end
+
+  test "should create reports claims" do
+    t = create_team
+    p = create_project team: t
+    m = Media.new
+    m.project_id = p.id
+    m.url = ''
+    m.information= {quote: 'Media quote A'}.to_json; m.save!
+    m.save!
+    assert_difference 'Media.count' do
+      m = Media.new
+      m.project_id = p.id
+      m.url = ''
+      m.information= {quote: 'Media quote B'}.to_json; m.save!
+      m.save!
+    end
+  end
+
 end

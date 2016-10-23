@@ -28,7 +28,7 @@ class UserTest < ActiveSupport::TestCase
     u2.destroy
   end
 
-  test "non memebers should not read users in private team" do
+  test "non members should not read users in private team" do
     u = create_user
     t = create_team
     u1 = create_user

@@ -60,6 +60,16 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal t, assigns(:context_team)
   end
 
+  test "should set context project" do
+    authenticate_with_user
+    t = create_team subdomain: 'context'
+    p = create_project team: t
+    @request.headers.merge!({ 'origin': 'http://context.localhost:3333' })
+    @request.env['HTTP_REFERER'] = "http://context.localhost:3333/project/#{p.id}"
+    post :create, query: 'query Query { about { name, version } }'
+    assert_equal p, assigns(:context_project)
+  end
+
   # Test CRUD operations for each model
 
   test "should create account" do
@@ -111,6 +121,9 @@ class GraphqlControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     info = {title: 'title', description: 'description', quote: 'media quote'}.to_json
     assert_graphql_create('media', { url: url, project_id: @project.id, information: info })
+    # test with empty URL
+    assert_graphql_create('media', { url: '', information: info })
+    assert_graphql_create('media', { information: info })
   end
 
   test "should read medias" do
@@ -507,7 +520,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media project_id: p.id
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { verification_statuses } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
-    post :create, query: query 
+    post :create, query: query
     assert_response :success
   end
 
@@ -519,7 +532,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source team: t
     query = "query GetById { source(id: \"#{s.id}\") { verification_statuses } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
-    post :create, query: query 
+    post :create, query: query
     assert_response :success
   end
 end

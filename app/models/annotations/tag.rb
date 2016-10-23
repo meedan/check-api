@@ -3,7 +3,7 @@ class Tag
 
   attribute :tag, String, presence: true
   validates_presence_of :tag
-  validates :tag, uniqueness: { fields: [:annotated_type, :annotated_id] }, if: lambda { |t| t.id.blank? }
+  validates :tag, uniqueness: { fields: [:annotated_type, :annotated_id, :context_type, :context_id] }, if: lambda { |t| t.id.blank? }
 
   def content
     { tag: self.tag }.to_json

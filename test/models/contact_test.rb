@@ -39,7 +39,7 @@ class ContactTest < ActiveSupport::TestCase
     end
   end
 
-  test "non memebers should not read contact in private team" do
+  test "non members should not read contact in private team" do
     u = create_user
     t = create_team current_user: create_user
     c = create_contact team: t

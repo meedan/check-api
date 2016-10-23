@@ -11,6 +11,7 @@ ENV DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app \
     RAILS_ENV=production \
     GITREPO=git@github.com:meedan/check-api.git \
+    PRODUCT=check \    
     APP=check-api
 
 #
