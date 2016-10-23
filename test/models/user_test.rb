@@ -340,4 +340,10 @@ class UserTest < ActiveSupport::TestCase
     assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
   end
 
+  test "should get handle" do
+    u = create_user provider: '', email: 'user@email.com'
+    assert_equal 'user@email.com', u.handle
+    u = create_user provider: 'facebook', login: 'user'
+    assert_equal 'user at Facebook', u.handle
+  end
 end

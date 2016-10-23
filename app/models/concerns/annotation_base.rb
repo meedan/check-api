@@ -331,7 +331,7 @@ module AnnotationBase
 
   # Supports only media for the time being
   def entity_objects
-    self.entities.collect{ |e| Media.find(e) }
+    self.entities.collect{ |e| Media.where(id: e).last }.reject{ |e| e.nil? }
   end
 
   protected

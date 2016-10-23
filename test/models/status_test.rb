@@ -70,7 +70,7 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', st.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'status' => ['', 'credible' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', st.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'entities' => ['', '[]'], 'status' => ['', 'credible' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when status is updated" do

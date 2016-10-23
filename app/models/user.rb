@@ -106,6 +106,10 @@ class User < ActiveRecord::Base
     TeamUser.where(user_id: self.id, team_id: team.id, status: 'member').exists?
   end
 
+  def handle
+    self.provider.blank? ? self.email : "#{self.login} at #{self.provider.capitalize}"
+  end
+
   private
 
   def create_source_and_account

@@ -34,7 +34,7 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal 1, f.versions.count
     v = f.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'flag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', f.annotator_id], 'flag' => ['', 'Spam' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'flag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', f.annotator_id], 'entities' => ['', '[]'], 'flag' => ['', 'Spam' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when flag is updated" do

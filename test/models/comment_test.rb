@@ -110,7 +110,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 1, c.versions.count
     v = c.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', c.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', c.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'entities' => ['', '[]'], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when comment is updated" do
