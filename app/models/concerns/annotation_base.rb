@@ -331,7 +331,16 @@ module AnnotationBase
 
   # Supports only media for the time being
   def entity_objects
-    self.entities.collect{ |e| Media.where(id: e).last }.reject{ |e| e.nil? }
+    objects = []
+    self.entities.collect do |e|
+      pm = ProjectMedia.where(id: e).last
+      unless pm.nil?
+        media = pm.media
+        media.project_id = pm.project_id
+        objects << media
+      end
+    end
+    objects
   end
 
   protected

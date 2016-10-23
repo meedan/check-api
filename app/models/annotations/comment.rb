@@ -37,8 +37,11 @@ class Comment
       words.each do |word|
         match = word.match(pattern)
         if !match.nil? && match[1] == team.subdomain
-          id = word.match(/\/project\/[0-9]+\/media\/([0-9]+)$/)
-          ids << id[1] unless id.nil?
+          path = word.match(/\/project\/([0-9]+)\/media\/([0-9]+)$/)
+          unless path.nil?
+            pm = ProjectMedia.where(project_id: path[1], media_id: path[2]).last
+            ids << pm.id unless pm.nil?
+          end
         end
       end
     end
