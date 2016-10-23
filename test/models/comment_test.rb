@@ -344,12 +344,13 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should extract Check URLs" do
     t1 = create_team subdomain: 'test'
-    p = create_project team: t1
+    p1 = create_project team: t1
+    p2 = create_project team: t1
     t2 = create_team subdomain: 'test2'
-    m1 = create_valid_media project_id: p.id
-    m2 = create_valid_media project_id: p.id
+    m1 = create_valid_media project_id: p1.id
+    m2 = create_valid_media project_id: p2.id
     m3 = create_valid_media team: t2
-    c = create_comment text: "Please check reports http://test.localhost:3333/project/#{p.id}/media/#{m1.id} and http://test.localhost:3333/project/#{p.id}/media/#{m2.id} and http://test2.localhost:3333/project/1/media/#{m3.id} because they are nice", context: p
+    c = create_comment text: "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{m1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{m2.id} and http://test2.localhost:3333/project/1/media/#{m3.id} because they are nice", context: p1
     assert_includes c.entity_objects, m1
     assert_includes c.entity_objects, m2
     refute_includes c.entity_objects, m3
