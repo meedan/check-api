@@ -206,6 +206,12 @@ class GraphqlCrudOperations
           annotation.annotator
         }
       end
+
+      connection :medias, -> { MediaType.connection_type } do
+        resolve ->(annotation, _args, _ctx) {
+          annotation.entity_objects
+        }
+      end
     end
   end
 

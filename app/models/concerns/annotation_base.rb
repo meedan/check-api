@@ -77,6 +77,7 @@ module AnnotationBase
     attribute :context_id, String
     attribute :annotator_type, String
     attribute :annotator_id, String
+    attribute :entities, Array
 
     notifies_pusher on: :save,
                     if: proc { |a| a.annotated_type === 'Media' && a.context_type === 'Project' },
@@ -326,6 +327,11 @@ module AnnotationBase
 
   def should_notify?
     self.current_user.present? && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'Media'
+  end
+
+  # Supports only media for the time being
+  def entity_objects
+    self.entities.collect{ |e| Media.find(e) }
   end
 
   protected
