@@ -79,7 +79,6 @@ QueryType = GraphQL::ObjectType.define do
     argument :query, !types.String
 
     resolve -> (_obj, args, _ctx) do
-      args['query']
       search = CheckSearch.new
       result = search.create(args['query'])
     end
