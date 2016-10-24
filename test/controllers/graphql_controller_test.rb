@@ -536,14 +536,4 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should search media" do
-    u = create_user
-    authenticate_with_user(u)
-    info =  {keyword: 'title_a'}.to_json
-    query = "query GetById { search(query: #{info}) { } }"
-    post :create, query: query
-    #assert_response :success
-    pp JSON.parse(@response.body)
-  end
-
 end

@@ -94,12 +94,7 @@ class Media < ActiveRecord::Base
   end
 
   def overriden_embed_attributes
-    all_attributes = Embed.column_names
-    basic_attributes = [
-      :created_at, :updated_at, :annotation_type, :version_index, :annotated_type, :annotated_id,
-      :context_type, :context_id, :annotator_type, :annotator_id, :published_at, :embed
-    ]
-    all_attributes - basic_attributes
+    %W(title description username quote)
   end
 
   private
