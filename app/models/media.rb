@@ -45,11 +45,7 @@ class Media < ActiveRecord::Base
     context = context.nil? ? 'none' : context
     em_pender = self.annotations('embed', context).last
     embed = JSON.parse(em_pender.embed) unless em_pender.nil?
-    unless embed.nil?
-      ['title', 'description', 'quote'].each do |k|
-        embed[k] = em_pender[k] unless em_pender[k].nil?
-      end
-    end
+    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender[sk] unless em_pender[sk].nil? } unless embed.nil?
     embed
   end
 
@@ -95,6 +91,15 @@ class Media < ActiveRecord::Base
     em.annotator = self.current_user unless self.current_user.nil?
     em.context = self.project unless self.project.nil?
     em
+  end
+
+  def overriden_embed_attributes
+    all_attributes = Embed.column_names
+    basic_attributes = [
+      :created_at, :updated_at, :annotation_type, :version_index, :annotated_type, :annotated_id,
+      :context_type, :context_id, :annotator_type, :annotator_id, :published_at, :embed
+    ]
+    all_attributes - basic_attributes
   end
 
   private
@@ -154,7 +159,7 @@ class Media < ActiveRecord::Base
           em.id = nil
         end
       end
-      %w(title description quote).each{ |k| em.send("#{k}=", info[k]) unless info[k].blank? }
+      info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?k and !v.blank? }
       em.save!
     end
   end
