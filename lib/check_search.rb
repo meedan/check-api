@@ -17,9 +17,10 @@ class CheckSearch
     unless options["status"].blank?
       ids = build_search_query_c(ids, options["status"])
     end
-    result = Array.new
-    ids.each {|id| result << Media.find(id)}
-    result
+    result = Media.where(id: ids)
+    #result = Array.new
+    #ids.each {|id| result << Media.find(id)}
+    #result
   end
 
   def build_search_query_a(options)
@@ -30,7 +31,7 @@ class CheckSearch
     end
     filters = [{"term": { "annotation_type": "embed"}}]
     filters << {"term": { "annotated_type": "media"}}
-    filters << {"terms": { "context_id": options["project"]}} unless options["project"].blank?
+    filters << {"terms": { "context_id": options["projects"]}} unless options["projects"].blank?
     filter = { bool: { must: [ filters ] } }
     get_query_result(query, filter)
   end
@@ -40,7 +41,7 @@ class CheckSearch
     filters = Array.new
     filters << [{"terms": { "tag": options["tags"]}}] unless options["tags"].blank?
     filter = {bool: { should: filters  } }
-    filter[:bool][:must] = { "terms": {"context_id": options["project"]} } unless options["project"].blank?
+    filter[:bool][:must] = { "terms": {"context_id": options["projects"]} } unless options["projects"].blank?
     get_query_result(query, filter)
   end
 
