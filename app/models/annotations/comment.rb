@@ -4,7 +4,7 @@ class Comment
   attribute :text, String, presence: true
   validates_presence_of :text
 
-  before_save :extract_check_urls
+  before_save :extract_check_entities
 
   notifies_slack on: :save,
                  if: proc { |c| c.should_notify? },
@@ -25,11 +25,10 @@ class Comment
     mapping_ids[value]
   end
 
-  private
+  protected
 
-  # Supports only media for the time being
   def extract_check_urls
-    ids = []
+    urls = []
     team = self.context_type === 'Project' ? self.context.team : nil
     if team
       words = self.text.to_s.split(/\s+/)
@@ -37,12 +36,23 @@ class Comment
       words.each do |word|
         match = word.match(pattern)
         if !match.nil? && match[1] == team.subdomain
-          path = word.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
-          unless path.nil?
-            pm = ProjectMedia.where(project_id: path[1], media_id: path[2]).last
-            ids << pm.id unless pm.nil?
-          end
+          urls << word
         end
+      end
+    end
+    urls
+  end
+
+  private
+
+  # Supports only media for the time being
+  def extract_check_entities
+    ids = []
+    self.extract_check_urls.each do |url|
+      match = url.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
+      unless match.nil?
+        pm = ProjectMedia.where(project_id: match[1], media_id: match[2]).last
+        ids << pm.id unless pm.nil?
       end
     end
     self.entities = ids
