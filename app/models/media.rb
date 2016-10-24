@@ -42,19 +42,10 @@ class Media < ActiveRecord::Base
   end
 
   def data(context = nil)
-    # TODO: change the assumption for a one Pender result
-    em_pender = self.annotations('embed').last
+    context = context.nil? ? 'none' : context
+    em_pender = self.annotations('embed', context).last
     embed = JSON.parse(em_pender.embed) unless em_pender.nil?
-    # TODO: call annotations with context
-    em_u = self.annotations('embed')
-    context_id = context.nil? ? nil : context.id
-    em_u.reverse.each do |obj|
-      if obj.context_id.to_i == context_id.to_i
-        ['title', 'description', 'quote'].each do |k|
-          embed[k] = obj[k] unless obj[k].nil?
-        end
-      end
-    end
+    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender[sk] unless em_pender[sk].nil? } unless embed.nil?
     embed
   end
 
@@ -91,6 +82,24 @@ class Media < ActiveRecord::Base
 
   def project
     Project.find(self.project_id) if self.project_id
+  end
+
+  def create_new_embed
+    em = Embed.new
+    em.embed = self.information
+    em.annotated = self
+    em.annotator = self.current_user unless self.current_user.nil?
+    em.context = self.project unless self.project.nil?
+    em
+  end
+
+  def overriden_embed_attributes
+    all_attributes = Embed.column_names
+    basic_attributes = [
+      :created_at, :updated_at, :annotation_type, :version_index, :annotated_type, :annotated_id,
+      :context_type, :context_id, :annotator_type, :annotator_id, :published_at, :embed
+    ]
+    all_attributes - basic_attributes
   end
 
   private
@@ -137,12 +146,20 @@ class Media < ActiveRecord::Base
   def set_information
     unless self.information.blank?
       info = JSON.parse(self.information)
-      em = Embed.new
-      %w(title description quote).each{ |k| em.send("#{k}=", info[k]) unless info[k].blank? }
-      em.embed = info.to_json
-      em.annotated = self
-      em.annotator = self.current_user unless self.current_user.nil?
-      em.context = self.project unless self.project.nil?
+      em_context = self.project.nil? ? nil : self.annotations('embed', self.project).last
+      em_none = self.annotations('embed', 'none').last
+      if em_context.nil? and em_none.nil?
+        em = self.create_new_embed
+      elsif self.project.nil?
+        em = em_none.nil? ? self.create_new_embed : em_none
+      else
+        em = em_context.nil? ? (em_none.nil? ? self.create_new_embed : em_none) : em_context
+        if em.context.nil?
+          em.context = self.project
+          em.id = nil
+        end
+      end
+      info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?k and !v.blank? }
       em.save!
     end
   end
