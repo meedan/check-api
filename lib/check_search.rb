@@ -28,9 +28,9 @@ class CheckSearch
     else
       query = { query_string: { query: options["keyword"], fields:  %w(title description quote) } }
     end
-    filters = [{"term": { "annotation_type": "embed"}}]
-    filters << {"term": { "annotated_type": "media"}}
-    filters << {"terms": { "context_id": options["projects"]}} unless options["projects"].blank?
+    filters = [{term: { annotation_type: "embed"}}]
+    filters << {term: { annotated_type: "media"}}
+    filters << {terms: { context_id: options["projects"]}} unless options["projects"].blank?
     filter = { bool: { must: [ filters ] } }
     get_query_result(query, filter)
   end
@@ -38,9 +38,9 @@ class CheckSearch
   def build_search_query_b(options)
     query = { match_all: {} }
     filters = []
-    filters << {"terms": { "tag": options["tags"]}} unless options["tags"].blank?
+    filters << {terms: { tag: options["tags"]}} unless options["tags"].blank?
     filter = {bool: { should: filters  } }
-    filter[:bool][:must] = { "terms": {"context_id": options["projects"]} } unless options["projects"].blank?
+    filter[:bool][:must] = { terms: { context_id: options["projects"]} } unless options["projects"].blank?
     get_query_result(query, filter)
   end
 
@@ -59,7 +59,7 @@ class CheckSearch
           latest_status: {
             top_hits: {
               sort: [ { created_at: { order: :desc} } ],
-              _source: { "include": [ "status"] },
+              _source: { include: [ "status"] },
               size: 1
             }
           }
