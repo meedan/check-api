@@ -1,12 +1,74 @@
 class Status
   include AnnotationBase
 
-  MEDIA_CORE_VERIFICATION_STATUSES = ['Undetermined', 'Not Applicable', 'In Progress', 'Verified', 'False']
+  MEDIA_CORE_VERIFICATION_STATUSES = [
+    {
+      id: 'undetermined',
+      label: 'Unstarted',
+      description: 'Default, just added to Check, no work has started',
+      style: ''
+    },
+    {
+      id: 'not_applicable',
+      label: 'Inconclusive',
+      description: 'No conclusion can be made with the available evidence',
+      style: ''
+    },
+    {
+      id: 'in_progress',
+      label: 'In Progress',
+      description: 'Work has begun, but no conclusion made yet',
+      style: ''
+    },
+    {
+      id: 'false',
+      label: 'False',
+      description: 'Conclusion: the report is false',
+      style: ''
+    },
+    {
+      id: 'verified',
+      label: 'Verified',
+      description: 'Conclusion: the report is verified',
+      style: ''
+    }
+  ]
 
-  SOURCE_CORE_VERIFICATION_STATUSES = ['Undetermined', 'Credible', 'Not Credible', 'Slightly Credible', 'Sockpuppet']
+  SOURCE_CORE_VERIFICATION_STATUSES = [
+    {
+      id: 'undetermined',
+      label: 'Unstarted',
+      description: 'Default, just added to Check, no work has started',
+      style: ''
+    },
+    {
+      id: 'credible',
+      label: 'Credible',
+      description: 'Conclusion: the source is credible',
+      style: ''
+    },
+    {
+      id: 'not_credible',
+      label: 'Not Credible',
+      description: 'Conclusion: the source is not credible',
+      style: ''
+    },
+    {
+      id: 'slightly_credible',
+      label: 'Slightly Credible',
+      description: 'Conclusion: the source is slightly credible',
+      style: ''
+    },
+    {
+      id: 'sockpuppet',
+      label: 'Sockpuppet',
+      description: 'Conclusion: the source is a sockpuppet',
+      style: ''
+    }
+  ]
 
   attribute :status, String, presence: true
-  
+
   validates_presence_of :status
   validates :annotated_type, included: { values: ['Media', 'Source', nil] }
   validate :status_is_valid
@@ -20,21 +82,13 @@ class Status
   before_validation :store_previous_status, :normalize_status
 
   def self.core_verification_statuses(annotated_type)
-    statuses = begin
-      "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize.collect do |status|
-        { id: status.downcase.tr(' ', '_'), label: status, description: status, style: '' }
-      end
-    rescue NameError
-      [{ id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }]
-    end
-
     {
       label: 'Status',
       default: 'undetermined',
-      statuses: statuses
+      statuses: "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize
     }
   end
-  
+
   def store_previous_status
     self.previous_annotated_status = self.annotated.last_status(self.context) if self.annotated.respond_to?(:last_status)
     self.previous_annotated_status ||= Status.default_id(self.annotated, self.context)
@@ -43,7 +97,7 @@ class Status
   def previous_annotated_status
     @previous_annotated_status
   end
-  
+
   def previous_annotated_status=(status)
     @previous_annotated_status = status
   end
