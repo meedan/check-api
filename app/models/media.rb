@@ -97,7 +97,7 @@ class Media < ActiveRecord::Base
     all_attributes = Embed.column_names
     basic_attributes = [
       :created_at, :updated_at, :annotation_type, :version_index, :annotated_type, :annotated_id,
-      :context_type, :context_id, :annotator_type, :annotator_id, :published_at, :embed
+      :context_type, :context_id, :annotator_type, :annotator_id, :published_at, :embed, :entities
     ]
     all_attributes - basic_attributes
   end
