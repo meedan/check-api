@@ -14,9 +14,8 @@ class CheckSearch
       ids = ids & result_ids
     end
     # query_c to fetch status
-    unless options["status"].blank?
-      ids = build_search_query_c(ids, options["status"])
-    end
+    ids = build_search_query_c(ids, options["status"]) unless options["status"].blank?
+
     result = Media.where(id: ids)
     #result = Array.new
     #ids.each {|id| result << Media.find(id)}
@@ -38,8 +37,8 @@ class CheckSearch
 
   def build_search_query_b(options)
     query = { match_all: {} }
-    filters = Array.new
-    filters << [{"terms": { "tag": options["tags"]}}] unless options["tags"].blank?
+    filters = []
+    filters << {"terms": { "tag": options["tags"]}} unless options["tags"].blank?
     filter = {bool: { should: filters  } }
     filter[:bool][:must] = { "terms": {"context_id": options["projects"]} } unless options["projects"].blank?
     get_query_result(query, filter)
