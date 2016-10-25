@@ -174,7 +174,6 @@ class GraphqlCrudOperations
   def self.define_annotation_type(type, fields = {})
     GraphQL::ObjectType.define do
       name type.capitalize
-      description "#{type.capitalize} type"
 
       interfaces [NodeIdentification.interface]
 
@@ -191,12 +190,8 @@ class GraphqlCrudOperations
         }
       end
 
-      mapping = {
-        'str' => types.String
-      }
-
-      fields.each do |name, field_type|
-        field name, mapping[field_type]
+      fields.each do |name, _field_type|
+        field name, types.String
       end
 
       field :annotator do
@@ -204,6 +199,12 @@ class GraphqlCrudOperations
 
         resolve -> (annotation, _args, _ctx) {
           annotation.annotator
+        }
+      end
+
+      connection :medias, -> { MediaType.connection_type } do
+        resolve ->(annotation, _args, _ctx) {
+          annotation.entity_objects
         }
       end
     end

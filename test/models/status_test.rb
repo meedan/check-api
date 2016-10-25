@@ -70,7 +70,7 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', st.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'status' => ['', 'credible' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', st.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'entities' => ['', '[]'], 'status' => ['', 'credible' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when status is updated" do
@@ -251,7 +251,7 @@ class StatusTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create status with invalid annotated" do
+  test "should not create status with invalid annotated type" do
     assert_no_difference 'Status.length' do
       assert_raises RuntimeError do
         create_status(status: 'false', annotated_type: 'Project', annotated_id: create_project.id)
@@ -274,15 +274,15 @@ class StatusTest < ActiveSupport::TestCase
     s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
     assert s.sent_to_slack
   end
-  
+
   test "should validate status" do
     t = create_team
     p = create_project team: t
     m = create_valid_media
-    
+
     assert_difference('Status.length') { create_status annotated: m, context: p, status: 'in_progress' }
     assert_raises(RuntimeError) { create_status annotated: m, context: p, status: '1' }
-    
+
     value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
@@ -298,19 +298,19 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media
-    
+
     assert_equal 'undetermined', Status.default_id(m.reload, p.reload)
-    
+
     value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
-    
+
     assert_equal '1', Status.default_id(m.reload, p.reload)
 
     value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }] }
     t.set_media_verification_statuses(value)
     t.save!
-    
+
     assert_equal 'first', Status.default_id(m.reload, p.reload)
     assert_equal 'undetermined', Status.default_id(m.reload)
   end

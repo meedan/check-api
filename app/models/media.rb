@@ -141,14 +141,15 @@ class Media < ActiveRecord::Base
   def set_information
     unless self.information.blank?
       info = JSON.parse(self.information)
-      em_context = self.project.nil? ? nil : self.annotations('embed', self.project).last
+      em_context = self.annotations('embed', self.project).last unless self.project.nil?
       em_none = self.annotations('embed', 'none').last
       if em_context.nil? and em_none.nil?
         em = self.create_new_embed
       elsif self.project.nil?
         em = em_none.nil? ? self.create_new_embed : em_none
       else
-        em = em_context.nil? ? (em_none.nil? ? self.create_new_embed : em_none) : em_context
+        em = em_context unless em_context.nil?
+        em = em_none.nil? ? self.create_new_embed : em_none if em.nil?
         if em.context.nil?
           em.context = self.project
           em.id = nil

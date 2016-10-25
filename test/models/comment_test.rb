@@ -110,7 +110,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 1, c.versions.count
     v = c.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', c.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', c.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'entities' => ['', '[]'], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when comment is updated" do
@@ -335,5 +335,24 @@ class CommentTest < ActiveSupport::TestCase
   test "should notify Pusher when annotation is created" do
     c = create_comment annotated: create_valid_media, context: create_project
     assert c.sent_to_pusher
+  end
+
+  test "should have entities" do
+    c = Comment.new
+    assert_kind_of Array, c.entities
+  end
+
+  test "should extract Check URLs" do
+    t1 = create_team subdomain: 'test'
+    p1 = create_project team: t1
+    p2 = create_project team: t1
+    t2 = create_team subdomain: 'test2'
+    m1 = create_valid_media project_id: p1.id
+    m2 = create_valid_media project_id: p2.id
+    m3 = create_valid_media team: t2
+    c = create_comment text: "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{m1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{m2.id} and http://test2.localhost:3333/project/1/media/#{m3.id} because they are nice", context: p1
+    assert_includes c.entity_objects, m1
+    assert_includes c.entity_objects, m2
+    refute_includes c.entity_objects, m3
   end
 end

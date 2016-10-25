@@ -46,6 +46,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
+    CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
     [Media, Account, Source, User].each{ |m| m.destroy_all }
     Rails.cache.clear if File.exists?(File.join(Rails.root, 'tmp', 'cache'))
     Rails.application.reload_routes!
@@ -53,7 +54,6 @@ class ActiveSupport::TestCase
     @url = 'https://www.youtube.com/user/MeedanTube'
     @team = create_team
     @project = create_project team: @team
-    CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
     ::Pusher.stubs(:trigger).returns(nil)
     Rails.unstub(:env)
   end

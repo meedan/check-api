@@ -1,0 +1,53 @@
+---
+MEDIA_CORE_VERIFICATION_STATUSES:
+  -
+    :description: "Default, just added to Check, no work has started"
+    :id: undetermined
+    :label: Unstarted
+    :style: ""
+  -
+    :description: "No conclusion can be made with the available evidence"
+    :id: not_applicable
+    :label: Inconclusive
+    :style: ""
+  -
+    :description: "Work has begun, but no conclusion made yet"
+    :id: in_progress
+    :label: "In Progress"
+    :style: ""
+  -
+    :description: "Conclusion: the report is false"
+    :id: "false"
+    :label: "False"
+    :style: ""
+  -
+    :description: "Conclusion: the report is verified"
+    :id: verified
+    :label: Verified
+    :style: ""
+SOURCE_CORE_VERIFICATION_STATUSES:
+  -
+    :description: "Default, just added to Check, no work has started"
+    :id: undetermined
+    :label: Unstarted
+    :style: ""
+  -
+    :description: "Conclusion: the source is credible"
+    :id: credible
+    :label: Credible
+    :style: ""
+  -
+    :description: "Conclusion: the source is not credible"
+    :id: not_credible
+    :label: "Not Credible"
+    :style: ""
+  -
+    :description: "Conclusion: the source is slightly credible"
+    :id: slightly_credible
+    :label: "Slightly Credible"
+    :style: ""
+  -
+    :description: "Conclusion: the source is a sockpuppet"
+    :id: sockpuppet
+    :label: Sockpuppet
+    :style: ""

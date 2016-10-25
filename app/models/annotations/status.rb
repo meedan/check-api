@@ -1,12 +1,8 @@
 class Status
   include AnnotationBase
 
-  MEDIA_CORE_VERIFICATION_STATUSES = ['Undetermined', 'Not Applicable', 'In Progress', 'Verified', 'False']
-
-  SOURCE_CORE_VERIFICATION_STATUSES = ['Undetermined', 'Credible', 'Not Credible', 'Slightly Credible', 'Sockpuppet']
-
   attribute :status, String, presence: true
-  
+
   validates_presence_of :status
   validates :annotated_type, included: { values: ['Media', 'Source', nil] }
   validate :status_is_valid
@@ -20,13 +16,9 @@ class Status
   before_validation :store_previous_status, :normalize_status
 
   def self.core_verification_statuses(annotated_type)
-    statuses = begin
-      "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize.collect do |status|
-        { id: status.downcase.tr(' ', '_'), label: status, description: status, style: '' }
-      end
-    rescue NameError
-      [{ id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }]
-    end
+    core_statuses = YAML.load_file(File.join(Rails.root, 'config', 'core_statuses.yml'))
+    key = "#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES"
+    statuses = core_statuses.has_key?(key) ? core_statuses[key] : [{ id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }]
 
     {
       label: 'Status',
@@ -34,7 +26,7 @@ class Status
       statuses: statuses
     }
   end
-  
+
   def store_previous_status
     self.previous_annotated_status = self.annotated.last_status(self.context) if self.annotated.respond_to?(:last_status)
     self.previous_annotated_status ||= Status.default_id(self.annotated, self.context)
@@ -43,7 +35,7 @@ class Status
   def previous_annotated_status
     @previous_annotated_status
   end
-  
+
   def previous_annotated_status=(status)
     @previous_annotated_status = status
   end
