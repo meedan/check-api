@@ -1,39 +1,35 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
-class SearchControllerTest < ActionController::TestCase
-  def setup
-    super
-    @controller = CheckSearch.new
-  end
+class CheckSearchControllerTest < ActionController::TestCase
 
   test "should search with keyword" do
     keyword = {keyword: "search_title"}.to_json
-    result = @controller.create(keyword)
-    assert_empty result
+    result = CheckSearch.new(keyword)
+    assert_not result.medias.count
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    result = @controller.create(keyword)
+    result = CheckSearch.new(keyword)
     assert_equal [m.id], result.map(&:id)
     # overide title then search
     create_media_information(media: m, title: 'search_title_a', quote: 'search_quote')
-    result = @controller.create(keyword)
+    result = CheckSearch.new(keyword)
     assert_empty result
     # search by overriden title
-    result = @controller.create({keyword: "search_title_a"}.to_json)
+    result = CheckSearch.new({keyword: "search_title_a"}.to_json)
     assert_equal [m.id], result.map(&:id)
     # search in description and quote
-    result = @controller.create({keyword: "search_desc"}.to_json)
+    result = CheckSearch.new({keyword: "search_desc"}.to_json)
     assert_equal [m.id], result.map(&:id)
-    result = @controller.create({keyword: "search_quote"}.to_json)
+    result = CheckSearch.new({keyword: "search_quote"}.to_json)
     assert_equal [m.id], result.map(&:id)
     # add keyword to multiple medias
     m2 = create_valid_media
     create_media_information(media: m2, quote: 'search_quote')
-    result = @controller.create({keyword: "search_quote"}.to_json)
-    #assert_equal [m.id, m2.id].sort, result.map(&:id).sort
+    result = CheckSearch.new({keyword: "search_quote"}.to_json)
+    assert_equal [m.id, m2.id].sort, result.map(&:id).sort
   end
 
   test "should search with context" do

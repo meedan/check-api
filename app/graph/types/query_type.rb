@@ -73,14 +73,13 @@ QueryType = GraphQL::ObjectType.define do
   end
 
   field :search do
-    type SearchResultType
+    type CheckSearchType
     description 'Search medias, The argument should be given like this: "{\"keyword\":\"search keyword\"}"'
 
     argument :query, !types.String
 
     resolve -> (_obj, args, _ctx) do
-      search = CheckSearch.new
-      search.create(args['query'])
+      CheckSearch.new(args['query'])
     end
   end
 
