@@ -16,8 +16,8 @@ class Media < ActiveRecord::Base
   validate :url_is_unique, on: :create
 
   before_validation :set_url_nil_if_empty, :set_user, on: :create
-  after_create :set_pender_result_as_annotation, :set_project, :set_account
-  after_save :set_information
+  after_create :set_pender_result_as_annotation, :set_information, :set_project, :set_account
+  after_update :set_information
   after_rollback :duplicate
 
 
@@ -42,8 +42,8 @@ class Media < ActiveRecord::Base
   end
 
   def data(context = nil)
-    context = context.nil? ? 'none' : context
-    em_pender = self.annotations('embed', context).last
+    em_pender = self.annotations('embed', context).last unless context.nil?
+    em_pender = self.annotations('embed', 'none').last if em_pender.nil?
     embed = JSON.parse(em_pender.embed) unless em_pender.nil?
     self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender[sk] unless em_pender[sk].nil? } unless embed.nil?
     embed
