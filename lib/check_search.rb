@@ -15,11 +15,7 @@ class CheckSearch
     end
     # query_c to fetch status
     ids = build_search_query_c(ids, options["status"]) unless options["status"].blank?
-
-    result = Media.where(id: ids)
-    #result = Array.new
-    #ids.each {|id| result << Media.find(id)}
-    #result
+    Media.where(id: ids)
   end
 
   def build_search_query_a(options)

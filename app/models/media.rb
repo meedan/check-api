@@ -149,7 +149,9 @@ class Media < ActiveRecord::Base
         em = em_none.nil? ? self.create_new_embed : em_none
       else
         em = em_context unless em_context.nil?
-        em = em_none.nil? ? self.create_new_embed : em_none if em.nil?
+        if em.nil?
+          em = em_none.nil? ? self.create_new_embed : em_none
+        end
         if em.context.nil?
           em.context = self.project
           em.id = nil
