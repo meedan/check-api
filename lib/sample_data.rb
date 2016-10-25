@@ -223,6 +223,16 @@ module SampleData
     m.reload
   end
 
+  def create_claim_media(options = {})
+    options = { information: {quote: random_string}.to_json }.merge(options)
+    m = Media.new
+    options.each do |key, value|
+      m.send("#{key}=", value) if m.respond_to?("#{key}=")
+    end
+    m.save!
+    m.reload
+  end
+
   def create_source(options = {})
     source = Source.new
     source.name = options[:name] || random_string
