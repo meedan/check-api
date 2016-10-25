@@ -273,6 +273,10 @@ class StatusTest < ActiveSupport::TestCase
     m = create_valid_media
     s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
     assert s.sent_to_slack
+    # claim report
+    m = create_claim_media project_id: p.id
+    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
+    assert s.sent_to_slack
   end
 
   test "should validate status" do

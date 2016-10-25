@@ -116,13 +116,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m, origin: 'http://localhost:3333', current_user: u, context_team: t
     assert pm.sent_to_slack
     # claim media
-    m = Media.new
-    info = {quote: 'media quote'}.to_json
-    m.information= info
-    m.project_id = p.id
-    m.origin = 'http://localhost:3333'
-    m.current_user = u
-    m.save!
+    m = create_claim_media project_id: p.id, origin: 'http://localhost:3333', current_user: u
     pm = create_project_media project: p, media: m, origin: 'http://localhost:3333', current_user: u, context_team: t
     assert pm.sent_to_slack
   end
