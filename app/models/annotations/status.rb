@@ -1,72 +1,6 @@
 class Status
   include AnnotationBase
 
-  MEDIA_CORE_VERIFICATION_STATUSES = [
-    {
-      id: 'undetermined',
-      label: 'Unstarted',
-      description: 'Default, just added to Check, no work has started',
-      style: ''
-    },
-    {
-      id: 'not_applicable',
-      label: 'Inconclusive',
-      description: 'No conclusion can be made with the available evidence',
-      style: ''
-    },
-    {
-      id: 'in_progress',
-      label: 'In Progress',
-      description: 'Work has begun, but no conclusion made yet',
-      style: ''
-    },
-    {
-      id: 'false',
-      label: 'False',
-      description: 'Conclusion: the report is false',
-      style: ''
-    },
-    {
-      id: 'verified',
-      label: 'Verified',
-      description: 'Conclusion: the report is verified',
-      style: ''
-    }
-  ]
-
-  SOURCE_CORE_VERIFICATION_STATUSES = [
-    {
-      id: 'undetermined',
-      label: 'Unstarted',
-      description: 'Default, just added to Check, no work has started',
-      style: ''
-    },
-    {
-      id: 'credible',
-      label: 'Credible',
-      description: 'Conclusion: the source is credible',
-      style: ''
-    },
-    {
-      id: 'not_credible',
-      label: 'Not Credible',
-      description: 'Conclusion: the source is not credible',
-      style: ''
-    },
-    {
-      id: 'slightly_credible',
-      label: 'Slightly Credible',
-      description: 'Conclusion: the source is slightly credible',
-      style: ''
-    },
-    {
-      id: 'sockpuppet',
-      label: 'Sockpuppet',
-      description: 'Conclusion: the source is a sockpuppet',
-      style: ''
-    }
-  ]
-
   attribute :status, String, presence: true
 
   validates_presence_of :status
@@ -82,10 +16,14 @@ class Status
   before_validation :store_previous_status, :normalize_status
 
   def self.core_verification_statuses(annotated_type)
+    core_statuses = YAML.load_file(File.join(Rails.root, 'config', 'core_statuses.yml'))
+    key = "#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES"
+    statuses = core_statuses.has_key?(key) ? core_statuses[key] : [{ id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }]
+
     {
       label: 'Status',
       default: 'undetermined',
-      statuses: "Status::#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES".constantize
+      statuses: statuses
     }
   end
 
