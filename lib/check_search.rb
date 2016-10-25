@@ -20,14 +20,14 @@ class CheckSearch
     Media.where(id: ids)
   end
 
-  def result
+  def search_result
     self.create
   end
 
   def medias
     # should loop in search result and return media
     # for now all results are media
-    self.result
+    self.search_result
   end
 
   private
