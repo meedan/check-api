@@ -540,7 +540,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     info =  {keyword: 'title_a'}.to_json
-    query = "query GetById { search(query: \"test\") { medias } }"
+    query = "query GetById { search(query: \"#{info}\") { medias } }"
     post :create, query: query
     assert_response :success
     pp JSON.parse(@response.body)
