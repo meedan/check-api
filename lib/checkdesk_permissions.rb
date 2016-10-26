@@ -62,7 +62,7 @@ module CheckdeskPermissions
         model = data.new
         model.current_user = self.current_user
         model.context_team = self.context_team
-        
+
         if model.respond_to?(:team_id) and self.context_team.present?
           model.team_id = self.context_team.id
         end
@@ -76,8 +76,9 @@ module CheckdeskPermissions
   end
 
   def set_project_for_permissions(model)
-    if self.class.name == 'Media' and model.respond_to?(:media_id)
-      model.media_id = self.id
+    if self.class.name == 'Media'
+      model.media_id = self.id if model.respond_to?(:media_id)
+      model.annotated = self if model.respond_to?(:annotated)
     end
     unless self.project.nil?
       model.project_id = self.project.id if model.respond_to?(:project_id)
