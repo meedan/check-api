@@ -145,7 +145,7 @@ class Media < ActiveRecord::Base
 
   def set_information
     info = self.information.blank? ? {} : JSON.parse(self.information)
-    unless info.all? {|k, v| v.blank?}
+    unless info.all? {|_k, v| v.blank?}
       em_context = self.annotations('embed', self.project).last unless self.project.nil?
       em_none = self.annotations('embed', 'none').last
       if em_context.nil? and em_none.nil?
