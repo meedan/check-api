@@ -383,8 +383,21 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should set pender result as annotation" do
-    m = create_valid_media
+    p = create_project
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url, project_id: p.id, information: {}.to_json)
+    assert_equal 1, m.annotations('embed').count
     assert_equal [m.id.to_s], m.annotations('embed').map(&:annotated_id)
+    # override title for project p
+    m.project_id = p.id
+    m.information = {title: 'new title'}.to_json; m.save!
+    # check annotations count for all, none and p
+    assert_equal 2, m.annotations('embed').count
+    assert_equal 1, m.annotations('embed', p).count
+    assert_equal 1, m.annotations('embed', 'none').count
   end
 
   test "should add claim additions to media" do

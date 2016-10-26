@@ -144,8 +144,8 @@ class Media < ActiveRecord::Base
   end
 
   def set_information
-    unless self.information.blank?
-      info = JSON.parse(self.information)
+    info = self.information.blank? ? {} : JSON.parse(self.information)
+    unless info.all? {|k, v| v.blank?}
       em_context = self.annotations('embed', self.project).last unless self.project.nil?
       em_none = self.annotations('embed', 'none').last
       if em_context.nil? and em_none.nil?
@@ -162,6 +162,7 @@ class Media < ActiveRecord::Base
       end
       info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?k and !v.blank? }
       em.save!
+      self.information = {}.to_json
     end
   end
 

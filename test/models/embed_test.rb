@@ -145,8 +145,6 @@ class EmbedTest < ActiveSupport::TestCase
     assert_equal [u3].sort, s2.annotators
   end
 
-
-
   test "should set annotator if not set" do
     u1 = create_user
     u2 = create_user
