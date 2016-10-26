@@ -473,6 +473,18 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
   end
 
+  test "should journalist edit own status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team:t, user: u, role: 'journalist'
+    p = create_project team: t, user: create_user
+    m = create_valid_media project_id: p.id, user: u
+    m.context_team = t
+    m.current_user = u
+    m.project_id = p.id
+    assert JSON.parse(m.permissions)['create Status']
+  end
+
   test "should create source for Flickr media" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'https://www.flickr.com/photos/bees/2341623661'
