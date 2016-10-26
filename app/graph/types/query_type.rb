@@ -80,7 +80,6 @@ QueryType = GraphQL::ObjectType.define do
 
     resolve -> (_obj, args, _ctx) do
       check_search = CheckSearch.new(args['query'])
-      check_search.search_result
     end
   end
 

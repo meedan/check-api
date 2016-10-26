@@ -539,11 +539,20 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should search media" do
     u = create_user
     authenticate_with_user(u)
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
     info =  {keyword: 'title_a'}.to_json
-    query = "query GetById { search(query: \"#{info}\") { medias } }"
+    query = "query Search { search(query: \"test\") { medias(first: 10) { edges { node { dbid } } } } }"
     post :create, query: query
     assert_response :success
-    pp JSON.parse(@response.body)
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [m.id], ids
   end
 
 end
