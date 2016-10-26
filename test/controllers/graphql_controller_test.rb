@@ -544,8 +544,7 @@ class GraphqlControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    info =  {keyword: 'title_a'}.to_json
-    query = "query Search { search(query: \"test\") { medias(first: 10) { edges { node { dbid } } } } }"
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\"}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
     ids = []

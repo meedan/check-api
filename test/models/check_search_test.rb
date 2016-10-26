@@ -1,6 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
-class CheckSearchControllerTest < ActionController::TestCase
+class CheckSearchTest < ActiveSupport::TestCase
 
   test "should search with keyword" do
     keyword = {keyword: "search_title"}.to_json

@@ -2,7 +2,6 @@ class CheckSearch
 
   def initialize(options)
     # options include keywords, projects, tags, status
-    options =  {keyword: 'title_a'}.to_json
     @options = JSON.parse(options)
   end
 
