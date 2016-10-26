@@ -11,6 +11,7 @@ export SECRET_KEY_BASE=$(bundle exec rake secret)
 bundle exec rake lapis:api_keys:create_default
 
 # Web server
+mkdir -p /app/tmp/pids
 rm -f /app/tmp/pids/server-$RAILS_ENV.pid
 if [ "$RAILS_ENV" == "test" ]
 then
