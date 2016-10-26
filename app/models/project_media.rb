@@ -6,7 +6,7 @@ class ProjectMedia < ActiveRecord::Base
 
   notifies_slack on: :create,
                  if: proc { |pm| m = pm.media; m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |pm| m = pm.media; "<#{m.origin}/user/#{m.current_user.id}|*#{m.current_user.name}*> added an unverified link: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{m.data['title']}*>" },
+                 message: proc { |pm| m = pm.media; data = m.data(pm.project); "<#{m.origin}/user/#{m.current_user.id}|*#{m.current_user.name}*> added an unverified link: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{data['title']}*>" },
                  channel: proc { |pm| m = pm.media; m.project.setting(:slack_channel) || m.current_team.setting(:slack_channel) },
                  webhook: proc { |pm| m = pm.media; m.current_team.setting(:slack_webhook) }
 

@@ -115,6 +115,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_valid_media project_id: p.id, origin: 'http://test.localhost:3333', current_user: u
     pm = create_project_media project: p, media: m, origin: 'http://localhost:3333', current_user: u, context_team: t
     assert pm.sent_to_slack
+    # claim media
+    m = create_claim_media project_id: p.id, origin: 'http://localhost:3333', current_user: u
+    pm = create_project_media project: p, media: m, origin: 'http://localhost:3333', current_user: u, context_team: t
+    assert pm.sent_to_slack
   end
 
   test "should notify Pusher when project media is created" do

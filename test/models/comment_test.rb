@@ -330,6 +330,10 @@ class CommentTest < ActiveSupport::TestCase
     m = create_valid_media
     c = create_comment origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: m, context: p
     assert c.sent_to_slack
+    # claim media
+    m = create_claim_media project_id: p.id
+    c = create_comment origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: m, context: p
+    assert c.sent_to_slack
   end
 
   test "should notify Pusher when annotation is created" do
