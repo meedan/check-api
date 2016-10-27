@@ -1,10 +1,10 @@
 class CheckSearch
 
-  def initialize(options)
+  def initialize(options, context_team)
     # options include keywords, projects, tags, status
     @options = JSON.parse(options)
     if @options["projects"].blank?
-      @options["projects"] = context_team.projects.map(&:id) unless @options["context_team"].blank?
+      @options["projects"] = context_team.projects.map(&:id) unless context_team.nil?
     end
   end
 
