@@ -81,33 +81,105 @@ class CheckSearchTest < ActiveSupport::TestCase
   end
 
   test "should search keyword and tags" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'sports', annotated: m, context: p
+    result = CheckSearch.new({keyword: 'report_title', tags: ['sports']}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
   test "should search keyword and context" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    result = CheckSearch.new({keyword: 'report_title', projects: [p.id]}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
   test "should search keyword and status" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_status status: 'verified', annotated: m, context: p
+    result = CheckSearch.new({keyword: 'report_title', status: ['verified']}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
   test "should search tags and context" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'sports', annotated: m, context: p
+    result = CheckSearch.new({projects: [p.id], tags: ['sports']}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
   test "should search context and status" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_status status: 'verified', annotated: m, context: p
+    result = CheckSearch.new({projects: [p.id], status: ['verified']}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
-  test "should keyword tags and context" do
+  test "should search keyword tags and context" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'sports', annotated: m, context: p
+    result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], projects: [p.id]}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
   test "should search keyword context and status" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_status status: 'verified', annotated: m, context: p
+    result = CheckSearch.new({keyword: 'report_title', status: ['verified'], projects: [p.id]}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
   test "should search tags context and status" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'sports', annotated: m, context: p
+    create_status status: 'verified', annotated: m, context: p
+    result = CheckSearch.new({tags: ['sports'], status: ['verified'], projects: [p.id]}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
   test "should search keyword tags and status" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'sports', annotated: m, context: p
+    create_status status: 'verified', annotated: m, context: p
+    result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], status: ['verified']}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
   test "should search keyword tags context and status" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report_title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'sports', annotated: m, context: p
+    create_status status: 'verified', annotated: m, context: p
+    result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], status: ['verified'], projects: [p.id]}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
 end
