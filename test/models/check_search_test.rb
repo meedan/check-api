@@ -50,8 +50,9 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with tags" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id
-    m2 = create_valid_media project_id: p.id
+    info = {title: 'report title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    m2 = create_valid_media project_id: p.id, information: info
     create_tag tag: 'sports', annotated: m, context: p
     create_tag tag: 'sports', annotated: m2, context: p
     create_tag tag: 'news', annotated: m, context: p
@@ -66,12 +67,17 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with status" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    info = {title: 'report title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    m2 = create_valid_media project_id: p.id, information: info
     create_status status: 'verified', annotated: m, context: p
     result = CheckSearch.new({status: ['false']}.to_json)
     assert_empty result.search_result
     result = CheckSearch.new({status: ['verified']}.to_json)
     assert_equal [m.id], result.search_result.map(&:id)
+    create_status status: 'false', annotated: m, context: p
+    result = CheckSearch.new({status: ['verified']}.to_json)
+    assert_empty result.search_result
   end
 
   test "should search keyword and tags" do
