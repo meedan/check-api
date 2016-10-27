@@ -12,10 +12,6 @@
       "description": "GraphQL"
     },
     {
-      "path": "api/v1/search.{format}",
-      "description": "Search"
-    },
-    {
       "path": "api/v1/sessions.{format}",
       "description": "Sessions"
     },
