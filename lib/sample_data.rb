@@ -223,17 +223,6 @@ module SampleData
     m.reload
   end
 
-  def create_media_information(options = {})
-    m = options[:media]
-    info = {}
-    info[:title] = options[:title]
-    info[:description] = options[:description]
-    info[:quote] = options[:quote]
-    m.project_id = options[:project_id] if  options.has_key?(:project_id)
-    m.information= info.to_json
-    m.save!
-  end
-
   def create_claim_media(options = {})
     options = { information: {quote: random_string}.to_json }.merge(options)
     m = Media.new

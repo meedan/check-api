@@ -3,6 +3,9 @@ class CheckSearch
   def initialize(options)
     # options include keywords, projects, tags, status
     @options = JSON.parse(options)
+    if @options["projects"].blank?
+      @options["projects"] = context_team.projects.map(&:id) unless @options["context_team"].blank?
+    end
   end
 
   def create
@@ -51,6 +54,7 @@ class CheckSearch
     filters << {terms: { tag: @options["tags"]}} unless @options["tags"].blank?
     filter = {bool: { should: filters  } }
     filter[:bool][:must] = { terms: { context_id: @options["projects"]} } unless @options["projects"].blank?
+    get_query_result(query, filter)
     get_query_result(query, filter)
   end
 
