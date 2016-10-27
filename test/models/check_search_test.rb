@@ -79,7 +79,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({status: ['verified']}.to_json)
     assert_empty result.search_result
   end
-
+=begin
   test "should search keyword and tags" do
     t = create_team
     p = create_project team: t
@@ -181,5 +181,5 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], status: ['verified'], projects: [p.id]}.to_json)
     assert_equal [m.id], result.search_result.map(&:id)
   end
-
+=end
 end

@@ -220,6 +220,7 @@ module SampleData
     m.project_id = options[:project_id]
     m.information = options[:information] if options.has_key?(:information)
     m.save!
+    sleep 1 if Rails.env.test? && options.has_key?(:information)
     m.reload
   end
 
