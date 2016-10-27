@@ -195,7 +195,7 @@ class GraphqlCrudOperations
       end
 
       field :annotator do
-        type UserType
+        type AnnotatorType
 
         resolve -> (annotation, _args, _ctx) {
           annotation.annotator
