@@ -16,6 +16,14 @@ class TagTest < ActiveSupport::TestCase
     assert_difference 'Tag.length' do
       create_tag(tag: 'test')
     end
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    m = create_valid_media project_id: p.id, user: u
+    assert_difference 'Tag.length' do
+      create_tag tag: 'media_tag', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+    end
   end
 
   test "should set type automatically" do

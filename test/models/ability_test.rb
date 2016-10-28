@@ -727,6 +727,81 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:destroy, s)
   end
 
+  test "contributor permissions for tag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    ability = Ability.new(u, t)
+    p = create_project team: t
+    m = create_valid_media project_id: p.id, user: u
+    t =  create_tag tag: 'media_tag', annotator: u, annotated: m
+    assert ability.can?(:create, t)
+    assert ability.cannot?(:update, t)
+    assert ability.cannot?(:destroy, t)
+    m.user = create_user; m.save!
+    assert ability.cannot?(:create, t)
+    assert ability.cannot?(:update, t)
+    assert ability.cannot?(:destroy, t)
+    # test other instances
+    p.team = nil; p.save!
+    assert ability.cannot?(:create, t)
+    assert ability.cannot?(:destroy, t)
+  end
+
+  test "journalist permissions for tag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    ability = Ability.new(u, t)
+    p = create_project team: t, user: u
+    m = create_valid_media project_id: p.id
+    t =  create_tag tag: 'media_tag', context: p, annotator: u, annotated: m
+    assert ability.can?(:create, t)
+    assert ability.cannot?(:update, t)
+    assert ability.cannot?(:destroy, t)
+    m.user = create_user; m.save!
+    assert ability.cannot?(:update, t)
+    assert ability.cannot?(:destroy, t)
+    # test other instances
+    p.team = create_team; p.save!
+    assert ability.cannot?(:create, t)
+    assert ability.cannot?(:destroy, t)
+  end
+
+  test "editor permissions for tag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'editor'
+    ability = Ability.new(u, t)
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    t =  create_tag tag: 'media_tag', annotated: m
+    assert ability.can?(:create, t)
+    assert ability.cannot?(:update, t)
+    assert ability.cannot?(:destroy, t)
+    # test other instances
+    p.team = nil; p.save!
+    assert ability.cannot?(:create, t)
+    assert ability.cannot?(:destroy, t)
+  end
+
+  test "owner permissions for tag" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    ability = Ability.new(u, t)
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    t =  create_tag tag: 'media_tag', annotated: m
+    assert ability.can?(:create, t)
+    assert ability.cannot?(:update, t)
+    assert ability.can?(:destroy, t)
+    # test other instances
+    p.team = nil; p.save!
+    assert ability.cannot?(:create, t)
+    assert ability.cannot?(:destroy, t)
+  end
+
   test "read ability for user in public team" do
     u = create_user
     t1 = create_team
