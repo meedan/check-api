@@ -342,8 +342,9 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create tag" do
-    s = create_source
-    assert_graphql_create('tag', { tag: 'egypt', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
+    p = create_project team: @team
+    m = create_valid_media project_id: p.id
+    assert_graphql_create('tag', { tag: 'egypt', annotated_type: 'Media', annotated_id: m.id.to_s }) { sleep 1 }
   end
 
   test "should read tags" do
