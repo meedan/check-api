@@ -79,7 +79,7 @@ QueryType = GraphQL::ObjectType.define do
     argument :query, !types.String
 
     resolve -> (_obj, args, ctx) do
-      check_search = CheckSearch.new(args['query'], ctx[:context_team])
+      CheckSearch.new(args['query'], ctx[:context_team])
     end
   end
 
