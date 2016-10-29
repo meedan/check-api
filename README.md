@@ -56,7 +56,7 @@ There are rake tasks for a few tasks (besides Rails' default ones). Run them thi
 * `lapis:docs`: Generate the documentation for this API, including models and controllers diagrams, Swagger, API endpoints, licenses, etc.
 * `lapis:docker:run`: Run the application in Docker
 * `lapis:docker:shell`: Enter the Docker container
-* `lapis:graphql:update_schema_json`: Update the GraphQL schema JSON
+* `lapis:graphql:schema`: Update the GraphQL schema JSON
 * `swagger:docs:markdown`: Generate the documentation in markdown format
 
 ### GraphQL
