@@ -72,11 +72,11 @@ class Ability
     can [:create, :update], [ProjectMedia, ProjectSource] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can :update, [Comment, Tag, Flag, Annotation] do |obj|
+    can :update, [Comment, Flag, Annotation] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can :create, Status do |status|
-      status.get_team.include? @context_team.id
+    can :create, [Status, Tag] do |obj|
+      obj.get_team.include? @context_team.id
     end
   end
 
@@ -91,7 +91,7 @@ class Ability
     can :update, Flag do |flag|
       flag.get_team.include? @context_team.id and (flag.annotator_id.to_i == @user.id)
     end
-    can :create, Status do |obj|
+    can :create, [Status, Tag] do |obj|
       obj.get_team.include? @context_team.id and (
         (obj.context_type === 'Project' and obj.context.user_id.to_i === @user.id) or
         (obj.annotated_type === 'Media' and obj.annotated.user_id.to_i === @user.id)
@@ -101,7 +101,7 @@ class Ability
 
   def contributor_perms
     can :update, User, :id => @user.id
-    can :create, [Media, Account, Source, Comment, Tag, Embed]
+    can :create, [Media, Account, Source, Comment, Embed]
     can :update, Media, :user_id => @user.id
     can :update, Media do |obj|
       obj.get_team.include? @context_team.id and (obj.user_id == @user.id)
@@ -116,11 +116,14 @@ class Ability
     can :update, ProjectMedia do |obj|
       obj.get_team.include? @context_team.id and (obj.media.user_id == @user.id)
     end
-    can :update, [Comment, Tag] do |obj|
+    can :update, Comment do |obj|
       obj.get_team.include? @context_team.id and (obj.annotator_id.to_i == @user.id)
     end
     can :create, Flag do |flag|
       flag.get_team.include? @context_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
+    end
+    can :create, Tag do |obj|
+      obj.get_team.include? @context_team.id and obj.annotated_type === 'Media' and obj.annotated.user_id.to_i === @user.id
     end
     can :destroy, TeamUser do |obj|
       obj.user_id === @user.id

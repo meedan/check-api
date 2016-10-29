@@ -342,8 +342,9 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create tag" do
-    s = create_source
-    assert_graphql_create('tag', { tag: 'egypt', annotated_type: 'Source', annotated_id: s.id.to_s }) { sleep 1 }
+    p = create_project team: @team
+    m = create_valid_media project_id: p.id
+    assert_graphql_create('tag', { tag: 'egypt', annotated_type: 'Media', annotated_id: m.id.to_s }) { sleep 1 }
   end
 
   test "should read tags" do
@@ -535,4 +536,23 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response :success
   end
+
+  test "should search media" do
+    u = create_user
+    authenticate_with_user(u)
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\"}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [m.id], ids
+  end
+
 end

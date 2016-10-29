@@ -42,9 +42,9 @@ QueryType = GraphQL::ObjectType.define do
   field :project do
     type ProjectType
     description 'Information about a project, given its id and its team id'
-    
+
     argument :id, !types.ID
-    
+
     resolve -> (_obj, args, ctx) do
       tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
       project = Project.where(id: args['id'], team_id: tid).last
@@ -56,9 +56,9 @@ QueryType = GraphQL::ObjectType.define do
   field :media do
     type MediaType
     description 'Information about a media item. The argument should be given like this: "media_id,project_id"'
-    
+
     argument :ids, !types.String
-    
+
     resolve -> (_obj, args, ctx) do
       mid, pid = args['ids'].split(',').map(&:to_i)
       tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
@@ -69,6 +69,17 @@ QueryType = GraphQL::ObjectType.define do
       media = GraphqlCrudOperations.load_if_can(Media, mid, ctx)
       media.project_id = pid if media
       media
+    end
+  end
+
+  field :search do
+    type CheckSearchType
+    description 'Search medias, The argument should be given like this: "{\"keyword\":\"search keyword\"}"'
+
+    argument :query, !types.String
+
+    resolve -> (_obj, args, ctx) do
+      check_search = CheckSearch.new(args['query'], ctx[:context_team])
     end
   end
 
