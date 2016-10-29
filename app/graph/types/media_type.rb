@@ -11,7 +11,6 @@ MediaType = GraphqlCrudOperations.define_default_type do
   field :project_id, types.Int
   field :user_id, types.Int
   field :dbid, types.Int
-  field :annotations_count, types.Int
   field :domain, types.String
   field :pusher_channel, types.String
 
@@ -51,6 +50,16 @@ MediaType = GraphqlCrudOperations.define_default_type do
     resolve ->(media, args, ctx) {
       context = get_context(args, ctx)
       media.annotations(nil, context)
+    }
+  end
+
+  field :annotations_count do
+    type types.Int
+    argument :context_id, types.Int
+
+    resolve ->(media, args, ctx) {
+      context = get_context(args, ctx)
+      media.annotations_count(nil, context)
     }
   end
 
