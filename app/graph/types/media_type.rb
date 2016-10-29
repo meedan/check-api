@@ -49,7 +49,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
     resolve ->(media, args, ctx) {
       context = get_context(args, ctx)
-      media.annotations(nil, context)
+      media.annotations(['comment', 'status', 'tag', 'flag'], context)
     }
   end
 
@@ -59,7 +59,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
     resolve ->(media, args, ctx) {
       context = get_context(args, ctx)
-      media.annotations_count(nil, context)
+      media.annotations_count(['comment', 'status', 'tag', 'flag'], context)
     }
   end
 
