@@ -45,9 +45,9 @@ class Media < ActiveRecord::Base
   end
 
   def user_in_context(context = nil)
+    self.user if context.nil?
     pm = project_media(context)
     pm.user unless pm.nil?
-    self.user
   end
 
   def data(context = nil)
@@ -59,10 +59,9 @@ class Media < ActiveRecord::Base
   end
 
   def published(context = nil)
+    self.created_at.to_i.to_s if context.nil?
     pm = project_media(context)
     pm.created_at.to_i.to_s unless pm.nil?
-    # FIXME Should never reach here but always does.
-    self.created_at.to_i.to_s
   end
 
   def get_team
