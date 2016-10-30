@@ -182,4 +182,12 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [m.id], result.search_result.map(&:id)
   end
 =end
+  test "should seach keyword in comments" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    create_comment text: 'add_comment', annotated: m, context: p
+    result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json)
+    assert_equal [m.id], result.search_result.map(&:id)
+  end
 end

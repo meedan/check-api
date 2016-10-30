@@ -39,9 +39,9 @@ class CheckSearch
     if @options["keyword"].blank?
       query = { match_all: {} }
     else
-      query = { query_string: { query: @options["keyword"], fields:  %w(title description quote) } }
+      query = { query_string: { query: @options["keyword"], fields:  %w(title description quote text) } }
     end
-    filters = [{term: { annotation_type: "embed"}}]
+    filters = [{terms: { annotation_type: %w(embed comment) } } ]
     filters << {term: { annotated_type: "media"}}
     filters << {terms: { context_id: @options["projects"]}} unless @options["projects"].blank?
     filter = { bool: { must: [ filters ] } }
