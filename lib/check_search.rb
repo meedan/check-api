@@ -8,6 +8,10 @@ class CheckSearch
     end
   end
 
+  def id
+    Digest::MD5.hexdigest(@options.inspect)
+  end
+
   def create
     # query_a to fetch keyword/context
     ids = build_search_query_a
