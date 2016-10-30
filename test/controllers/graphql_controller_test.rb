@@ -274,7 +274,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from media" do
-    assert_graphql_read_object('media', { 'account' => 'url', 'user' => 'name' })
+    assert_graphql_read_object('media', { 'account' => 'url' })
   end
 
   test "should read object from project source" do
