@@ -190,4 +190,38 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json)
     assert_equal [m.id], result.search_result.map(&:id)
   end
+
+  test "should sort results by recent activities" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'search_sort'}.to_json
+    m1 = create_valid_media project_id: p.id, information: info
+    m2 = create_valid_media project_id: p.id, information: info
+    m3 = create_valid_media project_id: p.id, information: info
+    create_comment text: 'search_sort', annotated: m1, context: p
+    # sort with keywords
+    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
+    assert_equal [m3.id, m2.id, m1.id], result.search_result.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json)
+    assert_equal [m1.id, m3.id, m2.id], result.search_result.map(&:id)
+    # sort with keywords and tags
+    create_tag tag: 'sorts', annotated: m3, context: p
+    create_tag tag: 'sorts', annotated: m2, context: p
+    result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    assert_equal [m2.id, m3.id], result.search_result.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    assert_equal [m2.id, m3.id], result.search_result.map(&:id)
+    create_status status: 'verified', annotated: m3, context: p
+    create_status status: 'verified', annotated: m2, context: p
+    create_status status: 'verified', annotated: m1, context: p
+    create_status status: 'false', annotated: m1, context: p
+    # sort with keywords, tags and status
+    result = CheckSearch.new({status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    assert_equal [m2.id, m3.id], result.search_result.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    assert_equal [m2.id, m3.id], result.search_result.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], status: ["verified"], projects: [p.id]}.to_json)
+    assert_equal [m3.id, m2.id], result.search_result.map(&:id)
+  end
+
 end

@@ -18,12 +18,12 @@ class CheckSearch
       # which related to keywords, context, tags
       # add sorting
       ids_sort = ids.keep_if { |k, v| result_ids.key? k }
-      if @options['sort'] == 'recent activity'
+      if @options['sort'] == 'recent_activity'
         ids_sort.each{|k, v| ids_sort[k] = [ids[k], result_ids[k]].max}
       end
     end
     # query_c to fetch status (final result)
-    ids_sort = build_search_query_c(ids_sort, @options["status"]) unless @options["status"].blank? and ids_sort.keys.blank?
+    ids_sort = build_search_query_c(ids_sort, @options["status"]) unless @options["status"].blank?
     check_search_sort(ids_sort)
   end
 
@@ -73,7 +73,7 @@ class CheckSearch
     annotated: {
         terms: { field: :annotated_id},
         aggs: {
-          latest_status: {
+          recent_activity: {
             top_hits: {
               sort: [ { created_at: { order: :desc} } ],
               _source: { include: [ "status"] },
@@ -85,7 +85,7 @@ class CheckSearch
     }
     ids = {}
     Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
-      if status.include? result[:latest_status][:hits][:hits][0]["_source"][:status]
+      if status.include? result[:recent_activity][:hits][:hits][0]["_source"][:status]
         ids[result['key']] = result['recent_activity'][:hits][:hits][0]["sort"][0]
       end
     end
@@ -103,7 +103,15 @@ class CheckSearch
     g = {
       annotated: {
         terms: { field: :annotated_id },
-        aggs: { type: { terms: { field: :annotated_type } } }
+        aggs: {
+          recent_activity: {
+            top_hits: {
+              sort: [ { created_at: { order: "desc" } } ],
+              _source: false,
+              size: 1
+              }
+          }
+        }
       }
     }
     ids = {}
@@ -114,12 +122,12 @@ class CheckSearch
   end
 
   def check_search_sort(ids_sort)
-    if @options['sort'] == 'recent activity'
+    if @options['sort'] == 'recent_activity'
       ids = Array.new
       ids_sort = ids_sort.sort_by(&:reverse).reverse
       ids_sort.each {|k, _v| ids << Media.find(k)}
     else
-      ids = Media.where(id: queryc_ids.keys).order('id desc')
+      ids = Media.where(id: ids_sort.keys).order('id desc')
     end
     ids
   end
