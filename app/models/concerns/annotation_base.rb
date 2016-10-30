@@ -28,7 +28,7 @@ module AnnotationBase
             matches << { match: { context_type: context.class.name } }
             matches << { match: { context_id: context.id.to_s } }
           end
-          matches << { match: { annotation_type: type } } unless type.nil?
+          matches << { terms: { annotation_type: [*type] } } unless type.nil?
           { bool: { must: matches } }
         end
 
