@@ -10,17 +10,21 @@ class CheckSearch
 
   def create
     # query_a to fetch keyword/context
-    ids = build_search_query_a
+    ids_sort = ids = build_search_query_a
     # query_b to fetch tags/categories
     unless @options["tags"].blank?
       result_ids = build_search_query_b
       # get intesect between query_a & query_b to get medias that match user options
       # which related to keywords, context, tags
-      ids = ids & result_ids
+      # add sorting
+      ids_sort = ids.keep_if { |k, v| result_ids.key? k }
+      if @options['sort'] == 'recent activity'
+        ids_sort.each{|k, v| ids_sort[k] = [ids[k], result_ids[k]].max}
+      end
     end
     # query_c to fetch status (final result)
-    ids = build_search_query_c(ids, @options["status"]) unless @options["status"].blank?
-    Media.where(id: ids)
+    ids_sort = build_search_query_c(ids_sort, @options["status"]) unless @options["status"].blank? and ids_sort.keys.blank?
+    check_search_sort(ids_sort)
   end
 
   def search_result
@@ -55,14 +59,13 @@ class CheckSearch
     filter = {bool: { should: filters  } }
     filter[:bool][:must] = { terms: { context_id: @options["projects"]} } unless @options["projects"].blank?
     get_query_result(query, filter)
-    get_query_result(query, filter)
   end
 
   def build_search_query_c(media_ids, status)
     Rails.logger.debug("Calling status query #{media_ids}")
     q = {
       filtered: {
-        query: { terms: { annotated_id: media_ids } },
+        query: { terms: { annotated_id: media_ids.keys } },
        filter: { bool: { must: [ {term: {annotation_type: "status" } } ] } }
      }
    }
@@ -80,12 +83,13 @@ class CheckSearch
         }
       }
     }
-    ids = []
+    ids = {}
     Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
       if status.include? result[:latest_status][:hits][:hits][0]["_source"][:status]
-        ids << result['key']
+        ids[result['key']] = result['recent_activity'][:hits][:hits][0]["sort"][0]
       end
     end
+    ids.each{|k, v| ids[k] = [ids[k], media_ids[k]].max}
     ids
   end
 
@@ -102,9 +106,20 @@ class CheckSearch
         aggs: { type: { terms: { field: :annotated_type } } }
       }
     }
-    ids = []
+    ids = {}
     Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
-      ids << result['key']
+      ids[result['key']] = result['recent_activity'][:hits][:hits][0]["sort"][0]
+    end
+    ids
+  end
+
+  def check_search_sort(ids_sort)
+    if @options['sort'] == 'recent activity'
+      ids = Array.new
+      ids_sort = ids_sort.sort_by(&:reverse).reverse
+      ids_sort.each {|k, _v| ids << Media.find(k)}
+    else
+      ids = Media.where(id: queryc_ids.keys).order('id desc')
     end
     ids
   end
