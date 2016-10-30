@@ -50,7 +50,7 @@ class GraphqlCrudOperations
     obj.current_user = ctx[:current_user]
     obj.context_team = ctx[:context_team]
     obj.destroy
-    
+
     ret = { deletedId: inputs[:id] }
 
     parents.each { |parent| ret[parent.to_sym] = obj.send(parent) }
@@ -139,14 +139,14 @@ class GraphqlCrudOperations
   end
 
   def self.field_with_context
-    proc do |name|
+    proc do |name, field_type = types.String, method = nil|
       field name do
-        type types.String
-        
+        type field_type
+
         argument :context_id, types.Int
-        
+
         resolve -> (media, args, ctx) {
-          call_method_from_context(media, name, args, ctx)
+          call_method_from_context(media, method.blank? ? name : method, args, ctx)
         }
       end
     end
@@ -178,11 +178,11 @@ class GraphqlCrudOperations
       interfaces [NodeIdentification.interface]
 
       field :id, field: GraphQL::Relay::GlobalIdField.new(type.capitalize)
-      
+
       GraphqlCrudOperations.define_annotation_fields.each do |name|
         field name, types.String
       end
-      
+
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
           annotation.current_user = ctx[:current_user]
