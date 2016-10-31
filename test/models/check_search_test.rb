@@ -186,7 +186,6 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [m.id], result.search_result.map(&:id)
   end
 
-=begin
   test "should seach keyword in comments" do
     t = create_team
     p = create_project team: t
@@ -195,7 +194,6 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json, t)
     assert_equal [m.id], result.search_result.map(&:id)
   end
-=end
 
   test "should sort results by recent activities" do
     t = create_team
@@ -204,13 +202,12 @@ class CheckSearchTest < ActiveSupport::TestCase
     m1 = create_valid_media project_id: p.id, information: info
     m2 = create_valid_media project_id: p.id, information: info
     m3 = create_valid_media project_id: p.id, information: info
-    #create_comment text: 'search_sort', annotated: m1, context: p
+    create_comment text: 'search_sort', annotated: m1, context: p
     # sort with keywords
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json, t)
     assert_equal [m3.id, m2.id, m1.id], result.search_result.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json, t)
-    assert_equal [m3.id, m2.id, m1.id], result.search_result.map(&:id)
-    #assert_equal [m1.id, m3.id, m2.id], result.search_result.map(&:id)
+    assert_equal [m1.id, m3.id, m2.id], result.search_result.map(&:id)
     # sort with keywords and tags
     create_tag tag: 'sorts', annotated: m3, context: p
     create_tag tag: 'sorts', annotated: m2, context: p

@@ -23,7 +23,6 @@ class CheckSearch
       result_ids = build_search_query_b
       # get intesect between query_a & query_b to get medias that match user options
       # which related to keywords, context, tags
-      # add sorting
       ids_sort = ids.keep_if { |k, v| result_ids.key? k }
       if @options['sort'] == 'recent_activity'
         ids_sort.each{|k, v| ids_sort[k] = [ids[k], result_ids[k]].max}
@@ -54,8 +53,11 @@ class CheckSearch
     end
     filters = [{terms: { annotation_type: %w(embed comment) } } ]
     filters << {term: { annotated_type: "media"}}
-    filters << {terms: { search_context: @options["projects"]}} unless @options["projects"].blank?
-    filter = { bool: { must: [ filters ] } }
+    unless @options["projects"].blank?
+      context_filters = [{terms: { context_id: @options["projects"] } } ]
+      context_filters << {terms: { search_context: @options["projects"] } }
+    end
+    filter = { bool: { should: [ context_filters ] , must: [ filters ] } }
     get_query_result(query, filter)
   end
 

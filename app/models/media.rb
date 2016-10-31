@@ -163,7 +163,6 @@ class Media < ActiveRecord::Base
         if em.nil?
           em = em_none.nil? ? self.create_new_embed : em_none
           # set search context and update Pender annotations
-          em.search_context = [self.project_id]
           update_pender_search_context unless em_none.nil?
         end
         if em.context.nil?

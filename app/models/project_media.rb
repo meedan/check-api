@@ -41,9 +41,6 @@ class ProjectMedia < ActiveRecord::Base
         em_none.search_context << self.project.id
         em_none.save!
       end
-    else
-      em_context.search_context = [self.project.id]
-      em_context.save!
     end
   end
 
