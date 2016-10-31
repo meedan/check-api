@@ -17,7 +17,7 @@ class Team < ActiveRecord::Base
   validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens', on: :create
   validates :subdomain, length: { in: 4..63 }, on: :create
   validates :subdomain, uniqueness: true, on: :create
-  # validate :subdomain_is_available, on: :create
+  validate :subdomain_is_available, on: :create
   validates :logo, size: true
   validate :slack_webhook_format
   validate :custom_media_statuses_format
