@@ -170,11 +170,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'test media', JSON.parse(jsondata)['title']
   end
 
-  test "should update media" do
-    u1, u2 = create_user, create_user
-    assert_graphql_update('media', :user_id, u1.id, u2.id)
-  end
-
   test "should destroy media" do
     assert_graphql_destroy('media')
   end
@@ -279,7 +274,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from media" do
-    assert_graphql_read_object('media', { 'account' => 'url', 'user' => 'name' })
+    assert_graphql_read_object('media', { 'account' => 'url' })
   end
 
   test "should read object from project source" do
