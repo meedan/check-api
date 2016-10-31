@@ -20,7 +20,6 @@ class Media < ActiveRecord::Base
   after_update :set_information
   after_rollback :duplicate
 
-
   def current_team
     self.project.team if self.project
   end
@@ -41,6 +40,16 @@ class Media < ActiveRecord::Base
     self.data(context).to_json
   end
 
+  def project_media(context = nil)
+    self.project_medias.find_by(:project_id => context.id) unless context.nil?
+  end
+
+  def user_in_context(context = nil)
+    self.user if context.nil?
+    pm = project_media(context)
+    pm.user unless pm.nil?
+  end
+
   def data(context = nil)
     em_pender = self.annotations('embed', context).last unless context.nil?
     em_pender = self.annotations('embed', 'none').last if em_pender.nil?
@@ -49,8 +58,10 @@ class Media < ActiveRecord::Base
     embed
   end
 
-  def published
-    self.created_at.to_i.to_s
+  def published(context = nil)
+    self.created_at.to_i.to_s if context.nil?
+    pm = project_media(context)
+    pm.created_at.to_i.to_s unless pm.nil?
   end
 
   def get_team
@@ -64,7 +75,7 @@ class Media < ActiveRecord::Base
       pm = ProjectMedia.new
       pm.project_id = self.project_id
       pm.media = self
-      pm.current_user = self.current_user
+      pm.user = pm.current_user = self.current_user
       pm.context_team = self.context_team
       pm.save!
     end

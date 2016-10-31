@@ -11,6 +11,10 @@ class CheckSearch
     @options['sort_type'] = @options['sort_type'] ||= 'DESC'
   end
 
+  def id
+    Digest::MD5.hexdigest(@options.inspect)
+  end
+
   def create
     # query_a to fetch keyword/context
     ids_sort = ids = build_search_query_a

@@ -346,4 +346,9 @@ class UserTest < ActiveSupport::TestCase
     u = create_user provider: 'facebook', login: 'user'
     assert_equal 'user at Facebook', u.handle
   end
+
+  test "should get handle for Slack" do
+    u = create_user provider: 'slack', omniauth_info: { 'extra' => { 'raw_info' => { 'url' => 'https://meedan.slack.com' } } }, login: 'caiosba'
+    assert_equal 'caiosba at https://meedan.slack.com', u.handle
+  end
 end

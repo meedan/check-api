@@ -18,6 +18,8 @@ class User < ActiveRecord::Base
   validates :image, size: true
   validate :user_is_member_in_current_team
 
+  serialize :omniauth_info
+
   include CheckdeskSettings
 
   ROLES = %w[contributor journalist editor owner admin]
@@ -42,6 +44,7 @@ class User < ActiveRecord::Base
     user.profile_image = auth.info.image
     user.token = token
     user.url = auth.url
+    user.omniauth_info = auth.as_json
     user.save!
     user.reload
   end
@@ -107,7 +110,18 @@ class User < ActiveRecord::Base
   end
 
   def handle
-    self.provider.blank? ? self.email : "#{self.login} at #{self.provider.capitalize}"
+    if self.provider.blank?
+      self.email
+    else
+      provider = self.provider.capitalize
+      if self.provider === 'slack'
+        info = self.omniauth_info
+        if info.is_a?(Hash) && info['extra'].is_a?(Hash) && info['extra']['raw_info'].is_a?(Hash)
+          provider = self.omniauth_info['extra']['raw_info']['url'] || 'Slack'
+        end
+      end
+      "#{self.login} at #{provider}"
+    end
   end
 
   private
