@@ -6,6 +6,9 @@ class CheckSearch
     if @options["projects"].blank?
       @options["projects"] = context_team.projects.map(&:id) unless context_team.nil?
     end
+    # set sort options
+    @options['sort'] = @options['sort'] ||= 'recent_added'
+    @options['sort_type'] = @options['sort_type'] ||= 'DESC'
   end
 
   def create
@@ -124,10 +127,14 @@ class CheckSearch
   def check_search_sort(ids_sort)
     if @options['sort'] == 'recent_activity'
       ids = Array.new
-      ids_sort = ids_sort.sort_by(&:reverse).reverse
+      if @options['sort_type'].upcase == 'DESC'
+        ids_sort = ids_sort.sort_by(&:reverse).reverse
+      else
+        ids_sort = ids_sort.sort_by(&:reverse)
+      end
       ids_sort.each {|k, _v| ids << Media.find(k)}
     else
-      ids = Media.where(id: ids_sort.keys).order('id desc')
+      ids = Media.where(id: ids_sort.keys).order("id #{@options['sort_type']}")
     end
     ids
   end

@@ -231,4 +231,24 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [m3.id, m2.id], result.search_result.map(&:id)
   end
 
+  test "should sort results asc and desc" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'search_sort'}.to_json
+    m1 = create_valid_media project_id: p.id, information: info
+    m2 = create_valid_media project_id: p.id, information: info
+    m3 = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'sorts', annotated: m3, context: p
+    create_tag tag: 'sorts', annotated: m1, context: p
+    create_tag tag: 'sorts', annotated: m2, context: p
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json, t)
+    assert_equal [m3.id, m2.id, m1.id], result.search_result.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort_type: 'asc'}.to_json, t)
+    assert_equal [m1.id, m2.id, m3.id], result.search_result.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json, t)
+    assert_equal [m2.id, m1.id, m3.id], result.search_result.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', sort_type: 'asc'}.to_json, t)
+    assert_equal [m3.id, m1.id, m2.id], result.search_result.map(&:id)
+  end
+
 end
