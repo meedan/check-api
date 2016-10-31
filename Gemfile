@@ -39,7 +39,6 @@ gem 'auto_localize', '0.1'
 gem 'thin'
 gem 'swagger-docs', '0.1.9'
 gem 'responders'
-gem 'unicorn'
 gem 'htmlentities', require: false, group: :development
 gem 'graphql', '0.14.0'
 gem 'graphql-relay', '0.10.0'
