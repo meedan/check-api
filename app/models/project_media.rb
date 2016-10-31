@@ -4,6 +4,8 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :project
   belongs_to :media
 
+  after_create :set_search_context
+
   notifies_slack on: :create,
                  if: proc { |pm| m = pm.media; m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
                  message: proc { |pm| m = pm.media; data = m.data(pm.project); "<#{m.origin}/user/#{m.current_user.id}|*#{m.current_user.name}*> added an unverified link: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{data['title']}*>" },
@@ -27,4 +29,21 @@ class ProjectMedia < ActiveRecord::Base
   def project_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
   end
+
+  private
+
+  def set_search_context
+    em_context = self.media.annotations('embed', self.project).last unless self.project.nil?
+    if em_context.nil?
+      em_none = self.media.annotations('embed', 'none').last
+      unless em_none.nil?
+        em_none.search_context << self.project.id
+        em_none.save!
+      end
+    else
+      em_context.search_context = [self.project.id]
+      em_context.save!
+    end
+  end
+
 end

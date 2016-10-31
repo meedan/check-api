@@ -47,7 +47,7 @@ class CheckSearch
     end
     filters = [{terms: { annotation_type: %w(embed comment) } } ]
     filters << {term: { annotated_type: "media"}}
-    filters << {terms: { context_id: @options["projects"]}} unless @options["projects"].blank?
+    filters << {terms: { search_context: @options["projects"]}} unless @options["projects"].blank?
     filter = { bool: { must: [ filters ] } }
     get_query_result(query, filter)
   end
