@@ -737,11 +737,11 @@ class AbilityTest < ActiveSupport::TestCase
     t =  create_tag tag: 'media_tag', annotator: u, annotated: m
     assert ability.can?(:create, t)
     assert ability.cannot?(:update, t)
-    assert ability.cannot?(:destroy, t)
+    assert ability.can?(:destroy, t)
     m.user = create_user; m.save!
     assert ability.cannot?(:create, t)
     assert ability.cannot?(:update, t)
-    assert ability.cannot?(:destroy, t)
+    assert ability.can?(:destroy, t)
     # test other instances
     p.team = nil; p.save!
     assert ability.cannot?(:create, t)
@@ -758,10 +758,10 @@ class AbilityTest < ActiveSupport::TestCase
     t =  create_tag tag: 'media_tag', context: p, annotator: u, annotated: m
     assert ability.can?(:create, t)
     assert ability.cannot?(:update, t)
-    assert ability.cannot?(:destroy, t)
+    assert ability.can?(:destroy, t)
     m.user = create_user; m.save!
     assert ability.cannot?(:update, t)
-    assert ability.cannot?(:destroy, t)
+    assert ability.can?(:destroy, t)
     # test other instances
     p.team = create_team; p.save!
     assert ability.cannot?(:create, t)
@@ -778,7 +778,7 @@ class AbilityTest < ActiveSupport::TestCase
     t =  create_tag tag: 'media_tag', annotated: m
     assert ability.can?(:create, t)
     assert ability.cannot?(:update, t)
-    assert ability.cannot?(:destroy, t)
+    assert ability.can?(:destroy, t)
     # test other instances
     p.team = nil; p.save!
     assert ability.cannot?(:create, t)
