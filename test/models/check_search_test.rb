@@ -79,6 +79,14 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({status: ['verified']}.to_json)
     assert_empty result.search_result
   end
+
+  test "should have unique id per params" do
+    s1 = CheckSearch.new({ keyword: 'foo' }.to_json)
+    s2 = CheckSearch.new({ keyword: 'foo' }.to_json)
+    s3 = CheckSearch.new({ keyword: 'bar' }.to_json)
+    assert_equal s1.id, s2.id
+    assert_not_equal s1.id, s3.id
+  end
 =begin
   test "should search keyword and tags" do
     t = create_team

@@ -475,7 +475,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     m = create_media project_id: p.id
     create_comment annotated: m, annotator: u
-    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } } } }"
+    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { annotations_count(context_id: #{p.id}), user(context_id: #{p.id}) { name }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success
