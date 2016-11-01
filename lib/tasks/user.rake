@@ -14,15 +14,24 @@ namespace :user do
       end  
   end
 
+  # TODO allow for passing an id for simple lookup
   desc "lookup a user for any given login, email, or part of a name"
   task :lookup, [:find] => [:environment] do |t, args|
       puts "Args were: #{args}"
       find = args[:find]
-      users = User.where("name ILIKE (?) OR email LIKE (?) OR login LIKE (?)", "%#{find}%", "%#{find}%", "%#{find}%")
+      users = User.where("name ILIKE (?) OR uuid LIKE (?) OR email LIKE (?) OR login LIKE (?)", "%#{find}%", "%#{find}%", "%#{find}%", "%#{find}%")
       if users
-         puts "report: id login name email"          
+         puts "report: id name login uuid provider email"          
          users.each do |u|
-            puts "found: #{u.id} #{u.login} #{u.name} #{u.email}"          
+            puts "found: #{u.id} #{u.name} #{u.login} #{u.email}"
+            teams = TeamUser.where(user_id: u.id).map(&:team)
+            if teams
+               teams.each do |t|
+                  puts "   team: #{t.id} #{t.name} #{t.subdomain}"
+               end
+            else
+               puts "user is not in a team"               
+            end                      
          end
       else
          puts "not found"
