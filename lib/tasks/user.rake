@@ -1,3 +1,4 @@
+require 'yaml'
 namespace :user do
 
   desc "reset users password user:passreset['login','password']"
@@ -13,20 +14,27 @@ namespace :user do
       end  
   end
 
-  # TODO ask Caio for help with this, I've spent far too long on it
+  # TODO allow for passing an id for simple lookup
   desc "lookup a user for any given login, email, or part of a name"
   task :lookup, [:find] => [:environment] do |t, args|
-      u = User.where("login ILIKE ?", args.find)      
-      if u
-         puts "found login for #{args.find}"
-#         puts "#{u}"
-         puts "#{u}"
-#         puts "#{u.login}"
-         
-#         puts u.class
-          u.each do |x| puts x end 
-#         users.each do |x| puts x.inspect end 
-#      else
+      puts "Args were: #{args}"
+      find = args[:find]
+      users = User.where("name ILIKE (?) OR uuid LIKE (?) OR email LIKE (?) OR login LIKE (?)", "%#{find}%", "%#{find}%", "%#{find}%", "%#{find}%")
+      if users
+         puts "report: id name login uuid provider email"          
+         users.each do |u|
+            puts "found: #{u.id} #{u.name} #{u.login} #{u.email}"
+            teams = TeamUser.where(user_id: u.id).map(&:team)
+            if teams
+               teams.each do |t|
+                  puts "   team: #{t.id} #{t.name} #{t.subdomain}"
+               end
+            else
+               puts "user is not in a team"               
+            end                      
+         end
+      else
+         puts "not found"
       end
   end
 end
