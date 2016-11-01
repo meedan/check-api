@@ -339,16 +339,4 @@ class UserTest < ActiveSupport::TestCase
     user.current_user = u.reload
     assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
   end
-
-  test "should get handle" do
-    u = create_user provider: '', email: 'user@email.com'
-    assert_equal 'user@email.com', u.handle
-    u = create_user provider: 'facebook', login: 'user'
-    assert_equal 'user at Facebook', u.handle
-  end
-
-  test "should get handle for Slack" do
-    u = create_user provider: 'slack', omniauth_info: { 'extra' => { 'raw_info' => { 'url' => 'https://meedan.slack.com' } } }, login: 'caiosba'
-    assert_equal 'caiosba at https://meedan.slack.com', u.handle
-  end
 end
