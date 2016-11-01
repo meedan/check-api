@@ -1,3 +1,4 @@
+require 'yaml'
 namespace :user do
 
   desc "reset users password user:passreset['login','password']"
@@ -13,20 +14,17 @@ namespace :user do
       end  
   end
 
-  # TODO ask Caio for help with this, I've spent far too long on it
   desc "lookup a user for any given login, email, or part of a name"
   task :lookup, [:find] => [:environment] do |t, args|
-      u = User.where("login ILIKE ?", args.find)      
+      puts "Args were: #{args}"
+      find = args.find
+      u = User.where("name ILIKE (?) OR email LIKE (?) OR login LIKE (?)", "%#{find}%", "%#{find}%", "%#{find}%")
       if u
-         puts "found login for #{args.find}"
-#         puts "#{u}"
-         puts "#{u}"
-#         puts "#{u.login}"
-         
-#         puts u.class
-          u.each do |x| puts x end 
-#         users.each do |x| puts x.inspect end 
-#      else
+         u.chunk { |ui| 
+            puts "found: #{ui.id} #{ui.login}"          
+         }
+      else
+         puts "not found"
       end
   end
 end
