@@ -17,12 +17,13 @@ namespace :user do
   desc "lookup a user for any given login, email, or part of a name"
   task :lookup, [:find] => [:environment] do |t, args|
       puts "Args were: #{args}"
-      find = args.find
-      u = User.where("name ILIKE (?) OR email LIKE (?) OR login LIKE (?)", "%#{find}%", "%#{find}%", "%#{find}%")
-      if u
-         u.chunk { |ui| 
-            puts "found: #{ui.id} #{ui.login}"          
-         }
+      find = args[:find]
+      users = User.where("name ILIKE (?) OR email LIKE (?) OR login LIKE (?)", "%#{find}%", "%#{find}%", "%#{find}%")
+      if users
+         puts "report: id login name email"          
+         users.each do |u|
+            puts "found: #{u.id} #{u.login} #{u.name} #{u.email}"          
+         end
       else
          puts "not found"
       end
