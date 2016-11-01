@@ -128,6 +128,9 @@ class Ability
     can :destroy, TeamUser do |obj|
       obj.user_id === @user.id
     end
+    can :destroy, Tag do |obj|
+      obj.get_team.include? @context_team.id
+    end
   end
 
   def authenticated_perms
