@@ -4,7 +4,7 @@ class AddContextSearchToPenderAnnotations < ActiveRecord::Migration
       search_context = []
       m.project_medias.each do |pm|
         embed = m.annotations('embed', pm.project).last
-        search_context << pm.project.id unless embed.nil?
+        search_context << pm.project.id if embed.nil?
       end
       em_none = m.annotations('embed', 'none').last
       unless em_none.nil? or search_context.blank?
