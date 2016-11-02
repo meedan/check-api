@@ -56,7 +56,7 @@ class CheckSearch
       context_filters << {terms: { search_context: @options["projects"] } }
     end
     filter = { bool: { should: [ context_filters ] , must: [ filters ] } }
-    get_query_result(query, filter)
+    get_search_result(query, filter)
   end
 
   def build_search_query_b
@@ -65,43 +65,19 @@ class CheckSearch
     filters << {terms: { tag: @options["tags"]}} unless @options["tags"].blank?
     filter = {bool: { should: filters  } }
     filter[:bool][:must] = { terms: { context_id: @options["projects"]} } unless @options["projects"].blank?
-    get_query_result(query, filter)
+    get_search_result(query, filter)
   end
 
   def build_search_query_c(media_ids)
     query = { terms: { annotated_id: media_ids.keys } }
     filter = { bool: { must: [ {term: {annotation_type: "status" } } ] } }
-    ids = get_query_result(query, filter)
+    ids = get_search_result(query, filter)
     ids_p = fetch_media_projects(ids, ids, media_ids)
     ids_p
   end
 
-  def get_query_result(query, filter)
-    q = {
-      filtered: {
-        query: query,
-        filter: filter
-      }
-    }
-    g = {
-        annotated: {
-        terms: { field: :annotated_id },
-        aggs: {
-          context: {
-                terms: { field: :context_id, missing: :no_key },
-                aggs: {
-                  recent_activity: {
-                    top_hits: {
-                      sort: [ { created_at: { order: :desc } } ],
-                      _source: { include: [ "status", "context_id", "search_context"] },
-                      size: 1
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+  def get_search_result(query, filter)
+    q, g = build_search_query(query, filter)
     ids = {}
     Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
       context_ids = {}
@@ -123,6 +99,35 @@ class CheckSearch
     ids
   end
 
+  def build_search_query(query, filter)
+    q = {
+      filtered: {
+        query: query,
+        filter: filter
+      }
+    }
+    g = {
+      annotated: {
+        terms: { field: :annotated_id },
+        aggs: {
+          context: {
+            terms: { field: :context_id, missing: :no_key },
+              aggs: {
+                recent_activity: {
+                  top_hits: {
+                    sort: [ { created_at: { order: :desc } } ],
+                    _source: { include: %w(status context_id search_context) },
+                    size: 1
+                  }
+                }
+              }
+            }
+          }
+        }
+    }
+    return q, g
+  end
+
   def fetch_media_projects(ids, ids_a, ids_b)
     ids_p = {}
     ids.each do |k, _v|
@@ -134,7 +139,7 @@ class CheckSearch
   end
 
   def check_search_sort(ids)
-    ids = _prepare_ids_for_sort(ids)
+    ids = prepare_ids_for_sort(ids)
     ids_sort = Array.new
     if @options['sort_type'].upcase == 'DESC'
       ids = ids.sort_by(&:reverse).reverse
@@ -150,7 +155,7 @@ class CheckSearch
     ids_sort
   end
 
-  def _prepare_ids_for_sort(ids)
+  def prepare_ids_for_sort(ids)
     result = {}
     ids.each do |m, v|
       v.each do |p, t|
