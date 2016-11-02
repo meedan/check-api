@@ -29,7 +29,7 @@ class CheckSearch
       end
     end
     # query_c to fetch status (final result)
-    ids_sort = build_search_query_c(ids_sort, @options["status"]) unless @options["status"].blank?
+    ids_sort = build_search_query_c(ids_sort) unless @options["status"].blank?
     check_search_sort(ids_sort)
   end
 
@@ -70,34 +70,10 @@ class CheckSearch
     get_query_result(query, filter)
   end
 
-  def build_search_query_c(media_ids, status)
-    Rails.logger.debug("Calling status query #{media_ids}")
-    q = {
-      filtered: {
-        query: { terms: { annotated_id: media_ids.keys } },
-       filter: { bool: { must: [ {term: {annotation_type: "status" } } ] } }
-     }
-   }
-   g = {
-    annotated: {
-        terms: { field: :annotated_id},
-        aggs: {
-          latest_status: {
-            top_hits: {
-              sort: [ { created_at: { order: :desc} } ],
-              _source: { include: [ "status"] },
-              size: 1
-            }
-          }
-        }
-      }
-    }
-    ids = {}
-    Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
-      if status.include? result[:latest_status][:hits][:hits][0]["_source"][:status]
-        ids[result['key']] = result['latest_status'][:hits][:hits][0]["sort"][0]
-      end
-    end
+  def build_search_query_c(media_ids)
+    query = { terms: { annotated_id: media_ids.keys } }
+    filter = { bool: { must: [ {term: {annotation_type: "status" } } ] } }
+    ids = get_query_result(query, filter)
     ids.each{|k, _v| ids[k] = [ids[k], media_ids[k]].max}
     ids
   end
@@ -116,16 +92,21 @@ class CheckSearch
           recent_activity: {
             top_hits: {
               sort: [ { created_at: { order: :desc } } ],
-              _source: false,
+              _source: { include: [ "status"] },
               size: 1
               }
           }
         }
       }
     }
+
     ids = {}
     Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
-      ids[result['key']] = result['recent_activity'][:hits][:hits][0]["sort"][0]
+      add_key = true
+      if result[:recent_activity][:hits][:hits][0]["_source"].has_key?(:status)
+        add_key = false unless @options['status'].include? result[:recent_activity][:hits][:hits][0]["_source"][:status]
+      end
+      ids[result['key']] = result[:recent_activity][:hits][:hits][0]["sort"][0] if add_key
     end
     ids
   end
