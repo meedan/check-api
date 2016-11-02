@@ -95,12 +95,20 @@ class Media < ActiveRecord::Base
     Project.find(self.project_id) if self.project_id
   end
 
-  def create_new_embed
-    em = Embed.new
-    em.embed = self.information
-    em.annotated = self
+  def create_new_embed(em_none)
+    em = em_none.nil? ? Embed.new : em_none
+    if em_none.nil?
+      em = Embed.new
+      em.embed = self.information
+      em.annotated = self
+    else
+      # clone existing one and reset id and annotator fields
+      em = em_none
+      em.id = em.annotator_id = em.annotator_type = nil
+    end
     em.annotator = self.current_user unless self.current_user.nil?
-    em.context = self.project unless self.project.nil?
+    em.context = self.project
+    em.search_context = [self.project_id]
     em
   end
 
@@ -155,20 +163,15 @@ class Media < ActiveRecord::Base
       em_context = self.annotations('embed', self.project).last unless self.project.nil?
       em_none = self.annotations('embed', 'none').last
       if em_context.nil? and em_none.nil?
-        em = self.create_new_embed
+        em = self.create_new_embed(em_none)
       elsif self.project.nil?
-        em = em_none.nil? ? self.create_new_embed : em_none
+        em = self.create_new_embed(em_none)
       else
         em = em_context unless em_context.nil?
         if em.nil?
-          em = em_none.nil? ? self.create_new_embed : em_none
+          em = self.create_new_embed(em_none)
           # set search context and update Pender annotations
           update_pender_search_context
-        end
-        if em.context.nil?
-          em.context = self.project
-          em.annotator = self.current_user
-          em.id = nil
         end
       end
       info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?k and !v.blank? }

@@ -39,7 +39,7 @@ class CheckSearch
 
   def medias
     # should loop in search result and return media
-    # for now all results are media
+    # for now all results are medias
     self.search_result
   end
 
