@@ -6,8 +6,10 @@
 UPLOADS=${DEPLOYDIR}/shared/files/uploads
 
 # should only run this on ${PRIMARY} nodes, perhaps in an out-of-band process during major multi-node deployments
-echo "running migrations"
-su ${DEPLOYUSER} -c "bundle exec rake db:migrate"
+if [ -n "${PRIMARY}" ]; then
+	echo "running migrations"
+	su ${DEPLOYUSER} -c "bundle exec rake db:migrate"
+fi
 
 echo "setting permissions for ${UPLOADS}"
 chown -R ${DEPLOYUSER}:www-data ${UPLOADS}

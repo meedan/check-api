@@ -39,6 +39,17 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  # Get public team
+  
+  field :public_team do
+    type PublicTeamType
+    description 'Public information about the current team'
+    
+    resolve -> (_obj, _args, ctx) do
+      Team.find(ctx[:context_team].id)
+    end
+  end
+
   field :project do
     type ProjectType
     description 'Information about a project, given its id and its team id'

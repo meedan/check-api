@@ -123,10 +123,13 @@ class Ability
       flag.get_team.include? @context_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
     end
     can :create, Tag do |obj|
-      obj.get_team.include? @context_team.id and obj.annotated_type === 'Media' and obj.annotated.user_id.to_i === @user.id
+      (obj.get_team.include? @context_team.id and obj.annotated_type === 'Media' and obj.annotated.user_id.to_i === @user.id) or obj.annotated_type === 'Source'
     end
     can :destroy, TeamUser do |obj|
       obj.user_id === @user.id
+    end
+    can :destroy, Tag do |obj|
+      obj.get_team.include? @context_team.id
     end
   end
 

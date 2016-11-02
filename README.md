@@ -63,7 +63,7 @@ There are rake tasks for a few tasks (besides Rails' default ones). Run them thi
 
 There is a GraphQL interface that exposes the data model as a GraphQL schema. The GraphQL files should be under `app/graph`.
 
-You can update the schema file by running `rake lapis:graphql:update_schema_json`.
+You can update the schema file by running `rake lapis:graphql:schema`.
 
 ### Background processing
 

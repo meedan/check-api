@@ -11,6 +11,10 @@ module Api
         redirect_to destination
       end
 
+      def failure
+        redirect_to '/close.html'
+      end
+
       protected
 
       def start_session_and_redirect
