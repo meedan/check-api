@@ -8,6 +8,7 @@ class TeamUser < ActiveRecord::Base
   validates :status, inclusion: { in: %w(member requested invited banned), message: "%{value} is not a valid team member status" }
   validates :role, inclusion: { in: %w(admin owner editor journalist contributor), message: "%{value} is not a valid team role" }
   validates :user_id, uniqueness: { scope: :team_id, message: "User already joined this team" }
+  validate :user_is_member_in_slack_team
 
   before_validation :set_role_default_value, on: :create
   after_create :send_email_to_team_owners
@@ -51,5 +52,18 @@ class TeamUser < ActiveRecord::Base
 
   def set_role_default_value
     self.role = 'contributor' if self.role.nil?
+  end
+
+  # Validate that a Slack user is part of the team's `slack_teams` setting.
+  # The `slack_teams` should be a hash of the form:
+  # { 'Slack team 1 id' => 'Slack team 1 name', 'Slack team 2 id' => 'Slack team 2 name', ... }
+  def user_is_member_in_slack_team
+    if self.user.provider == 'slack' &&
+        self.team.setting(:slack_teams)&.is_a?(Hash) &&
+        (!self.team.setting(:slack_teams)&.keys&.include? self.user.omniauth_info&.dig('info', 'team_id'))
+
+        errors.add(:base, "Sorry, you cannot join #{self.team.name} because it is restricted to members of the Slack #{"team".pluralize(self.team.setting(:slack_teams).values.length)} #{self.team.setting(:slack_teams).values.join(', ')}.")
+
+    end
   end
 end
