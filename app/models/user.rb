@@ -36,7 +36,7 @@ class User < ActiveRecord::Base
   def self.from_omniauth(auth)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
     user = User.where(provider: auth.provider, uuid: auth.uid).first || User.new
-    user.email = user.email || auth.info.email
+    user.email = user.email.presence || auth.info.email
     user.password ||= Devise.friendly_token[0,20]
     user.name = auth.info.name
     user.uuid = auth.uid
