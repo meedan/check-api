@@ -568,7 +568,12 @@ class GraphqlControllerTest < ActionController::TestCase
       ids << id["node"]["dbid"]
     end
     assert_equal [m1.id, m2.id], ids
-
   end
 
+  test "should return 404 if public team does not exist" do
+    authenticate_with_user
+    @request.headers.merge!({ 'origin': 'http://foo.localhost:3333' })
+    post :create, query: 'query PublicTeam { public_team { name } }'
+    assert_response 404
+  end
 end

@@ -46,7 +46,8 @@ QueryType = GraphQL::ObjectType.define do
     description 'Public information about the current team'
     
     resolve -> (_obj, _args, ctx) do
-      Team.find(ctx[:context_team].id)
+      id = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+      Team.find(id)
     end
   end
 
