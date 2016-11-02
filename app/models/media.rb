@@ -167,7 +167,7 @@ class Media < ActiveRecord::Base
         end
         if em.context.nil?
           em.context = self.project
-          em.annotator = self.current_user.nil? ? nil : self.current_user
+          em.annotator = self.current_user
           em.id = nil
         end
       end
