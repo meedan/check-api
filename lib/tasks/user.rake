@@ -21,9 +21,9 @@ namespace :user do
       find = args[:find]
       users = User.where("name ILIKE (?) OR uuid LIKE (?) OR email LIKE (?) OR login LIKE (?)", "%#{find}%", "%#{find}%", "%#{find}%", "%#{find}%")
       if users
-         puts "report: id name login uuid provider email"          
+         puts "report: id name login uuid email provider omniauth"          
          users.each do |u|
-            puts "found: #{u.id} #{u.name} #{u.login} #{u.email}"
+            puts "found: #{u.id} #{u.name} #{u.login} #{u.email} '#{u.provider}' '#{u.omniauth_info}'"
             teams = TeamUser.where(user_id: u.id).map(&:team)
             if teams
                teams.each do |t|
