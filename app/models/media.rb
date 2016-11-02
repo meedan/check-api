@@ -163,7 +163,7 @@ class Media < ActiveRecord::Base
         if em.nil?
           em = em_none.nil? ? self.create_new_embed : em_none
           # set search context and update Pender annotations
-          update_pender_search_context unless em_none.nil?
+          update_pender_search_context
         end
         if em.context.nil?
           em.context = self.project
@@ -179,8 +179,10 @@ class Media < ActiveRecord::Base
 
   def update_pender_search_context
     pender = self.annotations('embed', 'none').last
-    pender.search_context = pender.search_context - [self.project_id]
-    pender.save!
+    unless pender.nil?
+      pender.search_context = pender.search_context - [self.project_id]
+      pender.save!
+    end
   end
 
   def duplicate

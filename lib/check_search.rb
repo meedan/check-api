@@ -140,7 +140,7 @@ class CheckSearch
       end
       ids_sort.each {|k, _v| ids << Media.find(k)}
     else
-      ids = Media.where(id: ids_sort.keys).order(id: @options['sort_type']})
+      ids = Media.where(id: ids_sort.keys).order(id: @options['sort_type'])
     end
     ids
   end
