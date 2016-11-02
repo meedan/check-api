@@ -54,8 +54,6 @@ Ruby Gem: ice_nine,Deep Freeze Ruby Objects,MIT,https://github.com/dkubb/ice_nin
 Ruby Gem: jbuilder,Create JSON structures via a Builder-style DSL,MIT,https://github.com/rails/jbuilder
 Ruby Gem: jquery-rails,Use jQuery with Rails 4+,MIT,https://github.com/rails/jquery-rails
 Ruby Gem: jwt,JSON Web Token implementation in Ruby,MIT,http://github.com/jwt/ruby-jwt
-Ruby Gem: lograge,Tame Rails' multi-line logging into a single line per request,MIT,https://github.com/roidrage/lograge
-Ruby Gem: logstash-logger,LogStash Logger for ruby,MIT,http://github.com/dwbutler/logstash-logger
 Ruby Gem: loofah,Loofah is a general library for manipulating and transforming HTML/XML documents and fragments,MIT,https://github.com/flavorjones/loofah
 Ruby Gem: mail,Mail provides a nice Ruby DSL for making sending and reading emails.,MIT,https://github.com/mikel/mail
 Ruby Gem: metaclass,Adds a metaclass method to all Ruby objects,MIT,http://github.com/floehopper/metaclass
@@ -111,7 +109,7 @@ Ruby Gem: safe_yaml,SameYAML provides an alternative implementation of YAML.load
 Ruby Gem: sass,A powerful but elegant CSS compiler that makes CSS fun again.,MIT,http://sass-lang.com/
 Ruby Gem: sass-rails,Sass adapter for the Rails asset pipeline.,MIT,https://github.com/rails/sass-rails
 Ruby Gem: savon,Heavy metal SOAP client,MIT,http://savonrb.com
-Ruby Gem: sdoc,rdoc html with javascript search index.,MIT,http://github.com/voloko/sdoc
+Ruby Gem: sdoc,rdoc html with javascript search index.,MIT,https://github.com/zzak/sdoc
 Ruby Gem: simplecov,Code coverage for Ruby 1.9+ with a powerful configuration library and automatic merging of coverage across test suites,MIT,http://github.com/colszowka/simplecov
 Ruby Gem: simplecov-html,Default HTML formatter for SimpleCov code coverage tool for ruby 1.9+,MIT,https://github.com/colszowka/simplecov-html
 Ruby Gem: sinatra,Classy web-development dressed in a DSL,MIT,http://www.sinatrarb.com/
@@ -131,7 +129,9 @@ Ruby Gem: warden,Rack middleware that provides authentication for rack applicati
 Ruby Gem: wasabi,A simple WSDL parser,MIT,https://github.com/savonrb/wasabi
 Ruby Gem: web-console,A debugging tool for your Ruby on Rails applications.,MIT,https://github.com/rails/web-console
 Ruby Gem: webmock,Library for stubbing HTTP requests in Ruby.,MIT,http://github.com/bblimke/webmock
+Ruby Gem: byebug,Ruby 2.0 fast debugger - base + CLI,BSD 2-Clause,http://github.com/deivid-rodriguez/byebug
 Ruby Gem: io-console,Console interface,BSD 2-Clause,http://www.ruby-lang.org
+Ruby Gem: mocha,Mocking and stubbing library,BSD 2-Clause,http://gofreerange.com/mocha/docs
 Ruby Gem: addressable,URI Implementation,Apache 2.0,https://github.com/sporkmonger/addressable
 Ruby Gem: elasticsearch,Ruby integrations for Elasticsearch,Apache 2.0,http://github.com/elasticsearch/elasticsearch-ruby
 Ruby Gem: elasticsearch-api,Ruby API for Elasticsearch.,Apache 2.0,https://github.com/elasticsearch/elasticsearch-ruby/tree/master/elasticsearch-api
@@ -144,22 +144,14 @@ Ruby Gem: socksify,Redirect all TCPSockets through a SOCKS5 proxy,the program or
 Ruby Gem: eventmachine,Ruby/EventMachine library,Ruby,http://rubyeventmachine.com
 Ruby Gem: httpclient,gives something like the functionality of libwww-perl (LWP) in Ruby,Ruby,https://github.com/nahi/httpclient
 Ruby Gem: macaddr,macaddr,Ruby,https://github.com/ahoward/macaddr
-Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],Ruby,https://bitbucket.org/ged/ruby-pg
 Ruby Gem: rdoc,RDoc produces HTML and command-line documentation for Ruby projects,Ruby,http://docs.seattlerb.org/rdoc
 Ruby Gem: systemu,systemu,Ruby,https://github.com/ahoward/systemu
 Ruby Gem: thin,A thin and fast web server,Ruby,http://code.macournoyer.com/thin/
-Ruby Gem: byebug,Ruby 2.0 fast debugger - base + CLI,BSD,http://github.com/deivid-rodriguez/byebug
-Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],BSD,https://bitbucket.org/ged/ruby-pg
 Ruby Gem: colorize,Ruby gem for colorizing text using ANSI escape sequences.,gpl-2.0,http://github.com/fazibear/colorize
 Ruby Gem: eventmachine,Ruby/EventMachine library,gpl-2.0,http://rubyeventmachine.com
-Ruby Gem: kgio,kinder gentler I/O for Ruby,LGPLv2.1,http://bogomips.org/kgio/
-Ruby Gem: raindrops,real-time stats for preforking Rack servers,LGPLv2.1,https://bogomips.org/raindrops/
-Ruby Gem: logstash-event,Library that contains the classes required to create LogStash events,apache license (2.0),https://github.com/logstash/logstash
-Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],gpl,https://bitbucket.org/ged/ruby-pg
+Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],bsd-3-clause,https://bitbucket.org/ged/ruby-pg
 Ruby Gem: puma,Puma is a simple fast threaded and highly concurrent HTTP 1.1 server for Ruby/Rack applications,bsd-3-clause,http://puma.io
 Ruby Gem: railroady,Ruby on Rails 3/4 model and controller UML class diagram generator.,GPLv2,http://github.com/preston/railroady
 Ruby Gem: thin,A thin and fast web server,GPLv2,http://code.macournoyer.com/thin/
 Ruby Gem: sidekiq,Simple efficient background processing for Ruby,LGPLv3,http://sidekiq.org
 Ruby Gem: sqlite3,This module allows Ruby programs to interface with the SQLite3 database engine (http://www.sqlite.org),bsd-3,https://github.com/sparklemotion/sqlite3-ruby
-Ruby Gem: unicorn,Rack HTTP server for fast clients and Unix,gpl-2.0+,http://unicorn.bogomips.org/
-Ruby Gem: unicorn,Rack HTTP server for fast clients and Unix,ruby-1.8,http://unicorn.bogomips.org/
