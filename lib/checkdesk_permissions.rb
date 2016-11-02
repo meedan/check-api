@@ -77,13 +77,18 @@ module CheckdeskPermissions
 
   def set_project_for_permissions(model)
     if self.class.name == 'Media'
-      model.media_id = self.id if model.respond_to?(:media_id)
-      model.annotated = self if model.respond_to?(:annotated)
+      model = self.set_media_for_permissions(model)
     end
     unless self.project.nil?
       model.project_id = self.project.id if model.respond_to?(:project_id)
       model.context = self.project if model.respond_to?(:context)
     end
+    model
+  end
+
+  def set_media_for_permissions(model)
+    model.media_id = self.id if model.respond_to?(:media_id)
+    model.annotated = self if model.respond_to?(:annotated)
     model
   end
 
