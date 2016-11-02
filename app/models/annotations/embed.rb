@@ -7,6 +7,7 @@ class Embed
   attribute :published_at,  Integer
   attribute :quote, String
   attribute :embed, String
+  attribute :search_context, Array
   validate :validate_quote_for_media_with_empty_url
 
   def content

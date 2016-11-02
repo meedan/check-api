@@ -5,19 +5,18 @@ module MediaInformation
 
   def set_information
     info = self.parse_information
-    
-    unless self.information_blank? 
+
+    unless self.information_blank?
       em_context = self.get_embed_context
       em_none = self.get_embed_regardless_context
-      
+
       em = if em_context.nil? and em_none.nil?
-             self.set_information_for_null_context 
+             self.set_information_for_context(em_none)
            elsif self.project.nil?
-             self.set_information_for_null_project(em_none)
+             self.set_information_for_context(em_none)
            else
-             self.set_information_for_context_or_project(em_context, em_none)
+             self.set_information_for_context_with_no_pender(em_context, em_none)
            end
-      
       self.set_information_for_embed(em, info)
       self.information = {}.to_json
     end
@@ -41,28 +40,44 @@ module MediaInformation
     self.information.blank? ? {} : JSON.parse(self.information)
   end
 
-  def set_information_for_null_context
-    self.create_new_embed
-  end
-
-  def set_information_for_null_project(em_none)
-    em_none.nil? ? self.create_new_embed : em_none
-  end
-
-  def set_information_for_context_or_project(em_context, em_none)
+  def set_information_for_context_with_no_pender(em_context, em_none)
     em = em_context unless em_context.nil?
     if em.nil?
-      em = em_none.nil? ? self.create_new_embed : em_none
-    end
-    if em.context.nil?
-      em.context = self.project
-      em.id = nil
+      em = set_information_for_context(em_none)
+      # set search context and update Pender annotations
+      update_pender_search_context
     end
     em
+  end
+
+  def set_information_for_context(em_none)
+    em = em_none.nil? ? Embed.new : em_none
+    if em_none.nil?
+      em = Embed.new
+      em.embed = self.information
+      em.annotated = self
+    else
+      # clone existing one and reset id and annotator fields
+      em = em_none
+      em.id = em.annotator_id = em.annotator_type = nil
+    end
+    em.annotator = self.current_user unless self.current_user.nil?
+    em.context = self.project
+    em.search_context = [self.project_id]
+    em
+  end
+
+  def update_pender_search_context
+    pender = self.annotations('embed', 'none').last
+    unless pender.nil?
+      pender.search_context = pender.search_context - [self.project_id]
+      pender.save!
+    end
   end
 
   def set_information_for_embed(em, info)
     info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
     em.save!
   end
+
 end

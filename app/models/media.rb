@@ -96,15 +96,6 @@ class Media < ActiveRecord::Base
     Project.find(self.project_id) if self.project_id
   end
 
-  def create_new_embed
-    em = Embed.new
-    em.embed = self.information
-    em.annotated = self
-    em.annotator = self.current_user unless self.current_user.nil?
-    em.context = self.project unless self.project.nil?
-    em
-  end
-
   def overriden_embed_attributes
     %W(title description username quote)
   end
