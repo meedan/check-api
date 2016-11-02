@@ -141,4 +141,9 @@ class CommentTest < ActiveSupport::TestCase
     assert_includes m.annotations('comment', 'some'), c2
     refute_includes m.annotations('comment', 'some'), c3
   end
+
+  test "should get dbid" do
+    c = create_comment
+    assert_equal c.id, c.dbid
+  end
 end

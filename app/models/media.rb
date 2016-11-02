@@ -10,6 +10,7 @@ class Media < ActiveRecord::Base
   has_annotations
 
   include PenderData
+  include MediaInformation
 
   validate :validate_pender_result, on: :create
   validate :pender_result_is_an_item, on: :create
@@ -95,23 +96,6 @@ class Media < ActiveRecord::Base
     Project.find(self.project_id) if self.project_id
   end
 
-  def create_new_embed(em_none)
-    em = em_none.nil? ? Embed.new : em_none
-    if em_none.nil?
-      em = Embed.new
-      em.embed = self.information
-      em.annotated = self
-    else
-      # clone existing one and reset id and annotator fields
-      em = em_none
-      em.id = em.annotator_id = em.annotator_type = nil
-    end
-    em.annotator = self.current_user unless self.current_user.nil?
-    em.context = self.project
-    em.search_context = [self.project_id]
-    em
-  end
-
   def overriden_embed_attributes
     %W(title description username quote)
   end
@@ -155,37 +139,6 @@ class Media < ActiveRecord::Base
 
   def set_project
     self.associate_to_project
-  end
-
-  def set_information
-    info = self.information.blank? ? {} : JSON.parse(self.information)
-    unless info.all? {|_k, v| v.blank?}
-      em_context = self.annotations('embed', self.project).last unless self.project.nil?
-      em_none = self.annotations('embed', 'none').last
-      if em_context.nil? and em_none.nil?
-        em = self.create_new_embed(em_none)
-      elsif self.project.nil?
-        em = self.create_new_embed(em_none)
-      else
-        em = em_context unless em_context.nil?
-        if em.nil?
-          em = self.create_new_embed(em_none)
-          # set search context and update Pender annotations
-          update_pender_search_context
-        end
-      end
-      info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?k and !v.blank? }
-      em.save!
-      self.information = {}.to_json
-    end
-  end
-
-  def update_pender_search_context
-    pender = self.annotations('embed', 'none').last
-    unless pender.nil?
-      pender.search_context = pender.search_context - [self.project_id]
-      pender.save!
-    end
   end
 
   def duplicate
