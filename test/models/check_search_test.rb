@@ -91,15 +91,20 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal s1.id, s2.id
     assert_not_equal s1.id, s3.id
   end
-  
+
   test "should search keyword and tags" do
     t = create_team
     p = create_project team: t
+    p2 = create_project team: t
     info = {title: 'report_title'}.to_json
     m = create_valid_media project_id: p.id, information: info
+    m.project_id = p2.id
+    m.information= info
+    m.save!
     create_tag tag: 'sports', annotated: m, context: p
+    create_tag tag: 'sports', annotated: m, context: p2
     result = CheckSearch.new({keyword: 'report_title', tags: ['sports']}.to_json, t)
-    assert_equal [m.id], result.search_result.map(&:id)
+    assert_equal [m.id, m.id], result.search_result.map(&:id)
   end
 
   test "should search keyword and context" do
@@ -254,6 +259,22 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [m2.id, m1.id, m3.id], result.search_result.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', sort_type: 'asc'}.to_json, t)
     assert_equal [m3.id, m1.id, m2.id], result.search_result.map(&:id)
+  end
+
+  test "should search annotations for multiple projects" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url, project_id: p.id)
+    p2 = create_project
+    p3 = create_project
+    create_project_media project: p2, media: m
+    create_project_media project: p3, media: m
+    result = CheckSearch.new({keyword: 'search_title'}.to_json, t)
+    assert_equal [m.id, m.id, m.id], result.search_result.map(&:id)
   end
 
 end

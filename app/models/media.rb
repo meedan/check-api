@@ -38,6 +38,7 @@ class Media < ActiveRecord::Base
   end
 
   def jsondata(context = nil)
+    context = self.project if context.nil?
     self.data(context).to_json
   end
 

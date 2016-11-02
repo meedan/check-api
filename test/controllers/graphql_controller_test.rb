@@ -560,7 +560,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_equal [m2.id], ids
     create_comment text: 'title_a', annotated: m1, context: p
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
     post :create, query: query
     assert_response :success
     ids = []
@@ -568,7 +568,42 @@ class GraphqlControllerTest < ActionController::TestCase
       ids << id["node"]["dbid"]
     end
     assert_equal [m1.id, m2.id], ids
+  end
 
+  test "should search media with multiple projects" do
+    u = create_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    authenticate_with_user(u)
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url, project_id: p.id)
+    create_project_media project: p2, media: m
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
+    post :create, query: query
+    assert_response :success
+    p_ids = []
+    m_ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      m_ids << id["node"]["dbid"]
+      p_ids << id["node"]["project_id"]
+    end
+    assert_equal [m.id, m.id], m_ids.sort
+    assert_equal [p.id, p2.id], p_ids.sort
+    m.project_id = p2.id
+    m.information= {description: 'new_description'}.to_json
+    m.save!
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, jsondata } } } } }'
+    post :create, query: query
+    assert_response :success
+    result = {}
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      result[id["node"]["project_id"]] = JSON.parse(id["node"]["jsondata"])
+    end
+    assert_equal 'search_desc', result[p.id]["description"]
+    assert_equal 'new_description', result[p2.id]["description"]
   end
 
 end
