@@ -427,6 +427,15 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
   end
 
+  test "should get public team by context" do
+    authenticate_with_user
+    t = create_team subdomain: 'context', name: 'Context Team'
+    @request.headers.merge!({ 'origin': 'http://context.localhost:3333' })
+    post :create, query: 'query PublicTeam { public_team { name } }'
+    assert_response :success
+    assert_equal 'Context Team', JSON.parse(@response.body)['data']['public_team']['name']
+  end
+
   test "should not get team by context" do
     authenticate_with_user
     t = create_team subdomain: 'context', name: 'Context Team'
