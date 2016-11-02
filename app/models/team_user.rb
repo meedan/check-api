@@ -15,7 +15,7 @@ class TeamUser < ActiveRecord::Base
 
   notifies_slack on: :create,
                  if: proc { |tu| tu.current_user.present? && tu.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |tu| "<#{tu.origin}/user/#{tu.user.id}|*#{tu.user.name}*> joined <#{tu.origin.gsub(/(https?:\/\/[^\/]+).*/, '\1')}|*#{tu.team.name}*>" },
+                 message: proc { |tu| "*#{tu.user.name}* joined <#{tu.origin.gsub(/(https?:\/\/[^\/]+).*/, '\1')}|*#{tu.team.name}*>" },
                  channel: proc { |tu| tu.team.setting(:slack_channel) },
                  webhook: proc { |tu| tu.team.setting(:slack_webhook) }
 

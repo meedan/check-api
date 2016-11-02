@@ -1,6 +1,6 @@
 class Project < ActiveRecord::Base
   attr_accessible
-  
+
   has_paper_trail on: [:create, :update]
   belongs_to :user
   belongs_to :team
@@ -10,17 +10,17 @@ class Project < ActiveRecord::Base
   has_many :medias , through: :project_medias
 
   mount_uploader :lead_image, ImageUploader
-  
+
   before_validation :set_description_and_team_and_user, on: :create
 
   validates_presence_of :title
   validates :lead_image, size: true
-  
+
   has_annotations
 
   notifies_slack on: :create,
                  if: proc { |p| p.current_user.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |p| "<#{p.origin}/user/#{p.current_user.id}|*#{p.current_user.name}*> created a project: <#{p.origin}/project/#{p.id}|*#{p.title}*>" },
+                 message: proc { |p| "*#{p.current_user.name}* created a project: <#{p.origin}/project/#{p.id}|*#{p.title}*>" },
                  channel: proc { |p| p.setting(:slack_channel) || p.team.setting(:slack_channel) },
                  webhook: proc { |p| p.team.setting(:slack_webhook) }
 
