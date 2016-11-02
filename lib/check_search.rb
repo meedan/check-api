@@ -23,9 +23,9 @@ class CheckSearch
       result_ids = build_search_query_b
       # get intesect between query_a & query_b to get medias that match user options
       # which related to keywords, context, tags
-      ids_sort = ids.keep_if { |k, v| result_ids.key? k }
+      ids_sort = ids.keep_if { |k, _v| result_ids.key? k }
       if @options['sort'] == 'recent_activity'
-        ids_sort.each{|k, v| ids_sort[k] = [ids[k], result_ids[k]].max}
+        ids_sort.each{|k, _v| ids_sort[k] = [ids[k], result_ids[k]].max}
       end
     end
     # query_c to fetch status (final result)
@@ -82,7 +82,7 @@ class CheckSearch
     annotated: {
         terms: { field: :annotated_id},
         aggs: {
-          recent_activity: {
+          latest_status: {
             top_hits: {
               sort: [ { created_at: { order: :desc} } ],
               _source: { include: [ "status"] },
@@ -94,11 +94,11 @@ class CheckSearch
     }
     ids = {}
     Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
-      if status.include? result[:recent_activity][:hits][:hits][0]["_source"][:status]
-        ids[result['key']] = result['recent_activity'][:hits][:hits][0]["sort"][0]
+      if status.include? result[:latest_status][:hits][:hits][0]["_source"][:status]
+        ids[result['key']] = result['latest_status'][:hits][:hits][0]["sort"][0]
       end
     end
-    ids.each{|k, v| ids[k] = [ids[k], media_ids[k]].max}
+    ids.each{|k, _v| ids[k] = [ids[k], media_ids[k]].max}
     ids
   end
 
@@ -115,7 +115,7 @@ class CheckSearch
         aggs: {
           recent_activity: {
             top_hits: {
-              sort: [ { created_at: { order: "desc" } } ],
+              sort: [ { created_at: { order: :desc } } ],
               _source: false,
               size: 1
               }
@@ -140,7 +140,7 @@ class CheckSearch
       end
       ids_sort.each {|k, _v| ids << Media.find(k)}
     else
-      ids = Media.where(id: ids_sort.keys).order("id #{@options['sort_type']}")
+      ids = Media.where(id: ids_sort.keys).order(id: @options['sort_type']})
     end
     ids
   end
