@@ -44,6 +44,7 @@ class User < ActiveRecord::Base
     user.profile_image = auth.info.image
     user.token = token
     user.url = auth.url
+    user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
     user.omniauth_info = auth.as_json
     user.save!
     user.reload
@@ -114,10 +115,12 @@ class User < ActiveRecord::Base
       self.email
     else
       provider = self.provider.capitalize
-      if self.provider === 'slack'
-        info = self.omniauth_info
-        if info.is_a?(Hash) && info['extra'].is_a?(Hash) && info['extra']['raw_info'].is_a?(Hash)
-          provider = self.omniauth_info['extra']['raw_info']['url'] || 'Slack'
+      if !self.omniauth_info.nil?
+        if self.provider == 'slack'
+          provider = self.omniauth_info.dig('extra', 'raw_info', 'url')
+        else
+          provider = self.omniauth_info.dig('url')
+          return provider if !provider.nil?
         end
       end
       "#{self.login} at #{provider}"

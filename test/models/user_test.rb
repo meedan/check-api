@@ -343,8 +343,8 @@ class UserTest < ActiveSupport::TestCase
   test "should get handle" do
     u = create_user provider: '', email: 'user@email.com'
     assert_equal 'user@email.com', u.handle
-    u = create_user provider: 'facebook', login: 'user'
-    assert_equal 'user at Facebook', u.handle
+    u = create_user provider: 'facebook', login: 'user', omniauth_info: { 'url' => 'https://facebook.com/10157109339765023' }
+    assert_equal 'https://facebook.com/10157109339765023', u.handle
   end
 
   test "should get handle for Slack" do
