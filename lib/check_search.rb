@@ -81,17 +81,21 @@ class CheckSearch
     ids = {}
     Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
       context_ids = {}
-      result['context']['buckets'].each do |context|
+      result[:context][:buckets].each do |context|
         add_key = true
-        if context[:recent_activity][:hits][:hits][0]["_source"].has_key?(:status)
-          add_key = false unless @options['status'].include? context[:recent_activity][:hits][:hits][0]["_source"][:status]
-        end
-        if context['key'] == 'no_key' and add_key
-          context[:recent_activity][:hits][:hits][0]["_source"]['search_context'].each do |sc|
-            context_ids[sc] = context[:recent_activity][:hits][:hits][0]["sort"][0]
+        if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status)
+          unless @options['status'].include? context[:recent_activity][:hits][:hits][0][:_source][:status]
+            add_key = false
           end
-        else
-          context_ids[context['key']] = context[:recent_activity][:hits][:hits][0]["sort"][0] if add_key
+        end
+        if add_key
+          if context['key'] == 'no_key'
+            context[:recent_activity][:hits][:hits][0][:_source][:search_context].each do |sc|
+              context_ids[sc] = context[:recent_activity][:hits][:hits][0][:sort][0]
+            end
+          else
+            context_ids[context['key']] = context[:recent_activity][:hits][:hits][0][:sort][0]
+          end
         end
       end
       ids[result['key']] = context_ids unless context_ids.blank?
