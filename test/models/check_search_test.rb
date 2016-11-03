@@ -256,4 +256,15 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [m3.id, m1.id, m2.id], result.search_result.map(&:id)
   end
 
+  test "should search return all results" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'search_title'}.to_json
+    15.times do
+        create_valid_media project_id: p.id, information: info
+    end
+    result = CheckSearch.new({}.to_json, t)
+    assert_equal 15, result.search_result.count
+  end
+
 end
