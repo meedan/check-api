@@ -351,4 +351,20 @@ class UserTest < ActiveSupport::TestCase
     u = create_user provider: 'slack', omniauth_info: { 'extra' => { 'raw_info' => { 'url' => 'https://meedan.slack.com' } } }, login: 'caiosba'
     assert_equal 'caiosba at https://meedan.slack.com', u.handle
   end
+
+  test "should return whether two users are colleagues in a team" do
+    u1 = create_user
+    u2 = create_user
+    t1 = create_team
+    t2 = create_team
+    t3 = create_team
+    create_team_user team: t1, user: u1
+    create_team_user team: t2, user: u2
+    create_team_user team: t3, user: u1
+    assert !u1.is_a_colleague_of?(u2)
+    assert !u2.is_a_colleague_of?(u1)
+    create_team_user team: t3, user: u2
+    assert u1.is_a_colleague_of?(u2)
+    assert u2.is_a_colleague_of?(u1)
+  end
 end

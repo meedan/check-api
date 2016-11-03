@@ -54,7 +54,7 @@ class ContactTest < ActiveSupport::TestCase
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
     assert_raise CheckdeskPermissions::AccessDenied do
-      Contact.find_if_can(pc.id, pu, pt)
+      Contact.find_if_can(pc.id, pu.reload, pt)
     end
   end
 

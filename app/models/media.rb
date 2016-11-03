@@ -1,6 +1,6 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  attr_accessor :project_id, :duplicated_of, :information
+  attr_accessor :project_id, :duplicated_of, :information, :project_object
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
@@ -67,9 +67,11 @@ class Media < ActiveRecord::Base
   end
 
   def get_team
-    teams = []
-    projects = self.projects.map(&:id)
-    projects.empty? ? teams : Project.where(:id => projects).map(&:team_id).uniq
+    self.projects.map(&:team_id)
+  end
+
+  def get_team_objects
+    self.projects.map(&:team)
   end
 
   def associate_to_project
@@ -94,6 +96,7 @@ class Media < ActiveRecord::Base
   end
 
   def project
+    return self.project_object unless self.project_object.nil?
     Project.find(self.project_id) if self.project_id
   end
 

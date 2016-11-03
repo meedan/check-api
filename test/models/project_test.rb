@@ -75,7 +75,7 @@ class ProjectTest < ActiveSupport::TestCase
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
     assert_raise CheckdeskPermissions::AccessDenied do
-      Project.find_if_can(pp.id, pu, pt)
+      Project.find_if_can(pp.id, pu.reload, pt)
     end
   end
 

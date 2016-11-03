@@ -130,7 +130,7 @@ class GraphqlCrudOperations
         resolve -> (obj, _args, ctx) {
           obj.current_user = ctx[:current_user]
           obj.project_id ||= ctx[:context_project].id if obj.is_a?(Media) && ctx[:context_project].present?
-          obj.permissions
+          obj.permissions(ctx[:ability])
         }
       end
 
@@ -186,7 +186,7 @@ class GraphqlCrudOperations
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
           annotation.current_user = ctx[:current_user]
-          annotation.permissions
+          annotation.permissions(ctx[:ability])
         }
       end
 
@@ -211,7 +211,7 @@ class GraphqlCrudOperations
   end
 
   def self.load_if_can(klass, id, ctx)
-    obj = klass.find_if_can(id, ctx[:current_user], ctx[:context_team])
+    obj = klass.find_if_can(id, ctx[:current_user], ctx[:context_team], ctx[:ability])
     obj.current_user = ctx[:current_user]
     obj.context_team = ctx[:context_team]
     obj

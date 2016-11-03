@@ -24,11 +24,7 @@ ProjectType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :medias, -> { MediaType.connection_type } do
-    resolve ->(project, _args, _ctx) {
-      project.medias
-    }
-  end
+  connection :medias, MediaType.connection_type, property: :eager_loaded_medias
 
   connection :sources, -> { SourceType.connection_type } do
     resolve ->(project, _args, _ctx) {

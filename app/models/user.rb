@@ -107,7 +107,7 @@ class User < ActiveRecord::Base
   end
 
   def is_member_of?(team)
-    TeamUser.where(user_id: self.id, team_id: team.id, status: 'member').exists?
+    !self.team_users.select{ |tu| tu.team_id == team.id && tu.status == 'member' }.empty?
   end
 
   def handle
@@ -125,6 +125,12 @@ class User < ActiveRecord::Base
       end
       "#{self.login} at #{provider}"
     end
+  end
+
+  # Whether two users are members of any same team
+  def is_a_colleague_of?(user)
+    results = TeamUser.find_by_sql(['SELECT COUNT(*) AS count FROM team_users tu1 INNER JOIN team_users tu2 ON tu1.team_id = tu2.team_id WHERE tu1.user_id = :user1 AND tu2.user_id = :user2 AND tu1.status = :status AND tu2.status = :status', { user1: self.id, user2: user.id, status: 'member' }])
+    results.first.count.to_i >= 1
   end
 
   private
