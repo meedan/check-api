@@ -166,14 +166,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
     assert_equal 'Title B', JSON.parse(jsondata)['title']
-    # calling without context
-    m.reload
-    m.project_id = nil
+    # calling without context - should fallback to self.project if exists
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { jsondata() } }"
     post :create, query: query
     assert_response :success
     jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
-    assert_equal 'test media', JSON.parse(jsondata)['title']
+    assert_equal 'Title A', JSON.parse(jsondata)['title']
   end
 
   test "should destroy media" do
