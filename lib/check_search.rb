@@ -79,7 +79,7 @@ class CheckSearch
   def get_search_result(query, filter)
     q, g = build_search_query(query, filter)
     ids = {}
-    Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
+    Annotation.search(query: q, aggs: g, size: 10000).response['aggregations']['annotated']['buckets'].each do |result|
       context_ids = {}
       result[:context][:buckets].each do |context|
         add_key = true
