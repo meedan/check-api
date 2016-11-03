@@ -119,7 +119,7 @@ class CheckSearch
               aggs: {
                 recent_activity: {
                   top_hits: {
-                    sort: [ { created_at: { order: :desc } } ],
+                    sort: [ { created_at: { order: :desc, ignore_unmapped: true } } ],
                     _source: { include: %w(status context_id search_context) },
                     size: 1
                   }
