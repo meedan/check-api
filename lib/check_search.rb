@@ -101,7 +101,7 @@ class CheckSearch
     }
 
     ids = {}
-    Annotation.search(query: q, aggs: g).response['aggregations']['annotated']['buckets'].each do |result|
+    Annotation.search(query: q, aggs: g, size: 10000).response['aggregations']['annotated']['buckets'].each do |result|
       add_key = true
       if result[:recent_activity][:hits][:hits][0]["_source"].has_key?(:status)
         add_key = false unless @options['status'].include? result[:recent_activity][:hits][:hits][0]["_source"][:status]
