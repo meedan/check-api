@@ -12,7 +12,8 @@ ENV DEPLOYUSER=checkdeploy \
     RAILS_ENV=production \
     GITREPO=git@github.com:meedan/check-api.git \
     PRODUCT=check \    
-    APP=check-api
+    APP=check-api \
+    TERM=xterm
 
 #
 # APP CONFIG
@@ -53,7 +54,7 @@ COPY ./Gemfile.lock ./latest/Gemfile.lock
 USER ${DEPLOYUSER}
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
     && cd ./latest \
-    && bundle install --deployment --without test development
+    && bundle install  --jobs 20 --retry 5 --deployment --without test development
 
 USER root
 
