@@ -408,7 +408,9 @@ class MediaTest < ActiveSupport::TestCase
     m = create_media(account: create_valid_account, url: url)
     assert_not_nil m.data
     info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}
-    m.information= info.to_json; m.save!
+    m.information = info.to_json; m.save!
+    sleep 1
+    m = m.reload
     data = m.data
     assert_equal data['title'], 'Title A'
     assert_equal data['quote'], 'Media quote'

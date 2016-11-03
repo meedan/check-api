@@ -20,6 +20,7 @@ module CheckdeskPermissions
         self.find(id)
       else
         model = self.name == 'Project' ? self.eager_load(medias: { projects: :team }).where(id: id)[0] : self.find(id)
+        raise ActiveRecord::RecordNotFound if model.nil?
         ability ||= Ability.new(current_user, context_team)
         if ability.can?(:read, model)
           model
