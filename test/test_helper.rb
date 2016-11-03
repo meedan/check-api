@@ -67,6 +67,16 @@ class ActiveSupport::TestCase
     Rails.unstub(:env)
   end
 
+  def assert_queries(num = 1, &block)
+    queries  = []
+    callback = lambda { |name, start, finish, id, payload|
+      queries << payload[:sql] if payload[:sql] =~ /^SELECT|UPDATE|INSERT/
+    }
+    ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &block)
+  ensure
+    assert_equal num, queries.size, "#{queries.size} instead of #{num} queries were executed.#{queries.size == 0 ? '' : "\nQueries:\n#{queries.join("\n")}"}"
+  end
+
   def authenticate_with_token(api_key = nil)
     unless @request.nil?
       header = CONFIG['authorization_header'] || 'X-Token'
