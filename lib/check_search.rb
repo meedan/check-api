@@ -87,7 +87,7 @@ class CheckSearch
     }
     g = {
       annotated: {
-        terms: { field: :annotated_id },
+        terms: { field: :annotated_id, size: 0 },
         aggs: {
           recent_activity: {
             top_hits: {
