@@ -147,11 +147,15 @@ class GraphqlControllerTest < ActionController::TestCase
     # Update media title and description with context p
     m.project_id = p.id
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    m.information= info; m.save!
+    m.information = info; m.save!
+    sleep 1
+    m.reload
     # Update media title and description with context p2
     m.project_id = p2.id
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    m.information= info; m.save!
+    m.information = info; m.save!
+    sleep 1
+    m.reload
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { jsondata(context_id: #{p.id}) } }"
     post :create, query: query
     assert_response :success
@@ -163,6 +167,8 @@ class GraphqlControllerTest < ActionController::TestCase
     jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
     assert_equal 'Title B', JSON.parse(jsondata)['title']
     # calling without context
+    m.reload
+    m.project_id = nil
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { jsondata() } }"
     post :create, query: query
     assert_response :success
@@ -626,11 +632,11 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     query = "query { project(id: \"#{p.id}\") { medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
-    
+
     assert_queries (10 + n + n) do
       post :create, query: query
     end
-    
+
     assert_response :success
     assert_equal n, JSON.parse(@response.body)['data']['project']['medias']['edges'].size
   end
