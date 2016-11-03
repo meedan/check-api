@@ -10,8 +10,7 @@ engines:
       - BUG
   rubocop:
     enabled: true
-    AllCops:
-      TargetRubyVersion: 2.3
+    config: .rubocop.yml
   brakeman:
     enabled: true
   duplication:
