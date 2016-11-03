@@ -14,13 +14,13 @@ module CheckdeskPermissions
   end
 
   module ClassMethods
-    def find_if_can(id, current_user, context_team)
+    def find_if_can(id, current_user, context_team, ability = nil)
       id = id.id if id.is_a?(ActiveRecord::Base)
       if current_user.nil?
         self.find(id)
       else
-        ability = Ability.new(current_user, context_team)
-        model = self.find(id)
+        model = self.name == 'Project' ? self.eager_load(medias: { projects: :team }).where(id: id)[0] : self.find(id)
+        ability ||= Ability.new(current_user, context_team)
         if ability.can?(:read, model)
           model
         else
@@ -30,14 +30,14 @@ module CheckdeskPermissions
     end
   end
 
-  def permissions
+  def permissions(ability = nil)
     perms = Hash.new
     unless self.current_user.nil?
-      ability = Ability.new(self.current_user, self.context_team)
+      ability ||= Ability.new(self.current_user, self.context_team)
       perms["read #{self.class}"] = ability.can?(:read, self)
       perms["update #{self.class}"] = ability.can?(:update, self)
       perms["destroy #{self.class}"] = ability.can?(:destroy, self)
-      perms = perms.merge self.set_create_permissions(self.class.name)
+      perms = perms.merge self.set_create_permissions(self.class.name, ability)
     end
     perms.to_json
   end
@@ -53,11 +53,11 @@ module CheckdeskPermissions
     }
   end
 
-  def set_create_permissions(obj)
+  def set_create_permissions(obj, ability = nil)
     create = self.get_create_permissions
     perms = Hash.new
     unless create[obj].nil?
-      ability = Ability.new(self.current_user, self.context_team)
+      ability ||= Ability.new(self.current_user, self.context_team)
       create[obj].each do |data|
         model = data.new
         model.current_user = self.current_user

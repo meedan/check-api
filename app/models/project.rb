@@ -63,6 +63,10 @@ class Project < ActiveRecord::Base
     project
   end
 
+  def eager_loaded_medias
+    self.medias.to_a
+  end
+
   private
 
   def set_description_and_team_and_user

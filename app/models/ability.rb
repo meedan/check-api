@@ -134,45 +134,44 @@ class Ability
   end
 
   def authenticated_perms
-    #can :read, User, :id => @user.id
     can :create, Team
     can :create, TeamUser, :user_id => @user.id, status: ['member', 'requested']
   end
 
-  # extra permissions for all users
+  # Extra permissions for all users
   def extra_perms_for_all_users
     can :create, User
     can :read, Team, :private => false
     can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
+    
+    # A @user can read a user if:
+    # 1) @user is the same as target user
+    # 2) target user is a member of at least one public team
+    # 3) @user is a member of at least one same team as the target user
     can :read, User do |obj|
-      teams  = obj.teams.map(&:private).uniq
-      if teams.empty?
-        @user.id == obj.id
-      elsif teams.include? false
-        teams.size >= 1
-      else
-        tu = @user.teams.joins(:team_users).where(:team_users => {:status =>'member'}).map(&:id).uniq
-        (obj.teams.map(&:id).uniq & tu).size >= 1
-      end
+      @user.id == obj.id || obj.teams.where('teams.private' => false).exists? || @user.is_a_colleague_of?(obj)
     end
 
+    # A @user can read contact, project or team user if:
+    # 1) team is private and @user is a member of that team
+    # 2) team user is not private
     can :read, [Contact, Project, TeamUser] do |obj|
-      if obj.team.private
-        tu = TeamUser.where(user_id: @user.id, team_id: obj.team.id, status: 'member')
-        !tu.last.nil?
-      else
-        !obj.team.private
-      end
+      team = obj.team
+      !team.private || @user.is_member_of?(team)
     end
 
+    # A @user can read any of those objects if:
+    # 1) it's a source related to him/her or not related to any user
+    # 2) it's related to at least one public team
+    # 3) it's related to a private team which the @user has access to
     can :read, [Account, Source, Media, ProjectMedia, ProjectSource, Comment, Flag, Status, Tag, Embed] do |obj|
       if obj.is_a?(Source) && obj.respond_to?(:user_id)
-        obj.user_id === @user.id || obj.user_id.nil?
+        obj.user_id == @user.id || obj.user_id.nil?
       else
-        teams = Team.where(id: obj.get_team, private: false).map(&:id)
+        team_ids = obj.get_team
+        teams = obj.respond_to?(:get_team_objects) ? obj.get_team_objects.reject{ |t| t.private } : Team.where(id: team_ids, private: false)
         if teams.empty?
-          tu = TeamUser.where(user_id: @user.id, team_id: obj.get_team, status: 'member').map(&:id)
-          tu.any?
+          TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
         else
           teams.any?
         end

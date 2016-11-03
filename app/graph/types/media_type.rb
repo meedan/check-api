@@ -62,7 +62,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
 end
 
 def get_context(args = {}, ctx = {})
-  args['context_id'].nil? ? nil : Project.find_if_can(args['context_id'], ctx[:current_user], ctx[:context_team])
+  args['context_id'].nil? ? nil : Project.find_if_can(args['context_id'], ctx[:current_user], ctx[:context_team], ctx[:ability])
 end
 
 def call_method_from_context(media, method, args, ctx)

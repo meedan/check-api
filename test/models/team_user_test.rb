@@ -63,7 +63,7 @@ class TeamUserTest < ActiveSupport::TestCase
     TeamUser.find_if_can(ptu.id, pu, pt)
     ptu.status = 'requested'; ptu.save!
     assert_raise CheckdeskPermissions::AccessDenied do
-      TeamUser.find_if_can(ptu.id, pu, pt)
+      TeamUser.find_if_can(ptu.reload.id, pu.reload, pt)
     end
   end
 
