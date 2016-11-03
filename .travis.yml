@@ -1,7 +1,10 @@
 language: ruby
 services:
-- elasticsearch
 - postgresql
+before_install:
+- sudo apt-get -qq update
+- sudo apt-get install wget openjdk-7-jre
+- wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.4.1.deb && sudo dpkg -i --force-confnew elasticsearch-2.4.1.deb && sudo service elasticsearch restart
 addons:
   postgresql: '9.4'
   code_climate:
