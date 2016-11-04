@@ -502,7 +502,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     m = create_media project_id: p.id
     create_comment annotated: m, annotator: u
-    query = "query GetById { project(id: \"#{p.id}\") { medias(first: 1) { edges { node { permissions } } } } }"
+    query = "query GetById { project(id: \"#{p.id}\") { medias_count, medias(first: 1) { edges { node { permissions } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success
@@ -631,7 +631,8 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
-    assert_queries (10 + n + n) do
+    # Add "+ 2" as new callback added "set_initial_media_status"
+    assert_queries (10 + n + n + 2) do
       post :create, query: query
     end
 
