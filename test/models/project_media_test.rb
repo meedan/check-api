@@ -142,7 +142,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media project_id: p.id, user: u
-    assert_equal 'undetermined', m.annotations('status', p).last.status
+    assert_equal Status.default_id(m, p), m.annotations('status', p).last.status
   end
 
 end

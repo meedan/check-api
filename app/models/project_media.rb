@@ -36,7 +36,7 @@ class ProjectMedia < ActiveRecord::Base
     st.annotated = self.media
     st.context = self.project
     st.annotator = self.user
-    st.status = 'undetermined'
+    st.status = Status.default_id(self.media, self.project)
     st.created_at = self.created_at
     st.save!
   end
