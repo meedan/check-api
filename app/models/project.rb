@@ -64,7 +64,7 @@ class Project < ActiveRecord::Base
   end
 
   def eager_loaded_medias
-    self.medias.order('id DESC').to_a
+    self.medias.to_a
   end
 
   private

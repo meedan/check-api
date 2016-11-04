@@ -133,6 +133,7 @@ class ActiveSupport::TestCase
     u = create_user
     klass.delete_all
     x1 = send("create_#{type}", { team: @team })
+    sleep 1
     x2 = send("create_#{type}", { team: @team })
     user = type == 'user' ? x1 : u
     authenticate_with_user(user)
