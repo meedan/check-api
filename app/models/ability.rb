@@ -75,9 +75,6 @@ class Ability
     can :update, [Comment, Flag, Annotation] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can :create, [Status, Tag] do |obj|
-      obj.get_team.include? @context_team.id
-    end
   end
 
   def journalist_perms
@@ -92,10 +89,7 @@ class Ability
       flag.get_team.include? @context_team.id and (flag.annotator_id.to_i == @user.id)
     end
     can :create, [Status, Tag] do |obj|
-      obj.get_team.include? @context_team.id and (
-        (obj.context_type === 'Project' and obj.context.user_id.to_i === @user.id) or
-        (obj.annotated_type === 'Media' and obj.annotated.user_id.to_i === @user.id)
-        )
+      obj.get_team.include? @context_team.id
     end
   end
 
@@ -143,7 +137,7 @@ class Ability
     can :create, User
     can :read, Team, :private => false
     can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
-    
+
     # A @user can read a user if:
     # 1) @user is the same as target user
     # 2) target user is a member of at least one public team
