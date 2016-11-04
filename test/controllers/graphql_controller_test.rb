@@ -502,7 +502,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     m = create_media project_id: p.id
     create_comment annotated: m, annotator: u
-    query = "query GetById { project(id: \"#{p.id}\") { medias(first: 1) { edges { node { permissions } } } } }"
+    query = "query GetById { project(id: \"#{p.id}\") { medias_count, medias(first: 1) { edges { node { permissions } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success

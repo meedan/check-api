@@ -67,6 +67,10 @@ class Project < ActiveRecord::Base
     self.medias.to_a
   end
 
+  def medias_count
+    self.medias.count
+  end
+
   private
 
   def set_description_and_team_and_user
