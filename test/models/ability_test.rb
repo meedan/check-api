@@ -662,9 +662,6 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:create, s)
     assert ability.cannot?(:update, s)
     assert ability.cannot?(:destroy, s)
-    s.annotator = create_user; s.save!
-    assert ability.cannot?(:update, s)
-    assert ability.cannot?(:destroy, s)
     # test other instances
     p.team = nil; p.save!
     assert ability.cannot?(:create, s)
@@ -680,9 +677,6 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media project_id: p.id
     s =  create_status status: 'verified', context: p, annotator: u, annotated: m
     assert ability.can?(:create, s)
-    assert ability.cannot?(:update, s)
-    assert ability.cannot?(:destroy, s)
-    s.annotator = create_user; s.save!
     assert ability.cannot?(:update, s)
     assert ability.cannot?(:destroy, s)
     # test other instances
@@ -757,9 +751,6 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media project_id: p.id
     t =  create_tag tag: 'media_tag', context: p, annotator: u, annotated: m
     assert ability.can?(:create, t)
-    assert ability.cannot?(:update, t)
-    assert ability.can?(:destroy, t)
-    m.user = create_user; m.save!
     assert ability.cannot?(:update, t)
     assert ability.can?(:destroy, t)
     # test other instances

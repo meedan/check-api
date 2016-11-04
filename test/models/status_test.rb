@@ -325,7 +325,8 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
     m = create_valid_media project_id: p.id
-    assert_raise RuntimeError do
+    # Ticket #5373
+    assert_difference 'Status.length' do
       s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
     m.user = u; m.save!
@@ -340,7 +341,8 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
     m = create_valid_media project_id: p.id
-    assert_raise RuntimeError do
+    # Ticket #5373
+    assert_difference 'Status.length' do
       s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
     end
     p.user = u; p.save!
