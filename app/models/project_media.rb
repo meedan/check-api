@@ -5,7 +5,7 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :media
   belongs_to :user
 
-  after_create :set_search_context
+  after_create :set_search_context, :set_initial_media_status
 
   notifies_slack on: :create,
                  if: proc { |pm| m = pm.media; m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
@@ -29,6 +29,16 @@ class ProjectMedia < ActiveRecord::Base
 
   def project_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
+  end
+
+  def set_initial_media_status
+    st = Status.new
+    st.annotated = self.media
+    st.context = self.project
+    st.annotator = self.user
+    st.status = 'undetermined'
+    st.created_at = self.created_at
+    st.save!
   end
 
   private
