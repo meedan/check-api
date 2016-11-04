@@ -34,25 +34,29 @@ class Media < ActiveRecord::Base
   end
 
   def tags(context = nil)
+    context = self.get_media_context(context)
     self.annotations('tag', context)
   end
 
   def jsondata(context = nil)
-    context = self.project if context.nil?
+    context = self.get_media_context(context)
     self.data(context).to_json
   end
 
   def project_media(context = nil)
+    context = self.get_media_context(context)
     self.project_medias.find_by(:project_id => context.id) unless context.nil?
   end
 
   def user_in_context(context = nil)
+    context = self.get_media_context(context)
     self.user if context.nil?
     pm = project_media(context)
     pm.user unless pm.nil?
   end
 
   def data(context = nil)
+    context = self.get_media_context(context)
     em_pender = self.annotations('embed', context).last unless context.nil?
     em_pender = self.annotations('embed', 'none').last if em_pender.nil?
     embed = JSON.parse(em_pender.embed) unless em_pender.nil?
@@ -61,6 +65,7 @@ class Media < ActiveRecord::Base
   end
 
   def published(context = nil)
+    context = self.get_media_context(context)
     self.created_at.to_i.to_s if context.nil?
     pm = project_media(context)
     pm.created_at.to_i.to_s unless pm.nil?
@@ -86,8 +91,13 @@ class Media < ActiveRecord::Base
   end
 
   def last_status(context = nil)
+    context = self.get_media_context(context)
     last = self.annotations('status', context).first
     last.nil? ? Status.default_id(self, context) : last.status
+  end
+
+  def get_media_context(context = nil)
+    context = context.nil? ? self.project : context
   end
 
   def domain
