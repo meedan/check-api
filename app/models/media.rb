@@ -97,7 +97,7 @@ class Media < ActiveRecord::Base
   end
 
   def get_media_context(context = nil)
-    context = context.nil? ? self.project : context
+    context.nil? ? self.project : context
   end
 
   def domain
