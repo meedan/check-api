@@ -191,6 +191,7 @@ class MediaTest < ActiveSupport::TestCase
     info = {title: 'Title BB', description: 'Desc BB'}.to_json
     m.information= info;  m.save!
     # fetch media data without context
+    m = m.reload; m.project_id = nil
     data = m.data
     title = data['title']; description = data['description']
     assert_equal title, 'test media'
