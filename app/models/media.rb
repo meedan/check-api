@@ -66,7 +66,7 @@ class Media < ActiveRecord::Base
 
   def published(context = nil)
     context = self.get_media_context(context)
-    self.created_at.to_i.to_s if context.nil?
+    return self.created_at.to_i.to_s if context.nil?
     pm = project_media(context)
     pm.created_at.to_i.to_s unless pm.nil?
   end
