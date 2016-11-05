@@ -47,7 +47,7 @@ class CheckSearch
     if @options["keyword"].blank?
       query = { match_all: {} }
     else
-      query = { query_string: { query: @options["keyword"], fields:  %w(title description quote text) } }
+      query = { query_string: { query: @options["keyword"], fields:  %w(title description quote text), default_operator: "AND" } }
     end
     filters = [{terms: { annotation_type: %w(embed comment) } } ]
     filters << {term: { annotated_type: "media"}}
