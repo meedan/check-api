@@ -288,4 +288,17 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal 15, result.search_result.count
   end
 
+  test "should search keyword with AND operator" do
+    t = create_team
+    p = create_project team: t
+    m1 = create_valid_media project_id: p.id, information: {title: 'keyworda'}.to_json
+    m2 = create_valid_media project_id: p.id, information: {title: 'keywordb'}.to_json
+    m3 = create_valid_media project_id: p.id, information: {title: 'keyworda and keywordb'}.to_json
+    result = CheckSearch.new({keyword: 'keyworda'}.to_json, t)
+    assert_equal 2, result.search_result.count
+    result = CheckSearch.new({keyword: 'keyworda and keywordb'}.to_json, t)
+    assert_equal 1, result.search_result.count
+
+  end
+
 end
