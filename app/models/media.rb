@@ -90,6 +90,12 @@ class Media < ActiveRecord::Base
     end
   end
 
+  def relay_id
+    str = "Media/#{self.id}"
+    str += "/#{self.project_id}" unless self.project_id.nil?
+    Base64.encode64(str)
+  end
+
   def last_status(context = nil)
     context = self.get_media_context(context)
     last = self.annotations('status', context).first

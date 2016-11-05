@@ -4,7 +4,14 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('Media')
+  field :id do
+    type types.ID
+
+    resolve -> (media, _args, _ctx) {
+      media.relay_id
+    }
+  end
+
   field :updated_at, types.String
   field :url, types.String
   field :account_id, types.Int
