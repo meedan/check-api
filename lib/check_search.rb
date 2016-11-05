@@ -12,7 +12,7 @@ class CheckSearch
   end
 
   def id
-    Digest::MD5.hexdigest(@options.inspect)
+    Base64.encode64("CheckSearch/#{@options.to_json}")
   end
 
   def create
@@ -38,7 +38,11 @@ class CheckSearch
   def medias
     # should loop in search result and return media
     # for now all results are medias
-    self.search_result
+    @search_result ||= self.search_result
+  end
+
+  def number_of_results
+    self.medias.count
   end
 
   private

@@ -4,10 +4,7 @@ CheckSearchType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  connection :medias, -> { MediaType.connection_type } do
-    resolve ->(check_search, _args, _ctx) {
-      check_search.medias
-    }
-  end
-
+  field :number_of_results, types.Int
+  
+  connection :medias, MediaType.connection_type
 end
