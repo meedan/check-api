@@ -112,7 +112,7 @@ class CheckSearch
     }
     g = {
       annotated: {
-        terms: { field: :annotated_id, size: 0 },
+        terms: { field: :annotated_id, size: 10000 },
         aggs: {
           context: {
             terms: { field: :context_id, missing: :no_key },
