@@ -9,7 +9,7 @@ class ProjectMedia < ActiveRecord::Base
 
   notifies_slack on: :create,
                  if: proc { |pm| m = pm.media; m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |pm| m = pm.media; data = m.data(pm.project); "*#{m.user.name}* added an unverified link: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{data['title']}*>" },
+                 message: proc { |pm| pm.slack_notification_message },
                  channel: proc { |pm| m = pm.media; m.project.setting(:slack_channel) || m.current_team.setting(:slack_channel) },
                  webhook: proc { |pm| m = pm.media; m.current_team.setting(:slack_webhook) }
 
@@ -39,6 +39,16 @@ class ProjectMedia < ActiveRecord::Base
     st.status = Status.default_id(self.media, self.project)
     st.created_at = self.created_at
     st.save!
+  end
+
+  def slack_notification_message
+    m = self.media
+    data = m.data(self.project)
+    if !data['quote'].blank?
+      "*#{m.user.name}* added a new claim: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{data['quote']}*>"
+    else
+      "*#{m.user.name}* added a new link: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{data['title']}*>"
+    end
   end
 
   private
