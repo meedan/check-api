@@ -95,7 +95,7 @@ class CheckSearch
         if add_key
           if context['key'] == 'no_key'
             context[:recent_activity][:hits][:hits][0][:_source][:search_context].each do |sc|
-              context_ids[sc] = context[:recent_activity][:hits][:hits][0][:sort][0]
+              context_ids[sc] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
             end
           else
             context_ids[context['key']] = context[:recent_activity][:hits][:hits][0][:sort][0]
