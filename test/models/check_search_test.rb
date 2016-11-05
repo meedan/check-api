@@ -273,8 +273,8 @@ class CheckSearchTest < ActiveSupport::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url, project_id: p.id)
-    p2 = create_project
-    p3 = create_project
+    p2 = create_project team: t
+    p3 = create_project team: t
     create_project_media project: p2, media: m
     create_project_media project: p3, media: m
     result = CheckSearch.new({keyword: 'search_title'}.to_json, t)

@@ -98,7 +98,7 @@ class CheckSearch
               context_ids[sc] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
             end
           else
-            context_ids[context['key']] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? context['key']
+            context_ids[context['key']] = context[:recent_activity][:hits][:hits][0][:sort][0]
           end
         end
       end
