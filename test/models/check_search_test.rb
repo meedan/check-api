@@ -44,9 +44,13 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_empty result.search_result
     result = CheckSearch.new({projects: [p.id]}.to_json, t)
     assert_equal [m.id], result.search_result.map(&:id)
-    # add another media to same context
-    info = {title: 'search_title'}.to_json
-    m2 = create_valid_media project_id: p.id, information: info
+    # add a new context to existing media
+    p2 = create_project team: t
+    create_project_media project: p2, media: m
+    result = CheckSearch.new({projects: [p.id]}.to_json, t)
+    assert_equal [m.id].sort, result.search_result.map(&:id).sort
+    # add a new media to same context
+    m2 = create_valid_media project_id: p.id
     result = CheckSearch.new({projects: [p.id]}.to_json, t)
     assert_equal [m.id, m2.id].sort, result.search_result.map(&:id).sort
   end
