@@ -90,8 +90,7 @@ class CheckSearch
     query = { terms: { annotated_id: media_ids.keys } }
     filter = { bool: { must: [ {term: {annotation_type: "status" } } ] } }
     ids = get_search_result(query, filter)
-    ids_p = fetch_media_projects(ids, ids, media_ids)
-    ids_p
+    fetch_media_projects(ids, ids, media_ids)
   end
 
   def get_search_result(query, filter)
