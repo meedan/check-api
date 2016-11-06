@@ -103,14 +103,14 @@ class CheckSearch
         if self.should_add_key?(context)
           if context['key'] == 'no_key'
             context[:recent_activity][:hits][:hits][0][:_source][:search_context].each do |sc|
-              context_ids[sc] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
+              context_ids[sc.to_i] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
             end
           else
-            context_ids[context['key']] = context[:recent_activity][:hits][:hits][0][:sort][0]
+            context_ids[context['key'].to_i] = context[:recent_activity][:hits][:hits][0][:sort][0]
           end
         end
       end
-      ids[result['key']] = context_ids unless context_ids.blank?
+      ids[result['key'].to_i] = context_ids unless context_ids.blank?
     end
     ids
   end
