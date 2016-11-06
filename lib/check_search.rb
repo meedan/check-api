@@ -12,7 +12,7 @@ class CheckSearch
   end
 
   def id
-    Digest::MD5.hexdigest(@options.inspect)
+    Base64.encode64("CheckSearch/#{@options.to_json}")
   end
 
   def create
@@ -38,7 +38,25 @@ class CheckSearch
   def medias
     # should loop in search result and return media
     # for now all results are medias
-    self.search_result
+    @search_result ||= self.search_result
+  end
+
+  def number_of_results
+    self.medias.count
+  end
+
+  protected
+
+  def should_add_key?(context)
+    add_key = true
+    if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include?(context[:recent_activity][:hits][:hits][0][:_source][:status])
+      add_key = false
+    end
+    add_key
+  end
+
+  def get_search_buckets(query, aggs)
+    Annotation.search(query: query, aggs: aggs, size: 10000).response['aggregations']['annotated']['buckets']
   end
 
   private
@@ -47,7 +65,7 @@ class CheckSearch
     if @options["keyword"].blank?
       query = { match_all: {} }
     else
-      query = { query_string: { query: @options["keyword"], fields:  %w(title description quote text) } }
+      query = { query_string: { query: @options["keyword"], fields:  %w(title description quote text), default_operator: "AND" } }
     end
     filters = [{terms: { annotation_type: %w(embed comment) } } ]
     filters << {term: { annotated_type: "media"}}
@@ -79,26 +97,20 @@ class CheckSearch
   def get_search_result(query, filter)
     q, g = build_search_query(query, filter)
     ids = {}
-    Annotation.search(query: q, aggs: g, size: 10000).response['aggregations']['annotated']['buckets'].each do |result|
+    self.get_search_buckets(q, g).each do |result|
       context_ids = {}
       result[:context][:buckets].each do |context|
-        add_key = true
-        if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status)
-          unless @options['status'].include? context[:recent_activity][:hits][:hits][0][:_source][:status]
-            add_key = false
-          end
-        end
-        if add_key
+        if self.should_add_key?(context)
           if context['key'] == 'no_key'
             context[:recent_activity][:hits][:hits][0][:_source][:search_context].each do |sc|
-              context_ids[sc] = context[:recent_activity][:hits][:hits][0][:sort][0]
+              context_ids[sc.to_i] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
             end
           else
-            context_ids[context['key']] = context[:recent_activity][:hits][:hits][0][:sort][0]
+            context_ids[context['key'].to_i] = context[:recent_activity][:hits][:hits][0][:sort][0]
           end
         end
       end
-      ids[result['key']] = context_ids unless context_ids.blank?
+      ids[result['key'].to_i] = context_ids unless context_ids.blank?
     end
     ids
   end
@@ -112,7 +124,7 @@ class CheckSearch
     }
     g = {
       annotated: {
-        terms: { field: :annotated_id, size: 0 },
+        terms: { field: :annotated_id, size: 10000 },
         aggs: {
           context: {
             terms: { field: :context_id, missing: :no_key },

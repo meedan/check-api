@@ -502,7 +502,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     m = create_media project_id: p.id
     create_comment annotated: m, annotator: u
-    query = "query GetById { project(id: \"#{p.id}\") { medias(first: 1) { edges { node { permissions } } } } }"
+    query = "query GetById { project(id: \"#{p.id}\") { medias_count, medias(first: 1) { edges { node { permissions } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success
@@ -555,7 +555,7 @@ class GraphqlControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m2 = create_media(account: create_valid_account, url: url, project_id: p.id)
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
     ids = []
@@ -631,7 +631,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
-    assert_queries (10 + n + n) do
+    assert_queries (n + 13) do
       post :create, query: query
     end
 
@@ -639,4 +639,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal n, JSON.parse(@response.body)['data']['project']['medias']['edges'].size
   end
 
+  test "should get node from global id for search" do
+    authenticate_with_user
+    options = {"keyword"=>"foo", "sort"=>"recent_added", "sort_type"=>"DESC"}.to_json
+    id = Base64.encode64("CheckSearch/#{options}")
+    post :create, query: "query Query { node(id: \"#{id}\") { id } }"
+    assert_equal id, JSON.parse(@response.body)['data']['node']['id']
+  end
 end

@@ -131,9 +131,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckdeskNotifications::Pusher::Worker.drain
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
     create_project_media
-    assert_equal 2, CheckdeskNotifications::Pusher::Worker.jobs.size
+    assert_equal 3, CheckdeskNotifications::Pusher::Worker.jobs.size
     CheckdeskNotifications::Pusher::Worker.drain
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
   end
+
+  test "should set initial status for media" do
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media project_id: p.id, user: u
+    assert_equal Status.default_id(m, p), m.annotations('status', p).last.status
+  end
+
 end

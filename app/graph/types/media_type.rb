@@ -4,7 +4,14 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('Media')
+  field :id do
+    type types.ID
+
+    resolve -> (media, _args, _ctx) {
+      media.relay_id
+    }
+  end
+
   field :updated_at, types.String
   field :url, types.String
   field :account_id, types.Int
@@ -31,8 +38,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
     argument :context_id, types.Int
 
     resolve ->(media, args, ctx) {
-      context = get_context(args, ctx)
-      media.annotations(['comment', 'status', 'tag', 'flag'], context)
+      media.annotations(annotation_types, media_context(media, args, ctx))
     }
   end
 
@@ -41,8 +47,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
     argument :context_id, types.Int
 
     resolve ->(media, args, ctx) {
-      context = get_context(args, ctx)
-      media.annotations_count(['comment', 'status', 'tag', 'flag'], context)
+      media.annotations_count(annotation_types, media_context(media, args, ctx))
     }
   end
 
@@ -59,6 +64,14 @@ MediaType = GraphqlCrudOperations.define_default_type do
   instance_exec :last_status, &GraphqlCrudOperations.field_with_context
   instance_exec :published, &GraphqlCrudOperations.field_with_context
   instance_exec :user, UserType, :user_in_context, &GraphqlCrudOperations.field_with_context
+end
+
+def annotation_types
+  ['comment', 'status', 'tag', 'flag']
+end
+
+def media_context(media, args, ctx)
+  get_context(args, ctx) || media.project
 end
 
 def get_context(args = {}, ctx = {})

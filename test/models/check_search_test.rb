@@ -44,9 +44,13 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_empty result.search_result
     result = CheckSearch.new({projects: [p.id]}.to_json, t)
     assert_equal [m.id], result.search_result.map(&:id)
-    # add another media to same context
-    info = {title: 'search_title'}.to_json
-    m2 = create_valid_media project_id: p.id, information: info
+    # add a new context to existing media
+    p2 = create_project team: t
+    create_project_media project: p2, media: m
+    result = CheckSearch.new({projects: [p.id]}.to_json, t)
+    assert_equal [m.id].sort, result.search_result.map(&:id).sort
+    # add a new media to same context
+    m2 = create_valid_media project_id: p.id
     result = CheckSearch.new({projects: [p.id]}.to_json, t)
     assert_equal [m.id, m2.id].sort, result.search_result.map(&:id).sort
   end
@@ -269,8 +273,8 @@ class CheckSearchTest < ActiveSupport::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url, project_id: p.id)
-    p2 = create_project
-    p3 = create_project
+    p2 = create_project team: t
+    p3 = create_project team: t
     create_project_media project: p2, media: m
     create_project_media project: p3, media: m
     result = CheckSearch.new({keyword: 'search_title'}.to_json, t)
@@ -286,6 +290,36 @@ class CheckSearchTest < ActiveSupport::TestCase
     end
     result = CheckSearch.new({}.to_json, t)
     assert_equal 15, result.search_result.count
+  end
+
+  test "should search keyword with AND operator" do
+    t = create_team
+    p = create_project team: t
+    m1 = create_valid_media project_id: p.id, information: {title: 'keyworda'}.to_json
+    m2 = create_valid_media project_id: p.id, information: {title: 'keywordb'}.to_json
+    m3 = create_valid_media project_id: p.id, information: {title: 'keyworda and keywordb'}.to_json
+    result = CheckSearch.new({keyword: 'keyworda'}.to_json, t)
+    assert_equal 2, result.search_result.count
+    result = CheckSearch.new({keyword: 'keyworda and keywordb'}.to_json, t)
+    assert_equal 1, result.search_result.count
+  end
+
+  test "should search with project and status" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url, project_id: p.id)
+    create_status annotated: m, context: p, status: 'in_progress'
+    url = 'http://test2.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url, project_id: p.id)
+    create_status annotated: m2, context: p, status: 'in_progress'
+    result = CheckSearch.new({projects: [p.id], status: ["in_progress"]}.to_json, t)
+    assert_equal 2, result.search_result.count
   end
 
 end
