@@ -45,6 +45,20 @@ class CheckSearch
     self.medias.count
   end
 
+  protected
+
+  def should_add_key?(context)
+    add_key = true
+    if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include?(context[:recent_activity][:hits][:hits][0][:_source][:status])
+      add_key = false
+    end
+    add_key
+  end
+
+  def get_search_buckets(query, aggs)
+    Annotation.search(query: query, aggs: aggs, size: 10000).response['aggregations']['annotated']['buckets']
+  end
+
   private
 
   def build_search_query_a
@@ -99,18 +113,6 @@ class CheckSearch
       ids[result['key']] = context_ids unless context_ids.blank?
     end
     ids
-  end
-
-  def should_add_key?(context)
-    add_key = true
-    if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include?(context[:recent_activity][:hits][:hits][0][:_source][:status])
-      add_key = false
-    end
-    add_key
-  end
-
-  def get_search_buckets(query, aggs)
-    Annotation.search(query: query, aggs: aggs, size: 10000).response['aggregations']['annotated']['buckets']
   end
 
   def build_search_query(query, filter)
