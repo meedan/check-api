@@ -41,7 +41,7 @@ module Checkdesk
       allow do
         origins Regexp.new(cfg['checkdesk_client'])
         resource '*',
-          headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team'],
+          headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team', 'X-Requested-With', 'Origin'],
           methods: [:get, :post, :delete, :options]
       end
     end
