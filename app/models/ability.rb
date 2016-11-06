@@ -66,9 +66,6 @@ class Ability
     end
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
-    can :update, Media do |obj|
-      obj.get_team.include? @context_team.id
-    end
     can [:create, :update], [ProjectMedia, ProjectSource] do |obj|
       obj.get_team.include? @context_team.id
     end
@@ -82,6 +79,9 @@ class Ability
     can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
+    can :update, Media do |obj|
+      obj.get_team.include? @context_team.id
+    end
     can :create, Flag do |flag|
       flag.get_team.include? @context_team.id and (flag.flag.to_s == 'Mark as graphic')
     end

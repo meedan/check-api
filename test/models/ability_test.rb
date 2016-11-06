@@ -117,7 +117,7 @@ class AbilityTest < ActiveSupport::TestCase
     own_pm = create_project_media project: p, media: own_media
     ability = Ability.new(u, t)
     assert ability.can?(:create, Media)
-    assert ability.cannot?(:update, m)
+    assert ability.can?(:update, m)
     assert ability.can?(:update, own_media)
     assert ability.cannot?(:destroy, m)
     assert ability.cannot?(:destroy, own_media)
