@@ -83,14 +83,12 @@ class CheckSearch
   def get_search_result(query, filter)
     q, g = build_search_query(query, filter)
     ids = {}
-    Annotation.search(query: q, aggs: g, size: 10000).response['aggregations']['annotated']['buckets'].each do |result|
+    self.get_search_buckets(q, g).each do |result|
       context_ids = {}
       result[:context][:buckets].each do |context|
         add_key = true
-        if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status)
-          unless @options['status'].include? context[:recent_activity][:hits][:hits][0][:_source][:status]
-            add_key = false
-          end
+        if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include? context[:recent_activity][:hits][:hits][0][:_source][:status]
+          add_key = false
         end
         if add_key
           if context['key'] == 'no_key'
@@ -105,6 +103,10 @@ class CheckSearch
       ids[result['key']] = context_ids unless context_ids.blank?
     end
     ids
+  end
+
+  def get_search_buckets(query, aggs)
+    Annotation.search(query: query, aggs: aggs, size: 10000).response['aggregations']['annotated']['buckets']
   end
 
   def build_search_query(query, filter)

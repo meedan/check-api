@@ -631,8 +631,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
-    # Add "+ 2" as new callback added "set_initial_media_status"
-    assert_queries (10 + n + n + 2) do
+    assert_queries (n + 13) do
       post :create, query: query
     end
 
