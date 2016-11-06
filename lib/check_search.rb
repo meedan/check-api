@@ -87,7 +87,7 @@ class CheckSearch
       context_ids = {}
       result[:context][:buckets].each do |context|
         add_key = true
-        if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include? context[:recent_activity][:hits][:hits][0][:_source][:status]
+        if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include?(context[:recent_activity][:hits][:hits][0][:_source][:status])
           add_key = false
         end
         if add_key
