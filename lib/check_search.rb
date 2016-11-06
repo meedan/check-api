@@ -86,11 +86,7 @@ class CheckSearch
     self.get_search_buckets(q, g).each do |result|
       context_ids = {}
       result[:context][:buckets].each do |context|
-        add_key = true
-        if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include?(context[:recent_activity][:hits][:hits][0][:_source][:status])
-          add_key = false
-        end
-        if add_key
+        if self.should_add_key?(context)
           if context['key'] == 'no_key'
             context[:recent_activity][:hits][:hits][0][:_source][:search_context].each do |sc|
               context_ids[sc] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
@@ -103,6 +99,14 @@ class CheckSearch
       ids[result['key']] = context_ids unless context_ids.blank?
     end
     ids
+  end
+
+  def should_add_key?(context)
+    add_key = true
+    if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include?(context[:recent_activity][:hits][:hits][0][:_source][:status])
+      add_key = false
+    end
+    add_key
   end
 
   def get_search_buckets(query, aggs)
