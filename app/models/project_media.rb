@@ -44,11 +44,10 @@ class ProjectMedia < ActiveRecord::Base
   def slack_notification_message
     m = self.media
     data = m.data(self.project)
-    if !data['quote'].blank?
-      "*#{m.user.name}* added a new claim: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{data['quote']}*>"
-    else
-      "*#{m.user.name}* added a new link: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{data['title']}*>"
-    end
+    type, text = data['quote'].blank? ?
+      [ 'link', data['title'] ] :
+      [ 'claim', data['quote'] ]
+    "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{text}*>"
   end
 
   private
