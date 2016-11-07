@@ -80,8 +80,14 @@ class CheckSearch
   def build_search_query_b
     query = { match_all: {} }
     filters = []
-    filters << {terms: { tag: @options["tags"]}} unless @options["tags"].blank?
-    filter = {bool: { should: filters  } }
+    unless @options["tags"].blank?
+      tags = @options["tags"].collect{ |t| t.gsub('#', '') }
+      tags.each do |tag|
+        filters << { match: { full_tag: { query: tag, operator: 'and' } } }
+      end
+      filters << { terms: { tag: tags } }
+    end
+    filter = { bool: { should: filters } }
     filter[:bool][:must] = { terms: { context_id: @options["projects"]} } unless @options["projects"].blank?
     get_search_result(query, filter)
   end
