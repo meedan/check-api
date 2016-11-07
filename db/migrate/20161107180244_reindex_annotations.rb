@@ -22,8 +22,6 @@ class ReindexAnnotations < ActiveRecord::Migration
         
         # Save data in new index
         data.each do |annotation|
-          puts annotation.inspect
-
           annotation.save
         end
 
