@@ -28,7 +28,7 @@ class CheckSearch
     end
     # query_c to fetch status (final result)
     ids = build_search_query_c(ids) unless @options["status"].blank?
-    if (@options["status"].blank? or @options["tags"].blank?) and @options['sort'] == 'recent_activity'
+    if (@options["status"].blank? or @options["tags"].blank? or !@options["keyword"].blank?) and @options['sort'] == 'recent_activity'
       ids = sort_by_recent_activity(ids)
     end
     check_search_sort(ids)
@@ -108,6 +108,7 @@ class CheckSearch
     types = ['flag']
     types << 'status' if @options['status'].blank?
     types << 'tag' if @options['tag'].blank?
+    types << 'comment' unless @options["keyword"].blank?
     query = { match_all: {} }
     filters = []
     filters << { terms: { annotation_type: types } }
@@ -127,10 +128,14 @@ class CheckSearch
         if self.should_add_key?(context)
           if context['key'] == 'no_key'
             context[:recent_activity][:hits][:hits][0][:_source][:search_context].each do |sc|
-              context_ids[sc.to_i] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
+              unless context_ids.has_key? sc.to_i
+                context_ids[sc.to_i] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
+              end
             end
           else
-            context_ids[context['key'].to_i] = context[:recent_activity][:hits][:hits][0][:sort][0]
+            unless context_ids.has_key? context['key'].to_i
+              context_ids[context['key'].to_i] = context[:recent_activity][:hits][:hits][0][:sort][0]
+            end
           end
         end
       end

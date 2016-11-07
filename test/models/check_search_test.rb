@@ -378,6 +378,25 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [m2.id, m1.id], result.search_result.map(&:id)
   end
 
+  test "should include notes in recent activity sort" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m1 = create_media(account: create_valid_account, url: url, project_id: p.id)
+    url = 'http://test2.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url, project_id: p.id)
+    create_comment annotated: m1, context: p, text: 'add comment'
+    result = CheckSearch.new({keyword: 'search_title', projects: [p.id], sort: "recent_activity"}.to_json, t)
+    assert_equal [m1.id, m2.id], result.search_result.map(&:id)
+    result = CheckSearch.new({keyword: 'search_title', projects: [p.id], sort: "recent_activity", sort_type: 'asc'}.to_json, t)
+    assert_equal [m2.id, m1.id], result.search_result.map(&:id)
+  end
+
   test "should search for hashtag in keywords" do
     Annotation.delete_index
     Annotation.create_index
@@ -396,4 +415,5 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({keyword: 'title'}.to_json, t)
     assert_equal [m.id], result.search_result.map(&:id)
   end
+
 end
