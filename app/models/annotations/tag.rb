@@ -25,7 +25,7 @@ class Tag
   private
 
   def normalize_tag
-    self.tag = self.tag.gsub(/^#/, '')
+    self.tag = self.tag.gsub(/^#/, '') unless self.tag.nil?
   end
 
   def store_full_tag
