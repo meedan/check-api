@@ -8,6 +8,7 @@ class ReindexAnnotations < ActiveRecord::Migration
     unless old_index.blank?
       Annotation.delete_index
       Annotation.create_index
+      n = 0
 
       [Comment, Embed, Flag, Status, Tag].each do |klass|
         puts "Migrating #{klass.name.parameterize} to #{CONFIG['elasticsearch_index']}"
@@ -18,10 +19,11 @@ class ReindexAnnotations < ActiveRecord::Migration
         repository.type = 'annotation'
         repository.klass = klass
         repository.index = CONFIG['old_elasticsearch_index']
-        data = repository.search(query: { match: { annotation_type: klass.name.parameterize } }).to_a
+        data = repository.search(query: { match: { annotation_type: klass.name.parameterize } }, size: 10000).to_a
         
         # Save data in new index
         data.each do |annotation|
+          n += 1
           annotation.save
         end
 
@@ -29,6 +31,6 @@ class ReindexAnnotations < ActiveRecord::Migration
       end
     end
 
-    puts "Migration is completed!"
+    puts "Migration is finished! #{n} annotations were migrated."
   end
 end
