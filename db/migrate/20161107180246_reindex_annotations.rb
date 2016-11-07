@@ -11,7 +11,7 @@ class ReindexAnnotations < ActiveRecord::Migration
       n = 0
 
       [Comment, Embed, Flag, Status, Tag].each do |klass|
-        puts "Migrating #{klass.name.parameterize} to #{CONFIG['elasticsearch_index']}"
+        puts "[ANNOTATIONS MIGRATION] Migrating #{klass.name.parameterize} to #{CONFIG['elasticsearch_index']}"
 
         # Load data from old index
         url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
@@ -24,7 +24,12 @@ class ReindexAnnotations < ActiveRecord::Migration
         # Save data in new index
         data.each do |annotation|
           n += 1
-          annotation.save
+          begin
+            annotation.save
+            puts "[ANNOTATIONS MIGRATION] Migrated annotation ##{n}"
+          rescue Exception => e
+            puts "[ANNOTATIONS MIGRATION] Could not migrate this annotation: #{annotation.inspect}: #{e.message}"
+          end
         end
 
         puts
