@@ -28,6 +28,9 @@ class CheckSearch
     end
     # query_c to fetch status (final result)
     ids = build_search_query_c(ids) unless @options["status"].blank?
+    if (@options["status"].blank? or @options["tags"].blank?) and @options['sort'] == 'recent_activity'
+      ids = sort_by_recent_activity(ids)
+    end
     check_search_sort(ids)
   end
 
@@ -49,8 +52,10 @@ class CheckSearch
 
   def should_add_key?(context)
     add_key = true
-    if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include?(context[:recent_activity][:hits][:hits][0][:_source][:status])
-      add_key = false
+    unless @options['status'].blank?
+      if context[:recent_activity][:hits][:hits][0][:_source].has_key?(:status) && !@options['status'].include?(context[:recent_activity][:hits][:hits][0][:_source][:status])
+        add_key = false
+      end
     end
     add_key
   end
@@ -96,8 +101,21 @@ class CheckSearch
     query = { terms: { annotated_id: media_ids.keys } }
     filter = { bool: { must: [ {term: {annotation_type: "status" } } ] } }
     ids = get_search_result(query, filter)
-    ids_p = fetch_media_projects(ids, ids, media_ids)
-    ids_p
+    fetch_media_projects(ids, ids, media_ids)
+  end
+
+  def sort_by_recent_activity(media_ids)
+    types = ['flag']
+    types << 'status' if @options['status'].blank?
+    types << 'tag' if @options['tag'].blank?
+    query = { match_all: {} }
+    filters = []
+    filters << { terms: { annotation_type: types } }
+    filters << { terms: { annotated_id: media_ids.keys } }
+    filters << { terms: { context_id: @options["projects"]} } unless @options["projects"].blank?
+    filter = { bool: { must: [ filters ] } }
+    ids = get_search_result(query, filter)
+    fetch_media_projects(ids, ids, media_ids)
   end
 
   def get_search_result(query, filter)
@@ -109,14 +127,14 @@ class CheckSearch
         if self.should_add_key?(context)
           if context['key'] == 'no_key'
             context[:recent_activity][:hits][:hits][0][:_source][:search_context].each do |sc|
-              context_ids[sc] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
+              context_ids[sc.to_i] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
             end
           else
-            context_ids[context['key']] = context[:recent_activity][:hits][:hits][0][:sort][0]
+            context_ids[context['key'].to_i] = context[:recent_activity][:hits][:hits][0][:sort][0]
           end
         end
       end
-      ids[result['key']] = context_ids unless context_ids.blank?
+      ids[result['key'].to_i] = context_ids unless context_ids.blank?
     end
     ids
   end
