@@ -79,5 +79,4 @@ module MediaInformation
     info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
     em.save!
   end
-
 end

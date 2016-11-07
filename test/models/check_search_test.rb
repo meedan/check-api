@@ -304,6 +304,42 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal 1, result.search_result.count
   end
 
+  test "should search for multi-word tag" do
+    Annotation.delete_index
+    Annotation.create_index
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'iron maiden', annotated: m, context: p
+    m2 = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'iron', annotated: m2, context: p
+    result = CheckSearch.new({tags: ['iron maiden']}.to_json, t)
+    assert_equal [m.id], result.search_result.map(&:id)
+    result = CheckSearch.new({tags: ['iron']}.to_json, t)
+    assert_equal [m2.id, m.id].sort, result.search_result.map(&:id).sort
+  end
+
+  test "should search for hashtag" do
+    Annotation.delete_index
+    Annotation.create_index
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report title'}.to_json
+    
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: '#monkey', annotated: m, context: p
+    
+    m2 = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'monkey', annotated: m2, context: p
+    
+    result = CheckSearch.new({tags: ['monkey']}.to_json, t)
+    assert_equal [m2.id, m.id].sort, result.search_result.map(&:id).sort
+    
+    result = CheckSearch.new({tags: ['#monkey']}.to_json, t)
+    assert_equal [m2.id, m.id].sort, result.search_result.map(&:id).sort
+  end
+
   test "should search with project and status" do
     t = create_team
     p = create_project team: t
@@ -342,4 +378,22 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [m2.id, m1.id], result.search_result.map(&:id)
   end
 
+  test "should search for hashtag in keywords" do
+    Annotation.delete_index
+    Annotation.create_index
+    t = create_team
+    p = create_project team: t
+    
+    info = {title: 'report title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    
+    info2 = {title: 'report #title'}.to_json
+    m2 = create_valid_media project_id: p.id, information: info2
+    
+    result = CheckSearch.new({keyword: '#title'}.to_json, t)
+    assert_equal [m2.id], result.search_result.map(&:id)
+    
+    result = CheckSearch.new({keyword: 'title'}.to_json, t)
+    assert_equal [m.id], result.search_result.map(&:id)
+  end
 end
