@@ -86,7 +86,7 @@ class CheckSearch
     query = { match_all: {} }
     filters = []
     unless @options["tags"].blank?
-      tags = @options["tags"].collect{ |t| t.gsub('#', '') }
+      tags = @options["tags"].collect{ |t| t.delete('#') }
       tags.each do |tag|
         filters << { match: { full_tag: { query: tag, operator: 'and' } } }
       end
