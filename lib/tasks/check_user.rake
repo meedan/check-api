@@ -14,6 +14,18 @@ namespace :check do
            puts "#{args.login} not found"        
          end  
      end
+
+     desc "reset users password user:emailudpate['oldemail','newemail']"
+     task :emailupdate, [:oldemail, :newemail] => [:environment] do |t, args|
+         user = User.where(:email => args.oldemail).first      
+         if user
+           user.email = args.newemail
+           user.save
+           puts "updated email for #{user.login} to #{user.email}"
+         else
+           puts "#{args.oldemail} not found"        
+         end  
+     end
    
      # TODO allow for passing an id for simple lookup
      desc "lookup a user for any given login, email, or part of a name"

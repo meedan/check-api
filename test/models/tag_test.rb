@@ -80,7 +80,7 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 1, t.versions.count
     v = t.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'tag'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', t.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', t.annotator_id], 'entities' => ['', '[]'], 'tag' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({ 'annotation_type' => ['', 'tag'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', t.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', t.annotator_id], 'entities' => ['', '[]'], 'tag' => ['', 'test' ], 'full_tag' => ['', 'test'] }, JSON.parse(v.object_changes))
   end
 
   test "should create version when tag is updated" do
@@ -90,7 +90,7 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 2, t.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'tag' => ['foo', 'bar'] }, JSON.parse(v.object_changes))
+    assert_equal({ 'tag' => ['foo', 'bar'], 'full_tag' => ['foo', 'bar'] }, JSON.parse(v.object_changes))
   end
 
   test "should revert" do

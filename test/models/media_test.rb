@@ -524,4 +524,16 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set information when there is no project" do
+    t = create_team
+    p = create_project team: t
+    m = Media.new
+    m.url = ''
+    assert_nothing_raised do
+      m.information = { quote: 'Media quote A' }.to_json
+      m.save!
+      m.information = { quote: 'Media quote B' }.to_json
+      m.save!
+    end
+  end
 end
