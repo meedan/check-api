@@ -118,11 +118,10 @@ class CheckSearch
   end
 
   def build_search_query_recent_activity(media_ids)
-    types = ['flag']
-    types << 'status' if @options['status'].blank?
+    query = { match_all: {} }
+    types = ['flag', 'status']
     types << 'tag' if @options['tag'].blank?
     types << 'comment' unless @options["keyword"].blank?
-    query = { match_all: {} }
     filters = []
     filters << { terms: { annotation_type: types } }
     filters << { terms: { annotated_id: media_ids.keys } }

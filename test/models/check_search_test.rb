@@ -326,16 +326,16 @@ class CheckSearchTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     info = {title: 'report title'}.to_json
-    
+
     m = create_valid_media project_id: p.id, information: info
     create_tag tag: '#monkey', annotated: m, context: p
-    
+
     m2 = create_valid_media project_id: p.id, information: info
     create_tag tag: 'monkey', annotated: m2, context: p
-    
+
     result = CheckSearch.new({tags: ['monkey']}.to_json, t)
     assert_equal [m2.id, m.id].sort, result.search_result.map(&:id).sort
-    
+
     result = CheckSearch.new({tags: ['#monkey']}.to_json, t)
     assert_equal [m2.id, m.id].sort, result.search_result.map(&:id).sort
   end
@@ -402,18 +402,31 @@ class CheckSearchTest < ActiveSupport::TestCase
     Annotation.create_index
     t = create_team
     p = create_project team: t
-    
+
     info = {title: 'report title'}.to_json
     m = create_valid_media project_id: p.id, information: info
-    
+
     info2 = {title: 'report #title'}.to_json
     m2 = create_valid_media project_id: p.id, information: info2
-    
+
     result = CheckSearch.new({keyword: '#title'}.to_json, t)
     assert_equal [m2.id], result.search_result.map(&:id)
-    
+
     result = CheckSearch.new({keyword: 'title'}.to_json, t)
     assert_equal [m.id], result.search_result.map(&:id)
+  end
+
+  test "should recent activity sort for project and status" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url, project_id: p.id)
+    create_status status: 'in_progress', annotated: m, context: p
+    result = CheckSearch.new({projects: [p.id], status: ['in_progress'], sort: "recent_activity"}.to_json, t)
+    assert_equal 1, result.number_of_results
   end
 
 end
