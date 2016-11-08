@@ -1,6 +1,6 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  attr_accessor :project_id, :duplicated_of, :information, :project_object
+  attr_accessor :project_id, :duplicated_of, :information, :project_object, :no_cache
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
@@ -51,6 +51,7 @@ class Media < ActiveRecord::Base
   end
 
   def cached_annotations(type = nil, context = nil)
+    return self.annotations(type, context) if self.no_cache
     @cached_annotations ||= self.annotations
     type = [type].flatten
     ret = @cached_annotations
