@@ -28,8 +28,9 @@ class CheckSearch
     end
     # query_c to fetch status (final result)
     ids = build_search_query_c(ids) unless @options["status"].blank?
-    # query to collect latest timestamp for media activities
-    ids = build_search_query_recent_activity(ids) if self.allow_sort_by_recent_activity?
+    if (@options["status"].blank? or @options["tags"].blank? or !@options["keyword"].blank?) and @options['sort'] == 'recent_activity'
+      ids = sort_by_recent_activity(ids)
+    end
     check_search_sort(ids)
   end
 
@@ -61,20 +62,6 @@ class CheckSearch
 
   def get_search_buckets(query, aggs)
     Annotation.search(query: query, aggs: aggs, size: 10000).response['aggregations']['annotated']['buckets']
-  end
-
-  def allow_sort_by_recent_activity?
-    if @options['sort'] == 'recent_activity'
-      return true if @options["status"].blank? or @options["tags"].blank? or !@options["keyword"].blank?
-    end
-    false
-  end
-
-  def search_ignore_context?(context_ids, id)
-    unless @options['projects'].include? id.to_i
-      return true unless context_ids.has_key? id.to_i
-    end
-    false
   end
 
   private
@@ -117,7 +104,7 @@ class CheckSearch
     fetch_media_projects(ids, ids, media_ids)
   end
 
-  def build_search_query_recent_activity(media_ids)
+  def sort_by_recent_activity(media_ids)
     types = ['flag']
     types << 'status' if @options['status'].blank?
     types << 'tag' if @options['tag'].blank?
@@ -141,10 +128,14 @@ class CheckSearch
         if self.should_add_key?(context)
           if context['key'] == 'no_key'
             context[:recent_activity][:hits][:hits][0][:_source][:search_context].each do |sc|
-              context_ids[sc.to_i] = context[:recent_activity][:hits][:hits][0][:sort][0] unless self.search_ignore_context?(context_ids, sc)
+              unless context_ids.has_key? sc.to_i
+                context_ids[sc.to_i] = context[:recent_activity][:hits][:hits][0][:sort][0] if @options['projects'].include? sc
+              end
             end
           else
-            context_ids[context['key'].to_i] = context[:recent_activity][:hits][:hits][0][:sort][0] unless self.search_ignore_context?(context_ids, context['key'])
+            unless context_ids.has_key? context['key'].to_i
+              context_ids[context['key'].to_i] = context[:recent_activity][:hits][:hits][0][:sort][0]
+            end
           end
         end
       end
@@ -183,7 +174,6 @@ class CheckSearch
   end
 
   def fetch_media_projects(ids, ids_a, ids_b)
-    # Get max timestamp for ProjectMedia accross different arrays.
     ids_p = {}
     ids.each do |k, _v|
       v_a = ids_a[k]; v_b = ids_b[k]
@@ -196,13 +186,11 @@ class CheckSearch
   def check_search_sort(ids)
     ids = prepare_ids_for_sort(ids)
     ids_sort = Array.new
-    # sort array based on sort type 'DESC' or 'ASC'
     if @options['sort_type'].upcase == 'DESC'
       ids = ids.sort_by(&:reverse).reverse
     else
       ids = ids.sort_by(&:reverse)
     end
-    # load medias wither therir projects
     ids.each do |k, _v|
       p, m = k.split('-')
       media = Media.find(m.to_i)
@@ -213,12 +201,10 @@ class CheckSearch
   end
 
   def prepare_ids_for_sort(ids)
-    # construct an array with key [project-media] and value [timestamp/id]
     result = {}
     ids.each do |m, v|
       v.each do |p, t|
         pm = [p, m].join('-')
-        # set value either timestamp or media id based on sort key
         t = m if @options['sort'] == 'recent_added'
         result[pm] = t
       end
