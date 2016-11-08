@@ -113,7 +113,11 @@ class Media < ActiveRecord::Base
 
   def project
     return self.project_object unless self.project_object.nil?
-    Project.find(self.project_id) if self.project_id
+    if self.project_id
+      Rails.cache.fetch("project_#{self.project_id}", expire_in: 30.seconds) do
+        Project.find(self.project_id)
+      end
+    end
   end
 
   def overriden_embed_attributes
