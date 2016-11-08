@@ -33,11 +33,6 @@ class Media < ActiveRecord::Base
     mapping_ids[value]
   end
 
-  def tags(context = nil)
-    context = self.get_media_context(context)
-    self.annotations('tag', context)
-  end
-
   def jsondata(context = nil)
     context = self.get_media_context(context)
     self.data(context).to_json
@@ -55,13 +50,33 @@ class Media < ActiveRecord::Base
     pm.user unless pm.nil?
   end
 
+  def cached_annotations(type = nil, context = nil)
+    @cached_annotations ||= self.annotations
+    type = [type].flatten
+    ret = @cached_annotations
+    ret = ret.select{ |a| type.include?(a.annotation_type) } unless type.nil?
+    ret = ret.select{ |a| a.context_type == context.class.name && a.context_id == context.id.to_s } if context.kind_of?(ActiveRecord::Base)
+    ret
+  end
+
   def data(context = nil)
     context = self.get_media_context(context)
-    em_pender = self.annotations('embed', context).last unless context.nil?
-    em_pender = self.annotations('embed', 'none').last if em_pender.nil?
+    em_pender = self.cached_annotations('embed', context).last unless context.nil?
+    em_pender = self.cached_annotations('embed', 'none').last if em_pender.nil?
     embed = JSON.parse(em_pender.embed) unless em_pender.nil?
     self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender[sk] unless em_pender[sk].nil? } unless embed.nil?
     embed
+  end
+
+  def tags(context = nil)
+    context = self.get_media_context(context)
+    self.cached_annotations('tag', context)
+  end
+
+  def last_status(context = nil)
+    context = self.get_media_context(context)
+    last = self.cached_annotations('status', context).first
+    last.nil? ? Status.default_id(self, context) : last.status
   end
 
   def published(context = nil)
@@ -94,12 +109,6 @@ class Media < ActiveRecord::Base
     str = "Media/#{self.id}"
     str += "/#{self.project_id}" unless self.project_id.nil?
     Base64.encode64(str)
-  end
-
-  def last_status(context = nil)
-    context = self.get_media_context(context)
-    last = self.annotations('status', context).first
-    last.nil? ? Status.default_id(self, context) : last.status
   end
 
   def get_media_context(context = nil)
