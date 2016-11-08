@@ -618,7 +618,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should run few queries to get project data" do
-    n = 30 # Number of media items to be created
+    n = 20 # Number of media items to be created
     u = create_user
     authenticate_with_user(u)
     t = create_team subdomain: 'team'
@@ -631,7 +631,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
-    assert_queries (n + 13) do
+    assert_queries (12) do
       post :create, query: query
     end
 

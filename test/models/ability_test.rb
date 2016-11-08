@@ -604,8 +604,9 @@ class AbilityTest < ActiveSupport::TestCase
     c.current_user = u
     c.context_team = create_team
     assert_raise RuntimeError do
-        c.save
+      c.save
     end
+    Rails.cache.clear
     c.context_team = t
     c.text = 'for testing';c.save!
     assert_equal c.text, 'for testing'
@@ -680,6 +681,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:update, s)
     assert ability.cannot?(:destroy, s)
     # test other instances
+    Rails.cache.clear
     p.team = create_team; p.save!
     assert ability.cannot?(:create, s)
     assert ability.cannot?(:destroy, s)
@@ -733,6 +735,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:update, t)
     assert ability.can?(:destroy, t)
     m.user = create_user; m.save!
+    Rails.cache.clear
     assert ability.cannot?(:create, t)
     assert ability.cannot?(:update, t)
     assert ability.can?(:destroy, t)
@@ -754,6 +757,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:update, t)
     assert ability.can?(:destroy, t)
     # test other instances
+    Rails.cache.clear
     p.team = create_team; p.save!
     assert ability.cannot?(:create, t)
     assert ability.cannot?(:destroy, t)

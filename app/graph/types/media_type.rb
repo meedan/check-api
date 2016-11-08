@@ -38,7 +38,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
     argument :context_id, types.Int
 
     resolve ->(media, args, ctx) {
-      media.annotations(annotation_types, media_context(media, args, ctx))
+      media.cached_annotations(annotation_types, media_context(media, args, ctx))
     }
   end
 
@@ -47,7 +47,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
     argument :context_id, types.Int
 
     resolve ->(media, args, ctx) {
-      media.annotations_count(annotation_types, media_context(media, args, ctx))
+      media.cached_annotations(annotation_types, media_context(media, args, ctx)).size
     }
   end
 
