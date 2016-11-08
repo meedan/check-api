@@ -25,12 +25,13 @@ ENV DEPLOYUSER=checkdeploy \
 RUN apt-get install -y imagemagick
 
 # nginx for checkdesk-api
-COPY production/nginx.conf /etc/nginx/sites-available/${APP}
+
+COPY production/config/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
 # swap in DEPLOYUSER
 RUN sed -i "s/DEPLOYUSER/${DEPLOYUSER}/g" /etc/nginx/sites-available/${APP}
 RUN ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP}
 RUN rm /etc/nginx/sites-enabled/default
-
 
 #
 # USER CONFIG
