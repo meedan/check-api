@@ -183,6 +183,7 @@ GEM
     multi_json (1.12.1)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
+    newrelic_rpm (3.17.0.325)
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
       pkg-config (~> 1.1.7)
@@ -389,6 +390,7 @@ DEPENDENCIES
   jquery-rails
   mini_magick
   mocha
+  newrelic_rpm
   nokogiri (= 1.6.8)
   omniauth-facebook
   omniauth-slack
