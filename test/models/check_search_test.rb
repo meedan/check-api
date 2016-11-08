@@ -416,7 +416,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [m.id], result.search_result.map(&:id)
   end
 
-  test "should search with annotations for non exist media" do
+  test "should search nnotations with non exist media and project" do
     t = create_team
     p = create_project team: t
     pender_url = CONFIG['pender_host'] + '/api/medias'
@@ -436,6 +436,19 @@ class CheckSearchTest < ActiveSupport::TestCase
     m.delete
     result = CheckSearch.new({}.to_json, t)
     assert_equal 0, result.number_of_results
+  end
+
+  test "should sort by recent activity with project and status filters" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url, project_id: p.id)
+    create_status status: 'in_progress', annotated: m, context: p
+    result = CheckSearch.new({projects: [p.id], status: ['in_progress'], sort: "recent_activity"}.to_json, t)
+    assert_equal 1, result.number_of_results
   end
 
 end
