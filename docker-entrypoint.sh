@@ -5,6 +5,10 @@ redis-server &
 bundle exec sidekiq -L log/sidekiq.log -d
 
 # Rake tasks
+if [ "$RAILS_ENV" == "test" ]
+then
+  bundle exec rake db:drop
+fi
 bundle exec rake db:create
 bundle exec rake db:migrate
 export SECRET_KEY_BASE=$(bundle exec rake secret)

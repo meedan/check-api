@@ -7,6 +7,36 @@ module CheckdeskElasticSearchModel
     include Elasticsearch::Persistence::Model
 
     index_name [Rails.application.engine_name, Rails.env, self.name.parameterize].join('_')
+
+    settings analysis: {
+      char_filter: {
+        space_hashtags: {
+          type: 'mapping',
+          mappings: ['#=>|#']
+        }
+      },
+      filter: {
+        hashtag_as_alphanum: {
+          type: 'word_delimiter',
+          type_table: ['# => ALPHANUM', '@ => ALPHANUM']
+        }
+      },
+      analyzer: {
+        hashtag: {
+          type: 'custom',
+          char_filter: 'space_hashtags',
+          tokenizer: 'whitespace',
+          filter: ['lowercase', 'hashtag_as_alphanum']
+        }
+      }
+    } do 
+      mapping do
+        indexes :title, type: 'string', analyzer: 'hashtag'
+        indexes :description, type: 'string', analyzer: 'hashtag'
+        indexes :quote, type: 'string', analyzer: 'hashtag'
+        indexes :text, type: 'string', analyzer: 'hashtag'
+      end
+    end
   end
 
   def reload

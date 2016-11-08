@@ -304,6 +304,42 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal 1, result.search_result.count
   end
 
+  test "should search for multi-word tag" do
+    Annotation.delete_index
+    Annotation.create_index
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'iron maiden', annotated: m, context: p
+    m2 = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'iron', annotated: m2, context: p
+    result = CheckSearch.new({tags: ['iron maiden']}.to_json, t)
+    assert_equal [m.id], result.search_result.map(&:id)
+    result = CheckSearch.new({tags: ['iron']}.to_json, t)
+    assert_equal [m2.id, m.id].sort, result.search_result.map(&:id).sort
+  end
+
+  test "should search for hashtag" do
+    Annotation.delete_index
+    Annotation.create_index
+    t = create_team
+    p = create_project team: t
+    info = {title: 'report title'}.to_json
+    
+    m = create_valid_media project_id: p.id, information: info
+    create_tag tag: '#monkey', annotated: m, context: p
+    
+    m2 = create_valid_media project_id: p.id, information: info
+    create_tag tag: 'monkey', annotated: m2, context: p
+    
+    result = CheckSearch.new({tags: ['monkey']}.to_json, t)
+    assert_equal [m2.id, m.id].sort, result.search_result.map(&:id).sort
+    
+    result = CheckSearch.new({tags: ['#monkey']}.to_json, t)
+    assert_equal [m2.id, m.id].sort, result.search_result.map(&:id).sort
+  end
+
   test "should search with project and status" do
     t = create_team
     p = create_project team: t
@@ -320,6 +356,64 @@ class CheckSearchTest < ActiveSupport::TestCase
     create_status annotated: m2, context: p, status: 'in_progress'
     result = CheckSearch.new({projects: [p.id], status: ["in_progress"]}.to_json, t)
     assert_equal 2, result.search_result.count
+  end
+
+  test "should include tag and status in recent activity sort" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m1 = create_media(account: create_valid_account, url: url, project_id: p.id)
+    url = 'http://test2.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url, project_id: p.id)
+    create_status annotated: m1, context: p, status: 'in_progress'
+    result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json, t)
+    assert_equal [m1.id, m2.id], result.search_result.map(&:id)
+    create_tag annotated: m2, context: p, tag: 'in_progress'
+    result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json, t)
+    assert_equal [m2.id, m1.id], result.search_result.map(&:id)
+  end
+
+  test "should include notes in recent activity sort" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m1 = create_media(account: create_valid_account, url: url, project_id: p.id)
+    url = 'http://test2.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url, project_id: p.id)
+    create_comment annotated: m1, context: p, text: 'add comment'
+    result = CheckSearch.new({keyword: 'search_title', projects: [p.id], sort: "recent_activity"}.to_json, t)
+    assert_equal [m1.id, m2.id], result.search_result.map(&:id)
+    result = CheckSearch.new({keyword: 'search_title', projects: [p.id], sort: "recent_activity", sort_type: 'asc'}.to_json, t)
+    assert_equal [m2.id, m1.id], result.search_result.map(&:id)
+  end
+
+  test "should search for hashtag in keywords" do
+    Annotation.delete_index
+    Annotation.create_index
+    t = create_team
+    p = create_project team: t
+    
+    info = {title: 'report title'}.to_json
+    m = create_valid_media project_id: p.id, information: info
+    
+    info2 = {title: 'report #title'}.to_json
+    m2 = create_valid_media project_id: p.id, information: info2
+    
+    result = CheckSearch.new({keyword: '#title'}.to_json, t)
+    assert_equal [m2.id], result.search_result.map(&:id)
+    
+    result = CheckSearch.new({keyword: 'title'}.to_json, t)
+    assert_equal [m.id], result.search_result.map(&:id)
   end
 
 end

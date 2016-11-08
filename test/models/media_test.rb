@@ -59,7 +59,7 @@ class MediaTest < ActiveSupport::TestCase
     end
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'journalist'
-    assert_raise RuntimeError do
+    assert_nothing_raised RuntimeError do
       m.current_user = u2
       m.save!
     end
@@ -402,11 +402,13 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should add claim additions to media" do
+    t = create_team
+    p = create_project team: t
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
+    m = create_media(account: create_valid_account, url: url, project_id: p.id)
     assert_not_nil m.data
     info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}
     m.information = info.to_json; m.save!
@@ -417,9 +419,12 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal data['quote'], 'Media quote'
     # test with empty URL
     m = Media.new; m.save!
+    m.project_id = p.id
     assert_nil m.data
     info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
     m.information= info; m.save!
+    sleep 1
+    m = m.reload
     data = m.data
     assert_equal data['title'], 'Title A'
     assert_equal data['description'], 'Desc A'
@@ -519,4 +524,16 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set information when there is no project" do
+    t = create_team
+    p = create_project team: t
+    m = Media.new
+    m.url = ''
+    assert_nothing_raised do
+      m.information = { quote: 'Media quote A' }.to_json
+      m.save!
+      m.information = { quote: 'Media quote B' }.to_json
+      m.save!
+    end
+  end
 end

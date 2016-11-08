@@ -1,13 +1,15 @@
 class Embed
   include AnnotationBase
 
-  attribute :title, String
-  attribute :description, String
-  attribute :username, String
-  attribute :published_at,  Integer
-  attribute :quote, String
+  attribute :title, String, mapping: { analyzer: 'hashtag' }
+  attribute :description, String, mapping: { analyzer: 'hashtag' }
+  attribute :quote, String, mapping: { analyzer: 'hashtag' }
+
   attribute :embed, String
+  attribute :username, String
+  attribute :published_at, Integer
   attribute :search_context, Array
+  
   validate :validate_quote_for_media_with_empty_url
 
   def content
