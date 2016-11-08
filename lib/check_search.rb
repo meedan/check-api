@@ -71,13 +71,9 @@ class CheckSearch
   end
 
   def search_ignore_context?(context_ids, id)
-    #puts "Projects #{@options['projects']} - PID #{id}"
     unless @options['projects'].include? id.to_i
-      #puts "Inside #{id}"
       return true unless context_ids.has_key? id.to_i
-      #puts "After true"
     end
-    #puts "return false"
     false
   end
 
