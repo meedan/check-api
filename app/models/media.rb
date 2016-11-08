@@ -124,7 +124,7 @@ class Media < ActiveRecord::Base
   def project
     return self.project_object unless self.project_object.nil?
     if self.project_id
-      Rails.cache.fetch("project_#{self.project_id}", expire_in: 30.seconds) do
+      Rails.cache.fetch("project_#{self.project_id}", expires_in: 30.seconds) do
         Project.find(self.project_id)
       end
     end

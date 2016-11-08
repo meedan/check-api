@@ -192,17 +192,17 @@ class MediaTest < ActiveSupport::TestCase
     m.information= info;  m.save!
     # fetch media data without context
     m = m.reload; m.project_id = nil
-    data = m.data
+    data = Media.find(m.id).data
     title = data['title']; description = data['description']
     assert_equal title, 'test media'
     assert_equal description, 'add desc'
     # fetch media data with p1 as context
-    data = m.data(p1)
+    data = Media.find(m.id).data(p1)
     title = data['title']; description = data['description']
     assert_equal title, 'Title AA'
     assert_equal description, 'Desc AA'
     # fetch media data with p2 as context
-    data = m.data(p2)
+    data = Media.find(m.id).data(p2)
     title = data['title']; description = data['description']
     assert_equal title, 'Title BB'
     assert_equal description, 'Desc BB'
@@ -370,7 +370,7 @@ class MediaTest < ActiveSupport::TestCase
     m = create_valid_media
     assert_equal 'undetermined', m.last_status
     create_status status: 'verified', annotated: m
-    assert_equal 'verified', m.last_status
+    assert_equal 'verified', Media.find(m.id).last_status
   end
 
   test "should get domain" do
@@ -410,11 +410,11 @@ class MediaTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url, project_id: p.id)
     assert_not_nil m.data
+    m = m.reload
     info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}
     m.information = info.to_json; m.save!
     sleep 1
-    m = m.reload
-    data = m.data
+    data = Media.find(m.id).data
     assert_equal data['title'], 'Title A'
     assert_equal data['quote'], 'Media quote'
     # test with empty URL
@@ -424,8 +424,7 @@ class MediaTest < ActiveSupport::TestCase
     info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
     m.information= info; m.save!
     sleep 1
-    m = m.reload
-    data = m.data
+    data = Media.find(m.id).data
     assert_equal data['title'], 'Title A'
     assert_equal data['description'], 'Desc A'
     assert_equal data['quote'], 'Media quote'
