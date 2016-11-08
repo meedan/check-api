@@ -11,6 +11,7 @@ class GraphqlCrudOperations
     parents.each do |parent_name|
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
+        parent.no_cache = true
         parent.project_id = child.context_id if parent_name.to_s == 'media' && child.context_type == 'Project' && parent.respond_to?(:project_id)
         ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
         ret[parent_name.to_sym] = parent
