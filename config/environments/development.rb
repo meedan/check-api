@@ -42,5 +42,7 @@ Rails.application.configure do
   # Whitelist docker access
   config.web_console.whitelisted_ips = '172.0.0.0/8'
 
+  config.cache_store = :memory_store, { size: 64.megabytes }
+
   # Enable the logstasher logs for the current environment
 end
