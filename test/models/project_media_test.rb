@@ -20,6 +20,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_project_media project: p, media: m, current_user: u
     end
     # journalist should assign any media
+    Rails.cache.clear
     tu.role = 'journalist'; tu.save;
     assert_difference 'ProjectMedia.count' do
       pm = create_project_media project: p, media: m, current_user: u

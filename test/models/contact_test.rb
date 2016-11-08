@@ -32,6 +32,7 @@ class ContactTest < ActiveSupport::TestCase
       c.current_user = u2
       c.destroy
     end
+    Rails.cache.clear
     tu.role = 'journalist'; tu.save!
     assert_raise RuntimeError do
       c.current_user = u2
