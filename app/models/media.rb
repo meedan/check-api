@@ -1,6 +1,6 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  attr_accessor :project_id, :duplicated_of, :information, :project_object, :no_cache
+  attr_accessor :project_id, :duplicated_of, :information, :project_object
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
