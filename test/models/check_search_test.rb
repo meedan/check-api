@@ -425,9 +425,14 @@ class CheckSearchTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url, project_id: p.id)
     create_comment annotated: m, context: p, text: 'add comment'
+    p2 = create_project team: t
+    create_project_media project: p2, media: m
     p.delete
     result = CheckSearch.new({}.to_json, t)
-    assert_equal 0, result.number_of_results
+    assert_equal 1, result.number_of_results
+    p2.delete
+    result = CheckSearch.new({}.to_json, t)
+    assert_equal 1, result.number_of_results
     m.delete
     result = CheckSearch.new({}.to_json, t)
     assert_equal 0, result.number_of_results
