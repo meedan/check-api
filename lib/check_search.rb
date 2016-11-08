@@ -74,10 +74,9 @@ class CheckSearch
     end
     filters = [{terms: { annotation_type: %w(embed comment) } } ]
     filters << {term: { annotated_type: "media"}}
-    unless @options["projects"].blank?
-      context_filters = [{terms: { context_id: @options["projects"] } } ]
-      context_filters << {terms: { search_context: @options["projects"] } }
-    end
+    context_ids = @options["projects"].blank? ? [0] : @options["projects"]
+    context_filters = [ {terms: { context_id: context_ids } } ]
+    context_filters << {terms: { search_context: context_ids } }
     filter = { bool: { should: [ context_filters ] , must: [ filters ] } }
     get_search_result(query, filter)
   end
@@ -193,9 +192,11 @@ class CheckSearch
     end
     ids.each do |k, _v|
       p, m = k.split('-')
-      media = Media.find(m.to_i)
-      media.project_id = p.to_i
-      ids_sort << media
+      media = Media.where(id: m.to_i).last
+      unless media.nil?
+        media.project_id = p.to_i unless p.blank?
+        ids_sort << media
+      end
     end
     ids_sort
   end
