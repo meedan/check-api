@@ -188,24 +188,25 @@ class MediaTest < ActiveSupport::TestCase
     m.project_id = p2.id
     info = {title: 'Title B', description: 'Desc B'}.to_json
     m.information= info;  m.save!
+    m.project_id = p2.id
     info = {title: 'Title BB', description: 'Desc BB'}.to_json
     m.information= info;  m.save!
     # fetch media data without context
     m = m.reload; m.project_id = nil
-    data = Media.find(m.id).data
+    data = Media.find(m.id).data(nil)
     title = data['title']; description = data['description']
-    assert_equal title, 'test media'
-    assert_equal description, 'add desc'
+    assert_equal 'test media', title
+    assert_equal 'add desc', description
     # fetch media data with p1 as context
     data = Media.find(m.id).data(p1)
     title = data['title']; description = data['description']
-    assert_equal title, 'Title AA'
-    assert_equal description, 'Desc AA'
+    assert_equal 'Title AA', title
+    assert_equal 'Desc AA', description
     # fetch media data with p2 as context
     data = Media.find(m.id).data(p2)
     title = data['title']; description = data['description']
-    assert_equal title, 'Title BB'
-    assert_equal description, 'Desc BB'
+    assert_equal 'Title BB', title
+    assert_equal 'Desc BB', description
   end
 
   test "should set URL from Pender" do
@@ -413,21 +414,19 @@ class MediaTest < ActiveSupport::TestCase
     m = m.reload
     info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}
     m.information = info.to_json; m.save!
-    sleep 1
-    data = Media.find(m.id).data
-    assert_equal data['title'], 'Title A'
-    assert_equal data['quote'], 'Media quote'
+    data = Media.find(m.id).data(p)
+    assert_equal 'Title A', data['title']
+    assert_equal 'Media quote', data['quote']
     # test with empty URL
     m = Media.new; m.save!
     m.project_id = p.id
     assert_nil m.data
     info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
-    m.information= info; m.save!
-    sleep 1
-    data = Media.find(m.id).data
-    assert_equal data['title'], 'Title A'
-    assert_equal data['description'], 'Desc A'
-    assert_equal data['quote'], 'Media quote'
+    m.information = info; m.save!
+    data = Media.find(m.id).data(p)
+    assert_equal 'Title A', data['title']
+    assert_equal 'Desc A', data['description']
+    assert_equal 'Media quote', data['quote']
   end
 
   test "should add claim additions to media creation" do
