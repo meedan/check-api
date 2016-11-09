@@ -128,6 +128,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read medias" do
     assert_graphql_read('media', 'url')
+    Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
     assert_graphql_read('media', 'published')
     assert_graphql_read('media', 'last_status')
   end
