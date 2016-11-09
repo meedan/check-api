@@ -198,7 +198,8 @@ class CheckSearch
     # Get max timestamp for ProjectMedia accross different arrays.
     ids_p = {}
     ids.each do |k, _v|
-      v_a = ids_a[k]; v_b = ids_b[k]
+      v_a = ids_a[k]
+      v_b = ids_b.key?(k) ? ids_b[k] : {}
       ids_p[k] = v_a.keep_if { |kp, _vp| v_b.key? kp }
       ids_p[k].each{|km, _vm| ids_p[k][km] = [v_a[km], v_b[km]].max}
     end
