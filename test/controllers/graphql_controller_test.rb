@@ -599,6 +599,8 @@ class GraphqlControllerTest < ActionController::TestCase
     m.project_id = p2.id
     m.information= {description: 'new_description'}.to_json
     m.save!
+    sleep 1
+    m = m.reload
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, jsondata } } } } }'
     post :create, query: query
     assert_response :success
