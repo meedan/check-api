@@ -32,16 +32,18 @@ class CheckSearch
         ids = ids_b
       end
     end
-    # query_c to fetch status (final result)
-    ids_c = build_search_query_c(ids) unless @options["status"].blank?
-    if !ids.blank? and !ids_c.blank?
-      ids = ids.keep_if { |k, _v| ids_c.key? k }
-      ids = fetch_media_projects(ids, ids, ids_c)
-    elsif !ids_c.blank?
-      ids = ids_c
+    # query_c to fetch status
+    unless @options["status"].blank?
+      ids_c = build_search_query_c(ids)
+      if !ids.blank? and !ids_c.blank?
+        ids = ids.keep_if { |k, _v| ids_c.key? k }
+        ids = fetch_media_projects(ids, ids, ids_c)
+      elsif !ids_c.blank?
+        ids = ids_c
+      end
     end
     # query to collect latest timestamp for media activities
-    #ids = build_search_query_recent_activity(ids) if self.allow_sort_by_recent_activity?
+    ids = build_search_query_recent_activity(ids) if self.allow_sort_by_recent_activity?
     check_search_sort(ids)
   end
 
@@ -136,11 +138,10 @@ class CheckSearch
     types << 'comment' unless @options["keyword"].blank?
     filters = []
     filters << { terms: { annotation_type: types } }
-    filters << { terms: { annotated_id: media_ids.keys } }
     filters << { terms: { context_id: @options["projects"]} } unless @options["projects"].blank?
     filter = { bool: { must: [ filters ] } }
     ids = get_search_result(query, filter)
-    fetch_media_projects(ids, ids, media_ids)
+    fetch_media_projects(media_ids, media_ids, ids)
   end
 
   def get_search_result(query, filter)

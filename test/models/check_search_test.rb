@@ -357,7 +357,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({projects: [p.id], status: ["in_progress"]}.to_json, t)
     assert_equal 2, result.search_result.count
   end
-=begin
+
   test "should include tag and status in recent activity sort" do
     t = create_team
     p = create_project team: t
@@ -396,7 +396,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({keyword: 'search_title', projects: [p.id], sort: "recent_activity", sort_type: 'asc'}.to_json, t)
     assert_equal [m2.id, m1.id], result.search_result.map(&:id)
   end
-=end
+
   test "should search for hashtag in keywords" do
     Annotation.delete_index
     Annotation.create_index
