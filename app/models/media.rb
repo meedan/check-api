@@ -57,6 +57,8 @@ class Media < ActiveRecord::Base
     ret = @cached_annotations
     ret = ret.select{ |a| type.include?(a.annotation_type) } unless type.nil?
     ret = ret.select{ |a| a.context_type == context.class.name && a.context_id == context.id.to_s } if context.kind_of?(ActiveRecord::Base)
+    ret = ret.select{ |a| a.context_id.blank? } if context == 'none'
+    ret = ret.select{ |a| !a.context_id.blank? } if context == 'some'
     ret
   end
 

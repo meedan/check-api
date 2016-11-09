@@ -596,6 +596,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_equal [m.id, m.id], m_ids.sort
     assert_equal [p.id, p2.id], p_ids.sort
+    
     m.project_id = p2.id
     m.information= {description: 'new_description'}.to_json
     m.save!
