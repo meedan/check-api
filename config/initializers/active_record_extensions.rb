@@ -6,7 +6,7 @@ module ActiveRecordExtensions
     include CheckdeskNotifications::Slack
     include CheckdeskNotifications::Pusher
 
-    attr_accessor :current_user, :context_team, :origin
+    attr_accessor :current_user, :context_team, :origin, :no_cache
 
     before_save :check_ability
     before_destroy :check_destroy_ability

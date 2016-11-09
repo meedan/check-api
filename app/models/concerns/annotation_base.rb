@@ -348,7 +348,7 @@ module AnnotationBase
   def load_polymorphic(name)
     type, id = self.send("#{name}_type"), self.send("#{name}_id")
     return nil if type.blank? && id.blank?
-    Rails.cache.fetch("find_#{type.parameterize}_#{id}", expire_in: 30.seconds) do
+    Rails.cache.fetch("find_#{type.parameterize}_#{id}", expires_in: 30.seconds) do
       type.constantize.find(id)
     end
   end

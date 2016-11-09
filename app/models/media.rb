@@ -1,6 +1,6 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  attr_accessor :project_id, :duplicated_of, :information, :project_object, :no_cache
+  attr_accessor :project_id, :duplicated_of, :information, :project_object
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
@@ -124,7 +124,7 @@ class Media < ActiveRecord::Base
   def project
     return self.project_object unless self.project_object.nil?
     if self.project_id
-      Rails.cache.fetch("project_#{self.project_id}", expire_in: 30.seconds) do
+      Rails.cache.fetch("project_#{self.project_id}", expires_in: 30.seconds) do
         Project.find(self.project_id)
       end
     end

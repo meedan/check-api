@@ -599,8 +599,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m.project_id = p2.id
     m.information= {description: 'new_description'}.to_json
     m.save!
-    sleep 1
-    m = m.reload
+    sleep 2
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, jsondata } } } } }'
     post :create, query: query
     assert_response :success
@@ -608,8 +607,8 @@ class GraphqlControllerTest < ActionController::TestCase
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
       result[id["node"]["project_id"]] = JSON.parse(id["node"]["jsondata"])
     end
-    assert_equal 'search_desc', result[p.id]["description"]
     assert_equal 'new_description', result[p2.id]["description"]
+    assert_equal 'search_desc', result[p.id]["description"]
   end
 
   test "should return 404 if public team does not exist" do
