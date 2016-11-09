@@ -17,17 +17,31 @@ class CheckSearch
 
   def create
     # query_a to fetch keyword/context
-    ids = ids_a = build_search_query_a
-    # query_b to fetch tags/categories
-    unless @options["tags"].blank?
-      ids_b = build_search_query_b
-      # get intesect between query_a & query_b to get medias that match user options
-      # which related to keywords, context, tags
-      ids = ids_a.keep_if { |k, _v| ids_b.key? k }
-      ids = fetch_media_projects(ids, ids_a, ids_b)
+    ids = {}
+    if @options["keyword"].blank? and @options["tags"].blank? and @options["status"].blank?
+      ids = build_search_query_a
+    else
+      ids_a = build_search_query_a unless @options["keyword"].blank?
+      ids_b = build_search_query_b unless @options["tags"].blank?
+      if !ids_a.blank? and !ids_b.blank?
+        ids = ids_a.keep_if { |k, _v| ids_b.key? k }
+        ids = fetch_media_projects(ids, ids_a, ids_b)
+      elsif !ids_a.blank?
+        ids = ids_a
+      elsif !ids_b.blank?
+        ids = ids_b
+      end
     end
-    # query_c to fetch status (final result)
-    ids = build_search_query_c(ids) unless @options["status"].blank?
+    # query_c to fetch status
+    unless @options["status"].blank?
+      ids_c = build_search_query_c(ids)
+      if !ids.blank? and !ids_c.blank?
+        ids = ids.keep_if { |k, _v| ids_c.key? k }
+        ids = fetch_media_projects(ids, ids, ids_c)
+      elsif !ids_c.blank?
+        ids = ids_c
+      end
+    end
     # query to collect latest timestamp for media activities
     ids = build_search_query_recent_activity(ids) if self.allow_sort_by_recent_activity?
     check_search_sort(ids)
@@ -110,10 +124,11 @@ class CheckSearch
   end
 
   def build_search_query_c(media_ids)
-    query = { terms: { annotated_id: media_ids.keys } }
-    filter = { bool: { must: [ {term: {annotation_type: "status" } } ] } }
-    ids = get_search_result(query, filter)
-    fetch_media_projects(ids, ids, media_ids)
+    query = { match_all: {} }
+    filters = [ {term: {annotation_type: "status" } } ]
+    filters << { terms: { context_id: @options["projects"]} } unless @options["projects"].blank?
+    filter = { bool: { must: [ filters ] } }
+    get_search_result(query, filter)
   end
 
   def build_search_query_recent_activity(media_ids)
@@ -123,11 +138,10 @@ class CheckSearch
     types << 'comment' unless @options["keyword"].blank?
     filters = []
     filters << { terms: { annotation_type: types } }
-    filters << { terms: { annotated_id: media_ids.keys } }
     filters << { terms: { context_id: @options["projects"]} } unless @options["projects"].blank?
     filter = { bool: { must: [ filters ] } }
     ids = get_search_result(query, filter)
-    fetch_media_projects(ids, ids, media_ids)
+    fetch_media_projects(media_ids, media_ids, ids)
   end
 
   def get_search_result(query, filter)
@@ -184,7 +198,8 @@ class CheckSearch
     # Get max timestamp for ProjectMedia accross different arrays.
     ids_p = {}
     ids.each do |k, _v|
-      v_a = ids_a[k]; v_b = ids_b[k]
+      v_a = ids_a[k]
+      v_b = ids_b.key?(k) ? ids_b[k] : {}
       ids_p[k] = v_a.keep_if { |kp, _vp| v_b.key? kp }
       ids_p[k].each{|km, _vm| ids_p[k][km] = [v_a[km], v_b[km]].max}
     end
