@@ -48,7 +48,6 @@ class CheckSearch
 
   def build_search_query_for_status(ids)
     ids_c = build_search_query_c
-    ids = []
     if !ids.blank? and !ids_c.blank?
       ids = ids.keep_if { |k, _v| ids_c.key? k }
       ids = fetch_media_projects(ids, ids, ids_c)
@@ -75,7 +74,7 @@ class CheckSearch
     ret = ids
     if !ids_a.blank?
       ret = ids_a
-    else !ids_b.blank?
+    elsif !ids_b.blank?
       ret = ids_b
     end
     ret
