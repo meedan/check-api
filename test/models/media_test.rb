@@ -482,7 +482,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should journalist edit own status" do
     u = create_user
     t = create_team
-    tu = create_team_user team:t, user: u, role: 'journalist'
+    tu = create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t, user: create_user
     m = create_valid_media project_id: p.id, user: u
     m.context_team = t
@@ -533,5 +533,12 @@ class MediaTest < ActiveSupport::TestCase
       m.information = { quote: 'Media quote B' }.to_json
       m.save!
     end
+  end
+
+  test "should get published time" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    assert_not_nil m.published(p)
   end
 end

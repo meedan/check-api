@@ -54,12 +54,7 @@ class Media < ActiveRecord::Base
     return self.annotations(type, context) if self.no_cache
     @cached_annotations ||= self.annotations
     type = [type].flatten
-    ret = @cached_annotations
-    ret = ret.select{ |a| type.include?(a.annotation_type) } unless type.nil?
-    ret = ret.select{ |a| a.context_type == context.class.name && a.context_id == context.id.to_s } if context.kind_of?(ActiveRecord::Base)
-    ret = ret.select{ |a| a.context_id.blank? } if context == 'none'
-    ret = ret.select{ |a| !a.context_id.blank? } if context == 'some'
-    ret
+    cached_annotations_filtered(type, context)
   end
 
   def data(context = nil)
@@ -134,6 +129,17 @@ class Media < ActiveRecord::Base
 
   def overriden_embed_attributes
     %W(title description username quote)
+  end
+
+  protected
+
+  def cached_annotations_filtered(type, context)
+    ret = @cached_annotations
+    ret = ret.select{ |a| type.include?(a.annotation_type) } unless type.nil?
+    ret = ret.select{ |a| a.context_type == context.class.name && a.context_id == context.id.to_s } if context.kind_of?(ActiveRecord::Base)
+    ret = ret.select{ |a| a.context_id.blank? } if context == 'none'
+    ret = ret.select{ |a| !a.context_id.blank? } if context == 'some'
+    ret
   end
 
   private
