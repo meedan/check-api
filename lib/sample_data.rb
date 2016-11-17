@@ -335,4 +335,10 @@ module SampleData
     bot.reload
   end
 
+  def create_bounce(options = {})
+    b = Bounce.new
+    b.email = options.has_key?(:email) ? options[:email] : random_email
+    b.save!
+    b.reload
+  end
 end

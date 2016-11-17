@@ -27,9 +27,10 @@ class TeamUserMailer < ApplicationMailer
   protected
 
   def send_email_to_recipients(recipients, subject)
+    recipients = Bounce.remove_bounces(recipients)
     unless recipients.empty?
       Rails.logger.info "Sending e-mail to #{recipients}"
-      mail(to: recipients, subject: subject) if Rails.env.test?
+      mail(to: recipients, subject: subject)
     end
   end
 end
