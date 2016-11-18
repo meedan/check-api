@@ -10,7 +10,7 @@ class RegistrationsControllerTest < ActionController::TestCase
   test "should create user" do
     assert_difference 'User.count' do
       post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' }
-      assert_response :success
+      assert_response 401 # needs to confirm before login
     end
   end
 
@@ -45,7 +45,7 @@ class RegistrationsControllerTest < ActionController::TestCase
   test "should create user if login is not present" do
     assert_difference 'User.count' do
       post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: '', name: 'Test' }
-      assert_response :success
+      assert_response 401 # needs to confirm before login
     end
   end
 

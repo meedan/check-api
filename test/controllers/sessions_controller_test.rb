@@ -10,6 +10,7 @@ class SessionsControllerTest < ActionController::TestCase
 
   test "should login using email" do
     u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', provider: ''
+    u.confirm
     post :create, api_user: { email: 'test@test.com', password: '12345678' }
     assert_response :success
     assert_not_nil @controller.current_api_user
