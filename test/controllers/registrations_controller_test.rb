@@ -14,6 +14,15 @@ class RegistrationsControllerTest < ActionController::TestCase
     end
   end
 
+  test "should create user if confirmed" do
+    User.any_instance.stubs(:confirmation_required?).returns(false)
+    assert_difference 'User.count' do
+      post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' }
+      assert_response :success
+    end
+    User.unstub(:confirmation_required?)
+  end
+
   test "should not create user if password is missing" do
     assert_no_difference 'User.count' do
       post :create, api_user: { password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' }
