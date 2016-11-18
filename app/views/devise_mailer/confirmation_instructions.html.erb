@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>Welcome to Check, <%= @resource.name %>!</p>
+    <p>Go to <%= confirmation_url(@resource, host: @host, confirmation_token: @resource.confirmation_token, client_host: @client_host) %> to confirm your e-mail address.</p>
+    <p>If you didn't want to join Check, just ignore this message.</p>
+  </body>
+</html>

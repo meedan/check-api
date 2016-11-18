@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
   has_many :projects
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable,
+         :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
   after_create :set_image, :create_source_and_account, :send_welcome_email
@@ -137,6 +137,12 @@ class User < ActiveRecord::Base
   def is_a_colleague_of?(user)
     results = TeamUser.find_by_sql(['SELECT COUNT(*) AS count FROM team_users tu1 INNER JOIN team_users tu2 ON tu1.team_id = tu2.team_id WHERE tu1.user_id = :user1 AND tu2.user_id = :user2 AND tu1.status = :status AND tu2.status = :status', { user1: self.id, user2: user.id, status: 'member' }])
     results.first.count.to_i >= 1
+  end
+
+  protected
+
+  def confirmation_required?
+    self.provider.blank?
   end
 
   private
