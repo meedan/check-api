@@ -13,6 +13,8 @@ engines:
     config: .rubocop.yml
   brakeman:
     enabled: true
+    exclude_fingerprints:
+    - dddc38ecdf09b41a514d23ca5f1fcc94c5cf7a6b7c16678bcb7cb0b4435e47d9
   duplication:
     enabled: true
     config:

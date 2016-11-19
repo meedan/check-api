@@ -31,4 +31,6 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  match '/test/confirm_user' => 'test#confirm_user', via: :get
 end
