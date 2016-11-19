@@ -3,6 +3,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 class RegistrationsControllerTest < ActionController::TestCase
   def setup
     super
+    User.destroy_all
     @controller = Api::V1::RegistrationsController.new
     @request.env["devise.mapping"] = Devise.mappings[:api_user]
   end
@@ -20,7 +21,7 @@ class RegistrationsControllerTest < ActionController::TestCase
       post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' }
       assert_response :success
     end
-    User.unstub(:confirmation_required?)
+    User.any_instance.unstub(:confirmation_required?)
   end
 
   test "should not create user if password is missing" do
