@@ -5,7 +5,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :id do
-    type types.ID
+    type !types.ID
 
     resolve -> (media, _args, _ctx) {
       media.relay_id
@@ -56,6 +56,15 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
     resolve ->(media, args, ctx) {
       call_method_from_context(media, :tags, args, ctx)
+    }
+  end
+
+  field :team do
+    type TeamType
+
+    resolve ->(media, args, ctx) {
+      media.project_object = get_context(args, ctx)
+      media.current_team
     }
   end
 
