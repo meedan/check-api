@@ -534,6 +534,20 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should get media team" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team subdomain: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    m = create_media project_id: p.id
+    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { team { name } } }"
+    @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
+    post :create, query: query
+    assert_response :success
+    assert_equal t.name, JSON.parse(@response.body)['data']['media']['team']['name']
+  end
+
   test "should get source statuses" do
     u = create_user
     authenticate_with_user(u)
