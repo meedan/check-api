@@ -1,7 +1,7 @@
-class Flag
+class Flag < ActiveRecord::Base
   include AnnotationBase
 
-  attribute :flag, String, presence: true
+  field :flag, String, presence: true
 
   validates_presence_of :flag
   validates :annotated_type, included: { values: ['Media', nil] }

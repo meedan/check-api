@@ -1,13 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class FlagTest < ActiveSupport::TestCase
-  def setup
-    super
-    Flag.delete_index
-    Flag.create_index
-    sleep 1
-  end
-
   test "should create flag" do
     assert_difference 'Flag.length' do
       create_flag
@@ -15,21 +8,25 @@ class FlagTest < ActiveSupport::TestCase
   end
 
   test "should set type automatically" do
-    f =  create_flag
+    f = create_flag
     assert_equal 'flag', f.annotation_type
   end
 
   test "should have flag" do
     assert_no_difference 'Flag.length' do
-      create_flag(flag: nil)
-      create_flag(flag: '')
+      assert_raises ActiveRecord::RecordInvalid do
+        create_flag(flag: nil)
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_flag(flag: '')
+      end
     end
   end
 
   test "should create version when flag is created" do
-    f =  nil
+    f = nil
     assert_difference 'PaperTrail::Version.count', 2 do
-      f =  create_flag(flag: 'Spam', annotated: nil)
+      f = create_flag(flag: 'Spam', annotated: nil)
     end
     assert_equal 1, f.versions.count
     v = f.versions.last
@@ -38,29 +35,30 @@ class FlagTest < ActiveSupport::TestCase
   end
 
   test "should create version when flag is updated" do
-    f =  create_flag(flag: 'Spam')
+    f = create_flag(flag: 'Spam')
+    f = Flag.last
     f.flag = 'Graphic content'
     f.save
     assert_equal 2, f.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'flag' => ['Spam', 'Graphic content'] }, JSON.parse(v.object_changes))
+    assert_equal({"data"=>["{\"flag\"=>\"Spam\"}", "{\"flag\"=>\"Graphic content\"}"]}, JSON.parse(v.object_changes))
   end
 
   test "should revert" do
-    f =  create_flag(flag: 'Spam')
+    f = create_flag(flag: 'Spam')
     f.flag = 'Graphic content'; f.save
     f.flag = 'Needing fact-checking'; f.save
     assert_equal 3, f.versions.size
 
     f.revert
     assert_equal 'Graphic content', f.flag
-    f =  f.reload
+    f = f.reload
     assert_equal 'Needing fact-checking', f.flag
 
     f.revert_and_save
     assert_equal 'Graphic content', f.flag
-    f =  f.reload
+    f = f.reload
     assert_equal 'Graphic content', f.flag
 
     f.revert
@@ -76,27 +74,27 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal 'Needing fact-checking', f.flag
 
 
-    f =  f.reload
+    f = f.reload
     assert_equal 'Graphic content', f.flag
     f.revert_and_save(-1)
-    f =  f.reload
+    f = f.reload
     assert_equal 'Needing fact-checking', f.flag
 
     assert_equal 3, f.versions.size
   end
 
   test "should return whether it has an attribute" do
-    f =  create_flag
+    f = create_flag
     assert f.has_attribute?(:flag)
   end
 
   test "should have a single annotation type" do
-    f =  create_flag
+    f = create_flag
     assert_equal 'annotation', f._type
   end
 
   test "should have context" do
-    f =  create_flag
+    f = create_flag
     s = create_project
     assert_nil f.context
     f.context = s
@@ -139,7 +137,7 @@ class FlagTest < ActiveSupport::TestCase
   end
 
   test "should have content" do
-    f =  create_flag
+    f = create_flag
     assert_equal ['flag'], JSON.parse(f.content).keys
   end
 
@@ -161,14 +159,14 @@ class FlagTest < ActiveSupport::TestCase
   end
 
   test "should get annotator" do
-    f =  create_flag
+    f = create_flag
     assert_nil f.send(:annotator_callback, 'test@tef.com')
     u = create_user(email: 'test@tef.com')
     assert_equal u, f.send(:annotator_callback, 'test@tef.com')
   end
 
   test "should get target id" do
-    f =  create_flag
+    f = create_flag
     assert_equal 2, f.target_id_callback(1, [1, 2, 3])
   end
 
@@ -178,7 +176,7 @@ class FlagTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u2, role: 'contributor'
     m = create_valid_media team: t, current_user: u2
-    f =  create_flag annotated: m, annotator: nil, current_user: u2
+    f = create_flag annotated: m, annotator: nil, current_user: u2
     assert_equal u2, f.annotator
   end
 
@@ -188,7 +186,7 @@ class FlagTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u2, role: 'contributor'
     m = create_valid_media team: t, current_user: u2
-    f =  create_flag annotated: m, annotator: u1, current_user: u2
+    f = create_flag annotated: m, annotator: u1, current_user: u2
     assert_equal u1, f.annotator
   end
 
@@ -203,12 +201,14 @@ class FlagTest < ActiveSupport::TestCase
 
   test "should not create flag with invalid annotated" do
     assert_no_difference 'Flag.length' do
-      create_flag annotated: create_source
+      assert_raises ActiveRecord::RecordInvalid do
+        create_flag annotated: create_source
+      end
     end
   end
 
  test "should get flag" do
-    f =  create_flag
+    f = create_flag
     assert_equal 'Graphic content', f.flag_callback('graphic_journalist')
     assert_equal 'Invalid', f.flag_callback('Invalid')
   end

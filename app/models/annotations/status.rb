@@ -1,7 +1,7 @@
-class Status
+class Status < ActiveRecord::Base
   include AnnotationBase
 
-  attribute :status, String, presence: true
+  field :status, String, presence: true
 
   validates_presence_of :status
   validates :annotated_type, included: { values: ['Media', 'Source', nil] }

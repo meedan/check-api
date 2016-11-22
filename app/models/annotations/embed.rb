@@ -1,14 +1,12 @@
-class Embed
+class Embed < ActiveRecord::Base
   include AnnotationBase
 
-  attribute :title, String, mapping: { analyzer: 'hashtag' }
-  attribute :description, String, mapping: { analyzer: 'hashtag' }
-  attribute :quote, String, mapping: { analyzer: 'hashtag' }
-
-  attribute :embed, String
-  attribute :username, String
-  attribute :published_at, Integer
-  attribute :search_context, Array
+  field :title
+  field :description
+  field :quote
+  field :embed
+  field :username
+  field :published_at, Integer
   
   validate :validate_quote_for_media_with_empty_url
 
@@ -21,6 +19,11 @@ class Embed
       quote: self.quote,
       embed: self.embed
     }.to_json
+  end
+
+  def search_context
+    data = self.data || {}
+    data[:search_context] || []
   end
 
   private

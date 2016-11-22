@@ -1,8 +1,8 @@
-class Tag
+class Tag < ActiveRecord::Base
   include AnnotationBase
 
-  attribute :tag, String, presence: true
-  attribute :full_tag, String, presence: true, mapping: { index: 'not_analyzed' }
+  field :tag, String, presence: true
+  field :full_tag, String, presence: true
 
   validates_presence_of :tag
   validates :tag, uniqueness: { fields: [:annotated_type, :annotated_id, :context_type, :context_id] }, if: lambda { |t| t.id.blank? }

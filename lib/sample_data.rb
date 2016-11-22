@@ -76,7 +76,6 @@ module SampleData
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
     c.save!
-    sleep 1 if Rails.env.test?
     c
   end
 
@@ -84,9 +83,7 @@ module SampleData
     if options[:team]
       options[:context] = create_project(team: options[:team])
     end
-    t = Tag.create({ tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
-    sleep 1 if Rails.env.test?
-    t.reload
+    Tag.create!({ tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
   end
 
   def create_status(options = {})
@@ -104,7 +101,6 @@ module SampleData
       s.send("#{key}=", value) if s.respond_to?("#{key}=")
     end
     s.save!
-    sleep 1 if Rails.env.test?
     s
   end
 
@@ -114,9 +110,12 @@ module SampleData
       m = options.delete(:annotated) || create_valid_media
       type, id = m.class.name, m.id.to_s
     end
-    f = Flag.create({ flag: 'Spam', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
-    sleep 1 if Rails.env.test?
-    f.reload
+    f = Flag.new
+    { flag: 'Spam', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options).each do |key, value|
+      f.send("#{key}=", value)
+    end
+    f.save!
+    f
   end
 
   def create_embed(options = {})
@@ -125,14 +124,12 @@ module SampleData
       p = options.delete(:annotated) || create_project
       type, id = p.class.name, p.id.to_s
     end
-    em = Embed.create({ embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
-    sleep 1 if Rails.env.test?
-    em.reload
+    Embed.create!({ embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
   end
 
   def create_annotation(options = {})
     if options.has_key?(:annotation_type) && options[:annotation_type].blank?
-      Annotation.create(options)
+      Annotation.create!(options)
     else
       create_comment(options)
     end

@@ -1,7 +1,7 @@
-class Comment
+class Comment < ActiveRecord::Base
   include AnnotationBase
 
-  attribute :text, String, presence: true, mapping: { analyzer: 'hashtag' }
+  field :text
   validates_presence_of :text
 
   before_save :extract_check_entities

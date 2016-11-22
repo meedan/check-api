@@ -10,34 +10,33 @@ module AnnotationBase
       def define_annotators_method
         define_method :annotators do |context=nil|
           query = self.annotation_query(context)
-          query[:bool][:must] << { match: { annotator_type: 'User' } }
-          aggs = { g: { terms: { field: :annotator_id } } }
+          query[:annotator_type] = 'User'
           annotators = []
-          Annotation.search(query: query, aggs: aggs).response['aggregations']['g']['buckets'].each do |result|
-            # result['doc_count'] is the number of annotations by this user
-            annotators << User.find(result['key'])
+          Annotation.where(query).group(:annotator_id).each do |result|
+            annotators << User.find(result.annotator_id)
           end
-          annotators
+          annotators.uniq
         end
       end
 
       def has_annotations
         define_method :annotation_query do |type=nil, context=nil|
-          matches = [{ match: { annotated_type: self.class.name } }, { match: { annotated_id: self.id.to_s } }]
+          matches = { annotated_type: self.class.name, annotated_id: self.id }
           if context.kind_of?(ActiveRecord::Base)
-            matches << { match: { context_type: context.class.name } }
-            matches << { match: { context_id: context.id.to_s } }
+            matches[:context_type] = context.class.name
+            matches[:context_id] = context.id
           end
-          matches << { terms: { annotation_type: [*type] } } unless type.nil?
-          { bool: { must: matches } }
+          matches[:annotation_type] = [*type] unless type.nil?
+          matches
         end
 
         define_method :annotation_relation do |type=nil, context=nil|
           query = self.annotation_query(type, context)
-          params = { query: query, sort: [{ created_at: { order: 'desc' }}, '_score'] }
-          params[:filter] = { missing: { field: 'context_id' } } if context === 'none'
-          params[:filter] = { exists: { field: 'context_id' } } if context === 'some'
-          ElasticsearchRelation.new(params)
+          klass = type.blank? ? Annotation : type.camelize.constantize
+          relation = klass.where(query)
+          relation = relation.where(context_id: nil) if context === 'none'
+          relation = relation.where.not(context_id: nil) if context === 'some'
+          relation.order('created_at DESC')
         end
 
         define_method :annotations do |type=nil, context=nil|
@@ -59,25 +58,14 @@ module AnnotationBase
   end
 
   included do
-    include CheckdeskElasticSearchModel
     include ActiveModel::Validations
+    include ActiveModel::Validations::Callbacks
     include PaperTrail::Model
     include CheckdeskPermissions
     include CheckdeskNotifications::Slack
     include CheckdeskNotifications::Pusher
-
-    index_name CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
-    document_type 'annotation'
-
-    attribute :annotation_type, String
-    attribute :version_index, Integer
-    attribute :annotated_type, String
-    attribute :annotated_id, String
-    attribute :context_type, String
-    attribute :context_id, String
-    attribute :annotator_type, String
-    attribute :annotator_id, String
-    attribute :entities, Array
+  
+    self.table_name = 'annotations'
 
     notifies_pusher on: :save,
                     if: proc { |a| a.annotated_type === 'Media' && a.context_type === 'Project' },
@@ -86,149 +74,63 @@ module AnnotationBase
                     data: proc { |a| a.to_json }
 
     before_validation :set_type_and_event, :set_annotator
+    after_initialize :start_serialized_fields
 
-    has_paper_trail on: [:update], save_changes: true
+    has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities]
 
-    after_save do
-      Annotation.gateway.client.indices.refresh
-      self.send(:record_update, true) unless self.attribute_changed?(:version_index)
-      reset_changes
-    end
+    serialize :data, JSON
+    serialize :entities, JSON
 
-    before_save :check_ability, :changes
+    before_save :check_ability
     before_destroy :check_destroy_ability
+
+    private
+
+    def start_serialized_fields
+      self.data ||= {}
+      self.entities ||= []
+    end
   end
 
   module ClassMethods
-    def has_many(name, scope = nil, options = {}, &extension)
-      # Do nothing... instead, we are going to generate each collection we need
-    end
-
-    def after_commit(*args, &block)
-      # Nothing - there is no commit in ElasticSearch
-    end
-
-    def after_rollback(*args, &block)
-      # Nothing - there is no rollback in ElasticSearch
-    end
-
-    # We don't have associations, so we don't need it
-    def reflect_on_all_associations(_macro = nil)
-      []
-    end
-
-    def column_names
-      self.attribute_set.to_a.map(&:name)
-    end
-
-    def columns_hash
-      hash = {}
-      self.attribute_set.to_a.each do |a|
-        name = a.name.to_s
-        type = a.type.to_s.gsub('Axiom::Types::', '').downcase.to_sym
-        type = :datetime if type === :time
-        hash[name] = OpenStruct.new({
-          name: name,
-          type: type
-        })
-      end
-      hash
-    end
-
-    def columns
-      objs = []
-      self.attribute_set.to_a.each do |a|
-        objs << OpenStruct.new({
-          name: a.name.to_s,
-          sql_type: a.type.to_s.gsub('Axiom::Types::', '')
-        })
-      end
-      objs
-    end
-
-    def abstract_class?
-      false
-    end
-
-    def delete_all
-      self.delete_index
-      self.create_index
-      sleep 1
-    end
-
     def all_sorted(order = 'asc', field = 'created_at')
       type = self.name.parameterize
-      query = type === 'annotation' ? { match_all: {} } : { bool: { must: [{ match: { annotation_type: type } }] } }
-      self.search(query: query, sort: [{ field => { order: order }}, '_score'], size: 10000).results
+      query = type === 'annotation' ? {} : { annotation_type: type }
+      Annotation.where(query).order("#{field} #{asc}").all
     end
 
     def length
       type = self.name.parameterize
-      self.count({ query: { bool: { must: [{ match: { annotation_type: type } }] } } })
+      Annotation.where(annotation_type: type).count
+    end
+
+    def field(name, type = String, _options = {})
+      attr_accessible name
+
+      define_method "#{name}=" do |value=nil|
+        self.data ||= {}
+        value = case type
+          when String
+            value.to_s
+          when Integer
+            value.to_i
+          when Array
+            value.split(',')
+          else
+            value
+          end
+        self.data[name.to_sym] = value
+      end
+
+      define_method name do
+        self.data ||= {}
+        self.data[name.to_sym]
+      end
     end
   end
 
   def versions(options = {})
     PaperTrail::Version.where(options).where(item_type: self.class.to_s, item_id: self.id).order('id ASC')
-  end
-
-  def changed
-    self.changes.keys
-  end
-
-  def changed_attributes
-    ca = {}
-    self.changed.each do |key|
-      ca[key] = self.changes[key][0]
-    end
-    ca
-  end
-
-  def changes
-    unless @changes
-      changed = self.attributes
-      unchanged = self.id.nil? ? {} : self.class.find(self.id).attributes
-      @changes = {}
-      changed.each do |k, v|
-        next if [:created_at, :updated_at].include?(k)
-        @changes[k] = [unchanged[k], v] unless unchanged[k] == v
-      end
-    end
-    @changes
-  end
-
-  def attribute_changed?(attr)
-    self.changed.map(&:to_sym).include?(attr.to_sym)
-  end
-
-  def attribute_names
-    self.class.column_names
-  end
-
-  def has_attribute?(attr)
-    self.attribute_names.include?(attr)
-  end
-
-  def revert(steps = 1, should_save = false)
-    current_version = self.version_index.blank? ? (self.versions.size - 1) : self.version_index.to_i
-    new_version = current_version - steps
-    if new_version >= 0 && new_version < self.versions.size
-      object = JSON.parse(self.versions[new_version].object).reject{ |k, _v| [:updated_at, :created_at].include?(k.to_sym) }.merge({ version_index: new_version })
-      objchanges = JSON.parse(self.versions[new_version].object_changes)
-      object.each do |k, v|
-        self.send("#{k}=", v)
-      end
-      objchanges.each do |k, v|
-        self.send("#{k}=", v[1])
-      end
-      self.save if should_save
-    end
-    self
-  end
-
-  def revert_and_save(steps = 1)
-    self.reload
-    self.revert(steps, true)
   end
 
   def source
@@ -308,10 +210,6 @@ module AnnotationBase
     self.id
   end
 
-  def save!
-    raise 'Sorry, this is not valid' unless self.save
-  end
-
   def get_team
     obj = self.context.nil? ? self.annotated : self.context
     team = []
@@ -343,6 +241,30 @@ module AnnotationBase
     objects
   end
 
+  def revert(steps = 1, should_save = false)
+    current_version = self.version_index.blank? ? (self.versions.size - 1) : self.version_index.to_i
+    new_version = current_version - steps
+    if new_version >= 0 && new_version < self.versions.size
+      object = JSON.parse(self.versions[new_version].object).reject{ |k, _v| [:updated_at, :created_at].include?(k.to_sym) }.merge({ version_index: new_version })
+      objchanges = JSON.parse(self.versions[new_version].object_changes)
+      object.each do |k, v|
+        v = eval(v) if [:entities, :data].include?(k.to_sym)
+        self.send("#{k}=", v)
+      end
+      objchanges.each do |k, v|
+        v = eval(v[1]) if [:entities, :data].include?(k.to_sym)
+        self.send("#{k}=", v)
+      end
+      self.save if should_save
+    end
+    self
+  end
+
+  def revert_and_save(steps = 1)
+    self.reload
+    self.revert(steps, true)
+  end
+
   protected
 
   def load_polymorphic(name)
@@ -363,11 +285,6 @@ module AnnotationBase
   def set_type_and_event
     self.annotation_type ||= self.class.name.parameterize
     self.paper_trail_event = 'create' if self.versions.count === 0
-  end
-
-  def reset_changes
-    @changes = nil
-    self.reload
   end
 
   def set_annotator

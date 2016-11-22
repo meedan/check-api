@@ -1,4 +1,4 @@
-class Annotation
+class Annotation < ActiveRecord::Base
   include AnnotationBase
 
   before_validation :cant_instantiate_abstract_class
