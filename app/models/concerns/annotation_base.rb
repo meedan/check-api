@@ -78,11 +78,8 @@ module AnnotationBase
 
     has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities]
 
-    serialize :data, JSON
-    serialize :entities, JSON
-
-    before_save :check_ability
-    before_destroy :check_destroy_ability
+    serialize :data, HashWithIndifferentAccess
+    serialize :entities, Array
 
     private
 
@@ -172,30 +169,6 @@ module AnnotationBase
   # Overwrite in the annotation type and expose the specific fields of that type
   def content
     {}.to_json
-  end
-
-  def current_user
-    @current_user
-  end
-
-  def current_user=(user)
-    @current_user = user
-  end
-
-  def context_team
-    @context_team
-  end
-
-  def context_team=(team)
-    @context_team = team
-  end
-
-  def origin
-    @origin
-  end
-
-  def origin=(origin)
-    @origin = origin
   end
 
   def is_annotation?

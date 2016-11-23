@@ -83,7 +83,12 @@ module SampleData
     if options[:team]
       options[:context] = create_project(team: options[:team])
     end
-    Tag.create!({ tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
+    t = Tag.new
+    { tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options).each do |key, value|
+      t.send("#{key}=", value)
+    end
+    t.save!
+    t
   end
 
   def create_status(options = {})
@@ -124,7 +129,12 @@ module SampleData
       p = options.delete(:annotated) || create_project
       type, id = p.class.name, p.id.to_s
     end
-    Embed.create!({ embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
+    em = Embed.new
+    { embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id }.merge(options).each do |key, value|
+      em.send("#{key}=", value)
+    end
+    em.save!
+    em
   end
 
   def create_annotation(options = {})

@@ -74,7 +74,7 @@ class Media < ActiveRecord::Base
   def last_status(context = nil)
     context = self.get_media_context(context)
     last = self.cached_annotations('status', context).first
-    last.nil? ? Status.default_id(self, context) : last.status
+    last.nil? ? Status.default_id(self, context) : last.data[:status]
   end
 
   def published(context = nil)

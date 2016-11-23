@@ -5,7 +5,7 @@ class Tag < ActiveRecord::Base
   field :full_tag, String, presence: true
 
   validates_presence_of :tag
-  validates :tag, uniqueness: { fields: [:annotated_type, :annotated_id, :context_type, :context_id] }, if: lambda { |t| t.id.blank? }
+  validates :data, uniqueness: { scope: [:annotated_type, :annotated_id, :context_type, :context_id] }, if: lambda { |t| t.id.blank? }
   
   before_validation :normalize_tag, :store_full_tag
 

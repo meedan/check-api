@@ -20,7 +20,7 @@ class EmbedTest < ActiveSupport::TestCase
     assert_no_difference 'Embed.length' do
       m = Media.new
       m.save!
-      assert_raise RuntimeError do
+      assert_raise ActiveRecord::RecordInvalid do
         em = Embed.new
         em.annotated = m
         em.quote = ''
@@ -61,16 +61,6 @@ class EmbedTest < ActiveSupport::TestCase
     assert_equal s2, em2a.annotated
     assert_equal s2, em2b.annotated
     assert_equal [em2a.id, em2b.id].sort, s2.reload.annotations.map(&:id).sort
-  end
-
-  test "should return whether it has an attribute" do
-    em = create_embed
-    assert em.has_attribute?(:embed)
-  end
-
-  test "should have a single annotation type" do
-    em = create_embed
-    assert_equal 'annotation', em._type
   end
 
   test "should have context" do
@@ -134,8 +124,8 @@ class EmbedTest < ActiveSupport::TestCase
     em5 = create_embed annotator: u2, annotated: s1
     em6 = create_embed annotator: u3, annotated: s2
     em7 = create_embed annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators
-    assert_equal [u3].sort, s2.annotators
+    assert_equal [u1, u2].sort, s1.annotators.sort
+    assert_equal [u3].sort, s2.annotators.sort
   end
 
   test "should set annotator if not set" do
@@ -145,7 +135,6 @@ class EmbedTest < ActiveSupport::TestCase
     create_team_user team: t, user: u2, role: 'owner'
     p = create_project team: t, current_user: u2
     em = create_embed annotated: p, annotator: nil, current_user: u2
-    assert_equal u2, em.annotator
+    assert_equal u2, em.reload.annotator
   end
-
 end

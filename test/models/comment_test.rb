@@ -103,7 +103,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 1, c.versions.count
     v = c.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>["", "{\"text\"=>\"test\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{c.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{c.annotated_id}"], "annotation_type"=>["", "comment"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>["{}", "{\"text\"=>\"test\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{c.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{c.annotated_id}"], "annotation_type"=>["", "comment"]}, JSON.parse(v.object_changes))
   end
 
   test "should create version when comment is updated" do
@@ -114,7 +114,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 2, c.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'text' => ['foo', 'bar'] }, JSON.parse(v.object_changes))
+      assert_equal({"data"=>["{\"text\"=>\"foo\"}", "{\"text\"=>\"bar\"}"]}, JSON.parse(v.object_changes))
   end
 
   test "should have context" do
@@ -178,8 +178,8 @@ class CommentTest < ActiveSupport::TestCase
     c5 = create_comment annotator: u2, annotated: s1
     c6 = create_comment annotator: u3, annotated: s2
     c7 = create_comment annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators
-    assert_equal [u3].sort, s2.annotators
+    assert_equal [u1, u2].sort, s1.annotators.sort
+    assert_equal [u3].sort, s2.annotators.sort
   end
 
   test "should get annotator" do
