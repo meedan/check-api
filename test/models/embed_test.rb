@@ -5,13 +5,6 @@ class SampleModel < ActiveRecord::Base
 end
 
 class EmbedTest < ActiveSupport::TestCase
-  def setup
-    super
-    Embed.delete_index
-    Embed.create_index
-    sleep 1
-  end
-
   test "should create embed" do
     assert_difference 'Embed.length' do
       create_embed(embed: 'test')

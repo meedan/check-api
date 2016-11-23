@@ -5,13 +5,6 @@ class SampleModel < ActiveRecord::Base
 end
 
 class CommentTest < ActiveSupport::TestCase
-  def setup
-    super
-    Comment.delete_index
-    Comment.create_index
-    sleep 1
-  end
-
   test "should create comment" do
     assert_difference 'Comment.length' do
       create_comment(text: 'test')

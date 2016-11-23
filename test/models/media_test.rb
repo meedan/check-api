@@ -1,14 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class MediaTest < ActiveSupport::TestCase
-  def setup
-    super
-    Media.destroy_all
-    Annotation.delete_index
-    Annotation.create_index
-    sleep 1
-  end
-
   test "should create media" do
     assert_difference 'Media.count' do
       create_valid_media

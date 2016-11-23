@@ -1,11 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
-
-class ProjectTest < ActiveSupport::TestCase
-  def setup
-    super
-    require 'sidekiq/testing'
-    Sidekiq::Testing.fake!
-  end
+end
 
   test "should create project" do
     assert_difference 'Project.count' do
@@ -118,8 +111,6 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    Annotation.delete_index
-    Annotation.create_index
     p = create_project
     c1 = create_comment
     c2 = create_comment

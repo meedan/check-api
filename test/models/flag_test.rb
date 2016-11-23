@@ -31,7 +31,7 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal 1, f.versions.count
     v = f.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'flag'], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', f.annotator_id], 'entities' => ['', '[]'], 'flag' => ['', 'Spam' ] }, JSON.parse(v.object_changes))
+    assert_equal({"data"=>["", "{\"flag\"=>\"Spam\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{f.annotator_id}"], "annotation_type"=>["", "flag"]}, JSON.parse(v.object_changes))
   end
 
   test "should create version when flag is updated" do
@@ -43,54 +43,6 @@ class FlagTest < ActiveSupport::TestCase
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
     assert_equal({"data"=>["{\"flag\"=>\"Spam\"}", "{\"flag\"=>\"Graphic content\"}"]}, JSON.parse(v.object_changes))
-  end
-
-  test "should revert" do
-    f = create_flag(flag: 'Spam')
-    f.flag = 'Graphic content'; f.save
-    f.flag = 'Needing fact-checking'; f.save
-    assert_equal 3, f.versions.size
-
-    f.revert
-    assert_equal 'Graphic content', f.flag
-    f = f.reload
-    assert_equal 'Needing fact-checking', f.flag
-
-    f.revert_and_save
-    assert_equal 'Graphic content', f.flag
-    f = f.reload
-    assert_equal 'Graphic content', f.flag
-
-    f.revert
-    assert_equal 'Spam', f.flag
-    f.revert
-    assert_equal 'Spam', f.flag
-
-    f.revert(-1)
-    assert_equal 'Graphic content', f.flag
-    f.revert(-1)
-    assert_equal 'Needing fact-checking', f.flag
-    f.revert(-1)
-    assert_equal 'Needing fact-checking', f.flag
-
-
-    f = f.reload
-    assert_equal 'Graphic content', f.flag
-    f.revert_and_save(-1)
-    f = f.reload
-    assert_equal 'Needing fact-checking', f.flag
-
-    assert_equal 3, f.versions.size
-  end
-
-  test "should return whether it has an attribute" do
-    f = create_flag
-    assert f.has_attribute?(:flag)
-  end
-
-  test "should have a single annotation type" do
-    f = create_flag
-    assert_equal 'annotation', f._type
   end
 
   test "should have context" do
@@ -154,8 +106,8 @@ class FlagTest < ActiveSupport::TestCase
     f5 = create_flag annotator: u2, annotated: s1
     f6 = create_flag annotator: u3, annotated: s2
     f7 = create_flag annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators
-    assert_equal [u3].sort, s2.annotators
+    assert_equal [u1, u2].sort, s1.annotators.sort
+    assert_equal [u3].sort, s2.annotators.sort
   end
 
   test "should get annotator" do
@@ -192,7 +144,9 @@ class FlagTest < ActiveSupport::TestCase
 
   test "should not create flag with invalid value" do
     assert_no_difference 'Flag.length' do
-      create_flag flag: 'invalid'
+      assert_raises ActiveRecord::RecordInvalid do
+        create_flag flag: 'invalid'
+      end
     end
     assert_difference 'Flag.length' do
       create_flag flag: 'Spam'

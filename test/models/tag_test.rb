@@ -5,13 +5,6 @@ class SampleModel < ActiveRecord::Base
 end
 
 class TagTest < ActiveSupport::TestCase
-  def setup
-    super
-    Tag.delete_index
-    Tag.create_index
-    sleep 1
-  end
-
   test "should create tag" do
     assert_difference 'Tag.length' do
       create_tag(tag: 'test')

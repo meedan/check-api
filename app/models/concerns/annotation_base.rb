@@ -12,7 +12,7 @@ module AnnotationBase
           query = self.annotation_query(context)
           query[:annotator_type] = 'User'
           annotators = []
-          Annotation.where(query).group(:annotator_id).each do |result|
+          Annotation.group(:annotator_id, :id).having(query).each do |result|
             annotators << User.find(result.annotator_id)
           end
           annotators.uniq
@@ -239,30 +239,6 @@ module AnnotationBase
       end
     end
     objects
-  end
-
-  def revert(steps = 1, should_save = false)
-    current_version = self.version_index.blank? ? (self.versions.size - 1) : self.version_index.to_i
-    new_version = current_version - steps
-    if new_version >= 0 && new_version < self.versions.size
-      object = JSON.parse(self.versions[new_version].object).reject{ |k, _v| [:updated_at, :created_at].include?(k.to_sym) }.merge({ version_index: new_version })
-      objchanges = JSON.parse(self.versions[new_version].object_changes)
-      object.each do |k, v|
-        v = eval(v) if [:entities, :data].include?(k.to_sym)
-        self.send("#{k}=", v)
-      end
-      objchanges.each do |k, v|
-        v = eval(v[1]) if [:entities, :data].include?(k.to_sym)
-        self.send("#{k}=", v)
-      end
-      self.save if should_save
-    end
-    self
-  end
-
-  def revert_and_save(steps = 1)
-    self.reload
-    self.revert(steps, true)
   end
 
   protected

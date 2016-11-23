@@ -1,13 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class SourceTest < ActiveSupport::TestCase
-  def setup
-    super
-    Annotation.delete_index
-    Annotation.create_index
-    sleep 1
-  end
-
   test "should create source" do
     u = create_user
     assert_difference 'Source.count' do

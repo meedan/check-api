@@ -1,13 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class StatusTest < ActiveSupport::TestCase
-  def setup
-    super
-    Status.delete_index
-    Status.create_index
-    sleep 1
-  end
-
   test "should create status" do
     assert_difference 'Status.length' do
       create_status
