@@ -34,8 +34,8 @@ module AnnotationBase
           query = self.annotation_query(type, context)
           klass = type.blank? ? Annotation : type.camelize.constantize
           relation = klass.where(query)
-          relation = relation.where(context_id: nil) if context === 'none'
-          relation = relation.where.not(context_id: nil) if context === 'some'
+          relation = relation.where(context_id: nil) if context == 'none'
+          relation = relation.where.not(context_id: nil) if context == 'some'
           relation.order('created_at DESC')
         end
 

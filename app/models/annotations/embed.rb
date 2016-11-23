@@ -26,6 +26,11 @@ class Embed < ActiveRecord::Base
     data[:search_context] || []
   end
 
+  def search_context=(value)
+    data = self.data || {}
+    data[:search_context] = value
+  end
+
   private
 
   def validate_quote_for_media_with_empty_url

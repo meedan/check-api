@@ -52,10 +52,10 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should have text" do
     assert_no_difference 'Comment.length' do
-      assert_raise RuntimeError do
+      assert_raise ActiveRecord::RecordInvalid do
         create_comment(text: nil)
       end
-      assert_raise RuntimeError do
+      assert_raise ActiveRecord::RecordInvalid do
         create_comment(text: '')
       end
     end
@@ -103,70 +103,18 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 1, c.versions.count
     v = c.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', c.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'entities' => ['', '[]'], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({"data"=>["", "{\"text\"=>\"test\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{c.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{c.annotated_id}"], "annotation_type"=>["", "comment"]}, JSON.parse(v.object_changes))
   end
 
   test "should create version when comment is updated" do
-    c = create_comment(text: 'foo').reload
+    c = create_comment(text: 'foo')
+    c = Comment.last
     c.text = 'bar'
-    c.save
+    c.save!
     assert_equal 2, c.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
     assert_equal({ 'text' => ['foo', 'bar'] }, JSON.parse(v.object_changes))
-  end
-
-  test "should revert" do
-    c = create_comment(text: 'Version 1')
-    c.text = 'Version 2'; c.save
-    c.text = 'Version 3'; c.save
-    c.text = 'Version 4'; c.save
-    assert_equal 4, c.versions.size
-
-    c = c.reload
-    c.revert
-    assert_equal 'Version 3', c.text
-    c = c.reload
-    assert_equal 'Version 4', c.text
-
-    c.revert_and_save
-    assert_equal 'Version 3', c.text
-    c = c.reload
-    assert_equal 'Version 3', c.text
-
-    c.revert
-    assert_equal 'Version 2', c.text
-    c.revert
-    assert_equal 'Version 1', c.text
-    c.revert
-    assert_equal 'Version 1', c.text
-
-    c.revert(-1)
-    assert_equal 'Version 2', c.text
-    c.revert(-1)
-    assert_equal 'Version 3', c.text
-    c.revert(-1)
-    assert_equal 'Version 4', c.text
-    c.revert(-1)
-    assert_equal 'Version 4', c.text
-
-    c = c.reload
-    assert_equal 'Version 3', c.text
-    c.revert_and_save(-1)
-    c = c.reload
-    assert_equal 'Version 4', c.text
-
-    assert_equal 4, c.versions.size
-  end
-
-  test "should return whether it has an attribute" do
-    c = create_comment
-    assert c.has_attribute?(:text)
-  end
-
-  test "should have a single annotation type" do
-    c = create_comment
-    assert_equal 'annotation', c._type
   end
 
   test "should have context" do

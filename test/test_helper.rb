@@ -48,7 +48,7 @@ class ActiveSupport::TestCase
   def setup
     CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
     Annotation.delete_all
-    [Media, Account, Source, User].each{ |m| m.destroy_all }
+    [Media, Account, Source, User, Annotation].each{ |m| m.destroy_all }
     Rails.cache.clear if File.exists?(File.join(Rails.root, 'tmp', 'cache'))
     Rails.application.reload_routes!
     # URL mocked by pender-client

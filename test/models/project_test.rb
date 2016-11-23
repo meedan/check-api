@@ -1,5 +1,6 @@
-end
+require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
+class ProjectTest < ActiveSupport::TestCase
   test "should create project" do
     assert_difference 'Project.count' do
       create_project
