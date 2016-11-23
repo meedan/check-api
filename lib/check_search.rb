@@ -21,27 +21,10 @@ class CheckSearch
     if @options["keyword"].blank? and @options["tags"].blank? and @options["status"].blank?
       ids = build_search_query_a
     else
-      ids_a = build_search_query_a unless @options["keyword"].blank?
-      ids_b = build_search_query_b unless @options["tags"].blank?
-      if !ids_a.blank? and !ids_b.blank?
-        ids = ids_a.keep_if { |k, _v| ids_b.key? k }
-        ids = fetch_media_projects(ids, ids_a, ids_b)
-      elsif !ids_a.blank?
-        ids = ids_a
-      elsif !ids_b.blank?
-        ids = ids_b
-      end
+      ids = build_search_query_for_non_blank
     end
     # query_c to fetch status
-    unless @options["status"].blank?
-      ids_c = build_search_query_c(ids)
-      if !ids.blank? and !ids_c.blank?
-        ids = ids.keep_if { |k, _v| ids_c.key? k }
-        ids = fetch_media_projects(ids, ids, ids_c)
-      elsif !ids_c.blank?
-        ids = ids_c
-      end
-    end
+    ids = build_search_query_for_status(ids) unless @options["status"].blank?
     # query to collect latest timestamp for media activities
     ids = build_search_query_recent_activity(ids) if self.allow_sort_by_recent_activity?
     check_search_sort(ids)
@@ -62,6 +45,40 @@ class CheckSearch
   end
 
   protected
+
+  def build_search_query_for_status(ids)
+    ids_c = build_search_query_c
+    if !ids.blank? and !ids_c.blank?
+      ids = ids.keep_if { |k, _v| ids_c.key? k }
+      ids = fetch_media_projects(ids, ids, ids_c)
+    elsif !ids_c.blank?
+      ids = ids_c
+    end
+    ids
+  end
+
+  def build_search_query_for_non_blank
+    ids_a = build_search_query_a unless @options["keyword"].blank?
+    ids_b = build_search_query_b unless @options["tags"].blank?
+    ids = []
+    if !ids_a.blank? and !ids_b.blank?
+      ids = ids_a.keep_if { |k, _v| ids_b.key? k }
+      ids = fetch_media_projects(ids, ids_a, ids_b)
+    else
+      ids = build_search_query_for_keywords_or_tags(ids, ids_a, ids_b)
+    end
+    ids
+  end
+
+  def build_search_query_for_keywords_or_tags(ids, ids_a, ids_b)
+    ret = ids
+    if !ids_a.blank?
+      ret = ids_a
+    elsif !ids_b.blank?
+      ret = ids_b
+    end
+    ret
+  end
 
   def should_add_key?(context)
     add_key = true
@@ -123,9 +140,9 @@ class CheckSearch
     get_search_result(query, filter)
   end
 
-  def build_search_query_c(media_ids)
+  def build_search_query_c
     query = { match_all: {} }
-    filters = [ {term: {annotation_type: "status" } } ]
+    filters = [ {term: { annotation_type: "status" } } ]
     filters << { terms: { context_id: @options["projects"]} } unless @options["projects"].blank?
     filter = { bool: { must: [ filters ] } }
     get_search_result(query, filter)

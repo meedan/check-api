@@ -8,10 +8,7 @@ class TeamUserMailer < ApplicationMailer
       @url = origin.blank? ? '' : URI.join(origin, "/members")
       @handle = requestor.handle
       recipients = team.recipients(requestor)
-      unless recipients.empty?
-        Rails.logger.info "Sending e-mail to #{recipients.join(', ')}"
-        mail(to: recipients, subject: "#{requestor.name} wants to join the #{team.name} team on Check") if Rails.env.test?
-      end
+      self.send_email_to_recipients(recipients, "#{requestor.name} wants to join the #{team.name} team on Check")
     end
   end
 
@@ -23,7 +20,17 @@ class TeamUserMailer < ApplicationMailer
       @url = origin.blank? ? '' : URI.join(origin, "/")
       Rails.logger.info "Sending e-mail to #{requestor.email}"
       status = accepted ? "accepted" : "rejected"
-      mail(to: requestor.email, subject: "Your request to join #{team.name} on Check was #{status}") if Rails.env.test?
+      self.send_email_to_recipients(requestor.email, "Your request to join #{team.name} on Check was #{status}")
+    end
+  end
+
+  protected
+
+  def send_email_to_recipients(recipients, subject)
+    recipients = Bounce.remove_bounces(recipients)
+    unless recipients.empty?
+      Rails.logger.info "Sending e-mail to #{recipients}"
+      mail(to: recipients, subject: subject)
     end
   end
 end

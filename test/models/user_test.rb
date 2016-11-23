@@ -367,4 +367,11 @@ class UserTest < ActiveSupport::TestCase
     assert u1.is_a_colleague_of?(u2)
     assert u2.is_a_colleague_of?(u1)
   end
+
+  test "should require confirmation for e-mail accounts only" do
+    u = create_user provider: 'twitter'
+    assert !u.send(:confirmation_required?)
+    u = create_user provider: ''
+    assert u.send(:confirmation_required?)
+  end
 end
