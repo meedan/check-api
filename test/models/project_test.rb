@@ -118,7 +118,6 @@ class ProjectTest < ActiveSupport::TestCase
     c3 = create_comment
     p.add_annotation(c1)
     p.add_annotation(c2)
-    sleep 1
     assert_equal [c1.id, c2.id].sort, p.reload.annotations.map(&:id).sort
   end
 

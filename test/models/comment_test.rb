@@ -84,8 +84,6 @@ class CommentTest < ActiveSupport::TestCase
     c2b.annotated = s2
     c2b.save
 
-    sleep 1
-
     assert_equal s1, c1a.annotated
     assert_equal s1, c1b.annotated
     assert_equal [c1a.id, c1b.id].sort, s1.reload.annotations.map(&:id).sort
@@ -140,8 +138,6 @@ class CommentTest < ActiveSupport::TestCase
     c2.context = context2
     c2.annotated = annotated
     c2.save
-
-    sleep 1
 
     assert_equal [c1.id, c2.id].sort, annotated.annotations.map(&:id).sort
     assert_equal [c1.id], annotated.annotations(nil, context1).map(&:id)

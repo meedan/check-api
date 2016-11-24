@@ -36,7 +36,7 @@ module AnnotationBase
           relation = klass.where(query)
           relation = relation.where(context_id: nil) if context == 'none'
           relation = relation.where.not(context_id: nil) if context == 'some'
-          relation.order('created_at DESC')
+          relation.order('id DESC')
         end
 
         define_method :annotations do |type=nil, context=nil|
@@ -93,7 +93,7 @@ module AnnotationBase
     def all_sorted(order = 'asc', field = 'created_at')
       type = self.name.parameterize
       query = type === 'annotation' ? {} : { annotation_type: type }
-      Annotation.where(query).order("#{field} #{asc}").all
+      Annotation.where(query).order("#{field} #{order}").all
     end
 
     def length
@@ -212,6 +212,14 @@ module AnnotationBase
       end
     end
     objects
+  end
+
+  def method_missing(method, *args, &block)
+    if args.empty? && !block_given?
+      self.data[method]
+    else
+      super
+    end
   end
 
   protected

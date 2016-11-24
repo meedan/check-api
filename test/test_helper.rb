@@ -134,7 +134,6 @@ class ActiveSupport::TestCase
     u = create_user
     klass.delete_all
     x1 = send("create_#{type}", { team: @team })
-    sleep 1
     x2 = send("create_#{type}", { team: @team })
     user = type == 'user' ? x1 : u
     authenticate_with_user(user)
@@ -143,8 +142,8 @@ class ActiveSupport::TestCase
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
     assert_equal klass.count, edges.size
-    assert_equal x1.send(field), edges[0]['node'][field]
-    assert_equal x2.send(field), edges[1]['node'][field]
+    assert_equal x1.send(field).to_s, edges[0]['node'][field].to_s
+    assert_equal x2.send(field).to_s, edges[1]['node'][field].to_s
     assert_response :success
     document_graphql_query('read', type, query, @response.body)
   end
@@ -230,13 +229,10 @@ class ActiveSupport::TestCase
         obj = obj.reload
       elsif name === 'collaborators'
         obj.add_annotation create_comment(annotator: create_user)
-        sleep 1
       elsif name === 'annotations' || name === 'comments'
         obj.add_annotation(create_comment) if obj.annotations.empty?
-        sleep 1
       elsif name === 'tags'
         obj.add_annotation(create_tag)
-        sleep 1
       else
         obj.send(name).send('<<', [send("create_#{name.singularize}")])
         obj.save!

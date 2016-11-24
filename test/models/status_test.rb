@@ -44,8 +44,6 @@ class StatusTest < ActiveSupport::TestCase
     t2b.annotated = s2
     t2b.save
 
-    sleep 1
-
     assert_equal s1, t1a.annotated
     assert_equal s1, t1b.annotated
     assert_equal [t1a.id, t1b.id].sort, s1.reload.annotations.map(&:id).sort
@@ -100,8 +98,6 @@ class StatusTest < ActiveSupport::TestCase
     st2.context = context2
     st2.annotated = annotated
     st2.save
-
-    sleep 1
 
     assert_equal [st1.id, st2.id].sort, annotated.annotations.map(&:id).sort
     assert_equal [st1.id], annotated.annotations(nil, context1).map(&:id)

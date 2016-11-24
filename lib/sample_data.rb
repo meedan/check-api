@@ -81,7 +81,7 @@ module SampleData
 
   def create_tag(options = {})
     if options[:team]
-      options[:context] = create_project(team: options[:team])
+      options[:context] = create_project(team: options.delete(:team))
     end
     t = Tag.new
     { tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options).each do |key, value|
@@ -228,7 +228,6 @@ module SampleData
     m.project_id = options[:project_id]
     m.information = options[:information] if options.has_key?(:information)
     m.save!
-    sleep 1 if Rails.env == 'test' and options.has_key?(:information)
     m.reload
   end
 

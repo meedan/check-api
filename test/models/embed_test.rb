@@ -52,8 +52,6 @@ class EmbedTest < ActiveSupport::TestCase
     em2b.annotated = s2
     em2b.save
 
-    sleep 1
-
     assert_equal s1, em1a.annotated
     assert_equal s1, em1b.annotated
     assert_equal [em1a.id, em1b.id].sort, s1.reload.annotations.map(&:id).sort
@@ -86,8 +84,6 @@ class EmbedTest < ActiveSupport::TestCase
     em2.context = context2
     em2.annotated = annotated
     em2.save
-
-    sleep 1
 
     assert_equal [em1.id, em2.id].sort, annotated.annotations.map(&:id).sort
     assert_equal [em1.id], annotated.annotations(nil, context1).map(&:id)

@@ -37,7 +37,6 @@ class AnnotationTest < ActiveSupport::TestCase
     s = create_source
     s.add_annotation c
     s.add_annotation t
-    sleep 1
     assert_equal [c], s.annotations('comment')
     assert_equal [t], s.annotations('tag')
   end

@@ -56,8 +56,6 @@ class TagTest < ActiveSupport::TestCase
     t2b.annotated = s2
     t2b.save
 
-    sleep 1
-
     assert_equal s1, t1a.annotated
     assert_equal s1, t1b.annotated
     assert_equal [t1a.id, t1b.id].sort, s1.reload.annotations.map(&:id).sort
@@ -112,8 +110,6 @@ class TagTest < ActiveSupport::TestCase
     t2.context = context2
     t2.annotated = annotated
     t2.save
-
-    sleep 1
 
     assert_equal [t1.id, t2.id].sort, annotated.annotations.map(&:id).sort
     assert_equal [t1.id], annotated.annotations(nil, context1).map(&:id)

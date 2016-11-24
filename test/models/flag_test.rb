@@ -69,8 +69,6 @@ class FlagTest < ActiveSupport::TestCase
     f2.annotated = annotated
     f2.save
 
-    sleep 1
-
     assert_equal [f1.id, f2.id].sort, annotated.annotations('flag').map(&:id).sort
     assert_equal [f1.id], annotated.annotations(nil, context1).map(&:id)
     assert_equal [f2.id], annotated.annotations(nil, context2).map(&:id)

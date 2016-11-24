@@ -62,7 +62,7 @@ class Media < ActiveRecord::Base
     em_pender = self.cached_annotations('embed', context).last unless context.nil?
     em_pender = self.cached_annotations('embed', 'none').last if em_pender.nil?
     embed = JSON.parse(em_pender.data['embed']) unless em_pender.nil?
-    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender[sk] unless em_pender[sk].nil? } unless embed.nil?
+    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender.data[sk] unless em_pender.data[sk].nil? } unless embed.nil?
     embed
   end
 

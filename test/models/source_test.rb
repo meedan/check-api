@@ -70,7 +70,6 @@ class SourceTest < ActiveSupport::TestCase
     c3 = create_comment
     s.add_annotation(c1)
     s.add_annotation(c2)
-    sleep 1
     assert_equal [c1.id, c2.id].sort, s.reload.annotations.map(&:id).sort
   end
 
@@ -133,7 +132,6 @@ class SourceTest < ActiveSupport::TestCase
     c = create_comment
     s.add_annotation t
     s.add_annotation c
-    sleep 1
     assert_equal [t], s.tags
   end
 
@@ -143,7 +141,6 @@ class SourceTest < ActiveSupport::TestCase
     c = create_comment
     s.add_annotation t
     s.add_annotation c
-    sleep 1
     assert_equal [c], s.comments
   end
 
