@@ -1,6 +1,8 @@
 class Annotation < ActiveRecord::Base
   include AnnotationBase
 
+  attr_accessible
+
   before_validation :cant_instantiate_abstract_class
 
   def load

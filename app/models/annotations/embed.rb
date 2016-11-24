@@ -1,5 +1,7 @@
 class Embed < ActiveRecord::Base
   include AnnotationBase
+  
+  attr_accessible
 
   field :title
   field :description

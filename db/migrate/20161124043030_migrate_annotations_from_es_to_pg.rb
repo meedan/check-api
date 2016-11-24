@@ -19,11 +19,13 @@ class MigrateAnnotationsFromEsToPg < ActiveRecord::Migration
   end
 
   def change
-    repository = AnnotationsRepository.new
-    repository.search(query: { match_all: {} }, size: 10000).to_a.each do |obj|
-      # This will call the deserialize method above, that will instantiate an object
-      obj.save!
-      puts obj.inspect
+    unless CONFIG['elasticsearch_index'].blank?
+      repository = AnnotationsRepository.new
+      repository.search(query: { match_all: {} }, size: 10000).to_a.each do |obj|
+        # This will call the deserialize method above, that will instantiate an object
+        obj.save!
+        puts obj.inspect
+      end
     end
   end
 end

@@ -93,7 +93,7 @@ module AnnotationBase
     def all_sorted(order = 'asc', field = 'created_at')
       type = self.name.parameterize
       query = type === 'annotation' ? {} : { annotation_type: type }
-      Annotation.where(query).order("#{field} #{order}").all
+      Annotation.where(query).order(field => order.to_sym).all
     end
 
     def length
@@ -101,7 +101,7 @@ module AnnotationBase
       Annotation.where(annotation_type: type).count
     end
 
-    def field(name, type = String, _options = {})
+    def field(name, _type = String, _options = {})
       attr_accessible name
 
       define_method "#{name}=" do |value=nil|

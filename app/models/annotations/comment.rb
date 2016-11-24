@@ -1,5 +1,7 @@
 class Comment < ActiveRecord::Base
   include AnnotationBase
+  
+  attr_accessible
 
   field :text
   validates_presence_of :text

@@ -1,5 +1,7 @@
 class Status < ActiveRecord::Base
   include AnnotationBase
+  
+  attr_accessible
 
   field :status, String, presence: true
 

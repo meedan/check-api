@@ -1,5 +1,7 @@
 class Tag < ActiveRecord::Base
   include AnnotationBase
+  
+  attr_accessible
 
   field :tag, String, presence: true
   field :full_tag, String, presence: true
