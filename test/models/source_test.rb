@@ -104,8 +104,8 @@ class SourceTest < ActiveSupport::TestCase
     c5 = create_comment annotator: u2, annotated: s1
     c6 = create_comment annotator: u3, annotated: s2
     c7 = create_comment annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.collaborators
-    assert_equal [u3].sort, s2.collaborators
+    assert_equal [u1, u2].sort, s1.collaborators.sort
+    assert_equal [u3].sort, s2.collaborators.sort
   end
 
   test "should get avatar from callback" do
