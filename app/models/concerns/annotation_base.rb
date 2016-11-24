@@ -106,16 +106,6 @@ module AnnotationBase
 
       define_method "#{name}=" do |value=nil|
         self.data ||= {}
-        value = case type
-          when String
-            value.to_s
-          when Integer
-            value.to_i
-          when Array
-            value.split(',')
-          else
-            value
-          end
         self.data[name.to_sym] = value
       end
 
@@ -215,11 +205,7 @@ module AnnotationBase
   end
 
   def method_missing(method, *args, &block)
-    if args.empty? && !block_given?
-      self.data[method]
-    else
-      super
-    end
+    (args.empty? && !block_given?) ? self.data[method] : super
   end
 
   protected

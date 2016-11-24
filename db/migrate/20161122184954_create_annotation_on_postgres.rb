@@ -1,6 +1,6 @@
 class CreateAnnotationOnPostgres < ActiveRecord::Migration
   def change
-    create_table :annotations do |t|
+    create_table :annotations, force: true do |t|
       t.string :annotation_type, null: false
       t.integer :version_index
       t.string :annotated_type

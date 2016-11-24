@@ -91,7 +91,8 @@ QueryType = GraphQL::ObjectType.define do
     argument :query, !types.String
 
     resolve -> (_obj, args, ctx) do
-      CheckSearch.new(args['query'], ctx[:context_team])
+      # FIXME: Re-enable after search refactoring
+      # CheckSearch.new(args['query'], ctx[:context_team])
     end
   end
 
