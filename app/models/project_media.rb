@@ -5,7 +5,7 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :media
   belongs_to :user
 
-  after_create :set_search_context, :set_initial_media_status
+  after_create :set_search_context, :set_initial_media_status, :add_project_media_seach_docs
 
   notifies_slack on: :create,
                  if: proc { |pm| m = pm.media; m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
@@ -61,6 +61,19 @@ class ProjectMedia < ActiveRecord::Base
         em_none.save!
       end
     end
+  end
+
+  def add_project_media_seach_docs
+    ms = MediaSearch.new
+    ms.team_id = self.project.team.id
+    ms.set_polymorphic('annotated', self)
+    ms.set_polymorphic('context', self.project)
+    ms.status = Status.default_id(self.media, self.project)
+    data = self.media.data(self.project)
+    ms.title = data['title']
+    ms.description = data['description']
+    ms.quote = data['quote']
+    ms.save!
   end
 
 end
