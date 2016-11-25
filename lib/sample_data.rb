@@ -347,4 +347,15 @@ module SampleData
     b.save!
     b.reload
   end
+
+  def create_media_search(options = {})
+    options = { annotator: create_user, annotated: create_project_media }.merge(options)
+    c = MediaSearch.new
+    options.each do |key, value|
+      c.send("#{key}=", value) if c.respond_to?("#{key}=")
+    end
+    c.save!
+    c
+  end
+
 end

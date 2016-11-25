@@ -64,7 +64,7 @@ module AnnotationBase
     include CheckdeskPermissions
     include CheckdeskNotifications::Slack
     include CheckdeskNotifications::Pusher
-  
+
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
@@ -206,6 +206,18 @@ module AnnotationBase
 
   def method_missing(method, *args, &block)
     (args.empty? && !block_given?) ? self.data[method] : super
+  end
+
+  def update_media_search(keys)
+    pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
+    pm = ProjectMedia.where(project_id: self.context_id, media_id: self.annotated_id).last if pm.nil?
+    ms = MediaSearch.search(query: { match: { annotated_id: pm.id } }).last unless pm.nil?
+    unless ms.nil?
+      keys.each do |k|
+        ms.send("#{k}=", self.data[k]) if ms.respond_to?(k)
+      end
+      ms.save!
+    end
   end
 
   protected

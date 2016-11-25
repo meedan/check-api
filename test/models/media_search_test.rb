@@ -1,7 +1,11 @@
-require 'test_helper'
+require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class MediaSearchTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+
+  test "should create media search" do
+    assert_difference 'MediaSearch.length' do
+      create_media_search
+    end
+  end
+
 end

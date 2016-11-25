@@ -1,6 +1,6 @@
 class Embed < ActiveRecord::Base
   include AnnotationBase
-  
+
   attr_accessible
 
   field :title
@@ -9,8 +9,9 @@ class Embed < ActiveRecord::Base
   field :embed
   field :username
   field :published_at, Integer
-  
+
   validate :validate_quote_for_media_with_empty_url
+  after_create :update_embed_media_search
 
   def content
     {
@@ -31,6 +32,10 @@ class Embed < ActiveRecord::Base
   def search_context=(value)
     data = self.data || {}
     data[:search_context] = value
+  end
+
+  def update_embed_media_search
+    self.update_media_search(%w(title description quote))
   end
 
   private

@@ -65,10 +65,12 @@ class ProjectMedia < ActiveRecord::Base
 
   def add_project_media_seach_docs
     ms = MediaSearch.new
+    ms.id = self.id
     ms.team_id = self.project.team.id
     ms.set_polymorphic('annotated', self)
+    ms.set_polymorphic('annotator', self.user) unless self.user.blank?
     ms.set_polymorphic('context', self.project)
-    ms.status = Status.default_id(self.media, self.project)
+    ms.status = self.media.last_status(self.project)
     data = self.media.data(self.project)
     ms.title = data['title']
     ms.description = data['description']
