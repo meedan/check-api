@@ -1,4 +1,4 @@
-module CheckdeskElasticSearchModel
+module CheckElasticSearchModel
   extend ActiveSupport::Concern
 
   included do
@@ -6,7 +6,7 @@ module CheckdeskElasticSearchModel
     include ActiveModel::Validations::Callbacks
     include Elasticsearch::Persistence::Model
 
-    index_name [Rails.application.engine_name, Rails.env, self.name.parameterize].join('_')
+    index_name CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
 
     settings analysis: {
       char_filter: {
@@ -29,7 +29,7 @@ module CheckdeskElasticSearchModel
           filter: ['lowercase', 'hashtag_as_alphanum']
         }
       }
-    } do 
+    } do
       mapping do
         indexes :title, type: 'string', analyzer: 'hashtag'
         indexes :description, type: 'string', analyzer: 'hashtag'
@@ -41,6 +41,10 @@ module CheckdeskElasticSearchModel
 
   def reload
     self.id ? self.class.find(self.id) : self
+  end
+
+  def save!
+    raise 'Sorry, this is not valid' unless self.save
   end
 
   module ClassMethods
@@ -59,5 +63,24 @@ module CheckdeskElasticSearchModel
         client.indices.delete index: index_name
       end
     end
+
+    def delete_all
+      self.delete_index
+      self.create_index
+      sleep 1
+    end
+
+    def all_sorted(order = 'asc', field = 'created_at')
+      type = self.name.parameterize
+      query = type === 'annotation' ? { match_all: {} } : { bool: { must: [{ match: { annotation_type: type } }] } }
+      self.search(query: query, sort: [{ field => { order: order }}, '_score'], size: 10000).results
+    end
+
+    def length
+      type = self.name.parameterize
+      self.count({ query: { bool: { must: [{ match: { annotation_type: type } }] } } })
+    end
+
   end
+
 end
