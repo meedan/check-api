@@ -5,7 +5,7 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :media
   belongs_to :user
 
-  after_create :set_search_context, :set_initial_media_status, :add_project_media_seach_docs
+  after_create :set_search_context, :set_initial_media_status, :add_elasticseach_data
 
   notifies_slack on: :create,
                  if: proc { |pm| m = pm.media; m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
@@ -50,6 +50,20 @@ class ProjectMedia < ActiveRecord::Base
     "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{text}*>"
   end
 
+  def add_elasticseach_data
+    ms = MediaSearch.new
+    ms.id = self.id
+    ms.team_id = self.project.team.id
+    ms.project_id = self.project.id
+    ms.set_polymorphic('annotated', self)
+    ms.status = self.media.last_status(self.project)
+    data = self.media.data(self.project)
+    ms.title = data['title']
+    ms.description = data['description']
+    ms.quote = data['quote']
+    ms.save!
+  end
+
   private
 
   def set_search_context
@@ -61,21 +75,6 @@ class ProjectMedia < ActiveRecord::Base
         em_none.save!
       end
     end
-  end
-
-  def add_project_media_seach_docs
-    ms = MediaSearch.new
-    ms.id = self.id
-    ms.team_id = self.project.team.id
-    ms.set_polymorphic('annotated', self)
-    ms.set_polymorphic('annotator', self.user) unless self.user.blank?
-    ms.set_polymorphic('context', self.project)
-    ms.status = self.media.last_status(self.project)
-    data = self.media.data(self.project)
-    ms.title = data['title']
-    ms.description = data['description']
-    ms.quote = data['quote']
-    ms.save!
   end
 
 end

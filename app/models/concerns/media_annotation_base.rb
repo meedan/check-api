@@ -7,15 +7,11 @@ module MediaAnnotationBase
     index_name CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
     document_type 'projectmedia'
 
+    attribute :team_id, String
+    attribute :project_id, String
     attribute :annotation_type, String
     attribute :annotated_type, String
     attribute :annotated_id, String
-    attribute :context_type, String
-    attribute :context_id, String
-    attribute :team_id, String
-    attribute :annotator_type, String
-    attribute :annotator_id, String
-    attribute :entities, Array
     attribute :status, String
     attribute :title, String
     attribute :description, String

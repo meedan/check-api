@@ -11,7 +11,7 @@ class Embed < ActiveRecord::Base
   field :published_at, Integer
 
   validate :validate_quote_for_media_with_empty_url
-  after_create :update_embed_media_search
+  after_save :update_elasticsearch_embed
 
   def content
     {
@@ -34,7 +34,7 @@ class Embed < ActiveRecord::Base
     data[:search_context] = value
   end
 
-  def update_embed_media_search
+  def update_elasticsearch_embed
     self.update_media_search(%w(title description quote))
   end
 

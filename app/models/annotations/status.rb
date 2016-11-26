@@ -17,7 +17,7 @@ class Status < ActiveRecord::Base
 
   before_validation :store_previous_status, :normalize_status
 
-  after_create :update_status_media_search
+  after_save :update_elasticsearch_status
 
   def self.core_verification_statuses(annotated_type)
     core_statuses = YAML.load_file(File.join(Rails.root, 'config', 'core_statuses.yml'))
@@ -84,7 +84,7 @@ class Status < ActiveRecord::Base
     values[:statuses].select{ |s| s[:id] === id }.first[:label]
   end
 
-  def update_status_media_search
+  def update_elasticsearch_status
     self.update_media_search(%w(status))
   end
 
