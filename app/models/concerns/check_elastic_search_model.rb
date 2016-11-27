@@ -37,6 +37,8 @@ module CheckElasticSearchModel
         indexes :text, type: 'string', analyzer: 'hashtag'
       end
     end
+    attribute :annotation_type, String
+    before_validation :set_type
   end
 
   def reload
@@ -45,6 +47,12 @@ module CheckElasticSearchModel
 
   def save!
     raise 'Sorry, this is not valid' unless self.save
+  end
+
+  private
+
+  def set_type
+    self.annotation_type ||= self.class.name.parameterize
   end
 
   module ClassMethods
