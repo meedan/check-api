@@ -50,6 +50,7 @@ class ActiveSupport::TestCase
     Annotation.delete_all
     [Media, Account, Source, User, Annotation].each{ |m| m.destroy_all }
     # create index
+    MediaSearch.delete_index
     MediaSearch.create_index
     Rails.cache.clear if File.exists?(File.join(Rails.root, 'tmp', 'cache'))
     Rails.application.reload_routes!
@@ -68,7 +69,6 @@ class ActiveSupport::TestCase
     WebMock.allow_net_connect!
     Time.unstub(:now)
     Rails.unstub(:env)
-    MediaSearch.delete_index
   end
 
   def assert_queries(num = 1, &block)
