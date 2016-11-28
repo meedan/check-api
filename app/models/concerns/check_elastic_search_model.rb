@@ -29,14 +29,8 @@ module CheckElasticSearchModel
           filter: ['lowercase', 'hashtag_as_alphanum']
         }
       }
-    } do
-      mapping do
-        indexes :title, type: 'string', analyzer: 'hashtag'
-        indexes :description, type: 'string', analyzer: 'hashtag'
-        indexes :quote, type: 'string', analyzer: 'hashtag'
-        indexes :text, type: 'string', analyzer: 'hashtag'
-      end
-    end
+    }
+
     attribute :annotation_type, String
     before_validation :set_type
   end

@@ -7,9 +7,9 @@ class MediaSearch
   attribute :annotated_type, String
   attribute :annotated_id, String
   attribute :status, String
-  attribute :title, String
-  attribute :description, String
-  attribute :quote, String
+  attribute :title, String, mapping: { analyzer: 'hashtag' }
+  attribute :description, String, mapping: { analyzer: 'hashtag' }
+  attribute :quote, String, mapping: { analyzer: 'hashtag' }
   attribute :last_activity_at, Time, default: lambda { |o,a| Time.now.utc }
 
   before_save :set_last_activity_at

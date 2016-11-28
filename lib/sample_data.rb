@@ -79,12 +79,30 @@ module SampleData
     c
   end
 
+  def create_comment_search(options = {})
+    c = CommentSearch.new
+    { text: random_string(50) }.merge(options).each do |key, value|
+      c.send("#{key}=", value) if c.respond_to?("#{key}=")
+    end
+    c.save!
+    c
+  end
+
   def create_tag(options = {})
     if options[:team]
       options[:context] = create_project(team: options.delete(:team))
     end
     t = Tag.new
     { tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options).each do |key, value|
+      t.send("#{key}=", value)
+    end
+    t.save!
+    t
+  end
+
+  def create_tag_search(options = {})
+    t = TagSearch.new
+    { tag: random_string(50) }.merge(options).each do |key, value|
       t.send("#{key}=", value)
     end
     t.save!
@@ -349,13 +367,12 @@ module SampleData
   end
 
   def create_media_search(options = {})
-    options = { annotator: create_user, annotated: create_project_media }.merge(options)
-    c = MediaSearch.new
-    options.each do |key, value|
-      c.send("#{key}=", value) if c.respond_to?("#{key}=")
+    m = MediaSearch.new
+    { annotated: create_project_media }.merge(options).each do |key, value|
+      m.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
-    c.save!
-    c
+    m.save!
+    m
   end
 
 end

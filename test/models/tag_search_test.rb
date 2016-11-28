@@ -1,7 +1,29 @@
-require 'test_helper'
+require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class TagSearchTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  def setup
+    super
+    TagSearch.delete_index
+    TagSearch.create_index
+    sleep 1
+  end
+
+  test "should create tag" do
+    assert_difference 'TagSearch.length' do
+      create_tag_search(tag: 'test')
+    end
+  end
+
+  test "should set type automatically" do
+    t = create_tag_search
+    assert_equal 'tag_search', t.annotation_type
+  end
+
+  test "should have tag" do
+    assert_no_difference 'TagSearch.length' do
+      create_tag_search(tag: nil)
+      create_tag_search(tag: '')
+    end
+  end
+
 end
