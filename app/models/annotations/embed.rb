@@ -35,7 +35,7 @@ class Embed < ActiveRecord::Base
   end
 
   def update_elasticsearch_embed
-    self.update_media_search(%w(title description quote))
+    self.update_media_search(%w(title description quote)) if self.annotated_type == 'Media'
   end
 
   private
