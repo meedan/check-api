@@ -81,7 +81,7 @@ module SampleData
 
   def create_comment_search(options = {})
     c = CommentSearch.new
-    { text: random_string(50) }.merge(options).each do |key, value|
+    { id: random_number, text: random_string(50) }.merge(options).each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
     c.save!
