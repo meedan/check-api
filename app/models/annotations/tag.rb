@@ -1,6 +1,6 @@
 class Tag < ActiveRecord::Base
   include AnnotationBase
-  
+
   attr_accessible
 
   field :tag, String, presence: true
@@ -8,8 +8,9 @@ class Tag < ActiveRecord::Base
 
   validates_presence_of :tag
   validates :data, uniqueness: { scope: [:annotated_type, :annotated_id, :context_type, :context_id] }, if: lambda { |t| t.id.blank? }
-  
+
   before_validation :normalize_tag, :store_full_tag
+  after_save :add_update_elasticsearch_tag
 
   def content
     { tag: self.tag }.to_json
@@ -33,4 +34,9 @@ class Tag < ActiveRecord::Base
   def store_full_tag
     self.full_tag = self.tag
   end
+
+  def add_update_elasticsearch_tag
+    add_update_media_search_child('tag_search', %w(tag full_tag))
+  end
+
 end

@@ -209,16 +209,38 @@ module AnnotationBase
   end
 
   def update_media_search(keys)
+    pm = get_elasticsearch_parent
+    ms = MediaSearch.search(query: { match: { annotated_id: pm.id } }).last unless pm.nil?
+    unless ms.nil?
+      store_elasticsearch_data(ms, keys)
+    end
+  end
+
+  def add_update_media_search_child(child, keys)
+    # get parent
+    ms = get_elasticsearch_parent
+    child = child.singularize.camelize.constantize
+    model = child.search(query: { match: { _id: self.id } }).results.last
+    if  model.nil?
+      model = child.new
+      model.id = self.id
+    end
+    store_elasticsearch_data(model, keys)
+    # resave parent to update last_activity_at
+    ms.save! unless ms.nil?
+  end
+
+  def store_elasticsearch_data(model, keys)
+    keys.each do |k|
+      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
+    end
+    model.save!
+  end
+
+  def get_elasticsearch_parent
     pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
     pm = ProjectMedia.where(project_id: self.context_id, media_id: self.annotated_id).last if pm.nil?
     ms = MediaSearch.search(query: { match: { annotated_id: pm.id } }).last unless pm.nil?
-    unless ms.nil?
-      keys.each do |k|
-        ms.send("#{k}=", self.data[k]) if ms.respond_to?("#{k}=")
-      end
-      ms.send("last_activity_at=", Time.now)
-      ms.save!
-    end
   end
 
   protected

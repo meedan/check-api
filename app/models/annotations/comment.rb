@@ -1,12 +1,13 @@
 class Comment < ActiveRecord::Base
   include AnnotationBase
-  
+
   attr_accessible
 
   field :text
   validates_presence_of :text
 
   before_save :extract_check_entities
+  after_save :add_update_elasticsearch_comment
 
   notifies_slack on: :save,
                  if: proc { |c| c.should_notify? },
@@ -59,4 +60,9 @@ class Comment < ActiveRecord::Base
     end
     self.entities = ids
   end
+
+  def add_update_elasticsearch_comment
+    add_update_media_search_child('comment_search', %w(text))
+  end
+
 end
