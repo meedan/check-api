@@ -315,4 +315,29 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 'Foo', s.id_to_label('1')
     assert_equal 'Bar', s.id_to_label('2')
   end
+
+  test "should create elasticsearch status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media media: m, project: p
+    sleep 1
+    result = MediaSearch.find(pm.id)
+    assert_equal Status.default_id(pm.media, pm.project), result.status
+  end
+
+  test "should update elasticsearch status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media media: m, project: p
+    st = Status.new
+    st.status = 'verified'
+    st.context = p
+    st.annotated = m
+    st.save!
+    result = MediaSearch.find(pm.id)
+    assert_equal 'verified', result.status
+  end
+
 end

@@ -133,4 +133,27 @@ class EmbedTest < ActiveSupport::TestCase
     em = create_embed annotated: p, annotator: nil, current_user: u2
     assert_equal u2, em.reload.annotator
   end
+=begin
+  test "should create elasticsearch embed" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media information: {title: 'media title'}.to_json
+    pm = create_project_media media: m, project: p
+    sleep 1
+    result = MediaSearch.find(pm.id)
+    assert_equal 'media title', result.title
+  end
+
+  test "should update elasticsearch embed" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media information: {title: 'media title'}.to_json
+    pm = create_project_media media: m, project: p
+    m.information = {title: 'new title'}.to_json
+    m.save!
+    result = MediaSearch.find(pm.id)
+    assert_equal 'new title', result.title
+  end
+=end
+
 end

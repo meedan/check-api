@@ -16,13 +16,17 @@ class TagSearchTest < ActiveSupport::TestCase
 
   test "should set type automatically" do
     t = create_tag_search
-    assert_equal 'tag_search', t.annotation_type
+    assert_equal 'tagsearch', t.annotation_type
   end
 
   test "should have tag" do
     assert_no_difference 'TagSearch.length' do
-      create_tag_search(tag: nil)
-      create_tag_search(tag: '')
+      assert_raise RuntimeError do
+        create_tag_search(tag: nil)
+      end
+      assert_raise RuntimeError do
+        create_tag_search(tag: '')
+      end
     end
   end
 

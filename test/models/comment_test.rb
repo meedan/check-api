@@ -296,4 +296,26 @@ class CommentTest < ActiveSupport::TestCase
     assert_includes c.entity_objects, m2
     refute_includes c.entity_objects, m3
   end
+
+  test "should create elasticsearch comment" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    c = create_comment annotated: m, context: p, text: 'test'
+    sleep 1
+    result = CommentSearch.find(c.id)
+    assert_equal c.id.to_s, result.id
+  end
+
+  test "should update elasticsearch comment" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    c = create_comment annotated: m, context: p, text: 'test'
+    c.text = 'test-mod'; c.save!
+    sleep 1
+    result = CommentSearch.find(c.id)
+    assert_equal 'test-mod', result.text
+  end
+
 end

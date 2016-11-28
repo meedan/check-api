@@ -209,8 +209,7 @@ module AnnotationBase
   end
 
   def update_media_search(keys)
-    pm = get_elasticsearch_parent
-    ms = MediaSearch.search(query: { match: { annotated_id: pm.id } }).last unless pm.nil?
+    ms = get_elasticsearch_parent
     unless ms.nil?
       store_elasticsearch_data(ms, keys)
     end
@@ -240,7 +239,8 @@ module AnnotationBase
   def get_elasticsearch_parent
     pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
     pm = ProjectMedia.where(project_id: self.context_id, media_id: self.annotated_id).last if pm.nil?
-    ms = MediaSearch.search(query: { match: { annotated_id: pm.id } }).last unless pm.nil?
+    sleep 1 if Rails.env.test?
+    MediaSearch.search(query: { match: { annotated_id: pm.id } }).last unless pm.nil?
   end
 
   protected

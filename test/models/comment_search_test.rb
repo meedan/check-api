@@ -15,8 +15,8 @@ class CommentSearchTest < ActiveSupport::TestCase
   end
 
   test "should set type automatically" do
-    t = create_tag
-    assert_equal 'comment_search', t.annotation_type
+    t = create_comment_search
+    assert_equal 'commentsearch', t.annotation_type
   end
 
   test "should have text" do

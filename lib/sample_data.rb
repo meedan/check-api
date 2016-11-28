@@ -85,6 +85,7 @@ module SampleData
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
     c.save!
+    sleep 1
     c
   end
 
@@ -106,6 +107,7 @@ module SampleData
       t.send("#{key}=", value)
     end
     t.save!
+    sleep 1
     t
   end
 
@@ -368,10 +370,11 @@ module SampleData
 
   def create_media_search(options = {})
     m = MediaSearch.new
-    { annotated: create_project_media }.merge(options).each do |key, value|
-      m.send("#{key}=", value) if c.respond_to?("#{key}=")
+    { annotated: create_valid_media, context: create_project }.merge(options).each do |key, value|
+      m.send("#{key}=", value) if m.respond_to?("#{key}=")
     end
     m.save!
+    sleep 1
     m
   end
 
