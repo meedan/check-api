@@ -38,17 +38,17 @@ class CheckSearch
     conditions = []
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
     unless @options["keyword"].blank?
-    conditions << { query_string: { query: @options["keyword"], fields: %w(title description quote text), default_operator: "AND" } }
+      conditions << { query_string: { query: @options["keyword"], fields: %w(title description quote text), default_operator: "AND" } }
     end
     conditions << {terms: { project_id: @options["projects"] } } unless @options["projects"].blank?
     conditions << {terms: { status: @options["status"] } } unless @options["status"].blank?
-    query = {bool: { must: conditions } }
+    query = { bool: { must: conditions } }
     get_search_result(query)
   end
 
   def get_search_result(query)
     field = 'created_at'
-    field = 'updated_at' if @options['sort'] == 'recent_activity'
+    field = 'last_activity_at' if @options['sort'] == 'recent_activity'
     MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"] }}, '_score'], size: 10000).results
   end
 

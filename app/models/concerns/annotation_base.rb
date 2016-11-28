@@ -214,8 +214,9 @@ module AnnotationBase
     ms = MediaSearch.search(query: { match: { annotated_id: pm.id } }).last unless pm.nil?
     unless ms.nil?
       keys.each do |k|
-        ms.send("#{k}=", self.data[k]) if ms.respond_to?(k)
+        ms.send("#{k}=", self.data[k]) if ms.respond_to?("#{k}=")
       end
+      ms.send("last_activity_at=", Time.now)
       ms.save!
     end
   end

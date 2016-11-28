@@ -58,9 +58,11 @@ class ProjectMedia < ActiveRecord::Base
     ms.set_polymorphic('annotated', self)
     ms.status = self.media.last_status(self.project)
     data = self.media.data(self.project)
-    ms.title = data['title']
-    ms.description = data['description']
-    ms.quote = data['quote']
+    unless data.nil?
+      ms.title = data['title']
+      ms.description = data['description']
+      ms.quote = data['quote']
+    end
     ms.save!
   end
 

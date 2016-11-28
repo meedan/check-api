@@ -1,4 +1,4 @@
-class TagSearch < ActiveRecord::Base
+class TagSearch
   include CheckElasticSearchModel
 
   attribute :tag, String
