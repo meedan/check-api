@@ -53,8 +53,14 @@ module CheckElasticSearchModel
     def create_index
       client = self.gateway.client
       index_name = self.index_name
-      settings = self.settings.to_hash
-      mappings = self.mappings.to_hash
+      settings = []
+      mappings = []
+      [MediaSearch, CommentSearch, TagSearch].each do |klass|
+        settings << klass.settings.to_hash
+        mappings << klass.mappings.to_hash
+      end
+      settings = settings.reduce(:merge)
+      mappings = mappings.reduce(:merge)
       client.indices.create index: index_name, body: { settings: settings.to_hash, mappings: mappings.to_hash }
     end
 
