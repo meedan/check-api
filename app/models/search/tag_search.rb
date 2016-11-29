@@ -6,6 +6,6 @@ class TagSearch
 
   validates_presence_of :tag
 
-  #mapping _parent: { type: 'media_search' }
+  mapping _parent: { type: 'media_search' }
 
 end

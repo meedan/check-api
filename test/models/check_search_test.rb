@@ -32,29 +32,29 @@ class CheckSearchTest < ActiveSupport::TestCase
   #   assert_equal [m.id, m2.id].sort, result.search_result.map(&:id).sort
   # end
 
-  # test "should search with context" do
-  #   t = create_team
-  #   p = create_project team: t
-  #   pender_url = CONFIG['pender_host'] + '/api/medias'
-  #   url = 'http://test.com'
-  #   response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-  #   WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-  #   m = create_media(account: create_valid_account, url: url, project_id: p.id)
-  #   keyword = {projects: [rand(40000...50000)]}.to_json
-  #   result = CheckSearch.new(keyword, t)
-  #   assert_empty result.search_result
-  #   result = CheckSearch.new({projects: [p.id]}.to_json, t)
-  #   assert_equal [m.id], result.search_result.map(&:id)
-  #   # add a new context to existing media
-  #   p2 = create_project team: t
-  #   create_project_media project: p2, media: m
-  #   result = CheckSearch.new({projects: [p.id]}.to_json, t)
-  #   assert_equal [m.id].sort, result.search_result.map(&:id).sort
-  #   # add a new media to same context
-  #   m2 = create_valid_media project_id: p.id
-  #   result = CheckSearch.new({projects: [p.id]}.to_json, t)
-  #   assert_equal [m.id, m2.id].sort, result.search_result.map(&:id).sort
-  # end
+   test "should search with context" do
+     t = create_team
+     p = create_project team: t
+     pender_url = CONFIG['pender_host'] + '/api/medias'
+     url = 'http://test.com'
+     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+     m = create_media(account: create_valid_account, url: url, project_id: p.id)
+     keyword = {projects: [rand(40000...50000)]}.to_json
+     result = CheckSearch.new(keyword, t)
+     assert_empty result.search_result
+     result = CheckSearch.new({projects: [p.id]}.to_json, t)
+     assert_equal [m.id], result.search_result.map(&:id)
+     # add a new context to existing media
+     p2 = create_project team: t
+     create_project_media project: p2, media: m
+     result = CheckSearch.new({projects: [p.id]}.to_json, t)
+     assert_equal [m.id].sort, result.search_result.map(&:id).sort
+     # add a new media to same context
+     m2 = create_valid_media project_id: p.id
+     result = CheckSearch.new({projects: [p.id]}.to_json, t)
+     assert_equal [m.id, m2.id].sort, result.search_result.map(&:id).sort
+   end
 
   # test "should search with tags" do
   #   t = create_team
