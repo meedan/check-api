@@ -10,13 +10,13 @@ class MediaSearch
   attribute :title, String, mapping: { analyzer: 'hashtag' }
   attribute :description, String, mapping: { analyzer: 'hashtag' }
   attribute :quote, String, mapping: { analyzer: 'hashtag' }
-  attribute :last_activity_at, Time, default: lambda { |o,a| Time.now.utc }
+  attribute :last_activity_at, Time, default: lambda { |_o, _a| Time.now.utc }
 
   before_save :set_last_activity_at
 
-  def set_polymorphic(name, obj)
-    self.send("#{name}_type=", obj.class.name)
-    self.send("#{name}_id=", obj.id)
+  def set_es_annotated(obj)
+    self.send("annotated_type=", obj.class.name)
+    self.send("annotated_id=", obj.id)
   end
 
   private

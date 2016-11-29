@@ -15,7 +15,7 @@ class CheckSearch
   end
 
   def create
-    ids = build_search_query
+    build_search_query
   end
 
   def search_result

@@ -55,7 +55,7 @@ class ProjectMedia < ActiveRecord::Base
     ms.id = self.id
     ms.team_id = self.project.team.id
     ms.project_id = self.project.id
-    ms.set_polymorphic('annotated', self)
+    ms.set_es_annotated(self)
     ms.status = self.media.last_status(self.project)
     data = self.media.data(self.project)
     unless data.nil?
