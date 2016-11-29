@@ -35,14 +35,27 @@ class CheckSearch
   private
 
   def build_search_query
-    conditions = []
-    conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
+    should_conditions = []
+    must_conditions = []
+    must_conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
     unless @options["keyword"].blank?
-      conditions << { query_string: { query: @options["keyword"], fields: %w(title description quote text), default_operator: "AND" } }
+      should_conditions << { query_string: { query: @options["keyword"], fields: %w(title description quote), default_operator: "AND" } }
+      should_conditions << { has_child: { type: 'comment_search', query: { query_string: { query: @options["keyword"], fields: %w(text), default_operator: "AND" }}}
     end
-    conditions << {terms: { project_id: @options["projects"] } } unless @options["projects"].blank?
-    conditions << {terms: { status: @options["status"] } } unless @options["status"].blank?
-    query = { bool: { must: conditions } }
+    unless @options["tags"].blank?
+      tag_conditions = []
+      tags = @options["tags"].collect{ |t| t.delete('#') }
+      tags.each do |tag|
+        tag_conditions << { match: { full_tag: { query: tag, operator: 'and' } } }
+      end
+      tag_conditions << { terms: { tag: tags } }
+      should_conditions << { has_child: { type: 'tag_search', query: { bool: { shoud: tag_conditions } } } }
+    end
+
+    must_conditions << {terms: { project_id: @options["projects"] } } unless @options["projects"].blank?
+    must_conditions << {terms: { status: @options["status"] } } unless @options["status"].blank?
+    query = { bool: { must: must_conditions } }
+    query[:bool][:should] = should_conditions
     get_search_result(query)
   end
 
