@@ -2,9 +2,9 @@ module Api
   module V1
     class GraphqlController < Api::V1::BaseApiController
       include GraphqlDoc
-      
+
       skip_before_filter :authenticate_from_token!
-      before_action :authenticate_user!, only: [:create], if: -> { params[:query].to_s.match(/^query About \{about/).nil? }
+      before_action :authenticate_user!, only: [:create], if: -> { params[:query].to_s.match(/^query About/).nil? }
       before_action :load_context_team, :set_current_team, :load_context_project, :load_ability
 
       def create
