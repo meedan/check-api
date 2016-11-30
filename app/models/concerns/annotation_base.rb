@@ -65,6 +65,7 @@ module AnnotationBase
     include CheckdeskNotifications::Slack
     include CheckdeskNotifications::Pusher
 
+    attr_accessor :disable_es_callbacks
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
@@ -209,6 +210,7 @@ module AnnotationBase
   end
 
   def update_media_search(keys)
+    return if self.disable_es_callbacks
     ms = get_elasticsearch_parent
     unless ms.nil?
       store_elasticsearch_data(ms, keys)
@@ -216,6 +218,7 @@ module AnnotationBase
   end
 
   def add_update_media_search_child(child, keys)
+    return if self.disable_es_callbacks
     # get parent
     ms = get_elasticsearch_parent
     child = child.singularize.camelize.constantize
@@ -224,16 +227,16 @@ module AnnotationBase
       model = child.new
       model.id = self.id
     end
-    store_elasticsearch_data(model, keys)
+    store_elasticsearch_data(model, keys, {parent: ms.id})
     # resave parent to update last_activity_at
     ms.save! unless ms.nil?
   end
 
-  def store_elasticsearch_data(model, keys)
+  def store_elasticsearch_data(model, keys, options = {})
     keys.each do |k|
       model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
     end
-    model.save!
+    model.save!(options)
   end
 
   def get_elasticsearch_parent
