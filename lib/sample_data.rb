@@ -81,11 +81,11 @@ module SampleData
 
   def create_comment_search(options = {})
     c = CommentSearch.new
-    media = options[:media] || create_valid_media
+    pm = options[:parent] || create_project_media
     { id: random_number, text: random_string(50) }.merge(options).each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
-    c.save!(parent: media.id)
+    c.save!(parent: pm.id)
     sleep 1
     c
   end
@@ -104,10 +104,11 @@ module SampleData
 
   def create_tag_search(options = {})
     t = TagSearch.new
-    { tag: random_string(50) }.merge(options).each do |key, value|
+    pm = options[:parent] || create_project_media
+    { id: random_number, tag: random_string(50) }.merge(options).each do |key, value|
       t.send("#{key}=", value)
     end
-    t.save!
+    t.save!(parent: pm.id)
     sleep 1
     t
   end

@@ -221,15 +221,17 @@ module AnnotationBase
     return if self.disable_es_callbacks
     # get parent
     ms = get_elasticsearch_parent
-    child = child.singularize.camelize.constantize
-    model = child.search(query: { match: { _id: self.id } }).results.last
-    if  model.nil?
-      model = child.new
-      model.id = self.id
+    unless ms.nil?
+      child = child.singularize.camelize.constantize
+      model = child.search(query: { match: { _id: self.id } }).results.last
+      if  model.nil?
+        model = child.new
+        model.id = self.id
+      end
+      store_elasticsearch_data(model, keys, {parent: ms.id})
+      # resave parent to update last_activity_at
+      ms.save!
     end
-    store_elasticsearch_data(model, keys, {parent: ms.id})
-    # resave parent to update last_activity_at
-    ms.save! unless ms.nil?
   end
 
   def store_elasticsearch_data(model, keys, options = {})

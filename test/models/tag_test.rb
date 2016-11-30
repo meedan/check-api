@@ -223,21 +223,23 @@ class TagTest < ActiveSupport::TestCase
   test "should create elasticsearch tag" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
     t = create_tag annotated: m, context: p, tag: 'sports'
     sleep 1
-    result = TagSearch.find(t.id)
+    result = TagSearch.find(t.id, parent: pm.id)
     assert_equal t.id.to_s, result.id
   end
 
   test "should update elasticsearch tag" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
     t = create_tag annotated: m, context: p, tag: 'sports'
     t.tag = 'sports-news'; t.save!
     sleep 1
-    result = TagSearch.find(t.id)
+    result = TagSearch.find(t.id, parent: pm.id)
     assert_equal 'sports-news', result.tag
   end
 

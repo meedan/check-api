@@ -11,6 +11,7 @@ class MigrateAnnotationsFromEsToPg < ActiveRecord::Migration
     def deserialize(document)
       klass = document['_source']['annotation_type'].camelize.constantize
       obj = klass.new
+      obj.disable_es_callbacks = true
       document['_source'].each do |key, value|
         obj.send("#{key}=", value)
       end
@@ -23,7 +24,6 @@ class MigrateAnnotationsFromEsToPg < ActiveRecord::Migration
       repository = AnnotationsRepository.new
       repository.search(query: { match_all: {} }, size: 10000).to_a.each do |obj|
         # This will call the deserialize method above, that will instantiate an object
-        obj.disable_es_callbacks == true
         obj.save!
         puts obj.inspect
       end
