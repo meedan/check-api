@@ -81,10 +81,11 @@ module SampleData
 
   def create_comment_search(options = {})
     c = CommentSearch.new
+    media = options[:media] || create_valid_media
     { id: random_number, text: random_string(50) }.merge(options).each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
-    c.save!
+    c.save!(parent: media.id)
     sleep 1
     c
   end

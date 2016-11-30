@@ -39,8 +39,8 @@ module CheckElasticSearchModel
     self.id ? self.class.find(self.id) : self
   end
 
-  def save!
-    raise 'Sorry, this is not valid' unless self.save
+  def save!(options = {})
+    raise 'Sorry, this is not valid' unless self.save(options)
   end
 
   private
