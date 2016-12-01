@@ -40,11 +40,11 @@ QueryType = GraphQL::ObjectType.define do
   end
 
   # Get public team
-  
+
   field :public_team do
     type PublicTeamType
     description 'Public information about the current team'
-    
+
     resolve -> (_obj, _args, ctx) do
       id = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
       Team.find(id)
@@ -91,8 +91,7 @@ QueryType = GraphQL::ObjectType.define do
     argument :query, !types.String
 
     resolve -> (_obj, args, ctx) do
-      # FIXME: Re-enable after search refactoring
-      # CheckSearch.new(args['query'], ctx[:context_team])
+       CheckSearch.new(args['query'], ctx[:context_team])
     end
   end
 

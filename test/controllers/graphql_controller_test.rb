@@ -558,73 +558,75 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  # FIXME: Re-enable this test after search is refactored
-  # test "should search media" do
-  #   u = create_user
-  #   p = create_project team: @team
-  #   m1 = create_valid_media project_id: p.id
-  #   authenticate_with_user(u)
-  #   pender_url = CONFIG['pender_host'] + '/api/medias'
-  #   url = 'http://test.com'
-  #   response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-  #   WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-  #   m2 = create_media(account: create_valid_account, url: url, project_id: p.id)
-  #   query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-  #   post :create, query: query
-  #   assert_response :success
-  #   ids = []
-  #   JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-  #     ids << id["node"]["dbid"]
-  #   end
-  #   assert_equal [m2.id], ids
-  #   create_comment text: 'title_a', annotated: m1, context: p
-  #   query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
-  #   post :create, query: query
-  #   assert_response :success
-  #   ids = []
-  #   JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-  #     ids << id["node"]["dbid"]
-  #   end
-  #   assert_equal [m1.id, m2.id], ids
-  # end
+  test "should search media" do
+    u = create_user
+    p = create_project team: @team
+    m1 = create_valid_media project_id: p.id
+    authenticate_with_user(u)
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url, project_id: p.id)
+    sleep 1
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [m2.id], ids
+    create_comment text: 'title_a', annotated: m1, context: p
+    sleep 1
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [m1.id, m2.id], ids
+  end
 
-  # FIXME: Re-enable this test after search is refactored
-  # test "should search media with multiple projects" do
-  #   u = create_user
-  #   p = create_project team: @team
-  #   p2 = create_project team: @team
-  #   authenticate_with_user(u)
-  #   pender_url = CONFIG['pender_host'] + '/api/medias'
-  #   url = 'http://test.com'
-  #   response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-  #   WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-  #   m = create_media(account: create_valid_account, url: url, project_id: p.id)
-  #   create_project_media project: p2, media: m
-  #   query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
-  #   post :create, query: query
-  #   assert_response :success
-  #   p_ids = []
-  #   m_ids = []
-  #   JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-  #     m_ids << id["node"]["dbid"]
-  #     p_ids << id["node"]["project_id"]
-  #   end
-  #   assert_equal [m.id, m.id], m_ids.sort
-  #   assert_equal [p.id, p2.id], p_ids.sort
-  #
-  #   m.project_id = p2.id
-  #   m.information= {description: 'new_description'}.to_json
-  #   m.save!
-  #   query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, jsondata } } } } }'
-  #   post :create, query: query
-  #   assert_response :success
-  #   result = {}
-  #   JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-  #     result[id["node"]["project_id"]] = JSON.parse(id["node"]["jsondata"])
-  #   end
-  #   assert_equal 'new_description', result[p2.id]["description"]
-  #   assert_equal 'search_desc', result[p.id]["description"]
-  # end
+  test "should search media with multiple projects" do
+    u = create_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    authenticate_with_user(u)
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url, project_id: p.id)
+    create_project_media project: p2, media: m
+    sleep 1
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
+    post :create, query: query
+    assert_response :success
+    p_ids = []
+    m_ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      m_ids << id["node"]["dbid"]
+      p_ids << id["node"]["project_id"]
+    end
+    assert_equal [m.id, m.id], m_ids.sort
+    assert_equal [p.id, p2.id], p_ids.sort
+
+    m.project_id = p2.id
+    m.information= {description: 'new_description'}.to_json
+    m.save!
+    sleep 1
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, jsondata } } } } }'
+    post :create, query: query
+    assert_response :success
+    result = {}
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      result[id["node"]["project_id"]] = JSON.parse(id["node"]["jsondata"])
+    end
+    assert_equal 'new_description', result[p2.id]["description"]
+    assert_equal 'search_desc', result[p.id]["description"]
+  end
 
   test "should return 404 if public team does not exist" do
     authenticate_with_user
@@ -647,19 +649,20 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
-    assert_queries (11 + n) do
+    assert_queries (22 + n) do
       post :create, query: query
     end
 
     assert_response :success
     assert_equal n, JSON.parse(@response.body)['data']['project']['medias']['edges'].size
   end
-  # FIXME: Re-enable this test after search is refactored
-  #test "should get node from global id for search" do
-  #  authenticate_with_user
-  #  options = {"keyword"=>"foo", "sort"=>"recent_added", "sort_type"=>"DESC"}.to_json
-  #  id = Base64.encode64("CheckSearch/#{options}")
-  #  post :create, query: "query Query { node(id: \"#{id}\") { id } }"
-  #  assert_equal id, JSON.parse(@response.body)['data']['node']['id']
-  #end
+
+  test "should get node from global id for search" do
+   authenticate_with_user
+   options = {"keyword"=>"foo", "sort"=>"recent_added", "sort_type"=>"DESC"}.to_json
+   id = Base64.encode64("CheckSearch/#{options}")
+   post :create, query: "query Query { node(id: \"#{id}\") { id } }"
+   assert_equal id, JSON.parse(@response.body)['data']['node']['id']
+  end
+
 end

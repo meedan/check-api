@@ -27,8 +27,8 @@ class CheckSearch
     # should loop in search result and return media
     # for now all results are medias
     ids = self.search_result.map(&:id)
-    pm = ProjectMedia.where(id: ids)
-    ids_sort = pm.sort_by{|x| ids.index x.id.to_s}
+    items = ProjectMedia.where(id: ids)
+    ids_sort = items.sort_by{|x| ids.index x.id.to_s}
     results = []
     ids_sort.each do |pm|
       m = pm.media
@@ -64,7 +64,7 @@ class CheckSearch
     end
     conditions << {terms: { project_id: @options["projects"] } } unless @options["projects"].blank?
     conditions << {terms: { status: @options["status"] } } unless @options["status"].blank?
-    query = { bool: { must: conditions } }
+    { bool: { must: conditions } }
   end
 
   def get_search_result(query)
