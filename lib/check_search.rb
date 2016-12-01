@@ -15,7 +15,8 @@ class CheckSearch
   end
 
   def create
-    build_search_query
+    query = build_search_query
+    get_search_result(query)
   end
 
   def search_result
@@ -55,7 +56,6 @@ class CheckSearch
     conditions << {terms: { project_id: @options["projects"] } } unless @options["projects"].blank?
     conditions << {terms: { status: @options["status"] } } unless @options["status"].blank?
     query = { bool: { must: conditions } }
-    get_search_result(query)
   end
 
   def get_search_result(query)
