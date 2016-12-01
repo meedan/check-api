@@ -4,10 +4,10 @@ class CheckSearch
   def initialize(options, context_team = nil)
     # options include keywords, projects, tags, status
     @options = JSON.parse(options)
-    @options['team_id'] = context_team.id
+    @options['team_id'] = context_team.id unless context_team.nil?
     # set sort options
     @options['sort'] = @options['sort'] ||= 'recent_added'
-    @options['sort_type'] = @options['sort_type'] ||= 'DESC'
+    @options['sort_type'] = @options['sort_type'] ||= 'desc'
   end
 
   def id
@@ -26,11 +26,20 @@ class CheckSearch
   def medias
     # should loop in search result and return media
     # for now all results are medias
-    @search_result ||= self.search_result
+    ids = self.search_result.map(&:id)
+    pm = ProjectMedia.where(id: ids)
+    ids_sort = pm.sort_by{|x| ids.index x.id.to_s}
+    results = []
+    ids_sort.each do |pm|
+      m = pm.media
+      m.project_id = pm.project_id
+      results << m
+    end
+    results
   end
 
   def number_of_results
-    self.medias.count
+    self.search_result.count
   end
 
   private
@@ -61,7 +70,7 @@ class CheckSearch
   def get_search_result(query)
     field = 'created_at'
     field = 'last_activity_at' if @options['sort'] == 'recent_activity'
-    MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"] }}, '_score'], size: 10000).results
+    MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"].downcase }}, '_score'], size: 10000).results
   end
 
 end
