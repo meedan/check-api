@@ -32,7 +32,7 @@ module AnnotationBase
 
         define_method :annotation_relation do |type=nil, context=nil|
           query = self.annotation_query(type, context)
-          klass = type.blank? ? Annotation : type.camelize.constantize
+          klass = (type.blank? || type.is_a?(Array)) ? Annotation : type.camelize.constantize
           relation = klass.where(query)
           relation = relation.where(context_id: nil) if context == 'none'
           relation = relation.where.not(context_id: nil) if context == 'some'
@@ -158,7 +158,7 @@ module AnnotationBase
 
   # Overwrite in the annotation type and expose the specific fields of that type
   def content
-    {}.to_json
+    self.data.to_json
   end
 
   def is_annotation?
