@@ -138,4 +138,12 @@ class AnnotationTest < ActiveSupport::TestCase
     c = create_comment
     assert_equal c.id, c.dbid
   end
+
+  test "should get annotations from multiple types" do
+    m = create_valid_media
+    c = create_comment annotated: m
+    s = create_status annotated: m, status: 'verified'
+    f = create_flag annotated: m, flag: 'Spam'
+    assert_equal 2, m.annotations(['comment', 'status']).size
+  end
 end
