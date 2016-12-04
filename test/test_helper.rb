@@ -229,17 +229,18 @@ class ActiveSupport::TestCase
     fields.each do |name, key|
       if name === 'medias' && obj.is_a?(Source)
         create_valid_media(account: create_valid_account(source: obj))
-        obj = obj.reload
       elsif name === 'collaborators'
         obj.add_annotation create_comment(annotator: create_user)
       elsif name === 'annotations' || name === 'comments'
         obj.add_annotation(create_comment) if obj.annotations.empty?
       elsif name === 'tags'
-        obj.add_annotation(create_tag)
+        t = create_tag
+        obj.add_annotation(t)
       else
         obj.send(name).send('<<', [send("create_#{name.singularize}")])
         obj.save!
       end
+      obj = obj.reload
       node += "#{name} { edges { node { #{key} } } }, "
     end
     node.gsub!(/, $/, ' }')
@@ -254,7 +255,10 @@ class ActiveSupport::TestCase
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
 
     nindex = order === 'ASC' ? 0 : (type.camelize.constantize.count - 1)
-    fields.each { |name, key| assert_equal obj.send(name).first.send(key), edges[nindex]['node'][name]['edges'][0]['node'][key] }
+    fields.each do |name, key|
+      assert_equal obj.send(name).first.send(key),
+                   edges[nindex]['node'][name]['edges'][0]['node'][key]
+    end
 
     assert_response :success
     document_graphql_query('read_collection', type, query, @response.body)
