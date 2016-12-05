@@ -235,10 +235,11 @@ module AnnotationBase
   end
 
   def store_elasticsearch_data(model, keys, options = {})
-    keys.each do |k|
-      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
-    end
-    model.save!(options)
+    ElasticSearchWorker.perform_in(1.second, model, keys, options)
+    # keys.each do |k|
+    #   model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
+    # end
+    # model.save!(options)
   end
 
   def get_elasticsearch_parent
