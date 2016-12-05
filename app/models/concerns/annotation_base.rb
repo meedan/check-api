@@ -230,7 +230,8 @@ module AnnotationBase
       end
       store_elasticsearch_data(model, keys, {parent: ms.id})
       # resave parent to update last_activity_at
-      ms.save!
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(ms))
+      #ms.save!
     end
   end
 
@@ -238,8 +239,8 @@ module AnnotationBase
     keys.each do |k|
       model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
     end
-    model.save!(options)
-    #ElasticSearchWorker.perform_in(1.second, YAML::dump(model), options)
+    #model.save!(options)
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), options)
   end
 
   def get_elasticsearch_parent
