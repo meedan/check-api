@@ -63,7 +63,7 @@ class ProjectMedia < ActiveRecord::Base
       ms.description = data['description']
       ms.quote = data['quote']
     end
-    ms.save!
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(ms))
   end
 
   private

@@ -1,11 +1,9 @@
 class ElasticSearchWorker
-  include CheckElasticSearchModel
+  #include CheckElasticSearchModel
   include Sidekiq::Worker
 
-  def perform(model, keys, options = {})
-    keys.each do |k|
-      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
-    end
+  def perform(model, options = {})
+    model = YAML::load(model)
     model.save!(options)
   end
 

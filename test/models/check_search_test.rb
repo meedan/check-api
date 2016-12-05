@@ -1,6 +1,11 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class CheckSearchTest < ActiveSupport::TestCase
+   def setup
+     super
+     require 'sidekiq/testing'
+     Sidekiq::Testing.inline!
+   end
 
    test "should search with keyword" do
      t = create_team
