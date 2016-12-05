@@ -5,6 +5,12 @@ class SampleModel < ActiveRecord::Base
 end
 
 class CommentTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+  end
+
   test "should create comment" do
     assert_difference 'Comment.length' do
       create_comment(text: 'test')

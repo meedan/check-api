@@ -5,6 +5,12 @@ class SampleModel < ActiveRecord::Base
 end
 
 class TagTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+  end
+
   test "should create tag" do
     assert_difference 'Tag.length' do
       create_tag(tag: 'test')
