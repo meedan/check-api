@@ -19,6 +19,17 @@ module AnnotationBase
         end
       end
 
+      def define_annotation_relation_method
+        define_method :annotation_relation do |type=nil, context=nil|
+          query = self.annotation_query(type, context)
+          klass = (type.blank? || type.is_a?(Array)) ? Annotation : type.camelize.constantize
+          relation = klass.where(query)
+          relation = relation.where(context_id: nil) if context == 'none'
+          relation = relation.where.not(context_id: nil) if context == 'some'
+          relation.order('id DESC')
+        end
+      end
+
       def has_annotations
         define_method :annotation_query do |type=nil, context=nil|
           matches = { annotated_type: self.class.name, annotated_id: self.id }
@@ -30,14 +41,7 @@ module AnnotationBase
           matches
         end
 
-        define_method :annotation_relation do |type=nil, context=nil|
-          query = self.annotation_query(type, context)
-          klass = (type.blank? || type.is_a?(Array)) ? Annotation : type.camelize.constantize
-          relation = klass.where(query)
-          relation = relation.where(context_id: nil) if context == 'none'
-          relation = relation.where.not(context_id: nil) if context == 'some'
-          relation.order('id DESC')
-        end
+        define_annotation_relation_method
 
         define_method :annotations do |type=nil, context=nil|
           self.annotation_relation(type, context).all

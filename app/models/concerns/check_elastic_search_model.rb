@@ -35,10 +35,6 @@ module CheckElasticSearchModel
     before_validation :set_type
   end
 
-  def reload
-    self.id ? self.class.find(self.id) : self
-  end
-
   def save!(options = {})
     raise 'Sorry, this is not valid' unless self.save(options)
   end
@@ -70,12 +66,6 @@ module CheckElasticSearchModel
       if client.indices.exists? index: index_name
         client.indices.delete index: index_name
       end
-    end
-
-    def delete_all
-      self.delete_index
-      self.create_index
-      sleep 1
     end
 
     def all_sorted(order = 'asc', field = 'created_at')
