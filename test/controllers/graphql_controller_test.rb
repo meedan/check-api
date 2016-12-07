@@ -579,7 +579,7 @@ class GraphqlControllerTest < ActionController::TestCase
       ids << id["node"]["dbid"]
     end
     assert_equal [m2.id], ids
-    create_comment text: 'title_a', annotated: m1, context: p
+    create_comment text: 'title_a', annotated: m1, context: p, disable_es_callbacks: false
     sleep 1
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
     post :create, query: query

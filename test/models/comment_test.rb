@@ -308,7 +308,7 @@ class CommentTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    c = create_comment annotated: m, context: p, text: 'test'
+    c = create_comment annotated: m, context: p, text: 'test', disable_es_callbacks: false
     sleep 1
     result = CommentSearch.find(c.id, parent: pm.id)
     assert_equal c.id.to_s, result.id
@@ -319,7 +319,7 @@ class CommentTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    c = create_comment annotated: m, context: p, text: 'test'
+    c = create_comment annotated: m, context: p, text: 'test', disable_es_callbacks: false
     c.text = 'test-mod'; c.save!
     sleep 1
     result = CommentSearch.find(c.id, parent: pm.id)

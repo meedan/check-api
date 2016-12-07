@@ -67,7 +67,7 @@ module SampleData
   end
 
   def create_comment(options = {})
-    options = { text: random_string(50), annotator: create_user, annotated: create_source }.merge(options)
+    options = { text: random_string(50), annotator: create_user, annotated: create_source, disable_es_callbacks: true }.merge(options)
     c = Comment.new
     if options.has_key?(:team)
       options[:context] = create_project(team: options[:team])
@@ -95,7 +95,7 @@ module SampleData
       options[:context] = create_project(team: options.delete(:team))
     end
     t = Tag.new
-    { tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options).each do |key, value|
+    { tag: random_string(50), annotator: create_user, annotated: create_source, disable_es_callbacks: true }.merge(options).each do |key, value|
       t.send("#{key}=", value)
     end
     t.save!
@@ -119,7 +119,7 @@ module SampleData
       a = options.delete(:annotated) || create_source
       type, id = a.class.name, a.id.to_s
     end
-    options = { status: 'credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options)
+    options = { status: 'credible', annotator: create_user, annotated_type: type, annotated_id: id, disable_es_callbacks: true }.merge(options)
     if options[:team]
       options[:context] = create_project(team: options[:team])
     end
@@ -152,7 +152,7 @@ module SampleData
       type, id = p.class.name, p.id.to_s
     end
     em = Embed.new
-    { embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id }.merge(options).each do |key, value|
+    { embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id, disable_es_callbacks: true }.merge(options).each do |key, value|
       em.send("#{key}=", value)
     end
     em.save!

@@ -337,11 +337,8 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media media: m, project: p
-    st = Status.new
-    st.status = 'verified'
-    st.context = p
-    st.annotated = m
-    st.save!
+    st = create_status status: 'verified', context: p, annotated: m, disable_es_callbacks: false
+    sleep 1
     result = MediaSearch.find(pm.id)
     assert_equal 'verified', result.status
   end

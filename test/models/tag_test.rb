@@ -231,7 +231,7 @@ class TagTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    t = create_tag annotated: m, context: p, tag: 'sports'
+    t = create_tag annotated: m, context: p, tag: 'sports', disable_es_callbacks: false
     sleep 1
     result = TagSearch.find(t.id, parent: pm.id)
     assert_equal t.id.to_s, result.id
@@ -242,7 +242,7 @@ class TagTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    t = create_tag annotated: m, context: p, tag: 'sports'
+    t = create_tag annotated: m, context: p, tag: 'sports', disable_es_callbacks: false
     t.tag = 'sports-news'; t.save!
     sleep 1
     result = TagSearch.find(t.id, parent: pm.id)
