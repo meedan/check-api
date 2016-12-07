@@ -20,8 +20,19 @@ class MigrateAnnotationsFromEsToPg < ActiveRecord::Migration
   end
 
   def change
-    puts
+    puts   
     unless CONFIG['elasticsearch_index'].blank?
+
+      uri = URI.parse("http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}/#{CONFIG['elasticsearch_index']}/_settings")
+      request = Net::HTTP::Put.new(uri)
+      request.body = JSON.dump({ "index" => { "max_result_window" => 20000 } })
+
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|
+        http.request(request)
+      end
+
+      puts "Requested to increase max result window, response: #{response.body} (#{response.code})"
+
       repository = AnnotationsRepository.new
       repository.search(query: { match_all: {} }, size: 20000).to_a.each do |obj|
         # This will call the deserialize method above, that will instantiate an object
