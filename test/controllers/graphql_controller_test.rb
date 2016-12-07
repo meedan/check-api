@@ -5,6 +5,8 @@ class GraphqlControllerTest < ActionController::TestCase
     super
     @controller = Api::V1::GraphqlController.new
     @url = 'https://www.youtube.com/user/MeedanTube'
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
   end
 
   test "should not access GraphQL if not authenticated" do

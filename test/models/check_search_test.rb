@@ -476,4 +476,12 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal 1, result.number_of_results
   end
 
+  test "should load all items sorted" do
+    pm1 = create_project_media
+    pm2 = create_project_media
+    sleep 1
+    assert_equal [pm1.id, pm2.id], MediaSearch.all_sorted().map(&:id).map(&:to_i)
+    assert_equal [pm2.id, pm1.id], MediaSearch.all_sorted('desc').map(&:id).map(&:to_i)
+  end
+
 end
