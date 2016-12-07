@@ -1,4 +1,3 @@
-# :nocov:
 class CheckSearch
 
   def initialize(options, context_team = nil)
@@ -74,4 +73,3 @@ class CheckSearch
   end
 
 end
-# :nocov:

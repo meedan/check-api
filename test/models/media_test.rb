@@ -532,5 +532,6 @@ class MediaTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media project_id: p.id
     assert_not_nil m.published(p)
+    assert_not_nil m.send(:published, p)
   end
 end
