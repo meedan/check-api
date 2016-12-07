@@ -1,5 +1,7 @@
 class MigrateProjectMediaFromPgToEs < ActiveRecord::Migration
   def change
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
     MediaSearch.delete_index
     MediaSearch.create_index
     ProjectMedia.all.each do |pm|
