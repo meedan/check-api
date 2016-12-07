@@ -81,7 +81,7 @@ module SampleData
 
   def create_comment_search(options = {})
     c = CommentSearch.new
-    pm = options[:parent] || create_project_media
+    pm = options[:parent] || create_media_search
     { id: random_number, text: random_string(50) }.merge(options).each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
@@ -104,7 +104,7 @@ module SampleData
 
   def create_tag_search(options = {})
     t = TagSearch.new
-    pm = options[:parent] || create_project_media
+    pm = options[:parent] || create_media_search
     { id: random_number, tag: random_string(50) }.merge(options).each do |key, value|
       t.send("#{key}=", value)
     end
