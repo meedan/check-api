@@ -118,15 +118,12 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    Annotation.delete_index
-    Annotation.create_index
     p = create_project
     c1 = create_comment
     c2 = create_comment
     c3 = create_comment
     p.add_annotation(c1)
     p.add_annotation(c2)
-    sleep 1
     assert_equal [c1.id, c2.id].sort, p.reload.annotations.map(&:id).sort
   end
 

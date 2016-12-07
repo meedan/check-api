@@ -61,8 +61,8 @@ class Media < ActiveRecord::Base
     context = self.get_media_context(context)
     em_pender = self.cached_annotations('embed', context).last unless context.nil?
     em_pender = self.cached_annotations('embed', 'none').last if em_pender.nil?
-    embed = JSON.parse(em_pender.embed) unless em_pender.nil?
-    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender[sk] unless em_pender[sk].nil? } unless embed.nil?
+    embed = JSON.parse(em_pender.data['embed']) unless em_pender.nil?
+    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender.data[sk] unless em_pender.data[sk].nil? } unless embed.nil?
     embed
   end
 
@@ -74,7 +74,7 @@ class Media < ActiveRecord::Base
   def last_status(context = nil)
     context = self.get_media_context(context)
     last = self.cached_annotations('status', context).first
-    last.nil? ? Status.default_id(self, context) : last.status
+    last.nil? ? Status.default_id(self, context) : last.data[:status]
   end
 
   def published(context = nil)
@@ -136,7 +136,7 @@ class Media < ActiveRecord::Base
   def cached_annotations_filtered(type, context)
     ret = @cached_annotations
     ret = ret.select{ |a| type.include?(a.annotation_type) } unless type.nil?
-    ret = ret.select{ |a| a.context_type == context.class.name && a.context_id == context.id.to_s } if context.kind_of?(ActiveRecord::Base)
+    ret = ret.select{ |a| a.context_type == context.class.name && a.context_id.to_s == context.id.to_s } if context.kind_of?(ActiveRecord::Base)
     ret = ret.select{ |a| a.context_id.blank? } if context == 'none'
     ret = ret.select{ |a| !a.context_id.blank? } if context == 'some'
     ret

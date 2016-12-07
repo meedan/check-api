@@ -7,9 +7,8 @@ end
 class CommentTest < ActiveSupport::TestCase
   def setup
     super
-    Comment.delete_index
-    Comment.create_index
-    sleep 1
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
   end
 
   test "should create comment" do
@@ -59,10 +58,10 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should have text" do
     assert_no_difference 'Comment.length' do
-      assert_raise RuntimeError do
+      assert_raise ActiveRecord::RecordInvalid do
         create_comment(text: nil)
       end
-      assert_raise RuntimeError do
+      assert_raise ActiveRecord::RecordInvalid do
         create_comment(text: '')
       end
     end
@@ -91,8 +90,6 @@ class CommentTest < ActiveSupport::TestCase
     c2b.annotated = s2
     c2b.save
 
-    sleep 1
-
     assert_equal s1, c1a.annotated
     assert_equal s1, c1b.annotated
     assert_equal [c1a.id, c1b.id].sort, s1.reload.annotations.map(&:id).sort
@@ -110,70 +107,18 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 1, c.versions.count
     v = c.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'comment'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', c.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', c.annotator_id], 'entities' => ['', '[]'], 'text' => ['', 'test' ] }, JSON.parse(v.object_changes))
+    assert_equal({"data"=>["{}", "{\"text\"=>\"test\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{c.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{c.annotated_id}"], "annotation_type"=>["", "comment"]}, JSON.parse(v.object_changes))
   end
 
   test "should create version when comment is updated" do
-    c = create_comment(text: 'foo').reload
+    c = create_comment(text: 'foo')
+    c = Comment.last
     c.text = 'bar'
-    c.save
+    c.save!
     assert_equal 2, c.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'text' => ['foo', 'bar'] }, JSON.parse(v.object_changes))
-  end
-
-  test "should revert" do
-    c = create_comment(text: 'Version 1')
-    c.text = 'Version 2'; c.save
-    c.text = 'Version 3'; c.save
-    c.text = 'Version 4'; c.save
-    assert_equal 4, c.versions.size
-
-    c = c.reload
-    c.revert
-    assert_equal 'Version 3', c.text
-    c = c.reload
-    assert_equal 'Version 4', c.text
-
-    c.revert_and_save
-    assert_equal 'Version 3', c.text
-    c = c.reload
-    assert_equal 'Version 3', c.text
-
-    c.revert
-    assert_equal 'Version 2', c.text
-    c.revert
-    assert_equal 'Version 1', c.text
-    c.revert
-    assert_equal 'Version 1', c.text
-
-    c.revert(-1)
-    assert_equal 'Version 2', c.text
-    c.revert(-1)
-    assert_equal 'Version 3', c.text
-    c.revert(-1)
-    assert_equal 'Version 4', c.text
-    c.revert(-1)
-    assert_equal 'Version 4', c.text
-
-    c = c.reload
-    assert_equal 'Version 3', c.text
-    c.revert_and_save(-1)
-    c = c.reload
-    assert_equal 'Version 4', c.text
-
-    assert_equal 4, c.versions.size
-  end
-
-  test "should return whether it has an attribute" do
-    c = create_comment
-    assert c.has_attribute?(:text)
-  end
-
-  test "should have a single annotation type" do
-    c = create_comment
-    assert_equal 'annotation', c._type
+      assert_equal({"data"=>["{\"text\"=>\"foo\"}", "{\"text\"=>\"bar\"}"]}, JSON.parse(v.object_changes))
   end
 
   test "should have context" do
@@ -199,8 +144,6 @@ class CommentTest < ActiveSupport::TestCase
     c2.context = context2
     c2.annotated = annotated
     c2.save
-
-    sleep 1
 
     assert_equal [c1.id, c2.id].sort, annotated.annotations.map(&:id).sort
     assert_equal [c1.id], annotated.annotations(nil, context1).map(&:id)
@@ -237,8 +180,8 @@ class CommentTest < ActiveSupport::TestCase
     c5 = create_comment annotator: u2, annotated: s1
     c6 = create_comment annotator: u3, annotated: s2
     c7 = create_comment annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators
-    assert_equal [u3].sort, s2.annotators
+    assert_equal [u1, u2].sort, s1.annotators.sort
+    assert_equal [u3].sort, s2.annotators.sort
   end
 
   test "should get annotator" do
@@ -359,4 +302,28 @@ class CommentTest < ActiveSupport::TestCase
     assert_includes c.entity_objects, m2
     refute_includes c.entity_objects, m3
   end
+
+  test "should create elasticsearch comment" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    c = create_comment annotated: m, context: p, text: 'test', disable_es_callbacks: false
+    sleep 1
+    result = CommentSearch.find(c.id, parent: pm.id)
+    assert_equal c.id.to_s, result.id
+  end
+
+  test "should update elasticsearch comment" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    c = create_comment annotated: m, context: p, text: 'test', disable_es_callbacks: false
+    c.text = 'test-mod'; c.save!
+    sleep 1
+    result = CommentSearch.find(c.id, parent: pm.id)
+    assert_equal 'test-mod', result.text
+  end
+
 end

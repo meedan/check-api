@@ -5,7 +5,7 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :media
   belongs_to :user
 
-  after_create :set_search_context, :set_initial_media_status
+  after_create :set_search_context, :set_initial_media_status, :add_elasticseach_data
 
   notifies_slack on: :create,
                  if: proc { |pm| m = pm.media; m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
@@ -48,6 +48,22 @@ class ProjectMedia < ActiveRecord::Base
       [ 'link', data['title'] ] :
       [ 'claim', data['quote'] ]
     "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{text}*>"
+  end
+
+  def add_elasticseach_data
+    ms = MediaSearch.new
+    ms.id = self.id
+    ms.team_id = self.project.team.id
+    ms.project_id = self.project.id
+    ms.set_es_annotated(self)
+    ms.status = self.media.last_status(self.project)
+    data = self.media.data(self.project)
+    unless data.nil?
+      ms.title = data['title']
+      ms.description = data['description']
+      ms.quote = data['quote']
+    end
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}))
   end
 
   private

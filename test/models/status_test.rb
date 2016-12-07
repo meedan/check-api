@@ -3,9 +3,8 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 class StatusTest < ActiveSupport::TestCase
   def setup
     super
-    Status.delete_index
-    Status.create_index
-    sleep 1
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
   end
 
   test "should create status" do
@@ -21,7 +20,7 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should have status" do
     assert_no_difference 'Status.length' do
-      assert_raises RuntimeError do
+      assert_raises ActiveRecord::RecordInvalid do
         create_status(status: nil)
         create_status(status: '')
       end
@@ -51,8 +50,6 @@ class StatusTest < ActiveSupport::TestCase
     t2b.annotated = s2
     t2b.save
 
-    sleep 1
-
     assert_equal s1, t1a.annotated
     assert_equal s1, t1b.annotated
     assert_equal [t1a.id, t1b.id].sort, s1.reload.annotations.map(&:id).sort
@@ -70,69 +67,18 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', st.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'entities' => ['', '[]'], 'status' => ['', 'credible' ] }, JSON.parse(v.object_changes))
+    assert_equal({"data"=>["{}", "{\"status\"=>\"credible\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{st.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{st.annotated_id}"], "annotation_type"=>["", "status"]}, JSON.parse(v.object_changes))
   end
 
   test "should create version when status is updated" do
-    st = create_status(status: 'slightly_credible').reload
+    create_status(status: 'slightly_credible')
+    st = Status.last
     st.status = 'sockpuppet'
     st.save
     assert_equal 2, st.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'status' => ['slightly_credible', 'sockpuppet'] }, JSON.parse(v.object_changes))
-  end
-
-  test "should revert" do
-    st = create_status(status: 'credible')
-    st.status = 'not_credible'; st.save
-    st.status = 'slightly_credible'; st.save
-    st.status = 'sockpuppet'; st.save
-    assert_equal 4, st.versions.size
-
-    st.revert
-    assert_equal 'slightly_credible', st.status
-    st = st.reload
-    assert_equal 'sockpuppet', st.status
-
-    st.revert_and_save
-    assert_equal 'slightly_credible', st.status
-    st = st.reload
-    assert_equal 'slightly_credible', st.status
-
-    st.revert
-    assert_equal 'not_credible', st.status
-    st.revert
-    assert_equal 'credible', st.status
-    st.revert
-    assert_equal 'credible', st.status
-
-    st.revert(-1)
-    assert_equal 'not_credible', st.status
-    st.revert(-1)
-    assert_equal 'slightly_credible', st.status
-    st.revert(-1)
-    assert_equal 'sockpuppet', st.status
-    st.revert(-1)
-    assert_equal 'sockpuppet', st.status
-
-    st = st.reload
-    assert_equal 'slightly_credible', st.status
-    st.revert_and_save(-1)
-    st = st.reload
-    assert_equal 'sockpuppet', st.status
-
-    assert_equal 4, st.versions.size
-  end
-
-  test "should return whether it has an attribute" do
-    st = create_status
-    assert st.has_attribute?(:status)
-  end
-
-  test "should have a single annotation type" do
-    st = create_status
-    assert_equal 'annotation', st._type
+    assert_equal({"data"=>["{\"status\"=>\"slightly_credible\"}", "{\"status\"=>\"sockpuppet\"}"]}, JSON.parse(v.object_changes))
   end
 
   test "should have context" do
@@ -158,8 +104,6 @@ class StatusTest < ActiveSupport::TestCase
     st2.context = context2
     st2.annotated = annotated
     st2.save
-
-    sleep 1
 
     assert_equal [st1.id, st2.id].sort, annotated.annotations.map(&:id).sort
     assert_equal [st1.id], annotated.annotations(nil, context1).map(&:id)
@@ -196,8 +140,8 @@ class StatusTest < ActiveSupport::TestCase
     st5 = create_status annotator: u2, annotated: s1
     st6 = create_status annotator: u3, annotated: s2
     st7 = create_status annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators
-    assert_equal [u3].sort, s2.annotators
+    assert_equal [u1, u2].sort, s1.annotators.sort
+    assert_equal [u3].sort, s2.annotators.sort
   end
 
   test "should get annotator" do
@@ -234,12 +178,12 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should not create status with invalid value" do
     assert_no_difference 'Status.length' do
-      assert_raise RuntimeError do
+      assert_raise ActiveRecord::RecordInvalid do
         create_status status: 'invalid', annotated: create_valid_media
       end
     end
     assert_no_difference 'Status.length' do
-      assert_raise RuntimeError do
+      assert_raise ActiveRecord::RecordInvalid do
         create_status status: 'invalid'
       end
     end
@@ -253,7 +197,7 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should not create status with invalid annotated type" do
     assert_no_difference 'Status.length' do
-      assert_raises RuntimeError do
+      assert_raises ActiveRecord::RecordInvalid do
         create_status(status: 'false', annotated_type: 'Project', annotated_id: create_project.id)
       end
     end
@@ -285,17 +229,17 @@ class StatusTest < ActiveSupport::TestCase
     m = create_valid_media
 
     assert_difference('Status.length') { create_status annotated: m, context: p, status: 'in_progress' }
-    assert_raises(RuntimeError) { create_status annotated: m, context: p, status: '1' }
+    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: m, context: p, status: '1' }
 
     value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
     assert_difference('Status.length') { create_status annotated: m, context: p, status: '1' }
-    assert_raises(RuntimeError) { create_status annotated: m, context: p, status: 'in_progress' }
+    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: m, context: p, status: 'in_progress' }
 
     assert_difference('Status.length') { create_status annotated: m, context: nil, status: 'in_progress' }
-    assert_raises(RuntimeError) { create_status annotated: m, context: nil, status: '1' }
+    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: m, context: nil, status: '1' }
   end
 
   test "should get default id" do
@@ -377,4 +321,26 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 'Foo', s.id_to_label('1')
     assert_equal 'Bar', s.id_to_label('2')
   end
+
+  test "should create elasticsearch status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media media: m, project: p
+    sleep 1
+    result = MediaSearch.find(pm.id)
+    assert_equal Status.default_id(pm.media, pm.project), result.status
+  end
+
+  test "should update elasticsearch status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media media: m, project: p
+    st = create_status status: 'verified', context: p, annotated: m, disable_es_callbacks: false
+    sleep 1
+    result = MediaSearch.find(pm.id)
+    assert_equal 'verified', result.status
+  end
+
 end

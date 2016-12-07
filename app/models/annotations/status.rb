@@ -1,7 +1,9 @@
-class Status
+class Status < ActiveRecord::Base
   include AnnotationBase
 
-  attribute :status, String, presence: true
+  attr_accessible
+
+  field :status, String, presence: true
 
   validates_presence_of :status
   validates :annotated_type, included: { values: ['Media', 'Source', nil] }
@@ -14,6 +16,8 @@ class Status
                  webhook: proc { |s| s.current_team.setting(:slack_webhook) }
 
   before_validation :store_previous_status, :normalize_status
+
+  after_save :update_elasticsearch_status
 
   def self.core_verification_statuses(annotated_type)
     core_statuses = YAML.load_file(File.join(Rails.root, 'config', 'core_statuses.yml'))
@@ -78,6 +82,10 @@ class Status
   def id_to_label(id)
     values = Status.possible_values(self.annotated, self.context)
     values[:statuses].select{ |s| s[:id] === id }.first[:label]
+  end
+
+  def update_elasticsearch_status
+    self.update_media_search(%w(status))
   end
 
   private

@@ -1,14 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class MediaTest < ActiveSupport::TestCase
-  def setup
-    super
-    Media.destroy_all
-    Annotation.delete_index
-    Annotation.create_index
-    sleep 1
-  end
-
   test "should create media" do
     assert_difference 'Media.count' do
       create_valid_media
@@ -100,7 +92,6 @@ class MediaTest < ActiveSupport::TestCase
     c3 = create_comment
     m.add_annotation(c1)
     m.add_annotation(c2)
-    sleep 1
     assert_equal [c1.id, c2.id].sort, m.reload.annotations('comment').map(&:id).sort
   end
 
@@ -179,24 +170,20 @@ class MediaTest < ActiveSupport::TestCase
     create_project_media project: p1, media: m
     create_project_media project: p2, media: m
     # Update media title and description with context p1
+    m = Media.last
     m.project_id = p1.id
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    m.information= info; m.save!
+    m.information = info; m.save!
     info = {title: 'Title AA', description: 'Desc AA'}.to_json
-    m.information= info;  m.save!
+    m.information = info;  m.save!
     # Update media title and description with context p2
     m.project_id = p2.id
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    m.information= info;  m.save!
+    m.information = info;  m.save!
     m.project_id = p2.id
     info = {title: 'Title BB', description: 'Desc BB'}.to_json
-    m.information= info;  m.save!
-    # fetch media data without context
+    m.information = info;  m.save!
     m = m.reload; m.project_id = nil
-    data = Media.find(m.id).data(nil)
-    title = data['title']; description = data['description']
-    assert_equal 'test media', title
-    assert_equal 'add desc', description
     # fetch media data with p1 as context
     data = Media.find(m.id).data(p1)
     title = data['title']; description = data['description']
@@ -207,6 +194,11 @@ class MediaTest < ActiveSupport::TestCase
     title = data['title']; description = data['description']
     assert_equal 'Title BB', title
     assert_equal 'Desc BB', description
+    # fetch media data without context
+    data = Media.find(m.id).data(nil)
+    title = data['title']; description = data['description']
+    assert_equal 'test media', title
+    assert_equal 'add desc', description
   end
 
   test "should set URL from Pender" do
@@ -392,7 +384,7 @@ class MediaTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url, project_id: p.id, information: {}.to_json)
     assert_equal 1, m.annotations('embed').count
-    assert_equal [m.id.to_s], m.annotations('embed').map(&:annotated_id)
+    assert_equal [m.id], m.annotations('embed').map(&:annotated_id)
     # override title for project p
     m.project_id = p.id
     m.information = {title: 'new title'}.to_json; m.save!

@@ -1,13 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
-class CommentTest < ActiveSupport::TestCase
-  def setup
-    super
-    Annotation.delete_index
-    Annotation.create_index
-    sleep 1
-  end
-
+class AnnotationTest < ActiveSupport::TestCase
   test "should not create generic annotation" do
     assert_no_difference 'Annotation.count' do
       assert_raises RuntimeError do
@@ -26,8 +19,8 @@ class CommentTest < ActiveSupport::TestCase
     c2 = create_comment annotated: s, text: '2'
     c3 = create_comment annotated: create_source, text: '3'
     c4 = create_comment annotated: s, text: '4'
-    assert_equal ['4', '2', '1'], s.annotation_relation.to_a.map(&:text)
-    assert_equal ['2'], s.annotation_relation.offset(1).limit(1).all.map(&:text)
+    assert_equal ['4', '2', '1'], s.annotation_relation.to_a.collect{ |a| a.data[:text] }
+    assert_equal ['2'], s.annotation_relation.offset(1).limit(1).collect{ |a| a.data[:text] }
   end
 
   test "should not load if does not exist" do
@@ -44,7 +37,6 @@ class CommentTest < ActiveSupport::TestCase
     s = create_source
     s.add_annotation c
     s.add_annotation t
-    sleep 1
     assert_equal [c], s.annotations('comment')
     assert_equal [t], s.annotations('tag')
   end
@@ -145,5 +137,13 @@ class CommentTest < ActiveSupport::TestCase
   test "should get dbid" do
     c = create_comment
     assert_equal c.id, c.dbid
+  end
+
+  test "should get annotations from multiple types" do
+    m = create_valid_media
+    c = create_comment annotated: m
+    s = create_status annotated: m, status: 'verified'
+    f = create_flag annotated: m, flag: 'Spam'
+    assert_equal 2, m.annotations(['comment', 'status']).size
   end
 end
