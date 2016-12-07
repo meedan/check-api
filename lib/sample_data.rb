@@ -86,7 +86,8 @@ module SampleData
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
     c.save!(parent: pm.id)
-    c.reload
+    sleep 1
+    c
   end
 
   def create_tag(options = {})
@@ -108,7 +109,8 @@ module SampleData
       t.send("#{key}=", value)
     end
     t.save!(parent: pm.id)
-    t.reload
+    sleep 1
+    t
   end
 
   def create_status(options = {})
@@ -374,7 +376,8 @@ module SampleData
       m.send("#{key}=", value) if m.respond_to?("#{key}=")
     end
     m.save!
-    m.reload
+    sleep 1
+    m
   end
 
 end
