@@ -215,14 +215,20 @@ module AnnotationBase
 
   def update_media_search(keys)
     return if self.disable_es_callbacks
-    ms = get_elasticsearch_parent
-    unless ms.nil?
-      store_elasticsearch_data(ms, keys)
-    end
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), 'update_parent')
+  end
+
+  def update_media_search_bg(keys)
+     ms = get_elasticsearch_parent
+     store_elasticsearch_data(ms, keys) unless ms.nil?
   end
 
   def add_update_media_search_child(child, keys)
     return if self.disable_es_callbacks
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), child)
+  end
+
+  def add_update_media_search_child_bg(child, keys)
     # get parent
     ms = get_elasticsearch_parent
     unless ms.nil?
@@ -234,7 +240,7 @@ module AnnotationBase
       end
       store_elasticsearch_data(model, keys, {parent: ms.id})
       # resave parent to update last_activity_at
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}))
+      ms.save!
     end
   end
 
@@ -242,7 +248,7 @@ module AnnotationBase
     keys.each do |k|
       model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
     end
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options))
+    model.save!(options)
   end
 
   def get_elasticsearch_parent
