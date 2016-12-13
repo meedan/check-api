@@ -31,14 +31,14 @@ module CheckdeskPermissions
     end
   end
 
-  def permissions(ability = nil)
+  def permissions(ability = nil, klass = self.class)
     perms = Hash.new
     unless self.current_user.nil?
       ability ||= Ability.new(self.current_user, self.context_team)
-      perms["read #{self.class}"] = ability.can?(:read, self)
-      perms["update #{self.class}"] = ability.can?(:update, self)
-      perms["destroy #{self.class}"] = ability.can?(:destroy, self)
-      perms = perms.merge self.set_create_permissions(self.class.name, ability)
+      perms["read #{klass}"] = ability.can?(:read, self)
+      perms["update #{klass}"] = ability.can?(:update, self)
+      perms["destroy #{klass}"] = ability.can?(:destroy, self)
+      perms = perms.merge self.set_create_permissions(klass.name, ability)
     end
     perms.to_json
   end
