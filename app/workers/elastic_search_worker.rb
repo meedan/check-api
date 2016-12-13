@@ -1,11 +1,17 @@
 class ElasticSearchWorker
-  #include CheckElasticSearchModel
+
   include Sidekiq::Worker
 
-  def perform(model, options)
+  def perform(model, keys, type)
     model = YAML::load(model)
-    options = YAML::load(options)
-    model.save!(options)
+    keys = YAML::load(keys)
+    if type == 'add_parent'
+      model.save!
+    elsif type == 'update_parent'
+      model.update_media_search_bg(keys)
+    else
+      model.add_update_media_search_child_bg(type, keys)
+    end
   end
 
 end
