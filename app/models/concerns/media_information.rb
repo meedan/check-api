@@ -57,9 +57,9 @@ module MediaInformation
       em.embed = self.information
       em.annotated = self
     else
-      # clone existing one and reset id and annotator fields
-      em = em_none
-      em.id = em.annotator_id = em.annotator_type = nil
+      # clone existing one and reset annotator fields
+      em = em_none.dup
+      em.annotator_id = em.annotator_type = nil
     end
     em.annotator = self.current_user unless self.current_user.nil?
     em.context = self.project

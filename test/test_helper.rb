@@ -48,7 +48,10 @@ class ActiveSupport::TestCase
   def setup
     CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
     Annotation.delete_all
-    [Media, Account, Source, User].each{ |m| m.destroy_all }
+    [Media, Account, Source, User, Annotation].each{ |m| m.destroy_all }
+    # create index
+    MediaSearch.delete_index
+    MediaSearch.create_index
     Rails.cache.clear if File.exists?(File.join(Rails.root, 'tmp', 'cache'))
     Rails.application.reload_routes!
     # URL mocked by pender-client
@@ -108,7 +111,7 @@ class ActiveSupport::TestCase
 
   def assert_graphql_create(type, request_params = {}, response_fields = ['id'])
     authenticate_with_user
-    
+
     klass = type.camelize
 
     input = '{'
@@ -116,7 +119,7 @@ class ActiveSupport::TestCase
       input += "#{key}: #{value.to_json}, "
     end
     input.gsub!(/, $/, '}')
-    
+
     query = "mutation create { create#{klass}(input: #{input}) { #{type} { #{response_fields.join(',')} } } }"
 
     assert_difference "#{klass}.count" do
@@ -125,7 +128,7 @@ class ActiveSupport::TestCase
     end
 
     document_graphql_query('create', type, query, @response.body)
-    
+
     assert_response :success
   end
 
@@ -134,17 +137,16 @@ class ActiveSupport::TestCase
     u = create_user
     klass.delete_all
     x1 = send("create_#{type}", { team: @team })
-    sleep 1
     x2 = send("create_#{type}", { team: @team })
     user = type == 'user' ? x1 : u
     authenticate_with_user(user)
     query = "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
-    post :create, query: query 
+    post :create, query: query
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
     assert_equal klass.count, edges.size
-    assert_equal x1.send(field), edges[0]['node'][field]
-    assert_equal x2.send(field), edges[1]['node'][field]
+    assert_equal x1.send(field).to_s, edges[0]['node'][field].to_s
+    assert_equal x2.send(field).to_s, edges[1]['node'][field].to_s
     assert_response :success
     document_graphql_query('read', type, query, @response.body)
   end
@@ -160,7 +162,7 @@ class ActiveSupport::TestCase
     id = NodeIdentification.to_global_id(klass, obj.id)
     input = '{ clientMutationId: "1", id: "' + id.to_s + '", ' + attr.to_s + ': ' + to.to_json + ' }'
     query = "mutation update { update#{klass}(input: #{input}) { #{type} { #{attr} } } }"
-    post :create, query: query 
+    post :create, query: query
     yield if block_given?
     assert_response :success
     assert_equal to, obj.reload.send(attr)
@@ -174,7 +176,7 @@ class ActiveSupport::TestCase
     id = NodeIdentification.to_global_id(klass, obj.id)
     query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
     assert_difference "#{klass}.count", -1 do
-      post :create, query: query 
+      post :create, query: query
       yield if block_given?
     end
     assert_response :success
@@ -193,7 +195,7 @@ class ActiveSupport::TestCase
       x1 = send("create_#{type}").reload
       x2 = send("create_#{type}").reload
     end
-    
+
     node = '{ '
     fields.each do |name, key|
       node += "#{name} { #{key} }, "
@@ -204,59 +206,60 @@ class ActiveSupport::TestCase
 
     type === 'user' ? authenticate_with_user(x1) : authenticate_with_user
 
-    post :create, query: query 
-    
+    post :create, query: query
+
     yield if block_given?
-    
+
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
     assert_equal type.camelize.constantize.count, edges.size
-    
+
     fields.each { |name, key| assert_equal x1.send(name).send(key), edges[0]['node'][name][key] }
     fields.each { |name, key| assert_equal x2.send(name).send(key), edges[1]['node'][name][key] }
-    
+
     assert_response :success
     document_graphql_query('read_object', type, query, @response.body)
   end
 
   def assert_graphql_read_collection(type, fields = {}, order = 'ASC')
     type.camelize.constantize.delete_all
-    
+
     obj = send("create_#{type}")
-    
+
     node = '{ '
     fields.each do |name, key|
       if name === 'medias' && obj.is_a?(Source)
         create_valid_media(account: create_valid_account(source: obj))
-        obj = obj.reload
       elsif name === 'collaborators'
         obj.add_annotation create_comment(annotator: create_user)
-        sleep 1
       elsif name === 'annotations' || name === 'comments'
         obj.add_annotation(create_comment) if obj.annotations.empty?
-        sleep 1
       elsif name === 'tags'
-        obj.add_annotation(create_tag)
-        sleep 1
+        t = create_tag
+        obj.add_annotation(t)
       else
         obj.send(name).send('<<', [send("create_#{name.singularize}")])
         obj.save!
       end
+      obj = obj.reload
       node += "#{name} { edges { node { #{key} } } }, "
     end
     node.gsub!(/, $/, ' }')
-    
+
     query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
     type === 'user' ? authenticate_with_user(obj) : authenticate_with_user
-    
+
     post :create, query: query
-    
+
     yield if block_given?
-    
+
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    
+
     nindex = order === 'ASC' ? 0 : (type.camelize.constantize.count - 1)
-    fields.each { |name, key| assert_equal obj.send(name).first.send(key), edges[nindex]['node'][name]['edges'][0]['node'][key] }
-    
+    fields.each do |name, key|
+      assert_equal obj.send(name).first.send(key),
+                   edges[nindex]['node'][name]['edges'][0]['node'][key]
+    end
+
     assert_response :success
     document_graphql_query('read_collection', type, query, @response.body)
   end
@@ -265,7 +268,7 @@ class ActiveSupport::TestCase
     authenticate_with_user
     obj = send("create_#{type}", { field.to_sym => value, team: @team })
     query = "query GetById { #{type}(id: \"#{obj.id}\") { #{field} } }"
-    post :create, query: query 
+    post :create, query: query
     assert_response :success
     document_graphql_query('get_by_id', type, query, @response.body)
     data = JSON.parse(@response.body)['data'][type]

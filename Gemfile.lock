@@ -164,6 +164,9 @@ GEM
       thor (>= 0.14, < 2.0)
     json (1.8.3)
     jwt (1.5.6)
+    logstash-event (1.2.02)
+    logstash-logger (0.20.0)
+      logstash-event (~> 1.2)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     macaddr (1.7.1)
@@ -388,6 +391,7 @@ DEPENDENCIES
   htmlentities
   jbuilder (~> 2.0)
   jquery-rails
+  logstash-logger
   mini_magick
   mocha
   newrelic_rpm

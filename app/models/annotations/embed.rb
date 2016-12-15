@@ -1,16 +1,17 @@
-class Embed
+class Embed < ActiveRecord::Base
   include AnnotationBase
 
-  attribute :title, String, mapping: { analyzer: 'hashtag' }
-  attribute :description, String, mapping: { analyzer: 'hashtag' }
-  attribute :quote, String, mapping: { analyzer: 'hashtag' }
+  attr_accessible
 
-  attribute :embed, String
-  attribute :username, String
-  attribute :published_at, Integer
-  attribute :search_context, Array
-  
+  field :title
+  field :description
+  field :quote
+  field :embed
+  field :username
+  field :published_at, Integer
+
   validate :validate_quote_for_media_with_empty_url
+  after_save :update_elasticsearch_embed
 
   def content
     {
@@ -21,6 +22,20 @@ class Embed
       quote: self.quote,
       embed: self.embed
     }.to_json
+  end
+
+  def search_context
+    data = self.data || {}
+    data[:search_context] || []
+  end
+
+  def search_context=(value)
+    data = self.data || {}
+    data[:search_context] = value
+  end
+
+  def update_elasticsearch_embed
+    self.update_media_search(%w(title description quote)) if self.annotated_type == 'Media'
   end
 
   private

@@ -13,6 +13,7 @@ end
 # Use pender from git
 gem 'pender_client', git: "https://github.com/meedan/pender-client.git"
 
+gem 'logstash-logger'
 gem 'rails', '4.2.7.1'
 gem 'sqlite3'
 gem 'pg', '~> 0.15'

@@ -67,7 +67,7 @@ module SampleData
   end
 
   def create_comment(options = {})
-    options = { text: random_string(50), annotator: create_user, annotated: create_source }.merge(options)
+    options = { text: random_string(50), annotator: create_user, annotated: create_source, disable_es_callbacks: true }.merge(options)
     c = Comment.new
     if options.has_key?(:team)
       options[:context] = create_project(team: options[:team])
@@ -76,17 +76,41 @@ module SampleData
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
     c.save!
-    sleep 1 if Rails.env.test?
+    c
+  end
+
+  def create_comment_search(options = {})
+    c = CommentSearch.new
+    pm = options[:parent] || create_media_search
+    { id: random_number, text: random_string(50) }.merge(options).each do |key, value|
+      c.send("#{key}=", value) if c.respond_to?("#{key}=")
+    end
+    c.save!(parent: pm.id)
+    sleep 1
     c
   end
 
   def create_tag(options = {})
     if options[:team]
-      options[:context] = create_project(team: options[:team])
+      options[:context] = create_project(team: options.delete(:team))
     end
-    t = Tag.create({ tag: random_string(50), annotator: create_user, annotated: create_source }.merge(options))
-    sleep 1 if Rails.env.test?
-    t.reload
+    t = Tag.new
+    { tag: random_string(50), annotator: create_user, annotated: create_source, disable_es_callbacks: true }.merge(options).each do |key, value|
+      t.send("#{key}=", value)
+    end
+    t.save!
+    t
+  end
+
+  def create_tag_search(options = {})
+    t = TagSearch.new
+    pm = options[:parent] || create_media_search
+    { id: random_number, tag: random_string(50) }.merge(options).each do |key, value|
+      t.send("#{key}=", value)
+    end
+    t.save!(parent: pm.id)
+    sleep 1
+    t
   end
 
   def create_status(options = {})
@@ -95,7 +119,7 @@ module SampleData
       a = options.delete(:annotated) || create_source
       type, id = a.class.name, a.id.to_s
     end
-    options = { status: 'credible', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options)
+    options = { status: 'credible', annotator: create_user, annotated_type: type, annotated_id: id, disable_es_callbacks: true }.merge(options)
     if options[:team]
       options[:context] = create_project(team: options[:team])
     end
@@ -104,7 +128,6 @@ module SampleData
       s.send("#{key}=", value) if s.respond_to?("#{key}=")
     end
     s.save!
-    sleep 1 if Rails.env.test?
     s
   end
 
@@ -114,9 +137,12 @@ module SampleData
       m = options.delete(:annotated) || create_valid_media
       type, id = m.class.name, m.id.to_s
     end
-    f = Flag.create({ flag: 'Spam', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
-    sleep 1 if Rails.env.test?
-    f.reload
+    f = Flag.new
+    { flag: 'Spam', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options).each do |key, value|
+      f.send("#{key}=", value)
+    end
+    f.save!
+    f
   end
 
   def create_embed(options = {})
@@ -125,14 +151,17 @@ module SampleData
       p = options.delete(:annotated) || create_project
       type, id = p.class.name, p.id.to_s
     end
-    em = Embed.create({ embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id }.merge(options))
-    sleep 1 if Rails.env.test?
-    em.reload
+    em = Embed.new
+    { embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id, disable_es_callbacks: true }.merge(options).each do |key, value|
+      em.send("#{key}=", value)
+    end
+    em.save!
+    em
   end
 
   def create_annotation(options = {})
     if options.has_key?(:annotation_type) && options[:annotation_type].blank?
-      Annotation.create(options)
+      Annotation.create!(options)
     else
       create_comment(options)
     end
@@ -221,7 +250,6 @@ module SampleData
     m.project_id = options[:project_id]
     m.information = options[:information] if options.has_key?(:information)
     m.save!
-    sleep 1 if Rails.env == 'test' and options.has_key?(:information)
     m.reload
   end
 
@@ -341,4 +369,15 @@ module SampleData
     b.save!
     b.reload
   end
+
+  def create_media_search(options = {})
+    m = MediaSearch.new
+    { annotated: create_valid_media, context: create_project }.merge(options).each do |key, value|
+      m.send("#{key}=", value) if m.respond_to?("#{key}=")
+    end
+    m.save!
+    sleep 1
+    m
+  end
+
 end

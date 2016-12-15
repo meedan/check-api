@@ -7,9 +7,8 @@ end
 class TagTest < ActiveSupport::TestCase
   def setup
     super
-    Tag.delete_index
-    Tag.create_index
-    sleep 1
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
   end
 
   test "should create tag" do
@@ -33,8 +32,10 @@ class TagTest < ActiveSupport::TestCase
 
   test "should have tag" do
     assert_no_difference 'Tag.length' do
-      create_tag(tag: nil)
-      create_tag(tag: '')
+      assert_raises ActiveRecord::RecordInvalid do
+        create_tag(tag: nil)
+        create_tag(tag: '')
+      end
     end
   end
 
@@ -61,8 +62,6 @@ class TagTest < ActiveSupport::TestCase
     t2b.annotated = s2
     t2b.save
 
-    sleep 1
-
     assert_equal s1, t1a.annotated
     assert_equal s1, t1b.annotated
     assert_equal [t1a.id, t1b.id].sort, s1.reload.annotations.map(&:id).sort
@@ -80,69 +79,18 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 1, t.versions.count
     v = t.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'tag'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', t.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', t.annotator_id], 'entities' => ['', '[]'], 'tag' => ['', 'test' ], 'full_tag' => ['', 'test'] }, JSON.parse(v.object_changes))
+    assert_equal({"data"=>["{}", "{\"tag\"=>\"test\", \"full_tag\"=>\"test\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{t.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{t.annotated_id}"], "annotation_type"=>["", "tag"]}, JSON.parse(v.object_changes))
   end
 
   test "should create version when tag is updated" do
-    t = create_tag(tag: 'foo')
+    create_tag(tag: 'foo')
+    t = Tag.last
     t.tag = 'bar'
     t.save
     assert_equal 2, t.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'tag' => ['foo', 'bar'], 'full_tag' => ['foo', 'bar'] }, JSON.parse(v.object_changes))
-  end
-
-  test "should revert" do
-    t = create_tag(tag: 'Version 1')
-    t.tag = 'Version 2'; t.save
-    t.tag = 'Version 3'; t.save
-    t.tag = 'Version 4'; t.save
-    assert_equal 4, t.versions.size
-
-    t.revert
-    assert_equal 'Version 3', t.tag
-    t = t.reload
-    assert_equal 'Version 4', t.tag
-
-    t.revert_and_save
-    assert_equal 'Version 3', t.tag
-    t = t.reload
-    assert_equal 'Version 3', t.tag
-
-    t.revert
-    assert_equal 'Version 2', t.tag
-    t.revert
-    assert_equal 'Version 1', t.tag
-    t.revert
-    assert_equal 'Version 1', t.tag
-
-    t.revert(-1)
-    assert_equal 'Version 2', t.tag
-    t.revert(-1)
-    assert_equal 'Version 3', t.tag
-    t.revert(-1)
-    assert_equal 'Version 4', t.tag
-    t.revert(-1)
-    assert_equal 'Version 4', t.tag
-
-    t = t.reload
-    assert_equal 'Version 3', t.tag
-    t.revert_and_save(-1)
-    t = t.reload
-    assert_equal 'Version 4', t.tag
-
-    assert_equal 4, t.versions.size
-  end
-
-  test "should return whether it has an attribute" do
-    t = create_tag
-    assert t.has_attribute?(:tag)
-  end
-
-  test "should have a single annotation type" do
-    t = create_tag
-    assert_equal 'annotation', t._type
+    assert_equal({"data"=>["{\"tag\"=>\"foo\", \"full_tag\"=>\"foo\"}", "{\"tag\"=>\"bar\", \"full_tag\"=>\"bar\"}"]}, JSON.parse(v.object_changes))
   end
 
   test "should have context" do
@@ -168,8 +116,6 @@ class TagTest < ActiveSupport::TestCase
     t2.context = context2
     t2.annotated = annotated
     t2.save
-
-    sleep 1
 
     assert_equal [t1.id, t2.id].sort, annotated.annotations.map(&:id).sort
     assert_equal [t1.id], annotated.annotations(nil, context1).map(&:id)
@@ -206,8 +152,8 @@ class TagTest < ActiveSupport::TestCase
     t5 = create_tag annotator: u2, annotated: s1
     t6 = create_tag annotator: u3, annotated: s2
     t7 = create_tag annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators
-    assert_equal [u3].sort, s2.annotators
+    assert_equal [u1, u2].sort, s1.annotators.sort
+    assert_equal [u3].sort, s2.annotators.sort
   end
 
   test "should get annotator" do
@@ -255,7 +201,7 @@ class TagTest < ActiveSupport::TestCase
       end
     end
     assert_no_difference 'Tag.length' do
-      assert_raises RuntimeError do
+      assert_raises ActiveRecord::RecordInvalid do
         create_tag tag: 'foo', annotated: s1, context: p
         create_tag tag: 'foo', annotated: s2, context: p
         create_tag tag: 'bar', annotated: s1, context: p
@@ -274,9 +220,33 @@ class TagTest < ActiveSupport::TestCase
       end
     end
     assert_no_difference 'Tag.length' do
-      assert_raises RuntimeError do
+      assert_raises ActiveRecord::RecordInvalid do
         create_tag tag: 'foo', annotated: s, context: p
       end
     end
   end
+
+  test "should create elasticsearch tag" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    t = create_tag annotated: m, context: p, tag: 'sports', disable_es_callbacks: false
+    sleep 1
+    result = TagSearch.find(t.id, parent: pm.id)
+    assert_equal t.id.to_s, result.id
+  end
+
+  test "should update elasticsearch tag" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    t = create_tag annotated: m, context: p, tag: 'sports', disable_es_callbacks: false
+    t.tag = 'sports-news'; t.save!
+    sleep 1
+    result = TagSearch.find(t.id, parent: pm.id)
+    assert_equal 'sports-news', result.tag
+  end
+
 end

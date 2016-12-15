@@ -15,16 +15,17 @@ module Checkdesk
       g.helper false
       g.assets false
     end
-    
+
     config.autoload_paths << Rails.root.join('app', 'graph', 'mutations')
     config.autoload_paths << Rails.root.join('app', 'graph', 'types')
-    
+
     config.active_record.raise_in_transactional_callbacks = true
     config.autoload_paths << "#{config.root}/app/models/annotations"
+    config.autoload_paths << "#{config.root}/app/models/search"
     config.autoload_paths += %W(#{config.root}/lib)
 
     config.action_mailer.delivery_method = :smtp
-    
+
     cfg = YAML.load_file("#{Rails.root}/config/config.yml")[Rails.env]
     if !cfg['smtp_user'].blank? && !cfg['smtp_pass'].blank? && !Rails.env.test?
       config.action_mailer.smtp_settings = {

@@ -1,13 +1,16 @@
-class Tag
+class Tag < ActiveRecord::Base
   include AnnotationBase
 
-  attribute :tag, String, presence: true
-  attribute :full_tag, String, presence: true, mapping: { index: 'not_analyzed' }
+  attr_accessible
+
+  field :tag, String, presence: true
+  field :full_tag, String, presence: true
 
   validates_presence_of :tag
-  validates :tag, uniqueness: { fields: [:annotated_type, :annotated_id, :context_type, :context_id] }, if: lambda { |t| t.id.blank? }
-  
+  validates :data, uniqueness: { scope: [:annotated_type, :annotated_id, :context_type, :context_id] }, if: lambda { |t| t.id.blank? }
+
   before_validation :normalize_tag, :store_full_tag
+  after_save :add_update_elasticsearch_tag
 
   def content
     { tag: self.tag }.to_json
@@ -31,4 +34,9 @@ class Tag
   def store_full_tag
     self.full_tag = self.tag
   end
+
+  def add_update_elasticsearch_tag
+    add_update_media_search_child('tag_search', %w(tag full_tag))
+  end
+
 end
