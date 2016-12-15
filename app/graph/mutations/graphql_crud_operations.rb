@@ -188,7 +188,7 @@ class GraphqlCrudOperations
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
           annotation.current_user = ctx[:current_user]
-          annotation.permissions(ctx[:ability])
+          annotation.permissions(ctx[:ability], annotation.annotation_type.camelize.constantize)
         }
       end
 
