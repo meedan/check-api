@@ -5,7 +5,7 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :media
   belongs_to :user
 
-  after_create :set_search_context, :set_initial_media_status, :add_elasticsearch_data
+  after_create :set_initial_media_status, :add_elasticsearch_data
 
   notifies_slack on: :create,
                  if: proc { |pm| m = pm.media; m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
@@ -67,19 +67,6 @@ class ProjectMedia < ActiveRecord::Base
     end
     ms.save!
     #ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')
-  end
-
-  private
-
-  def set_search_context
-    em_context = self.media.annotations('embed', self.project).last unless self.project.nil?
-    if em_context.nil?
-      em_none = self.media.annotations('embed', 'none').last
-      unless em_none.nil?
-        em_none.search_context << self.project.id
-        em_none.save!
-      end
-    end
   end
 
 end
