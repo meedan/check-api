@@ -24,16 +24,6 @@ class Embed < ActiveRecord::Base
     }.to_json
   end
 
-  def search_context
-    data = self.data || {}
-    data[:search_context] || []
-  end
-
-  def search_context=(value)
-    data = self.data || {}
-    data[:search_context] = value
-  end
-
   def update_elasticsearch_embed
     self.update_media_search(%w(title description quote)) if self.annotated_type == 'Media'
   end

@@ -44,8 +44,6 @@ module MediaInformation
     em = em_context unless em_context.nil?
     if em.nil?
       em = set_information_for_context(em_none)
-      # set search context and update Pender annotations
-      update_pender_search_context
     end
     em
   end
@@ -63,16 +61,7 @@ module MediaInformation
     end
     em.annotator = self.current_user unless self.current_user.nil?
     em.context = self.project
-    em.search_context = [self.project_id]
     em
-  end
-
-  def update_pender_search_context
-    pender = self.annotations('embed', 'none').last
-    unless pender.nil?
-      pender.search_context = pender.search_context - [self.project_id]
-      pender.save!
-    end
   end
 
   def set_information_for_embed(em, info)
