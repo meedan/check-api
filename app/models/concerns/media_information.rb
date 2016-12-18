@@ -42,10 +42,7 @@ module MediaInformation
 
   def set_information_for_context_with_no_pender(em_context, em_none)
     em = em_context unless em_context.nil?
-    if em.nil?
-      em = set_information_for_context(em_none)
-    end
-    em
+    set_information_for_context(em_none) if em.nil?
   end
 
   def set_information_for_context(em_none)

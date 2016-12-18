@@ -11,7 +11,7 @@ class ElasticSearchWorkerTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media project_id: p.id
-    assert_equal 3, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     ElasticSearchWorker.drain
     assert_equal 0, ElasticSearchWorker.jobs.size
     m.project_id = p.id
