@@ -4,6 +4,7 @@ module MediaMutations
     account_id: 'int',
     project_id: 'int',
     user_id: 'int',
+    quote: 'str',
     information: 'str'
   }
 
@@ -12,6 +13,7 @@ module MediaMutations
     account_id: 'int',
     project_id: 'int',
     user_id: 'int',
+    quote: 'str',
     information: 'str',
     id: '!id'
   }

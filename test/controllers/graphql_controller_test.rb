@@ -121,11 +121,11 @@ class GraphqlControllerTest < ActionController::TestCase
     pender_url = CONFIG['pender_host'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    info = {title: 'title', description: 'description', quote: 'media quote'}.to_json
+    info = {title: 'title', description: 'description'}.to_json
     assert_graphql_create('media', { url: url, project_id: @project.id, information: info })
     # test with empty URL
-    assert_graphql_create('media', { url: '', information: info })
-    assert_graphql_create('media', { information: info })
+    assert_graphql_create('media', { url: '', quote: 'media quote',  information: info })
+    assert_graphql_create('media', { quote: 'media quote', information: info })
   end
 
   test "should read medias" do

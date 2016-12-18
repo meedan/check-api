@@ -5,7 +5,6 @@ module MediaInformation
 
   def set_information
     info = self.parse_information
-
     unless self.information_blank?
       em_context = self.get_embed_context
       em_none = self.get_embed_regardless_context
@@ -37,7 +36,10 @@ module MediaInformation
   end
 
   def parse_information
-    self.information.blank? ? {} : JSON.parse(self.information)
+    info = self.information.blank? ? {} : JSON.parse(self.information)
+    info[:title] = self.quote if self.url.nil? and info["title"].blank?
+    self.information = info.to_json
+    info
   end
 
   def set_information_for_context_with_no_pender(em_context, em_none)
