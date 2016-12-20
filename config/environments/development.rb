@@ -52,13 +52,5 @@ Rails.application.configure do
   #  config.logger = LogStashLogger.new(type: :udp, host: 'logstash', port: 5228)  
   # config.logstash.uri = 'udp://logstash:5228'
   
-  config.logger = LogStashLogger.new(
-    type: :multi_delegator,
-    outputs: [
-      { type: :file, path: 'log/development.log' },
-      { type: :udp, host: 'logstash', port: 5228 }
-    ]
-  )
-  
   
 end
