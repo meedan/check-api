@@ -15,6 +15,7 @@ class Media < ActiveRecord::Base
   validate :validate_pender_result, on: :create
   validate :pender_result_is_an_item, on: :create
   validate :url_is_unique, on: :create
+  validate :validate_quote_for_media_with_empty_url, on: :create
 
   before_validation :set_url_nil_if_empty, :set_user, on: :create
   after_create :set_pender_result_as_annotation, :set_information, :set_project, :set_account
@@ -177,6 +178,12 @@ class Media < ActiveRecord::Base
       self.duplicated_of = existing
       errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
     end
+  end
+
+  def validate_quote_for_media_with_empty_url
+      if self.url.blank? and self.quote.blank?
+        errors.add(:base, "quote can't be blank")
+      end
   end
 
   def set_project

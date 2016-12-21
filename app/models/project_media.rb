@@ -44,24 +44,26 @@ class ProjectMedia < ActiveRecord::Base
   def slack_notification_message
     m = self.media
     data = m.data(self.project)
-    type, text = data['quote'].blank? ?
+    type, text = m.quote.blank? ?
       [ 'link', data['title'] ] :
-      [ 'claim', data['quote'] ]
+      [ 'claim', m.quote ]
     "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{text}*>"
   end
 
   def add_elasticsearch_data
+    p = self.project
+    m = self.media
     ms = MediaSearch.new
     ms.id = self.id
-    ms.team_id = self.project.team.id
-    ms.project_id = self.project.id
+    ms.team_id = p.team.id
+    ms.project_id = p.id
     ms.set_es_annotated(self)
-    ms.status = self.media.last_status(self.project)
-    data = self.media.data(self.project)
+    ms.status = m.last_status(self.project)
+    data = m.data(self.project)
     unless data.nil?
       ms.title = data['title']
       ms.description = data['description']
-      ms.quote = data['quote']
+      ms.quote = m.quote
     end
     ms.save!
     #ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')

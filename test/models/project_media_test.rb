@@ -125,6 +125,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should notify Pusher when project media is created" do
     pm = create_project_media
     assert pm.sent_to_pusher
+    # claim media
+    t = create_team
+    p = create_project team: t
+    m = create_claim_media project_id: p.id
+    pm = create_project_media project: p, media: m
+    assert pm.sent_to_pusher
   end
 
   test "should notify Pusher in background" do
