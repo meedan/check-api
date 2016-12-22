@@ -82,7 +82,8 @@ class User < ActiveRecord::Base
       current_team: self.current_team,
       teams: self.user_teams,
       team_ids: self.team_ids,
-      permissions: self.permissions
+      permissions: self.permissions,
+      profile_image: self.profile_image
     }
   end
 
