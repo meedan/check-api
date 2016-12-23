@@ -1,3 +1,5 @@
+require 'logstash-logger'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -36,6 +38,8 @@ Rails.application.configure do
   # Raises helpful error messages.
   config.assets.raise_runtime_errors = true
 
+  
+    
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
@@ -45,4 +49,8 @@ Rails.application.configure do
   config.cache_store = :memory_store, { size: 64.megabytes }
 
   # Enable the logstasher logs for the current environment
+  #  config.logger = LogStashLogger.new(type: :udp, host: 'logstash', port: 5228)  
+  # config.logstash.uri = 'udp://logstash:5228'
+  
+  
 end

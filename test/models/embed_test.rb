@@ -16,19 +16,6 @@ class EmbedTest < ActiveSupport::TestCase
     assert_equal 'embed', em.annotation_type
   end
 
-  test "should have quote if media url is blank" do
-    assert_no_difference 'Embed.length' do
-      m = Media.new
-      m.save!
-      assert_raise ActiveRecord::RecordInvalid do
-        em = Embed.new
-        em.annotated = m
-        em.quote = ''
-        em.save!
-      end
-    end
-  end
-
   test "should have annotations" do
     s1 = SampleModel.create!
     assert_equal [], s1.annotations
@@ -104,7 +91,7 @@ class EmbedTest < ActiveSupport::TestCase
 
   test "should have content" do
     em = create_embed
-    assert_equal ["title", "description", "username", "published_at", "quote", "embed"].sort, JSON.parse(em.content).keys.sort
+    assert_equal ["title", "description", "username", "published_at", "embed"].sort, JSON.parse(em.content).keys.sort
   end
 
   test "should have annotators" do

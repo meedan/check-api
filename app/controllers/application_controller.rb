@@ -10,6 +10,7 @@ class ApplicationController < ActionController::Base
     json = { type: type }
     json[:data] = object unless object.nil?
     render json: json, status: 200
+    logger.info message: json, status: 200
   end
 
   def render_error(message, code, status = 400)
@@ -20,9 +21,11 @@ class ApplicationController < ActionController::Base
                    }
                  },
                  status: status
+    logger.error message: message, status: 400
   end
 
   def render_unauthorized
     render_error 'Unauthorized', 'UNAUTHORIZED', 401
+    logger.warn message: 'unauthorized', status: 401
   end
 end

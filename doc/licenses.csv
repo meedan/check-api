@@ -54,6 +54,7 @@ Ruby Gem: ice_nine,Deep Freeze Ruby Objects,MIT,https://github.com/dkubb/ice_nin
 Ruby Gem: jbuilder,Create JSON structures via a Builder-style DSL,MIT,https://github.com/rails/jbuilder
 Ruby Gem: jquery-rails,Use jQuery with Rails 4+,MIT,https://github.com/rails/jquery-rails
 Ruby Gem: jwt,JSON Web Token implementation in Ruby,MIT,http://github.com/jwt/ruby-jwt
+Ruby Gem: logstash-logger,LogStash Logger for ruby,MIT,http://github.com/dwbutler/logstash-logger
 Ruby Gem: loofah,Loofah is a general library for manipulating and transforming HTML/XML documents and fragments,MIT,https://github.com/flavorjones/loofah
 Ruby Gem: mail,Mail provides a nice Ruby DSL for making sending and reading emails.,MIT,https://github.com/mikel/mail
 Ruby Gem: metaclass,Adds a metaclass method to all Ruby objects,MIT,http://github.com/floehopper/metaclass
@@ -67,6 +68,7 @@ Ruby Gem: mocha,Mocking and stubbing library,MIT,http://gofreerange.com/mocha/do
 Ruby Gem: multi_json,A common interface to multiple JSON libraries.,MIT,http://github.com/intridea/multi_json
 Ruby Gem: multi_xml,A generic swappable back-end for XML parsing,MIT,https://github.com/sferik/multi_xml
 Ruby Gem: multipart-post,A multipart form post accessory for Net::HTTP.,MIT,https://github.com/nicksieger/multipart-post
+Ruby Gem: newrelic_rpm,New Relic Ruby Agent,MIT,https://github.com/newrelic/rpm
 Ruby Gem: nokogiri,Nokogiri (鋸) is an HTML XML SAX and Reader parser,MIT,http://nokogiri.org
 Ruby Gem: nori,XML to Hash translator,MIT,https://github.com/savonrb/nori
 Ruby Gem: oauth,OAuth Core Ruby implementation,MIT,
@@ -144,11 +146,14 @@ Ruby Gem: socksify,Redirect all TCPSockets through a SOCKS5 proxy,the program or
 Ruby Gem: eventmachine,Ruby/EventMachine library,Ruby,http://rubyeventmachine.com
 Ruby Gem: httpclient,gives something like the functionality of libwww-perl (LWP) in Ruby,Ruby,https://github.com/nahi/httpclient
 Ruby Gem: macaddr,macaddr,Ruby,https://github.com/ahoward/macaddr
+Ruby Gem: newrelic_rpm,New Relic Ruby Agent,Ruby,https://github.com/newrelic/rpm
 Ruby Gem: rdoc,RDoc produces HTML and command-line documentation for Ruby projects,Ruby,http://docs.seattlerb.org/rdoc
 Ruby Gem: systemu,systemu,Ruby,https://github.com/ahoward/systemu
 Ruby Gem: thin,A thin and fast web server,Ruby,http://code.macournoyer.com/thin/
 Ruby Gem: colorize,Ruby gem for colorizing text using ANSI escape sequences.,gpl-2.0,http://github.com/fazibear/colorize
 Ruby Gem: eventmachine,Ruby/EventMachine library,gpl-2.0,http://rubyeventmachine.com
+Ruby Gem: logstash-event,Library that contains the classes required to create LogStash events,apache license (2.0),https://github.com/logstash/logstash
+Ruby Gem: newrelic_rpm,New Relic Ruby Agent,NewRelic,https://github.com/newrelic/rpm
 Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],bsd-3-clause,https://bitbucket.org/ged/ruby-pg
 Ruby Gem: puma,Puma is a simple fast threaded and highly concurrent HTTP 1.1 server for Ruby/Rack applications,bsd-3-clause,http://puma.io
 Ruby Gem: railroady,Ruby on Rails 3/4 model and controller UML class diagram generator.,GPLv2,http://github.com/preston/railroady

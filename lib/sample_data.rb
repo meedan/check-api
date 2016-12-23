@@ -241,6 +241,7 @@ module SampleData
     user = options.has_key?(:user) ? options[:user] : create_user
     m = Media.new
     m.url = options[:url]
+    m.quote = options[:quote] if options.has_key?(:quote)
     m.account_id = options.has_key?(:account_id) ? options[:account_id] : account.id
     m.current_user = options[:current_user] if options.has_key?(:current_user)
     m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
@@ -254,7 +255,7 @@ module SampleData
   end
 
   def create_claim_media(options = {})
-    options = { information: {quote: random_string}.to_json }.merge(options)
+    options = { quote: random_string }.merge(options)
     m = Media.new
     options.each do |key, value|
       m.send("#{key}=", value) if m.respond_to?("#{key}=")

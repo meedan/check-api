@@ -5,7 +5,6 @@ module MediaInformation
 
   def set_information
     info = self.parse_information
-
     unless self.information_blank?
       em_context = self.get_embed_context
       em_none = self.get_embed_regardless_context
@@ -37,17 +36,15 @@ module MediaInformation
   end
 
   def parse_information
-    self.information.blank? ? {} : JSON.parse(self.information)
+    info = self.information.blank? ? {} : JSON.parse(self.information)
+    info[:title] = self.quote if self.url.nil? and info["title"].blank?
+    self.information = info.to_json
+    info
   end
 
   def set_information_for_context_with_no_pender(em_context, em_none)
     em = em_context unless em_context.nil?
-    if em.nil?
-      em = set_information_for_context(em_none)
-      # set search context and update Pender annotations
-      update_pender_search_context
-    end
-    em
+    em.nil? ? set_information_for_context(em_none) : em
   end
 
   def set_information_for_context(em_none)
@@ -63,16 +60,7 @@ module MediaInformation
     end
     em.annotator = self.current_user unless self.current_user.nil?
     em.context = self.project
-    em.search_context = [self.project_id]
     em
-  end
-
-  def update_pender_search_context
-    pender = self.annotations('embed', 'none').last
-    unless pender.nil?
-      pender.search_context = pender.search_context - [self.project_id]
-      pender.save!
-    end
   end
 
   def set_information_for_embed(em, info)

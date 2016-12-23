@@ -75,11 +75,6 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should save media without url" do
-    media = Media.new
-    assert media.save
-  end
-
   test "should set pender data for media" do
     media = create_valid_media
     assert_not_empty media.data
@@ -404,26 +399,17 @@ class MediaTest < ActiveSupport::TestCase
     m = create_media(account: create_valid_account, url: url, project_id: p.id)
     assert_not_nil m.data
     m = m.reload
-    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}
+    info = {title: 'Title A', description: 'Desc A'}
     m.information = info.to_json; m.save!
     data = Media.find(m.id).data(p)
     assert_equal 'Title A', data['title']
-    assert_equal 'Media quote', data['quote']
-    # test with empty URL
-    m = Media.new; m.save!
-    m.project_id = p.id
-    assert_nil m.data
-    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
-    m.information = info; m.save!
-    data = Media.find(m.id).data(p)
-    assert_equal 'Title A', data['title']
     assert_equal 'Desc A', data['description']
-    assert_equal 'Media quote', data['quote']
   end
 
   test "should add claim additions to media creation" do
     m = Media.new;
-    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
+    m.quote = 'Media quote'
+    info = {title: 'Title A', description: 'Desc A'}.to_json
     m.information= info
     m.save!
     assert_equal 1, m.annotations('embed').count
@@ -497,34 +483,28 @@ class MediaTest < ActiveSupport::TestCase
     assert_not_nil m.account.source
   end
 
-  test "should create reports claims" do
+  test "should add quote or url for media creations" do
     t = create_team
     p = create_project team: t
-    m = Media.new
-    m.project_id = p.id
-    m.url = ''
-    m.information= {quote: 'Media quote A'}.to_json; m.save!
-    m.save!
     assert_difference 'Media.count' do
-      m = Media.new
-      m.project_id = p.id
-      m.url = ''
-      m.information= {quote: 'Media quote B'}.to_json; m.save!
-      m.save!
+      create_claim_media url: nil, project_id: p.id
+    end
+    assert_difference 'Media.count' do
+      create_valid_media quote: nil, project_id: p.id
+    end
+    assert_no_difference 'Media.count' do
+      assert_raise ActiveRecord::RecordInvalid do
+        m = Media.new
+        m.save!
+      end
     end
   end
 
-  test "should set information when there is no project" do
-    t = create_team
-    p = create_project team: t
-    m = Media.new
-    m.url = ''
-    assert_nothing_raised do
-      m.information = { quote: 'Media quote A' }.to_json
-      m.save!
-      m.information = { quote: 'Media quote B' }.to_json
-      m.save!
-    end
+  test "should add title for claim medias" do
+    p = create_project team: create_team
+    m = create_claim_media project_id: p.id, quote: 'media quote'
+    d = m.data(p)
+    assert_equal 'media quote', d['title']
   end
 
   test "should get published time" do

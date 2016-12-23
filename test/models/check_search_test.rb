@@ -22,21 +22,24 @@ class CheckSearchTest < ActiveSupport::TestCase
      assert_equal [m.id], result.medias.map(&:id)
      # overide title then search
      m.project_id = p.id
-     m.information= {title: 'search_title_a', quote: 'search_quote'}.to_json
+     m.information= {title: 'search_title_a'}.to_json
      m.save!
      sleep 1
      result = CheckSearch.new({keyword: "search_title_a"}.to_json, t)
      assert_equal [m.id], result.medias.map(&:id)
-     # search in description and quote
+     # search in description
      result = CheckSearch.new({keyword: "search_desc"}.to_json, t)
      assert_equal [m.id], result.medias.map(&:id)
-     result = CheckSearch.new({keyword: "search_quote"}.to_json, t)
-     assert_equal [m.id], result.medias.map(&:id)
      # add keyword to multiple medias
-     m2 = create_valid_media project_id: p.id, information: {quote: 'search_quote'}.to_json
+     m2 = create_valid_media project_id: p.id, information: {description: 'search_desc'}.to_json
+     sleep 1
+     result = CheckSearch.new({keyword: "search_desc"}.to_json, t)
+     assert_equal [m.id, m2.id].sort, result.medias.map(&:id).sort
+     # search in quote
+     m = create_claim_media quote: 'search_quote', project_id: p.id
      sleep 1
      result = CheckSearch.new({keyword: "search_quote"}.to_json, t)
-     assert_equal [m.id, m2.id].sort, result.medias.map(&:id).sort
+     assert_equal [m.id], result.medias.map(&:id)
    end
 
    test "should search with context" do
