@@ -6,7 +6,7 @@ class Status < ActiveRecord::Base
   field :status, String, presence: true
 
   validates_presence_of :status
-  validates :annotated_type, included: { values: ['Media', 'Source', nil] }
+  validates :annotated_type, included: { values: ['Media', 'Source', 'ProjectMedia', nil] }
   validate :status_is_valid
 
   notifies_slack on: :save,

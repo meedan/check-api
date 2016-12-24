@@ -1,6 +1,6 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  attr_accessor :project_id, :duplicated_of, :information, :project_object
+  attr_accessor :project_id, :duplicated_of, :project_object
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
@@ -10,7 +10,6 @@ class Media < ActiveRecord::Base
   has_annotations
 
   include PenderData
-  include MediaInformation
 
   validate :validate_pender_result, on: :create
   validate :pender_result_is_an_item, on: :create
@@ -18,8 +17,7 @@ class Media < ActiveRecord::Base
   validate :validate_quote_for_media_with_empty_url, on: :create
 
   before_validation :set_url_nil_if_empty, :set_user, on: :create
-  after_create :set_pender_result_as_annotation, :set_information, :set_project, :set_account
-  after_update :set_information
+  after_create :set_pender_result_as_annotation, :set_project, :set_account
   after_rollback :duplicate
 
   def current_team
@@ -34,55 +32,9 @@ class Media < ActiveRecord::Base
     mapping_ids[value]
   end
 
-  def jsondata(context = nil)
-    context = self.get_media_context(context)
-    self.data(context).to_json
-  end
-
   def project_media(context = nil)
     context = self.get_media_context(context)
     self.project_medias.find_by(:project_id => context.id) unless context.nil?
-  end
-
-  def user_in_context(context = nil)
-    context = self.get_media_context(context)
-    self.user if context.nil?
-    pm = project_media(context)
-    pm.user unless pm.nil?
-  end
-
-  def cached_annotations(type = nil, context = nil)
-    return self.annotations(type, context) if self.no_cache
-    @cached_annotations ||= self.annotations
-    type = [type].flatten
-    cached_annotations_filtered(type, context)
-  end
-
-  def data(context = nil)
-    context = self.get_media_context(context)
-    em_pender = self.cached_annotations('embed', context).last unless context.nil?
-    em_pender = self.cached_annotations('embed', 'none').last if em_pender.nil?
-    embed = JSON.parse(em_pender.data['embed']) unless em_pender.nil?
-    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender.data[sk] unless em_pender.data[sk].nil? } unless embed.nil?
-    embed
-  end
-
-  def tags(context = nil)
-    context = self.get_media_context(context)
-    self.cached_annotations('tag', context)
-  end
-
-  def last_status(context = nil)
-    context = self.get_media_context(context)
-    last = self.cached_annotations('status', context).first
-    last.nil? ? Status.default_id(self, context) : last.data[:status]
-  end
-
-  def published(context = nil)
-    context = self.get_media_context(context)
-    return self.created_at.to_i.to_s if context.nil?
-    pm = project_media(context)
-    pm.created_at.to_i.to_s unless pm.nil?
   end
 
   def get_team
@@ -130,17 +82,6 @@ class Media < ActiveRecord::Base
 
   def overriden_embed_attributes
     %W(title description username quote)
-  end
-
-  protected
-
-  def cached_annotations_filtered(type, context)
-    ret = @cached_annotations
-    ret = ret.select{ |a| type.include?(a.annotation_type) } unless type.nil?
-    ret = ret.select{ |a| a.context_type == context.class.name && a.context_id.to_s == context.id.to_s } if context.kind_of?(ActiveRecord::Base)
-    ret = ret.select{ |a| a.context_id.blank? } if context == 'none'
-    ret = ret.select{ |a| !a.context_id.blank? } if context == 'some'
-    ret
   end
 
   private
