@@ -1,9 +1,5 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
-class SampleModel < ActiveRecord::Base
-  has_annotations
-end
-
 class TagTest < ActiveSupport::TestCase
   def setup
     super
@@ -19,9 +15,9 @@ class TagTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'contributor'
     p = create_project team: t
-    m = create_valid_media project_id: p.id, user: u
+    pm = create_project_media project: p, user: u
     assert_difference 'Tag.length' do
-      create_tag tag: 'media_tag', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      create_tag tag: 'media_tag', annotated: pm, current_user: u, context_team: t, annotator: u
     end
   end
 
@@ -40,9 +36,9 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    s1 = SampleModel.create!
+    s1 = create_project_source
     assert_equal [], s1.annotations
-    s2 = SampleModel.create!
+    s2 = create_project_source
     assert_equal [], s2.annotations
 
     t1a = create_tag annotated: nil
@@ -74,7 +70,7 @@ class TagTest < ActiveSupport::TestCase
   test "should create version when tag is created" do
     t = nil
     assert_difference 'PaperTrail::Version.count', 3 do
-      t = create_tag(tag: 'test')
+      t = create_tag(tag: 'test', annotated: nil)
     end
     assert_equal 1, t.versions.count
     v = t.versions.last
@@ -91,35 +87,6 @@ class TagTest < ActiveSupport::TestCase
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
     assert_equal({"data"=>["{\"tag\"=>\"foo\", \"full_tag\"=>\"foo\"}", "{\"tag\"=>\"bar\", \"full_tag\"=>\"bar\"}"]}, JSON.parse(v.object_changes))
-  end
-
-  test "should have context" do
-    t = create_tag
-    s = SampleModel.create
-    assert_nil t.context
-    t.context = s
-    t.save
-    assert_equal s, t.context
-  end
-
-   test "should get annotations from context" do
-    context1 = SampleModel.create
-    context2 = SampleModel.create
-    annotated = SampleModel.create
-
-    t1 = create_tag
-    t1.context = context1
-    t1.annotated = annotated
-    t1.save
-
-    t2 = create_tag
-    t2.context = context2
-    t2.annotated = annotated
-    t2.save
-
-    assert_equal [t1.id, t2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [t1.id], annotated.annotations(nil, context1).map(&:id)
-    assert_equal [t2.id], annotated.annotations(nil, context2).map(&:id)
   end
 
   test "should get columns as array" do
@@ -143,8 +110,8 @@ class TagTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = SampleModel.create!
-    s2 = SampleModel.create!
+    s1 = create_project_source
+    s2 = create_project_source
     t1 = create_tag annotator: u1, annotated: s1
     t2 = create_tag annotator: u1, annotated: s1
     t3 = create_tag annotator: u1, annotated: s1
@@ -169,59 +136,59 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should set annotator if not set" do
-    u1 = create_user
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p, user: u, current_user: u
+    t = create_tag annotated: pm, annotator: nil, current_user: u
+    assert_equal u, t.annotator
+  end
+
+  test "should not set annotator if set" do
+    u = create_user
     u2 = create_user
     t = create_team
-    create_team_user team: t, user: u2
-    m = create_valid_media team: t, current_user: u2
-    t = create_tag annotated: m, annotator: nil, current_user: u2
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p, user: u, current_user: u
+    t = create_tag annotated: pm, annotator: u2, current_user: u
     assert_equal u2, t.annotator
   end
 
-  test "should set not annotator if set" do
-    u1 = create_user
-    u2 = create_user
-    t = create_team
-    create_team_user team: t, user: u2
-    m = create_valid_media team: t, current_user: u2
-    t = create_tag annotated: m, annotator: u1, current_user: u2
-    assert_equal u1, t.annotator
-  end
-
   test "should not have same tag applied to same object" do
-    s1 = create_source
-    s2 = create_source
+    s1 = create_project_source
+    s2 = create_project_source
     p = create_project
     assert_difference 'Tag.length', 4 do
       assert_nothing_raised do
-        create_tag tag: 'foo', annotated: s1, context: p
-        create_tag tag: 'foo', annotated: s2, context: p
-        create_tag tag: 'bar', annotated: s1, context: p
-        create_tag tag: 'bar', annotated: s2, context: p
+        create_tag tag: 'foo', annotated: s1
+        create_tag tag: 'foo', annotated: s2
+        create_tag tag: 'bar', annotated: s1
+        create_tag tag: 'bar', annotated: s2
       end
     end
     assert_no_difference 'Tag.length' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_tag tag: 'foo', annotated: s1, context: p
-        create_tag tag: 'foo', annotated: s2, context: p
-        create_tag tag: 'bar', annotated: s1, context: p
-        create_tag tag: 'bar', annotated: s2, context: p
+        create_tag tag: 'foo', annotated: s1
+        create_tag tag: 'foo', annotated: s2
+        create_tag tag: 'bar', annotated: s1
+        create_tag tag: 'bar', annotated: s2
       end
     end
   end
 
   test "should not tell that one tag contained in another is a duplicate" do
-    s = create_source
-    p = create_project
+    s = create_project_source
     assert_difference 'Tag.length', 2 do
       assert_nothing_raised do
-        create_tag tag: 'foo bar', annotated: s, context: p
-        create_tag tag: 'foo', annotated: s, context: p
+        create_tag tag: 'foo bar', annotated: s
+        create_tag tag: 'foo', annotated: s
       end
     end
     assert_no_difference 'Tag.length' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_tag tag: 'foo', annotated: s, context: p
+        create_tag tag: 'foo', annotated: s
       end
     end
   end
@@ -229,9 +196,8 @@ class TagTest < ActiveSupport::TestCase
   test "should create elasticsearch tag" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    t = create_tag annotated: m, context: p, tag: 'sports', disable_es_callbacks: false
+    pm = create_project_media project: p, disable_es_callbacks: false
+    t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
     sleep 1
     result = TagSearch.find(t.id, parent: pm.id)
     assert_equal t.id.to_s, result.id
@@ -240,9 +206,8 @@ class TagTest < ActiveSupport::TestCase
   test "should update elasticsearch tag" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    t = create_tag annotated: m, context: p, tag: 'sports', disable_es_callbacks: false
+    pm = create_project_media project: p, disable_es_callbacks: false
+    t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
     t.tag = 'sports-news'; t.save!
     sleep 1
     result = TagSearch.find(t.id, parent: pm.id)

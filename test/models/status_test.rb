@@ -67,12 +67,12 @@ class StatusTest < ActiveSupport::TestCase
   test "should create version when status is created" do
     st = nil
     assert_difference 'PaperTrail::Version.count', 3 do
-      st = create_status(status: 'credible')
+      st = create_status(status: 'verified')
     end
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>["{}", "{\"status\"=>\"credible\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{st.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{st.annotated_id}"], "annotation_type"=>["", "status"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>["{}", "{\"status\"=>\"verified\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{st.annotator_id}"], "annotated_type"=>["", "ProjectMedia"], "annotated_id"=>["", "#{st.annotated_id}"], "annotation_type"=>["", "status"]}, JSON.parse(v.object_changes))
   end
 
   test "should create version when status is updated" do
@@ -118,6 +118,7 @@ class StatusTest < ActiveSupport::TestCase
     u3 = create_user
     pm1 = create_project_media
     pm2 = create_project_media
+    Annotation.delete_all
     st1 = create_status annotator: u1, annotated: pm1
     st2 = create_status annotator: u1, annotated: pm1
     st3 = create_status annotator: u1, annotated: pm1
@@ -125,8 +126,9 @@ class StatusTest < ActiveSupport::TestCase
     st5 = create_status annotator: u2, annotated: pm1
     st6 = create_status annotator: u3, annotated: pm2
     st7 = create_status annotator: u3, annotated: pm2
-    assert_equal [u1, u2].sort, pm1.annotators.sort
-    assert_equal [u3].sort, pm2.annotators.sort
+
+    assert_equal [u1.id, u2.id].sort, pm1.annotators.map(&:id).sort
+    assert_equal [u3.id], pm2.annotators.map(&:id)
   end
 
   test "should get annotator" do

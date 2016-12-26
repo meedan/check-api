@@ -77,6 +77,7 @@ class FlagTest < ActiveSupport::TestCase
     u3 = create_user
     s1 = create_project_media
     s2 = create_project_media
+    Annotation.delete_all
     f1 = create_flag annotator: u1, annotated: s1
     f2 = create_flag annotator: u1, annotated: s1
     f3 = create_flag annotator: u1, annotated: s1
@@ -84,8 +85,8 @@ class FlagTest < ActiveSupport::TestCase
     f5 = create_flag annotator: u2, annotated: s1
     f6 = create_flag annotator: u3, annotated: s2
     f7 = create_flag annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators.sort
-    assert_equal [u3].sort, s2.annotators.sort
+    assert_equal [u1.id, u2.id].sort, s1.annotators.map(&:id).sort
+    assert_equal [u3.id], s2.annotators.map(&:id)
   end
 
   test "should get annotator" do

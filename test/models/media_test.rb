@@ -82,16 +82,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_not_empty media.project_media.data
   end
 
-  test "should have annotations" do
-    m = create_valid_media
-    c1 = create_comment
-    c2 = create_comment
-    c3 = create_comment
-    m.add_annotation(c1)
-    m.add_annotation(c2)
-    assert_equal [c1.id, c2.id].sort, m.reload.annotations('comment').map(&:id).sort
-  end
-
   test "should get user id" do
     m = create_valid_media
     assert_nil m.send(:user_id_callback, 'test@test.com')
@@ -342,51 +332,6 @@ class MediaTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_media project_id: p.id
     assert_equal t, m.current_team
-  end
-
-  test "should get permissions" do
-    u = create_user
-    t = create_team current_user: u
-    p = create_project team: t
-    m = create_valid_media project_id: p.id
-    m.context_team = t
-    m.current_user = u
-    perm_keys = ["read Media", "update Media", "destroy Media", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
-    # load permissions as owner
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
-    # load as editor
-    tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
-    # load as editor
-    tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
-    # load as journalist
-    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
-    # load as contributor
-    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
-    # load as authenticated
-    tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    tu.delete
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
-  end
-
-  test "should journalist edit own status" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    p = create_project team: t, user: create_user
-    m = create_valid_media project_id: p.id, user: u
-    m.context_team = t
-    m.current_user = u
-    m.project_id = p.id
-    assert JSON.parse(m.permissions)['create Status']
   end
 
   test "should create source for Flickr media" do

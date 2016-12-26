@@ -189,10 +189,59 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get published time" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id
-    pm = m.project_media
+    pm = create_project_media project: p
     assert_not_nil pm.published
     assert_not_nil pm.send(:published)
+  end
+
+  test "should have annotations" do
+    pm = create_project_media
+    c1 = create_comment annotated: pm
+    c2 = create_comment annotated: pm
+    c3 = create_comment annotated: nil
+    assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
+  end
+
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    p = create_project team: t
+    pm = create_project_media project: p, current_user: u
+    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    # load permissions as owner
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    pm.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    pm.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as journalist
+    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    pm.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as contributor
+    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    pm.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as authenticated
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
+    tu.delete
+    pm.current_user = u.reload
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+  end
+
+  test "should journalist edit own status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t, user: create_user
+    pm = create_project_media project: p, user: u
+    pm.context_team = t
+    pm.current_user = u
+    assert JSON.parse(pm.permissions)['create Status']
   end
 
 end
