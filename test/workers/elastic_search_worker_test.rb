@@ -16,47 +16,46 @@ class ElasticSearchWorkerTest < ActiveSupport::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url, project_id: p.id)
-    assert_equal 2, ElasticSearchWorker.jobs.size
+    assert_equal 1, ElasticSearchWorker.jobs.size
   end
 
   test "should add comment search in background" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    pm = create_project_media project: p, disable_es_callbacks: false
     ElasticSearchWorker.drain
     assert_equal 0, ElasticSearchWorker.jobs.size
-    create_comment context: p, annotated: m, disable_es_callbacks: false
+    create_comment annotated: pm, disable_es_callbacks: false
     assert_equal 1, ElasticSearchWorker.jobs.size
   end
 
   test "should add tag search in background" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    pm = create_project_media project: p
     ElasticSearchWorker.drain
     assert_equal 0, ElasticSearchWorker.jobs.size
-    create_tag context: p, annotated: m, disable_es_callbacks: false
+    create_tag annotated: pm, disable_es_callbacks: false
     assert_equal 1, ElasticSearchWorker.jobs.size
   end
 
   test "should update title or description in background" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    pm = create_project_media project: p
     ElasticSearchWorker.drain
     assert_equal 0, ElasticSearchWorker.jobs.size
-    m.project_id = p.id
-    m.information = {title: 'title', description: 'description'}.to_json
-    m.save!
+    pm.information = {title: 'title', description: 'description'}.to_json
+    pm.save!
     assert_equal 1, ElasticSearchWorker.jobs.size
   end
 
   test "should update status in background" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    pm = create_project_media project: p
     ElasticSearchWorker.drain
-    create_status context: p, annotated: m, status: 'false', disable_es_callbacks: false
+    create_status annotated: pm, status: 'false', disable_es_callbacks: false
     assert_equal 1, ElasticSearchWorker.jobs.size
   end
 

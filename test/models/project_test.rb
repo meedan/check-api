@@ -118,13 +118,13 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    p = create_project
-    c1 = create_comment
-    c2 = create_comment
-    c3 = create_comment
-    p.add_annotation(c1)
-    p.add_annotation(c2)
-    assert_equal [c1.id, c2.id].sort, p.reload.annotations.map(&:id).sort
+    pm = create_project_media
+    c1 = create_comment annotated: nil
+    c2 = create_comment annotated: nil
+    c3 = create_comment annotated: nil
+    pm.add_annotation(c1)
+    pm.add_annotation(c2)
+    assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
   end
 
   test "should get user id through callback" do

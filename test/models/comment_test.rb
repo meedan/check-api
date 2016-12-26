@@ -271,10 +271,15 @@ class CommentTest < ActiveSupport::TestCase
     p1 = create_project team: t1
     p2 = create_project team: t1
     t2 = create_team subdomain: 'test2'
-    m1 = create_valid_media project_id: p1.id
-    m2 = create_valid_media project_id: p2.id
-    m3 = create_valid_media team: t2
-    c = create_comment annotated: m1.project_media, text: "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{m1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{m2.id} and http://test2.localhost:3333/project/1/media/#{m3.id} because they are nice"
+    m1 = create_valid_media
+    pm1 = create_project_media project: p1, media: m1
+    m2 = create_valid_media
+    pm2 = create_project_media project: p2, media: m2
+    p3 = create_project team: t2
+    m3 = create_valid_media
+    pm3 = create_project_media project: p3, media: m3
+    text = "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{m1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{m2.id} and http://test2.localhost:3333/project/1/media/#{m3.id} because they are nice"
+    c = create_comment text: text, annotated: pm1
     assert_includes c.entity_objects, m1
     assert_includes c.entity_objects, m2
     refute_includes c.entity_objects, m3
