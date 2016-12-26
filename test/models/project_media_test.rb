@@ -138,7 +138,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckdeskNotifications::Pusher::Worker.drain
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
     create_project_media
-    assert_equal 3, CheckdeskNotifications::Pusher::Worker.jobs.size
+    assert_equal 2, CheckdeskNotifications::Pusher::Worker.jobs.size
     CheckdeskNotifications::Pusher::Worker.drain
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -149,7 +149,50 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media project_id: p.id, user: u
-    assert_equal Status.default_id(m, p), m.annotations('status', p).last.status
+    assert_equal Status.default_id(m, p), m.project_media.annotations('status').last.status
+  end
+
+  test "should update project media information" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    p1 = create_project
+    p2 = create_project
+    pm1 = create_project_media project: p1, media: m
+    pm2 = create_project_media project: p2, media: m
+    # fetch data (without overridden)
+    data = pm1.data
+    assert_equal 'test media', data['title']
+    assert_equal 'add desc', data['description']
+    # Update media title and description for pm1
+    info = {title: 'Title A', description: 'Desc A'}.to_json
+    pm1.information = info; pm1.save!
+    info = {title: 'Title AA', description: 'Desc AA'}.to_json
+    pm1.information = info;  pm1.save!
+    # Update media title and description for pm2
+    info = {title: 'Title B', description: 'Desc B'}.to_json
+    pm2.information = info;  pm2.save!
+    info = {title: 'Title BB', description: 'Desc BB'}.to_json
+    pm2.information = info;  pm2.save!
+    # fetch data for pm1
+    data = pm1.data
+    assert_equal 'Title AA', data['title']
+    assert_equal 'Desc AA', data['description']
+    # fetch data for pm2
+    data = pm2.data
+    assert_equal 'Title BB', data['title']
+    assert_equal 'Desc BB', data['description']
+  end
+
+  test "should get published time" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media project_id: p.id
+    pm = m.project_media
+    assert_not_nil pm.published
+    assert_not_nil pm.send(:published)
   end
 
 end

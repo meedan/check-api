@@ -7,7 +7,7 @@ end
 class EmbedTest < ActiveSupport::TestCase
   test "should create embed" do
     assert_difference 'Embed.length' do
-      create_embed(embed: 'test')
+      create_embed(embed: 'test', annotated: create_project_source)
     end
   end
 

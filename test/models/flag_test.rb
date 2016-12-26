@@ -54,26 +54,6 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal s, f.context
   end
 
-   test "should get annotations from context" do
-    context1 = create_project
-    context2 = create_project
-    annotated = create_valid_media
-
-    f1 = create_flag
-    f1.context = context1
-    f1.annotated = annotated
-    f1.save
-
-    f2 = create_flag
-    f2.context = context2
-    f2.annotated = annotated
-    f2.save
-
-    assert_equal [f1.id, f2.id].sort, annotated.annotations('flag').map(&:id).sort
-    assert_equal [f1.id], annotated.annotations(nil, context1).map(&:id)
-    assert_equal [f2.id], annotated.annotations(nil, context2).map(&:id)
-  end
-
   test "should get columns as array" do
     assert_kind_of Array, Flag.columns
   end
@@ -95,8 +75,8 @@ class FlagTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = create_valid_media
-    s2 = create_valid_media
+    s1 = create_project_media
+    s2 = create_project_media
     f1 = create_flag annotator: u1, annotated: s1
     f2 = create_flag annotator: u1, annotated: s1
     f3 = create_flag annotator: u1, annotated: s1
@@ -124,9 +104,10 @@ class FlagTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     t = create_team
+    p = create_project team: t
     create_team_user team: t, user: u2, role: 'contributor'
-    m = create_valid_media team: t, current_user: u2
-    f = create_flag annotated: m, annotator: nil, current_user: u2
+    pm = create_project_media project: p, current_user: u2
+    f = create_flag annotated: pm, annotator: nil, current_user: u2
     assert_equal u2, f.annotator
   end
 
@@ -134,9 +115,10 @@ class FlagTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     t = create_team
+    p  = create_project team: t
     create_team_user team: t, user: u2, role: 'contributor'
-    m = create_valid_media team: t, current_user: u2
-    f = create_flag annotated: m, annotator: u1, current_user: u2
+    pm = create_project_media project: p
+    f = create_flag annotated: pm, annotator: u1, current_user: u2
     assert_equal u1, f.annotator
   end
 
@@ -154,7 +136,7 @@ class FlagTest < ActiveSupport::TestCase
   test "should not create flag with invalid annotated" do
     assert_no_difference 'Flag.length' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_flag annotated: create_source
+        create_flag annotated: create_project
       end
     end
   end

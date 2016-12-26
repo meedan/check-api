@@ -1,6 +1,6 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessible
-  attr_accessor :information
+  attr_accessor :information, :disable_es_callbacks
 
   belongs_to :project
   belongs_to :media
@@ -48,14 +48,15 @@ class ProjectMedia < ActiveRecord::Base
 
   def slack_notification_message
     m = self.media
-    data = m.data(self.project)
+    data = self.data
     type, text = m.quote.blank? ?
       [ 'link', data['title'] ] :
       [ 'claim', m.quote ]
-    "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{m.project_id}/media/#{m.id}|*#{text}*>"
+    "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{self.project_id}/media/#{m.id}|*#{text}*>"
   end
 
   def add_elasticsearch_data
+    return if self.disable_es_callbacks
     p = self.project
     m = self.media
     ms = MediaSearch.new

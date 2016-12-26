@@ -3,6 +3,7 @@ class ProjectSource < ActiveRecord::Base
 
   belongs_to :project
   belongs_to :source
+  has_annotations
 
   def get_team
     p = self.project

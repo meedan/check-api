@@ -67,11 +67,9 @@ module SampleData
   end
 
   def create_comment(options = {})
-    options = { text: random_string(50), annotator: create_user, annotated: create_source, disable_es_callbacks: true }.merge(options)
+    options = { text: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
+    options[:annotated] = create_project_media unless options.has_key?(:annotated)
     c = Comment.new
-    if options.has_key?(:team)
-      options[:context] = create_project(team: options[:team])
-    end
     options.each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
@@ -91,11 +89,10 @@ module SampleData
   end
 
   def create_tag(options = {})
-    if options[:team]
-      options[:context] = create_project(team: options.delete(:team))
-    end
+    options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
+    options[:annotated] = create_project_media unless options.has_key?(:annotated)
     t = Tag.new
-    { tag: random_string(50), annotator: create_user, annotated: create_source, disable_es_callbacks: true }.merge(options).each do |key, value|
+    options.each do |key, value|
       t.send("#{key}=", value)
     end
     t.save!
@@ -114,15 +111,8 @@ module SampleData
   end
 
   def create_status(options = {})
-    type = id = nil
-    unless options.has_key?(:annotated) && options[:annotated].nil?
-      a = options.delete(:annotated) || create_source
-      type, id = a.class.name, a.id.to_s
-    end
-    options = { status: 'credible', annotator: create_user, annotated_type: type, annotated_id: id, disable_es_callbacks: true }.merge(options)
-    if options[:team]
-      options[:context] = create_project(team: options[:team])
-    end
+    options = { status: 'verified', annotator: create_user, disable_es_callbacks: true }.merge(options)
+    options[:annotated] = create_project_media unless options.has_key?(:annotated)
     s = Status.new
     options.each do |key, value|
       s.send("#{key}=", value) if s.respond_to?("#{key}=")
@@ -132,13 +122,10 @@ module SampleData
   end
 
   def create_flag(options = {})
-    type = id = nil
-    unless options.has_key?(:annotated) && options[:annotated].nil?
-      m = options.delete(:annotated) || create_valid_media
-      type, id = m.class.name, m.id.to_s
-    end
+    options = { flag: 'Spam', annotator: create_user }.merge(options)
+    options[:annotated] = create_project_media unless options.has_key?(:annotated)
     f = Flag.new
-    { flag: 'Spam', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options).each do |key, value|
+    options.each do |key, value|
       f.send("#{key}=", value)
     end
     f.save!
@@ -146,13 +133,10 @@ module SampleData
   end
 
   def create_embed(options = {})
-    type = id = nil
-    unless options.has_key?(:annotated) && options[:annotated].nil?
-      p = options.delete(:annotated) || create_project
-      type, id = p.class.name, p.id.to_s
-    end
+    options = { embed: random_string, annotator: create_user, disable_es_callbacks: true }.merge(options)
+    options[:annotated] = create_project_media unless options.has_key?(:annotated)
     em = Embed.new
-    { embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id, disable_es_callbacks: true }.merge(options).each do |key, value|
+    options.each do |key, value|
       em.send("#{key}=", value)
     end
     em.save!
@@ -249,7 +233,6 @@ module SampleData
       options[:project_id] = create_project(team: options[:team]).id
     end
     m.project_id = options[:project_id]
-    m.information = options[:information] if options.has_key?(:information)
     m.save!
     m.reload
   end
@@ -293,10 +276,13 @@ module SampleData
     pm = ProjectMedia.new
     project = options[:project] || create_project
     media = options[:media] || create_valid_media
+    user = options.has_key?(:user) ? options[:user] : create_user
     pm.project_id = options[:project_id] || project.id
     pm.media_id = options[:media_id] || media.id
     pm.media = media if media
     pm.current_user = options[:current_user] if options.has_key?(:current_user)
+    pm.user_id = options[:user_id] || user.id
+    pm.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     pm.save!
     pm
   end

@@ -73,9 +73,9 @@ module AnnotationBase
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
-                    if: proc { |a| a.annotated_type === 'Media' && a.context_type === 'Project' },
+                    if: proc { |a| a.annotated_type === 'ProjectMedia' },
                     event: 'media_updated',
-                    targets: proc { |a| [a.context, a.annotated] },
+                    targets: proc { |a| [a.annotated.project, a.annotated.media] },
                     data: proc { |a| a.to_json }
 
     before_validation :set_type_and_event, :set_annotator
@@ -179,16 +179,16 @@ module AnnotationBase
   end
 
   def get_team
-    obj = self.context.nil? ? self.annotated : self.context
     team = []
-    unless obj.nil?
-      team = obj.respond_to?(:team) ? [obj.team.id] : obj.get_team
+    obj = self.annotated.project if self.annotated.respond_to?(:project)
+    if !obj.nil? and obj.respond_to?(:team)
+      team = [obj.team.id] unless obj.team.nil?
     end
     team
   end
 
   def current_team
-    self.context.team if self.context_type === 'Project'
+    self.annotated.project.team if self.annotated_type === 'ProjectMedia'
   end
 
   def should_notify?
@@ -253,9 +253,8 @@ module AnnotationBase
 
   def get_elasticsearch_parent
     pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
-    pm = ProjectMedia.where(project_id: self.context_id, media_id: self.annotated_id).last if pm.nil?
     sleep 1 if Rails.env == 'test'
-    MediaSearch.search(query: { match: { annotated_id: pm.id } }).last unless pm.nil?
+    MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
   end
 
   protected

@@ -8,8 +8,10 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should create status" do
+    pm = create_project_media
+    Status.delete_all
     assert_difference 'Status.length' do
-      create_status
+      create_status annotated: pm
     end
   end
 
@@ -19,20 +21,23 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should have status" do
+    pm = create_project_media
+    Status.delete_all
     assert_no_difference 'Status.length' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_status(status: nil)
-        create_status(status: '')
+        create_status(status: nil, annotated: pm)
+        create_status(status: '', annotated: pm)
       end
     end
   end
 
   test "should have annotations" do
-    s1 = create_source
-    assert_equal [], s1.annotations
-    s2 = create_source
-    assert_equal [], s2.annotations
-
+    s1 = create_project_media
+    assert_equal 1, s1.annotations.count
+    t0a = s1.annotations.last.id
+    s2 = create_project_media
+    assert_equal 1, s2.annotations.count
+    t0b = s2.annotations.last.id
     t1a = create_status annotated: nil
     assert_nil t1a.annotated
     t1b = create_status annotated: nil
@@ -52,11 +57,11 @@ class StatusTest < ActiveSupport::TestCase
 
     assert_equal s1, t1a.annotated
     assert_equal s1, t1b.annotated
-    assert_equal [t1a.id, t1b.id].sort, s1.reload.annotations.map(&:id).sort
+    assert_equal [t0a,t1a.id, t1b.id].sort, s1.reload.annotations.map(&:id).sort
 
     assert_equal s2, t2a.annotated
     assert_equal s2, t2b.annotated
-    assert_equal [t2a.id, t2b.id].sort, s2.reload.annotations.map(&:id).sort
+    assert_equal [t0b, t2a.id, t2b.id].sort, s2.reload.annotations.map(&:id).sort
   end
 
   test "should create version when status is created" do
@@ -90,26 +95,6 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal s, st.context
   end
 
-   test "should get annotations from context" do
-    context1 = create_project
-    context2 = create_project
-    annotated = create_source
-
-    st1 = create_status
-    st1.context = context1
-    st1.annotated = annotated
-    st1.save
-
-    st2 = create_status
-    st2.context = context2
-    st2.annotated = annotated
-    st2.save
-
-    assert_equal [st1.id, st2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [st1.id], annotated.annotations(nil, context1).map(&:id)
-    assert_equal [st2.id], annotated.annotations(nil, context2).map(&:id)
-  end
-
   test "should get columns as array" do
     assert_kind_of Array, Status.columns
   end
@@ -131,17 +116,17 @@ class StatusTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = create_source
-    s2 = create_source
-    st1 = create_status annotator: u1, annotated: s1
-    st2 = create_status annotator: u1, annotated: s1
-    st3 = create_status annotator: u1, annotated: s1
-    st4 = create_status annotator: u2, annotated: s1
-    st5 = create_status annotator: u2, annotated: s1
-    st6 = create_status annotator: u3, annotated: s2
-    st7 = create_status annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators.sort
-    assert_equal [u3].sort, s2.annotators.sort
+    pm1 = create_project_media
+    pm2 = create_project_media
+    st1 = create_status annotator: u1, annotated: pm1
+    st2 = create_status annotator: u1, annotated: pm1
+    st3 = create_status annotator: u1, annotated: pm1
+    st4 = create_status annotator: u2, annotated: pm1
+    st5 = create_status annotator: u2, annotated: pm1
+    st6 = create_status annotator: u3, annotated: pm2
+    st7 = create_status annotator: u3, annotated: pm2
+    assert_equal [u1, u2].sort, pm1.annotators.sort
+    assert_equal [u3].sort, pm2.annotators.sort
   end
 
   test "should get annotator" do
@@ -157,48 +142,50 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should set annotator if not set" do
-    u1 = create_user
-    u2 = create_user
+    u = create_user
     t = create_team
-    create_team_user team: t, user: u2, role: 'editor'
-    m = create_valid_media team: t, current_user: u2
-    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: nil, current_user: u2, status: 'false'
-    assert_equal u2, st.annotator
+    p = create_project team: t
+    create_team_user team: t, user: u, role: 'editor'
+    m = create_valid_media project_id: p.id, current_user: u
+    st = create_status annotated: m.project_media, annotator: nil, current_user: u, status: 'false'
+    assert_equal u, st.annotator
   end
 
-  test "should set not annotator if set" do
+  test "should not set annotator if set" do
     u1 = create_user
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
     m = create_valid_media team: t, current_user: u2
-    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: u1, current_user: u2, status: 'false'
+    st = create_status annotated: m.project_media, annotator: u1, current_user: u2, status: 'false'
     assert_equal u1, st.annotator
   end
 
   test "should not create status with invalid value" do
+    pm = create_project_media
+    Status.delete_all
     assert_no_difference 'Status.length' do
       assert_raise ActiveRecord::RecordInvalid do
-        create_status status: 'invalid', annotated: create_valid_media
+        create_status status: 'invalid', annotated: pm
       end
     end
     assert_no_difference 'Status.length' do
       assert_raise ActiveRecord::RecordInvalid do
-        create_status status: 'invalid'
+        create_status status: 'invalid', annotated: nil
       end
     end
     assert_difference 'Status.length' do
-      create_status status: 'credible'
+      create_status status: 'credible', annotated: pm
     end
     assert_difference 'Status.length' do
-      create_status status: 'verified', annotated: create_valid_media
+      create_status status: 'verified', annotated: nil
     end
   end
 
   test "should not create status with invalid annotated type" do
     assert_no_difference 'Status.length' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_status(status: 'false', annotated_type: 'Project', annotated_id: create_project.id)
+        create_status(status: 'false', annotated: create_project)
       end
     end
   end
@@ -215,11 +202,12 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     m = create_valid_media
-    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
+    pm = create_project_media project: p, media: m
+    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: pm
     assert s.sent_to_slack
     # claim report
     m = create_claim_media project_id: p.id
-    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
+    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: m.project_media
     assert s.sent_to_slack
   end
 
@@ -227,19 +215,20 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media
+    pm = create_project_media project: p, media: m
 
-    assert_difference('Status.length') { create_status annotated: m, context: p, status: 'in_progress' }
-    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: m, context: p, status: '1' }
+    assert_difference('Status.length') { create_status annotated: pm, status: 'in_progress' }
+    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: pm, status: '1' }
 
     value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
-    assert_difference('Status.length') { create_status annotated: m, context: p, status: '1' }
-    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: m, context: p, status: 'in_progress' }
+    assert_difference('Status.length') { create_status annotated: pm, status: '1' }
+    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: pm, status: 'in_progress' }
 
-    assert_difference('Status.length') { create_status annotated: m, context: nil, status: 'in_progress' }
-    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: m, context: nil, status: '1' }
+    assert_difference('Status.length') { create_status annotated: pm, status: 'in_progress' }
+    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: pm, status: '1' }
   end
 
   test "should get default id" do
@@ -268,14 +257,15 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
     # Ticket #5373
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, context_team: t, annotator: u
     end
     m.user = u; m.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, context_team: t, annotator: u
     end
   end
 
@@ -284,14 +274,15 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
     # Ticket #5373
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, context_team: t, annotator: u
     end
     p.user = u; p.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, context_team: t, annotator: u
     end
   end
 
@@ -317,7 +308,8 @@ class StatusTest < ActiveSupport::TestCase
     t.save!
     m = create_valid_media
     p = create_project team: t
-    s = create_status status: '1', context: p, annotated: m
+    pm = create_project_media project: p, media: m
+    s = create_status status: '1', annotated: pm
     assert_equal 'Foo', s.id_to_label('1')
     assert_equal 'Bar', s.id_to_label('2')
   end
@@ -326,7 +318,7 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media
-    pm = create_project_media media: m, project: p
+    pm = create_project_media media: m, project: p, disable_es_callbacks: false
     sleep 1
     result = MediaSearch.find(pm.id)
     assert_equal Status.default_id(pm.media, pm.project), result.status
@@ -336,8 +328,8 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media
-    pm = create_project_media media: m, project: p
-    st = create_status status: 'verified', context: p, annotated: m, disable_es_callbacks: false
+    pm = create_project_media media: m, project: p, disable_es_callbacks: false
+    st = create_status status: 'verified', annotated: pm, disable_es_callbacks: false
     sleep 1
     result = MediaSearch.find(pm.id)
     assert_equal 'verified', result.status

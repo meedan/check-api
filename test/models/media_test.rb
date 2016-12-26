@@ -76,8 +76,10 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should set pender data for media" do
-    media = create_valid_media
-    assert_not_empty media.data
+    t = create_team
+    p = create_project team: t
+    media = create_valid_media project_id: p.id
+    assert_not_empty media.project_media.data
   end
 
   test "should have annotations" do
@@ -152,48 +154,6 @@ class MediaTest < ActiveSupport::TestCase
     m.project_medias << pm1
     m.project_medias << pm2
     assert_equal [p1, p2], m.projects
-  end
-
-  test "should update media information" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    p1 = create_project
-    p2 = create_project
-    create_project_media project: p1, media: m
-    create_project_media project: p2, media: m
-    # Update media title and description with context p1
-    m = Media.last
-    m.project_id = p1.id
-    info = {title: 'Title A', description: 'Desc A'}.to_json
-    m.information = info; m.save!
-    info = {title: 'Title AA', description: 'Desc AA'}.to_json
-    m.information = info;  m.save!
-    # Update media title and description with context p2
-    m.project_id = p2.id
-    info = {title: 'Title B', description: 'Desc B'}.to_json
-    m.information = info;  m.save!
-    m.project_id = p2.id
-    info = {title: 'Title BB', description: 'Desc BB'}.to_json
-    m.information = info;  m.save!
-    m = m.reload; m.project_id = nil
-    # fetch media data with p1 as context
-    data = Media.find(m.id).data(p1)
-    title = data['title']; description = data['description']
-    assert_equal 'Title AA', title
-    assert_equal 'Desc AA', description
-    # fetch media data with p2 as context
-    data = Media.find(m.id).data(p2)
-    title = data['title']; description = data['description']
-    assert_equal 'Title BB', title
-    assert_equal 'Desc BB', description
-    # fetch media data without context
-    data = Media.find(m.id).data(nil)
-    title = data['title']; description = data['description']
-    assert_equal 'test media', title
-    assert_equal 'add desc', description
   end
 
   test "should set URL from Pender" do
@@ -354,13 +314,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [p1, p2], m.reload.projects
   end
 
-  test "should get last status" do
-    m = create_valid_media
-    assert_equal 'undetermined', m.last_status
-    create_status status: 'verified', annotated: m
-    assert_equal 'verified', Media.find(m.id).last_status
-  end
-
   test "should get domain" do
     m = Media.new
     m.url = 'https://www.youtube.com/watch?v=b708rEG7spI'
@@ -377,42 +330,9 @@ class MediaTest < ActiveSupport::TestCase
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url, project_id: p.id, information: {}.to_json)
+    m = create_media(account: create_valid_account, url: url, project_id: p.id)
     assert_equal 1, m.annotations('embed').count
     assert_equal [m.id], m.annotations('embed').map(&:annotated_id)
-    # override title for project p
-    m.project_id = p.id
-    m.information = {title: 'new title'}.to_json; m.save!
-    # check annotations count for all, none and p
-    assert_equal 2, m.annotations('embed').count
-    assert_equal 1, m.annotations('embed', p).count
-    assert_equal 1, m.annotations('embed', 'none').count
-  end
-
-  test "should add claim additions to media" do
-    t = create_team
-    p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url, project_id: p.id)
-    assert_not_nil m.data
-    m = m.reload
-    info = {title: 'Title A', description: 'Desc A'}
-    m.information = info.to_json; m.save!
-    data = Media.find(m.id).data(p)
-    assert_equal 'Title A', data['title']
-    assert_equal 'Desc A', data['description']
-  end
-
-  test "should add claim additions to media creation" do
-    m = Media.new;
-    m.quote = 'Media quote'
-    info = {title: 'Title A', description: 'Desc A'}.to_json
-    m.information= info
-    m.save!
-    assert_equal 1, m.annotations('embed').count
   end
 
   test "should get current team" do
@@ -503,15 +423,8 @@ class MediaTest < ActiveSupport::TestCase
   test "should add title for claim medias" do
     p = create_project team: create_team
     m = create_claim_media project_id: p.id, quote: 'media quote'
-    d = m.data(p)
+    d = m.project_media.data
     assert_equal 'media quote', d['title']
   end
 
-  test "should get published time" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media project_id: p.id
-    assert_not_nil m.published(p)
-    assert_not_nil m.send(:published, p)
-  end
 end

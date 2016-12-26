@@ -5,6 +5,7 @@ class Comment < ActiveRecord::Base
 
   field :text
   validates_presence_of :text
+  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', nil] }
 
   before_save :extract_check_entities
   after_save :add_update_elasticsearch_comment

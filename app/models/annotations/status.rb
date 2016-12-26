@@ -6,13 +6,13 @@ class Status < ActiveRecord::Base
   field :status, String, presence: true
 
   validates_presence_of :status
-  validates :annotated_type, included: { values: ['Media', 'Source', 'ProjectMedia', nil] }
+  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', nil] }
   validate :status_is_valid
 
   notifies_slack on: :save,
                  if: proc { |s| s.should_notify? },
-                 message: proc { |s| data = s.annotated.data(s.context); "*#{s.current_user.name}* changed the verification status on <#{s.origin}/project/#{s.context_id}/media/#{s.annotated_id}|#{data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
-                 channel: proc { |s| s.context.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
+                 message: proc { |s| data = s.annotated.data; "*#{s.current_user.name}* changed the verification status on <#{s.origin}/project/#{s.annotated.project.id}/media/#{s.annotated.media.id}|#{data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
+                 channel: proc { |s| s.annotated.project.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
                  webhook: proc { |s| s.current_team.setting(:slack_webhook) }
 
   before_validation :store_previous_status, :normalize_status
@@ -32,8 +32,8 @@ class Status < ActiveRecord::Base
   end
 
   def store_previous_status
-    self.previous_annotated_status = self.annotated.last_status(self.context) if self.annotated.respond_to?(:last_status)
-    self.previous_annotated_status ||= Status.default_id(self.annotated, self.context)
+    self.previous_annotated_status = self.annotated.last_status if self.annotated.respond_to?(:last_status)
+    self.previous_annotated_status ||= Status.default_id(self.annotated.media, self.annotated.project) if self.annotated_type == 'ProjectMedia'
   end
 
   def previous_annotated_status
@@ -80,7 +80,7 @@ class Status < ActiveRecord::Base
   end
 
   def id_to_label(id)
-    values = Status.possible_values(self.annotated, self.context)
+    values = Status.possible_values(self.annotated.media, self.annotated.project)
     values[:statuses].select{ |s| s[:id] === id }.first[:label]
   end
 
@@ -92,7 +92,9 @@ class Status < ActiveRecord::Base
 
   def status_is_valid
     if !self.annotated_type.blank?
-      values = Status.possible_values(self.annotated, self.context)
+      media = self.annotated.media if self.annotated.respond_to?(:media)
+      context = self.annotated.project if self.annotated.respond_to?(:project)
+      values = Status.possible_values(media, context)
       errors.add(:base, 'Status not valid') unless values[:statuses].collect{ |s| s[:id] }.include?(self.status)
     end
   end
