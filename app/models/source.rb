@@ -38,15 +38,4 @@ class Source < ActiveRecord::Base
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
-  def collaborators
-    self.annotators
-  end
-
-  def tags
-    self.annotations('tag')
-  end
-
-  def comments
-    self.annotations('comment')
-  end
 end

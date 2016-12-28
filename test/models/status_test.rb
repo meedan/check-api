@@ -8,10 +8,8 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should create status" do
-    pm = create_project_media
-    Status.delete_all
     assert_difference 'Status.length' do
-      create_status annotated: pm
+      create_status
     end
   end
 
@@ -21,23 +19,20 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should have status" do
-    pm = create_project_media
-    Status.delete_all
     assert_no_difference 'Status.length' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_status(status: nil, annotated: pm)
-        create_status(status: '', annotated: pm)
+        create_status(status: nil)
+        create_status(status: '')
       end
     end
   end
 
   test "should have annotations" do
-    s1 = create_project_media
-    assert_equal 1, s1.annotations.count
-    t0a = s1.annotations.last.id
-    s2 = create_project_media
-    assert_equal 1, s2.annotations.count
-    t0b = s2.annotations.last.id
+    s1 = create_project_source
+    assert_equal [], s1.annotations
+    s2 = create_project_source
+    assert_equal [], s2.annotations
+
     t1a = create_status annotated: nil
     assert_nil t1a.annotated
     t1b = create_status annotated: nil
@@ -57,17 +52,17 @@ class StatusTest < ActiveSupport::TestCase
 
     assert_equal s1, t1a.annotated
     assert_equal s1, t1b.annotated
-    assert_equal [t0a,t1a.id, t1b.id].sort, s1.reload.annotations.map(&:id).sort
+    assert_equal [t1a.id, t1b.id].sort, s1.reload.annotations.map(&:id).sort
 
     assert_equal s2, t2a.annotated
     assert_equal s2, t2b.annotated
-    assert_equal [t0b, t2a.id, t2b.id].sort, s2.reload.annotations.map(&:id).sort
+    assert_equal [t2a.id, t2b.id].sort, s2.reload.annotations.map(&:id).sort
   end
 
   test "should create version when status is created" do
     st = nil
     assert_difference 'PaperTrail::Version.count', 3 do
-      st = create_status(status: 'verified')
+      st = create_status(status: 'credible')
     end
     assert_equal 1, st.versions.count
     v = st.versions.last
@@ -84,15 +79,6 @@ class StatusTest < ActiveSupport::TestCase
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
     assert_equal({"data"=>["{\"status\"=>\"slightly_credible\"}", "{\"status\"=>\"sockpuppet\"}"]}, JSON.parse(v.object_changes))
-  end
-
-  test "should have context" do
-    st = create_status
-    s = create_source
-    assert_nil st.context
-    st.context = s
-    st.save
-    assert_equal s, st.context
   end
 
   test "should get columns as array" do
@@ -116,19 +102,19 @@ class StatusTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    pm1 = create_project_media
-    pm2 = create_project_media
+    ps1 = create_project_source
+    ps2 = create_project_source
     Annotation.delete_all
-    st1 = create_status annotator: u1, annotated: pm1
-    st2 = create_status annotator: u1, annotated: pm1
-    st3 = create_status annotator: u1, annotated: pm1
-    st4 = create_status annotator: u2, annotated: pm1
-    st5 = create_status annotator: u2, annotated: pm1
-    st6 = create_status annotator: u3, annotated: pm2
-    st7 = create_status annotator: u3, annotated: pm2
+    st1 = create_status annotator: u1, annotated: ps1
+    st2 = create_status annotator: u1, annotated: ps1
+    st3 = create_status annotator: u1, annotated: ps1
+    st4 = create_status annotator: u2, annotated: ps1
+    st5 = create_status annotator: u2, annotated: ps1
+    st6 = create_status annotator: u3, annotated: ps2
+    st7 = create_status annotator: u3, annotated: ps2
 
-    assert_equal [u1.id, u2.id].sort, pm1.annotators.map(&:id).sort
-    assert_equal [u3.id], pm2.annotators.map(&:id)
+    assert_equal [u1.id, u2.id].sort, ps1.annotators.map(&:id).sort
+    assert_equal [u3.id], ps2.annotators.map(&:id)
   end
 
   test "should get annotator" do
@@ -164,23 +150,10 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should not create status with invalid value" do
-    pm = create_project_media
-    Status.delete_all
     assert_no_difference 'Status.length' do
       assert_raise ActiveRecord::RecordInvalid do
-        create_status status: 'invalid', annotated: pm
+        create_status status: 'invalid'
       end
-    end
-    assert_no_difference 'Status.length' do
-      assert_raise ActiveRecord::RecordInvalid do
-        create_status status: 'invalid', annotated: nil
-      end
-    end
-    assert_difference 'Status.length' do
-      create_status status: 'credible', annotated: pm
-    end
-    assert_difference 'Status.length' do
-      create_status status: 'verified', annotated: nil
     end
   end
 
@@ -219,18 +192,20 @@ class StatusTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
 
-    assert_difference('Status.length') { create_status annotated: pm, status: 'in_progress' }
-    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: pm, status: '1' }
+    assert_difference  'Status.length' do
+      create_status annotated: pm, status: 'in_progress'
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_status annotated: pm, status: '1'
+    end
 
     value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
-    assert_difference('Status.length') { create_status annotated: pm, status: '1' }
-    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: pm, status: 'in_progress' }
-
-    assert_difference('Status.length') { create_status annotated: pm, status: 'in_progress' }
-    assert_raises(ActiveRecord::RecordInvalid) { create_status annotated: pm, status: '1' }
+    assert_difference 'Status.length' do
+      create_status annotated: pm, status: '1'
+    end
   end
 
   test "should get default id" do
@@ -291,7 +266,7 @@ class StatusTest < ActiveSupport::TestCase
   test "should normalize status" do
     s = nil
     assert_difference 'Status.length' do
-      s = create_status status: 'Not Credible'
+      s = create_status status: 'Not Credible', annotated: create_project_source
     end
     assert_equal 'not_credible', s.reload.status
   end

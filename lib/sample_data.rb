@@ -68,7 +68,11 @@ module SampleData
 
   def create_comment(options = {})
     options = { text: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
-    options[:annotated] = create_project_media unless options.has_key?(:annotated)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_source project: p
+    end
     c = Comment.new
     options.each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
@@ -90,10 +94,14 @@ module SampleData
 
   def create_tag(options = {})
     options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
-    options[:annotated] = create_project_media unless options.has_key?(:annotated)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_source project: p
+    end
     t = Tag.new
     options.each do |key, value|
-      t.send("#{key}=", value)
+      t.send("#{key}=", value) if t.respond_to?("#{key}=")
     end
     t.save!
     t
@@ -111,8 +119,12 @@ module SampleData
   end
 
   def create_status(options = {})
-    options = { status: 'verified', annotator: create_user, disable_es_callbacks: true }.merge(options)
-    options[:annotated] = create_project_media unless options.has_key?(:annotated)
+    options = { status: 'credible', annotator: create_user, disable_es_callbacks: true }.merge(options)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_source project: p
+    end
     s = Status.new
     options.each do |key, value|
       s.send("#{key}=", value) if s.respond_to?("#{key}=")
@@ -123,7 +135,11 @@ module SampleData
 
   def create_flag(options = {})
     options = { flag: 'Spam', annotator: create_user }.merge(options)
-    options[:annotated] = create_project_media unless options.has_key?(:annotated)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_media project: p
+    end
     f = Flag.new
     options.each do |key, value|
       f.send("#{key}=", value)
