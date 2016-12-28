@@ -122,7 +122,7 @@ class AnnotationTest < ActiveSupport::TestCase
   test "should get annotations from multiple types" do
     pm = create_project_media
     c = create_comment annotated: pm
-    s = create_status annotated: pm
+    s = create_status annotated: pm, status: 'verified'
     f = create_flag annotated: pm
     assert_equal 2, pm.annotations(['comment', 'flag']).size
   end

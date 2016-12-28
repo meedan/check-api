@@ -115,28 +115,23 @@ class GraphqlControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_graphql_create('media', { url: url, project_id: @project.id })
-  end
-
-  test "should create media with information" do
-    url = random_url
-    pender_url = CONFIG['pender_host'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    info = {title: 'title', description: 'description'}.to_json
-    assert_graphql_create('media', { url: url, project_id: @project.id, information: info })
     # test with empty URL
     assert_graphql_create('media', { url: '', quote: 'media quote' })
     assert_graphql_create('media', { quote: 'media quote' })
   end
 
-  test "should read medias" do
-    assert_graphql_read('media', 'url')
-    Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
-    assert_graphql_read('media', 'published')
-    assert_graphql_read('media', 'last_status')
+  test "should update media project information" do
+    #TODO test update title and description
   end
 
-  test "should read medias jsondata" do
+  test "should read medias" do
+    assert_graphql_read('media', 'url')
+    #Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
+    #assert_graphql_read('media', 'published')
+    #assert_graphql_read('media', 'last_status')
+  end
+
+  test "should read project media jsondata" do
     authenticate_with_user
     @request.headers.merge!({ 'origin': "http://#{@team.subdomain}.localhost:3333" })
     p = create_project team: @team
@@ -146,34 +141,24 @@ class GraphqlControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    create_project_media project: p, media: m
-    create_project_media project: p2, media: m
+    pm1 = create_project_media project: p, media: m
+    pm2 = create_project_media project: p2, media: m
     # Update media title and description with context p
-    m.project_id = p.id
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    m.information = info; m.save!
-    m.reload
+    pm1.information = info; pm1.save!
     # Update media title and description with context p2
-    m.project_id = p2.id
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    m.information = info; m.save!
-    m.reload
-    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { jsondata(context_id: #{p.id}) } }"
+    pm2.information = info; pm2.save!
+    query = "query GetById { project_media(id: #{pm1.id}) { jsondata } }"
     post :create, query: query
     assert_response :success
-    jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
+    jsondata = JSON.parse(@response.body)['data']['project_media']['jsondata']
     assert_equal 'Title A', JSON.parse(jsondata)['title']
-    query = "query GetById { media(ids: \"#{m.id},#{p2.id}\") { jsondata(context_id: #{p2.id}) } }"
+    query = "query GetById { project_media(id: #{pm2.id}) { jsondata } }"
     post :create, query: query
     assert_response :success
-    jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
+    jsondata = JSON.parse(@response.body)['data']['project_media']['jsondata']
     assert_equal 'Title B', JSON.parse(jsondata)['title']
-    # calling without context - should fallback to self.project if exists
-    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { jsondata() } }"
-    post :create, query: query
-    assert_response :success
-    jsondata = JSON.parse(@response.body)['data']['media']['jsondata']
-    assert_equal 'Title A', JSON.parse(jsondata)['title']
   end
 
   test "should destroy media" do
@@ -298,7 +283,7 @@ class GraphqlControllerTest < ActionController::TestCase
   # end
 
   test "should read collection from project media" do
-    assert_graphql_read_collection('media', { 'annotations' => 'content', 'tags' => 'tag', 'project' => 'title' }, 'DESC')
+    assert_graphql_read_collection('project_media', { 'annotations' => 'content', 'tags' => 'tag', 'project' => 'title' }, 'DESC')
   end
 
   test "should read collection from project" do

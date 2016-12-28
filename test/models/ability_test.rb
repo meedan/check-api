@@ -775,7 +775,7 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'editor'
     ability = Ability.new(u, t)
     p = create_project team: t
-    pm = create_project_source project: p
+    pm = create_project_media project: p
     t =  create_tag tag: 'media_tag', annotated: pm
     assert ability.can?(:create, t)
     assert ability.cannot?(:update, t)
@@ -1067,12 +1067,12 @@ class AbilityTest < ActiveSupport::TestCase
     assert a.cannot?(:destroy, tu2)
   end
 
-  test "should be able to tag source" do
+  test "should be able to tag project source" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u
     ability = Ability.new(u, t)
-    s = create_source user: u
+    s = create_project_source user: u
     t = create_tag tag: 'tag', annotator: u, annotated: s
     assert ability.can?(:create, t)
   end
