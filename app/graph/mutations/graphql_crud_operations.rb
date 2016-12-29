@@ -145,10 +145,8 @@ class GraphqlCrudOperations
       field name do
         type field_type
 
-        argument :context_id, types.Int
-
-        resolve -> (media, args, ctx) {
-          call_method_from_context(media, method.blank? ? name : method, args, ctx)
+        resolve -> (project_media, _args, _ctx) {
+          call_method_from_context(project_media, method.blank? ? name : method)
         }
       end
     end

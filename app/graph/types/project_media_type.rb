@@ -28,15 +28,25 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :project do
+    type -> { ProjectType }
+
+    resolve -> (project_media, _args, _ctx) {
+      project_media.project
+    }
+  end
+
   field :user do
     type -> { UserType }
+
     resolve -> (project_media, _args, _ctx) {
       project_media.user
     }
   end
 
   field :team do
-    type TeamType
+    type -> { TeamType }
+
     resolve ->(project_media, _args, _ctx) {
       project_media.project.team
     }
