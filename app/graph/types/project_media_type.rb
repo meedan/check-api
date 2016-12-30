@@ -12,6 +12,47 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :user_id, types.Int
   field :dbid, types.Int
   field :permissions, types.String
+
+  field :url do
+    type types.String
+
+    resolve -> (project_media, _args, _ctx) {
+      project_media.media.url
+    }
+  end
+
+  field :quote do
+    type types.String
+
+    resolve -> (project_media, _args, _ctx) {
+      project_media.media.quote
+    }
+  end
+
+  field :domain do
+    type types.String
+
+    resolve -> (project_media, _args, _ctx) {
+      project_media.media.domain
+    }
+  end
+
+  field :pusher_channel do
+    type types.String
+
+    resolve -> (project_media, _args, _ctx) {
+      project_media.media.pusher_channel
+    }
+  end
+
+  field :account do
+    type -> { AccountType }
+
+    resolve -> (project_media, _args, _ctx) {
+      project_media.media.account
+    }
+  end
+
   field :project do
     type -> { ProjectType }
 
@@ -25,14 +66,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (project_media, _args, _ctx) {
       project_media.media
-    }
-  end
-
-  field :project do
-    type -> { ProjectType }
-
-    resolve -> (project_media, _args, _ctx) {
-      project_media.project
     }
   end
 
@@ -72,6 +105,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
   instance_exec :jsondata, &GraphqlCrudOperations.field_with_context
   instance_exec :last_status, &GraphqlCrudOperations.field_with_context
   instance_exec :published, &GraphqlCrudOperations.field_with_context

@@ -201,9 +201,10 @@ module AnnotationBase
     self.entities.collect do |e|
       pm = ProjectMedia.where(id: e).last
       unless pm.nil?
-        media = pm.media
-        media.project_id = pm.project_id
-        objects << media
+        objects  << pm
+        #media = pm.media
+        #media.project_id = pm.project_id
+        #objects << media
       end
     end
     objects

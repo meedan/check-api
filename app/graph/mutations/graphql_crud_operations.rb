@@ -202,7 +202,7 @@ class GraphqlCrudOperations
         }
       end
 
-      connection :medias, -> { MediaType.connection_type } do
+      connection :medias, -> { ProjectMediaType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
           annotation.entity_objects
         }
