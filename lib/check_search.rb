@@ -28,13 +28,7 @@ class CheckSearch
     ids = self.search_result.map(&:id)
     items = ProjectMedia.where(id: ids)
     ids_sort = items.sort_by{|x| ids.index x.id.to_s}
-    results = []
-    ids_sort.each do |pm|
-      m = pm.media
-      m.project_id = pm.project_id
-      results << m
-    end
-    results
+    ids_sort.to_a
   end
 
   def number_of_results

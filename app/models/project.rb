@@ -63,15 +63,8 @@ class Project < ActiveRecord::Base
     project
   end
 
-  def eager_loaded_medias
-    self.medias.to_a.collect do |media|
-      media.project_id = self.id
-      media
-    end
-  end
-
   def medias_count
-    self.medias.count
+    self.project_medias.count
   end
 
   private
