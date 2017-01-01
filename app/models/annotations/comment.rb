@@ -55,8 +55,7 @@ class Comment < ActiveRecord::Base
     self.extract_check_urls.each do |url|
       match = url.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
       unless match.nil?
-        pm = ProjectMedia.where(project_id: match[1], media_id: match[2]).last
-        ids << pm.id unless pm.nil?
+        ids << match[2]
       end
     end
     self.entities = ids

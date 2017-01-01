@@ -271,18 +271,15 @@ class CommentTest < ActiveSupport::TestCase
     p1 = create_project team: t1
     p2 = create_project team: t1
     t2 = create_team subdomain: 'test2'
-    m1 = create_valid_media
-    pm1 = create_project_media project: p1, media: m1
-    m2 = create_valid_media
-    pm2 = create_project_media project: p2, media: m2
+    pm1 = create_project_media project: p1
+    pm2 = create_project_media project: p2
     p3 = create_project team: t2
-    m3 = create_valid_media
-    pm3 = create_project_media project: p3, media: m3
-    text = "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{m1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{m2.id} and http://test2.localhost:3333/project/1/media/#{m3.id} because they are nice"
+    pm3 = create_project_media project: p3
+    text = "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{pm1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{pm2.id} and http://test2.localhost:3333/project/1/media/#{pm3.id} because they are nice"
     c = create_comment text: text, annotated: pm1
-    assert_includes c.entity_objects, m1
-    assert_includes c.entity_objects, m2
-    refute_includes c.entity_objects, m3
+    assert_includes c.entity_objects, pm1
+    assert_includes c.entity_objects, pm2
+    refute_includes c.entity_objects, pm3
   end
 
   test "should create elasticsearch comment" do

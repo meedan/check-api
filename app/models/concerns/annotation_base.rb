@@ -197,17 +197,7 @@ module AnnotationBase
 
   # Supports only media for the time being
   def entity_objects
-    objects = []
-    self.entities.collect do |e|
-      pm = ProjectMedia.where(id: e).last
-      unless pm.nil?
-        objects  << pm
-        #media = pm.media
-        #media.project_id = pm.project_id
-        #objects << media
-      end
-    end
-    objects
+    ProjectMedia.where(id: self.entities).to_a
   end
 
   def method_missing(method, *args, &block)
