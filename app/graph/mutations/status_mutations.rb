@@ -6,7 +6,7 @@ module StatusMutations
     annotated_id: 'str',
     annotated_type: 'str'
   }
-    
+
   update_fields = {
     status: 'str',
     context_id: 'str',
@@ -16,5 +16,5 @@ module StatusMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('status', create_fields, update_fields, ['media', 'source'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('status', create_fields, update_fields, ['project_media', 'source'])
 end

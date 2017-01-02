@@ -35,7 +35,6 @@ MediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
 end
 
 

@@ -61,6 +61,12 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :projects, -> { ProjectType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      project_media.media.projects
+    }
+  end
+
   field :media do
     type -> { MediaType }
 
