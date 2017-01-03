@@ -75,6 +75,7 @@ class ActiveSupport::TestCase
     end
     ::Pusher.stubs(:trigger).returns(nil)
     Rails.unstub(:env)
+    User.current = Team.current = nil
   end
 
   # This will run after any test
