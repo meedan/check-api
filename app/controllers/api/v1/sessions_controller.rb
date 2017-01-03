@@ -5,7 +5,7 @@ class Api::V1::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
-    # super
+    User.current = nil
     self.resource = warden.authenticate!(auth_options)
     sign_in(resource_name, resource)
     User.current = current_api_user

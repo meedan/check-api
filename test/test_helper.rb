@@ -85,6 +85,7 @@ class ActiveSupport::TestCase
     WebMock.allow_net_connect!
     Time.unstub(:now)
     Rails.unstub(:env)
+    User.current = nil
   end
 
   def assert_queries(num = 1, &block)
