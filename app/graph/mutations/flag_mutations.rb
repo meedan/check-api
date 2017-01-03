@@ -6,7 +6,7 @@ module FlagMutations
     annotated_id: 'str',
     annotated_type: 'str'
   }
-    
+
   update_fields = {
     flag: 'str',
     context_id: 'str',
@@ -16,5 +16,5 @@ module FlagMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('flag', create_fields, update_fields, ['media', 'source'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('flag', create_fields, update_fields, ['project_media', 'source'])
 end

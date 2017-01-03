@@ -192,7 +192,7 @@ module AnnotationBase
   end
 
   def should_notify?
-    self.current_user.present? && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'Media'
+    self.current_user.present? && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'ProjectMedia'
   end
 
   # Supports only media for the time being

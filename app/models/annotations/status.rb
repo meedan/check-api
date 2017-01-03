@@ -6,12 +6,12 @@ class Status < ActiveRecord::Base
   field :status, String, presence: true
 
   validates_presence_of :status
-  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', nil] }
+  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', 'Source', nil] }
   validate :status_is_valid
 
   notifies_slack on: :save,
                  if: proc { |s| s.should_notify? },
-                 message: proc { |s| data = s.annotated.data; "*#{s.current_user.name}* changed the verification status on <#{s.origin}/project/#{s.annotated.project_id}/media/#{s.annotated.media_id}|#{data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
+                 message: proc { |s| data = s.annotated.data; "*#{s.current_user.name}* changed the verification status on <#{s.origin}/project/#{s.annotated.project_id}/media/#{s.annotated_id}|#{data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
                  channel: proc { |s| s.annotated.project.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
                  webhook: proc { |s| s.current_team.setting(:slack_webhook) }
 
@@ -33,8 +33,8 @@ class Status < ActiveRecord::Base
 
   def store_previous_status
     self.previous_annotated_status = self.annotated.last_status if self.annotated.respond_to?(:last_status)
-    obj = get_annotated_obj
-    self.previous_annotated_status ||= Status.default_id(obj, self.annotated.project) if self.annotated.respond_to?(:project)
+    annotated, context = get_annotated_and_context
+    self.previous_annotated_status ||= Status.default_id(annotated, context)
   end
 
   def previous_annotated_status
@@ -93,16 +93,21 @@ class Status < ActiveRecord::Base
 
   def status_is_valid
     if !self.annotated_type.blank?
-      obj = get_annotated_obj
-      context = self.annotated.project if self.annotated.respond_to?(:project)
-      values = Status.possible_values(obj, context)
+      annotated, context = get_annotated_and_context
+      values = Status.possible_values(annotated, context)
       errors.add(:base, 'Status not valid') unless values[:statuses].collect{ |s| s[:id] }.include?(self.status)
     end
   end
 
-  def get_annotated_obj
-    obj = self.annotated.media if self.annotated.respond_to?(:media)
-    obj = self.annotated.source if obj.nil? and self.annotated.respond_to?(:source)
-    obj
+  def get_annotated_and_context
+    if self.annotated_type == 'ProjectMedia' || self.annotated_type == 'ProjectSource'
+      annotated = self.annotated.media if self.annotated.respond_to?(:media)
+      annotated = self.annotated.source if obj.nil? and self.annotated.respond_to?(:source)
+      context = self.annotated.project if self.annotated.respond_to?(:project)
+    else
+      annotated = self.annotated
+      context = self.context
+    end
+    return annotated, context
   end
 end

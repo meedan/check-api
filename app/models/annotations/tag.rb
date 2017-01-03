@@ -8,7 +8,7 @@ class Tag < ActiveRecord::Base
 
   validates_presence_of :tag
   validates :data, uniqueness: { scope: [:annotated_type, :annotated_id] }, if: lambda { |t| t.id.blank? }
-  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', nil] }
+  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', 'Source', nil] }
 
   before_validation :normalize_tag, :store_full_tag
   after_save :add_update_elasticsearch_tag

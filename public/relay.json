@@ -12440,14 +12440,14 @@
               "deprecationReason": null
             },
             {
-              "name": "media",
+              "name": "project_media",
               "description": null,
               "args": [
 
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Media",
+                "name": "ProjectMedia",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -12907,14 +12907,14 @@
               "deprecationReason": null
             },
             {
-              "name": "media",
+              "name": "project_media",
               "description": null,
               "args": [
 
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Media",
+                "name": "ProjectMedia",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -13069,14 +13069,14 @@
               "deprecationReason": null
             },
             {
-              "name": "media",
+              "name": "project_media",
               "description": null,
               "args": [
 
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Media",
+                "name": "ProjectMedia",
                 "ofType": null
               },
               "isDeprecated": false,

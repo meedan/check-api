@@ -70,7 +70,7 @@ class TagTest < ActiveSupport::TestCase
   test "should create version when tag is created" do
     t = nil
     assert_difference 'PaperTrail::Version.count', 3 do
-      t = create_tag(tag: 'test', annotated: nil)
+      t = create_tag(tag: 'test', annotated: create_source)
     end
     assert_equal 1, t.versions.count
     v = t.versions.last

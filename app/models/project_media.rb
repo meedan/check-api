@@ -39,10 +39,10 @@ class ProjectMedia < ActiveRecord::Base
   def set_initial_media_status
     st = Status.new
     st.annotated = self
-    #st.context = self.project
     st.annotator = self.user
     st.status = Status.default_id(self.media, self.project)
     st.created_at = self.created_at
+    st.disable_es_callbacks = self.disable_es_callbacks
     st.save!
   end
 

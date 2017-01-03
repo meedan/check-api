@@ -102,7 +102,7 @@ class CommentTest < ActiveSupport::TestCase
   test "should create version when comment is created" do
     c = nil
     assert_difference 'PaperTrail::Version.count', 3 do
-      c = create_comment(text: 'test')
+      c = create_comment(text: 'test', annotated: create_source)
     end
     assert_equal 1, c.versions.count
     v = c.versions.last

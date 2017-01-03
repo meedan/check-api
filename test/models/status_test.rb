@@ -62,12 +62,12 @@ class StatusTest < ActiveSupport::TestCase
   test "should create version when status is created" do
     st = nil
     assert_difference 'PaperTrail::Version.count', 3 do
-      st = create_status(status: 'credible')
+      st = create_status(status: 'credible', annotated: create_source)
     end
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>["{}", "{\"status\"=>\"verified\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{st.annotator_id}"], "annotated_type"=>["", "ProjectMedia"], "annotated_id"=>["", "#{st.annotated_id}"], "annotation_type"=>["", "status"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>["{}", "{\"status\"=>\"credible\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{st.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{st.annotated_id}"], "annotation_type"=>["", "status"]}, JSON.parse(v.object_changes))
   end
 
   test "should create version when status is updated" do
@@ -178,11 +178,12 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: pm
+    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u,  annotated: pm
     assert s.sent_to_slack
     # claim report
-    m = create_claim_media project_id: p.id
-    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: m.project_media
+    m = create_claim_media
+    pm = create_project_media project: p, media: m
+    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: pm
     assert s.sent_to_slack
   end
 

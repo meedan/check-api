@@ -5,14 +5,14 @@ class Comment < ActiveRecord::Base
 
   field :text
   validates_presence_of :text
-  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', nil] }
+  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', 'Source', nil] }
 
   before_save :extract_check_entities
   after_save :add_update_elasticsearch_comment
 
   notifies_slack on: :save,
                  if: proc { |c| c.should_notify? },
-                 message: proc { |c| data = c.annotated.data; "*#{c.current_user.name}* added a note on <#{c.origin}/project/#{c.annotated.project_id}/media/#{c.annotated.media_id}|#{data['title']}>\n> #{c.text}" },
+                 message: proc { |c| data = c.annotated.data; "*#{c.current_user.name}* added a note on <#{c.origin}/project/#{c.annotated.project_id}/media/#{c.annotated_id}|#{data['title']}>\n> #{c.text}" },
                  channel: proc { |c| c.annotated.project.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
                  webhook: proc { |c| c.current_team.setting(:slack_webhook) }
 

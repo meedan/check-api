@@ -135,9 +135,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should notify Pusher in background" do
     Rails.stubs(:env).returns(:production)
+    t = create_team
+    p = create_project team:  t
     CheckdeskNotifications::Pusher::Worker.drain
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
-    create_project_media
+    create_project_media project: p
     assert_equal 2, CheckdeskNotifications::Pusher::Worker.jobs.size
     CheckdeskNotifications::Pusher::Worker.drain
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
