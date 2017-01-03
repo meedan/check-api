@@ -60,7 +60,7 @@ class ActiveSupport::TestCase
 
   def setup
     CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
-    Annotation.delete_all
+    [Annotation, Team, TeamUser].each{ |klass| klass.delete_all }
     [Media, Account, Source, User, Annotation].each{ |m| m.destroy_all }
     # create index
     MediaSearch.delete_index
@@ -75,7 +75,8 @@ class ActiveSupport::TestCase
     end
     ::Pusher.stubs(:trigger).returns(nil)
     Rails.unstub(:env)
-    User.current = Team.current = nil
+    User.stubs(:current).returns(nil)
+    Team.stubs(:current).returns(nil)
   end
 
   # This will run after any test
