@@ -71,15 +71,17 @@ class TeamUserTest < ActiveSupport::TestCase
   end
 
   test "should request to join team" do
+    TeamUser.delete_all
     u = create_user
     t = create_team
+    t2 = create_team
     with_current_user_and_team(u, t) do
       tu = create_team_user user: u, status: 'requested', team: t
       assert_raise RuntimeError do
         tu = create_team_user status: 'requested', team: t, user: create_user
       end
       assert_raise RuntimeError do
-        tu = create_team_user user: u, status: 'invited', team: create_team
+        tu = create_team_user user: u, status: 'invited', team: t2
       end
     end
   end
