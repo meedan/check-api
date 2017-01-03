@@ -13,9 +13,9 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
     resource.origin = request.headers['origin']
 
     begin
+      User.current = resource
       resource.save!
       sign_up(resource_name, resource)
-      User.current = resource
       render_success 'user', resource
     rescue ActiveRecord::RecordInvalid => e
       clean_up_passwords resource
@@ -30,9 +30,10 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
     self.resource = resource_class.to_adapter.get!(send(:"current_#{resource_name}").to_key)
 
     resource_updated = update_resource(resource, account_update_params)
+    User.current = resource
+
     if resource_updated
       sign_in resource, scope: resource_name, bypass_sign_in: true
-      User.current = resource
       render_success 'user', resource
     else
       clean_up_passwords resource

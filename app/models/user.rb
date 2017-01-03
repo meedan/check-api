@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
-  after_create :set_user, :set_image, :create_source_and_account, :send_welcome_email
+  after_create :set_image, :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
 
   mount_uploader :image, ImageUploader
@@ -177,10 +177,6 @@ class User < ActiveRecord::Base
         Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
       end
     end
-  end
-
-  def set_user
-    User.current = self
   end
 
   def set_token
