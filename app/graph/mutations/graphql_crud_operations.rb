@@ -44,7 +44,7 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.destroy(inputs, ctx, parents = [])
+  def self.destroy(inputs, _ctx, parents = [])
     type, id = NodeIdentification.from_global_id(inputs[:id])
     obj = type.constantize.find(id)
     obj.destroy
@@ -154,7 +154,7 @@ class GraphqlCrudOperations
       field :verification_statuses do
         type types.String
 
-        resolve ->(_obj, _args, ctx) {
+        resolve ->(_obj, _args, _ctx) {
           team = Team.current || Team.new
           team.verification_statuses(classname)
         }

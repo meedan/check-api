@@ -19,7 +19,7 @@ QueryType = GraphQL::ObjectType.define do
   field :me do
     type UserType
     description 'Information about the current user'
-    resolve -> (_obj, _args, ctx) do
+    resolve -> (_obj, _args, _ctx) do
       User.current 
     end
   end
@@ -45,7 +45,7 @@ QueryType = GraphQL::ObjectType.define do
     type PublicTeamType
     description 'Public information about the current team'
 
-    resolve -> (_obj, _args, ctx) do
+    resolve -> (_obj, _args, _ctx) do
       id = Team.current.blank? ? 0 : Team.current.id
       Team.find(id)
     end
@@ -90,8 +90,8 @@ QueryType = GraphQL::ObjectType.define do
 
     argument :query, !types.String
 
-    resolve -> (_obj, args, ctx) do
-       CheckSearch.new(args['query'])
+    resolve -> (_obj, args, _ctx) do
+      CheckSearch.new(args['query'])
     end
   end
 
