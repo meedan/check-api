@@ -16,62 +16,74 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t, status: 'banned'
-    assert_raise RuntimeError do
-      create_valid_media team: t, current_user: u, context_team: t
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        create_valid_media team: t
+      end
     end
   end
 
   test "non members should not read media in private team" do
     u = create_user
-    t = create_team current_user: create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     m = create_media team: t
     pu = create_user
-    pt = create_team current_user: pu, private: true
+    pt = create_team private: true
+    create_team_user user: pu, team: pt, role: 'owner'
     pm = create_media team: pt
-    Media.find_if_can(m.id, u, t)
+    with_current_user_and_team(u, t) { Media.find_if_can(m.id) }
     assert_raise CheckdeskPermissions::AccessDenied do
-      Media.find_if_can(pm.id, u, pt)
+      with_current_user_and_team(u, pt) { Media.find_if_can(pm.id) }
     end
-    Media.find_if_can(pm.id, pu, pt)
+    with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
     assert_raise CheckdeskPermissions::AccessDenied do
-      Media.find_if_can(pm.id, pu, pt)
+      with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
     end
   end
 
   test "should update and destroy media" do
     u = create_user
-    t = create_team current_user: u
-    p = create_project team: t, current_user: u
-    m = create_valid_media project_id: p.id, current_user: u
-    assert_nothing_raised RuntimeError do
-      m.current_user = u
-      m.save!
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+
+    m = nil
+    with_current_user_and_team(u, t) do
+      m = create_valid_media project_id: p.id
+      assert_nothing_raised RuntimeError do
+        m.save!
+      end
     end
+
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'journalist'
-    assert_nothing_raised RuntimeError do
-      m.current_user = u2
-      m.save!
+    with_current_user_and_team(u2, t) do
+      assert_nothing_raised RuntimeError do
+        m.save!
+      end
+      assert_raise RuntimeError do
+        m.destroy!
+      end
     end
-    assert_raise RuntimeError do
-      m.current_user = u2
-      m.destroy!
+
+    own_media = nil
+    with_current_user_and_team(u2, t) do
+      assert_nothing_raised RuntimeError do
+        own_media = create_valid_media project_id: p.id
+        own_media.save!
+      end
+      assert_raise RuntimeError do
+        own_media.destroy!
+      end
     end
-    own_media = create_valid_media project_id: p.id, user: u2, current_user: u2
-    own_media.current_user = u2
-    assert_nothing_raised RuntimeError do
-      own_media.current_user = u2
-      own_media.save!
-    end
-    assert_raise RuntimeError do
-      own_media.current_user = u2
-      own_media.destroy!
-    end
-    assert_nothing_raised RuntimeError do
-      m.current_user = u
-      m.destroy!
+
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised RuntimeError do
+        m.destroy!
+      end
     end
   end
 
@@ -228,8 +240,10 @@ class MediaTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
-    m = create_media project_id: p.id, current_user: u
-    assert_equal u, m.user
+    with_current_user_and_team(u, t) do
+      m = create_media project_id: p.id
+      assert_equal u, m.user
+    end
   end
 
   test "should assign to existing account" do
@@ -426,35 +440,35 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     m = create_valid_media project_id: p.id
-    m.context_team = t
-    m.current_user = u
     perm_keys = ["read Media", "update Media", "destroy Media", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+    
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+    
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+    
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
   end
 
   test "should journalist edit own status" do
@@ -463,10 +477,8 @@ class MediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t, user: create_user
     m = create_valid_media project_id: p.id, user: u
-    m.context_team = t
-    m.current_user = u
     m.project_id = p.id
-    assert JSON.parse(m.permissions)['create Status']
+    with_current_user_and_team(u, t) { assert JSON.parse(m.permissions)['create Status'] }
   end
 
   test "should create source for Flickr media" do

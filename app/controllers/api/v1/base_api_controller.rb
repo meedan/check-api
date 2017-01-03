@@ -64,6 +64,7 @@ module Api
         header = CONFIG['authorization_header'] || 'X-Token'
         token = request.headers[header].to_s
         user = User.where(token: token).last
+        User.current = user
         (token && user) ? sign_in(user, store: false) : authenticate_api_user!
       end
 

@@ -1,9 +1,9 @@
 class CheckSearch
 
-  def initialize(options, context_team = nil)
+  def initialize(options)
     # options include keywords, projects, tags, status
     @options = JSON.parse(options)
-    @options['team_id'] = context_team.id unless context_team.nil?
+    @options['team_id'] = Team.current.id unless Team.current.nil?
     # set sort options
     @options['sort'] = @options['sort'] ||= 'recent_added'
     @options['sort_type'] = @options['sort_type'] ||= 'desc'

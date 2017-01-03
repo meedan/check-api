@@ -8,6 +8,7 @@ class Api::V1::SessionsController < Devise::SessionsController
     # super
     self.resource = warden.authenticate!(auth_options)
     sign_in(resource_name, resource)
+    User.current = current_api_user
     render_success 'user', current_api_user
   end
 

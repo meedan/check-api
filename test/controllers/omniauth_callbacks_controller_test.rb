@@ -62,6 +62,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     ['https://twitter.com/test', 'https://facebook.com/654321'].each do |url|
       WebMock.stub_request(:get, CONFIG['pender_host'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"type":"profile"}}')
     end
+    User.current = nil
   end
 
   test "should redirect to root after Twitter authentication" do

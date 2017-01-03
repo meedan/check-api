@@ -77,34 +77,38 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user user: u, team: t
     p  = create_project team: t
     pc = create_comment
     p.add_annotation pc
-    pc.current_user = u
-    assert_equal ['read Comment', 'update Comment', 'destroy Comment'], JSON.parse(pc.permissions).keys
+    with_current_user_and_team(u, t) do
+      assert_equal ['read Comment', 'update Comment', 'destroy Comment'], JSON.parse(pc.permissions).keys
+    end
   end
 
   test "non members should not read annotations in private team" do
     u = create_user
-    t = create_team current_user: create_user
+    t = create_team
+    create_team_user team: t, user: u
     m = create_media team: t
     c = create_comment
     m.add_annotation c
     pu = create_user
-    pt = create_team current_user: pu, private: true
+    pt = create_team private: true
+    create_team_user team: pt, user: pu
     pm = create_media team: pt
     pc = create_comment
     pm.add_annotation pc
-    Comment.find_if_can(c.id, u, t)
+    with_current_user_and_team(u, t) { Comment.find_if_can(c.id) }
     assert_raise CheckdeskPermissions::AccessDenied do
-      Comment.find_if_can(pc.id, u, pt)
+      with_current_user_and_team(u, pt) { Comment.find_if_can(pc.id) }
     end
-    Comment.find_if_can(pc.id, pu, pt)
+    with_current_user_and_team(pu, pt) { Comment.find_if_can(pc.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
     assert_raise CheckdeskPermissions::AccessDenied do
-      Comment.find_if_can(pc.id, pu, pt)
+      with_current_user_and_team(pu, pt) { Comment.find_if_can(pc.id) }
     end
   end
 

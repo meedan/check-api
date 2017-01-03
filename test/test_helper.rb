@@ -43,6 +43,19 @@ class ActiveSupport::TestCase
     CONFIG.unstub(:[])
   end
 
+  def with_current_user_and_team(user = nil, team = nil)
+    Team.stubs(:current).returns(team)
+    User.stubs(:current).returns(user)
+    begin
+      yield if block_given?
+    rescue Exception => e
+      raise e
+    ensure
+      User.unstub(:current)
+      Team.unstub(:current)
+    end
+  end
+
   # This will run before any test
 
   def setup
@@ -56,8 +69,10 @@ class ActiveSupport::TestCase
     Rails.application.reload_routes!
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
-    @team = create_team
-    @project = create_project team: @team
+    with_current_user_and_team(nil, nil) do
+      @team = create_team
+      @project = create_project team: @team
+    end
     ::Pusher.stubs(:trigger).returns(nil)
     Rails.unstub(:env)
   end

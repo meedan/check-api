@@ -58,7 +58,7 @@ module MediaInformation
       em = em_none.dup
       em.annotator_id = em.annotator_type = nil
     end
-    em.annotator = self.current_user unless self.current_user.nil?
+    em.annotator = User.current unless User.current.nil?
     em.context = self.project
     em
   end

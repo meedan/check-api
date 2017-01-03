@@ -14,14 +14,14 @@ module CheckdeskPermissions
   end
 
   module ClassMethods
-    def find_if_can(id, current_user, context_team, ability = nil)
+    def find_if_can(id, ability = nil)
       id = id.id if id.is_a?(ActiveRecord::Base)
-      if current_user.nil?
+      if User.current.nil?
         self.find(id)
       else
         model = self.name == 'Project' ? self.eager_load(medias: { projects: :team }).order('medias.id DESC').where(id: id)[0] : self.find(id)
         raise ActiveRecord::RecordNotFound if model.nil?
-        ability ||= Ability.new(current_user, context_team)
+        ability ||= Ability.new
         if ability.can?(:read, model)
           model
         else
@@ -33,8 +33,8 @@ module CheckdeskPermissions
 
   def permissions(ability = nil, klass = self.class)
     perms = Hash.new
-    unless self.current_user.nil?
-      ability ||= Ability.new(self.current_user, self.context_team)
+    unless User.current.nil?
+      ability ||= Ability.new
       perms["read #{klass}"] = ability.can?(:read, self)
       perms["update #{klass}"] = ability.can?(:update, self)
       perms["destroy #{klass}"] = ability.can?(:destroy, self)
@@ -58,14 +58,12 @@ module CheckdeskPermissions
     create = self.get_create_permissions
     perms = Hash.new
     unless create[obj].nil?
-      ability ||= Ability.new(self.current_user, self.context_team)
+      ability ||= Ability.new
       create[obj].each do |data|
         model = data.new
-        model.current_user = self.current_user
-        model.context_team = self.context_team
 
-        if model.respond_to?(:team_id) and self.context_team.present?
-          model.team_id = self.context_team.id
+        if model.respond_to?(:team_id) and Team.current.present?
+          model.team_id = Team.current.id
         end
 
         model = self.set_project_for_permissions(model) if self.respond_to?(:project)
@@ -96,16 +94,16 @@ module CheckdeskPermissions
   private
 
   def check_ability
-    unless self.current_user.nil?
-      ability = Ability.new(self.current_user,  self.context_team)
+    unless User.current.nil?
+      ability = Ability.new
       op = self.new_record? ? :create : :update
       raise "No permission to #{op} #{self.class}" unless ability.can?(op, self)
     end
   end
 
   def check_destroy_ability
-    unless self.current_user.nil?
-      ability = Ability.new(self.current_user, self.context_team)
+    unless User.current.nil?
+      ability = Ability.new
       raise "No permission to delete #{self.class}" unless ability.can?(:destroy, self)
     end
   end

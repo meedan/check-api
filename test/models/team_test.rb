@@ -13,47 +13,45 @@ class TeamTest < ActiveSupport::TestCase
 
   test "non members should not access private team" do
     u = create_user
-    t = create_team current_user: create_user
+    t = create_team
     pu = create_user
-    pt = create_team current_user: pu, private: true
-    Team.find_if_can(t.id, u, t)
+    pt = create_team private: true
+    create_team_user team: pt, user: pu, role: 'owner'
+    with_current_user_and_team(u, t) { Team.find_if_can(t.id) }
     assert_raise CheckdeskPermissions::AccessDenied do
-      Team.find_if_can(pt.id, u, pt)
+      with_current_user_and_team(u, pt) { Team.find_if_can(pt.id) }
     end
-    Team.find_if_can(pt.id, pu, pt)
+    with_current_user_and_team(pu, pt) { Team.find_if_can(pt.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
     assert_raise CheckdeskPermissions::AccessDenied do
-      Team.find_if_can(pt.id, pu, pt)
+      with_current_user_and_team(pu, pt) { Team.find_if_can(pt.id) }
     end
     assert_raise CheckdeskPermissions::AccessDenied do
-      Team.find_if_can(pt, create_user, pt)
+      with_current_user_and_team(create_user, pt) { Team.find_if_can(pt) }
     end
   end
 
   test "should update and destroy team" do
     u = create_user
-    t = create_team current_user: u
-    t.current_user = u
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     t.name = 'meedan'; t.save!
     t.reload
     assert_equal t.name, 'meedan'
     # update team as editor
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'editor'
-    t.current_user = u2
-    t.name = 'meedan_mod'; t.save!
+    with_current_user_and_team(u2, t) { t.name = 'meedan_mod'; t.save! }
     t.reload
     assert_equal t.name, 'meedan_mod'
     assert_raise RuntimeError do
-      t.current_user = u2
-      t.destroy
+      with_current_user_and_team(u2, t) { t.destroy }
     end
     Rails.cache.clear
     tu.role = 'journalist'; tu.save!
     assert_raise RuntimeError do
-      t.current_user = u2
-      t.save!
+      with_current_user_and_team(u2, t) { t.save! }
     end
   end
 
@@ -130,13 +128,13 @@ class TeamTest < ActiveSupport::TestCase
   test "should add user to team on team creation" do
     u = create_user
     assert_difference 'TeamUser.count' do
-      create_team current_user: u
+      with_current_user_and_team(u, nil) { create_team }
     end
   end
 
   test "should not add user to team on team creation" do
     assert_no_difference 'TeamUser.count' do
-      create_team current_user: nil
+      create_team
     end
   end
 
@@ -189,7 +187,7 @@ class TeamTest < ActiveSupport::TestCase
     u = create_user
     assert_no_difference 'ActionMailer::Base.deliveries.size' do
       assert_difference 'TeamUser.count' do
-        create_team current_user: u
+        with_current_user_and_team(u, nil) { create_team }
       end
     end
   end
@@ -201,7 +199,8 @@ class TeamTest < ActiveSupport::TestCase
     u.current_team_id = t1.id
     u.save!
     assert_equal t1, u.reload.current_team
-    t2 = create_team current_user: u
+    t2 = nil
+    with_current_user_and_team(u, nil) { t2 = create_team }
     assert_equal t2, u.reload.current_team
   end
 
@@ -293,34 +292,34 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     team = create_team
-    team.context_team = t
-    team.current_user = u
     perm_keys = ["read Team", "update Team", "destroy Team", "create Project", "create Account", "create TeamUser", "create User", "create Contact"].sort
+
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+    
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+    
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+    
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
   end
 
   test "should have custom verification statuses" do

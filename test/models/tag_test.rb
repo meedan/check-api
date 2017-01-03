@@ -21,7 +21,9 @@ class TagTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media project_id: p.id, user: u
     assert_difference 'Tag.length' do
-      create_tag tag: 'media_tag', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      with_current_user_and_team(u, t) do
+        create_tag tag: 'media_tag', context: p, annotated: m, annotator: u
+      end
     end
   end
 
@@ -173,9 +175,11 @@ class TagTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2
-    m = create_valid_media team: t, current_user: u2
-    t = create_tag annotated: m, annotator: nil, current_user: u2
-    assert_equal u2, t.annotator
+    m = create_valid_media team: t, user: u2
+    with_current_user_and_team(u2, t) do
+      t = create_tag annotated: m, annotator: nil
+      assert_equal u2, t.annotator
+    end
   end
 
   test "should set not annotator if set" do
@@ -183,9 +187,11 @@ class TagTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2
-    m = create_valid_media team: t, current_user: u2
-    t = create_tag annotated: m, annotator: u1, current_user: u2
-    assert_equal u1, t.annotator
+    m = create_valid_media team: t, user: u2
+    with_current_user_and_team(u2, t) do
+      t = create_tag annotated: m, annotator: u1
+      assert_equal u1, t.annotator
+    end
   end
 
   test "should not have same tag applied to same object" do

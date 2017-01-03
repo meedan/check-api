@@ -20,7 +20,7 @@ QueryType = GraphQL::ObjectType.define do
     type UserType
     description 'Information about the current user'
     resolve -> (_obj, _args, ctx) do
-      ctx[:current_user]
+      User.current 
     end
   end
 
@@ -32,8 +32,8 @@ QueryType = GraphQL::ObjectType.define do
     argument :id, types.ID
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
-      if tid === 0 && !ctx[:context_team].blank?
-        tid = ctx[:context_team].id
+      if tid === 0 && !Team.current.blank?
+        tid = Team.current.id
       end
       GraphqlCrudOperations.load_if_can(Team, tid, ctx)
     end
@@ -46,7 +46,7 @@ QueryType = GraphQL::ObjectType.define do
     description 'Public information about the current team'
 
     resolve -> (_obj, _args, ctx) do
-      id = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+      id = Team.current.blank? ? 0 : Team.current.id
       Team.find(id)
     end
   end
@@ -58,7 +58,7 @@ QueryType = GraphQL::ObjectType.define do
     argument :id, !types.ID
 
     resolve -> (_obj, args, ctx) do
-      tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+      tid = Team.current.blank? ? 0 : Team.current.id
       project = Project.where(id: args['id'], team_id: tid).last
       id = project.nil? ? 0 : project.id
       GraphqlCrudOperations.load_if_can(Project, id, ctx)
@@ -73,7 +73,7 @@ QueryType = GraphQL::ObjectType.define do
 
     resolve -> (_obj, args, ctx) do
       mid, pid = args['ids'].split(',').map(&:to_i)
-      tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+      tid = Team.current.blank? ? 0 : Team.current.id
       project = Project.where(id: pid, team_id: tid).last
       pid = project.nil? ? 0 : project.id
       project_media = ProjectMedia.where(project_id: pid, media_id: mid).last
@@ -91,7 +91,7 @@ QueryType = GraphQL::ObjectType.define do
     argument :query, !types.String
 
     resolve -> (_obj, args, ctx) do
-       CheckSearch.new(args['query'], ctx[:context_team])
+       CheckSearch.new(args['query'])
     end
   end
 
