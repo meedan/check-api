@@ -65,6 +65,11 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     User.current = nil
   end
 
+  def teardown
+    super
+    User.current = nil
+  end
+
   test "should redirect to root after Twitter authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
     get :twitter

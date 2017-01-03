@@ -130,9 +130,12 @@ class Ability
   def authenticated_perms
     can :create, Team
     can :create, TeamUser, :user_id => @user.id, status: ['member', 'requested']
+
+    # Permissions for registration and login
     can :create, Source, :user_id => @user.id
     can :update, User, :id => @user.id
     can :create, Account, :user_id => @user.id
+    can :create, Embed, :annotated_id => @user.account_ids
   end
 
   # Extra permissions for all users
