@@ -75,8 +75,7 @@ class ActiveSupport::TestCase
     end
     ::Pusher.stubs(:trigger).returns(nil)
     Rails.unstub(:env)
-    User.stubs(:current).returns(nil)
-    Team.stubs(:current).returns(nil)
+    User.current = Team.current = nil
   end
 
   # This will run after any test
