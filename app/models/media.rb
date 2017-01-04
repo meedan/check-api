@@ -32,6 +32,11 @@ class Media < ActiveRecord::Base
     mapping_ids[value]
   end
 
+  def pm_dbid(context)
+    pm = self.project_medias.find_by(:project_id => context.id) unless context.nil?
+    pm.nil? ? 0 : pm.id
+  end
+
   def project_media(context = nil)
     context = self.get_media_context(context)
     self.project_medias.find_by(:project_id => context.id) unless context.nil?

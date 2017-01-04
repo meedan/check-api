@@ -35,6 +35,14 @@ MediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-end
+  field :pm_dbid do
+    type types.Int
+    #argument :context_id, types.Int
 
+    resolve ->(media, _args, ctx) {
+      media.pm_dbid(ctx[:context_project])
+    }
+  end
+
+end
 

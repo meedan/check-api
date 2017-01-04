@@ -7,7 +7,7 @@ module AnnotationMutations
     annotated_id: 'str',
     annotated_type: 'str'
   }
-    
+
   update_fields = {
     content: 'str',
     annotation_type: 'str',
@@ -18,5 +18,5 @@ module AnnotationMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('annotation', create_fields, update_fields, ['source', 'media', 'project'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('annotation', create_fields, update_fields, ['source', 'project_media', 'project'])
 end
