@@ -129,7 +129,7 @@ module AnnotationBase
     self.annotated
   end
 
-  def media
+  def project_media
     self.annotated
   end
 
