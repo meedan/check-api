@@ -120,15 +120,25 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('media', { quote: 'media quote' })
   end
 
-  test "should update media project information" do
-    #TODO test update title and description
-  end
-
   test "should read medias" do
     assert_graphql_read('media', 'url')
-    #Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
-    #assert_graphql_read('media', 'published')
-    #assert_graphql_read('media', 'last_status')
+    assert_graphql_read('media', 'quote')
+  end
+
+  test "should create project media" do
+    p = create_project team: @team
+    m = create_valid_media
+    assert_graphql_create('project_media', { media_id: m.id, project_id: p.id })
+  end
+
+  test "should read project medias" do
+    ProjectMedia.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
+    assert_graphql_read('project_media', 'published')
+    assert_graphql_read('project_media', 'last_status')
+  end
+
+  test "should update project media" do
+    #TODO
   end
 
   test "should read project media jsondata" do
@@ -278,7 +288,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read collection from source" do
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
-                                               'annotations' => 'content', 'medias' => 'url', 'collaborators' => 'name',
+                                               'annotations' => 'content', 'collaborators' => 'name',
                                                'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
   end
 
@@ -481,22 +491,22 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response :success
   end
-  # TODO: fix me after refactor
-  # test "should get permissions for child objects" do
-  #   u = create_user
-  #   authenticate_with_user(u)
-  #   t = create_team subdomain: 'team'
-  #   create_team_user user: u, team: t
-  #   p = create_project team: t
-  #   pm = create_project_media project: p
-  #   create_comment annotated: pm, annotator: u
-  #   query = "query GetById { project(id: \"#{p.id}\") { medias_count, medias(first: 1) { edges { node { permissions } } } } }"
-  #   @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
-  #   post :create, query: query
-  #   assert_response :success
-  #   pp JSON.parse(@response.body)
-  #   assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['medias']['edges'][0]['node']['permissions']
-  # end
+
+  test "should get permissions for child objects" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team subdomain: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pm = create_project_media project: p
+    create_comment annotated: pm, annotator: u
+    query = "query GetById { project(id: \"#{p.id}\") { medias_count, medias(first: 1) { edges { node { permissions } } } } }"
+    @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
+    post :create, query: query
+    assert_response :success
+    pp JSON.parse(@response.body)
+    assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['medias']['edges'][0]['node']['permissions']
+  end
 
   test "should get team with statuses" do
     u = create_user
