@@ -124,7 +124,7 @@ class EmbedTest < ActiveSupport::TestCase
   test "should create elasticsearch embed" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media information: {title: 'media title'}.to_json
+    m = create_valid_media embed_data: {title: 'media title'}.to_json
     pm = create_project_media media: m, project: p
     sleep 1
     result = MediaSearch.find(pm.id)
@@ -134,9 +134,9 @@ class EmbedTest < ActiveSupport::TestCase
   test "should update elasticsearch embed" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media information: {title: 'media title'}.to_json
+    m = create_valid_media embed_data: {title: 'media title'}.to_json
     pm = create_project_media media: m, project: p
-    m.information = {title: 'new title'}.to_json
+    m.embed_data = {title: 'new title'}.to_json
     m.save!
     result = MediaSearch.find(pm.id)
     assert_equal 'new title', result.title

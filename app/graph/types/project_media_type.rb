@@ -107,7 +107,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :tags, -> { TagType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
-      call_method_from_context(project_media, :tags)
+      project_media.get_annotations('tag')
     }
   end
 
@@ -115,7 +115,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.data.to_json
+      project_media.embed.to_json
     }
   end
 
@@ -131,7 +131,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.published
+      project_media.created_at.to_i.to_s
     }
   end
 

@@ -154,7 +154,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal Status.default_id(m, p), m.project_media.annotations('status').last.status
   end
 
-  test "should update project media information" do
+  test "should update project media embed data" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
@@ -165,19 +165,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p1, media: m
     pm2 = create_project_media project: p2, media: m
     # fetch data (without overridden)
-    data = pm1.data
+    data = pm1.embed
     assert_equal 'test media', data['title']
     assert_equal 'add desc', data['description']
     # Update media title and description for pm1
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm1.information = info; pm1.save!
+    pm1.embed_data = info; pm1.save!
     info = {title: 'Title AA', description: 'Desc AA'}.to_json
-    pm1.information = info;  pm1.save!
+    pm1.embed_data = info;  pm1.save!
     # Update media title and description for pm2
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    pm2.information = info;  pm2.save!
+    pm2.embed_data = info;  pm2.save!
     info = {title: 'Title BB', description: 'Desc BB'}.to_json
-    pm2.information = info;  pm2.save!
+    pm2.embed_data = info;  pm2.save!
     # fetch data for pm1
     data = pm1.data
     assert_equal 'Title AA', data['title']

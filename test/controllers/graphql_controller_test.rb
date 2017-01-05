@@ -155,10 +155,10 @@ class GraphqlControllerTest < ActionController::TestCase
     pm2 = create_project_media project: p2, media: m
     # Update media title and description with context p
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm1.information = info; pm1.save!
+    pm1.embed_data = info; pm1.save!
     # Update media title and description with context p2
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    pm2.information = info; pm2.save!
+    pm2.embed_data = info; pm2.save!
     query = "query GetById { project_media(id: #{pm1.id}) { jsondata } }"
     post :create, query: query
     assert_response :success
@@ -614,7 +614,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_equal [pm.id, pm2.id], m_ids.sort
     assert_equal [p.id, p2.id], p_ids.sort
-    pm2.information= {description: 'new_description'}.to_json; pm2.save!
+    pm2.embed_data= {description: 'new_description'}.to_json; pm2.save!
     sleep 1
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, jsondata } } } } }'
     post :create, query: query
