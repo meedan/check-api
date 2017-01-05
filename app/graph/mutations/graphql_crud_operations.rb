@@ -140,18 +140,6 @@ class GraphqlCrudOperations
     end
   end
 
-  def self.field_with_context
-    proc do |name, field_type = types.String, method = nil|
-      field name do
-        type field_type
-
-        resolve -> (project_media, _args, _ctx) {
-          call_method_from_context(project_media, method.blank? ? name : method)
-        }
-      end
-    end
-  end
-
   def self.field_verification_statuses
     proc do |classname|
       field :verification_statuses do

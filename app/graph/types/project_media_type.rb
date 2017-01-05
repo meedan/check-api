@@ -93,7 +93,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :annotations, -> { AnnotationType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
-      project_media.cached_annotations(annotation_types)
+      project_media.get_annotations(annotation_types)
     }
   end
 
@@ -101,7 +101,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.Int
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.cached_annotations(annotation_types).size
+      project_media.get_annotations(annotation_types).size
     }
   end
 
@@ -111,10 +111,31 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :jsondata do
+    type types.String
+
+    resolve ->(project_media, _args, _ctx) {
+      project_media.data.to_json
+    }
+  end
+
+  field :last_status do
+    type types.String
+
+    resolve ->(project_media, _args, _ctx) {
+      project_media.last_status
+    }
+  end
+
+  field :published do
+    type types.String
+
+    resolve ->(project_media, _args, _ctx) {
+      project_media.published
+    }
+  end
+
   instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
-  instance_exec :jsondata, &GraphqlCrudOperations.field_with_context
-  instance_exec :last_status, &GraphqlCrudOperations.field_with_context
-  instance_exec :published, &GraphqlCrudOperations.field_with_context
 
 # End of fields
 end
@@ -123,6 +144,3 @@ def annotation_types
   ['comment', 'status', 'tag', 'flag']
 end
 
-def call_method_from_context(project_media, method)
-  project_media.send(method)
-end

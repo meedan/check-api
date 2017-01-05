@@ -504,7 +504,6 @@ class GraphqlControllerTest < ActionController::TestCase
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success
-    pp JSON.parse(@response.body)
     assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['medias']['edges'][0]['node']['permissions']
   end
 
