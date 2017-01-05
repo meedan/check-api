@@ -132,7 +132,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read project medias" do
-    ProjectMedia.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
+    Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
     assert_graphql_read('project_media', 'published')
     assert_graphql_read('project_media', 'last_status')
   end
@@ -141,7 +141,7 @@ class GraphqlControllerTest < ActionController::TestCase
     #TODO
   end
 
-  test "should read project media jsondata" do
+  test "should read project media embed" do
     authenticate_with_user
     @request.headers.merge!({ 'origin': "http://#{@team.subdomain}.localhost:3333" })
     p = create_project team: @team
@@ -159,16 +159,16 @@ class GraphqlControllerTest < ActionController::TestCase
     # Update media title and description with context p2
     info = {title: 'Title B', description: 'Desc B'}.to_json
     pm2.embed_data = info; pm2.save!
-    query = "query GetById { project_media(id: #{pm1.id}) { jsondata } }"
+    query = "query GetById { project_media(id: #{pm1.id}) { embed } }"
     post :create, query: query
     assert_response :success
-    jsondata = JSON.parse(@response.body)['data']['project_media']['jsondata']
-    assert_equal 'Title A', JSON.parse(jsondata)['title']
-    query = "query GetById { project_media(id: #{pm2.id}) { jsondata } }"
+    embed = JSON.parse(@response.body)['data']['project_media']['embed']
+    assert_equal 'Title A', JSON.parse(embed)['title']
+    query = "query GetById { project_media(id: #{pm2.id}) { embed } }"
     post :create, query: query
     assert_response :success
-    jsondata = JSON.parse(@response.body)['data']['project_media']['jsondata']
-    assert_equal 'Title B', JSON.parse(jsondata)['title']
+    embed = JSON.parse(@response.body)['data']['project_media']['embed']
+    assert_equal 'Title B', JSON.parse(embed)['title']
   end
 
   test "should destroy media" do
@@ -616,12 +616,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal [p.id, p2.id], p_ids.sort
     pm2.embed_data= {description: 'new_description'}.to_json; pm2.save!
     sleep 1
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, jsondata } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, embed } } } } }'
     post :create, query: query
     assert_response :success
     result = {}
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      result[id["node"]["project_id"]] = JSON.parse(id["node"]["jsondata"])
+      result[id["node"]["project_id"]] = JSON.parse(id["node"]["embed"])
     end
     assert_equal 'new_description', result[p2.id]["description"]
     assert_equal 'search_desc', result[p.id]["description"]

@@ -111,7 +111,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :jsondata do
+  field :embed do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {

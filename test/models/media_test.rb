@@ -79,7 +79,7 @@ class MediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     media = create_valid_media project_id: p.id
-    assert_not_empty media.project_media.data
+    assert_not_empty media.project_media.embed
   end
 
   test "should get user id" do
@@ -368,7 +368,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should add title for claim medias" do
     p = create_project team: create_team
     m = create_claim_media project_id: p.id, quote: 'media quote'
-    d = m.project_media.data
+    d = m.project_media.embed
     assert_equal 'media quote', d['title']
   end
 

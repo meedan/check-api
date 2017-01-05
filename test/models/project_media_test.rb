@@ -179,11 +179,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     info = {title: 'Title BB', description: 'Desc BB'}.to_json
     pm2.embed_data = info;  pm2.save!
     # fetch data for pm1
-    data = pm1.data
+    data = pm1.embed
     assert_equal 'Title AA', data['title']
     assert_equal 'Desc AA', data['description']
     # fetch data for pm2
-    data = pm2.data
+    data = pm2.embed
     assert_equal 'Title BB', data['title']
     assert_equal 'Desc BB', data['description']
   end
