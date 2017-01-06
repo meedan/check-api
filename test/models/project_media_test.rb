@@ -127,7 +127,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should notify Slack when project media is created" do
     t = create_team subdomain: 'test'
     u = create_user
-    create_team_user team: t, user: u
+    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     with_current_user_and_team(u, t) do
@@ -226,32 +226,31 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get permissions" do
     u = create_user
     t = create_team current_user: u
+    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
     perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    User.stubs(:current).returns(u)
+    Team.stubs(:current).returns(t)
     # load permissions as owner
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
     # load as editor
-    tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    pm.current_user = u.reload
+    tu.update_column(:role, 'editor')
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
     # load as editor
-    tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    pm.current_user = u.reload
+    tu.update_column(:role, 'editor')
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
     # load as journalist
-    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    pm.current_user = u.reload
+    tu.update_column(:role, 'journalist')
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
     # load as contributor
-    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    pm.current_user = u.reload
+    tu.update_column(:role, 'contributor')
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
     # load as authenticated
-    tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    tu.delete
-    pm.current_user = u.reload
+    tu.update_column(:team_id, nil)
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    User.unstub(:current)
+    Team.unstub(:current)
   end
 
   test "should journalist edit own status" do

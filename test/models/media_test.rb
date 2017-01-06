@@ -385,10 +385,9 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'journalist'
-    p = create_project team: t, user: create_user
-    m = create_valid_media project_id: p.id, user: u
-    m.project_id = p.id
-    with_current_user_and_team(u, t) { assert JSON.parse(m.permissions)['create Status'] }
+    p = create_project team: t
+    pm = create_project_media project: p, user: u
+    with_current_user_and_team(u, t) { assert JSON.parse(pm.permissions)['create Status'] }
   end
 
   test "should create source for Flickr media" do

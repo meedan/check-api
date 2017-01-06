@@ -15,10 +15,11 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'contributor'
     p = create_project team: t
-    m = create_valid_media current_user: u
-    pm = create_project_media project: p, media: m, current_user: u
-    assert_difference 'Comment.length' do
-      create_comment annotated: pm, current_user: u, annotator: u
+    pm = create_project_media project: p, current_user: u
+    with_current_user_and_team(u, t) do
+      assert_difference 'Comment.length' do
+        create_comment annotated: pm, annotator: u
+      end
     end
   end
 
@@ -26,19 +27,22 @@ class CommentTest < ActiveSupport::TestCase
     u = create_user
     t = create_team current_user: u
     p = create_project team: t
-    m = create_valid_media current_user: u
-    pm = create_project_media project: p, media: m,  current_user: u
+    pm = create_project_media project: p, user: u
     # create a comment with contributor user
     cu = create_user
     create_team_user team: t, user: cu, role: 'contributor'
-    assert_difference 'Comment.count' do
-      create_comment annotated: pm, current_user: cu, annotator: cu
+    with_current_user_and_team(cu, t) do
+      assert_difference 'Comment.count' do
+        create_comment annotated: pm, annotator: cu
+      end
     end
     # create a comment with journalist user
     ju = create_user
     create_team_user team: t, user: ju, role: 'journalist'
-    assert_difference 'Comment.count' do
-      create_comment annotated: pm, current_user: ju, annotator: ju
+    with_current_user_and_team(ju, t) do
+      assert_difference 'Comment.count' do
+        create_comment annotated: pm, current_user: ju, annotator: ju
+      end
     end
   end
 
@@ -177,7 +181,7 @@ class CommentTest < ActiveSupport::TestCase
     create_team_user team: t, user: u2, role: 'contributor'
 
     with_current_user_and_team(u2, t) do
-      c = create_comment annotator: nil
+      c = create_comment annotator: nil, annotated: create_source
       assert_equal u2, c.annotator
     end
   end
@@ -247,11 +251,10 @@ class CommentTest < ActiveSupport::TestCase
   test "should notify on Slack when comment is created" do
     t = create_team subdomain: 'test'
     u = create_user
-    create_team_user team: t, user: u
+    create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
+    pm = create_project_media project: p
     with_current_user_and_team(u, t) do
       c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
       assert c.sent_to_slack

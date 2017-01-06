@@ -290,8 +290,6 @@ module SampleData
     user = options.has_key?(:user) ? options[:user] : create_user
     pm.project_id = options[:project_id] || project.id
     pm.media_id = options[:media_id] || media.id
-    pm.media = media if media
-    pm.current_user = options[:current_user] if options.has_key?(:current_user)
     pm.user_id = options[:user_id] || user.id
     pm.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     pm.save!

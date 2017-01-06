@@ -137,7 +137,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read project medias" do
     Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
     assert_graphql_read('project_media', 'published')
-    assert_graphql_read('project_media', 'last_status')
+    #assert_graphql_read('project_media', 'last_status')
   end
 
   test "should update project media" do
