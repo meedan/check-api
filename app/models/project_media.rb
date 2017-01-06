@@ -11,7 +11,7 @@ class ProjectMedia < ActiveRecord::Base
   after_update :set_embed_data
 
   notifies_slack on: :create,
-                 if: proc { |pm| m = pm.media; m.current_user.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
+                 if: proc { |pm| m = pm.media; User.current.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
                  message: proc { |pm| pm.slack_notification_message },
                  channel: proc { |pm| m = pm.media; m.project.setting(:slack_channel) || m.current_team.setting(:slack_channel) },
                  webhook: proc { |pm| m = pm.media; m.current_team.setting(:slack_webhook) }
@@ -150,7 +150,7 @@ class ProjectMedia < ActiveRecord::Base
       em.annotator_id = em.annotator_type = nil
     end
     em.annotated = self
-    em.annotator = self.current_user unless self.current_user.nil?
+    em.annotator = User.current unless User.current.nil?
     em
   end
 

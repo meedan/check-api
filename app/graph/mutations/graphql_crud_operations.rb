@@ -23,8 +23,6 @@ class GraphqlCrudOperations
 
   def self.create(type, inputs, ctx, parents = [])
     obj = type.camelize.constantize.new
-    obj.current_user = ctx[:current_user]
-    obj.context_team = ctx[:context_team]
     obj.origin = ctx[:origin] if obj.respond_to?('origin=')
 
     attrs = inputs.keys.inject({}) do |memo, key|
@@ -46,11 +44,9 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.destroy(inputs, ctx, parents = [])
+  def self.destroy(inputs, _ctx, parents = [])
     type, id = NodeIdentification.from_global_id(inputs[:id])
     obj = type.constantize.find(id)
-    obj.current_user = ctx[:current_user]
-    obj.context_team = ctx[:context_team]
     obj.destroy
 
     ret = { deletedId: inputs[:id] }
@@ -130,7 +126,6 @@ class GraphqlCrudOperations
     GraphQL::ObjectType.define do
       field :permissions, types.String do
         resolve -> (obj, _args, ctx) {
-          obj.current_user = ctx[:current_user]
           obj.project_id ||= ctx[:context_project].id if obj.is_a?(Media) && ctx[:context_project].present?
           obj.permissions(ctx[:ability])
         }
@@ -145,8 +140,8 @@ class GraphqlCrudOperations
       field :verification_statuses do
         type types.String
 
-        resolve ->(_obj, _args, ctx) {
-          team = ctx[:context_team] || Team.new
+        resolve ->(_obj, _args, _ctx) {
+          team = Team.current || Team.new
           team.verification_statuses(classname)
         }
       end
@@ -173,7 +168,6 @@ class GraphqlCrudOperations
 
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
-          annotation.current_user = ctx[:current_user]
           annotation.permissions(ctx[:ability], annotation.annotation_type.camelize.constantize)
         }
       end
@@ -199,9 +193,7 @@ class GraphqlCrudOperations
   end
 
   def self.load_if_can(klass, id, ctx)
-    obj = klass.find_if_can(id, ctx[:current_user], ctx[:context_team], ctx[:ability])
-    obj.current_user = ctx[:current_user]
-    obj.context_team = ctx[:context_team]
+    obj = klass.find_if_can(id, ctx[:ability])
     obj
   end
 end

@@ -7,6 +7,9 @@ class GraphqlControllerTest < ActionController::TestCase
     @url = 'https://www.youtube.com/user/MeedanTube'
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    User.unstub(:current)
+    Team.unstub(:current)
+    User.current = nil
   end
 
   test "should not access GraphQL if not authenticated" do
@@ -648,7 +651,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
-    assert_queries (2 * n - 4) do
+    assert_queries (2 * n - 1) do
       post :create, query: query
     end
 

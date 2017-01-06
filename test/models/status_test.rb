@@ -134,9 +134,11 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     create_team_user team: t, user: u, role: 'editor'
-    m = create_valid_media project_id: p.id, current_user: u
-    st = create_status annotated: m.project_media, annotator: nil, current_user: u, status: 'false'
-    assert_equal u, st.annotator
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      st = create_status annotated: pm, annotator: nil, current_user: u, status: 'false'
+      assert_equal u, st.annotator
+    end
   end
 
   test "should not set annotator if set" do
@@ -176,15 +178,17 @@ class StatusTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u,  annotated: pm
-    assert s.sent_to_slack
-    # claim report
-    m = create_claim_media
-    pm = create_project_media project: p, media: m
-    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: pm
-    assert s.sent_to_slack
+    with_current_user_and_team(u, t) do
+      m = create_valid_media
+      pm = create_project_media project: p, media: m
+      s = create_status status: 'false', origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert s.sent_to_slack
+      # claim report
+      m = create_claim_media project_id: p.id
+      pm = create_project_media project: p, media: m
+      s = create_status status: 'false', origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert s.sent_to_slack
+    end
   end
 
   test "should validate status" do
@@ -237,14 +241,16 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
+    Team.stubs(:current).returns(t)
     # Ticket #5373
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', annotated: pm, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     m.user = u; m.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', annotated: pm, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
+    Team.unstub(:current)
   end
 
   test "journalist should change status of own project" do
@@ -254,14 +260,16 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
+    Team.stubs(:current).returns(t)
     # Ticket #5373
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', annotated: pm, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     p.user = u; p.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', annotated: pm, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
+    Team.unstub(:current)
   end
 
   test "should normalize status" do

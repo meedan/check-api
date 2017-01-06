@@ -51,30 +51,38 @@ class TeamUserTest < ActiveSupport::TestCase
 
   test "non members should not read team user in private team" do
     u = create_user
-    t = create_team current_user: create_user
+    t = create_team
+    create_team_user team: t, user: create_user, role: 'owner'
     tu = t.team_users.last
     pu = create_user
-    pt = create_team current_user: pu, private: true
+    pt = create_team private: true
+    create_team_user team: pt, user: pu, role: 'owner'
     ptu = pt.team_users.last
-    TeamUser.find_if_can(tu.id, u, t)
+    
+    with_current_user_and_team(u, t) { TeamUser.find_if_can(tu.id) }
     assert_raise CheckdeskPermissions::AccessDenied do
-      TeamUser.find_if_can(ptu.id, u, pt)
+      with_current_user_and_team(u, pt) { TeamUser.find_if_can(ptu.id) }
     end
-    TeamUser.find_if_can(ptu.id, pu, pt)
+    with_current_user_and_team(pu, pt) { TeamUser.find_if_can(ptu.id) }
     ptu.status = 'requested'; ptu.save!
     assert_raise CheckdeskPermissions::AccessDenied do
-      TeamUser.find_if_can(ptu.reload.id, pu.reload, pt)
+      with_current_user_and_team(pu.reload, pt) { TeamUser.find_if_can(ptu.reload.id) }
     end
   end
 
   test "should request to join team" do
+    TeamUser.delete_all
     u = create_user
-    tu = create_team_user user: u, current_user: u, status: 'requested'
-    assert_raise RuntimeError do
-      tu = create_team_user current_user: u, status: 'requested'
-    end
-    assert_raise RuntimeError do
-      tu = create_team_user user: u, current_user: u, status: 'invited'
+    t = create_team
+    t2 = create_team
+    with_current_user_and_team(u, t) do
+      tu = create_team_user user: u, status: 'requested', team: t
+      assert_raise RuntimeError do
+        tu = create_team_user status: 'requested', team: t, user: create_user
+      end
+      assert_raise RuntimeError do
+        tu = create_team_user user: u, status: 'invited', team: t2
+      end
     end
   end
 
@@ -82,30 +90,33 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
-    tu = create_team_user team: t, current_user: u, status: 'invited', role: 'contributor'
-    assert_raise RuntimeError do
-      create_team_user team: t, current_user: u, status: 'invited', role: 'owner'
-    end
-    tu.current_user = u
-    tu.context_team = t
-    tu.status = 'member';tu.save!
-    assert_equal tu.status, 'member'
-    create_team_user team: t, current_user: u, status: 'member', role: 'journalist'
-    assert_raise RuntimeError do
-      create_team_user team: t, current_user: u, status: 'member', role: 'owner'
+    
+    with_current_user_and_team(u, t) do
+      tu = create_team_user team: t, status: 'invited', role: 'contributor'
+      assert_raise RuntimeError do
+        create_team_user team: t, status: 'invited', role: 'owner'
+      end
+      tu.status = 'member'; tu.save!
+      assert_equal tu.status, 'member'
+      create_team_user team: t, status: 'member', role: 'journalist'
+      assert_raise RuntimeError do
+        create_team_user team: t, status: 'member', role: 'owner'
+      end
     end
   end
 
   test "should not approve myself" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     u2 = create_user
-    tu = create_team_user team: t, user: u2, status: 'requested', role: 'journalist', current_user: u2
-    # test approve
-    assert_raise RuntimeError do
-      tu.status = 'member'
-      tu.current_user = u2
-      tu.save!
+    tu = create_team_user team: t, user: u2, status: 'requested', role: 'journalist'
+    
+    with_current_user_and_team(u2, t) do
+      assert_raise RuntimeError do
+        tu.status = 'member'
+        tu.save!
+      end
     end
   end
 
@@ -158,11 +169,12 @@ class TeamUserTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'journalist'
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'owner'
-    tu.current_user = u
-    tu.context_team = t
-    assert_raise RuntimeError do
-      tu.role = 'journalist'
-      tu.save
+    
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        tu.role = 'journalist'
+        tu.save
+      end
     end
   end
 
@@ -170,19 +182,22 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
+    
     assert_raise RuntimeError do
-      tu.context_team = t
-      tu.current_user = u
-      tu.role = 'editor'
-      tu.save!
+      with_current_user_and_team(u, t) do
+        tu.role = 'editor'
+        tu.save!
+      end
     end
+    
     u2 = create_user
     tu2 = create_team_user team: t, user: u2, role: 'owner'
+    
     assert_nothing_raised RuntimeError do
-      tu2.context_team = t
-      tu2.current_user = u
-      tu2.role = 'editor'
-      tu2.save!
+      with_current_user_and_team(u, t) do
+        tu2.role = 'editor'
+        tu2.save!
+      end
     end
   end
 
@@ -190,8 +205,10 @@ class TeamUserTest < ActiveSupport::TestCase
     t = create_team subdomain: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
-    tu = create_team_user team: t, user: u, current_user: u, origin: 'http://test.localhost:3333'
-    assert tu.sent_to_slack
+    with_current_user_and_team(u, t) do
+      tu = create_team_user team: t, user: u, origin: 'http://test.localhost:3333'
+      assert tu.sent_to_slack
+    end
   end
 
   test "should take :slack_teams setting into account" do

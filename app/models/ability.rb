@@ -1,28 +1,28 @@
 class Ability
   include CanCan::Ability
 
-  def initialize(user, context_team)
+  def initialize
     alias_action :create, :update, :destroy, :to => :cud
-    @user = user ||= User.new
-    @context_team = context_team ||= @user.current_team
+    @user = User.current ||= User.new
+    @context_team = Team.current ||= @user.current_team
     # Define User abilities
     extra_perms_for_all_users
-    if user.id
+    if @user.id
       authenticated_perms
     end
-    if user.role? :contributor, context_team
+    if @user.role? :contributor
       contributor_perms
     end
-    if user.role? :journalist, context_team
+    if @user.role? :journalist
       journalist_perms
     end
-    if user.role? :editor, context_team
+    if @user.role? :editor
       editor_perms
     end
-    if user.role? :owner, context_team
+    if @user.role? :owner
       owner_perms
     end
-    if user.role? :admin, context_team
+    if @user.role? :admin
       global_admin_perms
     end
   end
@@ -39,7 +39,7 @@ class Ability
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser do |obj|
       roles = %w[owner journalist contributor editor]
-      user_role = obj.user.role @context_team
+      user_role = obj.user.role
       obj.team_id == @context_team.id and obj.user_id != @user.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
     end
     can :destroy, Contact, :team_id => @context_team.id
@@ -61,7 +61,7 @@ class Ability
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
     can :update, TeamUser do |obj|
       roles = %w[editor journalist contributor]
-      user_role = obj.user.role @context_team
+      user_role = obj.user.role
       obj.team_id == @context_team.id and obj.user_id != @user.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
     end
     can [:create, :update], Contact, :team_id => @context_team.id
@@ -107,7 +107,7 @@ class Ability
     can :create, ProjectMedia do |obj|
       obj.get_team.include? @context_team.id
     end
-    can :update, ProjectMedia do |obj|
+    can [:update, :destroy], ProjectMedia do |obj|
       obj.get_team.include? @context_team.id and (obj.media.user_id == @user.id)
     end
     can :update, Comment do |obj|
@@ -130,11 +130,18 @@ class Ability
   def authenticated_perms
     can :create, Team
     can :create, TeamUser, :user_id => @user.id, status: ['member', 'requested']
+
+    # Permissions for registration and login
+    can :create, Source, :user_id => @user.id
+    can :update, User, :id => @user.id
+    can :create, Account, :user_id => @user.id
+    can :create, Embed, :annotated_id => @user.account_ids
   end
 
   # Extra permissions for all users
   def extra_perms_for_all_users
     can :create, User
+    can :create, PaperTrail::Version
     can :read, Team, :private => false
     can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
 

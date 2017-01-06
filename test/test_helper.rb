@@ -43,11 +43,24 @@ class ActiveSupport::TestCase
     CONFIG.unstub(:[])
   end
 
+  def with_current_user_and_team(user = nil, team = nil)
+    Team.stubs(:current).returns(team)
+    User.stubs(:current).returns(user)
+    begin
+      yield if block_given?
+    rescue Exception => e
+      raise e
+    ensure
+      User.unstub(:current)
+      Team.unstub(:current)
+    end
+  end
+
   # This will run before any test
 
   def setup
     CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
-    Annotation.delete_all
+    [Annotation, Team, TeamUser].each{ |klass| klass.delete_all }
     [Media, Account, Source, User, Annotation].each{ |m| m.destroy_all }
     # create index
     MediaSearch.delete_index
@@ -56,10 +69,13 @@ class ActiveSupport::TestCase
     Rails.application.reload_routes!
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
-    @team = create_team
-    @project = create_project team: @team
+    with_current_user_and_team(nil, nil) do
+      @team = create_team
+      @project = create_project team: @team
+    end
     ::Pusher.stubs(:trigger).returns(nil)
     Rails.unstub(:env)
+    User.current = Team.current = nil
   end
 
   # This will run after any test
@@ -69,6 +85,7 @@ class ActiveSupport::TestCase
     WebMock.allow_net_connect!
     Time.unstub(:now)
     Rails.unstub(:env)
+    User.current = nil
   end
 
   def assert_queries(num = 1, &block)

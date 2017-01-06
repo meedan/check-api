@@ -46,8 +46,10 @@ class CommentTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, status: 'banned'
-    assert_raise RuntimeError do
-      create_comment current_user: u, annotator: u
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        create_comment annotator: u
+      end
     end
   end
 
@@ -171,9 +173,13 @@ class CommentTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     t = create_team
+    p = create_project team: t
     create_team_user team: t, user: u2, role: 'contributor'
-    c = create_comment annotator: nil, current_user: u2
-    assert_equal u2, c.annotator
+
+    with_current_user_and_team(u2, t) do
+      c = create_comment annotator: nil
+      assert_equal u2, c.annotator
+    end
   end
 
   test "should not set annotator if set" do
@@ -181,20 +187,21 @@ class CommentTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'contributor'
-    c = create_comment annotator: u1, current_user: u2
+    c = create_comment annotator: u1
     assert_equal u1, c.annotator
   end
 
   test "should destroy comment" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm, current_user: u, annotator: u
-    c.current_user = u
-    c.context_team = t
-    assert_nothing_raised do
-      c.destroy
+    c = create_comment annotated: pm, annotator: u
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        c.destroy
+      end
     end
   end
 
@@ -203,13 +210,12 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     p = create_project user: create_user, team: t
     create_team_user team: t, user: u, role: 'contributor'
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
+    pm = create_project_media project: p
     c = create_comment annotated: pm, annotator: u
-    assert_raise RuntimeError do
-      c.current_user = u
-      c.context_team = t
-      c.destroy
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        c.destroy
+      end
     end
   end
 
@@ -218,13 +224,12 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'contributor'
     p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
+    pm = create_project_media project: p
     c = create_comment annotated: pm, current_user: u, annotator: u
-    c.current_user = u
-    c.context_team = create_team
-    assert_raise RuntimeError do
-      c.destroy
+    with_current_user_and_team(u, create_team) do
+      assert_raise RuntimeError do
+        c.destroy
+      end
     end
   end
 
@@ -247,13 +252,14 @@ class CommentTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    c = create_comment origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: pm
-    assert c.sent_to_slack
-    # claim media
-    m = create_claim_media
-    pm = create_project_media project: p, media: m
-    c = create_comment origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: pm
-    assert c.sent_to_slack
+    with_current_user_and_team(u, t) do
+      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert c.sent_to_slack
+      # claim media
+      m = create_claim_media project_id: p.id
+      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert c.sent_to_slack
+    end
   end
 
   test "should notify Pusher when annotation is created" do

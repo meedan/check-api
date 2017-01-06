@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   has_many :team_users
   has_many :teams, through: :team_users
   has_many :projects
+  has_many :accounts
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
@@ -23,12 +24,12 @@ class User < ActiveRecord::Base
   include CheckdeskSettings
 
   ROLES = %w[contributor journalist editor owner admin]
-  def role?(base_role, context_team)
-    ROLES.index(base_role.to_s) <= ROLES.index(self.role(context_team)) unless self.role(context_team).nil?
+  def role?(base_role)
+    ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.nil?
   end
 
-  def role(context_team)
-    context_team = self.current_team if context_team.nil?
+  def role
+    context_team = Team.current || self.current_team
     role = nil
     unless context_team.nil?
       role = Rails.cache.fetch("role_#{context_team.id}_#{self.id}", expires_in: 30.seconds) do
@@ -52,6 +53,7 @@ class User < ActiveRecord::Base
     user.url = auth.url
     user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
     user.omniauth_info = auth.as_json
+    User.current = user
     user.save!
     user.reload
   end
@@ -138,6 +140,14 @@ class User < ActiveRecord::Base
   def is_a_colleague_of?(user)
     results = TeamUser.find_by_sql(['SELECT COUNT(*) AS count FROM team_users tu1 INNER JOIN team_users tu2 ON tu1.team_id = tu2.team_id WHERE tu1.user_id = :user1 AND tu2.user_id = :user2 AND tu1.status = :status AND tu2.status = :status', { user1: self.id, user2: user.id, status: 'member' }])
     results.first.count.to_i >= 1
+  end
+
+  def self.current
+    Thread.current[:user]
+  end
+
+  def self.current=(user)
+    Thread.current[:user] = user
   end
 
   protected

@@ -19,8 +19,6 @@ ProjectType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (project, _args, _ctx) {
       team = project.team
-      team.context_team = project.context_team
-      team.current_user = project.current_user
       team
     }
   end

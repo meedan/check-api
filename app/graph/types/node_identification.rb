@@ -7,11 +7,9 @@ NodeIdentification = GraphQL::Relay::GlobalNodeIdentification.define do
       name = Rails.application.class.parent_name
       obj = OpenStruct.new({ name: name, version: VERSION, id: 1, type: 'About' })
     elsif type_name == 'CheckSearch'
-      obj = CheckSearch.new(id, ctx[:context_team]) 
+      obj = CheckSearch.new(id)
     else
-      obj = type_name.constantize.find_if_can(id, ctx[:current_user], ctx[:context_team])
-      obj.current_user = ctx[:current_user]
-      obj.context_team = ctx[:context_team]
+      obj = type_name.constantize.find_if_can(id)
       obj.origin = ctx[:origin] if obj.respond_to?('origin=')
       obj.project_id ||= ctx[:context_project].id if obj.respond_to?('project_id=') && ctx[:context_project].present?
     end

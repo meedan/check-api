@@ -17,7 +17,9 @@ class TagTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, user: u
     assert_difference 'Tag.length' do
-      create_tag tag: 'media_tag', annotated: pm, current_user: u, context_team: t, annotator: u
+      with_current_user_and_team(u, t) do
+        create_tag tag: 'media_tag', annotated: pm, annotator: u
+      end
     end
   end
 
@@ -138,22 +140,27 @@ class TagTest < ActiveSupport::TestCase
   test "should set annotator if not set" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u
     p = create_project team: t
-    pm = create_project_media project: p, user: u, current_user: u
-    t = create_tag annotated: pm, annotator: nil, current_user: u
-    assert_equal u, t.annotator
+    create_team_user team: t, user: u
+    pm = create_project_media project: p, user: u
+    with_current_user_and_team(u, t) do
+      t = create_tag annotated: pm, annotator: nil
+      assert_equal u, t.annotator
+    end
   end
 
   test "should not set annotator if set" do
     u = create_user
     u2 = create_user
     t = create_team
-    create_team_user team: t, user: u
     p = create_project team: t
-    pm = create_project_media project: p, user: u, current_user: u
-    t = create_tag annotated: pm, annotator: u2, current_user: u
-    assert_equal u2, t.annotator
+    create_team_user team: t, user: u2
+    pm = create_project_media project: p, user: u2
+
+    with_current_user_and_team(u2, t) do
+      t = create_tag annotated: pm, annotator: u
+      assert_equal u, t.annotator
+    end
   end
 
   test "should not have same tag applied to same object" do

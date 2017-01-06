@@ -16,16 +16,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     m = create_valid_media
+    User.stubs(:current).returns(u)
+    Team.stubs(:current).returns(t)
     assert_difference 'ProjectMedia.count' do
-      create_project_media project: p, media: m, current_user: u
+      create_project_media project: p, media: m
     end
     # journalist should assign any media
     Rails.cache.clear
-    tu.role = 'journalist'; tu.save;
+    tu.update_column(:role, 'journalist')
     assert_difference 'ProjectMedia.count' do
-      pm = create_project_media project: p, media: m, current_user: u
+      pm = create_project_media project: p, media: m
       assert_raise RuntimeError do
-        pm.current_user = u
         pm.project = create_project team: t
         pm.save!
       end
@@ -33,67 +34,83 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m2 = create_valid_media
     m2.user_id = u.id; m2.save!
     assert_difference 'ProjectMedia.count' do
-      pm = create_project_media project: p, media: m2, current_user: u
+      pm = create_project_media project: p, media: m2
       pm.project = create_project team: t
       pm.save!
     end
+    User.unstub(:current)
+    Team.unstub(:current)
   end
 
   test "should update and destroy project media" do
     u = create_user
-    t = create_team current_user: u
-    p = create_project team: t, current_user: u
-    p2 = create_project team: t, current_user: u
-    m = create_valid_media project_id: p.id, current_user: u
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    m = create_valid_media project_id: p.id, user_id: u.id
+    create_team_user team: t, user: u
     pm = m.project_medias.last
-    pm.current_user = u
-    pm.project_id = p2.id; pm.save!
-    pm.reload
-    assert_equal pm.project_id, p2.id
+    with_current_user_and_team(u, t) do
+      pm.project_id = p2.id; pm.save!
+      pm.reload
+      assert_equal pm.project_id, p2.id
+    end
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'journalist'
     assert_raise RuntimeError do
-      pm.current_user = u2
-      pm.save!
+      with_current_user_and_team(u2, t) do
+        pm.save!
+      end
     end
     assert_raise RuntimeError do
-      pm.current_user = u2
-      pm.destroy!
+      with_current_user_and_team(u2, t) do
+        pm.destroy!
+      end
     end
-    own_media = create_valid_media project_id: p.id, user: u2, current_user: u2
-    pm_own = own_media.project_medias.last
-    pm_own.current_user = u2
-    pm_own.project_id = p2.id; pm_own.save!
-    pm_own.reload
-    assert_equal pm_own.project_id, p2.id
-    assert_raise RuntimeError do
-      pm_own.current_user = u2
-      pm_own.destroy!
+    pm_own = nil
+    with_current_user_and_team(u2, t) do
+      own_media = create_valid_media project_id: p.id, user: u2
+      pm_own = own_media.project_medias.last
+      pm_own.project_id = p2.id; pm_own.save!
+      pm_own.reload
+      assert_equal pm_own.project_id, p2.id
     end
     assert_nothing_raised RuntimeError do
-      pm.current_user = u
-      pm.destroy!
+      with_current_user_and_team(u2, t) do
+        pm_own.destroy!
+      end
+
+      with_current_user_and_team(u, t) do
+        pm.destroy!
+      end
     end
   end
 
   test "non members should not read project media in private team" do
     u = create_user
-    t = create_team current_user: create_user
+    t = create_team
     m = create_media team: t
     pm = m.project_medias.last
     pu = create_user
-    pt = create_team current_user: pu, private: true
+    pt = create_team private: true
+    create_team_user team: pt, user: pu
     m = create_media team: pt
     ppm = m.project_medias.last
-    ProjectMedia.find_if_can(pm.id, u, t)
+    ProjectMedia.find_if_can(pm.id)
     assert_raise CheckdeskPermissions::AccessDenied do
-      ProjectMedia.find_if_can(ppm.id, u, pt)
+      with_current_user_and_team(u, pt) do
+        ProjectMedia.find_if_can(ppm.id)
+      end
     end
-    ProjectMedia.find_if_can(ppm.id, pu, pt)
+    with_current_user_and_team(pu, pt) do
+      ProjectMedia.find_if_can(ppm.id)
+    end
     tu = pt.team_users.last
-    tu.status = 'requested'; tu.save!
+    tu.update_column(:status, 'requested')
     assert_raise CheckdeskPermissions::AccessDenied do
-      ProjectMedia.find_if_can(ppm.id, pu, pt)
+      with_current_user_and_team(pu, pt) do
+        ProjectMedia.find_if_can(ppm.id)
+      end
     end
   end
 
@@ -113,13 +130,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user team: t, user: u
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
-    m = create_valid_media project_id: p.id, origin: 'http://test.localhost:3333', current_user: u
-    pm = create_project_media project: p, media: m, origin: 'http://localhost:3333', current_user: u, context_team: t
-    assert pm.sent_to_slack
-    # claim media
-    m = create_claim_media project_id: p.id, origin: 'http://localhost:3333', current_user: u
-    pm = create_project_media project: p, media: m, origin: 'http://localhost:3333', current_user: u, context_team: t
-    assert pm.sent_to_slack
+    with_current_user_and_team(u, t) do
+      m = create_valid_media project_id: p.id, origin: 'http://test.localhost:3333'
+      pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
+      assert pm.sent_to_slack
+      # claim media
+      m = create_claim_media project_id: p.id, origin: 'http://localhost:3333'
+      pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
+      assert pm.sent_to_slack
+    end
   end
 
   test "should notify Pusher when project media is created" do
@@ -241,9 +260,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t, user: create_user
     pm = create_project_media project: p, user: u
-    pm.context_team = t
-    pm.current_user = u
-    assert JSON.parse(pm.permissions)['create Status']
+    with_current_user_and_team(u, t) do
+      assert JSON.parse(pm.permissions)['create Status']
+    end
   end
 
 end

@@ -44,7 +44,6 @@ module SampleData
     u.password_confirmation = options[:password_confirmation] || u.password
     u.url = options[:url] if options.has_key?(:url)
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
-    u.current_user = options[:current_user] if options.has_key?(:current_user)
     u.omniauth_info = options[:omniauth_info]
 
     file = nil
@@ -201,8 +200,6 @@ module SampleData
       end
     end
     project.archived = options[:archived] || false
-    project.current_user = options[:current_user] if options.has_key?(:current_user)
-    project.context_team = options[:context_team] if options.has_key?(:context_team)
     team = options[:team] || create_team
     project.team_id = options[:team_id] || team.id
     project.save!
@@ -229,7 +226,6 @@ module SampleData
     team.archived = options[:archived] || false
     team.private = options[:private] || false
     team.description = options[:description] || random_string
-    team.current_user = options[:current_user] if options.has_key?(:current_user)
     team.origin = options[:origin] if options.has_key?(:origin)
     team.save!
     team.reload
@@ -243,7 +239,6 @@ module SampleData
     m.url = options[:url]
     m.quote = options[:quote] if options.has_key?(:quote)
     m.account_id = options.has_key?(:account_id) ? options[:account_id] : account.id
-    m.current_user = options[:current_user] if options.has_key?(:current_user)
     m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
     if options.has_key?(:team)
       options[:project_id] = create_project(team: options[:team]).id
@@ -310,8 +305,7 @@ module SampleData
     tu.team_id = options[:team_id] || team.id
     tu.user_id = options[:user_id] || user.id
     tu.role = options[:role]
-    tu.status  = options[:status]  || "member"
-    tu.current_user = options[:current_user] if options.has_key?(:current_user)
+    tu.status = options[:status] || 'member'
     tu.origin = options[:origin] if options.has_key?(:origin)
     tu.save!
     tu.reload
@@ -344,7 +338,6 @@ module SampleData
     else
       contact.team = options[:team] || create_team
     end
-    contact.current_user = options[:current_user] if options.has_key?(:current_user)
     contact.save!
     contact.reload
   end
@@ -361,7 +354,6 @@ module SampleData
         bot.avatar = f
       end
     end
-    bot.current_user = options[:current_user] if options.has_key?(:current_user)
     bot.save!
     bot.reload
   end

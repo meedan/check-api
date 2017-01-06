@@ -7,7 +7,7 @@ class TeamUser < ActiveRecord::Base
   validates :status, presence: true
   validates :status, inclusion: { in: %w(member requested invited banned), message: "%{value} is not a valid team member status" }
   validates :role, inclusion: { in: %w(admin owner editor journalist contributor), message: "%{value} is not a valid team role" }
-  validates :user_id, uniqueness: { scope: :team_id, message: "User already joined this team" }
+  validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
   validate :user_is_member_in_slack_team
 
   before_validation :set_role_default_value, on: :create
@@ -15,7 +15,7 @@ class TeamUser < ActiveRecord::Base
   after_save :send_email_to_requestor
 
   notifies_slack on: :create,
-                 if: proc { |tu| tu.current_user.present? && tu.team.setting(:slack_notifications_enabled).to_i === 1 },
+                 if: proc { |tu| User.current.present? && tu.team.setting(:slack_notifications_enabled).to_i === 1 },
                  message: proc { |tu| "*#{tu.user.name}* joined <#{tu.origin.gsub(/(https?:\/\/[^\/]+).*/, '\1')}|*#{tu.team.name}*>" },
                  channel: proc { |tu| tu.team.setting(:slack_channel) },
                  webhook: proc { |tu| tu.team.setting(:slack_webhook) }

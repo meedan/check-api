@@ -55,8 +55,7 @@ class Media < ActiveRecord::Base
       pm = ProjectMedia.new
       pm.project_id = self.project_id
       pm.media = self
-      pm.user = pm.current_user = self.current_user
-      pm.context_team = self.context_team
+      pm.user = User.current
       pm.save!
     end
   end
@@ -96,7 +95,7 @@ class Media < ActiveRecord::Base
   end
 
   def set_user
-    self.user = self.current_user unless self.current_user.nil?
+    self.user = User.current unless User.current.nil?
   end
 
   def set_account
@@ -140,8 +139,6 @@ class Media < ActiveRecord::Base
     dup = self.duplicated_of
     unless dup.blank?
       dup.project_id = self.project_id
-      dup.context_team = self.context_team
-      dup.current_user = self.current_user
       dup.origin = self.origin
       dup.associate_to_project
       return false

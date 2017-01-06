@@ -3,9 +3,9 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 class RegistrationsControllerTest < ActionController::TestCase
   def setup
     super
-    User.destroy_all
     @controller = Api::V1::RegistrationsController.new
     @request.env["devise.mapping"] = Devise.mappings[:api_user]
+    User.current = nil
   end
 
   test "should create user" do

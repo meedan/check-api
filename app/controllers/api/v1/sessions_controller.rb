@@ -5,15 +5,16 @@ class Api::V1::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
-    # super
+    User.current = nil
     self.resource = warden.authenticate!(auth_options)
     sign_in(resource_name, resource)
+    User.current = current_api_user
     render_success 'user', current_api_user
   end
 
   # DELETE /resource/sign_out
   def destroy
-    # super
+    User.current = nil
     signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
     signed_out ? render_success : render_error('Could not logout', 'AUTH')
   end

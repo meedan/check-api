@@ -107,20 +107,25 @@ class FlagTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     create_team_user team: t, user: u2, role: 'contributor'
-    pm = create_project_media project: p, current_user: u2
-    f = create_flag annotated: pm, annotator: nil, current_user: u2
-    assert_equal u2, f.annotator
+    pm = create_project_media project: p
+    with_current_user_and_team(u2, t) do
+      f = create_flag annotated: pm, annotator: nil
+      assert_equal u2, f.annotator
+    end
   end
 
-  test "should set not annotator if set" do
+  test "should not set annotator if set" do
     u1 = create_user
     u2 = create_user
     t = create_team
     p  = create_project team: t
     create_team_user team: t, user: u2, role: 'contributor'
-    pm = create_project_media project: p
-    f = create_flag annotated: pm, annotator: u1, current_user: u2
-    assert_equal u1, f.annotator
+    m = create_valid_media team: t, user: u2
+    pm = create_project_media project: p, user: u2
+    with_current_user_and_team(u2, t) do
+      f = create_flag annotated: pm, annotator: u1
+      assert_equal u1, f.annotator
+    end
   end
 
   test "should not create flag with invalid value" do

@@ -160,34 +160,46 @@ class AccountTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user user: u, team: u
     a = create_valid_account
-    a.context_team = t
-    a.current_user = u
     perm_keys = ["read Account", "update Account", "destroy Account", "create Media"].sort
+    
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+    
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+    
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
   end
 
 end
