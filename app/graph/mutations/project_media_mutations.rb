@@ -7,7 +7,7 @@ module ProjectMediaMutations
   update_fields = {
     media_id: 'int',
     project_id: 'int',
-    embed_data: 'str',
+    embed: 'str',
     id: '!id'
   }
 

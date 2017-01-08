@@ -189,14 +189,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'add desc', data['description']
     # Update media title and description for pm1
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm1.embed_data = info; pm1.save!
+    pm1.embed= info
     info = {title: 'Title AA', description: 'Desc AA'}.to_json
-    pm1.embed_data = info;  pm1.save!
+    pm1.embed= info
     # Update media title and description for pm2
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    pm2.embed_data = info;  pm2.save!
+    pm2.embed= info
     info = {title: 'Title BB', description: 'Desc BB'}.to_json
-    pm2.embed_data = info;  pm2.save!
+    pm2.embed= info
     # fetch data for pm1
     data = pm1.embed
     assert_equal 'Title AA', data['title']

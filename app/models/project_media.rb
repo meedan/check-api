@@ -1,6 +1,6 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessible
-  attr_accessor :embed_data, :disable_es_callbacks
+  attr_accessor :embed, :disable_es_callbacks
 
   belongs_to :project
   belongs_to :media
@@ -8,7 +8,6 @@ class ProjectMedia < ActiveRecord::Base
   has_annotations
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data
-  after_update :set_embed_data
 
   notifies_slack on: :create,
                  if: proc { |pm| t = pm.project.team; User.current.present? && t.present? && t.setting(:slack_notifications_enabled).to_i === 1 },
@@ -82,10 +81,16 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def embed
-    em_pender = self.get_annotations('embed').last
-    em_pender = self.get_media_annotations('embed') if em_pender.nil?
-    embed = JSON.parse(em_pender.data['embed']) unless em_pender.nil?
-    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em_pender.data[sk] unless em_pender.data[sk].nil? } unless embed.nil?
+    em_pender = self.get_media_annotations('embed')
+    em_overriden = self.get_annotations('embed').last
+    if em_overriden.nil?
+      em = em_pender
+    else
+      em = em_overriden
+      em['data']['embed'] = em_pender['data']['embed'] unless em_pender.nil?
+    end
+    embed = JSON.parse(em.data['embed']) unless em.nil?
+    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em.data[sk] unless em.data[sk].nil? } unless embed.nil?
     embed
   end
 
@@ -106,23 +111,19 @@ class ProjectMedia < ActiveRecord::Base
     %W(title description username)
   end
 
-  private
-
-  def set_embed_data
-    info = self.embed_data.blank? ? {} : JSON.parse(self.embed_data)
+  def embed=(info)
+    info = info.blank? ? {} : JSON.parse(info)
     unless info.blank?
       em = get_embed(self)
-      em = set_embed_data_for_context if em.nil?
-      self.set_embed_data_for_embed(em, info)
-      self.embed_data = {}.to_json
+      em = initiate_embed_annotation(info) if em.nil?
+      self.override_embed_data(em, info)
     end
   end
 
+  private
+
   def set_quote_embed
-    unless self.media.quote.blank?
-      self.embed_data = {title: self.media.quote}.to_json
-      set_embed_data
-    end
+    self.embed=({title: self.media.quote}.to_json) unless self.media.quote.blank?
   end
 
   protected
@@ -131,22 +132,15 @@ class ProjectMedia < ActiveRecord::Base
     Embed.where(annotation_type: 'embed', annotated_type: obj.class.to_s , annotated_id: obj.id).last
   end
 
-  def set_embed_data_for_context
-    em_none = get_embed(self.media)
-    if em_none.nil?
-      em = Embed.new
-      em.embed = self.embed_data
-    else
-      # clone existing one and reset annotator fields
-      em = em_none.dup
-      em.annotator_id = em.annotator_type = nil
-    end
+  def initiate_embed_annotation(info)
+    em = Embed.new
+    em.embed = info.to_json
     em.annotated = self
     em.annotator = User.current unless User.current.nil?
     em
   end
 
-  def set_embed_data_for_embed(em, info)
+  def override_embed_data(em, info)
     info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
     em.save!
   end

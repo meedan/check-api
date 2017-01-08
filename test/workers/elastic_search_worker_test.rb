@@ -45,8 +45,7 @@ class ElasticSearchWorkerTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     ElasticSearchWorker.drain
     assert_equal 0, ElasticSearchWorker.jobs.size
-    pm.embed_data = {title: 'title', description: 'description'}.to_json
-    pm.save!
+    pm.embed= {title: 'title', description: 'description'}.to_json
     assert_equal 1, ElasticSearchWorker.jobs.size
   end
 
