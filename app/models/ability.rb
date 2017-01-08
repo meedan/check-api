@@ -100,7 +100,7 @@ class Ability
     can :update, Media do |obj|
       obj.get_team.include? @context_team.id and (obj.user_id == @user.id)
     end
-    can :update, [Account, Source]
+    can :update, [Account, Source, Embed]
     can [:create, :update], ProjectSource do |obj|
       obj.get_team.include? @context_team.id and (obj.source.user_id == @user.id)
     end
