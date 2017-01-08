@@ -11,10 +11,10 @@ class ProjectMedia < ActiveRecord::Base
   after_update :set_embed_data
 
   notifies_slack on: :create,
-                 if: proc { |pm| m = pm.media; User.current.present? && m.current_team.present? && m.current_team.setting(:slack_notifications_enabled).to_i === 1 },
+                 if: proc { |pm| t = pm.project.team; User.current.present? && t.present? && t.setting(:slack_notifications_enabled).to_i === 1 },
                  message: proc { |pm| pm.slack_notification_message },
-                 channel: proc { |pm| m = pm.media; m.project.setting(:slack_channel) || m.current_team.setting(:slack_channel) },
-                 webhook: proc { |pm| m = pm.media; m.current_team.setting(:slack_webhook) }
+                 channel: proc { |pm| p = pm.project; p.setting(:slack_channel) || p.team.setting(:slack_channel) },
+                 webhook: proc { |pm| pm.project.team.setting(:slack_webhook) }
 
   notifies_pusher on: :create,
                   event: 'media_updated',
@@ -50,7 +50,7 @@ class ProjectMedia < ActiveRecord::Base
     type, text = m.quote.blank? ?
       [ 'link', data['title'] ] :
       [ 'claim', m.quote ]
-    "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{self.project_id}/media/#{m.id}|*#{text}*>"
+    "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
   end
 
   def add_elasticsearch_data
@@ -109,8 +109,8 @@ class ProjectMedia < ActiveRecord::Base
   private
 
   def set_embed_data
-    info = self.parse_embed_data
-    unless self.embed_data_blank?
+    info = self.embed_data.blank? ? {} : JSON.parse(self.embed_data)
+    unless info.blank?
       em = get_embed(self)
       em = set_embed_data_for_context if em.nil?
       self.set_embed_data_for_embed(em, info)
@@ -126,14 +126,6 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   protected
-
-  def parse_embed_data
-    self.embed_data.blank? ? {} : JSON.parse(self.embed_data)
-  end
-
-  def embed_data_blank?
-    self.parse_embed_data.all? { |_k, v| v.blank? }
-  end
 
   def get_embed(obj)
     Embed.where(annotation_type: 'embed', annotated_type: obj.class.to_s , annotated_id: obj.id).last

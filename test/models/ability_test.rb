@@ -1076,7 +1076,7 @@ class AbilityTest < ActiveSupport::TestCase
       a = Ability.new
       assert a.can?(:destroy, a1)
       assert a.can?(:destroy, a2)
-      assert a.can?(:destroy, a3)
+      assert a.cannot?(:destroy, a3)
     end
   end
 

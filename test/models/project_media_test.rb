@@ -131,11 +131,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     with_current_user_and_team(u, t) do
-      m = create_valid_media project_id: p.id, origin: 'http://test.localhost:3333'
+      m = create_valid_media origin: 'http://test.localhost:3333'
       pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
       assert pm.sent_to_slack
       # claim media
-      m = create_claim_media project_id: p.id, origin: 'http://localhost:3333'
+      m = create_claim_media origin: 'http://localhost:3333'
       pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
       assert pm.sent_to_slack
     end
