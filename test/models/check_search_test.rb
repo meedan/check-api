@@ -33,7 +33,6 @@ class CheckSearchTest < ActiveSupport::TestCase
      result = CheckSearch.new({keyword: "search_title_a"}.to_json)
      assert_equal [pm.id], result.medias.map(&:id)
      # search in description
-     pp MediaSearch.find(pm.id)
      result = CheckSearch.new({keyword: "search_desc"}.to_json)
      assert_equal [pm.id], result.medias.map(&:id)
      # add keyword to multiple medias
