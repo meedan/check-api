@@ -245,7 +245,8 @@ class ActiveSupport::TestCase
     node = '{ '
     fields.each do |name, key|
       if name === 'medias' && obj.is_a?(Source)
-        create_valid_media(account: create_valid_account(source: obj))
+        m = create_valid_media(account: create_valid_account(source: obj))
+        create_project_media media: m
       elsif name === 'collaborators'
         obj.add_annotation create_comment(annotator: create_user)
       elsif name === 'annotations' || name === 'comments'

@@ -16,8 +16,6 @@ class Project < ActiveRecord::Base
   validates_presence_of :title
   validates :lead_image, size: true
 
-  has_annotations
-
   notifies_slack on: :create,
                  if: proc { |p| User.current.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
                  message: proc { |p| "*#{User.current.name}* created a project: <#{p.origin}/project/#{p.id}|*#{p.title}*>" },

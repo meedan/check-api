@@ -281,6 +281,10 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read_object('media', { 'account' => 'url' })
   end
 
+  test "should read object from project media" do
+    assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url' })
+  end
+
   test "should read object from project source" do
     assert_graphql_read_object('project_source', { 'project' => 'title', 'source' => 'name' })
   end
@@ -291,7 +295,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read collection from source" do
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
-                                               'annotations' => 'content', 'collaborators' => 'name',
+                                               'annotations' => 'content','medias' => 'media_id', 'collaborators' => 'name',
                                                'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
   end
 
@@ -301,6 +305,10 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read collection from project" do
     assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url' })
+  end
+
+  test "should read collection from media" do
+    assert_graphql_read_collection('media', { 'projects' => 'title' }, 'DESC')
   end
 
   test "should read collection from team" do

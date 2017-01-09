@@ -146,6 +146,14 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [pm1, pm2], m.project_medias
   end
 
+  test "should get project media id" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    assert_equal m.pm_dbid(p), pm.id
+  end
+
   test "should have projects" do
     p1 = create_project
     p2 = create_project
