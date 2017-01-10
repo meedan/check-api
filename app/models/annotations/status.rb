@@ -102,7 +102,7 @@ class Status < ActiveRecord::Base
   def get_annotated_and_context
     if self.annotated_type == 'ProjectMedia' || self.annotated_type == 'ProjectSource'
       annotated = self.annotated.media if self.annotated.respond_to?(:media)
-      annotated = self.annotated.source if obj.nil? and self.annotated.respond_to?(:source)
+      annotated = self.annotated.source if self.annotated.respond_to?(:source)
       context = self.annotated.project if self.annotated.respond_to?(:project)
     else
       annotated = self.annotated

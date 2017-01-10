@@ -77,7 +77,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_media_annotations(type = nil)
-    em = self.media.annotations.where(annotation_type: type).last
+    self.media.annotations.where(annotation_type: type).last
   end
 
   def embed

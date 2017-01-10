@@ -18,7 +18,7 @@ class ProjectSource < ActiveRecord::Base
     self.annotations('comment')
   end
 
- def collaborators
+  def collaborators
     self.annotators
   end
 
