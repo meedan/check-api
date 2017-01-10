@@ -19,7 +19,7 @@ class TeamUserMailerTest < ActionMailer::TestCase
     end
 
     assert_equal [CONFIG['default_mail']], email.from
-    assert_equal ['owner1@mail.com', 'owner2@mail.com'], email.to
+    assert_equal ['owner1@mail.com', 'owner2@mail.com'].sort, email.to.sort
     assert_match "/members", email.body.parts.first.to_s
   end
 
@@ -69,7 +69,7 @@ class TeamUserMailerTest < ActionMailer::TestCase
     assert_emails 1 do
       email.deliver_now
     end
-    
+
     assert_equal ['owner2@mail.com'], email.to
   end
 

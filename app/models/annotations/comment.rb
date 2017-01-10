@@ -5,14 +5,15 @@ class Comment < ActiveRecord::Base
 
   field :text
   validates_presence_of :text
+  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', 'Source', nil] }
 
   before_save :extract_check_entities
   after_save :add_update_elasticsearch_comment
 
   notifies_slack on: :save,
                  if: proc { |c| c.should_notify? },
-                 message: proc { |c| data = c.annotated.data(c.context); "*#{User.current.name}* added a note on <#{c.origin}/project/#{c.context_id}/media/#{c.annotated_id}|#{data['title']}>\n> #{c.text}" },
-                 channel: proc { |c| c.context.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
+                 message: proc { |c| data = c.annotated.embed; "*#{User.current.name}* added a note on <#{c.origin}/project/#{c.annotated.project_id}/media/#{c.annotated_id}|#{data['title']}>\n> #{c.text}" },
+                 channel: proc { |c| c.annotated.project.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
                  webhook: proc { |c| c.current_team.setting(:slack_webhook) }
 
   def content
@@ -32,7 +33,7 @@ class Comment < ActiveRecord::Base
 
   def extract_check_urls
     urls = []
-    team = self.context_type === 'Project' ? self.context.team : nil
+    team = self.annotated_type === 'ProjectMedia' ? self.annotated.project.team : nil
     if team
       words = self.text.to_s.split(/\s+/)
       pattern = Regexp.new(CONFIG['checkdesk_client'])
@@ -54,8 +55,7 @@ class Comment < ActiveRecord::Base
     self.extract_check_urls.each do |url|
       match = url.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
       unless match.nil?
-        pm = ProjectMedia.where(project_id: match[1], media_id: match[2]).last
-        ids << pm.id unless pm.nil?
+        ids << match[2]
       end
     end
     self.entities = ids

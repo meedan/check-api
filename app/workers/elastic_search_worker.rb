@@ -5,9 +5,7 @@ class ElasticSearchWorker
   def perform(model, keys, type)
     model = YAML::load(model)
     keys = YAML::load(keys)
-    if type == 'add_parent'
-      model.save!
-    elsif type == 'update_parent'
+    if type == 'update_parent'
       model.update_media_search_bg(keys)
     else
       model.add_update_media_search_child_bg(type, keys)

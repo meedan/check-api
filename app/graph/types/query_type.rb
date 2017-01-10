@@ -51,6 +51,15 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  field :project_media do
+    type ProjectMediaType
+    description 'Information about a project media, given its id and its team id'
+    argument :id, !types.ID
+    resolve -> (_obj, args, ctx) do
+      GraphqlCrudOperations.load_if_can(ProjectMedia, args['id'], ctx)
+    end
+  end
+
   field :project do
     type ProjectType
     description 'Information about a project, given its id and its team id'

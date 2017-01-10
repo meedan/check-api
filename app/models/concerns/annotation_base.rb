@@ -24,8 +24,6 @@ module AnnotationBase
           query = self.annotation_query(type, context)
           klass = (type.blank? || type.is_a?(Array)) ? Annotation : type.camelize.constantize
           relation = klass.where(query)
-          relation = relation.where(context_id: nil) if context == 'none'
-          relation = relation.where.not(context_id: nil) if context == 'some'
           relation.order('id DESC')
         end
       end
@@ -73,9 +71,9 @@ module AnnotationBase
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
-                    if: proc { |a| a.annotated_type === 'Media' && a.context_type === 'Project' },
+                    if: proc { |a| a.annotated_type === 'ProjectMedia' },
                     event: 'media_updated',
-                    targets: proc { |a| [a.context, a.annotated] },
+                    targets: proc { |a| [a.annotated.project, a.annotated.media] },
                     data: proc { |a| a.to_json }
 
     before_validation :set_type_and_event, :set_annotator
@@ -129,7 +127,7 @@ module AnnotationBase
     self.annotated
   end
 
-  def media
+  def project_media
     self.annotated
   end
 
@@ -179,34 +177,25 @@ module AnnotationBase
   end
 
   def get_team
-    obj = self.context.nil? ? self.annotated : self.context
     team = []
-    unless obj.nil?
-      team = obj.respond_to?(:team) ? [obj.team.id] : obj.get_team
+    obj = self.annotated.project if self.annotated.respond_to?(:project)
+    if !obj.nil? and obj.respond_to?(:team)
+      team = [obj.team.id] unless obj.team.nil?
     end
     team
   end
 
   def current_team
-    self.context.team if self.context_type === 'Project'
+    self.annotated.project.team if self.annotated_type === 'ProjectMedia'
   end
 
   def should_notify?
-    User.current.present? && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'Media'
+    User.current.present? && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'ProjectMedia'
   end
 
   # Supports only media for the time being
   def entity_objects
-    objects = []
-    self.entities.collect do |e|
-      pm = ProjectMedia.where(id: e).last
-      unless pm.nil?
-        media = pm.media
-        media.project_id = pm.project_id
-        objects << media
-      end
-    end
-    objects
+    ProjectMedia.where(id: self.entities).to_a
   end
 
   def method_missing(method, *args, &block)
@@ -246,16 +235,15 @@ module AnnotationBase
 
   def store_elasticsearch_data(model, keys, options = {})
     keys.each do |k|
-      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
+      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=") and !self.data[k].blank?
     end
     model.save!(options)
   end
 
   def get_elasticsearch_parent
     pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
-    pm = ProjectMedia.where(project_id: self.context_id, media_id: self.annotated_id).last if pm.nil?
     sleep 1 if Rails.env == 'test'
-    MediaSearch.search(query: { match: { annotated_id: pm.id } }).last unless pm.nil?
+    MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
   end
 
   protected

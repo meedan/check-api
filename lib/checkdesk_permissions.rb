@@ -49,6 +49,7 @@ module CheckdeskPermissions
       'Account' => [Media],
       'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
       'Project' => [ProjectSource, Source, Media, ProjectMedia],
+      'ProjectMedia' => [Comment, Flag, Status, Tag],
       'Source' => [Account, ProjectSource, Project],
       'User' => [Source, TeamUser, Team, Project]
     }
@@ -75,7 +76,7 @@ module CheckdeskPermissions
   end
 
   def set_project_for_permissions(model)
-    if self.class.name == 'Media'
+    if self.class.name == 'ProjectMedia'
       model = self.set_media_for_permissions(model)
     end
     unless self.project.nil?

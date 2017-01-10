@@ -135,20 +135,6 @@ class GraphqlCrudOperations
     end
   end
 
-  def self.field_with_context
-    proc do |name, field_type = types.String, method = nil|
-      field name do
-        type field_type
-
-        argument :context_id, types.Int
-
-        resolve -> (media, args, ctx) {
-          call_method_from_context(media, method.blank? ? name : method, args, ctx)
-        }
-      end
-    end
-  end
-
   def self.field_verification_statuses
     proc do |classname|
       field :verification_statuses do
@@ -198,7 +184,7 @@ class GraphqlCrudOperations
         }
       end
 
-      connection :medias, -> { MediaType.connection_type } do
+      connection :medias, -> { ProjectMediaType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
           annotation.entity_objects
         }

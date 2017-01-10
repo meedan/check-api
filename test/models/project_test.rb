@@ -104,6 +104,14 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal [m1, m2], p.medias
   end
 
+  test "should get project medias count" do
+    t = create_team
+    p = create_project team: t
+    create_project_media project: p
+    create_project_media project: p
+    assert_equal 2, p.medias_count
+  end
+
   test "should have project sources" do
     ps1 = create_project_source
     ps2 = create_project_source
@@ -125,13 +133,13 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    p = create_project
-    c1 = create_comment
-    c2 = create_comment
-    c3 = create_comment
-    p.add_annotation(c1)
-    p.add_annotation(c2)
-    assert_equal [c1.id, c2.id].sort, p.reload.annotations.map(&:id).sort
+    pm = create_project_media
+    c1 = create_comment annotated: nil
+    c2 = create_comment annotated: nil
+    c3 = create_comment annotated: nil
+    pm.add_annotation(c1)
+    pm.add_annotation(c2)
+    assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
   end
 
   test "should get user id through callback" do
@@ -299,26 +307,26 @@ class ProjectTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create ProjectSource", "create Source", "create Media"].sort
-    
+
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
-    
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
-    
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
-    
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete

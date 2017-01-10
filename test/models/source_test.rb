@@ -87,8 +87,10 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should get medias" do
     s = create_source
+    p = create_project
     m = create_valid_media(account: create_valid_account(source: s))
-    assert_equal [m], s.medias
+    pm = create_project_media project: p, media: m
+    assert_equal [pm], s.medias
   end
 
   test "should get collaborators" do

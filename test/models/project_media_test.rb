@@ -127,15 +127,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should notify Slack when project media is created" do
     t = create_team subdomain: 'test'
     u = create_user
-    create_team_user team: t, user: u
+    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     with_current_user_and_team(u, t) do
-      m = create_valid_media project_id: p.id, origin: 'http://test.localhost:3333'
+      m = create_valid_media origin: 'http://test.localhost:3333'
       pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
       assert pm.sent_to_slack
       # claim media
-      m = create_claim_media project_id: p.id, origin: 'http://localhost:3333'
+      m = create_claim_media origin: 'http://localhost:3333'
       pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
       assert pm.sent_to_slack
     end
@@ -154,10 +154,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should notify Pusher in background" do
     Rails.stubs(:env).returns(:production)
+    t = create_team
+    p = create_project team:  t
     CheckdeskNotifications::Pusher::Worker.drain
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
-    create_project_media
-    assert_equal 3, CheckdeskNotifications::Pusher::Worker.jobs.size
+    create_project_media project: p
+    assert_equal 2, CheckdeskNotifications::Pusher::Worker.jobs.size
     CheckdeskNotifications::Pusher::Worker.drain
     assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -168,7 +170,98 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media project_id: p.id, user: u
-    assert_equal Status.default_id(m, p), m.annotations('status', p).last.status
+    assert_equal Status.default_id(m, p), m.project_media.annotations('status').last.status
+  end
+
+  test "should update project media embed data" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    p1 = create_project
+    p2 = create_project
+    pm1 = create_project_media project: p1, media: m
+    pm2 = create_project_media project: p2, media: m
+    # fetch data (without overridden)
+    data = pm1.embed
+    assert_equal 'test media', data['title']
+    assert_equal 'add desc', data['description']
+    # Update media title and description for pm1
+    info = {title: 'Title A', description: 'Desc A'}.to_json
+    pm1.embed= info
+    info = {title: 'Title AA', description: 'Desc AA'}.to_json
+    pm1.embed= info
+    # Update media title and description for pm2
+    info = {title: 'Title B', description: 'Desc B'}.to_json
+    pm2.embed= info
+    info = {title: 'Title BB', description: 'Desc BB'}.to_json
+    pm2.embed= info
+    # fetch data for pm1
+    data = pm1.embed
+    assert_equal 'Title AA', data['title']
+    assert_equal 'Desc AA', data['description']
+    # fetch data for pm2
+    data = pm2.embed
+    assert_equal 'Title BB', data['title']
+    assert_equal 'Desc BB', data['description']
+  end
+
+  test "should get published time" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_not_nil pm.published
+    assert_not_nil pm.send(:published)
+  end
+
+  test "should have annotations" do
+    pm = create_project_media
+    c1 = create_comment annotated: pm
+    c2 = create_comment annotated: pm
+    c3 = create_comment annotated: nil
+    assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
+  end
+
+  test "should get permissions" do
+    u = create_user
+    t = create_team current_user: u
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p, current_user: u
+    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    User.stubs(:current).returns(u)
+    Team.stubs(:current).returns(t)
+    # load permissions as owner
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as editor
+    tu.update_column(:role, 'editor')
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as editor
+    tu.update_column(:role, 'editor')
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as journalist
+    tu.update_column(:role, 'journalist')
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as contributor
+    tu.update_column(:role, 'contributor')
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    # load as authenticated
+    tu.update_column(:team_id, nil)
+    assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
+    User.unstub(:current)
+    Team.unstub(:current)
+  end
+
+  test "should journalist edit own status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t, user: create_user
+    pm = create_project_media project: p, user: u
+    with_current_user_and_team(u, t) do
+      assert JSON.parse(pm.permissions)['create Status']
+    end
   end
 
 end

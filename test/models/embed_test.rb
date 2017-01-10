@@ -7,7 +7,7 @@ end
 class EmbedTest < ActiveSupport::TestCase
   test "should create embed" do
     assert_difference 'Embed.length' do
-      create_embed(embed: 'test')
+      create_embed(embed: 'test', annotated: create_project_source)
     end
   end
 
@@ -122,4 +122,26 @@ class EmbedTest < ActiveSupport::TestCase
       assert_equal u2, em.reload.annotator
     end
   end
+
+  # test "should create elasticsearch embed" do
+  #   t = create_team
+  #   p = create_project team: t
+  #   m = create_valid_media embed_data: {title: 'media title'}.to_json
+  #   pm = create_project_media media: m, project: p
+  #   sleep 1
+  #   result = MediaSearch.find(pm.id)
+  #   assert_equal 'media title', result.title
+  # end
+
+  # test "should update elasticsearch embed" do
+  #   t = create_team
+  #   p = create_project team: t
+  #   m = create_valid_media embed_data: {title: 'media title'}.to_json
+  #   pm = create_project_media media: m, project: p
+  #   m.embed_data = {title: 'new title'}.to_json
+  #   m.save!
+  #   result = MediaSearch.find(pm.id)
+  #   assert_equal 'new title', result.title
+  # end
+
 end

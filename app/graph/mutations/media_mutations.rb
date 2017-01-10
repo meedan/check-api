@@ -4,8 +4,7 @@ module MediaMutations
     account_id: 'int',
     project_id: 'int',
     user_id: 'int',
-    quote: 'str',
-    information: 'str'
+    quote: 'str'
   }
 
   update_fields = {
@@ -14,7 +13,6 @@ module MediaMutations
     project_id: 'int',
     user_id: 'int',
     quote: 'str',
-    information: 'str',
     id: '!id'
   }
 
