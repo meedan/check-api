@@ -101,13 +101,17 @@ class Media < ActiveRecord::Base
     self.associate_to_project
   end
 
-  def set_type
-    if self.type.blank?
-      if self.url.blank?
-        self.type = 'Claim' unless self.quote.blank?
-      else
-        self.type = 'Link'
-      end
+  def self.class_from_input(input)
+    type = nil
+    if input[:url].blank?
+      type = 'Claim' unless input[:quote].blank?
+    else
+      type = 'Link'
     end
+    type
+  end
+
+  def set_type
+    self.type = Media.class_from_input({ url: self.url, quote: self.quote }) if self.type.blank?
   end
 end

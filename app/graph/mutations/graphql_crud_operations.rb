@@ -5,7 +5,7 @@ class GraphqlCrudOperations
     end
     obj.save!
 
-    name = obj.class.name.underscore
+    name = obj.class_name.underscore
     ret = { name.to_sym => obj }
 
     parents.each do |parent_name|
@@ -22,7 +22,12 @@ class GraphqlCrudOperations
   end
 
   def self.create(type, inputs, ctx, parents = [])
-    obj = type.camelize.constantize.new
+    klass = type.camelize
+    
+    # Not needed after #5587
+    klass = Media.class_from_input(inputs) if type == 'media'
+
+    obj = klass.constantize.new
     obj.origin = ctx[:origin] if obj.respond_to?('origin=')
 
     attrs = inputs.keys.inject({}) do |memo, key|
