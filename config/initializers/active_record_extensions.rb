@@ -40,6 +40,10 @@ module ActiveRecordExtensions
   def is_annotation?
     false
   end
+
+  def class_name
+    self.class.name
+  end
 end
 
 ActiveRecord::Base.send(:include, ActiveRecordExtensions)

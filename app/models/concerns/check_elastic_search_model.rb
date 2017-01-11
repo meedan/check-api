@@ -42,7 +42,7 @@ module CheckElasticSearchModel
   private
 
   def set_type
-    self.annotation_type ||= self.class.name.parameterize
+    self.annotation_type ||= self.class_name.parameterize
   end
 
   module ClassMethods

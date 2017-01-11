@@ -46,9 +46,11 @@ module CheckdeskPermissions
   def get_create_permissions
     {
       'Team' => [Project, Account, TeamUser, User, Contact],
-      'Account' => [Media],
+      'Account' => [Media, Link, Claim],
       'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
-      'Project' => [ProjectSource, Source, Media, ProjectMedia],
+      'Link' => [ProjectMedia, Comment, Flag, Status, Tag],
+      'Claim' => [ProjectMedia, Comment, Flag, Status, Tag],
+      'Project' => [ProjectSource, Source, Media, ProjectMedia, Claim, Link],
       'ProjectMedia' => [Comment, Flag, Status, Tag],
       'Source' => [Account, ProjectSource, Project],
       'User' => [Source, TeamUser, Team, Project]

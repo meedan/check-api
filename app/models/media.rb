@@ -20,6 +20,10 @@ class Media < ActiveRecord::Base
   
   validates_inclusion_of :type, in: Media.types
 
+  def class_name
+    'Media'
+  end
+
   def current_team
     self.project.team if self.project
   end
@@ -100,9 +104,9 @@ class Media < ActiveRecord::Base
   def set_type
     if self.type.blank?
       if self.url.blank?
-        self.type = 'claim' unless self.quote.blank?
+        self.type = 'Claim' unless self.quote.blank?
       else
-        self.type = 'link'
+        self.type = 'Link'
       end
     end
   end

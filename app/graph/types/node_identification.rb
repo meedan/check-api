@@ -17,7 +17,7 @@ NodeIdentification = GraphQL::Relay::GlobalNodeIdentification.define do
   end
 
   type_from_object -> (object) do
-    klass = object.respond_to?(:type) ? object.type : object.class.name
+    klass = object.respond_to?(:type) ? object.type : object.class_name
     "#{klass}Type".constantize
   end
 

@@ -327,7 +327,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should get domain" do
-    m = Media.new
+    m = Link.new
     m.url = 'https://www.youtube.com/watch?v=b708rEG7spI'
     assert_equal 'youtube.com', m.domain
     m.url = 'localhost'
@@ -362,7 +362,7 @@ class MediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     m = create_valid_media project_id: p.id
-    perm_keys = ["read Media", "update Media", "destroy Media", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    perm_keys = ["read Link", "update Link", "destroy Link", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
@@ -406,7 +406,7 @@ class MediaTest < ActiveSupport::TestCase
     profile_response = '{"type":"media","data":{"url":"' + url + '","type":"item","title":"Flickr","description":"Flickr","author_url":"","username":"","provider":"page"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     WebMock.stub_request(:get, pender_url).with({ query: { url: profile_url } }).to_return(body: profile_response)
-    m = Media.new
+    m = Link.new
     m.url = url
     m.save!
     assert_not_nil m.account.source
