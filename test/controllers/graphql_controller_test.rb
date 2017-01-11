@@ -117,7 +117,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pender_url = CONFIG['pender_host'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    assert_graphql_create('media', { url: url, project_id: @project.id })
+    assert_graphql_create('media', { url: url })
     # test with empty URL
     assert_graphql_create('media', { url: '', quote: 'media quote' })
     assert_graphql_create('media', { quote: 'media quote' })

@@ -243,8 +243,11 @@ module SampleData
     if options.has_key?(:team)
       options[:project_id] = create_project(team: options[:team]).id
     end
-    m.project_id = options[:project_id]
     m.save!
+    unless options[:project_id].blank?
+      p = Project.where(id: options[:project_id]).last
+      create_project_media media: m, project: p unless p.nil?
+    end
     m.reload
   end
 

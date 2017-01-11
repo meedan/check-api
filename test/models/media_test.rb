@@ -91,7 +91,7 @@ class MediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     media = create_valid_media project_id: p.id
-    assert_not_empty media.project_media.embed
+    assert_not_empty media.annotations('embed')
   end
 
   test "should get user id" do
@@ -144,14 +144,6 @@ class MediaTest < ActiveSupport::TestCase
     m.project_medias << pm1
     m.project_medias << pm2
     assert_equal [pm1, pm2], m.project_medias
-  end
-
-  test "should get project media id" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    assert_equal m.pm_dbid(p), pm.id
   end
 
   test "should have projects" do
@@ -314,18 +306,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [], m.projects
   end
 
-  test "should associate with project when validation fails" do
-    p1 = create_project
-    p2 = create_project
-    m = create_valid_media project_id: p1.id
-    assert_no_difference 'Media.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_media project_id: p2.id, url: m.url
-      end
-    end
-    assert_equal [p1, p2], m.reload.projects
-  end
-
   test "should get domain" do
     m = Media.new
     m.url = 'https://www.youtube.com/watch?v=b708rEG7spI'
@@ -345,15 +325,6 @@ class MediaTest < ActiveSupport::TestCase
     m = create_media(account: create_valid_account, url: url, project_id: p.id)
     assert_equal 1, m.annotations('embed').count
     assert_equal [m.id], m.annotations('embed').map(&:annotated_id)
-  end
-
-  test "should get current team" do
-    m = create_media project_id: nil
-    assert_nil m.current_team
-    t = create_team
-    p = create_project team: t
-    m = create_media project_id: p.id
-    assert_equal t, m.current_team
   end
 
   test "should get permissions" do
@@ -431,9 +402,9 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should add title for claim medias" do
     p = create_project team: create_team
-    m = create_claim_media project_id: p.id, quote: 'media quote'
-    d = m.project_media.embed
-    assert_equal 'media quote', d['title']
+    m = create_claim_media quote: 'media quote'
+    pm = create_project_media project: p, media: m
+    assert_equal 'media quote', pm.embed['title']
   end
 
 end

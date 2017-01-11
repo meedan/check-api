@@ -169,8 +169,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     p = create_project team: t
-    m = create_valid_media project_id: p.id, user: u
-    assert_equal Status.default_id(m, p), m.project_media.annotations('status').last.status
+    m = create_valid_media user: u
+    pm = create_project_media project: p, media: m
+    assert_equal Status.default_id(m, p), pm.annotations('status').last.status
   end
 
   test "should update project media embed data" do
