@@ -495,7 +495,7 @@ class GraphqlControllerTest < ActionController::TestCase
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success
-    assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['medias']['edges'][0]['node']['permissions']
+    assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['project_medias']['edges'][0]['node']['permissions']
   end
 
   test "should get team with statuses" do
@@ -636,7 +636,7 @@ class GraphqlControllerTest < ActionController::TestCase
       m = create_media project_id: p.id
       0.times { create_comment context: p, annotated: m, annotator: u }
     end
-    query = "query { project(id: \"#{p.id}\") { medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
+    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
     assert_queries (2 * n + 15) do
