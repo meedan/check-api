@@ -235,7 +235,8 @@ module SampleData
     return create_valid_media(options) if options[:url].blank?
     account = options.has_key?(:account) ? options[:account] : create_account
     user = options.has_key?(:user) ? options[:user] : create_user
-    m = Media.new
+    type = options.has_key?(:type) ? options[:type] : :link
+    m = type.to_s.camelize.constantize.new
     m.url = options[:url]
     m.quote = options[:quote] if options.has_key?(:quote)
     m.account_id = options.has_key?(:account_id) ? options[:account_id] : account.id
@@ -248,14 +249,18 @@ module SampleData
     m.reload
   end
 
+  def create_link(options = {})
+    create_media(options.merge({ type: 'link' }))
+  end
+
   def create_claim_media(options = {})
     options = { quote: random_string }.merge(options)
-    m = Media.new
+    c = Claim.new
     options.each do |key, value|
-      m.send("#{key}=", value) if m.respond_to?("#{key}=")
+      c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
-    m.save!
-    m.reload
+    c.save!
+    c.reload
   end
 
   def create_source(options = {})

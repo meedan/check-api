@@ -1,6 +1,8 @@
 class Media < ActiveRecord::Base
+  self.inheritance_column = :type
+
   attr_accessible
-  attr_accessor :project_id, :duplicated_of, :project_object
+  attr_accessor :project_id, :project_object
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
@@ -9,16 +11,14 @@ class Media < ActiveRecord::Base
   has_many :projects, through: :project_medias
   has_annotations
 
-  include PenderData
+  before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
+  after_create :set_project
 
-  validate :validate_pender_result, on: :create
-  validate :pender_result_is_an_item, on: :create
-  validate :url_is_unique, on: :create
-  validate :validate_quote_for_media_with_empty_url, on: :create
-
-  before_validation :set_url_nil_if_empty, :set_user, on: :create
-  after_create :set_pender_result_as_annotation, :set_project, :set_account
-  after_rollback :duplicate
+  def self.types
+    %w(Link Claim)
+  end
+  
+  validates_inclusion_of :type, in: Media.types
 
   def current_team
     self.project.team if self.project
@@ -70,11 +70,6 @@ class Media < ActiveRecord::Base
     context.nil? ? self.project : context
   end
 
-  def domain
-    host = URI.parse(self.url).host unless self.url.nil?
-    host.nil? ? nil : host.gsub(/^(www|m)\./, '')
-  end
-
   def project
     return self.project_object unless self.project_object.nil?
     if self.project_id
@@ -98,51 +93,17 @@ class Media < ActiveRecord::Base
     self.user = User.current unless User.current.nil?
   end
 
-  def set_account
-    unless self.pender_data.nil?
-      account = Account.new
-      account.url = self.pender_data['author_url']
-      if account.save
-        self.account = account
-      else
-        self.account = Account.where(url: account.url).last
-      end
-      self.save!
-    end
-  end
-
-  def pender_result_is_an_item
-    unless self.pender_data.nil?
-      errors.add(:base, 'Sorry, this is not a valid media item') unless self.pender_data['type'] == 'item'
-    end
-  end
-
-  def url_is_unique
-    unless self.url.nil?
-      existing = Media.where(url: self.url).first
-      self.duplicated_of = existing
-      errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
-    end
-  end
-
-  def validate_quote_for_media_with_empty_url
-      if self.url.blank? and self.quote.blank?
-        errors.add(:base, "quote can't be blank")
-      end
-  end
-
   def set_project
     self.associate_to_project
   end
 
-  def duplicate
-    dup = self.duplicated_of
-    unless dup.blank?
-      dup.project_id = self.project_id
-      dup.origin = self.origin
-      dup.associate_to_project
-      return false
+  def set_type
+    if self.type.blank?
+      if self.url.blank?
+        self.type = 'claim' unless self.quote.blank?
+      else
+        self.type = 'link'
+      end
     end
-    true
   end
 end
