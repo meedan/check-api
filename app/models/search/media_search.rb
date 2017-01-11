@@ -15,7 +15,7 @@ class MediaSearch
   before_save :set_last_activity_at
 
   def set_es_annotated(obj)
-    self.send("annotated_type=", obj.class_name)
+    self.send("annotated_type=", obj.class.name)
     self.send("annotated_id=", obj.id)
   end
 

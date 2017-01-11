@@ -163,7 +163,7 @@ class AccountTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: u
     a = create_valid_account
-    perm_keys = ["read Account", "update Account", "destroy Account", "create Media"].sort
+    perm_keys = ["read Account", "update Account", "destroy Account", "create Media", "create Claim", "create Link"].sort
     
     # load permissions as owner
     with_current_user_and_team(u, t) do

@@ -1018,8 +1018,8 @@ class AbilityTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       assert_equal ["read Team", "update Team", "destroy Team", "create Project", "create Account", "create TeamUser", "create User", "create Contact"], JSON.parse(t.permissions).keys
-      assert_equal ["read Project", "update Project", "destroy Project", "create ProjectSource", "create Source", "create Media", "create ProjectMedia"], JSON.parse(p.permissions).keys
-      assert_equal ["read Account", "update Account", "destroy Account", "create Media"], JSON.parse(a.permissions).keys
+      assert_equal ["read Project", "update Project", "destroy Project", "create ProjectSource", "create Source", "create Media", "create ProjectMedia", "create Claim", "create Link"], JSON.parse(p.permissions).keys
+      assert_equal ["read Account", "update Account", "destroy Account", "create Media", "create Link", "create Claim"].sort, JSON.parse(a.permissions).keys.sort
     end
   end
 

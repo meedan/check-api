@@ -131,7 +131,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should not duplicate media url" do
     m = create_valid_media
-    m2 = Media.new
+    m2 = Link.new
     m2.url = m.url
     assert_not m2.save
   end
