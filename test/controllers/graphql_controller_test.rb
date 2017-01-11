@@ -113,19 +113,15 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create media" do
+    p = create_project team: @team
     url = random_url
     pender_url = CONFIG['pender_host'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    assert_graphql_create('media', { url: url })
-    # test with empty URL
+    assert_graphql_create('project_media', { project_id: p.id, url: url })
+    # create claim report
     assert_graphql_create('media', { url: '', quote: 'media quote' })
-    assert_graphql_create('media', { quote: 'media quote' })
-  end
-
-  test "should read medias" do
-    assert_graphql_read('media', 'url')
-    assert_graphql_read('media', 'quote')
+    assert_graphql_create('project_media', { project_id: p.id, quote: 'media quote' })
   end
 
   test "should create project media" do
@@ -138,10 +134,6 @@ class GraphqlControllerTest < ActionController::TestCase
     Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
     assert_graphql_read('project_media', 'published')
     #assert_graphql_read('project_media', 'last_status')
-  end
-
-  test "should update project media" do
-    #TODO
   end
 
   test "should read project media embed" do
@@ -172,10 +164,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     embed = JSON.parse(@response.body)['data']['project_media']['embed']
     assert_equal 'Title B', JSON.parse(embed)['title']
-  end
-
-  test "should destroy media" do
-    assert_graphql_destroy('media')
   end
 
   test "should create project source" do
@@ -277,10 +265,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read_object('account', { 'user' => 'name', 'source' => 'name' })
   end
 
-  test "should read object from media" do
-    assert_graphql_read_object('media', { 'account' => 'url' })
-  end
-
   test "should read object from project media" do
     assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url' })
   end
@@ -299,12 +283,8 @@ class GraphqlControllerTest < ActionController::TestCase
                                                'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
   end
 
-  test "should read collection from project media" do
-    assert_graphql_read_collection('project_media', { 'annotations' => 'content', 'tags' => 'tag' }, 'DESC')
-  end
-
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url' })
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id' })
   end
 
   test "should read collection from media" do
@@ -511,7 +491,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     create_comment annotated: pm, annotator: u
-    query = "query GetById { project(id: \"#{p.id}\") { medias_count, medias(first: 1) { edges { node { permissions } } } } }"
+    query = "query GetById { project(id: \"#{p.id}\") { medias_count, project_medias(first: 1) { edges { node { permissions } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success

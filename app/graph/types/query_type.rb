@@ -20,7 +20,7 @@ QueryType = GraphQL::ObjectType.define do
     type UserType
     description 'Information about the current user'
     resolve -> (_obj, _args, _ctx) do
-      User.current 
+      User.current
     end
   end
 
@@ -71,25 +71,6 @@ QueryType = GraphQL::ObjectType.define do
       project = Project.where(id: args['id'], team_id: tid).last
       id = project.nil? ? 0 : project.id
       GraphqlCrudOperations.load_if_can(Project, id, ctx)
-    end
-  end
-
-  field :media do
-    type MediaType
-    description 'Information about a media item. The argument should be given like this: "media_id,project_id"'
-
-    argument :ids, !types.String
-
-    resolve -> (_obj, args, ctx) do
-      mid, pid = args['ids'].split(',').map(&:to_i)
-      tid = Team.current.blank? ? 0 : Team.current.id
-      project = Project.where(id: pid, team_id: tid).last
-      pid = project.nil? ? 0 : project.id
-      project_media = ProjectMedia.where(project_id: pid, media_id: mid).last
-      mid = project_media.nil? ? 0 : project_media.media_id
-      media = GraphqlCrudOperations.load_if_can(Media, mid, ctx)
-      media.project_id = pid if media
-      media
     end
   end
 

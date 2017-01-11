@@ -22,11 +22,5 @@ MediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :projects, -> { ProjectType.connection_type } do
-    resolve -> (media, _args, _ctx) {
-      media.projects
-    }
-  end
-
 end
 
