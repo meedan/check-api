@@ -1,7 +1,9 @@
 module ProjectMediaMutations
   create_fields = {
-    media_id: '!int',
-    project_id: '!int'
+    media_id: 'int',
+    project_id: '!int',
+    url: 'str',
+    quote: 'str'
   }
 
   update_fields = {

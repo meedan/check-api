@@ -10,23 +10,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :media_id, types.Int
   field :project_id, types.Int
   field :user_id, types.Int
+  field :url, types.String
+  field :quote, types.String
   field :dbid, types.Int
-
-  field :url do
-    type types.String
-
-    resolve -> (project_media, _args, _ctx) {
-      project_media.media.url
-    }
-  end
-
-  field :quote do
-    type types.String
-
-    resolve -> (project_media, _args, _ctx) {
-      project_media.media.quote
-    }
-  end
 
   field :domain do
     type types.String
