@@ -287,16 +287,15 @@ module SampleData
   end
 
   def create_project_media(options = {})
+    options = { disable_es_callbacks: true, user: create_user }.merge(options)
     pm = ProjectMedia.new
-    project = options[:project] || create_project
-    media = options[:media] || create_valid_media
-    user = options.has_key?(:user) ? options[:user] : create_user
-    pm.project_id = options[:project_id] || project.id
-    pm.media_id = options[:media_id] || media.id
-    pm.user_id = options[:user_id] || user.id
-    pm.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
+    options[:project] = create_project unless options.has_key?(:project)
+    options[:media] = create_valid_media unless options.has_key?(:media)
+    options.each do |key, value|
+      pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
+    end
     pm.save!
-    pm
+    pm.reload
   end
 
   def create_team_user(options = {})

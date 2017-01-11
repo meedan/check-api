@@ -42,14 +42,44 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should have a project and media" do
+    assert_no_difference 'ProjectMedia.count' do
+      assert_raise ActiveRecord::RecordInvalid do
+        create_project_media project: nil
+      end
+      assert_raise ActiveRecord::RecordInvalid do
+        create_project_media media: nil
+      end
+    end
+  end
+
+  test "should create media if url or quote set" do
+    assert_difference 'ProjectMedia.count' do
+      create_project_media media: nil, quote: 'Claim report'
+    end
+    assert_difference 'ProjectMedia.count' do
+      pender_url = CONFIG['pender_host'] + '/api/medias'
+      url = 'http://test.com'
+      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      create_project_media media: nil, url: url
+    end
+  end
+
+  test "should create with exisitng media if url exists" do
+    m = create_valid_media
+    pm = create_project_media media: nil, url: m.url
+    assert_equal m, pm.media
+  end
+
   test "should update and destroy project media" do
     u = create_user
     t = create_team
     p = create_project team: t
     p2 = create_project team: t
-    m = create_valid_media project_id: p.id, user_id: u.id
+    m = create_valid_media user_id: u.id
     create_team_user team: t, user: u
-    pm = m.project_medias.last
+    pm = create_project_media project: p, media: m
     with_current_user_and_team(u, t) do
       pm.project_id = p2.id; pm.save!
       pm.reload
@@ -69,8 +99,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     pm_own = nil
     with_current_user_and_team(u2, t) do
-      own_media = create_valid_media project_id: p.id, user: u2
-      pm_own = own_media.project_medias.last
+      own_media = create_valid_media user: u2
+      pm_own = create_project_media project: p, media: own_media, user: u2
       pm_own.project_id = p2.id; pm_own.save!
       pm_own.reload
       assert_equal pm_own.project_id, p2.id
@@ -89,13 +119,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "non members should not read project media in private team" do
     u = create_user
     t = create_team
-    m = create_media team: t
-    pm = m.project_medias.last
+    p = create_project team: t
+    m = create_media project: p
+    pm = create_project_media project: p, media: m
     pu = create_user
     pt = create_team private: true
     create_team_user team: pt, user: pu
-    m = create_media team: pt
-    ppm = m.project_medias.last
+    pp = create_project team: pt
+    m = create_media project: pp
+    ppm = create_project_media project: pp, media: m
     ProjectMedia.find_if_can(pm.id)
     assert_raise CheckdeskPermissions::AccessDenied do
       with_current_user_and_team(u, pt) do
