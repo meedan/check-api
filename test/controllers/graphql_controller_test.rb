@@ -53,7 +53,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should return 404 if object does not exist" do
     authenticate_with_user
-    post :create, query: 'query GetById { media(ids: "99999,1") { id } }'
+    post :create, query: 'query GetById { project_media(id: 99999) { id } }'
     assert_response 404
   end
 
@@ -633,8 +633,8 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     n.times do
-      m = create_media project_id: p.id
-      0.times { create_comment context: p, annotated: m, annotator: u }
+      pm = create_project_media project: p
+      0.times { create_comment annotated: pm, annotator: u }
     end
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
@@ -644,7 +644,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
 
     assert_response :success
-    assert_equal n, JSON.parse(@response.body)['data']['project']['medias']['edges'].size
+    assert_equal n, JSON.parse(@response.body)['data']['project']['project_medias']['edges'].size
   end
 
   test "should get node from global id for search" do
