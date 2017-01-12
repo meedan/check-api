@@ -268,6 +268,10 @@ module SampleData
     create_media(options.merge({ type: 'UploadedImage' }))
   end
 
+  def create_uploaded_file(options = { file: 'test.txt' })
+    create_media(options.merge({ type: 'UploadedFile' }))
+  end
+
   def create_claim_media(options = {})
     options = { quote: random_string }.merge(options)
     c = Claim.new

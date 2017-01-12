@@ -111,6 +111,8 @@ GEM
       responders
       warden (~> 1.2.3)
     docile (1.1.5)
+    domain_name (0.5.20160826)
+      unf (>= 0.0.5, < 1.0.0)
     elasticsearch (2.0.0)
       elasticsearch-api (= 2.0.0)
       elasticsearch-transport (= 2.0.0)
@@ -152,6 +154,8 @@ GEM
     hashdiff (0.3.0)
     hashie (3.4.6)
     htmlentities (4.3.4)
+    http-cookie (1.0.3)
+      domain_name (~> 0.5)
     httpclient (2.8.2.4)
     httpi (2.4.2)
       rack
@@ -189,6 +193,7 @@ GEM
     multi_json (1.12.1)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
+    netrc (0.11.0)
     newrelic_rpm (3.17.0.325)
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
@@ -280,6 +285,10 @@ GEM
     request_store (1.3.1)
     responders (2.3.0)
       railties (>= 4.2.0, < 5.1)
+    rest-client (2.0.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     rubocop (0.43.0)
       parser (>= 2.3.1.1, < 3.0)
       powerpack (~> 0.1)
@@ -348,6 +357,9 @@ GEM
       thread_safe (~> 0.1)
     uglifier (3.0.2)
       execjs (>= 0.3.0, < 3)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.7.2)
     unicode-display_width (1.1.1)
     uuid (2.3.8)
       macaddr (~> 1.0)
@@ -416,6 +428,7 @@ DEPENDENCIES
   rails-graphql-generator
   redis-namespace
   responders
+  rest-client
   rubocop
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)

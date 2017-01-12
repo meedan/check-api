@@ -3,6 +3,7 @@ class UploadedFile < Media
 
   validates :file, presence: true
   validates :file, file_size: { less_than: CONFIG['uploaded_file_max_size'] || 1.megabyte }
+  validates :file, safe: true
 
   def public_path
     CONFIG['checkdesk_base_url'] + self.file.url

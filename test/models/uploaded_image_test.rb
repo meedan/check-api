@@ -76,6 +76,25 @@ class UploadedImageTest < ActiveSupport::TestCase
     UploadedImage.any_instance.unstub(:save!)
   end
 
-  test "should not upload insecure image" do
+  test "should not upload unsafe image (mocked)" do
+    stub_config('clamav_service_path', 'http://localhost:8080/scan') do
+      RestClient.stubs(:post).returns(OpenStruct.new(body: "Everything ok : false\n"))
+      assert_no_difference 'UploadedImage.count' do
+        assert_raises ActiveRecord::RecordInvalid do
+          create_uploaded_image
+        end
+      end
+      RestClient.unstub(:post)
+    end
+  end
+
+  test "should upload safe image (mocked)" do
+    stub_config('clamav_service_path', 'http://localhost:8080/scan') do
+      RestClient.stubs(:post).returns(OpenStruct.new(body: "Everything ok : true\n"))
+      assert_difference 'UploadedImage.count' do
+        create_uploaded_image
+      end
+      RestClient.unstub(:post)
+    end
   end
 end

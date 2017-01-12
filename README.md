@@ -69,6 +69,18 @@ You can update the schema file by running `rake lapis:graphql:schema`.
 
 Some tasks run in background, for example: Slack notifications. They are processed using Sidekiq. Start Sidekiq with `bundle exec sidekiq` and monitor through the web interface at `/sidekiq`. We suggest that you protect that path with HTTP authentication.
 
+### Virus validation for uploaded files
+
+In order to look for viruses on the files uploaded by users, you need to setup the configuration option `clamav_service_path`, which should be something like: `http://host:8080/scan`. A ClamAV REST service should be running at that address. We suggest the setup at https://hub.docker.com/r/lokori/clamav-rest/. If that configuration option is not set, uploaded files will skip the safety validation.
+
+You can also test your instance of ClamAV REST this way:
+
+* Set the *test* configuration `clamav_service_path` to point to your instance
+* Run this: `bundle exec ruby test/models/uploaded_file_test.rb -n /real/`
+* Two tests should pass
+
+The test uses a EICAR file (a test file which is recognized as a virus by scanners even though it's not really a virus). 
+
 ### Migration
 
 Migrate CD2 data
