@@ -40,6 +40,7 @@ class ProjectMedia < ActiveRecord::Base
     st.status = Status.default_id(self.media, self.project)
     st.created_at = self.created_at
     st.disable_es_callbacks = self.disable_es_callbacks
+    st.skip_check_ability = true
     st.save!
   end
 
