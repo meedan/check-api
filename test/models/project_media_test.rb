@@ -66,6 +66,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should find media by normalized url" do
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media url: url
+    url2 = 'http://test2.com'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
+    pm = create_project_media url: url2
+    assert_equal pm.media, m
+  end
+
   test "should create with exisitng media if url exists" do
     m = create_valid_media
     pm = create_project_media media: nil, url: m.url

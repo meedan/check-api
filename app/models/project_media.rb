@@ -128,12 +128,14 @@ class ProjectMedia < ActiveRecord::Base
 
   def set_media
     unless self.url.blank? && self.quote.blank?
+      m = Media.new
       if !self.quote.blank?
-        m = Media.new
-        m.quote = self.quote
-        m.save!
+        m.quote = self.quote; m.save!
       else
-        m = Media.find_or_create_by(url: self.url)
+        m.url = self.url
+        # call m.valid? to get normalized URL before caling 'find_or_create_by'
+        m.valid?
+        m = Media.find_or_create_by(url: m.url)
       end
       self.media_id = m.id unless m.nil?
     end
