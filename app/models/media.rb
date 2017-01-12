@@ -15,7 +15,7 @@ class Media < ActiveRecord::Base
   after_create :set_project
 
   def self.types
-    %w(Link Claim)
+    %w(Link Claim UploadedFile UploadedImage)
   end
   
   validates_inclusion_of :type, in: Media.types

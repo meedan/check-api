@@ -245,12 +245,27 @@ module SampleData
       options[:project_id] = create_project(team: options[:team]).id
     end
     m.project_id = options[:project_id]
+
+    file = nil
+    if options.has_key?(:file)
+      file = options[:file]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        m.file = f
+      end
+    end
+ 
     m.save!
     m.reload
   end
 
   def create_link(options = {})
     create_media(options.merge({ type: 'link' }))
+  end
+
+  def create_uploaded_image(options = { file: 'rails.png' })
+    create_media(options.merge({ type: 'UploadedImage' }))
   end
 
   def create_claim_media(options = {})
