@@ -95,7 +95,7 @@ module CheckdeskPermissions
   private
 
   def check_ability
-    unless User.current.nil?
+    unless self.skip_check_ability or User.current.nil?
       ability = Ability.new
       op = self.new_record? ? :create : :update
       raise "No permission to #{op} #{self.class}" unless ability.can?(op, self)
