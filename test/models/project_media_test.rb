@@ -304,4 +304,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set user when project media is created" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t, user: create_user
+    pm = nil
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p
+    end
+    assert_equal u, pm.user
+  end
 end

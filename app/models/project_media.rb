@@ -9,7 +9,7 @@ class ProjectMedia < ActiveRecord::Base
 
   validates_presence_of :media_id, :project_id
 
-  before_validation :set_media, on: :create
+  before_validation :set_media, :set_user, on: :create
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data
 
@@ -143,6 +143,10 @@ class ProjectMedia < ActiveRecord::Base
 
   def set_quote_embed
     self.embed=({title: self.media.quote}.to_json) unless self.media.quote.blank?
+  end
+
+  def set_user
+    self.user = User.current unless User.current.nil?
   end
 
   protected
