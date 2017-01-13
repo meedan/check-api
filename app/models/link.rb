@@ -1,7 +1,7 @@
 class Link < Media
   include PenderData
   
-  attr_accessor :duplicated_of
+  attr_accessible :url
 
   validates :url, presence: true, on: :create
   validate :validate_pender_result, on: :create
@@ -9,7 +9,6 @@ class Link < Media
   validate :url_is_unique, on: :create
   
   after_create :set_pender_result_as_annotation, :set_account
-  after_rollback :duplicate
 
   def domain
     host = URI.parse(self.url).host unless self.url.nil?
@@ -40,19 +39,7 @@ class Link < Media
   def url_is_unique
     unless self.url.nil?
       existing = Media.where(url: self.url).first
-      self.duplicated_of = existing
       errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
     end
-  end
-
-  def duplicate
-    dup = self.duplicated_of
-    unless dup.blank?
-      dup.project_id = self.project_id
-      dup.origin = self.origin
-      dup.associate_to_project
-      return false
-    end
-    true
   end
 end

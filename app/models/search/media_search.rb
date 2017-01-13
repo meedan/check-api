@@ -19,10 +19,6 @@ class MediaSearch
     self.send("annotated_id=", obj.id)
   end
 
-  def class_name
-    self.class.name
-  end
-
   private
 
   def set_last_activity_at

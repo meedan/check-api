@@ -12,7 +12,6 @@ class Media < ActiveRecord::Base
   has_annotations
 
   before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
-  after_create :set_project
 
   def self.types
     %w(Link Claim UploadedFile UploadedImage)
@@ -22,10 +21,6 @@ class Media < ActiveRecord::Base
 
   def class_name
     'Media'
-  end
-
-  def current_team
-    self.project.team if self.project
   end
 
   def user_id_callback(value, _mapping_ids = nil)

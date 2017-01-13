@@ -407,4 +407,9 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'media quote', pm.embed['title']
   end
 
+  test "should get class from input" do
+    assert_equal 'Link', Media.class_from_input(url: 'something')
+    assert_equal 'Claim', Media.class_from_input(quote: 'something')
+    assert_nil Media.class_from_input({})
+  end
 end

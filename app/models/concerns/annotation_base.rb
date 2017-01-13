@@ -30,7 +30,7 @@ module AnnotationBase
 
       def has_annotations
         define_method :annotation_query do |type=nil|
-          matches = { annotated_type: self.class.name, annotated_id: self.id }
+          matches = { annotated_type: self.class_name, annotated_id: self.id }
           matches[:annotation_type] = [*type] unless type.nil?
           matches
         end
