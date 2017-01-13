@@ -48,35 +48,6 @@ class EmbedTest < ActiveSupport::TestCase
     assert_equal [em2a.id, em2b.id].sort, s2.reload.annotations.map(&:id).sort
   end
 
-  test "should have context" do
-    em = create_embed
-    s = SampleModel.create
-    assert_nil em.context
-    em.context = s
-    em.save
-    assert_equal s, em.context
-  end
-
-  test "should get annotations from context" do
-    context1 = SampleModel.create
-    context2 = SampleModel.create
-    annotated = SampleModel.create
-
-    em1 = create_embed
-    em1.context = context1
-    em1.annotated = annotated
-    em1.save
-
-    em2 = create_embed
-    em2.context = context2
-    em2.annotated = annotated
-    em2.save
-
-    assert_equal [em1.id, em2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [em1.id], annotated.annotations(nil, context1).map(&:id)
-    assert_equal [em2.id], annotated.annotations(nil, context2).map(&:id)
-  end
-
   test "should get columns as array" do
     assert_kind_of Array, Embed.columns
   end

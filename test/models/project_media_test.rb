@@ -54,9 +54,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should create media if url or quote set" do
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_difference 'ProjectMedia.count', 2 do
       create_project_media media: nil, quote: 'Claim report'
-      create_project_media media: nil, url: 'http://test.com'
+      create_project_media media: nil, url: url
     end
   end
 

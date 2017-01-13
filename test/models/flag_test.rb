@@ -45,15 +45,6 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal({"data"=>["{\"flag\"=>\"Spam\"}", "{\"flag\"=>\"Graphic content\"}"]}, JSON.parse(v.object_changes))
   end
 
-  test "should have context" do
-    f = create_flag
-    s = create_project
-    assert_nil f.context
-    f.context = s
-    f.save
-    assert_equal s, f.context
-  end
-
   test "should get columns as array" do
     assert_kind_of Array, Flag.columns
   end

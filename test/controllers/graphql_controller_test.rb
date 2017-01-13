@@ -65,16 +65,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal t, assigns(:context_team)
   end
 
-  test "should set context project" do
-    authenticate_with_user
-    t = create_team subdomain: 'context'
-    p = create_project team: t
-    @request.headers.merge!({ 'origin': 'http://context.localhost:3333' })
-    @request.env['HTTP_REFERER'] = "http://context.localhost:3333/project/#{p.id}"
-    post :create, query: 'query Query { about { name, version } }'
-    assert_equal p, assigns(:context_project)
-  end
-
   # Test CRUD operations for each model
 
   test "should create account" do
@@ -282,6 +272,10 @@ class GraphqlControllerTest < ActionController::TestCase
                                                'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
   end
 
+  test "should read collection from project media" do
+    assert_graphql_read_collection('project_media', { 'tags'=> 'tag' })
+  end
+
   test "should read collection from project" do
     assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id' })
   end
@@ -342,7 +336,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read annotations" do
-    assert_graphql_read('annotation', 'context_id')
+    assert_graphql_read('annotation', 'annotated_id')
   end
 
   test "should destroy annotation" do
@@ -476,7 +470,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media
     pm = create_project_media project: p, media: m
     create_comment annotated: pm, annotator: u
-    query = "query GetById { project_media(id: #{pm.id}) { dbid, annotations_count, user { name }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } } } }"
+    query = "query GetById { project_media(id: #{pm.id}) { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success

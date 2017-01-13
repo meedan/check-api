@@ -34,10 +34,4 @@ ProjectType = GraphqlCrudOperations.define_default_type do
       project.sources
     }
   end
-
-  connection :annotations, -> { AnnotationType.connection_type } do
-    resolve ->(project, _args, _ctx) {
-      project.annotations
-    }
-  end
 end

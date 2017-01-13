@@ -11,7 +11,6 @@ NodeIdentification = GraphQL::Relay::GlobalNodeIdentification.define do
     else
       obj = type_name.constantize.find_if_can(id)
       obj.origin = ctx[:origin] if obj.respond_to?('origin=')
-      obj.project_id ||= ctx[:context_project].id if obj.respond_to?('project_id=') && ctx[:context_project].present?
     end
     obj
   end

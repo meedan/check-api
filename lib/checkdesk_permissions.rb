@@ -81,7 +81,6 @@ module CheckdeskPermissions
     end
     unless self.project.nil?
       model.project_id = self.project.id if model.respond_to?(:project_id)
-      model.context = self.project if model.respond_to?(:context)
     end
     model
   end

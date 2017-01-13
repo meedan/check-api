@@ -1,16 +1,12 @@
 module CommentMutations
   create_fields = {
     text: '!str',
-    context_id: 'str',
-    context_type: 'str',
     annotated_id: 'str',
     annotated_type: 'str'
   }
 
   update_fields = {
     text: 'str',
-    context_id: 'str',
-    context_type: 'str',
     annotated_id: 'str',
     annotated_type: 'str',
     id: '!id'
