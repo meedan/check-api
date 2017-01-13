@@ -146,8 +146,10 @@ class StatusTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
-    m = create_valid_media team: t, current_user: u2
-    st = create_status annotated: m.project_media, annotator: u1, current_user: u2, status: 'false'
+    p = create_project team: t
+    m = create_valid_media current_user: u2
+    pm = create_project_media project: p, media: m
+    st = create_status annotated: pm, annotator: u1, current_user: u2, status: 'false'
     assert_equal u1, st.annotator
   end
 

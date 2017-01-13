@@ -23,7 +23,7 @@ ProjectType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :medias, -> { ProjectMediaType.connection_type } do
+  connection :project_medias, -> { ProjectMediaType.connection_type } do
     resolve ->(project, _args, _ctx) {
       project.project_medias.to_a
     }
@@ -32,12 +32,6 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   connection :sources, -> { SourceType.connection_type } do
     resolve ->(project, _args, _ctx) {
       project.sources
-    }
-  end
-
-  connection :annotations, -> { AnnotationType.connection_type } do
-    resolve ->(project, _args, _ctx) {
-      project.annotations
     }
   end
 end

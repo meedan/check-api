@@ -1,11 +1,15 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessible
-  attr_accessor :embed, :disable_es_callbacks
+  attr_accessor :url, :quote, :embed, :disable_es_callbacks
 
   belongs_to :project
   belongs_to :media
   belongs_to :user
   has_annotations
+
+  validates_presence_of :media_id, :project_id
+
+  before_validation :set_media, :set_user, on: :create
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data
 
@@ -40,6 +44,7 @@ class ProjectMedia < ActiveRecord::Base
     st.status = Status.default_id(self.media, self.project)
     st.created_at = self.created_at
     st.disable_es_callbacks = self.disable_es_callbacks
+    st.skip_check_ability = true
     st.save!
   end
 
@@ -122,8 +127,27 @@ class ProjectMedia < ActiveRecord::Base
 
   private
 
+  def set_media
+    unless self.url.blank? && self.quote.blank?
+      m = Media.new
+      if !self.quote.blank?
+        m.quote = self.quote; m.save!
+      else
+        m.url = self.url
+        # call m.valid? to get normalized URL before caling 'find_or_create_by'
+        m.valid?
+        m = Media.find_or_create_by(url: m.url)
+      end
+      self.media_id = m.id unless m.nil?
+    end
+  end
+
   def set_quote_embed
     self.embed=({title: self.media.quote}.to_json) unless self.media.quote.blank?
+  end
+
+  def set_user
+    self.user = User.current unless User.current.nil?
   end
 
   protected

@@ -12,7 +12,6 @@ class GraphqlCrudOperations
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
         parent.no_cache = true
-        parent.project_id = child.context_id if parent_name.to_s == 'media' && child.context_type == 'Project' && parent.respond_to?(:project_id)
         ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
         ret[parent_name.to_sym] = parent
       end
@@ -131,7 +130,6 @@ class GraphqlCrudOperations
     GraphQL::ObjectType.define do
       field :permissions, types.String do
         resolve -> (obj, _args, ctx) {
-          obj.project_id ||= ctx[:context_project].id if obj.is_a?(Media) && ctx[:context_project].present?
           obj.permissions(ctx[:ability])
         }
       end
@@ -155,8 +153,7 @@ class GraphqlCrudOperations
 
   def self.define_annotation_fields
     [:annotation_type, :updated_at, :created_at,
-     :context_id, :context_type, :annotated_id,
-     :annotated_type, :content, :dbid ]
+     :annotated_id, :annotated_type, :content, :dbid ]
   end
 
   def self.define_annotation_type(type, fields = {})

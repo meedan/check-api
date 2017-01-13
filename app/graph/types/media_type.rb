@@ -4,14 +4,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id do
-    type !types.ID
-
-    resolve -> (media, _args, _ctx) {
-      media.relay_id
-    }
-  end
-
+  field :id, field: GraphQL::Relay::GlobalIdField.new('Media')
   field :updated_at, types.String
   field :url, types.String
   field :quote, types.String
@@ -26,21 +19,6 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (media, _args, _ctx) {
       media.account
-    }
-  end
-
-  connection :projects, -> { ProjectType.connection_type } do
-    resolve -> (media, _args, _ctx) {
-      media.projects
-    }
-  end
-
-  field :pm_dbid do
-    type types.Int
-    #argument :context_id, types.Int
-
-    resolve ->(media, _args, ctx) {
-      media.pm_dbid(ctx[:context_project])
     }
   end
 

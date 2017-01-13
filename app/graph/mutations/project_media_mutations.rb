@@ -1,7 +1,9 @@
 module ProjectMediaMutations
   create_fields = {
-    media_id: '!int',
-    project_id: '!int'
+    media_id: 'int',
+    project_id: '!int',
+    url: 'str',
+    quote: 'str'
   }
 
   update_fields = {
@@ -11,5 +13,5 @@ module ProjectMediaMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_media', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_media', create_fields, update_fields, ['project'])
 end

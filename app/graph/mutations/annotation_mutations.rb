@@ -2,8 +2,6 @@ module AnnotationMutations
   create_fields = {
     content: '!str',
     annotation_type: '!str',
-    context_id: 'str',
-    context_type: 'str',
     annotated_id: 'str',
     annotated_type: 'str'
   }
@@ -11,8 +9,6 @@ module AnnotationMutations
   update_fields = {
     content: 'str',
     annotation_type: 'str',
-    context_id: 'str',
-    context_type: 'str',
     annotated_id: 'str',
     annotated_type: 'str',
     id: '!id'

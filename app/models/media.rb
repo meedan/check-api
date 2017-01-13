@@ -36,51 +36,12 @@ class Media < ActiveRecord::Base
     mapping_ids[value]
   end
 
-  def pm_dbid(context)
-    pm = self.project_medias.find_by(:project_id => context.id) unless context.nil?
-    pm.nil? ? 0 : pm.id
-  end
-
-  def project_media(context = nil)
-    context = self.get_media_context(context)
-    self.project_medias.find_by(:project_id => context.id) unless context.nil?
-  end
-
   def get_team
     self.projects.map(&:team_id)
   end
 
   def get_team_objects
     self.projects.map(&:team)
-  end
-
-  def associate_to_project
-    if !self.project_id.blank? && !ProjectMedia.where(project_id: self.project_id, media_id: self.id).exists?
-      pm = ProjectMedia.new
-      pm.project_id = self.project_id
-      pm.media = self
-      pm.user = User.current
-      pm.save!
-    end
-  end
-
-  def relay_id
-    str = "Media/#{self.id}"
-    str += "/#{self.project_id}" unless self.project_id.nil?
-    Base64.encode64(str)
-  end
-
-  def get_media_context(context = nil)
-    context.nil? ? self.project : context
-  end
-
-  def project
-    return self.project_object unless self.project_object.nil?
-    if self.project_id
-      Rails.cache.fetch("project_#{self.project_id}", expires_in: 30.seconds) do
-        Project.find(self.project_id)
-      end
-    end
   end
 
   def overriden_embed_attributes
@@ -95,10 +56,6 @@ class Media < ActiveRecord::Base
 
   def set_user
     self.user = User.current unless User.current.nil?
-  end
-
-  def set_project
-    self.associate_to_project
   end
 
   def self.class_from_input(input)

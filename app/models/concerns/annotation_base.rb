@@ -8,8 +8,8 @@ module AnnotationBase
 
     module ClassMethods
       def define_annotators_method
-        define_method :annotators do |context=nil|
-          query = self.annotation_query(context)
+        define_method :annotators do
+          query = self.annotation_query
           query[:annotator_type] = 'User'
           annotators = []
           Annotation.group(:annotator_id, :id).having(query).each do |result|
@@ -20,8 +20,8 @@ module AnnotationBase
       end
 
       def define_annotation_relation_method
-        define_method :annotation_relation do |type=nil, context=nil|
-          query = self.annotation_query(type, context)
+        define_method :annotation_relation do |type=nil|
+          query = self.annotation_query(type)
           klass = (type.blank? || type.is_a?(Array)) ? Annotation : type.camelize.constantize
           relation = klass.where(query)
           relation.order('id DESC')
@@ -29,24 +29,20 @@ module AnnotationBase
       end
 
       def has_annotations
-        define_method :annotation_query do |type=nil, context=nil|
-          matches = { annotated_type: self.class_name, annotated_id: self.id }
-          if context.kind_of?(ActiveRecord::Base)
-            matches[:context_type] = context.class_name
-            matches[:context_id] = context.id
-          end
+        define_method :annotation_query do |type=nil|
+          matches = { annotated_type: self.class.name, annotated_id: self.id }
           matches[:annotation_type] = [*type] unless type.nil?
           matches
         end
 
         define_annotation_relation_method
 
-        define_method :annotations do |type=nil, context=nil|
-          self.annotation_relation(type, context).all
+        define_method :annotations do |type=nil|
+          self.annotation_relation(type).all
         end
 
-        define_method :annotations_count do |type=nil, context=nil|
-          self.annotation_relation(type, context).count
+        define_method :annotations_count do |type=nil|
+          self.annotation_relation(type).count
         end
 
         define_method :add_annotation do |annotation|
@@ -141,14 +137,6 @@ module AnnotationBase
 
   def annotated=(obj)
     self.set_polymorphic('annotated', obj) unless obj.nil?
-  end
-
-  def context
-    self.load_polymorphic('context')
-  end
-
-  def context=(obj)
-    self.set_polymorphic('context', obj) unless obj.nil?
   end
 
   def annotator

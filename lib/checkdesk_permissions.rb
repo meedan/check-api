@@ -83,7 +83,6 @@ module CheckdeskPermissions
     end
     unless self.project.nil?
       model.project_id = self.project.id if model.respond_to?(:project_id)
-      model.context = self.project if model.respond_to?(:context)
     end
     model
   end
@@ -97,7 +96,7 @@ module CheckdeskPermissions
   private
 
   def check_ability
-    unless User.current.nil?
+    unless self.skip_check_ability or User.current.nil?
       ability = Ability.new
       op = self.new_record? ? :create : :update
       raise "No permission to #{op} #{self.class}" unless ability.can?(op, self)

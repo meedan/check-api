@@ -24,10 +24,6 @@ MutationType = GraphQL::ObjectType.define do
   field :updateAccount, field: AccountMutations::Update.field
   field :destroyAccount, field: AccountMutations::Destroy.field
 
-  field :createMedia, field: MediaMutations::Create.field
-  field :updateMedia, field: MediaMutations::Update.field
-  field :destroyMedia, field: MediaMutations::Destroy.field
-
   field :createProject, field: ProjectMutations::Create.field
   field :updateProject, field: ProjectMutations::Update.field
   field :destroyProject, field: ProjectMutations::Destroy.field

@@ -53,7 +53,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should return 404 if object does not exist" do
     authenticate_with_user
-    post :create, query: 'query GetById { media(ids: "99999,1") { id } }'
+    post :create, query: 'query GetById { project_media(id: 99999) { id } }'
     assert_response 404
   end
 
@@ -63,16 +63,6 @@ class GraphqlControllerTest < ActionController::TestCase
     @request.headers.merge!({ 'origin': 'http://context.localhost:3333' })
     post :create, query: 'query Query { about { name, version } }'
     assert_equal t, assigns(:context_team)
-  end
-
-  test "should set context project" do
-    authenticate_with_user
-    t = create_team subdomain: 'context'
-    p = create_project team: t
-    @request.headers.merge!({ 'origin': 'http://context.localhost:3333' })
-    @request.env['HTTP_REFERER'] = "http://context.localhost:3333/project/#{p.id}"
-    post :create, query: 'query Query { about { name, version } }'
-    assert_equal p, assigns(:context_project)
   end
 
   # Test CRUD operations for each model
@@ -113,19 +103,14 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create media" do
+    p = create_project team: @team
     url = random_url
     pender_url = CONFIG['pender_host'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    assert_graphql_create('media', { url: url, project_id: @project.id })
-    # test with empty URL
-    assert_graphql_create('media', { url: '', quote: 'media quote' })
-    assert_graphql_create('media', { quote: 'media quote' })
-  end
-
-  test "should read medias" do
-    assert_graphql_read('media', 'url')
-    assert_graphql_read('media', 'quote')
+    assert_graphql_create('project_media', { project_id: p.id, url: url })
+    # create claim report
+    assert_graphql_create('project_media', { project_id: p.id, quote: 'media quote' })
   end
 
   test "should create project media" do
@@ -138,10 +123,6 @@ class GraphqlControllerTest < ActionController::TestCase
     Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
     assert_graphql_read('project_media', 'published')
     #assert_graphql_read('project_media', 'last_status')
-  end
-
-  test "should update project media" do
-    #TODO
   end
 
   test "should read project media embed" do
@@ -172,10 +153,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     embed = JSON.parse(@response.body)['data']['project_media']['embed']
     assert_equal 'Title B', JSON.parse(embed)['title']
-  end
-
-  test "should destroy media" do
-    assert_graphql_destroy('media')
   end
 
   test "should create project source" do
@@ -277,10 +254,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read_object('account', { 'user' => 'name', 'source' => 'name' })
   end
 
-  test "should read object from media" do
-    assert_graphql_read_object('media', { 'account' => 'url' })
-  end
-
   test "should read object from project media" do
     assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url' })
   end
@@ -300,15 +273,15 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from project media" do
-    assert_graphql_read_collection('project_media', { 'annotations' => 'content', 'tags' => 'tag' }, 'DESC')
+    assert_graphql_read_collection('project_media', { 'tags'=> 'tag' })
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'medias' => 'url' })
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id' })
   end
 
-  test "should read collection from media" do
-    assert_graphql_read_collection('media', { 'projects' => 'title' }, 'DESC')
+  test "should read object from media" do
+    assert_graphql_read_object('media', { 'account' => 'url' })
   end
 
   test "should read collection from team" do
@@ -363,7 +336,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read annotations" do
-    assert_graphql_read('annotation', 'context_id')
+    assert_graphql_read('annotation', 'annotated_id')
   end
 
   test "should destroy annotation" do
@@ -497,7 +470,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media
     pm = create_project_media project: p, media: m
     create_comment annotated: pm, annotator: u
-    query = "query GetById { project_media(id: #{pm.id}) { dbid, annotations_count, user { name }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } } } }"
+    query = "query GetById { project_media(id: #{pm.id}) { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success
@@ -511,11 +484,11 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     create_comment annotated: pm, annotator: u
-    query = "query GetById { project(id: \"#{p.id}\") { medias_count, medias(first: 1) { edges { node { permissions } } } } }"
+    query = "query GetById { project(id: \"#{p.id}\") { medias_count, project_medias(first: 1) { edges { node { permissions } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success
-    assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['medias']['edges'][0]['node']['permissions']
+    assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['project_medias']['edges'][0]['node']['permissions']
   end
 
   test "should get team with statuses" do
@@ -653,10 +626,10 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     n.times do
-      m = create_media project_id: p.id
-      0.times { create_comment context: p, annotated: m, annotator: u }
+      pm = create_project_media project: p
+      0.times { create_comment annotated: pm, annotator: u }
     end
-    query = "query { project(id: \"#{p.id}\") { medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
+    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
     assert_queries (2 * n + 15) do
@@ -664,7 +637,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
 
     assert_response :success
-    assert_equal n, JSON.parse(@response.body)['data']['project']['medias']['edges'].size
+    assert_equal n, JSON.parse(@response.body)['data']['project']['project_medias']['edges'].size
   end
 
   test "should get node from global id for search" do
