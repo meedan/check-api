@@ -83,6 +83,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal m, pm.media
   end
 
+  test "should contributor add a new media" do
+    t = create_team
+    u = create_user
+    p = create_project team: t
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    with_current_user_and_team(u, t) do
+      assert_difference 'ProjectMedia.count' do
+        create_project_media project: p, quote: 'Claim report'
+      end
+    end
+  end
+
   test "should update and destroy project media" do
     u = create_user
     t = create_team
