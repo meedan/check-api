@@ -648,4 +648,18 @@ class GraphqlControllerTest < ActionController::TestCase
    assert_equal id, JSON.parse(@response.body)['data']['node']['id']
   end
 
+  test "should create project media with image" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    authenticate_with_user(u)
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    query = 'mutation create { createProjectMedia(input: { url: "", quote: "", clientMutationId: "1", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
+    assert_difference 'UploadedImage.count' do
+      post :create, query: query, file: file
+    end
+    assert_response :success
+  end
 end

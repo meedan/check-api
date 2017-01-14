@@ -23,11 +23,9 @@ class GraphqlCrudOperations
   def self.create(type, inputs, ctx, parents = [])
     klass = type.camelize
     
-    # Not needed after #5587
-    klass = Media.class_from_input(inputs) if type == 'media'
-
     obj = klass.constantize.new
     obj.origin = ctx[:origin] if obj.respond_to?('origin=')
+    obj.file = ctx[:file] if type == 'project_media' && !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"

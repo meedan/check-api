@@ -43,6 +43,14 @@ class Media < ActiveRecord::Base
     %W(title description username quote)
   end
 
+  def embed_path
+    ''
+  end
+
+  def thumbnail_path
+    ''
+  end
+
   private
 
   def set_url_nil_if_empty

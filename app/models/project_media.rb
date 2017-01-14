@@ -1,6 +1,6 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessible
-  attr_accessor :url, :quote, :embed, :disable_es_callbacks
+  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks
 
   belongs_to :project
   belongs_to :media
@@ -128,9 +128,13 @@ class ProjectMedia < ActiveRecord::Base
   private
 
   def set_media
-    unless self.url.blank? && self.quote.blank?
+    unless self.url.blank? && self.quote.blank? && self.file.blank?
       m = nil
-      if !self.quote.blank?
+      if !self.file.blank?
+        m = UploadedImage.new
+        m.file = self.file
+        m.save!
+      elsif !self.quote.blank?
         m = Claim.new 
         m.quote = self.quote
         m.save!
@@ -146,7 +150,8 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def set_quote_embed
-    self.embed=({title: self.media.quote}.to_json) unless self.media.quote.blank?
+    self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
+    self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
   end
 
   def set_user

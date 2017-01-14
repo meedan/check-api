@@ -412,4 +412,16 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'Claim', Media.class_from_input(quote: 'something')
     assert_nil Media.class_from_input({})
   end
+
+  test "should get image paths" do
+    l = create_link
+    assert_equal '', l.embed_path
+    assert_equal '', l.thumbnail_path
+    c = create_claim_media
+    assert_equal '', c.embed_path
+    assert_equal '', c.thumbnail_path
+    i = create_uploaded_image
+    assert_match /png$/, i.embed_path
+    assert_match /png$/, i.thumbnail_path
+  end
 end

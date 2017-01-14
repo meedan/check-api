@@ -18,5 +18,4 @@ class MediaSearchTest < ActiveSupport::TestCase
     m = create_media_search
     assert_equal 'mediasearch', m.annotation_type
   end
-
 end

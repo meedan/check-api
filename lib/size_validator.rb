@@ -17,7 +17,7 @@ class SizeValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     if !value.nil? && !value.path.blank?
       w, h = ::MiniMagick::Image.open(value.path)[:dimensions]
-      record.errors[attribute] << "must be between #{self.config('min_width')}x#{self.config('max_width')} and #{self.config('min_height')}x#{self.config('max_height')} pixels" if invalid_size?(w, h)
+      record.errors[attribute] << "must be between #{self.config('min_width')}x#{self.config('min_height')} and #{self.config('max_width')}x#{self.config('max_height')} pixels" if invalid_size?(w, h)
     end
   end
 end
