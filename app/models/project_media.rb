@@ -10,6 +10,7 @@ class ProjectMedia < ActiveRecord::Base
   validates_presence_of :media_id, :project_id
 
   before_validation :set_media, :set_user, on: :create
+  validate :is_unique, on: :create
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data
 
@@ -126,6 +127,11 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   private
+
+  def is_unique
+    pm = ProjectMedia.where(project_id: self.project_id, media_id: self.media_id).last
+    errors.add(:base, "This media already exists in this project and has id #{pm.id}") unless pm.nil?
+  end
 
   def set_media
     unless self.url.blank? && self.quote.blank?

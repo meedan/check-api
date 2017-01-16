@@ -331,4 +331,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     assert_equal u, pm.user
   end
+
+  test "should be unique" do
+    p = create_project
+    m = create_valid_media
+    assert_difference 'ProjectMedia.count' do
+      create_project_media project: p, media: m
+    end
+    assert_no_difference 'ProjectMedia.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_project_media project: p, media: m
+      end
+    end
+  end
 end
