@@ -22,19 +22,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_project_media project: p, media: m
     end
     # journalist should assign any media
+    m2 = create_valid_media
     Rails.cache.clear
     tu.update_column(:role, 'journalist')
-    assert_difference 'ProjectMedia.count' do
-      pm = create_project_media project: p, media: m
-      assert_raise RuntimeError do
-        pm.project = create_project team: t
-        pm.save!
-      end
-    end
-    m2 = create_valid_media
-    m2.user_id = u.id; m2.save!
+    pm = nil
     assert_difference 'ProjectMedia.count' do
       pm = create_project_media project: p, media: m2
+    end
+    m3 = create_valid_media
+    m3.user_id = u.id; m3.save!
+    assert_difference 'ProjectMedia.count' do
+      pm = create_project_media project: p, media: m3
       pm.project = create_project team: t
       pm.save!
     end
