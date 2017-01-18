@@ -11,6 +11,7 @@ module ProjectMutations
     description: 'str',
     title: 'str',
     set_slack_channel: 'str',
+    information: 'str',
     id: '!id'
   }
 

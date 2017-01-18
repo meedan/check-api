@@ -38,7 +38,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :medias, -> { MediaType.connection_type } do
+  connection :medias, -> { ProjectMediaType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.medias
     }
@@ -61,6 +61,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
       source.tags
     }
   end
-  
+
   instance_exec :source, &GraphqlCrudOperations.field_verification_statuses
 end

@@ -19,8 +19,8 @@ class Project < ActiveRecord::Base
   has_annotations
 
   notifies_slack on: :create,
-                 if: proc { |p| p.current_user.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |p| "*#{p.current_user.name}* created a project: <#{p.origin}/project/#{p.id}|*#{p.title}*>" },
+                 if: proc { |p| User.current.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
+                 message: proc { |p| "*#{User.current.name}* created a project: <#{p.origin}/project/#{p.id}|*#{p.title}*>" },
                  channel: proc { |p| p.setting(:slack_channel) || p.team.setting(:slack_channel) },
                  webhook: proc { |p| p.team.setting(:slack_webhook) }
 
@@ -63,24 +63,17 @@ class Project < ActiveRecord::Base
     project
   end
 
-  def eager_loaded_medias
-    self.medias.to_a.collect do |media|
-      media.project_id = self.id
-      media
-    end
-  end
-
   def medias_count
-    self.medias.count
+    self.project_medias.count
   end
 
   private
 
   def set_description_and_team_and_user
     self.description ||= ''
-    if !self.current_user.nil? && !self.team_id
-      self.team = self.current_user.current_team
+    if !User.current.nil? && !self.team_id
+      self.team = User.current.current_team
     end
-    self.user ||= self.current_user
+    self.user ||= User.current
   end
 end

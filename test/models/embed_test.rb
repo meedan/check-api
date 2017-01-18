@@ -7,7 +7,7 @@ end
 class EmbedTest < ActiveSupport::TestCase
   test "should create embed" do
     assert_difference 'Embed.length' do
-      create_embed(embed: 'test')
+      create_embed(embed: 'test', annotated: create_project_source)
     end
   end
 
@@ -46,35 +46,6 @@ class EmbedTest < ActiveSupport::TestCase
     assert_equal s2, em2a.annotated
     assert_equal s2, em2b.annotated
     assert_equal [em2a.id, em2b.id].sort, s2.reload.annotations.map(&:id).sort
-  end
-
-  test "should have context" do
-    em = create_embed
-    s = SampleModel.create
-    assert_nil em.context
-    em.context = s
-    em.save
-    assert_equal s, em.context
-  end
-
-  test "should get annotations from context" do
-    context1 = SampleModel.create
-    context2 = SampleModel.create
-    annotated = SampleModel.create
-
-    em1 = create_embed
-    em1.context = context1
-    em1.annotated = annotated
-    em1.save
-
-    em2 = create_embed
-    em2.context = context2
-    em2.annotated = annotated
-    em2.save
-
-    assert_equal [em1.id, em2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [em1.id], annotated.annotations(nil, context1).map(&:id)
-    assert_equal [em2.id], annotated.annotations(nil, context2).map(&:id)
   end
 
   test "should get columns as array" do
@@ -116,31 +87,32 @@ class EmbedTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'owner'
-    p = create_project team: t, current_user: u2
-    em = create_embed annotated: p, annotator: nil, current_user: u2
-    assert_equal u2, em.reload.annotator
-  end
-=begin
-  test "should create elasticsearch embed" do
-    t = create_team
     p = create_project team: t
-    m = create_valid_media information: {title: 'media title'}.to_json
-    pm = create_project_media media: m, project: p
-    sleep 1
-    result = MediaSearch.find(pm.id)
-    assert_equal 'media title', result.title
+    with_current_user_and_team(u2, t) do
+      em = create_embed annotated: p, annotator: nil
+      assert_equal u2, em.reload.annotator
+    end
   end
 
-  test "should update elasticsearch embed" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media information: {title: 'media title'}.to_json
-    pm = create_project_media media: m, project: p
-    m.information = {title: 'new title'}.to_json
-    m.save!
-    result = MediaSearch.find(pm.id)
-    assert_equal 'new title', result.title
-  end
-=end
+  # test "should create elasticsearch embed" do
+  #   t = create_team
+  #   p = create_project team: t
+  #   m = create_valid_media embed_data: {title: 'media title'}.to_json
+  #   pm = create_project_media media: m, project: p
+  #   sleep 1
+  #   result = MediaSearch.find(pm.id)
+  #   assert_equal 'media title', result.title
+  # end
+
+  # test "should update elasticsearch embed" do
+  #   t = create_team
+  #   p = create_project team: t
+  #   m = create_valid_media embed_data: {title: 'media title'}.to_json
+  #   pm = create_project_media media: m, project: p
+  #   m.embed_data = {title: 'new title'}.to_json
+  #   m.save!
+  #   result = MediaSearch.find(pm.id)
+  #   assert_equal 'new title', result.title
+  # end
 
 end

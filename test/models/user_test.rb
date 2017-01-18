@@ -10,22 +10,22 @@ class UserTest < ActiveSupport::TestCase
 
   test "should update and destroy user" do
     u = create_user
-    t = create_team current_user: u
-    u2 = create_user current_user: u
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    u2 = create_user
     create_team_user team: t, user: u2, role: 'editor'
-    u2.current_user = u
     u2.save!
-    # update user as editor
-    assert_raise RuntimeError do
-      u.current_user = u2
-      u.save!
+    
+    with_current_user_and_team(u2, t) do
+      assert_raise RuntimeError do
+        u.save!
+      end
+      assert_raise RuntimeError do
+        u.save!
+      end
     end
-    assert_raise RuntimeError do
-      u.current_user = u2
-      u.save!
-    end
-    u2.current_user = u
-    u2.destroy
+    
+    with_current_user_and_team(u, t) { u2.destroy }
   end
 
   test "non members should not read users in private team" do
@@ -38,16 +38,18 @@ class UserTest < ActiveSupport::TestCase
     ptu = create_team_user user: pu, team: pt
     u2 = create_user
     create_team_user user: u2, team: pt
-    User.find_if_can(u1.id, u, t)
+    with_current_user_and_team(u, t) { User.find_if_can(u1.id) }
     assert_raise CheckdeskPermissions::AccessDenied do
-      User.find_if_can(u2.id, u, pt)
+      with_current_user_and_team(u, pt) { User.find_if_can(u2.id) }
     end
-    User.find_if_can(u2.id, pu, pt)
-    User.find_if_can(u1.id, pu, pt)
-    User.find_if_can(u.id, u, t)
+    with_current_user_and_team(pu, pt) do
+      User.find_if_can(u2.id)
+      User.find_if_can(u1.id)
+    end
+    with_current_user_and_team(u, t) { User.find_if_can(u.id) }
     ptu.status = 'requested'; ptu.save!
     assert_raise CheckdeskPermissions::AccessDenied do
-      User.find_if_can(u2.id, pu, pt)
+      with_current_user_and_team(pu, pt) { User.find_if_can(u2.id) }
     end
   end
 
@@ -214,16 +216,20 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t , role: 'owner'
-    assert_equal u.role(t), 'owner'
+    Team.stubs(:current).returns(t)
+    assert_equal u.role, 'owner'
+    Team.unstub(:current)
   end
 
   test "verify user role" do
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t , role: 'editor'
-    assert u.role? :editor, t
-    assert u.role? :journalist, t
-    assert_not u.role? :owner, t
+    Team.stubs(:current).returns(t)
+    assert u.role? :editor
+    assert u.role? :journalist
+    assert_not u.role? :owner
+    Team.unstub(:current)
   end
 
   test "should set current team with one of users team" do
@@ -265,7 +271,7 @@ class UserTest < ActiveSupport::TestCase
      create_team_user team: t1, user: u
      t2 = create_team
      create_team_user team: t2, user: u, status: 'requested'
-     assert_equal [t1.name, t2.name], JSON.parse(u.user_teams).keys
+     assert_equal [t1.name, t2.name].sort, JSON.parse(u.user_teams).keys.sort
   end
 
   test "should not crash if account is not created" do
@@ -310,34 +316,34 @@ class UserTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     user = create_user
-    user.context_team = t
-    user.current_user = u
     perm_keys = ["read User", "update User", "destroy User", "create Source", "create TeamUser", "create Team", "create Project"].sort
+
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+    
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+    
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+    
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
   end
 
   test "should get handle" do

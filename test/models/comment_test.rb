@@ -1,9 +1,5 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
-class SampleModel < ActiveRecord::Base
-  has_annotations
-end
-
 class CommentTest < ActiveSupport::TestCase
   def setup
     super
@@ -18,27 +14,35 @@ class CommentTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'contributor'
-    p = create_valid_media team: t, current_user: u
-    assert_difference 'Comment.length' do
-      create_comment annotated: p, current_user: u, annotator: u
+    p = create_project team: t
+    pm = create_project_media project: p, current_user: u
+    with_current_user_and_team(u, t) do
+      assert_difference 'Comment.length' do
+        create_comment annotated: pm, annotator: u
+      end
     end
   end
 
   test "contributor should comment on other reports" do
     u = create_user
     t = create_team current_user: u
-    m = create_valid_media team: t, current_user: u
+    p = create_project team: t
+    pm = create_project_media project: p, user: u
     # create a comment with contributor user
     cu = create_user
     create_team_user team: t, user: cu, role: 'contributor'
-    assert_difference 'Comment.count' do
-      create_comment annotated: m, current_user: cu, annotator: cu
+    with_current_user_and_team(cu, t) do
+      assert_difference 'Comment.count' do
+        create_comment annotated: pm, annotator: cu
+      end
     end
     # create a comment with journalist user
     ju = create_user
     create_team_user team: t, user: ju, role: 'journalist'
-    assert_difference 'Comment.count' do
-      create_comment annotated: m, current_user: ju, annotator: ju
+    with_current_user_and_team(ju, t) do
+      assert_difference 'Comment.count' do
+        create_comment annotated: pm, current_user: ju, annotator: ju
+      end
     end
   end
 
@@ -46,8 +50,10 @@ class CommentTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, status: 'banned'
-    assert_raise RuntimeError do
-      create_comment current_user: u, annotator: u
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        create_comment annotator: u
+      end
     end
   end
 
@@ -68,9 +74,9 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    s1 = SampleModel.create!
+    s1 = create_project_source
     assert_equal [], s1.annotations
-    s2 = SampleModel.create!
+    s2 = create_project_source
     assert_equal [], s2.annotations
 
     c1a = create_comment annotated: nil
@@ -102,7 +108,7 @@ class CommentTest < ActiveSupport::TestCase
   test "should create version when comment is created" do
     c = nil
     assert_difference 'PaperTrail::Version.count', 3 do
-      c = create_comment(text: 'test')
+      c = create_comment(text: 'test', annotated: create_source)
     end
     assert_equal 1, c.versions.count
     v = c.versions.last
@@ -119,35 +125,6 @@ class CommentTest < ActiveSupport::TestCase
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
       assert_equal({"data"=>["{\"text\"=>\"foo\"}", "{\"text\"=>\"bar\"}"]}, JSON.parse(v.object_changes))
-  end
-
-  test "should have context" do
-    c = create_comment
-    s = SampleModel.create
-    assert_nil c.context
-    c.context = s
-    c.save
-    assert_equal s, c.context
-  end
-
-  test "should get annotations from context" do
-    context1 = SampleModel.create
-    context2 = SampleModel.create
-    annotated = SampleModel.create
-
-    c1 = create_comment
-    c1.context = context1
-    c1.annotated = annotated
-    c1.save
-
-    c2 = create_comment
-    c2.context = context2
-    c2.annotated = annotated
-    c2.save
-
-    assert_equal [c1.id, c2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [c1.id], annotated.annotations(nil, context1).map(&:id)
-    assert_equal [c2.id], annotated.annotations(nil, context2).map(&:id)
   end
 
   test "should get columns as array" do
@@ -171,8 +148,8 @@ class CommentTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = SampleModel.create!
-    s2 = SampleModel.create!
+    s1 = create_project_source
+    s2 = create_project_source
     c1 = create_comment annotator: u1, annotated: s1
     c2 = create_comment annotator: u1, annotated: s1
     c3 = create_comment annotator: u1, annotated: s1
@@ -200,10 +177,13 @@ class CommentTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     t = create_team
+    p = create_project team: t
     create_team_user team: t, user: u2, role: 'contributor'
-    m = create_valid_media team: t, current_user: u2
-    c = create_comment annotated: m, annotator: nil, current_user: u2
-    assert_equal u2, c.annotator
+
+    with_current_user_and_team(u2, t) do
+      c = create_comment annotator: nil, annotated: create_source
+      assert_equal u2, c.annotator
+    end
   end
 
   test "should not set annotator if set" do
@@ -211,20 +191,21 @@ class CommentTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'contributor'
-    m = create_valid_media team: t, current_user: u2
-    c = create_comment annotated: m, annotator: u1, current_user: u2
+    c = create_comment annotator: u1
     assert_equal u1, c.annotator
   end
 
   test "should destroy comment" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
-    c = create_comment annotated: p, current_user: u, annotator: u
-    c.current_user = u
-    c.context_team = t
-    assert_nothing_raised do
-      c.destroy
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, annotator: u
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        c.destroy
+      end
     end
   end
 
@@ -233,12 +214,12 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     p = create_project user: create_user, team: t
     create_team_user team: t, user: u, role: 'contributor'
-    m = create_valid_media project_id: p.id
-    c = create_comment annotated: m, context: p, annotator: u
-    assert_raise RuntimeError do
-      c.current_user = u
-      c.context_team = t
-      c.destroy
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, annotator: u
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        c.destroy
+      end
     end
   end
 
@@ -247,40 +228,45 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'contributor'
     p = create_project team: t
-    c = create_comment annotated: p, current_user: u, annotator: u
-    c.current_user = u
-    c.context_team = create_team
-    assert_raise RuntimeError do
-      c.destroy
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, current_user: u, annotator: u
+    with_current_user_and_team(u, create_team) do
+      assert_raise RuntimeError do
+        c.destroy
+      end
     end
   end
 
   test "should get team" do
-    c = create_comment
+    c = create_comment annotated: nil
     assert_nil c.current_team
     t = create_team
     p = create_project team: t
-    c = create_comment context: p
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    c = create_comment annotated: pm
     assert_equal t, c.current_team
   end
 
   test "should notify on Slack when comment is created" do
     t = create_team subdomain: 'test'
     u = create_user
-    create_team_user team: t, user: u
+    create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
-    m = create_valid_media
-    c = create_comment origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: m, context: p
-    assert c.sent_to_slack
-    # claim media
-    m = create_claim_media project_id: p.id
-    c = create_comment origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated: m, context: p
-    assert c.sent_to_slack
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert c.sent_to_slack
+      # claim media
+      m = create_claim_media project_id: p.id
+      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert c.sent_to_slack
+    end
   end
 
   test "should notify Pusher when annotation is created" do
-    c = create_comment annotated: create_valid_media, context: create_project
+    c = create_comment annotated: create_project_media
     assert c.sent_to_pusher
   end
 
@@ -294,21 +280,23 @@ class CommentTest < ActiveSupport::TestCase
     p1 = create_project team: t1
     p2 = create_project team: t1
     t2 = create_team subdomain: 'test2'
-    m1 = create_valid_media project_id: p1.id
-    m2 = create_valid_media project_id: p2.id
-    m3 = create_valid_media team: t2
-    c = create_comment text: "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{m1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{m2.id} and http://test2.localhost:3333/project/1/media/#{m3.id} because they are nice", context: p1
-    assert_includes c.entity_objects, m1
-    assert_includes c.entity_objects, m2
-    refute_includes c.entity_objects, m3
+    pm1 = create_project_media project: p1
+    pm2 = create_project_media project: p2
+    p3 = create_project team: t2
+    pm3 = create_project_media project: p3
+    text = "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{pm1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{pm2.id} and http://test2.localhost:3333/project/1/media/#{pm3.id} because they are nice"
+    c = create_comment text: text, annotated: pm1
+    assert_includes c.entity_objects, pm1
+    assert_includes c.entity_objects, pm2
+    refute_includes c.entity_objects, pm3
   end
 
   test "should create elasticsearch comment" do
     t = create_team
     p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m
-    c = create_comment annotated: m, context: p, text: 'test', disable_es_callbacks: false
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
     sleep 1
     result = CommentSearch.find(c.id, parent: pm.id)
     assert_equal c.id.to_s, result.id
@@ -318,8 +306,8 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m
-    c = create_comment annotated: m, context: p, text: 'test', disable_es_callbacks: false
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
     c.text = 'test-mod'; c.save!
     sleep 1
     result = CommentSearch.find(c.id, parent: pm.id)

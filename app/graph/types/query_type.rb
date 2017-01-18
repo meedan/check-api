@@ -19,8 +19,8 @@ QueryType = GraphQL::ObjectType.define do
   field :me do
     type UserType
     description 'Information about the current user'
-    resolve -> (_obj, _args, ctx) do
-      ctx[:current_user]
+    resolve -> (_obj, _args, _ctx) do
+      User.current
     end
   end
 
@@ -32,8 +32,8 @@ QueryType = GraphQL::ObjectType.define do
     argument :id, types.ID
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
-      if tid === 0 && !ctx[:context_team].blank?
-        tid = ctx[:context_team].id
+      if tid === 0 && !Team.current.blank?
+        tid = Team.current.id
       end
       GraphqlCrudOperations.load_if_can(Team, tid, ctx)
     end
@@ -45,9 +45,18 @@ QueryType = GraphQL::ObjectType.define do
     type PublicTeamType
     description 'Public information about the current team'
 
-    resolve -> (_obj, _args, ctx) do
-      id = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+    resolve -> (_obj, _args, _ctx) do
+      id = Team.current.blank? ? 0 : Team.current.id
       Team.find(id)
+    end
+  end
+
+  field :project_media do
+    type ProjectMediaType
+    description 'Information about a project media, given its id and its team id'
+    argument :id, !types.ID
+    resolve -> (_obj, args, ctx) do
+      GraphqlCrudOperations.load_if_can(ProjectMedia, args['id'], ctx)
     end
   end
 
@@ -58,29 +67,10 @@ QueryType = GraphQL::ObjectType.define do
     argument :id, !types.ID
 
     resolve -> (_obj, args, ctx) do
-      tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+      tid = Team.current.blank? ? 0 : Team.current.id
       project = Project.where(id: args['id'], team_id: tid).last
       id = project.nil? ? 0 : project.id
       GraphqlCrudOperations.load_if_can(Project, id, ctx)
-    end
-  end
-
-  field :media do
-    type MediaType
-    description 'Information about a media item. The argument should be given like this: "media_id,project_id"'
-
-    argument :ids, !types.String
-
-    resolve -> (_obj, args, ctx) do
-      mid, pid = args['ids'].split(',').map(&:to_i)
-      tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
-      project = Project.where(id: pid, team_id: tid).last
-      pid = project.nil? ? 0 : project.id
-      project_media = ProjectMedia.where(project_id: pid, media_id: mid).last
-      mid = project_media.nil? ? 0 : project_media.media_id
-      media = GraphqlCrudOperations.load_if_can(Media, mid, ctx)
-      media.project_id = pid if media
-      media
     end
   end
 
@@ -90,8 +80,8 @@ QueryType = GraphQL::ObjectType.define do
 
     argument :query, !types.String
 
-    resolve -> (_obj, args, ctx) do
-       CheckSearch.new(args['query'], ctx[:context_team])
+    resolve -> (_obj, args, _ctx) do
+      CheckSearch.new(args['query'])
     end
   end
 

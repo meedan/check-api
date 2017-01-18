@@ -6,6 +6,7 @@ class SessionsControllerTest < ActionController::TestCase
     @controller = Api::V1::SessionsController.new
     @request.env["devise.mapping"] = Devise.mappings[:api_user]
     sign_out('user')
+    User.current = nil
   end
 
   test "should login using email" do

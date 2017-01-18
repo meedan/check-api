@@ -19,23 +19,19 @@ ProjectType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (project, _args, _ctx) {
       team = project.team
-      team.context_team = project.context_team
-      team.current_user = project.current_user
       team
     }
   end
 
-  connection :medias, MediaType.connection_type, property: :eager_loaded_medias
+  connection :project_medias, -> { ProjectMediaType.connection_type } do
+    resolve ->(project, _args, _ctx) {
+      project.project_medias.to_a
+    }
+  end
 
   connection :sources, -> { SourceType.connection_type } do
     resolve ->(project, _args, _ctx) {
       project.sources
-    }
-  end
-
-  connection :annotations, -> { AnnotationType.connection_type } do
-    resolve ->(project, _args, _ctx) {
-      project.annotations
     }
   end
 end

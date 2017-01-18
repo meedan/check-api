@@ -102,7 +102,7 @@ class Team < ActiveRecord::Base
   private
 
   def add_user_to_team
-    user = self.current_user
+    user = User.current
     unless user.nil?
       tu = TeamUser.new
       tu.user = user
@@ -117,6 +117,14 @@ class Team < ActiveRecord::Base
 
   def self.subdomain_from_name(name)
     name.parameterize.underscore.dasherize.ljust(4, '-')
+  end
+
+  def self.current
+    Thread.current[:team]
+  end
+
+  def self.current=(team)
+    Thread.current[:team] = team
   end
 
   def subdomain_is_available

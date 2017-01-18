@@ -44,7 +44,6 @@ module SampleData
     u.password_confirmation = options[:password_confirmation] || u.password
     u.url = options[:url] if options.has_key?(:url)
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
-    u.current_user = options[:current_user] if options.has_key?(:current_user)
     u.omniauth_info = options[:omniauth_info]
 
     file = nil
@@ -67,11 +66,13 @@ module SampleData
   end
 
   def create_comment(options = {})
-    options = { text: random_string(50), annotator: create_user, annotated: create_source, disable_es_callbacks: true }.merge(options)
-    c = Comment.new
-    if options.has_key?(:team)
-      options[:context] = create_project(team: options[:team])
+    options = { text: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_source project: p
     end
+    c = Comment.new
     options.each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
@@ -91,12 +92,15 @@ module SampleData
   end
 
   def create_tag(options = {})
-    if options[:team]
-      options[:context] = create_project(team: options.delete(:team))
+    options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_source project: p
     end
     t = Tag.new
-    { tag: random_string(50), annotator: create_user, annotated: create_source, disable_es_callbacks: true }.merge(options).each do |key, value|
-      t.send("#{key}=", value)
+    options.each do |key, value|
+      t.send("#{key}=", value) if t.respond_to?("#{key}=")
     end
     t.save!
     t
@@ -114,14 +118,11 @@ module SampleData
   end
 
   def create_status(options = {})
-    type = id = nil
-    unless options.has_key?(:annotated) && options[:annotated].nil?
-      a = options.delete(:annotated) || create_source
-      type, id = a.class.name, a.id.to_s
-    end
-    options = { status: 'credible', annotator: create_user, annotated_type: type, annotated_id: id, disable_es_callbacks: true }.merge(options)
-    if options[:team]
-      options[:context] = create_project(team: options[:team])
+    options = { status: 'credible', annotator: create_user, disable_es_callbacks: true }.merge(options)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_source project: p
     end
     s = Status.new
     options.each do |key, value|
@@ -132,13 +133,14 @@ module SampleData
   end
 
   def create_flag(options = {})
-    type = id = nil
-    unless options.has_key?(:annotated) && options[:annotated].nil?
-      m = options.delete(:annotated) || create_valid_media
-      type, id = m.class.name, m.id.to_s
+    options = { flag: 'Spam', annotator: create_user }.merge(options)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_media project: p
     end
     f = Flag.new
-    { flag: 'Spam', annotator: create_user, annotated_type: type, annotated_id: id }.merge(options).each do |key, value|
+    options.each do |key, value|
       f.send("#{key}=", value)
     end
     f.save!
@@ -146,13 +148,10 @@ module SampleData
   end
 
   def create_embed(options = {})
-    type = id = nil
-    unless options.has_key?(:annotated) && options[:annotated].nil?
-      p = options.delete(:annotated) || create_project
-      type, id = p.class.name, p.id.to_s
-    end
+    options = { embed: random_string, annotator: create_user, disable_es_callbacks: true }.merge(options)
+    options[:annotated] = create_project_media unless options.has_key?(:annotated)
     em = Embed.new
-    { embed: random_string, annotator: create_user, annotated_type: type, annotated_id: id, disable_es_callbacks: true }.merge(options).each do |key, value|
+    options.each do |key, value|
       em.send("#{key}=", value)
     end
     em.save!
@@ -201,8 +200,6 @@ module SampleData
       end
     end
     project.archived = options[:archived] || false
-    project.current_user = options[:current_user] if options.has_key?(:current_user)
-    project.context_team = options[:context_team] if options.has_key?(:context_team)
     team = options[:team] || create_team
     project.team_id = options[:team_id] || team.id
     project.save!
@@ -229,7 +226,6 @@ module SampleData
     team.archived = options[:archived] || false
     team.private = options[:private] || false
     team.description = options[:description] || random_string
-    team.current_user = options[:current_user] if options.has_key?(:current_user)
     team.origin = options[:origin] if options.has_key?(:origin)
     team.save!
     team.reload
@@ -243,14 +239,15 @@ module SampleData
     m.url = options[:url]
     m.quote = options[:quote] if options.has_key?(:quote)
     m.account_id = options.has_key?(:account_id) ? options[:account_id] : account.id
-    m.current_user = options[:current_user] if options.has_key?(:current_user)
     m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
     if options.has_key?(:team)
       options[:project_id] = create_project(team: options[:team]).id
     end
-    m.project_id = options[:project_id]
-    m.information = options[:information] if options.has_key?(:information)
     m.save!
+    unless options[:project_id].blank?
+      p = Project.where(id: options[:project_id]).last
+      create_project_media media: m, project: p unless p.nil?
+    end
     m.reload
   end
 
@@ -290,15 +287,15 @@ module SampleData
   end
 
   def create_project_media(options = {})
+    options = { disable_es_callbacks: true, user: create_user }.merge(options)
     pm = ProjectMedia.new
-    project = options[:project] || create_project
-    media = options[:media] || create_valid_media
-    pm.project_id = options[:project_id] || project.id
-    pm.media_id = options[:media_id] || media.id
-    pm.media = media if media
-    pm.current_user = options[:current_user] if options.has_key?(:current_user)
+    options[:project] = create_project unless options.has_key?(:project)
+    options[:media] = create_valid_media unless options.has_key?(:media)
+    options.each do |key, value|
+      pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
+    end
     pm.save!
-    pm
+    pm.reload
   end
 
   def create_team_user(options = {})
@@ -308,8 +305,7 @@ module SampleData
     tu.team_id = options[:team_id] || team.id
     tu.user_id = options[:user_id] || user.id
     tu.role = options[:role]
-    tu.status  = options[:status]  || "member"
-    tu.current_user = options[:current_user] if options.has_key?(:current_user)
+    tu.status = options[:status] || 'member'
     tu.origin = options[:origin] if options.has_key?(:origin)
     tu.save!
     tu.reload
@@ -342,7 +338,6 @@ module SampleData
     else
       contact.team = options[:team] || create_team
     end
-    contact.current_user = options[:current_user] if options.has_key?(:current_user)
     contact.save!
     contact.reload
   end
@@ -359,7 +354,6 @@ module SampleData
         bot.avatar = f
       end
     end
-    bot.current_user = options[:current_user] if options.has_key?(:current_user)
     bot.save!
     bot.reload
   end

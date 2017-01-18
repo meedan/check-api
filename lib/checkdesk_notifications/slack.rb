@@ -6,7 +6,7 @@ module CheckdeskNotifications
 
     class Request < ::Net::HTTP
     end
-  
+
     module ClassMethods
       def slack_options
         @slack_options
@@ -29,7 +29,7 @@ module CheckdeskNotifications
         send("after_#{options[:on]}", :notify_slack)
 
         self.slack_options = options
-        
+
         send :include, InstanceMethods
       end
     end

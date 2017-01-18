@@ -87,8 +87,10 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should get medias" do
     s = create_source
+    p = create_project
     m = create_valid_media(account: create_valid_account(source: s))
-    assert_equal [m], s.medias
+    pm = create_project_media project: p, media: m
+    assert_equal [pm], s.medias
   end
 
   test "should get collaborators" do
@@ -151,34 +153,34 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     s = create_source
-    s.context_team = t
-    s.current_user = u
     perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create ProjectSource", "create Project"].sort
+
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
   end
 
 end

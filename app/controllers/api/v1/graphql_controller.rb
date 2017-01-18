@@ -5,7 +5,7 @@ module Api
 
       skip_before_filter :authenticate_from_token!
       before_action :authenticate_user!, only: [:create], if: -> { params[:query].to_s.match(/^query About/).nil? }
-      before_action :load_context_team, :set_current_team, :load_context_project, :load_ability
+      before_action :set_current_user, :load_context_team, :set_current_team, :load_ability
 
       def create
         query_string = params[:query]
@@ -13,7 +13,7 @@ module Api
         query_variables = {} if query_variables == 'null'
         debug = !!CONFIG['graphql_debug']
         begin
-          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { current_user: current_api_user, context_team: @context_team, origin: request.headers['origin'], context_project: @context_project, ability: @ability })
+          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { origin: request.headers['origin'], ability: @ability })
           render json: query.result
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique => e
           render json: { error: e.message }, status: 400
@@ -27,17 +27,11 @@ module Api
       private
 
       def load_ability
-        @ability = Ability.new(current_api_user, @context_team) if current_api_user.present? && @context_team.present?
+        @ability = Ability.new if User.current.present? && Team.current.present?
       end
 
-      def load_context_project
-        begin
-          path = URI.parse(request.referrer).path
-          matches = path.match(/^\/project\/([^\/]+)/)
-          @context_project = Project.where(id: matches[1]).last unless matches.nil?
-        rescue URI::InvalidURIError
-          @context_project = nil
-        end
+      def set_current_user
+        User.current = current_api_user
       end
 
       def load_context_team
@@ -45,8 +39,8 @@ module Api
         subdomain = Regexp.new(CONFIG['checkdesk_client']).match(request.headers['origin'])
         @context_team = Team.where(subdomain: subdomain[1]).first unless subdomain.nil?
         log = @context_team.nil? ? 'No context team' : "Context team is #{@context_team.name}"
-        logger.info message: log, context_team: @context_team;
-        
+        logger.info message: log, context_team: @context_team
+        Team.current = @context_team
       end
 
       def set_current_team
