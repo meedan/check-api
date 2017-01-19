@@ -632,7 +632,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
-    assert_queries (2 * n + 15) do
+    assert_queries (5 * n ) do
       post :create, query: query
     end
 
