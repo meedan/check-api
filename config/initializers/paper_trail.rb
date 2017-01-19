@@ -7,14 +7,17 @@ module PaperTrail
       def initialize(klass)
         @klass = klass
       end
-      
-      def serialize(_attr, val)
-        val.to_s
-      end
-                      
-      def deserialize(_attr, val)
-        val
-      end
+
+      # def serialize(_attr, val)
+      #   puts "Serilize configuration ****************************"
+      #   pp val
+      #   val.to_s
+      # end
+
+      # def deserialize(_attr, val)
+      #   val
+      # end
+
     end
   end
 

@@ -722,7 +722,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, s)
-      assert ability.cannot?(:update, s)
+      assert ability.can?(:update, s)
       assert ability.cannot?(:destroy, s)
       Rails.cache.clear
       p.update_column(:team_id, t2.id)
@@ -743,7 +743,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, s)
-      assert ability.cannot?(:update, s)
+      assert ability.can?(:update, s)
       assert ability.cannot?(:destroy, s)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:create, s)
@@ -763,7 +763,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, s)
-      assert ability.cannot?(:update, s)
+      assert ability.can?(:update, s)
       assert ability.can?(:destroy, s)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:create, s)

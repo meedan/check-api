@@ -67,7 +67,7 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>["{}", "{\"status\"=>\"credible\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{st.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{st.annotated_id}"], "annotation_type"=>["", "status"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{}, {"status"=>"credible"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, st.annotator_id], "annotated_type"=>[nil, "Source"], "annotated_id"=>[nil, st.annotated_id], "annotation_type"=>[nil, "status"]}, v.changeset)
   end
 
   test "should create version when status is updated" do
@@ -78,7 +78,7 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 2, st.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({"data"=>["{\"status\"=>\"slightly_credible\"}", "{\"status\"=>\"sockpuppet\"}"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{"status"=>"slightly_credible"}, {"status"=>"sockpuppet"}]}, v.changeset)
   end
 
   test "should get columns as array" do

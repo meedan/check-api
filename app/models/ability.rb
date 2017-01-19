@@ -88,7 +88,10 @@ class Ability
     can :update, Flag do |flag|
       flag.get_team.include? @context_team.id and (flag.annotator_id.to_i == @user.id)
     end
-    can :create, [Status, Tag] do |obj|
+    can :create, Tag do |obj|
+      obj.get_team.include? @context_team.id
+    end
+    can [:create, :update], Status do |obj|
       obj.get_team.include? @context_team.id
     end
   end
