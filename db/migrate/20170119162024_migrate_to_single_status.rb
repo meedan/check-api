@@ -5,6 +5,7 @@ class MigrateToSingleStatus < ActiveRecord::Migration
       first = s.pop
       s.reverse.each do |obj|
         first.status = obj.status
+        first.updated_at = obj.updated_at
         first.save!
         obj.delete
       end
