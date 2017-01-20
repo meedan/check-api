@@ -306,7 +306,7 @@ class ProjectTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
-    perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create ProjectSource", "create Source", "create Media"].sort
+    perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create ProjectSource", "create Source", "create Media", "create Claim", "create Link"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }

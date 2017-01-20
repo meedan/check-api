@@ -330,6 +330,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal u, pm.user
   end
 
+  test "should create embed for uploaded image" do
+    pm = ProjectMedia.new
+    pm.project_id = create_project.id
+    pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
+    pm.save!
+    assert_equal 'rails.png', pm.embed['title']
+  end
+
   test "should be unique" do
     p = create_project
     m = create_valid_media

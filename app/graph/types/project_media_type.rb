@@ -18,7 +18,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.media.domain
+      media = project_media.media
+      media.respond_to?(:domain) ? media.domain : ''
     }
   end
 

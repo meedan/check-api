@@ -73,7 +73,7 @@ class Status < ActiveRecord::Base
   end
 
   def self.possible_values(annotated, context = nil)
-    type = annotated.class.name
+    type = annotated.class_name
     statuses = Status.core_verification_statuses(type)
     getter = "get_#{type.downcase}_verification_statuses"
     statuses = context.team.send(getter) if context && context.respond_to?(:team) && context.team && context.team.send(getter)
