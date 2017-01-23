@@ -88,10 +88,7 @@ class ProjectMedia < ActiveRecord::Base
     # get status
     st = Status.where(annotation_type: 'status', annotated_type: self.class.to_s , annotated_id: self.id).last
     st.versions.each do |obj|
-      previous_status = obj.reify
-      #relay_id = Base64.encode64("#{previous_status.id}" + "/version/#{obj.id}") unless previous_status.nil?
-      previous_status.id  += obj.id unless previous_status.nil?
-      an << previous_status unless previous_status.nil?
+      an << obj.reify unless obj.reify.nil?
     end
     an.sort_by{|k, v| k[:updated_at]}.reverse
   end

@@ -160,7 +160,12 @@ class GraphqlCrudOperations
 
       interfaces [NodeIdentification.interface]
 
-      field :id, field: GraphQL::Relay::GlobalIdField.new(type.capitalize)
+      field :id do
+        type !types.ID
+        resolve -> (annotation, _args, _ctx) {
+          annotation.relay_id(type)
+        }
+      end
 
       GraphqlCrudOperations.define_annotation_fields.each do |name|
         field name, types.String

@@ -164,6 +164,12 @@ module AnnotationBase
     self.id
   end
 
+  def relay_id(type)
+    str = "#{type.capitalize}/#{self.id}"
+    str += "/#{self.version.id}" unless self.version.nil?
+    Base64.encode64(str)
+  end
+
   def get_team
     team = []
     obj = self.annotated.project if self.annotated.respond_to?(:project)

@@ -286,7 +286,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_tag tag: 'Tag', annotated: pm
     s.status = 'verified'; s.save!
     log = pm.get_annotations_log
-    assert_equal ['status', 'comment', 'flag', 'status', 'tag', 'status'], log.map(&:annotation_type)
+    assert_equal ['status', 'comment', 'flag', 'status', 'tag', 'status'].reverse, log.map(&:annotation_type)
     assert_equal 6, log.size
   end
 
