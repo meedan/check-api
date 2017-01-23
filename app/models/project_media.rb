@@ -89,10 +89,11 @@ class ProjectMedia < ActiveRecord::Base
     st = Status.where(annotation_type: 'status', annotated_type: self.class.to_s , annotated_id: self.id).last
     st.versions.each do |obj|
       previous_status = obj.reify
-      previous_status.id  = Base64.encode64("#{previous_status.id}" + "/#{obj.id}") unless previous_status.nil?
+      #relay_id = Base64.encode64("#{previous_status.id}" + "/version/#{obj.id}") unless previous_status.nil?
+      previous_status.id  += obj.id unless previous_status.nil?
       an << previous_status unless previous_status.nil?
     end
-    an.sort_by{|k, v| k[:updated_at]}
+    an.sort_by{|k, v| k[:updated_at]}.reverse
   end
 
   def get_media_annotations(type = nil)
@@ -153,7 +154,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def create_claim
-    m = Claim.new 
+    m = Claim.new
     m.quote = self.quote
     m.save!
     m

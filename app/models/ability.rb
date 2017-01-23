@@ -53,6 +53,11 @@ class Ability
     can :destroy, [Annotation, Comment, Tag, Status, Flag] do |obj|
       obj.get_team.include? @context_team.id
     end
+    can :destroy, PaperTrail::Version do |obj|
+      s = nil
+      s = Status.where(id: obj.item_id).last if obj.item_type ==  'Status'
+      !s.nil? and s.get_team.include? @context_team.id
+    end
   end
 
   def editor_perms
