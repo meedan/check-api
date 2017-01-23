@@ -5,7 +5,7 @@ module CheckdeskNotifications
     end
 
     def pusher_channel
-      'check-channel-' + Digest::MD5.hexdigest(self.class.name + ':' + self.id.to_s + ':pusher_channel')
+      'check-channel-' + Digest::MD5.hexdigest(self.class_name + ':' + self.id.to_s + ':pusher_channel')
     end
 
     module ClassMethods

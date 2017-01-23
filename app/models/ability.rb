@@ -44,7 +44,7 @@ class Ability
     end
     can :destroy, Contact, :team_id => @context_team.id
     can :destroy, Project, :team_id => @context_team.id
-    can :destroy, Media do |obj|
+    can :destroy, [Media, Link, Claim] do |obj|
       obj.get_team.include? @context_team.id
     end
     can :destroy, [ProjectMedia, ProjectSource] do |obj|
@@ -79,7 +79,7 @@ class Ability
     can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
-    can :update, Media do |obj|
+    can :update, [Media, Claim, Link] do |obj|
       obj.get_team.include? @context_team.id
     end
     can :create, Flag do |flag|
@@ -98,9 +98,9 @@ class Ability
 
   def contributor_perms
     can :update, User, :id => @user.id
-    can :create, [Media, Account, Source, Comment, Embed]
-    can :update, Media, :user_id => @user.id
-    can :update, Media do |obj|
+    can :create, [Media, Account, Source, Comment, Embed, Link, Claim]
+    can :update, [Media, Link, Claim], :user_id => @user.id
+    can :update, [Media, Link, Claim] do |obj|
       obj.get_team.include? @context_team.id and (obj.user_id == @user.id)
     end
     can :update, [Account, Source, Embed]
@@ -168,7 +168,7 @@ class Ability
     # 1) it's a source related to him/her or not related to any user
     # 2) it's related to at least one public team
     # 3) it's related to a private team which the @user has access to
-    can :read, [Account, Source, Media, ProjectMedia, ProjectSource, Comment, Flag, Status, Tag, Embed] do |obj|
+    can :read, [Account, Source, Media, ProjectMedia, ProjectSource, Comment, Flag, Status, Tag, Embed, Link, Claim] do |obj|
       if obj.is_a?(Source) && obj.respond_to?(:user_id)
         obj.user_id == @user.id || obj.user_id.nil?
       else

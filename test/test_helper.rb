@@ -189,7 +189,7 @@ class ActiveSupport::TestCase
   def assert_graphql_destroy(type)
     authenticate_with_user
     obj = type === 'team' ? @team : send("create_#{type}", { team: @team })
-    klass = obj.class.name
+    klass = obj.class_name
     id = NodeIdentification.to_global_id(klass, obj.id)
     query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
     assert_difference "#{klass}.count", -1 do

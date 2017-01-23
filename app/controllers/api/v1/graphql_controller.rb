@@ -9,11 +9,11 @@ module Api
 
       def create
         query_string = params[:query]
-        query_variables = params[:variables] || {}
+        query_variables = ensure_hash(params[:variables]) || {}
         query_variables = {} if query_variables == 'null'
         debug = !!CONFIG['graphql_debug']
         begin
-          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { origin: request.headers['origin'], ability: @ability })
+          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { origin: request.headers['origin'], ability: @ability, file: request.params[:file] })
           render json: query.result
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique => e
           render json: { error: e.message }, status: 400
@@ -22,6 +22,14 @@ module Api
         rescue ActiveRecord::RecordNotFound => e
           render json: { error: e.message }, status: 404
         end
+      end
+
+      protected
+
+      # If the request wasn't `Content-Type: application/json`, parse the variables
+      def ensure_hash(variables_param)
+        return {} if variables_param.blank?
+        variables_param.kind_of?(Hash) ? variables_param : JSON.parse(variables_param)
       end
 
       private

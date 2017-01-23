@@ -22,19 +22,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_project_media project: p, media: m
     end
     # journalist should assign any media
+    m2 = create_valid_media
     Rails.cache.clear
     tu.update_column(:role, 'journalist')
-    assert_difference 'ProjectMedia.count' do
-      pm = create_project_media project: p, media: m
-      assert_raise RuntimeError do
-        pm.project = create_project team: t
-        pm.save!
-      end
-    end
-    m2 = create_valid_media
-    m2.user_id = u.id; m2.save!
+    pm = nil
     assert_difference 'ProjectMedia.count' do
       pm = create_project_media project: p, media: m2
+    end
+    m3 = create_valid_media
+    m3.user_id = u.id; m3.save!
+    assert_difference 'ProjectMedia.count' do
+      pm = create_project_media project: p, media: m3
       pm.project = create_project team: t
       pm.save!
     end
@@ -343,5 +341,26 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media project: p
     end
     assert_equal u, pm.user
+  end
+
+  test "should create embed for uploaded image" do
+    pm = ProjectMedia.new
+    pm.project_id = create_project.id
+    pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
+    pm.save!
+    assert_equal 'rails.png', pm.embed['title']
+  end
+
+  test "should be unique" do
+    p = create_project
+    m = create_valid_media
+    assert_difference 'ProjectMedia.count' do
+      create_project_media project: p, media: m
+    end
+    assert_no_difference 'ProjectMedia.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_project_media project: p, media: m
+      end
+    end
   end
 end

@@ -30,7 +30,7 @@ module AnnotationBase
 
       def has_annotations
         define_method :annotation_query do |type=nil|
-          matches = { annotated_type: self.class.name, annotated_id: self.id }
+          matches = { annotated_type: self.class_name, annotated_id: self.id }
           matches[:annotation_type] = [*type] unless type.nil?
           matches
         end
@@ -245,14 +245,14 @@ module AnnotationBase
   end
 
   def set_polymorphic(name, obj)
-    self.send("#{name}_type=", obj.class.name)
+    self.send("#{name}_type=", obj.class_name)
     self.send("#{name}_id=", obj.id)
   end
 
   private
 
   def set_type_and_event
-    self.annotation_type ||= self.class.name.parameterize
+    self.annotation_type ||= self.class_name.parameterize
     self.paper_trail_event = 'create' if self.versions.count === 0
   end
 
