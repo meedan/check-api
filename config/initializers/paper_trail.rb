@@ -11,15 +11,23 @@ module PaperTrail
   end
 
   module CheckdeskExtensions
+
     def item
       self.item_type.constantize.find(self.item_id)
     end
+
     def project_media
       self.item.project_media if self.item.respond_to?(:project_media)
     end
+
     def source
       self.item.source if self.item.respond_to?(:source)
     end
+
+    def dbid
+      self.id
+    end
+
   end
 end
 
