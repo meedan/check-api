@@ -121,6 +121,10 @@ class ProjectMedia < ActiveRecord::Base
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
   end
 
+  def last_status_obj
+    self.get_annotations('status').last
+  end
+
   def published
     self.created_at.to_i.to_s
   end

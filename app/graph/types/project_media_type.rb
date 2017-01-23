@@ -112,6 +112,14 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :last_status_obj do
+    type -> { StatusType }
+
+    resolve -> (project_media, _args, _ctx) {
+      project_media.last_status_obj
+    }
+  end
+
   field :published do
     type types.String
 
