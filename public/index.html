@@ -1,1 +1,55 @@
-API
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Check Admin Page</title>
+    <link rel="shortcut icon" href="/images/favicon.ico" />
+    <link rel="stylesheet" href="/css/home.css" />
+  </head>
+  <body>
+    <div class="login-menu__content">
+      <h2 class="login-menu__heading">Check Admin Page</h2>
+      <ul class="login-menu__options">
+        <li>
+          <a class="login-menu__button login-menu__button--slack" id="slack-login" href="/api/users/auth/slack?destination=/admin">Sign in with Slack</a>
+        </li>
+        <li>
+          <a class="login-menu__button login-menu__button--twitter" id="twitter-login" href="/api/users/auth/twitter?destination=/admin">Sign in with Twitter</a>
+        </li>
+        <li>
+          <a class="login-menu__button login-menu__button--facebook" id="facebook-login" href="/api/users/auth/facebook?destination=/admin">Sign in with Facebook</a>
+        </li>
+        <li>
+          <span class="login-email">
+            <a class="login-email__link" id="login-email">Sign in with e-mail</a>
+            <section class="login-email__modal">
+              <form class="login-email__form" name="login">
+                <div class="login-email__email">
+                  <input placeholder="Email address" class="login-email__email-input" value="" name="email" type="email">
+                  <label class="login-email__email-label">Email address</label>
+                </div>
+                <div class="login-email__password">
+                  <input placeholder="Password" class="login-email__password-input" value="" name="password" type="password">
+                  <label class="login-email__password-label">Password (minimum 8 characters)</label>
+                </div>
+                <div class="login-email__actions">
+                  <button class="login-email__submit login-email__submit--login" id="submit-register-or-login" type="submit">Sign in »</button>
+                </div>
+              </form>
+            </section>
+          </span>
+        </li>
+      </ul>
+    </div>
+    <script>
+      var loginEmail = document.getElementById('login-email')
+      var loginEmailFields = document.getElementsByClassName('login-email__modal')[0]
+      loginEmail.addEventListener('click', function () {
+        loginEmailFields.className += ' login-email__modal--open';
+      });
+    </script>
+
+  </body>
+</html>

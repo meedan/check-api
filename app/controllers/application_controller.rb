@@ -4,7 +4,20 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   skip_before_filter :verify_authenticity_token
 
+  def authenticated?
+    redirect_to('/') unless signed_in?
+  end
+
   private
+
+  def get_custom_headers
+    {
+      token: request.headers['X-Check-Token'].presence,
+      id: request.headers['X-Check-Uuid'].presence,
+      provider: request.headers['X-Check-Provider'].presence,
+      secret: request.headers['X-Check-Secret'].to_s
+    }
+  end
 
   def render_success(type = 'success', object = nil)
     json = { type: type }
