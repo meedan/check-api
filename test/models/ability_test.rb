@@ -1164,4 +1164,21 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:create, tg)
     end
   end
+
+  test "should owner destroy status versions" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    s = create_status annotated: pm, status: 'verified'
+    v = s.versions.last
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, v)
+      assert ability.cannot?(:update, v)
+      assert ability.can?(:destroy, v)
+    end
+  end
+
 end

@@ -343,6 +343,14 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_destroy('annotation')
   end
 
+  test "should read versions" do
+    #TODO
+  end
+
+  test "should destroy versions" do
+    #TODO
+  end
+
   test "should get source by id" do
     assert_graphql_get_by_id('source', 'name', 'Test')
   end

@@ -12,5 +12,5 @@ module VersionMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('version', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('version', create_fields, update_fields, ['project_media', 'source'])
 end
