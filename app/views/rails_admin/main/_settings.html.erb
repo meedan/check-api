@@ -1,0 +1,6 @@
+<% if @object.settings %>
+  <% @object.settings.each do |key, value| %>
+    <%= label :project, "settings[#{key.to_sym}]", key %>
+    <%= text_field :project, "settings[#{key.to_sym}]", value: @object.get_setting(key.to_sym) %>
+  <% end %>
+<% end %>

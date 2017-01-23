@@ -1,5 +1,6 @@
 class Team < ActiveRecord::Base
-  attr_accessible
+  attr_accessible :name, :description, :logo, :subdomain, :private, :archived, :settings
+
   
   has_paper_trail on: [:create, :update]
   has_many :projects

@@ -32,7 +32,6 @@ RailsAdmin.config do |config|
     show
     edit
     delete
-    show_in_app
 
     ## With an audit adapter, you can add:
     # history_index
@@ -49,5 +48,121 @@ RailsAdmin.config do |config|
   }
 
   config.navigation_static_label = 'External Tools'
+
+  config.model 'ApiKey' do
+    list do
+      field :access_token
+      field :expire_at
+    end
+
+    create do
+      field :access_token
+      field :expire_at
+    end
+
+    edit do
+      field :expire_at
+    end
+  end
+
+  config.model 'Project' do
+
+    list do
+      field :title
+      field :description
+      field :team
+      field :archived
+    end
+
+    edit do
+      field :title
+      field :description
+      field :team
+      field :archived
+      field :lead_image
+      field :user
+      field :settings do
+        partial 'settings'
+      end
+    end
+
+    create do
+      field :title
+      field :description
+      field :team
+      field :archived
+      field :lead_image
+      field :user
+      field :settings
+    end
+
+  end
+
+  config.model 'Team' do
+
+    list do
+      field :name
+      field :description
+      field :subdomain
+      field :private
+      field :archived
+    end
+
+    edit do
+      field :name
+      field :description
+      field :logo
+      field :subdomain
+      field :private
+      field :archived
+      field :settings do
+        partial 'settings'
+      end
+    end
+
+    create do
+      field :name
+      field :description
+      field :logo
+      field :subdomain
+      field :private
+      field :archived
+      field :settings
+    end
+
+  end
+
+  config.model 'User' do
+
+    list do
+      field :name
+      field :login
+      field :provider
+      field :email
+    end
+
+    edit do
+      field :name
+      field :login
+      field :provider
+      field :email
+      field :profile_image
+      field :image
+      field :current_team_id
+    end
+
+    create do
+      field :name
+      field :login
+      field :provider
+      field :email do
+        help 'Required'
+      end
+      field :profile_image
+      field :image
+      field :current_team_id
+    end
+
+  end
 
 end

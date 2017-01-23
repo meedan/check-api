@@ -1,5 +1,5 @@
 class Project < ActiveRecord::Base
-  attr_accessible
+  attr_accessible :title, :description, :team, :archived, :lead_image, :user, :settings
 
   has_paper_trail on: [:create, :update]
   belongs_to :user
@@ -65,6 +65,11 @@ class Project < ActiveRecord::Base
 
   def medias_count
     self.project_medias.count
+  end
+
+  def get_setting(setting)
+    self.settings ||= {}
+    self.settings[setting]
   end
 
   private
