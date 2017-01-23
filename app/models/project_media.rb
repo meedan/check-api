@@ -89,7 +89,7 @@ class ProjectMedia < ActiveRecord::Base
     st = Status.where(annotation_type: 'status', annotated_type: self.class.to_s , annotated_id: self.id).last
     st.versions.each do |obj|
       an << obj.reify unless obj.reify.nil?
-    end
+    end unless st.nil?
     an.sort_by{|k, v| k[:updated_at]}.reverse
   end
 
