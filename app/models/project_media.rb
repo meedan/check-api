@@ -83,13 +83,19 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_annotations_log
-    type = %W(comment status tag flag)
+    type = %W(comment tag flag)
     an = self.annotations.where(annotation_type: type).to_a
     # get status
-    st = Status.where(annotation_type: 'status', annotated_type: self.class.to_s , annotated_id: self.id).last
-    st.versions.each do |obj|
-      an << obj.reify unless obj.reify.nil?
-    end unless st.nil?
+    versions = []
+    s = Status.where(annotation_type: 'status', annotated_type: self.class.to_s , annotated_id: self.id).last
+    versions = s.versions.to_a unless s.nil?
+    if versions.size > 1
+      an << s
+      versions = versions.drop(2)
+      versions.each do |obj|
+        an << obj.reify unless obj.reify.nil?
+      end
+    end
     an.sort_by{|k, v| k[:updated_at]}.reverse
   end
 
