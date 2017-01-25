@@ -87,6 +87,8 @@ class Team < ActiveRecord::Base
     recipients
   end
 
+  scope :public_teams, -> { where(private: false) }
+
   protected
 
   def custom_statuses_format(type)

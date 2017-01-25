@@ -1,7 +1,7 @@
 class Ability
   include CanCan::Ability
 
-  def initialize
+  def initialize(attrs = {})
     alias_action :create, :update, :destroy, :to => :cud
     @user = User.current ||= User.new
     @context_team = Team.current ||= @user.current_team
@@ -30,6 +30,8 @@ class Ability
   private
 
   def global_admin_perms
+    can :access, :rails_admin
+    can :dashboard
     can :manage, :all
   end
 
@@ -157,8 +159,11 @@ class Ability
     # 1) @user is the same as target user
     # 2) target user is a member of at least one public team
     # 3) @user is a member of at least one same team as the target user
+
+    can :read, User, user_id: @user.id
+
     can :read, User do |obj|
-      @user.id == obj.id || obj.teams.where('teams.private' => false).exists? || @user.is_a_colleague_of?(obj)
+      !obj.teams.public_teams.empty? || @user.is_a_colleague_of?(obj)
     end
 
     # A @user can read contact, project or team user if:
