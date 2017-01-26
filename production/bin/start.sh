@@ -6,6 +6,9 @@
 LOGFILE=${DEPLOYDIR}/current/log/${RAILS_ENV}.log
 UPLOADS=${DEPLOYDIR}/shared/files/uploads
 
+echo "setting RAILS_ENV to ${RAILS_ENV} in /etc/nginx/sites-available/${APP}"
+sed -i "s/ddRAILS_ENVdd/${RAILS_ENV}/g" /etc/nginx/sites-available/${APP}
+
 echo "setting permissions for ${LOGFILE}"
 touch ${LOGFILE}
 chown ${DEPLOYUSER}:www-data ${LOGFILE}
