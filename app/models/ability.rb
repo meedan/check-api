@@ -1,9 +1,9 @@
 class Ability
   include CanCan::Ability
 
-  def initialize(attrs = {})
+  def initialize(user = nil)
     alias_action :create, :update, :destroy, :to => :cud
-    @user = User.current ||= User.new
+    @user = User.current ||= user || User.new
     @context_team = Team.current ||= @user.current_team
     # Define User abilities
     extra_perms_for_all_users
@@ -150,6 +150,9 @@ class Ability
 
   # Extra permissions for all users
   def extra_perms_for_all_users
+    can :access, :rails_admin
+    can :dashboard
+
     can :create, User
     can :create, PaperTrail::Version
     can :read, Team, :private => false
@@ -159,37 +162,40 @@ class Ability
     # 1) @user is the same as target user
     # 2) target user is a member of at least one public team
     # 3) @user is a member of at least one same team as the target user
-
-    can :read, User, user_id: @user.id
-
-    can :read, User do |obj|
-      !obj.teams.public_teams.empty? || @user.is_a_colleague_of?(obj)
-    end
+    can :read, User, id: @user.id
+    can :read, User, :teams => { :private => false }
+    can :read, User, team_users: { team_id: @user.teams.map(&:id) }
 
     # A @user can read contact, project or team user if:
     # 1) team is private and @user is a member of that team
     # 2) team user is not private
-    can :read, [Contact, Project, TeamUser] do |obj|
-      team = obj.team
-      !team.private || @user.is_member_of?(team)
-    end
+    can :read, [Contact, Project, TeamUser], :team => { :id => @user.teams.map(&:id) }
+    can :read, [Contact, Project, TeamUser], :team => { :private => false }
 
     # A @user can read any of those objects if:
     # 1) it's a source related to him/her or not related to any user
     # 2) it's related to at least one public team
     # 3) it's related to a private team which the @user has access to
-    can :read, [Account, Source, Media, ProjectMedia, ProjectSource, Comment, Flag, Status, Tag, Embed, Link, Claim] do |obj|
-      if obj.is_a?(Source) && obj.respond_to?(:user_id)
-        obj.user_id == @user.id || obj.user_id.nil?
+
+    can :read, Account, :source => { :projects => { :team => { :id => @user.teams.map(&:id), :private => false }}}
+    can :read, Account, :source => { :projects => { :team => { :team_users => { :team_id => @user.teams.map(&:id), :user_id => @user.id, :status => 'member' }}}}
+
+    can :read, Source, :user => { :id => [@user.id, nil] }
+    can :read, [Source, Media, Link, Claim], :projects => { :team => { :id => @user.teams.map(&:id), :private => false }}
+    can :read, [Source, Media, Link, Claim], :projects => { :team => { :team_users => { :team_id => @user.teams.map(&:id), :user_id => @user.id, :status => 'member' }}}
+
+    can :read, [ProjectMedia, ProjectSource], :project => { :team => { :id => @user.teams.map(&:id), :private => false }}
+    can :read, [ProjectMedia, ProjectSource], :project => { :team => { :team_users => { :team_id => @user.teams.map(&:id), :user_id => @user.id, :status => 'member' }}}
+
+    can :read, [Comment, Flag, Status, Tag, Embed] do |obj|
+      team_ids = obj.get_team
+      teams = obj.respond_to?(:get_team_objects) -media ? obj.get_team_objects.reject{ |t| t.private } : Team.where(id: team_ids, private: false)
+      if teams.empty?
+        TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
       else
-        team_ids = obj.get_team
-        teams = obj.respond_to?(:get_team_objects) ? obj.get_team_objects.reject{ |t| t.private } : Team.where(id: team_ids, private: false)
-        if teams.empty?
-          TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
-        else
-          teams.any?
-        end
+        teams.any?
       end
     end
+
   end
 end
