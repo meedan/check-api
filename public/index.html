@@ -25,17 +25,19 @@
           <span class="login-email">
             <a class="login-email__link" id="login-email">Sign in with e-mail</a>
             <section class="login-email__modal">
-              <form class="login-email__form" name="login">
+              <form class="login-email__form" name="login" action="/api/users/sign_in" method='post'>
                 <div class="login-email__email">
-                  <input placeholder="Email address" class="login-email__email-input" value="" name="email" type="email">
+                  <input placeholder="Email address"
+                  class="login-email__email-input" value="" name="api_user[email]" type="email">
                   <label class="login-email__email-label">Email address</label>
                 </div>
                 <div class="login-email__password">
-                  <input placeholder="Password" class="login-email__password-input" value="" name="password" type="password">
+                  <input placeholder="Password"
+                  class="login-email__password-input" value="" name="api_user[password]" type="password">
                   <label class="login-email__password-label">Password (minimum 8 characters)</label>
                 </div>
                 <div class="login-email__actions">
-                  <button class="login-email__submit login-email__submit--login" id="submit-register-or-login" type="submit">Sign in »</button>
+                  <button class="login-email__submit login-email__submit--login" id="submit-login" type="submit">Sign in »</button>
                 </div>
               </form>
             </section>
