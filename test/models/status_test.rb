@@ -348,6 +348,8 @@ class StatusTest < ActiveSupport::TestCase
     s.destroy
     assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
     assert_equal 0, pm.get_annotations_log.size
+    s.destroy
+    assert_nil Status.where(id: s.id).last
   end
 
 end

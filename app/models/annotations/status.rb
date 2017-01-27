@@ -92,9 +92,13 @@ class Status < ActiveRecord::Base
   def destroy
     # should revert status
     widget = self.paper_trail.previous_version
-    widget.paper_trail.without_versioning do
-      widget.save!
-      self.versions.last.destroy
+    if widget.nil?
+      Annotation.find(self.id).destroy
+    else
+      widget.paper_trail.without_versioning do
+        widget.save!
+        self.versions.last.destroy
+      end
     end
   end
 
