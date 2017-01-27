@@ -13,7 +13,10 @@ ENV DEPLOYUSER=checkdeploy \
     GITREPO=git@github.com:meedan/check-api.git \
     PRODUCT=check \    
     APP=check-api \
-    TERM=xterm
+    TERM=xterm \
+    MIN_INSTANCES=4 \  
+    MAX_POOL_SIZE=12 
+    # MIN_INSTANCES and MAX_POOL_SIZE control the pool size of passenger
 
 #
 # APP CONFIG
@@ -26,10 +29,9 @@ RUN apt-get install -y imagemagick
 
 # nginx for checkdesk-api
 
-COPY production/config/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
 # swap in DEPLOYUSER
-RUN sed -i "s/DEPLOYUSER/${DEPLOYUSER}/g" /etc/nginx/sites-available/${APP}
+RUN sed -i "s/ddDEPLOYUSERdd/${DEPLOYUSER}/g" /etc/nginx/sites-available/${APP}
 RUN ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP}
 RUN rm /etc/nginx/sites-enabled/default
 
