@@ -11,7 +11,7 @@ class Status < ActiveRecord::Base
 
   notifies_slack on: :save,
                  if: proc { |s| s.should_notify? },
-                 message: proc { |s| data = s.annotated.embed; "*#{User.current.name}* changed the verification status on <#{s.origin}/project/#{s.annotated.project_id}/media/#{s.annotated_id}|#{data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
+                 message: proc { |s| data = s.annotated.embed; "*#{User.current.name}* changed the verification status on <#{s.origin}/#{s.annotated.project.team.slug}/project/#{s.annotated.project_id}/media/#{s.annotated_id}|#{data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
                  channel: proc { |s| s.annotated.project.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
                  webhook: proc { |s| s.current_team.setting(:slack_webhook) }
 

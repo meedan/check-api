@@ -213,7 +213,7 @@ module SampleData
   def create_team(options = {})
     team = Team.new
     team.name = options[:name] || random_string
-    team.subdomain = options[:subdomain] || Team.subdomain_from_name(team.name)
+    team.slug = options[:slug] || Team.slug_from_name(team.name)
     file = 'rails.png'
     if options.has_key?(:logo)
       file = options[:logo]

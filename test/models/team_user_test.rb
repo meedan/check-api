@@ -202,7 +202,7 @@ class TeamUserTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when user joins team" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     with_current_user_and_team(u, t) do
@@ -212,8 +212,8 @@ class TeamUserTest < ActiveSupport::TestCase
   end
 
   test "should take :slack_teams setting into account" do
-    t1 = create_team subdomain: 'test1'
-    t2 = create_team subdomain: 'test2'
+    t1 = create_team slug: 'test1'
+    t2 = create_team slug: 'test2'
     t2.set_slack_teams = { 'SlackTeamID' => 'SlackTeamName' }
     t2.save
     t2.reload

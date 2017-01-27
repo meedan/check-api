@@ -249,7 +249,7 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should notify on Slack when comment is created" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
@@ -276,15 +276,15 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should extract Check URLs" do
-    t1 = create_team subdomain: 'test'
+    t1 = create_team slug: 'test'
     p1 = create_project team: t1
     p2 = create_project team: t1
-    t2 = create_team subdomain: 'test2'
+    t2 = create_team slug: 'test2'
     pm1 = create_project_media project: p1
     pm2 = create_project_media project: p2
     p3 = create_project team: t2
     pm3 = create_project_media project: p3
-    text = "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{pm1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{pm2.id} and http://test2.localhost:3333/project/1/media/#{pm3.id} because they are nice"
+    text = "Please check reports http://localhost:3333/test/project/#{p1.id}/media/#{pm1.id} and http://localhost:3333/test/project/#{p2.id}/media/#{pm2.id} and http://localhost:3333/test2/project/1/media/#{pm3.id} because they are nice"
     c = create_comment text: text, annotated: pm1
     assert_includes c.entity_objects, pm1
     assert_includes c.entity_objects, pm2

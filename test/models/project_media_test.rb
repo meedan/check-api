@@ -178,7 +178,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when project media is created" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     u = create_user
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t

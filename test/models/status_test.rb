@@ -175,7 +175,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when status is created" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'

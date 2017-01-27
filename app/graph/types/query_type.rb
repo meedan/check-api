@@ -24,7 +24,7 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  # Get team by id or subdomain
+  # Get team by id or slug
 
   field :team do
     type TeamType

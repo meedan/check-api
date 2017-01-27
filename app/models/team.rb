@@ -10,14 +10,13 @@ class Team < ActiveRecord::Base
 
   mount_uploader :logo, ImageUploader
 
-  before_validation :normalize_subdomain, on: :create
+  before_validation :normalize_slug, on: :create
 
   validates_presence_of :name
-  validates_presence_of :subdomain
-  validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens', on: :create
-  validates :subdomain, length: { in: 4..63 }, on: :create
-  validates :subdomain, uniqueness: true, on: :create
-  validate :subdomain_is_available, on: :create
+  validates_presence_of :slug
+  validates_format_of :slug, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens', on: :create
+  validates :slug, length: { in: 4..63 }, on: :create
+  validates :slug, uniqueness: true, on: :create
   validates :logo, size: true
   validate :slack_webhook_format
   validate :custom_media_statuses_format
@@ -48,7 +47,7 @@ class Team < ActiveRecord::Base
       avatar: self.avatar,
       name: self.name,
       projects: self.recent_projects,
-      subdomain: self.subdomain
+      slug: self.slug
     }
   end
 
@@ -115,7 +114,7 @@ class Team < ActiveRecord::Base
     end
   end
 
-  def self.subdomain_from_name(name)
+  def self.slug_from_name(name)
     name.parameterize.underscore.dasherize.ljust(4, '-')
   end
 
@@ -127,28 +126,8 @@ class Team < ActiveRecord::Base
     Thread.current[:team] = team
   end
 
-  def subdomain_is_available
-    unless self.origin.blank?
-      begin
-        r = Regexp.new CONFIG['checkdesk_client']
-        m = origin.match(r)
-        url = ''
-        
-        if m[1].blank?
-          url = m[0].gsub(/(^https?:\/\/)/, '\1' + self.subdomain + '.')
-        else
-          url = m[0].gsub(m[1], self.subdomain)
-        end
-
-        uri = URI.parse(url)
-        request = Net::HTTP::Head.new(uri)
-        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
-        
-        errors.add(:base, 'Subdomain is not available') unless response['X-Check-Web']
-      rescue
-        errors.add(:base, 'Subdomain is not available')
-      end
-    end
+  def self.slug_from_url(url)
+    URI(url).path.split('/')[1]
   end
 
   def slack_webhook_format
@@ -158,8 +137,8 @@ class Team < ActiveRecord::Base
     end
   end
 
-  def normalize_subdomain
-    self.subdomain = self.subdomain.downcase unless self.subdomain.blank?
+  def normalize_slug
+    self.slug = self.slug.downcase unless self.slug.blank?
   end
 
   def custom_media_statuses_format
