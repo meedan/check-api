@@ -163,14 +163,14 @@ class Ability
     # 2) target user is a member of at least one public team
     # 3) @user is a member of at least one same team as the target user
     can :read, User, id: @user.id
-    can :read, User, :teams => { :private => false }
-    can :read, User, team_users: { team_id: @user.teams.map(&:id) }
+    can :read, User, teams: { private: false }
+    can :read, User, team_users: { team_id: @user.team_users.where(status: 'member').map(&:team_id), status: 'member' }
 
     # A @user can read contact, project or team user if:
     # 1) team is private and @user is a member of that team
     # 2) team user is not private
-    can :read, [Contact, Project, TeamUser], :team => { :id => @user.teams.map(&:id) }
-    can :read, [Contact, Project, TeamUser], :team => { :private => false }
+    can :read, [Contact, Project, TeamUser], team: { id: @user.teams.map(&:id), team_users: { user_id: @user.id, status: 'member'} }
+    can :read, [Contact, Project, TeamUser], team: { private: false }
 
     # A @user can read any of those objects if:
     # 1) it's a source related to him/her or not related to any user
@@ -180,16 +180,17 @@ class Ability
     can :read, Account, :source => { :projects => { :team => { :id => @user.teams.map(&:id), :private => false }}}
     can :read, Account, :source => { :projects => { :team => { :team_users => { :team_id => @user.teams.map(&:id), :user_id => @user.id, :status => 'member' }}}}
 
-    can :read, Source, :user => { :id => [@user.id, nil] }
-    can :read, [Source, Media, Link, Claim], :projects => { :team => { :id => @user.teams.map(&:id), :private => false }}
-    can :read, [Source, Media, Link, Claim], :projects => { :team => { :team_users => { :team_id => @user.teams.map(&:id), :user_id => @user.id, :status => 'member' }}}
+    can :read, Source, user_id: [@user.id, nil]
+    can :read, [Source, Media, Link, Claim], projects: { team: { private: false }}
+    can :read, [Source, Media, Link, Claim], projects: { team: { team_users: { team_id: @user.teams.map(&:id), user_id: @user.id, status: 'member' }}}
 
     can :read, [ProjectMedia, ProjectSource], :project => { :team => { :id => @user.teams.map(&:id), :private => false }}
     can :read, [ProjectMedia, ProjectSource], :project => { :team => { :team_users => { :team_id => @user.teams.map(&:id), :user_id => @user.id, :status => 'member' }}}
 
+
     can :read, [Comment, Flag, Status, Tag, Embed] do |obj|
       team_ids = obj.get_team
-      teams = obj.respond_to?(:get_team_objects) -media ? obj.get_team_objects.reject{ |t| t.private } : Team.where(id: team_ids, private: false)
+      teams = obj.respond_to?(:get_team_objects) ? obj.get_team_objects.reject{ |t| t.private } : Team.where(id: team_ids, private: false)
       if teams.empty?
         TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
       else
