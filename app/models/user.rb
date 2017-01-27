@@ -53,9 +53,9 @@ class User < ActiveRecord::Base
     user.url = auth.url
     user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
     user.omniauth_info = auth.as_json
-    User.current = user
     user.save!
-    user.reload
+    User.current = user.reload
+    User.current
   end
 
   def self.token(provider, id, token, secret)
