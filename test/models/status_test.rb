@@ -323,4 +323,31 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 'verified', result.status
   end
 
+  test "should revert destroy status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s = Status.where(annotation_type: 'status', annotated_type: pm.class.to_s , annotated_id: pm.id).last
+    s.status = 'false'; s.save!
+    assert_equal 1, pm.get_annotations_log.size
+    s.destroy
+    assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+    assert_equal 0, pm.get_annotations_log.size
+    s.status = 'Not Applicable'; s.save!; s.reload
+    s.status = 'false'; s.save!; s.reload
+    s.status = 'verified'; s.save!
+    assert_equal s.reload.status, 'verified'
+    assert_equal 3, pm.get_annotations_log.size
+    s.destroy
+    assert_equal s.reload.status, 'false'
+    assert_equal 2, pm.get_annotations_log.size
+    s.destroy
+    assert_equal s.reload.status, 'not_applicable'
+    assert_equal 1, pm.get_annotations_log.size
+    s.destroy
+    assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+    assert_equal 0, pm.get_annotations_log.size
+  end
+
 end
