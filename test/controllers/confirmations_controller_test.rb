@@ -27,4 +27,13 @@ class ConfirmationsControllerTest < ActionController::TestCase
     assert_redirected_to 'http://localhost:3333/user/confirmed'
     assert_not_nil u.reload.confirmed_at
   end
+
+  test "should confirm account for new user" do
+    u1 = create_user provider: ''
+    User.current = User.new
+    assert_nothing_raised do
+      get :show, confirmation_token: u1.confirmation_token, client_host: 'http://test.localhost:3333'
+    end
+    User.current = nil
+  end
 end

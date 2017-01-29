@@ -4,7 +4,8 @@ class Api::V1::ConfirmationsController < Devise::ConfirmationsController
     if valid_host.nil?
       render_error('Unrecognized client', 'INVALID_VALUE')
     else
-      self.resource = resource_class.confirm_by_token(params[:confirmation_token])
+      User.current = nil
+      User.current = self.resource = resource_class.confirm_by_token(params[:confirmation_token])
       yield resource if block_given?
       path = resource.errors.empty? ? '/user/confirmed' : '/user/unconfirmed'
       redirect_to valid_host[0] + path
