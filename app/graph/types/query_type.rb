@@ -33,7 +33,7 @@ QueryType = GraphQL::ObjectType.define do
     argument :slug, types.String
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
-      if args['slug'].present?
+      if !args['slug'].blank?
         team = Team.where(slug: args['slug']).first
         tid = team.id unless team.nil?
       end  
