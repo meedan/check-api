@@ -79,7 +79,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :annotations, -> { AnnotationType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
-      project_media.get_annotations(annotation_types)
+      project_media.get_annotations_log
     }
   end
 
@@ -87,7 +87,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.Int
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.get_annotations(annotation_types).size
+      project_media.get_annotations_log.size
     }
   end
 
@@ -113,6 +113,14 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :last_status_obj do
+    type -> { StatusType }
+
+    resolve -> (project_media, _args, _ctx) {
+      project_media.last_status_obj
+    }
+  end
+
   field :published do
     type types.String
 
@@ -124,9 +132,5 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
 
 # End of fields
-end
-
-def annotation_types
-  ['comment', 'status', 'tag', 'flag']
 end
 

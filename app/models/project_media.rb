@@ -82,6 +82,23 @@ class ProjectMedia < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
+  def get_annotations_log
+    type = %W(comment tag flag)
+    an = self.annotations.where(annotation_type: type).to_a
+    # get status
+    versions = []
+    s = Status.where(annotation_type: 'status', annotated_type: self.class.to_s , annotated_id: self.id).last
+    versions = s.versions.to_a unless s.nil?
+    if versions.size > 1
+      an << s
+      versions = versions.drop(2)
+      versions.each do |obj|
+        an << obj.reify unless obj.reify.nil?
+      end
+    end
+    an.sort_by{|k, v| k[:updated_at]}.reverse
+  end
+
   def get_media_annotations(type = nil)
     self.media.annotations.where(annotation_type: type).last
   end
@@ -107,6 +124,10 @@ class ProjectMedia < ActiveRecord::Base
   def last_status
     last = self.get_annotations('status').first
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
+  end
+
+  def last_status_obj
+    self.get_annotations('status').last
   end
 
   def published

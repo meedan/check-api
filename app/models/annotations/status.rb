@@ -89,6 +89,19 @@ class Status < ActiveRecord::Base
     self.update_media_search(%w(status))
   end
 
+  def destroy
+    # should revert status
+    widget = self.paper_trail.previous_version
+    if widget.nil?
+      Annotation.find(self.id).destroy
+    else
+      widget.paper_trail.without_versioning do
+        widget.save!
+        self.versions.last.destroy
+      end
+    end
+  end
+
   private
 
   def status_is_valid
