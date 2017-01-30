@@ -126,10 +126,6 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
-  def team
-    self.project.team
-  end
-
   protected
 
   def create_image
@@ -167,23 +163,6 @@ class ProjectMedia < ActiveRecord::Base
     m
   end
 
-  def get_embed(obj)
-    Embed.where(annotation_type: 'embed', annotated_type: obj.class.to_s , annotated_id: obj.id).last
-  end
-
-  def initiate_embed_annotation(info)
-    em = Embed.new
-    em.embed = info.to_json
-    em.annotated = self
-    em.annotator = User.current unless User.current.nil?
-    em
-  end
-
-  def override_embed_data(em, info)
-    info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
-    em.save!
-  end
-
   private
 
   def is_unique
@@ -206,4 +185,24 @@ class ProjectMedia < ActiveRecord::Base
   def set_user
     self.user = User.current unless User.current.nil?
   end
+
+  protected
+
+  def get_embed(obj)
+    Embed.where(annotation_type: 'embed', annotated_type: obj.class.to_s , annotated_id: obj.id).last
+  end
+
+  def initiate_embed_annotation(info)
+    em = Embed.new
+    em.embed = info.to_json
+    em.annotated = self
+    em.annotator = User.current unless User.current.nil?
+    em
+  end
+
+  def override_embed_data(em, info)
+    info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
+    em.save!
+  end
+
 end
