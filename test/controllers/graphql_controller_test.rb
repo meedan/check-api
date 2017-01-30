@@ -53,7 +53,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should return 404 if object does not exist" do
     authenticate_with_user
-    post :create, query: 'query GetById { project_media(id: 99999) { id } }'
+    post :create, query: 'query GetById { project_media(ids: "99999,99999") { id } }'
     assert_response 404
   end
 
@@ -163,12 +163,12 @@ class GraphqlControllerTest < ActionController::TestCase
     # Update media title and description with context p2
     info = {title: 'Title B', description: 'Desc B'}.to_json
     pm2.embed= info
-    query = "query GetById { project_media(id: #{pm1.id}) { embed } }"
+    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { embed } }"
     post :create, query: query
     assert_response :success
     embed = JSON.parse(@response.body)['data']['project_media']['embed']
     assert_equal 'Title A', JSON.parse(embed)['title']
-    query = "query GetById { project_media(id: #{pm2.id}) { embed } }"
+    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { embed } }"
     post :create, query: query
     assert_response :success
     embed = JSON.parse(@response.body)['data']['project_media']['embed']
@@ -498,7 +498,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media
     pm = create_project_media project: p, media: m
     create_comment annotated: pm, annotator: u
-    query = "query GetById { project_media(id: #{pm.id}) { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success
@@ -550,7 +550,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     pm = create_project_media project: p
-    query = "query GetById { project_media(id: #{pm.id}) { team { name } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { team { name } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
     post :create, query: query
     assert_response :success
