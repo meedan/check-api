@@ -55,7 +55,7 @@ class ProjectMedia < ActiveRecord::Base
     type, text = m.quote.blank? ?
       [ 'link', data['title'] ] :
       [ 'claim', m.quote ]
-    "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
+    "*#{m.user.name}* added a new #{type}: <#{self.origin}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
   end
 
   def add_elasticsearch_data
@@ -136,7 +136,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def create_claim
-    m = Claim.new 
+    m = Claim.new
     m.quote = self.quote
     m.save!
     m

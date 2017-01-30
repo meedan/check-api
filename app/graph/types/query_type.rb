@@ -53,10 +53,17 @@ QueryType = GraphQL::ObjectType.define do
 
   field :project_media do
     type ProjectMediaType
-    description 'Information about a project media, given its id and its team id'
-    argument :id, !types.ID
+    description 'Information about a project media, The argument should be given like this: "project_media_id,project_id"'
+    argument :ids, !types.String
     resolve -> (_obj, args, ctx) do
-      GraphqlCrudOperations.load_if_can(ProjectMedia, args['id'], ctx)
+      pmid, pid = args['ids'].split(',').map(&:to_i)
+      tid = Team.current.blank? ? 0 : Team.current.id
+      project = Project.where(id: pid, team_id: tid).last
+      pid = project.nil? ? 0 : project.id
+      project_media = ProjectMedia.where(project_id: pid, id: pmid).last
+      project_media = ProjectMedia.where(project_id: pid, media_id: pmid).last if project_media.nil?
+      pmid = project_media.nil? ? 0 : project_media.id
+      GraphqlCrudOperations.load_if_can(ProjectMedia, pmid, ctx)
     end
   end
 

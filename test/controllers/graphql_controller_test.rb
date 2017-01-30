@@ -125,6 +125,26 @@ class GraphqlControllerTest < ActionController::TestCase
     #assert_graphql_read('project_media', 'last_status')
   end
 
+  test "should read project media and fallback to media" do
+    authenticate_with_user
+    @request.headers.merge!({ 'origin': "http://#{@team.subdomain}.localhost:3333" })
+    p = create_project team: @team
+    p2 = create_project team: @team
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    pm2 = create_project_media project: p2, media: m
+    m2 = create_valid_media
+    pm3 = create_project_media project: p, media: m2
+    query = "query GetById { project_media(ids: \"#{pm3.id},#{p.id}\") { dbid } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+    query = "query GetById { project_media(ids: \"#{m2.id},#{p.id}\") { dbid } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+  end
+
   test "should read project media embed" do
     authenticate_with_user
     @request.headers.merge!({ 'origin': "http://#{@team.subdomain}.localhost:3333" })
