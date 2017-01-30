@@ -324,4 +324,10 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should not create team with 'check' slug" do
+    assert_raises ActiveRecord::RecordInvalid do
+      create_team slug: 'check'
+    end
+  end
 end

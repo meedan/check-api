@@ -17,6 +17,7 @@ class Team < ActiveRecord::Base
   validates_format_of :slug, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens', on: :create
   validates :slug, length: { in: 4..63 }, on: :create
   validates :slug, uniqueness: true, on: :create
+  validate :slug_is_not_reserved
   validates :logo, size: true
   validate :slack_webhook_format
   validate :custom_media_statuses_format
@@ -25,6 +26,8 @@ class Team < ActiveRecord::Base
   after_create :add_user_to_team
 
   has_annotations
+
+  RESERVED_SLUGS = ['check']
 
   include CheckdeskSettings
 
@@ -147,5 +150,9 @@ class Team < ActiveRecord::Base
 
   def custom_source_statuses_format
     self.custom_statuses_format(:source)
+  end
+
+  def slug_is_not_reserved
+    errors.add(:slug, 'is reserved') if RESERVED_SLUGS.include?(self.slug)
   end
 end
