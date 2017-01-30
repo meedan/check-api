@@ -661,4 +661,13 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_response :success
   end
+
+  test "should get team by slug" do
+    authenticate_with_user
+    t = create_team slug: 'context', name: 'Context Team'
+    @request.headers.merge!({ 'origin': 'http://localhost:3333/context' })
+    post :create, query: 'query Team { team(slug: "context") { name } }'
+    assert_response :success
+    assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
+  end
 end

@@ -30,8 +30,13 @@ QueryType = GraphQL::ObjectType.define do
     type TeamType
     description 'Information about the context team or the team from given id'
     argument :id, types.ID
+    argument :slug, types.String
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
+      if args['slug'].present?
+        team = Team.where(slug: args['slug']).first
+        tid = team.id unless team.nil?
+      end  
       if tid === 0 && !Team.current.blank?
         tid = Team.current.id
       end
