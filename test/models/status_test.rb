@@ -174,7 +174,7 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 'Source', s.annotated_type_callback('source')
   end
 
-  test "should notify Slack when status is created" do
+  test "should notify Slack when status is updated" do
     t = create_team subdomain: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
@@ -184,11 +184,15 @@ class StatusTest < ActiveSupport::TestCase
       m = create_valid_media
       pm = create_project_media project: p, media: m
       s = create_status status: 'false', origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert_not s.sent_to_slack
+      s.status = 'verified'; s.save!
       assert s.sent_to_slack
       # claim report
       m = create_claim_media project_id: p.id
       pm = create_project_media project: p, media: m
       s = create_status status: 'false', origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert_not s.sent_to_slack
+      s.status = 'verified'; s.save!
       assert s.sent_to_slack
     end
   end
