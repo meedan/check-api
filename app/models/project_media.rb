@@ -96,7 +96,7 @@ class ProjectMedia < ActiveRecord::Base
         an << obj.reify unless obj.reify.nil?
       end
     end
-    an.sort_by{|k, v| k[:updated_at]}.reverse
+    an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
 
   def get_media_annotations(type = nil)
