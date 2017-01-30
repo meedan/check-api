@@ -77,7 +77,7 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 1, t.versions.count
     v = t.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>["{}", "{\"tag\"=>\"test\", \"full_tag\"=>\"test\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{t.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{t.annotated_id}"], "annotation_type"=>["", "tag"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{}, {"tag"=>"test", "full_tag"=>"test"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, t.annotator_id], "annotated_type"=>[nil, "Source"], "annotated_id"=>[nil, t.annotated_id], "annotation_type"=>[nil, "tag"]}, v.changeset)
   end
 
   test "should create version when tag is updated" do
@@ -88,7 +88,7 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 2, t.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({"data"=>["{\"tag\"=>\"foo\", \"full_tag\"=>\"foo\"}", "{\"tag\"=>\"bar\", \"full_tag\"=>\"bar\"}"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{"tag"=>"foo", "full_tag"=>"foo"}, {"tag"=>"bar", "full_tag"=>"bar"}]}, v.changeset)
   end
 
   test "should get columns as array" do

@@ -277,6 +277,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
   end
 
+  test "should get annotations log" do
+    pm = create_project_media
+    assert_equal 0, pm.get_annotations_log.size
+    s = Status.find_by(:annotation_type => 'status', annotated_id: pm.id, annotated_type: pm.class.to_s)
+    c = create_comment text: 'text', annotated: pm
+    f = create_flag flag: 'Spam', annotated: pm
+    s.status = 'false';s.save!
+    t = create_tag tag: 'Tag', annotated: pm
+    s.status = 'verified'; s.save!
+    log = pm.get_annotations_log
+    assert_equal ['comment', 'flag', 'status', 'tag', 'status'].reverse, log.map(&:annotation_type)
+    assert_equal 5, log.size
+  end
+
   test "should get permissions" do
     u = create_user
     t = create_team current_user: u
