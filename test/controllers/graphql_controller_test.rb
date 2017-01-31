@@ -176,7 +176,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read annotations version" do
     authenticate_with_user
-    @request.headers.merge!({ 'origin': "http://#{@team.subdomain}.localhost:3333" })
+    @request.headers.merge!({ 'origin': "http://localhost:3333/#{@team.slug}" })
     p = create_project team: @team
     pm = create_project_media project: p
     s = pm.get_annotations('status').last
@@ -184,7 +184,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s.status = 'verified'; s.save!; s.reload
     s.status = 'false'; s.save!
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotations { edges { node { version { dbid } } } } } }"
-    post :create, query: query
+    post :create, query: query, team: @team.slug
     assert_response :success
     versions = JSON.parse(@response.body)['data']['project_media']['annotations']['edges']
     assert_equal s.versions.last.id, versions.last["node"]["version"]["dbid"]
