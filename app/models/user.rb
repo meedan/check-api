@@ -23,7 +23,7 @@ class User < ActiveRecord::Base
 
   include CheckdeskSettings
 
-  ROLES = %w[contributor journalist editor owner admin]
+  ROLES = %w[contributor journalist editor owner]
   def role?(base_role)
     ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.nil?
   end

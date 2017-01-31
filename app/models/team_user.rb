@@ -6,7 +6,7 @@ class TeamUser < ActiveRecord::Base
 
   validates :status, presence: true
   validates :status, inclusion: { in: %w(member requested invited banned), message: "%{value} is not a valid team member status" }
-  validates :role, inclusion: { in: %w(admin owner editor journalist contributor), message: "%{value} is not a valid team role" }
+  validates :role, inclusion: { in: %w(owner editor journalist contributor), message: "%{value} is not a valid team role" }
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
   validate :user_is_member_in_slack_team
 
