@@ -84,10 +84,11 @@ class ProjectMedia < ActiveRecord::Base
 
   def get_annotations_log
     type = %W(comment tag flag)
-    an = self.annotations.where(annotation_type: type).to_a
+    an = self.get_annotations(type).to_a
     # get status
     versions = []
-    s = Status.where(annotation_type: 'status', annotated_type: self.class.to_s , annotated_id: self.id).last
+    s = self.get_annotations('status').last
+    s = s.load unless s.nil?
     versions = s.versions.to_a unless s.nil?
     if versions.size > 1
       an << s
@@ -96,7 +97,7 @@ class ProjectMedia < ActiveRecord::Base
         an << obj.reify unless obj.reify.nil?
       end
     end
-    an.sort_by{|k, v| k[:updated_at]}.reverse
+    an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
 
   def get_media_annotations(type = nil)
@@ -141,7 +142,8 @@ class ProjectMedia < ActiveRecord::Base
   def embed=(info)
     info = info.blank? ? {} : JSON.parse(info)
     unless info.blank?
-      em = get_embed(self)
+      em = self.get_annotations('embed').last
+      em = em.load unless em.nil?
       em = initiate_embed_annotation(info) if em.nil?
       self.override_embed_data(em, info)
     end
@@ -208,10 +210,6 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   protected
-
-  def get_embed(obj)
-    Embed.where(annotation_type: 'embed', annotated_type: obj.class.to_s , annotated_id: obj.id).last
-  end
 
   def initiate_embed_annotation(info)
     em = Embed.new

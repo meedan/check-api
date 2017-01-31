@@ -254,7 +254,7 @@ module SampleData
         m.file = f
       end
     end
- 
+
     m.save!
     unless options[:project_id].blank?
       p = Project.where(id: options[:project_id]).last
@@ -320,6 +320,15 @@ module SampleData
     end
     pm.save!
     pm.reload
+  end
+
+  def create_version(options = {})
+     v = PaperTrail::Version.new
+     v.event = 'create'
+     v.item_type = random_string
+     v.item_id = random_number
+     v.save!
+     v.reload
   end
 
   def create_team_user(options = {})
