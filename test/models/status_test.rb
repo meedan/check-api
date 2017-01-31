@@ -67,7 +67,7 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>["{}", "{\"status\"=>\"credible\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{st.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{st.annotated_id}"], "annotation_type"=>["", "status"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{}, {"status"=>"credible"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, st.annotator_id], "annotated_type"=>[nil, "Source"], "annotated_id"=>[nil, st.annotated_id], "annotation_type"=>[nil, "status"]}, v.changeset)
   end
 
   test "should create version when status is updated" do
@@ -78,7 +78,7 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 2, st.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({"data"=>["{\"status\"=>\"slightly_credible\"}", "{\"status\"=>\"sockpuppet\"}"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{"status"=>"slightly_credible"}, {"status"=>"sockpuppet"}]}, v.changeset)
   end
 
   test "should get columns as array" do
@@ -184,11 +184,15 @@ class StatusTest < ActiveSupport::TestCase
       m = create_valid_media
       pm = create_project_media project: p, media: m
       s = create_status status: 'false', origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert_not s.sent_to_slack
+      s.status = 'verified'; s.save!
       assert s.sent_to_slack
       # claim report
       m = create_claim_media project_id: p.id
       pm = create_project_media project: p, media: m
       s = create_status status: 'false', origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      assert_not s.sent_to_slack
+      s.status = 'verified'; s.save!
       assert s.sent_to_slack
     end
   end
@@ -321,6 +325,35 @@ class StatusTest < ActiveSupport::TestCase
     sleep 1
     result = MediaSearch.find(pm.id)
     assert_equal 'verified', result.status
+  end
+
+  test "should revert destroy status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s = Status.where(annotation_type: 'status', annotated_type: pm.class.to_s , annotated_id: pm.id).last
+    s.status = 'false'; s.save!
+    assert_equal 1, pm.get_annotations_log.size
+    s.destroy
+    assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+    assert_equal 0, pm.get_annotations_log.size
+    s.status = 'Not Applicable'; s.save!; s.reload
+    s.status = 'false'; s.save!; s.reload
+    s.status = 'verified'; s.save!
+    assert_equal s.reload.status, 'verified'
+    assert_equal 3, pm.get_annotations_log.size
+    s.destroy
+    assert_equal s.reload.status, 'false'
+    assert_equal 2, pm.get_annotations_log.size
+    s.destroy
+    assert_equal s.reload.status, 'not_applicable'
+    assert_equal 1, pm.get_annotations_log.size
+    s.destroy
+    assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+    assert_equal 0, pm.get_annotations_log.size
+    s.destroy
+    assert_nil Status.where(id: s.id).last
   end
 
 end

@@ -55,7 +55,7 @@ class ProjectMedia < ActiveRecord::Base
     type, text = m.quote.blank? ?
       [ 'link', data['title'] ] :
       [ 'claim', m.quote ]
-    "*#{m.user.name}* added a new #{type}: <#{m.origin}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
+    "*#{m.user.name}* added a new #{type}: <#{self.origin}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
   end
 
   def add_elasticsearch_data
@@ -80,6 +80,23 @@ class ProjectMedia < ActiveRecord::Base
 
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
+  end
+
+  def get_annotations_log
+    type = %W(comment tag flag)
+    an = self.annotations.where(annotation_type: type).to_a
+    # get status
+    versions = []
+    s = Status.where(annotation_type: 'status', annotated_type: self.class.to_s , annotated_id: self.id).last
+    versions = s.versions.to_a unless s.nil?
+    if versions.size > 1
+      an << s
+      versions = versions.drop(2)
+      versions.each do |obj|
+        an << obj.reify unless obj.reify.nil?
+      end
+    end
+    an.sort_by{|k, v| k[:updated_at]}.reverse
   end
 
   def get_media_annotations(type = nil)
@@ -109,6 +126,10 @@ class ProjectMedia < ActiveRecord::Base
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
   end
 
+  def last_status_obj
+    self.get_annotations('status').last
+  end
+
   def published
     self.created_at.to_i.to_s
   end
@@ -136,7 +157,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def create_claim
-    m = Claim.new 
+    m = Claim.new
     m.quote = self.quote
     m.save!
     m

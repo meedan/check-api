@@ -53,7 +53,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should return 404 if object does not exist" do
     authenticate_with_user
-    post :create, query: 'query GetById { project_media(id: 99999) { id } }'
+    post :create, query: 'query GetById { project_media(ids: "99999,99999") { id } }'
     assert_response 404
   end
 
@@ -124,6 +124,26 @@ class GraphqlControllerTest < ActionController::TestCase
     #assert_graphql_read('project_media', 'last_status')
   end
 
+  test "should read project media and fallback to media" do
+    authenticate_with_user
+    @request.headers.merge!({ 'origin': "http://#{@team.subdomain}.localhost:3333" })
+    p = create_project team: @team
+    p2 = create_project team: @team
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    pm2 = create_project_media project: p2, media: m
+    m2 = create_valid_media
+    pm3 = create_project_media project: p, media: m2
+    query = "query GetById { project_media(ids: \"#{pm3.id},#{p.id}\") { dbid } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+    query = "query GetById { project_media(ids: \"#{m2.id},#{p.id}\") { dbid } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+  end
+
   test "should read project media embed" do
     authenticate_with_user
     @request.headers.merge!({ 'origin': "http://localhost:3333/#{@team.slug}" })
@@ -141,14 +161,14 @@ class GraphqlControllerTest < ActionController::TestCase
     pm1.embed = info
     # Update media title and description with context p2
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    pm2.embed = info
-    query = "query GetById { project_media(id: #{pm1.id}) { embed } }"
-    post :create, query: query, team: @team.slug
+    pm2.embed= info
+    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { embed } }"
+    post :create, query: query
     assert_response :success
     embed = JSON.parse(@response.body)['data']['project_media']['embed']
     assert_equal 'Title A', JSON.parse(embed)['title']
-    query = "query GetById { project_media(id: #{pm2.id}) { embed } }"
-    post :create, query: query, team: @team.slug
+    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { embed } }"
+    post :create, query: query
     assert_response :success
     embed = JSON.parse(@response.body)['data']['project_media']['embed']
     assert_equal 'Title B', JSON.parse(embed)['title']
@@ -342,6 +362,14 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_destroy('annotation')
   end
 
+  test "should read versions" do
+    #TODO
+  end
+
+  test "should destroy versions" do
+    #TODO
+  end
+
   test "should get source by id" do
     assert_graphql_get_by_id('source', 'name', 'Test')
   end
@@ -469,9 +497,9 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media
     pm = create_project_media project: p, media: m
     create_comment annotated: pm, annotator: u
-    query = "query GetById { project_media(id: #{pm.id}) { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
-    post :create, query: query, team: 'team'
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
+    @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
+    post :create, query: query
     assert_response :success
   end
 
@@ -521,9 +549,9 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     pm = create_project_media project: p
-    query = "query GetById { project_media(id: #{pm.id}) { team { name } } }"
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
-    post :create, query: query, team: 'team'
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { team { name } } }"
+    @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
+    post :create, query: query
     assert_response :success
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['team']['name']
   end
@@ -631,8 +659,8 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
 
-    assert_queries (2 * n + 15) do
-      post :create, query: query, team: 'team'
+    assert_queries (5 * n ) do
+      post :create, query: query
     end
 
     assert_response :success

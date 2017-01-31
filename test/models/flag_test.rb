@@ -31,7 +31,7 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal 1, f.versions.count
     v = f.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>["{}", "{\"flag\"=>\"Spam\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{f.annotator_id}"], "annotation_type"=>["", "flag"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{}, {"flag"=>"Spam"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, f.annotator_id], "annotation_type"=>[nil, "flag"]}, v.changeset)
   end
 
   test "should create version when flag is updated" do
@@ -42,7 +42,7 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal 2, f.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({"data"=>["{\"flag\"=>\"Spam\"}", "{\"flag\"=>\"Graphic content\"}"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{"flag"=>"Spam"}, {"flag"=>"Graphic content"}]}, v.changeset)
   end
 
   test "should get columns as array" do
