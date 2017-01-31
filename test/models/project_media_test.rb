@@ -187,6 +187,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
       m = create_valid_media origin: 'http://test.localhost:3333'
       pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
       assert pm.sent_to_slack
+      # verify notification URL
+      match = pm.slack_notification_message.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
+      assert_equal p.id, match[1].to_i
+      assert_equal pm.id, match[2].to_i
       # claim media
       m = create_claim_media origin: 'http://localhost:3333'
       pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
