@@ -150,7 +150,7 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read(type, field = 'id')
-    klass = type.camelize.constantize
+    klass = (type == 'version') ? PaperTrail::Version : type.camelize.constantize
     u = create_user
     klass.delete_all
     x1 = send("create_#{type}", { team: @team })
