@@ -175,6 +175,22 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Title B', JSON.parse(embed)['title']
   end
 
+  test "should read annotations version" do
+    authenticate_with_user
+    @request.headers.merge!({ 'origin': "http://#{@team.subdomain}.localhost:3333" })
+    p = create_project team: @team
+    pm = create_project_media project: p
+    s = pm.get_annotations('status').last
+    s = s.nil? ? create_status(annotated: pm, status: false) : s.load
+    s.status = 'verified'; s.save!; s.reload
+    s.status = 'false'; s.save!
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotations { edges { node { version { dbid } } } } } }"
+    post :create, query: query
+    assert_response :success
+    versions = JSON.parse(@response.body)['data']['project_media']['annotations']['edges']
+    assert_equal s.versions.last.id, versions.last["node"]["version"]["dbid"]
+  end
+
   test "should create project source" do
     s = create_source
     p = create_project team: @team
@@ -275,7 +291,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from project media" do
-    assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url' })
+    assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url', 'last_status_obj' => 'status'})
   end
 
   test "should read object from project source" do
@@ -364,11 +380,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read versions" do
-    #TODO
-  end
-
-  test "should destroy versions" do
-    #TODO
+    assert_graphql_read('version', 'dbid')
   end
 
   test "should get source by id" do
@@ -660,7 +672,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
     @request.headers.merge!({ 'origin': 'http://team.localhost:3333' })
 
-    assert_queries (5 * n ) do
+    assert_queries (6 * n ) do
       post :create, query: query
     end
 

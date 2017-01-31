@@ -160,8 +160,7 @@ class GraphqlCrudOperations
 
       interfaces [NodeIdentification.interface]
 
-      field :id do
-        type !types.ID
+      field :id, !types.ID do
         resolve -> (annotation, _args, _ctx) {
           annotation.relay_id(type)
         }
@@ -181,28 +180,25 @@ class GraphqlCrudOperations
         field name, types.String
       end
 
-      field :annotator do
-        type AnnotatorType
-
-        resolve -> (annotation, _args, _ctx) {
-          annotation.annotator
-        }
-      end
-
       connection :medias, -> { ProjectMediaType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
           annotation.entity_objects
         }
       end
+      instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
+      instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
+    end
+  end
 
-      field :version do
-        type -> {VersionType}
+  def self.annotation_fields
+    proc do |name, field_type = types.String, method = nil|
+      field name do
+        type field_type
 
-        resolve ->(annotation, _args, _ctx) {
-          annotation.version
+        resolve -> (annotation, _args, _ctx) {
+          annotation.send(method.blank? ? name : method)
         }
       end
-
     end
   end
 

@@ -231,6 +231,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal Status.default_id(m, p), pm.annotations('status').last.status
   end
 
+  test "should get last status object" do
+    pm = create_project_media
+    assert_not_nil pm.last_status_obj
+  end
+
   test "should update project media embed data" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
