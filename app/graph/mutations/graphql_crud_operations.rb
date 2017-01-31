@@ -195,7 +195,7 @@ class GraphqlCrudOperations
       field name do
         type field_type
 
-        resolve -> (annotation, _args, ctx) {
+        resolve -> (annotation, _args, _ctx) {
           annotation.send(method.blank? ? name : method)
         }
       end
