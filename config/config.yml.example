@@ -36,7 +36,7 @@ development: &default
   image_max_height:
   image_embed_size:
   image_thumbnail_size:
-  clamav_service_path:
+  clamav_service_path: localhost:3310
 
 test:
   <<: *default
