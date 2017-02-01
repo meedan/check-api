@@ -7,4 +7,5 @@ AboutType = GraphQL::ObjectType.define do
   field :version, types.String, 'Application version'
   field :tos, types.String, 'Terms of Service'
   field :privacy_policy, types.String, 'Privacy Policy'
+  field :max_upload_size, types.String, 'Maximum upload size'
 end
