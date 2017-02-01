@@ -77,7 +77,7 @@ class UploadedImageTest < ActiveSupport::TestCase
   end
 
   test "should not upload unsafe image (mocked)" do
-    stub_config('clamav_service_path', 'http://localhost:8080/scan') do
+    stub_config('clamav_service_path', 'localhost:8080') do
       ClamAV::Client.any_instance.stubs(:execute).returns(ClamAV::VirusResponse.new(nil, nil))
       assert_no_difference 'UploadedImage.count' do
         assert_raises ActiveRecord::RecordInvalid do
@@ -89,7 +89,7 @@ class UploadedImageTest < ActiveSupport::TestCase
   end
 
   test "should upload safe image (mocked)" do
-    stub_config('clamav_service_path', 'http://localhost:8080/scan') do
+    stub_config('clamav_service_path', 'localhost:8080') do
       ClamAV::Client.any_instance.stubs(:execute).returns(ClamAV::SuccessResponse.new(nil))
       assert_difference 'UploadedImage.count' do
         create_uploaded_image
