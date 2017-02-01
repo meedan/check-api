@@ -1,7 +1,9 @@
 class SafeValidator < ActiveModel::EachValidator
   def virus_found?(file)
-    response = RestClient.post(CONFIG['clamav_service_path'], file: File.new(file.path), name: file.path.split('/').last)
-    response.body.chomp == 'Everything ok : false'
+    io = StringIO.new(File.read(file.path))
+    client = ClamAV::Client.new
+    response = client.execute(ClamAV::Commands::InstreamCommand.new(io))
+    response.class.name == 'ClamAV::VirusResponse'
   end
 
   def validate_each(record, attribute, value)
