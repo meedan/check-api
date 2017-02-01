@@ -12,7 +12,7 @@ QueryType = GraphQL::ObjectType.define do
     type AboutType
     description 'Information about the application'
     resolve -> (_obj, _args, _ctx) do
-      OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: 'About', tos: CONFIG['terms_of_service'], privacy_policy: CONFIG['privacy_policy'] })
+      OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: 'About', tos: CONFIG['terms_of_service'], privacy_policy: CONFIG['privacy_policy'], max_upload_size: UploadedFile.max_size_readable })
     end
   end
 
