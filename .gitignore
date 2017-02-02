@@ -10,6 +10,7 @@ db/schema.rb
 config/database.yml
 config/config.yml
 config/sidekiq.yml
+config/sidekiq-test.yml
 config/initializers/errbit.rb
 config/initializers/secret_token.rb
 *.sw*
