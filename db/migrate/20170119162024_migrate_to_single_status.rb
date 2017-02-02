@@ -1,7 +1,7 @@
 class MigrateToSingleStatus < ActiveRecord::Migration
   def change
     ProjectMedia.all.each do |pm|
-      s = Status.where(annotation_type: 'status', annotated_type: pm.class.to_s , annotated_id: pm.id).to_a
+      s = Status.where(annotation_type: 'status', annotated_type: pm.class.to_s , annotated_id: pm.id).order("id asc").to_a
       # create new one with same created_at and updated_at to fix serialized issue
       # and set initial status if not exist
       unless s.first.nil?
