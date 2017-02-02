@@ -1,7 +1,7 @@
 class Flag < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible
+  attr_accessible :annotator_type, :annotated_type, :annotated_id, :annotator_type, :annotator_id, :entities, :data
 
   field :flag, String, presence: true
 

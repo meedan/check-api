@@ -1,7 +1,7 @@
 class Account < ActiveRecord::Base
   include PenderData
 
-  attr_accessible
+  attr_accessible :user_id, :source_id, :url, :team_id
 
   has_paper_trail on: [:create, :update]
   belongs_to :user

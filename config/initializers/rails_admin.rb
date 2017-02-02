@@ -49,6 +49,60 @@ RailsAdmin.config do |config|
 
   config.navigation_static_label = 'External Tools'
 
+  def annotation_config(type)
+    list do
+      field :annotated do
+        pretty_value do
+          path = bindings[:view].show_path(model_name: bindings[:object].annotated_type, id: bindings[:object].annotated_id)
+          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotated_type} ##{bindings[:object].annotated_id}"
+        end
+      end
+      field :annotator do
+        pretty_value do
+          path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
+          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+        end
+      end
+      field :data do
+        formatted_value do
+          bindings[:object].data.map { |key, value| "#{key}: #{value}"}
+        end
+      end
+      field :entities
+    end
+
+    edit do
+      field :annotation_type
+      if type.classify.constantize.respond_to?(:types)
+        field :annotated_type, :enum do
+          enum do
+            type.classify.constantize.types
+          end
+        end
+      else
+        field :annotated_type
+      end
+      field :annotated_id
+      field :annotator_type
+      field :annotator_id
+      field :data do
+        partial 'settings'
+      end
+      field :entities
+    end
+  end
+
+  def media_config
+    edit do
+     field :type, :enum do
+       enum do
+         Media.types
+       end
+     end
+     include_all_fields
+    end
+  end
+
   config.model 'ApiKey' do
     list do
       field :access_token
@@ -66,44 +120,35 @@ RailsAdmin.config do |config|
   end
 
   config.model 'Comment' do
+    annotation_config('comment')
+  end
 
-    list do
-      field :annotated do
-        pretty_value do
-          path = bindings[:view].show_path(model_name: bindings[:object].annotated_type, id: bindings[:object].annotated_id)
-          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotated_type} ##{bindings[:object].annotated_id}"
-        end
-      end
-      field :annotator do
-        pretty_value do
-          path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
-          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
-        end
-      end
-      field :text
-      field :entities
-    end
+  config.model 'Embed' do
+    annotation_config('embed')
+  end
 
-    edit do
-      field :annotation_type do
-        def value
-          'comment'
-        end
-      end
-      field :annotated_type, :enum do
-        enum do
-          Comment.types
-        end
-        help ''
-      end
-      field :annotated_id
-      field :annotator_type
-      field :annotator_id
-      field :data do
-        partial 'settings'
-      end
-      field :entities
-    end
+  config.model 'Flag' do
+    annotation_config('flag')
+  end
+
+  config.model 'Media' do
+    media_config
+  end
+
+  config.model 'Link' do
+    media_config
+  end
+
+  config.model 'Claim' do
+    media_config
+  end
+
+  config.model 'Status' do
+    annotation_config('status')
+  end
+
+  config.model 'Tag' do
+    annotation_config('tag')
   end
 
   config.model 'Project' do
@@ -180,19 +225,10 @@ RailsAdmin.config do |config|
       field :login
       field :provider
       field :email
+      field :is_admin
     end
 
     edit do
-      field :name
-      field :login
-      field :provider
-      field :email
-      field :profile_image
-      field :image
-      field :current_team_id
-    end
-
-    create do
       field :name
       field :login
       field :provider
@@ -202,6 +238,7 @@ RailsAdmin.config do |config|
       field :profile_image
       field :image
       field :current_team_id
+      field :is_admin
     end
 
   end

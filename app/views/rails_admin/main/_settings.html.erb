@@ -1,4 +1,4 @@
-<% serialized_field = @object.settings || @object.data %>
+<% serialized_field = @object.respond_to?(:settings) ? @object.settings : @object.data %>
 <% if serialized_field %>
   <% serialized_field.each do |key, value| %>
     <%= label :project, "settings[#{key.to_sym}]", key %>

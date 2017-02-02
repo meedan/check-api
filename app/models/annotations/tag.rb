@@ -1,13 +1,19 @@
 class Tag < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible
+  attr_accessible :annotator_type, :annotated_type, :annotated_id, :annotator_type, :annotator_id, :entities, :data
 
   field :tag, String, presence: true
   field :full_tag, String, presence: true
 
   validates_presence_of :tag
   validates :data, uniqueness: { scope: [:annotated_type, :annotated_id] }, if: lambda { |t| t.id.blank? }
+
+  def self.types
+    ['ProjectSource', 'ProjectMedia', 'Source']
+  end
+  validates :annotated_type, inclusion: { in: Tag.types }, allow_nil: true
+
   validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', 'Source', nil] }
 
   before_validation :normalize_tag, :store_full_tag
