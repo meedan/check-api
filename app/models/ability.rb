@@ -22,7 +22,7 @@ class Ability
     if @user.role? :owner
       owner_perms
     end
-    if @user.role? :admin
+    if @user.is_admin?
       global_admin_perms
     end
   end
@@ -36,24 +36,23 @@ class Ability
   end
 
   def owner_perms
+    can :access, :rails_admin
+    can :dashboard
+
     can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
-    can :update, TeamUser do |obj|
-      roles = %w[owner journalist contributor editor]
-      user_role = obj.user.role
-      obj.team_id == @context_team.id and obj.user_id != @user.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
-    end
+    can :update, TeamUser, team_id: @context_team.id
+    cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can :destroy, Contact, :team_id => @context_team.id
     can :destroy, Project, :team_id => @context_team.id
-    can :destroy, [Media, Link, Claim] do |obj|
-      obj.get_team.include? @context_team.id
-    end
-    can :destroy, [ProjectMedia, ProjectSource] do |obj|
-      obj.get_team.include? @context_team.id
-    end
-    can :destroy, [Annotation, Comment, Tag, Status, Flag] do |obj|
-      obj.get_team.include? @context_team.id
+    can :destroy, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id, user_id: @user.id, role: 'owner' }}}
+    can :destroy, [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @context_team.id, user_id: @user.id, role: 'owner' }}}
+
+    %w(annotation comment flag status tag).each do |annotation_type|
+      can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+        obj.get_team.include? @context_team.id
+      end
     end
     can :destroy, PaperTrail::Version do |obj|
       s = nil
@@ -66,18 +65,15 @@ class Ability
     can :update, User, :team_users => { :team_id => @context_team.id, role: ['editor'] }
     can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
-    can :update, TeamUser do |obj|
-      roles = %w[editor journalist contributor]
-      user_role = obj.user.role
-      obj.team_id == @context_team.id and obj.user_id != @user.id and roles.include? obj.role and (roles.include? user_role or user_role.nil?)
-    end
+    can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor']
+    cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
-    can [:create, :update], [ProjectMedia, ProjectSource] do |obj|
-      obj.get_team.include? @context_team.id
-    end
-    can :update, [Comment, Flag, Annotation] do |obj|
-      obj.get_team.include? @context_team.id
+    can [:create, :update], [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @context_team.id }}}
+    %w(annotation comment flag).each do |annotation_type|
+      can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+        obj.get_team.include? @context_team.id
+      end
     end
   end
 
@@ -86,19 +82,20 @@ class Ability
     can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
-    can :update, [Media, Claim, Link] do |obj|
-      obj.get_team.include? @context_team.id
-    end
-    can :create, Flag do |flag|
+    can :update, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id }}}
+
+    can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include? @context_team.id and (flag.flag.to_s == 'Mark as graphic')
     end
-    can :update, Flag do |flag|
+    can :update, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include? @context_team.id and (flag.annotator_id.to_i == @user.id)
     end
-    can :create, Tag do |obj|
-      obj.get_team.include? @context_team.id
+    %w(status tag).each do |annotation_type|
+      can :create, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+        obj.get_team.include? @context_team.id
+      end
     end
-    can [:create, :update], Status do |obj|
+    can :update, Status, ['annotation_type = ?', 'status'] do |obj|
       obj.get_team.include? @context_team.id
     end
   end
@@ -111,28 +108,20 @@ class Ability
       obj.get_team.include? @context_team.id and (obj.user_id == @user.id)
     end
     can :update, [Account, Source, Embed]
-    can [:create, :update], ProjectSource do |obj|
-      obj.get_team.include? @context_team.id and (obj.source.user_id == @user.id)
-    end
-    can :create, ProjectMedia do |obj|
-      obj.get_team.include? @context_team.id
-    end
-    can [:update, :destroy], ProjectMedia do |obj|
-      obj.get_team.include? @context_team.id and (obj.media.user_id == @user.id)
-    end
-    can :update, Comment do |obj|
+    can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}, source: { user_id: @user.id }
+    can :create, ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}
+    can [:update, :destroy], ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}, media: { user_id: @user.id }
+    can :update, Comment, ['annotation_type = ?', 'comment'] do |obj|
       obj.get_team.include? @context_team.id and (obj.annotator_id.to_i == @user.id)
     end
-    can :create, Flag do |flag|
+    can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include? @context_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
     end
-    can :create, Tag do |obj|
+    can :create, Tag, ['annotation_type = ?', 'tag'] do |obj|
       (obj.get_team.include? @context_team.id and obj.annotated_type === 'ProjectMedia' and obj.annotated.user_id.to_i === @user.id) or obj.annotated_type === 'Source'
     end
-    can :destroy, TeamUser do |obj|
-      obj.user_id === @user.id
-    end
-    can :destroy, Tag do |obj|
+    can :destroy, TeamUser, user_id: @user.id
+    can :destroy, Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.get_team.include? @context_team.id
     end
   end
@@ -150,9 +139,6 @@ class Ability
 
   # Extra permissions for all users
   def extra_perms_for_all_users
-    can :access, :rails_admin
-    can :dashboard
-
     can :create, User
     can :create, PaperTrail::Version
     can :read, Team, :private => false
@@ -187,16 +173,18 @@ class Ability
     can :read, [ProjectMedia, ProjectSource], :project => { :team => { :id => @user.teams.map(&:id), :private => false }}
     can :read, [ProjectMedia, ProjectSource], :project => { :team => { :team_users => { :team_id => @user.teams.map(&:id), :user_id => @user.id, :status => 'member' }}}
 
-
-    can :read, [Comment, Flag, Status, Tag, Embed] do |obj|
-      team_ids = obj.get_team
-      teams = obj.respond_to?(:get_team_objects) ? obj.get_team_objects.reject{ |t| t.private } : Team.where(id: team_ids, private: false)
-      if teams.empty?
-        TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
-      else
-        teams.any?
-      end
-    end
+   %w(comment flag status embed tag).each do |annotation_type|
+     can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+       team_ids = obj.get_team
+       teams = Team.where(id: team_ids, private: false)
+       if teams.empty?
+         tu = TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member')
+         TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
+       else
+         teams.any?
+       end
+     end
+   end
 
   end
 end
