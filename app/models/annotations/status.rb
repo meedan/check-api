@@ -96,6 +96,7 @@ class Status < ActiveRecord::Base
       Annotation.find(self.id).destroy
     else
       widget.paper_trail.without_versioning do
+        widget.origin = self.origin
         widget.save!
         self.versions.last.destroy
       end
