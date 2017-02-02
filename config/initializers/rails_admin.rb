@@ -189,7 +189,7 @@ RailsAdmin.config do |config|
     list do
       field :name
       field :description
-      field :subdomain
+      field :slug
       field :private
       field :archived
     end
@@ -198,22 +198,12 @@ RailsAdmin.config do |config|
       field :name
       field :description
       field :logo
-      field :subdomain
+      field :slug
       field :private
       field :archived
       field :settings do
         partial 'settings'
       end
-    end
-
-    create do
-      field :name
-      field :description
-      field :logo
-      field :subdomain
-      field :private
-      field :archived
-      field :settings
     end
 
   end
