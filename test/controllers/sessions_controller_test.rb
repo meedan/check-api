@@ -31,4 +31,13 @@ class SessionsControllerTest < ActionController::TestCase
     assert_response :success
     assert_nil @controller.current_api_user
   end
+
+  test "should logout and redirect to destination" do
+    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', provider: ''
+    authenticate_with_user(u)
+    delete :destroy, destination: '/'
+    assert_redirected_to '/'
+    assert_nil @controller.current_api_user
+  end
+
 end

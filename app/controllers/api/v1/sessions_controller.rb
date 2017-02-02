@@ -16,7 +16,12 @@ class Api::V1::SessionsController < Devise::SessionsController
   def destroy
     User.current = nil
     signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
-    signed_out ? render_success : render_error('Could not logout', 'AUTH')
+    if signed_out
+      destination = params[:destination]
+      destination ? redirect_to(destination) : render_success
+    else
+      render_error('Could not logout', 'AUTH')
+    end
   end
 
   protected
