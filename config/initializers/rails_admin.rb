@@ -65,6 +65,47 @@ RailsAdmin.config do |config|
     end
   end
 
+  config.model 'Comment' do
+
+    list do
+      field :annotated do
+        pretty_value do
+          path = bindings[:view].show_path(model_name: bindings[:object].annotated_type, id: bindings[:object].annotated_id)
+          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotated_type} ##{bindings[:object].annotated_id}"
+        end
+      end
+      field :annotator do
+        pretty_value do
+          path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
+          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+        end
+      end
+      field :text
+      field :entities
+    end
+
+    edit do
+      field :annotation_type do
+        def value
+          'comment'
+        end
+      end
+      field :annotated_type, :enum do
+        enum do
+          Comment.types
+        end
+        help ''
+      end
+      field :annotated_id
+      field :annotator_type
+      field :annotator_id
+      field :data do
+        partial 'settings'
+      end
+      field :entities
+    end
+  end
+
   config.model 'Project' do
 
     list do

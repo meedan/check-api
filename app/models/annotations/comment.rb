@@ -1,11 +1,16 @@
 class Comment < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible
+  attr_accessible :annotator_type, :annotated_type, :annotated_id, :annotator_type, :annotator_id, :entities, :data
 
   field :text
   validates_presence_of :text
-  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', 'Source', nil] }
+
+  def self.types
+    ['ProjectSource', 'ProjectMedia', 'Source']
+  end
+
+  validates :annotated_type, inclusion: { in: Comment.types }, allow_nil: true
 
   before_save :extract_check_entities
   after_save :add_update_elasticsearch_comment

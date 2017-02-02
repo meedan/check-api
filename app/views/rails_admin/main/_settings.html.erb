@@ -1,6 +1,7 @@
-<% if @object.settings %>
-  <% @object.settings.each do |key, value| %>
+<% serialized_field = @object.settings || @object.data %>
+<% if serialized_field %>
+  <% serialized_field.each do |key, value| %>
     <%= label :project, "settings[#{key.to_sym}]", key %>
-    <%= text_field :project, "settings[#{key.to_sym}]", value: @object.get_setting(key.to_sym) %>
+    <%= text_field :project, "settings[#{key.to_sym}]", value: @object.send(key.to_sym) %>
   <% end %>
 <% end %>
