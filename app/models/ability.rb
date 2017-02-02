@@ -163,15 +163,15 @@ class Ability
     # 2) it's related to at least one public team
     # 3) it's related to a private team which the @user has access to
 
-    can :read, Account, :source => { :projects => { :team => { :id => @user.teams.map(&:id), :private => false }}}
-    can :read, Account, :source => { :projects => { :team => { :team_users => { :team_id => @user.teams.map(&:id), :user_id => @user.id, :status => 'member' }}}}
-
-    can :read, Source, user_id: [@user.id, nil]
+    can :read, [Account, ProjectMedia, Source], user_id: [@user.id, nil]
     can :read, [Source, Media, Link, Claim], projects: { team: { private: false }}
     can :read, [Source, Media, Link, Claim], projects: { team: { team_users: { team_id: @user.teams.map(&:id), user_id: @user.id, status: 'member' }}}
 
-    can :read, [ProjectMedia, ProjectSource], :project => { :team => { :id => @user.teams.map(&:id), :private => false }}
-    can :read, [ProjectMedia, ProjectSource], :project => { :team => { :team_users => { :team_id => @user.teams.map(&:id), :user_id => @user.id, :status => 'member' }}}
+    can :read, [Account, ProjectSource], source: { user_id: [@user.id, nil] }
+    can :read, Account, source: { projects: { team: { id: @user.teams.map(&:id), private: false }}}
+    can :read, Account, source: { projects: { team: { team_users: { team_id: @user.teams.map(&:id), user_id: @user.id, status: 'member' }}}}
+    can :read, [ProjectMedia, ProjectSource], project: { team: { id: @user.teams.map(&:id), private: false }}
+    can :read, [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @user.teams.map(&:id), user_id: @user.id, status: 'member' }}}
 
    %w(comment flag status embed tag).each do |annotation_type|
      can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
