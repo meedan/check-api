@@ -1,12 +1,9 @@
 class Flag < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible :annotator_type, :annotated_type, :annotated_id, :annotator_type, :annotator_id, :entities, :data
-
   field :flag, String, presence: true
 
   validates_presence_of :flag
-  validates :annotated_type, included: { values: ['ProjectMedia', nil] }
   validates :flag, included: { values: ['Spam', 'Graphic content', 'Needing fact-checking', 'Needing deletion', 'Follow story', 'Mark as graphic'] }
 
   def content

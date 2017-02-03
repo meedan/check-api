@@ -80,6 +80,13 @@ module AnnotationBase
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
 
+    attr_accessible :annotator_type, :annotated_type, :annotated_id, :annotator_type, :annotator_id, :entities, :data
+
+    def self.types
+      ['ProjectSource', 'ProjectMedia', 'Source']
+    end
+    validates :annotated_type, inclusion: { in: self.types }, allow_nil: true
+
     private
 
     def start_serialized_fields

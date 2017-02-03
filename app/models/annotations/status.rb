@@ -1,17 +1,10 @@
 class Status < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible :annotator_type, :annotated_type, :annotated_id, :annotator_type, :annotator_id, :entities, :data
-
   field :status, String, presence: true
 
   validates_presence_of :status
 
-  def self.types
-    ['ProjectSource', 'ProjectMedia', 'Source']
-  end
-
-  validates :annotated_type, inclusion: { in: Status.types }, allow_nil: true
   validate :status_is_valid
 
   notifies_slack on: :update,

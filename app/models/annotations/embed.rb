@@ -1,8 +1,6 @@
 class Embed < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible :annotator_type, :annotated_type, :annotated_id, :annotator_type, :annotator_id, :entities, :data
-
   field :title
   field :description
   field :embed
