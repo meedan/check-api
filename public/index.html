@@ -26,6 +26,7 @@
             <a class="login-email__link" id="login-email">Sign in with e-mail</a>
             <section class="login-email__modal">
               <form class="login-email__form" name="login" action="/api/users/sign_in" method='post'>
+                <input name="destination" type="hidden" value="/admin" />
                 <div class="login-email__email">
                   <input placeholder="Email address"
                   class="login-email__email-input" value="" name="api_user[email]" type="email">

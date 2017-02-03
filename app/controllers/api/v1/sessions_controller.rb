@@ -9,7 +9,8 @@ class Api::V1::SessionsController < Devise::SessionsController
     self.resource = warden.authenticate!(auth_options)
     sign_in(resource_name, resource)
     User.current = current_api_user
-    render_success 'user', current_api_user
+    destination = params[:destination]
+    destination ? redirect_to(destination) : render_success('user', current_api_user)
   end
 
   # DELETE /resource/sign_out
