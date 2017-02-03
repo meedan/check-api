@@ -453,11 +453,20 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should get public team by context" do
     authenticate_with_user
-    t = create_team slug: 'context', name: 'Context Team'
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/context' })
-    post :create, query: 'query PublicTeam { public_team { name } }', team: 'context'
+    t1 = create_team slug: 'team1', name: 'Team 1'
+    t2 = create_team slug: 'team2', name: 'Team 2'
+    post :create, query: 'query PublicTeam { public_team { name } }', team: 'team1'
     assert_response :success
-    assert_equal 'Context Team', JSON.parse(@response.body)['data']['public_team']['name']
+    assert_equal 'Team 1', JSON.parse(@response.body)['data']['public_team']['name']
+  end
+
+  test "should get public team by slug" do
+    authenticate_with_user
+    t1 = create_team slug: 'team1', name: 'Team 1'
+    t2 = create_team slug: 'team2', name: 'Team 2'
+    post :create, query: 'query PublicTeam { public_team(slug: "team2") { name } }', team: 'team1'
+    assert_response :success
+    assert_equal 'Team 2', JSON.parse(@response.body)['data']['public_team']['name']
   end
 
   test "should not get team by context" do
