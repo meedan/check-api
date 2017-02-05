@@ -215,7 +215,11 @@ RailsAdmin.config do |config|
       field :login
       field :provider
       field :email
-      field :is_admin
+      field :is_admin do
+        visible do
+          bindings[:view]._current_user.is_admin?
+        end
+      end
     end
 
     edit do
@@ -228,7 +232,11 @@ RailsAdmin.config do |config|
       field :profile_image
       field :image
       field :current_team_id
-      field :is_admin
+      field :is_admin do
+        visible do
+          bindings[:view]._current_user.is_admin?
+        end
+      end
     end
 
   end
