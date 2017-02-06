@@ -18,6 +18,7 @@ class MigrateToSingleStatus < ActiveRecord::Migration
         new_first.reload
         new_first.status = obj.status
         new_first.updated_at = obj.updated_at
+        new_first.annotator = obj.annotator
         new_first.disable_es_callbacks = true
         new_first.save!
         obj.delete
