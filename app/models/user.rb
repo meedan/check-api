@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  attr_accessible :email, :login, :name, :profile_image, :password, :password_confirmation, :image, :is_admin, :settings
+  attr_accessible :email, :login, :name, :profile_image, :password, :password_confirmation, :image, :is_admin, :settings, :set_password
   attr_accessor :url
 
   has_one :source
@@ -148,6 +148,12 @@ class User < ActiveRecord::Base
 
   def self.current=(user)
     Thread.current[:user] = user
+  end
+
+  def set_password=(value)
+    return nil if value.blank?
+    self.password = value
+    self.password_confirmation = value
   end
 
   protected

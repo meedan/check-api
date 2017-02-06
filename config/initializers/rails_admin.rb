@@ -291,10 +291,17 @@ RailsAdmin.config do |config|
     edit do
       field :name
       field :login
-      field :provider
-      field :email do
-        help 'Required'
+      field :provider do
+        visible do
+          bindings[:view]._current_user.is_admin? && bindings[:object].email.blank?
+        end
       end
+      field :set_new_password do
+        visible do
+          bindings[:view]._current_user.is_admin? && bindings[:object].provider.blank?
+        end
+      end
+      field :email
       field :profile_image
       field :image
       field :current_team_id
@@ -303,7 +310,17 @@ RailsAdmin.config do |config|
           bindings[:view]._current_user.is_admin?
         end
       end
-      field :settings, :json
+      field :settings, :json do
+        formatted_value do
+          bindings[:object].settings.except(:password, :password_confirmation) unless bindings[:object].settings.nil?
+        end
+      end
+    end
+
+    create do
+      configure :set_new_password do
+        hide
+      end
     end
 
     show do
