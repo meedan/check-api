@@ -105,6 +105,10 @@ class Status < ActiveRecord::Base
 
   private
 
+  def set_annotator
+    self.annotator = User.current unless User.current.nil?
+  end
+
   def status_is_valid
     if !self.annotated_type.blank?
       annotated, context = get_annotated_and_context
