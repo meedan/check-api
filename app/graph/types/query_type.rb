@@ -48,10 +48,12 @@ QueryType = GraphQL::ObjectType.define do
 
   field :public_team do
     type PublicTeamType
-    description 'Public information about the current team'
+    description 'Public information about a team'
+    argument :slug, types.String
 
-    resolve -> (_obj, _args, _ctx) do
-      id = Team.current.blank? ? 0 : Team.current.id
+    resolve -> (_obj, args, _ctx) do
+      team = args['slug'].blank? ? Team.current : Team.where(slug: args['slug']).last
+      id = team.blank? ? 0 : team.id
       Team.find(id)
     end
   end
