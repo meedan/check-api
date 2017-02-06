@@ -67,11 +67,6 @@ class Project < ActiveRecord::Base
     self.project_medias.count
   end
 
-  def get_setting(setting)
-    self.settings ||= {}
-    self.settings[setting]
-  end
-
   private
 
   def set_description_and_team_and_user

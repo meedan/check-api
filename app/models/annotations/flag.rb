@@ -4,7 +4,11 @@ class Flag < ActiveRecord::Base
   field :flag, String, presence: true
 
   validates_presence_of :flag
-  validates :flag, included: { values: ['Spam', 'Graphic content', 'Needing fact-checking', 'Needing deletion', 'Follow story', 'Mark as graphic'] }
+
+  def self.flag_types
+    ['Spam', 'Graphic content', 'Needing fact-checking', 'Needing deletion', 'Follow story', 'Mark as graphic']
+  end
+  validates :flag, inclusion: { in: Flag.flag_types }
 
   def content
     { flag: self.flag }.to_json

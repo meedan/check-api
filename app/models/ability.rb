@@ -175,13 +175,15 @@ class Ability
 
    %w(comment flag status embed tag).each do |annotation_type|
      can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-       team_ids = obj.get_team
-       teams = Team.where(id: team_ids, private: false)
-       if teams.empty?
-         tu = TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member')
-         TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
-       else
-         teams.any?
+       if obj.annotation_type == annotation_type
+         team_ids = obj.get_team
+         teams = Team.where(id: team_ids, private: false)
+         if teams.empty?
+           tu = TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member')
+           TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
+         else
+           teams.any?
+         end
        end
      end
    end

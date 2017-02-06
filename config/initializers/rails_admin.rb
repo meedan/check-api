@@ -49,8 +49,9 @@ RailsAdmin.config do |config|
 
   config.navigation_static_label = 'External Tools'
 
-  def annotation_config(type)
+  def annotation_config(type, specific_data = [])
     list do
+      field :annotation_type
       field :annotated do
         pretty_value do
           path = bindings[:view].show_path(model_name: bindings[:object].annotated_type, id: bindings[:object].annotated_id)
@@ -63,33 +64,36 @@ RailsAdmin.config do |config|
           bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
         end
       end
-      field :data do
-        formatted_value do
-          bindings[:object].data.map { |key, value| "#{key}: #{value}"}
-        end
-      end
-      field :entities
     end
 
     edit do
-      field :annotation_type
-      if type.classify.constantize.respond_to?(:types)
-        field :annotated_type, :enum do
-          enum do
-            type.classify.constantize.types
-          end
+      field :annotation_type do
+        read_only true
+        help ''
+      end
+      field :annotated_type, :enum do
+        enum do
+          type.classify.constantize.annotated_types
         end
-      else
-        field :annotated_type
       end
       field :annotated_id
       field :annotator_type
       field :annotator_id
-      field :data do
-        partial 'settings'
+      specific_data.each do |field_name|
+        field field_name
       end
       field :entities
     end
+
+    show do
+      specific_data.each do |field|
+        configure field do
+          visible true
+         end
+      end
+      exclude_fields :data
+    end
+
   end
 
   def media_config
@@ -120,15 +124,27 @@ RailsAdmin.config do |config|
   end
 
   config.model 'Comment' do
-    annotation_config('comment')
+    annotation_config('comment', [:text])
+    parent Annotation
   end
 
   config.model 'Embed' do
-    annotation_config('embed')
+    annotation_config('embed', [:title, :description, :embed, :username, :published_at])
+    parent Annotation
   end
 
   config.model 'Flag' do
-    annotation_config('flag')
+    annotation_config('flag', [:flag])
+    parent Annotation
+
+    edit do
+      field :flag, :enum do
+        enum do
+          Flag.flag_types
+        end
+      end
+    end
+
   end
 
   config.model 'Media' do
@@ -144,11 +160,29 @@ RailsAdmin.config do |config|
   end
 
   config.model 'Status' do
-    annotation_config('status')
+    annotation_config('status', [:status])
+    parent Annotation
+
+    edit do
+      field :status, :enum do
+        enum do
+          annotated, context = bindings[:object].get_annotated_and_context
+          Status.possible_values(annotated, context)[:statuses].collect { |s| s[:id]}
+        end
+      end
+    end
+
+    create do
+      field :status do
+        hide
+      end
+    end
+
   end
 
   config.model 'Tag' do
-    annotation_config('tag')
+    annotation_config('tag', [:tag, :full_tag])
+    parent Annotation
   end
 
   config.model 'Project' do
@@ -167,19 +201,11 @@ RailsAdmin.config do |config|
       field :archived
       field :lead_image
       field :user
-      field :settings do
-        partial 'settings'
-      end
+      field :settings, :json
     end
 
-    create do
-      field :title
-      field :description
-      field :team
-      field :archived
-      field :lead_image
-      field :user
-      field :settings
+    show do
+      configure :settings, :json
     end
 
   end
@@ -194,6 +220,24 @@ RailsAdmin.config do |config|
       field :archived
     end
 
+    show do
+      configure :get_media_verification_statuses, :json do
+        label 'Media verification statuses'
+      end
+      configure :get_source_verification_statuses, :json do
+        label 'Source verification statuses'
+      end
+      configure :get_slack_notifications_enabled do
+        label 'Enable Slack notifications'
+      end
+      configure :get_slack_webhook do
+        label 'Slack webhook'
+      end
+      configure :get_slack_channel do
+        label 'Slack default #channel'
+      end
+    end
+
     edit do
       field :name
       field :description
@@ -201,11 +245,33 @@ RailsAdmin.config do |config|
       field :slug
       field :private
       field :archived
-      field :settings do
-        partial 'settings'
+      field :media_verification_statuses, :json do
+        label 'Media verification statuses'
+        formatted_value do
+          statuses = bindings[:object].get_media_verification_statuses
+          statuses ? JSON.pretty_generate(statuses) : ''
+        end
+      end
+      field :source_verification_statuses, :json do
+        label 'Source verification statuses'
+        formatted_value do
+          statuses = bindings[:object].get_source_verification_statuses
+          statuses ? JSON.pretty_generate(statuses) : ''
+        end
+      end
+      field :slack_notifications_enabled, :boolean do
+        label 'Enable Slack notifications'
+        formatted_value{ bindings[:object].get_slack_notifications_enabled }
+      end
+      field :slack_webhook do
+        label 'Slack webhook'
+        formatted_value{ bindings[:object].get_slack_webhook }
+      end
+      field :slack_channel do
+        label 'Slack default #channel'
+        formatted_value{ bindings[:object].get_slack_channel }
       end
     end
-
   end
 
   config.model 'User' do
@@ -237,6 +303,11 @@ RailsAdmin.config do |config|
           bindings[:view]._current_user.is_admin?
         end
       end
+      field :settings, :json
+    end
+
+    show do
+      configure :settings, :json
     end
 
   end

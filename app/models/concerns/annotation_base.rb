@@ -82,10 +82,10 @@ module AnnotationBase
 
     attr_accessible :annotator_type, :annotated_type, :annotated_id, :annotator_type, :annotator_id, :entities, :data
 
-    def self.types
+    def self.annotated_types
       ['ProjectSource', 'ProjectMedia', 'Source']
     end
-    validates :annotated_type, inclusion: { in: self.types }, allow_nil: true
+    validates :annotated_type, inclusion: { in: self.annotated_types }, allow_nil: true
 
     private
 
