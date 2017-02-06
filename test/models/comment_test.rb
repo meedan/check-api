@@ -256,11 +256,11 @@ class CommentTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
-      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      c = create_comment annotator: u, annotated: pm
       assert c.sent_to_slack
       # claim media
       m = create_claim_media project_id: p.id
-      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      c = create_comment annotator: u, annotated: pm
       assert c.sent_to_slack
     end
   end

@@ -226,7 +226,6 @@ module SampleData
     team.archived = options[:archived] || false
     team.private = options[:private] || false
     team.description = options[:description] || random_string
-    team.origin = options[:origin] if options.has_key?(:origin)
     team.save!
     team.reload
   end
@@ -339,7 +338,6 @@ module SampleData
     tu.user_id = options[:user_id] || user.id
     tu.role = options[:role]
     tu.status = options[:status] || 'member'
-    tu.origin = options[:origin] if options.has_key?(:origin)
     tu.save!
     tu.reload
   end

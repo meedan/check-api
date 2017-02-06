@@ -185,18 +185,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     with_current_user_and_team(u, t) do
       m = create_valid_media
-      pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
+      pm = create_project_media project: p, media: m
       assert pm.sent_to_slack
       msg = pm.slack_notification_message
       # verify base URL
-      assert_match "#{pm.origin}/#{t.slug}", msg
+      assert_match "#{CONFIG['checkdesk_client']}/#{t.slug}", msg
       # verify notification URL
       match = msg.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
       assert_equal p.id, match[1].to_i
       assert_equal pm.id, match[2].to_i
       # claim media
-      m = create_claim_media origin: 'http://localhost:3333'
-      pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
+      m = create_claim_media
+      pm = create_project_media project: p, media: m
       assert pm.sent_to_slack
     end
   end

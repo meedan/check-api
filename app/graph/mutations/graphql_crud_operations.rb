@@ -24,7 +24,6 @@ class GraphqlCrudOperations
     klass = type.camelize
 
     obj = klass.constantize.new
-    obj.origin = ctx[:origin] if obj.respond_to?('origin=')
     obj.file = ctx[:file] if type == 'project_media' && !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
