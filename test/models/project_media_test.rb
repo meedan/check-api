@@ -201,6 +201,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should verify attribution of Slack notifications" do
+    t = create_team slug: 'test'
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    uu = create_user
+    m = create_valid_media user: uu
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
+      assert pm.sent_to_slack
+      msg = pm.slack_notification_message
+      assert_match "*#{u.name}* added a new", msg
+    end
+  end
+
   test "should notify Pusher when project media is created" do
     pm = create_project_media
     assert pm.sent_to_pusher
