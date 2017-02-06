@@ -126,7 +126,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project media and fallback to media" do
     authenticate_with_user
-    @request.headers.merge!({ 'origin': "http://localhost:3333/#{@team.slug}" })
     p = create_project team: @team
     p2 = create_project team: @team
     m = create_valid_media
@@ -146,7 +145,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project media embed" do
     authenticate_with_user
-    @request.headers.merge!({ 'origin': "http://localhost:3333/#{@team.slug}" })
     p = create_project team: @team
     p2 = create_project team: @team
     pender_url = CONFIG['pender_host'] + '/api/medias'
@@ -176,7 +174,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read annotations version" do
     authenticate_with_user
-    @request.headers.merge!({ 'origin': "http://localhost:3333/#{@team.slug}" })
     p = create_project team: @team
     pm = create_project_media project: p
     s = pm.get_annotations('status').last
@@ -445,7 +442,6 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get team by context" do
     authenticate_with_user
     t = create_team slug: 'context', name: 'Context Team'
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/context' })
     post :create, query: 'query Team { team { name } }', team: 'context'
     assert_response :success
     assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
@@ -472,7 +468,6 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should not get team by context" do
     authenticate_with_user
     t = create_team slug: 'context', name: 'Context Team'
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/test' })
     post :create, query: 'query Team { team { name } }', team: 'test'
     assert_response 404
   end
@@ -493,17 +488,14 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
 
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team1' })
     post :create, query: 'query Query { me { name } }', team: 'team1'
     assert_response :success
     assert_equal t1, u.reload.current_team
 
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team2' })
     post :create, query: 'query Query { me { name } }', team: 'team2'
     assert_response :success
     assert_equal t1, u.reload.current_team
 
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team3' })
     post :create, query: 'query Query { me { name } }', team: 'team3'
     assert_response :success
     assert_equal t3, u.reload.current_team
@@ -519,7 +511,6 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, media: m
     create_comment annotated: pm, annotator: u
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
     post :create, query: query, team: 'team'
     assert_response :success
   end
@@ -533,7 +524,6 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p
     create_comment annotated: pm, annotator: u
     query = "query GetById { project(id: \"#{p.id}\") { medias_count, project_medias(first: 1) { edges { node { permissions } } } } }"
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
     post :create, query: query, team: 'team'
     assert_response :success
     assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['project_medias']['edges'][0]['node']['permissions']
@@ -545,7 +535,6 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team slug: 'team'
     create_team_user user: u, team: t, role: 'owner'
     query = "query GetById { team(id: \"#{t.id}\") { media_verification_statuses, source_verification_statuses } }"
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
     post :create, query: query, team: 'team'
     assert_response :success
   end
@@ -558,7 +547,6 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     m = create_media project_id: p.id
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { verification_statuses } }"
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
     post :create, query: query, team: 'team'
     assert_response :success
   end
@@ -571,7 +559,6 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { team { name } } }"
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
     post :create, query: query, team: 'team'
     assert_response :success
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['team']['name']
@@ -584,7 +571,6 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     s = create_source team: t
     query = "query GetById { source(id: \"#{s.id}\") { verification_statuses } }"
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
     post :create, query: query, team: 'team'
     assert_response :success
   end
@@ -661,7 +647,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should return 404 if public team does not exist" do
     authenticate_with_user
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/foo' })
     post :create, query: 'query PublicTeam { public_team { name } }', team: 'foo'
     assert_response 404
   end
@@ -678,7 +663,6 @@ class GraphqlControllerTest < ActionController::TestCase
       0.times { create_comment annotated: pm, annotator: u }
     end
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/team' })
 
     assert_queries (6 * n ) do
       post :create, query: query, team: 'team'
@@ -714,7 +698,6 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get team by slug" do
     authenticate_with_user
     t = create_team slug: 'context', name: 'Context Team'
-    @request.headers.merge!({ 'origin': 'http://localhost:3333/context' })
     post :create, query: 'query Team { team(slug: "context") { name } }'
     assert_response :success
     assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']

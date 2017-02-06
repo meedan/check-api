@@ -1,6 +1,6 @@
 class Api::V1::ConfirmationsController < Devise::ConfirmationsController
   def show
-    valid_host = params[:client_host].to_s.match(Regexp.new(CONFIG['checkdesk_client']))
+    valid_host = params[:client_host].to_s.match(CONFIG['checkdesk_client'])
     if valid_host.nil?
       render_error('Unrecognized client', 'INVALID_VALUE')
     else
