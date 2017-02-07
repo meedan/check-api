@@ -6,7 +6,7 @@ class Api::V1::ConfirmationsController < Devise::ConfirmationsController
       User.current = self.resource = resource_class.confirm_by_token(params[:confirmation_token])
       yield resource if block_given?
       path = resource.errors.empty? ? '/check/user/confirmed' : '/check/user/unconfirmed'
-      redirect_to  CONFIG['checkdesk_client'] + path
+      redirect_to CONFIG['checkdesk_client'] + path
     else
       render_error('Unrecognized client', 'INVALID_VALUE')
     end
