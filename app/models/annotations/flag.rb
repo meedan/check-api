@@ -10,6 +10,10 @@ class Flag < ActiveRecord::Base
   end
   validates :flag, inclusion: { in: Flag.flag_types }
 
+  def self.annotated_types
+    ['ProjectMedia']
+  end
+
   def content
     { flag: self.flag }.to_json
   end

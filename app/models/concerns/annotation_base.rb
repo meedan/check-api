@@ -85,7 +85,7 @@ module AnnotationBase
     def self.annotated_types
       ['ProjectSource', 'ProjectMedia', 'Source']
     end
-    validates :annotated_type, inclusion: { in: self.annotated_types }, allow_nil: true
+    validates :annotated_type, inclusion: { in: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
 
     private
 
