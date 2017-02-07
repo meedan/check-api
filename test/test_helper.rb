@@ -150,7 +150,7 @@ class ActiveSupport::TestCase
   end
 
   def assert_graphql_read(type, field = 'id')
-    klass = type.camelize.constantize
+    klass = (type == 'version') ? PaperTrail::Version : type.camelize.constantize
     u = create_user
     klass.delete_all
     x1 = send("create_#{type}", { team: @team })
@@ -189,7 +189,7 @@ class ActiveSupport::TestCase
   def assert_graphql_destroy(type)
     authenticate_with_user
     obj = type === 'team' ? @team : send("create_#{type}", { team: @team })
-    klass = obj.class.name
+    klass = obj.class_name
     id = NodeIdentification.to_global_id(klass, obj.id)
     query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
     assert_difference "#{klass}.count", -1 do
@@ -325,6 +325,20 @@ class ActiveSupport::TestCase
 
       eos
       log.close
+    end
+  end
+end
+
+class MockedClamavClient
+  def initialize(response_type)
+    @response_type = response_type
+  end
+
+  def execute(_input)
+    if @response_type == 'virus'
+      ClamAV::VirusResponse.new(nil, nil)
+    else
+      ClamAV::SuccessResponse.new(nil)
     end
   end
 end

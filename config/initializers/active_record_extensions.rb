@@ -6,7 +6,7 @@ module ActiveRecordExtensions
     include CheckdeskNotifications::Slack
     include CheckdeskNotifications::Pusher
 
-    attr_accessor :origin, :no_cache, :skip_check_ability
+    attr_accessor :no_cache, :skip_check_ability
 
     before_save :check_ability
     before_destroy :check_destroy_ability
@@ -39,6 +39,10 @@ module ActiveRecordExtensions
 
   def is_annotation?
     false
+  end
+
+  def class_name
+    self.class.name
   end
 end
 

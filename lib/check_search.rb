@@ -13,6 +13,10 @@ class CheckSearch
     Base64.encode64("CheckSearch/#{@options.to_json}")
   end
 
+  def class_name
+    'CheckSearch'
+  end
+
   def create
     query = build_search_query
     get_search_result(query)

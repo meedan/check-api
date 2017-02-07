@@ -11,7 +11,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :private, types.Boolean
   field :avatar, types.String
   field :name, !types.String
-  field :subdomain, !types.String
+  field :slug, !types.String
   field :description, types.String
   field :dbid, types.Int
   field :members_count, types.Int

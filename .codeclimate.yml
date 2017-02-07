@@ -15,6 +15,8 @@ engines:
     enabled: true
     exclude_fingerprints:
     - dddc38ecdf09b41a514d23ca5f1fcc94c5cf7a6b7c16678bcb7cb0b4435e47d9
+    - 4114d80e9cc178232bb96981ad86242e6fe5358be6d84033bf86184d947030ad
+    - 829226bd25ac3f5f3281766f8a14d2934a345bce7e456a8bf12d8c841de21c71
   duplication:
     enabled: true
     config:

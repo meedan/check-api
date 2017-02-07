@@ -12,7 +12,7 @@ QueryType = GraphQL::ObjectType.define do
     type AboutType
     description 'Information about the application'
     resolve -> (_obj, _args, _ctx) do
-      OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: 'About', tos: CONFIG['terms_of_service'], privacy_policy: CONFIG['privacy_policy'] })
+      OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: 'About', tos: CONFIG['terms_of_service'], privacy_policy: CONFIG['privacy_policy'], max_upload_size: UploadedFile.max_size_readable })
     end
   end
 
@@ -24,14 +24,19 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  # Get team by id or subdomain
+  # Get team by id or slug
 
   field :team do
     type TeamType
     description 'Information about the context team or the team from given id'
     argument :id, types.ID
+    argument :slug, types.String
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
+      if !args['slug'].blank?
+        team = Team.where(slug: args['slug']).first
+        tid = team.id unless team.nil?
+      end  
       if tid === 0 && !Team.current.blank?
         tid = Team.current.id
       end
@@ -43,20 +48,29 @@ QueryType = GraphQL::ObjectType.define do
 
   field :public_team do
     type PublicTeamType
-    description 'Public information about the current team'
+    description 'Public information about a team'
+    argument :slug, types.String
 
-    resolve -> (_obj, _args, _ctx) do
-      id = Team.current.blank? ? 0 : Team.current.id
+    resolve -> (_obj, args, _ctx) do
+      team = args['slug'].blank? ? Team.current : Team.where(slug: args['slug']).last
+      id = team.blank? ? 0 : team.id
       Team.find(id)
     end
   end
 
   field :project_media do
     type ProjectMediaType
-    description 'Information about a project media, given its id and its team id'
-    argument :id, !types.ID
+    description 'Information about a project media, The argument should be given like this: "project_media_id,project_id"'
+    argument :ids, !types.String
     resolve -> (_obj, args, ctx) do
-      GraphqlCrudOperations.load_if_can(ProjectMedia, args['id'], ctx)
+      pmid, pid = args['ids'].split(',').map(&:to_i)
+      tid = Team.current.blank? ? 0 : Team.current.id
+      project = Project.where(id: pid, team_id: tid).last
+      pid = project.nil? ? 0 : project.id
+      project_media = ProjectMedia.where(project_id: pid, id: pmid).last
+      project_media = ProjectMedia.where(project_id: pid, media_id: pmid).last if project_media.nil?
+      pmid = project_media.nil? ? 0 : project_media.id
+      GraphqlCrudOperations.load_if_can(ProjectMedia, pmid, ctx)
     end
   end
 

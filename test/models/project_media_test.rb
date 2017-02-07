@@ -178,19 +178,42 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when project media is created" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     u = create_user
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     with_current_user_and_team(u, t) do
-      m = create_valid_media origin: 'http://test.localhost:3333'
-      pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
+      m = create_valid_media
+      pm = create_project_media project: p, media: m
       assert pm.sent_to_slack
+      msg = pm.slack_notification_message
+      # verify base URL
+      assert_match "#{CONFIG['checkdesk_client']}/#{t.slug}", msg
+      # verify notification URL
+      match = msg.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
+      assert_equal p.id, match[1].to_i
+      assert_equal pm.id, match[2].to_i
       # claim media
-      m = create_claim_media origin: 'http://localhost:3333'
+      m = create_claim_media
+      pm = create_project_media project: p, media: m
+      assert pm.sent_to_slack
+    end
+  end
+
+  test "should verify attribution of Slack notifications" do
+    t = create_team slug: 'test'
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    uu = create_user
+    m = create_valid_media user: uu
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
       assert pm.sent_to_slack
+      msg = pm.slack_notification_message
+      assert_match "*#{u.name}* added a new", msg
     end
   end
 
@@ -225,6 +248,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_valid_media user: u
     pm = create_project_media project: p, media: m
     assert_equal Status.default_id(m, p), pm.annotations('status').last.status
+  end
+
+  test "should get last status object" do
+    pm = create_project_media
+    assert_not_nil pm.last_status_obj
   end
 
   test "should update project media embed data" do
@@ -275,6 +303,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c2 = create_comment annotated: pm
     c3 = create_comment annotated: nil
     assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
+  end
+
+  test "should get annotations log" do
+    pm = create_project_media
+    assert_equal 0, pm.get_annotations_log.size
+    s = Status.find_by(:annotation_type => 'status', annotated_id: pm.id, annotated_type: pm.class.to_s)
+    c = create_comment text: 'text', annotated: pm
+    f = create_flag flag: 'Spam', annotated: pm
+    s.status = 'false';s.save!
+    t = create_tag tag: 'Tag', annotated: pm
+    s.status = 'verified'; s.save!
+    log = pm.get_annotations_log
+    assert_equal ['comment', 'flag', 'status', 'tag', 'status'].reverse, log.map(&:annotation_type)
+    assert_equal 5, log.size
   end
 
   test "should get permissions" do
@@ -328,6 +370,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media project: p
     end
     assert_equal u, pm.user
+  end
+
+  test "should create embed for uploaded image" do
+    pm = ProjectMedia.new
+    pm.project_id = create_project.id
+    pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
+    pm.save!
+    assert_equal 'rails.png', pm.embed['title']
   end
 
   test "should be unique" do

@@ -12,7 +12,7 @@ class Comment < ActiveRecord::Base
 
   notifies_slack on: :save,
                  if: proc { |c| c.should_notify? },
-                 message: proc { |c| data = c.annotated.embed; "*#{User.current.name}* added a note on <#{c.origin}/project/#{c.annotated.project_id}/media/#{c.annotated_id}|#{data['title']}>\n> #{c.text}" },
+                 message: proc { |c| data = c.annotated.embed; "*#{User.current.name}* added a note on <#{CONFIG['checkdesk_client']}/#{c.annotated.project.team.slug}/project/#{c.annotated.project_id}/media/#{c.annotated_id}|#{data['title']}>\n> #{c.text}" },
                  channel: proc { |c| c.annotated.project.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
                  webhook: proc { |c| c.current_team.setting(:slack_webhook) }
 
@@ -39,7 +39,7 @@ class Comment < ActiveRecord::Base
       pattern = Regexp.new(CONFIG['checkdesk_client'])
       words.each do |word|
         match = word.match(pattern)
-        if !match.nil? && match[1] == team.subdomain
+        if !match.nil? && Team.slug_from_url(word) == team.slug
           urls << word
         end
       end

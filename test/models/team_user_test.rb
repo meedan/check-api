@@ -58,7 +58,7 @@ class TeamUserTest < ActiveSupport::TestCase
     pt = create_team private: true
     create_team_user team: pt, user: pu, role: 'owner'
     ptu = pt.team_users.last
-    
+
     with_current_user_and_team(u, t) { TeamUser.find_if_can(tu.id) }
     assert_raise CheckdeskPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { TeamUser.find_if_can(ptu.id) }
@@ -90,7 +90,7 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
-    
+
     with_current_user_and_team(u, t) do
       tu = create_team_user team: t, status: 'invited', role: 'contributor'
       assert_raise RuntimeError do
@@ -111,7 +111,7 @@ class TeamUserTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     u2 = create_user
     tu = create_team_user team: t, user: u2, status: 'requested', role: 'journalist'
-    
+
     with_current_user_and_team(u2, t) do
       assert_raise RuntimeError do
         tu.status = 'member'
@@ -169,7 +169,7 @@ class TeamUserTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'journalist'
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'owner'
-    
+
     with_current_user_and_team(u, t) do
       assert_raise RuntimeError do
         tu.role = 'journalist'
@@ -182,17 +182,17 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
-    
+
     assert_raise RuntimeError do
       with_current_user_and_team(u, t) do
         tu.role = 'editor'
         tu.save!
       end
     end
-    
+
     u2 = create_user
     tu2 = create_team_user team: t, user: u2, role: 'owner'
-    
+
     assert_nothing_raised RuntimeError do
       with_current_user_and_team(u, t) do
         tu2.role = 'editor'
@@ -202,18 +202,18 @@ class TeamUserTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when user joins team" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     with_current_user_and_team(u, t) do
-      tu = create_team_user team: t, user: u, origin: 'http://test.localhost:3333'
+      tu = create_team_user team: t, user: u
       assert tu.sent_to_slack
     end
   end
 
   test "should take :slack_teams setting into account" do
-    t1 = create_team subdomain: 'test1'
-    t2 = create_team subdomain: 'test2'
+    t1 = create_team slug: 'test1'
+    t2 = create_team slug: 'test2'
     t2.set_slack_teams = { 'SlackTeamID' => 'SlackTeamName' }
     t2.save
     t2.reload

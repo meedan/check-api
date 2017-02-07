@@ -113,7 +113,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 1, c.versions.count
     v = c.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>["{}", "{\"text\"=>\"test\"}"], "annotator_type"=>["", "User"], "annotator_id"=>["", "#{c.annotator_id}"], "annotated_type"=>["", "Source"], "annotated_id"=>["", "#{c.annotated_id}"], "annotation_type"=>["", "comment"]}, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{}, {"text"=>"test"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, c.annotator_id], "annotated_type"=>[nil, "Source"], "annotated_id"=>[nil, c.annotated_id], "annotation_type"=>[nil, "comment"]}, v.changeset)
   end
 
   test "should create version when comment is updated" do
@@ -124,7 +124,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 2, c.versions.count
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-      assert_equal({"data"=>["{\"text\"=>\"foo\"}", "{\"text\"=>\"bar\"}"]}, JSON.parse(v.object_changes))
+      assert_equal({"data"=>[{"text"=>"foo"}, {"text"=>"bar"}]}, v.changeset)
   end
 
   test "should get columns as array" do
@@ -249,18 +249,18 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should notify on Slack when comment is created" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
-      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      c = create_comment annotator: u, annotated: pm
       assert c.sent_to_slack
       # claim media
       m = create_claim_media project_id: p.id
-      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      c = create_comment annotator: u, annotated: pm
       assert c.sent_to_slack
     end
   end
@@ -276,15 +276,15 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should extract Check URLs" do
-    t1 = create_team subdomain: 'test'
+    t1 = create_team slug: 'test'
     p1 = create_project team: t1
     p2 = create_project team: t1
-    t2 = create_team subdomain: 'test2'
+    t2 = create_team slug: 'test2'
     pm1 = create_project_media project: p1
     pm2 = create_project_media project: p2
     p3 = create_project team: t2
     pm3 = create_project_media project: p3
-    text = "Please check reports http://test.localhost:3333/project/#{p1.id}/media/#{pm1.id} and http://test.localhost:3333/project/#{p2.id}/media/#{pm2.id} and http://test2.localhost:3333/project/1/media/#{pm3.id} because they are nice"
+    text = "Please check reports http://localhost:3333/test/project/#{p1.id}/media/#{pm1.id} and http://localhost:3333/test/project/#{p2.id}/media/#{pm2.id} and http://localhost:3333/test2/project/1/media/#{pm3.id} because they are nice"
     c = create_comment text: text, annotated: pm1
     assert_includes c.entity_objects, pm1
     assert_includes c.entity_objects, pm2

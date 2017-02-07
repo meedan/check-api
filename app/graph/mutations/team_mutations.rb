@@ -4,7 +4,7 @@ module TeamMutations
     private: 'bool',
     logo: 'str',
     name: '!str',
-    subdomain: '!str',
+    slug: '!str',
     description: 'str',
     contact: 'str'
   }

@@ -6,7 +6,9 @@ PublicTeamType = GraphqlCrudOperations.define_default_type do
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('PublicTeam')
   field :name, !types.String
-  field :subdomain, !types.String
+  field :slug, !types.String
   field :description, types.String
   field :dbid, types.Int
+  field :avatar, types.String
+  field :private, types.Boolean
 end

@@ -4,6 +4,7 @@ class TestController < ApplicationController
   def confirm_user
     user = User.where(email: params[:email]).last
     unless user.nil?
+      user.skip_check_ability = true
       user.confirm
     end
     render text: 'OK'

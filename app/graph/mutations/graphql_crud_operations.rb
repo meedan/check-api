@@ -5,7 +5,7 @@ class GraphqlCrudOperations
     end
     obj.save!
 
-    name = obj.class.name.underscore
+    name = obj.class_name.underscore
     ret = { name.to_sym => obj }
 
     parents.each do |parent_name|
@@ -21,8 +21,10 @@ class GraphqlCrudOperations
   end
 
   def self.create(type, inputs, ctx, parents = [])
-    obj = type.camelize.constantize.new
-    obj.origin = ctx[:origin] if obj.respond_to?('origin=')
+    klass = type.camelize
+
+    obj = klass.constantize.new
+    obj.file = ctx[:file] if type == 'project_media' && !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
@@ -157,7 +159,11 @@ class GraphqlCrudOperations
 
       interfaces [NodeIdentification.interface]
 
-      field :id, field: GraphQL::Relay::GlobalIdField.new(type.capitalize)
+      field :id, !types.ID do
+        resolve -> (annotation, _args, _ctx) {
+          annotation.relay_id(type)
+        }
+      end
 
       GraphqlCrudOperations.define_annotation_fields.each do |name|
         field name, types.String
@@ -173,17 +179,23 @@ class GraphqlCrudOperations
         field name, types.String
       end
 
-      field :annotator do
-        type AnnotatorType
-
-        resolve -> (annotation, _args, _ctx) {
-          annotation.annotator
-        }
-      end
-
       connection :medias, -> { ProjectMediaType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
           annotation.entity_objects
+        }
+      end
+      instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
+      instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
+    end
+  end
+
+  def self.annotation_fields
+    proc do |name, field_type = types.String, method = nil|
+      field name do
+        type field_type
+
+        resolve -> (annotation, _args, _ctx) {
+          annotation.send(method.blank? ? name : method)
         }
       end
     end

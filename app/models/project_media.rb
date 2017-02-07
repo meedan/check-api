@@ -1,6 +1,6 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessible
-  attr_accessor :url, :quote, :embed, :disable_es_callbacks
+  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks
 
   belongs_to :project
   belongs_to :media
@@ -55,7 +55,7 @@ class ProjectMedia < ActiveRecord::Base
     type, text = m.quote.blank? ?
       [ 'link', data['title'] ] :
       [ 'claim', m.quote ]
-    "*#{m.user.name}* added a new #{type}: <#{m.origin}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
+    "*#{User.current.name}* added a new #{type}: <#{CONFIG['checkdesk_client']}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
   end
 
   def add_elasticsearch_data
@@ -80,6 +80,24 @@ class ProjectMedia < ActiveRecord::Base
 
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
+  end
+
+  def get_annotations_log
+    type = %W(comment tag flag)
+    an = self.get_annotations(type).to_a
+    # get status
+    versions = []
+    s = self.get_annotations('status').last
+    s = s.load unless s.nil?
+    versions = s.versions.to_a unless s.nil?
+    if versions.size > 1
+      an << s
+      versions = versions.drop(2)
+      versions.each do |obj|
+        an << obj.reify unless obj.reify.nil?
+      end
+    end
+    an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
 
   def get_media_annotations(type = nil)
@@ -109,6 +127,10 @@ class ProjectMedia < ActiveRecord::Base
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
   end
 
+  def last_status_obj
+    self.get_annotations('status').last
+  end
+
   def published
     self.created_at.to_i.to_s
   end
@@ -120,10 +142,48 @@ class ProjectMedia < ActiveRecord::Base
   def embed=(info)
     info = info.blank? ? {} : JSON.parse(info)
     unless info.blank?
-      em = get_embed(self)
+      em = self.get_annotations('embed').last
+      em = em.load unless em.nil?
       em = initiate_embed_annotation(info) if em.nil?
       self.override_embed_data(em, info)
     end
+  end
+
+  protected
+
+  def create_image
+    m = UploadedImage.new
+    m.file = self.file
+    m.save!
+    m
+  end
+
+  def create_claim
+    m = Claim.new
+    m.quote = self.quote
+    m.save!
+    m
+  end
+
+  def create_link
+    m = Link.new
+    m.url = self.url
+    # call m.valid? to get normalized URL before caling 'find_or_create_by'
+    m.valid?
+    m = Link.find_or_create_by(url: m.url)
+    m
+  end
+
+  def create_media
+    m = nil
+    if !self.file.blank?
+      m = self.create_image
+    elsif !self.quote.blank?
+      m = self.create_claim
+    else
+      m = self.create_link
+    end
+    m
   end
 
   private
@@ -134,22 +194,15 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def set_media
-    unless self.url.blank? && self.quote.blank?
-      m = Media.new
-      if !self.quote.blank?
-        m.quote = self.quote; m.save!
-      else
-        m.url = self.url
-        # call m.valid? to get normalized URL before caling 'find_or_create_by'
-        m.valid?
-        m = Media.find_or_create_by(url: m.url)
-      end
+    unless self.url.blank? && self.quote.blank? && self.file.blank?
+      m = self.create_media
       self.media_id = m.id unless m.nil?
     end
   end
 
   def set_quote_embed
-    self.embed=({title: self.media.quote}.to_json) unless self.media.quote.blank?
+    self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
+    self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
   end
 
   def set_user
@@ -157,10 +210,6 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   protected
-
-  def get_embed(obj)
-    Embed.where(annotation_type: 'embed', annotated_type: obj.class.to_s , annotated_id: obj.id).last
-  end
 
   def initiate_embed_annotation(info)
     em = Embed.new

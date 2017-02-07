@@ -9,9 +9,9 @@ class Status < ActiveRecord::Base
   validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', 'Source', nil] }
   validate :status_is_valid
 
-  notifies_slack on: :save,
+  notifies_slack on: :update,
                  if: proc { |s| s.should_notify? },
-                 message: proc { |s| data = s.annotated.embed; "*#{User.current.name}* changed the verification status on <#{s.origin}/project/#{s.annotated.project_id}/media/#{s.annotated_id}|#{data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
+                 message: proc { |s| data = s.annotated.embed; "*#{User.current.name}* changed the verification status on <#{CONFIG['checkdesk_client']}/#{s.annotated.project.team.slug}/project/#{s.annotated.project_id}/media/#{s.annotated_id}|#{data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
                  channel: proc { |s| s.annotated.project.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
                  webhook: proc { |s| s.current_team.setting(:slack_webhook) }
 
@@ -73,7 +73,7 @@ class Status < ActiveRecord::Base
   end
 
   def self.possible_values(annotated, context = nil)
-    type = annotated.class.name
+    type = annotated.class_name
     statuses = Status.core_verification_statuses(type)
     getter = "get_#{type.downcase}_verification_statuses"
     statuses = context.team.send(getter) if context && context.respond_to?(:team) && context.team && context.team.send(getter)
@@ -89,7 +89,24 @@ class Status < ActiveRecord::Base
     self.update_media_search(%w(status))
   end
 
+  def destroy
+    # should revert status
+    widget = self.paper_trail.previous_version
+    if widget.nil?
+      Annotation.find(self.id).destroy
+    else
+      widget.paper_trail.without_versioning do
+        widget.save!
+        self.versions.last.destroy
+      end
+    end
+  end
+
   private
+
+  def set_annotator
+    self.annotator = User.current unless User.current.nil?
+  end
 
   def status_is_valid
     if !self.annotated_type.blank?
