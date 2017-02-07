@@ -144,4 +144,8 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal 'Invalid', f.flag_callback('Invalid')
   end
 
+  test "should accept only ProjectMedia as annotated_type" do
+    assert_equal ['ProjectMedia'], Flag.annotated_types
+  end
+
 end

@@ -330,4 +330,36 @@ class TeamTest < ActiveSupport::TestCase
       create_team slug: 'check'
     end
   end
+
+  test "should set verification statuses to settings" do
+    t = create_team
+    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }] }
+    t.media_verification_statuses = value
+    t.source_verification_statuses = value
+    t.save
+    assert_equal value, t.get_media_verification_statuses
+    assert_equal value, t.get_source_verification_statuses
+  end
+
+  test "should set slack_notifications_enabled" do
+    t = create_team
+    t.slack_notifications_enabled = true
+    t.save
+    assert t.get_slack_notifications_enabled
+  end
+
+  test "should set slack_webhook" do
+    t = create_team
+    t.slack_webhook = 'https://hooks.slack.com/services/123456'
+    t.save
+    assert_equal 'https://hooks.slack.com/services/123456', t.get_slack_webhook
+  end
+
+  test "should set slack_channel" do
+    t = create_team
+    t.slack_channel = 'my-channel'
+    t.save
+    assert_equal 'my-channel', t.get_slack_channel
+  end
+
 end

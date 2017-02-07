@@ -392,4 +392,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal [t.id], pm.get_team
+    pm.project = nil
+    assert_equal [], pm.get_team
+  end
+
 end

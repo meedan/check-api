@@ -980,7 +980,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "journalist permissions for flag" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'editor'
+    tu = create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m

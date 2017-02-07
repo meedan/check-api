@@ -8,7 +8,7 @@ class Flag < ActiveRecord::Base
   def self.flag_types
     ['Spam', 'Graphic content', 'Needing fact-checking', 'Needing deletion', 'Follow story', 'Mark as graphic']
   end
-  validates :flag, inclusion: { in: Flag.flag_types }
+  validates :flag, included: { values: self.flag_types }
 
   def self.annotated_types
     ['ProjectMedia']

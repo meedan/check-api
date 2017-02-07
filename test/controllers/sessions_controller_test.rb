@@ -48,4 +48,15 @@ class SessionsControllerTest < ActionController::TestCase
     assert_not_nil @controller.current_api_user
   end
 
+  test "should display error if cannot sign out" do
+    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', provider: ''
+    authenticate_with_user(u)
+    @controller.expects(:sign_out).returns(false)
+    delete :destroy
+    assert_response 400
+    assert_not_nil @controller.current_api_user
+    assert_equal 'error', JSON.parse(@response.body)['type']
+  end
+
+
 end

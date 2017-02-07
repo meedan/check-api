@@ -183,4 +183,16 @@ class SourceTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
   end
 
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p
+    s = create_source
+    s.project_sources << ps
+    assert_equal [t.id], s.get_team
+    ps.project = nil
+    ps.save
+    assert_equal [], s.reload.get_team
+  end
+
 end

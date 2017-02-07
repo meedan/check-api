@@ -424,4 +424,13 @@ class MediaTest < ActiveSupport::TestCase
     assert_match /png$/, i.embed_path
     assert_match /png$/, i.thumbnail_path
   end
+
+  test "should get media team objects" do
+    m = create_valid_media
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, media: m
+    assert_equal m.get_team_objects, [t]
+  end
+
 end

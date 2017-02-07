@@ -47,4 +47,13 @@ class ProjectSourceTest < ActiveSupport::TestCase
     assert_equal [c1.id, c2.id].sort, s.reload.annotations.map(&:id).sort
   end
 
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    s = create_project_source project: p
+    assert_equal [t.id], s.get_team
+    s.project = nil
+    assert_equal [], s.get_team
+  end
+
 end
