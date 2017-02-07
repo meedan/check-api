@@ -40,7 +40,7 @@ module Checkdesk
 
     config.middleware.insert_before Warden::Manager, Rack::Cors do
       allow do
-        origins Regexp.new(cfg['checkdesk_client'])
+        origins cfg['checkdesk_client']
         resource '*',
           headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team', 'X-Requested-With', 'Origin'],
           methods: [:get, :post, :delete, :options]

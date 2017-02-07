@@ -10,7 +10,6 @@ NodeIdentification = GraphQL::Relay::GlobalNodeIdentification.define do
       obj = CheckSearch.new(id)
     else
       obj = type_name.constantize.find_if_can(id)
-      obj.origin = ctx[:origin] if obj.respond_to?('origin=')
     end
     obj
   end

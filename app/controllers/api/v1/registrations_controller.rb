@@ -10,7 +10,6 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
   def create
     # super
     build_resource(sign_up_params)
-    resource.origin = request.headers['origin']
 
     begin
       User.current = resource

@@ -249,7 +249,7 @@ class ProjectTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     with_current_user_and_team(u, t) do
-      p = create_project origin: 'http://test.localhost:3333', team: t
+      p = create_project team: t
       assert p.sent_to_slack
     end
   end
@@ -258,7 +258,7 @@ class ProjectTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    p = create_project origin: 'http://test.localhost:3333', current_user: u, context_team: t, team: t
+    p = create_project current_user: u, context_team: t, team: t
     assert_nil p.sent_to_slack
   end
 
@@ -267,7 +267,7 @@ class ProjectTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    p = create_project origin: 'http://test.localhost:3333', context_team: t, team: t
+    p = create_project context_team: t, team: t
     assert_nil p.sent_to_slack
   end
 
@@ -276,7 +276,7 @@ class ProjectTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 0; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    p = create_project origin: 'http://test.localhost:3333', context_team: t, team: t, current_user: u
+    p = create_project context_team: t, team: t, current_user: u
     assert_nil p.sent_to_slack
   end
 
@@ -288,7 +288,7 @@ class ProjectTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
     with_current_user_and_team(u, t) do
-      p = create_project origin: 'http://test.localhost:3333', team: t
+      p = create_project team: t
       assert_equal 1, CheckdeskNotifications::Slack::Worker.jobs.size
       CheckdeskNotifications::Slack::Worker.drain
       assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
