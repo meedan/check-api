@@ -1,7 +1,7 @@
 class Media < ActiveRecord::Base
   self.inheritance_column = :type
 
-  attr_accessible :user_id, :account_id, :url, :quote, :type, :file
+  attr_accessible :user, :account, :url, :quote, :type, :file
   attr_accessor :project_id, :project_object
 
   has_paper_trail on: [:create, :update]

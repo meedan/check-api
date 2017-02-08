@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessible :project_id, :media_id, :user_id
+  attr_accessible :project, :media, :user
   attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks
 
   belongs_to :project
