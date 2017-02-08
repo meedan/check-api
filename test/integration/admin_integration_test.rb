@@ -36,9 +36,9 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
 
   %w(contributor journalist editor).each do |role|
     test "should not access admin UI if team #{role}" do
-      tu = create_team_user user: @user, role: role
+      Team.stubs(:current).returns(nil)
+      create_team_user user: @user, role: role
       post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
-
       assert_raise CanCan::AccessDenied do
         get '/admin'
       end
@@ -46,7 +46,8 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should access admin UI if team owner" do
-    tu = create_team_user user: @user, role: 'owner'
+    Team.stubs(:current).returns(nil)
+    create_team_user user: @user, role: 'owner'
     post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
 
     assert_nothing_raised CanCan::AccessDenied do
