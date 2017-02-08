@@ -10,7 +10,7 @@ class Api::V1::SessionsController < Devise::SessionsController
     sign_in(resource_name, resource)
     User.current = current_api_user
     destination = params[:destination]
-    destination ? redirect_to(destination, only_path: true) : render_success('user', current_api_user)
+    destination ? redirect_to(URI.parse(destination).path) : render_success('user', current_api_user)
   end
 
   # DELETE /resource/sign_out
@@ -19,7 +19,7 @@ class Api::V1::SessionsController < Devise::SessionsController
     signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
     if signed_out
       destination = params[:destination]
-      destination ? redirect_to(destination, only_path: true) : render_success
+      destination ? redirect_to(URI.parse(destination).path) : render_success
     else
       render_error('Could not logout', 'AUTH')
     end
