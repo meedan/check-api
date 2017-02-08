@@ -652,7 +652,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should run few queries to get project data" do
-    n = 15 # Number of media items to be created
+    n = 17 # Number of media items to be created
+    m = 3 # Number of annotations per media
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
@@ -660,11 +661,11 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     n.times do
       pm = create_project_media project: p
-      0.times { create_comment annotated: pm, annotator: u }
+      m.times { create_comment annotated: pm, annotator: u }
     end
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
 
-    assert_queries (6 * n ) do
+    assert_queries (5 * n + 14) do
       post :create, query: query, team: 'team'
     end
 
@@ -701,5 +702,23 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: 'query Team { team(slug: "context") { name } }'
     assert_response :success
     assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
+  end
+
+  test "should get ordered medias" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pms = []
+    5.times do
+      pms << create_project_media(project: p)
+    end
+    query = "query { project(id: \"#{p.id}\") { project_medias(first: 4) { edges { node { dbid } } } } }"
+
+    post :create, query: query, team: 'team'
+
+    assert_response :success
+    assert_equal pms.last.dbid, JSON.parse(@response.body)['data']['project']['project_medias']['edges'].first['node']['dbid']
   end
 end
