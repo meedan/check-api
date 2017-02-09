@@ -92,7 +92,7 @@ Localization is powered by Transifex + I18n. In order to localize the applicatio
 
 We call "localizable strings" any call to the `I18n.t` function like this: `I18n.t(:string_unique_id, default: 'English string')`.
 
-Clients should send the `Accept-Language` header in order to get localized content. If you want to serve everything in English only, just hard-code the available locales on `config/application.rb` as `['en']`.
+Clients should send the `Accept-Language` header in order to get localized content. If you want to serve everything in English, just add `locale: 'en'` to your `config/config.yml`.
 
 ### Migration
 

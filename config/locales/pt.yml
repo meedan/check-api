@@ -13,3 +13,4 @@ pt:
   slug_is_reserved: é reservado
   invalid_format_for_custom_verification_status: Formato inválido para status de verificação personalizados
   invalid_media_item: Desculpe, este não é um item de mídia válido
+  already_exists: já existe

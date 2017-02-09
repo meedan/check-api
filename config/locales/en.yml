@@ -1,6 +1,9 @@
 ---
 en:
   activerecord:
+    attributes:
+      tag:
+        data: Tag
     errors:
       messages:
         record_invalid: 'Validation failed: %{errors}'
@@ -17,3 +20,4 @@ en:
   invalid_format_for_custom_verification_status: Invalid format for custom verification
     statuses
   invalid_media_item: Sorry, this is not a valid media item
+  already_exists: already exists
