@@ -1,0 +1,15 @@
+pt:
+  activerecord:
+    errors:
+      messages:
+        record_invalid: 'Validação falhou: %{errors}'
+      models:
+        user:
+          attributes:
+            email:
+              taken: Parece que o seu e-mail já está sendo utilizado. Se você está tendo problemas para entrar, por favor entre em contato com check@meedan.com, e vamos respondê-lo logo.
+  slug_format_validation_message: aceita apenas letras, números e hífens
+  slack_webhook_format_wrong: Formato do webhook do Slack está errado
+  slug_is_reserved: é reservado
+  invalid_format_for_custom_verification_status: Formato inválido para status de verificação personalizados
+  invalid_media_item: Desculpe, este não é um item de mídia válido

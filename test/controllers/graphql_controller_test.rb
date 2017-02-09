@@ -721,4 +721,25 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal pms.last.dbid, JSON.parse(@response.body)['data']['project']['project_medias']['edges'].first['node']['dbid']
   end
+
+  test "should get language from header" do
+    authenticate_with_user
+    @request.headers['Accept-Language'] = 'pt-BR'
+    post :create, query: 'query Query { me { name } }'
+    assert_equal :pt, I18n.locale
+  end
+
+  test "should get default if language is not supported" do
+    authenticate_with_user
+    @request.headers['Accept-Language'] = 'es-LA'
+    post :create, query: 'query Query { me { name } }'
+    assert_equal :en, I18n.locale
+  end
+
+  test "should get closest language" do
+    authenticate_with_user
+    @request.headers['Accept-Language'] = 'es-LA, fr-FR'
+    post :create, query: 'query Query { me { name } }'
+    assert_equal :fr, I18n.locale
+  end
 end

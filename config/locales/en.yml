@@ -1,8 +1,19 @@
+---
 en:
   activerecord:
     errors:
+      messages:
+        record_invalid: 'Validation failed: %{errors}'
       models:
         user:
           attributes:
             email:
-              taken: "It looks like your email is already taken. If you're having trouble logging in, please contact check@meedan.com, and we'll get back to you right away."
+              taken: It looks like your email is already taken. If you're having trouble
+                logging in, please contact check@meedan.com, and we'll get back to
+                you right away.
+  slug_format_validation_message: accepts only letters, numbers and hyphens
+  slack_webhook_format_wrong: Slack webhook format is wrong
+  slug_is_reserved: is reserved
+  invalid_format_for_custom_verification_status: Invalid format for custom verification
+    statuses
+  invalid_media_item: Sorry, this is not a valid media item
