@@ -61,7 +61,7 @@ class ActiveSupport::TestCase
   def setup
     CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
     [Annotation, Team, TeamUser].each{ |klass| klass.delete_all }
-    [ProjectMedia, Media, Account, Source, User, Annotation].each{ |m| m.destroy_all }
+    [ProjectMedia, Media, Account, Source, User, Annotation, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |m| m.destroy_all }
     # create index
     MediaSearch.delete_index
     MediaSearch.create_index
