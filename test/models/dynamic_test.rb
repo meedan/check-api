@@ -2,8 +2,10 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class DynamicTest < ActiveSupport::TestCase
   test "should create dynamic annotation" do
+    u = create_user
+    pm = create_project_media
     assert_difference 'Annotation.count' do
-      create_dynamic_annotation
+      create_dynamic_annotation annotator: u, annotated: pm
     end
   end
 
