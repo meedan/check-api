@@ -12,7 +12,7 @@ class Annotation < ActiveRecord::Base
     rescue NameError
       klass = Dynamic
     end
-    klass.find(self.id)
+    klass.where(id: self.id).last
   end
 
   private
