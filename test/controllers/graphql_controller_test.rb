@@ -742,4 +742,47 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: 'query Query { me { name } }'
     assert_equal :fr, I18n.locale
   end
+
+  test "should search by dynamic annotation" do
+    u = create_user
+    p = create_project team: @team
+    m1 = create_valid_media
+    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
+    authenticate_with_user(u)
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url)
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text', description: 'Free text response that can added to a task'
+    ft = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
+    fi1 = create_field_instance name: 'response', label: 'Response', description: 'The response to a task', field_type_object: ft, optional: false, settings: {}
+    fi2 = create_field_instance name: 'note', label: 'Note', description: 'A note that explains a response to a task', field_type_object: ft, optional: true, settings: {}
+    a = create_dynamic_annotation annotation_type: 'task_response_free_text', annotated: pm1, disable_es_callbacks: false
+    f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
+    f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
+    a.save!
+
+    sleep 1
+
+    query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm1.id], ids
+
+    query = 'query Search { search(query: "{\"keyword\":\"dynamic note\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm1.id], ids
+  end
 end

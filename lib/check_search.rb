@@ -48,6 +48,7 @@ class CheckSearch
       # add keyword conditions
       keyword_c = [{ query_string: { query: @options["keyword"], fields: %w(title description quote), default_operator: "AND" } }]
       keyword_c << { has_child: { type: 'comment_search', query: { query_string: { query: @options["keyword"], fields: %w(text), default_operator: "AND" }}}}
+      keyword_c << { has_child: { type: 'dynamic_search', query: { query_string: { query: @options["keyword"], fields: %w(indexable), default_operator: "AND" }}}}
       conditions << {bool: {should: keyword_c}}
     end
     unless @options["tags"].blank?

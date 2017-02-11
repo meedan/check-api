@@ -217,7 +217,7 @@ module AnnotationBase
     unless ms.nil?
       child = child.singularize.camelize.constantize
       model = child.search(query: { match: { _id: self.id } }).results.last
-      if  model.nil?
+      if model.nil?
         model = child.new
         model.id = self.id
       end

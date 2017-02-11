@@ -453,6 +453,9 @@ module SampleData
   def create_dynamic_annotation(options = {})
     a = Dynamic.new
     a.annotation_type = options[:annotation_type]
+    a.annotator = options[:annotator] || create_user
+    a.annotated = options[:annotated] || create_project_media
+    a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     a.save!
     a
   end
