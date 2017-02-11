@@ -50,7 +50,7 @@ class Ability
     can :destroy, [ProjectMedia, ProjectSource] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can :destroy, [Annotation, Comment, Tag, Status, Flag] do |obj|
+    can :destroy, [Annotation, Comment, Tag, Status, Flag, Dynamic] do |obj|
       obj.get_team.include? @context_team.id
     end
     can :destroy, PaperTrail::Version do |obj|
@@ -74,7 +74,7 @@ class Ability
     can [:create, :update], [ProjectMedia, ProjectSource] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can :update, [Comment, Flag, Annotation] do |obj|
+    can :update, [Comment, Flag, Annotation, Dynamic] do |obj|
       obj.get_team.include? @context_team.id
     end
   end
@@ -103,7 +103,7 @@ class Ability
 
   def contributor_perms
     can :update, User, :id => @user.id
-    can :create, [Media, Account, Source, Comment, Embed, Link, Claim]
+    can :create, [Media, Account, Source, Comment, Embed, Link, Claim, Dynamic]
     can :update, [Media, Link, Claim], :user_id => @user.id
     can :update, [Media, Link, Claim] do |obj|
       obj.get_team.include? @context_team.id and (obj.user_id == @user.id)
@@ -118,7 +118,7 @@ class Ability
     can [:update, :destroy], ProjectMedia do |obj|
       obj.get_team.include? @context_team.id and (obj.media.user_id == @user.id)
     end
-    can :update, Comment do |obj|
+    can :update, [Comment, Dynamic] do |obj|
       obj.get_team.include? @context_team.id and (obj.annotator_id.to_i == @user.id)
     end
     can :create, Flag do |flag|
@@ -173,7 +173,7 @@ class Ability
     # 1) it's a source related to him/her or not related to any user
     # 2) it's related to at least one public team
     # 3) it's related to a private team which the @user has access to
-    can :read, [Account, Source, Media, ProjectMedia, ProjectSource, Comment, Flag, Status, Tag, Embed, Link, Claim] do |obj|
+    can :read, [Account, Source, Media, ProjectMedia, ProjectSource, Comment, Flag, Status, Tag, Embed, Link, Claim, Dynamic] do |obj|
       if obj.is_a?(Source) && obj.respond_to?(:user_id)
         obj.user_id == @user.id || obj.user_id.nil?
       else

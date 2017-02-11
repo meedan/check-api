@@ -47,11 +47,11 @@ module CheckdeskPermissions
     {
       'Team' => [Project, Account, TeamUser, User, Contact],
       'Account' => [Media, Link, Claim],
-      'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
-      'Link' => [ProjectMedia, Comment, Flag, Status, Tag],
-      'Claim' => [ProjectMedia, Comment, Flag, Status, Tag],
+      'Media' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic],
+      'Link' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic],
+      'Claim' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic],
       'Project' => [ProjectSource, Source, Media, ProjectMedia, Claim, Link],
-      'ProjectMedia' => [Comment, Flag, Status, Tag],
+      'ProjectMedia' => [Comment, Flag, Status, Tag, Dynamic],
       'Source' => [Account, ProjectSource, Project],
       'User' => [Source, TeamUser, Team, Project]
     }
