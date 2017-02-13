@@ -1,8 +1,6 @@
 class Flag < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible
-
   field :flag, String, presence: true
 
   validates_presence_of :flag

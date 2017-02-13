@@ -6,24 +6,25 @@ class Ability
     @user = User.current ||= user || User.new
     @context_team = Team.current ||= @user.current_team
     # Define User abilities
-    extra_perms_for_all_users
-    if @user.id
-      authenticated_perms
-    end
-    if @user.role? :contributor
-      contributor_perms
-    end
-    if @user.role? :journalist
-      journalist_perms
-    end
-    if @user.role? :editor
-      editor_perms
-    end
-    if @user.role? :owner
-      owner_perms
-    end
     if @user.is_admin?
       global_admin_perms
+    else
+      extra_perms_for_all_users
+      if @user.id
+        authenticated_perms
+      end
+      if @user.role? :contributor
+        contributor_perms
+      end
+      if @user.role? :journalist
+        journalist_perms
+      end
+      if @user.role? :editor
+        editor_perms
+      end
+      if @user.role? :owner
+        owner_perms
+      end
     end
   end
 
@@ -173,20 +174,21 @@ class Ability
     can :read, [ProjectMedia, ProjectSource], project: { team: { private: false, team_users: { user_id: @user.id }}}
     can :read, [ProjectMedia, ProjectSource], project: { team: { team_users: { user_id: @user.id, status: 'member' }}}
 
-   %w(comment flag status embed tag).each do |annotation_type|
-     can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-       if obj.annotation_type == annotation_type
-         team_ids = obj.get_team
-         teams = Team.where(id: team_ids, private: false)
-         if teams.empty?
-           tu = TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member')
-           TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
-         else
-           teams.any?
-         end
-       end
-     end
-   end
+    %w(comment flag status embed tag).each do |annotation_type|
+      can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+        if obj.annotation_type == annotation_type
+          team_ids = obj.get_team
+          teams = Team.where(id: team_ids, private: false)
+          if teams.empty?
+            tu = TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member')
+            TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
+          else
+            teams.any?
+          end
+        end
+      end
+    end
 
+    cannot :manage, ApiKey
   end
 end

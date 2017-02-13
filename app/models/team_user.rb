@@ -1,12 +1,9 @@
 class TeamUser < ActiveRecord::Base
-  attr_accessible :team, :user, :role, :status
 
   belongs_to :team
   belongs_to :user
 
   validates :status, presence: true
-  validates :status, inclusion: { in: %w(member requested invited banned), message: "%{value} is not a valid team member status" }
-  validates :role, inclusion: { in: %w(owner editor journalist contributor), message: "%{value} is not a valid team role" }
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
   validate :user_is_member_in_slack_team
 
@@ -19,6 +16,16 @@ class TeamUser < ActiveRecord::Base
                  message: proc { |tu| "*#{tu.user.name}* joined <#{CONFIG['checkdesk_client']}/#{tu.team.slug}|*#{tu.team.name}*>" },
                  channel: proc { |tu| tu.team.setting(:slack_channel) },
                  webhook: proc { |tu| tu.team.setting(:slack_webhook) }
+
+  def self.status_types
+    %w(member requested invited banned)
+  end
+  validates :status, included: { values: self.status_types }
+
+  def self.role_types
+    %w(owner editor journalist contributor)
+  end
+  validates :role, included: { values: self.role_types }
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)

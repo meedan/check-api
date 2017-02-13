@@ -1,5 +1,4 @@
 class Source < ActiveRecord::Base
-  attr_accessible :user, :name, :slogan, :avatar
   has_paper_trail on: [:create, :update]
   has_many :accounts
   has_many :project_sources

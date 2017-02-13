@@ -397,4 +397,13 @@ class UserTest < ActiveSupport::TestCase
     assert_equal '12345678', u.password_confirmation
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { name: 'My name', login: 'my-name' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      User.create(params)
+    end
+  end
+
 end

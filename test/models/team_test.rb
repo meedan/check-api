@@ -362,4 +362,13 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'my-channel', t.get_slack_channel
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { name: 'My team', slug: 'my-team' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Team.create(params)
+    end
+  end
+
 end

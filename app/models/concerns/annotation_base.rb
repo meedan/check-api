@@ -80,8 +80,6 @@ module AnnotationBase
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
 
-    attr_accessible :annotator_type, :annotated_type, :annotated_id, :annotator_type, :annotator_id, :entities, :data
-
     def self.annotated_types
       ['ProjectSource', 'ProjectMedia', 'Source']
     end
@@ -108,8 +106,6 @@ module AnnotationBase
     end
 
     def field(name, _type = String, _options = {})
-      attr_accessible name
-
       define_method "#{name}=" do |value=nil|
         self.data ||= {}
         self.data[name.to_sym] = value

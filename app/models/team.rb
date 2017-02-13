@@ -1,5 +1,4 @@
 class Team < ActiveRecord::Base
-  attr_accessible :name, :description, :logo, :slug, :private, :archived, :settings, :media_verification_statuses, :source_verification_statuses, :slack_notifications_enabled, :slack_webhook, :slack_channel
 
   has_paper_trail on: [:create, :update]
   has_many :projects

@@ -1,5 +1,4 @@
 class Project < ActiveRecord::Base
-  attr_accessible :title, :description, :team, :archived, :lead_image, :user, :settings
 
   has_paper_trail on: [:create, :update]
   belongs_to :user

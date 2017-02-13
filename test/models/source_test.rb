@@ -195,4 +195,13 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal [], s.reload.get_team
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { name: "My source", user: create_user }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Source.create(params)
+    end
+  end
+
 end

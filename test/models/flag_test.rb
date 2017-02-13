@@ -148,4 +148,14 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal ['ProjectMedia'], Flag.annotated_types
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { flag: 'Spam', annotated: create_project_media }
+
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Flag.create(params)
+    end
+  end
+
 end

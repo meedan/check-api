@@ -433,4 +433,13 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal m.get_team_objects, [t]
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { project: create_project, user: create_user }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Media.create(params)
+    end
+  end
+
 end

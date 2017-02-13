@@ -254,4 +254,14 @@ class TeamUserTest < ActiveSupport::TestCase
       create_team_user team: t2, user: u5
     end
   end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { user: create_user, team: create_team }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      TeamUser.create(params)
+    end
+  end
+
 end

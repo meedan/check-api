@@ -1,5 +1,4 @@
 class User < ActiveRecord::Base
-  attr_accessible :email, :login, :name, :profile_image, :password, :password_confirmation, :image, :is_admin, :settings, :set_password
   attr_accessor :url
 
   has_one :source
