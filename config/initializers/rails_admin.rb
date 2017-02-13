@@ -272,8 +272,52 @@ RailsAdmin.config do |config|
         formatted_value{ bindings[:object].get_slack_channel }
       end
     end
+
+    create do
+      configure :media_verification_statuses do
+        hide
+      end
+      field :source_verification_statuses do
+        hide
+      end
+      field :slack_notifications_enabled do
+        hide
+      end
+      field :slack_webhook do
+        hide
+      end
+      field :slack_channel do
+        hide
+      end
+    end
+
   end
 
+  config.model 'TeamUser' do
+
+    list do
+      field :team
+      field :user
+      field :role
+      field :status
+    end
+
+    edit do
+      field :team
+      field :user
+      field :role, :enum do
+        enum do
+          TeamUser.role_types
+        end
+      end
+      field :status, :enum do
+        enum do
+          TeamUser.status_types
+        end
+      end
+    end
+
+  end
   config.model 'User' do
 
     list do
@@ -296,9 +340,12 @@ RailsAdmin.config do |config|
           bindings[:view]._current_user.is_admin? && bindings[:object].email.blank?
         end
       end
-      field :set_new_password do
+      field :password do
         visible do
           bindings[:view]._current_user.is_admin? && bindings[:object].provider.blank?
+        end
+        formatted_value do
+         ''
         end
       end
       field :email
