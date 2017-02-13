@@ -13,7 +13,7 @@ class Team < ActiveRecord::Base
 
   validates_presence_of :name
   validates_presence_of :slug
-  validates_format_of :slug, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens', on: :create
+  validates_format_of :slug, with: /\A[[:alnum:]-]+\z/, message: I18n.t(:slug_format_validation_message, default: 'accepts only letters, numbers and hyphens'), on: :create
   validates :slug, length: { in: 4..63 }, on: :create
   validates :slug, uniqueness: true, on: :create
   validate :slug_is_not_reserved
@@ -111,7 +111,7 @@ class Team < ActiveRecord::Base
     statuses = self.send("get_#{type}_verification_statuses")
     unless statuses.nil?
       if statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-        errors.add(:base, 'Invalid format for custom verification statuses')
+        errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status, default: 'Invalid format for custom verification statuses'))
       else
         statuses[:statuses].each do |status|
           errors.add(:base, 'Invalid format for custom verification status') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
@@ -155,7 +155,7 @@ class Team < ActiveRecord::Base
   def slack_webhook_format
     webhook = self.get_slack_webhook
     if !webhook.blank? && /\Ahttps?:\/\/hooks\.slack\.com\/services\/[^\s]+\z/.match(webhook).nil?
-      errors.add(:base, 'Slack webhook format is wrong')
+      errors.add(:base, I18n.t(:slack_webhook_format_wrong, default: 'Slack webhook format is wrong'))
     end
   end
 
@@ -172,6 +172,6 @@ class Team < ActiveRecord::Base
   end
 
   def slug_is_not_reserved
-    errors.add(:slug, 'is reserved') if RESERVED_SLUGS.include?(self.slug)
+    errors.add(:slug, I18n.t(:slug_is_reserved, default: 'is reserved')) if RESERVED_SLUGS.include?(self.slug)
   end
 end

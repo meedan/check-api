@@ -37,6 +37,9 @@ development: &default
   image_embed_size:
   image_thumbnail_size:
   clamav_service_path:
+  transifex_user:
+  transifex_password:
+  locale:
 
 test:
   <<: *default
