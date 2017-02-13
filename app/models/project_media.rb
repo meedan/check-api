@@ -89,14 +89,7 @@ class ProjectMedia < ActiveRecord::Base
     versions = []
     s = self.get_annotations('status').last
     s = s.load unless s.nil?
-    versions = s.versions.to_a unless s.nil?
-    if versions.size > 1
-      an << s
-      versions = versions.drop(2)
-      versions.each do |obj|
-        an << obj.reify unless obj.reify.nil?
-      end
-    end
+    an.concat s.get_versions.pop(1)
     an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
 

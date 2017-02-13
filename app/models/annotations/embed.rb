@@ -1,4 +1,4 @@
-class Embed < ActiveRecord::Base
+class Embed < SingletonAnnotationBase
   include AnnotationBase
 
   attr_accessible
