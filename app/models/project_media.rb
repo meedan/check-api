@@ -85,13 +85,15 @@ class ProjectMedia < ActiveRecord::Base
   def get_annotations_log
     type = %W(comment tag flag)
     an = self.get_annotations(type).to_a
-    # get status
-    s = self.get_annotations('status').last
-    unless s.nil?
-      s = s.load
-      s_versions = s.get_versions
-      s_versions.pop(1)
-      an.concat s_versions
+    # get logs for singleton annotations
+    t = %w(status embed)
+    s_an = self.get_annotations(t)
+    s_an.each do |a|
+      a = a.load
+      a_versions = a.get_versions
+      # skip first status
+      a_versions.pop(1) if a.annotation_type == 'status'
+      an.concat a_versions
     end
     an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
