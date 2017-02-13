@@ -1,4 +1,5 @@
-class SingletonAnnotationBase < ActiveRecord::Base
+module SingletonAnnotationBase
+  extend ActiveSupport::Concern
   include AnnotationBase
 
   def destroy
@@ -17,7 +18,7 @@ class SingletonAnnotationBase < ActiveRecord::Base
 
   def get_versions
     an = [self]
-    versions = self.versions.to_a
+    versions = self.versions.reverse
     versions.each do |obj|
       an << obj.reify unless obj.reify.nil?
     end
@@ -29,5 +30,4 @@ class SingletonAnnotationBase < ActiveRecord::Base
   def set_annotator
     self.annotator = User.current unless User.current.nil?
   end
-
 end

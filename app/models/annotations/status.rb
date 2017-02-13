@@ -1,4 +1,5 @@
-class Status < SingletonAnnotationBase
+class Status < ActiveRecord::Base
+  include SingletonAnnotationBase
 
   attr_accessible
 

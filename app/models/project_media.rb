@@ -86,10 +86,13 @@ class ProjectMedia < ActiveRecord::Base
     type = %W(comment tag flag)
     an = self.get_annotations(type).to_a
     # get status
-    versions = []
     s = self.get_annotations('status').last
-    s = s.load unless s.nil?
-    an.concat s.get_versions.pop(1)
+    unless s.nil?
+      s = s.load
+      s_versions = s.get_versions
+      s_versions.pop(1)
+      an.concat s_versions
+    end
     an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
 
