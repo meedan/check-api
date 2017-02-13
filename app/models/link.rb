@@ -1,8 +1,6 @@
 class Link < Media
   include PenderData
   
-  attr_accessible :url
-
   validates :url, presence: true, on: :create
   validate :validate_pender_result, on: :create
   validate :pender_result_is_an_item, on: :create
