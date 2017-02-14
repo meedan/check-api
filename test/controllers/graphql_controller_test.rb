@@ -510,7 +510,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media
     pm = create_project_media project: p, media: m
     create_comment annotated: pm, annotator: u
-    create_dynamic_annotation annotated: pm, annotator: u
+    create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 10) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
