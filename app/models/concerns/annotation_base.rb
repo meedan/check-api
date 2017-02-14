@@ -149,7 +149,12 @@ module AnnotationBase
 
   # Overwrite in the annotation type and expose the specific fields of that type
   def content
-    self.data.to_json
+    fields = self.get_fields
+    fields.empty? ? self.data.to_json : fields.to_json
+  end
+
+  def get_fields
+    DynamicAnnotation::Field.where(annotation_id: self.id).to_a
   end
 
   def is_annotation?

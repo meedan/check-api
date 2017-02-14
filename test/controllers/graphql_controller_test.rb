@@ -785,4 +785,16 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_equal [pm1.id], ids
   end
+
+  test "should create dynamic annotation" do
+    p = create_project team: @team
+    pm = create_project_media project: p
+    at = create_annotation_type annotation_type: 'location', label: 'Location', description: 'Where this media happened'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
+    ft2 = create_field_type field_type: 'location', label: 'Location', description: 'A pair of coordinates (lat, lon)'
+    fi1 = create_field_instance name: 'location_position', label: 'Location position', description: 'Where this happened', field_type_object: ft2, optional: false, settings: { view_mode: 'map' }
+    fi2 = create_field_instance name: 'location_name', label: 'Location name', description: 'Name of the location', field_type_object: ft1, optional: false, settings: {}
+    fields = { location_name: 'Salvador', location_position: '3,-51' }.to_json
+    assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'location' })
+  end
 end

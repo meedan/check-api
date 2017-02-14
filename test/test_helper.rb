@@ -141,12 +141,11 @@ class ActiveSupport::TestCase
 
     assert_difference "#{klass}.count" do
       post :create, query: query
+      assert_response :success
       yield if block_given?
     end
 
     document_graphql_query('create', type, query, @response.body)
-
-    assert_response :success
   end
 
   def assert_graphql_read(type, field = 'id')

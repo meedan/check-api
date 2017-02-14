@@ -133,6 +133,9 @@ class Ability
     can :destroy, Tag do |obj|
       obj.get_team.include? @context_team.id
     end
+    can :create, DynamicAnnotation::Field do |obj|
+      obj.annotation.annotator_id == @user.id
+    end
   end
 
   def authenticated_perms
