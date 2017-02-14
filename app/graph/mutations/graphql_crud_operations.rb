@@ -172,12 +172,7 @@ class GraphqlCrudOperations
 
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
-          klass = begin
-                    annotation.annotation_type.camelize.constantize
-                  rescue NameError
-                    Dynamic
-                  end
-          annotation.permissions(ctx[:ability], klass)
+          annotation.permissions(ctx[:ability], annotation.annotation_type_class)
         }
       end
 

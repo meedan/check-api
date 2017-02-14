@@ -245,6 +245,16 @@ module AnnotationBase
     MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
   end
 
+  def annotation_type_class
+    klass = nil
+    begin
+      klass = self.annotation_type.camelize.constantize
+    rescue NameError
+      klass = Dynamic
+    end
+    klass
+  end
+
   protected
 
   def load_polymorphic(name)

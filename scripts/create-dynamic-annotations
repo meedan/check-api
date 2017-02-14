@@ -3,12 +3,12 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'config', 'env
 require 'sample_data'
 include SampleData
 
-at = create_annotation_type annotation_type: 'location', label: 'Location', description: 'Where this media happened'
+create_annotation_type annotation_type: 'location', label: 'Location', description: 'Where this media happened'
 ft1 = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
 ft2 = create_field_type field_type: 'location', label: 'Location', description: 'A pair of coordinates (lat, lon)'
-fi1 = create_field_instance name: 'location_position', label: 'Location position', description: 'Where this happened', field_type_object: ft2, optional: false, settings: { view_mode: 'map' }
-fi2 = create_field_instance name: 'location_name', label: 'Location name', description: 'Name of the location', field_type_object: ft1, optional: false, settings: {}
+create_field_instance name: 'location_position', label: 'Location position', description: 'Where this happened', field_type_object: ft2, optional: false, settings: { view_mode: 'map' }
+create_field_instance name: 'location_name', label: 'Location name', description: 'Name of the location', field_type_object: ft1, optional: false, settings: {}
 pm = ProjectMedia.last
 a = create_dynamic_annotation annotation_type: 'location', annotator: pm.user, annotated: pm
-f1 = create_field annotation_id: a.id, field_name: 'location_position', value: '30.0445439,31.2330718'
-f2 = create_field annotation_id: a.id, field_name: 'location_name', value: 'El-Tahrir Square'
+create_field annotation_id: a.id, field_name: 'location_position', value: '30.0445439,31.2330718'
+create_field annotation_id: a.id, field_name: 'location_name', value: 'El-Tahrir Square'
