@@ -314,9 +314,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     s.status = 'false';s.save!
     t = create_tag tag: 'Tag', annotated: pm
     s.status = 'verified'; s.save!
+    pm.embed= {title: 'Change title'}.to_json
     log = pm.get_annotations_log
-    assert_equal ['comment', 'flag', 'status', 'tag', 'status'].reverse, log.map(&:annotation_type)
-    assert_equal 5, log.size
+    assert_equal 6, log.size
+    assert_equal ['comment', 'flag', 'status', 'tag', 'status', 'embed'].reverse, log.map(&:annotation_type)
   end
 
   test "should get permissions" do

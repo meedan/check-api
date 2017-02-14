@@ -50,13 +50,14 @@ class Ability
     can :destroy, [ProjectMedia, ProjectSource] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can :destroy, [Annotation, Comment, Tag, Status, Flag, Dynamic] do |obj|
+    can :destroy, [Annotation, Comment, Tag, Status, Flag, Dynamic, Embed] do |obj|
       obj.get_team.include? @context_team.id
     end
     can :destroy, PaperTrail::Version do |obj|
-      s = nil
-      s = Status.where(id: obj.item_id).last if obj.item_type ==  'Status'
-      !s.nil? and s.get_team.include? @context_team.id
+      a = nil
+      v_obj = obj.item_type.constantize.where(id: obj.item_id).last
+      a = v_obj if v_obj.is_annotation?
+      !a.nil? and a.get_team.include? @context_team.id
     end
   end
 
