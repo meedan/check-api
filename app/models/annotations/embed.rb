@@ -9,8 +9,8 @@ class Embed < ActiveRecord::Base
   field :username
   field :published_at, Integer
 
-  notifies_slack on: :update,
-                 if: proc { |em| em.should_notify? },
+  notifies_slack on: :save,
+                 if: proc { |em| em.should_notify? and em.check_title_update },
                  message: proc { |em| em.slack_notification_message},
                  channel: proc { |em| em.annotated.project.setting(:slack_channel) || em.current_team.setting(:slack_channel) },
                  webhook: proc { |em| em.current_team.setting(:slack_webhook) }
@@ -32,6 +32,14 @@ class Embed < ActiveRecord::Base
     changeset = self.versions.last.changeset["data"]
     content = " from *#{changeset[0]['title']}* to *#{changeset[1][title]}*"
     "*#{User.current.name}* changed the title on <#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data['title']}> #{content}"
+  end
+
+  def check_title_update
+    notify = true
+    if self.annotated.media.type == 'Claim'
+      notify = false if self.versions.size == 1
+    end
+    notify
   end
 
   def update_elasticsearch_embed

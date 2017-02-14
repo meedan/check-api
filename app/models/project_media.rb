@@ -93,6 +93,8 @@ class ProjectMedia < ActiveRecord::Base
       a_versions = a.get_versions
       # skip first status
       a_versions.pop(1) if a.annotation_type == 'status'
+      # skip first embed for Claim media
+      a_versions.pop(1) if a.annotation_type == 'embed' and a.annotated.media.type == 'Claim'
       an.concat a_versions
     end
     an.sort_by{|k, _v| k[:updated_at]}.reverse

@@ -20,6 +20,7 @@ module SingletonAnnotationBase
     an = [self]
     versions = self.versions.reverse
     versions.each do |obj|
+      # load object
       an << obj.reify unless obj.reify.nil?
     end
     an
