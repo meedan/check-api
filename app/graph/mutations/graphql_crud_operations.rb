@@ -48,6 +48,7 @@ class GraphqlCrudOperations
   def self.destroy(inputs, _ctx, parents = [])
     type, id = NodeIdentification.from_global_id(inputs[:id])
     obj = type.constantize.find(id)
+    obj = obj.load if obj.respond_to?(:load)
     obj.destroy
 
     ret = { deletedId: inputs[:id] }

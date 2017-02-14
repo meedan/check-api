@@ -47,18 +47,22 @@ class Ability
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can :destroy, Contact, :team_id => @context_team.id
     can :destroy, Project, :team_id => @context_team.id
-    can :destroy, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id, user_id: @user.id, role: 'owner' }}}
-    can :destroy, [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @context_team.id, user_id: @user.id, role: 'owner' }}}
-
-    %w(annotation comment flag status tag).each do |annotation_type|
+    can :destroy, [Media, Link, Claim] do |obj|
+      obj.get_team.include? @context_team.id
+    end
+    can :destroy, [ProjectMedia, ProjectSource] do |obj|
+      obj.get_team.include? @context_team.id
+    end
+    %w(annotation comment flag status tag embed).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
       end
     end
     can :destroy, PaperTrail::Version do |obj|
-      s = nil
-      s = Status.where(id: obj.item_id).last if obj.item_type ==  'Status'
-      !s.nil? and s.get_team.include? @context_team.id
+      a = nil
+      v_obj = obj.item_type.constantize.where(id: obj.item_id).last
+      a = v_obj if v_obj.is_annotation?
+      !a.nil? and a.get_team.include? @context_team.id
     end
   end
 

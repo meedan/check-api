@@ -771,6 +771,24 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "owner permissions for embed" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    em = create_embed annotated: pm
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, em)
+      assert ability.can?(:update, em)
+      assert ability.can?(:destroy, em)
+      p.update_column(:team_id, nil)
+      assert ability.cannot?(:destroy, em)
+    end
+  end
+
   test "contributor permissions for tag" do
     u = create_user
     t = create_team
@@ -1175,19 +1193,26 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should owner destroy status versions" do
+  test "should owner destroy annotation versions" do
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
     s = create_status annotated: pm, status: 'verified'
-    v = s.versions.last
+    em = create_embed annotated: pm
+    s_v = s.versions.last
+    em_v = em.versions.last
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.can?(:create, v)
-      assert ability.cannot?(:update, v)
-      assert ability.can?(:destroy, v)
+      # Status versions
+      assert ability.can?(:create, s_v)
+      assert ability.cannot?(:update, s_v)
+      assert ability.can?(:destroy, s_v)
+      # Embed versions
+      assert ability.can?(:create, em_v)
+      assert ability.cannot?(:update, em_v)
+      assert ability.can?(:destroy, em_v)
     end
   end
 

@@ -84,17 +84,17 @@ class ProjectMedia < ActiveRecord::Base
   def get_annotations_log
     type = %W(comment tag flag)
     an = self.get_annotations(type).to_a
-    # get status
-    versions = []
-    s = self.get_annotations('status').last
-    s = s.load unless s.nil?
-    versions = s.versions.to_a unless s.nil?
-    if versions.size > 1
-      an << s
-      versions = versions.drop(2)
-      versions.each do |obj|
-        an << obj.reify unless obj.reify.nil?
-      end
+    # get logs for singleton annotations
+    t = %w(status embed)
+    s_an = self.get_annotations(t)
+    s_an.each do |a|
+      a = a.load
+      a_versions = a.get_versions
+      # skip first status
+      a_versions.pop(1) if a.annotation_type == 'status'
+      # skip first embed for Claim media
+      a_versions.pop(1) if a.annotation_type == 'embed' and a.annotated.media.type == 'Claim'
+      an.concat a_versions
     end
     an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
