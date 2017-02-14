@@ -29,8 +29,13 @@ class Embed < ActiveRecord::Base
 
   def slack_notification_message
     data = self.annotated.embed
-    changeset = self.versions.last.changeset["data"]
-    "*#{User.current.name}* changed the title from *#{changeset[0]['title']}* to <#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data['title']}>"
+    from = self.versions.last.changeset['data'][0]['title']
+    if from.nil?
+      # Back to pender to get title in case on link media
+      pender = self.annotated.get_media_annotations('embed')
+      from = pender['data']['title'] unless pender.nil?
+    end
+    "*#{User.current.name}* changed the title from *#{from}* to <#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data['title']}>"
   end
 
   def check_title_update
