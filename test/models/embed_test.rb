@@ -104,7 +104,9 @@ class EmbedTest < ActiveSupport::TestCase
       m = create_valid_media
       pm = create_project_media project: p, media: m
       em = create_embed title: 'Title A', annotator: u, annotated: pm
+      em.reload
       em.title = 'Change title'; em.save!
+      assert_match 'changed the title from *Title A*', em.slack_notification_message
       assert em.sent_to_slack
     end
   end
