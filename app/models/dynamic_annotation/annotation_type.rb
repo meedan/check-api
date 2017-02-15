@@ -1,5 +1,4 @@
 class DynamicAnnotation::AnnotationType < ActiveRecord::Base
-  attr_accessible
   
   validates :annotation_type, machine_name: true
   validate :annotation_type_is_available

@@ -1,6 +1,4 @@
 class DynamicAnnotation::Field < ActiveRecord::Base
-  attr_accessible
-  
   belongs_to :annotation
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
   belongs_to :field_instance, class_name: 'DynamicAnnotation::FieldInstance', foreign_key: 'field_name', primary_key: 'name'

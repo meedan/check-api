@@ -1,7 +1,6 @@
 class Dynamic < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible
   attr_accessor :set_fields
 
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
