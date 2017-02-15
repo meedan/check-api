@@ -80,6 +80,11 @@ module AnnotationBase
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
 
+    def self.annotated_types
+      ['ProjectSource', 'ProjectMedia', 'Source']
+    end
+    validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
+
     private
 
     def start_serialized_fields
@@ -101,8 +106,6 @@ module AnnotationBase
     end
 
     def field(name, _type = String, _options = {})
-      attr_accessible name
-
       define_method "#{name}=" do |value=nil|
         self.data ||= {}
         self.data[name.to_sym] = value

@@ -47,4 +47,22 @@ class ProjectSourceTest < ActiveSupport::TestCase
     assert_equal [c1.id, c2.id].sort, s.reload.annotations.map(&:id).sort
   end
 
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    s = create_project_source project: p
+    assert_equal [t.id], s.get_team
+    s.project = nil
+    assert_equal [], s.get_team
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { project: create_project, source: create_source }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      ProjectSource.create(params)
+    end
+  end
+
 end

@@ -9,14 +9,20 @@ class Api::V1::SessionsController < Devise::SessionsController
     self.resource = warden.authenticate!(auth_options)
     sign_in(resource_name, resource)
     User.current = current_api_user
-    render_success 'user', current_api_user
+    destination = params[:destination]
+    destination ? redirect_to(URI.parse(destination).path) : render_success('user', current_api_user)
   end
 
   # DELETE /resource/sign_out
   def destroy
     User.current = nil
     signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
-    signed_out ? render_success : render_error('Could not logout', 'AUTH')
+    if signed_out
+      destination = params[:destination]
+      destination ? redirect_to(URI.parse(destination).path) : render_success
+    else
+      render_error('Could not logout', 'AUTH')
+    end
   end
 
   protected

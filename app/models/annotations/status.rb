@@ -1,12 +1,10 @@
 class Status < ActiveRecord::Base
   include SingletonAnnotationBase
 
-  attr_accessible
-
   field :status, String, presence: true
 
   validates_presence_of :status
-  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', 'Source', nil] }
+
   validate :status_is_valid
 
   notifies_slack on: :update,

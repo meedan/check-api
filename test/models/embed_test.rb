@@ -132,4 +132,14 @@ class EmbedTest < ActiveSupport::TestCase
   #   assert_equal 'new title', result.title
   # end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { embed: 'test', annotated: create_project_source }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Embed.create(params)
+    end
+  end
+
+
 end

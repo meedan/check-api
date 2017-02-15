@@ -221,4 +221,13 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 'sports-news', result.tag
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { annotator: create_user, tag: 'my tag' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Tag.create(params)
+    end
+  end
+
 end
