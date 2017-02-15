@@ -1,6 +1,5 @@
 class Team < ActiveRecord::Base
-  attr_accessible
-  
+
   has_paper_trail on: [:create, :update]
   has_many :projects
   has_many :accounts
@@ -86,6 +85,26 @@ class Team < ActiveRecord::Base
     recipients
   end
 
+  def media_verification_statuses=(statuses)
+    self.send(:set_media_verification_statuses, statuses)
+  end
+
+  def source_verification_statuses=(statuses)
+    self.send(:set_source_verification_statuses, statuses)
+  end
+
+  def slack_notifications_enabled=(enabled)
+    self.send(:set_slack_notifications_enabled, enabled)
+  end
+
+  def slack_webhook=(webhook)
+    self.send(:set_slack_webhook, webhook)
+  end
+
+  def slack_channel=(channel)
+    self.send(:set_slack_channel, channel)
+  end
+
   protected
 
   def custom_statuses_format(type)
@@ -95,7 +114,7 @@ class Team < ActiveRecord::Base
         errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status, default: 'Invalid format for custom verification statuses'))
       else
         statuses[:statuses].each do |status|
-          errors.add(:base, 'Invalid format for custom verification status') if status.keys.sort != [:description, :id, :label, :style]
+          errors.add(:base, 'Invalid format for custom verification status') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
         end
       end
     end

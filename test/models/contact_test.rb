@@ -83,4 +83,13 @@ class ContactTest < ActiveSupport::TestCase
     end
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { phone: random_valid_phone }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Contact.create(params)
+    end
+  end
+
 end

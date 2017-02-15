@@ -1,8 +1,6 @@
 class Embed < ActiveRecord::Base
   include SingletonAnnotationBase
 
-  attr_accessible
-
   field :title
   field :description
   field :embed

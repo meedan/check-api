@@ -947,10 +947,20 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "only admin users can manage all" do
+    u = create_user
+    u.is_admin = true
+    u.save
+    ability = Ability.new(u)
+    assert ability.can?(:manage, :all)
+  end
+
   test "admins can do anything" do
     u = create_user
+    u.is_admin = true
+    u.save
     t = create_team
-    tu = create_team_user user: u , team: t, role: 'admin'
+    tu = create_team_user user: u , team: t
     p = create_project team: t
     own_project = create_project team: t, user: u
     p2 = create_project
@@ -988,7 +998,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "journalist permissions for flag" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'editor'
+    tu = create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -1203,6 +1213,33 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:create, em_v)
       assert ability.cannot?(:update, em_v)
       assert ability.can?(:destroy, em_v)
+    end
+  end
+
+  test "should access rails_admin if user is team owner" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t, role: 'owner'
+    p = create_project team: t
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:access, :rails_admin)
+    end
+  end
+
+  test "should not access rails_admin if user not team owner or admin" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t
+    p = create_project team: t
+
+    %w(contributor journalist editor).each do |role|
+      tu.role = role; tu.save!
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert !ability.can?(:access, :rails_admin)
+      end
     end
   end
 

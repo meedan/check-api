@@ -314,4 +314,13 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal 'test-mod', result.text
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { annotator: create_user, text: 'my comment' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Comment.create(params)
+    end
+  end
+
 end

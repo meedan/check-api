@@ -333,4 +333,13 @@ class ProjectTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { title: "My project", team: create_team }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Project.create(params)
+    end
+  end
+
 end

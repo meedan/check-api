@@ -128,6 +128,7 @@ module SampleData
     options.each do |key, value|
       s.send("#{key}=", value) if s.respond_to?("#{key}=")
     end
+    s.annotated.reload if s.annotated
     s.save!
     s
   end

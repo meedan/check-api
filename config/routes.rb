@@ -2,6 +2,7 @@ require 'api_constraints'
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
+  mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
   mount GraphiQL::Rails::Engine, at: '/graphiql', graphql_path: '/api/graphql'
   if Rails.env.production?
     mount Sidekiq::Web => '/sidekiq'

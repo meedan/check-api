@@ -393,4 +393,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal [t.id], pm.get_team
+    pm.project = nil
+    assert_equal [], pm.get_team
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { project: create_project, user: create_user }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      ProjectMedia.create(params)
+    end
+  end
+
 end
