@@ -183,14 +183,14 @@ class StatusTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       m = create_valid_media
       pm = create_project_media project: p, media: m
-      s = create_status status: 'false', origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      s = create_status status: 'false', annotator: u, annotated: pm
       assert_not s.sent_to_slack
       s.status = 'verified'; s.save!
       assert s.sent_to_slack
       # claim report
       m = create_claim_media project_id: p.id
       pm = create_project_media project: p, media: m
-      s = create_status status: 'false', origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      s = create_status status: 'false', annotator: u, annotated: pm
       assert_not s.sent_to_slack
       s.status = 'verified'; s.save!
       assert s.sent_to_slack
@@ -354,6 +354,15 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 0, pm.get_annotations_log.size
     s.destroy
     assert_nil Status.where(id: s.id).last
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { annotator: create_user, status: 'my comment' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Status.create(params)
+    end
   end
 
 end

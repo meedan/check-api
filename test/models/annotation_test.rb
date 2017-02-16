@@ -131,4 +131,14 @@ class AnnotationTest < ActiveSupport::TestCase
     f = create_flag annotated: pm
     assert_equal 2, pm.annotations(['comment', 'flag']).size
   end
+
+  test "should get core type class" do
+    c = create_comment
+    assert_equal Comment, Annotation.last.annotation_type_class
+  end
+
+  test "should get dynamic type class" do
+    a = create_dynamic_annotation annotation_type: 'test'
+    assert_equal Dynamic, a.annotation_type_class
+  end
 end

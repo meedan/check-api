@@ -202,4 +202,16 @@ class AccountTest < ActiveSupport::TestCase
     end
   end
 
+  test "should protect attributes from mass assignment" do
+    user = create_user
+    team = create_team
+    source = create_source team: team
+    raw_params = { user: user, source: source, team: team, url: random_url }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Account.create(params)
+    end
+  end
+
 end

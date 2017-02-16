@@ -51,7 +51,7 @@ module CheckElasticSearchModel
       index_name = self.index_name
       settings = []
       mappings = []
-      [MediaSearch, CommentSearch, TagSearch].each do |klass|
+      [MediaSearch, CommentSearch, TagSearch, DynamicSearch].each do |klass|
         settings << klass.settings.to_hash
         mappings << klass.mappings.to_hash
       end
@@ -78,7 +78,5 @@ module CheckElasticSearchModel
       type = self.name.parameterize
       self.count({ query: { bool: { must: [{ match: { annotation_type: type } }] } } })
     end
-
   end
-
 end

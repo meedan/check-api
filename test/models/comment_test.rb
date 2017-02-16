@@ -256,11 +256,11 @@ class CommentTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
-      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      c = create_comment annotator: u, annotated: pm
       assert c.sent_to_slack
       # claim media
       m = create_claim_media project_id: p.id
-      c = create_comment origin: 'http://test.localhost:3333', annotator: u, annotated: pm
+      c = create_comment annotator: u, annotated: pm
       assert c.sent_to_slack
     end
   end
@@ -312,6 +312,15 @@ class CommentTest < ActiveSupport::TestCase
     sleep 1
     result = CommentSearch.find(c.id, parent: pm.id)
     assert_equal 'test-mod', result.text
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { annotator: create_user, text: 'my comment' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Comment.create(params)
+    end
   end
 
 end

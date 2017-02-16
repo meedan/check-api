@@ -17,4 +17,17 @@ class BotTest < ActiveSupport::TestCase
     b = create_bot
     assert_kind_of String, b.profile_image
   end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { name: "My bot" }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Bot.create(params)
+    end
+    assert_difference 'Bot.count' do
+      Bot.create(params.permit(:name))
+    end
+  end
+
 end

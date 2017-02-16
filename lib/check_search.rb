@@ -47,7 +47,11 @@ class CheckSearch
     unless @options["keyword"].blank?
       # add keyword conditions
       keyword_c = [{ query_string: { query: @options["keyword"], fields: %w(title description quote), default_operator: "AND" } }]
-      keyword_c << { has_child: { type: 'comment_search', query: { query_string: { query: @options["keyword"], fields: %w(text), default_operator: "AND" }}}}
+      
+      [['comment', 'text'], ['dynamic', 'indexable']].each do |pair|
+        keyword_c << { has_child: { type: "#{pair[0]}_search", query: { query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
+      end
+      
       conditions << {bool: {should: keyword_c}}
     end
     unless @options["tags"].blank?

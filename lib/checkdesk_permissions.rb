@@ -19,7 +19,7 @@ module CheckdeskPermissions
       if User.current.nil?
         self.find(id)
       else
-        model = self.name == 'Project' ? self.eager_load(medias: { projects: :team }).order('medias.id DESC').where(id: id)[0] : self.find(id)
+        model = self.name == 'Project' ? self.eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0] : self.find(id)
         raise ActiveRecord::RecordNotFound if model.nil?
         ability ||= Ability.new
         if ability.can?(:read, model)
@@ -47,11 +47,11 @@ module CheckdeskPermissions
     {
       'Team' => [Project, Account, TeamUser, User, Contact],
       'Account' => [Media, Link, Claim],
-      'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
-      'Link' => [ProjectMedia, Comment, Flag, Status, Tag],
-      'Claim' => [ProjectMedia, Comment, Flag, Status, Tag],
+      'Media' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic],
+      'Link' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic],
+      'Claim' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic],
       'Project' => [ProjectSource, Source, Media, ProjectMedia, Claim, Link],
-      'ProjectMedia' => [Comment, Flag, Status, Tag],
+      'ProjectMedia' => [Comment, Flag, Status, Tag, Dynamic],
       'Source' => [Account, ProjectSource, Project],
       'User' => [Source, TeamUser, Team, Project]
     }

@@ -1,5 +1,4 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessible
   attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks
 
   belongs_to :project
@@ -55,7 +54,7 @@ class ProjectMedia < ActiveRecord::Base
     type, text = m.quote.blank? ?
       [ 'link', data['title'] ] :
       [ 'claim', m.quote ]
-    "*#{m.user.name}* added a new #{type}: <#{self.origin}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
+    "*#{User.current.name}* added a new #{type}: <#{CONFIG['checkdesk_client']}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
   end
 
   def add_elasticsearch_data
@@ -82,20 +81,24 @@ class ProjectMedia < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
+  def get_annotations_except(type = nil)
+    self.annotations.where.not(annotation_type: type)
+  end
+
   def get_annotations_log
-    type = %W(comment tag flag)
-    an = self.get_annotations(type).to_a
-    # get status
-    versions = []
-    s = self.get_annotations('status').last
-    s = s.load unless s.nil?
-    versions = s.versions.to_a unless s.nil?
-    if versions.size > 1
-      an << s
-      versions = versions.drop(2)
-      versions.each do |obj|
-        an << obj.reify unless obj.reify.nil?
-      end
+    type = %W(embed status)
+    an = self.get_annotations_except(type).to_a
+    # get logs for singleton annotations
+    t = %w(status embed)
+    s_an = self.get_annotations(t)
+    s_an.each do |a|
+      a = a.load
+      a_versions = a.get_versions
+      # skip first status
+      a_versions.pop(1) if a.annotation_type == 'status'
+      # skip first embed for Claim media
+      a_versions.pop(1) if a.annotation_type == 'embed' and a.annotated.media.type != 'Link'
+      an.concat a_versions
     end
     an.sort_by{|k, _v| k[:updated_at]}.reverse
   end

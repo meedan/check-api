@@ -1,12 +1,9 @@
 class TeamUser < ActiveRecord::Base
-  attr_accessible
 
   belongs_to :team
   belongs_to :user
 
   validates :status, presence: true
-  validates :status, inclusion: { in: %w(member requested invited banned), message: "%{value} is not a valid team member status" }
-  validates :role, inclusion: { in: %w(admin owner editor journalist contributor), message: "%{value} is not a valid team role" }
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
   validate :user_is_member_in_slack_team
 
@@ -16,9 +13,19 @@ class TeamUser < ActiveRecord::Base
 
   notifies_slack on: :create,
                  if: proc { |tu| User.current.present? && tu.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |tu| "*#{tu.user.name}* joined <#{tu.origin.gsub(/(https?:\/\/[^\/]+).*/, '\1')}/#{tu.team.slug}|*#{tu.team.name}*>" },
+                 message: proc { |tu| "*#{tu.user.name}* joined <#{CONFIG['checkdesk_client']}/#{tu.team.slug}|*#{tu.team.name}*>" },
                  channel: proc { |tu| tu.team.setting(:slack_channel) },
                  webhook: proc { |tu| tu.team.setting(:slack_webhook) }
+
+  def self.status_types
+    %w(member requested invited banned)
+  end
+  validates :status, included: { values: self.status_types }
+
+  def self.role_types
+    %w(owner editor journalist contributor)
+  end
+  validates :role, included: { values: self.role_types }
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -40,13 +47,13 @@ class TeamUser < ActiveRecord::Base
   private
 
   def send_email_to_team_owners
-    TeamUserMailer.request_to_join(self.team, self.user, self.origin).deliver_now
+    TeamUserMailer.request_to_join(self.team, self.user, CONFIG['checkdesk_client']).deliver_now
   end
 
   def send_email_to_requestor
     if self.status_was === 'requested' && ['member', 'banned'].include?(self.status)
       accepted = self.status === 'member'
-      TeamUserMailer.request_to_join_processed(self.team, self.user, accepted, self.origin).deliver_now
+      TeamUserMailer.request_to_join_processed(self.team, self.user, accepted, CONFIG['checkdesk_client']).deliver_now
     end
   end
 

@@ -1,16 +1,16 @@
 class Annotation < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible
-
   before_validation :cant_instantiate_abstract_class
 
   def load
+    klass = nil
     begin
-      self.annotation_type.camelize.constantize.find(self.id)
-    rescue
-      nil
+      klass = self.annotation_type.camelize.constantize
+    rescue NameError
+      klass = Dynamic
     end
+    klass.where(id: self.id).last
   end
 
   private

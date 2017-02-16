@@ -24,7 +24,6 @@ class GraphqlCrudOperations
     klass = type.camelize
 
     obj = klass.constantize.new
-    obj.origin = ctx[:origin] if obj.respond_to?('origin=')
     obj.file = ctx[:file] if type == 'project_media' && !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
@@ -49,6 +48,7 @@ class GraphqlCrudOperations
   def self.destroy(inputs, _ctx, parents = [])
     type, id = NodeIdentification.from_global_id(inputs[:id])
     obj = type.constantize.find(id)
+    obj = obj.load if obj.respond_to?(:load)
     obj.destroy
 
     ret = { deletedId: inputs[:id] }
@@ -172,7 +172,7 @@ class GraphqlCrudOperations
 
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
-          annotation.permissions(ctx[:ability], annotation.annotation_type.camelize.constantize)
+          annotation.permissions(ctx[:ability], annotation.annotation_type_class)
         }
       end
 

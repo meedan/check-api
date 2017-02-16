@@ -333,7 +333,7 @@ class MediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     m = create_valid_media project_id: p.id
-    perm_keys = ["read Link", "update Link", "destroy Link", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    perm_keys = ["read Link", "update Link", "destroy Link", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Dynamic"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
@@ -424,4 +424,22 @@ class MediaTest < ActiveSupport::TestCase
     assert_match /png$/, i.embed_path
     assert_match /png$/, i.thumbnail_path
   end
+
+  test "should get media team objects" do
+    m = create_valid_media
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, media: m
+    assert_equal m.get_team_objects, [t]
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { project: create_project, user: create_user }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Media.create(params)
+    end
+  end
+
 end

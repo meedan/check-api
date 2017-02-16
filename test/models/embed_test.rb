@@ -94,6 +94,23 @@ class EmbedTest < ActiveSupport::TestCase
     end
   end
 
+  test "should notify Slack when title is updated" do
+    t = create_team slug: 'test'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    with_current_user_and_team(u, t) do
+      m = create_valid_media
+      pm = create_project_media project: p, media: m
+      em = create_embed title: 'Title A', annotator: u, annotated: pm
+      em.reload
+      em.title = 'Change title'; em.save!
+      assert_match 'changed the title from *Title A*', em.slack_notification_message
+      assert em.sent_to_slack
+    end
+  end
+
   # test "should create elasticsearch embed" do
   #   t = create_team
   #   p = create_project team: t
@@ -114,5 +131,15 @@ class EmbedTest < ActiveSupport::TestCase
   #   result = MediaSearch.find(pm.id)
   #   assert_equal 'new title', result.title
   # end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { embed: 'test', annotated: create_project_source }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Embed.create(params)
+    end
+  end
+
 
 end

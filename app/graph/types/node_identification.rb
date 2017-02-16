@@ -1,6 +1,6 @@
 GraphQL::Relay::GlobalNodeIdentification.instance_variable_set(:@instance, nil)
 NodeIdentification = GraphQL::Relay::GlobalNodeIdentification.define do
-  object_from_id -> (id, ctx) do
+  object_from_id -> (id, _ctx) do
     type_name, id = NodeIdentification.from_global_id(id)
     obj = nil
     if type_name == 'About'
@@ -10,7 +10,6 @@ NodeIdentification = GraphQL::Relay::GlobalNodeIdentification.define do
       obj = CheckSearch.new(id)
     else
       obj = type_name.constantize.find_if_can(id)
-      obj.origin = ctx[:origin] if obj.respond_to?('origin=')
     end
     obj
   end

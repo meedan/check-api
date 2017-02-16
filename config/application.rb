@@ -25,8 +25,18 @@ module Checkdesk
     config.autoload_paths += %W(#{config.root}/lib)
 
     config.action_mailer.delivery_method = :smtp
-
+    
     cfg = YAML.load_file("#{Rails.root}/config/config.yml")[Rails.env]
+
+    config.i18n.fallbacks = ['en']
+    config.i18n.default_locale = 'en'
+
+    if cfg['locale'].blank?
+      config.i18n.available_locales = ["ar","fr","pt","en"] # Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`
+    else
+      config.i18n.available_locales = [cfg['locale']].flatten
+    end
+
     if !cfg['smtp_user'].blank? && !cfg['smtp_pass'].blank? && !Rails.env.test?
       config.action_mailer.smtp_settings = {
         address:              cfg['smtp_host'],
@@ -40,7 +50,7 @@ module Checkdesk
 
     config.middleware.insert_before Warden::Manager, Rack::Cors do
       allow do
-        origins Regexp.new(cfg['checkdesk_client'])
+        origins cfg['checkdesk_client']
         resource '*',
           headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team', 'X-Requested-With', 'Origin'],
           methods: [:get, :post, :delete, :options]

@@ -185,19 +185,35 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     with_current_user_and_team(u, t) do
       m = create_valid_media
-      pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
+      pm = create_project_media project: p, media: m
       assert pm.sent_to_slack
       msg = pm.slack_notification_message
       # verify base URL
-      assert_match "#{pm.origin}/#{t.slug}", msg
+      assert_match "#{CONFIG['checkdesk_client']}/#{t.slug}", msg
       # verify notification URL
       match = msg.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
       assert_equal p.id, match[1].to_i
       assert_equal pm.id, match[2].to_i
       # claim media
-      m = create_claim_media origin: 'http://localhost:3333'
+      m = create_claim_media
+      pm = create_project_media project: p, media: m
+      assert pm.sent_to_slack
+    end
+  end
+
+  test "should verify attribution of Slack notifications" do
+    t = create_team slug: 'test'
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    uu = create_user
+    m = create_valid_media user: uu
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
       assert pm.sent_to_slack
+      msg = pm.slack_notification_message
+      assert_match "*#{u.name}* added a new", msg
     end
   end
 
@@ -298,9 +314,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     s.status = 'false';s.save!
     t = create_tag tag: 'Tag', annotated: pm
     s.status = 'verified'; s.save!
+    pm.embed= {title: 'Change title'}.to_json
     log = pm.get_annotations_log
-    assert_equal ['comment', 'flag', 'status', 'tag', 'status'].reverse, log.map(&:annotation_type)
-    assert_equal 5, log.size
+    assert_equal 6, log.size
+    assert_equal ['comment', 'flag', 'status', 'tag', 'status', 'embed'].reverse, log.map(&:annotation_type)
   end
 
   test "should get permissions" do
@@ -309,7 +326,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Dynamic"].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner
@@ -376,4 +393,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal [t.id], pm.get_team
+    pm.project = nil
+    assert_equal [], pm.get_team
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { project: create_project, user: create_user }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      ProjectMedia.create(params)
+    end
+  end
+
 end

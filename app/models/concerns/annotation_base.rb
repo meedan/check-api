@@ -80,6 +80,11 @@ module AnnotationBase
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
 
+    def self.annotated_types
+      ['ProjectSource', 'ProjectMedia', 'Source']
+    end
+    validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
+
     private
 
     def start_serialized_fields
@@ -101,8 +106,6 @@ module AnnotationBase
     end
 
     def field(name, _type = String, _options = {})
-      attr_accessible name
-
       define_method "#{name}=" do |value=nil|
         self.data ||= {}
         self.data[name.to_sym] = value
@@ -149,7 +152,12 @@ module AnnotationBase
 
   # Overwrite in the annotation type and expose the specific fields of that type
   def content
-    self.data.to_json
+    fields = self.get_fields
+    fields.empty? ? self.data.to_json : fields.to_json
+  end
+
+  def get_fields
+    DynamicAnnotation::Field.where(annotation_id: self.id).to_a
   end
 
   def is_annotation?
@@ -217,7 +225,7 @@ module AnnotationBase
     unless ms.nil?
       child = child.singularize.camelize.constantize
       model = child.search(query: { match: { _id: self.id } }).results.last
-      if  model.nil?
+      if model.nil?
         model = child.new
         model.id = self.id
       end
@@ -238,6 +246,16 @@ module AnnotationBase
     pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
     sleep 1 if Rails.env == 'test'
     MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
+  end
+
+  def annotation_type_class
+    klass = nil
+    begin
+      klass = self.annotation_type.camelize.constantize
+    rescue NameError
+      klass = Dynamic
+    end
+    klass
   end
 
   protected

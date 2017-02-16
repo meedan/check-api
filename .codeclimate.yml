@@ -11,6 +11,8 @@ engines:
   rubocop:
     enabled: true
     config: .rubocop.yml
+    exclude_fingerprints:
+    - c46545507dd9c0ee0b06ade73f99824e
   brakeman:
     enabled: true
     exclude_fingerprints:
@@ -43,4 +45,5 @@ exclude_paths:
 - "app/graphql"
 - "doc"
 - "app/models/ability.rb"
+- "config/initializers/rails_admin.rb"
 - ".codeclimate.yml"

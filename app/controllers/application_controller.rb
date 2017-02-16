@@ -1,8 +1,18 @@
 require 'error_codes'
 
 class ApplicationController < ActionController::Base
+  include HttpAcceptLanguage::AutoLocale
+
   protect_from_forgery with: :exception
   skip_before_filter :verify_authenticity_token
+
+  rescue_from CanCan::AccessDenied do |exception|
+    redirect_to '/403.html'
+  end
+
+  def authenticated?
+    redirect_to('/') unless signed_in?
+  end
 
   private
 
