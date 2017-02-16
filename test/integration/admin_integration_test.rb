@@ -7,21 +7,24 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     @user.confirm
   end
 
+  test "should redirect to root if not logged user access admin UI" do
+    get '/admin'
+    assert_redirected_to '/'
+  end
+
   test "should access admin UI if admin" do
     post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
 
-    assert_raise CanCan::AccessDenied do
-      get '/admin'
-    end
+    get '/admin'
+    assert_redirected_to '/403.html'
 
     @user.is_admin = true
     @user.save!
 
     post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
 
-    assert_nothing_raised CanCan::AccessDenied do
-      get '/admin'
-    end
+    get '/admin'
+    assert_response :success
   end
 
   test "should not access Admin UI if user has no role" do
@@ -29,9 +32,8 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
 
     post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
 
-    assert_raise CanCan::AccessDenied do
-      get '/admin'
-    end
+    get '/admin'
+    assert_redirected_to '/403.html'
   end
 
   %w(contributor journalist editor).each do |role|
@@ -39,9 +41,8 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
       Team.stubs(:current).returns(nil)
       create_team_user user: @user, role: role
       post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
-      assert_raise CanCan::AccessDenied do
-        get '/admin'
-      end
+      get '/admin'
+      assert_redirected_to '/403.html'
     end
   end
 
@@ -50,9 +51,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     create_team_user user: @user, role: 'owner'
     post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
 
-    assert_nothing_raised CanCan::AccessDenied do
-      get '/admin'
-    end
+    get '/admin'
+    assert_response :success
   end
-
 end

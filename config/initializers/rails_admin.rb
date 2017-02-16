@@ -2,10 +2,10 @@ RailsAdmin.config do |config|
 
   ### Popular gems integration
 
+  config.parent_controller = 'ApplicationController'
+
   ## == Devise ==
-  config.authenticate_with do
-    warden.authenticate!
-  end
+  config.authenticate_with(&:authenticated?)
   config.current_user_method(&:current_api_user)
 
   # == Cancan ==
