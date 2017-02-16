@@ -1,10 +1,12 @@
 class ElasticSearchWorker
 
   include Sidekiq::Worker
+  sidekiq_options queue: 'esqueue', :retry => false
 
   def perform(model, keys, type)
     model = YAML::load(model)
     keys = YAML::load(keys)
+
     if type == 'update_parent'
       model.update_media_search_bg(keys)
     else

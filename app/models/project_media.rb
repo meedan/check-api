@@ -74,7 +74,7 @@ class ProjectMedia < ActiveRecord::Base
       ms.quote = m.quote
     end
     ms.save!
-    #ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')
+    # ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')
   end
 
   def get_annotations(type = nil)
