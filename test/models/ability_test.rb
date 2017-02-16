@@ -1243,4 +1243,52 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "owner permissions for task" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    tk = create_task annotator: u, annotated: pm
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, tk)
+      p.update_column(:team_id, nil)
+      assert ability.cannot?(:create, tk)
+    end
+  end
+
+  test "editor permissions for task" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    tk = create_task annotator: u, annotated: pm
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, tk)
+      p.update_column(:team_id, nil)
+      assert ability.cannot?(:create, tk)
+    end
+  end
+
+  test "contributor permissions for task" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    tk = create_task annotator: u, annotated: pm
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:create, tk)
+    end
+  end
 end

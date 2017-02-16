@@ -463,4 +463,27 @@ module SampleData
     a.save!
     a
   end
+
+  def create_task(options = {})
+    options = {
+      label: '5 + 5 = ?',
+      type: 'single_choice',
+      description: 'Please solve this math puzzle',
+      options: ['10', '20', '30'],
+      status: 'Unresolved',
+      annotator: create_user,
+      disable_es_callbacks: true
+    }.merge(options)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_media project: p
+    end
+    t = Task.new
+    options.each do |key, value|
+      t.send("#{key}=", value) if t.respond_to?("#{key}=")
+    end
+    t.save!
+    t   
+  end
 end

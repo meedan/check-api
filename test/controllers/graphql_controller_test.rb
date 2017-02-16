@@ -798,4 +798,14 @@ class GraphqlControllerTest < ActionController::TestCase
     fields = { location_name: 'Salvador', location_position: '3,-51' }.to_json
     assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'location' })
   end
+
+  test "should create task" do
+    p = create_project team: @team
+    pm = create_project_media project: p
+    assert_graphql_create('task', { label: 'test', type: 'yes_no', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
+  end
+
+  test "should destroy task" do
+    assert_graphql_destroy('task')
+  end
 end

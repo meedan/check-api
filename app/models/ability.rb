@@ -53,7 +53,7 @@ class Ability
     can :destroy, [ProjectMedia, ProjectSource] do |obj|
       obj.get_team.include? @context_team.id
     end
-    %w(annotation comment flag status tag embed dynamic).each do |annotation_type|
+    %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
       end
@@ -75,10 +75,13 @@ class Ability
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
     can [:create, :update], [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @context_team.id }}}
-    %w(annotation comment flag dynamic).each do |annotation_type|
+    %w(annotation comment flag dynamic task).each do |annotation_type|
       can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
       end
+    end
+    can :create, Task, ['annotation_type = ?', 'task'] do |task|
+      task.get_team.include? @context_team.id
     end
   end
 
