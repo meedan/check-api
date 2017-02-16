@@ -8,7 +8,7 @@ class TeamUserMailer < ApplicationMailer
       @url = origin.blank? ? '' : URI.join(origin, "/#{@team.slug}/members")
       @handle = requestor.handle
       recipients = team.recipients(requestor)
-      self.send_email_to_recipients(recipients, "#{requestor.name} wants to join \"#{team.name}\" team on Check")
+      self.send_email_to_recipients(recipients, "#{requestor.name} wants to join \"#{team.name}\" team on Check!")
     end
   end
 
