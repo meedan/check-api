@@ -172,6 +172,28 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Title B', JSON.parse(embed)['title']
   end
 
+  test "should read project media overridden" do
+    authenticate_with_user
+    p = create_project team: @team
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    pm = create_project_media project: p, media: m
+    # Update media title and description
+    info = {title: 'Title A', description: 'Desc A'}.to_json
+    pm.embed = info
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { overridden } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    overridden = JSON.parse(@response.body)['data']['project_media']['overridden']
+    overridden = JSON.parse(overridden)
+    assert overridden['title']
+    assert overridden['description']
+    assert_not overridden['username']
+  end
+
   test "should read annotations version" do
     authenticate_with_user
     p = create_project team: @team
@@ -756,7 +778,7 @@ class GraphqlControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m2 = create_media(account: create_valid_account, url: url)
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    
+
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text', description: 'Free text response that can added to a task'
     ft = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
     fi1 = create_field_instance name: 'response', label: 'Response', description: 'The response to a task', field_type_object: ft, optional: false, settings: {}
