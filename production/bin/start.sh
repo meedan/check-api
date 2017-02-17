@@ -35,14 +35,15 @@ chown -R ${DEPLOYUSER}:www-data ${UPLOADS}
 find ${UPLOADS} -type d -exec chmod 2777 {} \; # set the sticky bit on directories to preserve permissions
 find ${UPLOADS} -type f -exec chmod 0664 {} \; # files are 664
 
-echo "tailing ${LOGFILE}"
-tail -f $LOGFILE &
 
 # should only run migrations on ${PRIMARY} nodes, perhaps in an out-of-band process during major multi-node deployments
+# for live environments PRIMARY is *not* set and run_migration.sh is called in a separate process
 if [ -n "${PRIMARY}" ]; then
-	echo "running migrations"
-	su ${DEPLOYUSER} -c "bundle exec rake db:migrate"
+    /opt/bin/run_migration.sh
 fi
+
+echo "tailing ${LOGFILE}"
+tail -f $LOGFILE &
 
 echo "starting sidekiq"
 su ${DEPLOYUSER} -c "bundle exec sidekiq -L log/sidekiq.log -d"
