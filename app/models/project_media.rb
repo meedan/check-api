@@ -125,6 +125,10 @@ class ProjectMedia < ActiveRecord::Base
     self.get_annotations('tag')
   end
 
+  def tasks
+    self.get_annotations('task')
+  end
+
   def last_status
     last = self.get_annotations('status').first
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]

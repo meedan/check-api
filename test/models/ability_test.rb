@@ -1285,10 +1285,16 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
     tk = create_task annotator: u, annotated: pm
+    create_annotation_type annotation_type: 'response'
 
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.cannot?(:create, tk)
+      tk.label = 'Changed'
+      assert ability.cannot?(:update, tk)
+      tk = tk.reload
+      tk.response = { annotation_type: 'response', set_fields: {} }.to_json
+      assert ability.can?(:update, tk)
     end
   end
 end

@@ -305,7 +305,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from project media" do
-    assert_graphql_read_collection('project_media', { 'tags'=> 'tag' })
+    assert_graphql_read_collection('project_media', { 'tags'=> 'tag', 'tasks' => 'label' })
   end
 
   test "should read collection from project" do
@@ -807,5 +807,27 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should destroy task" do
     assert_graphql_destroy('task')
+  end
+
+  test "should read first response from task" do
+    u = create_user
+    p = create_project team: @team
+    create_team_user user: u, team: @team
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    authenticate_with_user(u)
+    t = create_task annotated: pm
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.save!
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { content } } } } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    fields = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['first_response']['content']
+    assert_equal 'Test', JSON.parse(fields).select{ |f| f['field_type'] == 'text' }.first['value']
   end
 end

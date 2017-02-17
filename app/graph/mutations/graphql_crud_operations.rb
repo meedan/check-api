@@ -154,7 +154,7 @@ class GraphqlCrudOperations
      :annotated_id, :annotated_type, :content, :dbid ]
   end
 
-  def self.define_annotation_type(type, fields = {})
+  def self.define_annotation_type(type, fields = {}, &block)
     GraphQL::ObjectType.define do
       name type.capitalize
 
@@ -187,6 +187,8 @@ class GraphqlCrudOperations
       end
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
+      
+      instance_eval(&block) if block_given?
     end
   end
 

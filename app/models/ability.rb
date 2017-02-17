@@ -135,6 +135,11 @@ class Ability
     can :create, DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id
     end
+    can :update, Task, ['annotation_type = ?', 'task'] do |obj|
+      before, after = obj.data_change
+      changes = (after.to_a - before.to_a).to_h
+      obj.get_team.include?(@context_team.id) && changes.keys == ['status']
+    end
   end
 
   def authenticated_perms
@@ -183,7 +188,7 @@ class Ability
     can :read, [ProjectMedia, ProjectSource], project: { team: { private: false, team_users: { user_id: @user.id }}}
     can :read, [ProjectMedia, ProjectSource], project: { team: { team_users: { user_id: @user.id, status: 'member' }}}
 
-    %w(comment flag status embed tag dynamic).each do |annotation_type|
+    %w(comment flag status embed tag dynamic task).each do |annotation_type|
       can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         if obj.annotation_type == annotation_type
           team_ids = obj.get_team

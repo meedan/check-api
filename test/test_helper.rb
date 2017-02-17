@@ -256,6 +256,8 @@ class ActiveSupport::TestCase
       elsif name === 'tags'
         t = create_tag annotated: nil
         obj.add_annotation(t)
+      elsif name === 'tasks'
+        create_task annotated: obj
       else
         obj.send(name).send('<<', [send("create_#{name.singularize}")])
         obj.save!

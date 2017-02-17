@@ -13,6 +13,7 @@ module TaskMutations
     type: 'str',
     description: 'str',
     jsonoptions: 'str',
+    response: 'str',
     annotated_id: 'str',
     annotated_type: 'str',
     id: '!id'

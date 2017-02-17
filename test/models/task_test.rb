@@ -8,9 +8,12 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should create task" do
+    t = nil
     assert_difference 'Task.length' do
-      create_task
+      t = create_task
     end
+    assert_nil t.jsonoptions
+    assert_not_nil t.content
   end
 
   test "should not create task with blank label" do
@@ -66,5 +69,28 @@ class TaskTest < ActiveSupport::TestCase
   test "should set initial status" do
     t = create_task status: nil
     assert_equal 'Unresolved', t.reload.status
+  end
+
+  test "should add response to task" do
+    t = create_task
+    assert_equal 'Unresolved', t.reload.status
+    create_annotation_type annotation_type: 'response'
+    t.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t.save!
+    assert_equal 'Resolved', t.reload.status
+  end
+
+  test "should get task responses" do
+    t = create_task
+    assert_equal [], t.responses
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    assert_equal [], t.reload.responses
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.save!
+    assert_match /Test/, t.reload.responses.first.content.inspect
   end
 end

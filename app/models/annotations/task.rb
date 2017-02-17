@@ -38,6 +38,21 @@ class Task < ActiveRecord::Base
     @json
   end
 
+  def responses
+    DynamicAnnotation::Field.where(field_type: 'task_reference', value: self.id.to_s).to_a.map(&:annotation)
+  end
+
+  def response=(json)
+    params = JSON.parse(json)
+    response = Dynamic.new
+    response.annotated = self.annotated
+    response.annotation_type = params['annotation_type']
+    response.set_fields = params['set_fields']
+    response.save!
+    self.record_timestamps = false
+    self.status = 'Resolved'
+  end
+
   private
 
   def task_options_is_array
