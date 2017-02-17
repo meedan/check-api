@@ -212,8 +212,8 @@ module AnnotationBase
   def update_media_search_bg(keys)
     ms = get_elasticsearch_parent
     unless ms.nil?
-      options = {'set_last_activity_at' => Time.now.utc}
-      keys.each{|k| options[k] = self.data[k] if ms.respond_to?("#{k}=")}
+      options = {'last_activity_at' => Time.now.utc}
+      keys.each{|k| options[k] = self.data[k] if ms.respond_to?("#{k}=") and !self.data[k].blank? }
       ms.update options
     end
   end
@@ -235,13 +235,13 @@ module AnnotationBase
       end
       store_elasticsearch_data(model, keys, {parent: ms.id})
       # Update last_activity_at on parent
-      ms.update set_last_activity_at: Time.now.utc
+      ms.update last_activity_at: Time.now.utc
     end
   end
 
   def store_elasticsearch_data(model, keys, options = {})
     keys.each do |k|
-      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
+      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=") and !self.data[k].blank?
     end
     model.save!(options)
   end
