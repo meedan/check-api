@@ -185,7 +185,7 @@ class Ability
     can :read, [Account, ProjectSource], source: { user_id: [@user.id, nil] }
     can :read, Account, source: { projects: { team: { private: false, team_users: { user_id: @user.id }}}}
     can :read, Account, source: { projects: { team: { team_users: { user_id: @user.id, status: 'member' }}}}
-    can :read, [ProjectMedia, ProjectSource], project: { team: { private: false, team_users: { user_id: @user.id }}}
+    can :read, [ProjectMedia, ProjectSource], project: { team: { private: false } }
     can :read, [ProjectMedia, ProjectSource], project: { team: { team_users: { user_id: @user.id, status: 'member' }}}
 
     %w(comment flag status embed tag dynamic task).each do |annotation_type|
