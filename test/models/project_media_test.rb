@@ -326,7 +326,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Dynamic"].sort
+    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Task", "create Dynamic"].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner
@@ -407,9 +407,38 @@ class ProjectMediaTest < ActiveSupport::TestCase
     raw_params = { project: create_project, user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       ProjectMedia.create(params)
     end
+  end
+
+  test "should flag overridden attributes" do
+    t = create_team
+    p = create_project team: t
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "org_title", "description":"org_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pm = create_project_media url: url, project: p
+    attributes = pm.overridden_embed_attributes
+    attributes.each{|k| assert_not pm.overridden[k]}
+    pm.embed={title: 'title'}.to_json
+    assert pm.overridden['title']
+    attributes = pm.overridden_embed_attributes
+    attributes.delete('title')
+    attributes.each{|k| assert_not pm.overridden[k]}
+    pm.embed={description: 'description'}.to_json
+    assert pm.overridden['description']
+    attributes.delete('description')
+    attributes.each{|k| assert_not pm.overridden[k]}
+    pm.embed={username: 'username'}.to_json
+    assert pm.overridden['username']
+    attributes.delete('username')
+    attributes.each{|k| assert_not pm.overridden[k]}
+    # Claim media
+    pm = create_project_media quote: 'Claim', project: p
+    pm.embed={title: 'title', description: 'description', username: 'username'}.to_json
+    pm.overridden_embed_attributes.each{|k| assert_not pm.overridden[k]}
   end
 
 end

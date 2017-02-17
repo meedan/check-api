@@ -342,4 +342,19 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set slack_notifications_enabled" do
+    p = create_project
+    p.slack_notifications_enabled = true
+    p.save
+    assert p.get_slack_notifications_enabled
+  end
+
+  test "should set slack_channel" do
+    p = create_project
+    p.slack_channel = 'my-channel'
+    p.save
+    assert_equal 'my-channel', p.get_slack_channel
+  end
+
+
 end

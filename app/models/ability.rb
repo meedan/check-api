@@ -53,7 +53,7 @@ class Ability
     can :destroy, [ProjectMedia, ProjectSource] do |obj|
       obj.get_team.include? @context_team.id
     end
-    %w(annotation comment flag status tag embed dynamic).each do |annotation_type|
+    %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
       end
@@ -75,10 +75,13 @@ class Ability
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
     can [:create, :update], [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @context_team.id }}}
-    %w(annotation comment flag dynamic).each do |annotation_type|
+    %w(annotation comment flag dynamic task).each do |annotation_type|
       can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
       end
+    end
+    can :create, Task, ['annotation_type = ?', 'task'] do |task|
+      task.get_team.include? @context_team.id
     end
   end
 
@@ -132,6 +135,11 @@ class Ability
     can :create, DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id
     end
+    can :update, Task, ['annotation_type = ?', 'task'] do |obj|
+      before, after = obj.data_change
+      changes = (after.to_a - before.to_a).to_h
+      obj.get_team.include?(@context_team.id) && changes.keys == ['status']
+    end
   end
 
   def authenticated_perms
@@ -177,10 +185,10 @@ class Ability
     can :read, [Account, ProjectSource], source: { user_id: [@user.id, nil] }
     can :read, Account, source: { projects: { team: { private: false, team_users: { user_id: @user.id }}}}
     can :read, Account, source: { projects: { team: { team_users: { user_id: @user.id, status: 'member' }}}}
-    can :read, [ProjectMedia, ProjectSource], project: { team: { private: false, team_users: { user_id: @user.id }}}
+    can :read, [ProjectMedia, ProjectSource], project: { team: { private: false } }
     can :read, [ProjectMedia, ProjectSource], project: { team: { team_users: { user_id: @user.id, status: 'member' }}}
 
-    %w(comment flag status embed tag dynamic).each do |annotation_type|
+    %w(comment flag status embed tag dynamic task).each do |annotation_type|
       can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         if obj.annotation_type == annotation_type
           team_ids = obj.get_team

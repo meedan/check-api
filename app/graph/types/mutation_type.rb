@@ -61,4 +61,8 @@ MutationType = GraphQL::ObjectType.define do
   field :createDynamic, field: DynamicMutations::Create.field
   field :updateDynamic, field: DynamicMutations::Update.field
   field :destroyDynamic, field: DynamicMutations::Destroy.field
+
+  field :createTask, field: TaskMutations::Create.field
+  field :updateTask, field: TaskMutations::Update.field
+  field :destroyTask, field: TaskMutations::Destroy.field
 end

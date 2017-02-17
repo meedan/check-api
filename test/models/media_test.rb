@@ -333,7 +333,7 @@ class MediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     m = create_valid_media project_id: p.id
-    perm_keys = ["read Link", "update Link", "destroy Link", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Dynamic"].sort
+    perm_keys = ["read Link", "update Link", "create Task", "destroy Link", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Dynamic"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }

@@ -17,7 +17,7 @@ module PenderData
       data = self.pender_data
       pender = Bot.where(name: 'Pender').last
       em = Embed.new
-      self.overriden_embed_attributes.each{ |k| em.data[k.to_s] = data[k.to_s] } if self.respond_to?('overriden_embed_attributes')
+      self.overridden_embed_attributes.each{ |k| em.data[k.to_s] = data[k.to_s] } if self.respond_to?('overridden_embed_attributes')
       em.published_at = data['published_at'].to_time.to_i unless data['published_at'].nil?
       em.embed = data.to_json
       em.annotated = self

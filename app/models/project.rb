@@ -66,6 +66,14 @@ class Project < ActiveRecord::Base
     self.project_medias.count
   end
 
+  def slack_notifications_enabled=(enabled)
+    self.send(:set_slack_notifications_enabled, enabled)
+  end
+
+  def slack_channel=(channel)
+    self.send(:set_slack_channel, channel)
+  end
+
   private
 
   def set_description_and_team_and_user
