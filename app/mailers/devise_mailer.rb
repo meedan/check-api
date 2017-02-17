@@ -5,6 +5,7 @@ class DeviseMailer < Devise::Mailer
   def confirmation_instructions(record, token, opts={})
     @host = CONFIG['checkdesk_base_url']
     @client_host = CONFIG['checkdesk_client']
+    opts[:subject] = 'Check account confirmation'
     super
   end
 end
