@@ -53,4 +53,21 @@ class DynamicTest < ActiveSupport::TestCase
       create_dynamic_annotation annotation_type: 'location', annotator: pm.user, annotated: pm, set_fields: { location_name: 'Salvador', location_position: '3,-51' }.to_json
     end
   end
+
+  test "should make sure that mandatory fields are set" do
+    at = create_annotation_type annotation_type: 'location', label: 'Location', description: 'Where this media happened'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
+    ft2 = create_field_type field_type: 'location', label: 'Location', description: 'A pair of coordinates (lat, lon)'
+    fi1 = create_field_instance annotation_type_object: at, name: 'location_position', label: 'Location position', description: 'Where this happened', field_type_object: ft2, optional: false, settings: { view_mode: 'map' }
+    fi2 = create_field_instance annotation_type_object: at, name: 'location_name', label: 'Location name', description: 'Name of the location', field_type_object: ft1, optional: true, settings: {}
+    pm = create_project_media
+    assert_no_difference 'DynamicAnnotation::Field.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_dynamic_annotation annotation_type: 'location', annotator: pm.user, annotated: pm, set_fields: { location_name: 'Salvador' }.to_json
+      end
+    end
+    assert_difference 'DynamicAnnotation::Field.count' do
+      create_dynamic_annotation annotation_type: 'location', annotator: pm.user, annotated: pm, set_fields: { location_position: '1,2' }.to_json
+    end
+  end
 end

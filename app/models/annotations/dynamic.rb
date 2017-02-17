@@ -10,6 +10,7 @@ class Dynamic < ActiveRecord::Base
   after_create :create_fields
 
   validate :annotation_type_exists
+  validate :mandatory_fields_are_set
 
   def data
     fields = self.fields
@@ -39,6 +40,15 @@ class Dynamic < ActiveRecord::Base
         f.annotation_id = self.id
         f.save!
       end
+    end
+  end
+
+  def mandatory_fields_are_set
+    if !self.set_fields.blank? && self.annotation_type != 'dynamic'
+      annotation_type = DynamicAnnotation::AnnotationType.where(annotation_type: self.annotation_type).last
+      fields_set = JSON.parse(self.set_fields).keys
+      mandatory_fields = annotation_type.schema.reject{ |instance| instance.optional }.map(&:name)
+      errors.add(:base, 'Please set all mandatory fields') unless (mandatory_fields - fields_set).empty?
     end
   end
 end
