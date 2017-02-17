@@ -201,11 +201,23 @@ RailsAdmin.config do |config|
       field :archived
       field :lead_image
       field :user
-      field :settings, :json
+      field :slack_notifications_enabled, :boolean do
+        label 'Enable Slack notifications'
+        formatted_value{ bindings[:object].get_slack_notifications_enabled }
+      end
+      field :slack_channel do
+        label 'Slack default #channel'
+        formatted_value{ bindings[:object].get_slack_channel }
+      end
     end
 
     show do
-      configure :settings, :json
+      configure :get_slack_notifications_enabled do
+        label 'Enable Slack notifications'
+      end
+      configure :get_slack_channel do
+        label 'Slack #channel'
+      end
     end
 
   end
@@ -269,7 +281,9 @@ RailsAdmin.config do |config|
       end
       field :slack_channel do
         label 'Slack default #channel'
-        formatted_value{ bindings[:object].get_slack_channel }
+        formatted_value do
+          bindings[:object].get_slack_channel
+        end
       end
     end
 
