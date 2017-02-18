@@ -241,7 +241,7 @@ module AnnotationBase
 
   def store_elasticsearch_data(model, keys, options = {})
     keys.each do |k|
-      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=") and !self.data[k].blank?
+      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=")
     end
     model.save!(options)
   end
