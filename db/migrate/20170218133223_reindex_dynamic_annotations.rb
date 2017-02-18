@@ -8,7 +8,7 @@ class ReindexDynamicAnnotations < ActiveRecord::Migration
       n = 0
 
       [MediaSearch, CommentSearch, TagSearch].each do |klass|
-        puts "[ANNOTATIONS MIGRATION] Migrating #{klass.name.parameterize} to #{CONFIG['elasticsearch_index']}"
+        puts "[ES MIGRATION] Migrating #{klass.name.parameterize} to #{CONFIG['elasticsearch_index']}"
 
         # Load data from old index
         url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
