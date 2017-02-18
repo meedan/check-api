@@ -96,7 +96,7 @@ class ProjectMedia < ActiveRecord::Base
       a_versions = a.get_versions
       # skip first status
       a_versions.pop(1) if a.annotation_type == 'status'
-      # skip first embed for Claim media
+      # skip first embed for non Link media
       a_versions.pop(1) if a.annotation_type == 'embed' and a.annotated.media.type != 'Link'
       an.concat a_versions
     end
