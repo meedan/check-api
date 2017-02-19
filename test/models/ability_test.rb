@@ -1284,7 +1284,7 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    tk = create_task annotator: u, annotated: pm
+    tk = create_task annotated: pm
     create_annotation_type annotation_type: 'response'
 
     with_current_user_and_team(u, t) do
@@ -1295,6 +1295,25 @@ class AbilityTest < ActiveSupport::TestCase
       tk = tk.reload
       tk.response = { annotation_type: 'response', set_fields: {} }.to_json
       assert ability.can?(:update, tk)
+    end
+  end
+
+  test "annotator permissions" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    tk1 = create_task annotator: u, annotated: pm
+    tk2 = create_task annotated: pm
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:destroy, tk1)
+      assert ability.can?(:update, tk1)
+      assert ability.cannot?(:destroy, tk2)
+      assert ability.cannot?(:update, tk2)
     end
   end
 end

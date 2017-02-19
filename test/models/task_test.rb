@@ -93,4 +93,23 @@ class TaskTest < ActiveSupport::TestCase
     t.save!
     assert_match /Test/, t.reload.responses.first.content.inspect
   end
+
+  test "should delete responses when task is deleted" do
+    t = create_task
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    Dynamic.delete_all
+    DynamicAnnotation::Field.delete_all
+    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.save!
+
+    assert_equal 2, DynamicAnnotation::Field.count
+    assert_equal 1, Dynamic.count
+    t.destroy
+    assert_equal 0, Dynamic.count
+    assert_equal 0, DynamicAnnotation::Field.count
+  end
 end

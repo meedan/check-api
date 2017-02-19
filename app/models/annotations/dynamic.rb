@@ -4,7 +4,7 @@ class Dynamic < ActiveRecord::Base
   attr_accessor :set_fields
 
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
-  has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id'
+  has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
   
   after_save :add_update_elasticsearch_dynamic_annotation
   after_create :create_fields

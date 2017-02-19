@@ -70,4 +70,42 @@ class DynamicTest < ActiveSupport::TestCase
       create_dynamic_annotation annotation_type: 'location', annotator: pm.user, annotated: pm, set_fields: { location_position: '1,2' }.to_json
     end
   end
+
+  test "should delete fields when dynamic is deleted" do
+    t = create_task
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    Dynamic.delete_all
+    DynamicAnnotation::Field.delete_all
+    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.save!
+
+    assert_equal 2, DynamicAnnotation::Field.count
+    assert_equal 1, Dynamic.count
+    Dynamic.last.destroy
+    assert_equal 0, Dynamic.count
+    assert_equal 0, DynamicAnnotation::Field.count
+  end
+
+  test "should delete fields when annotation is deleted" do
+    t = create_task
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    Dynamic.delete_all
+    DynamicAnnotation::Field.delete_all
+    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.save!
+
+    assert_equal 2, DynamicAnnotation::Field.count
+    assert_equal 1, Dynamic.count
+    Annotation.last.destroy
+    assert_equal 0, Dynamic.count
+    assert_equal 0, DynamicAnnotation::Field.count
+  end
 end

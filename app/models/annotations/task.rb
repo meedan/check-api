@@ -2,6 +2,7 @@ class Task < ActiveRecord::Base
   include AnnotationBase
   
   before_validation :set_initial_status, on: :create
+  after_destroy :destroy_responses
 
   field :label
   validates_presence_of :label
@@ -61,5 +62,9 @@ class Task < ActiveRecord::Base
 
   def set_initial_status
     self.status ||= 'Unresolved'
+  end
+
+  def destroy_responses
+    self.responses.map(&:destroy) 
   end
 end

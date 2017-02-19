@@ -165,7 +165,7 @@ module AnnotationBase
   end
 
   def ==(annotation)
-    self.id == annotation.id
+    annotation.respond_to?(:id) ? (self.id == annotation.id) : super
   end
 
   def dbid

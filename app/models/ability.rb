@@ -132,6 +132,9 @@ class Ability
     can :destroy, Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.get_team.include? @context_team.id
     end
+    can [:destroy, :update], [Dynamic, Annotation, Task] do |obj|
+      obj.annotator_id.to_i == @user.id
+    end
     can :create, DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id
     end
