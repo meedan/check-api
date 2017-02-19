@@ -11,7 +11,7 @@ class Dynamic < ActiveRecord::Base
   after_update :update_fields
 
   validate :annotation_type_exists
-  validate :mandatory_fields_are_set
+  validate :mandatory_fields_are_set, on: :create
 
   def data
     fields = self.fields

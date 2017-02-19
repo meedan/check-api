@@ -191,17 +191,15 @@ class Ability
     can :read, [ProjectMedia, ProjectSource], project: { team: { private: false } }
     can :read, [ProjectMedia, ProjectSource], project: { team: { team_users: { user_id: @user.id, status: 'member' }}}
 
-    %w(comment flag status embed tag dynamic task).each do |annotation_type|
-      can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        if obj.annotation_type == annotation_type
-          team_ids = obj.get_team
-          teams = Team.where(id: team_ids, private: false)
-          if teams.empty?
-            tu = TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member')
-            TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
-          else
-            teams.any?
-          end
+    %w(comment flag status embed tag dynamic task annotation).each do |annotation_type|
+      can :read, annotation_type.classify.constantize do |obj|
+        team_ids = obj.get_team
+        teams = Team.where(id: team_ids, private: false)
+        if teams.empty?
+          tu = TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member')
+          TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
+        else
+          teams.any?
         end
       end
     end
