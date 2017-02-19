@@ -99,14 +99,14 @@ module CheckdeskPermissions
     unless self.skip_check_ability or User.current.nil?
       ability = Ability.new
       op = self.new_record? ? :create : :update
-      raise "No permission to #{op}" unless ability.can?(op, self)
+      raise "No permission to #{op} #{self.class.name}" unless ability.can?(op, self)
     end
   end
 
   def check_destroy_ability
     unless User.current.nil?
       ability = Ability.new
-      raise "No permission to delete #{self.class}" unless ability.can?(:destroy, self)
+      raise "No permission to delete #{self.class.name}" unless ability.can?(:destroy, self)
     end
   end
 end
