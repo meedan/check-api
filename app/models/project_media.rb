@@ -241,6 +241,7 @@ class ProjectMedia < ActiveRecord::Base
           t.description = task['description']
           t.annotator = User.current
           t.annotated = self
+          t.skip_check_ability = true
           t.save!
         end
       end
