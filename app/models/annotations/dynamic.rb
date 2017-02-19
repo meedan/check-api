@@ -8,6 +8,7 @@ class Dynamic < ActiveRecord::Base
   
   after_save :add_update_elasticsearch_dynamic_annotation
   after_create :create_fields
+  after_update :update_fields
 
   validate :annotation_type_exists
   validate :mandatory_fields_are_set
@@ -39,6 +40,18 @@ class Dynamic < ActiveRecord::Base
         f.value = value
         f.annotation_id = self.id
         f.save!
+      end
+    end
+  end
+
+  def update_fields
+    unless self.set_fields.blank?
+      data = JSON.parse(self.set_fields)
+      self.fields.each do |f|
+        if data.has_key?(f.field_name)
+          f.value = data[f.field_name]
+          f.save!
+        end
       end
     end
   end

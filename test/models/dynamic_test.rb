@@ -108,4 +108,25 @@ class DynamicTest < ActiveSupport::TestCase
     assert_equal 0, Dynamic.count
     assert_equal 0, DynamicAnnotation::Field.count
   end
+
+  test "should update fields" do
+    at = create_annotation_type annotation_type: 'location', label: 'Location', description: 'Where this media happened'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
+    ft2 = create_field_type field_type: 'location', label: 'Location', description: 'A pair of coordinates (lat, lon)'
+    fi1 = create_field_instance name: 'location_position', label: 'Location position', description: 'Where this happened', field_type_object: ft2, optional: false, settings: { view_mode: 'map' }
+    fi2 = create_field_instance name: 'location_name', label: 'Location name', description: 'Name of the location', field_type_object: ft1, optional: false, settings: {}
+    pm = create_project_media
+    a = create_dynamic_annotation annotation_type: 'location', annotator: pm.user, annotated: pm, set_fields: { location_name: 'Salvador', location_position: '3,-51' }.to_json
+    f = DynamicAnnotation::Field.where(field_name: 'location_name').last
+    assert_equal 'Salvador', f.value
+    assert_equal '3,-51', DynamicAnnotation::Field.where(field_name: 'location_position').last.value
+    a = a.reload
+
+    assert_no_difference 'DynamicAnnotation::Field.count' do
+      a.set_fields = { location_name: 'San Francisco' }.to_json
+      a.save!
+    end
+    
+    assert_equal 'San Francisco', f.reload.value
+  end
 end
