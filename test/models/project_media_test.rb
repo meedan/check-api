@@ -314,9 +314,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     s.status = 'false';s.save!
     t = create_tag tag: 'Tag', annotated: pm
     s.status = 'verified'; s.save!
+    pm.embed= {title: 'Change title'}.to_json
     log = pm.get_annotations_log
-    assert_equal ['comment', 'flag', 'status', 'tag', 'status'].reverse, log.map(&:annotation_type)
-    assert_equal 5, log.size
+    assert_equal 6, log.size
+    assert_equal ['comment', 'flag', 'status', 'tag', 'status', 'embed'].reverse, log.map(&:annotation_type)
   end
 
   test "should get permissions" do
@@ -325,7 +326,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Task", "create Dynamic"].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner
@@ -390,6 +391,67 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordInvalid do
         create_project_media project: p, media: m
       end
+    end
+  end
+
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal [t.id], pm.get_team
+    pm.project = nil
+    assert_equal [], pm.get_team
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { project: create_project, user: create_user }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do
+      ProjectMedia.create(params)
+    end
+  end
+
+  test "should flag overridden attributes" do
+    t = create_team
+    p = create_project team: t
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "org_title", "description":"org_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pm = create_project_media url: url, project: p
+    attributes = pm.overridden_embed_attributes
+    attributes.each{|k| assert_not pm.overridden[k]}
+    pm.embed={title: 'title'}.to_json
+    assert pm.overridden['title']
+    attributes = pm.overridden_embed_attributes
+    attributes.delete('title')
+    attributes.each{|k| assert_not pm.overridden[k]}
+    pm.embed={description: 'description'}.to_json
+    assert pm.overridden['description']
+    attributes.delete('description')
+    attributes.each{|k| assert_not pm.overridden[k]}
+    pm.embed={username: 'username'}.to_json
+    assert pm.overridden['username']
+    attributes.delete('username')
+    attributes.each{|k| assert_not pm.overridden[k]}
+    # Claim media
+    pm = create_project_media quote: 'Claim', project: p
+    pm.embed={title: 'title', description: 'description', username: 'username'}.to_json
+    pm.overridden_embed_attributes.each{|k| assert_not pm.overridden[k]}
+  end
+
+  test "should create auto tasks" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    t.checklist = [ { 'label' => 'Can you see this automatic task?', 'type' => 'free_text', 'description' => 'This was created automatically', 'projects' => [] }, { 'label' => 'Can you see this automatic task for a project only?', 'type' => 'free_text', 'description' => 'This was created automatically', 'projects' => [p2.id] } ]
+    t.save!
+    assert_difference 'Task.length', 1 do
+      pm1 = create_project_media project: p1
+    end
+    assert_difference 'Task.length', 2 do
+      pm2 = create_project_media project: p2
     end
   end
 end

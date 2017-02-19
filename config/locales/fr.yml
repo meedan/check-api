@@ -1,0 +1,48 @@
+fr:
+  link: Lien
+  claim: Déclaration
+  activerecord:
+    attributes:
+      tag:
+        data: Tag
+    errors:
+      messages:
+        record_invalid: 'Échec de la validation: %{errors}'
+        too_short:
+          one: trop court (au moins 1 caractère)
+          other: trop court (au moins %{count} caractères)
+      models:
+        user:
+          attributes:
+            email:
+              taken: Il semble que votre adresse e-mail est déjà prise. Si vous rencontrez des difficultés en vous connectant, veuillez contacter check@meedan.com et quelqu'un vous répondra très rapidement.
+  devise:
+    failure:
+      invalid: Mot de passe ou %{authentication_keys} non valide.
+      not_found_in_database: Mot de passe ou %{authentication_keys} non valide.
+      unconfirmed: Prière de confirmer votre courriel avant de continuer.
+  slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
+  slack_webhook_format_wrong: Le format du Slack webhook est faux
+  slug_is_reserved: est réservé
+  invalid_format_for_custom_verification_status: Format pas valide pour les statuts de vérification personnalisés
+  invalid_media_item: Désolé, ce média n'est pas valide
+  already_exists: existe déjà
+  mail_account_confirmation: Confirmation de votre compte Check
+  mail_request_to_join: "%{user} demande à se joindre à l'équipe %{team} sur Check !"
+  approved: acceptée !
+  rejected: rejetée
+  mail_request_to_join_processed: Votre requête de vous joindre à %{team} sur Check est %{status}
+  mail_new_account: Votre nouveau compte sur Check
+  slack_update_status: "*%{user}* a modifié le statut de vérification de <%{url}> de *%{previous_status}* à *%{current_status}*"
+  slack_save_embed: "*%{user}* a modifié le titre de *%{from}* à <%{to}>"
+  slack_save_comment: "*%{user}* a rajouté un commentaire sur <%{url}>\\n> %{comment}"
+  slack_create_project: "*%{user}* a créé un projet: <%{url}>"
+  slack_create_team_user: "*%{user}* s'est joint à <%{url}>"
+  slack_create_project_media: "*%{user}* a rajouté un nouveau %{type}: <%{url}>"
+  mail_view_welcome: Bienvenue sur Check
+  mail_view_register: 'Il ne vous manque plus qu''une étape pour utiliser Check ! Prière de confirmer votre courriel en cliquant ce lien :'
+  mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
+  mail_view_rejected_to_join: Désolé, mais votre requête de vous joindre à %{team} a été rejetée.
+  mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur Check !"
+  mail_view_process_request: 'Pour traiter cette requête, prière de vous connecter et de visiter:'
+  pender_could_not_parse: Ce n'était pas possible d'analyser ce média

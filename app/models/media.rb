@@ -1,7 +1,6 @@
 class Media < ActiveRecord::Base
   self.inheritance_column = :type
 
-  attr_accessible
   attr_accessor :project_id, :project_object
 
   has_paper_trail on: [:create, :update]
@@ -16,7 +15,7 @@ class Media < ActiveRecord::Base
   def self.types
     %w(Link Claim UploadedFile UploadedImage)
   end
-  
+
   validates_inclusion_of :type, in: Media.types
 
   def class_name
@@ -39,7 +38,7 @@ class Media < ActiveRecord::Base
     self.projects.map(&:team)
   end
 
-  def overriden_embed_attributes
+  def overridden_embed_attributes
     %W(title description username quote)
   end
 

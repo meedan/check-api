@@ -1,8 +1,6 @@
 class Link < Media
   include PenderData
   
-  attr_accessible :url
-
   validates :url, presence: true, on: :create
   validate :validate_pender_result, on: :create
   validate :pender_result_is_an_item, on: :create
@@ -32,7 +30,7 @@ class Link < Media
 
   def pender_result_is_an_item
     unless self.pender_data.nil?
-      errors.add(:base, 'Sorry, this is not a valid media item') unless self.pender_data['type'] == 'item'
+      errors.add(:base, I18n.t(:invalid_media_item, default: 'Sorry, this is not a valid media item')) unless self.pender_data['type'] == 'item'
     end
   end
 

@@ -380,4 +380,30 @@ class UserTest < ActiveSupport::TestCase
     u = create_user provider: ''
     assert u.send(:confirmation_required?)
   end
+
+  test "should set user password" do
+    u = create_user password: '12345678', password_confirmation: '12345678'
+    u.set_password = '87654321'
+    u.save!
+    assert_equal '87654321', u.password
+    assert_equal '87654321', u.password_confirmation
+  end
+
+  test "should not change user password if value is blank" do
+    u = create_user password: '12345678', password_confirmation: '12345678'
+    u.set_password = ''
+    u.save!
+    assert_equal '12345678', u.password
+    assert_equal '12345678', u.password_confirmation
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { name: 'My name', login: 'my-name' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      User.create(params)
+    end
+  end
+
 end

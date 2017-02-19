@@ -1,5 +1,5 @@
-Welcome to Check, <%= @resource.name %>!
+<%= I18n.t(:mail_view_welcome, default: "Welcome to Check") %>, <%= @resource.name %>!
 
-Go to <%= confirmation_url(@resource, host: @host, confirmation_token: @resource.confirmation_token, client_host: @client_host) %> to confirm your e-mail address.
+<%= I18n.t(:mail_view_register, default: "You are only one step away from using Check! Please confirm your email address by clicking the following link:") %>
 
-If you didn't want to join Check, just ignore this message.
+<%= confirmation_url(@resource, host: @host, confirmation_token: @resource.confirmation_token, client_host: @client_host) %>

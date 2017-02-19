@@ -36,6 +36,7 @@ class GraphqlCrudOperations
 
   def self.update(_type, inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
+    obj = obj.load if obj.is_a?(Annotation)
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
@@ -48,6 +49,7 @@ class GraphqlCrudOperations
   def self.destroy(inputs, _ctx, parents = [])
     type, id = NodeIdentification.from_global_id(inputs[:id])
     obj = type.constantize.find(id)
+    obj = obj.load if obj.respond_to?(:load)
     obj.destroy
 
     ret = { deletedId: inputs[:id] }
@@ -153,7 +155,7 @@ class GraphqlCrudOperations
      :annotated_id, :annotated_type, :content, :dbid ]
   end
 
-  def self.define_annotation_type(type, fields = {})
+  def self.define_annotation_type(type, fields = {}, &block)
     GraphQL::ObjectType.define do
       name type.capitalize
 
@@ -171,7 +173,7 @@ class GraphqlCrudOperations
 
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
-          annotation.permissions(ctx[:ability], annotation.annotation_type.camelize.constantize)
+          annotation.permissions(ctx[:ability], annotation.annotation_type_class)
         }
       end
 
@@ -186,6 +188,8 @@ class GraphqlCrudOperations
       end
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
+      
+      instance_eval(&block) if block_given?
     end
   end
 

@@ -61,7 +61,7 @@ class ActiveSupport::TestCase
   def setup
     CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
     [Annotation, Team, TeamUser].each{ |klass| klass.delete_all }
-    [ProjectMedia, Media, Account, Source, User, Annotation].each{ |m| m.destroy_all }
+    [ProjectMedia, Media, Account, Source, User, Annotation, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |m| m.destroy_all }
     # create index
     MediaSearch.delete_index
     MediaSearch.create_index
@@ -141,12 +141,11 @@ class ActiveSupport::TestCase
 
     assert_difference "#{klass}.count" do
       post :create, query: query
+      assert_response :success
       yield if block_given?
     end
 
     document_graphql_query('create', type, query, @response.body)
-
-    assert_response :success
   end
 
   def assert_graphql_read(type, field = 'id')
@@ -257,6 +256,8 @@ class ActiveSupport::TestCase
       elsif name === 'tags'
         t = create_tag annotated: nil
         obj.add_annotation(t)
+      elsif name === 'tasks'
+        create_task annotated: obj
       else
         obj.send(name).send('<<', [send("create_#{name.singularize}")])
         obj.save!

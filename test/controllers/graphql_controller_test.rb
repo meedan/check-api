@@ -172,6 +172,28 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Title B', JSON.parse(embed)['title']
   end
 
+  test "should read project media overridden" do
+    authenticate_with_user
+    p = create_project team: @team
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    pm = create_project_media project: p, media: m
+    # Update media title and description
+    info = {title: 'Title A', description: 'Desc A'}.to_json
+    pm.embed = info
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { overridden } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    overridden = JSON.parse(@response.body)['data']['project_media']['overridden']
+    overridden = JSON.parse(overridden)
+    assert overridden['title']
+    assert overridden['description']
+    assert_not overridden['username']
+  end
+
   test "should read annotations version" do
     authenticate_with_user
     p = create_project team: @team
@@ -305,7 +327,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from project media" do
-    assert_graphql_read_collection('project_media', { 'tags'=> 'tag' })
+    assert_graphql_read_collection('project_media', { 'tags'=> 'tag', 'tasks' => 'label' })
   end
 
   test "should read collection from project" do
@@ -510,7 +532,8 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media
     pm = create_project_media project: p, media: m
     create_comment annotated: pm, annotator: u
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 1) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
+    create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 10) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
   end
@@ -652,7 +675,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should run few queries to get project data" do
-    n = 15 # Number of media items to be created
+    n = 17 # Number of media items to be created
+    m = 3 # Number of annotations per media
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
@@ -660,11 +684,11 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     n.times do
       pm = create_project_media project: p
-      0.times { create_comment annotated: pm, annotator: u }
+      m.times { create_comment annotated: pm, annotator: u }
     end
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
 
-    assert_queries (6 * n ) do
+    assert_queries (5 * n + 15) do
       post :create, query: query, team: 'team'
     end
 
@@ -701,5 +725,131 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: 'query Team { team(slug: "context") { name } }'
     assert_response :success
     assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
+  end
+
+  test "should get ordered medias" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pms = []
+    5.times do
+      pms << create_project_media(project: p)
+    end
+    query = "query { project(id: \"#{p.id}\") { project_medias(first: 4) { edges { node { dbid } } } } }"
+
+    post :create, query: query, team: 'team'
+
+    assert_response :success
+    assert_equal pms.last.dbid, JSON.parse(@response.body)['data']['project']['project_medias']['edges'].first['node']['dbid']
+  end
+
+  test "should get language from header" do
+    authenticate_with_user
+    @request.headers['Accept-Language'] = 'pt-BR'
+    post :create, query: 'query Query { me { name } }'
+    assert_equal :pt, I18n.locale
+  end
+
+  test "should get default if language is not supported" do
+    authenticate_with_user
+    @request.headers['Accept-Language'] = 'es-LA'
+    post :create, query: 'query Query { me { name } }'
+    assert_equal :en, I18n.locale
+  end
+
+  test "should get closest language" do
+    authenticate_with_user
+    @request.headers['Accept-Language'] = 'es-LA, fr-FR'
+    post :create, query: 'query Query { me { name } }'
+    assert_equal :fr, I18n.locale
+  end
+
+  test "should search by dynamic annotation" do
+    u = create_user
+    p = create_project team: @team
+    m1 = create_valid_media
+    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
+    authenticate_with_user(u)
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url)
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text', description: 'Free text response that can added to a task'
+    ft = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
+    fi1 = create_field_instance name: 'response', label: 'Response', description: 'The response to a task', field_type_object: ft, optional: false, settings: {}
+    fi2 = create_field_instance name: 'note', label: 'Note', description: 'A note that explains a response to a task', field_type_object: ft, optional: true, settings: {}
+    a = create_dynamic_annotation annotation_type: 'task_response_free_text', annotated: pm1, disable_es_callbacks: false
+    f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
+    f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
+    a.save!
+
+    sleep 1
+
+    query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm1.id], ids
+
+    query = 'query Search { search(query: "{\"keyword\":\"dynamic note\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm1.id], ids
+  end
+
+  test "should create dynamic annotation" do
+    p = create_project team: @team
+    pm = create_project_media project: p
+    at = create_annotation_type annotation_type: 'location', label: 'Location', description: 'Where this media happened'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
+    ft2 = create_field_type field_type: 'location', label: 'Location', description: 'A pair of coordinates (lat, lon)'
+    fi1 = create_field_instance name: 'location_position', label: 'Location position', description: 'Where this happened', field_type_object: ft2, optional: false, settings: { view_mode: 'map' }
+    fi2 = create_field_instance name: 'location_name', label: 'Location name', description: 'Name of the location', field_type_object: ft1, optional: false, settings: {}
+    fields = { location_name: 'Salvador', location_position: '3,-51' }.to_json
+    assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'location' })
+  end
+
+  test "should create task" do
+    p = create_project team: @team
+    pm = create_project_media project: p
+    assert_graphql_create('task', { label: 'test', type: 'yes_no', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
+  end
+
+  test "should destroy task" do
+    assert_graphql_destroy('task')
+  end
+
+  test "should read first response from task" do
+    u = create_user
+    p = create_project team: @team
+    create_team_user user: u, team: @team
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    authenticate_with_user(u)
+    t = create_task annotated: pm
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.save!
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { content } } } } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    fields = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['first_response']['content']
+    assert_equal 'Test', JSON.parse(fields).select{ |f| f['field_type'] == 'text' }.first['value']
   end
 end

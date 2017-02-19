@@ -22,6 +22,10 @@ module SampleData
     "00201".to_s + random_number(2).to_s +  8.times.map{rand(9)}.join
   end
 
+  def random_machine_name
+    8.times.map { [*'a'..'z'].sample }.join
+  end
+
   def create_api_key(options = {})
     a = ApiKey.new
     options.each do |key, value|
@@ -128,6 +132,7 @@ module SampleData
     options.each do |key, value|
       s.send("#{key}=", value) if s.respond_to?("#{key}=")
     end
+    s.annotated.reload if s.annotated
     s.save!
     s
   end
@@ -406,4 +411,79 @@ module SampleData
     m
   end
 
+  def create_annotation_type(options = {})
+    at = DynamicAnnotation::AnnotationType.new
+    at.annotation_type = options.has_key?(:annotation_type) ? options[:annotation_type] : random_machine_name
+    at.label = options.has_key?(:label) ? options[:label] : random_string(10)
+    at.description = options.has_key?(:description) ? options[:description] : ''
+    at.save!
+    at
+  end
+
+  def create_field_type(options = {})
+    ft = DynamicAnnotation::FieldType.new
+    ft.field_type = options.has_key?(:field_type) ? options[:field_type] : random_machine_name
+    ft.label = options.has_key?(:label) ? options[:label] : random_string(10)
+    ft.description = options.has_key?(:description) ? options[:description] : ''
+    ft.save!
+    ft
+  end
+
+  def create_field_instance(options = {})
+    fi = DynamicAnnotation::FieldInstance.new
+    fi.name = options.has_key?(:name) ? options[:name] : random_machine_name
+    fi.field_type_object = options.has_key?(:field_type_object) ? options[:field_type_object] : create_field_type
+    fi.annotation_type_object = options.has_key?(:annotation_type_object) ? options[:annotation_type_object] : create_annotation_type
+    fi.label = options.has_key?(:label) ? options[:label] : random_string
+    fi.description = options[:description]
+    fi.optional = options[:optional] if options.has_key?(:optional)
+    fi.settings = options[:settings] if options.has_key?(:settings)
+    fi.save!
+    fi
+  end
+
+  def create_field(options = {})
+    f = DynamicAnnotation::Field.new
+    f.annotation_id = options.has_key?(:annotation_id) ? options[:annotation_id] : create_dynamic_annotation.id
+    f.field_name = options.has_key?(:field_name) ? options[:field_name] : create_field_instance.name
+    f.value = options.has_key?(:value) ? options[:value] : random_string
+    f.save!
+    f
+  end
+
+  def create_dynamic_annotation(options = {})
+    t = options[:annotation_type]
+    create_annotation_type(annotation_type: t) if !options[:skip_create_annotation_type] && !t.blank? && !DynamicAnnotation::AnnotationType.where(annotation_type: t).exists?
+    a = Dynamic.new
+    a.annotation_type = t
+    a.annotator = options[:annotator] || create_user
+    a.annotated = options[:annotated] || create_project_media
+    a.set_fields = options[:set_fields]
+    a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
+    a.save!
+    a
+  end
+
+  def create_task(options = {})
+    options = {
+      label: '5 + 5 = ?',
+      type: 'single_choice',
+      description: 'Please solve this math puzzle',
+      options: ['10', '20', '30'],
+      status: 'Unresolved',
+      annotator: create_user,
+      disable_es_callbacks: true
+    }.merge(options)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      p = create_project team: t
+      options[:annotated] = create_project_media project: p
+    end
+    t = Task.new
+    options.each do |key, value|
+      t.send("#{key}=", value) if t.respond_to?("#{key}=")
+    end
+    t.save!
+    t   
+  end
 end

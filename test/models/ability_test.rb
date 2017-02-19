@@ -771,6 +771,24 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "owner permissions for embed" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    em = create_embed annotated: pm
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, em)
+      assert ability.can?(:update, em)
+      assert ability.can?(:destroy, em)
+      p.update_column(:team_id, nil)
+      assert ability.cannot?(:destroy, em)
+    end
+  end
+
   test "contributor permissions for tag" do
     u = create_user
     t = create_team
@@ -929,10 +947,20 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "only admin users can manage all" do
+    u = create_user
+    u.is_admin = true
+    u.save
+    ability = Ability.new(u)
+    assert ability.can?(:manage, :all)
+  end
+
   test "admins can do anything" do
     u = create_user
+    u.is_admin = true
+    u.save
     t = create_team
-    tu = create_team_user user: u , team: t, role: 'admin'
+    tu = create_team_user user: u , team: t
     p = create_project team: t
     own_project = create_project team: t, user: u
     p2 = create_project
@@ -970,7 +998,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "journalist permissions for flag" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'editor'
+    tu = create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -1165,20 +1193,127 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should owner destroy status versions" do
+  test "should owner destroy annotation versions" do
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
     s = create_status annotated: pm, status: 'verified'
-    v = s.versions.last
+    em = create_embed annotated: pm
+    s_v = s.versions.last
+    em_v = em.versions.last
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.can?(:create, v)
-      assert ability.cannot?(:update, v)
-      assert ability.can?(:destroy, v)
+      # Status versions
+      assert ability.can?(:create, s_v)
+      assert ability.cannot?(:update, s_v)
+      assert ability.can?(:destroy, s_v)
+      # Embed versions
+      assert ability.can?(:create, em_v)
+      assert ability.cannot?(:update, em_v)
+      assert ability.can?(:destroy, em_v)
     end
   end
 
+  test "should access rails_admin if user is team owner" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t, role: 'owner'
+    p = create_project team: t
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:access, :rails_admin)
+    end
+  end
+
+  test "should not access rails_admin if user not team owner or admin" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t
+    p = create_project team: t
+
+    %w(contributor journalist editor).each do |role|
+      tu.role = role; tu.save!
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert !ability.can?(:access, :rails_admin)
+      end
+    end
+  end
+
+  test "owner permissions for task" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    tk = create_task annotator: u, annotated: pm
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, tk)
+      p.update_column(:team_id, nil)
+      assert ability.cannot?(:create, tk)
+    end
+  end
+
+  test "editor permissions for task" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    tk = create_task annotator: u, annotated: pm
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, tk)
+      p.update_column(:team_id, nil)
+      assert ability.cannot?(:create, tk)
+    end
+  end
+
+  test "contributor permissions for task" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    tk = create_task annotated: pm
+    create_annotation_type annotation_type: 'response'
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:create, tk)
+      tk.label = 'Changed'
+      assert ability.cannot?(:update, tk)
+      tk = tk.reload
+      tk.response = { annotation_type: 'response', set_fields: {} }.to_json
+      assert ability.can?(:update, tk)
+    end
+  end
+
+  test "annotator permissions" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    tk1 = create_task annotator: u, annotated: pm
+    tk2 = create_task annotated: pm
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:destroy, tk1)
+      assert ability.can?(:update, tk1)
+      assert ability.cannot?(:destroy, tk2)
+      assert ability.cannot?(:update, tk2)
+    end
+  end
 end

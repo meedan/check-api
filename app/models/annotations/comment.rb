@@ -1,18 +1,15 @@
 class Comment < ActiveRecord::Base
   include AnnotationBase
 
-  attr_accessible
-
   field :text
   validates_presence_of :text
-  validates :annotated_type, included: { values: ['ProjectSource', 'ProjectMedia', 'Source', nil] }
 
   before_save :extract_check_entities
   after_save :add_update_elasticsearch_comment
 
   notifies_slack on: :save,
                  if: proc { |c| c.should_notify? },
-                 message: proc { |c| data = c.annotated.embed; "*#{User.current.name}* added a note on <#{CONFIG['checkdesk_client']}/#{c.annotated.project.team.slug}/project/#{c.annotated.project_id}/media/#{c.annotated_id}|#{data['title']}>\n> #{c.text}" },
+                 message: proc { |c| data = c.annotated.embed; I18n.t(:slack_save_comment, default: "*%{user}* added a note on <%{url}>\n> %{comment}", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{c.annotated.project.team.slug}/project/#{c.annotated.project_id}/media/#{c.annotated_id}|#{data['title']}", comment: c.text) },
                  channel: proc { |c| c.annotated.project.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
                  webhook: proc { |c| c.current_team.setting(:slack_webhook) }
 

@@ -19,7 +19,7 @@ module CheckdeskPermissions
       if User.current.nil?
         self.find(id)
       else
-        model = self.name == 'Project' ? self.eager_load(medias: { projects: :team }).order('medias.id DESC').where(id: id)[0] : self.find(id)
+        model = self.name == 'Project' ? self.eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0] : self.find(id)
         raise ActiveRecord::RecordNotFound if model.nil?
         ability ||= Ability.new
         if ability.can?(:read, model)
@@ -47,11 +47,11 @@ module CheckdeskPermissions
     {
       'Team' => [Project, Account, TeamUser, User, Contact],
       'Account' => [Media, Link, Claim],
-      'Media' => [ProjectMedia, Comment, Flag, Status, Tag],
-      'Link' => [ProjectMedia, Comment, Flag, Status, Tag],
-      'Claim' => [ProjectMedia, Comment, Flag, Status, Tag],
+      'Media' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic, Task],
+      'Link' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic, Task],
+      'Claim' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic, Task],
       'Project' => [ProjectSource, Source, Media, ProjectMedia, Claim, Link],
-      'ProjectMedia' => [Comment, Flag, Status, Tag],
+      'ProjectMedia' => [Comment, Flag, Status, Tag, Dynamic, Task],
       'Source' => [Account, ProjectSource, Project],
       'User' => [Source, TeamUser, Team, Project]
     }
@@ -99,14 +99,14 @@ module CheckdeskPermissions
     unless self.skip_check_ability or User.current.nil?
       ability = Ability.new
       op = self.new_record? ? :create : :update
-      raise "No permission to #{op} #{self.class}" unless ability.can?(op, self)
+      raise "No permission to #{op} #{self.class.name}" unless ability.can?(op, self)
     end
   end
 
   def check_destroy_ability
     unless User.current.nil?
       ability = Ability.new
-      raise "No permission to delete #{self.class}" unless ability.can?(:destroy, self)
+      raise "No permission to delete #{self.class.name}" unless ability.can?(:destroy, self)
     end
   end
 end

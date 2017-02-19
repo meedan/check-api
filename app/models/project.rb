@@ -1,5 +1,4 @@
 class Project < ActiveRecord::Base
-  attr_accessible
 
   has_paper_trail on: [:create, :update]
   belongs_to :user
@@ -20,7 +19,7 @@ class Project < ActiveRecord::Base
 
   notifies_slack on: :create,
                  if: proc { |p| User.current.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |p| "*#{User.current.name}* created a project: <#{CONFIG['checkdesk_client']}/#{p.team.slug}/project/#{p.id}|*#{p.title}*>" },
+                 message: proc { |p| I18n.t(:slack_create_project, default: "*%{user}* created a project: <%{url}>", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{p.team.slug}/project/#{p.id}|*#{p.title}*") },
                  channel: proc { |p| p.setting(:slack_channel) || p.team.setting(:slack_channel) },
                  webhook: proc { |p| p.team.setting(:slack_webhook) }
 
@@ -65,6 +64,14 @@ class Project < ActiveRecord::Base
 
   def medias_count
     self.project_medias.count
+  end
+
+  def slack_notifications_enabled=(enabled)
+    self.send(:set_slack_notifications_enabled, enabled)
+  end
+
+  def slack_channel=(channel)
+    self.send(:set_slack_channel, channel)
   end
 
   private

@@ -333,4 +333,28 @@ class ProjectTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { title: "My project", team: create_team }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Project.create(params)
+    end
+  end
+
+  test "should set slack_notifications_enabled" do
+    p = create_project
+    p.slack_notifications_enabled = true
+    p.save
+    assert p.get_slack_notifications_enabled
+  end
+
+  test "should set slack_channel" do
+    p = create_project
+    p.slack_channel = 'my-channel'
+    p.save
+    assert_equal 'my-channel', p.get_slack_channel
+  end
+
+
 end

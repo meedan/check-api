@@ -1,5 +1,4 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessible
   attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks
 
   belongs_to :project
@@ -12,7 +11,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks
 
   notifies_slack on: :create,
                  if: proc { |pm| t = pm.project.team; User.current.present? && t.present? && t.setting(:slack_notifications_enabled).to_i === 1 },
@@ -55,7 +54,7 @@ class ProjectMedia < ActiveRecord::Base
     type, text = m.quote.blank? ?
       [ 'link', data['title'] ] :
       [ 'claim', m.quote ]
-    "*#{User.current.name}* added a new #{type}: <#{CONFIG['checkdesk_client']}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
+    I18n.t(:slack_create_project_media, default: "*%{user}* added a new %{type}: <%{url}>", user: User.current.name, type: I18n.t(type.to_sym), url: "#{CONFIG['checkdesk_client']}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*")
   end
 
   def add_elasticsearch_data
@@ -75,27 +74,31 @@ class ProjectMedia < ActiveRecord::Base
       ms.quote = m.quote
     end
     ms.save!
-    #ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')
+    # ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')
   end
 
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
   end
 
+  def get_annotations_except(type = nil)
+    self.annotations.where.not(annotation_type: type)
+  end
+
   def get_annotations_log
-    type = %W(comment tag flag)
-    an = self.get_annotations(type).to_a
-    # get status
-    versions = []
-    s = self.get_annotations('status').last
-    s = s.load unless s.nil?
-    versions = s.versions.to_a unless s.nil?
-    if versions.size > 1
-      an << s
-      versions = versions.drop(2)
-      versions.each do |obj|
-        an << obj.reify unless obj.reify.nil?
-      end
+    type = %W(embed status)
+    an = self.get_annotations_except(type).to_a
+    # get logs for singleton annotations
+    t = %w(status embed)
+    s_an = self.get_annotations(t)
+    s_an.each do |a|
+      a = a.load
+      a_versions = a.get_versions
+      # skip first status
+      a_versions.pop(1) if a.annotation_type == 'status'
+      # skip first embed for non Link media
+      a_versions.pop(1) if a.annotation_type == 'embed' and a.annotated.media.type != 'Link'
+      an.concat a_versions
     end
     an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
@@ -114,12 +117,16 @@ class ProjectMedia < ActiveRecord::Base
       em['data']['embed'] = em_pender['data']['embed'] unless em_pender.nil?
     end
     embed = JSON.parse(em.data['embed']) unless em.nil?
-    self.overriden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em.data[sk] unless em.data[sk].nil? } unless embed.nil?
+    self.overridden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em.data[sk] unless em.data[sk].nil? } unless embed.nil?
     embed
   end
 
   def tags
     self.get_annotations('tag')
+  end
+
+  def tasks
+    self.get_annotations('task')
   end
 
   def last_status
@@ -135,7 +142,22 @@ class ProjectMedia < ActiveRecord::Base
     self.created_at.to_i.to_s
   end
 
-  def overriden_embed_attributes
+  def overridden
+    data = {}
+    self.overridden_embed_attributes.each{|k| data[k] = false}
+    if self.media.type == 'Link'
+      em = self.get_annotations('embed').last
+      unless em.nil?
+        em_media = self.get_media_annotations('embed')
+        data.each do |k, _v|
+          data[k] = true if em['data'][k] != em_media['data'][k] and !em['data'][k].blank?
+        end
+      end
+    end
+    data
+  end
+
+  def overridden_embed_attributes
     %W(title description username)
   end
 
@@ -209,6 +231,23 @@ class ProjectMedia < ActiveRecord::Base
     self.user = User.current unless User.current.nil?
   end
 
+  def create_auto_tasks
+    if self.project && self.project.team && !self.project.team.get_checklist.blank?
+      self.project.team.get_checklist.each do |task|
+        if task['projects'].empty? || task['projects'].include?(self.project.id)
+          t = Task.new
+          t.label = task['label']
+          t.type = task['type']
+          t.description = task['description']
+          t.annotator = User.current
+          t.annotated = self
+          t.skip_check_ability = true
+          t.save!
+        end
+      end
+    end
+  end
+
   protected
 
   def initiate_embed_annotation(info)
@@ -223,5 +262,4 @@ class ProjectMedia < ActiveRecord::Base
     info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
     em.save!
   end
-
 end

@@ -80,6 +80,11 @@ module AnnotationBase
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
 
+    def self.annotated_types
+      ['ProjectSource', 'ProjectMedia', 'Source']
+    end
+    validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
+
     private
 
     def start_serialized_fields
@@ -101,8 +106,6 @@ module AnnotationBase
     end
 
     def field(name, _type = String, _options = {})
-      attr_accessible name
-
       define_method "#{name}=" do |value=nil|
         self.data ||= {}
         self.data[name.to_sym] = value
@@ -149,7 +152,12 @@ module AnnotationBase
 
   # Overwrite in the annotation type and expose the specific fields of that type
   def content
-    self.data.to_json
+    fields = self.get_fields
+    fields.empty? ? self.data.to_json : fields.to_json
+  end
+
+  def get_fields
+    DynamicAnnotation::Field.where(annotation_id: self.id).to_a
   end
 
   def is_annotation?
@@ -157,7 +165,7 @@ module AnnotationBase
   end
 
   def ==(annotation)
-    self.id == annotation.id
+    annotation.respond_to?(:id) ? (self.id == annotation.id) : super
   end
 
   def dbid
@@ -202,8 +210,12 @@ module AnnotationBase
   end
 
   def update_media_search_bg(keys)
-     ms = get_elasticsearch_parent
-     store_elasticsearch_data(ms, keys) unless ms.nil?
+    ms = get_elasticsearch_parent
+    unless ms.nil?
+      options = {'last_activity_at' => Time.now.utc}
+      keys.each{|k| options[k] = self.data[k] if ms.respond_to?("#{k}=") and !self.data[k].blank? }
+      ms.update options
+    end
   end
 
   def add_update_media_search_child(child, keys)
@@ -217,13 +229,13 @@ module AnnotationBase
     unless ms.nil?
       child = child.singularize.camelize.constantize
       model = child.search(query: { match: { _id: self.id } }).results.last
-      if  model.nil?
+      if model.nil?
         model = child.new
         model.id = self.id
       end
       store_elasticsearch_data(model, keys, {parent: ms.id})
-      # resave parent to update last_activity_at
-      ms.save!
+      # Update last_activity_at on parent
+      ms.update last_activity_at: Time.now.utc
     end
   end
 
@@ -238,6 +250,16 @@ module AnnotationBase
     pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
     sleep 1 if Rails.env == 'test'
     MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
+  end
+
+  def annotation_type_class
+    klass = nil
+    begin
+      klass = self.annotation_type.camelize.constantize
+    rescue NameError
+      klass = Dynamic
+    end
+    klass
   end
 
   protected

@@ -356,4 +356,13 @@ class StatusTest < ActiveSupport::TestCase
     assert_nil Status.where(id: s.id).last
   end
 
+  test "should protect attributes from mass assignment" do
+    raw_params = { annotator: create_user, status: 'my comment' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Status.create(params)
+    end
+  end
+
 end
