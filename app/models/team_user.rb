@@ -13,7 +13,7 @@ class TeamUser < ActiveRecord::Base
 
   notifies_slack on: :create,
                  if: proc { |tu| User.current.present? && tu.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |tu| I18n.t(:slack_create_team_user, default: "*%{user}* joined <%{url}>", user: tu.user.name, url: "#{CONFIG['checkdesk_client']}/#{tu.team.slug}|*#{tu.team.name}*)" },
+                 message: proc { |tu| I18n.t(:slack_create_team_user, default: "*%{user}* joined <%{url}>", user: tu.user.name, url: "#{CONFIG['checkdesk_client']}/#{tu.team.slug}|*#{tu.team.name}*") },
                  channel: proc { |tu| tu.team.setting(:slack_channel) },
                  webhook: proc { |tu| tu.team.setting(:slack_webhook) }
 
