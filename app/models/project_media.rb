@@ -11,7 +11,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks
 
   notifies_slack on: :create,
                  if: proc { |pm| t = pm.project.team; User.current.present? && t.present? && t.setting(:slack_notifications_enabled).to_i === 1 },
@@ -231,6 +231,22 @@ class ProjectMedia < ActiveRecord::Base
     self.user = User.current unless User.current.nil?
   end
 
+  def create_auto_tasks
+    if self.project && self.project.team && !self.project.team.get_checklist.blank?
+      self.project.team.get_checklist.each do |task|
+        if task['projects'].empty? || task['projects'].include?(self.project.id)
+          t = Task.new
+          t.label = task['label']
+          t.type = task['type']
+          t.description = task['description']
+          t.annotator = User.current
+          t.annotated = self
+          t.save!
+        end
+      end
+    end
+  end
+
   protected
 
   def initiate_embed_annotation(info)
@@ -245,5 +261,4 @@ class ProjectMedia < ActiveRecord::Base
     info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
     em.save!
   end
-
 end

@@ -247,6 +247,9 @@ RailsAdmin.config do |config|
       configure :get_slack_channel do
         label 'Slack default #channel'
       end
+      configure :get_checklist, :json do
+        label 'Checklist'
+      end
     end
 
     edit do
@@ -284,6 +287,13 @@ RailsAdmin.config do |config|
           bindings[:object].get_slack_channel
         end
       end
+      field :checklist, :json do
+        label 'Checklist'
+        formatted_value do
+          checklist = bindings[:object].get_checklist
+          checklist ? JSON.pretty_generate(checklist) : ''
+        end
+      end
     end
 
     create do
@@ -300,6 +310,9 @@ RailsAdmin.config do |config|
         hide
       end
       field :slack_channel do
+        hide
+      end
+      field :checklist do
         hide
       end
     end

@@ -441,4 +441,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.overridden_embed_attributes.each{|k| assert_not pm.overridden[k]}
   end
 
+  test "should create auto tasks" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    t.checklist = [ { 'label' => 'Can you see this automatic task?', 'type' => 'free_text', 'description' => 'This was created automatically', 'projects' => [] }, { 'label' => 'Can you see this automatic task for a project only?', 'type' => 'free_text', 'description' => 'This was created automatically', 'projects' => [p2.id] } ]
+    t.save!
+    assert_difference 'Task.length', 1 do
+      pm1 = create_project_media project: p1
+    end
+    assert_difference 'Task.length', 2 do
+      pm2 = create_project_media project: p2
+    end
+  end
 end

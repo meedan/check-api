@@ -105,6 +105,10 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_channel, channel)
   end
 
+  def checklist=(checklist)
+    self.send(:set_checklist, checklist)
+  end
+
   protected
 
   def custom_statuses_format(type)
