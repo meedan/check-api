@@ -38,7 +38,8 @@ class Embed < ActiveRecord::Base
 
   def check_title_update
     notify = true
-    if self.annotated.media.type == 'Claim'
+    # Non link report should have more than one version to notify
+    if self.annotated.media.type != 'Link'
       notify = false if self.versions.size == 1
     end
     notify
