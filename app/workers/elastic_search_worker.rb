@@ -1,6 +1,7 @@
 class ElasticSearchWorker
 
   include Sidekiq::Worker
+  require 'sidekiq-limit_fetch'
   sidekiq_options queue: 'esqueue', :retry => false
 
   def perform(model, keys, type)
