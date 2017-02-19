@@ -17,7 +17,7 @@ class ElasticSearchWorkerTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    assert_equal 1, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
   end
 
   test "should add comment search in background" do
