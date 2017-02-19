@@ -65,6 +65,9 @@ class Task < ActiveRecord::Base
   end
 
   def destroy_responses
-    self.responses.map(&:destroy) 
+    self.responses.each do |annotation|
+      annotation.load.fields.delete_all
+      annotation.delete
+    end
   end
 end
