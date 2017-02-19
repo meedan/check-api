@@ -135,7 +135,7 @@ class Ability
     can [:destroy, :update], [Dynamic, Annotation, Task] do |obj|
       obj.annotator_id.to_i == @user.id
     end
-    can :create, DynamicAnnotation::Field do |obj|
+    can [:create, :update, :destroy], DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id
     end
     can :update, Task, ['annotation_type = ?', 'task'] do |obj|
