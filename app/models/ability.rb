@@ -192,7 +192,7 @@ class Ability
     can :read, [ProjectMedia, ProjectSource], project: { team: { team_users: { user_id: @user.id, status: 'member' }}}
 
     %w(comment flag status embed tag dynamic task annotation).each do |annotation_type|
-      can :read, annotation_type.classify.constantize do |obj|
+      can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         team_ids = obj.get_team
         teams = Team.where(id: team_ids, private: false)
         if teams.empty?
