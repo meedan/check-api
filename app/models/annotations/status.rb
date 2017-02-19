@@ -9,7 +9,7 @@ class Status < ActiveRecord::Base
 
   notifies_slack on: :update,
                  if: proc { |s| s.should_notify? },
-                 message: proc { |s| data = s.annotated.embed; I18n.t(:slack_update_status, default: "*%{user}* changed the verification status on <%{url}> from *%{previous_status}* to *%{current_status}*", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{s.annotated.project.team.slug}/project/#{s.annotated.project_id}/media/#{s.annotated_id}|#{data['title']}}", previous_status: s.id_to_label(s.previous_annotated_status), current_status: s.id_to_label(s.status)) },
+                 message: proc { |s| data = s.annotated.embed; I18n.t(:slack_update_status, default: "*%{user}* changed the verification status on <%{url}> from *%{previous_status}* to *%{current_status}*", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{s.annotated.project.team.slug}/project/#{s.annotated.project_id}/media/#{s.annotated_id}|#{data['title']}", previous_status: s.id_to_label(s.previous_annotated_status), current_status: s.id_to_label(s.status)) },
                  channel: proc { |s| s.annotated.project.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
                  webhook: proc { |s| s.current_team.setting(:slack_webhook) }
 
