@@ -35,7 +35,8 @@ class GraphqlCrudOperations
   end
 
   def self.update(_type, inputs, ctx, parents = [])
-    obj = NodeIdentification.object_from_id(inputs[:id], ctx).load
+    obj = NodeIdentification.object_from_id(inputs[:id], ctx)
+    obj = obj.load if obj.is_a?(Annotation)
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
