@@ -1,5 +1,4 @@
-<%= @requestor.name %> (<%= @handle %>) wants to join "<%= @team.name %>" team on Check!
+<%= I18n.t(:mail_view_request_to_join, default: "%{user} (%{handle}) wants to join \"%{team}\" team on Check!", user: @requestor.name, handle: @handle, team: @team.name) %>
 =====================================================================
 
-To process this request, please login and visit
-<%= @url %>
+<%= I18n.t(:mail_view_process_request, default: "To process this request, please login and visit:") %> <%= @url %>

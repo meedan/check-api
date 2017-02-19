@@ -54,7 +54,7 @@ class ProjectMedia < ActiveRecord::Base
     type, text = m.quote.blank? ?
       [ 'link', data['title'] ] :
       [ 'claim', m.quote ]
-    "*#{User.current.name}* added a new #{type}: <#{CONFIG['checkdesk_client']}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*>"
+    I18n.t(:slack_create_project_media, default: "*%{user}* added a new %{type}: <%{url}>", user: User.current.name, type: I18n.t(type.to_sym), url: "#{CONFIG['checkdesk_client']}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*")
   end
 
   def add_elasticsearch_data

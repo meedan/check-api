@@ -19,7 +19,7 @@ class Project < ActiveRecord::Base
 
   notifies_slack on: :create,
                  if: proc { |p| User.current.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |p| "*#{User.current.name}* created a project: <#{CONFIG['checkdesk_client']}/#{p.team.slug}/project/#{p.id}|*#{p.title}*>" },
+                 message: proc { |p| I18n.t(:slack_create_project, default: "*%{user}* created a project: <%{url}>", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{p.team.slug}/project/#{p.id}|*#{p.title}*") },
                  channel: proc { |p| p.setting(:slack_channel) || p.team.setting(:slack_channel) },
                  webhook: proc { |p| p.team.setting(:slack_webhook) }
 

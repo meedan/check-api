@@ -1,5 +1,7 @@
 ---
 en:
+  link: Link
+  claim: Claim
   activerecord:
     attributes:
       tag:
@@ -7,6 +9,9 @@ en:
     errors:
       messages:
         record_invalid: 'Validation failed: %{errors}'
+        too_short:
+          one: is too short (minimum is 1 character)
+          other: is too short (minimum is %{count} characters)
       models:
         user:
           attributes:
@@ -14,6 +19,11 @@ en:
               taken: It looks like your email is already taken. If you're having trouble
                 logging in, please contact check@meedan.com, and we'll get back to
                 you right away.
+  devise:
+    failure:
+      invalid: Invalid %{authentication_keys} or password.
+      not_found_in_database: Invalid %{authentication_keys} or password.
+      unconfirmed: You have to confirm your email address before continuing.
   slug_format_validation_message: accepts only letters, numbers and hyphens
   slack_webhook_format_wrong: Slack webhook format is wrong
   slug_is_reserved: is reserved
@@ -21,3 +31,25 @@ en:
     statuses
   invalid_media_item: Sorry, this is not a valid media item
   already_exists: already exists
+  mail_account_confirmation: Check account confirmation
+  mail_request_to_join: "%{user} wants to join %{team} team on Check!"
+  approved: approved!
+  rejected: not approved
+  mail_request_to_join_processed: Your request to join %{team} on Check was %{status}
+  mail_new_account: New account for you on Check
+  slack_update_status: "*%{user}* changed the verification status on <%{url}> from
+    *%{previous_status}* to *%{current_status}*"
+  slack_save_embed: "*%{user}* changed the title from *%{from}* to <%{to}>"
+  slack_save_comment: "*%{user}* added a note on <%{url}>\\n> %{comment}"
+  slack_create_project: "*%{user}* created a project: <%{url}>"
+  slack_create_team_user: "*%{user}* joined <%{url}>"
+  slack_create_project_media: "*%{user}* added a new %{type}: <%{url}>"
+  mail_view_welcome: Welcome to Check
+  mail_view_register: 'You are only one step away from using Check! Please confirm
+    your email address by clicking the following link:'
+  mail_view_joined: Your request to join %{team} was approved! You can now go to the
+    team
+  mail_view_rejected_to_join: Sorry, but your request to join %{team} was rejected.
+  mail_view_request_to_join: "%{user} (%{handle}) wants to join \\"
+  mail_view_process_request: 'To process this request, please login and visit:'
+  pender_could_not_parse: Could not parse this media

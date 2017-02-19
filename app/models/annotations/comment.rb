@@ -9,7 +9,7 @@ class Comment < ActiveRecord::Base
 
   notifies_slack on: :save,
                  if: proc { |c| c.should_notify? },
-                 message: proc { |c| data = c.annotated.embed; "*#{User.current.name}* added a note on <#{CONFIG['checkdesk_client']}/#{c.annotated.project.team.slug}/project/#{c.annotated.project_id}/media/#{c.annotated_id}|#{data['title']}>\n> #{c.text}" },
+                 message: proc { |c| data = c.annotated.embed; I18n.t(:slack_save_comment, default: "*%{user}* added a note on <%{url}>\n> %{comment}", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{c.annotated.project.team.slug}/project/#{c.annotated.project_id}/media/#{c.annotated_id}|#{data['title']}", comment: c.text) },
                  channel: proc { |c| c.annotated.project.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
                  webhook: proc { |c| c.current_team.setting(:slack_webhook) }
 

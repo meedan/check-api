@@ -33,7 +33,7 @@ class Embed < ActiveRecord::Base
       pender = self.annotated.get_media_annotations('embed')
       from = pender['data']['title'] unless pender.nil?
     end
-    "*#{User.current.name}* changed the title from *#{from}* to <#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data['title']}>"
+    I18n.t(:slack_save_embed, default: "*%{user}* changed the title from *%{from}* to <%{to}>", user: User.current.name, from: from, to: "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data['title']}")
   end
 
   def check_title_update
@@ -47,5 +47,4 @@ class Embed < ActiveRecord::Base
   def update_elasticsearch_embed
     self.update_media_search(%w(title description)) if self.annotated_type == 'ProjectMedia'
   end
-
 end

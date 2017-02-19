@@ -4,8 +4,8 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-    <p>Welcome to Check, <%= @resource.name %>!</p>
-    <p>You are only one step away from using Check! Please confirm your email address by clicking the following link:</p>
+    <p><%= I18n.t(:mail_view_welcome, default: "Welcome to Check") %>, <%= @resource.name %>!</p>
+    <p><%= I18n.t(:mail_view_register, default: "You are only one step away from using Check! Please confirm your email address by clicking the following link:") %></p>
     <p><%= confirmation_url(@resource, host: @host, confirmation_token: @resource.confirmation_token, client_host: @client_host) %></p>
   </body>
 </html>

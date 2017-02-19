@@ -3,7 +3,7 @@ module PenderData
     unless self.url.blank?
       result = PenderClient::Request.get_medias(CONFIG['pender_host'], { url: self.url }, CONFIG['pender_key'])
       if (result['type'] == 'error')
-        errors.add(:base, result['data']['message'])
+        errors.add(:base, I18n.t(:pender_could_not_parse, default: 'Could not parse this media'))
       else
         self.pender_data = result['data']
         # set url with normalized pender URL

@@ -1,1 +1,19 @@
-fr: {}
+fr:
+  activerecord:
+    attributes:
+      tag:
+        data: Tag
+    errors:
+      messages:
+        record_invalid: 'Échec de la validation: %{errors}'
+      models:
+        user:
+          attributes:
+            email:
+              taken: Il semble que votre adresse e-mail est déjà prise. Si vous rencontrez des difficultés en vous connectant, veuillez contacter check@meedan.com et quelqu'un vous répondra très rapidement.
+  slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
+  slack_webhook_format_wrong: Le format du Slack webhook est faux
+  slug_is_reserved: est réservé
+  invalid_format_for_custom_verification_status: Format pas valide pour les statuts de vérification personnalisés
+  invalid_media_item: Désolé, ce média n'est pas valide
+  already_exists: existe déjà
