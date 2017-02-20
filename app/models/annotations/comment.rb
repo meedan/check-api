@@ -9,7 +9,7 @@ class Comment < ActiveRecord::Base
 
   notifies_slack on: :save,
                  if: proc { |c| c.should_notify? },
-                 message: proc { |c| data = c.annotated.embed; I18n.t(:slack_save_comment, default: "*%{user}* added a note on <%{url}>\n> %{comment}", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{c.annotated.project.team.slug}/project/#{c.annotated.project_id}/media/#{c.annotated_id}|#{data['title']}", comment: c.text) },
+                 message: proc { |c| c.slack_message_comment_created },
                  channel: proc { |c| c.annotated.project.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
                  webhook: proc { |c| c.current_team.setting(:slack_webhook) }
 
@@ -27,6 +27,17 @@ class Comment < ActiveRecord::Base
   end
 
   protected
+
+  def slack_message_comment_created
+    data = self.annotated.embed
+    params = {
+      default: '*%{user}* added a note on <%{url}>\n> %{comment}',
+      user: User.current.name,
+      url: "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data['title']}",
+      comment: self.text
+    }
+    I18n.t(:slack_save_comment, params)
+  end
 
   def extract_check_urls
     urls = []
