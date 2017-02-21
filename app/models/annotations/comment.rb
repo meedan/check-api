@@ -7,11 +7,7 @@ class Comment < ActiveRecord::Base
   before_save :extract_check_entities
   after_save :add_update_elasticsearch_comment
 
-  notifies_slack on: :save,
-                 if: proc { |c| c.should_notify? },
-                 message: proc { |c| c.slack_message_comment_created },
-                 channel: proc { |c| c.annotated.project.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
-                 webhook: proc { |c| c.current_team.setting(:slack_webhook) }
+  annotation_notifies_slack :save
 
   def content
     { text: self.text }.to_json
@@ -26,18 +22,18 @@ class Comment < ActiveRecord::Base
     mapping_ids[value]
   end
 
-  protected
-
-  def slack_message_comment_created
+  def slack_message
     data = self.annotated.embed
     params = {
       default: '*%{user}* added a note on <%{url}>\n> %{comment}',
       user: User.current.name,
-      url: "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data['title']}",
+      url: "#{self.annotated_client_url}|#{data['title']}", 
       comment: self.text
     }
     I18n.t(:slack_save_comment, params)
   end
+
+  protected
 
   def extract_check_urls
     urls = []

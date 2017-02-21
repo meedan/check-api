@@ -7,11 +7,7 @@ class Status < ActiveRecord::Base
 
   validate :status_is_valid
 
-  notifies_slack on: :update,
-                 if: proc { |s| s.should_notify? },
-                 message: proc { |s| s.slack_message_status_updated }, 
-                 channel: proc { |s| s.annotated.project.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
-                 webhook: proc { |s| s.current_team.setting(:slack_webhook) }
+  annotation_notifies_slack :update
 
   before_validation :store_previous_status, :normalize_status
 
@@ -87,14 +83,12 @@ class Status < ActiveRecord::Base
     self.update_media_search(%w(status))
   end
 
-  protected
-
-  def slack_message_status_updated
+  def slack_message
     data = self.annotated.embed
     params = {
       default: "*%{user}* changed the verification status on <%{url}> from *%{previous_status}* to *%{current_status}*",
       user: User.current.name,
-      url: "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data['title']}",
+      url: "#{self.annotated_client_url}|#{data['title']}",
       previous_status: self.id_to_label(self.previous_annotated_status),
       current_status: self.id_to_label(self.status)
     }

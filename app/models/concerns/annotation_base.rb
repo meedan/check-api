@@ -116,6 +116,14 @@ module AnnotationBase
         self.data[name.to_sym]
       end
     end
+
+    def annotation_notifies_slack(event)
+      notifies_slack on: event,
+                     if: proc { |a| a.should_notify? },
+                     message: proc { |a| a.slack_message },
+                     channel: proc { |a| a.annotated.project.setting(:slack_channel) || a.current_team.setting(:slack_channel) },
+                     webhook: proc { |a| a.current_team.setting(:slack_webhook) }
+    end
   end
 
   def versions(options = {})
@@ -260,6 +268,10 @@ module AnnotationBase
       klass = Dynamic
     end
     klass
+  end
+
+  def annotated_client_url
+    "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}"
   end
 
   protected
