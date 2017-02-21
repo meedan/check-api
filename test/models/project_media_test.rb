@@ -454,4 +454,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm2 = create_project_media project: p2
     end
   end
+
+  test "should contributor create auto tasks" do
+    t = create_team
+    t.checklist = [ { 'label' => 'Can you see this automatic task?', 'type' => 'free_text', 'description' => 'This was created automatically', 'projects' => [] }]
+    t.save!
+    u = create_user
+    p = create_project team: t
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    with_current_user_and_team(u, t) do
+      assert_difference 'Task.length' do
+        create_project_media project: p
+      end
+    end
+  end
+
 end

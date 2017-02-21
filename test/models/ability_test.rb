@@ -1318,11 +1318,8 @@ class AbilityTest < ActiveSupport::TestCase
   end
 
   test "contributor can manage own dynamic fields" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
-    p = create_project team: t
     m = create_valid_media
+    p = create_project
     pm = create_project_media project: p, media: m
     tk = create_task annotated: pm
     create_annotation_type annotation_type: 'response'
@@ -1339,6 +1336,78 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:create, f2)
       assert ability.cannot?(:update, f2)
       assert ability.cannot?(:destroy, f2)
+    end
+  end
+
+  test "contributor permissions for dynamic annotation" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    da = create_dynamic_annotation annotated: pm
+    own_da = create_dynamic_annotation annotated: pm, annotator: u
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, Dynamic)
+      assert ability.cannot?(:update, da)
+      assert ability.cannot?(:destroy, da)
+      assert ability.can?(:update, own_da)
+      assert ability.can?(:destroy, own_da)
+    end
+  end
+
+  test "journalist permissions for dynamic annotation" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t
+    pm = create_project_media project: p
+    da = create_dynamic_annotation annotated: pm
+    own_da = create_dynamic_annotation annotated: pm, annotator: u
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, Dynamic)
+      assert ability.cannot?(:update, da)
+      assert ability.cannot?(:destroy, da)
+      assert ability.can?(:update, own_da)
+      assert ability.can?(:destroy, own_da)
+    end
+  end
+
+  test "editor permissions for dynamic annotation" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    da = create_dynamic_annotation annotated: pm
+    own_da = create_dynamic_annotation annotated: pm, annotator: u
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, Dynamic)
+      assert ability.can?(:update, da)
+      assert ability.cannot?(:destroy, da)
+      assert ability.can?(:update, own_da)
+      assert ability.can?(:destroy, own_da)
+    end
+  end
+
+  test "owner permissions for dynamic annotation" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    da = create_dynamic_annotation annotated: pm
+    own_da = create_dynamic_annotation annotated: pm, annotator: u
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, Dynamic)
+      assert ability.can?(:update, da)
+      assert ability.can?(:destroy, da)
+      assert ability.can?(:update, own_da)
+      assert ability.can?(:destroy, own_da)
     end
   end
 end
