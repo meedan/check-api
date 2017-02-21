@@ -1318,8 +1318,11 @@ class AbilityTest < ActiveSupport::TestCase
   end
 
   test "contributor can manage own dynamic fields" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
     m = create_valid_media
-    p = create_project
     pm = create_project_media project: p, media: m
     tk = create_task annotated: pm
     create_annotation_type annotation_type: 'response'
