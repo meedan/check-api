@@ -469,4 +469,25 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should update es after move media to other projects" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    create_comment annotated: pm
+    create_tag annotated: pm
+    assert_equal 2, pm.get_annotations_log.size
+    t2 = create_team
+    p2 = create_project team: t2
+    Sidekiq::Testing.fake! do
+      pm.project = p2; pm.save!
+      ElasticSearchWorker.drain
+    end
+    # confirm annotations log
+    assert_equal 2, pm.get_annotations_log.size
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.project_id.to_i, p2.id
+    assert_equal ms.team_id.to_i, t2.id
+  end
+
 end
