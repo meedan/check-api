@@ -193,6 +193,15 @@ RailsAdmin.config do |config|
       field :archived
     end
 
+    show do
+      configure :get_slack_notifications_enabled do
+        label 'Enable Slack notifications'
+      end
+      configure :get_slack_channel do
+        label 'Slack #channel'
+      end
+    end
+
     edit do
       field :title
       field :description
@@ -210,12 +219,12 @@ RailsAdmin.config do |config|
       end
     end
 
-    show do
-      configure :get_slack_notifications_enabled do
-        label 'Enable Slack notifications'
+    create do
+      field :slack_notifications_enabled do
+        hide
       end
-      configure :get_slack_channel do
-        label 'Slack #channel'
+      field :slack_channel do
+        hide
       end
     end
 
