@@ -468,5 +468,4 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
   end
-
 end
