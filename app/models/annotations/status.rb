@@ -7,11 +7,7 @@ class Status < ActiveRecord::Base
 
   validate :status_is_valid
 
-  notifies_slack on: :update,
-                 if: proc { |s| s.should_notify? },
-                 message: proc { |s| data = s.annotated.embed; I18n.t(:slack_update_status, default: "*%{user}* changed the verification status on <%{url}> from *%{previous_status}* to *%{current_status}*", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{s.annotated.project.team.slug}/project/#{s.annotated.project_id}/media/#{s.annotated_id}|#{data['title']}", previous_status: s.id_to_label(s.previous_annotated_status), current_status: s.id_to_label(s.status)) },
-                 channel: proc { |s| s.annotated.project.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
-                 webhook: proc { |s| s.current_team.setting(:slack_webhook) }
+  annotation_notifies_slack :update
 
   before_validation :store_previous_status, :normalize_status
 
@@ -85,6 +81,18 @@ class Status < ActiveRecord::Base
 
   def update_elasticsearch_status
     self.update_media_search(%w(status))
+  end
+
+  def slack_message
+    data = self.annotated.embed
+    params = {
+      default: "*%{user}* changed the verification status on <%{url}> from *%{previous_status}* to *%{current_status}*",
+      user: User.current.name,
+      url: "#{self.annotated_client_url}|#{data['title']}",
+      previous_status: self.id_to_label(self.previous_annotated_status),
+      current_status: self.id_to_label(self.status)
+    }
+    I18n.t(:slack_update_status, params)
   end
 
   private

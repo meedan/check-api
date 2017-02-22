@@ -54,4 +54,15 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     get '/admin'
     assert_response :success
   end
+
+  test "should access new project page" do
+    @user.is_admin = true
+    @user.save!
+
+    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+
+    get '/admin/project/new'
+    assert_response :success
+  end
+
 end

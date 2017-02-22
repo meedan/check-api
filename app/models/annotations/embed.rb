@@ -34,18 +34,21 @@ class Embed < ActiveRecord::Base
     overriden = false
     v = self.versions.last
     unless v.nil?
-      data = v.changeset['data']
-      # Get title from pender if Link has only one version
-      if self.annotated.media.type == 'Link' and self.versions.size == 1
-        pender = self.annotated.get_media_annotations('embed')
-        data[0]['title'] = pender['data']['title'] unless pender.nil?
-      end
-      unless data[0].blank? and data[0]['title'].nil?
-        overriden = true if data[0]['title'] != data[1]['title']
-      end
+      data = self.get_overridden_data(v)
+      overriden = (!data[0].blank? && !data[0]['title'].nil? && data[0]['title'] != data[1]['title'])
     end
-    self.overridden_data=data if overriden
+    self.overridden_data = data if overriden
     overriden
+  end
+
+  def get_overridden_data(version)
+    data = version.changeset['data']
+    # Get title from pender if Link has only one version
+    if self.annotated.media.type == 'Link' and self.versions.size == 1
+      pender = self.annotated.get_media_annotations('embed')
+      data[0]['title'] = pender['data']['title'] unless pender.nil?
+    end
+    data
   end
 
   def overridden_data

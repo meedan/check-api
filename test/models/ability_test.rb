@@ -1317,6 +1317,31 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "contributor can manage own dynamic fields" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    tk = create_task annotated: pm
+    create_annotation_type annotation_type: 'response'
+    a1 = create_dynamic_annotation annotation_type: 'response', annotator: u
+    f1 = create_field annotation_type: nil, annotation_id: a1.id
+    a2 = create_dynamic_annotation annotation_type: 'response'
+    f2 = create_field annotation_type: nil, annotation_id: a2.id
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, f1)
+      assert ability.can?(:update, f1)
+      assert ability.can?(:destroy, f1)
+      assert ability.cannot?(:create, f2)
+      assert ability.cannot?(:update, f2)
+      assert ability.cannot?(:destroy, f2)
+    end
+  end
+
   test "contributor permissions for dynamic annotation" do
     u = create_user
     t = create_team
@@ -1388,5 +1413,4 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, own_da)
     end
   end
-
 end
