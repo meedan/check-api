@@ -46,7 +46,9 @@ module CheckElasticSearch
 
   def get_elasticsearch_parent
     pm = self.id if self.class.name == 'ProjectMedia'
-    pm = self.annotated_id if pm.nil? and self.is_annotation? and self.annotated_type == 'ProjectMedia'
+    if pm.nil? and self.is_annotation?
+      pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
+    end
     sleep 1 if Rails.env == 'test'
     MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
   end
