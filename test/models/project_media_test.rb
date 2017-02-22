@@ -479,4 +479,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal ms.team_id.to_i, t2.id
   end
 
+  test "should have versions" do
+    m = create_valid_media
+    p = create_project
+    u = create_user
+    pm = nil
+    assert_difference 'PaperTrail::Version.count', 2 do
+      pm = create_project_media project: p, media: m, user: u
+    end
+    assert_equal 1, pm.versions.count
+  end
 end

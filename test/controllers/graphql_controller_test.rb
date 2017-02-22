@@ -866,6 +866,9 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
+    last_version = pm.versions.last
+    assert_equal [p.id, p2.id], JSON.parse(last_version.object_changes)['project_id']
+    assert_equal u.id.to_s, last_version.whodunnit
   end
 
 end
