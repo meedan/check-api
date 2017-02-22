@@ -852,4 +852,20 @@ class GraphqlControllerTest < ActionController::TestCase
     fields = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['first_response']['content']
     assert_equal 'Test', JSON.parse(fields).select{ |f| f['field_type'] == 'text' }.first['value']
   end
+
+  test "should move report to other projects" do
+    u = create_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    create_team_user user: u, team: @team, role: 'owner'
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    authenticate_with_user(u)
+    id = Base64.encode64("ProjectMedia/#{pm.id}")
+    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", project_id: #{p2.id} }) { project_media { project_id } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
+  end
+
 end

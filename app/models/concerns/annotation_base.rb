@@ -62,6 +62,7 @@ module AnnotationBase
     include CheckdeskPermissions
     include CheckdeskNotifications::Slack
     include CheckdeskNotifications::Pusher
+    include CheckElasticSearch
 
     attr_accessor :disable_es_callbacks
     self.table_name = 'annotations'
@@ -210,54 +211,6 @@ module AnnotationBase
 
   def method_missing(method, *args, &block)
     (args.empty? && !block_given?) ? self.data[method] : super
-  end
-
-  def update_media_search(keys)
-    return if self.disable_es_callbacks
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), 'update_parent')
-  end
-
-  def update_media_search_bg(keys)
-    ms = get_elasticsearch_parent
-    unless ms.nil?
-      options = {'last_activity_at' => Time.now.utc}
-      keys.each{|k| options[k] = self.data[k] if ms.respond_to?("#{k}=") and !self.data[k].blank? }
-      ms.update options
-    end
-  end
-
-  def add_update_media_search_child(child, keys)
-    return if self.disable_es_callbacks
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), child)
-  end
-
-  def add_update_media_search_child_bg(child, keys)
-    # get parent
-    ms = get_elasticsearch_parent
-    unless ms.nil?
-      child = child.singularize.camelize.constantize
-      model = child.search(query: { match: { _id: self.id } }).results.last
-      if model.nil?
-        model = child.new
-        model.id = self.id
-      end
-      store_elasticsearch_data(model, keys, {parent: ms.id})
-      # Update last_activity_at on parent
-      ms.update last_activity_at: Time.now.utc
-    end
-  end
-
-  def store_elasticsearch_data(model, keys, options = {})
-    keys.each do |k|
-      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=") and !self.data[k].blank?
-    end
-    model.save!(options)
-  end
-
-  def get_elasticsearch_parent
-    pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
-    sleep 1 if Rails.env == 'test'
-    MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
   end
 
   def annotation_type_class

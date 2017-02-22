@@ -50,9 +50,7 @@ class Ability
     can :destroy, [Media, Link, Claim] do |obj|
       obj.get_team.include? @context_team.id
     end
-    can :destroy, [ProjectMedia, ProjectSource] do |obj|
-      obj.get_team.include? @context_team.id
-    end
+    can :destroy, [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
@@ -80,7 +78,7 @@ class Ability
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
-    can [:create, :update], [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag dynamic task).each do |annotation_type|
       can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
@@ -97,7 +95,7 @@ class Ability
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
     can :update, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id }}}
-
+    can :update, ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}
     can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include? @context_team.id and (flag.flag.to_s == 'Mark as graphic')
     end

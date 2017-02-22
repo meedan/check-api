@@ -15,7 +15,7 @@ class UserTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user team: t, user: u2, role: 'editor'
     u2.save!
-    
+
     with_current_user_and_team(u2, t) do
       assert_raise RuntimeError do
         u.save!
@@ -24,7 +24,7 @@ class UserTest < ActiveSupport::TestCase
         u.save!
       end
     end
-    
+
     with_current_user_and_team(u, t) { u2.destroy }
   end
 
@@ -323,23 +323,23 @@ class UserTest < ActiveSupport::TestCase
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
@@ -401,7 +401,7 @@ class UserTest < ActiveSupport::TestCase
     raw_params = { name: 'My name', login: 'my-name' }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       User.create(params)
     end
   end
