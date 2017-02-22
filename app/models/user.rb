@@ -117,8 +117,9 @@ class User < ActiveRecord::Base
 
   def user_projects
     projects = Hash.new
-    self.teams.each do |t|
-      projects[t.id] = t.projects
+    tu = self.team_users.where(status: 'member')
+    tu.each do |tu|
+      projects[tu.team_id] = tu.team.projects
     end
     projects
   end
