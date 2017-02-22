@@ -128,7 +128,7 @@ module AnnotationBase
   end
 
   def versions(options = {})
-    PaperTrail::Version.where(options).where(item_type: ['Annotation', self.class.to_s], item_id: self.id).order('id ASC')
+    PaperTrail::Version.where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
   end
 
   def source
