@@ -8,7 +8,6 @@ module CheckElasticSearch
   def update_media_search_bg(keys, data)
     ms = get_elasticsearch_parent
     unless ms.nil?
-      # data = self.data if data.blank? and self.respond_to?(:data)
       data = get_elasticsearch_data(data)
       options = {'last_activity_at' => Time.now.utc}
       keys.each{|k| options[k] = data[k] if ms.respond_to?("#{k}=") and !data[k].blank? }
