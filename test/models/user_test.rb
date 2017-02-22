@@ -274,24 +274,6 @@ class UserTest < ActiveSupport::TestCase
      assert_equal [t1.name, t2.name].sort, JSON.parse(u.user_teams).keys.sort
   end
 
-  test "should get user projects" do
-     u = create_user
-     t = create_team
-     create_team_user team: t, user: u
-     p = create_project team: t
-     t2 = create_team
-     create_team_user team: t2, user: u
-     p2 = create_project team: t2
-     t3 = create_team
-     create_team_user team: t3, user: u, status: 'requested'
-     p3 = create_project team: t3
-     projects = u.user_projects
-     assert_equal 2, projects.size
-     assert_equal [p.id], projects[t.id].map(&:id)
-     assert_equal [p2.id], projects[t2.id].map(&:id)
-     assert_nil projects[t3.id]
-  end
-
   test "should not crash if account is not created" do
     assert_nothing_raised do
       assert_difference 'User.count' do

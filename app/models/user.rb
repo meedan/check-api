@@ -83,7 +83,6 @@ class User < ActiveRecord::Base
       current_team: self.current_team,
       teams: self.user_teams,
       team_ids: self.team_ids,
-      projects: self.user_projects,
       permissions: self.permissions,
       profile_image: self.profile_image
     }
@@ -113,15 +112,6 @@ class User < ActiveRecord::Base
       teams[tu.team.name] = tu.as_json
     end
     teams.to_json
-  end
-
-  def user_projects
-    projects = Hash.new
-    tu = self.team_users.where(status: 'member')
-    tu.each do |tu|
-      projects[tu.team_id] = tu.team.projects
-    end
-    projects
   end
 
   def is_member_of?(team)
