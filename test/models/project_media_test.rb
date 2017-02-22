@@ -108,10 +108,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'journalist'
-    assert_raise RuntimeError do
-      with_current_user_and_team(u2, t) do
-        pm.save!
-      end
+    with_current_user_and_team(u2, t) do
+      pm.save!
     end
     assert_raise RuntimeError do
       with_current_user_and_team(u2, t) do
@@ -392,15 +390,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
         create_project_media project: p, media: m
       end
     end
-  end
-
-  test "should get team" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_equal [t.id], pm.get_team
-    pm.project = nil
-    assert_equal [], pm.get_team
   end
 
   test "should protect attributes from mass assignment" do

@@ -27,11 +27,6 @@ class ProjectMedia < ActiveRecord::Base
 
   include CheckElasticSearch
 
-  def get_team
-    p = self.project
-    p.nil? ? [] : [p.team_id]
-  end
-
   def media_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
   end
