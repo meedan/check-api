@@ -12,6 +12,7 @@ class ProjectMedia < ActiveRecord::Base
   validate :is_unique, on: :create
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks
+  after_update :update_elasticsearch_data
 
   notifies_slack on: :create,
                  if: proc { |pm| t = pm.project.team; User.current.present? && t.present? && t.setting(:slack_notifications_enabled).to_i === 1 },
@@ -24,10 +25,7 @@ class ProjectMedia < ActiveRecord::Base
                   targets: proc { |pm| [pm.project] },
                   data: proc { |pm| pm.media.to_json }
 
-  def get_team
-    p = self.project
-    p.nil? ? [] : [p.team_id]
-  end
+  include CheckElasticSearch
 
   def media_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
@@ -75,6 +73,13 @@ class ProjectMedia < ActiveRecord::Base
     end
     ms.save!
     # ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')
+  end
+
+  def update_elasticsearch_data
+    return if self.disable_es_callbacks
+    keys = %w(project_id team_id)
+    data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
   end
 
   def get_annotations(type = nil)
