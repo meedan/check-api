@@ -62,7 +62,7 @@ module CheckdeskNotifications
         data = {
           payload: {
             channel: channel,
-            text: message
+            text: message.gsub('\\n', "\n")
           }.to_json
         }
 
