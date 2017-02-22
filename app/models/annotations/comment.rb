@@ -27,8 +27,8 @@ class Comment < ActiveRecord::Base
     params = {
       default: '*%{user}* added a note on <%{url}>\n> %{comment}',
       user: User.current.name,
-      url: "#{self.annotated_client_url}|#{data['title']}", 
-      comment: self.text
+      url: "#{self.annotated_client_url}|#{data['title']}",
+      comment: self.text.gsub("\n", "\n>")
     }
     I18n.t(:slack_save_comment, params)
   end
