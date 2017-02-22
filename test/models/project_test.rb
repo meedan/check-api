@@ -356,5 +356,10 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 'my-channel', p.get_slack_channel
   end
 
+  test "should display team on admin label" do
+    t = create_team name: 'my-team'
+    p = create_project team: t, title: 'my-project'
+    assert_equal 'my-team - my-project', p.admin_label
+  end
 
 end

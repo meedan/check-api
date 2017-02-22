@@ -74,6 +74,10 @@ class Project < ActiveRecord::Base
     self.send(:set_slack_channel, channel)
   end
 
+  def admin_label
+    "#{self.team.name.truncate(15)} - #{self.title.truncate(25)}"
+  end
+
   private
 
   def set_description_and_team_and_user
