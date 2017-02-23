@@ -13,7 +13,7 @@ module PaperTrail
   module CheckdeskExtensions
     def self.included(base)
       base.class_eval do
-        before_create :set_object_after
+        before_create :set_object_after, :set_user
       end
     end
 
@@ -56,6 +56,10 @@ module PaperTrail
         object['settings'] = YAML.load(object['settings']) if object['settings']
         changes['settings'].collect!{ |change| YAML.load(change) unless change.nil? } if changes['settings']
       end
+      if self.item_class.new.is_a?(DynamicAnnotation::Field)
+        object['value'] = YAML.load(object['value']) if object['value']
+        changes['value'].collect!{ |change| YAML.load(change) unless change.nil? } if changes['value']
+      end
       changes.each do |key, pair|
         object[key] = pair[1]
       end
@@ -64,6 +68,10 @@ module PaperTrail
 
     def set_object_after
       self.object_after = self.apply_changes
+    end
+
+    def set_user
+      self.whodunnit = User.current.id.to_s if self.whodunnit.nil? && User.current.present?
     end
   end
 end

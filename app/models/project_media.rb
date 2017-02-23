@@ -110,19 +110,22 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_versions_log
-    annotation_types = ['Status', 'Comment', 'Embed', 'Tag', 'Flag', 'Dynamic', 'Task', 'Annotation']
-    
     joins = "LEFT JOIN annotations "\
-            "ON versions.item_type IN ('Status', 'Comment', 'Embed', 'Tag', 'Flag', 'Dynamic', 'Task', 'Annotation') "\
+            "ON versions.item_type IN ('Status','Comment','Embed','Tag','Flag','Dynamic','Task','Annotation') "\
             "AND annotations.id = CAST(versions.item_id AS INT) "\
-            "LEFT JOIN project_medias "\
-            "ON project_medias.id = annotations.annotated_id "\
-            "AND annotations.annotated_type = 'ProjectMedia'"
+            "AND annotations.annotated_type = 'ProjectMedia' "\
+            "LEFT JOIN dynamic_annotation_fields d "\
+            "ON d.id = CAST(versions.item_id AS INT) "\
+            "AND versions.item_type = 'DynamicAnnotation::Field' "\
+            "LEFT JOIN annotations a2 "\
+            "ON a2.id = d.annotation_id "\
+            "AND a2.annotated_type = 'ProjectMedia'"
 
-    where = "(annotations.id IS NOT NULL AND item_type IN (?) AND project_medias.id = ?) "\
-            "OR (annotations.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
+    where = "(annotations.id IS NOT NULL AND annotations.annotated_id = ?) "\
+            "OR (d.id IS NOT NULL AND a2.annotated_id = ?)"\
+            "OR (annotations.id IS NULL AND d.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
 
-    PaperTrail::Version.joins(joins).where(where, annotation_types, self.id, self.id.to_s).distinct('versions.id').order('versions.id ASC')
+    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).distinct('versions.id').order('versions.id ASC')
   end
 
   def get_media_annotations(type = nil)
