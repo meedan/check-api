@@ -109,6 +109,22 @@ class ProjectMedia < ActiveRecord::Base
     an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
 
+  def get_versions_log
+    annotation_types = ['Status', 'Comment', 'Embed', 'Tag', 'Flag', 'Dynamic', 'Task', 'Annotation']
+    
+    joins = "LEFT JOIN annotations "\
+            "ON versions.item_type IN ('Status', 'Comment', 'Embed', 'Tag', 'Flag', 'Dynamic', 'Task', 'Annotation') "\
+            "AND annotations.id = CAST(versions.item_id AS INT) "\
+            "LEFT JOIN project_medias "\
+            "ON project_medias.id = annotations.annotated_id "\
+            "AND annotations.annotated_type = 'ProjectMedia'"
+
+    where = "(annotations.id IS NOT NULL AND item_type IN (?) AND project_medias.id = ?) "\
+            "OR (annotations.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
+
+    PaperTrail::Version.joins(joins).where(where, annotation_types, self.id, self.id.to_s).distinct('versions.id').order('versions.id ASC')
+  end
+
   def get_media_annotations(type = nil)
     self.media.annotations.where(annotation_type: type).last
   end

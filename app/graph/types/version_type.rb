@@ -9,5 +9,21 @@ VersionType = GraphqlCrudOperations.define_default_type do
   field :item_type, types.String
   field :item_id, types.String
   field :event, types.String
+  field :object_after, types.String
 
+  field :user do
+    type -> { UserType }
+
+    resolve ->(version, _args, _ctx) {
+      version.user
+    }
+  end
+
+  field :annotation do
+    type -> { AnnotationType }
+
+    resolve ->(version, _args, _ctx) {
+      version.annotation
+    }
+  end
 end

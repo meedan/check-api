@@ -83,11 +83,17 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :log, -> { VersionType.connection_type } do
+    resolve ->(project_media, _args, _ctx) {
+      project_media.get_versions_log
+    }
+  end
+
   field :annotations_count do
     type types.Int
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.get_annotations_log.size
+      project_media.get_versions_log.count
     }
   end
 
