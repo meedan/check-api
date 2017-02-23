@@ -17,6 +17,7 @@ class User < ActiveRecord::Base
   mount_uploader :image, ImageUploader
   validates :image, size: true
   validate :user_is_member_in_current_team
+  validate :validate_duplicate_email, on: :create
 
   serialize :omniauth_info
 
@@ -219,4 +220,13 @@ class User < ActiveRecord::Base
       errors.add(:base, "User not a member in team #{self.current_team_id}") if tu.nil?
     end
   end
+
+  def validate_duplicate_email
+    u = User.where(email: self.email).last
+    unless u.nil?
+      RegistrationMailer.duplicate_email_detection(self, u).deliver_now
+      errors.add(:base, "This email already exists")
+    end
+  end
+
 end

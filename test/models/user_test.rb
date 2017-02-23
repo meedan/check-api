@@ -174,6 +174,24 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should send email when user email is duplicate" do
+    u = create_user provider: 'facebook'
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
+  test "should not add duplicate mail" do
+    u = create_user
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
   test "should have projects" do
     p1 = create_project
     p2 = create_project

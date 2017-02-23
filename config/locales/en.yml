@@ -16,9 +16,8 @@ en:
         user:
           attributes:
             email:
-              taken: It looks like your email is already taken. If you're having trouble
-                logging in, please contact check@meedan.com, and we'll get back to
-                you right away.
+              taken: 'Oops, minor problem: you already used that email address to sign in with another method.
+              We just sent you an email reminding you how you logged in. Check your email and sign in with the method you used before.'
   devise:
     failure:
       invalid: Invalid %{authentication_keys} or password.
@@ -53,3 +52,4 @@ en:
   mail_view_request_to_join: "%{user} (%{handle}) wants to join %{team} team on Check!"
   mail_view_process_request: 'To process this request, please login and visit:'
   pender_could_not_parse: Could not parse this media
+  mail_duplicate_email_exists: Your Login Method for Check
