@@ -489,4 +489,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     assert_equal 1, pm.versions.count
   end
+
+  test "should check if project media belonged to a previous project" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert ProjectMedia.belonged_to_project(pm.id,p.id)
+    p2 = create_project team: t
+    pm.project = p2; pm.save!
+    assert_equal p2, pm.project
+    assert ProjectMedia.belonged_to_project(pm.id,p.id)
+  end
+
 end

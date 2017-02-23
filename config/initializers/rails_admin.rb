@@ -185,6 +185,9 @@ RailsAdmin.config do |config|
   end
 
   config.model 'Project' do
+    object_label_method do
+      :admin_label
+    end
 
     list do
       field :title
