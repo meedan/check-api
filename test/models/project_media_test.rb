@@ -494,11 +494,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    assert pm.ever_belonged_to_project?(p.id)
+    assert ProjectMedia.belonged_to_project(pm.id,p.id)
     p2 = create_project team: t
     pm.project = p2; pm.save!
     assert_equal p2, pm.project
-    assert pm.ever_belonged_to_project?(p.id)
+    assert ProjectMedia.belonged_to_project(pm.id,p.id)
   end
 
 end

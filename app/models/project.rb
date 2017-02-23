@@ -75,7 +75,9 @@ class Project < ActiveRecord::Base
   end
 
   def admin_label
-    "#{self.team.name.truncate(15)} - #{self.title.truncate(25)}"
+    unless self.new_record?
+      [self.team.name.truncate(15),self.title.truncate(25)].join(' - ')
+    end
   end
 
   private
