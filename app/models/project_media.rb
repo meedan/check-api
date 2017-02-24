@@ -198,6 +198,16 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
+  def self.belonged_to_project(pmid, pid)
+    pm = ProjectMedia.find_by_id pmid
+    if pm && (pm.project_id == pid || pm.versions.where_object(project_id: pid).exists?)
+      return pm.id
+    else
+      pm = ProjectMedia.where(project_id: pid, media_id: pmid).last
+      return pm.id if pm
+    end
+  end
+
   protected
 
   def create_image
