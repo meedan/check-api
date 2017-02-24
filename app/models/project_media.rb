@@ -110,6 +110,8 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_versions_log
+    events = %w(create_comment update_status create_tag create_task create_dynamicannotationfield update_dynamicannotationfield create_flag update_embed update_projectmedia update_task)
+
     joins = "LEFT JOIN annotations "\
             "ON versions.item_type IN ('Status','Comment','Embed','Tag','Flag','Dynamic','Task','Annotation') "\
             "AND annotations.id = CAST(versions.item_id AS INT) "\
@@ -125,7 +127,7 @@ class ProjectMedia < ActiveRecord::Base
             "OR (d.id IS NOT NULL AND a2.annotated_id = ?)"\
             "OR (annotations.id IS NULL AND d.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
 
-    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).distinct('versions.id').order('versions.id ASC')
+    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.id ASC')
   end
 
   def get_media_annotations(type = nil)

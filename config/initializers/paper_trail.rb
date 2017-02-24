@@ -13,7 +13,7 @@ module PaperTrail
   module CheckdeskExtensions
     def self.included(base)
       base.class_eval do
-        before_create :set_object_after, :set_user
+        before_create :set_object_after, :set_user, :set_event_type
       end
     end
 
@@ -72,6 +72,43 @@ module PaperTrail
 
     def set_user
       self.whodunnit = User.current.id.to_s if self.whodunnit.nil? && User.current.present?
+    end
+
+    def projects
+      ret = []
+      if self.item_type == 'ProjectMedia' && self.event == 'update'
+        changes = JSON.parse(self.object_changes)
+        if changes['project_id']
+          ret = changes['project_id'].collect{ |pid| Project.where(id: pid).last }
+          ret = [] if ret.include?(nil)
+        end
+      end
+      ret
+    end
+
+    def task
+      task = nil
+      if self.item_type == 'DynamicAnnotation::Field' && self.event == 'update'
+        annotation = self.item.annotation
+        if annotation.annotation_type =~ /^task_response_/
+          annotation.get_fields.each do |field|
+            task = Task.where(id: field.value.to_i).last if field.field_type == 'task_reference'
+          end
+        end
+      end
+      task
+    end
+
+    def object_changes_json
+      changes = JSON.parse(self.object_changes)
+      if changes['data'] && changes['data'].is_a?(Array)
+        changes['data'].collect!{ |d| YAML.load(d) unless d.nil? }
+      end
+      changes.to_json
+    end
+
+    def set_event_type
+      self.event_type = self.event + '_' + self.item_type.downcase.gsub(/[^a-z]/, '')
     end
   end
 end
