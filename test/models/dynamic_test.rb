@@ -129,4 +129,26 @@ class DynamicTest < ActiveSupport::TestCase
     
     assert_equal 'San Francisco', f.reload.value
   end
+
+  test "should set annotator on update" do
+    u1 = create_user
+    u2 = create_user
+    u3 = create_user
+    t = create_team
+    create_team_user team: t, user: u1
+    create_team_user team: t, user: u2
+    create_team_user team: t, user: u3
+    p = create_project team: t
+    pm1 = create_project_media project: p 
+    pm2 = create_project_media project: p
+    User.current = u1
+    d1 = create_dynamic_annotation annotator: u3, annotated: pm1
+    assert_equal u1, d1.reload.annotator
+    User.current = u2
+    d2 = Dynamic.last
+    d2.annotated = pm2
+    d2.save!
+    assert_equal u2, d2.reload.annotator
+    User.current = nil
+  end
 end

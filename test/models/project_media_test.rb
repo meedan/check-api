@@ -494,11 +494,41 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    assert ProjectMedia.belonged_to_project(pm.id,p.id)
+    assert ProjectMedia.belonged_to_project(pm.id, p.id)
     p2 = create_project team: t
     pm.project = p2; pm.save!
     assert_equal p2, pm.project
-    assert ProjectMedia.belonged_to_project(pm.id,p.id)
+    assert ProjectMedia.belonged_to_project(pm.id, p.id)
   end
 
+  test "should get log" do
+    m = create_valid_media
+    p = create_project
+    u = create_user
+    pm = create_project_media project: p, media: m, user: u
+    create_comment annotated: pm
+    create_tag annotated: pm
+    create_flag annotated: pm
+    s = pm.annotations.where(annotation_type: 'status').last.load
+    s.status = 'In Progress'; s.save!
+    e = create_embed annotated: pm, title: 'Test'
+    info = { title: 'Foo' }.to_json; pm.embed = info; pm.save!
+    info = { title: 'Bar' }.to_json; pm.embed = info; pm.save!
+    pm.project_id = create_project.id; pm.save!
+
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
+    t = create_task annotated: pm
+    t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s, note: 'Test' }.to_json }.to_json; t.save!
+    t = Task.find(t.id); t.label = 'Test?'; t.save!
+    r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
+    r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
+    
+    assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"], pm.get_versions_log.map(&:event_type)
+    assert_equal 12, pm.get_versions_log_count
+  end
 end

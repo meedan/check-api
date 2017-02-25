@@ -130,6 +130,10 @@ class ProjectMedia < ActiveRecord::Base
     PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.id ASC')
   end
 
+  def get_versions_log_count
+    self.get_versions_log.where.not(event_type: 'create_dynamicannotationfield').count
+  end
+
   def get_media_annotations(type = nil)
     self.media.annotations.where(annotation_type: type).last
   end

@@ -90,7 +90,7 @@ module PaperTrail
 
     def task
       task = nil
-      if self.item_type == 'DynamicAnnotation::Field' && self.event == 'update'
+      if self.item_type == 'DynamicAnnotation::Field'
         annotation = self.item.annotation
         if annotation.annotation_type =~ /^task_response_/
           annotation.get_fields.each do |field|

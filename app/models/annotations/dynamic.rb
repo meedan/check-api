@@ -64,4 +64,8 @@ class Dynamic < ActiveRecord::Base
       errors.add(:base, 'Please set all mandatory fields') unless (mandatory_fields - fields_set).empty?
     end
   end
+
+  def set_annotator
+    self.annotator = User.current if !User.current.nil?
+  end
 end

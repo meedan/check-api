@@ -40,4 +40,13 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     f = create_field value: value
     assert_equal value, f.reload.value
   end
+
+  test "should have versions" do
+    ft = create_field_type field_type: 'text_field'
+    fi = create_field_instance name: 'response', field_type_object: ft
+    a = create_dynamic_annotation
+    assert_difference 'PaperTrail::Version.count' do
+      create_field annotation_id: a.id, field_name: 'response'
+    end
+  end
 end

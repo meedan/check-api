@@ -93,7 +93,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.Int
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.get_versions_log.where.not(event_type: 'create_dynamicannotationfield').count
+      project_media.get_versions_log_count
     }
   end
 
