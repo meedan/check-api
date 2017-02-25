@@ -12,7 +12,18 @@ QueryType = GraphQL::ObjectType.define do
     type AboutType
     description 'Information about the application'
     resolve -> (_obj, _args, _ctx) do
-      OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: 'About', tos: CONFIG['terms_of_service'], privacy_policy: CONFIG['privacy_policy'], max_upload_size: UploadedFile.max_size_readable })
+      OpenStruct.new({
+        name: Rails.application.class.parent_name,
+        version: VERSION,
+        id: 1,
+        type: 'About',
+        tos: CONFIG['terms_of_service'],
+        privacy_policy: CONFIG['privacy_policy'],
+        upload_max_size: UploadedFile.max_size_readable,
+        upload_extensions: ImageUploader.upload_extensions.join(', '),
+        upload_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",
+        upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}"
+      })
     end
   end
 
@@ -36,7 +47,7 @@ QueryType = GraphQL::ObjectType.define do
       if !args['slug'].blank?
         team = Team.where(slug: args['slug']).first
         tid = team.id unless team.nil?
-      end  
+      end
       if tid === 0 && !Team.current.blank?
         tid = Team.current.id
       end
