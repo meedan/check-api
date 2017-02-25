@@ -45,21 +45,23 @@ module PaperTrail
       self.whodunnit.nil? ? nil : User.where(id: self.whodunnit.to_i).last
     end
 
+    def get_object
+      self.object.nil? ? {} : JSON.parse(self.object)
+    end
+
     def apply_changes
-      object = self.object.nil? ? {} : JSON.parse(self.object)
+      object = self.get_object
       changes = JSON.parse(self.object_changes)
-      if self.item_class.new.is_annotation?
-        object['data'] = YAML.load(object['data']) if object['data']
-        changes['data'].collect!{ |change| YAML.load(change) unless change.nil? } if changes['data']
+
+      { 'is_annotation?' => 'data', Team => 'settings', DynamicAnnotation::Field => 'value' }.each do |condition, key|
+        obj = self.item_class.new
+        matches = condition.is_a?(String) ? obj.send(condition) : obj.is_a?(condition)
+        if matches
+          object[key] = YAML.load(object[key]) if object[key]
+          changes[key].collect!{ |change| YAML.load(change) unless change.nil? } if changes[key]
+        end
       end
-      if self.item_class.new.is_a?(Team)
-        object['settings'] = YAML.load(object['settings']) if object['settings']
-        changes['settings'].collect!{ |change| YAML.load(change) unless change.nil? } if changes['settings']
-      end
-      if self.item_class.new.is_a?(DynamicAnnotation::Field)
-        object['value'] = YAML.load(object['value']) if object['value']
-        changes['value'].collect!{ |change| YAML.load(change) unless change.nil? } if changes['value']
-      end
+      
       changes.each do |key, pair|
         object[key] = pair[1]
       end
