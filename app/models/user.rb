@@ -222,10 +222,10 @@ class User < ActiveRecord::Base
   end
 
   def validate_duplicate_email
-    u = User.where(email: self.email).last
+    u = User.where(email: self.email).last unless self.email.blank?
     unless u.nil?
-      RegistrationMailer.duplicate_email_detection(self, u).deliver_now
-      errors.add(:base, "This email already exists")
+      RegistrationMailer.delay.duplicate_email_detection(self, u)
+      return false
     end
   end
 
