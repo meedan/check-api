@@ -23,6 +23,42 @@ class Task < ActiveRecord::Base
     ["Unresolved", "Resolved", "Can't be resolved"]
   end
   validates :status, included: { values: self.task_statuses }, allow_blank: true
+  
+  annotation_notifies_slack :update
+
+  def slack_message
+    if self.data_changed?
+      data = self.data
+      data_was = self.data_was
+      messages = []
+
+      default_params = {
+        user: User.current.name,
+        url: "#{self.annotated_client_url}|#{self.label}",
+        project: self.annotated.project.title
+      }
+
+      if data_was['label'] != data['label']
+        params = default_params.merge({
+          default: '*%{user}* edited task <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}',
+          from: data_was['label'],
+          to: data['label']
+        })
+        messages << I18n.t(:slack_update_task_label, params)
+      end
+
+      if data_was['description'] != data['description']
+        params = default_params.merge({
+          default: '*%{user}* edited task note in <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}',
+          from: data_was['description'],
+          to: data['description']
+        })
+        messages << I18n.t(:slack_update_task_note, params)
+      end
+
+      messages.join("\n")
+    end
+  end
 
   def content
     hash = {}
@@ -43,6 +79,10 @@ class Task < ActiveRecord::Base
     DynamicAnnotation::Field.where(field_type: 'task_reference', value: self.id.to_s).to_a.map(&:annotation)
   end
 
+  def response
+    @response
+  end
+
   def response=(json)
     params = JSON.parse(json)
     response = Dynamic.new
@@ -50,6 +90,7 @@ class Task < ActiveRecord::Base
     response.annotation_type = params['annotation_type']
     response.set_fields = params['set_fields']
     response.save!
+    @response = response
     self.record_timestamps = false
     self.status = 'Resolved'
   end
