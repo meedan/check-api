@@ -4,11 +4,7 @@ class SetWhodunnitForVersions < ActiveRecord::Migration
 
     PaperTrail::Version.find_each do |version|
       print "Changing version #{version.id}... "
-
-      if version.object_after.blank?
-        print 'Setting object after changes... '
-        version.object_after = self.apply_changes(version)
-      end
+      version = self.apply_changes(version)
 
       if version.whodunnit.blank?
         object = JSON.parse(version.object_after)
@@ -50,6 +46,10 @@ class SetWhodunnitForVersions < ActiveRecord::Migration
     changes.each do |key, pair|
       object[key] = pair[1]
     end
-    object.to_json
+    
+    version.object_after = object.to_json
+    version.object_changes = changes.to_json
+
+    version
   end
 end
