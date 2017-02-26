@@ -104,11 +104,7 @@ module PaperTrail
     def deserialize_change(d)
       ret = d
       unless d.nil?
-        begin
-          ret = YAML.load(d)
-        rescue StandardError
-          ret = eval(d)
-        end
+        ret = YAML.load(d)
       end
       ret
     end
@@ -116,7 +112,7 @@ module PaperTrail
     def object_changes_json
       changes = JSON.parse(self.object_changes)
       if changes['data'] && changes['data'].is_a?(Array)
-        changes['data'].collect!{ |d| self.deserialize(d) }
+        changes['data'].collect!{ |d| self.deserialize_change(d) }
       end
       changes.to_json
     end
