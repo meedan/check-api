@@ -106,7 +106,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_versions_log
-    events = %w(create_comment update_status create_tag create_task create_dynamicannotationfield update_dynamicannotationfield create_flag update_embed update_projectmedia update_task)
+    events = %w(create_comment update_status create_tag create_task create_dynamicannotationfield update_dynamicannotationfield create_flag update_embed update_projectmedia update_task create_embed)
 
     joins = "LEFT JOIN annotations "\
             "ON versions.item_type IN ('Status','Comment','Embed','Tag','Flag','Dynamic','Task','Annotation') "\

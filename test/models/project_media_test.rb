@@ -528,7 +528,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
     r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
     
-    assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"], pm.get_versions_log.map(&:event_type)
-    assert_equal 12, pm.get_versions_log_count
+    assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"], pm.get_versions_log.map(&:event_type)
+    assert_equal 13, pm.get_versions_log_count
   end
 end
