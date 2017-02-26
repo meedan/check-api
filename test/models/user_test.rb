@@ -1,6 +1,11 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class UserTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+  end
 
   test "should create user" do
     assert_difference 'User.count' do
@@ -170,6 +175,24 @@ class UserTest < ActiveSupport::TestCase
         create_user provider: ''
         create_user provider: 'twitter'
         create_user provider: 'facebook'
+      end
+    end
+  end
+
+  test "should send email when user email is duplicate" do
+    u = create_user provider: 'facebook'
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
+  test "should not add duplicate mail" do
+    u = create_user
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
       end
     end
   end
