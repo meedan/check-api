@@ -87,13 +87,9 @@ class ProjectMedia < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
-  def get_annotations_except(type = nil)
-    self.annotations.where.not(annotation_type: type)
-  end
-
   def get_annotations_log
     type = %W(embed status)
-    an = self.get_annotations_except(type).to_a
+    an = self.annotations.where.not(annotation_type: type).to_a
     # get logs for singleton annotations
     t = %w(status embed)
     s_an = self.get_annotations(t)
