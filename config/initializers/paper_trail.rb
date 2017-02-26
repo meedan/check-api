@@ -57,8 +57,8 @@ module PaperTrail
         obj = self.item_class.new
         matches = condition.is_a?(String) ? obj.send(condition) : obj.is_a?(condition)
         if matches
-          object[key] = YAML.load(object[key]) if object[key]
-          changes[key].collect!{ |change| YAML.load(change) unless change.nil? } if changes[key]
+          object[key] = self.deserialize_change(object[key]) if object[key]
+          changes[key].collect!{ |change| self.deserialize_change(change) unless change.nil? } if changes[key]
         end
       end
       
@@ -101,10 +101,22 @@ module PaperTrail
       task
     end
 
+    def deserialize_change(d)
+      ret = d
+      unless d.nil?
+        begin
+          ret = YAML.load(d)
+        rescue StandardError
+          ret = eval(d)
+        end
+      end
+      ret
+    end
+
     def object_changes_json
       changes = JSON.parse(self.object_changes)
       if changes['data'] && changes['data'].is_a?(Array)
-        changes['data'].collect!{ |d| YAML.load(d) unless d.nil? }
+        changes['data'].collect!{ |d| self.deserialize(d) }
       end
       changes.to_json
     end

@@ -3,6 +3,8 @@ class SetWhodunnitForVersions < ActiveRecord::Migration
     add_column(:versions, :object_after, :text) unless PaperTrail::Version.column_names.include?('object_after')
 
     PaperTrail::Version.all.each do |version|
+      print "Changing version #{version.id}... "
+
       if version.object_after.blank?
         version.object_after = version.apply_changes
       end
