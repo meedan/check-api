@@ -2,10 +2,11 @@ class SetWhodunnitForVersions < ActiveRecord::Migration
   def change
     add_column(:versions, :object_after, :text) unless PaperTrail::Version.column_names.include?('object_after')
 
-    PaperTrail::Version.all.each do |version|
+    PaperTrail::Version.find_each do |version|
       print "Changing version #{version.id}... "
 
       if version.object_after.blank?
+        print 'Setting object after changes... '
         version.object_after = self.apply_changes(version)
       end
 
@@ -16,12 +17,11 @@ class SetWhodunnitForVersions < ActiveRecord::Migration
       end
 
       version.save!
+      puts version.reload.object_after
       
       puts "Saved version #{version.id}"
     end
   end
-
-  protected
 
   def deserialize_change(d)
     ret = d
