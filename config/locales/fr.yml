@@ -47,5 +47,5 @@ fr:
   mail_view_process_request: 'Pour traiter cette requête, prière de vous connecter et de visiter:'
   pender_could_not_parse: Ce n'était pas possible d'analyser ce média
   mail_duplicate_email_exists: Votre connexion à Check
-  mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à Check.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{duplicate_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte Check via %{user_provider}.</p> <p>Quoi faire ? Connectez-vous à Check via %{user_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à check@meedan.com. </p> <p>— L'équipe Check</p>"
+  mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à Check.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte Check via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à Check via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à check@meedan.com. </p> <p>— L'équipe Check</p>"
   mail_duplicate_email_exists_email: courriel

@@ -57,9 +57,9 @@ en:
   mail_duplicate_email_exists: Your login method for Check
   mail_duplicate_email_exists_body: "<p>Hello, this is just a friendly reminder to
     help make sure you get logged in to Check.</p> <p>What happened: You tried to
-    sign in to Check with a %{duplicate_provider}-based account linked to %{user_email}.
-    But this email address is already associated with a %{user_provider}-based account
-    in Check.</p> <p>What to do next: Sign in with %{user_provider}.</p> <p>Then you'll
-    be logged in with the account you were using before. If you need additional help,
-    please email check@meedan.com.</p> <p>— The Check team</p>"
+    sign in to Check with a %{user_provider}-based account linked to %{user_email}.
+    But this email address is already associated with a %{duplicate_provider}-based
+    account in Check.</p> <p>What to do next: Sign in with %{duplicate_provider}.</p>
+    <p>Then you'll be logged in with the account you were using before. If you need
+    additional help, please email check@meedan.com.</p> <p>— The Check team</p>"
   mail_duplicate_email_exists_email: email
