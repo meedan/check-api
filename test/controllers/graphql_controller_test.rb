@@ -194,6 +194,24 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_not overridden['username']
   end
 
+  test "should read project media versions to find previous project" do
+    authenticate_with_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    pm = create_project_media project: p
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+    pm.project = p2
+    pm.save!
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+  end
+
   test "should read annotations version" do
     authenticate_with_user
     p = create_project team: @team
@@ -533,7 +551,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, media: m
     create_comment annotated: pm, annotator: u
     create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 10) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 10) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, created_at, meta, object_changes_json, user { name }, annotation { id }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
   end

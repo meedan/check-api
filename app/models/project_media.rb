@@ -87,13 +87,9 @@ class ProjectMedia < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
-  def get_annotations_except(type = nil)
-    self.annotations.where.not(annotation_type: type)
-  end
-
   def get_annotations_log
     type = %W(embed status)
-    an = self.get_annotations_except(type).to_a
+    an = self.annotations.where.not(annotation_type: type).to_a
     # get logs for singleton annotations
     t = %w(status embed)
     s_an = self.get_annotations(t)
@@ -107,6 +103,31 @@ class ProjectMedia < ActiveRecord::Base
       an.concat a_versions
     end
     an.sort_by{|k, _v| k[:updated_at]}.reverse
+  end
+
+  def get_versions_log
+    events = %w(create_comment update_status create_tag create_task create_dynamicannotationfield update_dynamicannotationfield create_flag update_embed update_projectmedia update_task)
+
+    joins = "LEFT JOIN annotations "\
+            "ON versions.item_type IN ('Status','Comment','Embed','Tag','Flag','Dynamic','Task','Annotation') "\
+            "AND annotations.id::varchar(255) = versions.item_id "\
+            "AND annotations.annotated_type = 'ProjectMedia' "\
+            "LEFT JOIN dynamic_annotation_fields d "\
+            "ON d.id::varchar(255) = versions.item_id "\
+            "AND versions.item_type = 'DynamicAnnotation::Field' "\
+            "LEFT JOIN annotations a2 "\
+            "ON a2.id = d.annotation_id "\
+            "AND a2.annotated_type = 'ProjectMedia'"
+
+    where = "(annotations.id IS NOT NULL AND annotations.annotated_id = ?) "\
+            "OR (d.id IS NOT NULL AND a2.annotated_id = ?)"\
+            "OR (annotations.id IS NULL AND d.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
+
+    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.id ASC')
+  end
+
+  def get_versions_log_count
+    self.get_versions_log.where.not(event_type: 'create_dynamicannotationfield').count
   end
 
   def get_media_annotations(type = nil)
@@ -174,6 +195,16 @@ class ProjectMedia < ActiveRecord::Base
       em = em.load unless em.nil?
       em = initiate_embed_annotation(info) if em.nil?
       self.override_embed_data(em, info)
+    end
+  end
+
+  def self.belonged_to_project(pmid, pid)
+    pm = ProjectMedia.find_by_id pmid
+    if pm && (pm.project_id == pid || pm.versions.where_object(project_id: pid).exists?)
+      return pm.id
+    else
+      pm = ProjectMedia.where(project_id: pid, media_id: pmid).last
+      return pm.id if pm
     end
   end
 

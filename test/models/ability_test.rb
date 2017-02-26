@@ -1353,7 +1353,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Dynamic)
-      assert ability.cannot?(:update, da)
+      assert ability.can?(:update, da)
       assert ability.cannot?(:destroy, da)
       assert ability.can?(:update, own_da)
       assert ability.can?(:destroy, own_da)
@@ -1371,7 +1371,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Dynamic)
-      assert ability.cannot?(:update, da)
+      assert ability.can?(:update, da)
       assert ability.cannot?(:destroy, da)
       assert ability.can?(:update, own_da)
       assert ability.can?(:destroy, own_da)

@@ -56,12 +56,6 @@ class Ability
         obj.get_team.include? @context_team.id
       end
     end
-    can [:destroy, :update], [Dynamic, Annotation, Task] do |obj|
-      obj.get_team.include? @context_team.id
-    end
-    can [:create, :update, :destroy], DynamicAnnotation::Field do |obj|
-      obj.annotation.get_team.include? @context_team.id
-    end
     can :destroy, PaperTrail::Version do |obj|
       a = nil
       v_obj = obj.item_type.constantize.where(id: obj.item_id).last
@@ -142,6 +136,13 @@ class Ability
     can [:create, :update, :destroy], DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id
     end
+    can :update, [Dynamic, Annotation] do |obj|
+      obj.get_team.include? @context_team.id
+    end
+    can :update, DynamicAnnotation::Field do |obj|
+      obj.annotation.get_team.include? @context_team.id
+    end
+
     can :update, Task, ['annotation_type = ?', 'task'] do |obj|
       before, after = obj.data_change
       changes = (after.to_a - before.to_a).to_h

@@ -328,12 +328,7 @@ module SampleData
   end
 
   def create_version(options = {})
-     v = PaperTrail::Version.new
-     v.event = 'create'
-     v.item_type = random_string
-     v.item_id = random_number
-     v.save!
-     v.reload
+    create_team.versions.last
   end
 
   def create_team_user(options = {})
