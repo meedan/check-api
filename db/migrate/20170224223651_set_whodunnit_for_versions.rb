@@ -17,7 +17,6 @@ class SetWhodunnitForVersions < ActiveRecord::Migration
       end
 
       version.save!
-      puts version.reload.object_after
       
       puts "Saved version #{version.id}"
     end

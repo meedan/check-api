@@ -110,10 +110,10 @@ class ProjectMedia < ActiveRecord::Base
 
     joins = "LEFT JOIN annotations "\
             "ON versions.item_type IN ('Status','Comment','Embed','Tag','Flag','Dynamic','Task','Annotation') "\
-            "AND annotations.id = CAST(versions.item_id AS INT) "\
+            "AND annotations.id::varchar(255) = versions.item_id "\
             "AND annotations.annotated_type = 'ProjectMedia' "\
             "LEFT JOIN dynamic_annotation_fields d "\
-            "ON d.id = CAST(versions.item_id AS INT) "\
+            "ON d.id::varchar(255) = versions.item_id "\
             "AND versions.item_type = 'DynamicAnnotation::Field' "\
             "LEFT JOIN annotations a2 "\
             "ON a2.id = d.annotation_id "\
