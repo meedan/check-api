@@ -39,9 +39,9 @@ fr:
   slack_create_project: "*%{user}* a créé un projet: <%{url}>"
   slack_create_team_user: "*%{user}* s'est joint à <%{url}>"
   slack_create_project_media: "*%{user}* a rajouté un nouveau %{type}: <%{url}>"
-  slack_answer_task: "*%{user}* a résolu la tâche <%{url}> du projet %{project} :\\n> %{response}\\n> Commentaire :\\n> %{note}"
-  slack_update_task_label: "*%{user}* a modifié la tâche <%{url}> du projet %{project}:\\n> *De* : %{from}\\n> *A* : %{to}"
-  slack_update_task_description: "*%{user}* a modifié le commentaire de la tâche <%{url}> du projet %{project}:\\n> *De* : %{from}\\n> *A* : %{to}"
+  slack_answer_task: "*%{user}* a résolu la tâche <%{url}> du projet %{project} :\\n> %{response}\\n*Commentaire :*\\n> %{note}"
+  slack_update_task_label: "*%{user}* a modifié la tâche <%{url}> du projet %{project} :\\n*De :* %{from}\\n*A :* %{to}"
+  slack_update_task_description: "*%{user}* a modifié la description de la tâche <%{url}> du projet %{project} :\\n*De :* %{from}\\n*A :* %{to}"
   mail_view_welcome: Bienvenue sur Check
   mail_view_register: 'Il ne vous manque plus qu''une étape pour utiliser Check ! Prière de confirmer votre courriel en cliquant ce lien :'
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
