@@ -20,7 +20,9 @@ class Dynamic < ActiveRecord::Base
     if !self.set_fields.blank? && self.annotation_type =~ /^task_response/
       response = note = task = '-'
 
-      self.fields.each do |f|
+      @fields ||= self.fields
+
+      @fields.each do |f|
         response = f.value if f.field_name =~ /^response_/
         note = f.value if f.field_name =~ /^note_/
         task = Task.find(f.value).label if f.field_name =~ /^task_/
@@ -59,6 +61,7 @@ class Dynamic < ActiveRecord::Base
 
   def create_fields
     unless self.set_fields.blank?
+      @fields = []
       data = JSON.parse(self.set_fields)
       data.each do |field_name, value|
         f = DynamicAnnotation::Field.new
@@ -66,6 +69,7 @@ class Dynamic < ActiveRecord::Base
         f.value = value
         f.annotation_id = self.id
         f.save!
+        @fields << f
       end
     end
   end
