@@ -165,11 +165,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get media from callback" do
-    pm = create_project_media
-    assert_equal 2, pm.media_id_callback(1, [1, 2, 3])
-  end
-
   test "should get project from callback" do
     tm = create_project_media
     assert_equal 2, tm.project_id_callback(1, [1, 2, 3])
@@ -530,5 +525,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     
     assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"], pm.get_versions_log.map(&:event_type)
     assert_equal 13, pm.get_versions_log_count
+  end
+
+  test "should get previous project" do
+    p1 = create_project
+    p2 = create_project
+    pm = create_project_media project: p1
+    assert_equal p1, pm.project
+    assert_nil pm.project_was
+    pm.previous_project_id = p1.id
+    pm.project_id = p2.id
+    pm.save!
+    assert_equal p1, pm.project_was
+    assert_equal p2, pm.project
   end
 end
