@@ -66,7 +66,7 @@ module CheckdeskNotifications
           }.to_json
         }
 
-        Rails.env === 'development' ? self.request_slack(webhook, data) : CheckdeskNotifications::Slack::Worker.perform_async(webhook, data)
+        Rails.env === 'test' ? self.request_slack(webhook, data) : CheckdeskNotifications::Slack::Worker.perform_async(webhook, data)
       end
 
       def request_slack(webhook, data)
