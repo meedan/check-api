@@ -47,7 +47,7 @@ en:
   slack_create_project_media: "*%{user}* added a new %{type}: <%{url}>"
   slack_answer_task: "*%{user}* answered the task <%{url}> in %{project}:\\n> %{response}\\n> Note:\\n> %{note}"
   slack_update_task_label: "*%{user}* edited task <%{url}> in %{project}:\\n> *From:* %{from}\\n> *To*: %{to}" 
-  slack_update_task_note: "*%{user}* edited task note in <%{url}> in %{project}:\\n> *From:* %{from}\\n> *To*: %{to}"
+  slack_update_task_description: "*%{user}* edited task note in <%{url}> in %{project}:\\n> *From:* %{from}\\n> *To*: %{to}"
   mail_view_welcome: Welcome to Check
   mail_view_register: 'You are only one step away from using Check! Please confirm
     your email address by clicking the following link:'

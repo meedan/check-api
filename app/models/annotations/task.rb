@@ -38,22 +38,18 @@ class Task < ActiveRecord::Base
         project: self.annotated.project.title
       }
 
-      if data_was['label'] != data['label']
-        params = default_params.merge({
-          default: '*%{user}* edited task <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}',
-          from: data_was['label'],
-          to: data['label']
-        })
-        messages << I18n.t(:slack_update_task_label, params)
-      end
-
-      if data_was['description'] != data['description']
-        params = default_params.merge({
-          default: '*%{user}* edited task note in <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}',
-          from: data_was['description'],
-          to: data['description']
-        })
-        messages << I18n.t(:slack_update_task_note, params)
+      {
+        'label' => '*%{user}* edited task <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}',
+        'description' => '*%{user}* edited task note in <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}'
+      }.each do |key, message|
+        if data_was[key] != data[key]
+          params = default_params.merge({
+            default: message,
+            from: data_was[key],
+            to: data[key]
+          })
+          messages << I18n.t("slack_update_task_#{key}".to_sym, params)
+        end
       end
 
       messages.join("\n")
