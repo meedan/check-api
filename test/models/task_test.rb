@@ -149,9 +149,10 @@ class TaskTest < ActiveSupport::TestCase
       tk.save!
       assert tk.response.sent_to_slack
 
-      tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Bar', note_task: 'Foo' }.to_json }.to_json
-      tk.save!
-      assert tk.response.sent_to_slack
+      d = Dynamic.find(tk.response.id)
+      d.set_fields = { response_task: 'Bar', note_task: 'Foo' }.to_json
+      d.save!
+      assert d.sent_to_slack
     end
   end
 end
