@@ -16,8 +16,10 @@ en:
         user:
           attributes:
             email:
-              taken: 'Oops, minor problem: you already used that email address to sign in with another method.
-              We just sent you an email reminding you how you logged in. Check your email and sign in with the method you used before.'
+              taken: 'Oops, minor problem: you already used that email address to
+                sign in with another method. We just sent you an email reminding you
+                how you logged in. Check your email and sign in with the method you
+                used before.'
   devise:
     failure:
       invalid: Invalid %{authentication_keys} or password.
@@ -43,6 +45,12 @@ en:
   slack_create_project: "*%{user}* created a project: <%{url}>"
   slack_create_team_user: "*%{user}* joined <%{url}>"
   slack_create_project_media: "*%{user}* added a new %{type}: <%{url}>"
+  slack_answer_task: "*%{user}* answered the task <%{url}> in %{project}:\\n> %{response}\\n*Note:*\\n>
+    %{note}"
+  slack_update_task_label: "*%{user}* edited task <%{url}> in %{project}:\\n*From:*
+    %{from}\\n*To:* %{to}"
+  slack_update_task_description: "*%{user}* edited task note at <%{url}> in %{project}:\\n*From:*
+    %{from}\\n*To:* %{to}"
   mail_view_welcome: Welcome to Check
   mail_view_register: 'You are only one step away from using Check! Please confirm
     your email address by clicking the following link:'
@@ -52,9 +60,12 @@ en:
   mail_view_request_to_join: "%{user} (%{handle}) wants to join %{team} team on Check!"
   mail_view_process_request: 'To process this request, please login and visit:'
   pender_could_not_parse: Could not parse this media
-  mail_duplicate_email_exists: Your Login Method for Check
-  mail_duplicate_email_exists_body: "<p>Hello, this is just a friendly reminder to help make sure you get logged in to Check.</p>
-    <p>What happened: You tried to sign in to Check with %{login_with} %{user_email}. But this email address is already associated with %{provider_prefix} %{provider}-based account in Check.</p>
-      <p>What to do next: Sign in with %{provider}.</p>
-      <p>Then you'll be logged in with the account you were using before. If you need additional help, please email check@meedan.com. 👋</p>
-      <p>— The Check team</p>"
+  mail_duplicate_email_exists: Your login method for Check
+  mail_duplicate_email_exists_body: "<p>Hello, this is just a friendly reminder to
+    help make sure you get logged in to Check.</p> <p>What happened: You tried to
+    sign in to Check with a %{user_provider}-based account linked to %{user_email}.
+    But this email address is already associated with a %{duplicate_provider}-based
+    account in Check.</p> <p>What to do next: Sign in with %{duplicate_provider}.</p>
+    <p>Then you'll be logged in with the account you were using before. If you need
+    additional help, please email check@meedan.com.</p> <p>— The Check team</p>"
+  mail_duplicate_email_exists_email: email

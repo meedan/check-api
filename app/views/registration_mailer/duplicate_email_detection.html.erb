@@ -4,10 +4,6 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-      <%= I18n.t(:mail_duplicate_email_exists_body, default: "<p>Hello, this is just a friendly reminder to help make sure you get logged in to Check.</p>
-    <p>What happened: You tried to sign in to Check with %{login_with} %{user_email}. But this email address is already associated with %{provider_prefix} %{provider}-based account in Check.</p>
-      <p>What to do next: Sign in with %{provider}.</p>
-      <p>Then you'll be logged in with the account you were using before. If you need additional help, please email check@meedan.com. 👋</p>
-      <p>— The Check team</p>", login_with: @login_with, user_email: @user.email, provider_prefix: @provider_prefix, provider: @provider).html_safe %>
+      <%= I18n.t(:mail_duplicate_email_exists_body, user_email: @user.email, user_provider: @user_provider, duplicate_provider: @duplicate_provider).html_safe %>
   </body>
 </html>
