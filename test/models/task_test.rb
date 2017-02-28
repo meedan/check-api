@@ -155,4 +155,17 @@ class TaskTest < ActiveSupport::TestCase
       assert d.sent_to_slack
     end
   end
+
+  test "should notify on Slack when task is created" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tk = create_task annotator: u, annotated: pm
+      assert tk.sent_to_slack
+    end
+  end
 end
