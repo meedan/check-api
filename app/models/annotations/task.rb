@@ -37,7 +37,7 @@ class Task < ActiveRecord::Base
 
   def slack_message_on_create
     params = self.slack_default_params.merge({
-      default: '*%{user}* created task <%{url}> in %{project} with note "%{note}"',
+      default: "*%{user}* created task <%{url}> in %{project} with note '%{note}'",
       note: self.description
     })
     I18n.t(:slack_create_task, params)
