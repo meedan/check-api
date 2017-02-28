@@ -1,6 +1,6 @@
 class Task < ActiveRecord::Base
   include AnnotationBase
-  
+
   before_validation :set_initial_status, on: :create
   after_destroy :destroy_responses
 
@@ -23,7 +23,7 @@ class Task < ActiveRecord::Base
     ["Unresolved", "Resolved", "Can't be resolved"]
   end
   validates :status, included: { values: self.task_statuses }, allow_blank: true
-  
+
   annotation_notifies_slack :update
 
   def slack_message
@@ -34,7 +34,7 @@ class Task < ActiveRecord::Base
 
       default_params = {
         user: User.current.name,
-        url: "#{self.annotated_client_url}|#{self.label}",
+        url: "#{self.annotated_client_url}|#{self.label.gsub(/\n/, ' ')}",
         project: self.annotated.project.title
       }
 
