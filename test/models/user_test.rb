@@ -434,6 +434,7 @@ class UserTest < ActiveSupport::TestCase
     Sidekiq::Testing.fake!
     u = create_user
     assert_equal 0, u.send(:pending_notifications).size
+    Sidekiq::Extensions::DelayedMailer.jobs.clear
     assert_equal 0, Sidekiq::Extensions::DelayedMailer.jobs.size
     u.password = '12345678'
     u.password_confirmation = '12345678'
