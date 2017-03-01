@@ -5,7 +5,8 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :media
   belongs_to :user
   has_annotations
-  has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }
+  
+  include Versioned
 
   validates_presence_of :media_id, :project_id
 

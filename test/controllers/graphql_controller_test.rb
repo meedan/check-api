@@ -553,12 +553,17 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     m = create_media
-    pm = create_project_media project: p, media: m
-    create_comment annotated: pm, annotator: u
-    create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
+    create_annotation_type annotation_type: 'test'
+    pm = nil
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p, media: m
+      create_comment annotated: pm, annotator: u
+      create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
+    end
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 10) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, created_at, meta, object_changes_json, user { name }, annotation { id }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
+    assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
   end
 
   test "should get permissions for child objects" do

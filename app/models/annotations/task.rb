@@ -46,7 +46,7 @@ class Task < ActiveRecord::Base
   def slack_default_params
     {
       user: User.current.name,
-      url: "#{self.annotated_client_url}|#{self.label.gsub(/\n/, ' ')}",
+      url: "#{self.annotated_client_url}|#{self.label.tr("\n", ' ')}",
       project: self.annotated.project.title
     }
   end

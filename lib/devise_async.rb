@@ -6,8 +6,6 @@ module DeviseAsync
 
   def self.included(clazz)
     clazz.class_eval do
-      public
-
       after_commit :send_pending_notifications
 
       protected
