@@ -1,11 +1,12 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks
+  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id
 
   belongs_to :project
   belongs_to :media
   belongs_to :user
   has_annotations
-  has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at]
+  
+  include Versioned
 
   validates_presence_of :media_id, :project_id
 
@@ -28,10 +29,6 @@ class ProjectMedia < ActiveRecord::Base
                   data: proc { |pm| pm.media.to_json }
 
   include CheckElasticSearch
-
-  def media_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
-  end
 
   def project_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
@@ -177,6 +174,10 @@ class ProjectMedia < ActiveRecord::Base
       pm = ProjectMedia.where(project_id: pid, media_id: pmid).last
       return pm.id if pm
     end
+  end
+
+  def project_was
+    Project.find(self.previous_project_id) unless self.previous_project_id.blank?
   end
 
   protected

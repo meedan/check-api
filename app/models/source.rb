@@ -1,5 +1,5 @@
 class Source < ActiveRecord::Base
-  has_paper_trail on: [:create, :update]
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :accounts
   has_many :project_sources
   has_many :projects , through: :project_sources

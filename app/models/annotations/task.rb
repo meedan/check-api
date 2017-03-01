@@ -1,6 +1,6 @@
 class Task < ActiveRecord::Base
   include AnnotationBase
-  
+
   before_validation :set_initial_status, on: :create
   after_destroy :destroy_responses
 
@@ -23,27 +23,46 @@ class Task < ActiveRecord::Base
     ["Unresolved", "Resolved", "Can't be resolved"]
   end
   validates :status, included: { values: self.task_statuses }, allow_blank: true
-  
+
   annotation_notifies_slack :update
+  annotation_notifies_slack :create
 
   def slack_message
+    if self.versions.count > 1
+      self.slack_message_on_update
+    else
+      self.slack_message_on_create
+    end
+  end
+
+  def slack_message_on_create
+    params = self.slack_default_params.merge({
+      default: "*%{user}* created task <%{url}> in %{project} with note '%{note}'",
+      note: self.description
+    })
+    I18n.t(:slack_create_task, params)
+  end
+
+  def slack_default_params
+    {
+      user: User.current.name,
+      url: "#{self.annotated_client_url}|#{self.label.tr("\n", ' ')}",
+      project: self.annotated.project.title
+    }
+  end
+
+  def slack_message_on_update
     if self.data_changed?
       data = self.data
       data_was = self.data_was
       messages = []
-
-      default_params = {
-        user: User.current.name,
-        url: "#{self.annotated_client_url}|#{self.label}",
-        project: self.annotated.project.title
-      }
 
       {
         'label' => '*%{user}* edited task <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}',
         'description' => '*%{user}* edited task note in <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}'
       }.each do |key, message|
         if data_was[key] != data[key]
-          params = default_params.merge({
+          params = self.slack_default_params.merge({
             default: message,
             from: data_was[key],
             to: data[key]

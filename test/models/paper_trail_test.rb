@@ -7,7 +7,14 @@ class PaperTrailTest < ActiveSupport::TestCase
   end
 
   test "should have annotation" do
-    c = create_comment
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pm = create_project_media project: p
+    User.current = u
+    c = create_comment annotated: pm
+    User.current = nil
     v = c.versions.last
     assert_equal c, v.annotation.load
     assert_nil create_version.annotation
@@ -16,7 +23,7 @@ class PaperTrailTest < ActiveSupport::TestCase
   test "should have user" do
     v = create_version
     u = create_user
-    assert_nil v.user
+    assert_not_equal u, v.reload.user
     v.whodunnit = u.id.to_s
     v.save!
     assert_equal u, v.reload.user
@@ -28,9 +35,16 @@ class PaperTrailTest < ActiveSupport::TestCase
   end
 
   test "should apply changes" do
-    c = create_comment text: 'Foo'
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    User.current = u
+    c = create_comment annotated: pm, text: 'Foo'
     c.text = 'Bar'
     c.save!
+    User.current = nil
     assert_equal 'Bar', JSON.parse(c.versions.last.object_after)['data']['text']
   end
 
@@ -38,20 +52,26 @@ class PaperTrailTest < ActiveSupport::TestCase
     u = create_user
     User.current = u
     v = create_version
-    assert_equal u, v.reload.user
     User.current = nil
+    assert_not_nil v.whodunnit
   end
 
   test "should get projects" do
     v = create_version
-    p1 = create_project
-    p2 = create_project
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
     assert_equal [], v.projects
-    pm = create_project_media project: p1
-    pm = ProjectMedia.find(pm.id)
-    pm.project_id = p2.id
-    pm.save!
-    assert_equal [p1, p2], pm.versions.last.projects
+    m = create_valid_media
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p1, media: m, user: u
+      pm = ProjectMedia.find(pm.id)
+      pm.project_id = p2.id
+      pm.save!
+      assert_equal [p1, p2], pm.versions.last.projects
+    end
   end
 
   test "should get task" do
@@ -72,7 +92,13 @@ class PaperTrailTest < ActiveSupport::TestCase
   end
 
   test "should get changes as JSON" do
-    create_comment text: 'Foo'
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    User.current = u
+    c = create_comment annotated: pm, text: 'Foo'
     c = Comment.last
     c.text = 'Bar'
     c.save!
@@ -80,10 +106,17 @@ class PaperTrailTest < ActiveSupport::TestCase
   end
 
   test "should set event type" do
-    create_comment text: 'Foo'
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    User.current = u
+    c = create_comment annotated: pm, text: 'Foo'
     c = Comment.last
     c.text = 'Bar'
     c.save!
+    User.current = nil
     assert_equal 'update_comment', c.reload.versions.last.event_type
   end
 end

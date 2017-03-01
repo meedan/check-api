@@ -7,8 +7,8 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   serialize :value
 
   before_validation :set_annotation_type, :set_field_type
-  
-  has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at]
+
+  include Versioned
 
   private
 

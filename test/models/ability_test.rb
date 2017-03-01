@@ -1199,11 +1199,11 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
-    s = create_status annotated: pm, status: 'verified'
-    em = create_embed annotated: pm
-    s_v = s.versions.last
-    em_v = em.versions.last
     with_current_user_and_team(u, t) do
+      s = create_status annotated: pm, status: 'verified'
+      em = create_embed annotated: pm
+      s_v = s.versions.last
+      em_v = em.versions.last
       ability = Ability.new
       # Status versions
       assert ability.can?(:create, s_v)

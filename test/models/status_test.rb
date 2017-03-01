@@ -61,24 +61,38 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should create version when status is created" do
     st = nil
-    assert_difference 'PaperTrail::Version.count', 3 do
-      st = create_status(status: 'credible', annotated: create_source)
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      st = create_status(status: 'undetermined', annotated: pm)
     end
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>[{}, {"status"=>"credible"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, st.annotator_id], "annotated_type"=>[nil, "Source"], "annotated_id"=>[nil, st.annotated_id], "annotation_type"=>[nil, "status"]}, v.changeset)
+    assert_equal({"data"=>[{}, {"status"=>"undetermined"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, st.annotator_id], "annotated_type"=>[nil, "ProjectMedia"], "annotated_id"=>[nil, st.annotated_id], "annotation_type"=>[nil, "status"]}, v.changeset)
   end
 
   test "should create version when status is updated" do
-    create_status(status: 'slightly_credible')
-    st = Status.last
-    st.status = 'sockpuppet'
-    st.save
-    assert_equal 2, st.versions.count
+    st = nil
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      st = create_status(status: 'undetermined', annotated: pm)
+      assert_equal 1, st.versions.count
+      st = Status.where(annotation_type: 'status').last
+      st.status = 'verified'
+      st.save!
+      assert_equal 2, st.versions.count
+    end
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({"data"=>[{"status"=>"slightly_credible"}, {"status"=>"sockpuppet"}]}, v.changeset)
+    assert_equal({"data"=>[{"status"=>"undetermined"}, {"status"=>"verified"}]}, v.changeset)
   end
 
   test "should get columns as array" do
@@ -328,26 +342,30 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should revert destroy status" do
+    u = create_user
     t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m
-    s = Status.where(annotation_type: 'status', annotated_type: pm.class.to_s , annotated_id: pm.id).last
-    s.status = 'false'; s.save!
-    s.destroy
-    assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
-    s.status = 'Not Applicable'; s.save!; s.reload
-    s.status = 'false'; s.save!; s.reload
-    s.status = 'verified'; s.save!
-    assert_equal s.reload.status, 'verified'
-    s.destroy
-    assert_equal s.reload.status, 'false'
-    s.destroy
-    assert_equal s.reload.status, 'not_applicable'
-    s.destroy
-    assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
-    s.destroy
-    assert_nil Status.where(id: s.id).last
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p, media: m
+      s = Status.where(annotation_type: 'status', annotated_type: pm.class.to_s , annotated_id: pm.id).last
+      s.status = 'false'; s.save!
+      s.destroy
+      assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+      s.status = 'Not Applicable'; s.save!; s.reload
+      s.status = 'false'; s.save!; s.reload
+      s.status = 'verified'; s.save!
+      assert_equal s.reload.status, 'verified'
+      s.destroy
+      assert_equal s.reload.status, 'false'
+      s.destroy
+      assert_equal s.reload.status, 'not_applicable'
+      s.destroy
+      assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+      s.destroy
+      assert_nil Status.where(id: s.id).last
+    end
   end
 
   test "should protect attributes from mass assignment" do

@@ -44,9 +44,16 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
   test "should have versions" do
     ft = create_field_type field_type: 'text_field'
     fi = create_field_instance name: 'response', field_type_object: ft
-    a = create_dynamic_annotation
-    assert_difference 'PaperTrail::Version.count' do
-      create_field annotation_id: a.id, field_name: 'response'
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    a = create_dynamic_annotation annotated: pm, annotator: u
+    with_current_user_and_team(u, t) do
+      assert_difference 'PaperTrail::Version.count' do
+        create_field annotation_id: a.id, field_name: 'response'
+      end
     end
   end
 end

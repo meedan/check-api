@@ -113,16 +113,29 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should create version when media is created" do
+    u = create_user
+    create_team_user user: u
+    User.current = u
     m = create_valid_media
+    User.current = nil
     assert_equal 2, m.versions.size
   end
 
   test "should create version when media is updated" do
-    m = create_valid_media
-    assert_equal 2, m.versions.size
-    m = m.reload
-    m.user = create_user
-    m.save!
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    create_team_user user: u, team: t, role: 'owner'
+    u2 = create_user
+    m = nil
+    with_current_user_and_team(u, t) do
+      m = create_valid_media
+      create_project_media project: p, media: m
+      assert_equal 2, m.versions.size
+      m = m.reload
+      m.user = u2
+      m.save!
+    end
     assert_equal 3, m.reload.versions.size
   end
 

@@ -1,6 +1,7 @@
 class Team < ActiveRecord::Base
 
-  has_paper_trail on: [:create, :update]
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
+  
   has_many :projects, dependent: :destroy
   has_many :accounts, dependent: :destroy
   has_many :team_users, dependent: :destroy

@@ -82,15 +82,19 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should create version when team is created" do
+    User.current = create_user
     t = create_team
     assert_equal 1, t.versions.size
+    User.current = nil
   end
 
   test "should create version when team is updated" do
+    User.current = create_user
     t = create_team
     t.logo = random_string
     t.save!
     assert_equal 2, t.versions.size
+    User.current = nil
   end
 
   test "should have users" do

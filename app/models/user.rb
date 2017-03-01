@@ -22,6 +22,7 @@ class User < ActiveRecord::Base
   serialize :omniauth_info
 
   include CheckdeskSettings
+  include DeviseAsync
 
   ROLES = %w[contributor journalist editor owner]
   def role?(base_role)
@@ -204,7 +205,7 @@ class User < ActiveRecord::Base
   end
 
   def send_welcome_email
-    RegistrationMailer.welcome_email(self).deliver_now if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
+    RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
   end
 
   def set_image
