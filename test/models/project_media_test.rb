@@ -248,11 +248,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal Status.default_id(m, p), pm.annotations('status').last.status
   end
 
-  test "should get last status object" do
-    pm = create_project_media
-    assert_not_nil pm.last_status_obj
-  end
-
   test "should update project media embed data" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
@@ -287,35 +282,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Desc BB', data['description']
   end
 
-  test "should get published time" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_not_nil pm.published
-    assert_not_nil pm.send(:published)
-  end
-
   test "should have annotations" do
     pm = create_project_media
     c1 = create_comment annotated: pm
     c2 = create_comment annotated: pm
     c3 = create_comment annotated: nil
     assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
-  end
-
-  test "should get annotations log" do
-    pm = create_project_media
-    assert_equal 0, pm.get_annotations_log.size
-    s = Status.find_by(:annotation_type => 'status', annotated_id: pm.id, annotated_type: pm.class.to_s)
-    c = create_comment text: 'text', annotated: pm
-    f = create_flag flag: 'Spam', annotated: pm
-    s.status = 'false';s.save!
-    t = create_tag tag: 'Tag', annotated: pm
-    s.status = 'verified'; s.save!
-    pm.embed= {title: 'Change title'}.to_json
-    log = pm.get_annotations_log
-    assert_equal 6, log.size
-    assert_equal ['comment', 'flag', 'status', 'tag', 'status', 'embed'].reverse, log.map(&:annotation_type)
   end
 
   test "should get permissions" do
@@ -465,7 +437,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     create_comment annotated: pm
     create_tag annotated: pm
-    assert_equal 2, pm.get_annotations_log.size
+    assert_equal 2, pm.get_versions_log_count
     t2 = create_team
     p2 = create_project team: t2
     Sidekiq::Testing.fake! do
@@ -473,7 +445,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       ElasticSearchWorker.drain
     end
     # confirm annotations log
-    assert_equal 2, pm.get_annotations_log.size
+    assert_equal 3, pm.get_versions_log_count
     ms = MediaSearch.find(pm.id)
     assert_equal ms.project_id.to_i, p2.id
     assert_equal ms.team_id.to_i, t2.id

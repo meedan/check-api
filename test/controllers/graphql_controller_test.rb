@@ -119,9 +119,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read project medias" do
-    Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
-    assert_graphql_read('project_media', 'published')
-    #assert_graphql_read('project_media', 'last_status')
+    assert_graphql_read('project_media', 'last_status')
   end
 
   test "should read project media and fallback to media" do
@@ -210,21 +208,6 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-  end
-
-  test "should read annotations version" do
-    authenticate_with_user
-    p = create_project team: @team
-    pm = create_project_media project: p
-    s = pm.get_annotations('status').last
-    s = s.nil? ? create_status(annotated: pm, status: false) : s.load
-    s.status = 'verified'; s.save!; s.reload
-    s.status = 'false'; s.save!
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotations { edges { node { version { dbid } } } } } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    versions = JSON.parse(@response.body)['data']['project_media']['annotations']['edges']
-    assert_equal s.versions.last.id, versions.last["node"]["version"]["dbid"]
   end
 
   test "should create project source" do
@@ -327,7 +310,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from project media" do
-    assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url', 'last_status_obj' => 'status'})
+    assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url'})
   end
 
   test "should read object from project source" do
@@ -342,10 +325,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
                                                'annotations' => 'content','medias' => 'media_id', 'collaborators' => 'name',
                                                'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
-  end
-
-  test "should read collection from project media" do
-    assert_graphql_read_collection('project_media', { 'tags'=> 'tag', 'tasks' => 'label' })
   end
 
   test "should read collection from project" do
