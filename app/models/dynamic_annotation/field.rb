@@ -8,7 +8,7 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   before_validation :set_annotation_type, :set_field_type
   
-  has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at]
+  has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }
 
   private
 

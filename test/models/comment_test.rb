@@ -106,25 +106,35 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should create version when comment is created" do
-    c = nil
-    assert_difference 'PaperTrail::Version.count', 3 do
-      c = create_comment(text: 'test', annotated: create_source)
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      c = create_comment(text: 'test', annotated: pm)
+      assert_equal 1, c.versions.count
+      v = c.versions.last
+      assert_equal 'create', v.event
     end
-    assert_equal 1, c.versions.count
-    v = c.versions.last
-    assert_equal 'create', v.event
-    assert_equal({"data"=>[{}, {"text"=>"test"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, c.annotator_id], "annotated_type"=>[nil, "Source"], "annotated_id"=>[nil, c.annotated_id], "annotation_type"=>[nil, "comment"]}, v.changeset)
   end
 
   test "should create version when comment is updated" do
-    c = create_comment(text: 'foo')
-    c = Comment.last
-    c.text = 'bar'
-    c.save!
-    assert_equal 2, c.versions.count
-    v = PaperTrail::Version.last
-    assert_equal 'update', v.event
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      c = create_comment(text: 'foo', annotated: pm)
+      c = Comment.last
+      c.text = 'bar'
+      c.save!
+      assert_equal 2, c.versions.count
+      v = PaperTrail::Version.last
+      assert_equal 'update', v.event
       assert_equal({"data"=>[{"text"=>"foo"}, {"text"=>"bar"}]}, v.changeset)
+    end
   end
 
   test "should get columns as array" do

@@ -213,7 +213,9 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read annotations version" do
-    authenticate_with_user
+    u = create_user
+    User.current = u
+    authenticate_with_user(u)
     p = create_project team: @team
     pm = create_project_media project: p
     s = pm.get_annotations('status').last
@@ -225,6 +227,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     versions = JSON.parse(@response.body)['data']['project_media']['annotations']['edges']
     assert_equal s.versions.last.id, versions.last["node"]["version"]["dbid"]
+    User.current = nil
   end
 
   test "should create project source" do
@@ -416,6 +419,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read versions" do
+    u = create_user
+    create_team_user user: u
     assert_graphql_read('version', 'dbid')
   end
 

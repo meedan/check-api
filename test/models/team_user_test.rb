@@ -1,6 +1,12 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class TeamUserTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.fake!
+  end
+
   test "should create team user" do
     assert_difference 'TeamUser.count' do
       create_team_user
@@ -121,14 +127,10 @@ class TeamUserTest < ActiveSupport::TestCase
   end
 
   test "should send e-mail to owners when user requests to join" do
-    assert_no_difference 'ActionMailer::Base.deliveries.size' do
-      create_team_user
-    end
-
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+    assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
       create_team_user team: t
     end
   end
@@ -137,7 +139,7 @@ class TeamUserTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     tu = create_team_user team: t, user: u, role: 'contributor', status: 'requested'
-    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+    assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
       tu.status = 'member'
       tu.save!
     end
@@ -147,7 +149,7 @@ class TeamUserTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     tu = create_team_user team: t, user: u, role: 'contributor', status: 'requested'
-    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+    assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
       tu.status = 'banned'
       tu.save!
     end
@@ -157,7 +159,7 @@ class TeamUserTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     tu = create_team_user team: t, user: u, role: 'contributor', status: 'requested'
-    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+    assert_no_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size' do
       tu.role = 'owner'
       tu.save!
     end

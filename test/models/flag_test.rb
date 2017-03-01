@@ -24,25 +24,38 @@ class FlagTest < ActiveSupport::TestCase
   end
 
   test "should create version when flag is created" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
     f = nil
-    assert_difference 'PaperTrail::Version.count', 2 do
-      f = create_flag(flag: 'Spam', annotated: nil)
+    with_current_user_and_team(u, t) do
+      f = create_flag(flag: 'Spam', annotated: pm)
     end
     assert_equal 1, f.versions.count
     v = f.versions.last
     assert_equal 'create', v.event
-    assert_equal({"data"=>[{}, {"flag"=>"Spam"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, f.annotator_id], "annotation_type"=>[nil, "flag"]}, v.changeset)
+    assert_equal({"data"=>[{}, {"flag"=>"Spam"}], "annotator_type"=>[nil, "User"], "annotated_type"=>[nil, "ProjectMedia"], "annotated_id"=>[nil, pm.id], "annotator_id"=>[nil, f.annotator_id], "annotation_type"=>[nil, "flag"]}, v.changeset)
   end
 
   test "should create version when flag is updated" do
-    f = create_flag(flag: 'Spam')
-    f = Flag.last
-    f.flag = 'Graphic content'
-    f.save
-    assert_equal 2, f.versions.count
-    v = PaperTrail::Version.last
-    assert_equal 'update', v.event
-    assert_equal({"data"=>[{"flag"=>"Spam"}, {"flag"=>"Graphic content"}]}, v.changeset)
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    f = nil
+    with_current_user_and_team(u, t) do
+      f = create_flag(flag: 'Spam', annotated: pm)
+      f = Flag.last
+      f.flag = 'Graphic content'
+      f.save
+      assert_equal 2, f.versions.count
+      v = PaperTrail::Version.last
+      assert_equal 'update', v.event
+      assert_equal({"data"=>[{"flag"=>"Spam"}, {"flag"=>"Graphic content"}]}, v.changeset)
+    end
   end
 
   test "should get columns as array" do
