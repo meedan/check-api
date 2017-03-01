@@ -51,7 +51,7 @@ class PaperTrailTest < ActiveSupport::TestCase
   test "should set user" do
     u = create_user
     User.current = u
-    v = create_version
+    v = create_version(user: u)
     User.current = nil
     assert_not_nil v.whodunnit
   end
