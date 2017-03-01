@@ -328,8 +328,10 @@ module SampleData
   end
 
   def create_version(options = {})
-    User.current = create_user
-    v = create_team.versions.last
+    u = create_user
+    User.current = u
+    t = create_team
+    v = t.versions.last
     User.current = nil
     v
   end

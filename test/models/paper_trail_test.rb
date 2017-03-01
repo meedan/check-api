@@ -50,7 +50,7 @@ class PaperTrailTest < ActiveSupport::TestCase
 
   test "should set user" do
     v = create_version
-    assert_not_nil v.reload.user
+    assert_not_nil v.user
   end
 
   test "should get projects" do
