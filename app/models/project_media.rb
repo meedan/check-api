@@ -14,6 +14,7 @@ class ProjectMedia < ActiveRecord::Base
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks
   after_update :update_elasticsearch_data
+  before_destroy :destroy_elasticsearch_media
 
   notifies_slack on: :create,
                  if: proc { |pm| t = pm.project.team; User.current.present? && t.present? && t.setting(:slack_notifications_enabled).to_i === 1 },
@@ -81,6 +82,10 @@ class ProjectMedia < ActiveRecord::Base
     keys = %w(project_id team_id)
     data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
+  end
+
+  def destroy_elasticsearch_media
+    destroy_elasticsearch_data(MediaSearch, 'parent')
   end
 
   def get_annotations(type = nil)

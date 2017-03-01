@@ -9,6 +9,7 @@ class Tag < ActiveRecord::Base
 
   before_validation :normalize_tag, :store_full_tag
   after_save :add_update_elasticsearch_tag
+  before_destroy :destroy_elasticsearch_tag
 
   def content
     { tag: self.tag }.to_json
@@ -35,6 +36,10 @@ class Tag < ActiveRecord::Base
 
   def add_update_elasticsearch_tag
     add_update_media_search_child('tag_search', %w(tag full_tag))
+  end
+
+  def destroy_elasticsearch_tag
+    destroy_elasticsearch_data(TagSearch)
   end
 
 end
