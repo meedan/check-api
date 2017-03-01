@@ -6,7 +6,7 @@ class Media < ActiveRecord::Base
   has_paper_trail on: [:create, :update]
   belongs_to :account
   belongs_to :user
-  has_many :project_medias
+  has_many :project_medias, dependent: :destroy
   has_many :projects, through: :project_medias
   has_annotations
 

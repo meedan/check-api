@@ -57,7 +57,7 @@ module CheckElasticSearch
 
   def destroy_elasticsearch_data(model, type = 'child')
     options = {}
-    {parent: self.annotated_id} if type == 'child'
+    options = {parent: self.annotated_id} if type == 'child'
     obj = model.search(query: { match: { _id: self.id } }).last
     obj.delete(options) unless obj.nil?
   end
