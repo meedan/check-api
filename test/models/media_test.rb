@@ -1,6 +1,12 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class MediaTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+  end
+
   test "should create media" do
     assert_difference 'Media.count' do
       create_valid_media
@@ -452,11 +458,14 @@ class MediaTest < ActiveSupport::TestCase
     m = create_media(account: create_valid_account, url: url)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     c = create_comment annotated: pm, disable_es_callbacks: false
+    sleep 1
+    assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+    assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
     id = pm.id
     m.destroy
     assert_equal 0, ProjectMedia.where(media_id: id).count
     assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
-    # sleep 1
+    sleep 1
     assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
     assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
   end

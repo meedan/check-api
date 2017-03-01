@@ -367,15 +367,20 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project team: t
     id = p.id
     p.title = 'Change title'; p.save!
-    pm = create_project_media project: p, disable_es_callbacks: false
-    c = create_comment annotated: pm, disable_es_callbacks: false
-    p.destroy
-    assert_equal 0, ProjectMedia.where(project_id: id).count
-    assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
-    assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
-    # sleep 1
-    assert_equal 0, MediaSearch.search(query: { match: { _id: id } }).results.count
-    assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p, disable_es_callbacks: false
+      c = create_comment annotated: pm, disable_es_callbacks: false
+      sleep 1
+      assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+      p.destroy
+      assert_equal 0, ProjectMedia.where(project_id: id).count
+      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+      assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
+      sleep 1
+      assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    end
   end
 
 end
