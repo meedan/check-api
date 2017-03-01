@@ -536,7 +536,7 @@ class GraphqlControllerTest < ActionController::TestCase
       create_comment annotated: pm, annotator: u
       create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
     end
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 10) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, created_at, meta, object_changes_json, user { name }, annotation { id }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, created_at, meta, object_changes_json, user { name }, annotation { id }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
     assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
@@ -690,9 +690,9 @@ class GraphqlControllerTest < ActionController::TestCase
       pm = create_project_media project: p
       m.times { create_comment annotated: pm, annotator: u }
     end
-    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
+    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions } }  } } } } } }"
 
-    assert_queries (5 * n + 15) do
+    assert_queries (3 * n - 3) do
       post :create, query: query, team: 'team'
     end
 
