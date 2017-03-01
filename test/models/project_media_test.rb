@@ -432,7 +432,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     create_comment annotated: pm
     create_tag annotated: pm
-    assert_equal 2, pm.get_versions_log_count
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.project_id.to_i, p.id
+    assert_equal ms.team_id.to_i, t.id
     t2 = create_team
     p2 = create_project team: t2
     Sidekiq::Testing.fake! do
@@ -440,7 +443,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       ElasticSearchWorker.drain
     end
     # confirm annotations log
-    assert_equal 3, pm.get_versions_log_count
+    sleep 1
     ms = MediaSearch.find(pm.id)
     assert_equal ms.project_id.to_i, p2.id
     assert_equal ms.team_id.to_i, t2.id
