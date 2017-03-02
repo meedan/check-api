@@ -112,4 +112,60 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 0, Dynamic.count
     assert_equal 0, DynamicAnnotation::Field.count
   end
+
+  test "should notify on Slack when task is updated" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tk = create_task annotator: u, annotated: pm
+      tk.label = 'changed'
+      tk.description = 'changed'
+      tk.save!
+      assert tk.sent_to_slack
+    end
+  end
+
+  test "should notify on Slack when task is resolved" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
+    fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
+    pm = create_project_media project: p
+    
+    with_current_user_and_team(u, t) do
+      tk = create_task annotator: u, annotated: pm
+      tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo', note_task: 'Bar', task_reference: tk.id.to_s }.to_json }.to_json
+      tk.save!
+      assert tk.response.sent_to_slack
+
+      d = Dynamic.find(tk.response.id)
+      d.set_fields = { response_task: 'Bar', note_task: 'Foo' }.to_json
+      d.save!
+      assert d.sent_to_slack
+    end
+  end
+
+  test "should notify on Slack when task is created" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tk = create_task annotator: u, annotated: pm
+      assert tk.sent_to_slack
+    end
+  end
 end

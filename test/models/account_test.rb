@@ -46,13 +46,23 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "should create version when account is created" do
-    assert_equal 1, @account.versions.size
+    u = create_user
+    create_team_user user: u
+    User.current = u
+    a = create_account
+    assert_equal 1, a.versions.size
+    User.current = nil
   end
 
   test "should create version when account is updated" do
-    @account.user = create_user
-    @account.save!
-    assert_equal 2, @account.versions.size
+    u = create_user
+    create_team_user user: u
+    User.current = u
+    a = create_account
+    a.user = create_user
+    a.save!
+    assert_equal 2, a.versions.size
+    User.current = nil
   end
 
   test "should get user id from callback" do

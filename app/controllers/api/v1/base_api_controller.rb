@@ -8,6 +8,7 @@ module Api
       before_filter :remove_empty_params_and_headers
       before_filter :set_custom_response_headers
       before_filter :authenticate_from_token!, except: [:me, :options]
+      before_action :set_paper_trail_whodunnit
 
       # Verify payload for webhook methods
       # before_filter :verify_payload!
@@ -98,6 +99,10 @@ module Api
       def set_custom_response_headers
         response.headers['X-Build'] = BUILD
         response.headers['Accept'] ||= ApiConstraints.accept(1)
+      end
+
+      def user_for_paper_trail
+        current_api_user.id unless current_api_user.nil?
       end
     end
   end

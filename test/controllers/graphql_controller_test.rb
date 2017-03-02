@@ -194,8 +194,28 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_not overridden['username']
   end
 
-  test "should read annotations version" do
+  test "should read project media versions to find previous project" do
     authenticate_with_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    pm = create_project_media project: p
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+    pm.project = p2
+    pm.save!
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+  end
+
+  test "should read annotations version" do
+    u = create_user
+    User.current = u
+    authenticate_with_user(u)
     p = create_project team: @team
     pm = create_project_media project: p
     s = pm.get_annotations('status').last
@@ -207,6 +227,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     versions = JSON.parse(@response.body)['data']['project_media']['annotations']['edges']
     assert_equal s.versions.last.id, versions.last["node"]["version"]["dbid"]
+    User.current = nil
   end
 
   test "should create project source" do
@@ -398,6 +419,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read versions" do
+    u = create_user
+    create_team_user user: u
     assert_graphql_read('version', 'dbid')
   end
 
@@ -530,12 +553,17 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     m = create_media
-    pm = create_project_media project: p, media: m
-    create_comment annotated: pm, annotator: u
-    create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 10) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
+    create_annotation_type annotation_type: 'test'
+    pm = nil
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p, media: m
+      create_comment annotated: pm, annotator: u
+      create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
+    end
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 10) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, created_at, meta, object_changes_json, user { name }, annotation { id }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
+    assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
   end
 
   test "should get permissions for child objects" do
@@ -852,4 +880,23 @@ class GraphqlControllerTest < ActionController::TestCase
     fields = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['first_response']['content']
     assert_equal 'Test', JSON.parse(fields).select{ |f| f['field_type'] == 'text' }.first['value']
   end
+
+  test "should move report to other projects" do
+    u = create_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    create_team_user user: u, team: @team, role: 'owner'
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    authenticate_with_user(u)
+    id = Base64.encode64("ProjectMedia/#{pm.id}")
+    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", project_id: #{p2.id} }) { project_media { project_id }, project { id } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
+    last_version = pm.versions.last
+    assert_equal [p.id, p2.id], JSON.parse(last_version.object_changes)['project_id']
+    assert_equal u.id.to_s, last_version.whodunnit
+  end
+
 end

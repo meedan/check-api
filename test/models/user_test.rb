@@ -1,6 +1,11 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class UserTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+  end
 
   test "should create user" do
     assert_difference 'User.count' do
@@ -15,7 +20,7 @@ class UserTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user team: t, user: u2, role: 'editor'
     u2.save!
-    
+
     with_current_user_and_team(u2, t) do
       assert_raise RuntimeError do
         u.save!
@@ -24,7 +29,7 @@ class UserTest < ActiveSupport::TestCase
         u.save!
       end
     end
-    
+
     with_current_user_and_team(u, t) { u2.destroy }
   end
 
@@ -170,6 +175,24 @@ class UserTest < ActiveSupport::TestCase
         create_user provider: ''
         create_user provider: 'twitter'
         create_user provider: 'facebook'
+      end
+    end
+  end
+
+  test "should send email when user email is duplicate" do
+    u = create_user provider: 'facebook'
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
+  test "should not add duplicate mail" do
+    u = create_user
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
       end
     end
   end
@@ -323,23 +346,23 @@ class UserTest < ActiveSupport::TestCase
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
-    
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
@@ -401,9 +424,28 @@ class UserTest < ActiveSupport::TestCase
     raw_params = { name: 'My name', login: 'my-name' }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       User.create(params)
     end
   end
 
+  test "should delay confirmation email" do
+    require 'sidekiq/testing'
+    Sidekiq::Testing.fake!
+    u = create_user
+    assert_equal 0, u.send(:pending_notifications).size
+    Sidekiq::Extensions::DelayedMailer.jobs.clear
+    assert_equal 0, Sidekiq::Extensions::DelayedMailer.jobs.size
+    u.password = '12345678'
+    u.password_confirmation = '12345678'
+    u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
+    u.save!
+    u.send(:send_pending_notifications)
+    assert_equal 1, Sidekiq::Extensions::DelayedMailer.jobs.size
+    assert_equal 1, u.send(:pending_notifications).size
+    u = User.last
+    u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
+    assert_equal 2, Sidekiq::Extensions::DelayedMailer.jobs.size
+    assert_equal 0, u.send(:pending_notifications).size
+  end
 end

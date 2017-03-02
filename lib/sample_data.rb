@@ -315,7 +315,8 @@ module SampleData
   end
 
   def create_project_media(options = {})
-    options = { disable_es_callbacks: true, user: create_user }.merge(options)
+    u = options[:user] || create_user
+    options = { disable_es_callbacks: true, user: u }.merge(options)
     pm = ProjectMedia.new
     options[:project] = create_project unless options.has_key?(:project)
     options[:media] = create_valid_media unless options.has_key?(:media)
@@ -327,12 +328,11 @@ module SampleData
   end
 
   def create_version(options = {})
-     v = PaperTrail::Version.new
-     v.event = 'create'
-     v.item_type = random_string
-     v.item_id = random_number
-     v.save!
-     v.reload
+    User.current = options[:user] || create_user
+    t = create_team
+    v = t.versions.last
+    User.current = nil
+    v
   end
 
   def create_team_user(options = {})

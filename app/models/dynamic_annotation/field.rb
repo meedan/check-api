@@ -8,6 +8,8 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   before_validation :set_annotation_type, :set_field_type
 
+  include Versioned
+
   private
 
   def set_annotation_type

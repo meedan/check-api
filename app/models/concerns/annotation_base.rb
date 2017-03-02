@@ -62,6 +62,7 @@ module AnnotationBase
     include CheckdeskPermissions
     include CheckdeskNotifications::Slack
     include CheckdeskNotifications::Pusher
+    include CheckElasticSearch
 
     attr_accessor :disable_es_callbacks
     self.table_name = 'annotations'
@@ -75,7 +76,7 @@ module AnnotationBase
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
 
-    has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities]
+    has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities], if: proc { |_x| User.current.present? }
 
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
@@ -116,10 +117,18 @@ module AnnotationBase
         self.data[name.to_sym]
       end
     end
+
+    def annotation_notifies_slack(event)
+      notifies_slack on: event,
+                     if: proc { |a| a.should_notify? },
+                     message: proc { |a| a.slack_message },
+                     channel: proc { |a| a.annotated.project.setting(:slack_channel) || a.current_team.setting(:slack_channel) },
+                     webhook: proc { |a| a.current_team.setting(:slack_webhook) }
+    end
   end
 
   def versions(options = {})
-    PaperTrail::Version.where(options).where(item_type: self.class.to_s, item_id: self.id).order('id ASC')
+    PaperTrail::Version.where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
   end
 
   def source
@@ -204,54 +213,6 @@ module AnnotationBase
     (args.empty? && !block_given?) ? self.data[method] : super
   end
 
-  def update_media_search(keys)
-    return if self.disable_es_callbacks
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), 'update_parent')
-  end
-
-  def update_media_search_bg(keys)
-    ms = get_elasticsearch_parent
-    unless ms.nil?
-      options = {'last_activity_at' => Time.now.utc}
-      keys.each{|k| options[k] = self.data[k] if ms.respond_to?("#{k}=") and !self.data[k].blank? }
-      ms.update options
-    end
-  end
-
-  def add_update_media_search_child(child, keys)
-    return if self.disable_es_callbacks
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), child)
-  end
-
-  def add_update_media_search_child_bg(child, keys)
-    # get parent
-    ms = get_elasticsearch_parent
-    unless ms.nil?
-      child = child.singularize.camelize.constantize
-      model = child.search(query: { match: { _id: self.id } }).results.last
-      if model.nil?
-        model = child.new
-        model.id = self.id
-      end
-      store_elasticsearch_data(model, keys, {parent: ms.id})
-      # Update last_activity_at on parent
-      ms.update last_activity_at: Time.now.utc
-    end
-  end
-
-  def store_elasticsearch_data(model, keys, options = {})
-    keys.each do |k|
-      model.send("#{k}=", self.data[k]) if model.respond_to?("#{k}=") and !self.data[k].blank?
-    end
-    model.save!(options)
-  end
-
-  def get_elasticsearch_parent
-    pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
-    sleep 1 if Rails.env == 'test'
-    MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
-  end
-
   def annotation_type_class
     klass = nil
     begin
@@ -262,12 +223,16 @@ module AnnotationBase
     klass
   end
 
+  def annotated_client_url
+    "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}"
+  end
+
   protected
 
   def load_polymorphic(name)
     type, id = self.send("#{name}_type"), self.send("#{name}_id")
     return nil if type.blank? && id.blank?
-    Rails.cache.fetch("find_#{type.parameterize}_#{id}", expires_in: 30.seconds) do
+    Rails.cache.fetch("find_#{type.parameterize}_#{id}", expires_in: 30.seconds, race_condition_ttl: 30.seconds) do
       type.constantize.find(id)
     end
   end

@@ -4,16 +4,15 @@ class ElasticSearchWorker
   require 'sidekiq-limit_fetch'
   sidekiq_options queue: 'esqueue', :retry => false
 
-  def perform(model, keys, type)
+  def perform(model, keys, data, type)
     model = YAML::load(model)
     keys = YAML::load(keys)
+    data = YAML::load(data)
 
-    if type == 'add_parent'
-      model.save!
-    elsif type == 'update_parent'
-      model.update_media_search_bg(keys)
+    if type == 'update_parent'
+      model.update_media_search_bg(keys, data)
     else
-      model.add_update_media_search_child_bg(type, keys)
+      model.add_update_media_search_child_bg(type, keys, data)
     end
   end
 

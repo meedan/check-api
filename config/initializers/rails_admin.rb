@@ -185,6 +185,9 @@ RailsAdmin.config do |config|
   end
 
   config.model 'Project' do
+    object_label_method do
+      :admin_label
+    end
 
     list do
       field :title
@@ -193,10 +196,22 @@ RailsAdmin.config do |config|
       field :archived
     end
 
+    show do
+      configure :get_slack_notifications_enabled do
+        label 'Enable Slack notifications'
+      end
+      configure :get_slack_channel do
+        label 'Slack #channel'
+      end
+    end
+
     edit do
       field :title
       field :description
-      field :team
+      field :team do
+        read_only true
+        help ''
+      end
       field :archived
       field :lead_image
       field :user
@@ -210,12 +225,15 @@ RailsAdmin.config do |config|
       end
     end
 
-    show do
-      configure :get_slack_notifications_enabled do
-        label 'Enable Slack notifications'
+    create do
+      configure :team do
+        read_only false
       end
-      configure :get_slack_channel do
-        label 'Slack #channel'
+      field :slack_notifications_enabled do
+        hide
+      end
+      field :slack_channel do
+        hide
       end
     end
 

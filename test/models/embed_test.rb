@@ -140,6 +140,4 @@ class EmbedTest < ActiveSupport::TestCase
       Embed.create(params)
     end
   end
-
-
 end

@@ -1,6 +1,6 @@
 class Project < ActiveRecord::Base
 
-  has_paper_trail on: [:create, :update]
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
   belongs_to :team
   has_many :project_sources
@@ -72,6 +72,12 @@ class Project < ActiveRecord::Base
 
   def slack_channel=(channel)
     self.send(:set_slack_channel, channel)
+  end
+
+  def admin_label
+    unless self.new_record?
+      [self.team.name.truncate(15),self.title.truncate(25)].join(' - ')
+    end
   end
 
   private
