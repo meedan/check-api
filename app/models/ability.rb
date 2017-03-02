@@ -57,10 +57,12 @@ class Ability
       end
     end
     can :destroy, PaperTrail::Version do |obj|
-      a = nil
-      v_obj = obj.item_type.constantize.where(id: obj.item_id).last
-      a = v_obj if v_obj.is_annotation?
-      !a.nil? and a.get_team.include? @context_team.id
+      teams = []
+      v_obj = obj.item_type.constantize.find(obj.item_id)
+      teams = v_obj.get_team if v_obj.respond_to?(:get_team)
+      teams << v_obj.team_id if teams.blank? and v_obj.respond_to?(:team)
+      teams << v_obj.project.team_id if teams.blank? and v_obj.respond_to?(:project)
+      teams.include? @context_team.id
     end
   end
 
@@ -147,6 +149,10 @@ class Ability
       before, after = obj.data_change
       changes = (after.to_a - before.to_a).to_h
       obj.get_team.include?(@context_team.id) && changes.keys == ['status']
+    end
+    can :destroy, PaperTrail::Version do |obj|
+      v_obj = obj.item_type.constantize.find(obj.item_id) if obj.item_type == 'ProjectMedia'
+      !v_obj.nil? and v_obj.project.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
   end
 

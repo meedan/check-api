@@ -9,7 +9,7 @@ module ActiveRecordExtensions
     attr_accessor :no_cache, :skip_check_ability
 
     before_save :check_ability
-    before_destroy :check_destroy_ability
+    before_destroy :check_destroy_ability, :destroy_annotations_and_versions
     # after_find :check_read_ability
   end
 
@@ -44,6 +44,12 @@ module ActiveRecordExtensions
   def class_name
     self.class.name
   end
+
+  def destroy_annotations_and_versions
+    self.versions.destroy_all if self.class_name.constantize.paper_trail.enabled?
+    self.annotations.destroy_all if self.respond_to?(:annotations)
+  end
+
 end
 
 ActiveRecord::Base.send(:include, ActiveRecordExtensions)

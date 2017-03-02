@@ -6,6 +6,7 @@ class Comment < ActiveRecord::Base
 
   before_save :extract_check_entities
   after_save :add_update_elasticsearch_comment
+  before_destroy :destroy_elasticsearch_comment
 
   annotation_notifies_slack :save
 
@@ -67,6 +68,10 @@ class Comment < ActiveRecord::Base
 
   def add_update_elasticsearch_comment
     add_update_media_search_child('comment_search', %w(text))
+  end
+
+  def destroy_elasticsearch_comment
+    destroy_elasticsearch_data(CommentSearch)
   end
 
 end

@@ -1,11 +1,12 @@
 class Team < ActiveRecord::Base
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
-  has_many :projects
-  has_many :accounts
-  has_many :team_users
+  
+  has_many :projects, dependent: :destroy
+  has_many :accounts, dependent: :destroy
+  has_many :team_users, dependent: :destroy
   has_many :users, through: :team_users
-  has_many :contacts
+  has_many :contacts, dependent: :destroy
 
   mount_uploader :logo, ImageUploader
 

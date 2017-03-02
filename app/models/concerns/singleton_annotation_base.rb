@@ -16,16 +16,6 @@ module SingletonAnnotationBase
     end
   end
 
-  def get_versions
-    an = [self]
-    versions = self.versions.reverse
-    versions.each do |obj|
-      # load object
-      an << obj.reify unless obj.reify.nil?
-    end
-    an
-  end
-
   private
 
   def set_annotator

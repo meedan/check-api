@@ -5,7 +5,7 @@ class Project < ActiveRecord::Base
   belongs_to :team
   has_many :project_sources
   has_many :sources , through: :project_sources
-  has_many :project_medias
+  has_many :project_medias, dependent: :destroy
   has_many :medias , through: :project_medias
 
   mount_uploader :lead_image, ImageUploader
