@@ -120,6 +120,14 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project medias" do
     assert_graphql_read('project_media', 'last_status')
+    authenticate_with_user
+    p = create_project team: @team
+    pm = create_project_media project: p
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, last_status_obj {dbid} } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
+    assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
   end
 
   test "should read project media and fallback to media" do
