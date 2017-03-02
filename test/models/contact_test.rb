@@ -55,13 +55,13 @@ class ContactTest < ActiveSupport::TestCase
     create_team_user team: pt, user: pu, role: 'owner'
     pc = create_contact team: pt
     with_current_user_and_team(u, t) { Contact.find_if_can(c.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Contact.find_if_can(pc.id) }
     end
     with_current_user_and_team(pu, pt) { Contact.find_if_can(pc.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu.reload, pt) { Contact.find_if_can(pc.id) }
     end
   end
@@ -87,7 +87,7 @@ class ContactTest < ActiveSupport::TestCase
     raw_params = { phone: random_valid_phone }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Contact.create(params)
     end
   end

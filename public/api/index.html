@@ -40,7 +40,7 @@
     $('#input_apiKey').change(function() {
       var key = $('#input_apiKey')[0].value;
       if (key && key.trim() != "") {
-        window.authorizations.add('token', new ApiKeyAuthorization('X-Checkdesk-Token', key, 'header'));
+        window.authorizations.add('token', new ApiKeyAuthorization('X-Check-Token', key, 'header'));
       }
     });
 

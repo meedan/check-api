@@ -2,9 +2,9 @@ module ActiveRecordExtensions
   extend ActiveSupport::Concern
 
   included do
-    include CheckdeskPermissions
-    include CheckdeskNotifications::Slack
-    include CheckdeskNotifications::Pusher
+    include CheckPermissions
+    include CheckNotifications::Slack
+    include CheckNotifications::Pusher
 
     attr_accessor :no_cache, :skip_check_ability
 
