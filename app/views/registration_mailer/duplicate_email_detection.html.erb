@@ -4,6 +4,6 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-      <%= I18n.t(:mail_duplicate_email_exists_body, user_email: @user.email, user_provider: @user_provider, duplicate_provider: @duplicate_provider).html_safe %>
+      <%= I18n.t(@mail_body, user_email: @user.email, user_provider: @user_provider, duplicate_provider: @duplicate_provider).html_safe %>
   </body>
 </html>
