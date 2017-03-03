@@ -10,7 +10,7 @@ module PaperTrail
     end
   end
 
-  module CheckdeskExtensions
+  module CheckExtensions
     def self.included(base)
       base.class_eval do
         before_create :set_object_after, :set_user, :set_event_type
@@ -61,7 +61,7 @@ module PaperTrail
           changes[key].collect!{ |change| self.deserialize_change(change) unless change.nil? } if changes[key]
         end
       end
-      
+
       changes.each do |key, pair|
         object[key] = pair[1]
       end
@@ -123,5 +123,5 @@ module PaperTrail
   end
 end
 
-PaperTrail::Version.send(:include, PaperTrail::CheckdeskExtensions)
+PaperTrail::Version.send(:include, PaperTrail::CheckExtensions)
 ActiveRecord::Base.send :include, AnnotationBase::Association

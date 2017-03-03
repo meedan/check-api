@@ -80,7 +80,7 @@ You can also test your instance of ClamAV REST this way:
 * Run this: `bundle exec ruby test/models/uploaded_file_test.rb -n /real/`
 * Two tests should pass
 
-The test uses a EICAR file (a test file which is recognized as a virus by scanners even though it's not really a virus). 
+The test uses a EICAR file (a test file which is recognized as a virus by scanners even though it's not really a virus).
 
 ### Localization
 
@@ -93,15 +93,6 @@ Localization is powered by Transifex + I18n. In order to localize the applicatio
 We call "localizable strings" any call to the `I18n.t` function like this: `I18n.t(:string_unique_id, default: 'English string')`.
 
 Clients should send the `Accept-Language` header in order to get localized content. If you want to serve everything in English, just add `locale: 'en'` to your `config/config.yml`.
-
-### Migration
-
-Migrate CD2 data
-
-* Add `allow_duplicated_urls: true` to `config.yml`
-* Run `drush eval "_checkdesk_core_export_data_csv();"` in `CD2` instance : This command will output a directory inside `[files directory]/checkdesk_migration`.
-* Copy the output from the above step `[files directory]/checkdesk_migration/[instance_name]` into CD3 `db/data`.
-* Run `rake db:seed:sample`.
 
 ### Credits
 

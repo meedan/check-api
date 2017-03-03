@@ -142,14 +142,14 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   test "should not store error if there is no error from provider" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     get :facebook
-    assert_nil session['checkdesk.error']
+    assert_nil session['check.error']
   end
 
   test "should store error if there is error from provider" do
     create_user email: 'test@test.com'
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     get :facebook
-    assert_not_nil session['checkdesk.error']
+    assert_not_nil session['check.error']
   end
 
   def teardown

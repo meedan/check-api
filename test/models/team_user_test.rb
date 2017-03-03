@@ -66,12 +66,12 @@ class TeamUserTest < ActiveSupport::TestCase
     ptu = pt.team_users.last
 
     with_current_user_and_team(u, t) { TeamUser.find_if_can(tu.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { TeamUser.find_if_can(ptu.id) }
     end
     with_current_user_and_team(pu, pt) { TeamUser.find_if_can(ptu.id) }
     ptu.status = 'requested'; ptu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu.reload, pt) { TeamUser.find_if_can(ptu.reload.id) }
     end
   end
@@ -261,7 +261,7 @@ class TeamUserTest < ActiveSupport::TestCase
     raw_params = { user: create_user, team: create_team }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       TeamUser.create(params)
     end
   end

@@ -24,12 +24,12 @@ module Api
         header = CONFIG['authorization_header'] || 'X-Token'
         token = request.headers[header]
 
-        if session['checkdesk.error']
-          message = session['checkdesk.error']
+        if session['check.error']
+          message = session['check.error']
           reset_session
           render_error(message, 'UNKNOWN') and return
         end
-        
+
         if token
           render_user User.where(token: token).last, 'token'
         else
@@ -86,7 +86,7 @@ module Api
         signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'].to_s, payload)
         Rack::Utils.secure_compare(signature, request.headers['X-Signature'].to_s)
       end
-  
+
       def get_params
         params.reject{ |k, _v| ['id', 'action', 'controller', 'format'].include?(k) }
       end

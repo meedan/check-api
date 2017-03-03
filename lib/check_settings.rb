@@ -1,11 +1,11 @@
 # Check Settings Module
-# Add to the model: include CheckdeskSettings
+# Add to the model: include CheckSettings
 # It must have a "settings" column already
 # Settings have key and value
 # How to get a setting value: object.setting(key)
 # How to set a setting value: object.set_key = value
 
-module CheckdeskSettings
+module CheckSettings
   def self.included(base)
     base.class_eval do
       serialize :settings

@@ -1,4 +1,4 @@
-module CheckdeskNotifications
+module CheckNotifications
   module Slack
     def self.included(base)
       base.send :extend, ClassMethods
@@ -18,7 +18,7 @@ module CheckdeskNotifications
 
       def request(webhook, data)
         url = URI.parse(webhook)
-        http = CheckdeskNotifications::Slack::Request.new(url.host, url.port)
+        http = CheckNotifications::Slack::Request.new(url.host, url.port)
         http.use_ssl = true
         request = Net::HTTP::Post.new(url.request_uri)
         request.set_form_data(data)
@@ -66,7 +66,7 @@ module CheckdeskNotifications
           }.to_json
         }
 
-        Rails.env === 'test' ? self.request_slack(webhook, data) : CheckdeskNotifications::Slack::Worker.perform_async(webhook, data)
+        Rails.env === 'test' ? self.request_slack(webhook, data) : CheckNotifications::Slack::Worker.perform_async(webhook, data)
       end
 
       def request_slack(webhook, data)
@@ -77,7 +77,7 @@ module CheckdeskNotifications
 
     class Worker
       include ::Sidekiq::Worker
-      include CheckdeskNotifications::Slack::ClassMethods
+      include CheckNotifications::Slack::ClassMethods
 
       def perform(webhook, data)
         request(webhook, data)
