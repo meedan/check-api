@@ -694,13 +694,16 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team slug: 'team'
     create_team_user user: u, team: t
     p = create_project team: t
-    n.times do
-      pm = create_project_media project: p
-      m.times { create_comment annotated: pm, annotator: u }
+    with_current_user_and_team(u, t) do
+      n.times do
+        pm = create_project_media project: p
+        m.times { create_comment annotated: pm, annotator: u }
+      end
     end
+
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    assert_queries (3 * n - 3) do
+    assert_queries (2 * n + n * m + 15) do
       post :create, query: query, team: 'team'
     end
 
