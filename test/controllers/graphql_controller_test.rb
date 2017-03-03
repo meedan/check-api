@@ -883,4 +883,22 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal u.id.to_s, last_version.whodunnit
   end
 
+  test "should create comment with image" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p
+    authenticate_with_user(u)
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    query = 'mutation create { createComment(input: { text: "Comment with image", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '" }) { comment { id } } }'
+    assert_difference 'Comment.count' do
+      post :create, query: query, file: file
+    end
+    assert_response :success
+    data = JSON.parse(Annotation.last.content)
+    assert_match /\.png$/, data['embed']
+    assert_match /\.png$/, data['thumbnail']
+  end
 end

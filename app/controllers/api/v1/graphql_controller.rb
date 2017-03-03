@@ -13,7 +13,7 @@ module Api
         query_variables = {} if query_variables == 'null'
         debug = !!CONFIG['graphql_debug']
         begin
-          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: {ability: @ability, file: request.params[:file] })
+          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { ability: @ability, file: request.params[:file] })
           render json: query.result
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique => e
           render json: { error: e.message }, status: 400

@@ -80,6 +80,17 @@ module SampleData
     options.each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
+    
+    file = nil
+    if options.has_key?(:file)
+      file = options[:file]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        c.file = f
+      end
+    end
+    
     c.save!
     c
   end
