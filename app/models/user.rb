@@ -218,7 +218,10 @@ class User < ActiveRecord::Base
   def user_is_member_in_current_team
     unless self.current_team_id.blank?
       tu = TeamUser.where(user_id: self.id, team_id: self.current_team_id, status: 'member').last
-      errors.add(:base, "User not a member in team #{self.current_team_id}") if tu.nil?
+      if tu.nil?
+        self.current_team_id = nil
+        self.save(validate: false)
+      end
     end
   end
 
