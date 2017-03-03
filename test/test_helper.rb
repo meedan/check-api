@@ -59,7 +59,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    CheckdeskNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
+    CheckNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
     [Annotation, Team, TeamUser].each{ |klass| klass.delete_all }
     [ProjectMedia, Media, Account, Source, User, Annotation, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |m| m.destroy_all }
     # create index

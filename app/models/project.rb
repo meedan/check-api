@@ -28,7 +28,7 @@ class Project < ActiveRecord::Base
                   targets: proc { |p| [p.team] },
                   data: proc { |p| p.to_json }
 
-  include CheckdeskSettings
+  include CheckSettings
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)

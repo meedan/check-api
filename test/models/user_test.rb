@@ -44,7 +44,7 @@ class UserTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user user: u2, team: pt
     with_current_user_and_team(u, t) { User.find_if_can(u1.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { User.find_if_can(u2.id) }
     end
     with_current_user_and_team(pu, pt) do
@@ -53,7 +53,7 @@ class UserTest < ActiveSupport::TestCase
     end
     with_current_user_and_team(u, t) { User.find_if_can(u.id) }
     ptu.status = 'requested'; ptu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) { User.find_if_can(u2.id) }
     end
   end

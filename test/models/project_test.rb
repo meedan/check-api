@@ -75,13 +75,13 @@ class ProjectTest < ActiveSupport::TestCase
     create_team_user team: pt, user: pu, role: 'owner'
     pp = create_project team: pt
     with_current_user_and_team(u, t) { Project.find_if_can(p.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Project.find_if_can(pp.id) }
     end
     with_current_user_and_team(pu, pt) { Project.find_if_can(pp.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu.reload, pt) { Project.find_if_can(pp.id) }
     end
   end
@@ -286,12 +286,12 @@ class ProjectTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
+    assert_equal 0, CheckNotifications::Slack::Worker.jobs.size
     with_current_user_and_team(u, t) do
       p = create_project team: t
-      assert_equal 1, CheckdeskNotifications::Slack::Worker.jobs.size
-      CheckdeskNotifications::Slack::Worker.drain
-      assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
+      assert_equal 1, CheckNotifications::Slack::Worker.jobs.size
+      CheckNotifications::Slack::Worker.drain
+      assert_equal 0, CheckNotifications::Slack::Worker.jobs.size
       Rails.unstub(:env)
     end
   end
