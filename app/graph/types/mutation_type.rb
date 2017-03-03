@@ -24,13 +24,13 @@ MutationType = GraphQL::ObjectType.define do
   field :updateAccount, field: AccountMutations::Update.field
   field :destroyAccount, field: AccountMutations::Destroy.field
 
-  field :createMedia, field: MediaMutations::Create.field
-  field :updateMedia, field: MediaMutations::Update.field
-  field :destroyMedia, field: MediaMutations::Destroy.field
-
   field :createProject, field: ProjectMutations::Create.field
   field :updateProject, field: ProjectMutations::Update.field
   field :destroyProject, field: ProjectMutations::Destroy.field
+
+  field :createProjectMedia, field: ProjectMediaMutations::Create.field
+  field :updateProjectMedia, field: ProjectMediaMutations::Update.field
+  field :destroyProjectMedia, field: ProjectMediaMutations::Destroy.field
 
   field :createUser, field: UserMutations::Create.field
   field :updateUser, field: UserMutations::Update.field
@@ -52,7 +52,17 @@ MutationType = GraphQL::ObjectType.define do
   # field :updateAnnotation, field: AnnotationMutations::Update.field
   field :destroyAnnotation, field: AnnotationMutations::Destroy.field
 
+  field :destroyVersion, field: VersionMutations::Destroy.field
+
   field :createContact, field: ContactMutations::Create.field
   field :updateContact, field: ContactMutations::Update.field
   field :destroyContact, field: ContactMutations::Destroy.field
+
+  field :createDynamic, field: DynamicMutations::Create.field
+  field :updateDynamic, field: DynamicMutations::Update.field
+  field :destroyDynamic, field: DynamicMutations::Destroy.field
+
+  field :createTask, field: TaskMutations::Create.field
+  field :updateTask, field: TaskMutations::Update.field
+  field :destroyTask, field: TaskMutations::Destroy.field
 end

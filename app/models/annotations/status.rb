@@ -1,19 +1,17 @@
-class Status
-  include AnnotationBase
+class Status < ActiveRecord::Base
+  include SingletonAnnotationBase
 
-  attribute :status, String, presence: true
+  field :status, String, presence: true
 
   validates_presence_of :status
-  validates :annotated_type, included: { values: ['Media', 'Source', nil] }
+
   validate :status_is_valid
 
-  notifies_slack on: :save,
-                 if: proc { |s| s.should_notify? },
-                 message: proc { |s| data = s.annotated.data(s.context); "*#{s.current_user.name}* changed the verification status on <#{s.origin}/project/#{s.context_id}/media/#{s.annotated_id}|#{data['title']}> from *#{s.id_to_label(s.previous_annotated_status)}* to *#{s.id_to_label(s.status)}*" },
-                 channel: proc { |s| s.context.setting(:slack_channel) || s.current_team.setting(:slack_channel) },
-                 webhook: proc { |s| s.current_team.setting(:slack_webhook) }
+  annotation_notifies_slack :update
 
   before_validation :store_previous_status, :normalize_status
+
+  after_save :update_elasticsearch_status
 
   def self.core_verification_statuses(annotated_type)
     core_statuses = YAML.load_file(File.join(Rails.root, 'config', 'core_statuses.yml'))
@@ -28,8 +26,9 @@ class Status
   end
 
   def store_previous_status
-    self.previous_annotated_status = self.annotated.last_status(self.context) if self.annotated.respond_to?(:last_status)
-    self.previous_annotated_status ||= Status.default_id(self.annotated, self.context)
+    self.previous_annotated_status = self.annotated.last_status if self.annotated.respond_to?(:last_status)
+    annotated, context = get_annotated_and_context
+    self.previous_annotated_status ||= Status.default_id(annotated, context)
   end
 
   def previous_annotated_status
@@ -68,7 +67,7 @@ class Status
   end
 
   def self.possible_values(annotated, context = nil)
-    type = annotated.class.name
+    type = annotated.class_name
     statuses = Status.core_verification_statuses(type)
     getter = "get_#{type.downcase}_verification_statuses"
     statuses = context.team.send(getter) if context && context.respond_to?(:team) && context.team && context.team.send(getter)
@@ -76,16 +75,45 @@ class Status
   end
 
   def id_to_label(id)
-    values = Status.possible_values(self.annotated, self.context)
+    values = Status.possible_values(self.annotated.media, self.annotated.project)
     values[:statuses].select{ |s| s[:id] === id }.first[:label]
+  end
+
+  def update_elasticsearch_status
+    self.update_media_search(%w(status))
+  end
+
+  def slack_message
+    data = self.annotated.embed
+    params = {
+      default: "*%{user}* changed the verification status on <%{url}> from *%{previous_status}* to *%{current_status}*",
+      user: User.current.name,
+      url: "#{self.annotated_client_url}|#{data['title']}",
+      previous_status: self.id_to_label(self.previous_annotated_status),
+      current_status: self.id_to_label(self.status)
+    }
+    I18n.t(:slack_update_status, params)
   end
 
   private
 
   def status_is_valid
     if !self.annotated_type.blank?
-      values = Status.possible_values(self.annotated, self.context)
+      annotated, context = get_annotated_and_context
+      values = Status.possible_values(annotated, context)
       errors.add(:base, 'Status not valid') unless values[:statuses].collect{ |s| s[:id] }.include?(self.status)
     end
+  end
+
+  def get_annotated_and_context
+    if self.annotated_type == 'ProjectMedia' || self.annotated_type == 'ProjectSource'
+      annotated = self.annotated.media if self.annotated.respond_to?(:media)
+      annotated = self.annotated.source if self.annotated.respond_to?(:source)
+      context = self.annotated.project if self.annotated.respond_to?(:project)
+    else
+      annotated = self.annotated
+      context = self.context
+    end
+    return annotated, context
   end
 end

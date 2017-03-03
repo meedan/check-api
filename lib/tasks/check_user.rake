@@ -40,7 +40,7 @@ namespace :check do
                teams = TeamUser.where(user_id: u.id).map(&:team)
                if teams
                   teams.each do |t|
-                     puts "   team: #{t.id} #{t.name} #{t.subdomain}"
+                     puts "   team: #{t.id} #{t.name} #{t.slug}"
                   end
                else
                   puts "user is not in a team"               

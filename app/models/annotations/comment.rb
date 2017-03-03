@@ -1,16 +1,15 @@
-class Comment
+class Comment < ActiveRecord::Base
   include AnnotationBase
+  include HasImage
 
-  attribute :text, String, presence: true, mapping: { analyzer: 'hashtag' }
-  validates_presence_of :text
+  field :text
+  validates_presence_of :text, if: proc { |comment| comment.file.blank? }
 
   before_save :extract_check_entities
+  after_save :add_update_elasticsearch_comment
+  before_destroy :destroy_elasticsearch_comment
 
-  notifies_slack on: :save,
-                 if: proc { |c| c.should_notify? },
-                 message: proc { |c| data = c.annotated.data(c.context); "*#{c.current_user.name}* added a note on <#{c.origin}/project/#{c.context_id}/media/#{c.annotated_id}|#{data['title']}>\n> #{c.text}" },
-                 channel: proc { |c| c.context.setting(:slack_channel) || c.current_team.setting(:slack_channel) },
-                 webhook: proc { |c| c.current_team.setting(:slack_webhook) }
+  annotation_notifies_slack :save
 
   def content
     { text: self.text }.to_json
@@ -25,17 +24,32 @@ class Comment
     mapping_ids[value]
   end
 
+  def slack_message
+    data = self.annotated.embed
+    params = {
+      default: '*%{user}* added a note on <%{url}>\n> %{comment}',
+      user: User.current.name,
+      url: "#{self.annotated_client_url}|#{data['title']}",
+      comment: self.text.gsub("\n", "\n>")
+    }
+    I18n.t(:slack_save_comment, params)
+  end
+
+  def file_mandatory?
+    false
+  end
+
   protected
 
   def extract_check_urls
     urls = []
-    team = self.context_type === 'Project' ? self.context.team : nil
+    team = self.annotated_type === 'ProjectMedia' ? self.annotated.project.team : nil
     if team
       words = self.text.to_s.split(/\s+/)
       pattern = Regexp.new(CONFIG['checkdesk_client'])
       words.each do |word|
         match = word.match(pattern)
-        if !match.nil? && match[1] == team.subdomain
+        if !match.nil? && Team.slug_from_url(word) == team.slug
           urls << word
         end
       end
@@ -51,10 +65,18 @@ class Comment
     self.extract_check_urls.each do |url|
       match = url.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
       unless match.nil?
-        pm = ProjectMedia.where(project_id: match[1], media_id: match[2]).last
-        ids << pm.id unless pm.nil?
+        ids << match[2]
       end
     end
     self.entities = ids
   end
+
+  def add_update_elasticsearch_comment
+    add_update_media_search_child('comment_search', %w(text))
+  end
+
+  def destroy_elasticsearch_comment
+    destroy_elasticsearch_data(CommentSearch)
+  end
+
 end

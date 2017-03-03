@@ -3,10 +3,8 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 class MediaTest < ActiveSupport::TestCase
   def setup
     super
-    Media.destroy_all
-    Annotation.delete_index
-    Annotation.create_index
-    sleep 1
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
   end
 
   test "should create media" do
@@ -24,84 +22,82 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t, status: 'banned'
-    assert_raise RuntimeError do
-      create_valid_media team: t, current_user: u, context_team: t
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        create_valid_media team: t
+      end
     end
   end
 
   test "non members should not read media in private team" do
     u = create_user
-    t = create_team current_user: create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     m = create_media team: t
     pu = create_user
-    pt = create_team current_user: pu, private: true
+    pt = create_team private: true
+    create_team_user user: pu, team: pt, role: 'owner'
     pm = create_media team: pt
-    Media.find_if_can(m.id, u, t)
-    assert_raise CheckdeskPermissions::AccessDenied do
-      Media.find_if_can(pm.id, u, pt)
+    with_current_user_and_team(u, t) { Media.find_if_can(m.id) }
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(u, pt) { Media.find_if_can(pm.id) }
     end
-    Media.find_if_can(pm.id, pu, pt)
+    with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
-      Media.find_if_can(pm.id, pu, pt)
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
     end
   end
 
   test "should update and destroy media" do
     u = create_user
-    t = create_team current_user: u
-    p = create_project team: t, current_user: u
-    m = create_valid_media project_id: p.id, current_user: u
-    assert_nothing_raised RuntimeError do
-      m.current_user = u
-      m.save!
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+
+    m = nil
+    with_current_user_and_team(u, t) do
+      m = create_valid_media project_id: p.id
+      assert_nothing_raised RuntimeError do
+        m.save!
+      end
     end
+
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'journalist'
-    assert_nothing_raised RuntimeError do
-      m.current_user = u2
-      m.save!
+    with_current_user_and_team(u2, t) do
+      assert_nothing_raised RuntimeError do
+        m.save!
+      end
+      assert_raise RuntimeError do
+        m.destroy!
+      end
     end
-    assert_raise RuntimeError do
-      m.current_user = u2
-      m.destroy!
-    end
-    own_media = create_valid_media project_id: p.id, user: u2, current_user: u2
-    own_media.current_user = u2
-    assert_nothing_raised RuntimeError do
-      own_media.current_user = u2
-      own_media.save!
-    end
-    assert_raise RuntimeError do
-      own_media.current_user = u2
-      own_media.destroy!
-    end
-    assert_nothing_raised RuntimeError do
-      m.current_user = u
-      m.destroy!
-    end
-  end
 
-  test "should save media without url" do
-    media = Media.new
-    assert media.save
+    own_media = nil
+    with_current_user_and_team(u2, t) do
+      assert_nothing_raised RuntimeError do
+        own_media = create_valid_media project_id: p.id
+        own_media.save!
+      end
+      assert_raise RuntimeError do
+        own_media.destroy!
+      end
+    end
+
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised RuntimeError do
+        m.destroy!
+      end
+    end
   end
 
   test "should set pender data for media" do
-    media = create_valid_media
-    assert_not_empty media.data
-  end
-
-  test "should have annotations" do
-    m = create_valid_media
-    c1 = create_comment
-    c2 = create_comment
-    c3 = create_comment
-    m.add_annotation(c1)
-    m.add_annotation(c2)
-    sleep 1
-    assert_equal [c1.id, c2.id].sort, m.reload.annotations('comment').map(&:id).sort
+    t = create_team
+    p = create_project team: t
+    media = create_valid_media project_id: p.id
+    assert_not_empty media.annotations('embed')
   end
 
   test "should get user id" do
@@ -117,16 +113,29 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should create version when media is created" do
+    u = create_user
+    create_team_user user: u
+    User.current = u
     m = create_valid_media
+    User.current = nil
     assert_equal 2, m.versions.size
   end
 
   test "should create version when media is updated" do
-    m = create_valid_media
-    assert_equal 2, m.versions.size
-    m = m.reload
-    m.user = create_user
-    m.save!
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    create_team_user user: u, team: t, role: 'owner'
+    u2 = create_user
+    m = nil
+    with_current_user_and_team(u, t) do
+      m = create_valid_media
+      create_project_media project: p, media: m
+      assert_equal 2, m.versions.size
+      m = m.reload
+      m.user = u2
+      m.save!
+    end
     assert_equal 3, m.reload.versions.size
   end
 
@@ -141,7 +150,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should not duplicate media url" do
     m = create_valid_media
-    m2 = Media.new
+    m2 = Link.new
     m2.url = m.url
     assert_not m2.save
   end
@@ -166,46 +175,6 @@ class MediaTest < ActiveSupport::TestCase
     m.project_medias << pm1
     m.project_medias << pm2
     assert_equal [p1, p2], m.projects
-  end
-
-  test "should update media information" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    p1 = create_project
-    p2 = create_project
-    create_project_media project: p1, media: m
-    create_project_media project: p2, media: m
-    # Update media title and description with context p1
-    m.project_id = p1.id
-    info = {title: 'Title A', description: 'Desc A'}.to_json
-    m.information= info; m.save!
-    info = {title: 'Title AA', description: 'Desc AA'}.to_json
-    m.information= info;  m.save!
-    # Update media title and description with context p2
-    m.project_id = p2.id
-    info = {title: 'Title B', description: 'Desc B'}.to_json
-    m.information= info;  m.save!
-    info = {title: 'Title BB', description: 'Desc BB'}.to_json
-    m.information= info;  m.save!
-    # fetch media data without context
-    m = m.reload; m.project_id = nil
-    data = m.data
-    title = data['title']; description = data['description']
-    assert_equal title, 'test media'
-    assert_equal description, 'add desc'
-    # fetch media data with p1 as context
-    data = m.data(p1)
-    title = data['title']; description = data['description']
-    assert_equal title, 'Title AA'
-    assert_equal description, 'Desc AA'
-    # fetch media data with p2 as context
-    data = m.data(p2)
-    title = data['title']; description = data['description']
-    assert_equal title, 'Title BB'
-    assert_equal description, 'Desc BB'
   end
 
   test "should set URL from Pender" do
@@ -240,8 +209,10 @@ class MediaTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
-    m = create_media project_id: p.id, current_user: u
-    assert_equal u, m.user
+    with_current_user_and_team(u, t) do
+      m = create_media project_id: p.id
+      assert_equal u, m.user
+    end
   end
 
   test "should assign to existing account" do
@@ -354,27 +325,8 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [], m.projects
   end
 
-  test "should associate with project when validation fails" do
-    p1 = create_project
-    p2 = create_project
-    m = create_valid_media project_id: p1.id
-    assert_no_difference 'Media.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_media project_id: p2.id, url: m.url
-      end
-    end
-    assert_equal [p1, p2], m.reload.projects
-  end
-
-  test "should get last status" do
-    m = create_valid_media
-    assert_equal 'undetermined', m.last_status
-    create_status status: 'verified', annotated: m
-    assert_equal 'verified', m.last_status
-  end
-
   test "should get domain" do
-    m = Media.new
+    m = Link.new
     m.url = 'https://www.youtube.com/watch?v=b708rEG7spI'
     assert_equal 'youtube.com', m.domain
     m.url = 'localhost'
@@ -389,108 +341,51 @@ class MediaTest < ActiveSupport::TestCase
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url, project_id: p.id, information: {}.to_json)
-    assert_equal 1, m.annotations('embed').count
-    assert_equal [m.id.to_s], m.annotations('embed').map(&:annotated_id)
-    # override title for project p
-    m.project_id = p.id
-    m.information = {title: 'new title'}.to_json; m.save!
-    # check annotations count for all, none and p
-    assert_equal 2, m.annotations('embed').count
-    assert_equal 1, m.annotations('embed', p).count
-    assert_equal 1, m.annotations('embed', 'none').count
-  end
-
-  test "should add claim additions to media" do
-    t = create_team
-    p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url, project_id: p.id)
-    assert_not_nil m.data
-    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}
-    m.information = info.to_json; m.save!
-    sleep 1
-    m = m.reload
-    data = m.data
-    assert_equal data['title'], 'Title A'
-    assert_equal data['quote'], 'Media quote'
-    # test with empty URL
-    m = Media.new; m.save!
-    m.project_id = p.id
-    assert_nil m.data
-    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
-    m.information= info; m.save!
-    sleep 1
-    m = m.reload
-    data = m.data
-    assert_equal data['title'], 'Title A'
-    assert_equal data['description'], 'Desc A'
-    assert_equal data['quote'], 'Media quote'
-  end
-
-  test "should add claim additions to media creation" do
-    m = Media.new;
-    info = {title: 'Title A', description: 'Desc A', quote: 'Media quote'}.to_json
-    m.information= info
-    m.save!
     assert_equal 1, m.annotations('embed').count
-  end
-
-  test "should get current team" do
-    m = create_media project_id: nil
-    assert_nil m.current_team
-    t = create_team
-    p = create_project team: t
-    m = create_media project_id: p.id
-    assert_equal t, m.current_team
+    assert_equal [m.id], m.annotations('embed').map(&:annotated_id)
   end
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     m = create_valid_media project_id: p.id
-    m.context_team = t
-    m.current_user = u
-    perm_keys = ["read Media", "update Media", "destroy Media", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag"].sort
+    perm_keys = ["read Link", "update Link", "create Task", "destroy Link", "create ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Dynamic"].sort
+
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    m.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(m.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
   end
 
   test "should journalist edit own status" do
     u = create_user
     t = create_team
-    tu = create_team_user team:t, user: u, role: 'journalist'
-    p = create_project team: t, user: create_user
-    m = create_valid_media project_id: p.id, user: u
-    m.context_team = t
-    m.current_user = u
-    m.project_id = p.id
-    assert JSON.parse(m.permissions)['create Status']
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t
+    pm = create_project_media project: p, user: u
+    with_current_user_and_team(u, t) { assert JSON.parse(pm.permissions)['create Status'] }
   end
 
   test "should create source for Flickr media" do
@@ -501,39 +396,91 @@ class MediaTest < ActiveSupport::TestCase
     profile_response = '{"type":"media","data":{"url":"' + url + '","type":"item","title":"Flickr","description":"Flickr","author_url":"","username":"","provider":"page"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     WebMock.stub_request(:get, pender_url).with({ query: { url: profile_url } }).to_return(body: profile_response)
-    m = Media.new
+    m = Link.new
     m.url = url
     m.save!
     assert_not_nil m.account.source
   end
 
-  test "should create reports claims" do
+  test "should add quote or url for media creations" do
     t = create_team
     p = create_project team: t
-    m = Media.new
-    m.project_id = p.id
-    m.url = ''
-    m.information= {quote: 'Media quote A'}.to_json; m.save!
-    m.save!
     assert_difference 'Media.count' do
-      m = Media.new
-      m.project_id = p.id
-      m.url = ''
-      m.information= {quote: 'Media quote B'}.to_json; m.save!
-      m.save!
+      create_claim_media url: nil, project_id: p.id
+    end
+    assert_difference 'Media.count' do
+      create_valid_media quote: nil, project_id: p.id
+    end
+    assert_no_difference 'Media.count' do
+      assert_raise ActiveRecord::RecordInvalid do
+        m = Media.new
+        m.save!
+      end
     end
   end
 
-  test "should set information when there is no project" do
+  test "should add title for claim medias" do
+    p = create_project team: create_team
+    m = create_claim_media quote: 'media quote'
+    pm = create_project_media project: p, media: m
+    assert_equal 'media quote', pm.embed['title']
+  end
+
+  test "should get class from input" do
+    assert_equal 'Link', Media.class_from_input(url: 'something')
+    assert_equal 'Claim', Media.class_from_input(quote: 'something')
+    assert_nil Media.class_from_input({})
+  end
+
+  test "should get image paths" do
+    l = create_link
+    assert_equal '', l.embed_path
+    assert_equal '', l.thumbnail_path
+    c = create_claim_media
+    assert_equal '', c.embed_path
+    assert_equal '', c.thumbnail_path
+    i = create_uploaded_image
+    assert_match /png$/, i.embed_path
+    assert_match /png$/, i.thumbnail_path
+  end
+
+  test "should get media team objects" do
+    m = create_valid_media
     t = create_team
     p = create_project team: t
-    m = Media.new
-    m.url = ''
-    assert_nothing_raised do
-      m.information = { quote: 'Media quote A' }.to_json
-      m.save!
-      m.information = { quote: 'Media quote B' }.to_json
-      m.save!
+    pm = create_project_media project: p, media: m
+    assert_equal m.get_team_objects, [t]
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { project: create_project, user: create_user }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do
+      Media.create(params)
     end
   end
+
+  test "should destroy related items" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    c = create_comment annotated: pm, disable_es_callbacks: false
+    sleep 1
+    assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+    assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    id = pm.id
+    m.destroy
+    assert_equal 0, ProjectMedia.where(media_id: id).count
+    assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+    sleep 1
+    assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+    assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+  end
+
 end

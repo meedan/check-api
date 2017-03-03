@@ -8,6 +8,7 @@ module Api
       before_filter :remove_empty_params_and_headers
       before_filter :set_custom_response_headers
       before_filter :authenticate_from_token!, except: [:me, :options]
+      before_action :set_paper_trail_whodunnit
 
       # Verify payload for webhook methods
       # before_filter :verify_payload!
@@ -23,12 +24,12 @@ module Api
         header = CONFIG['authorization_header'] || 'X-Token'
         token = request.headers[header]
 
-        if session['checkdesk.error']
-          message = session['checkdesk.error']
+        if session['check.error']
+          message = session['check.error']
           reset_session
           render_error(message, 'UNKNOWN') and return
         end
-        
+
         if token
           render_user User.where(token: token).last, 'token'
         else
@@ -64,6 +65,7 @@ module Api
         header = CONFIG['authorization_header'] || 'X-Token'
         token = request.headers[header].to_s
         user = User.where(token: token).last
+        User.current = user
         (token && user) ? sign_in(user, store: false) : authenticate_api_user!
       end
 
@@ -84,7 +86,7 @@ module Api
         signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'].to_s, payload)
         Rack::Utils.secure_compare(signature, request.headers['X-Signature'].to_s)
       end
-  
+
       def get_params
         params.reject{ |k, _v| ['id', 'action', 'controller', 'format'].include?(k) }
       end
@@ -97,6 +99,10 @@ module Api
       def set_custom_response_headers
         response.headers['X-Build'] = BUILD
         response.headers['Accept'] ||= ApiConstraints.accept(1)
+      end
+
+      def user_for_paper_trail
+        current_api_user.id unless current_api_user.nil?
       end
     end
   end

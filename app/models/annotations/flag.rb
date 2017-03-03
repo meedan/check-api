@@ -1,11 +1,18 @@
-class Flag
+class Flag < ActiveRecord::Base
   include AnnotationBase
 
-  attribute :flag, String, presence: true
+  field :flag, String, presence: true
 
   validates_presence_of :flag
-  validates :annotated_type, included: { values: ['Media', nil] }
-  validates :flag, included: { values: ['Spam', 'Graphic content', 'Needing fact-checking', 'Needing deletion', 'Follow story', 'Mark as graphic'] }
+
+  def self.flag_types
+    ['Spam', 'Graphic content', 'Needing fact-checking', 'Needing deletion', 'Follow story', 'Mark as graphic']
+  end
+  validates :flag, included: { values: self.flag_types }
+
+  def self.annotated_types
+    ['ProjectMedia']
+  end
 
   def content
     { flag: self.flag }.to_json

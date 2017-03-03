@@ -1,13 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class SourceTest < ActiveSupport::TestCase
-  def setup
-    super
-    Annotation.delete_index
-    Annotation.create_index
-    sleep 1
-  end
-
   test "should create source" do
     u = create_user
     assert_difference 'Source.count' do
@@ -21,15 +14,23 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should create version when source is created" do
+    u = create_user
+    create_team_user user: u, role: 'contributor'
+    User.current = u
     s = create_source
     assert_equal 1, s.versions.size
+    User.current = nil
   end
 
   test "should create version when source is updated" do
+    u = create_user
+    create_team_user user: u, role: 'contributor'
+    User.current = u
     s = create_source
     s.slogan = 'test'
     s.save!
     assert_equal 2, s.versions.size
+    User.current = nil
   end
 
   test "should have accounts" do
@@ -77,7 +78,6 @@ class SourceTest < ActiveSupport::TestCase
     c3 = create_comment
     s.add_annotation(c1)
     s.add_annotation(c2)
-    sleep 1
     assert_equal [c1.id, c2.id].sort, s.reload.annotations.map(&:id).sort
   end
 
@@ -95,8 +95,10 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should get medias" do
     s = create_source
+    p = create_project
     m = create_valid_media(account: create_valid_account(source: s))
-    assert_equal [m], s.medias
+    pm = create_project_media project: p, media: m
+    assert_equal [pm], s.medias
   end
 
   test "should get collaborators" do
@@ -112,8 +114,8 @@ class SourceTest < ActiveSupport::TestCase
     c5 = create_comment annotator: u2, annotated: s1
     c6 = create_comment annotator: u3, annotated: s2
     c7 = create_comment annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.collaborators
-    assert_equal [u3].sort, s2.collaborators
+    assert_equal [u1, u2].sort, s1.collaborators.sort
+    assert_equal [u3].sort, s2.collaborators.sort
   end
 
   test "should get avatar from callback" do
@@ -140,7 +142,6 @@ class SourceTest < ActiveSupport::TestCase
     c = create_comment
     s.add_annotation t
     s.add_annotation c
-    sleep 1
     assert_equal [t], s.tags
   end
 
@@ -150,7 +151,6 @@ class SourceTest < ActiveSupport::TestCase
     c = create_comment
     s.add_annotation t
     s.add_annotation c
-    sleep 1
     assert_equal [c], s.comments
   end
 
@@ -161,34 +161,55 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     s = create_source
-    s.context_team = t
-    s.current_user = u
     perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create ProjectSource", "create Project"].sort
+
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+    
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    s.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(s.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
+  end
+
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p
+    s = create_source
+    s.project_sources << ps
+    assert_equal [t.id], s.get_team
+    ps.project = nil
+    ps.save
+    assert_equal [], s.reload.get_team
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { name: "My source", user: create_user }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Source.create(params)
+    end
   end
 
 end

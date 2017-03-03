@@ -1,14 +1,14 @@
 class User < ActiveRecord::Base
-  attr_accessible :email, :login, :name, :profile_image, :password, :password_confirmation, :image
   attr_accessor :url
 
   has_one :source
   has_many :team_users
   has_many :teams, through: :team_users
   has_many :projects
+  has_many :accounts
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable,
+         :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
   after_create :set_image, :create_source_and_account, :send_welcome_email
@@ -17,20 +17,28 @@ class User < ActiveRecord::Base
   mount_uploader :image, ImageUploader
   validates :image, size: true
   validate :user_is_member_in_current_team
+  validate :validate_duplicate_email, on: :create
 
   serialize :omniauth_info
 
-  include CheckdeskSettings
+  include CheckSettings
+  include DeviseAsync
 
-  ROLES = %w[contributor journalist editor owner admin]
-  def role?(base_role, context_team)
-    ROLES.index(base_role.to_s) <= ROLES.index(self.role(context_team)) unless self.role(context_team).nil?
+  ROLES = %w[contributor journalist editor owner]
+  def role?(base_role)
+    ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.nil?
   end
 
-  def role(context_team)
-    context_team = self.current_team if context_team.nil?
-    tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last unless context_team.nil?
-    tu.nil? ? nil : tu.role.to_s
+  def role
+    context_team = Team.current || self.current_team
+    role = nil
+    unless context_team.nil?
+      role = Rails.cache.fetch("role_#{context_team.id}_#{self.id}", expires_in: 30.seconds, race_condition_ttl: 30.seconds) do
+        tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last
+        tu.nil? ? nil : tu.role.to_s
+      end
+    end
+    role
   end
 
   def self.from_omniauth(auth)
@@ -46,6 +54,7 @@ class User < ActiveRecord::Base
     user.url = auth.url
     user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
     user.omniauth_info = auth.as_json
+    User.current = user
     user.save!
     user.reload
   end
@@ -76,7 +85,8 @@ class User < ActiveRecord::Base
       current_team: self.current_team,
       teams: self.user_teams,
       team_ids: self.team_ids,
-      permissions: self.permissions
+      permissions: self.permissions,
+      profile_image: self.profile_image
     }
   end
 
@@ -133,6 +143,26 @@ class User < ActiveRecord::Base
     results.first.count.to_i >= 1
   end
 
+  def self.current
+    Thread.current[:user]
+  end
+
+  def self.current=(user)
+    Thread.current[:user] = user
+  end
+
+  def set_password=(value)
+    return nil if value.blank?
+    self.password = value
+    self.password_confirmation = value
+  end
+
+  protected
+
+  def confirmation_required?
+    self.provider.blank?
+  end
+
   private
 
   def create_source_and_account
@@ -175,7 +205,7 @@ class User < ActiveRecord::Base
   end
 
   def send_welcome_email
-    RegistrationMailer.welcome_email(self).deliver_now if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
+    RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
   end
 
   def set_image
@@ -191,4 +221,13 @@ class User < ActiveRecord::Base
       errors.add(:base, "User not a member in team #{self.current_team_id}") if tu.nil?
     end
   end
+
+  def validate_duplicate_email
+    u = User.where(email: self.email).last unless self.email.blank?
+    unless u.nil?
+      RegistrationMailer.delay.duplicate_email_detection(self, u)
+      return false
+    end
+  end
+
 end

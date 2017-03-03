@@ -3,8 +3,9 @@ services:
 - postgresql
 before_install:
 - sudo apt-get -qq update
-- sudo apt-get install wget openjdk-7-jre
+- sudo apt-get install wget openjdk-7-jre redis-server
 - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.4.1.deb && sudo dpkg -i --force-confnew elasticsearch-2.4.1.deb && sudo service elasticsearch restart
+- redis-server &
 addons:
   postgresql: '9.4'
   code_climate:

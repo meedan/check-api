@@ -5,35 +5,15 @@ class SampleModel < ActiveRecord::Base
 end
 
 class EmbedTest < ActiveSupport::TestCase
-  def setup
-    super
-    Embed.delete_index
-    Embed.create_index
-    sleep 1
-  end
-
   test "should create embed" do
     assert_difference 'Embed.length' do
-      create_embed(embed: 'test')
+      create_embed(embed: 'test', annotated: create_project_source)
     end
   end
 
   test "should set type automatically" do
     em = create_embed
     assert_equal 'embed', em.annotation_type
-  end
-
-  test "should have quote if media url is blank" do
-    assert_no_difference 'Embed.length' do
-      m = Media.new
-      m.save!
-      assert_raise RuntimeError do
-        em = Embed.new
-        em.annotated = m
-        em.quote = ''
-        em.save!
-      end
-    end
   end
 
   test "should have annotations" do
@@ -59,8 +39,6 @@ class EmbedTest < ActiveSupport::TestCase
     em2b.annotated = s2
     em2b.save
 
-    sleep 1
-
     assert_equal s1, em1a.annotated
     assert_equal s1, em1b.annotated
     assert_equal [em1a.id, em1b.id].sort, s1.reload.annotations.map(&:id).sort
@@ -68,47 +46,6 @@ class EmbedTest < ActiveSupport::TestCase
     assert_equal s2, em2a.annotated
     assert_equal s2, em2b.annotated
     assert_equal [em2a.id, em2b.id].sort, s2.reload.annotations.map(&:id).sort
-  end
-
-  test "should return whether it has an attribute" do
-    em = create_embed
-    assert em.has_attribute?(:embed)
-  end
-
-  test "should have a single annotation type" do
-    em = create_embed
-    assert_equal 'annotation', em._type
-  end
-
-  test "should have context" do
-    em = create_embed
-    s = SampleModel.create
-    assert_nil em.context
-    em.context = s
-    em.save
-    assert_equal s, em.context
-  end
-
-  test "should get annotations from context" do
-    context1 = SampleModel.create
-    context2 = SampleModel.create
-    annotated = SampleModel.create
-
-    em1 = create_embed
-    em1.context = context1
-    em1.annotated = annotated
-    em1.save
-
-    em2 = create_embed
-    em2.context = context2
-    em2.annotated = annotated
-    em2.save
-
-    sleep 1
-
-    assert_equal [em1.id, em2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [em1.id], annotated.annotations(nil, context1).map(&:id)
-    assert_equal [em2.id], annotated.annotations(nil, context2).map(&:id)
   end
 
   test "should get columns as array" do
@@ -125,7 +62,7 @@ class EmbedTest < ActiveSupport::TestCase
 
   test "should have content" do
     em = create_embed
-    assert_equal ["title", "description", "username", "published_at", "quote", "embed"].sort, JSON.parse(em.content).keys.sort
+    assert_equal ["title", "description", "username", "published_at", "embed"].sort, JSON.parse(em.content).keys.sort
   end
 
   test "should have annotators" do
@@ -141,8 +78,8 @@ class EmbedTest < ActiveSupport::TestCase
     em5 = create_embed annotator: u2, annotated: s1
     em6 = create_embed annotator: u3, annotated: s2
     em7 = create_embed annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators
-    assert_equal [u3].sort, s2.annotators
+    assert_equal [u1, u2].sort, s1.annotators.sort
+    assert_equal [u3].sort, s2.annotators.sort
   end
 
   test "should set annotator if not set" do
@@ -150,9 +87,57 @@ class EmbedTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'owner'
-    p = create_project team: t, current_user: u2
-    em = create_embed annotated: p, annotator: nil, current_user: u2
-    assert_equal u2, em.annotator
+    p = create_project team: t
+    with_current_user_and_team(u2, t) do
+      em = create_embed annotated: p, annotator: nil
+      assert_equal u2, em.reload.annotator
+    end
   end
 
+  test "should notify Slack when title is updated" do
+    t = create_team slug: 'test'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    with_current_user_and_team(u, t) do
+      m = create_valid_media
+      pm = create_project_media project: p, media: m
+      em = create_embed title: 'Title A', annotator: u, annotated: pm
+      em.reload
+      em.title = 'Change title'; em.save!
+      assert_match 'changed the title from *Title A*', em.slack_notification_message
+      assert em.sent_to_slack
+    end
+  end
+
+  # test "should create elasticsearch embed" do
+  #   t = create_team
+  #   p = create_project team: t
+  #   m = create_valid_media embed_data: {title: 'media title'}.to_json
+  #   pm = create_project_media media: m, project: p
+  #   sleep 1
+  #   result = MediaSearch.find(pm.id)
+  #   assert_equal 'media title', result.title
+  # end
+
+  # test "should update elasticsearch embed" do
+  #   t = create_team
+  #   p = create_project team: t
+  #   m = create_valid_media embed_data: {title: 'media title'}.to_json
+  #   pm = create_project_media media: m, project: p
+  #   m.embed_data = {title: 'new title'}.to_json
+  #   m.save!
+  #   result = MediaSearch.find(pm.id)
+  #   assert_equal 'new title', result.title
+  # end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { embed: 'test', annotated: create_project_source }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Embed.create(params)
+    end
+  end
 end

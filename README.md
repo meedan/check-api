@@ -58,6 +58,7 @@ There are rake tasks for a few tasks (besides Rails' default ones). Run them thi
 * `lapis:docker:shell`: Enter the Docker container
 * `lapis:graphql:schema`: Update the GraphQL schema JSON
 * `swagger:docs:markdown`: Generate the documentation in markdown format
+* `transifex:localize`: Localize the application using Transifex and I18n
 
 ### GraphQL
 
@@ -69,14 +70,29 @@ You can update the schema file by running `rake lapis:graphql:schema`.
 
 Some tasks run in background, for example: Slack notifications. They are processed using Sidekiq. Start Sidekiq with `bundle exec sidekiq` and monitor through the web interface at `/sidekiq`. We suggest that you protect that path with HTTP authentication.
 
-### Migration
+### Virus validation for uploaded files
 
-Migrate CD2 data
+In order to look for viruses on the files uploaded by users, you need to setup the configuration option `clamav_service_path`, which should be something like: `host:port`. A ClamAV service should be running at that address. If that configuration option is not set, uploaded files will skip the safety validation.
 
-* Add `allow_duplicated_urls: true` to `config.yml`
-* Run `drush eval "_checkdesk_core_export_data_csv();"` in `CD2` instance : This command will output a directory inside `[files directory]/checkdesk_migration`.
-* Copy the output from the above step `[files directory]/checkdesk_migration/[instance_name]` into CD3 `db/data`.
-* Run `rake db:seed:sample`.
+You can also test your instance of ClamAV REST this way:
+
+* Set the *test* configuration `clamav_service_path` to point to your instance
+* Run this: `bundle exec ruby test/models/uploaded_file_test.rb -n /real/`
+* Two tests should pass
+
+The test uses a EICAR file (a test file which is recognized as a virus by scanners even though it's not really a virus).
+
+### Localization
+
+Localization is powered by Transifex + I18n. In order to localize the application, you need to set the `transifex_user` and `transifex_password` configuration options on `config/config.yml`. Then, when you run `rake transifex:localize`, the following will happen automatically:
+
+* The supported languages on Transifex will be set as the available languages for I18n on `config/application.rb`
+* New translations will be downloaded from Transifex and saved under `config/locales`
+* New localizable strings will be parsed from code, saved on `config/locales/en.yml` and sent to Transifex
+
+We call "localizable strings" any call to the `I18n.t` function like this: `I18n.t(:string_unique_id, default: 'English string')`.
+
+Clients should send the `Accept-Language` header in order to get localized content. If you want to serve everything in English, just add `locale: 'en'` to your `config/config.yml`.
 
 ### Credits
 

@@ -3,9 +3,8 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 class StatusTest < ActiveSupport::TestCase
   def setup
     super
-    Status.delete_index
-    Status.create_index
-    sleep 1
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
   end
 
   test "should create status" do
@@ -21,7 +20,7 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should have status" do
     assert_no_difference 'Status.length' do
-      assert_raises RuntimeError do
+      assert_raises ActiveRecord::RecordInvalid do
         create_status(status: nil)
         create_status(status: '')
       end
@@ -29,9 +28,9 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    s1 = create_source
+    s1 = create_project_source
     assert_equal [], s1.annotations
-    s2 = create_source
+    s2 = create_project_source
     assert_equal [], s2.annotations
 
     t1a = create_status annotated: nil
@@ -51,8 +50,6 @@ class StatusTest < ActiveSupport::TestCase
     t2b.annotated = s2
     t2b.save
 
-    sleep 1
-
     assert_equal s1, t1a.annotated
     assert_equal s1, t1b.annotated
     assert_equal [t1a.id, t1b.id].sort, s1.reload.annotations.map(&:id).sort
@@ -64,106 +61,38 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should create version when status is created" do
     st = nil
-    assert_difference 'PaperTrail::Version.count', 3 do
-      st = create_status(status: 'credible')
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      st = create_status(status: 'undetermined', annotated: pm)
     end
     assert_equal 1, st.versions.count
     v = st.versions.last
     assert_equal 'create', v.event
-    assert_equal({ 'annotation_type' => ['', 'status'], 'annotated_type' => ['', 'Source'], 'annotated_id' => ['', st.annotated_id], 'annotator_type' => ['', 'User'], 'annotator_id' => ['', st.annotator_id], 'entities' => ['', '[]'], 'status' => ['', 'credible' ] }, JSON.parse(v.object_changes))
+    assert_equal({"data"=>[{}, {"status"=>"undetermined"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, st.annotator_id], "annotated_type"=>[nil, "ProjectMedia"], "annotated_id"=>[nil, st.annotated_id], "annotation_type"=>[nil, "status"]}, v.changeset)
   end
 
   test "should create version when status is updated" do
-    st = create_status(status: 'slightly_credible').reload
-    st.status = 'sockpuppet'
-    st.save
-    assert_equal 2, st.versions.count
+    st = nil
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      st = create_status(status: 'undetermined', annotated: pm)
+      assert_equal 1, st.versions.count
+      st = Status.where(annotation_type: 'status').last
+      st.status = 'verified'
+      st.save!
+      assert_equal 2, st.versions.count
+    end
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({ 'status' => ['slightly_credible', 'sockpuppet'] }, JSON.parse(v.object_changes))
-  end
-
-  test "should revert" do
-    st = create_status(status: 'credible')
-    st.status = 'not_credible'; st.save
-    st.status = 'slightly_credible'; st.save
-    st.status = 'sockpuppet'; st.save
-    assert_equal 4, st.versions.size
-
-    st.revert
-    assert_equal 'slightly_credible', st.status
-    st = st.reload
-    assert_equal 'sockpuppet', st.status
-
-    st.revert_and_save
-    assert_equal 'slightly_credible', st.status
-    st = st.reload
-    assert_equal 'slightly_credible', st.status
-
-    st.revert
-    assert_equal 'not_credible', st.status
-    st.revert
-    assert_equal 'credible', st.status
-    st.revert
-    assert_equal 'credible', st.status
-
-    st.revert(-1)
-    assert_equal 'not_credible', st.status
-    st.revert(-1)
-    assert_equal 'slightly_credible', st.status
-    st.revert(-1)
-    assert_equal 'sockpuppet', st.status
-    st.revert(-1)
-    assert_equal 'sockpuppet', st.status
-
-    st = st.reload
-    assert_equal 'slightly_credible', st.status
-    st.revert_and_save(-1)
-    st = st.reload
-    assert_equal 'sockpuppet', st.status
-
-    assert_equal 4, st.versions.size
-  end
-
-  test "should return whether it has an attribute" do
-    st = create_status
-    assert st.has_attribute?(:status)
-  end
-
-  test "should have a single annotation type" do
-    st = create_status
-    assert_equal 'annotation', st._type
-  end
-
-  test "should have context" do
-    st = create_status
-    s = create_source
-    assert_nil st.context
-    st.context = s
-    st.save
-    assert_equal s, st.context
-  end
-
-   test "should get annotations from context" do
-    context1 = create_project
-    context2 = create_project
-    annotated = create_source
-
-    st1 = create_status
-    st1.context = context1
-    st1.annotated = annotated
-    st1.save
-
-    st2 = create_status
-    st2.context = context2
-    st2.annotated = annotated
-    st2.save
-
-    sleep 1
-
-    assert_equal [st1.id, st2.id].sort, annotated.annotations.map(&:id).sort
-    assert_equal [st1.id], annotated.annotations(nil, context1).map(&:id)
-    assert_equal [st2.id], annotated.annotations(nil, context2).map(&:id)
+    assert_equal({"data"=>[{"status"=>"undetermined"}, {"status"=>"verified"}]}, v.changeset)
   end
 
   test "should get columns as array" do
@@ -187,17 +116,19 @@ class StatusTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = create_source
-    s2 = create_source
-    st1 = create_status annotator: u1, annotated: s1
-    st2 = create_status annotator: u1, annotated: s1
-    st3 = create_status annotator: u1, annotated: s1
-    st4 = create_status annotator: u2, annotated: s1
-    st5 = create_status annotator: u2, annotated: s1
-    st6 = create_status annotator: u3, annotated: s2
-    st7 = create_status annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.annotators
-    assert_equal [u3].sort, s2.annotators
+    ps1 = create_project_source
+    ps2 = create_project_source
+    Annotation.delete_all
+    st1 = create_status annotator: u1, annotated: ps1
+    st2 = create_status annotator: u1, annotated: ps1
+    st3 = create_status annotator: u1, annotated: ps1
+    st4 = create_status annotator: u2, annotated: ps1
+    st5 = create_status annotator: u2, annotated: ps1
+    st6 = create_status annotator: u3, annotated: ps2
+    st7 = create_status annotator: u3, annotated: ps2
+
+    assert_equal [u1.id, u2.id].sort, ps1.annotators.map(&:id).sort
+    assert_equal [u3.id], ps2.annotators.map(&:id)
   end
 
   test "should get annotator" do
@@ -213,48 +144,41 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should set annotator if not set" do
-    u1 = create_user
-    u2 = create_user
+    u = create_user
     t = create_team
-    create_team_user team: t, user: u2, role: 'editor'
-    m = create_valid_media team: t, current_user: u2
-    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: nil, current_user: u2, status: 'false'
-    assert_equal u2, st.annotator
+    p = create_project team: t
+    create_team_user team: t, user: u, role: 'editor'
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      st = create_status annotated: pm, annotator: nil, current_user: u, status: 'false'
+      assert_equal u, st.annotator
+    end
   end
 
-  test "should set not annotator if set" do
+  test "should not set annotator if set" do
     u1 = create_user
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
-    m = create_valid_media team: t, current_user: u2
-    st = create_status annotated_type: 'Media', annotated_id: m.id, annotator: u1, current_user: u2, status: 'false'
+    p = create_project team: t
+    m = create_valid_media current_user: u2
+    pm = create_project_media project: p, media: m
+    st = create_status annotated: pm, annotator: u1, current_user: u2, status: 'false'
     assert_equal u1, st.annotator
   end
 
   test "should not create status with invalid value" do
     assert_no_difference 'Status.length' do
-      assert_raise RuntimeError do
-        create_status status: 'invalid', annotated: create_valid_media
-      end
-    end
-    assert_no_difference 'Status.length' do
-      assert_raise RuntimeError do
+      assert_raise ActiveRecord::RecordInvalid do
         create_status status: 'invalid'
       end
-    end
-    assert_difference 'Status.length' do
-      create_status status: 'credible'
-    end
-    assert_difference 'Status.length' do
-      create_status status: 'verified', annotated: create_valid_media
     end
   end
 
   test "should not create status with invalid annotated type" do
     assert_no_difference 'Status.length' do
-      assert_raises RuntimeError do
-        create_status(status: 'false', annotated_type: 'Project', annotated_id: create_project.id)
+      assert_raises ActiveRecord::RecordInvalid do
+        create_status(status: 'false', annotated: create_project)
       end
     end
   end
@@ -264,38 +188,49 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 'Source', s.annotated_type_callback('source')
   end
 
-  test "should notify Slack when status is created" do
-    t = create_team subdomain: 'test'
+  test "should notify Slack when status is updated" do
+    t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
-    m = create_valid_media
-    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
-    assert s.sent_to_slack
-    # claim report
-    m = create_claim_media project_id: p.id
-    s = create_status status: 'false', origin: 'http://test.localhost:3333', current_user: u, annotator: u, annotated_type: 'Media', annotated_id: m.id, context: p
-    assert s.sent_to_slack
+    with_current_user_and_team(u, t) do
+      m = create_valid_media
+      pm = create_project_media project: p, media: m
+      s = create_status status: 'false', annotator: u, annotated: pm
+      assert_not s.sent_to_slack
+      s.status = 'verified'; s.save!
+      assert s.sent_to_slack
+      # claim report
+      m = create_claim_media project_id: p.id
+      pm = create_project_media project: p, media: m
+      s = create_status status: 'false', annotator: u, annotated: pm
+      assert_not s.sent_to_slack
+      s.status = 'verified'; s.save!
+      assert s.sent_to_slack
+    end
   end
 
   test "should validate status" do
     t = create_team
     p = create_project team: t
     m = create_valid_media
+    pm = create_project_media project: p, media: m
 
-    assert_difference('Status.length') { create_status annotated: m, context: p, status: 'in_progress' }
-    assert_raises(RuntimeError) { create_status annotated: m, context: p, status: '1' }
+    assert_difference  'Status.length' do
+      create_status annotated: pm, status: 'in_progress'
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_status annotated: pm, status: '1'
+    end
 
     value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
-    assert_difference('Status.length') { create_status annotated: m, context: p, status: '1' }
-    assert_raises(RuntimeError) { create_status annotated: m, context: p, status: 'in_progress' }
-
-    assert_difference('Status.length') { create_status annotated: m, context: nil, status: 'in_progress' }
-    assert_raises(RuntimeError) { create_status annotated: m, context: nil, status: '1' }
+    assert_difference 'Status.length' do
+      create_status annotated: pm, status: '1'
+    end
   end
 
   test "should get default id" do
@@ -324,15 +259,18 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    Team.stubs(:current).returns(t)
     # Ticket #5373
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     m.user = u; m.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
+    Team.unstub(:current)
   end
 
   test "journalist should change status of own project" do
@@ -340,21 +278,24 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
-    m = create_valid_media project_id: p.id
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    Team.stubs(:current).returns(t)
     # Ticket #5373
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     p.user = u; p.save!
     assert_difference 'Status.length' do
-      s = create_status status: 'verified', context: p, annotated: m, current_user: u, context_team: t, annotator: u
+      s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
+    Team.unstub(:current)
   end
 
   test "should normalize status" do
     s = nil
     assert_difference 'Status.length' do
-      s = create_status status: 'Not Credible'
+      s = create_status status: 'Not Credible', annotated: create_project_source
     end
     assert_equal 'not_credible', s.reload.status
   end
@@ -373,8 +314,67 @@ class StatusTest < ActiveSupport::TestCase
     t.save!
     m = create_valid_media
     p = create_project team: t
-    s = create_status status: '1', context: p, annotated: m
+    pm = create_project_media project: p, media: m
+    s = create_status status: '1', annotated: pm
     assert_equal 'Foo', s.id_to_label('1')
     assert_equal 'Bar', s.id_to_label('2')
   end
+
+  test "should create elasticsearch status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media media: m, project: p, disable_es_callbacks: false
+    sleep 1
+    result = MediaSearch.find(pm.id)
+    assert_equal Status.default_id(pm.media, pm.project), result.status
+  end
+
+  test "should update elasticsearch status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media media: m, project: p, disable_es_callbacks: false
+    st = create_status status: 'verified', annotated: pm, disable_es_callbacks: false
+    sleep 1
+    result = MediaSearch.find(pm.id)
+    assert_equal 'verified', result.status
+  end
+
+  test "should revert destroy status" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    m = create_valid_media
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p, media: m
+      s = Status.where(annotation_type: 'status', annotated_type: pm.class.to_s , annotated_id: pm.id).last
+      s.status = 'false'; s.save!
+      s.destroy
+      assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+      s.status = 'Not Applicable'; s.save!; s.reload
+      s.status = 'false'; s.save!; s.reload
+      s.status = 'verified'; s.save!
+      assert_equal s.reload.status, 'verified'
+      s.destroy
+      assert_equal s.reload.status, 'false'
+      s.destroy
+      assert_equal s.reload.status, 'not_applicable'
+      s.destroy
+      assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+      s.destroy
+      assert_nil Status.where(id: s.id).last
+    end
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { annotator: create_user, status: 'my comment' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do
+      Status.create(params)
+    end
+  end
+
 end

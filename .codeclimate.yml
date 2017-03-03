@@ -11,8 +11,15 @@ engines:
   rubocop:
     enabled: true
     config: .rubocop.yml
+    exclude_fingerprints:
+    - c46545507dd9c0ee0b06ade73f99824e
   brakeman:
     enabled: true
+    exclude_fingerprints:
+    - dddc38ecdf09b41a514d23ca5f1fcc94c5cf7a6b7c16678bcb7cb0b4435e47d9
+    - 4114d80e9cc178232bb96981ad86242e6fe5358be6d84033bf86184d947030ad
+    - 829226bd25ac3f5f3281766f8a14d2934a345bce7e456a8bf12d8c841de21c71
+    - c3eb48478c89591bdf3c9d8b27b3d9b8a875e34c2bb61232485d684c455c90b2
   duplication:
     enabled: true
     config:
@@ -39,4 +46,5 @@ exclude_paths:
 - "app/graphql"
 - "doc"
 - "app/models/ability.rb"
+- "config/initializers/rails_admin.rb"
 - ".codeclimate.yml"

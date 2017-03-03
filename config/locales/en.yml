@@ -1,8 +1,79 @@
+---
 en:
+  link: Link
+  claim: Claim
   activerecord:
+    attributes:
+      tag:
+        data: Tag
     errors:
+      messages:
+        record_invalid: 'Validation failed: %{errors}'
+        too_short:
+          one: is too short (minimum is 1 character)
+          other: is too short (minimum is %{count} characters)
       models:
         user:
           attributes:
             email:
-              taken: "It looks like your email is already taken. If you're having trouble logging in, please contact check@meedan.com, and we'll get back to you right away."
+              taken: 'Oops, minor problem: you already used that email address to
+                sign in with another method. We just sent you an email reminding you
+                how you logged in. Check your email and sign in with the method you
+                used before.'
+  devise:
+    failure:
+      invalid: Invalid %{authentication_keys} or password.
+      not_found_in_database: Invalid %{authentication_keys} or password.
+      unconfirmed: You have to confirm your email address before continuing.
+  slug_format_validation_message: accepts only letters, numbers and hyphens
+  slack_webhook_format_wrong: Slack webhook format is wrong
+  slug_is_reserved: is reserved
+  invalid_format_for_custom_verification_status: Invalid format for custom verification
+    statuses
+  invalid_media_item: Sorry, this is not a valid media item
+  already_exists: already exists
+  mail_account_confirmation: Check account confirmation
+  mail_request_to_join: "%{user} wants to join %{team} team on Check!"
+  approved: approved!
+  rejected: not approved
+  mail_request_to_join_processed: Your request to join %{team} on Check was %{status}
+  mail_new_account: New account for you on Check
+  slack_update_status: "*%{user}* changed the verification status on <%{url}> from
+    *%{previous_status}* to *%{current_status}*"
+  slack_save_embed: "*%{user}* changed the title from *%{from}* to <%{to}>"
+  slack_save_comment: "*%{user}* added a note on <%{url}>\\n> %{comment}"
+  slack_create_project: "*%{user}* created a project: <%{url}>"
+  slack_create_team_user: "*%{user}* joined <%{url}>"
+  slack_create_project_media: "*%{user}* added a new %{type}: <%{url}>"
+  slack_create_task: "*%{user}* created task <%{url}> in %{project} with note '%{note}'"
+  slack_answer_task: "*%{user}* answered the task <%{url}> in %{project}:\\n> %{response}\\n*Note:*\\n>
+    %{note}"
+  slack_update_task_label: "*%{user}* edited task <%{url}> in %{project}:\\n*From:*
+    %{from}\\n*To:* %{to}"
+  slack_update_task_description: "*%{user}* edited task note at <%{url}> in %{project}:\\n*From:*
+    %{from}\\n*To:* %{to}"
+  mail_view_welcome: Welcome to Check
+  mail_view_register: 'You are only one step away from using Check! Please confirm
+    your email address by clicking the following link:'
+  mail_view_joined: Your request to join %{team} was approved! You can now go to %{url}
+    and start contributing!
+  mail_view_rejected_to_join: Sorry, but your request to join %{team} was rejected.
+  mail_view_request_to_join: "%{user} (%{handle}) wants to join %{team} team on Check!"
+  mail_view_process_request: 'To process this request, please login and visit:'
+  pender_could_not_parse: Could not parse this media
+  mail_duplicate_email_exists: Your login method for Check
+  mail_duplicate_email_exists_body: "<p>Hello, this is just a friendly reminder to
+    help make sure you get logged in to Check.</p> <p>What happened: You tried to
+    sign in to Check with a %{user_provider}-based account linked to %{user_email}.
+    But this email address is already associated with a %{duplicate_provider}-based
+    account in Check.</p> <p>What to do next: Sign in with %{duplicate_provider}.</p>
+    <p>Then you'll be logged in with the account you were using before. If you need
+    additional help, please email check@meedan.com.</p> <p>— The Check team</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>Hello, this is just a friendly
+    reminder to help make sure you get logged in to Check.</p> <p>What happened: You
+    tried to create a new email- based account on Check, but this account already
+    exists.</p> <p>Try signing in with your email and password, rather than creating
+    a new account.</p> <p>Then you'll be logged in with the account you were using
+    before. If you need additional help, please email check@meedan.com.</p> <p>— The
+    Check team</p>"
+  mail_duplicate_email_exists_email: email

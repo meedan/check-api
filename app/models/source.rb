@@ -1,6 +1,5 @@
 class Source < ActiveRecord::Base
-  attr_accessible
-  has_paper_trail on: [:create, :update]
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :accounts
   has_many :project_sources
   has_many :projects , through: :project_sources
@@ -19,7 +18,9 @@ class Source < ActiveRecord::Base
   end
 
   def medias
-    Media.where(account_id: self.account_ids)
+    #TODO: fix me - list valid project media ids
+    m_ids = Media.where(account_id: self.account_ids).map(&:id)
+    ProjectMedia.where(media_id: m_ids)
   end
 
   def get_team
@@ -49,4 +50,5 @@ class Source < ActiveRecord::Base
   def comments
     self.annotations('comment')
   end
+
 end

@@ -15,46 +15,54 @@ class ContactTest < ActiveSupport::TestCase
 
   test "should update and destroy contact" do
     u = create_user
-    t = create_team current_user: u
-    c = create_contact team: t, current_user: u
-    c.current_user = u
-    c.location = 'location'; c.save!
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    c = create_contact team: t
+    with_current_user_and_team(u, t) do
+      c.location = 'location'; c.save!
+    end
     c.reload
     assert_equal c.location, 'location'
     # update contact as editor
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'editor'
-    c.current_user = u2
-    c.location = 'location_mod'; c.save!
+    with_current_user_and_team(u2, t) do
+      c.location = 'location_mod'; c.save!
+    end
     c.reload
     assert_equal c.location, 'location_mod'
     assert_raise RuntimeError do
-      c.current_user = u2
-      c.destroy
+      with_current_user_and_team(u2, t) do
+        c.destroy
+      end
     end
+    Rails.cache.clear
     tu.role = 'journalist'; tu.save!
     assert_raise RuntimeError do
-      c.current_user = u2
-      c.save!
+      with_current_user_and_team(u2, t) do
+        c.save!
+      end
     end
   end
 
   test "non members should not read contact in private team" do
     u = create_user
-    t = create_team current_user: create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     c = create_contact team: t
     pu = create_user
-    pt = create_team current_user: pu, private: true
+    pt = create_team private: true
+    create_team_user team: pt, user: pu, role: 'owner'
     pc = create_contact team: pt
-    Contact.find_if_can(c.id, u, t)
-    assert_raise CheckdeskPermissions::AccessDenied do
-      Contact.find_if_can(pc.id, u, pt)
+    with_current_user_and_team(u, t) { Contact.find_if_can(c.id) }
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(u, pt) { Contact.find_if_can(pc.id) }
     end
-    Contact.find_if_can(pc.id, pu, pt)
+    with_current_user_and_team(pu, pt) { Contact.find_if_can(pc.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
-      Contact.find_if_can(pc.id, pu.reload, pt)
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(pu.reload, pt) { Contact.find_if_can(pc.id) }
     end
   end
 
@@ -72,6 +80,15 @@ class ContactTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordInvalid do
         create_contact phone: "invalid"
       end
+    end
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { phone: random_valid_phone }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do
+      Contact.create(params)
     end
   end
 

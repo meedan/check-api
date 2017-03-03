@@ -10,6 +10,11 @@ RootLevelType = GraphQL::ObjectType.define do
       Comment.all_sorted
     }
   end
+  connection :project_medias, ProjectMediaType.connection_type do
+    resolve ->(_object, _args, _ctx){
+      ProjectMedia.all
+    }
+  end
   connection :project_sources, ProjectSourceType.connection_type do
     resolve ->(_object, _args, _ctx){
       ProjectSource.all
@@ -63,6 +68,11 @@ RootLevelType = GraphQL::ObjectType.define do
   connection :statuses, StatusType.connection_type do
     resolve ->(_object, _args, _ctx){
       Status.all_sorted
+    }
+  end
+  connection :versions, VersionType.connection_type do
+    resolve ->(_object, _args, _ctx){
+      PaperTrail::Version.all
     }
   end
   connection :contacts, ContactType.connection_type do

@@ -5,13 +5,13 @@ class GraphqlCrudOperations
     end
     obj.save!
 
-    name = obj.class.name.underscore
+    name = obj.class_name.underscore
     ret = { name.to_sym => obj }
 
     parents.each do |parent_name|
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
-        parent.project_id = child.context_id if parent_name.to_s == 'media' && child.context_type == 'Project' && parent.respond_to?(:project_id)
+        parent.no_cache = true
         ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
         ret[parent_name.to_sym] = parent
       end
@@ -21,10 +21,10 @@ class GraphqlCrudOperations
   end
 
   def self.create(type, inputs, ctx, parents = [])
-    obj = type.camelize.constantize.new
-    obj.current_user = ctx[:current_user]
-    obj.context_team = ctx[:context_team]
-    obj.origin = ctx[:origin] if obj.respond_to?('origin=')
+    klass = type.camelize
+
+    obj = klass.constantize.new
+    obj.file = ctx[:file] if (type == 'project_media' || type == 'comment') && !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
@@ -36,6 +36,7 @@ class GraphqlCrudOperations
 
   def self.update(_type, inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
+    obj = obj.load if obj.is_a?(Annotation)
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
@@ -45,11 +46,10 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.destroy(inputs, ctx, parents = [])
+  def self.destroy(inputs, _ctx, parents = [])
     type, id = NodeIdentification.from_global_id(inputs[:id])
     obj = type.constantize.find(id)
-    obj.current_user = ctx[:current_user]
-    obj.context_team = ctx[:context_team]
+    obj = obj.load if obj.respond_to?(:load)
     obj.destroy
 
     ret = { deletedId: inputs[:id] }
@@ -90,7 +90,7 @@ class GraphqlCrudOperations
 
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
-        return_field parent.to_sym, "#{parent.camelize}Type".constantize
+        return_field parent.to_sym, "#{parent.gsub(/_was$/, '').camelize}Type".constantize
       end
 
       resolve -> (inputs, ctx) {
@@ -107,7 +107,7 @@ class GraphqlCrudOperations
 
       return_field :deletedId, types.ID
       parents.each do |parent|
-        return_field parent.to_sym, "#{parent.camelize}Type".constantize
+        return_field parent.to_sym, "#{parent.gsub(/_was$/, '').camelize}Type".constantize
       end
 
       resolve -> (inputs, ctx) {
@@ -129,8 +129,6 @@ class GraphqlCrudOperations
     GraphQL::ObjectType.define do
       field :permissions, types.String do
         resolve -> (obj, _args, ctx) {
-          obj.current_user = ctx[:current_user]
-          obj.project_id ||= ctx[:context_project].id if obj.is_a?(Media) && ctx[:context_project].present?
           obj.permissions(ctx[:ability])
         }
       end
@@ -139,27 +137,13 @@ class GraphqlCrudOperations
     end
   end
 
-  def self.field_with_context
-    proc do |name, field_type = types.String, method = nil|
-      field name do
-        type field_type
-
-        argument :context_id, types.Int
-
-        resolve -> (media, args, ctx) {
-          call_method_from_context(media, method.blank? ? name : method, args, ctx)
-        }
-      end
-    end
-  end
-
   def self.field_verification_statuses
     proc do |classname|
       field :verification_statuses do
         type types.String
 
-        resolve ->(_obj, _args, ctx) {
-          team = ctx[:context_team] || Team.new
+        resolve ->(_obj, _args, _ctx) {
+          team = Team.current || Team.new
           team.verification_statuses(classname)
         }
       end
@@ -168,17 +152,20 @@ class GraphqlCrudOperations
 
   def self.define_annotation_fields
     [:annotation_type, :updated_at, :created_at,
-     :context_id, :context_type, :annotated_id,
-     :annotated_type, :content, :dbid ]
+     :annotated_id, :annotated_type, :content, :dbid ]
   end
 
-  def self.define_annotation_type(type, fields = {})
+  def self.define_annotation_type(type, fields = {}, &block)
     GraphQL::ObjectType.define do
       name type.capitalize
 
       interfaces [NodeIdentification.interface]
 
-      field :id, field: GraphQL::Relay::GlobalIdField.new(type.capitalize)
+      field :id, !types.ID do
+        resolve -> (annotation, _args, _ctx) {
+          annotation.relay_id(type)
+        }
+      end
 
       GraphqlCrudOperations.define_annotation_fields.each do |name|
         field name, types.String
@@ -186,8 +173,7 @@ class GraphqlCrudOperations
 
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
-          annotation.current_user = ctx[:current_user]
-          annotation.permissions(ctx[:ability])
+          annotation.permissions(ctx[:ability], annotation.annotation_type_class)
         }
       end
 
@@ -195,26 +181,32 @@ class GraphqlCrudOperations
         field name, types.String
       end
 
-      field :annotator do
-        type AnnotatorType
-
-        resolve -> (annotation, _args, _ctx) {
-          annotation.annotator
-        }
-      end
-
-      connection :medias, -> { MediaType.connection_type } do
+      connection :medias, -> { ProjectMediaType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
           annotation.entity_objects
+        }
+      end
+      instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
+      instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
+      
+      instance_eval(&block) if block_given?
+    end
+  end
+
+  def self.annotation_fields
+    proc do |name, field_type = types.String, method = nil|
+      field name do
+        type field_type
+
+        resolve -> (annotation, _args, _ctx) {
+          annotation.send(method.blank? ? name : method)
         }
       end
     end
   end
 
   def self.load_if_can(klass, id, ctx)
-    obj = klass.find_if_can(id, ctx[:current_user], ctx[:context_team], ctx[:ability])
-    obj.current_user = ctx[:current_user]
-    obj.context_team = ctx[:context_team]
+    obj = klass.find_if_can(id, ctx[:ability])
     obj
   end
 end

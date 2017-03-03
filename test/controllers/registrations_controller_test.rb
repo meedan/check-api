@@ -5,13 +5,23 @@ class RegistrationsControllerTest < ActionController::TestCase
     super
     @controller = Api::V1::RegistrationsController.new
     @request.env["devise.mapping"] = Devise.mappings[:api_user]
+    User.current = nil
   end
 
   test "should create user" do
     assert_difference 'User.count' do
       post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' }
+      assert_response 401 # needs to confirm before login
+    end
+  end
+
+  test "should create user if confirmed" do
+    User.any_instance.stubs(:confirmation_required?).returns(false)
+    assert_difference 'User.count' do
+      post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' }
       assert_response :success
     end
+    User.any_instance.unstub(:confirmation_required?)
   end
 
   test "should not create user if password is missing" do
@@ -45,7 +55,7 @@ class RegistrationsControllerTest < ActionController::TestCase
   test "should create user if login is not present" do
     assert_difference 'User.count' do
       post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: '', name: 'Test' }
-      assert_response :success
+      assert_response 401 # needs to confirm before login
     end
   end
 

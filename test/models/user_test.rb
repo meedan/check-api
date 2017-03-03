@@ -1,6 +1,11 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class UserTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+  end
 
   test "should create user" do
     assert_difference 'User.count' do
@@ -10,22 +15,22 @@ class UserTest < ActiveSupport::TestCase
 
   test "should update and destroy user" do
     u = create_user
-    t = create_team current_user: u
-    u2 = create_user current_user: u
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    u2 = create_user
     create_team_user team: t, user: u2, role: 'editor'
-    u2.current_user = u
     u2.save!
-    # update user as editor
-    assert_raise RuntimeError do
-      u.current_user = u2
-      u.save!
+
+    with_current_user_and_team(u2, t) do
+      assert_raise RuntimeError do
+        u.save!
+      end
+      assert_raise RuntimeError do
+        u.save!
+      end
     end
-    assert_raise RuntimeError do
-      u.current_user = u2
-      u.save!
-    end
-    u2.current_user = u
-    u2.destroy
+
+    with_current_user_and_team(u, t) { u2.destroy }
   end
 
   test "non members should not read users in private team" do
@@ -38,16 +43,18 @@ class UserTest < ActiveSupport::TestCase
     ptu = create_team_user user: pu, team: pt
     u2 = create_user
     create_team_user user: u2, team: pt
-    User.find_if_can(u1.id, u, t)
-    assert_raise CheckdeskPermissions::AccessDenied do
-      User.find_if_can(u2.id, u, pt)
+    with_current_user_and_team(u, t) { User.find_if_can(u1.id) }
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(u, pt) { User.find_if_can(u2.id) }
     end
-    User.find_if_can(u2.id, pu, pt)
-    User.find_if_can(u1.id, pu, pt)
-    User.find_if_can(u.id, u, t)
+    with_current_user_and_team(pu, pt) do
+      User.find_if_can(u2.id)
+      User.find_if_can(u1.id)
+    end
+    with_current_user_and_team(u, t) { User.find_if_can(u.id) }
     ptu.status = 'requested'; ptu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
-      User.find_if_can(u2.id, pu, pt)
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(pu, pt) { User.find_if_can(u2.id) }
     end
   end
 
@@ -172,6 +179,24 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should send email when user email is duplicate" do
+    u = create_user provider: 'facebook'
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
+  test "should not add duplicate mail" do
+    u = create_user
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
   test "should have projects" do
     p1 = create_project
     p2 = create_project
@@ -214,16 +239,20 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t , role: 'owner'
-    assert_equal u.role(t), 'owner'
+    Team.stubs(:current).returns(t)
+    assert_equal u.role, 'owner'
+    Team.unstub(:current)
   end
 
   test "verify user role" do
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t , role: 'editor'
-    assert u.role? :editor, t
-    assert u.role? :journalist, t
-    assert_not u.role? :owner, t
+    Team.stubs(:current).returns(t)
+    assert u.role? :editor
+    assert u.role? :journalist
+    assert_not u.role? :owner
+    Team.unstub(:current)
   end
 
   test "should set current team with one of users team" do
@@ -265,7 +294,7 @@ class UserTest < ActiveSupport::TestCase
      create_team_user team: t1, user: u
      t2 = create_team
      create_team_user team: t2, user: u, status: 'requested'
-     assert_equal [t1.name, t2.name], JSON.parse(u.user_teams).keys
+     assert_equal [t1.name, t2.name].sort, JSON.parse(u.user_teams).keys.sort
   end
 
   test "should not crash if account is not created" do
@@ -310,34 +339,34 @@ class UserTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     user = create_user
-    user.context_team = t
-    user.current_user = u
     perm_keys = ["read User", "update User", "destroy User", "create Source", "create TeamUser", "create Team", "create Project"].sort
+
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    user.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(user.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
   end
 
   test "should get handle" do
@@ -366,5 +395,57 @@ class UserTest < ActiveSupport::TestCase
     create_team_user team: t3, user: u2
     assert u1.is_a_colleague_of?(u2)
     assert u2.is_a_colleague_of?(u1)
+  end
+
+  test "should require confirmation for e-mail accounts only" do
+    u = create_user provider: 'twitter'
+    assert !u.send(:confirmation_required?)
+    u = create_user provider: ''
+    assert u.send(:confirmation_required?)
+  end
+
+  test "should set user password" do
+    u = create_user password: '12345678', password_confirmation: '12345678'
+    u.set_password = '87654321'
+    u.save!
+    assert_equal '87654321', u.password
+    assert_equal '87654321', u.password_confirmation
+  end
+
+  test "should not change user password if value is blank" do
+    u = create_user password: '12345678', password_confirmation: '12345678'
+    u.set_password = ''
+    u.save!
+    assert_equal '12345678', u.password
+    assert_equal '12345678', u.password_confirmation
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { name: 'My name', login: 'my-name' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do
+      User.create(params)
+    end
+  end
+
+  test "should delay confirmation email" do
+    require 'sidekiq/testing'
+    Sidekiq::Testing.fake!
+    u = create_user
+    assert_equal 0, u.send(:pending_notifications).size
+    Sidekiq::Extensions::DelayedMailer.jobs.clear
+    assert_equal 0, Sidekiq::Extensions::DelayedMailer.jobs.size
+    u.password = '12345678'
+    u.password_confirmation = '12345678'
+    u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
+    u.save!
+    u.send(:send_pending_notifications)
+    assert_equal 1, Sidekiq::Extensions::DelayedMailer.jobs.size
+    assert_equal 1, u.send(:pending_notifications).size
+    u = User.last
+    u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
+    assert_equal 2, Sidekiq::Extensions::DelayedMailer.jobs.size
+    assert_equal 0, u.send(:pending_notifications).size
   end
 end

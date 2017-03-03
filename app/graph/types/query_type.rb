@@ -12,42 +12,63 @@ QueryType = GraphQL::ObjectType.define do
     type AboutType
     description 'Information about the application'
     resolve -> (_obj, _args, _ctx) do
-      OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: 'About', tos: CONFIG['terms_of_service'], privacy_policy: CONFIG['privacy_policy'] })
+      OpenStruct.new({ name: Rails.application.class.parent_name, version: VERSION, id: 1, type: 'About', tos: CONFIG['terms_of_service'], privacy_policy: CONFIG['privacy_policy'], max_upload_size: UploadedFile.max_size_readable })
     end
   end
 
   field :me do
     type UserType
     description 'Information about the current user'
-    resolve -> (_obj, _args, ctx) do
-      ctx[:current_user]
+    resolve -> (_obj, _args, _ctx) do
+      User.current
     end
   end
 
-  # Get team by id or subdomain
+  # Get team by id or slug
 
   field :team do
     type TeamType
     description 'Information about the context team or the team from given id'
     argument :id, types.ID
+    argument :slug, types.String
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
-      if tid === 0 && !ctx[:context_team].blank?
-        tid = ctx[:context_team].id
+      if !args['slug'].blank?
+        team = Team.where(slug: args['slug']).first
+        tid = team.id unless team.nil?
+      end  
+      if tid === 0 && !Team.current.blank?
+        tid = Team.current.id
       end
       GraphqlCrudOperations.load_if_can(Team, tid, ctx)
     end
   end
 
   # Get public team
-  
+
   field :public_team do
     type PublicTeamType
-    description 'Public information about the current team'
-    
-    resolve -> (_obj, _args, ctx) do
-      id = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+    description 'Public information about a team'
+    argument :slug, types.String
+
+    resolve -> (_obj, args, _ctx) do
+      team = args['slug'].blank? ? Team.current : Team.where(slug: args['slug']).last
+      id = team.blank? ? 0 : team.id
       Team.find(id)
+    end
+  end
+
+  field :project_media do
+    type ProjectMediaType
+    description 'Information about a project media, The argument should be given like this: "project_media_id,project_id"'
+    argument :ids, !types.String
+    resolve -> (_obj, args, ctx) do
+      pmid, pid = args['ids'].split(',').map(&:to_i)
+      tid = Team.current.blank? ? 0 : Team.current.id
+      project = Project.where(id: pid, team_id: tid).last
+      pid = project.nil? ? 0 : project.id
+      pmid = ProjectMedia.belonged_to_project(pmid, pid) || 0
+      GraphqlCrudOperations.load_if_can(ProjectMedia, pmid, ctx)
     end
   end
 
@@ -58,29 +79,10 @@ QueryType = GraphQL::ObjectType.define do
     argument :id, !types.ID
 
     resolve -> (_obj, args, ctx) do
-      tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
+      tid = Team.current.blank? ? 0 : Team.current.id
       project = Project.where(id: args['id'], team_id: tid).last
       id = project.nil? ? 0 : project.id
       GraphqlCrudOperations.load_if_can(Project, id, ctx)
-    end
-  end
-
-  field :media do
-    type MediaType
-    description 'Information about a media item. The argument should be given like this: "media_id,project_id"'
-
-    argument :ids, !types.String
-
-    resolve -> (_obj, args, ctx) do
-      mid, pid = args['ids'].split(',').map(&:to_i)
-      tid = ctx[:context_team].blank? ? 0 : ctx[:context_team].id
-      project = Project.where(id: pid, team_id: tid).last
-      pid = project.nil? ? 0 : project.id
-      project_media = ProjectMedia.where(project_id: pid, media_id: mid).last
-      mid = project_media.nil? ? 0 : project_media.media_id
-      media = GraphqlCrudOperations.load_if_can(Media, mid, ctx)
-      media.project_id = pid if media
-      media
     end
   end
 
@@ -90,8 +92,8 @@ QueryType = GraphQL::ObjectType.define do
 
     argument :query, !types.String
 
-    resolve -> (_obj, args, ctx) do
-      CheckSearch.new(args['query'], ctx[:context_team])
+    resolve -> (_obj, args, _ctx) do
+      CheckSearch.new(args['query'])
     end
   end
 

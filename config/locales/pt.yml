@@ -1,0 +1,11 @@
+pt:
+  activerecord:
+    errors:
+      messages:
+        record_invalid: 'Validação falhou: %{errors}'
+  slug_format_validation_message: aceita apenas letras, números e hífens
+  slack_webhook_format_wrong: Formato do webhook do Slack está errado
+  slug_is_reserved: é reservado
+  invalid_format_for_custom_verification_status: Formato inválido para status de verificação personalizados
+  invalid_media_item: Desculpe, este não é um item de mídia válido
+  already_exists: já existe

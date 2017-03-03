@@ -38,6 +38,7 @@ Ruby Gem: equalizer,Module to define equality equivalence and inspection methods
 Ruby Gem: erubis,a fast and extensible eRuby implementation which supports multi-language,MIT,http://www.kuwata-lab.com/erubis/
 Ruby Gem: execjs,Run JavaScript code from Ruby,MIT,https://github.com/rails/execjs
 Ruby Gem: faraday,HTTP/REST API client library.,MIT,https://github.com/lostisland/faraday
+Ruby Gem: file_validators,ActiveModel file validators,MIT,https://github.com/musaffa/file_validators
 Ruby Gem: gem-licenses,Attempts to figure out what licenses various gems use.,MIT,http://github.com/dblock/gem-licenses
 Ruby Gem: globalid,Refer to any model with a URI: gid://app/class/id,MIT,http://www.rubyonrails.org
 Ruby Gem: graphiql-rails,A mountable GraphiQL endpoint for Rails,MIT,http://github.com/rmosolgo/graphiql-rails
@@ -48,12 +49,14 @@ Ruby Gem: gyoku,Translates Ruby Hashes to XML,MIT,https://github.com/savonrb/gyo
 Ruby Gem: hashdiff,HashDiff is a diff lib to compute the smallest difference between two hashes.,MIT,https://github.com/liufengyun/hashdiff
 Ruby Gem: hashie,Your friendly neighborhood hash library.,MIT,https://github.com/intridea/hashie
 Ruby Gem: htmlentities,Encode/decode HTML entities,MIT,https://github.com/threedaymonk/htmlentities
+Ruby Gem: http-cookie,A Ruby library to handle HTTP Cookies based on RFC 6265,MIT,https://github.com/sparklemotion/http-cookie
 Ruby Gem: httpi,Common interface for Ruby's HTTP libraries,MIT,http://github.com/savonrb/httpi
 Ruby Gem: i18n,New wave Internationalization support for Ruby,MIT,http://github.com/svenfuchs/i18n
 Ruby Gem: ice_nine,Deep Freeze Ruby Objects,MIT,https://github.com/dkubb/ice_nine
 Ruby Gem: jbuilder,Create JSON structures via a Builder-style DSL,MIT,https://github.com/rails/jbuilder
 Ruby Gem: jquery-rails,Use jQuery with Rails 4+,MIT,https://github.com/rails/jquery-rails
 Ruby Gem: jwt,JSON Web Token implementation in Ruby,MIT,http://github.com/jwt/ruby-jwt
+Ruby Gem: logstash-logger,LogStash Logger for ruby,MIT,http://github.com/dwbutler/logstash-logger
 Ruby Gem: loofah,Loofah is a general library for manipulating and transforming HTML/XML documents and fragments,MIT,https://github.com/flavorjones/loofah
 Ruby Gem: mail,Mail provides a nice Ruby DSL for making sending and reading emails.,MIT,https://github.com/mikel/mail
 Ruby Gem: metaclass,Adds a metaclass method to all Ruby objects,MIT,http://github.com/floehopper/metaclass
@@ -67,6 +70,8 @@ Ruby Gem: mocha,Mocking and stubbing library,MIT,http://gofreerange.com/mocha/do
 Ruby Gem: multi_json,A common interface to multiple JSON libraries.,MIT,http://github.com/intridea/multi_json
 Ruby Gem: multi_xml,A generic swappable back-end for XML parsing,MIT,https://github.com/sferik/multi_xml
 Ruby Gem: multipart-post,A multipart form post accessory for Net::HTTP.,MIT,https://github.com/nicksieger/multipart-post
+Ruby Gem: netrc,Library to read and write netrc files.,MIT,https://github.com/geemus/netrc
+Ruby Gem: newrelic_rpm,New Relic Ruby Agent,MIT,https://github.com/newrelic/rpm
 Ruby Gem: nokogiri,Nokogiri (鋸) is an HTML XML SAX and Reader parser,MIT,http://nokogiri.org
 Ruby Gem: nori,XML to Hash translator,MIT,https://github.com/savonrb/nori
 Ruby Gem: oauth,OAuth Core Ruby implementation,MIT,
@@ -103,6 +108,7 @@ Ruby Gem: redis,A Ruby client library for Redis,MIT,https://github.com/redis/red
 Ruby Gem: redis-namespace,Namespaces Redis commands.,MIT,http://github.com/resque/redis-namespace
 Ruby Gem: request_store,RequestStore gives you per-request global storage.,MIT,http://github.com/steveklabnik/request_store
 Ruby Gem: responders,A set of Rails responders to dry up your application,MIT,http://github.com/plataformatec/responders
+Ruby Gem: rest-client,Simple HTTP and REST client for Ruby inspired by microframework syntax for specifying actions.,MIT,https://github.com/rest-client/rest-client
 Ruby Gem: rubocop,Automatic Ruby code style checking tool.,MIT,http://github.com/bbatsov/rubocop
 Ruby Gem: ruby-progressbar,Ruby/ProgressBar is a flexible text progress bar library for Ruby.,MIT,https://github.com/jfelchner/ruby-progressbar
 Ruby Gem: safe_yaml,SameYAML provides an alternative implementation of YAML.load suitable for accepting user input in Ruby applications.,MIT,https://github.com/dtao/safe_yaml
@@ -122,6 +128,7 @@ Ruby Gem: turbolinks,Turbolinks makes navigating your web application faster,MIT
 Ruby Gem: turbolinks-source,Turbolinks JavaScript assets,MIT,https://github.com/turbolinks/turbolinks-source-gem
 Ruby Gem: tzinfo,Daylight savings aware timezone library,MIT,http://tzinfo.github.io
 Ruby Gem: uglifier,Ruby wrapper for UglifyJS JavaScript compressor,MIT,http://github.com/lautis/uglifier
+Ruby Gem: unf_ext,Unicode Normalization Form support library for CRuby,MIT,https://github.com/knu/ruby-unf_ext
 Ruby Gem: unicode-display_width,Determines the monospace display width of a string in Ruby.,MIT,http://github.com/janlelis/unicode-display_width
 Ruby Gem: uuid,UUID generator,MIT,http://github.com/assaf/uuid
 Ruby Gem: virtus,Attributes on Steroids for Plain Old Ruby Objects,MIT,https://github.com/solnic/virtus
@@ -130,8 +137,10 @@ Ruby Gem: wasabi,A simple WSDL parser,MIT,https://github.com/savonrb/wasabi
 Ruby Gem: web-console,A debugging tool for your Ruby on Rails applications.,MIT,https://github.com/rails/web-console
 Ruby Gem: webmock,Library for stubbing HTTP requests in Ruby.,MIT,http://github.com/bblimke/webmock
 Ruby Gem: byebug,Ruby 2.0 fast debugger - base + CLI,BSD 2-Clause,http://github.com/deivid-rodriguez/byebug
+Ruby Gem: domain_name,Domain Name manipulation library for Ruby,BSD 2-Clause,https://github.com/knu/ruby-domain_name
 Ruby Gem: io-console,Console interface,BSD 2-Clause,http://www.ruby-lang.org
 Ruby Gem: mocha,Mocking and stubbing library,BSD 2-Clause,http://gofreerange.com/mocha/docs
+Ruby Gem: unf,A wrapper library to bring Unicode Normalization Form support to Ruby/JRuby,BSD 2-Clause,https://github.com/knu/ruby-unf
 Ruby Gem: addressable,URI Implementation,Apache 2.0,https://github.com/sporkmonger/addressable
 Ruby Gem: elasticsearch,Ruby integrations for Elasticsearch,Apache 2.0,http://github.com/elasticsearch/elasticsearch-ruby
 Ruby Gem: elasticsearch-api,Ruby API for Elasticsearch.,Apache 2.0,https://github.com/elasticsearch/elasticsearch-ruby/tree/master/elasticsearch-api
@@ -144,13 +153,18 @@ Ruby Gem: socksify,Redirect all TCPSockets through a SOCKS5 proxy,the program or
 Ruby Gem: eventmachine,Ruby/EventMachine library,Ruby,http://rubyeventmachine.com
 Ruby Gem: httpclient,gives something like the functionality of libwww-perl (LWP) in Ruby,Ruby,https://github.com/nahi/httpclient
 Ruby Gem: macaddr,macaddr,Ruby,https://github.com/ahoward/macaddr
+Ruby Gem: newrelic_rpm,New Relic Ruby Agent,Ruby,https://github.com/newrelic/rpm
 Ruby Gem: rdoc,RDoc produces HTML and command-line documentation for Ruby projects,Ruby,http://docs.seattlerb.org/rdoc
 Ruby Gem: systemu,systemu,Ruby,https://github.com/ahoward/systemu
 Ruby Gem: thin,A thin and fast web server,Ruby,http://code.macournoyer.com/thin/
 Ruby Gem: colorize,Ruby gem for colorizing text using ANSI escape sequences.,gpl-2.0,http://github.com/fazibear/colorize
 Ruby Gem: eventmachine,Ruby/EventMachine library,gpl-2.0,http://rubyeventmachine.com
+Ruby Gem: domain_name,Domain Name manipulation library for Ruby,bsd-3-clause,https://github.com/knu/ruby-domain_name
 Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],bsd-3-clause,https://bitbucket.org/ged/ruby-pg
 Ruby Gem: puma,Puma is a simple fast threaded and highly concurrent HTTP 1.1 server for Ruby/Rack applications,bsd-3-clause,http://puma.io
+Ruby Gem: domain_name,Domain Name manipulation library for Ruby,mpl-2.0,https://github.com/knu/ruby-domain_name
+Ruby Gem: logstash-event,Library that contains the classes required to create LogStash events,apache license (2.0),https://github.com/logstash/logstash
+Ruby Gem: newrelic_rpm,New Relic Ruby Agent,NewRelic,https://github.com/newrelic/rpm
 Ruby Gem: railroady,Ruby on Rails 3/4 model and controller UML class diagram generator.,GPLv2,http://github.com/preston/railroady
 Ruby Gem: thin,A thin and fast web server,GPLv2,http://code.macournoyer.com/thin/
 Ruby Gem: sidekiq,Simple efficient background processing for Ruby,LGPLv3,http://sidekiq.org

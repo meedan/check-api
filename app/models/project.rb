@@ -1,12 +1,11 @@
 class Project < ActiveRecord::Base
-  attr_accessible
 
-  has_paper_trail on: [:create, :update]
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
   belongs_to :team
   has_many :project_sources
   has_many :sources , through: :project_sources
-  has_many :project_medias
+  has_many :project_medias, dependent: :destroy
   has_many :medias , through: :project_medias
 
   mount_uploader :lead_image, ImageUploader
@@ -19,8 +18,8 @@ class Project < ActiveRecord::Base
   has_annotations
 
   notifies_slack on: :create,
-                 if: proc { |p| p.current_user.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |p| "*#{p.current_user.name}* created a project: <#{p.origin}/project/#{p.id}|*#{p.title}*>" },
+                 if: proc { |p| User.current.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
+                 message: proc { |p| I18n.t(:slack_create_project, default: "*%{user}* created a project: <%{url}>", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{p.team.slug}/project/#{p.id}|*#{p.title}*") },
                  channel: proc { |p| p.setting(:slack_channel) || p.team.setting(:slack_channel) },
                  webhook: proc { |p| p.team.setting(:slack_webhook) }
 
@@ -29,7 +28,7 @@ class Project < ActiveRecord::Base
                   targets: proc { |p| [p.team] },
                   data: proc { |p| p.to_json }
 
-  include CheckdeskSettings
+  include CheckSettings
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -63,24 +62,31 @@ class Project < ActiveRecord::Base
     project
   end
 
-  def eager_loaded_medias
-    self.medias.to_a.collect do |media|
-      media.project_id = self.id
-      media
-    end
+  def medias_count
+    self.project_medias.count
   end
 
-  def medias_count
-    self.medias.count
+  def slack_notifications_enabled=(enabled)
+    self.send(:set_slack_notifications_enabled, enabled)
+  end
+
+  def slack_channel=(channel)
+    self.send(:set_slack_channel, channel)
+  end
+
+  def admin_label
+    unless self.new_record?
+      [self.team.name.truncate(15),self.title.truncate(25)].join(' - ')
+    end
   end
 
   private
 
   def set_description_and_team_and_user
     self.description ||= ''
-    if !self.current_user.nil? && !self.team_id
-      self.team = self.current_user.current_team
+    if !User.current.nil? && !self.team_id
+      self.team = User.current.current_team
     end
-    self.user ||= self.current_user
+    self.user ||= User.current
   end
 end

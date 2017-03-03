@@ -1,23 +1,23 @@
 class Team < ActiveRecord::Base
-  attr_accessible
-  
-  has_paper_trail on: [:create, :update]
-  has_many :projects
-  has_many :accounts
-  has_many :team_users
+
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
+
+  has_many :projects, dependent: :destroy
+  has_many :accounts, dependent: :destroy
+  has_many :team_users, dependent: :destroy
   has_many :users, through: :team_users
-  has_many :contacts
+  has_many :contacts, dependent: :destroy
 
   mount_uploader :logo, ImageUploader
 
-  before_validation :normalize_subdomain, on: :create
+  before_validation :normalize_slug, on: :create
 
   validates_presence_of :name
-  validates_presence_of :subdomain
-  validates_format_of :subdomain, :with => /\A[[:alnum:]-]+\z/, :message => 'accepts only letters, numbers and hyphens', on: :create
-  validates :subdomain, length: { in: 4..63 }, on: :create
-  validates :subdomain, uniqueness: true, on: :create
-  validate :subdomain_is_available, on: :create
+  validates_presence_of :slug
+  validates_format_of :slug, with: /\A[[:alnum:]-]+\z/, message: I18n.t(:slug_format_validation_message, default: 'accepts only letters, numbers and hyphens'), on: :create
+  validates :slug, length: { in: 4..63 }, on: :create
+  validates :slug, uniqueness: true, on: :create
+  validate :slug_is_not_reserved
   validates :logo, size: true
   validate :slack_webhook_format
   validate :custom_media_statuses_format
@@ -27,7 +27,9 @@ class Team < ActiveRecord::Base
 
   has_annotations
 
-  include CheckdeskSettings
+  RESERVED_SLUGS = ['check']
+
+  include CheckSettings
 
   def logo_callback(value, _mapping_ids = nil)
     image_callback(value)
@@ -48,7 +50,7 @@ class Team < ActiveRecord::Base
       avatar: self.avatar,
       name: self.name,
       projects: self.recent_projects,
-      subdomain: self.subdomain
+      slug: self.slug
     }
   end
 
@@ -84,16 +86,40 @@ class Team < ActiveRecord::Base
     recipients
   end
 
+  def media_verification_statuses=(statuses)
+    self.send(:set_media_verification_statuses, statuses)
+  end
+
+  def source_verification_statuses=(statuses)
+    self.send(:set_source_verification_statuses, statuses)
+  end
+
+  def slack_notifications_enabled=(enabled)
+    self.send(:set_slack_notifications_enabled, enabled)
+  end
+
+  def slack_webhook=(webhook)
+    self.send(:set_slack_webhook, webhook)
+  end
+
+  def slack_channel=(channel)
+    self.send(:set_slack_channel, channel)
+  end
+
+  def checklist=(checklist)
+    self.send(:set_checklist, checklist)
+  end
+
   protected
 
   def custom_statuses_format(type)
     statuses = self.send("get_#{type}_verification_statuses")
     unless statuses.nil?
       if statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-        errors.add(:base, 'Invalid format for custom verification statuses')
+        errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status, default: 'Invalid format for custom verification statuses'))
       else
         statuses[:statuses].each do |status|
-          errors.add(:base, 'Invalid format for custom verification status') if status.keys.sort != [:description, :id, :label, :style]
+          errors.add(:base, 'Invalid format for custom verification status') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
         end
       end
     end
@@ -102,7 +128,7 @@ class Team < ActiveRecord::Base
   private
 
   def add_user_to_team
-    user = self.current_user
+    user = User.current
     unless user.nil?
       tu = TeamUser.new
       tu.user = user
@@ -115,43 +141,31 @@ class Team < ActiveRecord::Base
     end
   end
 
-  def self.subdomain_from_name(name)
+  def self.slug_from_name(name)
     name.parameterize.underscore.dasherize.ljust(4, '-')
   end
 
-  def subdomain_is_available
-    unless self.origin.blank?
-      begin
-        r = Regexp.new CONFIG['checkdesk_client']
-        m = origin.match(r)
-        url = ''
-        
-        if m[1].blank?
-          url = m[0].gsub(/(^https?:\/\/)/, '\1' + self.subdomain + '.')
-        else
-          url = m[0].gsub(m[1], self.subdomain)
-        end
+  def self.current
+    Thread.current[:team]
+  end
 
-        uri = URI.parse(url)
-        request = Net::HTTP::Head.new(uri)
-        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
-        
-        errors.add(:base, 'Subdomain is not available') unless response['X-Check-Web']
-      rescue
-        errors.add(:base, 'Subdomain is not available')
-      end
-    end
+  def self.current=(team)
+    Thread.current[:team] = team
+  end
+
+  def self.slug_from_url(url)
+    URI(url).path.split('/')[1]
   end
 
   def slack_webhook_format
     webhook = self.get_slack_webhook
     if !webhook.blank? && /\Ahttps?:\/\/hooks\.slack\.com\/services\/[^\s]+\z/.match(webhook).nil?
-      errors.add(:base, 'Slack webhook format is wrong')
+      errors.add(:base, I18n.t(:slack_webhook_format_wrong, default: 'Slack webhook format is wrong'))
     end
   end
 
-  def normalize_subdomain
-    self.subdomain = self.subdomain.downcase unless self.subdomain.blank?
+  def normalize_slug
+    self.slug = self.slug.downcase unless self.slug.blank?
   end
 
   def custom_media_statuses_format
@@ -160,5 +174,9 @@ class Team < ActiveRecord::Base
 
   def custom_source_statuses_format
     self.custom_statuses_format(:source)
+  end
+
+  def slug_is_not_reserved
+    errors.add(:slug, I18n.t(:slug_is_reserved, default: 'is reserved')) if RESERVED_SLUGS.include?(self.slug)
   end
 end

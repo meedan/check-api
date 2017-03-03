@@ -46,13 +46,23 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "should create version when account is created" do
-    assert_equal 1, @account.versions.size
+    u = create_user
+    create_team_user user: u
+    User.current = u
+    a = create_account
+    assert_equal 1, a.versions.size
+    User.current = nil
   end
 
   test "should create version when account is updated" do
-    @account.user = create_user
-    @account.save!
-    assert_equal 2, @account.versions.size
+    u = create_user
+    create_team_user user: u
+    User.current = u
+    a = create_account
+    a.user = create_user
+    a.save!
+    assert_equal 2, a.versions.size
+    User.current = nil
   end
 
   test "should get user id from callback" do
@@ -160,34 +170,58 @@ class AccountTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user user: u, team: u
     a = create_valid_account
-    a.context_team = t
-    a.current_user = u
-    perm_keys = ["read Account", "update Account", "destroy Account", "create Media"].sort
+    perm_keys = ["read Account", "update Account", "destroy Account", "create Media", "create Claim", "create Link"].sort
+    
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+    
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+    
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+    
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    a.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    with_current_user_and_team(u, t) do
+      assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
+    end
+  end
+
+  test "should protect attributes from mass assignment" do
+    user = create_user
+    team = create_team
+    source = create_source team: team
+    raw_params = { user: user, source: source, team: team, url: random_url }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do 
+      Account.create(params)
+    end
   end
 
 end

@@ -15,12 +15,12 @@ window.addEventListener('graphiql.rendered', function(e) {
       logoutLink = '<a href="/api/users/logout?destination=/graphiql" id="logout-link" class="toolbar-button" style="float: left; margin-top: 9px;">Logout</a>';
   document.getElementsByClassName('toolbar')[0].innerHTML = twitterLink + facebookLink + logoutLink;
 
-  // Checkdesk login
+  // Check login
   window.jqueryLoaded = function() {
     script = document.createElement('script');
     script.innerHTML = 'jQuery.noConflict();';
     document.getElementsByTagName('HEAD')[0].appendChild(script);
-    
+
     var s       = 'display: inline-block; border: 1px solid #ccc; padding: 2px; background: #fff; width: 100px; margin-right: 5px;',
         $form   = jQuery('<form action="/api/users/sign_in" method="post" id="cd-form" style="margin-top: 7px; margin-left: 10px; float: left;"></form>'),
         $email  = jQuery('<input name="api_user[email]" placeholder="E-mail" id="cd-email" style="' + s + '" value="" />'),

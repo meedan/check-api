@@ -4,7 +4,7 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-    <p><%= @requestor.name %> (<%= @handle %>) wants to join <%= @team.name %> team on Check!</p>
-    <p>Go to <%= @url %> to process this request.</p>
+    <p><%= I18n.t(:mail_view_request_to_join, default: "%{user} (%{handle}) wants to join %{team} team on Check!", user: @requestor.name, handle: @handle, team: @team.name) %></p>
+    <p><%= I18n.t(:mail_view_process_request, default: "To process this request, please login and visit:") %> <%= @url %></p>
   </body>
 </html>

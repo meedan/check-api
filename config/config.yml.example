@@ -13,7 +13,7 @@ development: &default
   elasticsearch_port: 9200
   elasticsearch_log: false
   graphql_debug: true
-  checkdesk_client: '^https?:\/\/([a-zA-Z0-9\-]*)\.?localhost:3333.*'
+  checkdesk_client: 'http://localhost:3333'
   terms_of_service: 'Your content of TOS'
   privacy_policy: 'Your content of privacy policy'
   allow_duplicated_urls: false
@@ -29,6 +29,17 @@ development: &default
   pusher_app_id:
   pusher_key:
   pusher_secret:
+  uploaded_file_max_size:
+  image_min_width:
+  image_max_width:
+  image_min_height:
+  image_max_height:
+  image_embed_size:
+  image_thumbnail_size:
+  clamav_service_path:
+  transifex_user:
+  transifex_password:
+  locale:
 
 test:
   <<: *default

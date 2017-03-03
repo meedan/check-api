@@ -2,7 +2,7 @@ Request to join <%= @team.name %> on Check
 ==========================================
 
 <% if @accepted %>
-Your request to join <%= @team.name %> was accepted! Go to the team page at <%= @url %> and start contributing!
+<%= I18n.t(:mail_view_joined, default: "Your request to join %{team} was approved! You can now go to %{url} and start contributing!", team: @team.name, url: @url) %>
 <% else %>
-Sorry, but your request to join <%= @team.name %> was rejected.
+<%= I18n.t(:mail_view_rejected_to_join, default: "Sorry, but your request to join %{team} was rejected.", team: @team.name) %>
 <% end %>

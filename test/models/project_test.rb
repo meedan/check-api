@@ -23,59 +23,66 @@ class ProjectTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'contributor'
     assert_raise RuntimeError do
-      create_project team: t, current_user: u, context_team: t
+      with_current_user_and_team(u, t) { create_project team: t }
     end
   end
 
   test "should update and destroy project" do
     u = create_user
-    t = create_team current_user: u
-    p = create_project team: t, current_user: u
-    p.current_user = u
-    p.title = 'Project A'; p.save!
-    p.reload
-    assert_equal p.title, 'Project A'
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+
+    p = nil
+    with_current_user_and_team(u, t) do
+      p = create_project team: t, user: u
+      p.title = 'Project A'; p.save!
+      p.reload
+      assert_equal p.title, 'Project A'
+    end
+
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'journalist'
-    assert_raise RuntimeError do
-      p.current_user = u2
-      p.save!
+
+    with_current_user_and_team(u2, t) do
+      assert_raise RuntimeError do
+        p.save!
+      end
+      assert_raise RuntimeError do
+        p.destroy!
+      end
+      own_project = create_project team: t, user: u2
+      own_project.title = 'Project A'
+      own_project.save!
+      assert_equal own_project.title, 'Project A'
+      assert_raise RuntimeError do
+        own_project.destroy!
+      end
     end
-    assert_raise RuntimeError do
-      p.current_user = u2
-      p.destroy!
-    end
-    own_project = create_project team:t, user: u2
-    own_project.current_user = u2
-    own_project.title = 'Project A'
-    own_project.save!
-    assert_equal own_project.title, 'Project A'
-    assert_raise RuntimeError do
-      own_project.current_user = u2
-      own_project.destroy!
-    end
-    assert_nothing_raised RuntimeError do
-      p.current_user = u
-      p.destroy!
+
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised RuntimeError do
+        p.destroy!
+      end
     end
   end
 
   test "non members should not read project in private team" do
     u = create_user
-    t = create_team current_user: create_user
+    t = create_team
     p = create_project team: t
     pu = create_user
-    pt = create_team current_user: pu, private: true
+    pt = create_team private: true
+    create_team_user team: pt, user: pu, role: 'owner'
     pp = create_project team: pt
-    Project.find_if_can(p.id, u, t)
-    assert_raise CheckdeskPermissions::AccessDenied do
-      Project.find_if_can(pp.id, u, pt)
+    with_current_user_and_team(u, t) { Project.find_if_can(p.id) }
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(u, pt) { Project.find_if_can(pp.id) }
     end
-    Project.find_if_can(pp.id, pu, pt)
+    with_current_user_and_team(pu, pt) { Project.find_if_can(pp.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
-      Project.find_if_can(pp.id, pu.reload, pt)
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(pu.reload, pt) { Project.find_if_can(pp.id) }
     end
   end
 
@@ -95,6 +102,14 @@ class ProjectTest < ActiveSupport::TestCase
     p.medias << m1
     p.medias << m2
     assert_equal [m1, m2], p.medias
+  end
+
+  test "should get project medias count" do
+    t = create_team
+    p = create_project team: t
+    create_project_media project: p
+    create_project_media project: p
+    assert_equal 2, p.medias_count
   end
 
   test "should have project sources" do
@@ -118,16 +133,13 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    Annotation.delete_index
-    Annotation.create_index
-    p = create_project
-    c1 = create_comment
-    c2 = create_comment
-    c3 = create_comment
-    p.add_annotation(c1)
-    p.add_annotation(c2)
-    sleep 1
-    assert_equal [c1.id, c2.id].sort, p.reload.annotations.map(&:id).sort
+    pm = create_project_media
+    c1 = create_comment annotated: nil
+    c2 = create_comment annotated: nil
+    c3 = create_comment annotated: nil
+    pm.add_annotation(c1)
+    pm.add_annotation(c2)
+    assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
   end
 
   test "should get user id through callback" do
@@ -208,11 +220,14 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should set user" do
     u = create_user
-    t = create_team current_user: u
-    p = create_project team: t, user: nil, current_user: nil
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t, user: nil
     assert_nil p.user
-    p = create_project current_user: u, user: nil, team: t
-    assert_equal u, p.user
+    with_current_user_and_team(u, t) do
+      p = create_project user: nil, team: t
+      assert_equal u, p.user
+    end
   end
 
   test "should have settings" do
@@ -229,52 +244,56 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when project is created if there are settings and user and notifications are enabled" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    p = create_project origin: 'http://test.localhost:3333', current_user: u, context_team: t, team: t
-    assert p.sent_to_slack
+    with_current_user_and_team(u, t) do
+      p = create_project team: t
+      assert p.sent_to_slack
+    end
   end
 
   test "should not notify Slack when project is created if there are no settings" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    p = create_project origin: 'http://test.localhost:3333', current_user: u, context_team: t, team: t
+    p = create_project current_user: u, context_team: t, team: t
     assert_nil p.sent_to_slack
   end
 
   test "should not notify Slack when project is created if there is no user" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    p = create_project origin: 'http://test.localhost:3333', context_team: t, team: t
+    p = create_project context_team: t, team: t
     assert_nil p.sent_to_slack
   end
 
   test "should not notify Slack when project is created if not enabled" do
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 0; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    p = create_project origin: 'http://test.localhost:3333', context_team: t, team: t, current_user: u
+    p = create_project context_team: t, team: t, current_user: u
     assert_nil p.sent_to_slack
   end
 
   test "should notify Slack in background" do
     Rails.stubs(:env).returns(:production)
-    t = create_team subdomain: 'test'
+    t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
-    p = create_project origin: 'http://test.localhost:3333', current_user: u, context_team: t, team: t
-    assert_equal 1, CheckdeskNotifications::Slack::Worker.jobs.size
-    CheckdeskNotifications::Slack::Worker.drain
-    assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
-    Rails.unstub(:env)
+    assert_equal 0, CheckNotifications::Slack::Worker.jobs.size
+    with_current_user_and_team(u, t) do
+      p = create_project team: t
+      assert_equal 1, CheckNotifications::Slack::Worker.jobs.size
+      CheckNotifications::Slack::Worker.drain
+      assert_equal 0, CheckNotifications::Slack::Worker.jobs.size
+      Rails.unstub(:env)
+    end
   end
 
   test "should notify Pusher when project is created" do
@@ -284,34 +303,84 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
-    p.context_team = t
-    p.current_user = u
-    perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create ProjectSource", "create Source", "create Media"].sort
+    perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create ProjectSource", "create Source", "create Media", "create Claim", "create Link"].sort
+
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    p.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    p.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    p.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    p.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    p.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(p.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { title: "My project", team: create_team }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do
+      Project.create(params)
+    end
+  end
+
+  test "should set slack_notifications_enabled" do
+    p = create_project
+    p.slack_notifications_enabled = true
+    p.save
+    assert p.get_slack_notifications_enabled
+  end
+
+  test "should set slack_channel" do
+    p = create_project
+    p.slack_channel = 'my-channel'
+    p.save
+    assert_equal 'my-channel', p.get_slack_channel
+  end
+
+  test "should display team on admin label" do
+    t = create_team name: 'my-team'
+    p = create_project team: t, title: 'my-project'
+    assert_equal 'my-team - my-project', p.admin_label
+  end
+
+  test "should destroy related items" do
+    t = create_team
+    p = create_project team: t
+    id = p.id
+    p.title = 'Change title'; p.save!
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p, disable_es_callbacks: false
+      c = create_comment annotated: pm, disable_es_callbacks: false
+      sleep 1
+      assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+      p.destroy
+      assert_equal 0, ProjectMedia.where(project_id: id).count
+      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+      assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
+      sleep 1
+      assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    end
   end
 
 end

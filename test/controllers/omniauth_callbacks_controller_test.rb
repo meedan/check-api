@@ -62,6 +62,12 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     ['https://twitter.com/test', 'https://facebook.com/654321'].each do |url|
       WebMock.stub_request(:get, CONFIG['pender_host'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"type":"profile"}}')
     end
+    User.current = nil
+  end
+
+  def teardown
+    super
+    User.current = nil
   end
 
   test "should redirect to root after Twitter authentication" do
@@ -136,14 +142,14 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   test "should not store error if there is no error from provider" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     get :facebook
-    assert_nil session['checkdesk.error']
+    assert_nil session['check.error']
   end
 
   test "should store error if there is error from provider" do
     create_user email: 'test@test.com'
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     get :facebook
-    assert_not_nil session['checkdesk.error']
+    assert_not_nil session['check.error']
   end
 
   def teardown

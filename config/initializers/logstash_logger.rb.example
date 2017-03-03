@@ -1,0 +1,7 @@
+config = LogStashLogger.configure do |config|
+  config.customize_event do |event|
+    event["PRODUCT"] = ENV['PRODUCT'] || 'check'
+    event["APP"] = ENV['APP'] || 'check-api'
+    event["DEPLOYMENT"] = ENV['DEPLOYMENT'] || ENV['RAILS_ENV'] || 'uninitialized'      
+  end
+end

@@ -13,46 +13,45 @@ class TeamTest < ActiveSupport::TestCase
 
   test "non members should not access private team" do
     u = create_user
-    t = create_team current_user: create_user
+    t = create_team
     pu = create_user
-    pt = create_team current_user: pu, private: true
-    Team.find_if_can(t.id, u, t)
-    assert_raise CheckdeskPermissions::AccessDenied do
-      Team.find_if_can(pt.id, u, pt)
+    pt = create_team private: true
+    create_team_user team: pt, user: pu, role: 'owner'
+    with_current_user_and_team(u, t) { Team.find_if_can(t.id) }
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(u, pt) { Team.find_if_can(pt.id) }
     end
-    Team.find_if_can(pt.id, pu, pt)
+    with_current_user_and_team(pu, pt) { Team.find_if_can(pt.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
-      Team.find_if_can(pt.id, pu, pt)
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(pu, pt) { Team.find_if_can(pt.id) }
     end
-    assert_raise CheckdeskPermissions::AccessDenied do
-      Team.find_if_can(pt, create_user, pt)
+    assert_raise CheckPermissions::AccessDenied do
+      with_current_user_and_team(create_user, pt) { Team.find_if_can(pt) }
     end
   end
 
   test "should update and destroy team" do
     u = create_user
-    t = create_team current_user: u
-    t.current_user = u
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     t.name = 'meedan'; t.save!
     t.reload
     assert_equal t.name, 'meedan'
     # update team as editor
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'editor'
-    t.current_user = u2
-    t.name = 'meedan_mod'; t.save!
+    with_current_user_and_team(u2, t) { t.name = 'meedan_mod'; t.save! }
     t.reload
     assert_equal t.name, 'meedan_mod'
     assert_raise RuntimeError do
-      t.current_user = u2
-      t.destroy
+      with_current_user_and_team(u2, t) { t.destroy }
     end
+    Rails.cache.clear
     tu.role = 'journalist'; tu.save!
     assert_raise RuntimeError do
-      t.current_user = u2
-      t.save!
+      with_current_user_and_team(u2, t) { t.save! }
     end
   end
 
@@ -61,37 +60,41 @@ class TeamTest < ActiveSupport::TestCase
     assert_not t.save
   end
 
-  test "should not save team with invalid subdomains" do
+  test "should not save team with invalid slugs" do
     assert_nothing_raised do
-      create_team subdomain: "correct-الصهث-unicode"
+      create_team slug: "correct-الصهث-unicode"
     end
     assert_raise ActiveRecord::RecordInvalid do
-      create_team subdomain: ''
+      create_team slug: ''
     end
     assert_raise ActiveRecord::RecordInvalid do
-      create_team subdomain: 'www'
+      create_team slug: 'www'
     end
     assert_raise ActiveRecord::RecordInvalid do
-      create_team subdomain: ''.rjust(64, 'a')
+      create_team slug: ''.rjust(64, 'a')
     end
     assert_raise ActiveRecord::RecordInvalid do
-      create_team subdomain: ' some spaces '
+      create_team slug: ' some spaces '
     end
     assert_raise ActiveRecord::RecordInvalid do
-      create_team subdomain: 'correct-الصهث-unicode'
+      create_team slug: 'correct-الصهث-unicode'
     end
   end
 
   test "should create version when team is created" do
+    User.current = create_user
     t = create_team
     assert_equal 1, t.versions.size
+    User.current = nil
   end
 
   test "should create version when team is updated" do
+    User.current = create_user
     t = create_team
     t.logo = random_string
     t.save!
     assert_equal 2, t.versions.size
+    User.current = nil
   end
 
   test "should have users" do
@@ -129,13 +132,13 @@ class TeamTest < ActiveSupport::TestCase
   test "should add user to team on team creation" do
     u = create_user
     assert_difference 'TeamUser.count' do
-      create_team current_user: u
+      with_current_user_and_team(u, nil) { create_team }
     end
   end
 
   test "should not add user to team on team creation" do
     assert_no_difference 'TeamUser.count' do
-      create_team current_user: nil
+      create_team
     end
   end
 
@@ -188,7 +191,7 @@ class TeamTest < ActiveSupport::TestCase
     u = create_user
     assert_no_difference 'ActionMailer::Base.deliveries.size' do
       assert_difference 'TeamUser.count' do
-        create_team current_user: u
+        with_current_user_and_team(u, nil) { create_team }
       end
     end
   end
@@ -200,53 +203,9 @@ class TeamTest < ActiveSupport::TestCase
     u.current_team_id = t1.id
     u.save!
     assert_equal t1, u.reload.current_team
-    t2 = create_team current_user: u
+    t2 = nil
+    with_current_user_and_team(u, nil) { t2 = create_team }
     assert_equal t2, u.reload.current_team
-  end
-
-  test "should not create team with reserved subdomain from subdomain origin" do
-    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_return(body: 'Pender', status: 200, headers: {})
-    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_team subdomain: 'pender', origin: 'http://team.checkmedia.org'
-      end
-    end
-  end
-
-  test "should not create team with reserved subdomain from origin" do
-    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_return(body: 'Pender', status: 200, headers: {})
-    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_team subdomain: 'pender', origin: 'http://checkmedia.org'
-      end
-    end
-  end
-
-  test "should create team with reserved subdomain" do
-    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_return(body: 'Pender', status: 200, headers: {})
-    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
-      assert_nothing_raised do
-        create_team subdomain: 'pender'
-      end
-    end
-  end
-
-  test "should create team with reserved subdomain from origin" do
-    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_return(body: 'Pender', status: 200, headers: { 'X-Check-Web' => '1' })
-    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
-      assert_nothing_raised do
-        create_team subdomain: 'pender', origin: 'http://checkmedia.org'
-      end
-    end
-  end
-
-  test "should not create team with reserved subdomain if error is returned" do
-    WebMock.stub_request(:head, 'http://pender.checkmedia.org').to_raise(StandardError)
-    stub_config('checkdesk_client', '^https?:\/\/([a-zA-Z0-9\-]*)\.?checkmedia.org.*') do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_team subdomain: 'pender', origin: 'http://checkmedia.org'
-      end
-    end
   end
 
   test "should have settings" do
@@ -285,41 +244,41 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should downcase subdomain" do
-    t = create_team subdomain: 'NewsLab'
-    assert_equal 'newslab', t.reload.subdomain
+  test "should downcase slug" do
+    t = create_team slug: 'NewsLab'
+    assert_equal 'newslab', t.reload.slug
   end
 
   test "should get permissions" do
     u = create_user
-    t = create_team current_user: u
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     team = create_team
-    team.context_team = t
-    team.current_user = u
     perm_keys = ["read Team", "update Team", "destroy Team", "create Project", "create Account", "create TeamUser", "create User", "create Contact"].sort
+
     # load permissions as owner
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
-    team.current_user = u.reload
-    assert_equal perm_keys, JSON.parse(team.permissions).keys.sort
+    with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
   end
 
   test "should have custom verification statuses" do
@@ -369,4 +328,69 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should not create team with 'check' slug" do
+    assert_raises ActiveRecord::RecordInvalid do
+      create_team slug: 'check'
+    end
+  end
+
+  test "should set verification statuses to settings" do
+    t = create_team
+    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }] }
+    t.media_verification_statuses = value
+    t.source_verification_statuses = value
+    t.save
+    assert_equal value, t.get_media_verification_statuses
+    assert_equal value, t.get_source_verification_statuses
+  end
+
+  test "should set slack_notifications_enabled" do
+    t = create_team
+    t.slack_notifications_enabled = true
+    t.save
+    assert t.get_slack_notifications_enabled
+  end
+
+  test "should set slack_webhook" do
+    t = create_team
+    t.slack_webhook = 'https://hooks.slack.com/services/123456'
+    t.save
+    assert_equal 'https://hooks.slack.com/services/123456', t.get_slack_webhook
+  end
+
+  test "should set slack_channel" do
+    t = create_team
+    t.slack_channel = 'my-channel'
+    t.save
+    assert_equal 'my-channel', t.get_slack_channel
+  end
+
+  test "should protect attributes from mass assignment" do
+    raw_params = { name: 'My team', slug: 'my-team' }
+    params = ActionController::Parameters.new(raw_params)
+
+    assert_raise ActiveModel::ForbiddenAttributesError do
+      Team.create(params)
+    end
+  end
+
+  test "should destroy related items" do
+    u = create_user
+    t = create_team
+    id = t.id
+    t.description = 'update description'; t.save!
+    tu = create_team_user user: u, team: t
+    p = create_project team: t
+    pm = create_project_media project: p
+    a = create_account team: t
+    c = create_contact team: t
+    t.destroy
+    assert_equal 0, Project.where(team_id: id).count
+    assert_equal 0, TeamUser.where(team_id: id).count
+    assert_equal 0, Account.where(team_id: id).count
+    assert_equal 0, Contact.where(team_id: id).count
+    assert_equal 0, ProjectMedia.where(project_id: p.id).count
+  end
+
 end

@@ -7,6 +7,7 @@ module Api
 
       def logout
         sign_out current_api_user
+        User.current = nil
         destination = params[:destination] || '/'
         redirect_to destination
       end
@@ -24,11 +25,12 @@ module Api
         begin
           user = User.from_omniauth(auth)
         rescue ActiveRecord::RecordInvalid => e
-          session['checkdesk.error'] = e.message
+          session['check.error'] = e.message
         end
-        
+
         unless user.nil?
           session['checkdesk.current_user_id'] = user.id
+          User.current = user
           sign_in(user)
         end
 

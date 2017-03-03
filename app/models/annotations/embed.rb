@@ -1,16 +1,19 @@
-class Embed
-  include AnnotationBase
+class Embed < ActiveRecord::Base
+  include SingletonAnnotationBase
 
-  attribute :title, String, mapping: { analyzer: 'hashtag' }
-  attribute :description, String, mapping: { analyzer: 'hashtag' }
-  attribute :quote, String, mapping: { analyzer: 'hashtag' }
+  field :title
+  field :description
+  field :embed
+  field :username
+  field :published_at, Integer
 
-  attribute :embed, String
-  attribute :username, String
-  attribute :published_at, Integer
-  attribute :search_context, Array
-  
-  validate :validate_quote_for_media_with_empty_url
+  notifies_slack on: :save,
+                 if: proc { |em| em.should_notify? and em.title_is_overridden? },
+                 message: proc { |em| em.slack_notification_message},
+                 channel: proc { |em| em.annotated.project.setting(:slack_channel) || em.current_team.setting(:slack_channel) },
+                 webhook: proc { |em| em.current_team.setting(:slack_webhook) }
+
+  after_save :update_elasticsearch_embed
 
   def content
     {
@@ -18,19 +21,45 @@ class Embed
       description: self.description,
       username: self.username,
       published_at: self.published_at,
-      quote: self.quote,
       embed: self.embed
     }.to_json
   end
 
-  private
-
-  def validate_quote_for_media_with_empty_url
-    unless self.annotated.nil?
-      if self.annotated_type == 'Media' and self.annotated.url.blank? and self.quote.blank?
-        errors.add(:base, "quote can't be blank")
-      end
-    end
+  def slack_notification_message
+    data = self.overridden_data
+    I18n.t(:slack_save_embed, default: "*%{user}* changed the title from *%{from}* to <%{to}>", user: User.current.name, from: data[0]['title'], to: "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data[1]['title']}")
   end
 
+  def title_is_overridden?
+    overriden = false
+    v = self.versions.last
+    unless v.nil?
+      data = self.get_overridden_data(v)
+      overriden = (!data[0].blank? && !data[0]['title'].nil? && data[0]['title'] != data[1]['title'])
+    end
+    self.overridden_data = data if overriden
+    overriden
+  end
+
+  def get_overridden_data(version)
+    data = version.changeset['data']
+    # Get title from pender if Link has only one version
+    if self.annotated.media.type == 'Link' and self.versions.size == 1
+      pender = self.annotated.get_media_annotations('embed')
+      data[0]['title'] = pender['data']['title'] unless pender.nil?
+    end
+    data
+  end
+
+  def overridden_data
+    @overridden_data
+  end
+
+  def overridden_data=(data)
+    @overridden_data = data
+  end
+
+  def update_elasticsearch_embed
+    self.update_media_search(%w(title description)) if self.annotated_type == 'ProjectMedia'
+  end
 end
