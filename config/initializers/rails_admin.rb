@@ -31,6 +31,7 @@ RailsAdmin.config do |config|
     bulk_delete
     show
     edit
+    delete
 
     ## With an audit adapter, you can add:
     # history_index
