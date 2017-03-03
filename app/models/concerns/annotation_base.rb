@@ -232,7 +232,7 @@ module AnnotationBase
       {}
     else
       obj = self.load
-      { embed: obj.embed_path, thumbnail: obj.thumbnail_path }
+      { embed: obj.embed_path, thumbnail: obj.thumbnail_path, original: obj.image_path }
     end
   end
 

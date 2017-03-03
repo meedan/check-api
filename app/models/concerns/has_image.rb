@@ -22,9 +22,7 @@ module HasImage
     true
   end
 
-  protected
-
-  def image_path(version = '')
+  def image_path(version = nil)
     CONFIG['checkdesk_base_url'] + self.file_url(version)
   end
 end
