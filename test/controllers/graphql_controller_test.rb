@@ -698,7 +698,7 @@ class GraphqlControllerTest < ActionController::TestCase
       pm = create_project_media project: p
       m.times { create_comment annotated: pm, annotator: u }
     end
-    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions } }  } } } } } }"
+    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
     assert_queries (3 * n - 3) do
       post :create, query: query, team: 'team'
