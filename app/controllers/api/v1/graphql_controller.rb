@@ -43,11 +43,8 @@ module Api
       end
 
       def load_context_team
-        @context_team = nil
         slug = request.params['team']
         @context_team = Team.where(slug: slug).first unless slug.blank?
-        log = @context_team.nil? ? 'No context team' : "Context team is #{@context_team.name}"
-        logger.info message: log, context_team: @context_team
         Team.current = @context_team
       end
 
