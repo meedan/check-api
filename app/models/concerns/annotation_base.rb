@@ -59,9 +59,9 @@ module AnnotationBase
     include ActiveModel::Validations
     include ActiveModel::Validations::Callbacks
     include PaperTrail::Model
-    include CheckdeskPermissions
-    include CheckdeskNotifications::Slack
-    include CheckdeskNotifications::Pusher
+    include CheckPermissions
+    include CheckNotifications::Slack
+    include CheckNotifications::Pusher
     include CheckElasticSearch
 
     attr_accessor :disable_es_callbacks

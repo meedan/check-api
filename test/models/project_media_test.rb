@@ -148,7 +148,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_media project: pp
     ppm = create_project_media project: pp, media: m
     ProjectMedia.find_if_can(pm.id)
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) do
         ProjectMedia.find_if_can(ppm.id)
       end
@@ -158,7 +158,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     tu = pt.team_users.last
     tu.update_column(:status, 'requested')
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) do
         ProjectMedia.find_if_can(ppm.id)
       end
@@ -225,12 +225,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Rails.stubs(:env).returns(:production)
     t = create_team
     p = create_project team:  t
-    CheckdeskNotifications::Pusher::Worker.drain
-    assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
+    CheckNotifications::Pusher::Worker.drain
+    assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 2, CheckdeskNotifications::Pusher::Worker.jobs.size
-    CheckdeskNotifications::Pusher::Worker.drain
-    assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
+    assert_equal 2, CheckNotifications::Pusher::Worker.jobs.size
+    CheckNotifications::Pusher::Worker.drain
+    assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
   end
 

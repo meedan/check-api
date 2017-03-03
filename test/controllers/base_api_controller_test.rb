@@ -144,7 +144,7 @@ class BaseApiControllerTest < ActionController::TestCase
     u = create_user name: 'Test User'
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
-    @request.session['checkdesk.error'] = 'Error message'
+    @request.session['check.error'] = 'Error message'
     get :me
     assert_response 400
     response = JSON.parse(@response.body)
@@ -156,7 +156,7 @@ class BaseApiControllerTest < ActionController::TestCase
     u = create_user name: 'Test User'
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
-    @request.session['checkdesk.error'] = nil
+    @request.session['check.error'] = nil
     get :me
     assert_response :success
   end

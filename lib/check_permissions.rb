@@ -1,4 +1,4 @@
-module CheckdeskPermissions
+module CheckPermissions
 
   def self.included(base)
     base.extend(ClassMethods)

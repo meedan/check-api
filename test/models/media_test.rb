@@ -39,13 +39,13 @@ class MediaTest < ActiveSupport::TestCase
     create_team_user user: pu, team: pt, role: 'owner'
     pm = create_media team: pt
     with_current_user_and_team(u, t) { Media.find_if_can(m.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Media.find_if_can(pm.id) }
     end
     with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
     end
   end

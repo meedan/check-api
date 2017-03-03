@@ -11,11 +11,11 @@ ENV DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app \
     RAILS_ENV=production \
     GITREPO=git@github.com:meedan/check-api.git \
-    PRODUCT=check \    
+    PRODUCT=check \
     APP=check-api \
     TERM=xterm \
-    MIN_INSTANCES=4 \  
-    MAX_POOL_SIZE=12 
+    MIN_INSTANCES=4 \
+    MAX_POOL_SIZE=12
     # MIN_INSTANCES and MAX_POOL_SIZE control the pool size of passenger
 
 #
@@ -27,7 +27,7 @@ ENV DEPLOYUSER=checkdeploy \
 #
 RUN apt-get install -y imagemagick
 
-# nginx for checkdesk-api
+# nginx for check-api
 
 COPY production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
 # swap in DEPLOYUSER

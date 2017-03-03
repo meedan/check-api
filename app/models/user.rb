@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
 
   serialize :omniauth_info
 
-  include CheckdeskSettings
+  include CheckSettings
   include DeviseAsync
 
   ROLES = %w[contributor journalist editor owner]

@@ -18,16 +18,16 @@ class TeamTest < ActiveSupport::TestCase
     pt = create_team private: true
     create_team_user team: pt, user: pu, role: 'owner'
     with_current_user_and_team(u, t) { Team.find_if_can(t.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Team.find_if_can(pt.id) }
     end
     with_current_user_and_team(pu, pt) { Team.find_if_can(pt.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) { Team.find_if_can(pt.id) }
     end
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(create_user, pt) { Team.find_if_can(pt) }
     end
   end
