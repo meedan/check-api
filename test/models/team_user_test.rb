@@ -261,7 +261,6 @@ class TeamUserTest < ActiveSupport::TestCase
     t = create_team slug: 'slack'
     t.set_slack_teams = { 'SlackTeamID' => 'SlackTeamName' }
     t.save
-    pp t.reload.settings
     u = create_user provider: 'slack', omniauth_info: { 'info' => { 'team_id' => 'SlackTeamID' } }
     tu = create_team_user team: t, user: u
     assert_equal 'member', tu.status

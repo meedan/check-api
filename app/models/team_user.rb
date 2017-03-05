@@ -70,7 +70,13 @@ class TeamUser < ActiveRecord::Base
         # Auto-approve slack user
         self.status = 'member'
       else
-        errors.add(:base, "Sorry, you cannot join #{self.team.name} because it is restricted to members of the Slack #{"team".pluralize(self.team.setting(:slack_teams).values.length)} #{self.team.setting(:slack_teams).values.join(', ')}.")
+        params = {
+          default: "Sorry, you cannot join %{team_name} because it is restricted to members of the Slack %{pluralize} %{teams}.",
+          team_name: self.team.name,
+          pluralize: "team".pluralize(self.team.setting(:slack_teams).values.length),
+          teams: self.team.setting(:slack_teams).values.join(', ')
+        }
+        errors.add(:base, I18n.t(:slack_restricted_join_to_members, params))
       end
     end
   end
