@@ -215,6 +215,9 @@ class TeamTest < ActiveSupport::TestCase
     t.set_foo = 'bar'
     t.save!
     assert_equal 'bar', t.reload.get_foo
+    t.reset_foo
+    t.save!
+    assert_nil t.reload.get_foo
 
     assert_raise NoMethodError do
       t.something
