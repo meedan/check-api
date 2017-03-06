@@ -12,6 +12,8 @@ class Project < ActiveRecord::Base
 
   before_validation :set_description_and_team_and_user, on: :create
 
+  after_update :update_elasticsearch_data
+
   validates_presence_of :title
   validates :lead_image, size: true
 
@@ -89,4 +91,18 @@ class Project < ActiveRecord::Base
     end
     self.user ||= User.current
   end
+
+  def update_elasticsearch_data
+    if self.team_id_changed?
+      keys = %w(team_id)
+      data = {'team_id' => self.team_id}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_team')
+    end
+  end
+
+  def update_elasticsearch_team_bg(keys, data)
+    project_medias = MediaSearch.search(query: { match: { project_id: self.id } }).results
+    project_medias.each{|pm| pm.update options} unless project_medias.blank?
+  end
+
 end

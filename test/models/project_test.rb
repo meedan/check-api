@@ -383,4 +383,23 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should update es after move project to other team" do
+    t = create_team
+    t2 = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
+    sleep 1
+    results = MediaSearch.search(search(query: { match: { team_id: t.id } })).results
+    assert_equal [pm1.id, pm2.id].sort, results.map(&:id).sort
+    p.team_id = t2.id; p.save!
+    ElasticSearchWorker.drain
+    sleep 1
+    results = MediaSearch.search(search(query: { match: { team_id: t.id } })).results
+    assert_equal [], results.map(&:id)
+    results = MediaSearch.search(search(query: { match: { team_id: t2.id } })).results
+    assert_equal [pm1.id, pm2.id].sort, results.map(&:id).sort
+  end
+
 end

@@ -5,7 +5,7 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :media
   belongs_to :user
   has_annotations
-  
+
   include Versioned
 
   validates_presence_of :media_id, :project_id
@@ -76,9 +76,11 @@ class ProjectMedia < ActiveRecord::Base
 
   def update_elasticsearch_data
     return if self.disable_es_callbacks
-    keys = %w(project_id team_id)
-    data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
+    if self.project_id_changed?
+      keys = %w(project_id team_id)
+      data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
+    end
   end
 
   def destroy_elasticsearch_media
