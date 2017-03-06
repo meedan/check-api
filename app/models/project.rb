@@ -82,6 +82,11 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def update_elasticsearch_team_bg(keys, data)
+    project_medias = MediaSearch.search(query: { match: { project_id: self.id } }).results
+    project_medias.each{|pm| pm.update data} unless project_medias.blank?
+  end
+
   private
 
   def set_description_and_team_and_user
@@ -98,11 +103,6 @@ class Project < ActiveRecord::Base
       data = {'team_id' => self.team_id}
       ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_team')
     end
-  end
-
-  def update_elasticsearch_team_bg(keys, data)
-    project_medias = MediaSearch.search(query: { match: { project_id: self.id } }).results
-    project_medias.each{|pm| pm.update options} unless project_medias.blank?
   end
 
 end

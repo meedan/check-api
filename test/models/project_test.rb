@@ -391,15 +391,15 @@ class ProjectTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
     sleep 1
-    results = MediaSearch.search(search(query: { match: { team_id: t.id } })).results
-    assert_equal [pm1.id, pm2.id].sort, results.map(&:id).sort
+    results = MediaSearch.search(query: { match: { team_id: t.id } }).results
+    assert_equal [pm.id.to_s, pm2.id.to_s].sort, results.map(&:id).sort
     p.team_id = t2.id; p.save!
     ElasticSearchWorker.drain
     sleep 1
-    results = MediaSearch.search(search(query: { match: { team_id: t.id } })).results
+    results = MediaSearch.search(query: { match: { team_id: t.id } }).results
     assert_equal [], results.map(&:id)
-    results = MediaSearch.search(search(query: { match: { team_id: t2.id } })).results
-    assert_equal [pm1.id, pm2.id].sort, results.map(&:id).sort
+    results = MediaSearch.search(query: { match: { team_id: t2.id } }).results
+    assert_equal [pm.id.to_s, pm2.id.to_s].sort, results.map(&:id).sort
   end
 
 end
