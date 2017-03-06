@@ -224,4 +224,15 @@ class AccountTest < ActiveSupport::TestCase
     end
   end
 
+  test "should skip Pender and save URL as is" do
+    WebMock.disable_net_connect!
+    url = 'http://keep.it'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}')
+    a = create_account url: 'http://keep.it', skip_pender: true
+    assert_equal 'http://keep.it', a.url
+    a = create_account url: 'http://keep.it', skip_pender: false
+    assert_equal 'http://keep.it/', a.url
+    WebMock.allow_net_connect!
+  end
 end
