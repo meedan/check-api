@@ -82,7 +82,7 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_elasticsearch_team_bg(keys, data)
+  def update_elasticsearch_team_bg(data)
     project_medias = MediaSearch.search(query: { match: { project_id: self.id } }).results
     project_medias.each{|pm| pm.update data} unless project_medias.blank?
   end
