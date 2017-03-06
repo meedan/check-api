@@ -82,9 +82,17 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_elasticsearch_team_bg(data)
-    project_medias = MediaSearch.search(query: { match: { project_id: self.id } }).results
-    project_medias.each{|pm| pm.update data} unless project_medias.blank?
+  def update_elasticsearch_team_bg
+    url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
+    client = Elasticsearch::Client.new url: url
+    options = {
+      index: CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index'],
+      type: 'media_search',
+      body: {
+        script: { inline: "ctx._source.team_id=team_id", lang: "groovy", params: { team_id: self.team_id } },
+        query: { term: { project_id: { value: self.id } } } }
+    }
+    client.update_by_query options
   end
 
   private

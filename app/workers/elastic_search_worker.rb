@@ -10,7 +10,7 @@ class ElasticSearchWorker
     data = YAML::load(data)
 
     if type == 'update_team'
-      model.update_elasticsearch_team_bg(data)
+      model.update_elasticsearch_team_bg
     elsif type == 'update_parent'
       model.update_media_search_bg(keys, data)
     else
