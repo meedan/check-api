@@ -131,7 +131,7 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
-      create_team_user team: t
+      create_team_user team: t, status: 'requested'
     end
   end
 
@@ -255,6 +255,16 @@ class TeamUserTest < ActiveSupport::TestCase
     assert_raise ActiveRecord::RecordInvalid do
       create_team_user team: t2, user: u5
     end
+  end
+
+  test "should auto-approve slack users" do
+    t = create_team slug: 'slack'
+    t.set_slack_teams = { 'SlackTeamID' => 'SlackTeamName' }
+    t.save
+    u = create_user provider: 'slack', omniauth_info: { 'info' => { 'team_id' => 'SlackTeamID' } }
+    tu = create_team_user team: t, user: u
+    assert_equal 'member', tu.status
+    assert_equal 'contributor', tu.role
   end
 
   test "should protect attributes from mass assignment" do
