@@ -179,6 +179,7 @@ class User < ActiveRecord::Base
         account.user = self
         account.source = source
         account.url = self.url
+        account.skip_pender = true
         account.save
       rescue Errno::ECONNREFUSED => e
         Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"

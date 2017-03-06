@@ -53,6 +53,12 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
         is_owner: false,
         time_zone: "Africa/Cairo"
       },
+      extra: {
+        raw_info: {
+          url: 'https://meedan.slack.com/',
+          user: 'melsawy'
+        }
+      },
       credentials: {
         token: '123456',
         secret: 'top_secret'
@@ -150,6 +156,12 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     get :facebook
     assert_not_nil session['check.error']
+  end
+
+  test "should get URL for Slack" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
+    get :slack
+    assert_equal 'https://meedan.slack.com/team/melsawy', Account.last.url
   end
 
   def teardown
