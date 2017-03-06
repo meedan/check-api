@@ -31,7 +31,7 @@ module CheckSettings
     elsif match[1] === 'get'
       self.setting(match[2])
     elsif match[1] === 'reset'
-      self.settings.delete(match[2].to_sym)
+      self.settings.delete(match[2].to_sym) unless self.settings.blank?
     end
   end
 end

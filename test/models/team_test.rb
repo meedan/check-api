@@ -218,6 +218,10 @@ class TeamTest < ActiveSupport::TestCase
     t.reset_foo
     t.save!
     assert_nil t.reload.get_foo
+    t.settings = nil
+    assert_nothing_raised do
+      t.reset_foo
+    end
 
     assert_raise NoMethodError do
       t.something
