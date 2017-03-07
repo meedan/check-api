@@ -44,7 +44,7 @@ class UserTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user user: u2, team: pt
     with_current_user_and_team(u, t) { User.find_if_can(u1.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { User.find_if_can(u2.id) }
     end
     with_current_user_and_team(pu, pt) do
@@ -53,7 +53,7 @@ class UserTest < ActiveSupport::TestCase
     end
     with_current_user_and_team(u, t) { User.find_if_can(u.id) }
     ptu.status = 'requested'; ptu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) { User.find_if_can(u2.id) }
     end
   end
@@ -262,16 +262,14 @@ class UserTest < ActiveSupport::TestCase
     u.current_team_id = t.id; u.save!
     assert_equal u.current_team_id, t.id
     t2 = create_team
-    assert_raises ActiveRecord::RecordInvalid do
-      u.current_team_id = t2.id
-      u.save!
-    end
+    u.current_team_id = t2.id
+    u.save!
+    assert_nil u.reload.current_team_id
     t3 = create_team
     create_team_user team: t3, user: u, status: 'requested'
-    assert_raises ActiveRecord::RecordInvalid do
-      u.current_team_id = t3.id
-      u.save!
-    end
+    u.current_team_id = t3.id
+    u.save!
+    assert_nil u.reload.current_team_id
   end
 
   test "should set and retrieve current team" do

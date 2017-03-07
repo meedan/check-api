@@ -10,10 +10,12 @@ addons:
   postgresql: '9.4'
   code_climate:
     repo_token:
-      secure: qvMZiejNRsUKijgLnyY3mTFcHW6oU/rdbv+dEax7IraguAG1A/aqcV+EpjJ0izs1qll+t6+TRjzhXPQxp5Ft0Ccba8iR6I+SygWTmrTc1EkzjEnsbzo+w1OVehcdP+rRDeioVHFi6wXhwyKPlWQNAnGVpBh5k8++ONUV4acMyBu1WVEaB09GxVUmK0RN5JLTIi3HbSkJUZmu6Wt/uTbDNayc1wTOT6fyl/kCT+wXoD0Z1wMPBgJerdbrMxGLmlclxNI6EF1PrpshKrfy3XzS8kkvB/qmT6Pds9pdePDhFkUBOinG78N0O0y3qwRwqiefDN2IhpGcy+51gzD7eXPPppFJAawn1xNL1Q9buVX4bU6NyNiQdk+iW59O4f/VPwnGIT6jMLNR9rLJB0q/DmlY3dCUMR85wi6StMT9WUnvh64cCO0hOW40uwXCcchwxQT/Ih63cYx+VFDdnuS7Qv1O3JhiutPPh7nmdK0bboyghIqVEWhXZaE74QOYOOzEcrEJ6KhVDGkv8pqVzZehSV98d6dJpqBIjKmJCOroJJGzq8E/ir+vmgmlHRpqkcC8C9nstm/YTZ2nSelPB7ai8heAF+EygqRRfhkdpVRibQqKDwl1KsFwkk7i/3c6dl0kbFOFsu5HdV5HUWwZtwYB3cw2SzIL2PxUvgtD/fCvJIgaNcU=
+      secure: uR2UyB80Mzpnn6+uUheuVTLNgwgeA8xf55F78WN+70AgMi/dHCdSzrm1FB5uETxNqdobCYHRJkSKqoufd7hrHdILBTuXHrTSGdkEjM78rP3phk+wLhzbXsCVVy1SW66c3uXdZDAId0vE8U9eI9noWLytf29wmASQMcsOpooDLxBvFx4r0TeETmNxuEMkTVxJ0UraPljAlS6Lob/gxm5BXF+u3CUQL5Y2wNNlOoXRUuJMcODrQR03+IgKRDfwmA987F7/RCMWSfqAzMts2kWcbXzsySatmTOlJH1Wten+bMNbIbfrmP1kkI5EdNDLmTcVJAviwMfzG1BklmT8r6B8bKNhcCRWiNXbscheja2l5Q6jzOkLpSBqYGmOqlLZktoGKqwNu9J5ncUiscGMNAWnolZgjq2WreD/v5L58PJtTf5pd/lbmo2l9E8fCndIURQiuQOiHM0i0SlnygFHvrE2TUHY4JPsCIg/h4sAuAwtEFGjmAZuCPch3KbKx24Sc+xE5zJ5rx5841tlnPyFyBLMy3DxRywYkbFuVUZO8I4nKmvHucgMaRsPre9aP9Ne/9pN01A42y5eBC4PurNBtMNBw5hq+hLJvMhANzcmYMt0FS6k/NwVmOCfRXyNmc6QDWzbhzqIuoc2s7EowSnkGIZLly5Zmkhe2mSy38uFBXSlq1M= 
 bundler_args: "--jobs 3 --retry 3 --without nothing"
 before_script:
 - sleep 15
+- 'echo "script.engine.groovy.inline.update: on" | sudo tee -a /etc/elasticsearch/elasticsearch.yml'
+- sudo service elasticsearch restart
 - cp config/config.yml.example config/config.yml
 - cp config/initializers/secret_token.rb.example config/initializers/secret_token.rb
 - cp config/database.yml.travis config/database.yml

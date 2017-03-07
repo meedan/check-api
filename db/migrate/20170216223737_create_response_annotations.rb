@@ -3,7 +3,6 @@ class CreateResponseAnnotations < ActiveRecord::Migration
   include SampleData
 
   def change
-    return if Rails.env.test?
     taskref = create_field_type field_type: 'task_reference', label: 'Task Reference'
     text = create_field_type field_type: 'text', label: 'Text'
     yn = create_field_type field_type: 'yes_no', label: 'Yes / No'

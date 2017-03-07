@@ -59,9 +59,9 @@ module AnnotationBase
     include ActiveModel::Validations
     include ActiveModel::Validations::Callbacks
     include PaperTrail::Model
-    include CheckdeskPermissions
-    include CheckdeskNotifications::Slack
-    include CheckdeskNotifications::Pusher
+    include CheckPermissions
+    include CheckNotifications::Slack
+    include CheckNotifications::Pusher
     include CheckElasticSearch
 
     attr_accessor :disable_es_callbacks
@@ -162,7 +162,7 @@ module AnnotationBase
   # Overwrite in the annotation type and expose the specific fields of that type
   def content
     fields = self.get_fields
-    fields.empty? ? self.data.to_json : fields.to_json
+    fields.empty? ? self.data.merge(self.image_data).to_json : fields.to_json
   end
 
   def get_fields
@@ -225,6 +225,15 @@ module AnnotationBase
 
   def annotated_client_url
     "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}"
+  end
+
+  def image_data
+    if self.file.nil?
+      {}
+    else
+      obj = self.load
+      { embed: obj.embed_path, thumbnail: obj.thumbnail_path, original: obj.image_path }
+    end
   end
 
   protected

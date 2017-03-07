@@ -31,6 +31,7 @@ RailsAdmin.config do |config|
     bulk_delete
     show
     edit
+    delete
 
     ## With an audit adapter, you can add:
     # history_index
@@ -209,8 +210,6 @@ RailsAdmin.config do |config|
       field :title
       field :description
       field :team do
-        read_only true
-        help ''
       end
       field :archived
       field :lead_image
@@ -218,22 +217,16 @@ RailsAdmin.config do |config|
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
+        hide do
+          bindings[:object].new_record?
+        end
       end
       field :slack_channel do
         label 'Slack default #channel'
         formatted_value{ bindings[:object].get_slack_channel }
-      end
-    end
-
-    create do
-      configure :team do
-        read_only false
-      end
-      field :slack_notifications_enabled do
-        hide
-      end
-      field :slack_channel do
-        hide
+        hide do
+          bindings[:object].new_record?
+        end
       end
     end
 
@@ -283,6 +276,9 @@ RailsAdmin.config do |config|
           statuses = bindings[:object].get_media_verification_statuses
           statuses ? JSON.pretty_generate(statuses) : ''
         end
+        hide do
+          bindings[:object].new_record?
+        end
       end
       field :source_verification_statuses, :json do
         label 'Source verification statuses'
@@ -290,19 +286,31 @@ RailsAdmin.config do |config|
           statuses = bindings[:object].get_source_verification_statuses
           statuses ? JSON.pretty_generate(statuses) : ''
         end
+        hide do
+          bindings[:object].new_record?
+        end
       end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
+        hide do
+          bindings[:object].new_record?
+        end
       end
       field :slack_webhook do
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
+        hide do
+          bindings[:object].new_record?
+        end
       end
       field :slack_channel do
         label 'Slack default #channel'
         formatted_value do
           bindings[:object].get_slack_channel
+        end
+        hide do
+          bindings[:object].new_record?
         end
       end
       field :checklist, :json do
@@ -311,27 +319,9 @@ RailsAdmin.config do |config|
           checklist = bindings[:object].get_checklist
           checklist ? JSON.pretty_generate(checklist) : ''
         end
-      end
-    end
-
-    create do
-      configure :media_verification_statuses do
-        hide
-      end
-      field :source_verification_statuses do
-        hide
-      end
-      field :slack_notifications_enabled do
-        hide
-      end
-      field :slack_webhook do
-        hide
-      end
-      field :slack_channel do
-        hide
-      end
-      field :checklist do
-        hide
+        hide do
+          bindings[:object].new_record?
+        end
       end
     end
 

@@ -18,16 +18,16 @@ class TeamTest < ActiveSupport::TestCase
     pt = create_team private: true
     create_team_user team: pt, user: pu, role: 'owner'
     with_current_user_and_team(u, t) { Team.find_if_can(t.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Team.find_if_can(pt.id) }
     end
     with_current_user_and_team(pu, pt) { Team.find_if_can(pt.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) { Team.find_if_can(pt.id) }
     end
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(create_user, pt) { Team.find_if_can(pt) }
     end
   end
@@ -215,6 +215,13 @@ class TeamTest < ActiveSupport::TestCase
     t.set_foo = 'bar'
     t.save!
     assert_equal 'bar', t.reload.get_foo
+    t.reset_foo
+    t.save!
+    assert_nil t.reload.get_foo
+    t.settings = nil
+    assert_nothing_raised do
+      t.reset_foo
+    end
 
     assert_raise NoMethodError do
       t.something
@@ -258,23 +265,23 @@ class TeamTest < ActiveSupport::TestCase
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
-    
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
-    
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
-    
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
@@ -370,9 +377,27 @@ class TeamTest < ActiveSupport::TestCase
     raw_params = { name: 'My team', slug: 'my-team' }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Team.create(params)
     end
+  end
+
+  test "should destroy related items" do
+    u = create_user
+    t = create_team
+    id = t.id
+    t.description = 'update description'; t.save!
+    tu = create_team_user user: u, team: t
+    p = create_project team: t
+    pm = create_project_media project: p
+    a = create_account team: t
+    c = create_contact team: t
+    t.destroy
+    assert_equal 0, Project.where(team_id: id).count
+    assert_equal 0, TeamUser.where(team_id: id).count
+    assert_equal 0, Account.where(team_id: id).count
+    assert_equal 0, Contact.where(team_id: id).count
+    assert_equal 0, ProjectMedia.where(project_id: p.id).count
   end
 
 end

@@ -5,14 +5,15 @@ class Dynamic < ActiveRecord::Base
 
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
-  
+
   after_save :add_update_elasticsearch_dynamic_annotation
   after_create :create_fields
   after_update :update_fields
+  before_destroy :destroy_elasticsearch_dynamic_annotation
 
   validate :annotation_type_exists
   validate :mandatory_fields_are_set, on: :create
-  
+
   annotation_notifies_slack :update
   annotation_notifies_slack :create
 
@@ -53,6 +54,10 @@ class Dynamic < ActiveRecord::Base
 
   def add_update_elasticsearch_dynamic_annotation
     add_update_media_search_child('dynamic_search', ['indexable']) if self.fields.count > 0
+  end
+
+  def destroy_elasticsearch_dynamic_annotation
+    destroy_elasticsearch_data(DynamicSearch)
   end
 
   def annotation_type_exists

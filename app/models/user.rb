@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
 
   serialize :omniauth_info
 
-  include CheckdeskSettings
+  include CheckSettings
   include DeviseAsync
 
   ROLES = %w[contributor journalist editor owner]
@@ -180,6 +180,7 @@ class User < ActiveRecord::Base
         account.source = source
         account.url = self.url
         account.save
+        account.update_columns(url: self.url)
       rescue Errno::ECONNREFUSED => e
         Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
       end
@@ -218,7 +219,10 @@ class User < ActiveRecord::Base
   def user_is_member_in_current_team
     unless self.current_team_id.blank?
       tu = TeamUser.where(user_id: self.id, team_id: self.current_team_id, status: 'member').last
-      errors.add(:base, "User not a member in team #{self.current_team_id}") if tu.nil?
+      if tu.nil?
+        self.current_team_id = nil
+        self.save(validate: false)
+      end
     end
   end
 

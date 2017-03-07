@@ -148,7 +148,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_media project: pp
     ppm = create_project_media project: pp, media: m
     ProjectMedia.find_if_can(pm.id)
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) do
         ProjectMedia.find_if_can(ppm.id)
       end
@@ -158,7 +158,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     tu = pt.team_users.last
     tu.update_column(:status, 'requested')
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) do
         ProjectMedia.find_if_can(ppm.id)
       end
@@ -225,12 +225,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Rails.stubs(:env).returns(:production)
     t = create_team
     p = create_project team:  t
-    CheckdeskNotifications::Pusher::Worker.drain
-    assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
+    CheckNotifications::Pusher::Worker.drain
+    assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 2, CheckdeskNotifications::Pusher::Worker.jobs.size
-    CheckdeskNotifications::Pusher::Worker.drain
-    assert_equal 0, CheckdeskNotifications::Pusher::Worker.jobs.size
+    assert_equal 2, CheckNotifications::Pusher::Worker.jobs.size
+    CheckNotifications::Pusher::Worker.drain
+    assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
   end
 
@@ -241,11 +241,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_valid_media user: u
     pm = create_project_media project: p, media: m
     assert_equal Status.default_id(m, p), pm.annotations('status').last.status
-  end
-
-  test "should get last status object" do
-    pm = create_project_media
-    assert_not_nil pm.last_status_obj
   end
 
   test "should update project media embed data" do
@@ -282,41 +277,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Desc BB', data['description']
   end
 
-  test "should get published time" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_not_nil pm.published
-    assert_not_nil pm.send(:published)
-  end
-
   test "should have annotations" do
     pm = create_project_media
     c1 = create_comment annotated: pm
     c2 = create_comment annotated: pm
     c3 = create_comment annotated: nil
     assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
-  end
-
-  test "should get annotations log" do
-    u = create_user
-    t = create_team
-    p = create_project team: t
-    create_team_user user: u, team: t, role: 'owner'
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p
-      assert_equal 0, pm.get_annotations_log.size
-      s = Status.find_by(:annotation_type => 'status', annotated_id: pm.id, annotated_type: pm.class.to_s)
-      c = create_comment text: 'text', annotated: pm
-      f = create_flag flag: 'Spam', annotated: pm
-      s.status = 'false'; s.save!
-      t = create_tag tag: 'Tag', annotated: pm
-      s.status = 'verified'; s.save!
-      pm.embed= {title: 'Change title'}.to_json
-      log = pm.get_annotations_log
-      assert_equal 6, log.size
-      assert_equal ['comment', 'flag', 'status', 'tag', 'status', 'embed'].reverse, log.map(&:annotation_type)
-    end
   end
 
   test "should get permissions" do
@@ -466,7 +432,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     create_comment annotated: pm
     create_tag annotated: pm
-    assert_equal 2, pm.get_annotations_log.size
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.project_id.to_i, p.id
+    assert_equal ms.team_id.to_i, t.id
     t2 = create_team
     p2 = create_project team: t2
     Sidekiq::Testing.fake! do
@@ -474,7 +443,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       ElasticSearchWorker.drain
     end
     # confirm annotations log
-    assert_equal 2, pm.get_annotations_log.size
+    sleep 1
     ms = MediaSearch.find(pm.id)
     assert_equal ms.project_id.to_i, p2.id
     assert_equal ms.team_id.to_i, t2.id
@@ -523,7 +492,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
-    
+
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, user: u
       create_comment annotated: pm
@@ -540,7 +509,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       t = Task.find(t.id); t.label = 'Test?'; t.save!
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
-      
+
       assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"], pm.get_versions_log.map(&:event_type)
       assert_equal 13, pm.get_versions_log_count
     end

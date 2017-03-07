@@ -39,6 +39,7 @@ fr:
   slack_create_project: "*%{user}* a créé un projet: <%{url}>"
   slack_create_team_user: "*%{user}* s'est joint à <%{url}>"
   slack_create_project_media: "*%{user}* a rajouté un nouveau %{type}: <%{url}>"
+  slack_create_task: "*%{user}* a crée la tâche <%{url}> du projet %{project} avec commentaire:> %{note}"
   slack_answer_task: "*%{user}* a résolu la tâche <%{url}> du projet %{project} :\\n> %{response}\\n*Commentaire :*\\n> %{note}"
   slack_update_task_label: "*%{user}* a modifié la tâche <%{url}> du projet %{project} :\\n*De :* %{from}\\n*A :* %{to}"
   slack_update_task_description: "*%{user}* a modifié la description de la tâche <%{url}> du projet %{project} :\\n*De :* %{from}\\n*A :* %{to}"
@@ -51,4 +52,6 @@ fr:
   pender_could_not_parse: Ce n'était pas possible d'analyser ce média
   mail_duplicate_email_exists: Votre connexion à Check
   mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à Check.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte Check via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à Check via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à check@meedan.com. </p> <p>— L'équipe Check</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à Check.</p> <p>En bref : Vous avez tenté de créer un nouveau compte Check, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à check@meedan.com. </p> <p>— L'équipe Check</p>"
   mail_duplicate_email_exists_email: courriel
+  slack_restricted_join_to_members: Désolé, vous ne pouvez pas rejoindre l'équipe %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.

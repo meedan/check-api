@@ -1,8 +1,8 @@
 ## Check
 
-[![Code Climate](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/gpa.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed)
-[![Issue Count](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/issue_count.svg)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/feed)
-[![Test Coverage](https://codeclimate.com/repos/5755cb94c1237437b20013c6/badges/b6cd49bb313851a22f23/coverage.svg?1)](https://codeclimate.com/repos/5755cb94c1237437b20013c6/coverage)
+[![Code Climate](https://codeclimate.com/repos/58bdc058359261025a0020fa/badges/be660888a1cd1f246167/gpa.svg)](https://codeclimate.com/repos/58bdc058359261025a0020fa/feed)
+[![Test Coverage](https://codeclimate.com/repos/58bdc058359261025a0020fa/badges/be660888a1cd1f246167/coverage.svg)](https://codeclimate.com/repos/58bdc058359261025a0020fa/coverage)
+[![Issue Count](https://codeclimate.com/repos/58bdc058359261025a0020fa/badges/be660888a1cd1f246167/issue_count.svg)](https://codeclimate.com/repos/58bdc058359261025a0020fa/feed)
 [![Travis](https://travis-ci.org/meedan/check-api.svg?branch=develop)](https://travis-ci.org/meedan/check-api/)
 
 Verify breaking news online
@@ -80,7 +80,7 @@ You can also test your instance of ClamAV REST this way:
 * Run this: `bundle exec ruby test/models/uploaded_file_test.rb -n /real/`
 * Two tests should pass
 
-The test uses a EICAR file (a test file which is recognized as a virus by scanners even though it's not really a virus). 
+The test uses a EICAR file (a test file which is recognized as a virus by scanners even though it's not really a virus).
 
 ### Localization
 
@@ -93,15 +93,6 @@ Localization is powered by Transifex + I18n. In order to localize the applicatio
 We call "localizable strings" any call to the `I18n.t` function like this: `I18n.t(:string_unique_id, default: 'English string')`.
 
 Clients should send the `Accept-Language` header in order to get localized content. If you want to serve everything in English, just add `locale: 'en'` to your `config/config.yml`.
-
-### Migration
-
-Migrate CD2 data
-
-* Add `allow_duplicated_urls: true` to `config.yml`
-* Run `drush eval "_checkdesk_core_export_data_csv();"` in `CD2` instance : This command will output a directory inside `[files directory]/checkdesk_migration`.
-* Copy the output from the above step `[files directory]/checkdesk_migration/[instance_name]` into CD3 `db/data`.
-* Run `rake db:seed:sample`.
 
 ### Credits
 

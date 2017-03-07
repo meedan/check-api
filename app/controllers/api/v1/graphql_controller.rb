@@ -13,11 +13,11 @@ module Api
         query_variables = {} if query_variables == 'null'
         debug = !!CONFIG['graphql_debug']
         begin
-          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: {ability: @ability, file: request.params[:file] })
+          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { ability: @ability, file: request.params[:file] })
           render json: query.result
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique => e
           render json: { error: e.message }, status: 400
-        rescue CheckdeskPermissions::AccessDenied => e
+        rescue CheckPermissions::AccessDenied => e
           render json: { error: e.message }, status: 403
         rescue ActiveRecord::RecordNotFound => e
           render json: { error: e.message }, status: 404
@@ -43,11 +43,8 @@ module Api
       end
 
       def load_context_team
-        @context_team = nil
         slug = request.params['team']
         @context_team = Team.where(slug: slug).first unless slug.blank?
-        log = @context_team.nil? ? 'No context team' : "Context team is #{@context_team.name}"
-        logger.info message: log, context_team: @context_team
         Team.current = @context_team
       end
 

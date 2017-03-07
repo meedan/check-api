@@ -69,4 +69,13 @@ en:
     account in Check.</p> <p>What to do next: Sign in with %{duplicate_provider}.</p>
     <p>Then you'll be logged in with the account you were using before. If you need
     additional help, please email check@meedan.com.</p> <p>— The Check team</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>Hello, this is just a friendly
+    reminder to help make sure you get logged in to Check.</p> <p>What happened: You
+    tried to create a new email- based account on Check, but this account already
+    exists.</p> <p>Try signing in with your email and password, rather than creating
+    a new account.</p> <p>Then you'll be logged in with the account you were using
+    before. If you need additional help, please email check@meedan.com.</p> <p>— The
+    Check team</p>"
   mail_duplicate_email_exists_email: email
+  slack_restricted_join_to_members: Sorry, you cannot join %{team_name} because it
+    is restricted to members of the Slack team(s) %{teams}.

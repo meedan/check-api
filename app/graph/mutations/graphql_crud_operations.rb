@@ -24,7 +24,7 @@ class GraphqlCrudOperations
     klass = type.camelize
 
     obj = klass.constantize.new
-    obj.file = ctx[:file] if type == 'project_media' && !ctx[:file].blank?
+    obj.file = ctx[:file] if (type == 'project_media' || type == 'comment') && !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"

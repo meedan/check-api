@@ -5,12 +5,14 @@ class Project < ActiveRecord::Base
   belongs_to :team
   has_many :project_sources
   has_many :sources , through: :project_sources
-  has_many :project_medias
+  has_many :project_medias, dependent: :destroy
   has_many :medias , through: :project_medias
 
   mount_uploader :lead_image, ImageUploader
 
   before_validation :set_description_and_team_and_user, on: :create
+
+  after_update :update_elasticsearch_data
 
   validates_presence_of :title
   validates :lead_image, size: true
@@ -28,7 +30,7 @@ class Project < ActiveRecord::Base
                   targets: proc { |p| [p.team] },
                   data: proc { |p| p.to_json }
 
-  include CheckdeskSettings
+  include CheckSettings
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -75,9 +77,22 @@ class Project < ActiveRecord::Base
   end
 
   def admin_label
-    unless self.new_record?
+    unless self.new_record? || self.team.nil?
       [self.team.name.truncate(15),self.title.truncate(25)].join(' - ')
     end
+  end
+
+  def update_elasticsearch_team_bg
+    url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
+    client = Elasticsearch::Client.new url: url
+    options = {
+      index: CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index'],
+      type: 'media_search',
+      body: {
+        script: { inline: "ctx._source.team_id=team_id", lang: "groovy", params: { team_id: self.team_id } },
+        query: { term: { project_id: { value: self.id } } } }
+    }
+    client.update_by_query options
   end
 
   private
@@ -89,4 +104,13 @@ class Project < ActiveRecord::Base
     end
     self.user ||= User.current
   end
+
+  def update_elasticsearch_data
+    if self.team_id_changed?
+      keys = %w(team_id)
+      data = {'team_id' => self.team_id}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_team')
+    end
+  end
+
 end

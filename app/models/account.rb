@@ -15,7 +15,6 @@ class Account < ActiveRecord::Base
 
   after_create :set_pender_result_as_annotation, :create_source
 
-
   def provider
     self.data['provider']
   end

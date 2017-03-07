@@ -5,7 +5,7 @@ class ProjectMedia < ActiveRecord::Base
   belongs_to :media
   belongs_to :user
   has_annotations
-  
+
   include Versioned
 
   validates_presence_of :media_id, :project_id
@@ -15,6 +15,7 @@ class ProjectMedia < ActiveRecord::Base
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks
   after_update :update_elasticsearch_data
+  before_destroy :destroy_elasticsearch_media
 
   notifies_slack on: :create,
                  if: proc { |pm| t = pm.project.team; User.current.present? && t.present? && t.setting(:slack_notifications_enabled).to_i === 1 },
@@ -75,31 +76,19 @@ class ProjectMedia < ActiveRecord::Base
 
   def update_elasticsearch_data
     return if self.disable_es_callbacks
-    keys = %w(project_id team_id)
-    data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
+    if self.project_id_changed?
+      keys = %w(project_id team_id)
+      data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
+    end
+  end
+
+  def destroy_elasticsearch_media
+    destroy_elasticsearch_data(MediaSearch, 'parent')
   end
 
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
-  end
-
-  def get_annotations_log
-    type = %W(embed status)
-    an = self.annotations.where.not(annotation_type: type).to_a
-    # get logs for singleton annotations
-    t = %w(status embed)
-    s_an = self.get_annotations(t)
-    s_an.each do |a|
-      a = a.load
-      a_versions = a.get_versions
-      # skip first status
-      a_versions.pop(1) if a.annotation_type == 'status'
-      # skip first embed for non Link media
-      a_versions.pop(1) if a.annotation_type == 'embed' and a.annotated.media.type != 'Link'
-      an.concat a_versions
-    end
-    an.sort_by{|k, _v| k[:updated_at]}.reverse
   end
 
   def get_versions_log
@@ -145,25 +134,9 @@ class ProjectMedia < ActiveRecord::Base
     embed
   end
 
-  def tags
-    self.get_annotations('tag')
-  end
-
-  def tasks
-    self.get_annotations('task')
-  end
-
   def last_status
     last = self.get_annotations('status').first
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
-  end
-
-  def last_status_obj
-    self.get_annotations('status').last
-  end
-
-  def published
-    self.created_at.to_i.to_s
   end
 
   def overridden
