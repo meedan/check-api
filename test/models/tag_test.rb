@@ -70,25 +70,17 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should create version when tag is created" do
-    t = nil
-    assert_difference 'PaperTrail::Version.count', 3 do
-      t = create_tag(tag: 'test', annotated: create_source)
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tag = create_tag(tag: 'test', annotated: pm)
+      assert_equal 1, tag.versions.count
+      v = tag.versions.last
+      assert_equal 'create', v.event
     end
-    assert_equal 1, t.versions.count
-    v = t.versions.last
-    assert_equal 'create', v.event
-    assert_equal({"data"=>[{}, {"tag"=>"test", "full_tag"=>"test"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, t.annotator_id], "annotated_type"=>[nil, "Source"], "annotated_id"=>[nil, t.annotated_id], "annotation_type"=>[nil, "tag"]}, v.changeset)
-  end
-
-  test "should create version when tag is updated" do
-    create_tag(tag: 'foo')
-    t = Tag.last
-    t.tag = 'bar'
-    t.save
-    assert_equal 2, t.versions.count
-    v = PaperTrail::Version.last
-    assert_equal 'update', v.event
-    assert_equal({"data"=>[{"tag"=>"foo", "full_tag"=>"foo"}, {"tag"=>"bar", "full_tag"=>"bar"}]}, v.changeset)
   end
 
   test "should get columns as array" do

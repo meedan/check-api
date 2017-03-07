@@ -17,10 +17,12 @@ class User < ActiveRecord::Base
   mount_uploader :image, ImageUploader
   validates :image, size: true
   validate :user_is_member_in_current_team
+  validate :validate_duplicate_email, on: :create
 
   serialize :omniauth_info
 
-  include CheckdeskSettings
+  include CheckSettings
+  include DeviseAsync
 
   ROLES = %w[contributor journalist editor owner]
   def role?(base_role)
@@ -31,7 +33,7 @@ class User < ActiveRecord::Base
     context_team = Team.current || self.current_team
     role = nil
     unless context_team.nil?
-      role = Rails.cache.fetch("role_#{context_team.id}_#{self.id}", expires_in: 30.seconds) do
+      role = Rails.cache.fetch("role_#{context_team.id}_#{self.id}", expires_in: 30.seconds, race_condition_ttl: 30.seconds) do
         tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last
         tu.nil? ? nil : tu.role.to_s
       end
@@ -177,6 +179,7 @@ class User < ActiveRecord::Base
         account.user = self
         account.source = source
         account.url = self.url
+        account.skip_pender = true
         account.save
       rescue Errno::ECONNREFUSED => e
         Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
@@ -203,7 +206,7 @@ class User < ActiveRecord::Base
   end
 
   def send_welcome_email
-    RegistrationMailer.welcome_email(self).deliver_now if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
+    RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
   end
 
   def set_image
@@ -216,7 +219,19 @@ class User < ActiveRecord::Base
   def user_is_member_in_current_team
     unless self.current_team_id.blank?
       tu = TeamUser.where(user_id: self.id, team_id: self.current_team_id, status: 'member').last
-      errors.add(:base, "User not a member in team #{self.current_team_id}") if tu.nil?
+      if tu.nil?
+        self.current_team_id = nil
+        self.save(validate: false)
+      end
     end
   end
+
+  def validate_duplicate_email
+    u = User.where(email: self.email).last unless self.email.blank?
+    unless u.nil?
+      RegistrationMailer.delay.duplicate_email_detection(self, u)
+      return false
+    end
+  end
+
 end

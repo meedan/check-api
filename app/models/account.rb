@@ -1,7 +1,7 @@
 class Account < ActiveRecord::Base
   include PenderData
 
-  has_paper_trail on: [:create, :update]
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
   belongs_to :source
   belongs_to :team
@@ -14,7 +14,6 @@ class Account < ActiveRecord::Base
   validate :url_is_unique, on: :create
 
   after_create :set_pender_result_as_annotation, :create_source
-
 
   def provider
     self.data['provider']

@@ -1,11 +1,11 @@
 class ImageUploader < FileUploader
   include CarrierWave::MiniMagick
 
-  version :thumbnail, if: :media? do
+  version :thumbnail, if: :should_generate_thumbnail? do
     process resize_to_fit: CONFIG['image_thumbnail_size'] || [100, 100]
   end
 
-  version :embed, if: :media? do
+  version :embed, if: :should_generate_thumbnail? do
     process resize_to_fit: CONFIG['image_embed_size'] || [800, 600]
   end
 
@@ -23,7 +23,7 @@ class ImageUploader < FileUploader
 
   protected
 
-  def media?(_file)
-    model.class.name == 'UploadedImage'
+  def should_generate_thumbnail?(_file)
+    model.respond_to?(:should_generate_thumbnail?) && model.should_generate_thumbnail?
   end
 end

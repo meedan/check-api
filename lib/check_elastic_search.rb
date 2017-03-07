@@ -46,15 +46,20 @@ module CheckElasticSearch
 
   def get_elasticsearch_parent
     pm = self.id if self.class.name == 'ProjectMedia'
-    if pm.nil? and self.is_annotation?
-      pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
-    end
+    pm = self.annotated_id if pm.nil? and self.is_annotation?
     sleep 1 if Rails.env == 'test'
     MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
   end
 
   def get_elasticsearch_data(data)
     (data.blank? and self.respond_to?(:data)) ? self.data : data
+  end
+
+  def destroy_elasticsearch_data(model, type = 'child')
+    options = {}
+    options = {parent: self.annotated_id} if type == 'child'
+    obj = model.search(query: { match: { _id: self.id } }).last
+    obj.delete(options) unless obj.nil?
   end
 
 end

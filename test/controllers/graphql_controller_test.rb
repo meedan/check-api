@@ -119,9 +119,15 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read project medias" do
-    Media.any_instance.stubs(:published).returns(Time.now.to_i.to_s)
-    assert_graphql_read('project_media', 'published')
-    #assert_graphql_read('project_media', 'last_status')
+    assert_graphql_read('project_media', 'last_status')
+    authenticate_with_user
+    p = create_project team: @team
+    pm = create_project_media project: p
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, last_status_obj {dbid} } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
+    assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
   end
 
   test "should read project media and fallback to media" do
@@ -210,21 +216,6 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-  end
-
-  test "should read annotations version" do
-    authenticate_with_user
-    p = create_project team: @team
-    pm = create_project_media project: p
-    s = pm.get_annotations('status').last
-    s = s.nil? ? create_status(annotated: pm, status: false) : s.load
-    s.status = 'verified'; s.save!; s.reload
-    s.status = 'false'; s.save!
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotations { edges { node { version { dbid } } } } } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    versions = JSON.parse(@response.body)['data']['project_media']['annotations']['edges']
-    assert_equal s.versions.last.id, versions.last["node"]["version"]["dbid"]
   end
 
   test "should create project source" do
@@ -327,7 +318,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from project media" do
-    assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url', 'last_status_obj' => 'status'})
+    assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url'})
   end
 
   test "should read object from project source" do
@@ -342,10 +333,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
                                                'annotations' => 'content','medias' => 'media_id', 'collaborators' => 'name',
                                                'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
-  end
-
-  test "should read collection from project media" do
-    assert_graphql_read_collection('project_media', { 'tags'=> 'tag', 'tasks' => 'label' })
   end
 
   test "should read collection from project" do
@@ -416,6 +403,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read versions" do
+    u = create_user
+    create_team_user user: u
     assert_graphql_read('version', 'dbid')
   end
 
@@ -548,12 +537,17 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     m = create_media
-    pm = create_project_media project: p, media: m
-    create_comment annotated: pm, annotator: u
-    create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, annotations(first: 10) { edges { node { permissions, medias(first: 5) { edges { node { url } } } } } }, projects { edges { node { title } } } } }"
+    create_annotation_type annotation_type: 'test'
+    pm = nil
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p, media: m
+      create_comment annotated: pm, annotator: u
+      create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
+    end
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, created_at, meta, object_changes_json, user { name }, annotation { id }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
+    assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
   end
 
   test "should get permissions for child objects" do
@@ -700,13 +694,16 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team slug: 'team'
     create_team_user user: u, team: t
     p = create_project team: t
-    n.times do
-      pm = create_project_media project: p
-      m.times { create_comment annotated: pm, annotator: u }
+    with_current_user_and_team(u, t) do
+      n.times do
+        pm = create_project_media project: p
+        m.times { create_comment annotated: pm, annotator: u }
+      end
     end
-    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, annotations(first: 10000) { edges { node { permissions } }  } } } } } }"
 
-    assert_queries (5 * n + 15) do
+    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
+
+    assert_queries (2 * n + n * m + 15) do
       post :create, query: query, team: 'team'
     end
 
@@ -880,7 +877,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     authenticate_with_user(u)
     id = Base64.encode64("ProjectMedia/#{pm.id}")
-    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", project_id: #{p2.id} }) { project_media { project_id } } }"
+    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", project_id: #{p2.id} }) { project_media { project_id }, project { id } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
@@ -889,4 +886,22 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal u.id.to_s, last_version.whodunnit
   end
 
+  test "should create comment with image" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p
+    authenticate_with_user(u)
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    query = 'mutation create { createComment(input: { text: "Comment with image", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '" }) { comment { id } } }'
+    assert_difference 'Comment.count' do
+      post :create, query: query, file: file
+    end
+    assert_response :success
+    data = JSON.parse(Annotation.last.content)
+    assert_match /\.png$/, data['embed']
+    assert_match /\.png$/, data['thumbnail']
+  end
 end

@@ -24,7 +24,7 @@ class GraphqlCrudOperations
     klass = type.camelize
 
     obj = klass.constantize.new
-    obj.file = ctx[:file] if type == 'project_media' && !ctx[:file].blank?
+    obj.file = ctx[:file] if (type == 'project_media' || type == 'comment') && !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
@@ -90,7 +90,7 @@ class GraphqlCrudOperations
 
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
-        return_field parent.to_sym, "#{parent.camelize}Type".constantize
+        return_field parent.to_sym, "#{parent.gsub(/_was$/, '').camelize}Type".constantize
       end
 
       resolve -> (inputs, ctx) {
@@ -107,7 +107,7 @@ class GraphqlCrudOperations
 
       return_field :deletedId, types.ID
       parents.each do |parent|
-        return_field parent.to_sym, "#{parent.camelize}Type".constantize
+        return_field parent.to_sym, "#{parent.gsub(/_was$/, '').camelize}Type".constantize
       end
 
       resolve -> (inputs, ctx) {

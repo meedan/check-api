@@ -75,13 +75,13 @@ class ProjectTest < ActiveSupport::TestCase
     create_team_user team: pt, user: pu, role: 'owner'
     pp = create_project team: pt
     with_current_user_and_team(u, t) { Project.find_if_can(p.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Project.find_if_can(pp.id) }
     end
     with_current_user_and_team(pu, pt) { Project.find_if_can(pp.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu.reload, pt) { Project.find_if_can(pp.id) }
     end
   end
@@ -286,12 +286,12 @@ class ProjectTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
+    assert_equal 0, CheckNotifications::Slack::Worker.jobs.size
     with_current_user_and_team(u, t) do
       p = create_project team: t
-      assert_equal 1, CheckdeskNotifications::Slack::Worker.jobs.size
-      CheckdeskNotifications::Slack::Worker.drain
-      assert_equal 0, CheckdeskNotifications::Slack::Worker.jobs.size
+      assert_equal 1, CheckNotifications::Slack::Worker.jobs.size
+      CheckNotifications::Slack::Worker.drain
+      assert_equal 0, CheckNotifications::Slack::Worker.jobs.size
       Rails.unstub(:env)
     end
   end
@@ -337,7 +337,7 @@ class ProjectTest < ActiveSupport::TestCase
     raw_params = { title: "My project", team: create_team }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Project.create(params)
     end
   end
@@ -360,6 +360,27 @@ class ProjectTest < ActiveSupport::TestCase
     t = create_team name: 'my-team'
     p = create_project team: t, title: 'my-project'
     assert_equal 'my-team - my-project', p.admin_label
+  end
+
+  test "should destroy related items" do
+    t = create_team
+    p = create_project team: t
+    id = p.id
+    p.title = 'Change title'; p.save!
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p, disable_es_callbacks: false
+      c = create_comment annotated: pm, disable_es_callbacks: false
+      sleep 1
+      assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+      p.destroy
+      assert_equal 0, ProjectMedia.where(project_id: id).count
+      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+      assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
+      sleep 1
+      assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    end
   end
 
 end

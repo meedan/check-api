@@ -1,6 +1,11 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class UserTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+  end
 
   test "should create user" do
     assert_difference 'User.count' do
@@ -39,7 +44,7 @@ class UserTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user user: u2, team: pt
     with_current_user_and_team(u, t) { User.find_if_can(u1.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { User.find_if_can(u2.id) }
     end
     with_current_user_and_team(pu, pt) do
@@ -48,7 +53,7 @@ class UserTest < ActiveSupport::TestCase
     end
     with_current_user_and_team(u, t) { User.find_if_can(u.id) }
     ptu.status = 'requested'; ptu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) { User.find_if_can(u2.id) }
     end
   end
@@ -174,6 +179,24 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should send email when user email is duplicate" do
+    u = create_user provider: 'facebook'
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
+  test "should not add duplicate mail" do
+    u = create_user
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
   test "should have projects" do
     p1 = create_project
     p2 = create_project
@@ -239,16 +262,14 @@ class UserTest < ActiveSupport::TestCase
     u.current_team_id = t.id; u.save!
     assert_equal u.current_team_id, t.id
     t2 = create_team
-    assert_raises ActiveRecord::RecordInvalid do
-      u.current_team_id = t2.id
-      u.save!
-    end
+    u.current_team_id = t2.id
+    u.save!
+    assert_nil u.reload.current_team_id
     t3 = create_team
     create_team_user team: t3, user: u, status: 'requested'
-    assert_raises ActiveRecord::RecordInvalid do
-      u.current_team_id = t3.id
-      u.save!
-    end
+    u.current_team_id = t3.id
+    u.save!
+    assert_nil u.reload.current_team_id
   end
 
   test "should set and retrieve current team" do
@@ -406,4 +427,23 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should delay confirmation email" do
+    require 'sidekiq/testing'
+    Sidekiq::Testing.fake!
+    u = create_user
+    assert_equal 0, u.send(:pending_notifications).size
+    Sidekiq::Extensions::DelayedMailer.jobs.clear
+    assert_equal 0, Sidekiq::Extensions::DelayedMailer.jobs.size
+    u.password = '12345678'
+    u.password_confirmation = '12345678'
+    u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
+    u.save!
+    u.send(:send_pending_notifications)
+    assert_equal 1, Sidekiq::Extensions::DelayedMailer.jobs.size
+    assert_equal 1, u.send(:pending_notifications).size
+    u = User.last
+    u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
+    assert_equal 2, Sidekiq::Extensions::DelayedMailer.jobs.size
+    assert_equal 0, u.send(:pending_notifications).size
+  end
 end

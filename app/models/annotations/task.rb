@@ -1,6 +1,6 @@
 class Task < ActiveRecord::Base
   include AnnotationBase
-  
+
   before_validation :set_initial_status, on: :create
   after_destroy :destroy_responses
 
@@ -24,6 +24,57 @@ class Task < ActiveRecord::Base
   end
   validates :status, included: { values: self.task_statuses }, allow_blank: true
 
+  annotation_notifies_slack :update
+  annotation_notifies_slack :create
+
+  def slack_message
+    if self.versions.count > 1
+      self.slack_message_on_update
+    else
+      self.slack_message_on_create
+    end
+  end
+
+  def slack_message_on_create
+    params = self.slack_default_params.merge({
+      default: "*%{user}* created task <%{url}> in %{project} with note '%{note}'",
+      note: self.description
+    })
+    I18n.t(:slack_create_task, params)
+  end
+
+  def slack_default_params
+    {
+      user: User.current.name,
+      url: "#{self.annotated_client_url}|#{self.label.tr("\n", ' ')}",
+      project: self.annotated.project.title
+    }
+  end
+
+  def slack_message_on_update
+    if self.data_changed?
+      data = self.data
+      data_was = self.data_was
+      messages = []
+
+      {
+        'label' => '*%{user}* edited task <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}',
+        'description' => '*%{user}* edited task note in <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}'
+      }.each do |key, message|
+        if data_was[key] != data[key]
+          params = self.slack_default_params.merge({
+            default: message,
+            from: data_was[key],
+            to: data[key]
+          })
+          messages << I18n.t("slack_update_task_#{key}".to_sym, params)
+        end
+      end
+
+      messages.join("\n")
+    end
+  end
+
   def content
     hash = {}
     %w(label type description options status).each{ |key| hash[key] = self.send(key) }
@@ -43,6 +94,10 @@ class Task < ActiveRecord::Base
     DynamicAnnotation::Field.where(field_type: 'task_reference', value: self.id.to_s).to_a.map(&:annotation)
   end
 
+  def response
+    @response
+  end
+
   def response=(json)
     params = JSON.parse(json)
     response = Dynamic.new
@@ -50,6 +105,7 @@ class Task < ActiveRecord::Base
     response.annotation_type = params['annotation_type']
     response.set_fields = params['set_fields']
     response.save!
+    @response = response
     self.record_timestamps = false
     self.status = 'Resolved'
   end

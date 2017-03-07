@@ -59,9 +59,9 @@ module AnnotationBase
     include ActiveModel::Validations
     include ActiveModel::Validations::Callbacks
     include PaperTrail::Model
-    include CheckdeskPermissions
-    include CheckdeskNotifications::Slack
-    include CheckdeskNotifications::Pusher
+    include CheckPermissions
+    include CheckNotifications::Slack
+    include CheckNotifications::Pusher
     include CheckElasticSearch
 
     attr_accessor :disable_es_callbacks
@@ -76,7 +76,7 @@ module AnnotationBase
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
 
-    has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities]
+    has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities], if: proc { |_x| User.current.present? }
 
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
@@ -162,7 +162,7 @@ module AnnotationBase
   # Overwrite in the annotation type and expose the specific fields of that type
   def content
     fields = self.get_fields
-    fields.empty? ? self.data.to_json : fields.to_json
+    fields.empty? ? self.data.merge(self.image_data).to_json : fields.to_json
   end
 
   def get_fields
@@ -227,12 +227,21 @@ module AnnotationBase
     "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}"
   end
 
+  def image_data
+    if self.file.nil?
+      {}
+    else
+      obj = self.load
+      { embed: obj.embed_path, thumbnail: obj.thumbnail_path, original: obj.image_path }
+    end
+  end
+
   protected
 
   def load_polymorphic(name)
     type, id = self.send("#{name}_type"), self.send("#{name}_id")
     return nil if type.blank? && id.blank?
-    Rails.cache.fetch("find_#{type.parameterize}_#{id}", expires_in: 30.seconds) do
+    Rails.cache.fetch("find_#{type.parameterize}_#{id}", expires_in: 30.seconds, race_condition_ttl: 30.seconds) do
       type.constantize.find(id)
     end
   end

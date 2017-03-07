@@ -1,11 +1,12 @@
 # Check Settings Module
-# Add to the model: include CheckdeskSettings
+# Add to the model: include CheckSettings
 # It must have a "settings" column already
 # Settings have key and value
-# How to get a setting value: object.setting(key)
+# How to get a setting value: object.get_key or object.setting(key)
 # How to set a setting value: object.set_key = value
+# How to reset a setting value: object.reset_key
 
-module CheckdeskSettings
+module CheckSettings
   def self.included(base)
     base.class_eval do
       serialize :settings
@@ -21,14 +22,16 @@ module CheckdeskSettings
   end
 
   def method_missing(method, *args, &block)
-    match = /^(set|get)_([^=]+)=?$/.match(method)
+    match = /^(reset|set|get)_([^=]+)=?$/.match(method)
     if match.nil?
       super
     elsif match[1] === 'set'
-      self.settings = {} if self.settings.blank?
+      self.settings ||= {}
       self.settings[match[2].to_sym] = args.first
     elsif match[1] === 'get'
       self.setting(match[2])
+    elsif match[1] === 'reset'
+      self.settings.delete(match[2].to_sym) unless self.settings.blank?
     end
   end
 end

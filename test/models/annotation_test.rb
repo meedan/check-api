@@ -101,13 +101,13 @@ class AnnotationTest < ActiveSupport::TestCase
     pc = create_comment annotated: ppm
 
     with_current_user_and_team(u, t) { Comment.find_if_can(c.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Comment.find_if_can(pc.id) }
     end
     with_current_user_and_team(pu, pt) { Comment.find_if_can(pc.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) { Comment.find_if_can(pc.id) }
     end
   end

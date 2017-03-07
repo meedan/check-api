@@ -1,6 +1,6 @@
 module PenderData
   def validate_pender_result
-    unless self.url.blank?
+    if !self.url.blank? && !self.skip_pender
       result = PenderClient::Request.get_medias(CONFIG['pender_host'], { url: self.url }, CONFIG['pender_key'])
       if (result['type'] == 'error')
         errors.add(:base, I18n.t(:pender_could_not_parse, default: 'Could not parse this media'))
@@ -24,6 +24,14 @@ module PenderData
       em.annotator = pender unless pender.nil?
       em.save!
     end
+  end
+
+  def skip_pender
+    @skip_pender
+  end
+
+  def skip_pender=(bool)
+    @skip_pender = bool
   end
 
   def pender_data

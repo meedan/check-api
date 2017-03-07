@@ -1,6 +1,12 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class MediaTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+  end
+
   test "should create media" do
     assert_difference 'Media.count' do
       create_valid_media
@@ -33,13 +39,13 @@ class MediaTest < ActiveSupport::TestCase
     create_team_user user: pu, team: pt, role: 'owner'
     pm = create_media team: pt
     with_current_user_and_team(u, t) { Media.find_if_can(m.id) }
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Media.find_if_can(pm.id) }
     end
     with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
-    assert_raise CheckdeskPermissions::AccessDenied do
+    assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
     end
   end
@@ -107,16 +113,29 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should create version when media is created" do
+    u = create_user
+    create_team_user user: u
+    User.current = u
     m = create_valid_media
+    User.current = nil
     assert_equal 2, m.versions.size
   end
 
   test "should create version when media is updated" do
-    m = create_valid_media
-    assert_equal 2, m.versions.size
-    m = m.reload
-    m.user = create_user
-    m.save!
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    create_team_user user: u, team: t, role: 'owner'
+    u2 = create_user
+    m = nil
+    with_current_user_and_team(u, t) do
+      m = create_valid_media
+      create_project_media project: p, media: m
+      assert_equal 2, m.versions.size
+      m = m.reload
+      m.user = u2
+      m.save!
+    end
     assert_equal 3, m.reload.versions.size
   end
 
@@ -437,9 +456,31 @@ class MediaTest < ActiveSupport::TestCase
     raw_params = { project: create_project, user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Media.create(params)
     end
+  end
+
+  test "should destroy related items" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    c = create_comment annotated: pm, disable_es_callbacks: false
+    sleep 1
+    assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+    assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    id = pm.id
+    m.destroy
+    assert_equal 0, ProjectMedia.where(media_id: id).count
+    assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+    sleep 1
+    assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+    assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
   end
 
 end

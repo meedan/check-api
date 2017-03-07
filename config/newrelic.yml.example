@@ -3,16 +3,16 @@
 # .NET, PHP, Python and Node applications with deep visibility and low
 # overhead.  For more information, visit www.newrelic.com.
 #
-# Generated November 08, 2016
+# Generated March 03, 2017
 #
-# This configuration file is custom generated for Docker, Inc. - Solutions
+# This configuration file is custom generated for Meedan.com
 #
 # For full documentation of agent configuration options, please refer to
 # https://docs.newrelic.com/docs/agents/ruby-agent/installation-configuration/ruby-agent-configuration
 
 common: &default_settings
   # Required license key associated with your New Relic account.
-  license_key: be81abd17676d0f46d46e1a8aa5d7b9b8b45e160
+  license_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
   # Your application name. Renaming here affects where data displays in New
   # Relic.  For more details, see https://docs.newrelic.com/docs/apm/new-relic-apm/maintenance/renaming-applications
@@ -30,7 +30,7 @@ common: &default_settings
 # If your application has other named environments, configure them here.
 development:
   <<: *default_settings
-  app_name: check-api (Development)
+  app_name: check-api qa
 
   # NOTE: There is substantial overhead when running in developer mode.
   # Do not use for production or load testing.

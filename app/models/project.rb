@@ -1,11 +1,11 @@
 class Project < ActiveRecord::Base
 
-  has_paper_trail on: [:create, :update]
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
   belongs_to :team
   has_many :project_sources
   has_many :sources , through: :project_sources
-  has_many :project_medias
+  has_many :project_medias, dependent: :destroy
   has_many :medias , through: :project_medias
 
   mount_uploader :lead_image, ImageUploader
@@ -28,7 +28,7 @@ class Project < ActiveRecord::Base
                   targets: proc { |p| [p.team] },
                   data: proc { |p| p.to_json }
 
-  include CheckdeskSettings
+  include CheckSettings
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)

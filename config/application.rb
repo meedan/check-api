@@ -6,7 +6,7 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module Checkdesk
+module Check
   class Application < Rails::Application
     config.generators do |g|
       g.javascripts false
@@ -25,7 +25,7 @@ module Checkdesk
     config.autoload_paths += %W(#{config.root}/lib)
 
     config.action_mailer.delivery_method = :smtp
-    
+
     cfg = YAML.load_file("#{Rails.root}/config/config.yml")[Rails.env]
 
     config.i18n.fallbacks = ['en']
@@ -52,7 +52,7 @@ module Checkdesk
       allow do
         origins cfg['checkdesk_client']
         resource '*',
-          headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Checkdesk-Context-Team', 'X-Requested-With', 'Origin'],
+          headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Requested-With', 'Origin'],
           methods: [:get, :post, :delete, :options]
       end
     end

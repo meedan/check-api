@@ -1,11 +1,12 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks
+  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id
 
   belongs_to :project
   belongs_to :media
   belongs_to :user
   has_annotations
-  has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at]
+  
+  include Versioned
 
   validates_presence_of :media_id, :project_id
 
@@ -14,6 +15,7 @@ class ProjectMedia < ActiveRecord::Base
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks
   after_update :update_elasticsearch_data
+  before_destroy :destroy_elasticsearch_media
 
   notifies_slack on: :create,
                  if: proc { |pm| t = pm.project.team; User.current.present? && t.present? && t.setting(:slack_notifications_enabled).to_i === 1 },
@@ -27,10 +29,6 @@ class ProjectMedia < ActiveRecord::Base
                   data: proc { |pm| pm.media.to_json }
 
   include CheckElasticSearch
-
-  def media_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
-  end
 
   def project_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
@@ -83,30 +81,37 @@ class ProjectMedia < ActiveRecord::Base
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
   end
 
+  def destroy_elasticsearch_media
+    destroy_elasticsearch_data(MediaSearch, 'parent')
+  end
+
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
   end
 
-  def get_annotations_except(type = nil)
-    self.annotations.where.not(annotation_type: type)
+  def get_versions_log
+    events = %w(create_comment update_status create_tag create_task create_dynamicannotationfield update_dynamicannotationfield create_flag update_embed update_projectmedia update_task create_embed)
+
+    joins = "LEFT JOIN annotations "\
+            "ON versions.item_type IN ('Status','Comment','Embed','Tag','Flag','Dynamic','Task','Annotation') "\
+            "AND CAST(annotations.id AS TEXT) = versions.item_id "\
+            "AND annotations.annotated_type = 'ProjectMedia' "\
+            "LEFT JOIN dynamic_annotation_fields d "\
+            "ON CAST(d.id AS TEXT) = versions.item_id "\
+            "AND versions.item_type = 'DynamicAnnotation::Field' "\
+            "LEFT JOIN annotations a2 "\
+            "ON a2.id = d.annotation_id "\
+            "AND a2.annotated_type = 'ProjectMedia'"
+
+    where = "(annotations.id IS NOT NULL AND annotations.annotated_id = ?) "\
+            "OR (d.id IS NOT NULL AND a2.annotated_id = ?)"\
+            "OR (annotations.id IS NULL AND d.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
+
+    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.id ASC')
   end
 
-  def get_annotations_log
-    type = %W(embed status)
-    an = self.get_annotations_except(type).to_a
-    # get logs for singleton annotations
-    t = %w(status embed)
-    s_an = self.get_annotations(t)
-    s_an.each do |a|
-      a = a.load
-      a_versions = a.get_versions
-      # skip first status
-      a_versions.pop(1) if a.annotation_type == 'status'
-      # skip first embed for non Link media
-      a_versions.pop(1) if a.annotation_type == 'embed' and a.annotated.media.type != 'Link'
-      an.concat a_versions
-    end
-    an.sort_by{|k, _v| k[:updated_at]}.reverse
+  def get_versions_log_count
+    self.get_versions_log.where.not(event_type: 'create_dynamicannotationfield').count
   end
 
   def get_media_annotations(type = nil)
@@ -127,25 +132,9 @@ class ProjectMedia < ActiveRecord::Base
     embed
   end
 
-  def tags
-    self.get_annotations('tag')
-  end
-
-  def tasks
-    self.get_annotations('task')
-  end
-
   def last_status
     last = self.get_annotations('status').first
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
-  end
-
-  def last_status_obj
-    self.get_annotations('status').last
-  end
-
-  def published
-    self.created_at.to_i.to_s
   end
 
   def overridden
@@ -185,6 +174,10 @@ class ProjectMedia < ActiveRecord::Base
       pm = ProjectMedia.where(project_id: pid, media_id: pmid).last
       return pm.id if pm
     end
+  end
+
+  def project_was
+    Project.find(self.previous_project_id) unless self.previous_project_id.blank?
   end
 
   protected

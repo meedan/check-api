@@ -47,13 +47,13 @@ class TeamUser < ActiveRecord::Base
   private
 
   def send_email_to_team_owners
-    TeamUserMailer.request_to_join(self.team, self.user, CONFIG['checkdesk_client']).deliver_now
+    TeamUserMailer.delay.request_to_join(self.team, self.user, CONFIG['checkdesk_client']) if self.status == 'requested'
   end
 
   def send_email_to_requestor
     if self.status_was === 'requested' && ['member', 'banned'].include?(self.status)
       accepted = self.status === 'member'
-      TeamUserMailer.request_to_join_processed(self.team, self.user, accepted, CONFIG['checkdesk_client']).deliver_now
+      TeamUserMailer.delay.request_to_join_processed(self.team, self.user, accepted, CONFIG['checkdesk_client'])
     end
   end
 
@@ -65,12 +65,18 @@ class TeamUser < ActiveRecord::Base
   # The `slack_teams` should be a hash of the form:
   # { 'Slack team 1 id' => 'Slack team 1 name', 'Slack team 2 id' => 'Slack team 2 name', ... }
   def user_is_member_in_slack_team
-    if self.user.provider == 'slack' &&
-        self.team.setting(:slack_teams)&.is_a?(Hash) &&
-        (!self.team.setting(:slack_teams)&.keys&.include? self.user.omniauth_info&.dig('info', 'team_id'))
-
-        errors.add(:base, "Sorry, you cannot join #{self.team.name} because it is restricted to members of the Slack #{"team".pluralize(self.team.setting(:slack_teams).values.length)} #{self.team.setting(:slack_teams).values.join(', ')}.")
-
+    if self.user.provider == 'slack' && self.team.setting(:slack_teams)&.is_a?(Hash)
+      if self.team.setting(:slack_teams)&.keys&.include? self.user.omniauth_info&.dig('info', 'team_id')
+        # Auto-approve slack user
+        self.status = 'member'
+      else
+        params = {
+          default: "Sorry, you cannot join %{team_name} because it is restricted to members of the Slack team(s) %{teams}.",
+          team_name: self.team.name,
+          teams: self.team.setting(:slack_teams).values.join(', ')
+        }
+        errors.add(:base, I18n.t(:slack_restricted_join_to_members, params))
+      end
     end
   end
 end

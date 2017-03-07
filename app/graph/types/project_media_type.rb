@@ -77,9 +77,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :annotations, -> { AnnotationType.connection_type } do
+  connection :log, -> { VersionType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
-      project_media.get_annotations_log
+      project_media.get_versions_log
     }
   end
 
@@ -87,7 +87,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.Int
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.get_annotations_log.size
+      project_media.get_versions_log_count
     }
   end
 
@@ -123,7 +123,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type -> { StatusType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.last_status_obj
+      project_media.get_annotations('status').last
     }
   end
 

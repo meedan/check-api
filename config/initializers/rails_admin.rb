@@ -31,6 +31,7 @@ RailsAdmin.config do |config|
     bulk_delete
     show
     edit
+    delete
 
     ## With an audit adapter, you can add:
     # history_index
@@ -208,7 +209,10 @@ RailsAdmin.config do |config|
     edit do
       field :title
       field :description
-      field :team
+      field :team do
+        read_only true
+        help ''
+      end
       field :archived
       field :lead_image
       field :user
@@ -223,6 +227,9 @@ RailsAdmin.config do |config|
     end
 
     create do
+      configure :team do
+        read_only false
+      end
       field :slack_notifications_enabled do
         hide
       end

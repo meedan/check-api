@@ -1,11 +1,13 @@
 class Comment < ActiveRecord::Base
   include AnnotationBase
+  include HasImage
 
   field :text
-  validates_presence_of :text
+  validates_presence_of :text, if: proc { |comment| comment.file.blank? }
 
   before_save :extract_check_entities
   after_save :add_update_elasticsearch_comment
+  before_destroy :destroy_elasticsearch_comment
 
   annotation_notifies_slack :save
 
@@ -31,6 +33,10 @@ class Comment < ActiveRecord::Base
       comment: self.text.gsub("\n", "\n>")
     }
     I18n.t(:slack_save_comment, params)
+  end
+
+  def file_mandatory?
+    false
   end
 
   protected
@@ -67,6 +73,10 @@ class Comment < ActiveRecord::Base
 
   def add_update_elasticsearch_comment
     add_update_media_search_child('comment_search', %w(text))
+  end
+
+  def destroy_elasticsearch_comment
+    destroy_elasticsearch_data(CommentSearch)
   end
 
 end
