@@ -10,8 +10,8 @@ class CreateAccountsForSlackUsers < ActiveRecord::Migration
         account.user = u
         account.source = u.source
         account.url = url
-        account.skip_pender = true
         account.save!
+        account.update_columns(url: url)
         n += 1
       rescue
         m += 1
