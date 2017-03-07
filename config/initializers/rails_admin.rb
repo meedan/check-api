@@ -210,8 +210,6 @@ RailsAdmin.config do |config|
       field :title
       field :description
       field :team do
-        read_only true
-        help ''
       end
       field :archived
       field :lead_image
@@ -227,9 +225,6 @@ RailsAdmin.config do |config|
     end
 
     create do
-      configure :team do
-        read_only false
-      end
       field :slack_notifications_enabled do
         hide
       end
