@@ -388,18 +388,19 @@ class ProjectTest < ActiveSupport::TestCase
     t2 = create_team
     p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
-    sleep 1
-    results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-    assert_equal [pm.id.to_s, pm2.id.to_s].sort, results.map(&:id).sort
-    p.team_id = t2.id; p.save!
-    ElasticSearchWorker.drain
-    sleep 1
-    results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-    assert_equal [], results.map(&:id)
-    results = MediaSearch.search(query: { match: { team_id: t2.id } }).results
-    assert_equal [pm.id.to_s, pm2.id.to_s].sort, results.map(&:id).sort
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
+      sleep 1
+      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
+      assert_equal [pm.id, pm2.id].map(&:to_s).sort, results.map(&:id).sort
+      p.team_id = t2.id; p.save!
+      sleep 1
+      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
+      assert_equal [], results.map(&:id)
+      results = MediaSearch.search(query: { match: { team_id: t2.id } }).results
+      assert_equal [pm.id, pm2.id].map(&:to_s).sort, results.map(&:id).sort
+    end
   end
 
 end
