@@ -159,6 +159,8 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   end
 
   test "should get URL for Slack" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://meedan.slack.com/team/melsawy' } }).to_return(body: '{"type":"media","data":{"url":"https://meedan.slack.com/?redir=/team/melsawy","type":"profile"}}')
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
     get :slack
     assert_equal 'https://meedan.slack.com/team/melsawy', Account.last.url

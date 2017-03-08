@@ -6,6 +6,7 @@ namespace :check do
     Team.all.each do |t|
       t.reset_slack_notifications_enabled
       t.reset_slack_webhook
+      t.private = false
       t.save
     end
     # config/cleandb_exceptions.yml is an array of emails that should not be cleaned up.
