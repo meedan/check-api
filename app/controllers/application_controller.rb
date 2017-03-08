@@ -6,7 +6,9 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   skip_before_filter :verify_authenticity_token
 
-  rescue_from CanCan::AccessDenied do |_exception|
+  rescue_from CanCan::AccessDenied do |exception|
+    team = Team.current ? Team.current.id : 'empty'
+    logger.warn message: "Access denied on #{exception.action} #{exception.subject} - User ID '#{current_api_user.id}' - Is admin? '#{current_api_user.is_admin?}' - Team: '#{team}'"
     redirect_to '/403.html'
   end
 
