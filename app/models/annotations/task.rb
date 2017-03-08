@@ -82,12 +82,11 @@ class Task < ActiveRecord::Base
   end
 
   def jsonoptions=(json)
-    @json = json
     self.options = JSON.parse(json)
   end
 
   def jsonoptions
-    @json
+    self.options.to_json
   end
 
   def responses
