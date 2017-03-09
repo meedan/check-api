@@ -26,6 +26,7 @@ class ProjectMedia < ActiveRecord::Base
   notifies_pusher on: :create,
                   event: 'media_updated',
                   targets: proc { |pm| [pm.project] },
+                  if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.to_json }
 
   include CheckElasticSearch
@@ -263,6 +264,8 @@ class ProjectMedia < ActiveRecord::Base
     picture = self.media.picture
     unless picture.blank?
       d = Dynamic.new
+      d.skip_check_ability = true
+      d.skip_notifications = true
       d.annotation_type = 'reverse_image'
       d.annotator = Bot.where(name: 'Check Bot').last
       d.annotated = self

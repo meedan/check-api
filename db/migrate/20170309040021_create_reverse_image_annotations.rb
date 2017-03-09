@@ -2,6 +2,7 @@ class CreateReverseImageAnnotations < ActiveRecord::Migration
   def change
     ProjectMedia.find_each do |pm|
       User.current = pm.user
+      pm.skip_notifications = true
       pm.send(:create_reverse_image_annotation)
       User.current = nil
     end

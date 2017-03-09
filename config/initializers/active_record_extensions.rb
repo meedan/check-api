@@ -6,7 +6,7 @@ module ActiveRecordExtensions
     include CheckNotifications::Slack
     include CheckNotifications::Pusher
 
-    attr_accessor :no_cache, :skip_check_ability
+    attr_accessor :no_cache, :skip_check_ability, :skip_notifications
 
     before_save :check_ability
     before_destroy :check_destroy_ability, :destroy_annotations_and_versions

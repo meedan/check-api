@@ -55,7 +55,9 @@ module CheckNotifications
 
         return if event.blank? || targets.blank? || data.blank?
 
-        channels = targets.map(&:pusher_channel)
+        channels = targets.reject{ |t| t.blank? }.map(&:pusher_channel)
+
+        return if channels.blank?
 
         Rails.env === 'test' ? self.request_pusher(channels, event, data) : CheckNotifications::Pusher::Worker.perform_in(1.second, channels, event, data)
       end
