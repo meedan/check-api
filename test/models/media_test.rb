@@ -271,17 +271,15 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal author_normal_url, m.reload.account.url
   end
 
-  test "should not create media that is not an item" do
+  test "should create media that is not an item" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
     data = { url: url, author_url: url, type: 'profile' }
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
 
-    assert_no_difference 'Media.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_media(url: url)
-      end
+    assert_difference 'Media.count' do
+      create_media(url: url)
     end
   end
 

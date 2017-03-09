@@ -3,7 +3,6 @@ class Link < Media
   
   validates :url, presence: true, on: :create
   validate :validate_pender_result, on: :create
-  validate :pender_result_is_an_item, on: :create
   validate :url_is_unique, on: :create
   
   after_create :set_pender_result_as_annotation, :set_account
@@ -42,12 +41,6 @@ class Link < Media
         self.account = Account.where(url: account.url).last
       end
       self.save!
-    end
-  end
-
-  def pender_result_is_an_item
-    unless self.pender_data.nil?
-      errors.add(:base, I18n.t(:invalid_media_item, default: 'Sorry, this is not a valid media item')) unless self.pender_data['type'] == 'item'
     end
   end
 
