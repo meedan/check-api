@@ -720,6 +720,10 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create project media with image" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
     u = create_user
     t = create_team
     create_team_user team: t, user: u

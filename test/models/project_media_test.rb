@@ -339,6 +339,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should create embed for uploaded image" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
     pm = ProjectMedia.new
     pm.project_id = create_project.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
