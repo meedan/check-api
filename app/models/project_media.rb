@@ -110,7 +110,7 @@ class ProjectMedia < ActiveRecord::Base
             "OR (d.id IS NOT NULL AND a2.annotated_id = ?)"\
             "OR (annotations.id IS NULL AND d.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
 
-    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.id ASC')
+    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.created_at ASC')
   end
 
   def get_versions_log_count
