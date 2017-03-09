@@ -13,6 +13,23 @@ class Link < Media
     host.nil? ? nil : host.gsub(/^(www|m)\./, '')
   end
 
+  def picture
+    path = ''
+    begin
+      pender_data = JSON.parse(self.annotations.where(annotation_type: 'embed').last.data['embed'])
+      path = case self.domain
+             when 'twitter.com'
+               pender_data['entities']['media'][0]['media_url_https'] || pender_data['entities']['media'][0]['media_url']
+             when 'facebook.com'
+               pender_data['photos'][0]
+             else
+               pender_data['picture']
+             end
+    rescue
+    end
+    path.to_s
+  end
+
   private
 
   def set_account

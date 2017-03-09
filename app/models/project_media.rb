@@ -13,7 +13,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation
   after_update :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
 
@@ -256,6 +256,18 @@ class ProjectMedia < ActiveRecord::Base
           t.save!
         end
       end
+    end
+  end
+
+  def create_reverse_image_annotation
+    picture = self.media.picture
+    unless picture.blank?
+      d = Dynamic.new
+      d.annotation_type = 'reverse_image'
+      d.annotator = Bot.where(name: 'Check Bot').last
+      d.annotated = self
+      d.set_fields = { reverse_image_path: picture }.to_json
+      d.save!
     end
   end
 

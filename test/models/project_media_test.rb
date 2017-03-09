@@ -527,4 +527,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal p1, pm.project_was
     assert_equal p2, pm.project
   end
+
+  test "should create annotation when project media with picture is created" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
+    i = create_uploaded_image
+    assert_difference "Dynamic.where(annotation_type: 'reverse_image').count" do
+      create_project_media media: i
+    end
+  end
 end
