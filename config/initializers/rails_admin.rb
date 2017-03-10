@@ -1,3 +1,6 @@
+require Rails.root.join('lib', 'rails_admin', 'send_reset_password_email.rb')
+RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
+
 RailsAdmin.config do |config|
 
   ### Popular gems integration
@@ -32,6 +35,7 @@ RailsAdmin.config do |config|
     show
     edit
     delete
+    send_reset_password_email
 
     ## With an audit adapter, you can add:
     # history_index
@@ -395,12 +399,6 @@ RailsAdmin.config do |config|
         formatted_value do
           bindings[:object].settings.except(:password, :password_confirmation) unless bindings[:object].settings.nil?
         end
-      end
-    end
-
-    create do
-      configure :set_new_password do
-        hide
       end
     end
 
