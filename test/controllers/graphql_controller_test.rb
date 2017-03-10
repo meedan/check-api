@@ -865,7 +865,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { content } } } } } }"
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response { content } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     fields = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['first_response']['content']
