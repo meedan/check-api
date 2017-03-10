@@ -70,6 +70,7 @@ class Dynamic < ActiveRecord::Base
       data = JSON.parse(self.set_fields)
       data.each do |field_name, value|
         f = DynamicAnnotation::Field.new
+        f.skip_check_ability = true
         f.field_name = field_name
         f.value = value
         f.annotation_id = self.id

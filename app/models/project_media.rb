@@ -13,7 +13,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation
   after_update :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
 
@@ -26,6 +26,7 @@ class ProjectMedia < ActiveRecord::Base
   notifies_pusher on: :create,
                   event: 'media_updated',
                   targets: proc { |pm| [pm.project] },
+                  if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.to_json }
 
   include CheckElasticSearch
@@ -109,7 +110,7 @@ class ProjectMedia < ActiveRecord::Base
             "OR (d.id IS NOT NULL AND a2.annotated_id = ?)"\
             "OR (annotations.id IS NULL AND d.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
 
-    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.id ASC')
+    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.created_at ASC')
   end
 
   def get_versions_log_count
@@ -256,6 +257,20 @@ class ProjectMedia < ActiveRecord::Base
           t.save!
         end
       end
+    end
+  end
+
+  def create_reverse_image_annotation
+    picture = self.media.picture
+    unless picture.blank?
+      d = Dynamic.new
+      d.skip_check_ability = true
+      d.skip_notifications = true
+      d.annotation_type = 'reverse_image'
+      d.annotator = Bot.where(name: 'Check Bot').last
+      d.annotated = self
+      d.set_fields = { reverse_image_path: picture }.to_json
+      d.save!
     end
   end
 

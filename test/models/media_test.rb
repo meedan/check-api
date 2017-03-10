@@ -271,17 +271,15 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal author_normal_url, m.reload.account.url
   end
 
-  test "should not create media that is not an item" do
+  test "should create media that is not an item" do
     pender_url = CONFIG['pender_host'] + '/api/medias'
     url = 'http://test.com'
     data = { url: url, author_url: url, type: 'profile' }
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
 
-    assert_no_difference 'Media.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_media(url: url)
-      end
+    assert_difference 'Media.count' do
+      create_media(url: url)
     end
   end
 
@@ -483,4 +481,49 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
   end
 
+  test "should get empty picture for claims" do
+    c = create_claim_media
+    assert_equal '', c.picture
+  end
+
+  test "should get picture for uploaded images" do
+    i = create_uploaded_image
+    assert_match /^http/, i.picture
+  end
+
+  test "should get picture for Twitter links" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'entities' => { 'media' => [{ 'media_url_https' => 'http://twitter.com/picture/123.png' }] } } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url 
+    assert_match /^http/, l.picture
+  end
+
+  test "should get picture for Facebook links" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'https://facebook.com/posts/123456'
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'photos' => ['http://facebook.com/images/123.png'] } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url 
+    assert_match /^http/, l.picture
+  end
+
+  test "should get picture for other links that are not Facebook or Twitter (for example, Instagram and YouTube)" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'https://youtube.com/watch?v=123456'
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'picture' => 'http://youtube.com/images/123.png' } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url 
+    assert_match /^http/, l.picture
+  end
+
+  test "should get empty picture for links without picture" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'entities' => {} } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url 
+    assert_equal '', l.picture
+  end
 end

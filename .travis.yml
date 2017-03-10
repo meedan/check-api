@@ -16,6 +16,7 @@ before_script:
 - sleep 15
 - 'echo "script.engine.groovy.inline.update: on" | sudo tee -a /etc/elasticsearch/elasticsearch.yml'
 - sudo service elasticsearch restart
+- sleep 15
 - cp config/config.yml.example config/config.yml
 - cp config/initializers/secret_token.rb.example config/initializers/secret_token.rb
 - cp config/database.yml.travis config/database.yml

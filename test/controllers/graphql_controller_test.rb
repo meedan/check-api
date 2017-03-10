@@ -720,6 +720,10 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create project media with image" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
     u = create_user
     t = create_team
     create_team_user team: t, user: u
@@ -861,7 +865,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { content } } } } } }"
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response { content } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     fields = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['first_response']['content']
