@@ -1,3 +1,3 @@
-class UploadedImage < UploadedFile
+class UploadedImage < Media
   include HasImage
 end
