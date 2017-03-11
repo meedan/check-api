@@ -49,10 +49,13 @@ class ProjectMedia < ActiveRecord::Base
   def slack_notification_message
     m = self.media
     data = self.embed
-    type, text = m.quote.blank? ?
-      [ 'link', data['title'] ] :
-      [ 'claim', m.quote ]
-    I18n.t(:slack_create_project_media, default: "*%{user}* added a new %{type}: <%{url}>", user: User.current.name, type: I18n.t(type.to_sym), url: "#{CONFIG['checkdesk_client']}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*")
+    type = m.class.name.demodulize.downcase
+    text = m.quote.blank? ? data['title'] : m.quote
+    I18n.t(:slack_create_project_media,
+      user: User.current.name,
+      type: I18n.t(type.to_sym),
+      url: self.class.to_url("#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}", "*#{text}*")
+    )
   end
 
   def add_elasticsearch_data

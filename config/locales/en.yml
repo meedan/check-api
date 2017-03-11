@@ -41,20 +41,16 @@ en:
   rejected: not approved
   mail_request_to_join_processed: Your request to join %{team} on Check was %{status}
   mail_new_account: New account for you on Check
-  slack_update_status: "*%{user}* changed the verification status on <%{url}> from
-    *%{previous_status}* to *%{current_status}*"
-  slack_save_embed: "*%{user}* changed the title from *%{from}* to <%{to}>"
-  slack_save_comment: "*%{user}* added a note on <%{url}>\\n> %{comment}"
-  slack_create_project: "*%{user}* created a project: <%{url}>"
-  slack_create_team_user: "*%{user}* joined <%{url}>"
-  slack_create_project_media: "*%{user}* added a new %{type}: <%{url}>"
-  slack_create_task: "*%{user}* created task <%{url}> in %{project} with note '%{note}'"
-  slack_answer_task: "*%{user}* answered the task <%{url}> in %{project}:\\n> %{response}\\n*Note:*\\n>
-    %{note}"
-  slack_update_task_label: "*%{user}* edited task <%{url}> in %{project}:\\n*From:*
-    %{from}\\n*To:* %{to}"
-  slack_update_task_description: "*%{user}* edited task note at <%{url}> in %{project}:\\n*From:*
-    %{from}\\n*To:* %{to}"
+  slack_update_status: "*%{user}* changed the verification status on %{url} from _%{previous_status}_ to *%{current_status}*"
+  slack_save_embed: "*%{user}* changed the report title from _%{from}_ to %{to}"
+  slack_save_comment: "*%{user}* added a note on %{url}: %{comment}"
+  slack_create_project: "*%{user}* created a project: %{url}"
+  slack_create_team_user: "*%{user}* joined %{url}"
+  slack_create_project_media: "*%{user}* added a new %{type}: %{url}"
+  slack_create_task: "*%{user}* created task %{url} in %{project} with note: %{note}"
+  slack_answer_task: "*%{user}* answered the task %{url} in %{project}: %{response}\n*Note:* %{note}"
+  slack_update_task_label: "*%{user}* edited task %{url} in %{project} from: %{from}\n*To:* %{to}"
+  slack_update_task_description: "*%{user}* edited task note in %{url} in %{project} from: %{from}\n*To:* %{to}"
   mail_view_welcome: Welcome to Check
   mail_view_register: 'You are only one step away from using Check! Please confirm
     your email address by clicking the following link:'

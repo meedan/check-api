@@ -37,8 +37,7 @@ class Task < ActiveRecord::Base
 
   def slack_message_on_create
     params = self.slack_default_params.merge({
-      default: "*%{user}* created task <%{url}> in %{project} with note '%{note}'",
-      note: self.description
+      note: self.class.to_quote(self.description)
     })
     I18n.t(:slack_create_task, params)
   end
@@ -46,7 +45,7 @@ class Task < ActiveRecord::Base
   def slack_default_params
     {
       user: User.current.name,
-      url: "#{self.annotated_client_url}|#{self.label.tr("\n", ' ')}",
+      url: self.class.to_url("#{self.annotated_client_url}", "#{self.label}"),
       project: self.annotated.project.title
     }
   end
@@ -57,15 +56,11 @@ class Task < ActiveRecord::Base
       data_was = self.data_was
       messages = []
 
-      {
-        'label' => '*%{user}* edited task <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}',
-        'description' => '*%{user}* edited task note in <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}'
-      }.each do |key, message|
+      ['label', 'description'].each do |key|
         if data_was[key] != data[key]
           params = self.slack_default_params.merge({
-            default: message,
-            from: data_was[key],
-            to: data[key]
+            from: self.class.to_quote(data_was[key]),
+            to: self.class.to_quote(data[key])
           })
           messages << I18n.t("slack_update_task_#{key}".to_sym, params)
         end

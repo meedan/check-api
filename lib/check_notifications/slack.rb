@@ -32,6 +32,17 @@ module CheckNotifications
 
         send :include, InstanceMethods
       end
+
+      def to_url(url, text)
+        url.insert(0, "#{CONFIG['checkdesk_client']}/") unless url.start_with? "#{CONFIG['checkdesk_client']}/"
+        text = text.gsub("\n", ' ')
+        "<#{url}|#{text}>"
+      end
+
+      def to_quote(text)
+        text.insert(0, "\n") unless text.start_with? "\n"
+        text.gsub("\n", "\n>")
+      end
     end
 
     module InstanceMethods

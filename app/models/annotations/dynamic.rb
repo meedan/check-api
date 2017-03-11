@@ -29,16 +29,13 @@ class Dynamic < ActiveRecord::Base
         task = Task.find(f.value).label if f.field_name =~ /^task_/
       end
 
-      params = {
-        default: '*%{user}* answered the task <%{url}> in %{project}:\n> %{response}\n> Note:\n> %{note}',
+      I18n.t(:slack_answer_task,
         user: User.current.name,
-        url: "#{self.annotated_client_url}|#{task}",
+        url: self.class.to_url("#{self.annotated_client_url}", "#{task}"),
         project: self.annotated.project.title,
-        response: response,
-        note: note
-      }
-
-      I18n.t(:slack_answer_task, params)
+        response: self.class.to_quote(response),
+        note: self.class.to_quote(note)
+      )
     end
   end
 

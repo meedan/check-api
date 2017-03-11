@@ -26,13 +26,11 @@ class Comment < ActiveRecord::Base
 
   def slack_message
     data = self.annotated.embed
-    params = {
-      default: '*%{user}* added a note on <%{url}>\n> %{comment}',
+    I18n.t(:slack_save_comment,
       user: User.current.name,
-      url: "#{self.annotated_client_url}|#{data['title']}",
-      comment: self.text.gsub("\n", "\n>")
-    }
-    I18n.t(:slack_save_comment, params)
+      url: self.class.to_url("#{self.annotated_client_url}", "#{data['title']}"),
+      comment: self.class.to_quote(self.text)
+    )
   end
 
   def file_mandatory?
