@@ -19,7 +19,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should access GraphQL if authenticated" do
     authenticate_with_user
-    post :create, query: 'query Query { about { name, version, max_upload_size } }', variables: '{"foo":"bar"}'
+    post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}'
     assert_response :success
     data = JSON.parse(@response.body)['data']['about']
     assert_kind_of String, data['name']

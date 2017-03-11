@@ -22,8 +22,8 @@ module HasFile
   end
 
   included do
-    mount_uploader :file, FileUploader
-
+    # Cannot mount_uploader here, because HasImage does too and they conflict.
+    # Mount the FileUploader on the client site instead when you need it.
     validates :file, presence: true, if: proc { |object| object.file_mandatory? }
     validates :file, safe: true, allow_blank: true
     validates :file, file_size: { less_than: UploadedFile.max_size, message: "size should be less than #{UploadedFile.max_size_readable}" }, allow_blank: true

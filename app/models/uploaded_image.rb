@@ -1,4 +1,4 @@
-class UploadedImage < UploadedFile
+class UploadedImage < Media
   include HasImage
 
   def picture

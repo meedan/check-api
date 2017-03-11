@@ -2,6 +2,9 @@
 en:
   link: Link
   claim: Claim
+  errors:
+    messages:
+      extension_white_list_error: "cannot have type %{extension}, allowed types: %{allowed_types}"
   activerecord:
     attributes:
       tag:
