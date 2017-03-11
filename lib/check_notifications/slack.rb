@@ -40,6 +40,7 @@ module CheckNotifications
       end
 
       def to_quote(text)
+        text = I18n.t(:blank) if text.blank?
         text.insert(0, "\n") unless text.start_with? "\n"
         text.gsub("\n", "\n>")
       end

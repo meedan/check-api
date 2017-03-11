@@ -4,6 +4,7 @@ en:
   claim: Claim
   uploadedimage: Image
   uploadefile: File
+  blank: (blank)
   errors:
     messages:
       extension_white_list_error: "cannot have type %{extension}, allowed types: %{allowed_types}"
