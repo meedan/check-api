@@ -52,9 +52,10 @@ class ProjectMedia < ActiveRecord::Base
     type = m.class.name.demodulize.downcase
     text = m.quote.blank? ? data['title'] : m.quote
     I18n.t(:slack_create_project_media,
-      user: User.current.name,
+      user: self.class.to_slack(User.current.name),
       type: I18n.t(type.to_sym),
-      url: self.class.to_url("#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}", "*#{text}*")
+      url: self.class.to_slack_url("#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}", "*#{text}*"),
+      project: self.class.to_slack(self.project.title)
     )
   end
 

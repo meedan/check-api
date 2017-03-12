@@ -28,8 +28,10 @@ class Embed < ActiveRecord::Base
   def slack_notification_message
     data = self.overridden_data
     I18n.t(:slack_save_embed,
-      user: User.current.name, from: data[0]['title'],
-      to: self.class.to_url("#{self.annotated_client_url}", "*#{data[1]['title']}*")
+      user: self.class.to_slack(User.current.name),
+      from: self.class.to_slack(data[0]['title']),
+      to: self.class.to_slack_url("#{self.annotated_client_url}", "*#{data[1]['title']}*"),
+      project: self.class.to_slack(self.annotated.project.title)
     )
   end
 

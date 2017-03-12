@@ -33,14 +33,24 @@ module CheckNotifications
         send :include, InstanceMethods
       end
 
-      def to_url(url, text)
+      def to_slack(text)
+        # https://api.slack.com/docs/message-formatting#how_to_escape_characters
+        { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
+          text = text.gsub(k,v)
+        }
+        text
+      end
+
+      def to_slack_url(url, text)
         url.insert(0, "#{CONFIG['checkdesk_client']}/") unless url.start_with? "#{CONFIG['checkdesk_client']}/"
+        text = self.to_slack(text)
         text = text.gsub("\n", ' ')
         "<#{url}|#{text}>"
       end
 
-      def to_quote(text)
+      def to_slack_quote(text)
         text = I18n.t(:blank) if text.blank?
+        text = self.to_slack(text)
         text.insert(0, "\n") unless text.start_with? "\n"
         text.gsub("\n", "\n>")
       end

@@ -30,11 +30,11 @@ class Dynamic < ActiveRecord::Base
       end
 
       I18n.t(:slack_answer_task,
-        user: User.current.name,
-        url: self.class.to_url("#{self.annotated_client_url}", "#{task}"),
-        project: self.annotated.project.title,
-        response: self.class.to_quote(response),
-        note: self.class.to_quote(note)
+        user: self.class.to_slack(User.current.name),
+        url: self.class.to_slack_url("#{self.annotated_client_url}", "#{task}"),
+        project: self.class.to_slack(self.annotated.project.title),
+        response: self.class.to_slack_quote(response),
+        note: self.class.to_slack_quote(note)
       )
     end
   end

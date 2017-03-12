@@ -97,8 +97,8 @@ class Project < ActiveRecord::Base
 
   def slack_notification_message
     I18n.t(:slack_create_project,
-      user: User.current.name,
-      url: self.class.to_url("#{self.team.slug}/project/#{self.id}", "*#{self.title}*")
+      user: self.class.to_slack(User.current.name),
+      url: self.class.to_slack_url("#{self.team.slug}/project/#{self.id}", "*#{self.title}*")
     )
   end
 
