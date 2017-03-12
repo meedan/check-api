@@ -150,22 +150,19 @@ class ActiveSupport::TestCase
 
   def assert_graphql_read(type, field = 'id')
     klass = (type == 'version') ? PaperTrail::Version : type.camelize.constantize
+    u = create_user
     klass.delete_all
     x1 = send("create_#{type}", { team: @team })
     x2 = send("create_#{type}", { team: @team })
-    user = type == 'user' ? x1 : create_user
+    user = type == 'user' ? x1 : u
     authenticate_with_user(user)
     query = "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
     post :create, query: query
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
     assert_equal klass.count, edges.size
-    assert x1.send(field).to_s === edges[0]['node'][field].to_s ||
-           x1.send(field).to_s === edges[1]['node'][field].to_s,
-           "x1.#{field} should be retrieved"
-    assert x2.send(field).to_s === edges[0]['node'][field].to_s ||
-           x2.send(field).to_s === edges[1]['node'][field].to_s,
-           "x2.#{field} should be retrieved"
+    assert_equal x1.send(field).to_s, edges[0]['node'][field].to_s
+    assert_equal x2.send(field).to_s, edges[1]['node'][field].to_s
     assert_response :success
     document_graphql_query('read', type, query, @response.body)
   end
