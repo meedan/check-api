@@ -23,7 +23,7 @@ namespace :db do
           name = file.gsub(/.*[0-9]_([^\.]+)\.csv/, '\1')
           model = name.singularize.camelize.constantize
           header = []
-          model.delete_all
+          # model.delete_all
           #ActiveRecord::Base.connection.execute("ALTER TABLE #{name} AUTO_INCREMENT = 1")
           CSV.foreach(file, quote_char: '`') do |row|
             if header.blank?
@@ -52,24 +52,15 @@ namespace :db do
                   raise "#{data} does not respond to #{method}!"
                 end
               end
+
               if data.valid?
-                data.save
+                User.current = data.user if data.respond_to?(:user)
+                User.current = data.annotator if data.is_annotation?
+                data.skip_check_ability = true
+                data.save!
+                data.confirm if data.class.name == 'User'
                 unless old_id.nil? || old_id == 0
                   mapping_ids[old_id] = data.id
-                end
-                if defined?(data._type) && data._type.to_s == 'annotation'
-                  # target is one of media, project or source
-                  target = Media.where(id: target_id).last
-                  target = Project.where(id: target_id).last if target.nil?
-                  if target.nil?
-                    # given id related to account not source
-                    # so get the source from account model
-                    a = Account.where(id: target_id).last
-                    target = a.source unless a.nil?
-                  end
-                  unless target.nil?
-                    target.add_annotation(data)
-                  end
                 end
               else
                 puts "Failed to save #{model} [#{data.errors.messages}]"

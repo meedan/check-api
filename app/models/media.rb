@@ -22,14 +22,6 @@ class Media < ActiveRecord::Base
     'Media'
   end
 
-  def user_id_callback(value, _mapping_ids = nil)
-    user_callback(value)
-  end
-
-  def account_id_callback(value, mapping_ids)
-    mapping_ids[value]
-  end
-
   def get_team
     self.projects.map(&:team_id)
   end

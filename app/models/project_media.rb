@@ -30,6 +30,10 @@ class ProjectMedia < ActiveRecord::Base
 
   include CheckElasticSearch
 
+  def user_id_callback(value, _mapping_ids = nil)
+    user_callback(value)
+  end
+
   def project_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
   end

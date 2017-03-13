@@ -18,15 +18,6 @@ class Flag < ActiveRecord::Base
     { flag: self.flag }.to_json
   end
 
-  def annotator_callback(value, _mapping_ids = nil)
-    user = User.where(email: value).last
-    user.nil? ? nil : user
-  end
-
-  def target_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
-  end
-
   def flag_callback(value, _mapping_ids = nil)
     flags = Hash[
       'spam' => 'Spam',

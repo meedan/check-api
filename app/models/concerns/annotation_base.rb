@@ -236,6 +236,15 @@ module AnnotationBase
     end
   end
 
+  def annotator_id_callback(value, _mapping_ids = nil)
+    user_callback(value)
+  end
+
+  def annotated_id_callback(value, _mapping_ids = nil)
+    ProjectMedia.first.id
+    # mapping_ids[value]
+  end
+
   protected
 
   def load_polymorphic(name)
