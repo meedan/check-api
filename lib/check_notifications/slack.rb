@@ -44,7 +44,7 @@ module CheckNotifications
       def to_slack_url(url, text)
         url.insert(0, "#{CONFIG['checkdesk_client']}/") unless url.start_with? "#{CONFIG['checkdesk_client']}/"
         text = self.to_slack(text)
-        text = text.gsub("\n", ' ')
+        text = text.tr("\n", ' ')
         "<#{url}|#{text}>"
       end
 
