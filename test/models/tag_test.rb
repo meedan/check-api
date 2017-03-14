@@ -117,18 +117,6 @@ class TagTest < ActiveSupport::TestCase
     assert_equal [u3].sort, s2.annotators.sort
   end
 
-  test "should get annotator" do
-    t = create_tag
-    assert_nil t.send(:annotator_callback, 'test@test.com')
-    u = create_user(email: 'test@test.com')
-    assert_equal u, t.send(:annotator_callback, 'test@test.com')
-  end
-
-  test "should get target id" do
-    t = create_tag
-    assert_equal 2, t.target_id_callback(1, [1, 2, 3])
-  end
-
   test "should set annotator if not set" do
     u = create_user
     t = create_team
@@ -217,7 +205,7 @@ class TagTest < ActiveSupport::TestCase
     raw_params = { annotator: create_user, tag: 'my tag' }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Tag.create(params)
     end
   end

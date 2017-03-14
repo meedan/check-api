@@ -93,18 +93,6 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal [u3.id], s2.annotators.map(&:id)
   end
 
-  test "should get annotator" do
-    f = create_flag
-    assert_nil f.send(:annotator_callback, 'test@tef.com')
-    u = create_user(email: 'test@tef.com')
-    assert_equal u, f.send(:annotator_callback, 'test@tef.com')
-  end
-
-  test "should get target id" do
-    f = create_flag
-    assert_equal 2, f.target_id_callback(1, [1, 2, 3])
-  end
-
   test "should set annotator if not set" do
     u1 = create_user
     u2 = create_user
@@ -166,7 +154,7 @@ class FlagTest < ActiveSupport::TestCase
 
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Flag.create(params)
     end
   end

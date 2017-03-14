@@ -32,7 +32,7 @@ class Team < ActiveRecord::Base
   include CheckSettings
 
   def logo_callback(value, _mapping_ids = nil)
-    # image_callback(value)
+    image_callback(value)
   end
 
   def avatar

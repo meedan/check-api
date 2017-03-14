@@ -41,7 +41,7 @@ class Project < ActiveRecord::Base
   end
 
   def lead_image_callback(value, _mapping_ids = nil)
-    # image_callback(value)
+    image_callback(value)
   end
 
   def avatar
