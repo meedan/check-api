@@ -1,10 +1,7 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id
 
-  belongs_to :project
-  belongs_to :media
-  belongs_to :user
-  has_annotations
+  include ProjectMediaAssociations 
 
   include Versioned
 
@@ -30,10 +27,6 @@ class ProjectMedia < ActiveRecord::Base
                   data: proc { |pm| pm.media.to_json }
 
   include CheckElasticSearch
-
-  def project_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
-  end
 
   def set_initial_media_status
     st = Status.new

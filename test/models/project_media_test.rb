@@ -165,11 +165,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get project from callback" do
-    tm = create_project_media
-    assert_equal 2, tm.project_id_callback(1, [1, 2, 3])
-  end
-
   test "should notify Slack when project media is created" do
     t = create_team slug: 'test'
     u = create_user
