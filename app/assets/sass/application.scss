@@ -30,8 +30,4 @@ $font-stack-serif: "Merriweather", Georgia, serif;
   }
 }
 
-.reset-password {
-  margin: auto;
-  text-align: center;
-  @import 'reset-password'
-}
+@import 'reset-password'
