@@ -21,7 +21,7 @@ class Project < ActiveRecord::Base
 
   notifies_slack on: :create,
                  if: proc { |p| User.current.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |p| I18n.t(:slack_create_project, default: "*%{user}* created a project: <%{url}>", user: User.current.name, url: "#{CONFIG['checkdesk_client']}/#{p.team.slug}/project/#{p.id}|*#{p.title}*") },
+                 message: proc { |p| p.slack_notification_message },
                  channel: proc { |p| p.setting(:slack_channel) || p.team.setting(:slack_channel) },
                  webhook: proc { |p| p.team.setting(:slack_webhook) }
 
@@ -77,7 +77,7 @@ class Project < ActiveRecord::Base
   end
 
   def admin_label
-    unless self.new_record?
+    unless self.new_record? || self.team.nil?
       [self.team.name.truncate(15),self.title.truncate(25)].join(' - ')
     end
   end
@@ -93,6 +93,13 @@ class Project < ActiveRecord::Base
         query: { term: { project_id: { value: self.id } } } }
     }
     client.update_by_query options
+  end
+
+  def slack_notification_message
+    I18n.t(:slack_create_project,
+      user: self.class.to_slack(User.current.name),
+      url: self.class.to_slack_url("#{self.team.slug}/project/#{self.id}", "*#{self.title}*")
+    )
   end
 
   private

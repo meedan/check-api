@@ -37,17 +37,16 @@ class Task < ActiveRecord::Base
 
   def slack_message_on_create
     params = self.slack_default_params.merge({
-      default: "*%{user}* created task <%{url}> in %{project} with note '%{note}'",
-      note: self.description
+      note: self.class.to_slack_quote(self.description)
     })
     I18n.t(:slack_create_task, params)
   end
 
   def slack_default_params
     {
-      user: User.current.name,
-      url: "#{self.annotated_client_url}|#{self.label.tr("\n", ' ')}",
-      project: self.annotated.project.title
+      user: self.class.to_slack(User.current.name),
+      url: self.class.to_slack_url("#{self.annotated_client_url}", "#{self.label}"),
+      project: self.class.to_slack(self.annotated.project.title)
     }
   end
 
@@ -57,15 +56,11 @@ class Task < ActiveRecord::Base
       data_was = self.data_was
       messages = []
 
-      {
-        'label' => '*%{user}* edited task <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}',
-        'description' => '*%{user}* edited task note in <%{url}> in %{project}:\n> *From:* %{from}\n> *To*: %{to}'
-      }.each do |key, message|
+      ['label', 'description'].each do |key|
         if data_was[key] != data[key]
           params = self.slack_default_params.merge({
-            default: message,
-            from: data_was[key],
-            to: data[key]
+            from: self.class.to_slack_quote(data_was[key]),
+            to: self.class.to_slack_quote(data[key])
           })
           messages << I18n.t("slack_update_task_#{key}".to_sym, params)
         end
@@ -82,12 +77,11 @@ class Task < ActiveRecord::Base
   end
 
   def jsonoptions=(json)
-    @json = json
     self.options = JSON.parse(json)
   end
 
   def jsonoptions
-    @json
+    self.options.to_json
   end
 
   def responses

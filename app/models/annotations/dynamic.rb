@@ -29,16 +29,13 @@ class Dynamic < ActiveRecord::Base
         task = Task.find(f.value).label if f.field_name =~ /^task_/
       end
 
-      params = {
-        default: '*%{user}* answered the task <%{url}> in %{project}:\n> %{response}\n> Note:\n> %{note}',
-        user: User.current.name,
-        url: "#{self.annotated_client_url}|#{task}",
-        project: self.annotated.project.title,
-        response: response,
-        note: note
-      }
-
-      I18n.t(:slack_answer_task, params)
+      I18n.t(:slack_answer_task,
+        user: self.class.to_slack(User.current.name),
+        url: self.class.to_slack_url("#{self.annotated_client_url}", "#{task}"),
+        project: self.class.to_slack(self.annotated.project.title),
+        response: self.class.to_slack_quote(response),
+        note: self.class.to_slack_quote(note)
+      )
     end
   end
 
@@ -70,6 +67,7 @@ class Dynamic < ActiveRecord::Base
       data = JSON.parse(self.set_fields)
       data.each do |field_name, value|
         f = DynamicAnnotation::Field.new
+        f.skip_check_ability = true
         f.field_name = field_name
         f.value = value
         f.annotation_id = self.id

@@ -1,6 +1,12 @@
 fr:
-  link: Lien
-  claim: Déclaration
+  link: lien
+  claim: témoignage
+  uploadedimage: image
+  uploadefile: fichier
+  blank: "(vide)"
+  errors:
+    messages:
+      extension_white_list_error: 'est d''un type %{extension} qui est interdit, seuls sont acceptés %{allowed_types}'
   activerecord:
     attributes:
       tag:
@@ -22,7 +28,7 @@ fr:
       not_found_in_database: Mot de passe ou %{authentication_keys} non valide.
       unconfirmed: Prière de confirmer votre courriel avant de continuer.
   slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
-  slack_webhook_format_wrong: Le format du Slack webhook est faux
+  slack_webhook_format_wrong: Le format du webhook Slack est faux
   slug_is_reserved: est réservé
   invalid_format_for_custom_verification_status: Format pas valide pour les statuts de vérification personnalisés
   invalid_media_item: Désolé, ce média n'est pas valide
@@ -33,16 +39,22 @@ fr:
   rejected: rejetée
   mail_request_to_join_processed: Votre requête de vous joindre à %{team} sur Check est %{status}
   mail_new_account: Votre nouveau compte sur Check
-  slack_update_status: "*%{user}* a modifié le statut de vérification de <%{url}> de *%{previous_status}* à *%{current_status}*"
-  slack_save_embed: "*%{user}* a modifié le titre de *%{from}* à <%{to}>"
-  slack_save_comment: "*%{user}* a rajouté un commentaire sur <%{url}>\\n> %{comment}"
-  slack_create_project: "*%{user}* a créé un projet: <%{url}>"
-  slack_create_team_user: "*%{user}* s'est joint à <%{url}>"
-  slack_create_project_media: "*%{user}* a rajouté un nouveau %{type}: <%{url}>"
-  slack_create_task: "*%{user}* a crée la tâche <%{url}> du projet %{project} avec commentaire:> %{note}"
-  slack_answer_task: "*%{user}* a résolu la tâche <%{url}> du projet %{project} :\\n> %{response}\\n*Commentaire :*\\n> %{note}"
-  slack_update_task_label: "*%{user}* a modifié la tâche <%{url}> du projet %{project} :\\n*De :* %{from}\\n*A :* %{to}"
-  slack_update_task_description: "*%{user}* a modifié la description de la tâche <%{url}> du projet %{project} :\\n*De :* %{from}\\n*A :* %{to}"
+  slack_update_status: "*%{user}* a modifié le statut de vérification pour %{url}  dans *%{project}* de _%{previous_status}_ à *%{current_status}*"
+  slack_save_embed: "*%{user}* a modifié le titre d'un rapport dans *%{project}* de _%{from}_ à %{to}"
+  slack_save_comment: "*%{user}* a rajouté un commentaire sur %{url} dans *%{project}* : %{comment}"
+  slack_create_project: "*%{user}* a créé un projet : %{url}"
+  slack_create_team_user: "*%{user}* s'est joint à l'équipe %{url}"
+  slack_create_project_media: "*%{user}* a rajouté un nouveau %{type} dans *%{project}* : %{url}"
+  slack_create_task: "*%{user}* a crée une tâche %{url} dans *%{project}* avec commentaire : %{note}"
+  slack_answer_task: |-
+    *%{user}* a résolu la tâche %{url} dans *%{project}* : %{response}
+    *Note :* %{note}
+  slack_update_task_label: |-
+    *%{user}* a modifié la tâche %{url} dans *%{project}* de : %{from}
+    *à :* %{to}
+  slack_update_task_description: |-
+    *%{user}* a modifié la description de la tâche %{url} dans *%{project}* de : %{from}
+    *à :* %{to}
   mail_view_welcome: Bienvenue sur Check
   mail_view_register: 'Il ne vous manque plus qu''une étape pour utiliser Check ! Prière de confirmer votre courriel en cliquant ce lien :'
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
@@ -54,3 +66,4 @@ fr:
   mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à Check.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte Check via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à Check via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à check@meedan.com. </p> <p>— L'équipe Check</p>"
   mail_duplicate_email_exists_body_both_emails: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à Check.</p> <p>En bref : Vous avez tenté de créer un nouveau compte Check, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à check@meedan.com. </p> <p>— L'équipe Check</p>"
   mail_duplicate_email_exists_email: courriel
+  slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à l'équipe %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.

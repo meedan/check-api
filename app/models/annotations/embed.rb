@@ -27,7 +27,12 @@ class Embed < ActiveRecord::Base
 
   def slack_notification_message
     data = self.overridden_data
-    I18n.t(:slack_save_embed, default: "*%{user}* changed the title from *%{from}* to <%{to}>", user: User.current.name, from: data[0]['title'], to: "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}|#{data[1]['title']}")
+    I18n.t(:slack_save_embed,
+      user: self.class.to_slack(User.current.name),
+      from: self.class.to_slack(data[0]['title']),
+      to: self.class.to_slack_url("#{self.annotated_client_url}", "*#{data[1]['title']}*"),
+      project: self.class.to_slack(self.annotated.project.title)
+    )
   end
 
   def title_is_overridden?

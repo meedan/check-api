@@ -339,6 +339,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should create embed for uploaded image" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
     pm = ProjectMedia.new
     pm.project_id = create_project.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
@@ -510,7 +514,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"], pm.get_versions_log.map(&:event_type)
+      assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 13, pm.get_versions_log_count
     end
   end
@@ -526,5 +530,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     assert_equal p1, pm.project_was
     assert_equal p2, pm.project
+  end
+
+  test "should create annotation when project media with picture is created" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
+    i = create_uploaded_image
+    assert_difference "Dynamic.where(annotation_type: 'reverse_image').count" do
+      create_project_media media: i
+    end
   end
 end

@@ -65,4 +65,25 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "should show link to send reset password email" do
+    @user.is_admin = true
+    @user.save!
+
+    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+
+    get "/admin/user/#{@user.id}/"
+
+    assert_select "a[href=?]", "#{request.base_url}/admin/user/#{@user.id}/send_reset_password_email"
+  end
+
+  test "should send reset password email and redirect" do
+    @user.is_admin = true
+    @user.save!
+
+    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+
+    get "/admin/user/#{@user.id}/send_reset_password_email"
+    assert_redirected_to '/admin/user'
+  end
+
 end

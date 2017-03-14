@@ -42,6 +42,10 @@ class Media < ActiveRecord::Base
     ''
   end
 
+  def picture
+    ''
+  end
+
   private
 
   def set_url_nil_if_empty
