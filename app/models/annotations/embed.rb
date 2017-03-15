@@ -6,6 +6,7 @@ class Embed < ActiveRecord::Base
   field :embed
   field :username
   field :published_at, Integer
+  field :version, Integer
 
   notifies_slack on: :save,
                  if: proc { |em| em.should_notify? and em.title_is_overridden? },
