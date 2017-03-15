@@ -7,13 +7,22 @@ fr:
   errors:
     messages:
       extension_white_list_error: 'est d''un type %{extension} qui est interdit, seuls sont acceptés %{allowed_types}'
+      invalid_size: doit avoir des dimensions entre %{min_width}x%{min_height} et %{max_width}x%{max_height} pixels
   activerecord:
+    models:
+      link: Lien
+      claim: Témoignage
+      uploaded_image: Image
+      uploaded_file: Fichier
     attributes:
       tag:
         data: Tag
+      uploaded_file:
+        file: Fichier
+      uploaded_image:
+        file: Image
     errors:
       messages:
-        record_invalid: 'Échec de la validation: %{errors}'
         too_short:
           one: trop court (au moins 1 caractère)
           other: trop court (au moins %{count} caractères)
@@ -44,7 +53,7 @@ fr:
   slack_save_comment: "*%{user}* a rajouté un commentaire sur %{url} dans *%{project}* : %{comment}"
   slack_create_project: "*%{user}* a créé un projet : %{url}"
   slack_create_team_user: "*%{user}* s'est joint à l'équipe %{url}"
-  slack_create_project_media: "*%{user}* a rajouté un nouveau %{type} dans *%{project}* : %{url}"
+  slack_create_project_media: "*%{user}* a rajouté un(e) nouveau(elle) %{type} dans *%{project}* : %{url}"
   slack_create_task: "*%{user}* a crée une tâche %{url} dans *%{project}* avec commentaire : %{note}"
   slack_answer_task: |-
     *%{user}* a résolu la tâche %{url} dans *%{project}* : %{response}
@@ -67,3 +76,8 @@ fr:
   mail_duplicate_email_exists_body_both_emails: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à Check.</p> <p>En bref : Vous avez tenté de créer un nouveau compte Check, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à check@meedan.com. </p> <p>— L'équipe Check</p>"
   mail_duplicate_email_exists_email: courriel
   slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à l'équipe %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.
+  admin:
+    actions:
+      send_reset_password_email:
+        menu: Envoyer les instructions pour réinitialiser le mot de passe
+  reset_password_instructions: Instructions pour réinitialiser le mot de passe

@@ -1,5 +1,7 @@
 ar:
   link: رابط
+  uploadedimage: صورة
+  uploadefile: ملف
   activerecord:
     attributes:
       tag:
