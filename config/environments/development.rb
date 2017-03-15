@@ -47,7 +47,4 @@ Rails.application.configure do
   # http://guides.rubyonrails.org/caching_with_rails.html#configuration
   config.cache_store = :memory_store, { size: 64.megabytes }
 
-  # https://github.com/svenfuchs/rails-i18n#configuration
-  config.i18n.available_locales = [:en, :fr, :ar, :pt]
-
 end

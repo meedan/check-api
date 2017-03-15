@@ -43,7 +43,4 @@ Rails.application.configure do
   # http://guides.rubyonrails.org/configuring.html#configuring-middleware
   config.allow_concurrency = false
 
-  # https://github.com/svenfuchs/rails-i18n#configuration
-  config.i18n.available_locales = [:en, :fr, :ar, :pt]
-
 end
