@@ -20,9 +20,9 @@ module PenderData
       em = self.pender_embed
       self.overridden_embed_attributes.each{ |k| em.data[k.to_s] = data[k.to_s] } if self.respond_to?('overridden_embed_attributes')
       em.published_at = data['published_at'].to_time.to_i unless data['published_at'].nil?
-      em.version ||= 0
-      em.version += 1
-      data['version'] = em.version
+      em.refreshes_count ||= 0
+      em.refreshes_count += 1
+      data['refreshes_count'] = em.refreshes_count
       em.embed = data.to_json
       em.save!
     end

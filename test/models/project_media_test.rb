@@ -549,7 +549,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     em1 = pm.media.pender_embed
     assert_not_nil em1
     assert_equal '1', JSON.parse(em1.data['embed'])['foo']
-    assert_equal 1, em1.version
+    assert_equal 1, em1.refreshes_count
     sleep 1
     pm = ProjectMedia.find(pm.id)
     pm.refresh_media = true
@@ -558,7 +558,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert t2 > t1
     em2 = pm.media.pender_embed
     assert_equal '2', JSON.parse(em2.data['embed'])['foo']
-    assert_equal 2, em2.version
+    assert_equal 2, em2.refreshes_count
     assert_equal em1, em2
   end
 end
