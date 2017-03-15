@@ -48,6 +48,6 @@ Rails.application.configure do
   config.cache_store = :memory_store, { size: 64.megabytes }
 
   # https://github.com/svenfuchs/rails-i18n#configuration
-  config.i18n.available_locales = [:fr, :ar, :pt]
+  config.i18n.available_locales = [:en, :fr, :ar, :pt]
 
 end

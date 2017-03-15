@@ -44,6 +44,6 @@ Rails.application.configure do
   config.allow_concurrency = false
 
   # https://github.com/svenfuchs/rails-i18n#configuration
-  config.i18n.available_locales = [:fr, :ar, :pt]
+  config.i18n.available_locales = [:en, :fr, :ar, :pt]
 
 end
