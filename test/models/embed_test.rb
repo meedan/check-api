@@ -106,7 +106,6 @@ class EmbedTest < ActiveSupport::TestCase
       em = create_embed title: 'Title A', annotator: u, annotated: pm
       em.reload
       em.title = 'Change title'; em.save!
-      assert_match 'changed the title from *Title A*', em.slack_notification_message
       assert em.sent_to_slack
     end
   end
@@ -136,7 +135,7 @@ class EmbedTest < ActiveSupport::TestCase
     raw_params = { embed: 'test', annotated: create_project_source }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Embed.create(params)
     end
   end

@@ -12,7 +12,7 @@ class TaskTest < ActiveSupport::TestCase
     assert_difference 'Task.length' do
       t = create_task
     end
-    assert_nil t.jsonoptions
+    assert_not_nil t.jsonoptions
     assert_not_nil t.content
   end
 

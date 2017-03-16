@@ -1,1 +1,9 @@
-ar: {}
+ar:
+  link: رابط
+  uploadedimage: صورة
+  uploadefile: ملف
+  activerecord:
+    attributes:
+      tag:
+        data: وسم
+  mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على !Check"

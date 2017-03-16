@@ -165,11 +165,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get project from callback" do
-    tm = create_project_media
-    assert_equal 2, tm.project_id_callback(1, [1, 2, 3])
-  end
-
   test "should notify Slack when project media is created" do
     t = create_team slug: 'test'
     u = create_user
@@ -339,6 +334,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should create embed for uploaded image" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
     pm = ProjectMedia.new
     pm.project_id = create_project.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
@@ -510,7 +509,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"], pm.get_versions_log.map(&:event_type)
+      assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 13, pm.get_versions_log_count
     end
   end
@@ -526,5 +525,40 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     assert_equal p1, pm.project_was
     assert_equal p2, pm.project
+  end
+
+  test "should create annotation when project media with picture is created" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
+    i = create_uploaded_image
+    assert_difference "Dynamic.where(annotation_type: 'reverse_image').count" do
+      create_project_media media: i
+    end
+  end
+
+  test "should refresh Pender data" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = random_url
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"1"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"2"}}')
+    m = create_media url: url
+    pm = create_project_media media: m
+    t1 = pm.updated_at.to_i
+    em1 = pm.media.pender_embed
+    assert_not_nil em1
+    assert_equal '1', JSON.parse(em1.data['embed'])['foo']
+    assert_equal 1, em1.refreshes_count
+    sleep 1
+    pm = ProjectMedia.find(pm.id)
+    pm.refresh_media = true
+    pm.save!
+    t2 = pm.reload.updated_at.to_i
+    assert t2 > t1
+    em2 = pm.media.pender_embed
+    assert_equal '2', JSON.parse(em2.data['embed'])['foo']
+    assert_equal 2, em2.refreshes_count
+    assert_equal em1, em2
   end
 end

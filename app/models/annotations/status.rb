@@ -84,15 +84,13 @@ class Status < ActiveRecord::Base
   end
 
   def slack_message
-    data = self.annotated.embed
-    params = {
-      default: "*%{user}* changed the verification status on <%{url}> from *%{previous_status}* to *%{current_status}*",
-      user: User.current.name,
-      url: "#{self.annotated_client_url}|#{data['title']}",
-      previous_status: self.id_to_label(self.previous_annotated_status),
-      current_status: self.id_to_label(self.status)
-    }
-    I18n.t(:slack_update_status, params)
+    I18n.t(:slack_update_status,
+      user: self.class.to_slack(User.current.name),
+      url: self.class.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
+      previous_status: self.class.to_slack(self.id_to_label(self.previous_annotated_status)),
+      current_status: self.class.to_slack(self.id_to_label(self.status)),
+      project: self.class.to_slack(self.annotated.project.title)
+    )
   end
 
   private

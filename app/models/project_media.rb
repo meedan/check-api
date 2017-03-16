@@ -1,10 +1,7 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id
 
-  belongs_to :project
-  belongs_to :media
-  belongs_to :user
-  has_annotations
+  include ProjectMediaAssociations 
 
   include Versioned
 
@@ -13,7 +10,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation
   after_update :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
 
@@ -23,16 +20,13 @@ class ProjectMedia < ActiveRecord::Base
                  channel: proc { |pm| p = pm.project; p.setting(:slack_channel) || p.team.setting(:slack_channel) },
                  webhook: proc { |pm| pm.project.team.setting(:slack_webhook) }
 
-  notifies_pusher on: :create,
+  notifies_pusher on: :save,
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project] },
+                  targets: proc { |pm| [pm.project, pm.media] },
+                  if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.to_json }
 
   include CheckElasticSearch
-
-  def project_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
-  end
 
   def set_initial_media_status
     st = Status.new
@@ -46,12 +40,19 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def slack_notification_message
-    m = self.media
-    data = self.embed
-    type, text = m.quote.blank? ?
-      [ 'link', data['title'] ] :
-      [ 'claim', m.quote ]
-    I18n.t(:slack_create_project_media, default: "*%{user}* added a new %{type}: <%{url}>", user: User.current.name, type: I18n.t(type.to_sym), url: "#{CONFIG['checkdesk_client']}/#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}|*#{text}*")
+    type = self.media.class.name.demodulize.downcase
+    I18n.t(:slack_create_project_media,
+      user: self.class.to_slack(User.current.name),
+      type: I18n.t(type.to_sym),
+      url: self.class.to_slack_url("#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}", "*#{self.title}*"),
+      project: self.class.to_slack(self.project.title)
+    )
+  end
+
+  def title
+    title = self.media.quote unless self.media.quote.blank?
+    title = self.embed['title'] unless self.embed.blank? || self.embed['title'].blank?
+    title
   end
 
   def add_elasticsearch_data
@@ -109,7 +110,7 @@ class ProjectMedia < ActiveRecord::Base
             "OR (d.id IS NOT NULL AND a2.annotated_id = ?)"\
             "OR (annotations.id IS NULL AND d.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
 
-    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.id ASC')
+    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.created_at ASC')
   end
 
   def get_versions_log_count
@@ -180,6 +181,11 @@ class ProjectMedia < ActiveRecord::Base
 
   def project_was
     Project.find(self.previous_project_id) unless self.previous_project_id.blank?
+  end
+
+  def refresh_media=(_refresh)
+    self.media.refresh_pender_data
+    self.updated_at = Time.now
   end
 
   protected
@@ -256,6 +262,20 @@ class ProjectMedia < ActiveRecord::Base
           t.save!
         end
       end
+    end
+  end
+
+  def create_reverse_image_annotation
+    picture = self.media.picture
+    unless picture.blank?
+      d = Dynamic.new
+      d.skip_check_ability = true
+      d.skip_notifications = true
+      d.annotation_type = 'reverse_image'
+      d.annotator = Bot.where(name: 'Check Bot').last
+      d.annotated = self
+      d.set_fields = { reverse_image_path: picture }.to_json
+      d.save!
     end
   end
 

@@ -13,6 +13,7 @@ engines:
     config: .rubocop.yml
     exclude_fingerprints:
     - c46545507dd9c0ee0b06ade73f99824e
+    - a03b9bf2b9fdbfdab660422385265cd0
   brakeman:
     enabled: true
     exclude_fingerprints:
