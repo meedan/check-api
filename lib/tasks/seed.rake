@@ -63,7 +63,7 @@ namespace :db do
                   data.send(method, value)
                 else
                   puts "#{data} does not respond to #{method}!"
-                end
+                end unless value.blank?
               end
 
               if data.valid?
