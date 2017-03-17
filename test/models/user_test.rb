@@ -446,4 +446,17 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 2, Sidekiq::Extensions::DelayedMailer.jobs.size
     assert_equal 0, u.send(:pending_notifications).size
   end
+
+  test "should get annotations from user" do
+    u = create_user
+    c = create_comment annotator: u
+    create_comment
+    d = create_dynamic_annotation annotator: u
+    assert_equal [d, c], u.annotations.to_a
+    assert_equal [c], u.annotations('comment').to_a
+  end
+
+  test "should have JSON settings" do
+    assert_kind_of String, create_user.jsonsettings
+  end
 end

@@ -24,6 +24,4 @@ MediaType = GraphqlCrudOperations.define_default_type do
       media.account
     }
   end
-
 end
-

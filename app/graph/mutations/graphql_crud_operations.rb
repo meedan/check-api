@@ -181,6 +181,14 @@ class GraphqlCrudOperations
         field name, types.String
       end
 
+      field :project_media do
+        type ProjectMediaType
+
+        resolve ->(annotation, _args, _ctx) {
+          annotation.annotated_type == 'ProjectMedia' ? annotation.annotated : nil
+        }
+      end
+
       connection :medias, -> { ProjectMediaType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
           annotation.entity_objects

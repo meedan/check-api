@@ -86,7 +86,8 @@ class User < ActiveRecord::Base
       teams: self.user_teams,
       team_ids: self.team_ids,
       permissions: self.permissions,
-      profile_image: self.profile_image
+      profile_image: self.profile_image,
+      settings: self.settings
     }
   end
 
@@ -155,6 +156,16 @@ class User < ActiveRecord::Base
     return nil if value.blank?
     self.password = value
     self.password_confirmation = value
+  end
+
+  def annotations(*types)
+    list = Annotation.where(annotator_type: 'User', annotator_id: self.id.to_s)
+    list = list.where(annotation_type: types) unless types.empty?
+    list.order('id DESC')
+  end
+
+  def jsonsettings
+    self.settings.to_json
   end
 
   protected
