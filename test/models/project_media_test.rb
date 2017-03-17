@@ -165,11 +165,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get project from callback" do
-    tm = create_project_media
-    assert_equal 2, tm.project_id_callback(1, [1, 2, 3])
-  end
-
   test "should notify Slack when project media is created" do
     t = create_team slug: 'test'
     u = create_user
@@ -541,5 +536,29 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_difference "Dynamic.where(annotation_type: 'reverse_image').count" do
       create_project_media media: i
     end
+  end
+
+  test "should refresh Pender data" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = random_url
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"1"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"2"}}')
+    m = create_media url: url
+    pm = create_project_media media: m
+    t1 = pm.updated_at.to_i
+    em1 = pm.media.pender_embed
+    assert_not_nil em1
+    assert_equal '1', JSON.parse(em1.data['embed'])['foo']
+    assert_equal 1, em1.refreshes_count
+    sleep 1
+    pm = ProjectMedia.find(pm.id)
+    pm.refresh_media = true
+    pm.save!
+    t2 = pm.reload.updated_at.to_i
+    assert t2 > t1
+    em2 = pm.media.pender_embed
+    assert_equal '2', JSON.parse(em2.data['embed'])['foo']
+    assert_equal 2, em2.refreshes_count
+    assert_equal em1, em2
   end
 end

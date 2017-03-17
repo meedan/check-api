@@ -8,13 +8,23 @@ en:
   errors:
     messages:
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
+      invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
+        pixels
   activerecord:
+    models:
+      link: Link
+      claim: Claim
+      uploaded_image: Image
+      uploaded_file: File
     attributes:
       tag:
         data: Tag
+      uploaded_file:
+        file: File
+      uploaded_image:
+        file: Image
     errors:
       messages:
-        record_invalid: 'Validation failed: %{errors}'
         too_short:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
@@ -92,4 +102,5 @@ en:
   admin:
     actions:
       send_reset_password_email:
-        menu: 'Send reset password instructions'
+        menu: Send reset password instructions
+  reset_password_instructions: Check reset password instructions

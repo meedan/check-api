@@ -10,6 +10,7 @@ module ProjectMediaMutations
     media_id: 'int',
     project_id: 'int',
     previous_project_id: 'int',
+    refresh_media: 'int',
     embed: 'str',
     id: '!id'
   }

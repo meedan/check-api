@@ -1,10 +1,7 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id
 
-  belongs_to :project
-  belongs_to :media
-  belongs_to :user
-  has_annotations
+  include ProjectMediaAssociations 
 
   include Versioned
 
@@ -23,9 +20,9 @@ class ProjectMedia < ActiveRecord::Base
                  channel: proc { |pm| p = pm.project; p.setting(:slack_channel) || p.team.setting(:slack_channel) },
                  webhook: proc { |pm| pm.project.team.setting(:slack_webhook) }
 
-  notifies_pusher on: :create,
+  notifies_pusher on: :save,
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project] },
+                  targets: proc { |pm| [pm.project, pm.media] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.to_json }
 
@@ -192,6 +189,11 @@ class ProjectMedia < ActiveRecord::Base
 
   def project_was
     Project.find(self.previous_project_id) unless self.previous_project_id.blank?
+  end
+
+  def refresh_media=(_refresh)
+    self.media.refresh_pender_data
+    self.updated_at = Time.now
   end
 
   protected

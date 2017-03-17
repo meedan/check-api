@@ -1,7 +1,9 @@
 module PenderData
-  def validate_pender_result
+  def validate_pender_result(force = false)
     if !self.url.blank? && !self.skip_pender
-      result = PenderClient::Request.get_medias(CONFIG['pender_host'], { url: self.url }, CONFIG['pender_key'])
+      params = { url: self.url }
+      params[:refresh] = '1' if force
+      result = PenderClient::Request.get_medias(CONFIG['pender_host'], params, CONFIG['pender_key'])
       if (result['type'] == 'error')
         errors.add(:base, I18n.t(:pender_could_not_parse, default: 'Could not parse this media'))
       else
@@ -15,15 +17,26 @@ module PenderData
   def set_pender_result_as_annotation
     unless self.pender_data.nil?
       data = self.pender_data
-      pender = Bot.where(name: 'Pender').last
-      em = Embed.new
+      em = self.pender_embed
       self.overridden_embed_attributes.each{ |k| em.data[k.to_s] = data[k.to_s] } if self.respond_to?('overridden_embed_attributes')
       em.published_at = data['published_at'].to_time.to_i unless data['published_at'].nil?
+      em.refreshes_count ||= 0
+      em.refreshes_count += 1
+      data['refreshes_count'] = em.refreshes_count
       em.embed = data.to_json
-      em.annotated = self
-      em.annotator = pender unless pender.nil?
       em.save!
     end
+  end
+
+  def pender_embed
+    pender = Bot.where(name: 'Pender').last
+    em = Embed.where(annotation_type: 'embed', annotated_type: 'Media', annotated_id: self.id).first
+    if em.nil?
+      em = Embed.new
+      em.annotated = self
+      em.annotator = pender unless pender.nil?
+    end
+    em
   end
 
   def skip_pender
@@ -40,5 +53,10 @@ module PenderData
 
   def pender_data=(data)
     @pender_data = data
+  end
+
+  def refresh_pender_data
+    self.validate_pender_result(true)
+    self.set_pender_result_as_annotation
   end
 end

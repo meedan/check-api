@@ -13,7 +13,12 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticated?
-    redirect_to('/') unless signed_in?
+    if signed_in?
+      User.current = current_api_user
+      Team.current = nil
+    else
+      redirect_to('/') unless signed_in?
+    end
   end
 
   private

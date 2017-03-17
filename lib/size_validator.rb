@@ -11,13 +11,21 @@ class SizeValidator < ActiveModel::EachValidator
   end
 
   def invalid_size?(w, h)
-    w < SizeValidator.config('min_width') || w > SizeValidator.config('max_width') || h < SizeValidator.config('min_height') || h > SizeValidator.config('max_height')
+    w < SizeValidator.config('min_width') ||
+    w > SizeValidator.config('max_width') ||
+    h < SizeValidator.config('min_height') ||
+    h > SizeValidator.config('max_height')
   end
 
   def validate_each(record, attribute, value)
     if !value.nil? && !value.path.blank?
       w, h = ::MiniMagick::Image.open(value.path)[:dimensions]
-      record.errors[attribute] << "must be between #{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')} and #{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')} pixels" if invalid_size?(w, h)
+      record.errors[attribute] << I18n.t(:"errors.messages.invalid_size",
+        min_width: SizeValidator.config('min_width'),
+        min_height: SizeValidator.config('min_height'),
+        max_width: SizeValidator.config('max_width'),
+        max_height: SizeValidator.config('max_height')
+      ) if invalid_size?(w, h)
     end
   end
 end
