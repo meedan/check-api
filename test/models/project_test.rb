@@ -160,7 +160,7 @@ class ProjectTest < ActiveSupport::TestCase
     file = 'http://checkdesk.org/users/1/photo.png'
     assert_nil p.lead_image_callback(file)
     file = 'http://ca.ios.ba/files/others/rails.png'
-    assert_not_nil p.lead_image_callback(file)
+    assert_nil p.lead_image_callback(file)
   end
 
   test "should not upload a logo that is not an image" do

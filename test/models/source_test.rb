@@ -124,7 +124,7 @@ class SourceTest < ActiveSupport::TestCase
     file = 'http://checkdesk.org/users/1/photo.png'
     assert_nil s.avatar_callback(file)
     file = 'http://ca.ios.ba/files/others/rails.png'
-    assert_not_nil s.avatar_callback(file)
+    assert_nil s.avatar_callback(file)
   end
 
   test "should have description" do
@@ -168,23 +168,23 @@ class SourceTest < ActiveSupport::TestCase
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
-    
+
     # load as journalist
     tu = u.team_users.last; tu.role = 'journalist'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
-    
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
-    
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
@@ -207,7 +207,7 @@ class SourceTest < ActiveSupport::TestCase
     raw_params = { name: "My source", user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Source.create(params)
     end
   end
