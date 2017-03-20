@@ -459,4 +459,11 @@ class UserTest < ActiveSupport::TestCase
   test "should have JSON settings" do
     assert_kind_of String, create_user.jsonsettings
   end
+
+  test "should update Facebook id" do
+    u = create_user provider: 'facebook', uuid: '123456', email: 'user@fb.com'
+    assert_equal '123456', u.reload.uuid
+    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '654321', info: OpenStruct.new({ email: 'user@fb.com' })}))
+    assert_equal '654321', u.reload.uuid
+  end
 end
