@@ -577,4 +577,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     mapping[1] = p.id
     assert_equal p.id, pm.send(:project_id_callback, 1, mapping)
   end
+
+  test "should set annotation" do
+    ft = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
+    lt = create_field_type(field_type: 'language', label: 'Language')
+    at = create_annotation_type annotation_type: 'translation', label: 'Translation'
+    create_field_instance annotation_type_object: at, name: 'translation_text', label: 'Translation Text', field_type_object: ft, optional: false
+    create_field_instance annotation_type_object: at, name: 'translation_note', label: 'Translation Note', field_type_object: ft, optional: true
+    create_field_instance annotation_type_object: at, name: 'translation_language', label: 'Translation Language', field_type_object: lt, optional: false
+    assert_equal 0, Annotation.where(annotation_type: 'translation').count
+    create_project_media set_annotation: { annotation_type: 'translation', set_fields: { 'translation_text' => 'Foo', 'translation_note' => 'Bar', 'translation_language' => 'pt' }.to_json }.to_json
+    assert_equal 1, Annotation.where(annotation_type: 'translation').count
+  end
 end
