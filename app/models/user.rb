@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  attr_accessor :url
+  attr_accessor :url, :skip_confirmation_mail
 
   has_one :source
   has_many :team_users
@@ -170,7 +170,7 @@ class User < ActiveRecord::Base
   protected
 
   def confirmation_required?
-    self.provider.blank?
+    self.provider.blank? && self.skip_confirmation_mail.nil?
   end
 
   private
