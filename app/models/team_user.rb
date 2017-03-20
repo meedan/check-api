@@ -3,6 +3,8 @@ class TeamUser < ActiveRecord::Base
   belongs_to :team
   belongs_to :user
 
+  validates_presence_of :team_id, :user_id
+
   validates :status, presence: true
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
   validate :user_is_member_in_slack_team
@@ -72,7 +74,7 @@ class TeamUser < ActiveRecord::Base
   # The `slack_teams` should be a hash of the form:
   # { 'Slack team 1 id' => 'Slack team 1 name', 'Slack team 2 id' => 'Slack team 2 name', ... }
   def user_is_member_in_slack_team
-    if self.user.provider == 'slack' && self.team.setting(:slack_teams)&.is_a?(Hash)
+    if !self.user.nil? && self.user.provider == 'slack' && self.team.setting(:slack_teams)&.is_a?(Hash)
       if self.team.setting(:slack_teams)&.keys&.include? self.user.omniauth_info&.dig('info', 'team_id')
         # Auto-approve slack user
         self.status = 'member'

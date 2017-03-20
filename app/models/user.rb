@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  attr_accessor :url
+  attr_accessor :url, :skip_confirmation_mail
 
   has_one :source
   has_many :team_users
@@ -42,6 +42,8 @@ class User < ActiveRecord::Base
   end
 
   def self.from_omniauth(auth)
+    # Update uuid for facebook account if match email and provider
+    self.update_facebook_uuid(auth) if auth.provider == 'facebook'
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
     user = User.where(provider: auth.provider, uuid: auth.uid).first || User.new
     user.email = user.email.presence || auth.info.email
@@ -70,6 +72,14 @@ class User < ActiveRecord::Base
 
   def self.from_token(token)
     JSON.parse(Base64.decode64(token.gsub('++n', "\n")))
+  end
+
+  def self.update_facebook_uuid(auth)
+    fb_user = User.where(provider: auth.provider, email: auth.info.email).first
+    if !fb_user.nil? && fb_user.uuid != auth.uid
+      fb_user.uuid = auth.uid
+      fb_user.save!
+    end
   end
 
   def as_json(_options = {})
@@ -160,7 +170,7 @@ class User < ActiveRecord::Base
   protected
 
   def confirmation_required?
-    self.provider.blank?
+    self.provider.blank? && self.skip_confirmation_mail.nil?
   end
 
   private

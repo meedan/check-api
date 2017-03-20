@@ -15,11 +15,14 @@ module ActiveRecordExtensions
 
   # Used to migrate data from CD2 to this
   def image_callback(value)
-    unless value.blank?
+    if CONFIG['migrate_checkdesk_images']
       uri = URI.parse(value)
-      result = Net::HTTP.start(uri.host, uri.port) { |http| http.get(uri.path) }
-      if result.code.to_i < 400
-        file = Tempfile.new
+      result = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') { |http| http.get(uri.path) }
+      if result.code.to_i == 200
+        file_name = File.basename(uri.path)
+        f_extn = File.extname  file_name
+        f_name = File.basename file_name, f_extn
+        file = Tempfile.new([f_name, f_extn])
         file.binmode # note that our tempfile must be in binary mode
         file.write open(value).read
         file.rewind

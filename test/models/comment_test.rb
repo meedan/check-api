@@ -171,18 +171,6 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal [u3].sort, s2.annotators.sort
   end
 
-  test "should get annotator" do
-    c = create_comment
-    assert_nil c.send(:annotator_callback, 'test@test.com')
-    u = create_user(email: 'test@test.com')
-    assert_equal u, c.send(:annotator_callback, 'test@test.com')
-  end
-
-  test "should get target id" do
-    c = create_comment
-    assert_equal 2, c.target_id_callback(1, [1, 2, 3])
-  end
-
   test "should set annotator if not set" do
     u1 = create_user
     u2 = create_user
@@ -328,7 +316,7 @@ class CommentTest < ActiveSupport::TestCase
     raw_params = { annotator: create_user, text: 'my comment' }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Comment.create(params)
     end
   end
@@ -377,7 +365,7 @@ class CommentTest < ActiveSupport::TestCase
       end
     end
   end
-  
+
   test "should create versions" do
     i = create_comment file: 'rails.png'
     assert_not_nil i.file.thumbnail

@@ -100,18 +100,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_not_empty media.annotations('embed')
   end
 
-  test "should get user id" do
-    m = create_valid_media
-    assert_nil m.send(:user_id_callback, 'test@test.com')
-    u = create_user(email: 'test@test.com')
-    assert_equal u.id, m.send(:user_id_callback, 'test@test.com')
-  end
-
-  test "should get account id" do
-    m = create_valid_media
-    assert_equal 2, m.account_id_callback(1, [1, 2, 3])
-  end
-
   test "should create version when media is created" do
     u = create_user
     create_team_user user: u
