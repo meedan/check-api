@@ -32,7 +32,7 @@ module ActiveRecordExtensions
   end
 
   def user_callback(value)
-    user = User.where(email: value).last
+    user = User.where('lower(email) = ?', value.downcase).last
     user.nil? ? nil : user.id
   end
 

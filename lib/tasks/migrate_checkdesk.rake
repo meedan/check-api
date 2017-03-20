@@ -35,10 +35,25 @@ namespace :db do
 
             CSV.foreach(file, quote_char: '`', :headers => true) do |row|
               data = model.new
-              # Check if model already exist based on id column
-              unless row["id"].blank?
+              # Check if model already exist based on id/email address column
+              existing = nil
+              if data.class.name == 'User'
+                existing = User.where(email: row["email"]).last
+                if existing.nil? and row["provider"] == 'twitter'
+                  existing = User.where(provider: 'twitter', uuid: row['uuid']).last
+                  unless existing.nil?
+                    # Set mail for twitter account
+                    existing.email = row["email"]
+                    existing.save!
+                  end
+                end
+              elsif !row["id"].blank?
                 existing = model.where(id: mapping_ids[row["id"]]).last
-                data = existing unless existing.nil?
+              end
+              unless existing.nil?
+                ex_id = (existing.class.name == 'User') ? row["email"] : row["id"]
+                puts "#{model} with Checkdesk ID [#{ex_id}] already exists on Check with ID [#{existing.id}]"
+                next
               end
               if data.class.name == 'Status'
                 # Load existing one
@@ -86,6 +101,7 @@ namespace :db do
                 end
               else
                 puts "Failed to save #{model} [#{data.errors.messages}]"
+                pp row
               end
             end
             # Mark migrated model on mapping ids
