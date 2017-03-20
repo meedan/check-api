@@ -65,6 +65,11 @@ namespace :db do
                 end unless value.blank?
               end
 
+              if data.is_annotation? && data.annotated_id.nil?
+                puts "Failed to save #{model} [annotated_id is nil]"
+                next
+              end
+
               if data.valid?
                 # Set Current user to log versions
                 User.current = data.user if data.respond_to?(:user)

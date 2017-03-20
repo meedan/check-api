@@ -240,8 +240,9 @@ module AnnotationBase
     user_callback(value)
   end
 
-  def annotated_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
+  def annotated_id_callback(value, mapping_ids = nil, type = ProjectMedia)
+    annotated = type.where(id: mapping_ids[value]).last
+    annotated.nil? ? nil : annotated.id
   end
 
   protected
