@@ -13,6 +13,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :name, types.String
   field :current_team_id, types.Int
   field :permissions, types.String
+  field :jsonsettings, types.String
 
   field :source do
     type SourceType
@@ -37,6 +38,15 @@ UserType = GraphqlCrudOperations.define_default_type do
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve ->(user, _args, _ctx) {
       user.team_users
+    }
+  end
+
+  connection :annotations, -> { AnnotationType.connection_type } do
+    argument :type, types.String
+
+    resolve ->(user, args, _ctx) {
+      type = args['type']
+      type.blank? ? user.annotations : user.annotations(type)
     }
   end
 end

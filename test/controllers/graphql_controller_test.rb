@@ -352,7 +352,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from annotation" do
-    assert_graphql_read_object('annotation', { 'annotator' => 'name' })
+    assert_graphql_read_object('annotation', { 'annotator' => 'name', 'project_media' => 'dbid' })
   end
 
   test "should read object from user" do
@@ -362,7 +362,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from user" do
-    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role' })
+    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role', 'annotations' => 'content' })
   end
 
   test "should create status" do
