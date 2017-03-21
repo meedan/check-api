@@ -38,7 +38,7 @@ namespace :db do
               # Check if model already exist based on id/email address column
               existing = nil
               if data.class.name == 'User'
-                existing = User.where(email: row["email"]).last
+                existing = User.where(email: row["email"]).last unless row["email"].blank?
                 if existing.nil? and row["provider"] == 'twitter'
                   existing = User.where(provider: 'twitter', uuid: row['uuid']).last
                   unless existing.nil?
@@ -53,6 +53,7 @@ namespace :db do
               unless existing.nil?
                 ex_id = (existing.class.name == 'User') ? row["email"] : row["id"]
                 puts "#{model} with Checkdesk ID [#{ex_id}] already exists on Check with ID [#{existing.id}]"
+                pp row
                 next
               end
               if data.class.name == 'Status'
@@ -99,6 +100,7 @@ namespace :db do
                     yml.write mapping_ids.to_yaml
                   end
                 end
+                print '.'
               else
                 puts "Failed to save #{model} [#{data.errors.messages}]"
                 pp row
