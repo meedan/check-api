@@ -40,6 +40,8 @@ development: &default
   transifex_user:
   transifex_password:
   locale:
+  alegre_host:
+  alegre_token:
 
 test:
   <<: *default

@@ -1807,6 +1807,20 @@
               "deprecationReason": null
             },
             {
+              "name": "language",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "last_status",
               "description": null,
               "args": [

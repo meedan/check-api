@@ -391,7 +391,7 @@ module SampleData
   end
 
   def create_bot(options = {})
-    bot = Bot.new
+    bot = Bot::Bot.new
     bot.name = options[:name] || random_string
     file = 'rails.png'
     if options.has_key?(:avatar)
@@ -402,6 +402,13 @@ module SampleData
         bot.avatar = f
       end
     end
+    bot.save!
+    bot.reload
+  end
+
+  def create_alegre_bot(options = {})
+    bot = Bot::Alegre.new
+    bot.name = options[:name] || 'Alegre Bot'
     bot.save!
     bot.reload
   end

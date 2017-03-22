@@ -43,6 +43,17 @@ class ActiveSupport::TestCase
     CONFIG.unstub(:[])
   end
 
+  def stub_configs(configs)
+    CONFIG.each do |k, v|
+      CONFIG.stubs(:[]).with(k).returns(v) unless configs.keys.include?(k)
+    end
+    configs.each do |k, v|
+      CONFIG.stubs(:[]).with(k).returns(v)
+    end
+    yield if block_given?
+    CONFIG.unstub(:[])
+  end
+
   def with_current_user_and_team(user = nil, team = nil)
     Team.stubs(:current).returns(team)
     User.stubs(:current).returns(user)

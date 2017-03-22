@@ -514,4 +514,17 @@ class MediaTest < ActiveSupport::TestCase
     l = create_link url: url 
     assert_equal '', l.picture
   end
+
+  test "should get text" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'description' => 'Foo' } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    c = create_claim_media quote: 'Bar'
+    i = create_uploaded_image
+    assert_equal 'Foo', l.text
+    assert_equal 'Bar', c.text
+    assert_equal '', i.text
+  end
 end
