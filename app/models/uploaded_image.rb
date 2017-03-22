@@ -4,4 +4,8 @@ class UploadedImage < Media
   def picture
     self.image_path
   end
+
+  def media_url
+    "#{CONFIG['checkdesk_base_url']}#{self.file.url}"
+  end
 end
