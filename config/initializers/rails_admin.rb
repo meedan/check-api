@@ -1,7 +1,9 @@
 require Rails.root.join('lib', 'rails_admin', 'send_reset_password_email.rb')
 require Rails.root.join('lib', 'rails_admin', 'export_project.rb')
+require Rails.root.join('lib', 'rails_admin', 'yaml_field.rb')
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportProject)
+RailsAdmin::Config::Actions.register(RailsAdmin::Config::Fields::Types::Yaml)
 
 RailsAdmin.config do |config|
 
@@ -115,6 +117,21 @@ RailsAdmin.config do |config|
      include_all_fields
     end
   end
+
+  def formatted_yaml(method_name)
+    formatted_value do
+      begin
+        value = bindings[:object].send(method_name)
+        value.present? ? JSON.pretty_generate(value) : nil
+      rescue JSON::GeneratorError
+        nil
+      end
+    end
+    hide do
+      bindings[:object].new_record?
+    end
+  end
+
 
   config.model 'ApiKey' do
     list do
@@ -279,25 +296,13 @@ RailsAdmin.config do |config|
       field :slug
       field :private
       field :archived
-      field :media_verification_statuses, :json do
+      field :media_verification_statuses, :yaml do
         label 'Media verification statuses'
-        formatted_value do
-          statuses = bindings[:object].get_media_verification_statuses
-          statuses ? JSON.pretty_generate(statuses) : ''
-        end
-        hide do
-          bindings[:object].new_record?
-        end
+        formatted_yaml(:get_media_verification_statuses)
       end
-      field :source_verification_statuses, :json do
+      field :source_verification_statuses, :yaml do
         label 'Source verification statuses'
-        formatted_value do
-          statuses = bindings[:object].get_source_verification_statuses
-          statuses ? JSON.pretty_generate(statuses) : ''
-        end
-        hide do
-          bindings[:object].new_record?
-        end
+        formatted_yaml(:get_source_verification_statuses)
       end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
@@ -322,15 +327,9 @@ RailsAdmin.config do |config|
           bindings[:object].new_record?
         end
       end
-      field :checklist, :json do
+      field :checklist, :yaml do
         label 'Checklist'
-        formatted_value do
-          checklist = bindings[:object].get_checklist
-          checklist ? JSON.pretty_generate(checklist) : ''
-        end
-        hide do
-          bindings[:object].new_record?
-        end
+        formatted_yaml(:get_checklist)
       end
     end
 
