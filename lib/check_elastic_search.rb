@@ -2,27 +2,31 @@ module CheckElasticSearch
 
   def update_media_search(keys, data = {}, parent = nil)
     return if self.disable_es_callbacks
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), parent, 'update_parent')
+    options = {keys: keys, data: data}
+    options[:parent] = parent unless parent.nil?
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
   end
 
-  def update_media_search_bg(keys, data, parent)
-    ms = get_elasticsearch_parent(parent)
+  def update_media_search_bg(options)
+    ms = get_elasticsearch_parent(options[:parent])
     unless ms.nil?
-      data = get_elasticsearch_data(data)
-      options = {'last_activity_at' => Time.now.utc}
-      keys.each{|k| options[k] = data[k] if ms.respond_to?("#{k}=") and !data[k].blank? }
-      ms.update options
+      data = get_elasticsearch_data(options[:data])
+      fields = {'last_activity_at' => Time.now.utc}
+      options[:keys].each{|k| fields[k] = data[k] if ms.respond_to?("#{k}=") and !data[k].blank? }
+      ms.update fields
     end
   end
 
   def add_update_media_search_child(child, keys, data = {}, parent = nil)
     return if self.disable_es_callbacks
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), parent, child)
+    options = {keys: keys, data: data}
+    options[:parent] = parent unless parent.nil?
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), child)
   end
 
-  def add_update_media_search_child_bg(child, keys, data, parent)
+  def add_update_media_search_child_bg(child, options)
     # get parent
-    ms = get_elasticsearch_parent(parent)
+    ms = get_elasticsearch_parent(options[:parent])
     unless ms.nil?
       child = child.singularize.camelize.constantize
       model = child.search(query: { match: { _id: self.id } }).results.last
@@ -30,7 +34,7 @@ module CheckElasticSearch
         model = child.new
         model.id = self.id
       end
-      store_elasticsearch_data(model, keys, data, {parent: ms.id})
+      store_elasticsearch_data(model, options[:keys], options[:data], {parent: ms.id})
       # Update last_activity_at on parent
       ms.update last_activity_at: Time.now.utc
     end
@@ -52,7 +56,7 @@ module CheckElasticSearch
 
   def get_elasticsearch_parent(parent)
     sleep 1 if Rails.env == 'test'
-    MediaSearch.search(query: { match: { annotated_id: parent } }).last unless pm.nil?
+    MediaSearch.search(query: { match: { annotated_id: parent } }).last unless parent.nil?
   end
 
   def get_elasticsearch_data(data)

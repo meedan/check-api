@@ -437,10 +437,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal ms.team_id.to_i, t.id
     t2 = create_team
     p2 = create_project team: t2
-    Sidekiq::Testing.fake! do
-      pm.project = p2; pm.save!
-      ElasticSearchWorker.drain
-    end
+    pm.project = p2; pm.save!
+    ElasticSearchWorker.drain
     # confirm annotations log
     sleep 1
     ms = MediaSearch.find(pm.id)
@@ -560,6 +558,41 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal '2', JSON.parse(em2.data['embed'])['foo']
     assert_equal 2, em2.refreshes_count
     assert_equal em1, em2
+  end
+
+  test "should update es after refresh Pender data" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = random_url
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"new_title"}}')
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    m = create_media url: url
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.title, 'org_title'
+    ms2 = MediaSearch.find(pm2.id)
+    assert_equal ms2.title, 'org_title'
+    Sidekiq::Testing.inline! do
+      # Update title
+    pm2.reload; pm2.disable_es_callbacks = false
+    info = {title: 'override_title'}.to_json
+    pm2.embed= info
+      pm.reload; pm.disable_es_callbacks = false
+      pm.refresh_media = true
+      pm.save!
+      pm2.reload; pm2.disable_es_callbacks = false
+      pm2.refresh_media = true
+      pm2.save!
+    end
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.title, 'new_title'
+    ms2 = MediaSearch.find(pm2.id)
+    assert_equal ms2.title, 'override_title'
   end
 
   test "should get user id for migration" do

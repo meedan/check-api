@@ -88,7 +88,8 @@ class ProjectMedia < ActiveRecord::Base
     if self.project_id_changed?
       keys = %w(project_id team_id)
       data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), self.id, 'update_parent')
+      options = {keys: keys, data: data, parent: self.id}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
     end
   end
 
