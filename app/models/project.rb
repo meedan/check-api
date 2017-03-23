@@ -139,6 +139,21 @@ class Project < ActiveRecord::Base
     )}
   end
 
+  def export_to_csv
+    hashes = self.export
+    headers = hashes.inject([]) {|res, h| res | h.keys}
+    CSV.generate(headers: true) do |csv|
+      csv << headers
+      hashes.each do |x|
+        csv << headers.map {|header| x[header] || ""}
+      end
+    end
+  end
+
+  def csv_filename
+    [self.team.slug,self.title.parameterize,DateTime.now].join('_')
+  end
+
   private
 
   def set_description_and_team_and_user

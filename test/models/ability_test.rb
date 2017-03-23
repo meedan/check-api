@@ -1413,4 +1413,16 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, own_da)
     end
   end
+
+  test "owner permissions for export project data" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:export_project, Project)
+    end
+  end
+
 end

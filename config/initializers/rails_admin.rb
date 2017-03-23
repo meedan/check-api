@@ -1,5 +1,7 @@
 require Rails.root.join('lib', 'rails_admin', 'send_reset_password_email.rb')
+require Rails.root.join('lib', 'rails_admin', 'export_project.rb')
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
+RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportProject)
 
 RailsAdmin.config do |config|
 
@@ -36,6 +38,9 @@ RailsAdmin.config do |config|
     edit
     delete
     send_reset_password_email
+    export_project do
+      only ['Project']
+    end
 
     ## With an audit adapter, you can add:
     # history_index
