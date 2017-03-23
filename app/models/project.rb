@@ -111,7 +111,7 @@ class Project < ActiveRecord::Base
       project_id: pm.project_id,
       report_id: pm.id,
       report_title: pm.title,
-      report_url: pm.url,
+      report_url: pm.full_url,
       report_date: pm.created_at,
       media_content: pm.media.quote || pm.embed['description'],
       media_url: pm.media.media_url,
