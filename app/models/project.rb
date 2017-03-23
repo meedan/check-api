@@ -116,7 +116,7 @@ class Project < ActiveRecord::Base
     if self.team_id_changed?
       keys = %w(team_id)
       data = {'team_id' => self.team_id}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_team')
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), nil, 'update_team')
     end
   end
 

@@ -1,12 +1,12 @@
 module CheckElasticSearch
 
-  def update_media_search(keys, data = {})
+  def update_media_search(keys, data = {}, parent = nil)
     return if self.disable_es_callbacks
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), parent, 'update_parent')
   end
 
-  def update_media_search_bg(keys, data)
-    ms = get_elasticsearch_parent
+  def update_media_search_bg(keys, data, parent)
+    ms = get_elasticsearch_parent(parent)
     unless ms.nil?
       data = get_elasticsearch_data(data)
       options = {'last_activity_at' => Time.now.utc}
@@ -15,14 +15,14 @@ module CheckElasticSearch
     end
   end
 
-  def add_update_media_search_child(child, keys, data = {})
+  def add_update_media_search_child(child, keys, data = {}, parent = nil)
     return if self.disable_es_callbacks
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), child)
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), parent, child)
   end
 
-  def add_update_media_search_child_bg(child, keys, data)
+  def add_update_media_search_child_bg(child, keys, data, parent)
     # get parent
-    ms = get_elasticsearch_parent
+    ms = get_elasticsearch_parent(parent)
     unless ms.nil?
       child = child.singularize.camelize.constantize
       model = child.search(query: { match: { _id: self.id } }).results.last
@@ -44,11 +44,15 @@ module CheckElasticSearch
     model.save!(options)
   end
 
-  def get_elasticsearch_parent
+  def get_parent_id
     pm = self.id if self.class.name == 'ProjectMedia'
     pm = self.annotated_id if pm.nil? and self.is_annotation?
+    pm
+  end
+
+  def get_elasticsearch_parent(parent)
     sleep 1 if Rails.env == 'test'
-    MediaSearch.search(query: { match: { annotated_id: pm } }).last unless pm.nil?
+    MediaSearch.search(query: { match: { annotated_id: parent } }).last unless pm.nil?
   end
 
   def get_elasticsearch_data(data)
