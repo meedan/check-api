@@ -44,7 +44,11 @@ class Dynamic < ActiveRecord::Base
   # Initialize the hash with the given default value.
   def values(fields, default)
     values = Hash[fields.product([default])]
-    self.fields.each do |field|
+
+    # Cache the fields for performance.
+    @fields ||= self.fields
+
+    @fields.each do |field|
       fields.each do |f|
         values[f] = field.value if field.field_name =~ /^#{Regexp.escape(f)}/
       end
