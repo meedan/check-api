@@ -578,9 +578,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal ms2.title, 'org_title'
     Sidekiq::Testing.inline! do
       # Update title
-    pm2.reload; pm2.disable_es_callbacks = false
-    info = {title: 'override_title'}.to_json
-    pm2.embed= info
+      pm2.reload; pm2.disable_es_callbacks = false
+      info = {title: 'override_title'}.to_json
+      pm2.embed= info
       pm.reload; pm.disable_es_callbacks = false
       pm.refresh_media = true
       pm.save!
