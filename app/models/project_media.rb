@@ -1,7 +1,7 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id, :set_annotation
 
-  include ProjectMediaAssociations 
+  include ProjectMediaAssociations
   include ProjectMediaCreators
   include Versioned
 
@@ -88,7 +88,8 @@ class ProjectMedia < ActiveRecord::Base
     if self.project_id_changed?
       keys = %w(project_id team_id)
       data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
+      options = {keys: keys, data: data, parent: self.id}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
     end
   end
 
