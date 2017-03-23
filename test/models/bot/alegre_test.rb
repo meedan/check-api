@@ -14,6 +14,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should return language" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
+        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
         assert_difference 'Annotation.count' do
           assert_equal 'fr', @bot.get_language_from_alegre('I like apples', @pm)
         end
@@ -24,6 +25,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should return null if text is blank" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_parameter_text_is_missing do
+        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
         assert_nil @bot.get_language_from_alegre('', @pm)
       end
     end
@@ -38,6 +40,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should return access denied" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_access_denied do
+        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
         assert_nil @bot.get_language_from_alegre('Test', @pm)
       end
     end
@@ -46,6 +49,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should return language name" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
+        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
         assert_equal 'fr', @bot.get_language_from_alegre('I like apples', @pm)
         assert_equal 'french', @bot.language(@pm)
       end
