@@ -112,6 +112,7 @@ class Project < ActiveRecord::Base
       report_id: pm.id,
       report_title: pm.title,
       report_url: pm.url,
+      report_date: pm.created_at,
       media_content: pm.media.quote || pm.embed['description'],
       media_url: pm.media.media_url,
       report_status: pm.last_status,
@@ -120,17 +121,21 @@ class Project < ActiveRecord::Base
       notes_count: pm.annotations.count,
       notes_ugc_count: pm.get_annotations('comment').count,
       tasks_count: pm.get_annotations('task').count,
-      tasks_resolved_count: pm.get_annotations('task').select{ |t| t.status === "Resolved" }.count,
+      tasks_resolved_count: pm.get_annotations('task').select{ |t| t.status === "Resolved" }.count
     ].merge(
       pm.get_annotations('comment').to_enum.reverse_each.with_index.collect{ |c,i| Hash[
         "note_date_#{i+1}": c.created_at,
         "note_user_#{i+1}": c.annotator.name,
-        "note_#{i+1}": c.data['text']
+        "note_content_#{i+1}": c.data['text']
       ]}.reduce({}){ |h,o| h.merge(o) }
     ).merge(
-      pm.get_annotations('task').to_enum.reverse_each.with_index.collect{ |t,i| Hash[
-        "task_question_#{i+1}": t.label
-      ]}.reduce({}){ |h,o| h.merge(o) }
+      pm.get_annotations('task').map(&:load).to_enum.reverse_each.with_index.collect{ |t,i| r = t.responses.map(&:load).first; Hash[
+        "task_question_#{i+1}": t.label,
+        "task_user_#{i+1}": r&.annotator&.name,
+        "task_date_#{i+1}": r&.created_at,
+        "task_answer_#{i+1}": r&.values(['response'], '')&.dig('response'),
+        "task_note_#{i+1}": r&.values(['note'], '')&.dig('note'),
+       ]}.reduce({}){ |h,o| h.merge(o) }
     )}
   end
 
