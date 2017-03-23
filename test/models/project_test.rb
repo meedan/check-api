@@ -431,7 +431,7 @@ class ProjectTest < ActiveSupport::TestCase
     tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
     task = create_task annotator: create_user, annotated: pm
     exported_data = p.export_to_csv
-    header = "project_id,report_id,report_title,report_url,report_date,media_url,report_status,report_author,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_question_1,task_user_1,task_date_1,task_answer_1,task_note_1"
+    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_question_1,task_user_1,task_date_1,task_answer_1,task_note_1"
     assert_match(header, exported_data)
   end
 
