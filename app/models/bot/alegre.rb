@@ -3,9 +3,13 @@ class Bot::Alegre < ActiveRecord::Base
     Bot::Alegre.where(name: 'Alegre Bot').last
   end
 
+  def should_classify?(text)
+    !text.blank? && !CONFIG['alegre_host'].blank? && !CONFIG['alegre_token'].blank?
+  end
+
   def get_language_from_alegre(text, target)
     lang = nil
-    if !text.blank? && !CONFIG['alegre_host'].blank? && !CONFIG['alegre_token'].blank?
+    if self.should_classify?(text)
       begin
         response = AlegreClient::Request.get_languages_identification(CONFIG['alegre_host'], { text: text }, CONFIG['alegre_token'])
         lang = response['data'][0][0].split(',').first.downcase if response['type'] == 'language'
