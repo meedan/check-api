@@ -403,4 +403,36 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should have a csv_filename without spaces" do
+    t = create_team name: 'Team t'
+    p = create_project team: t, title: 'Project p'
+    assert_match(/team-t_project-p_.*/, p.csv_filename)
+  end
+
+  test "should export data" do
+    p = create_project
+    pm = create_project_media project: p, media: create_valid_media
+    c = create_comment annotated: pm, text: 'Note 1'
+    tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
+    task = create_task annotator: create_user, annotated: pm
+    exported_data = p.export
+    assert_equal 1, exported_data.size
+    assert_equal p.id, exported_data.first[:project_id]
+    assert_equal pm.id, exported_data.first[:report_id]
+    assert_equal 'sports', exported_data.first[:tags]
+    assert_equal c.text, exported_data.first[:note_content_1]
+    assert_equal task.label, exported_data.first[:task_question_1]
+  end
+
+  test "should export data to CSV" do
+    p = create_project
+    pm = create_project_media project: p, media: create_valid_media
+    c = create_comment annotated: pm, text: 'Note 1'
+    tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
+    task = create_task annotator: create_user, annotated: pm
+    exported_data = p.export_to_csv
+    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_question_1,task_user_1,task_date_1,task_answer_1,task_note_1"
+    assert_match(header, exported_data)
+  end
+
 end

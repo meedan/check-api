@@ -52,7 +52,7 @@ class ProjectMedia < ActiveRecord::Base
     I18n.t(:slack_create_project_media,
       user: self.class.to_slack(User.current.name),
       type: I18n.t(type.to_sym),
-      url: self.class.to_slack_url("#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}", "*#{self.title}*"),
+      url: self.class.to_slack_url(self.full_url, "*#{self.title}*"),
       project: self.class.to_slack(self.project.title)
     )
   end
@@ -204,6 +204,10 @@ class ProjectMedia < ActiveRecord::Base
   def get_language
     bot = Bot::Alegre.default
     bot.get_language_from_alegre(self.text, self) unless bot.nil?
+  end
+
+  def full_url
+    "#{self.project.url}/media/#{self.id}"
   end
 
   private

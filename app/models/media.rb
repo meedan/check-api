@@ -50,6 +50,10 @@ class Media < ActiveRecord::Base
     ''
   end
 
+  def media_url
+    self.url
+  end
+
   private
 
   def set_url_nil_if_empty

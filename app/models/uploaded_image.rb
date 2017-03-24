@@ -4,4 +4,8 @@ class UploadedImage < Media
   def picture
     self.image_path
   end
+
+  def media_url
+    self.public_path
+  end
 end
