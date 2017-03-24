@@ -465,6 +465,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m2 = create_media(account: create_valid_account, url: url)
     pm2  = create_project_media project: p, media: m2, disable_es_callbacks: false
+    sleep 1
     create_status annotated: pm1, status: 'in_progress', disable_es_callbacks: false
     sleep 1
     Team.stubs(:current).returns(t)

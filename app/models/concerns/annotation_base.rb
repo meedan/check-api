@@ -75,6 +75,7 @@ module AnnotationBase
 
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
+    after_save :touch_annotated
 
     has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities], if: proc { |_x| User.current.present? }
 
@@ -91,6 +92,10 @@ module AnnotationBase
     def start_serialized_fields
       self.data ||= {}
       self.entities ||= []
+    end
+
+    def touch_annotated
+      self.annotated.touch 
     end
   end
 
