@@ -95,7 +95,7 @@ module AnnotationBase
     end
 
     def touch_annotated
-      self.annotated.touch 
+      self.annotated.touch unless self.annotated.nil?
     end
   end
 
