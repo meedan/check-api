@@ -53,7 +53,6 @@ namespace :db do
               unless existing.nil?
                 ex_id = (existing.class.name == 'User') ? row["email"] : row["id"]
                 puts "#{model} with Checkdesk ID [#{ex_id}] already exists on Check with ID [#{existing.id}]"
-                pp row
                 next
               end
               if data.class.name == 'Status'
@@ -103,7 +102,6 @@ namespace :db do
                 print '.'
               else
                 puts "Failed to save #{model} [#{data.errors.messages}]"
-                pp row
               end
             end
             # Mark migrated model on mapping ids
