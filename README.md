@@ -94,6 +94,28 @@ We call "localizable strings" any call to the `I18n.t` function like this: `I18n
 
 Clients should send the `Accept-Language` header in order to get localized content. If you want to serve everything in English, just add `locale: 'en'` to your `config/config.yml`.
 
+### Checkdesk migration
+
+#### Checkdesk side
+
+* Run `drush vset "check_story_ids" --format=json [id1,id2,id3]` to migrate specific stories
+* Run `drush eval "_checkdesk_core_export_data_csv();"` : This command will output a directory inside `[files directory]/checkdesk_migration/[[instance-name]]`.
+* [instance-name] directory contain the following CSV files
+  - `00_teams.csv` : id, team_name, slug, logo
+  - `01_users.csv` : name, email, password, profile_image, skip_confirmation_mail, uuid, provider, created_at, login
+  - `02_team_users.csv` : team_id, user_id, role, status, created_at, updated_at
+  - `03_projects.csv` : id, title, team_id, user_id, description, lead_image, created_at, updated_at
+  - `04_project_medias.csv` : id, project_id, url, user_id, created_at, updated_at
+  - `05_tags.csv` : annotator_id, annotator_type, annotated_id, annotated_type, tag, created_at, updated_at
+  - `06_comments.csv` : annotator_id, annotator_type, annotated_id, annotated_type, comment, created_at, updated_at
+  - `07_statuses.csv` : annotator_id, annotator_type, annotated_id, annotated_type, status, created_at, updated_at
+  - `08_flags.csv` : annotator_id, annotator_type, annotated_id, annotated_type, flag, created_at, updated_at
+* Copy the output from the above step `[instance-name]` into Check `db/data`.
+
+#### Check side
+  * Run `rake db:migrate:checkdesk`.
+  * Rake command will generate `mapping_ids.yml` to log Checkdesk => Check mapping and mark migrated model.
+
 ### Credits
 
 Meedan (hello@meedan.com)

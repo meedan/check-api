@@ -15,7 +15,7 @@ class Link < Media
   def picture
     path = ''
     begin
-      pender_data = JSON.parse(self.annotations.where(annotation_type: 'embed').last.data['embed'])
+      pender_data = self.get_saved_pender_data
       path = case self.domain
              when 'twitter.com'
                pender_data['entities']['media'][0]['media_url_https'] || pender_data['entities']['media'][0]['media_url']
@@ -27,6 +27,14 @@ class Link < Media
     rescue
     end
     path.to_s
+  end
+
+  def get_saved_pender_data
+    JSON.parse(self.annotations.where(annotation_type: 'embed').last.data['embed'])
+  end
+
+  def text
+    self.get_saved_pender_data['description'].to_s
   end
 
   private

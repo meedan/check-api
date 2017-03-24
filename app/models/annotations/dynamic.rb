@@ -19,15 +19,8 @@ class Dynamic < ActiveRecord::Base
 
   def slack_message
     if !self.set_fields.blank? && self.annotation_type =~ /^task_response/
-      response = note = task = '-'
-
-      @fields ||= self.fields
-
-      @fields.each do |f|
-        response = f.value if f.field_name =~ /^response_/
-        note = f.value if f.field_name =~ /^note_/
-        task = Task.find(f.value).label if f.field_name =~ /^task_/
-      end
+      response, note, task = self.values(['response', 'note', 'task'], '-').values_at('response', 'note', 'task')
+      task = Task.find(task).label
 
       I18n.t(:slack_answer_task,
         user: self.class.to_slack(User.current.name),
@@ -45,6 +38,22 @@ class Dynamic < ActiveRecord::Base
       'fields' => fields,
       'indexable' => fields.map(&:value).select{ |v| v.is_a?(String) }.join('. ')
     }
+  end
+
+  # Given field names, return a hash of the corresponding field values.
+  # Initialize the hash with the given default value.
+  def values(fields, default)
+    values = Hash[fields.product([default])]
+
+    # Cache the fields for performance.
+    @fields ||= self.fields
+
+    @fields.each do |field|
+      fields.each do |f|
+        values[f] = field.value if field.field_name =~ /^#{Regexp.escape(f)}/
+      end
+    end
+    values
   end
 
   private

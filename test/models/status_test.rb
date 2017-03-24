@@ -131,18 +131,6 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal [u3.id], ps2.annotators.map(&:id)
   end
 
-  test "should get annotator" do
-    st = create_status
-    assert_nil st.send(:annotator_callback, 'test@test.com')
-    u = create_user(email: 'test@test.com')
-    assert_equal u, st.send(:annotator_callback, 'test@test.com')
-  end
-
-  test "should get target id" do
-    st = create_status
-    assert_equal 2, st.target_id_callback(1, [1, 2, 3])
-  end
-
   test "should set annotator if not set" do
     u = create_user
     t = create_team
@@ -181,11 +169,6 @@ class StatusTest < ActiveSupport::TestCase
         create_status(status: 'false', annotated: create_project)
       end
     end
-  end
-
-  test "should get annotated type" do
-    s = create_status
-    assert_equal 'Source', s.annotated_type_callback('source')
   end
 
   test "should notify Slack when status is updated" do

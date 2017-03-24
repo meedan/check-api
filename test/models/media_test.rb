@@ -100,18 +100,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_not_empty media.annotations('embed')
   end
 
-  test "should get user id" do
-    m = create_valid_media
-    assert_nil m.send(:user_id_callback, 'test@test.com')
-    u = create_user(email: 'test@test.com')
-    assert_equal u.id, m.send(:user_id_callback, 'test@test.com')
-  end
-
-  test "should get account id" do
-    m = create_valid_media
-    assert_equal 2, m.account_id_callback(1, [1, 2, 3])
-  end
-
   test "should create version when media is created" do
     u = create_user
     create_team_user user: u
@@ -525,5 +513,18 @@ class MediaTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url 
     assert_equal '', l.picture
+  end
+
+  test "should get text" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'description' => 'Foo' } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    c = create_claim_media quote: 'Bar'
+    i = create_uploaded_image
+    assert_equal 'Foo', l.text
+    assert_equal 'Bar', c.text
+    assert_equal '', i.text
   end
 end

@@ -152,10 +152,11 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   end
 
   test "should store error if there is error from provider" do
-    create_user email: 'test@test.com'
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
+    User.stubs(:from_omniauth).raises(ActiveRecord::RecordInvalid)
     get :facebook
     assert_not_nil session['check.error']
+    User.unstub(:from_omniauth)
   end
 
   test "should get URL for Slack" do

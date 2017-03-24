@@ -3,7 +3,8 @@ module ProjectMediaMutations
     media_id: 'int',
     project_id: '!int',
     url: 'str',
-    quote: 'str'
+    quote: 'str',
+    set_annotation: 'str'
   }
 
   update_fields = {

@@ -201,7 +201,7 @@ module AnnotationBase
   end
 
   def should_notify?
-    User.current.present? && !self.skip_notifications && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'ProjectMedia' 
+    User.current.present? && !self.skip_notifications && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'ProjectMedia'
   end
 
   # Supports only media for the time being
@@ -234,6 +234,15 @@ module AnnotationBase
       obj = self.load
       { embed: obj.embed_path, thumbnail: obj.thumbnail_path, original: obj.image_path }
     end
+  end
+
+  def annotator_id_callback(value, _mapping_ids = nil)
+    user_callback(value)
+  end
+
+  def annotated_id_callback(value, mapping_ids = nil, type = ProjectMedia)
+    annotated = type.where(id: mapping_ids[value]).last
+    annotated.nil? ? nil : annotated.id
   end
 
   protected

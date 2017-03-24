@@ -47,6 +47,7 @@ class Ability
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can :destroy, Contact, :team_id => @context_team.id
     can :destroy, Project, :team_id => @context_team.id
+    can :export_project, Project, team_id: @context_team.id
     can :destroy, [Media, Link, Claim] do |obj|
       obj.get_team.include? @context_team.id
     end

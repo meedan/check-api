@@ -123,11 +123,12 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, last_status_obj {dbid} } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, last_status_obj {dbid} } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
+    assert JSON.parse(@response.body)['data']['project_media'].has_key?('language')
   end
 
   test "should read project media and fallback to media" do
@@ -352,7 +353,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from annotation" do
-    assert_graphql_read_object('annotation', { 'annotator' => 'name' })
+    assert_graphql_read_object('annotation', { 'annotator' => 'name', 'project_media' => 'dbid' })
   end
 
   test "should read object from user" do
@@ -362,7 +363,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from user" do
-    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role' })
+    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role', 'annotations' => 'content' })
   end
 
   test "should create status" do

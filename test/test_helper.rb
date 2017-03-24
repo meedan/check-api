@@ -43,6 +43,17 @@ class ActiveSupport::TestCase
     CONFIG.unstub(:[])
   end
 
+  def stub_configs(configs)
+    CONFIG.each do |k, v|
+      CONFIG.stubs(:[]).with(k).returns(v) unless configs.keys.include?(k)
+    end
+    configs.each do |k, v|
+      CONFIG.stubs(:[]).with(k).returns(v)
+    end
+    yield if block_given?
+    CONFIG.unstub(:[])
+  end
+
   def with_current_user_and_team(user = nil, team = nil)
     Team.stubs(:current).returns(team)
     User.stubs(:current).returns(user)
@@ -205,8 +216,10 @@ class ActiveSupport::TestCase
     x1 = nil
     x2 = nil
     if type === 'annotation'
-      x1 = create_comment.reload
-      x2 = create_comment.reload
+      pm = create_project_media
+      Annotation.delete_all
+      x1 = create_comment(annotated: pm).reload
+      x2 = create_comment(annotated: pm).reload
     else
       x1 = send("create_#{type}").reload
       x2 = send("create_#{type}").reload
@@ -251,7 +264,7 @@ class ActiveSupport::TestCase
       elsif name === 'annotations' || name === 'comments'
         if obj.annotations.empty?
           c = create_comment annotated: nil
-          obj.add_annotation(c)
+          obj.is_a?(User) ? create_comment(annotator: obj, annotated: nil) : obj.add_annotation(c)
         end
       elsif name === 'tags'
         t = create_tag annotated: nil
@@ -271,7 +284,7 @@ class ActiveSupport::TestCase
     type === 'user' ? authenticate_with_user(obj) : authenticate_with_user
 
     post :create, query: query
-
+    
     yield if block_given?
 
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']

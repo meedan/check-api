@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  attr_accessor :url
+  attr_accessor :url, :skip_confirmation_mail
 
   has_one :source
   has_many :team_users
@@ -42,6 +42,8 @@ class User < ActiveRecord::Base
   end
 
   def self.from_omniauth(auth)
+    # Update uuid for facebook account if match email and provider
+    self.update_facebook_uuid(auth) if auth.provider == 'facebook'
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
     user = User.where(provider: auth.provider, uuid: auth.uid).first || User.new
     user.email = user.email.presence || auth.info.email
@@ -72,6 +74,14 @@ class User < ActiveRecord::Base
     JSON.parse(Base64.decode64(token.gsub('++n', "\n")))
   end
 
+  def self.update_facebook_uuid(auth)
+    fb_user = User.where(provider: auth.provider, email: auth.info.email).first
+    if !fb_user.nil? && fb_user.uuid != auth.uid
+      fb_user.uuid = auth.uid
+      fb_user.save!
+    end
+  end
+
   def as_json(_options = {})
     {
       id: Base64.encode64("User/#{self.id}"),
@@ -86,7 +96,8 @@ class User < ActiveRecord::Base
       teams: self.user_teams,
       team_ids: self.team_ids,
       permissions: self.permissions,
-      profile_image: self.profile_image
+      profile_image: self.profile_image,
+      settings: self.settings
     }
   end
 
@@ -157,10 +168,20 @@ class User < ActiveRecord::Base
     self.password_confirmation = value
   end
 
+  def annotations(*types)
+    list = Annotation.where(annotator_type: 'User', annotator_id: self.id.to_s)
+    list = list.where(annotation_type: types) unless types.empty?
+    list.order('id DESC')
+  end
+
+  def jsonsettings
+    self.settings.to_json
+  end
+
   protected
 
   def confirmation_required?
-    self.provider.blank?
+    self.provider.blank? && self.skip_confirmation_mail.nil?
   end
 
   private

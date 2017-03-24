@@ -437,10 +437,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal ms.team_id.to_i, t.id
     t2 = create_team
     p2 = create_project team: t2
-    Sidekiq::Testing.fake! do
-      pm.project = p2; pm.save!
-      ElasticSearchWorker.drain
-    end
+    pm.project = p2; pm.save!
+    ElasticSearchWorker.drain
     # confirm annotations log
     sleep 1
     ms = MediaSearch.find(pm.id)
@@ -560,5 +558,68 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal '2', JSON.parse(em2.data['embed'])['foo']
     assert_equal 2, em2.refreshes_count
     assert_equal em1, em2
+  end
+
+  test "should update es after refresh Pender data" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = random_url
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"new_title"}}')
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    m = create_media url: url
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.title, 'org_title'
+    ms2 = MediaSearch.find(pm2.id)
+    assert_equal ms2.title, 'org_title'
+    Sidekiq::Testing.inline! do
+      # Update title
+      pm2.reload; pm2.disable_es_callbacks = false
+      info = {title: 'override_title'}.to_json
+      pm2.embed= info
+      pm.reload; pm.disable_es_callbacks = false
+      pm.refresh_media = true
+      pm.save!
+      pm2.reload; pm2.disable_es_callbacks = false
+      pm2.refresh_media = true
+      pm2.save!
+    end
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.title, 'new_title'
+    ms2 = MediaSearch.find(pm2.id)
+    assert_equal ms2.title, 'override_title'
+  end
+
+  test "should get user id for migration" do
+    pm = ProjectMedia.new
+    assert_nil pm.send(:user_id_callback, 'test@test.com')
+    u = create_user(email: 'test@test.com')
+    assert_equal u.id, pm.send(:user_id_callback, 'test@test.com')
+  end
+
+  test "should get project id for migration" do
+    p = create_project
+    mapping = Hash.new
+    pm = ProjectMedia.new
+    assert_nil pm.send(:project_id_callback, 1, mapping)
+    mapping[1] = p.id
+    assert_equal p.id, pm.send(:project_id_callback, 1, mapping)
+  end
+
+  test "should set annotation" do
+    ft = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
+    lt = create_field_type(field_type: 'language', label: 'Language')
+    at = create_annotation_type annotation_type: 'translation', label: 'Translation'
+    create_field_instance annotation_type_object: at, name: 'translation_text', label: 'Translation Text', field_type_object: ft, optional: false
+    create_field_instance annotation_type_object: at, name: 'translation_note', label: 'Translation Note', field_type_object: ft, optional: true
+    create_field_instance annotation_type_object: at, name: 'translation_language', label: 'Translation Language', field_type_object: lt, optional: false
+    assert_equal 0, Annotation.where(annotation_type: 'translation').count
+    create_project_media set_annotation: { annotation_type: 'translation', set_fields: { 'translation_text' => 'Foo', 'translation_note' => 'Bar', 'translation_language' => 'pt' }.to_json }.to_json
+    assert_equal 1, Annotation.where(annotation_type: 'translation').count
   end
 end

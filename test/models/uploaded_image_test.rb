@@ -97,4 +97,11 @@ class UploadedImageTest < ActiveSupport::TestCase
       ClamAV::Client.unstub(:new)
     end
   end
+
+  test "should return public_path as media url" do
+    t = create_uploaded_image
+    assert_equal "#{CONFIG['checkdesk_base_url']}#{t.file.url}", t.media_url
+    assert_equal t.public_path, t.media_url
+  end
+
 end

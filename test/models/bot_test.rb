@@ -2,7 +2,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class BotTest < ActiveSupport::TestCase
   test "should create bot" do
-    assert_difference 'Bot.count' do
+    assert_difference 'Bot::Bot.count' do
       create_bot
     end
   end
@@ -23,10 +23,10 @@ class BotTest < ActiveSupport::TestCase
     params = ActionController::Parameters.new(raw_params)
 
     assert_raise ActiveModel::ForbiddenAttributesError do 
-      Bot.create(params)
+      Bot::Bot.create(params)
     end
-    assert_difference 'Bot.count' do
-      Bot.create(params.permit(:name))
+    assert_difference 'Bot::Bot.count' do
+      Bot::Bot.create(params.permit(:name))
     end
   end
 

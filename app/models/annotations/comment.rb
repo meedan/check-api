@@ -15,15 +15,6 @@ class Comment < ActiveRecord::Base
     { text: self.text }.to_json
   end
 
-  def annotator_callback(value, _mapping_ids = nil)
-    user = User.where(email: value).last
-    user.nil? ? nil : user
-  end
-
-  def target_id_callback(value, mapping_ids)
-    mapping_ids[value]
-  end
-
   def slack_message
     I18n.t(:slack_save_comment,
       user: self.class.to_slack(User.current.name),

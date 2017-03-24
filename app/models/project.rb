@@ -98,8 +98,60 @@ class Project < ActiveRecord::Base
   def slack_notification_message
     I18n.t(:slack_create_project,
       user: self.class.to_slack(User.current.name),
-      url: self.class.to_slack_url("#{self.team.slug}/project/#{self.id}", "*#{self.title}*")
+      url: self.class.to_slack_url(self.url, "*#{self.title}*")
     )
+  end
+
+  def url
+    "#{CONFIG['checkdesk_client']}/#{self.team.slug}/project/#{self.id}"
+  end
+
+  def export
+    self.project_medias.collect{ |pm| Hash[
+      project_id: pm.project_id,
+      report_id: pm.id,
+      report_title: pm.title,
+      report_url: pm.full_url,
+      report_date: pm.created_at,
+      media_content: pm.media.quote || pm.embed['description'],
+      media_url: pm.media.media_url,
+      report_status: pm.last_status,
+      report_author: pm.user.name,
+      tags: pm.get_annotations('tag').to_enum.reverse_each.collect{ |t| t.data['full_tag'] }.reverse.join(', '),
+      notes_count: pm.annotations.count,
+      notes_ugc_count: pm.get_annotations('comment').count,
+      tasks_count: pm.get_annotations('task').count,
+      tasks_resolved_count: pm.get_annotations('task').select{ |t| t.status === "Resolved" }.count
+    ].merge(
+      pm.get_annotations('comment').to_enum.reverse_each.with_index.collect{ |c,i| Hash[
+        "note_date_#{i+1}": c.created_at,
+        "note_user_#{i+1}": c.annotator.name,
+        "note_content_#{i+1}": c.data['text']
+      ]}.reduce({}){ |h,o| h.merge(o) }
+    ).merge(
+      pm.get_annotations('task').map(&:load).to_enum.reverse_each.with_index.collect{ |t,i| r = t.responses.map(&:load).first; Hash[
+        "task_question_#{i+1}": t.label,
+        "task_user_#{i+1}": r&.annotator&.name,
+        "task_date_#{i+1}": r&.created_at,
+        "task_answer_#{i+1}": r&.values(['response'], '')&.dig('response'),
+        "task_note_#{i+1}": r&.values(['note'], '')&.dig('note'),
+       ]}.reduce({}){ |h,o| h.merge(o) }
+    )}
+  end
+
+  def export_to_csv
+    hashes = self.export
+    headers = hashes.inject([]) {|res, h| res | h.keys}
+    CSV.generate(headers: true) do |csv|
+      csv << headers
+      hashes.each do |x|
+        csv << headers.map {|header| x[header] || ""}
+      end
+    end
+  end
+
+  def csv_filename
+    [self.team.slug,self.title.parameterize,DateTime.now].join('_')
   end
 
   private
@@ -116,7 +168,8 @@ class Project < ActiveRecord::Base
     if self.team_id_changed?
       keys = %w(team_id)
       data = {'team_id' => self.team_id}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_team')
+      options = {keys: keys, data: data}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_team')
     end
   end
 

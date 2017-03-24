@@ -1,8 +1,8 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id
+  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id, :set_annotation
 
-  include ProjectMediaAssociations 
-
+  include ProjectMediaAssociations
+  include ProjectMediaCreators
   include Versioned
 
   validates_presence_of :media_id, :project_id
@@ -10,7 +10,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language
   after_update :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
 
@@ -28,6 +28,14 @@ class ProjectMedia < ActiveRecord::Base
 
   include CheckElasticSearch
 
+  def user_id_callback(value, _mapping_ids = nil)
+    user_callback(value)
+  end
+
+  def project_id_callback(value, mapping_ids = nil)
+    mapping_ids[value]
+  end
+
   def set_initial_media_status
     st = Status.new
     st.annotated = self
@@ -44,7 +52,7 @@ class ProjectMedia < ActiveRecord::Base
     I18n.t(:slack_create_project_media,
       user: self.class.to_slack(User.current.name),
       type: I18n.t(type.to_sym),
-      url: self.class.to_slack_url("#{self.project.team.slug}/project/#{self.project_id}/media/#{self.id}", "*#{self.title}*"),
+      url: self.class.to_slack_url(self.full_url, "*#{self.title}*"),
       project: self.class.to_slack(self.project.title)
     )
   end
@@ -80,7 +88,8 @@ class ProjectMedia < ActiveRecord::Base
     if self.project_id_changed?
       keys = %w(project_id team_id)
       data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(keys), YAML::dump(data), 'update_parent')
+      options = {keys: keys, data: data, parent: self.id}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
     end
   end
 
@@ -188,41 +197,17 @@ class ProjectMedia < ActiveRecord::Base
     self.updated_at = Time.now
   end
 
-  protected
-
-  def create_image
-    m = UploadedImage.new
-    m.file = self.file
-    m.save!
-    m
+  def text
+    self.media.text
   end
 
-  def create_claim
-    m = Claim.new
-    m.quote = self.quote
-    m.save!
-    m
+  def get_language
+    bot = Bot::Alegre.default
+    bot.get_language_from_alegre(self.text, self) unless bot.nil?
   end
 
-  def create_link
-    m = Link.new
-    m.url = self.url
-    # call m.valid? to get normalized URL before caling 'find_or_create_by'
-    m.valid?
-    m = Link.find_or_create_by(url: m.url)
-    m
-  end
-
-  def create_media
-    m = nil
-    if !self.file.blank?
-      m = self.create_image
-    elsif !self.quote.blank?
-      m = self.create_claim
-    else
-      m = self.create_link
-    end
-    m
+  def full_url
+    "#{self.project.url}/media/#{self.id}"
   end
 
   private
@@ -272,10 +257,21 @@ class ProjectMedia < ActiveRecord::Base
       d.skip_check_ability = true
       d.skip_notifications = true
       d.annotation_type = 'reverse_image'
-      d.annotator = Bot.where(name: 'Check Bot').last
+      d.annotator = Bot::Bot.where(name: 'Check Bot').last
       d.annotated = self
       d.set_fields = { reverse_image_path: picture }.to_json
       d.save!
+    end
+  end
+
+  def create_annotation
+    unless self.set_annotation.blank?
+      params = JSON.parse(self.set_annotation)
+      response = Dynamic.new
+      response.annotated = self
+      response.annotation_type = params['annotation_type']
+      response.set_fields = params['set_fields']
+      response.save!
     end
   end
 

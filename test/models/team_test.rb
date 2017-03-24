@@ -126,7 +126,7 @@ class TeamTest < ActiveSupport::TestCase
     file = 'http://checkdesk.org/users/1/photo.png'
     assert_nil t.logo_callback(file)
     file = 'http://ca.ios.ba/files/others/rails.png'
-    assert_not_nil t.logo_callback(file)
+    assert_nil t.logo_callback(file)
   end
 
   test "should add user to team on team creation" do

@@ -103,4 +103,6 @@ en:
     actions:
       send_reset_password_email:
         menu: Send reset password instructions
+      export_project:
+        menu: Export project data
   reset_password_instructions: Check reset password instructions
