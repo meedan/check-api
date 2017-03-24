@@ -567,4 +567,37 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [pm2.id, pm1.id], MediaSearch.all_sorted('desc').map(&:id).map(&:to_i)
   end
 
+  test "should not hit ES when there are no filters" do
+    t1 = create_team
+    p1a = create_project team: t1
+    p1b = create_project team: t1
+    pm1a = create_project_media project: p1a
+    sleep 1
+    pm1b = create_project_media project: p1b
+    
+    t2 = create_team
+    p2a = create_project team: t2
+    p2b = create_project team: t2
+    pm2a = create_project_media project: p2a
+    sleep 1
+    pm2b = create_project_media project: p2b
+    
+    Team.stubs(:current).returns(t1)
+    assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
+    assert_equal 2, CheckSearch.new('{}').number_of_results
+    assert_equal [pm1a], CheckSearch.new({ projects: [p1a.id] }.to_json).medias
+    assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).number_of_results
+    assert_equal [pm1a, pm1b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
+    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).number_of_results
+    Team.unstub(:current)
+
+    Team.stubs(:current).returns(t2)
+    assert_equal [pm2b, pm2a], CheckSearch.new('{}').medias
+    assert_equal 2, CheckSearch.new('{}').number_of_results
+    assert_equal [pm2a], CheckSearch.new({ projects: [p2a.id] }.to_json).medias
+    assert_equal 1, CheckSearch.new({ projects: [p2a.id] }.to_json).number_of_results
+    assert_equal [pm2a, pm2b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
+    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).number_of_results
+    Team.unstub(:current)
+  end
 end
