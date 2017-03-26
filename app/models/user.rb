@@ -78,6 +78,7 @@ class User < ActiveRecord::Base
     fb_user = User.where(provider: auth.provider, email: auth.info.email).first
     if !fb_user.nil? && fb_user.uuid != auth.uid
       fb_user.uuid = auth.uid
+      fb_user.skip_check_ability = true
       fb_user.save!
     end
   end

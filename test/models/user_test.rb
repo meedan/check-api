@@ -463,7 +463,9 @@ class UserTest < ActiveSupport::TestCase
   test "should update Facebook id" do
     u = create_user provider: 'facebook', uuid: '123456', email: 'user@fb.com'
     assert_equal '123456', u.reload.uuid
+    User.current = create_user
     User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '654321', info: OpenStruct.new({ email: 'user@fb.com' })}))
+    User.current = nil
     assert_equal '654321', u.reload.uuid
   end
 end
