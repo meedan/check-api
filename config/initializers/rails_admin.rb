@@ -290,6 +290,9 @@ RailsAdmin.config do |config|
       configure :get_checklist, :json do
         label 'Checklist'
       end
+      configure :suggested_tags do
+        label 'Suggested tags'
+      end
     end
 
     edit do
@@ -335,6 +338,17 @@ RailsAdmin.config do |config|
       field :checklist, :yaml do
         label 'Checklist'
         formatted_yaml(:get_checklist)
+      end
+      field :suggested_tags do
+        label 'Suggested tags'
+        formatted_value do
+          value = bindings[:object].get_suggested_tags
+          value.present? ? value : nil
+        end
+        help 'Example: `Registration problems,Voter ID problems,Equipment problems,Accessibility — language or disabled,Long lines,Intimidation or challenges'
+        hide do
+          bindings[:object].new_record?
+        end
       end
     end
 
