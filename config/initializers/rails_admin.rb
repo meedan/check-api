@@ -127,6 +127,8 @@ RailsAdmin.config do |config|
         nil
       end
     end
+    partial 'form_settings'
+    help ''
     hide do
       bindings[:object].new_record?
     end
