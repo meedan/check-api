@@ -118,22 +118,12 @@ RailsAdmin.config do |config|
     end
   end
 
-  def formatted_yaml(method_name)
-    formatted_value do
-      begin
-        value = bindings[:object].send(method_name)
-        value.present? ? JSON.pretty_generate(value) : nil
-      rescue JSON::GeneratorError
-        nil
-      end
-    end
-    partial 'form_settings'
-    help ''
+  def render_settings(field_type)
+    partial "form_settings_#{field_type}"
     hide do
       bindings[:object].new_record?
     end
   end
-
 
   config.model 'ApiKey' do
     list do
@@ -245,6 +235,7 @@ RailsAdmin.config do |config|
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
+        help ''
         hide do
           bindings[:object].new_record?
         end
@@ -252,13 +243,10 @@ RailsAdmin.config do |config|
       field :slack_channel do
         label 'Slack default #channel'
         formatted_value{ bindings[:object].get_slack_channel }
-        help "Format: `#XXXXXXXXXX`"
-        hide do
-          bindings[:object].new_record?
-        end
+        help 'The Slack channel to which Check should send notifications about events that occur in this project.'
+        render_settings('field')
       end
     end
-
   end
 
   config.model 'Team' do
@@ -304,15 +292,18 @@ RailsAdmin.config do |config|
       field :archived
       field :media_verification_statuses, :yaml do
         label 'Media verification statuses'
-        formatted_yaml(:get_media_verification_statuses)
+        render_settings('text')
+        help "A list of custom verification statuses for reports that match your team's journalistic guidelines."
       end
       field :source_verification_statuses, :yaml do
         label 'Source verification statuses'
-        formatted_yaml(:get_source_verification_statuses)
+        help "A list of custom verification statuses for sources that match your team's journalistic guidelines."
+        render_settings('text')
       end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
+        help ''
         hide do
           bindings[:object].new_record?
         end
@@ -320,35 +311,25 @@ RailsAdmin.config do |config|
       field :slack_webhook do
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
-        help "Format: `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`"
-        hide do
-          bindings[:object].new_record?
-        end
+        help "A [webhook supplied by Slack](https://my.slack.com/services/new/incoming-webhook/) and that Check uses to send notifications about events that occur in your team."
+        render_settings('field')
       end
       field :slack_channel do
         label 'Slack default #channel'
-        formatted_value do
-          bindings[:object].get_slack_channel
-        end
-        help "Format: `#XXXXXXXXXX`"
-        hide do
-          bindings[:object].new_record?
-        end
+        formatted_value{ bindings[:object].get_slack_channel }
+        help "The Slack channel to which Check should send notifications about events that occur in your team."
+        render_settings('field')
       end
       field :checklist, :yaml do
         label 'Checklist'
-        formatted_yaml(:get_checklist)
+        help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
+        render_settings('text')
       end
       field :suggested_tags do
         label 'Suggested tags'
-        formatted_value do
-          value = bindings[:object].get_suggested_tags
-          value.present? ? value : nil
-        end
-        help 'Example: `Registration problems,Voter ID problems,Equipment problems,Accessibility — language or disabled,Long lines,Intimidation or challenges'
-        hide do
-          bindings[:object].new_record?
-        end
+        formatted_value { bindings[:object].get_suggested_tags }
+        help "A list of common tags to be used with reports and sources in your team."
+        render_settings('field')
       end
     end
 

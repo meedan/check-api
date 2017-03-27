@@ -8,7 +8,12 @@ module RailsAdmin
           RailsAdmin::Config::Fields::Types.register(self)
 
           register_instance_option :formatted_value do
-            value.present? ? YAML.load(value) : nil
+            begin
+              value = bindings[:object].send("get_#{name}")
+              value.present? ? JSON.pretty_generate(value) : nil
+            rescue JSON::GeneratorError
+              nil
+            end
           end
 
           def parse_value(value)
