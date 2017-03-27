@@ -75,11 +75,13 @@ class User < ActiveRecord::Base
   end
 
   def self.update_facebook_uuid(auth)
-    fb_user = User.where(provider: auth.provider, email: auth.info.email).first
-    if !fb_user.nil? && fb_user.uuid != auth.uid
-      fb_user.uuid = auth.uid
-      fb_user.skip_check_ability = true
-      fb_user.save!
+    unless auth.info.email.blank?
+      fb_user = User.where(provider: auth.provider, email: auth.info.email).first
+      if !fb_user.nil? && fb_user.uuid != auth.uid
+        fb_user.uuid = auth.uid
+        fb_user.skip_check_ability = true
+        fb_user.save!
+      end
     end
   end
 
