@@ -15,7 +15,7 @@ module Api
         begin
           query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { ability: @ability, file: request.params[:file] })
           render json: query.result
-        rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique => e
+        rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError => e
           render json: { error: e.message }, status: 400
         rescue CheckPermissions::AccessDenied => e
           render json: { error: e.message }, status: 403
