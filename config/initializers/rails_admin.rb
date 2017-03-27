@@ -252,6 +252,7 @@ RailsAdmin.config do |config|
       field :slack_channel do
         label 'Slack default #channel'
         formatted_value{ bindings[:object].get_slack_channel }
+        help "Format: `#XXXXXXXXXX`"
         hide do
           bindings[:object].new_record?
         end
@@ -316,6 +317,7 @@ RailsAdmin.config do |config|
       field :slack_webhook do
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
+        help "Format: `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`"
         hide do
           bindings[:object].new_record?
         end
@@ -325,6 +327,7 @@ RailsAdmin.config do |config|
         formatted_value do
           bindings[:object].get_slack_channel
         end
+        help "Format: `#XXXXXXXXXX`"
         hide do
           bindings[:object].new_record?
         end
