@@ -909,4 +909,16 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_match /\.png$/, data['embed']
     assert_match /\.png$/, data['thumbnail']
   end
+
+  test "should not query invalid type" do
+    u = create_user
+    p = create_project team: @team
+    create_team_user user: u, team: @team, role: 'owner'
+    authenticate_with_user(u)
+    id = Base64.encode64("InvalidType/#{p.id}")
+    query = "mutation destroy { destroyProject(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
+    post :create, query: query, team: @team.slug
+    assert_response 400
+  end
+
 end
