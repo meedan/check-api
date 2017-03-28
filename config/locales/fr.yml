@@ -54,7 +54,7 @@ fr:
   slack_create_project: "*%{user}* a créé un projet : %{url}"
   slack_create_team_user: "*%{user}* s'est joint à l'équipe %{url}"
   slack_create_project_media: "*%{user}* a rajouté un(e) nouveau(elle) %{type} dans *%{project}* : %{url}"
-  slack_create_task: "*%{user}* a crée une tâche %{url} dans *%{project}* avec commentaire : %{note}"
+  slack_create_task: "*%{user}* a créé une tâche %{url} dans *%{project}* avec commentaire : %{note}"
   slack_answer_task: |-
     *%{user}* a résolu la tâche %{url} dans *%{project}* : %{response}
     *Note :* %{note}
