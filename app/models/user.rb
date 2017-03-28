@@ -181,6 +181,10 @@ class User < ActiveRecord::Base
     self.settings.to_json
   end
 
+  def languages=(languages)
+    self.send(:set_languages, languages)
+  end
+
   protected
 
   def confirmation_required?

@@ -5,7 +5,13 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   def setup
     @user = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', provider: ''
     @user.confirm
+    @admin_user = create_user login: 'admin_user', password: '12345678', password_confirmation: '12345678', email: 'admin@test.com', provider: ''
+    @admin_user.confirm
+    @admin_user.is_admin = true
+    @admin_user.save!
+
     @project = create_project user: @user
+    @team = create_team
   end
 
   test "should redirect to root if not logged user access admin UI" do
@@ -57,34 +63,56 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should access new project page" do
-    @user.is_admin = true
-    @user.save!
-
-    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
 
     get '/admin/project/new'
     assert_response :success
   end
 
   test "should show link to send reset password email" do
-    @user.is_admin = true
-    @user.save!
+    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
 
-    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+    get "/admin/user/#{@admin_user.id}/"
 
-    get "/admin/user/#{@user.id}/"
-
-    assert_select "a[href=?]", "#{request.base_url}/admin/user/#{@user.id}/send_reset_password_email"
+    assert_select "a[href=?]", "#{request.base_url}/admin/user/#{@admin_user.id}/send_reset_password_email"
   end
 
   test "should send reset password email and redirect" do
-    @user.is_admin = true
-    @user.save!
+    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
 
-    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
-
-    get "/admin/user/#{@user.id}/send_reset_password_email"
+    get "/admin/user/#{@admin_user.id}/send_reset_password_email"
     assert_redirected_to '/admin/user'
+  end
+
+  test "should access User page" do
+    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+
+    get "/admin/user/#{@user.id}/edit"
+    assert_response :success
+  end
+
+  test "should access User page with setting with json error" do
+    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+    @user.set_languages('invalid_json')
+    @user.save
+    get "/admin/user/#{@user.id}/edit"
+    assert_response :success
+  end
+
+  test "should edit and save User with yaml field" do
+    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+
+    put "/admin/user/#{@user.id}/edit", user: { languages: "[{'id': 'en','title': 'English'}]" }
+    assert_redirected_to '/admin/user'
+    assert_equal [{"id" => "en", "title" => "English"}], @user.reload.get_languages
+  end
+
+  test "should edit and save suggested tags on Team" do
+    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+
+    put "/admin/team/#{@team.id}/edit", team: { suggested_tags: "one tag, other tag" }
+    assert_redirected_to '/admin/team'
+    assert_equal "one tag, other tag", @team.reload.get_suggested_tags
   end
 
   test "should show link to export data of a project" do
