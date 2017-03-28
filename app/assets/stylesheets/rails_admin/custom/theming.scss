@@ -1,0 +1,20 @@
+.settings-example {
+  padding: 0px;
+  color: #737373;
+  i {
+    cursor: pointer;
+  }
+  pre {
+    line-height: 1em;
+    max-height: 100px;
+    border: 1px solid #CCC;
+    background-color: #EEE;
+    margin-top: 5px;
+    padding: 5px;
+    resize: both;
+    &.open {
+      height: unset;
+      max-height: none;
+    }
+  }
+}

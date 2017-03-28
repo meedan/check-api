@@ -1,0 +1,6 @@
+= render :partial => 'form_text', :locals => { :form => form, :field => field }
+
+.col-sm-7.controls.settings-example
+  %span Example
+  %i{:class => "icon-resize-full"}
+  = render :partial => field.method_name.to_s
