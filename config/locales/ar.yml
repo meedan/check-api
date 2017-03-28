@@ -1,9 +1,87 @@
 ar:
   link: رابط
+  claim: إدعاء
   uploadedimage: صورة
   uploadefile: ملف
+  blank: "(مساحة فارغة)"
+  errors:
+    messages:
+      extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات المسموحة هي: %{allowed_types}'
+      invalid_size: لا بد أن تكون الصورة بين %{min_width}x%{min_height} و %{max_width}x%{max_height} بكسل
   activerecord:
+    models:
+      link: رابط
+      claim: إدعاء
+      uploaded_image: صورة
+      uploaded_file: ملف
     attributes:
       tag:
         data: وسم
+      uploaded_file:
+        file: ملف
+      uploaded_image:
+        file: صورة
+    errors:
+      messages:
+        too_short:
+          zero: طوله لا يكفي (على الأقل %{count} حروف)
+          one: قصيرة جداً (الحد الأدنى حرفاً واحداً)
+          two: قصيرة جداً (الحد الأدنى %{count} حروف)
+          few: قصيرة جداً (الحد الأدنى %{count} حروف)
+          many: قصيرة جداً (الحد الأدنى %{count} حروف)
+          other: قصيرة جداً (الحد الأدنى %{count} حروف)
+      models:
+        user:
+          attributes:
+            email:
+              taken: 'لقد حدثت مشكلة صغيرة: استخدمت هذا البريد الإلكتروني سابقاً لتسجيل الدخول بطريقة أخرى. أرسلنا لك تواً رسالة إلكترونية لنذكرك بطريقة التسجيل السابقة. من فضلك راجع بريدك الإلكتروني ثم سجل الدخول بنفس الطريقة السابقة.'
+  devise:
+    failure:
+      invalid: ' %{authentication_keys} أو كلمة مرور غير صحيحة'
+      not_found_in_database: ' %{authentication_keys} أو كلمة مرور غير صحيحة'
+      unconfirmed: لا بد من تأكيد عنوان بريدك الإلكتروني قبل الإستمرار.
+  slug_format_validation_message: 'يقبل الأحرف والأرقام و''-'' فقط '
+  slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة
+  slug_is_reserved: مأخوذ
+  invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالة التحقق الخاصة
+  invalid_media_item: ' عذراً، هذا ليس تقرير مسموح بإدخاله'
+  already_exists: موجود بالفعل
+  mail_account_confirmation: تأكيد حساب Check
   mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على !Check"
+  approved: تم الموافقة
+  rejected: لم يتم الموافقة
+  mail_request_to_join_processed: '%{status} على طلب انضمامك إلى فريق %{team} على Check'
+  mail_new_account: حساب جديد لك على Check
+  slack_update_status: "غير*%{user}* حالة التحقق على %{url} في *%{project}* من _%{previous_status}_ إلى *%{current_status}*"
+  slack_save_embed: "غير*%{user}* عنوان التقرير في  *%{project}* من _%{from}_ إلى %{to}"
+  slack_save_comment: "أضاف *%{user}* تعليقاً على %{url} في %{project}*: %{comment}"
+  slack_create_project: "أضاف %{user}*  مشروع: %{url}"
+  slack_create_team_user: "إنضم *%{user}* لفريق %{url}"
+  slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
+  slack_create_task: "أضاف *%{user}* المهمة %{url} في مشروع *%{project}* وكتب التعليق الإضافي: %{note}"
+  slack_answer_task: |-
+    أتمّ *%{user}* المهمة %{url} في مشروع *%{project}* وكتب: %{response}
+    *والتعليق الإضافي:* %{note}
+  slack_update_task_label: |-
+    حرر *%{user}* المهمة %{url} في مشروع *%{project}* من %{from}
+    *إلى:* %{to}
+  slack_update_task_description: |-
+    حرر *%{user}* التعليق الإضافي للمهمة %{url} في مشروع *%{project}* من %{from}
+    *إلى:* %{to}
+  mail_view_welcome: مرحباً بك في Check
+  mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على Check! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
+  mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
+  mail_view_rejected_to_join: عذراً، رُفض طلب انضمامك إلى فريق %{team}
+  mail_view_request_to_join: "%{user} (%{handle}) يريد الانضمام إلى فريق %{team} على Check!"
+  mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
+  pender_could_not_parse: تعذّر تحليل الميديا
+  mail_duplicate_email_exists: كيفية تسجيل الدخول الخاصة بك
+  mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نذكرك بطريقة تسجيل حسابك الحالية على Check.</p> <p>\nما الذي حدث؟ لقد حاولت التسجيل على Check باستخدام حساب على %{user_provider} المربوط بالبريد الإلكتروني %{user_email}. ولكن هذا البريد الإلكتروني مسجل بالفعل على Check مرتبطاً بحساب اخر على %{duplicate_provider}.</p> <p>\nما الذي يمكنك فعله الآن؟ قم بتسجيل الدخول باستخدام  %{duplicate_provider}.</p> <p>\nللدخول نفس الطريقة المستخدمة سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني check@meedan.com.</p> <p>\n— فريق عمل Check</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على Check.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على Check باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى Check باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني check@meedan.com.</p> <p>\n— فريق عمل Check</p>"
+  mail_duplicate_email_exists_email: البريد الإلكتروني
+  slack_restricted_join_to_members: عذراً، لا يمكنك الانضمام إلى فريق %{team_name} حيث أنه محصور على أعضاء فريق %{teams} على Slack.
+  admin:
+    actions:
+      send_reset_password_email:
+        menu: إرسال تعليمات إعادة ضبط كلمة المرور
+  reset_password_instructions: التحقق من تعليمات إعادة ضبط كلمة المرور
