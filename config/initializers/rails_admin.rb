@@ -311,7 +311,7 @@ RailsAdmin.config do |config|
       field :slack_webhook do
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
-        help "A [webhook supplied by Slack](https://my.slack.com/services/new/incoming-webhook/) and that Check uses to send notifications about events that occur in your team."
+        help "A <a href='https://my.slack.com/services/new/incoming-webhook/' target='_blank'>webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.".html_safe
         render_settings('field')
       end
       field :slack_channel do
