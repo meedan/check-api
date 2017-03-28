@@ -374,6 +374,12 @@ RailsAdmin.config do |config|
       end
     end
 
+    show do
+      configure :get_languages, :json do
+        label 'Languages'
+      end
+    end
+
     edit do
       field :name
       field :login
@@ -399,17 +405,12 @@ RailsAdmin.config do |config|
           bindings[:view]._current_user.is_admin?
         end
       end
-      field :settings, :json do
-        formatted_value do
-          bindings[:object].settings.except(:password, :password_confirmation) unless bindings[:object].settings.nil?
-        end
+      field :languages, :yaml do
+        label 'Languages'
+        render_settings('text')
+        help "A list of the user's preferred languages (e.g. for translation)."
       end
     end
-
-    show do
-      configure :settings, :json
-    end
-
   end
 
 end
