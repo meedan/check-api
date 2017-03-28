@@ -98,8 +98,8 @@ Clients should send the `Accept-Language` header in order to get localized conte
 
 #### Add new settings fields
 
-* Create a method on model to receive the data and set it to the setting field
-   On `app/models/team.rb`
+* Create a method on model to receive the data and set it to the setting field. For example, in `app/models/team.rb`:
+
 ```ruby
   def media_verification_statuses=(statuses)
     self.send(:set_media_verification_statuses, statuses)
@@ -107,9 +107,10 @@ Clients should send the `Accept-Language` header in order to get localized conte
 ```
 
 * Configure the fields on Admin UI (`config/initializers/rails_admin.rb`)
-   * `show` block: on config for the model (as example, `Team`) configure the type of field (as example, `json`) and the label to be displayed.
-      Fields that are supposed to be Array or Hash could be configured as `json` be easier to read.
-```
+
+**`show` block**: on config for the model (as example, `Team`) configure the type of field (as example, `json`) and the label to be displayed. Fields that are supposed to be Array or Hash could be configured as `json` be easier to read.
+
+```ruby
 show do
   configure :get_media_verification_statuses, :json do
     label 'Media verification statuses'
@@ -117,10 +118,13 @@ show do
   (...)
 end
 ```
-   * `edit` block: on config for the model (as example, `Team`) configure the type of field (as example, `yaml`), the label to be displayed and the help with a description.
-      Fields that are supposed to be Array or Hash could be configured as `yaml`, that is more flexible than JSON format.
-      For `yaml` fields the content should be displayed on a `textarea` and have an example for the field. Just include `render_settings('text')` and add an example in a partial file, like `app/views/rails_admin/main/_media_verification_statuses.html.erb`
-```
+
+**`edit` block**: on config for the model (as example, `Team`) configure the type of field (as example, `yaml`), the label to be displayed and the help with a description.
+Fields that are supposed to be Array or Hash could be configured as `yaml`, that is more flexible than JSON format.
+
+For `yaml` fields the content should be displayed on a `textarea` and have an example for the field. Just include `render_settings('text')` and add an example in a partial file, like `app/views/rails_admin/main/_media_verification_statuses.html.erb`
+
+```ruby
 edit do
   field :media_verification_statuses, :yaml do
     label 'Media verification statuses'
@@ -129,9 +133,10 @@ edit do
   end
 end
 ```
-      For `string` fields the content should be displayed on a `text_field` and have an example for the field. Just include `render_settings('field')` and add an example in a partial file, like `app/views/rails_admin/main/_suggested_tags.html.erb`. Also, the `formatted_value` should be included like `formatted value { bindings[:object].get_suggested_tags }`.
 
-```
+For `string` fields the content should be displayed on a `text_field` and have an example for the field. Just include `render_settings('field')` and add an example in a partial file, like `app/views/rails_admin/main/_suggested_tags.html.erb`. Also, the `formatted_value` should be included like `formatted value { bindings[:object].get_suggested_tags }`.
+
+```ruby
 edit do
   field :suggested_tags do
     label 'Suggested tags'
