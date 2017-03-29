@@ -623,8 +623,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 1, Annotation.where(annotation_type: 'translation').count
   end
 
-  test "should have reference to search object" do
+  test "should have reference to search team object" do
     pm = create_project_media
-    assert_kind_of CheckSearch, pm.check_search
+    assert_kind_of CheckSearch, pm.check_search_team
+  end
+
+  test "should have reference to search project object" do
+    pm = create_project_media
+    assert_kind_of CheckSearch, pm.check_search_project
   end
 end

@@ -90,7 +90,8 @@ class GraphqlCrudOperations
 
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
-        return_field parent.to_sym, "#{parent.gsub(/_was$/, '').camelize}Type".constantize
+        parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
+        return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
       resolve -> (inputs, ctx) {
@@ -107,7 +108,8 @@ class GraphqlCrudOperations
 
       return_field :deletedId, types.ID
       parents.each do |parent|
-        return_field parent.to_sym, "#{parent.gsub(/_was$/, '').camelize}Type".constantize
+        parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
+        return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
       resolve -> (inputs, ctx) {

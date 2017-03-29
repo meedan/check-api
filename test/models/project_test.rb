@@ -435,4 +435,8 @@ class ProjectTest < ActiveSupport::TestCase
     assert_match(header, exported_data)
   end
 
+  test "should have search id" do
+    p = create_project
+    assert_not_nil p.search_id
+  end
 end
