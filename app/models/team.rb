@@ -114,6 +114,10 @@ class Team < ActiveRecord::Base
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
   end
 
+  def suggested_tags=(tags)
+    self.send(:set_suggested_tags, tags)
+  end
+
   protected
 
   def custom_statuses_format(type)

@@ -1,7 +1,9 @@
 require Rails.root.join('lib', 'rails_admin', 'send_reset_password_email.rb')
 require Rails.root.join('lib', 'rails_admin', 'export_project.rb')
+require Rails.root.join('lib', 'rails_admin', 'yaml_field.rb')
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportProject)
+RailsAdmin::Config::Actions.register(RailsAdmin::Config::Fields::Types::Yaml)
 
 RailsAdmin.config do |config|
 
@@ -116,6 +118,13 @@ RailsAdmin.config do |config|
     end
   end
 
+  def render_settings(field_type)
+    partial "form_settings_#{field_type}"
+    hide do
+      bindings[:object].new_record?
+    end
+  end
+
   config.model 'ApiKey' do
     list do
       field :access_token
@@ -226,6 +235,7 @@ RailsAdmin.config do |config|
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
+        help ''
         hide do
           bindings[:object].new_record?
         end
@@ -233,12 +243,10 @@ RailsAdmin.config do |config|
       field :slack_channel do
         label 'Slack default #channel'
         formatted_value{ bindings[:object].get_slack_channel }
-        hide do
-          bindings[:object].new_record?
-        end
+        help 'The Slack channel to which Check should send notifications about events that occur in this project.'
+        render_settings('field')
       end
     end
-
   end
 
   config.model 'Team' do
@@ -270,6 +278,9 @@ RailsAdmin.config do |config|
       configure :get_checklist, :json do
         label 'Checklist'
       end
+      configure :suggested_tags do
+        label 'Suggested tags'
+      end
     end
 
     edit do
@@ -279,29 +290,20 @@ RailsAdmin.config do |config|
       field :slug
       field :private
       field :archived
-      field :media_verification_statuses, :json do
+      field :media_verification_statuses, :yaml do
         label 'Media verification statuses'
-        formatted_value do
-          statuses = bindings[:object].get_media_verification_statuses
-          statuses ? JSON.pretty_generate(statuses) : ''
-        end
-        hide do
-          bindings[:object].new_record?
-        end
+        render_settings('text')
+        help "A list of custom verification statuses for reports that match your team's journalistic guidelines."
       end
-      field :source_verification_statuses, :json do
+      field :source_verification_statuses, :yaml do
         label 'Source verification statuses'
-        formatted_value do
-          statuses = bindings[:object].get_source_verification_statuses
-          statuses ? JSON.pretty_generate(statuses) : ''
-        end
-        hide do
-          bindings[:object].new_record?
-        end
+        help "A list of custom verification statuses for sources that match your team's journalistic guidelines."
+        render_settings('text')
       end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
+        help ''
         hide do
           bindings[:object].new_record?
         end
@@ -309,28 +311,25 @@ RailsAdmin.config do |config|
       field :slack_webhook do
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
-        hide do
-          bindings[:object].new_record?
-        end
+        help "A <a href='https://my.slack.com/services/new/incoming-webhook/' target='_blank'>webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.".html_safe
+        render_settings('field')
       end
       field :slack_channel do
         label 'Slack default #channel'
-        formatted_value do
-          bindings[:object].get_slack_channel
-        end
-        hide do
-          bindings[:object].new_record?
-        end
+        formatted_value{ bindings[:object].get_slack_channel }
+        help "The Slack channel to which Check should send notifications about events that occur in your team."
+        render_settings('field')
       end
-      field :checklist, :json do
+      field :checklist, :yaml do
         label 'Checklist'
-        formatted_value do
-          checklist = bindings[:object].get_checklist
-          checklist ? JSON.pretty_generate(checklist) : ''
-        end
-        hide do
-          bindings[:object].new_record?
-        end
+        help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
+        render_settings('text')
+      end
+      field :suggested_tags do
+        label 'Suggested tags'
+        formatted_value { bindings[:object].get_suggested_tags }
+        help "A list of common tags to be used with reports and sources in your team."
+        render_settings('field')
       end
     end
 
@@ -375,6 +374,12 @@ RailsAdmin.config do |config|
       end
     end
 
+    show do
+      configure :get_languages, :json do
+        label 'Languages'
+      end
+    end
+
     edit do
       field :name
       field :login
@@ -400,17 +405,12 @@ RailsAdmin.config do |config|
           bindings[:view]._current_user.is_admin?
         end
       end
-      field :settings, :json do
-        formatted_value do
-          bindings[:object].settings.except(:password, :password_confirmation) unless bindings[:object].settings.nil?
-        end
+      field :languages, :yaml do
+        label 'Languages'
+        render_settings('text')
+        help "A list of the user's preferred languages (e.g. for translation)."
       end
     end
-
-    show do
-      configure :settings, :json
-    end
-
   end
 
 end
