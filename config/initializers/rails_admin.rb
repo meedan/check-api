@@ -278,7 +278,7 @@ RailsAdmin.config do |config|
       configure :get_checklist, :json do
         label 'Checklist'
       end
-      configure :suggested_tags do
+      configure :get_suggested_tags do
         label 'Suggested tags'
       end
     end
