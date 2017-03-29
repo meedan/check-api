@@ -613,4 +613,12 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_not_nil CheckSearch.id
     assert_not_nil CheckSearch.new('{}').id
   end
+
+  test "should get Pusher channel" do
+    p = create_project
+    cs = CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => p.id }, 'projects' => [p.id] }.to_json)
+    assert_equal p.pusher_channel, cs.pusher_channel
+    cs = CheckSearch.new('{}')
+    assert_nil cs.pusher_channel
+  end
 end

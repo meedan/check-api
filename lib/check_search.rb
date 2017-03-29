@@ -11,6 +11,14 @@ class CheckSearch
     @options['sort_type'] = @options['sort_type'] ||= 'desc'
   end
 
+  def pusher_channel
+    if @options['parent'] && @options['parent']['type'] == 'project'
+      Project.find(@options['parent']['id']).pusher_channel
+    else
+      nil
+    end
+  end
+
   def id
     CheckSearch.id(@options['input'])
   end
