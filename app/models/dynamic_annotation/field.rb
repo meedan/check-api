@@ -8,6 +8,16 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   before_validation :set_annotation_type, :set_field_type
 
+  def to_s
+    begin
+      v = JSON.parse(self.value)
+      v = v['selected'].join(', ')
+    rescue
+      v = self.value
+    end
+    v
+  end
+
   include Versioned
 
   private
