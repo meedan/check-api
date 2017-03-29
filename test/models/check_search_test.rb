@@ -601,4 +601,15 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).number_of_results
     Team.unstub(:current)
   end
+
+  test "should project_medias be an alias of medias" do
+    create_project_media
+    cs = CheckSearch.new('{}')
+    assert_equal cs.medias, cs.project_medias
+  end
+
+  test "should get search id" do
+    assert_not_nil CheckSearch.id
+    assert_not_nil CheckSearch.new('{}').id
+  end
 end

@@ -622,4 +622,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_project_media set_annotation: { annotation_type: 'translation', set_fields: { 'translation_text' => 'Foo', 'translation_note' => 'Bar', 'translation_language' => 'pt' }.to_json }.to_json
     assert_equal 1, Annotation.where(annotation_type: 'translation').count
   end
+
+  test "should have reference to search object" do
+    pm = create_project_media
+    assert_kind_of CheckSearch, pm.check_search
+  end
 end

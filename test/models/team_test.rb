@@ -400,4 +400,8 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, ProjectMedia.where(project_id: p.id).count
   end
 
+  test "should have search id" do
+    t = create_team
+    assert_not_nil t.search_id
+  end
 end

@@ -210,6 +210,10 @@ class ProjectMedia < ActiveRecord::Base
     "#{self.project.url}/media/#{self.id}"
   end
 
+  def check_search
+    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.project.team.slug } }.to_json)
+  end
+
   private
 
   def is_unique
