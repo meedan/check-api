@@ -101,7 +101,7 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project
     p.medias << m1
     p.medias << m2
-    assert_equal [m1, m2], p.medias
+    assert_equal [m1, m2].sort, p.medias.sort
   end
 
   test "should get project medias count" do
@@ -118,7 +118,7 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project
     p.project_sources << ps1
     p.project_sources << ps2
-    assert_equal [ps1, ps2], p.project_sources
+    assert_equal [ps1, ps2].sort, p.project_sources.sort
   end
 
   test "should have sources" do

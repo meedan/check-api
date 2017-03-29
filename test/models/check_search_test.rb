@@ -305,6 +305,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
     # sort with keywords and tags
     create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
+    sleep 1
     create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
     sleep 1
     result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
