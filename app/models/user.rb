@@ -18,6 +18,7 @@ class User < ActiveRecord::Base
   validates :image, size: true
   validate :user_is_member_in_current_team
   validate :validate_duplicate_email, on: :create
+  validate :languages_format
 
   serialize :omniauth_info
 
@@ -262,4 +263,19 @@ class User < ActiveRecord::Base
     end
   end
 
+  def languages_format
+    languages = self.get_languages
+    unless languages.blank?
+      error_message = "Languages is invalid, it should have the format [{'id': 'en','title': 'English'}]"
+      if !languages.is_a?(Array)
+        errors.add(:base, I18n.t(:invalid_format_for_languages, default: error_message))
+      else
+        languages.each do |language|
+          if !language.is_a?(Hash) || language.keys.map(&:to_sym).sort != [:id, :title]
+            errors.add(:base, I18n.t(:invalid_format_for_languages, default: error_message))
+          end
+        end
+      end
+    end
+  end
 end
