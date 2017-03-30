@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
   validates :image, size: true
   validate :user_is_member_in_current_team
   validate :validate_duplicate_email, on: :create
-  validate :languages_format
+  validate :languages_format, unless: proc { |p| p.settings.nil? }
 
   serialize :omniauth_info
 

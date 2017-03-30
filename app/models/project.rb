@@ -16,7 +16,7 @@ class Project < ActiveRecord::Base
 
   validates_presence_of :title
   validates :lead_image, size: true
-  validate :slack_channel_format
+  validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
 
   has_annotations
 
