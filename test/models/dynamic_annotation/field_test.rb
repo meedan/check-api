@@ -56,4 +56,13 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should get string value" do
+    ft = create_field_type field_type: 'text_field'
+    fi = create_field_instance name: 'response', field_type_object: ft
+    f = create_field field_name: 'response', value: '{"selected":["Hello","Aloha"],"other":null}'
+    assert_equal 'Hello, Aloha', f.to_s
+    f = create_field field_name: 'response', value: 'Test'
+    assert_equal 'Test', f.to_s
+  end
 end

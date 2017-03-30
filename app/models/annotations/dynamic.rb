@@ -50,7 +50,7 @@ class Dynamic < ActiveRecord::Base
 
     @fields.each do |field|
       fields.each do |f|
-        values[f] = field.value if field.field_name =~ /^#{Regexp.escape(f)}/
+        values[f] = field.to_s if field.field_name =~ /^#{Regexp.escape(f)}/
       end
     end
     values

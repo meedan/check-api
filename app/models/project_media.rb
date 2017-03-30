@@ -236,7 +236,7 @@ class ProjectMedia < ActiveRecord::Base
   def create_auto_tasks
     if self.project && self.project.team && !self.project.team.get_checklist.blank?
       self.project.team.get_checklist.each do |task|
-        if task['projects'].empty? || task['projects'].include?(self.project.id)
+        if task['projects'].blank? || task['projects'].empty? || task['projects'].include?(self.project.id)
           t = Task.new
           t.label = task['label']
           t.type = task['type']
@@ -244,6 +244,7 @@ class ProjectMedia < ActiveRecord::Base
           t.annotator = User.current
           t.annotated = self
           t.skip_check_ability = true
+          t.skip_notifications = true
           t.save!
         end
       end

@@ -110,6 +110,10 @@ class Team < ActiveRecord::Base
     self.send(:set_checklist, checklist)
   end
 
+  def suggested_tags=(tags)
+    self.send(:set_suggested_tags, tags)
+  end
+
   protected
 
   def custom_statuses_format(type)
