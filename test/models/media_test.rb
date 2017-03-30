@@ -162,7 +162,7 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [], m.project_medias
     m.project_medias << pm1
     m.project_medias << pm2
-    assert_equal [p1, p2], m.projects
+    assert_equal [p1, p2].sort, m.projects.sort
   end
 
   test "should set URL from Pender" do

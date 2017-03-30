@@ -2,15 +2,29 @@ class CheckSearch
 
   def initialize(options)
     # options include keywords, projects, tags, status
-    @options = JSON.parse(options)
+    options = JSON.parse(options)
+    @options = options.clone
+    @options['input'] = options.clone
     @options['team_id'] = Team.current.id unless Team.current.nil?
     # set sort options
     @options['sort'] = @options['sort'] ||= 'recent_added'
     @options['sort_type'] = @options['sort_type'] ||= 'desc'
   end
 
+  def pusher_channel
+    if @options['parent'] && @options['parent']['type'] == 'project'
+      Project.find(@options['parent']['id']).pusher_channel
+    else
+      nil
+    end
+  end
+
   def id
-    Base64.encode64("CheckSearch/#{@options.to_json}")
+    CheckSearch.id(@options['input'])
+  end
+
+  def self.id(options = {})
+    Base64.encode64("CheckSearch/#{options.to_json}")
   end
 
   def class_name
@@ -54,6 +68,10 @@ class CheckSearch
     else
       self.from_relational_db
     end
+  end
+
+  def project_medias
+    self.medias
   end
 
   def number_of_results

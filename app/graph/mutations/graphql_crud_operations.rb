@@ -11,7 +11,7 @@ class GraphqlCrudOperations
     parents.each do |parent_name|
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
-        parent.no_cache = true
+        parent.no_cache = true if parent.respond_to?(:no_cache)
         ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
         ret[parent_name.to_sym] = parent
       end
@@ -90,7 +90,8 @@ class GraphqlCrudOperations
 
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
-        return_field parent.to_sym, "#{parent.gsub(/_was$/, '').camelize}Type".constantize
+        parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
+        return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
       resolve -> (inputs, ctx) {
@@ -107,7 +108,8 @@ class GraphqlCrudOperations
 
       return_field :deletedId, types.ID
       parents.each do |parent|
-        return_field parent.to_sym, "#{parent.gsub(/_was$/, '').camelize}Type".constantize
+        parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
+        return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
       resolve -> (inputs, ctx) {

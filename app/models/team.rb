@@ -110,6 +110,10 @@ class Team < ActiveRecord::Base
     self.send(:set_checklist, checklist)
   end
 
+  def search_id
+    CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
+  end
+
   def suggested_tags=(tags)
     self.send(:set_suggested_tags, tags)
   end

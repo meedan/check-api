@@ -154,6 +154,10 @@ class Project < ActiveRecord::Base
     [self.team.slug,self.title.parameterize,DateTime.now].join('_')
   end
 
+  def search_id
+    CheckSearch.id({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] })
+  end
+
   private
 
   def set_description_and_team_and_user
