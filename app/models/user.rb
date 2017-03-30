@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   attr_accessor :url, :skip_confirmation_mail
 
+  include ValidationsHelper
   has_one :source
   has_many :team_users
   has_many :teams, through: :team_users
@@ -263,19 +264,4 @@ class User < ActiveRecord::Base
     end
   end
 
-  def languages_format
-    languages = self.get_languages
-    unless languages.blank?
-      error_message = "Languages is invalid, it should have the format [{'id': 'en','title': 'English'}]"
-      if !languages.is_a?(Array)
-        errors.add(:base, I18n.t(:invalid_format_for_languages, default: error_message))
-      else
-        languages.each do |language|
-          if !language.is_a?(Hash) || language.keys.map(&:to_sym).sort != [:id, :title]
-            errors.add(:base, I18n.t(:invalid_format_for_languages, default: error_message))
-          end
-        end
-      end
-    end
-  end
 end

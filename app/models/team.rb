@@ -1,5 +1,6 @@
 class Team < ActiveRecord::Base
 
+  include ValidationsHelper
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
 
   has_many :projects, dependent: :destroy
@@ -21,8 +22,8 @@ class Team < ActiveRecord::Base
   validates :logo, size: true
   validate :slack_webhook_format
   validate :slack_channel_format
-  validate :custom_media_statuses_format
-  validate :custom_source_statuses_format
+  validate :custom_media_statuses_format, unless: proc { |p| p.settings.nil? || p.get_media_verification_statuses.nil? }
+  validate :custom_source_statuses_format, unless: proc { |p| p.settings.nil? || p.get_source_verification_statuses.nil? }
   validate :checklist_format
 
   after_create :add_user_to_team
@@ -124,13 +125,11 @@ class Team < ActiveRecord::Base
 
   def custom_statuses_format(type)
     statuses = self.send("get_#{type}_verification_statuses")
-    unless statuses.nil?
-      if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-        errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status, default: 'Custom verification statuses is invalid, it should have the format as exemplified below the field'))
-      else
-        statuses[:statuses].each do |status|
-          errors.add(:base, 'Custom verification statuses is invalid, it should have the format as exemplified below the field') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
-        end
+    if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
+      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status, default: 'Custom verification statuses is invalid, it should have the format as exemplified below the field'))
+    else
+      statuses[:statuses].each do |status|
+        errors.add(:base, 'Custom verification statuses is invalid, it should have the format as exemplified below the field') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
       end
     end
   end
@@ -167,20 +166,6 @@ class Team < ActiveRecord::Base
     URI(url).path.split('/')[1]
   end
 
-  def slack_webhook_format
-    webhook = self.get_slack_webhook
-    if !webhook.blank? && /\Ahttps?:\/\/hooks\.slack\.com\/services\/[^\s]+\z/.match(webhook).nil?
-      errors.add(:base, I18n.t(:slack_webhook_format_wrong, default: 'Slack webhook is invalid, it should have the format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`'))
-    end
-  end
-
-  def slack_channel_format
-    channel = self.get_slack_channel
-    if !channel.blank? && /\A#/.match(channel).nil?
-      errors.add(:base, I18n.t(:slack_channel_format_wrong, default: 'Slack channel is invalid, it should have the format #general'))
-    end
-  end
-
   def normalize_slug
     self.slug = self.slug.downcase unless self.slug.blank?
   end
@@ -197,19 +182,4 @@ class Team < ActiveRecord::Base
     errors.add(:slug, I18n.t(:slug_is_reserved, default: 'is reserved')) if RESERVED_SLUGS.include?(self.slug)
   end
 
-  def checklist_format
-    checklist = self.get_checklist
-    unless checklist.blank?
-      error_message = "Checklist is invalid, it should have the format [ { 'label': 'XXXX', 'type': 'free_text','description': 'YYYY', 'projects': [] } ]"
-      if !checklist.is_a?(Array)
-        errors.add(:base, I18n.t(:invalid_format_for_checklist, default: error_message))
-      else
-        checklist.each do |task|
-          if !task.is_a?(Hash) || task.keys.map(&:to_sym).sort != [:description, :label, :projects, :type]
-            errors.add(:base, I18n.t(:invalid_format_for_checklist, default: error_message))
-          end
-        end
-      end
-    end
-  end
 end

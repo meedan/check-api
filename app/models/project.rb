@@ -1,5 +1,6 @@
 class Project < ActiveRecord::Base
 
+  include ValidationsHelper
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
   belongs_to :team
@@ -175,13 +176,6 @@ class Project < ActiveRecord::Base
       data = {'team_id' => self.team_id}
       options = {keys: keys, data: data}
       ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_team')
-    end
-  end
-
-  def slack_channel_format
-    channel = self.get_slack_channel
-    if !channel.blank? && /\A#/.match(channel).nil?
-      errors.add(:base, I18n.t(:slack_channel_format_wrong, default: 'Slack channel is invalid, it should have the format #general'))
     end
   end
 
