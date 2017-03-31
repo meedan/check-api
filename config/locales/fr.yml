@@ -49,15 +49,23 @@ fr:
       uploaded_file: Fichier
     attributes:
       tag:
-        data: Tag
+        data: Le tag
       uploaded_file:
-        file: Fichier
+        file: Le fichier
       uploaded_image:
-        file: Image
+        file: L'image
       team:
-        slug: Chemin
+        slug: Le chemin
+      source:
+        name: Le nom
+      contact:
+        phone: Le téléphone
+      comment:
+        text: Le commentaire
     errors:
       messages:
+        record_invalid: 'La validation a échoué : %{errors}'
+        improbable_phone: est un numéro invalide
         too_short:
           one: trop court (au moins 1 caractère)
           other: trop court (au moins %{count} caractères)
@@ -66,11 +74,6 @@ fr:
           attributes:
             email:
               taken: 'Petit problème : Votre adresse courriel est associée à une connexion Check différente de celle que vous venez d''utiliser. Nous vous avons envoyé un courriel pour vous la rappeler. Prière de lire le message et de vous connecter de la même façon.'
-  devise:
-    failure:
-      invalid: Mot de passe ou %{authentication_keys} non valide.
-      not_found_in_database: Mot de passe ou %{authentication_keys} non valide.
-      unconfirmed: Prière de confirmer votre courriel avant de continuer.
   slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
   slack_webhook_format_wrong: Le format du webhook Slack est faux
   slug_is_reserved: est réservé

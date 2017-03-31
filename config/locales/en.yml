@@ -58,8 +58,16 @@ en:
         file: Image
       team:
         slug: Slug
+      source:
+        name: Name
+      contact:
+        phone: Phone
+      comment:
+        text: Comment
     errors:
       messages:
+        record_invalid: 'Validation failed: %{errors}'
+        improbable_phone: is an invalid number
         too_short:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
@@ -71,11 +79,6 @@ en:
                 sign in with another method. We just sent you an email reminding you
                 how you logged in. Check your email and sign in with the method you
                 used before.'
-  devise:
-    failure:
-      invalid: Invalid %{authentication_keys} or password.
-      not_found_in_database: Invalid %{authentication_keys} or password.
-      unconfirmed: You have to confirm your email address before continuing.
   slug_format_validation_message: accepts only letters, numbers and hyphens
   slack_webhook_format_wrong: Slack webhook format is wrong
   slug_is_reserved: is reserved
