@@ -5,6 +5,39 @@ en:
   uploadedimage: Image
   uploadefile: File
   blank: "(blank)"
+  statuses:
+    media:
+      undetermined:
+        label: Unstarted
+        description: Default, just added to Check, no work has started
+      not_applicable:
+        label: Inconclusive
+        description: No conclusion can be made with the available evidence
+      in_progress:
+        label: In Progress
+        description: Work has begun, but no conclusion made yet
+      not_true:
+        label: 'False'
+        description: 'Conclusion: the report is false'
+      verified:
+        label: Verified
+        description: 'Conclusion: the report is verified'
+    source:
+      undetermined:
+        label: Unstarted
+        description: Default, just added to Check, no work has started
+      credible:
+        label: Credible
+        description: 'Conclusion: the source is credible'
+      not_credible:
+        label: Not Credible
+        description: 'Conclusion: the source is not credible'
+      slightly_credible:
+        label: Slightly Credible
+        description: 'Conclusion: the source is slightly credible'
+      sockpuppet:
+        label: Sockpuppet
+        description: 'Conclusion: the source is a sockpuppet'
   errors:
     messages:
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
