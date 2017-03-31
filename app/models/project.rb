@@ -1,5 +1,6 @@
 class Project < ActiveRecord::Base
 
+  include ValidationsHelper
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
   belongs_to :team
@@ -16,6 +17,7 @@ class Project < ActiveRecord::Base
 
   validates_presence_of :title
   validates :lead_image, size: true
+  validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
 
   has_annotations
 
