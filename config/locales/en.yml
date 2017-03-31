@@ -23,6 +23,8 @@ en:
         file: File
       uploaded_image:
         file: Image
+      team:
+        slug: Slug
     errors:
       messages:
         too_short:

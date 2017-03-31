@@ -21,15 +21,17 @@ ar:
         file: ملف
       uploaded_image:
         file: صورة
+      team:
+        slug: المسار
     errors:
       messages:
         too_short:
-          zero: طوله لا يكفي (على الأقل %{count} حروف)
-          one: قصيرة جداً (الحد الأدنى حرفاً واحداً)
-          two: قصيرة جداً (الحد الأدنى %{count} حروف)
-          few: قصيرة جداً (الحد الأدنى %{count} حروف)
-          many: قصيرة جداً (الحد الأدنى %{count} حروف)
-          other: قصيرة جداً (الحد الأدنى %{count} حروف)
+          zero: قصير جداً (الحد الأدنى %{count} حروف)
+          one: قصير جداً (الحد الأدنى حرف واحد)
+          two: قصير جداً (الحد الأدنى %{count} حروف)
+          few: قصير جداً (الحد الأدنى %{count} حروف)
+          many: قصير جداً (الحد الأدنى %{count} حروف)
+          other: قصير جداً (الحد الأدنى %{count} حروف)
       models:
         user:
           attributes:
@@ -84,4 +86,6 @@ ar:
     actions:
       send_reset_password_email:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
+      export_project:
+        menu: تصدير معلومات المشروع
   reset_password_instructions: التحقق من تعليمات إعادة ضبط كلمة المرور

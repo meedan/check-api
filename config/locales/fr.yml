@@ -21,6 +21,8 @@ fr:
         file: Fichier
       uploaded_image:
         file: Image
+      team:
+        slug: Chemin
     errors:
       messages:
         too_short:
@@ -80,4 +82,6 @@ fr:
     actions:
       send_reset_password_email:
         menu: Envoyer les instructions pour réinitialiser le mot de passe
+      export_project:
+        menu: Exporter les données du projet
   reset_password_instructions: Instructions pour réinitialiser le mot de passe
