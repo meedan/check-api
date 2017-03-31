@@ -54,8 +54,9 @@ RailsAdmin.config do |config|
   config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Embed', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Status', 'Tag', 'Team', 'TeamUser', 'User']
 
   config.navigation_static_links = {
-    'Home' => '/',
     'API Explorer' => '/api',
+    'GraphiQL' => '/graphiql',
+    'Web Client' => CONFIG['checkdesk_client']
   }
 
   config.navigation_static_label = 'External Tools'
