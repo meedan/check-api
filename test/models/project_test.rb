@@ -447,4 +447,23 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project
     assert_not_nil p.search_id
   end
+
+  test "should save valid slack_channel" do
+    p = create_project
+    value =  "#slack_channel"
+    assert_nothing_raised do
+      p.set_slack_channel(value)
+      p.save!
+    end
+  end
+
+  test "should not save slack_channel if is not valid" do
+    p = create_project
+    value = 'invalid_channel'
+    assert_raises ActiveRecord::RecordInvalid do
+      p.set_slack_channel(value)
+      p.save!
+    end
+  end
+
 end

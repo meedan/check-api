@@ -336,6 +336,15 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not save custom verification status if it is not a hash" do
+    t = create_team
+    value = 'invalid_status'
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
   test "should not create team with 'check' slug" do
     assert_raises ActiveRecord::RecordInvalid do
       create_team slug: 'check'
@@ -368,9 +377,9 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should set slack_channel" do
     t = create_team
-    t.slack_channel = 'my-channel'
+    t.slack_channel = '#my-channel'
     t.save
-    assert_equal 'my-channel', t.get_slack_channel
+    assert_equal '#my-channel', t.reload.get_slack_channel
   end
 
   test "should protect attributes from mass assignment" do
@@ -404,4 +413,64 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     assert_not_nil t.search_id
   end
+
+  test "should save checklist if it is blank or nil" do
+    t = create_team
+    variations = [
+      nil,
+      ''
+    ]
+    variations.each do |value|
+      assert_nothing_raised do
+        t.set_checklist(value)
+        t.save!
+      end
+    end
+  end
+
+  test "should save valid checklist" do
+    t = create_team
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: []}]
+    assert_nothing_raised do
+      t.set_checklist(value)
+      t.save!
+    end
+  end
+
+  test "should not save checklist if is not valid" do
+    t = create_team
+    variations = [
+      'invalid_checklist',
+      ['invalid_checklist'],
+      [{ label: 'A task' }],
+      [{ label: 'A task', type: 'free_text' }],
+      [{ description: 'A task' }],
+      [{ type: 'free_text', description: '', projects: []}]
+    ]
+    variations.each do |value|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.set_checklist(value)
+        t.save!
+      end
+    end
+  end
+
+  test "should save valid slack_channel" do
+    t = create_team
+    value =  "#slack_channel"
+    assert_nothing_raised do
+      t.set_slack_channel(value)
+      t.save!
+    end
+  end
+
+  test "should not save slack_channel if is not valid" do
+    t = create_team
+    value = 'invalid_channel'
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_slack_channel(value)
+      t.save!
+    end
+  end
+
 end
