@@ -1,53 +1,53 @@
 ---
 MEDIA_CORE_VERIFICATION_STATUSES:
   -
-    :description: "Default, just added to Check, no work has started"
+    :description: "<%= I18n.t(:'statuses.media.undetermined.description') %>"
     :id: undetermined
-    :label: Unstarted
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.media.undetermined.label') %>"
+    :style:
   -
-    :description: "No conclusion can be made with the available evidence"
+    :description: "<%= I18n.t(:'statuses.media.not_applicable.description') %>"
     :id: not_applicable
-    :label: Inconclusive
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.media.not_applicable.label') %>"
+    :style:
   -
-    :description: "Work has begun, but no conclusion made yet"
+    :description: "<%= I18n.t(:'statuses.media.in_progress.description') %>"
     :id: in_progress
-    :label: "In Progress"
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.media.in_progress.label') %>"
+    :style:
   -
-    :description: "Conclusion: the report is false"
+    :description: "<%= I18n.t(:'statuses.media.not_true.description') %>"
     :id: "false"
-    :label: "False"
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.media.not_true.label') %>"
+    :style:
   -
-    :description: "Conclusion: the report is verified"
+    :description: "<%= I18n.t(:'statuses.media.verified.description') %>"
     :id: verified
-    :label: Verified
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.media.verified.label') %>"
+    :style:
 SOURCE_CORE_VERIFICATION_STATUSES:
   -
-    :description: "Default, just added to Check, no work has started"
+    :description: "<%= I18n.t(:'statuses.source.undetermined.description') %>"
     :id: undetermined
-    :label: Unstarted
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.source.undetermined.label') %>"
+    :style:
   -
-    :description: "Conclusion: the source is credible"
+    :description: "<%= I18n.t(:'statuses.source.credible.description') %>"
     :id: credible
-    :label: Credible
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.source.credible.label') %>"
+    :style:
   -
-    :description: "Conclusion: the source is not credible"
+    :description: "<%= I18n.t(:'statuses.source.not_credible.description') %>"
     :id: not_credible
-    :label: "Not Credible"
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.source.not_credible.label') %>"
+    :style:
   -
-    :description: "Conclusion: the source is slightly credible"
+    :description: "<%= I18n.t(:'statuses.source.slightly_credible.description') %>"
     :id: slightly_credible
-    :label: "Slightly Credible"
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.source.slightly_credible.label') %>"
+    :style:
   -
-    :description: "Conclusion: the source is a sockpuppet"
+    :description: "<%= I18n.t(:'statuses.source.sockpuppet.description') %>"
     :id: sockpuppet
-    :label: Sockpuppet
-    :style: ""
+    :label: "<%= I18n.t(:'statuses.source.sockpuppet.label') %>"
+    :style:

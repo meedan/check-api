@@ -14,9 +14,11 @@ class Status < ActiveRecord::Base
   after_save :update_elasticsearch_status
 
   def self.core_verification_statuses(annotated_type)
-    core_statuses = YAML.load_file(File.join(Rails.root, 'config', 'core_statuses.yml'))
+    core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
     key = "#{annotated_type.upcase}_CORE_VERIFICATION_STATUSES"
-    statuses = core_statuses.has_key?(key) ? core_statuses[key] : [{ id: 'undetermined', label: 'Undetermined', description: 'Undetermined', style: '' }]
+    statuses = core_statuses.has_key?(key) ? core_statuses[key] : [
+      { id: 'undetermined', label: I18n.t(:"statuses.media.undetermined.label"), description: I18n.t(:"statuses.media.undetermined.description"), style: '' }
+    ]
 
     {
       label: 'Status',
