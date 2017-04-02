@@ -16,30 +16,35 @@ ar:
       uploaded_file: ملف
     attributes:
       tag:
-        data: وسم
+        data: الوسم
       uploaded_file:
-        file: ملف
+        file: الملف
       uploaded_image:
-        file: صورة
+        file: الصورة
+      team:
+        slug: المسار
+      source:
+        name: اﻹسم
+      contact:
+        phone: رقم الهاتف
+      comment:
+        text: التعليق
     errors:
       messages:
+        record_invalid: 'خطأ في صحة الإدخال: %{errors}'
+        improbable_phone: غير صحيح
         too_short:
-          zero: طوله لا يكفي (على الأقل %{count} حروف)
-          one: قصيرة جداً (الحد الأدنى حرفاً واحداً)
-          two: قصيرة جداً (الحد الأدنى %{count} حروف)
-          few: قصيرة جداً (الحد الأدنى %{count} حروف)
-          many: قصيرة جداً (الحد الأدنى %{count} حروف)
-          other: قصيرة جداً (الحد الأدنى %{count} حروف)
+          zero: قصير جداً (الحد الأدنى %{count} حروف)
+          one: قصير جداً (الحد الأدنى حرف واحد)
+          two: قصير جداً (الحد الأدنى %{count} حروف)
+          few: قصير جداً (الحد الأدنى %{count} حروف)
+          many: قصير جداً (الحد الأدنى %{count} حروف)
+          other: قصير جداً (الحد الأدنى %{count} حروف)
       models:
         user:
           attributes:
             email:
               taken: 'لقد حدثت مشكلة صغيرة: استخدمت هذا البريد الإلكتروني سابقاً لتسجيل الدخول بطريقة أخرى. أرسلنا لك تواً رسالة إلكترونية لنذكرك بطريقة التسجيل السابقة. من فضلك راجع بريدك الإلكتروني ثم سجل الدخول بنفس الطريقة السابقة.'
-  devise:
-    failure:
-      invalid: ' %{authentication_keys} أو كلمة مرور غير صحيحة'
-      not_found_in_database: ' %{authentication_keys} أو كلمة مرور غير صحيحة'
-      unconfirmed: لا بد من تأكيد عنوان بريدك الإلكتروني قبل الإستمرار.
   slug_format_validation_message: 'يقبل الأحرف والأرقام و''-'' فقط '
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة
   slug_is_reserved: مأخوذ
@@ -84,4 +89,6 @@ ar:
     actions:
       send_reset_password_email:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
+      export_project:
+        menu: تصدير معلومات المشروع
   reset_password_instructions: التحقق من تعليمات إعادة ضبط كلمة المرور

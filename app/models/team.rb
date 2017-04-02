@@ -1,5 +1,6 @@
 class Team < ActiveRecord::Base
 
+  include ValidationsHelper
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
 
   has_many :projects, dependent: :destroy
@@ -20,8 +21,10 @@ class Team < ActiveRecord::Base
   validate :slug_is_not_reserved
   validates :logo, size: true
   validate :slack_webhook_format
-  validate :custom_media_statuses_format
-  validate :custom_source_statuses_format
+  validate :slack_channel_format
+  validate :custom_media_statuses_format, unless: proc { |p| p.settings.nil? || p.get_media_verification_statuses.nil? }
+  validate :custom_source_statuses_format, unless: proc { |p| p.settings.nil? || p.get_source_verification_statuses.nil? }
+  validate :checklist_format
 
   after_create :add_user_to_team
 
@@ -122,13 +125,11 @@ class Team < ActiveRecord::Base
 
   def custom_statuses_format(type)
     statuses = self.send("get_#{type}_verification_statuses")
-    unless statuses.nil?
-      if statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-        errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status, default: 'Invalid format for custom verification statuses'))
-      else
-        statuses[:statuses].each do |status|
-          errors.add(:base, 'Invalid format for custom verification status') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
-        end
+    if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
+      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status, default: 'Custom verification statuses is invalid, it should have the format as exemplified below the field'))
+    else
+      statuses[:statuses].each do |status|
+        errors.add(:base, 'Custom verification statuses is invalid, it should have the format as exemplified below the field') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
       end
     end
   end
@@ -165,13 +166,6 @@ class Team < ActiveRecord::Base
     URI(url).path.split('/')[1]
   end
 
-  def slack_webhook_format
-    webhook = self.get_slack_webhook
-    if !webhook.blank? && /\Ahttps?:\/\/hooks\.slack\.com\/services\/[^\s]+\z/.match(webhook).nil?
-      errors.add(:base, I18n.t(:slack_webhook_format_wrong, default: 'Slack webhook format is wrong'))
-    end
-  end
-
   def normalize_slug
     self.slug = self.slug.downcase unless self.slug.blank?
   end
@@ -187,4 +181,5 @@ class Team < ActiveRecord::Base
   def slug_is_not_reserved
     errors.add(:slug, I18n.t(:slug_is_reserved, default: 'is reserved')) if RESERVED_SLUGS.include?(self.slug)
   end
+
 end
