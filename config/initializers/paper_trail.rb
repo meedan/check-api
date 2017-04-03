@@ -126,16 +126,19 @@ module PaperTrail
     def get_project_media_id
       case self.event_type
       when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed'
-        annotation = self.item
-        (annotation && annotation.annotated_type == 'ProjectMedia') ? annotation.annotated_id.to_i : nil
+        self.get_project_media_id_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         annotation = self.item.annotation if self.item
-        (annotation && annotation.annotated_type == 'ProjectMedia') ? annotation.annotated_id.to_i : nil
+        self.get_project_media_id_from_annotation(annotation)
       when 'update_projectmedia'
         self.item_id.to_i
       else
         nil
       end
+    end
+
+    def get_project_media_id_from_annotation(annotation)
+      (annotation && annotation.annotated_type == 'ProjectMedia') ? annotation.annotated_id.to_i : nil
     end
 
     def set_project_media_id
