@@ -163,6 +163,8 @@ class Team < ActiveRecord::Base
   end
 
   def self.slug_from_url(url)
+    # Use extract to solve cases that URL inside [] {} () ...
+    url = URI.extract(url)[0]
     URI(url).path.split('/')[1]
   end
 

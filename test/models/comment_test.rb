@@ -441,4 +441,13 @@ class CommentTest < ActiveSupport::TestCase
     a2 = Annotation.find(c2.id).image_data
     assert_equal({}, a2)
   end
+
+  test "should extract Check URLs inside brackets" do
+    t = create_team slug: 'test'
+    p = create_project team: t
+    pm = create_project_media project: p
+    text = "Please check this report [http://localhost:3333/test/project/#{p.id}/media/#{pm.id}]"
+    c = create_comment text: text, annotated: pm
+    assert_includes c.entity_objects, pm
+  end
 end
