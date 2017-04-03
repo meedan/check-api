@@ -92,9 +92,9 @@ module PaperTrail
 
     def task
       task = nil
-      if self.item_type == 'DynamicAnnotation::Field'
+      if self.item && self.item_type == 'DynamicAnnotation::Field'
         annotation = self.item.annotation
-        if annotation.annotation_type =~ /^task_response_/
+        if annotation && annotation.annotation_type =~ /^task_response_/
           annotation.get_fields.each do |field|
             task = Task.where(id: field.value.to_i).last if field.field_type == 'task_reference'
           end
@@ -127,10 +127,10 @@ module PaperTrail
       case self.event_type
       when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed'
         annotation = self.item
-        annotation.annotated_type == 'ProjectMedia' ? annotation.annotated_id.to_i : nil
+        (annotation && annotation.annotated_type == 'ProjectMedia') ? annotation.annotated_id.to_i : nil
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
-        annotation = self.item.annotation
-        annotation.annotated_type == 'ProjectMedia' ? annotation.annotated_id.to_i : nil
+        annotation = self.item.annotation if self.item
+        (annotation && annotation.annotated_type == 'ProjectMedia') ? annotation.annotated_id.to_i : nil
       when 'update_projectmedia'
         self.item_id.to_i
       else
