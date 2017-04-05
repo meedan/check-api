@@ -65,7 +65,7 @@ fr:
     errors:
       messages:
         record_invalid: 'La validation a échoué : %{errors}'
-        improbable_phone: est un numéro invalide
+        improbable_phone: est un numéro non valide
         too_short:
           one: trop court (au moins 1 caractère)
           other: trop court (au moins %{count} caractères)
@@ -75,9 +75,9 @@ fr:
             email:
               taken: 'Petit problème : Votre adresse courriel est associée à une connexion Check différente de celle que vous venez d''utiliser. Nous vous avons envoyé un courriel pour vous la rappeler. Prière de lire le message et de vous connecter de la même façon.'
   slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
-  slack_webhook_format_wrong: Le format du webhook Slack est faux
+  slack_webhook_format_wrong: 'Webhook Slack non valide : le format doit être `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`'
   slug_is_reserved: est réservé
-  invalid_format_for_custom_verification_status: Format pas valide pour les statuts de vérification personnalisés
+  invalid_format_for_custom_verification_status: 'Statuts de vérifications personnalisés non valides : le format correct est affiché au-dessous du champ de saisie'
   invalid_media_item: Désolé, ce média n'est pas valide
   already_exists: existe déjà
   mail_account_confirmation: Confirmation de votre compte Check
@@ -121,3 +121,5 @@ fr:
       export_project:
         menu: Exporter les données du projet
   reset_password_instructions: Instructions pour réinitialiser le mot de passe
+  email_not_found: Courriel introuvable
+  slack_channel_format_wrong: 'Canal Slack non valide : le format doit être `#general`'

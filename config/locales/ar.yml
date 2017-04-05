@@ -79,9 +79,9 @@ ar:
             email:
               taken: 'لقد حدثت مشكلة صغيرة: استخدمت هذا البريد الإلكتروني سابقاً لتسجيل الدخول بطريقة أخرى. أرسلنا لك تواً رسالة إلكترونية لنذكرك بطريقة التسجيل السابقة. من فضلك راجع بريدك الإلكتروني ثم سجل الدخول بنفس الطريقة السابقة.'
   slug_format_validation_message: 'يقبل الأحرف والأرقام و''-'' فقط '
-  slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة
+  slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالة التحقق الخاصة
+  invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالات التحقق الخاصة - الصيغة المطلوبة موضحة أسفل الحقل
   invalid_media_item: ' عذراً، هذا ليس تقرير مسموح بإدخاله'
   already_exists: موجود بالفعل
   mail_account_confirmation: تأكيد حساب Check
@@ -125,3 +125,5 @@ ar:
       export_project:
         menu: تصدير معلومات المشروع
   reset_password_instructions: التحقق من تعليمات إعادة ضبط كلمة المرور
+  email_not_found: بريد إلكتروني غير موجود
+  slack_channel_format_wrong: 'صيغة قناة Slack غير صحيحة - الصيغة المطلوبة هي `#general`'
