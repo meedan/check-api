@@ -13,6 +13,7 @@ module ProjectMediaCreators
           t.label = task['label']
           t.type = task['type']
           t.description = task['description']
+          t.jsonoptions = task['options'] unless task['options'].blank?
           t.annotator = User.current
           t.annotated = self
           t.skip_check_ability = true
