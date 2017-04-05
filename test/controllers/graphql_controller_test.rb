@@ -921,4 +921,23 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 400
   end
 
+  test "should reset password if email is found" do
+    u = create_user email: 'foo@bar.com'
+    p = create_project team: @team
+    create_team_user user: u, team: @team, role: 'owner'
+    authenticate_with_user(u)
+    query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+  end
+
+  test "should not reset password if email is not found" do
+    u = create_user email: 'test@bar.com'
+    p = create_project team: @team
+    create_team_user user: u, team: @team, role: 'owner'
+    authenticate_with_user(u)
+    query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response 404
+  end
 end
