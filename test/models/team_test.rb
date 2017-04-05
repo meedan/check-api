@@ -430,7 +430,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should save valid checklist" do
     t = create_team
-    value =  [{ label: 'A task', type: 'free_text', description: '', projects: []}]
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], jsonoptions: '[]'}]
     assert_nothing_raised do
       t.set_checklist(value)
       t.save!
@@ -472,5 +472,4 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
-
 end

@@ -17,12 +17,12 @@ module ValidationsHelper
   def checklist_format
     checklist = self.get_checklist
     unless checklist.blank?
-      error_message = "Checklist is invalid, it should have the format [ { 'label': 'XXXX', 'type': 'free_text','description': 'YYYY', 'projects': [] } ]"
+      error_message = "Checklist is invalid, it should have the format [ { 'label': 'XXXX', 'type': 'free_text','description': 'YYYY', 'projects': [], 'jsonoptions': '[{ \'label\': \'YYYY\' }]' } ]"
       if !checklist.is_a?(Array)
         errors.add(:base, I18n.t(:invalid_format_for_checklist, default: error_message))
       else
         checklist.each do |task|
-          if !task.is_a?(Hash) || task.keys.map(&:to_sym).sort != [:description, :label, :projects, :type]
+          if !task.is_a?(Hash) || (task.keys.map(&:to_sym) & [:description, :label, :type]).sort != [:description, :label, :type]
             errors.add(:base, I18n.t(:invalid_format_for_checklist, default: error_message))
           end
         end
