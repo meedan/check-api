@@ -4,6 +4,39 @@ ar:
   uploadedimage: صورة
   uploadefile: ملف
   blank: "(مساحة فارغة)"
+  statuses:
+    media:
+      undetermined:
+        label: غير مكتمل
+        description: حالة التقريرالافتراضية، تم إضافته للتو ل-Check، لم يتم البدء في التحقق منه
+      not_applicable:
+        label: غير حاسم
+        description: لا يمكن إستنتاج حالة التقرير باستخدام الدلائل المتاحة
+      in_progress:
+        label: جار التحقق من صحته
+        description: تم بدء العمل على التحقق من صحة التقرير، لكن لم يتم تحديد حالته بعد
+      not_true:
+        label: 'زائف'
+        description: 'النتيجة: التقرير زائف'
+      verified:
+        label: صحيح
+        description: 'النتيجة: تم التأكد من صحة التقرير'
+    source:
+      undetermined:
+        label: غير مكتمل
+        description: حالة المصدرالافتراضية، تم إضافته للتو ل-Check، لم يتم البدء في التحقق منه
+      credible:
+        label: موثوق به
+        description: 'النتيجة: هذا المصدر موثوق به'
+      not_credible:
+        label: غير موثوق به
+        description: 'النتيجة: هذا المصدر غير موثوق به'
+      slightly_credible:
+        label: قليل المصداقية
+        description: 'النتيجة: هذا المصدر قليل المصداقية'
+      sockpuppet:
+        label: هوية مزيفة
+        description: 'النتيجة: هذا المصدر له هوية مزيفة على الانترنت'
   errors:
     messages:
       extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات المسموحة هي: %{allowed_types}'
