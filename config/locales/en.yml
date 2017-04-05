@@ -80,10 +80,11 @@ en:
                 how you logged in. Check your email and sign in with the method you
                 used before.'
   slug_format_validation_message: accepts only letters, numbers and hyphens
-  slack_webhook_format_wrong: Slack webhook format is wrong
+  slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
+    `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
-  invalid_format_for_custom_verification_status: Invalid format for custom verification
-    statuses
+  invalid_format_for_custom_verification_status: Custom verification statuses is invalid,
+    it should have the format as exemplified below the field
   invalid_media_item: Sorry, this is not a valid media item
   already_exists: already exists
   mail_account_confirmation: Check account confirmation
@@ -144,3 +145,6 @@ en:
       export_project:
         menu: Export project data
   reset_password_instructions: Check reset password instructions
+  email_not_found: E-mail not found
+  slack_channel_format_wrong: 'Slack channel is invalid, it should have the format
+    #general'
