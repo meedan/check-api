@@ -43,6 +43,10 @@ class User < ActiveRecord::Base
     role
   end
 
+  def teams_owned
+    self.teams.joins(:team_users).where({'team_users.role': 'owner', 'team_users.status': 'member'})
+  end
+
   def self.from_omniauth(auth)
     # Update uuid for facebook account if match email and provider
     self.update_facebook_uuid(auth) if auth.provider == 'facebook'
