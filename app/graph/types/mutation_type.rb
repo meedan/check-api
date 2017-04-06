@@ -65,4 +65,6 @@ MutationType = GraphQL::ObjectType.define do
   field :createTask, field: TaskMutations::Create.field
   field :updateTask, field: TaskMutations::Update.field
   field :destroyTask, field: TaskMutations::Destroy.field
+
+  field :resetPassword, field: ResetPasswordMutation.field
 end

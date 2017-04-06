@@ -172,8 +172,9 @@ class ActiveSupport::TestCase
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
     assert_equal klass.count, edges.size
-    assert_equal x1.send(field).to_s, edges[0]['node'][field].to_s
-    assert_equal x2.send(field).to_s, edges[1]['node'][field].to_s
+    edges = edges.collect{ |e| e['node'][field].to_s }
+    assert edges.include?(x1.send(field).to_s)
+    assert edges.include?(x2.send(field).to_s)
     assert_response :success
     document_graphql_query('read', type, query, @response.body)
   end

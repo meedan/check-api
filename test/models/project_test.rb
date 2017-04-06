@@ -96,12 +96,20 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should have media" do
+    begin
+      ft = create_field_type field_type: 'image_path', label: 'Image Path'
+      at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+      create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+      create_bot name: 'Check Bot'
+    rescue
+      # Already exists
+    end
     m1 = create_valid_media
     m2 = create_valid_media
     p = create_project
     p.medias << m1
     p.medias << m2
-    assert_equal [m1, m2], p.medias
+    assert_equal [m1, m2].sort, p.medias.sort
   end
 
   test "should get project medias count" do
@@ -118,7 +126,7 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project
     p.project_sources << ps1
     p.project_sources << ps2
-    assert_equal [ps1, ps2], p.project_sources
+    assert_equal [ps1, ps2].sort, p.project_sources.sort
   end
 
   test "should have sources" do
@@ -433,6 +441,29 @@ class ProjectTest < ActiveSupport::TestCase
     exported_data = p.export_to_csv
     header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_question_1,task_user_1,task_date_1,task_answer_1,task_note_1"
     assert_match(header, exported_data)
+  end
+
+  test "should have search id" do
+    p = create_project
+    assert_not_nil p.search_id
+  end
+
+  test "should save valid slack_channel" do
+    p = create_project
+    value =  "#slack_channel"
+    assert_nothing_raised do
+      p.set_slack_channel(value)
+      p.save!
+    end
+  end
+
+  test "should not save slack_channel if is not valid" do
+    p = create_project
+    value = 'invalid_channel'
+    assert_raises ActiveRecord::RecordInvalid do
+      p.set_slack_channel(value)
+      p.save!
+    end
   end
 
 end

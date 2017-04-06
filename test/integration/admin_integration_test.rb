@@ -94,7 +94,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   test "should access User page with setting with json error" do
     post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
     @user.set_languages('invalid_json')
-    @user.save
+    @user.save(:validate => false)
     get "/admin/user/#{@user.id}/edit"
     assert_response :success
   end

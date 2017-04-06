@@ -30,7 +30,7 @@ module PenderData
 
   def pender_embed
     pender = Bot::Bot.where(name: 'Pender').last
-    em = Embed.where(annotation_type: 'embed', annotated_type: 'Media', annotated_id: self.id).first
+    em = Embed.where(annotation_type: 'embed', annotated_type: self.class_name, annotated_id: self.id).first
     if em.nil?
       em = Embed.new
       em.annotated = self

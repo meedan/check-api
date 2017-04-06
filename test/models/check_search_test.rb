@@ -305,6 +305,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
     # sort with keywords and tags
     create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
+    sleep 1
     create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
     sleep 1
     result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
@@ -600,5 +601,24 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [pm2a, pm2b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
     assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).number_of_results
     Team.unstub(:current)
+  end
+
+  test "should project_medias be an alias of medias" do
+    create_project_media
+    cs = CheckSearch.new('{}')
+    assert_equal cs.medias, cs.project_medias
+  end
+
+  test "should get search id" do
+    assert_not_nil CheckSearch.id
+    assert_not_nil CheckSearch.new('{}').id
+  end
+
+  test "should get Pusher channel" do
+    p = create_project
+    cs = CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => p.id }, 'projects' => [p.id] }.to_json)
+    assert_equal p.pusher_channel, cs.pusher_channel
+    cs = CheckSearch.new('{}')
+    assert_nil cs.pusher_channel
   end
 end

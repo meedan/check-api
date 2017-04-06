@@ -4,6 +4,39 @@ fr:
   uploadedimage: image
   uploadefile: fichier
   blank: "(vide)"
+  statuses:
+    media:
+      undetermined:
+        label: Pas commencé
+        description: 'Par défault : récemment ajouté, le travail n''a pas commencé'
+      not_applicable:
+        label: Inconcluant
+        description: Aucune conclusion définitive ne peut être tirée avec les données actuelles
+      in_progress:
+        label: En cours
+        description: Le travail a commencé, mais pas encore de conclusion tirée
+      not_true:
+        label: 'Faux'
+        description: 'Conclusion : le rapport est faux'
+      verified:
+        label: Confirmé
+        description: 'Conclusion : le rapport est confirmé'
+    source:
+      undetermined:
+        label: Pas commencé
+        description: 'Par défault : récemment ajouté, le travail n''a pas commencé'
+      credible:
+        label: Crédible
+        description: 'Conclusion : la source est crédible'
+      not_credible:
+        label: Pas crédible
+        description: 'Conclusion : la source n''est pas crédible'
+      slightly_credible:
+        label: Peu crédible
+        description: 'Conclusion : la source est peu crédible'
+      sockpuppet:
+        label: Faux-nez
+        description: 'Conclusion : la source est un faux-nez (anglais : sock puppet)'
   errors:
     messages:
       extension_white_list_error: 'est d''un type %{extension} qui est interdit, seuls sont acceptés %{allowed_types}'
@@ -16,13 +49,23 @@ fr:
       uploaded_file: Fichier
     attributes:
       tag:
-        data: Tag
+        data: Le tag
       uploaded_file:
-        file: Fichier
+        file: Le fichier
       uploaded_image:
-        file: Image
+        file: L'image
+      team:
+        slug: Le chemin
+      source:
+        name: Le nom
+      contact:
+        phone: Le téléphone
+      comment:
+        text: Le commentaire
     errors:
       messages:
+        record_invalid: 'La validation a échoué : %{errors}'
+        improbable_phone: est un numéro non valide
         too_short:
           one: trop court (au moins 1 caractère)
           other: trop court (au moins %{count} caractères)
@@ -31,15 +74,10 @@ fr:
           attributes:
             email:
               taken: 'Petit problème : Votre adresse courriel est associée à une connexion Check différente de celle que vous venez d''utiliser. Nous vous avons envoyé un courriel pour vous la rappeler. Prière de lire le message et de vous connecter de la même façon.'
-  devise:
-    failure:
-      invalid: Mot de passe ou %{authentication_keys} non valide.
-      not_found_in_database: Mot de passe ou %{authentication_keys} non valide.
-      unconfirmed: Prière de confirmer votre courriel avant de continuer.
   slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
-  slack_webhook_format_wrong: Le format du webhook Slack est faux
+  slack_webhook_format_wrong: 'Webhook Slack non valide : le format doit être `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`'
   slug_is_reserved: est réservé
-  invalid_format_for_custom_verification_status: Format pas valide pour les statuts de vérification personnalisés
+  invalid_format_for_custom_verification_status: 'Statuts de vérifications personnalisés non valides : le format correct est affiché au-dessous du champ de saisie'
   invalid_media_item: Désolé, ce média n'est pas valide
   already_exists: existe déjà
   mail_account_confirmation: Confirmation de votre compte Check
@@ -80,4 +118,8 @@ fr:
     actions:
       send_reset_password_email:
         menu: Envoyer les instructions pour réinitialiser le mot de passe
+      export_project:
+        menu: Exporter les données du projet
   reset_password_instructions: Instructions pour réinitialiser le mot de passe
+  email_not_found: Courriel introuvable
+  slack_channel_format_wrong: 'Canal Slack non valide : le format doit être `#general`'

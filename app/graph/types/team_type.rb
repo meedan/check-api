@@ -21,6 +21,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_slack_channel, types.String
   field :get_suggested_tags, types.String
   field :pusher_channel, types.String
+  field :search_id, types.String
 
   field :media_verification_statuses do
     type types.String

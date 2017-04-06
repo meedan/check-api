@@ -102,28 +102,11 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_versions_log
-    events = %w(create_comment update_status create_tag create_task create_dynamicannotationfield update_dynamicannotationfield create_flag update_embed update_projectmedia update_task create_embed)
-
-    joins = "LEFT JOIN annotations "\
-            "ON versions.item_type IN ('Status','Comment','Embed','Tag','Flag','Dynamic','Task','Annotation') "\
-            "AND CAST(annotations.id AS TEXT) = versions.item_id "\
-            "AND annotations.annotated_type = 'ProjectMedia' "\
-            "LEFT JOIN dynamic_annotation_fields d "\
-            "ON CAST(d.id AS TEXT) = versions.item_id "\
-            "AND versions.item_type = 'DynamicAnnotation::Field' "\
-            "LEFT JOIN annotations a2 "\
-            "ON a2.id = d.annotation_id "\
-            "AND a2.annotated_type = 'ProjectMedia'"
-
-    where = "(annotations.id IS NOT NULL AND annotations.annotated_id = ?) "\
-            "OR (d.id IS NOT NULL AND a2.annotated_id = ?)"\
-            "OR (annotations.id IS NULL AND d.id IS NULL AND versions.item_type = 'ProjectMedia' AND versions.item_id = ?)"
-
-    PaperTrail::Version.joins(joins).where(where, self.id, self.id, self.id.to_s).where('versions.event_type' => events).distinct('versions.id').order('versions.created_at ASC')
+    PaperTrail::Version.where(project_media_id: self.id).order('created_at ASC')
   end
 
   def get_versions_log_count
-    self.get_versions_log.where.not(event_type: 'create_dynamicannotationfield').count
+    self.reload.cached_annotations_count
   end
 
   def get_media_annotations(type = nil)
@@ -210,6 +193,18 @@ class ProjectMedia < ActiveRecord::Base
     "#{self.project.url}/media/#{self.id}"
   end
 
+  def check_search_team
+    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.project.team.slug } }.to_json)
+  end
+
+  def check_search_project
+    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.project.id }, 'projects' => [self.project.id] }.to_json)
+  end
+
+  def should_create_auto_tasks?
+    self.project && self.project.team && !self.project.team.get_checklist.blank?
+  end
+
   private
 
   def is_unique
@@ -231,49 +226,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def set_user
     self.user = User.current unless User.current.nil?
-  end
-
-  def create_auto_tasks
-    if self.project && self.project.team && !self.project.team.get_checklist.blank?
-      self.project.team.get_checklist.each do |task|
-        if task['projects'].blank? || task['projects'].empty? || task['projects'].include?(self.project.id)
-          t = Task.new
-          t.label = task['label']
-          t.type = task['type']
-          t.description = task['description']
-          t.annotator = User.current
-          t.annotated = self
-          t.skip_check_ability = true
-          t.skip_notifications = true
-          t.save!
-        end
-      end
-    end
-  end
-
-  def create_reverse_image_annotation
-    picture = self.media.picture
-    unless picture.blank?
-      d = Dynamic.new
-      d.skip_check_ability = true
-      d.skip_notifications = true
-      d.annotation_type = 'reverse_image'
-      d.annotator = Bot::Bot.where(name: 'Check Bot').last
-      d.annotated = self
-      d.set_fields = { reverse_image_path: picture }.to_json
-      d.save!
-    end
-  end
-
-  def create_annotation
-    unless self.set_annotation.blank?
-      params = JSON.parse(self.set_annotation)
-      response = Dynamic.new
-      response.annotated = self
-      response.annotation_type = params['annotation_type']
-      response.set_fields = params['set_fields']
-      response.save!
-    end
   end
 
   protected

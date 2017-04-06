@@ -9,7 +9,7 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
 
   test "should set annotation type automatically" do
     at = create_annotation_type annotation_type: 'task_response_free_text'
-    a = create_dynamic_annotation annotation_type: 'task_response_free_text' 
+    a = create_dynamic_annotation annotation_type: 'task_response_free_text'
     f = create_field annotation_type: nil, annotation_id: a.id
     assert_equal 'task_response_free_text', f.reload.annotation_type
     assert_equal at, f.reload.annotation_type_object
@@ -61,7 +61,7 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     ft = create_field_type field_type: 'text_field'
     fi = create_field_instance name: 'response', field_type_object: ft
     f = create_field field_name: 'response', value: '{"selected":["Hello","Aloha"],"other":null}'
-    assert_equal 'Hello, Aloha', f.to_s
+    assert_equal 'Hello and Aloha', f.to_s
     f = create_field field_name: 'response', value: 'Test'
     assert_equal 'Test', f.to_s
   end
