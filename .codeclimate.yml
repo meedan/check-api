@@ -47,5 +47,6 @@ exclude_paths:
 - "app/graphql"
 - "doc"
 - "app/models/ability.rb"
+- "app/models/admin_ability.rb"
 - "config/initializers/rails_admin.rb"
 - ".codeclimate.yml"
