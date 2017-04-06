@@ -58,7 +58,6 @@ module CheckBasicAbilities
         team_ids = obj.get_team
         teams = Team.where(id: team_ids, private: false)
         if teams.empty?
-          tu = TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member')
           TeamUser.where(user_id: @user.id, team_id: team_ids, status: 'member').exists?
         else
           teams.any?

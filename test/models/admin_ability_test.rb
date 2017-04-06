@@ -2,10 +2,14 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class AdminAbilityTest < ActiveSupport::TestCase
 
+  def setup
+    @u = create_user
+    @t = create_team
+    @tu = create_team_user user: u , team: t, role: 'owner'
+  end
+  attr_reader :u, :t, :tu
+
   test "owner permissions for project" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t, role: 'owner'
     p = create_project team: t
     own_project = create_project team: t, user: u
     p2 = create_project
@@ -22,9 +26,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for media" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u , role: 'owner'
     m = create_valid_media
     p = create_project team: t
     pm = create_project_media project: p, media: m
@@ -51,9 +52,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for team" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t , role: 'owner'
     t2 = create_team
     tu_test = create_team_user team: t2, role: 'owner'
     with_current_user_and_team(u) do
@@ -67,9 +65,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for teamUser" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t , role: 'owner'
     u2 = create_user
     tu2 = create_team_user team: t, role: 'editor'
     tu_other = create_team_user
@@ -85,9 +80,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for contact" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t , role: 'owner'
     c = create_contact team: t
     c1 = create_contact
 
@@ -102,9 +94,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for user" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     u2_test = create_user
     tu2_test = create_team_user user: u2_test , role: 'contributor'
     u_test1 = create_user
@@ -133,9 +122,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for comment" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
     mc = create_comment
@@ -151,9 +137,8 @@ class AdminAbilityTest < ActiveSupport::TestCase
 
   test "check annotation permissions" do
     # test the create/update/destroy operations
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
+    tu.role = 'journalist'
+    tu.save
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm
@@ -187,9 +172,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for flag" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -206,9 +188,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for status" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -226,9 +205,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for embed" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
     em = create_embed annotated: pm
@@ -244,9 +220,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for tag" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
     tg = create_tag tag: 'media_tag', annotated: pm
@@ -293,9 +266,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "should read source without user" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     s = create_source user: nil
     with_current_user_and_team(u) do
       ability = AdminAbility.new
@@ -304,9 +274,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "should read own source" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     s = create_source user: u
     with_current_user_and_team(u) do
       ability = AdminAbility.new
@@ -315,9 +282,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "should not read source from other user" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     s = create_source user: create_user
     with_current_user_and_team(u) do
       ability = AdminAbility.new
@@ -326,9 +290,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "should owner destroy annotation from any project from his team" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
     p1 = create_project team: t
     p2 = create_project team: t
     pm1 = create_project_media project: p1
@@ -345,9 +306,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "should owner destroy annotation versions" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u) do
@@ -368,9 +326,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "should access rails_admin if user is team owner" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t, role: 'owner'
     p = create_project team: t
 
     with_current_user_and_team(u) do
@@ -380,9 +335,8 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "should not access rails_admin if user not team owner or admin" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t
+    tu.role = 'contributor'
+    tu.save
     p = create_project team: t
 
     %w(contributor journalist editor).each do |role|
@@ -395,9 +349,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for task" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -412,9 +363,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for dynamic annotation" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
     da = create_dynamic_annotation annotated: pm
@@ -430,13 +378,32 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for export project data" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.can?(:export_project, Project)
+    end
+  end
+
+  test "owner permissions to task" do
+    task = create_task annotator: u
+    create_annotation_type annotation_type: 'response'
+    task.response = { annotation_type: 'response', set_fields: {} }.to_json
+    task.save!
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.can?(:update, Task)
+      assert ability.can?(:update, task)
+    end
+  end
+
+  test "owner permissions to dynamic annotation" do
+    task = create_task annotator: u
+    dynamic_field = create_field annotation_id: task.id
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.can?(:update, DynamicAnnotation::Field)
+      assert ability.can?(:update, dynamic_field)
     end
   end
 
