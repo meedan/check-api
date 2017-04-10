@@ -18,8 +18,6 @@ class Bot::Alegre < ActiveRecord::Base
       end
     end
     self.save_language(target, lang) unless lang.nil?
-    # Save machine translation
-    self.save_machine_translation(lang, text, target)
     lang
   end
 
@@ -36,26 +34,12 @@ class Bot::Alegre < ActiveRecord::Base
   protected
 
   def save_language(target, lang)
-    self.add_dynamic_annotations('language', target, { language: lang })
-  end
-
-  def save_machine_translation(src_lang, text, target)
-    target_lan = ['AR']
-    target_lan.each do |lang|
-      response = AlegreClient::Request.get_mt(CONFIG['alegre_host'], { text: text, from: src_lang, to: lang }, CONFIG['alegre_token'])
-      # TODO: get machine translation from response
-      self.add_dynamic_annotations('machine_translation', target, {'machine_translation': 'machine translation text'})
-    end
-  end
-
-  def add_dynamic_annotations(type, target, fields)
     annotation = Dynamic.new
     annotation.annotated = target
     annotation.annotator = self
-    annotation.annotation_type = type
-    annotation.set_fields = fields.to_json
+    annotation.annotation_type = 'language'
+    annotation.set_fields = { language: lang }.to_json
     annotation.save!
     annotation.update_columns(annotator_id: self.id, annotator_type: 'Bot::Alegre')
   end
-
 end

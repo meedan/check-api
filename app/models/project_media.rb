@@ -10,7 +10,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation
   after_update :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
 
@@ -273,6 +273,13 @@ class ProjectMedia < ActiveRecord::Base
       response.annotation_type = params['annotation_type']
       response.set_fields = params['set_fields']
       response.save!
+    end
+  end
+
+  def create_mt_annotation
+    bot = Bot::Alegre.default
+    unless bot.nil?
+      MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(bot)) if bot.should_classify?(self.text)
     end
   end
 
