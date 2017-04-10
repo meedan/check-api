@@ -480,4 +480,30 @@ class UserTest < ActiveSupport::TestCase
     assert_equal '123456', u1.reload.uuid
     assert_equal '456789', u2.reload.uuid
   end
+
+  test "should save valid languages" do
+    u = create_user
+    value = [{"id": "en","title": "English"}]
+    assert_nothing_raised do
+      u.set_languages(value)
+      u.save!
+    end
+  end
+
+  test "should not save languages if is not valid" do
+    u = create_user
+    variations = [
+      'invalid_language',
+      ['invalid_language'],
+      [{ id: 'en' }],
+      [{ title: 'English' }]
+    ]
+    variations.each do |value|
+      assert_raises ActiveRecord::RecordInvalid do
+        u.set_languages(value)
+        u.save!
+      end
+    end
+  end
+
 end

@@ -1,5 +1,6 @@
 class Project < ActiveRecord::Base
 
+  include ValidationsHelper
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
   belongs_to :team
@@ -16,6 +17,7 @@ class Project < ActiveRecord::Base
 
   validates_presence_of :title
   validates :lead_image, size: true
+  validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
 
   has_annotations
 
@@ -152,6 +154,10 @@ class Project < ActiveRecord::Base
 
   def csv_filename
     [self.team.slug,self.title.parameterize,DateTime.now].join('_')
+  end
+
+  def search_id
+    CheckSearch.id({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] })
   end
 
   private

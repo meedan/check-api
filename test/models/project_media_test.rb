@@ -492,9 +492,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, user: u
-      create_comment annotated: pm
-      create_tag annotated: pm
-      create_flag annotated: pm
+      c = create_comment annotated: pm
+      tg = create_tag annotated: pm
+      f = create_flag annotated: pm
       s = pm.annotations.where(annotation_type: 'status').last.load
       s.status = 'In Progress'; s.save!
       e = create_embed annotated: pm, title: 'Test'
@@ -509,6 +509,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
       assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 13, pm.get_versions_log_count
+      c.destroy
+      assert_equal 12, pm.get_versions_log_count
+      tg.destroy
+      assert_equal 11, pm.get_versions_log_count
+      f.destroy
+      assert_equal 10, pm.get_versions_log_count
     end
   end
 
@@ -621,5 +627,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 0, Annotation.where(annotation_type: 'translation').count
     create_project_media set_annotation: { annotation_type: 'translation', set_fields: { 'translation_text' => 'Foo', 'translation_note' => 'Bar', 'translation_language' => 'pt' }.to_json }.to_json
     assert_equal 1, Annotation.where(annotation_type: 'translation').count
+  end
+
+  test "should have reference to search team object" do
+    pm = create_project_media
+    assert_kind_of CheckSearch, pm.check_search_team
+  end
+
+  test "should have reference to search project object" do
+    pm = create_project_media
+    assert_kind_of CheckSearch, pm.check_search_project
   end
 end

@@ -11,7 +11,7 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   def to_s
     begin
       v = JSON.parse(self.value)
-      v = v['selected'].join(', ')
+      v = v['selected'].to_sentence(locale: I18n.locale)
     rescue
       v = self.value
     end

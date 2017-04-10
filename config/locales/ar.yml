@@ -4,6 +4,39 @@ ar:
   uploadedimage: صورة
   uploadefile: ملف
   blank: "(مساحة فارغة)"
+  statuses:
+    media:
+      undetermined:
+        label: لم يبدأ بعد
+        description: حالة التقرير الأولية، أُضيف تواً  إلى Check، لم يتم البدء في التحقق منه
+      not_applicable:
+        label: غير محسوم
+        description: لا يمكن استنتاج حالة التقرير باستخدام الدلائل المتاحة
+      in_progress:
+        label: جار التحقق من صحته
+        description: تم بدء العمل على التحقق من صحة التقرير، لكن لم يتم تحديد حالته بعد
+      not_true:
+        label: 'مزيف'
+        description: 'النتيجة: التقرير مزيف'
+      verified:
+        label: صحيح
+        description: 'النتيجة: تم التأكد من صحة التقرير'
+    source:
+      undetermined:
+        label: لم يبدأ بعد
+        description: حالة المصدر الأولية، أُضيف تواً إلى Check، لم يتم البدء في التحقق منه
+      credible:
+        label: موثوق به
+        description: 'النتيجة: هذا المصدر موثوق به'
+      not_credible:
+        label: غير موثوق به
+        description: 'النتيجة: هذا المصدر غير موثوق به'
+      slightly_credible:
+        label: قليل المصداقية
+        description: 'النتيجة: هذا المصدر قليل المصداقية'
+      sockpuppet:
+        label: هوية مزيفة
+        description: 'النتيجة: هذا مصدر ذو هوية مزيفة على الانترنت'
   errors:
     messages:
       extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات المسموحة هي: %{allowed_types}'
@@ -16,34 +49,39 @@ ar:
       uploaded_file: ملف
     attributes:
       tag:
-        data: وسم
+        data: الوسم
       uploaded_file:
-        file: ملف
+        file: الملف
       uploaded_image:
-        file: صورة
+        file: الصورة
+      team:
+        slug: المسار
+      source:
+        name: الاسم
+      contact:
+        phone: رقم الهاتف
+      comment:
+        text: التعليق
     errors:
       messages:
+        record_invalid: 'خطأ في صحة الإدخال: %{errors}'
+        improbable_phone: غير صحيح
         too_short:
-          zero: طوله لا يكفي (على الأقل %{count} حروف)
-          one: قصيرة جداً (الحد الأدنى حرفاً واحداً)
-          two: قصيرة جداً (الحد الأدنى %{count} حروف)
-          few: قصيرة جداً (الحد الأدنى %{count} حروف)
-          many: قصيرة جداً (الحد الأدنى %{count} حروف)
-          other: قصيرة جداً (الحد الأدنى %{count} حروف)
+          zero: قصير جداً (الحد الأدنى %{count} حروف)
+          one: قصير جداً (الحد الأدنى حرف واحد)
+          two: قصير جداً (الحد الأدنى %{count} حروف)
+          few: قصير جداً (الحد الأدنى %{count} حروف)
+          many: قصير جداً (الحد الأدنى %{count} حروف)
+          other: قصير جداً (الحد الأدنى %{count} حروف)
       models:
         user:
           attributes:
             email:
               taken: 'لقد حدثت مشكلة صغيرة: استخدمت هذا البريد الإلكتروني سابقاً لتسجيل الدخول بطريقة أخرى. أرسلنا لك تواً رسالة إلكترونية لنذكرك بطريقة التسجيل السابقة. من فضلك راجع بريدك الإلكتروني ثم سجل الدخول بنفس الطريقة السابقة.'
-  devise:
-    failure:
-      invalid: ' %{authentication_keys} أو كلمة مرور غير صحيحة'
-      not_found_in_database: ' %{authentication_keys} أو كلمة مرور غير صحيحة'
-      unconfirmed: لا بد من تأكيد عنوان بريدك الإلكتروني قبل الإستمرار.
   slug_format_validation_message: 'يقبل الأحرف والأرقام و''-'' فقط '
-  slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة
+  slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالة التحقق الخاصة
+  invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالات التحقق الخاصة - الصيغة المطلوبة موضحة أسفل الحقل
   invalid_media_item: ' عذراً، هذا ليس تقرير مسموح بإدخاله'
   already_exists: موجود بالفعل
   mail_account_confirmation: تأكيد حساب Check
@@ -84,4 +122,8 @@ ar:
     actions:
       send_reset_password_email:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
+      export_project:
+        menu: تصدير معلومات المشروع
   reset_password_instructions: التحقق من تعليمات إعادة ضبط كلمة المرور
+  email_not_found: هذا البريد الإلكتروني غير موجود
+  slack_channel_format_wrong: 'صيغة قناة Slack غير صحيحة - الصيغة المطلوبة هي `#general`'

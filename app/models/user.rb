@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   attr_accessor :url, :skip_confirmation_mail
 
+  include ValidationsHelper
   has_one :source
   has_many :team_users
   has_many :teams, through: :team_users
@@ -18,6 +19,7 @@ class User < ActiveRecord::Base
   validates :image, size: true
   validate :user_is_member_in_current_team
   validate :validate_duplicate_email, on: :create
+  validate :languages_format, unless: proc { |p| p.settings.nil? }
 
   serialize :omniauth_info
 
@@ -39,6 +41,10 @@ class User < ActiveRecord::Base
       end
     end
     role
+  end
+
+  def teams_owned
+    self.teams.joins(:team_users).where({'team_users.role': 'owner', 'team_users.status': 'member'})
   end
 
   def self.from_omniauth(auth)

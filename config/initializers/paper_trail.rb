@@ -13,7 +13,9 @@ module PaperTrail
   module CheckExtensions
     def self.included(base)
       base.class_eval do
-        before_create :set_object_after, :set_user, :set_event_type
+        before_create :set_object_after, :set_user, :set_event_type, :set_project_media_id
+        after_create :increment_project_media_annotations_count
+        after_destroy :decrement_project_media_annotations_count
       end
     end
 
@@ -90,9 +92,9 @@ module PaperTrail
 
     def task
       task = nil
-      if self.item_type == 'DynamicAnnotation::Field'
+      if self.item && self.item_type == 'DynamicAnnotation::Field'
         annotation = self.item.annotation
-        if annotation.annotation_type =~ /^task_response_/
+        if annotation && annotation.annotation_type =~ /^task_response_/
           annotation.get_fields.each do |field|
             task = Task.where(id: field.value.to_i).last if field.field_type == 'task_reference'
           end
@@ -119,6 +121,44 @@ module PaperTrail
 
     def set_event_type
       self.event_type = self.event + '_' + self.item_type.downcase.gsub(/[^a-z]/, '')
+    end
+
+    def get_project_media_id
+      case self.event_type
+      when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed'
+        self.get_project_media_id_from_annotation(self.item)
+      when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
+        annotation = self.item.annotation if self.item
+        self.get_project_media_id_from_annotation(annotation)
+      when 'update_projectmedia'
+        self.item_id.to_i
+      else
+        nil
+      end
+    end
+
+    def get_project_media_id_from_annotation(annotation)
+      (annotation && annotation.annotated_type == 'ProjectMedia') ? annotation.annotated_id.to_i : nil
+    end
+
+    def set_project_media_id
+      self.project_media_id = self.get_project_media_id    
+    end
+
+    def increment_project_media_annotations_count
+      self.change_project_media_annotations_count(1)
+    end
+
+    def decrement_project_media_annotations_count
+      self.change_project_media_annotations_count(-1)
+    end
+
+    def change_project_media_annotations_count(value)
+      if !self.project_media_id.nil? && self.event_type != 'create_dynamicannotationfield'
+        pm = ProjectMedia.find(self.project_media_id)
+        count = pm.cached_annotations_count + value
+        pm.update_columns(cached_annotations_count: count)
+      end
     end
   end
 end

@@ -5,6 +5,39 @@ en:
   uploadedimage: Image
   uploadefile: File
   blank: "(blank)"
+  statuses:
+    media:
+      undetermined:
+        label: Unstarted
+        description: Default, just added to Check, no work has started
+      not_applicable:
+        label: Inconclusive
+        description: No conclusion can be made with the available evidence
+      in_progress:
+        label: In Progress
+        description: Work has begun, but no conclusion made yet
+      not_true:
+        label: 'False'
+        description: 'Conclusion: the report is false'
+      verified:
+        label: Verified
+        description: 'Conclusion: the report is verified'
+    source:
+      undetermined:
+        label: Unstarted
+        description: Default, just added to Check, no work has started
+      credible:
+        label: Credible
+        description: 'Conclusion: the source is credible'
+      not_credible:
+        label: Not Credible
+        description: 'Conclusion: the source is not credible'
+      slightly_credible:
+        label: Slightly Credible
+        description: 'Conclusion: the source is slightly credible'
+      sockpuppet:
+        label: Sockpuppet
+        description: 'Conclusion: the source is a sockpuppet'
   errors:
     messages:
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
@@ -23,8 +56,18 @@ en:
         file: File
       uploaded_image:
         file: Image
+      team:
+        slug: Slug
+      source:
+        name: Name
+      contact:
+        phone: Phone
+      comment:
+        text: Comment
     errors:
       messages:
+        record_invalid: 'Validation failed: %{errors}'
+        improbable_phone: is an invalid number
         too_short:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
@@ -36,16 +79,12 @@ en:
                 sign in with another method. We just sent you an email reminding you
                 how you logged in. Check your email and sign in with the method you
                 used before.'
-  devise:
-    failure:
-      invalid: Invalid %{authentication_keys} or password.
-      not_found_in_database: Invalid %{authentication_keys} or password.
-      unconfirmed: You have to confirm your email address before continuing.
   slug_format_validation_message: accepts only letters, numbers and hyphens
-  slack_webhook_format_wrong: Slack webhook format is wrong
+  slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
+    `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
-  invalid_format_for_custom_verification_status: Invalid format for custom verification
-    statuses
+  invalid_format_for_custom_verification_status: Custom verification statuses is invalid,
+    it should have the format as exemplified below the field
   invalid_media_item: Sorry, this is not a valid media item
   already_exists: already exists
   mail_account_confirmation: Check account confirmation
@@ -106,3 +145,6 @@ en:
       export_project:
         menu: Export project data
   reset_password_instructions: Check reset password instructions
+  email_not_found: E-mail not found
+  slack_channel_format_wrong: 'Slack channel is invalid, it should have the format
+    #general'

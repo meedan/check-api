@@ -16,7 +16,7 @@ RailsAdmin.config do |config|
   config.current_user_method(&:current_api_user)
 
   # == Cancan ==
-  config.authorize_with :cancan
+  config.authorize_with :cancan, AdminAbility
 
   ## == Pundit ==
   # config.authorize_with :pundit
@@ -54,8 +54,9 @@ RailsAdmin.config do |config|
   config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Embed', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Status', 'Tag', 'Team', 'TeamUser', 'User']
 
   config.navigation_static_links = {
-    'Home' => '/',
     'API Explorer' => '/api',
+    'GraphiQL' => '/graphiql',
+    'Web Client' => CONFIG['checkdesk_client']
   }
 
   config.navigation_static_label = 'External Tools'

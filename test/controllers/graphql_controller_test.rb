@@ -17,6 +17,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 401
   end
 
+  test "should access About if not authenticated" do
+    post :create, query: 'query About { about { name, version } }'
+    assert_response :success
+  end
+
   test "should access GraphQL if authenticated" do
     authenticate_with_user
     post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}'
@@ -921,4 +926,21 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 400
   end
 
+  test "should reset password if email is found" do
+    u = create_user email: 'foo@bar.com'
+    p = create_project team: @team
+    create_team_user user: u, team: @team, role: 'owner'
+    query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+  end
+
+  test "should not reset password if email is not found" do
+    u = create_user email: 'test@bar.com'
+    p = create_project team: @team
+    create_team_user user: u, team: @team, role: 'owner'
+    query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response 404
+  end
 end
