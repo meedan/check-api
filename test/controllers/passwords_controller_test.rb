@@ -42,6 +42,6 @@ class PasswordsControllerTest < ActionController::TestCase
     u = create_user provider: ''
     token = u.send_reset_password_instructions
     put :update, api_user: { reset_password_token: token, password: '12345678', password_confirmation: '12345678'}
-    assert_redirected_to CONFIG['checkdesk_client']
+    assert_redirected_to CONFIG['checkdesk_client'] + '/check/login/email'
   end
 end
