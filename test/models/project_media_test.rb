@@ -638,4 +638,24 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media
     assert_kind_of CheckSearch, pm.check_search_project
   end
+
+  test "should have empty mt annotation" do
+    ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON structure')
+    at = create_annotation_type annotation_type: 'mt', label: 'Machine translation'
+    create_field_instance annotation_type_object: at, name: 'mt_translations', label: 'Machine translations', field_type_object: ft, optional: false
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, quote: 'Test'
+    mt = pm.annotations.where(annotation_type: 'mt').last
+    assert_nil mt
+    p.settings = {:languages => ['ar']}; p.save!
+    pm = create_project_media project: p, quote: 'Test'
+    mt = pm.annotations.where(annotation_type: 'mt').last
+    assert_not_nil mt
+  end
+
+  test "should update mt annotation" do
+    # TODO
+  end
+
 end

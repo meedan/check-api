@@ -51,8 +51,16 @@ module ProjectMediaCreators
 
   def create_mt_annotation
     bot = Bot::Alegre.default
-    unless bot.nil?
-      MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(bot)) if bot.should_classify?(self.text)
+    if !bot.nil? && bot.should_classify?(self.text)
+      languages = self.project.settings[:languages] unless self.project.settings.nil?
+      unless languages.nil?
+        annotation = Dynamic.new
+        annotation.annotated = self
+        annotation.annotator = bot
+        annotation.annotation_type = 'mt'
+        annotation.set_fields = {'mt_translations': {}.to_json}.to_json
+        annotation.save!
+      end
     end
   end
 
