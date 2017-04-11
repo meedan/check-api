@@ -49,6 +49,13 @@ module ProjectMediaCreators
     end
   end
 
+  def create_mt_annotation
+    bot = Bot::Alegre.default
+    unless bot.nil?
+      MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(bot)) if bot.should_classify?(self.text)
+    end
+  end
+
   protected
 
   def create_image
