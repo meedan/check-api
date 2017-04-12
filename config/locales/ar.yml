@@ -62,6 +62,8 @@ ar:
         phone: رقم الهاتف
       comment:
         text: التعليق
+      user:
+        reset_password_token: رمز إعادة تعيين كلمة المرور
     errors:
       messages:
         record_invalid: 'خطأ في صحة الإدخال: %{errors}'
@@ -90,8 +92,8 @@ ar:
   rejected: لم يتم الموافقة
   mail_request_to_join_processed: '%{status} على طلب انضمامك إلى فريق %{team} على Check'
   mail_new_account: حساب جديد لك على Check
-  slack_update_status: "غير*%{user}* حالة التحقق على %{url} في *%{project}* من _%{previous_status}_ إلى *%{current_status}*"
-  slack_save_embed: "غير*%{user}* عنوان التقرير في  *%{project}* من _%{from}_ إلى %{to}"
+  slack_update_status: "غير(ت) *%{user}* حالة التحقق على %{url} في *%{project}* من _%{previous_status}_ إلى *%{current_status}*"
+  slack_save_embed: "غير(ت) *%{user}* عنوان التقرير في  *%{project}* من _%{from}_ إلى %{to}"
   slack_save_comment: "أضاف *%{user}* تعليقاً على %{url} في %{project}*: %{comment}"
   slack_create_project: "أضاف %{user}*  مشروع: %{url}"
   slack_create_team_user: "إنضم *%{user}* لفريق %{url}"

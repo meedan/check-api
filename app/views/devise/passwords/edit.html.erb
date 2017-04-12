@@ -1,23 +1,20 @@
 <div class="reset-password">
-  <h1>Change your password</h1>
+  <h1><%= I18n.t('devise.passwords.edit.change_your_password') %></h1>
 
   <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }, format: :json) do |f| %>
     <%= devise_error_messages! %>
     <%= f.hidden_field :reset_password_token %>
 
     <div class="field">
-      <%= f.password_field :password, autofocus: true, autocomplete: "off", placeholder: "New password" %>
-      <% if @minimum_password_length %>
-        <em>(<%= @minimum_password_length %> characters minimum)</em>
-      <% end %>
+      <%= f.password_field :password, autofocus: true, autocomplete: "off", placeholder: I18n.t('devise.passwords.edit.new_password') %>
     </div>
 
     <div class="field">
-      <%= f.password_field :password_confirmation, autocomplete: "off", placeholder: 'Confirm new password' %>
+      <%= f.password_field :password_confirmation, autocomplete: "off", placeholder: I18n.t('devise.passwords.edit.confirm_new_password') %>
     </div>
 
     <div class="actions">
-      <%= f.submit "Change my password", class: 'reset-password_submit' %>
+      <%= f.submit I18n.t('devise.passwords.edit.change_my_password'), class: 'reset-password_submit' %>
     </div>
   <% end %>
 </div>

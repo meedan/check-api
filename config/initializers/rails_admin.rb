@@ -31,7 +31,10 @@ RailsAdmin.config do |config|
   # config.show_gravatar true
 
   config.actions do
-    dashboard                     # mandatory
+    dashboard do
+      # https://github.com/sferik/rails_admin/wiki/Dashboard-action#disabling-record-count-bars
+      statistics false
+    end
     index                         # mandatory
     new
     export

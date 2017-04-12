@@ -9,11 +9,10 @@ class Api::V1::PasswordsController < Devise::PasswordsController
     self.resource = resource_class.reset_password_by_token(resource_params)
     yield resource if block_given?
     if resource.errors.empty?
-      redirect_to CONFIG['checkdesk_client']
+      redirect_to CONFIG['checkdesk_client'] + '/check/login/email'
     else
       set_minimum_password_length
       render template: 'devise/passwords/edit.html.erb'
     end
   end
-
 end
