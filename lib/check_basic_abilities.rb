@@ -23,7 +23,7 @@ module CheckBasicAbilities
     can :create, User
     can :create, PaperTrail::Version
     can :read, Team, :private => false
-    can :read, Team, :private => true, :team_users => { :user_id => @user.id, :status => 'member' }
+    can :read, Team, :private => true,  id: @user.cached_teams
 
     # A @user can read a user if:
     # 1) @user is the same as target user
@@ -31,12 +31,12 @@ module CheckBasicAbilities
     # 3) @user is a member of at least one same team as the target user
     can :read, User, id: @user.id
     can :read, User, teams: { private: false }
-    can :read, User, team_users: { status: 'member', team: { team_users: { user_id: @user.id, status: 'member' }}}
+    can :read, User, team_users: { status: 'member', team_id: @user.cached_teams }
 
     # A @user can read contact, project or team user if:
     # 1) team is private and @user is a member of that team
     # 2) team user is not private
-    can :read, [Contact, Project, TeamUser], team: { team_users: { user_id: @user.id, status: 'member'} }
+    can :read, [Contact, Project, TeamUser], team_id: @user.cached_teams
     can :read, [Contact, Project, TeamUser], team: { private: false }
 
     # A @user can read any of those objects if:
@@ -45,13 +45,12 @@ module CheckBasicAbilities
     # 3) it's related to a private team which the @user has access to
     can :read, [Account, ProjectMedia, Source], user_id: [@user.id, nil]
     can :read, [Source, Media, Link, Claim], projects: { team: { private: false }}
-    can :read, [Source, Media, Link, Claim], projects: { team: { team_users: { user_id: @user.id, status: 'member' }}}
+    can :read, [Source, Media, Link, Claim], projects: { team_id: @user.cached_teams }
 
     can :read, [Account, ProjectSource], source: { user_id: [@user.id, nil] }
-    can :read, Account, source: { projects: { team: { private: false, team_users: { user_id: @user.id }}}}
-    can :read, Account, source: { projects: { team: { team_users: { user_id: @user.id, status: 'member' }}}}
+    can :read, Account, source: { projects: { team_id: @user.cached_teams }}
     can :read, [ProjectMedia, ProjectSource], project: { team: { private: false } }
-    can :read, [ProjectMedia, ProjectSource], project: { team: { team_users: { user_id: @user.id, status: 'member' }}}
+    can :read, [ProjectMedia, ProjectSource], project: { team_id: @user.cached_teams }
 
     %w(comment flag status embed tag dynamic task annotation).each do |annotation_type|
       can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
