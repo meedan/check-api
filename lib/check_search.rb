@@ -49,7 +49,7 @@ class CheckSearch
   end
 
   def from_relational_db
-    results = ProjectMedia.joins(:project)
+    results = ProjectMedia.eager_load(:media).joins(:project)
     results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
     results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
     sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
@@ -62,7 +62,7 @@ class CheckSearch
       # should loop in search result and return media
       # for now all results are medias
       ids = self.search_result.map(&:id)
-      items = ProjectMedia.where(id: ids)
+      items = ProjectMedia.where(id: ids).eager_load(:media)
       ids_sort = items.sort_by{|x| ids.index x.id.to_s}
       ids_sort.to_a
     else
