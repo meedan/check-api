@@ -4,6 +4,7 @@ class Ability
   def initialize(user = nil)
     alias_action :create, :update, :destroy, :to => :cud
     @user = User.current ||= user || User.new
+    @user = @user.reload if Rails.env.test?
     @context_team = Team.current ||= @user.current_team
     # Define User abilities
     if @user.is_admin?
