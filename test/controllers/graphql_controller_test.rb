@@ -947,7 +947,6 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should avoid n+1 queries problem" do
     n = 5 * (rand(10) + 1) # Number of media items to be created
     m = rand(10) + 1       # Number of annotations per media
-    puts "Running with #{n} medias and #{m} annotations per media..."
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
@@ -962,7 +961,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
-    # This number should be always FIXED regardless the number of medias and annotations above
+    # This number should be always CONSTANT regardless the number of medias and annotations above
     assert_queries (9) do
       post :create, query: query, team: 'team'
     end
