@@ -368,7 +368,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from user" do
-    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role', 'annotations' => 'content' })
+    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role', 'annotations' => 'content' }, 'DESC')
   end
 
   test "should create status" do
@@ -709,7 +709,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    assert_queries (2 * n + n * m + 16) do
+    assert_queries (2 * n + n * m + 15) do
       post :create, query: query, team: 'team'
     end
 
