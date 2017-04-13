@@ -58,7 +58,7 @@ module ProjectMediaCreators
         annotation.annotated = self
         annotation.annotator = bot
         annotation.annotation_type = 'mt'
-        annotation.set_fields = {'mt_translations': {}.to_json}.to_json
+        annotation.set_fields = {'mt_translations': [].to_json}.to_json
         annotation.save!
       end
     end
