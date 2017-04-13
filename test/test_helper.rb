@@ -56,7 +56,7 @@ class ActiveSupport::TestCase
 
   def with_current_user_and_team(user = nil, team = nil)
     Team.stubs(:current).returns(team)
-    User.stubs(:current).returns(user)
+    User.stubs(:current).returns(user.nil? ? nil : user.reload)
     begin
       yield if block_given?
     rescue Exception => e

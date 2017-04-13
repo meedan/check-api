@@ -157,7 +157,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       ProjectMedia.find_if_can(ppm.id)
     end
     tu = pt.team_users.last
-    tu.update_column(:status, 'requested')
+    tu.status = 'requested'
+    tu.save(validate: false)
     assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(pu, pt) do
         ProjectMedia.find_if_can(ppm.id)
