@@ -943,4 +943,30 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response 404
   end
+
+  test "should avoid n+1 queries problem" do
+    n = 5 * (rand(10) + 1) # Number of media items to be created
+    m = rand(10) + 1       # Number of annotations per media
+    puts "Running with #{n} medias and #{m} annotations per media..."
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    with_current_user_and_team(u, t) do
+      n.times do
+        pm = create_project_media project: p
+        m.times { create_comment annotated: pm, annotator: u }
+      end
+    end
+
+    query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
+
+    # This number should be always FIXED regardless the number of medias and annotations above
+    assert_queries (9) do
+      post :create, query: query, team: 'team'
+    end
+
+    assert_response :success
+  end
 end
