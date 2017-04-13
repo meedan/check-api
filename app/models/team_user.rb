@@ -11,7 +11,8 @@ class TeamUser < ActiveRecord::Base
 
   before_validation :set_role_default_value, on: :create
   after_create :send_email_to_team_owners
-  after_save :send_email_to_requestor
+  after_save :send_email_to_requestor, :update_user_cached_teams_after_save
+  after_destroy :update_user_cached_teams_after_destroy
 
   notifies_slack on: :create,
                  if: proc { |tu| User.current.present? && tu.team.setting(:slack_notifications_enabled).to_i === 1 },
@@ -53,6 +54,20 @@ class TeamUser < ActiveRecord::Base
     )
   end
 
+  protected
+
+  def update_user_cached_teams(action) # action: :add or :remove
+    user = self.user
+    teams = user.cached_teams.clone
+    if action == :add
+      teams << self.team_id
+    elsif action == :remove
+      teams -= [self.team_id]
+    end
+    user.cached_teams = teams.uniq
+    user.save(validate: false)
+  end
+
   private
 
   def send_email_to_team_owners
@@ -87,5 +102,17 @@ class TeamUser < ActiveRecord::Base
         errors.add(:base, I18n.t(:slack_restricted_join_to_members, params))
       end
     end
+  end
+
+  def update_user_cached_teams_after_save
+    if self.status == 'member'
+      self.update_user_cached_teams(:add)
+    else # "requested" or "banned"
+      self.update_user_cached_teams(:remove)
+    end
+  end
+
+  def update_user_cached_teams_after_destroy
+    self.update_user_cached_teams(:remove)
   end
 end

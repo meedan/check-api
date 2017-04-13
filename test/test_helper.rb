@@ -56,7 +56,7 @@ class ActiveSupport::TestCase
 
   def with_current_user_and_team(user = nil, team = nil)
     Team.stubs(:current).returns(team)
-    User.stubs(:current).returns(user)
+    User.stubs(:current).returns(user.nil? ? nil : user.reload)
     begin
       yield if block_given?
     rescue Exception => e
@@ -290,10 +290,14 @@ class ActiveSupport::TestCase
 
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
 
-    nindex = order === 'ASC' ? 0 : (type.camelize.constantize.count - 1)
     fields.each do |name, key|
-      assert_equal obj.send(name).first.send(key),
-                   edges[nindex]['node'][name]['edges'][0]['node'][key]
+      equal = false
+      edges.each do |edge|
+        if edge['node'][name]['edges'].size > 0 && !equal
+          equal = (obj.send(name).first.send(key) == edge['node'][name]['edges'][0]['node'][key])
+        end
+      end
+      assert equal
     end
 
     assert_response :success
