@@ -207,7 +207,7 @@ class ProjectMedia < ActiveRecord::Base
 
   def update_mt=(_update)
     mt = self.annotations.where(annotation_type: 'mt').last
-    MachineTranslationWorker.perform_in(1.second, YAML::dump(self)) unless mt.nil?
+    MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(User.current)) unless mt.nil?
   end
 
   private

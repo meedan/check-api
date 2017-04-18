@@ -1,12 +1,12 @@
 class MachineTranslationWorker
   include Sidekiq::Worker
 
-  def perform(target)
+  def perform(target, author)
     target = YAML::load(target)
+    author = YAML::load(author)
     field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'language', 'annotations.annotated_type' => target.class.name, 'annotations.annotated_id' => target.id.to_s, field_type: 'language').first
     src_lang = field.value unless field.nil?
     mt = target.annotations.where(annotation_type: 'mt').last
-    puts "Source language --- #{src_lang}"
     unless mt.nil? or src_lang.nil?
       translations = []
       text = target.text
@@ -20,11 +20,18 @@ class MachineTranslationWorker
         rescue
           mt_text = nil
         end
-        translations << { lang: lang, text: mt_text } unless mt_text.nil?
+        unless mt_text.nil?
+          lang_name = TwitterCldr::Shared::LanguageCodes.to_language(lang, :iso_639_1)
+          lang_name = lang_name.blank? ? lang : lang_name.downcase
+          translations << { lang: lang, lang_name: lang_name, text: mt_text }
+        end
       end unless languages.nil?
-
       unless translations.blank?
+        # Delete old versions
+        mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => target.class.name, 'annotations.annotated_id' => target.id.to_s, field_type: 'json').first
+        mt_field.versions.destroy_all
         mt = mt.load
+        User.current = author
         mt.set_fields = {'mt_translations': translations.to_json}.to_json
         mt.save!
       end
