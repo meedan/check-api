@@ -4,7 +4,7 @@ module Api
       include GraphqlDoc
 
       skip_before_filter :authenticate_from_token!
-      before_action :authenticate_user!, only: [:create], if: -> { params[:query].to_s.match(/^((query About)|(mutation[^\{]*{\s*resetPassword))/).nil? }
+      before_action :authenticate_user!, only: [:create], if: -> { params[:query].to_s.match(/^((query About)|(mutation[^\{]*{\s*(reset|change)Password))/).nil? }
       before_action :set_current_user, :load_context_team, :set_current_team, :load_ability
 
       def create

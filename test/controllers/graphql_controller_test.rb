@@ -968,4 +968,42 @@ class GraphqlControllerTest < ActionController::TestCase
 
     assert_response :success
   end
+
+  test "should change password if token is found and passwords are present and match" do
+    u = create_user provider: ''
+    t = u.send_reset_password_instructions
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
+    post :create, query: query
+    sleep 1
+    assert_response :success
+    assert !JSON.parse(@response.body).has_key?('errors')
+  end
+
+  test "should not change password if token is not found and passwords are present and match" do
+    u = create_user provider: ''
+    t = u.send_reset_password_instructions
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}x\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
+    post :create, query: query
+    sleep 1
+    assert_response 400
+  end
+
+  test "should not change password if token is found but passwords are not present" do
+    u = create_user provider: ''
+    t = u.send_reset_password_instructions
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\" }) { success } }"
+    post :create, query: query
+    sleep 1
+    assert_response :success
+    assert JSON.parse(@response.body).has_key?('errors')
+  end
+
+  test "should not change password if token is found but passwords do not match" do
+    u = create_user provider: ''
+    t = u.send_reset_password_instructions
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"12345678\" }) { success } }"
+    post :create, query: query
+    sleep 1
+    assert_response 400
+  end
 end
