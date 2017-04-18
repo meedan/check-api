@@ -10,8 +10,12 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   def to_s
     begin
-      v = JSON.parse(self.value)
-      v = v['selected'].to_sentence(locale: I18n.locale)
+      # FIXME This is hardcoded to values of 'selected' + 'other' as per the current structure of tasks.
+      #       Should convert to a generic mechanism to specify value extractors for different dynamic field types.
+      value = JSON.parse(self.value)
+      answer = value['selected']
+      answer.insert(-1, value['other']) if !value['other'].blank?
+      v = answer.to_sentence(locale: I18n.locale)
     rescue
       v = self.value
     end

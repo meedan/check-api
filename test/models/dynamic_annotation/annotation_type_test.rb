@@ -61,6 +61,6 @@ class DynamicAnnotation::AnnotationTypeTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'task_response_free_text'
     a1 = create_dynamic_annotation annotation_type: 'task_response_free_text'
     a2 = create_dynamic_annotation annotation_type: 'task_response_free_text'
-    assert_equal [a1, a2], at.reload.annotations
+    assert_equal [a1, a2].sort, at.reload.annotations.sort
   end
 end
