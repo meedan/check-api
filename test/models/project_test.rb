@@ -466,4 +466,11 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get project languages" do
+    p = create_project
+    assert_equal [], p.languages
+    p.settings = {:languages => ['ar', 'en']}; p.save!
+    assert_equal ['ar', 'en'], p.languages
+  end
+
 end

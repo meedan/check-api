@@ -26,8 +26,7 @@ class Bot::Alegre < ActiveRecord::Base
     translations = []
     field = self.get_dynamic_field_value(target, 'language', 'language')
     src_lang = field.nil? ? Bot::Alegre.default.get_language_from_alegre(text, target) : field.value
-    languages = target.project.get_languages
-    languages = [] if languages.nil?
+    languages = target.project.languages
     languages = languages - [src_lang]
     languages.each do |lang|
       begin

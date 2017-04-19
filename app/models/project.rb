@@ -160,6 +160,11 @@ class Project < ActiveRecord::Base
     CheckSearch.id({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] })
   end
 
+  def languages
+    languages = self.get_languages
+    languages.nil? ? [] : languages
+  end
+
   private
 
   def set_description_and_team_and_user
