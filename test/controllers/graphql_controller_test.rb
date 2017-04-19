@@ -17,6 +17,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 401
   end
 
+  test "should access About if not authenticated" do
+    post :create, query: 'query About { about { name, version } }'
+    assert_response :success
+  end
+
   test "should access GraphQL if authenticated" do
     authenticate_with_user
     post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}'
@@ -363,7 +368,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from user" do
-    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role', 'annotations' => 'content' })
+    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role', 'annotations' => 'content' }, 'DESC')
   end
 
   test "should create status" do
@@ -704,7 +709,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    assert_queries (2 * n + n * m + 15) do
+    assert_queries (2 * n + n * m + 16) do
       post :create, query: query, team: 'team'
     end
 
@@ -925,7 +930,6 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user email: 'foo@bar.com'
     p = create_project team: @team
     create_team_user user: u, team: @team, role: 'owner'
-    authenticate_with_user(u)
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -935,9 +939,77 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user email: 'test@bar.com'
     p = create_project team: @team
     create_team_user user: u, team: @team, role: 'owner'
-    authenticate_with_user(u)
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
     post :create, query: query, team: @team.slug
     assert_response 404
+  end
+
+  test "should avoid n+1 queries problem" do
+    n = 5 * (rand(10) + 1) # Number of media items to be created
+    m = rand(10) + 1       # Number of annotations per media
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    with_current_user_and_team(u, t) do
+      n.times do
+        pm = create_project_media project: p
+        m.times { create_comment annotated: pm, annotator: u }
+      end
+    end
+
+    query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
+
+    # This number should be always CONSTANT regardless the number of medias and annotations above
+    assert_queries (10) do
+      post :create, query: query, team: 'team'
+    end
+
+    assert_response :success
+  end
+
+  test "should change password if token is found and passwords are present and match" do
+    u = create_user provider: ''
+    t = u.send_reset_password_instructions
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
+    post :create, query: query
+    sleep 1
+    assert_response :success
+    assert !JSON.parse(@response.body).has_key?('errors')
+  end
+
+  test "should not change password if token is not found and passwords are present and match" do
+    u = create_user provider: ''
+    t = u.send_reset_password_instructions
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}x\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
+    post :create, query: query
+    sleep 1
+    assert_response 400
+  end
+
+  test "should not change password if token is found but passwords are not present" do
+    u = create_user provider: ''
+    t = u.send_reset_password_instructions
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\" }) { success } }"
+    post :create, query: query
+    sleep 1
+    assert_response :success
+    assert JSON.parse(@response.body).has_key?('errors')
+  end
+
+  test "should not change password if token is found but passwords do not match" do
+    u = create_user provider: ''
+    t = u.send_reset_password_instructions
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"12345678\" }) { success } }"
+    post :create, query: query
+    sleep 1
+    assert_response 400
+  end
+
+  test "should access GraphQL if authenticated with API key" do
+    authenticate_with_token
+    post :create, query: 'query Query { about { name, version } }'
+    assert_response :success
   end
 end

@@ -3,11 +3,7 @@ languages:
   JavaScript: false
 engines:
   fixme:
-    enabled: true
-    config:
-      strings:
-      - FIXME
-      - BUG
+    enabled: false
   rubocop:
     enabled: true
     config: .rubocop.yml

@@ -64,6 +64,8 @@ en:
         phone: Phone
       comment:
         text: Comment
+      user:
+        reset_password_token: Reset password token
     errors:
       messages:
         record_invalid: 'Validation failed: %{errors}'

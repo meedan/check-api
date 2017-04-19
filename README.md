@@ -166,8 +166,9 @@ end
 * Copy the output from the above step `[instance-name]` into Check `db/data`.
 
 #### Check side
-  * Run `rake db:migrate:checkdesk`.
-  * Rake command will generate `mapping_ids.yml` to log Checkdesk => Check mapping and mark migrated model.
+
+* Run `rake db:migrate:checkdesk`.
+* Rake command will generate `mapping_ids.yml` to log Checkdesk => Check mapping and mark migrated model.
 
 ### Credits
 

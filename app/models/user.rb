@@ -22,6 +22,7 @@ class User < ActiveRecord::Base
   validate :languages_format, unless: proc { |p| p.settings.nil? }
 
   serialize :omniauth_info
+  serialize :cached_teams, Array
 
   include CheckSettings
   include DeviseAsync

@@ -2,7 +2,7 @@ module ValidationsHelper
 
   def slack_channel_format
     channel = self.get_slack_channel
-    if !channel.blank? && /\A#/.match(channel).nil?
+    if !channel.blank? && /\A[#@]/.match(channel).nil?
       self.errors.add(:base, I18n.t(:slack_channel_format_wrong, default: 'Slack channel is invalid, it should have the format #general'))
     end
   end

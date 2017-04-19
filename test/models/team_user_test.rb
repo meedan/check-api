@@ -276,4 +276,22 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should update teams cache when team user is created, updated or deleted" do
+    t = create_team
+    u = create_user
+    assert_equal [], u.reload.cached_teams
+    tu = create_team_user team: t, user: u, status: 'requested'
+    assert_equal [], u.reload.cached_teams
+    tu.status = 'member'
+    tu.save!
+    assert_equal [t.id], u.reload.cached_teams
+    tu.status = 'banned'
+    tu.save!
+    assert_equal [], u.reload.cached_teams
+    tu.status = 'member'
+    tu.save!
+    assert_equal [t.id], u.reload.cached_teams
+    tu.destroy
+    assert_equal [], u.reload.cached_teams
+  end
 end
