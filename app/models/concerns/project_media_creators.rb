@@ -52,7 +52,7 @@ module ProjectMediaCreators
   def create_mt_annotation
     bot = Bot::Alegre.default
     if !bot.nil? && bot.should_classify?(self.text)
-      languages = self.project.settings[:languages] unless self.project.settings.nil?
+      languages = self.project.get_languages
       unless languages.nil?
         annotation = Dynamic.new
         annotation.annotated = self
