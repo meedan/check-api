@@ -1006,4 +1006,10 @@ class GraphqlControllerTest < ActionController::TestCase
     sleep 1
     assert_response 400
   end
+
+  test "should access GraphQL if authenticated with API key" do
+    authenticate_with_token
+    post :create, query: 'query Query { about { name, version } }'
+    assert_response :success
+  end
 end
