@@ -67,7 +67,7 @@ class Bot::Alegre < ActiveRecord::Base
     annotation.update_columns(annotator_id: self.id, annotator_type: 'Bot::Alegre')
   end
 
-  def update_machine_translation(target, translations)
+  def update_machine_translation(target, translations, author)
     mt = target.annotations.where(annotation_type: 'mt').last
     unless mt.nil?
       # Delete old versions
