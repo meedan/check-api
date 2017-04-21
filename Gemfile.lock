@@ -218,6 +218,7 @@ GEM
       nokogiri (>= 1.5.9)
     macaddr (1.7.1)
       systemu (~> 2.6.2)
+    magick_title (0.2.0)
     mail (2.6.4)
       mime-types (>= 1.16, < 4)
     mechanize (2.7.5)
@@ -511,6 +512,7 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   jquery-rails
   logstash-logger
+  magick_title (>= 0.2.0)
   mini_magick
   mocha
   newrelic_rpm

@@ -56,6 +56,15 @@ class Dynamic < ActiveRecord::Base
     values
   end
 
+  def get_field(name)
+    self.get_fields.select{ |f| f['field_name'] == name.to_s }.first
+  end
+
+  def get_field_value(name)
+    field = self.get_field(name)
+    field.nil? ? nil : field.value
+  end
+
   private
 
   def add_update_elasticsearch_dynamic_annotation

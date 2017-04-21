@@ -74,3 +74,4 @@ gem 'rails-i18n', git: 'https://github.com/svenfuchs/rails-i18n.git', branch: 'r
 gem 'alegre_client', git: 'https://github.com/meedan/alegre-client.git', ref: '31f8ab5'
 gem 'twitter_cldr'
 gem 'devise-i18n'
+gem 'magick_title', '>= 0.2.0'

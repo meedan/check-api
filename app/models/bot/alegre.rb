@@ -23,12 +23,7 @@ class Bot::Alegre < ActiveRecord::Base
 
   def language(target)
     field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'language', 'annotations.annotated_type' => target.class.name, 'annotations.annotated_id' => target.id.to_s, field_type: 'language').first
-    if field.nil?
-      nil
-    else
-      name = TwitterCldr::Shared::LanguageCodes.to_language(field.value, :iso_639_1)
-      name.blank? ? field.value : name.downcase
-    end
+    field.nil? ? nil : field.language
   end
 
   protected

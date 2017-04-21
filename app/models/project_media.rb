@@ -205,6 +205,10 @@ class ProjectMedia < ActiveRecord::Base
     self.project && self.project.team && !self.project.team.get_checklist.blank?
   end
 
+  def get_dynamic_annotation(type)
+    Dynamic.where(annotation_type: type, annotated_type: 'ProjectMedia', annotated_id: self.id).last
+  end
+
   private
 
   def is_unique
