@@ -189,6 +189,14 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :translations_count do
+    type types.Int
+
+    resolve ->(project_media, _args, _ctx) {
+      project_media.get_annotations('translation').count
+    }
+  end
+
   instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
 
 # End of fields
