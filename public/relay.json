@@ -77,13 +77,19 @@
                   "name": "id",
                   "description": null,
                   "type": {
-                    "kind": "NON_NULL",
-                    "name": "Non-Null",
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "ids",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
                   },
                   "defaultValue": null
                 }
@@ -98,7 +104,7 @@
             },
             {
               "name": "project_media",
-              "description": "Information about a project media, The argument should be given like this: \"project_media_id,project_id\"",
+              "description": "Information about a project media, The argument should be given like this: \"project_media_id,project_id,team_id\"",
               "args": [
                 {
                   "name": "ids",

@@ -140,6 +140,18 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['annotations']['edges'].size
   end
 
+  test "should read project medias with team_id as argument" do
+    authenticate_with_token
+    p = create_project team: @team
+    pm = create_project_media project: p
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { published, language, last_status_obj {dbid} } }"
+    post :create, query: query
+    assert_response :success
+    assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
+    assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
+    assert JSON.parse(@response.body)['data']['project_media'].has_key?('language')
+  end
+
   test "should read project media and fallback to media" do
     authenticate_with_user
     p = create_project team: @team
@@ -254,6 +266,17 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project" do
     assert_graphql_read('project', 'title')
+  end
+
+  test "should read project with team_id as argument" do
+    authenticate_with_token
+    p = create_project team: @team
+    pm = create_project_media project: p
+    query = "query GetById { project(ids: \"#{p.id},#{@team.id}\") { title, description} }"
+    post :create, query: query
+    assert_response :success
+    assert_equal p.title, JSON.parse(@response.body)['data']['project']['title']
+    assert_equal p.description, JSON.parse(@response.body)['data']['project']['description']
   end
 
   test "should update project" do
