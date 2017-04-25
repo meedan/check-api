@@ -3,24 +3,24 @@ class Bot::Viber < ActiveRecord::Base
     Bot::Viber.where(name: 'Viber Bot').last
   end
 
-  def send_message(viber_token, body)
+  def send_message(body)
     uri = URI('https://chatapi.viber.com/pa/send_message')
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     req = Net::HTTP::Post.new(uri.path, 'Content-Type' => 'application/json')
-    req['X-Viber-Auth-Token'] = viber_token
+    req['X-Viber-Auth-Token'] = CONFIG['viber_token']
     req.body = body 
     http.request(req)
   end
 
-  def send_text_message(viber_token, user_id, text)
+  def send_text_message(user_id, text)
     body = { receiver: user_id, sender: { name: 'Bridge' }, type: 'text', text: text }.to_json
-    self.send_message(viber_token, body)
+    self.send_message(body)
   end
 
-  def send_image_message(viber_token, user_id, image)
+  def send_image_message(user_id, image)
     body = { receiver: user_id, sender: { name: 'Bridge' }, type: 'picture', text: '', media: CONFIG['checkdesk_base_url'] + image.url }.to_json
-    self.send_message(viber_token, body)
+    self.send_message(body)
   end
 
   Dynamic.class_eval do
@@ -29,9 +29,9 @@ class Bot::Viber < ActiveRecord::Base
     def translation_to_message
       if self.annotation_type == 'translation'
         begin
-          source_language = self.annotated.get_dynamic_annotation('language').get_field('language').language.capitalize
+          source_language = self.annotated.get_dynamic_annotation('language').get_field('language').language_name
           source_text = self.annotated.text
-          target_language = self.get_field('translation_language').language.capitalize
+          target_language = self.get_field('translation_language').language_name
           target_text = self.get_field_value('translation_text')
           [source_language + ':', source_text, target_language + ':', target_text].join("\n")
         rescue
@@ -55,12 +55,13 @@ class Bot::Viber < ActiveRecord::Base
     end
 
     def self.respond_to_user(tid)
-      translation = Dynamic.find(tid)
+      translation = Dynamic.where(id: tid).last
+      return if translation.nil?
       request = translation.annotated.get_dynamic_annotation('translation_request')
       if !request.nil? && request.get_field_value('translation_request_type') == 'viber'
         data = JSON.parse(request.get_field_value('translation_request_raw_data'))
-        Bot::Viber.default.send_text_message(CONFIG['viber_token'], data['sender'], translation.translation_to_message)
-        Bot::Viber.default.send_image_message(CONFIG['viber_token'], data['sender'], translation.translation_to_message_as_image)
+        Bot::Viber.default.send_text_message(data['sender'], translation.translation_to_message)
+        Bot::Viber.default.send_image_message(data['sender'], translation.translation_to_message_as_image)
       end
     end
 

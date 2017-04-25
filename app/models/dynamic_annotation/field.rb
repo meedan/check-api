@@ -23,9 +23,17 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   end
 
   def language
+    self.value if self.field_type == 'language'
+  end
+
+  def language_name
     if self.field_type == 'language'
-      name = TwitterCldr::Shared::LanguageCodes.to_language(self.value, :iso_639_1)
-      name.blank? ? self.value : name.downcase
+      locale = I18n.locale || :en
+      begin
+        I18nData.languages(I18n.locale.to_s.upcase)[self.value.upcase].capitalize
+      rescue
+        self.value
+      end
     end
   end
 

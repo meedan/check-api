@@ -72,6 +72,6 @@ gem 'http_accept_language', git: 'https://github.com/iain/http_accept_language.g
 gem 'i18n-generators'
 gem 'rails-i18n', git: 'https://github.com/svenfuchs/rails-i18n.git', branch: 'rails-4-x', ref: 'f8c83ec'
 gem 'alegre_client', git: 'https://github.com/meedan/alegre-client.git', ref: '31f8ab5'
-gem 'twitter_cldr'
 gem 'devise-i18n'
 gem 'magick_title', '>= 0.2.0'
+gem 'i18n_data'

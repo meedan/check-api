@@ -65,4 +65,26 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     f = create_field field_name: 'response', value: 'Test'
     assert_equal 'Test', f.to_s
   end
+
+  test "should get language" do
+    ft = create_field_type field_type: 'language'
+    fi = create_field_instance name: 'language', field_type_object: ft
+    f1 = create_field field_name: 'language', value: 'fr'
+    assert_equal 'fr', f1.language
+    f2 = create_field value: 'fr'
+    assert_nil f2.language
+    f3 = create_field field_name: 'language', value: 'xx'
+    assert_equal 'xx', f3.language
+  end
+
+  test "should get language name" do
+    ft = create_field_type field_type: 'language'
+    fi = create_field_instance name: 'language', field_type_object: ft
+    f1 = create_field field_name: 'language', value: 'fr'
+    assert_equal 'French', f1.language_name
+    f2 = create_field value: 'fr'
+    assert_nil f2.language_name
+    f3 = create_field field_name: 'language', value: 'xx'
+    assert_equal 'xx', f3.language_name
+  end
 end

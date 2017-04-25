@@ -413,6 +413,13 @@ module SampleData
     bot.reload
   end
 
+  def create_viber_bot(options = {})
+    bot = Bot::Viber.new
+    bot.name = options[:name] || 'Viber Bot'
+    bot.save!
+    bot.reload
+  end
+
   def create_bounce(options = {})
     b = Bounce.new
     b.email = options.has_key?(:email) ? options[:email] : random_email

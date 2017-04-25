@@ -639,4 +639,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media
     assert_kind_of CheckSearch, pm.check_search_project
   end
+
+  test "should get dynamic annotation by type" do
+    create_annotation_type annotation_type: 'foo'
+    create_annotation_type annotation_type: 'bar'
+    pm = create_project_media
+    d1 = create_dynamic_annotation annotation_type: 'foo', annotated: pm
+    d2 = create_dynamic_annotation annotation_type: 'bar', annotated: pm
+    assert_equal d1, pm.get_dynamic_annotation('foo')
+    assert_equal d2, pm.get_dynamic_annotation('bar')
+  end
 end
