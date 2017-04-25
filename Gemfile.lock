@@ -8,8 +8,8 @@ GIT
 
 GIT
   remote: https://github.com/caiosba/magick_title.git
-  revision: da074ffb7d1e89c348befa0960aab5557ab14f84
-  ref: da074ff
+  revision: c5a6b0e130af6bf13ace9622bcf5279763ab9039
+  ref: c5a6b0e
   specs:
     magick_title (0.2.0)
 
