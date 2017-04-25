@@ -164,4 +164,17 @@ class Bot::ViberTest < ActiveSupport::TestCase
     Bot::Viber.any_instance.unstub(:send_text_message)
     Bot::Viber.any_instance.unstub(:send_image_message)
   end
+
+  test "should convert translation to message" do
+    pm = create_project_media media: create_claim_media
+    at = create_annotation_type annotation_type: 'translation'
+    create_field_instance name: 'translation_text', annotation_type_object: at
+    create_field_instance name: 'translation_language', annotation_type_object: at
+    at = create_annotation_type annotation_type: 'language'
+    create_field_instance name: 'language', annotation_type_object: at
+    create_dynamic_annotation annotated: pm, annotation_type: 'language', set_fields: { language: 'pt' }.to_json
+    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
+    assert_not_equal '', d.translation_to_message
+    assert_not_nil d.translation_to_message
+  end
 end 

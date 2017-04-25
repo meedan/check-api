@@ -34,10 +34,9 @@ gem 'mocha'
 gem 'simplecov', require: false, group: :test
 gem 'railroady'
 gem 'airbrake', '4.3.3'
-gem 'codeclimate-test-reporter', group: :test, require: nil
+gem 'codeclimate-test-reporter', '0.6.0', group: :test, require: nil
 gem 'awesome_print', require: false, group: :development
 gem 'gem-licenses'
-gem 'auto_localize', '0.1'
 gem 'thin'
 gem 'swagger-docs', '0.1.9'
 gem 'responders'
@@ -52,7 +51,7 @@ gem 'elasticsearch-persistence', require: 'elasticsearch/persistence/model'
 gem 'paper_trail'
 gem 'graphiql-rails', git: 'https://github.com/caiosba/graphiql-rails.git', ref: 'd03dd94'
 gem 'graphql-formatter'
-gem 'nokogiri', '1.6.8'
+gem 'nokogiri', '1.7.1'
 gem 'mini_magick'
 gem 'puma'
 gem 'rack-cors', :require => 'rack/cors'

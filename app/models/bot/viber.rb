@@ -33,7 +33,7 @@ class Bot::Viber < ActiveRecord::Base
           source_text = self.annotated.text
           target_language = self.get_field('translation_language').language_name
           target_text = self.get_field_value('translation_text')
-          [source_language + ':', source_text, target_language + ':', target_text].join("\n")
+          [source_language.to_s + ':', source_text, target_language.to_s + ':', target_text].join("\n")
         rescue
           ''
         end
