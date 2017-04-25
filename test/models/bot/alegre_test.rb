@@ -51,7 +51,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
         assert_equal 'fr', @bot.get_language_from_alegre('I like apples', @pm)
-        assert_equal 'french', @bot.language(@pm)
+        assert_equal 'fr', @bot.language(@pm)
       end
     end
   end
