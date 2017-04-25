@@ -7,6 +7,13 @@ GIT
       rails
 
 GIT
+  remote: https://github.com/caiosba/magick_title.git
+  revision: da074ffb7d1e89c348befa0960aab5557ab14f84
+  ref: da074ff
+  specs:
+    magick_title (0.2.0)
+
+GIT
   remote: https://github.com/iain/http_accept_language.git
   revision: 1d1837136eba5723132eebbd8c0176860c184e0c
   specs:
@@ -202,7 +209,6 @@ GEM
       logstash-event (~> 1.2)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
-    magick_title (0.2.0)
     mail (2.6.4)
       mime-types (>= 1.16, < 4)
     mechanize (2.7.5)
@@ -478,7 +484,7 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   jquery-rails
   logstash-logger
-  magick_title (>= 0.2.0)
+  magick_title!
   mini_magick
   mocha
   newrelic_rpm
