@@ -30,7 +30,7 @@ class DynamicAnnotation::Field < ActiveRecord::Base
     if self.field_type == 'language'
       locale = I18n.locale || :en
       begin
-        I18nData.languages(I18n.locale.to_s.upcase)[self.value.upcase].capitalize
+        I18nData.languages(locale.to_s.upcase)[self.value.upcase].capitalize
       rescue
         self.value
       end
