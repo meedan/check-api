@@ -1,0 +1,421 @@
+fa: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        angle-arc-minute: 
+          one: "{0} دقیقه"
+          other: "{0} دقیقه"
+        angle-arc-second: 
+          one: "{0} ثانیه"
+          other: "{0} ثانیه"
+        angle-degree: 
+          one: "{0} درجه"
+          other: "{0} درجه"
+        area-acre: 
+          one: "{0} جریب"
+          other: "{0} جریب"
+        area-hectare: 
+          one: "{0} هکتار"
+          other: "{0} هکتار"
+        area-square-foot: 
+          one: "{0} فوت مربع"
+          other: "{0} فوت مربع"
+        area-square-kilometer: 
+          one: "{0} کیلومتر مربع"
+          other: "{0} کیلومتر مربع"
+        area-square-meter: 
+          one: "{0} متر مربع"
+          other: "{0} متر مربع"
+        area-square-mile: 
+          one: "{0} مایل مربع"
+          other: "{0} مایل مربع"
+        duration-day: 
+          one: "{0} روز"
+          other: "{0} روز"
+        duration-hour: 
+          one: "{0} ساعت"
+          other: "{0} ساعت"
+        duration-millisecond: 
+          one: "{0} میلی‌ثانیه"
+          other: "{0} میلی‌ثانیه"
+        duration-minute: 
+          one: "{0} دقیقه"
+          other: "{0} دقیقه"
+        duration-month: 
+          one: "{0} ماه"
+          other: "{0} ماه"
+        duration-second: 
+          one: "{0} ثانیه"
+          other: "{0} ثانیه"
+        duration-week: 
+          one: "{0} هفته"
+          other: "{0} هفته"
+        duration-year: 
+          one: "{0} سال"
+          other: "{0} سال"
+        length-centimeter: 
+          one: "{0} سانتی‌متر"
+          other: "{0} سانتی‌متر"
+        length-foot: 
+          one: "{0} فوت"
+          other: "{0} فوت"
+        length-inch: 
+          one: "{0} اینچ"
+          other: "{0} اینچ"
+        length-kilometer: 
+          one: "{0} کیلومتر"
+          other: "{0} کیلومتر"
+        length-light-year: 
+          one: "{0} سال نوری"
+          other: "{0} سال نوری"
+        length-meter: 
+          one: "{0} متر"
+          other: "{0} متر"
+        length-mile: 
+          one: "{0} مایل"
+          other: "{0} مایل"
+        length-millimeter: 
+          one: "{0} میلی‌متر"
+          other: "{0} میلی‌متر"
+        length-picometer: 
+          one: "{0} پیکومتر"
+          other: "{0} پیکومتر"
+        length-yard: 
+          one: "{0} یارد"
+          other: "{0} یارد"
+        mass-gram: 
+          one: "{0} گرم"
+          other: "{0} گرم"
+        mass-kilogram: 
+          one: "{0} کیلوگرم"
+          other: "{0} کیلوگرم"
+        mass-ounce: 
+          one: "{0} اونس"
+          other: "{0} اونس"
+        mass-pound: 
+          one: "{0} پوند"
+          other: "{0} پوند"
+        power-horsepower: 
+          one: "{0} اسب بخار"
+          other: "{0} اسب بخار"
+        power-kilowatt: 
+          one: "{0} کیلووات"
+          other: "{0} کیلووات"
+        power-watt: 
+          one: "{0} وات"
+          other: "{0} وات"
+        pressure-hectopascal: 
+          one: "{0} هکتوپاسکال"
+          other: "{0} هکتوپاسکال"
+        pressure-inch-hg: 
+          one: "{0} اینچ جیوه"
+          other: "{0} اینچ جیوه"
+        pressure-millibar: 
+          one: "{0} میلی‌بار"
+          other: "{0} میلی‌بار"
+        speed-kilometer-per-hour: 
+          one: "{0} کیلومتر در ساعت"
+          other: "{0} کیلومتر در ساعت"
+        speed-meter-per-second: 
+          one: "{0} متر در ثانیه"
+          other: "{0} متر در ثانیه"
+        speed-mile-per-hour: 
+          one: "{0} مایل در ساعت"
+          other: "{0} مایل در ساعت"
+        temperature-celsius: 
+          one: "{0} درجهٔ سلسیوس"
+          other: "{0} درجهٔ سلسیوس"
+        temperature-fahrenheit: 
+          one: "{0} درجهٔ فارنهایت"
+          other: "{0} درجهٔ فارنهایت"
+        volume-cubic-kilometer: 
+          one: "{0} کیلومتر مکعب"
+          other: "{0} کیلومتر مکعب"
+        volume-cubic-mile: 
+          one: "{0} مایل مکعب"
+          other: "{0} مایل مکعب"
+        volume-liter: 
+          one: "{0} لیتر"
+          other: "{0} لیتر"
+      narrow: 
+        acceleration-g-force: 
+          one: "{0}G"
+          other: "{0}G"
+        angle-arc-minute: 
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0}جریب"
+          other: "{0} جریب"
+        area-hectare: 
+          one: "{0}ha"
+          other: "{0}ha"
+        area-square-foot: 
+          one: "{0}ft²"
+          other: "{0}ft²"
+        area-square-kilometer: 
+          one: "{0}km²"
+          other: "{0}km²"
+        area-square-meter: 
+          one: "{0}m²"
+          other: "{0}m²"
+        area-square-mile: 
+          one: "{0} mi²"
+          other: "{0} mi²"
+        duration-day: 
+          one: "{0} روز"
+          other: "{0} روز"
+        duration-hour: 
+          one: "{0} ساعت"
+          other: "{0} ساعت"
+        duration-millisecond: 
+          one: "{0}ms"
+          other: "{0}ms"
+        duration-minute: 
+          one: "{0} دقیقه"
+          other: "{0} دقیقه"
+        duration-month: 
+          one: "{0} ماه"
+          other: "{0} ماه"
+        duration-second: 
+          one: "{0}s"
+          other: "{0}s"
+        duration-week: 
+          one: "{0} هفته"
+          other: "{0} هفته"
+        duration-year: 
+          one: "{0} سال"
+          other: "{0} سال"
+        length-centimeter: 
+          one: "{0} cm"
+          other: "{0} cm"
+        length-foot: 
+          one: "{0}ft"
+          other: "{0}ft"
+        length-inch: 
+          one: "{0}in"
+          other: "{0}in"
+        length-kilometer: 
+          one: "{0}km"
+          other: "{0}km"
+        length-light-year: 
+          one: "{0}ly"
+          other: "{0}ly"
+        length-meter: 
+          one: "{0}m"
+          other: "{0}m"
+        length-mile: 
+          one: "{0}mi"
+          other: "{0}mi"
+        length-millimeter: 
+          one: "{0}mm"
+          other: "{0}mm"
+        length-picometer: 
+          one: "{0}pm"
+          other: "{0}pm"
+        length-yard: 
+          one: "{0}yd"
+          other: "{0}yd"
+        mass-gram: 
+          one: "{0}g"
+          other: "{0}g"
+        mass-kilogram: 
+          one: "{0}kg"
+          other: "{0}kg"
+        mass-ounce: 
+          one: "{0}oz"
+          other: "{0}oz"
+        mass-pound: 
+          one: "{0}lb"
+          other: "{0}lb"
+        power-horsepower: 
+          one: "{0}hp"
+          other: "{0}hp"
+        power-kilowatt: 
+          one: "{0}kW"
+          other: "{0}kW"
+        power-watt: 
+          one: "{0}W"
+          other: "{0}W"
+        pressure-hectopascal: 
+          one: "{0}hPa"
+          other: "{0}hPa"
+        pressure-inch-hg: 
+          one: "{0}inHg"
+          other: "{0}inHg"
+        pressure-millibar: 
+          one: "{0}mbar"
+          other: "{0}mbar"
+        speed-kilometer-per-hour: 
+          one: "{0}km/h"
+          other: "{0}km/h"
+        speed-meter-per-second: 
+          one: "{0}m/s"
+          other: "{0}m/s"
+        speed-mile-per-hour: 
+          one: "{0}mph"
+          other: "{0}mph"
+        temperature-celsius: 
+          one: "{0}°"
+          other: "{0}°"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "{0}km³"
+          other: "{0}km³"
+        volume-cubic-mile: 
+          one: "{0}mi³"
+          other: "{0}mi³"
+        volume-liter: 
+          one: "{0} l"
+          other: "{0} l"
+      short: 
+        acceleration-g-force: 
+          one: "{0}G"
+          other: "{0}G"
+        angle-arc-minute: 
+          one: "{0} دق"
+          other: "{0} دق"
+        angle-arc-second: 
+          one: "{0} ث"
+          other: "{0} ث"
+        angle-degree: 
+          one: "{0} درجه"
+          other: "{0} درجه"
+        area-acre: 
+          one: "{0} جریب"
+          other: "{0} جریب"
+        area-hectare: 
+          one: "{0} هکتار"
+          other: "{0} هکتار"
+        area-square-foot: 
+          one: "{0} فوت مربع"
+          other: "{0} فوت مربع"
+        area-square-kilometer: 
+          one: "{0} کیلومترمربع"
+          other: "{0} کیلومترمربع"
+        area-square-meter: 
+          one: "{0} مترمربع"
+          other: "{0} مترمربع"
+        area-square-mile: 
+          one: "{0} مایل مربع"
+          other: "{0} مایل مربع"
+        duration-day: 
+          one: "{0} روز"
+          other: "{0} روز"
+        duration-hour: 
+          one: "{0} ساعت"
+          other: "{0} ساعت"
+        duration-millisecond: 
+          one: "{0} میلی‌ثانیه"
+          other: "{0} میلی‌ثانیه"
+        duration-minute: 
+          one: "{0} دقیقه"
+          other: "{0} دقیقه"
+        duration-month: 
+          one: "{0} ماه"
+          other: "{0} ماه"
+        duration-second: 
+          one: "{0} ثانیه"
+          other: "{0} ثانیه"
+        duration-week: 
+          one: "{0} هفته"
+          other: "{0} هفته"
+        duration-year: 
+          one: "{0} سال"
+          other: "{0} سال"
+        length-centimeter: 
+          one: "{0} سانت"
+          other: "{0} سانت"
+        length-foot: 
+          one: "{0} فوت"
+          other: "{0} فوت"
+        length-inch: 
+          one: "{0} اینچ"
+          other: "{0} اینچ"
+        length-kilometer: 
+          one: "{0} کیلومتر"
+          other: "{0} کیلومتر"
+        length-light-year: 
+          one: "{0} سال نوری"
+          other: "{0} سال نوری"
+        length-meter: 
+          one: "{0} متر"
+          other: "{0} متر"
+        length-mile: 
+          one: "{0} مایل"
+          other: "{0} مایل"
+        length-millimeter: 
+          one: "{0} میلیمتر"
+          other: "{0} میلیمتر"
+        length-picometer: 
+          one: "{0} پیکومتر"
+          other: "{0} پیکومتر"
+        length-yard: 
+          one: "{0} یارد"
+          other: "{0} یارد"
+        mass-gram: 
+          one: "{0} گرم"
+          other: "{0} گرم"
+        mass-kilogram: 
+          one: "{0} کیلو"
+          other: "{0} کیلو"
+        mass-ounce: 
+          one: "{0} اونس"
+          other: "{0} اونس"
+        mass-pound: 
+          one: "{0} پوند"
+          other: "{0} پوند"
+        power-horsepower: 
+          one: "{0} اسب بخار"
+          other: "{0} اسب بخار"
+        power-kilowatt: 
+          one: "{0} کیلووات"
+          other: "{0} کیلووات"
+        power-watt: 
+          one: "{0} وات"
+          other: "{0} وات"
+        pressure-hectopascal: 
+          one: "{0} هکتوپاسکال"
+          other: "{0} هکتوپاسکال"
+        pressure-inch-hg: 
+          one: "{0} اینچ‌جیوه"
+          other: "{0} اینچ‌جیوه"
+        pressure-millibar: 
+          one: "{0} میلی‌بار"
+          other: "{0} میلی‌بار"
+        speed-kilometer-per-hour: 
+          one: "{0} کیلومتردرساعت"
+          other: "{0} کیلومتردرساعت"
+        speed-meter-per-second: 
+          one: "{0} متردرثانیه"
+          other: "{0} متردرثانیه"
+        speed-mile-per-hour: 
+          one: "{0} مایل‌درساعت"
+          other: "{0} مایل‌درساعت"
+        temperature-celsius: 
+          one: "{0}°C"
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "{0} کیلومترمکعب"
+          other: "{0} کیلومترمکعب"
+        volume-cubic-mile: 
+          one: "{0} مایل مکعب"
+          other: "{0} مایل مکعب"
+        volume-liter: 
+          one: "{0} l"
+          other: "{0} l"

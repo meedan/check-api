@@ -1,0 +1,194 @@
+jmc: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Iju
+            mon: Jtt
+            sat: Jmo
+            sun: Jpi
+            thu: Alh
+            tue: Jnn
+            wed: Jtn
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Ijumaa
+            mon: Jumatatuu
+            sat: Jumamosi
+            sun: Jumapilyi
+            thu: Alhamisi
+            tue: Jumanne
+            wed: Jumatanu
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: I
+            mon: J
+            sat: J
+            sun: J
+            thu: A
+            tue: J
+            wed: J
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: KK
+          1: BK
+        name: 
+          0: "Kabla ya Kristu"
+          1: "Baada ya Kristu"
+        narrow: 
+          0: ""
+      fields: 
+        day: Mfiri
+        dayperiod: "Mfiri o siku"
+        era: Kacha
+        hour: Saa
+        minute: Dakyika
+        month: Mori
+        second: Sekunde
+        week: Wiikyi
+        weekday: "Day of the Week"
+        year: Maka
+        zone: "Mfiri o saa"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: Jan
+            10: Okt
+            11: Nov
+            12: Des
+            2: Feb
+            3: Mac
+            4: Apr
+            5: Mei
+            6: Jun
+            7: Jul
+            8: Ago
+            9: Sep
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: Januari
+            10: Oktoba
+            11: Novemba
+            12: Desemba
+            2: Februari
+            3: Machi
+            4: Aprilyi
+            5: Mei
+            6: Junyi
+            7: Julyai
+            8: Agusti
+            9: Septemba
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: J
+            10: O
+            11: N
+            12: D
+            2: F
+            3: M
+            4: A
+            5: M
+            6: J
+            7: J
+            8: A
+            9: S
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: utuko
+            pm: kyiukonyi
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: R1
+            2: R2
+            3: R3
+            4: R4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "Robo 1"
+            2: "Robo 2"
+            3: "Robo 3"
+            4: "Robo 4"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

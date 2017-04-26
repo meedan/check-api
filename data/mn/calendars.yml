@@ -1,0 +1,275 @@
+mn: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "dd E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "E, G y MMM d"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M-d"
+        MMM: LLL
+        MMMEd: "E MMM d"
+        MMMd: "MMM d"
+        Md: M-d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: y-M
+        yMEd: "E, y-M-d"
+        yMMM: "y MMM"
+        yMMMEd: "E, y MMM d"
+        yMMMd: "y MMM d"
+        yMd: y-M-d
+        yQQQ: "y QQQ"
+        yQQQQ: "y 'оны' QQQQ"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Ба
+            mon: Да
+            sat: Бя
+            sun: Ня
+            thu: Пү
+            tue: Мя
+            wed: Лх
+          narrow: 
+            fri: 6
+            mon: 2
+            sat: 7
+            sun: 1
+            thu: 5
+            tue: 3
+            wed: 4
+          short: 
+            fri: Ба
+            mon: Да
+            sat: Бя
+            sun: Ня
+            thu: Пү
+            tue: Мя
+            wed: Лх
+          wide: 
+            fri: баасан
+            mon: даваа
+            sat: бямба
+            sun: ням
+            thu: пүрэв
+            tue: мягмар
+            wed: лхагва
+        stand-alone: 
+          abbreviated: 
+            fri: Ба
+            mon: Да
+            sat: Бя
+            sun: Ня
+            thu: Пү
+            tue: Мя
+            wed: Лх
+          narrow: 
+            fri: 6
+            mon: 2
+            sat: 7
+            sun: 1
+            thu: 5
+            tue: 3
+            wed: 4
+          short: 
+            fri: Ба
+            mon: Да
+            sat: Бя
+            sun: Ня
+            thu: Пү
+            tue: Мя
+            wed: Лх
+          wide: 
+            fri: баасан
+            mon: даваа
+            sat: бямба
+            sun: ням
+            thu: пүрэв
+            tue: мягмар
+            wed: лхагва
+      eras: 
+        abbr: 
+          0: НТӨ
+          1: НТ
+        name: 
+          0: "манай эриний өмнөх"
+          1: "манай эриний"
+        narrow: 
+          0: м.э.ө
+          1: м.э.
+      fields: 
+        day: Өдөр
+        dayperiod: "Өдрийн цаг"
+        era: Эрин
+        hour: Цаг
+        minute: Минут
+        month: Сар
+        second: Секунд
+        week: "Долоо хоног"
+        weekday: Гараг
+        year: Жил
+        zone: "Цагийн бүс"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, y 'оны' MMMM 'сарын' dd"
+          long: 
+            pattern: "y 'оны' MMMM 'сарын' d"
+          medium: 
+            pattern: "y MMM d"
+          short: 
+            pattern: y-MM-dd
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}}, {{time}}"
+        time: 
+          full: 
+            pattern: "HH:mm:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: "1-р сар"
+            10: "10-р сар"
+            11: "11-р сар"
+            12: "12-р сар"
+            2: "2-р сар"
+            3: "3-р сар"
+            4: "4-р сар"
+            5: "5-р сар"
+            6: "6-р сар"
+            7: "7-р сар"
+            8: "8-р сар"
+            9: "9-р сар"
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: 
+            1: "Нэгдүгээр сар"
+            10: "Аравдугаар сар"
+            11: "Арван нэгдүгээр сар"
+            12: "Арван хоёрдугаар сар"
+            2: "Хоёрдугаар сар"
+            3: "Гуравдугаар сар"
+            4: "Дөрөвдүгээр сар"
+            5: "Тавдугаар сар"
+            6: "Зургадугаар сар"
+            7: "Долдугаар сар"
+            8: "Наймдугаар сар"
+            9: "Есдүгээр сар"
+        stand-alone: 
+          abbreviated: 
+            1: "1-р сар"
+            10: "10-р сар"
+            11: "11-р сар"
+            12: "12-р сар"
+            2: "2-р сар"
+            3: "3-р сар"
+            4: "4-р сар"
+            5: "5-р сар"
+            6: "6-р сар"
+            7: "7-р сар"
+            8: "8-р сар"
+            9: "9-р сар"
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: 
+            1: "Нэгдүгээр сар"
+            10: "Аравдугаар сар"
+            11: "Арван нэгдүгээр сар"
+            12: "Арван хоёрдугаар сар"
+            2: "Хоёрдугаар сар"
+            3: "Гуравдугаар сар"
+            4: "Дөрөвдүгээр сар"
+            5: "Тавдугаар сар"
+            6: "Зургадугаар сар"
+            7: "Долдугаар сар"
+            8: "Наймдугаар сар"
+            9: "Есдүгээр сар"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: ҮӨ
+            pm: ҮХ
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: У1
+            2: У2
+            3: У3
+            4: У4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "1-р улирал"
+            2: "2-р улирал"
+            3: "3-р улирал"
+            4: "4-р улирал"
+        stand-alone: 
+          abbreviated: 
+            1: У1
+            2: У2
+            3: У3
+            4: У4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "1-р улирал"
+            2: "2-р улирал"
+            3: "3-р улирал"
+            4: "4-р улирал"

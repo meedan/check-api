@@ -1,0 +1,664 @@
+sw: 
+  metazones: 
+    Afghanistan: 
+      long: 
+        standard: "Saa ya Afghanistani"
+    Africa_Central: 
+      long: 
+        standard: "Saa ya Afrika ya Kati"
+    Africa_Eastern: 
+      long: 
+        standard: "Saa ya Afrika Mashariki"
+    Africa_Southern: 
+      long: 
+        standard: "Saa Wastani ya Afrika Kusini"
+    Africa_Western: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Afrika Magharibi"
+        generic: "Saa ya Afrika Magharibi"
+        standard: "Saa Wastani ya Afrika Magharibi"
+    Alaska: 
+      long: 
+        daylight: "Saa za Mchana za Alaska"
+        generic: "Saa za Alaska"
+        standard: "Saa Wastani za Alaska"
+    Amazon: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Amazon"
+        generic: "Saa za Amazon"
+        standard: "Saa ya Wastani ya Amazon"
+    America_Central: 
+      long: 
+        daylight: "Saa za Mchana za Kati"
+        generic: "Saa za Kati"
+        standard: "Saa za Wastani za Kati"
+    America_Eastern: 
+      long: 
+        daylight: "Saa za Mchana za Mashariki"
+        generic: "Saa za Mashariki"
+        standard: "Saa za Wastani za Mashariki"
+    America_Mountain: 
+      long: 
+        daylight: "Saa za Mchana za Mountain"
+        generic: "Saa za Mountain"
+        standard: "Saa za Wastani za Mountain"
+    America_Pacific: 
+      long: 
+        daylight: "Saa za Mchana za Pasifiki"
+        generic: "Saa za Pasifiki"
+        standard: "Saa za Wastani za Pasifiki"
+    Anadyr: 
+      long: 
+        daylight: "Saa za Kiangazi za Anadyr"
+        generic: "Saa za Anadyr"
+        standard: "Saa za Wastani za Anadyr"
+    Arabian: 
+      long: 
+        daylight: "Saa ya Mchana ya Arabia"
+        generic: "Saa ya Uarabu"
+        standard: "Saa Wastani ya Uarabu"
+    Argentina: 
+      long: 
+        daylight: "Saa za Kiangazi za Ajentina"
+        generic: "Saa za Ajentina"
+        standard: "Muda Wastani wa Ajentina"
+    Argentina_Western: 
+      long: 
+        daylight: "Muda wa Majira ya joto ya Magharibi ya Ajentina"
+        generic: "Muda wa Ajentina ya Magharibi"
+        standard: "Muda Wastani wa Ajentina ya Magharibi"
+    Armenia: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Armenia"
+        generic: "Saa ya Armenia"
+        standard: "Saa Wastani ya Armenia"
+    Atlantic: 
+      long: 
+        daylight: "Saa za Mchana za Atlantiki"
+        generic: "Saa za Atlantiki"
+        standard: "Saa za Wastani za Atlantiki"
+    Australia_Central: 
+      long: 
+        daylight: "Saa za Mchana za Australia ya Kati"
+        generic: "Saa za Australia ya Kati"
+        standard: "Saa za Wastani za Australia ya Kati"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "Saa za Mchana za Magharibi ya Kati ya Australia"
+        generic: "Saa za Magharibi ya Kati ya Australia"
+        standard: "Saa za Wastani za Magharibi ya Kati ya Australia"
+    Australia_Eastern: 
+      long: 
+        daylight: "Saa za Mchana za Mashariki mwa Australia"
+        generic: "Saa za Australia Mashariki"
+        standard: "Saa Wastani za Mashariki mwa Australia"
+    Australia_Western: 
+      long: 
+        daylight: "Saa za Mchana za Australia Magharibi"
+        generic: "Saa za Australia Magharibi"
+        standard: "Saa za Wastani za Australia Magharibi"
+    Azerbaijan: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Azeribaijani"
+        generic: "Saa ya Azeribaijani"
+        standard: "Saa Wastani ya Azeribaijani"
+    Azores: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Azorerna"
+        generic: "Saa ya Azorena"
+        standard: "Saa Wastani ya Azorena"
+    Bangladesh: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Bangladeshi"
+        generic: "Saa ya Bangladeshi"
+        standard: "Saa Wastani ya Bangladeshi"
+    Bhutan: 
+      long: 
+        standard: "Saa ya Bhutan"
+    Bolivia: 
+      long: 
+        standard: "Saa ya Bolivia"
+    Brasilia: 
+      long: 
+        daylight: "Saa za Kiangazi za Brasilia"
+        generic: "Saa za Brasilia"
+        standard: "Muda Wastani wa Brasilia"
+    Brunei: 
+      long: 
+        standard: "Saa ya Brunei Darussalam"
+    Cape_Verde: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Cape Verde"
+        generic: "Saa ya Cape Verde"
+        standard: "Saa Wastani ya Cape Verde"
+    Chamorro: 
+      long: 
+        standard: "Saa Wastani ya Chamorro"
+    Chatham: 
+      long: 
+        daylight: "Saa ya Mchana ya Chatham"
+        generic: "Saa ya Chatham"
+        standard: "Saa Wastani ya Chatham"
+    Chile: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Chile"
+        generic: "Saa ya Chile"
+        standard: "Saa Wastani ya Chile"
+    China: 
+      long: 
+        daylight: "Saa ya Mchana ya China"
+        generic: "Saa ya Uchina"
+        standard: "Saa Wastani ya Uchina"
+    Choibalsan: 
+      long: 
+        daylight: "Saa za Kiangazi za Choibalsan"
+        generic: "Saa za Choibalsan"
+        standard: "Muda Wastani wa Choibalsan"
+    Christmas: 
+      long: 
+        standard: "Saa ya Kisiwa cha Krisimasi"
+    Cocos: 
+      long: 
+        standard: "Saa ya Visiwa vya Cocos"
+    Colombia: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Kolombia"
+        generic: "Saa ya Kolombia"
+        standard: "Saa Wastani ya Kolombia"
+    Cook: 
+      long: 
+        daylight: "Saa Majira nusu ya joto ya Visiwa Cook"
+        generic: "Saa ya Visiwa vya Cook"
+        standard: "Saa Wastani ya Visiwa vya Cook"
+    Cuba: 
+      long: 
+        daylight: "Saa ya Mchana ya Kuba"
+        generic: "Saa ya Kuba"
+        standard: "Saa Wastani ya Kuba"
+    Davis: 
+      long: 
+        standard: "Saa ya Davis"
+    DumontDUrville: 
+      long: 
+        standard: "Saa ya Dumont-d'Urville"
+    East_Timor: 
+      long: 
+        standard: "Saa ya Timor Mashariki"
+    Easter: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Kisiwa cha Pasaka"
+        generic: "Saa ya Kisiwa cha Pasaka"
+        standard: "Saa Wastani ya Kisiwa cha Pasaka"
+    Ecuador: 
+      long: 
+        standard: "Saa ya Ekwado"
+    Europe_Central: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Ulaya ya Kati"
+        generic: "Saa ya Ulaya ya Kati"
+        standard: "Saa Wastani ya Ulaya ya kati"
+    Europe_Eastern: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Mashariki mwa Ulaya"
+        generic: "Saa ya Mashariki mwa Ulaya"
+        standard: "Saa Wastani ya Mashariki mwa Ulaya"
+    Europe_Western: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Magharibi mwa Ulaya"
+        generic: "Saa ya Magharibi mwa Ulaya"
+        standard: "Saa ya Wastani ya Magharibi mwa Ulaya"
+    Falkland: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Visiwa vya Falkland"
+        generic: "Saa ya Visiwa vya Falkland"
+        standard: "Saa Wastani ya Visiwa vya Falkland"
+    Fiji: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Fiji"
+        generic: "Saa Fiji"
+        standard: "Saa Wastani ya Fiji"
+    French_Guiana: 
+      long: 
+        standard: "Saa ya Guiana ya Ufaransa"
+    French_Southern: 
+      long: 
+        standard: "Saa ya Kusini mwa Ufaransa na Antaktiki"
+    GMT: 
+      long: 
+        standard: "Saa ya Ulimwenguni"
+    Galapagos: 
+      long: 
+        standard: "Saa ya Galapagos"
+    Gambier: 
+      long: 
+        standard: "Saa ya Gambia"
+    Georgia: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Jojia"
+        generic: "Saa ya Jojia"
+        standard: "Saa Wastani ya Jojia"
+    Gilbert_Islands: 
+      long: 
+        standard: "Saa ya Visiwa vya Gilbert"
+    Greenland_Eastern: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Grinilandi Mashariki"
+        generic: "Saa ya Grinilandi Mashariki"
+        standard: "Saa Wastani ya Grinilandi Mashariki"
+    Greenland_Western: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Grinilandi Magharibi"
+        generic: "Saa ya Grinilandi Magharibi"
+        standard: "Saa Wastani wa Grinilandi Magharibi"
+    Gulf: 
+      long: 
+        standard: "Saa Wastani ya Ghuba"
+    Guyana: 
+      long: 
+        standard: "Saa ya Guyana"
+    Hawaii_Aleutian: 
+      long: 
+        daylight: "Saa ya Mchana ya Hawaii-Aleutian"
+        generic: "Muda wa Hawaii-Aleutian"
+        standard: "Saa Wastani ya Hawaii-Aleutian"
+    Hong_Kong: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Hong Kong"
+        generic: "Saa ya Hong Kong"
+        standard: "Saa Wastani ya Hong Kong"
+    Hovd: 
+      long: 
+        daylight: "Saa za Kiangazi za Hovd"
+        generic: "Saa za Hovd"
+        standard: "Muda Wastani wa Hovd"
+    India: 
+      long: 
+        standard: "Saa wa Wastani ya India"
+    Indian_Ocean: 
+      long: 
+        standard: "Saa ya Bahari Hindi"
+    Indochina: 
+      long: 
+        standard: "Saa ya Indochina"
+    Indonesia_Central: 
+      long: 
+        standard: "Saa ya Indonesia ya Kati"
+    Indonesia_Eastern: 
+      long: 
+        standard: "Saa ya Mashariki mwa Indonesia"
+    Indonesia_Western: 
+      long: 
+        standard: "Saa ya Magharibi mwa Indonesia"
+    Iran: 
+      long: 
+        daylight: "Saa ya Mchana ya Iran"
+        generic: "Saa ya Iran"
+        standard: "Saa Wastani ya Iran"
+    Irkutsk: 
+      long: 
+        daylight: "Saa za Kiangazi za Irkutsk"
+        generic: "Saa za Irkutsk"
+        standard: "Muda Wastani wa Irkutsk"
+    Israel: 
+      long: 
+        daylight: "Saa ya Mchana ya Israeli"
+        generic: "Saa ya Israeli"
+        standard: "Saa Wastani ya Israeli"
+    Japan: 
+      long: 
+        daylight: "Saa ya Mchana ya Japani"
+        generic: "Saa ya Japani"
+        standard: "Saa Wastani ya Japani"
+    Kamchatka: 
+      long: 
+        daylight: "Saa za Kiangazi za Petropavlovsk-Kamchatski"
+        generic: "Saa za Petropavlovsk-Kamchatski"
+        standard: "Saa za Wastani za Petropavlovsk-Kamchatski"
+    Kazakhstan_Eastern: 
+      long: 
+        standard: "Muda wa Kazakistani ya Mashariki"
+    Kazakhstan_Western: 
+      long: 
+        standard: "Muda wa Kazakistani ya Magharibi"
+    Korea: 
+      long: 
+        daylight: "Saa ya Mchana ya Korea"
+        generic: "Saa ya Korea"
+        standard: "Saa Wastani ya Korea"
+    Kosrae: 
+      long: 
+        standard: "Saa ya Kosrae"
+    Krasnoyarsk: 
+      long: 
+        daylight: "Saa za Kiangazi za Krasnoyarsk"
+        generic: "Saa za Krasnoyarsk"
+        standard: "Muda Wastani wa Krasnoyaski"
+    Kyrgystan: 
+      long: 
+        standard: "Saa ya Kyrgystan"
+    Line_Islands: 
+      long: 
+        standard: "Saa ya Visiwa vya Laini"
+    Lord_Howe: 
+      long: 
+        daylight: "Saa za Mchana za Lord Howe"
+        generic: "Saa za Lord Howe"
+        standard: "Saa za Wastani za Lord Howe"
+    Macquarie: 
+      long: 
+        standard: "Saa ya Makwuarie"
+    Magadan: 
+      long: 
+        daylight: "Saa za Kiangazi za Magadan"
+        generic: "Saa za Magadan"
+        standard: "Muda Wastani wa Magadani"
+    Malaysia: 
+      long: 
+        standard: "Saa ya Malaysia"
+    Maldives: 
+      long: 
+        standard: "Saa ya Maldives"
+    Marquesas: 
+      long: 
+        standard: "Saa ya Makuesas"
+    Marshall_Islands: 
+      long: 
+        standard: "Saa ya Visiwa vya Marshall"
+    Mauritius: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Mauritius"
+        generic: "Saa ya Mauritius"
+        standard: "Saa Wastani ya Mauritius"
+    Mawson: 
+      long: 
+        standard: "Saa ya Mawson"
+    Mongolia: 
+      long: 
+        daylight: "Saa za Kiangazi za Ulan Bator"
+        generic: "Muda wa Ulan Bator"
+        standard: "Muda Wastani wa Ulan Bator"
+    Moscow: 
+      long: 
+        daylight: "Saa za Kiangazi za Moscow"
+        generic: "Saa za Moscow"
+        standard: "Saa za Wastani za Moscow"
+    Myanmar: 
+      long: 
+        standard: "Saa ya Myanmar"
+    Nauru: 
+      long: 
+        standard: "Saa ya Nauru"
+    Nepal: 
+      long: 
+        standard: "Saa ya Nepali"
+    New_Caledonia: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Kaledonia Mpya"
+        generic: "Saa ya Kaledonia Mpya"
+        standard: "Saa Wastani ya Kaledonia Mpya"
+    New_Zealand: 
+      long: 
+        daylight: "Saa ya Mchana ya Nyuzilandi"
+        generic: "Saa ya Nyuzilandi"
+        standard: "Saa Wastani ya Nyuzilandi"
+    Newfoundland: 
+      long: 
+        daylight: "Saa za Mchana za Newfoundland"
+        generic: "Saa za Newfoundland"
+        standard: "Saa za Wastani za Newfoundland"
+    Niue: 
+      long: 
+        standard: "Saa ya Niue"
+    Norfolk: 
+      long: 
+        standard: "Saa ya Visiwa vya Norfolk"
+    Noronha: 
+      long: 
+        daylight: "Saa za Kiangazi za Fernando de Noronha"
+        generic: "Muda wa Fernando de Noronha"
+        standard: "Muda Wastani wa Fernando de Noronha"
+    Novosibirsk: 
+      long: 
+        daylight: "Saa za Kiangazi za Novosibirsk"
+        generic: "Saa za Novosibirsk"
+        standard: "Muda Wastani wa Novosibirsk"
+    Omsk: 
+      long: 
+        daylight: "Saa za Kiangazi za Omsk"
+        generic: "Saa za Omsk"
+        standard: "Muda Wastani wa Omsk"
+    Pakistan: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Pakistani"
+        generic: "Saa ya Pakistani"
+        standard: "Saa Wastani ya Pakistani"
+    Palau: 
+      long: 
+        standard: "Saa ya Palau"
+    Papua_New_Guinea: 
+      long: 
+        standard: "Saa ya Papua Gini Mpya"
+    Paraguay: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Paraguayi"
+        generic: "Saa ya Paraguayi"
+        standard: "Saa Wastani ya Paraguayi"
+    Peru: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Peru"
+        generic: "Saa ya Peru"
+        standard: "Saa Wastani ya Peru"
+    Philippines: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Ufilipino"
+        generic: "Saa ya Ufilipino"
+        standard: "Saa Wastani ya Ufilipino"
+    Phoenix_Islands: 
+      long: 
+        standard: "Saa ya Visiwa vya Foneksi"
+    Pierre_Miquelon: 
+      long: 
+        daylight: "Saa ya Mchana ya Saint-Pierre na Mikuelon"
+        generic: "Saa ya Saint-Pierre na Mikuelon"
+        standard: "Saa Wastani ya Saint-Pierre na Mikuelon"
+    Pitcairn: 
+      long: 
+        standard: "Saa ya Pitcairn"
+    Ponape: 
+      long: 
+        standard: "Saa ya Ponape"
+    Reunion: 
+      long: 
+        standard: "Saa ya Muungano mpya"
+    Rothera: 
+      long: 
+        standard: "Saa ya Rothera"
+    Sakhalin: 
+      long: 
+        daylight: "Saa za Kiangazi za Sakhalin"
+        generic: "Saa za Sakhalin"
+        standard: "Muda Wastani wa Sakhalin"
+    Samara: 
+      long: 
+        daylight: "Saa za Kiangazi za Samara"
+        generic: "Saa za Samara"
+        standard: "Saa za Wastani za Samara"
+    Samoa: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Samoa"
+        generic: "Saa ya Samoa"
+        standard: "Saa Wastani ya Samoa"
+    Seychelles: 
+      long: 
+        standard: "Saa ya Ushelisheli"
+    Singapore: 
+      long: 
+        standard: "Saa Wastani ya Singapuri"
+    Solomon: 
+      long: 
+        standard: "Saa ya Visiwa vya Suleimani"
+    South_Georgia: 
+      long: 
+        standard: "Saa ya Jojia Kusini"
+    Suriname: 
+      long: 
+        standard: "Saa ya Surinam"
+    Syowa: 
+      long: 
+        standard: "Saa ya Syowa"
+    Tahiti: 
+      long: 
+        standard: "Saa ya Tahiti"
+    Taipei: 
+      long: 
+        daylight: "Saa ya Mchana ya Taipei"
+        generic: "Saa ya Taipei"
+        standard: "Saa Wastani ya Taipei"
+    Tajikistan: 
+      long: 
+        standard: "Saa ya Tajikistani"
+    Tokelau: 
+      long: 
+        standard: "Saa ya Tokelau"
+    Tonga: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Tonga"
+        generic: "Saa ya Tonga"
+        standard: "Saa Wastani ya Tonga"
+    Truk: 
+      long: 
+        standard: "Saa ya Chuuk"
+    Turkmenistan: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Turukimenistani"
+        generic: "Saa ya Turukimenistani"
+        standard: "Saa Wastani ya Turukimenistani"
+    Tuvalu: 
+      long: 
+        standard: "Saa ya Tuvalu"
+    Uruguay: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Urugwai"
+        generic: "Saa ya Urugwai"
+        standard: "Saa Wastani ya Urugwai"
+    Uzbekistan: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Uzbekistani"
+        generic: "Saa ya Uzbekistani"
+        standard: "Saa Wastani ya Uzbekistani"
+    Vanuatu: 
+      long: 
+        daylight: "Saa ya Majira ya joto ya Vanuatu"
+        generic: "Saa ya Vanuatu"
+        standard: "Saa Wastani ya Vanuatu"
+    Venezuela: 
+      long: 
+        standard: "Saa ya Venezuela"
+    Vladivostok: 
+      long: 
+        daylight: "Saa za Kiangazi za Vladivostok"
+        generic: "Saa za Vladivostok"
+        standard: "Muda Wastani wa Vladivostok"
+    Volgograd: 
+      long: 
+        daylight: "Saa za Kiangazi za Volgograd"
+        generic: "Saa za Volgograd"
+        standard: "Muda Wastani wa Volgograd"
+    Vostok: 
+      long: 
+        standard: "Saa ya Vostok"
+    Wake: 
+      long: 
+        standard: "Saa ya Kisiwa cha Wake"
+    Wallis: 
+      long: 
+        standard: "Saa ya Wallis na Futuna"
+    Yakutsk: 
+      long: 
+        daylight: "Saa za Kiangazi za Yakutsk"
+        generic: "Saa za Yakutsk"
+        standard: "Muda Wastani wa Yakutsk"
+    Yekaterinburg: 
+      long: 
+        daylight: "Saa za Kiangazi za Yekaterinburg"
+        generic: "Saa za Yekaterinburg"
+        standard: "Muda Wastani wa Yekaterinburg"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Costa_Rica: 
+      city: "Kosta Rika"
+    America/Curacao: 
+      city: Kurakao
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/Mexico_City: 
+      city: "Jiji la Meksiko"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "Saint Barthélemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Cape_Verde: 
+      city: Kepuvede
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: "Jiji Lisilojulikana"
+    Europe/Dublin: 
+      long: 
+        daylight: "Muda wa Majira ya Joto wa Ayalandi"
+    Europe/London: 
+      long: 
+        daylight: "Muda wa Majira ya Joto wa Uingereza"
+    Indian/Christmas: 
+      city: Krismasi
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

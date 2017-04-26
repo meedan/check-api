@@ -1,0 +1,282 @@
+kn: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "y G"
+        GyMMM: "MMM y G"
+        GyMMMEd: "MMM d, y G, E"
+        GyMMMd: "d, MMM, y G"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "d/M, E"
+        MMM: LLL
+        MMMEd: "E, d MMM"
+        MMMMd: "d MMMM"
+        MMMd: "d MMM"
+        MMdd: dd-MM
+        Md: d/M
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, d/M/y"
+        yMM: MM-y
+        yMMM: "MMM y"
+        yMMMEd: "d MMM, y E"
+        yMMMM: "MMMM y"
+        yMMMd: "d, MMM, y"
+        yMd: d/M/y
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: ಶು.
+            mon: ಸೋ.
+            sat: ಶನಿ.
+            sun: ರ.
+            thu: ಗು.
+            tue: ಮಂ.
+            wed: ಬು.
+          narrow: 
+            fri: ಶು
+            mon: ಸೋ
+            sat: ಶ
+            sun: ರ
+            thu: ಗು
+            tue: ಮಂ
+            wed: ಬು
+          short: 
+            fri: ಶುಕ್ರ
+            mon: ಸೋಮ
+            sat: ಶನಿ
+            sun: ರವಿ
+            thu: ಗುರು
+            tue: ಮಂಗಳ
+            wed: ಬುಧ
+          wide: 
+            fri: ಶುಕ್ರವಾರ
+            mon: ಸೋಮವಾರ
+            sat: ಶನಿವಾರ
+            sun: ರವಿವಾರ
+            thu: ಗುರುವಾರ
+            tue: ಮಂಗಳವಾರ
+            wed: ಬುಧವಾರ
+        stand-alone: 
+          abbreviated: 
+            fri: ಶುಕ್ರ
+            mon: ಸೋಮ
+            sat: ಶನಿ
+            sun: ರವಿ
+            thu: ಗುರು
+            tue: ಮಂಗಳ
+            wed: ಬುಧ
+          narrow: 
+            fri: ಶು
+            mon: ಸೋ
+            sat: ಶ
+            sun: ರ
+            thu: ಗು
+            tue: ಮಂ
+            wed: ಬು
+          short: 
+            fri: ಶುಕ್ರ
+            mon: ಸೋಮ
+            sat: ಶನಿ
+            sun: ರವಿ
+            thu: ಗುರು
+            tue: ಮಂಗಳ
+            wed: ಬುಧ
+          wide: 
+            fri: ಶುಕ್ರವಾರ
+            mon: ಸೋಮವಾರ
+            sat: ಶನಿವಾರ
+            sun: ರವಿವಾರ
+            thu: ಗುರುವಾರ
+            tue: ಮಂಗಳವಾರ
+            wed: ಬುಧವಾರ
+      eras: 
+        abbr: 
+          0: ಕ್ರಿ.ಪೂ
+          1: "ಸಾಮಾನ್ಯ ಯುಗ"
+        name: 
+          0: ಈಸಪೂವ೯.
+          1: "ಕ್ರಿಸ್ತ ಶಕ"
+        narrow: 
+          0: ""
+      fields: 
+        day: ದಿನ
+        dayperiod: ಪೂರ್ವಾಹ್ನ/ಅಪರಾಹ್ನ
+        era: ಯುಗ
+        hour: ಗಂಟೆ
+        minute: ನಿಮಿಷ
+        month: ತಿಂಗಳು
+        second: ಸೆಕೆಂಡ್
+        week: ವಾರ
+        weekday: "ವಾರದ ದಿನ"
+        year: ವರ್ಷ
+        zone: "ಸಮಯ ವಲಯ"
+      formats: 
+        date: 
+          full: 
+            pattern: "d MMMM y, EEEE"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: d-M-yy
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "hh:mm:ss a zzzz"
+          long: 
+            pattern: "hh:mm:ss a z"
+          medium: 
+            pattern: "hh:mm:ss a"
+          short: 
+            pattern: "hh:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: ಜನ.
+            10: ಅಕ್ಟೋ.
+            11: ನವೆಂ.
+            12: ಡಿಸೆಂ.
+            2: ಫೆಬ್ರು.
+            3: ಮಾ
+            4: ಏಪ್ರಿ.
+            5: ಮೇ
+            6: ಜೂ
+            7: ಜು.
+            8: ಆಗ.
+            9: ಸೆಪ್ಟೆಂ.
+          narrow: 
+            1: ಜ
+            10: ಅ
+            11: ನ
+            12: ಡಿ
+            2: ಫೆ
+            3: ಮಾ
+            4: ಏ
+            5: ಮೇ
+            6: ಜೂ
+            7: ಜು
+            8: ಆ
+            9: ಸೆ
+          wide: 
+            1: ಜನವರಿ
+            10: ಅಕ್ಟೋಬರ್
+            11: ನವೆಂಬರ್
+            12: ಡಿಸೆಂಬರ್
+            2: ಫೆಬ್ರವರಿ
+            3: ಮಾರ್ಚ್
+            4: ಏಪ್ರಿಲ್
+            5: ಮೇ
+            6: ಜೂನ್
+            7: ಜುಲೈ
+            8: ಆಗಸ್ಟ್
+            9: ಸಪ್ಟೆಂಬರ್
+        stand-alone: 
+          abbreviated: 
+            1: ಜನ.
+            10: ಅಕ್ಟೋ.
+            11: ನವೆಂ.
+            12: ಡಿಸೆಂ.
+            2: ಫೆಬ್ರು.
+            3: ಮಾ
+            4: ಏಪ್ರಿ.
+            5: ಮೇ
+            6: ಜೂ
+            7: ಜು.
+            8: ಆಗ.
+            9: ಸೆಪ್ಟೆಂ.
+          narrow: 
+            1: ಜ
+            10: ಅ
+            11: ನ
+            12: ಡಿ
+            2: ಫೆ
+            3: ಮಾ
+            4: ಏ
+            5: ಮೇ
+            6: ಜೂ
+            7: ಜು
+            8: ಆ
+            9: ಸೆ
+          wide: 
+            1: ಜನವರಿ
+            10: ಅಕ್ಟೋಬರ್
+            11: ನವೆಂಬರ್
+            12: ಡಿಸೆಂಬರ್
+            2: ಫೆಬ್ರವರಿ
+            3: ಮಾರ್ಚ್
+            4: ಏಪ್ರಿಲ್
+            5: ಮೇ
+            6: ಜೂನ್
+            7: ಜುಲೈ
+            8: ಆಗಸ್ಟ್
+            9: ಸಪ್ಟೆಂಬರ್
+      periods: 
+        format: 
+          abbreviated: 
+            am: AM
+            pm: PM
+          narrow: 
+            am: AM
+            pm: PM
+          wide: 
+            am: AM
+            pm: PM
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: "ತ್ರೈ 1"
+            2: "ತ್ರೈ 2"
+            3: "ತ್ರೈ 3"
+            4: "ತ್ರೈ 4"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "1 ನೇ ತ್ರೈಮಾಸಿಕ"
+            2: "2ನೇ ತ್ರೈಮಾಸಿಕ"
+            3: "3 ನೇ ತ್ರೈಮಾಸಿಕ"
+            4: "4 ನೇ ತ್ರೈಮಾಸಿಕ"
+        stand-alone: 
+          abbreviated: 
+            1: "ತ್ರೈ 1"
+            2: "ತ್ರೈ 2"
+            3: "ತ್ರೈ 3"
+            4: "ತ್ರೈ 4"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "1 ನೇ ತ್ರೈಮಾಸಿಕ"
+            2: "2 ನೇ ತ್ರೈಮಾಸಿಕ"
+            3: "3 ನೇ ತ್ರೈಮಾಸಿಕ"
+            4: "4 ನೇ ತ್ರೈಮಾಸಿಕ"

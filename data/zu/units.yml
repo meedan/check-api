@@ -1,0 +1,249 @@
+zu: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          one: "{0} g-force"
+          other: "{0} G"
+        angle-arc-minute: 
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        duration-day: 
+          one: "usuku olungu-{0}"
+          other: "{0} izinsuku"
+        duration-hour: 
+          one: "ihora elingu-{0}"
+          other: "{0} amahora"
+        duration-millisecond: 
+          one: "{0} ms"
+          other: "{0} ms"
+        duration-minute: 
+          one: "iminithi elingu-{0}"
+          other: "{0} amaminithi"
+        duration-month: 
+          one: "inyana engu-{0}"
+          other: "{0} izinyanga"
+        duration-second: 
+          one: "isekhondi elingu-{0}"
+          other: "{0} amasekhondi"
+        duration-week: 
+          one: "iviki elingu-{0}"
+          other: "{0} amaviki"
+        duration-year: 
+          one: "{0} y"
+          other: "{0} y"
+        length-centimeter: 
+          one: "{0} cm"
+          other: "{0} cm"
+        length-kilometer: 
+          one: "{0} km"
+          other: "{0} km"
+        length-meter: 
+          one: "{0} m"
+          other: "{0} m"
+        length-millimeter: 
+          one: "{0} mm"
+          other: "{0} mm"
+        mass-gram: 
+          one: "{0} g"
+          other: "{0} g"
+        mass-kilogram: 
+          one: "{0} kg"
+          other: "{0} kg"
+        speed-kilometer-per-hour: 
+          one: "{0} km/h"
+          other: "{0} km/h"
+        temperature-celsius: 
+          one: "{0}°C"
+          other: "{0}°C"
+        volume-liter: 
+          one: "{0} l"
+          other: "{0} l"
+      narrow: 
+        acceleration-g-force: 
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        duration-day: 
+          one: "{0}"
+          other: "{0} suku"
+        duration-hour: 
+          one: "{0} hora"
+          other: "{0} hora"
+        duration-millisecond: 
+          one: "{0} ms"
+          other: "{0} ms"
+        duration-minute: 
+          one: "{0} min"
+          other: "{0} min"
+        duration-month: 
+          one: "{0} m"
+          other: "{0} m"
+        duration-second: 
+          one: "{0} s"
+          other: "{0} s"
+        duration-week: 
+          one: "{0} w"
+          other: "{0} w"
+        duration-year: 
+          one: "{0} y"
+          other: "{0} y"
+        length-centimeter: 
+          one: "{0} cm"
+          other: "{0} cm"
+        length-kilometer: 
+          one: "{0} km"
+          other: "{0} km"
+        length-meter: 
+          one: "{0} m"
+          other: "{0} m"
+        length-millimeter: 
+          one: "{0} mm"
+          other: "{0} mm"
+        mass-gram: 
+          one: "{0} g"
+          other: "{0} g"
+        mass-kilogram: 
+          one: "{0} kg"
+          other: "{0} kg"
+        speed-kilometer-per-hour: 
+          one: "{0} km/h"
+          other: "{0} km/h"
+        temperature-celsius: 
+          one: "{0}°"
+          other: "{0}°"
+        volume-liter: 
+          one: "{0} l"
+          other: "{0} l"
+      short: 
+        acceleration-g-force: 
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          other: "{0} ac"
+        area-hectare: 
+          other: "{0} ha"
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} mi²"
+        duration-day: 
+          one: "{0} usuku"
+          other: "{0} izinsuku"
+        duration-hour: 
+          one: "{0} hora"
+          other: "{0} amahora"
+        duration-millisecond: 
+          one: "{0} ms"
+          other: "{0} ms"
+        duration-minute: 
+          one: "{0} iminithi"
+          other: "{0} amaminithi"
+        duration-month: 
+          one: "{0} nyanga"
+          other: "{0} izinyanga"
+        duration-second: 
+          one: "{0} sekhondi"
+          other: "{0} s"
+        duration-week: 
+          one: "{0} viki"
+          other: "{0} amaviki"
+        duration-year: 
+          one: "{0} y"
+          other: "{0} yrs"
+        length-centimeter: 
+          one: "{0} cm"
+          other: "{0} cm"
+        length-foot: 
+          other: "{0} ft"
+        length-inch: 
+          other: "{0} in"
+        length-kilometer: 
+          one: "{0} km"
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} ly"
+        length-meter: 
+          one: "{0} m"
+          other: "{0} m"
+        length-mile: 
+          other: "{0} mi"
+        length-millimeter: 
+          one: "{0} mm"
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          other: "{0} yd"
+        mass-gram: 
+          one: "{0} g"
+          other: "{0} g"
+        mass-kilogram: 
+          one: "{0} kg"
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} oz"
+        mass-pound: 
+          other: "{0} lb"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          one: "{0} km/h"
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} mi/h"
+        temperature-celsius: 
+          one: "{0}°C"
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} mi³"
+        volume-liter: 
+          one: "{0} l"
+          other: "{0} l"

@@ -1,0 +1,9 @@
+dje-NE: 
+  delimiters: 
+    quotes: 
+      alternate: 
+        end: ’
+        start: ‘
+      default: 
+        end: ”
+        start: “

@@ -1,0 +1,61 @@
+uz-Cyrl: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: arabext
+        patterns: 
+          default: "¤ #,##0.00"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: arabext
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 минг"
+            10000: "00 минг"
+            100000: "000 минг"
+            1000000: "0 миллион"
+            10000000: "00 миллион"
+            100000000: "000 миллион"
+            1000000000: "0 миллиард"
+            10000000000: "00 миллиард"
+            100000000000: "000 миллиард"
+            1000000000000: "0 трилион"
+            10000000000000: "00 трилион"
+            100000000000000: "000 трилион"
+          short: 
+            1000: 0минг
+            10000: 00минг
+            100000: 000минг
+            1000000: 0млн
+            10000000: 00млн
+            100000000: 000млн
+            1000000000: 0млрд
+            10000000000: 00млрд
+            100000000000: 000млрд
+            1000000000000: 0трлн
+            10000000000000: 00трлн
+            100000000000000: 000трлн
+      percent: 
+        number_system: arabext
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: arabext
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: ","
+      exponential: E
+      group:  
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

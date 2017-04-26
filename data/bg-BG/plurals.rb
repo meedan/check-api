@@ -1,0 +1,1 @@
+{ :'bg_BG' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

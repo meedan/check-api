@@ -1,0 +1,1 @@
+{ :'nb_SJ' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

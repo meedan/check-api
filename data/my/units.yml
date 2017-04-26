@@ -1,0 +1,286 @@
+my: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          other: "{0} ဆွဲငင်အား"
+        angle-arc-minute: 
+          other: "{0}မိနစ်"
+        angle-arc-second: 
+          other: "{0}စက္ကန့်"
+        angle-degree: 
+          other: "{0}ဒီဂရီ"
+        area-acre: 
+          other: "{0}ဧက"
+        area-hectare: 
+          other: "{0} ဟက်တာ"
+        area-square-foot: 
+          other: "{0}စတုရန်းပေ"
+        area-square-kilometer: 
+          other: "{0}စတုရန်းကီလိုမီတာ"
+        area-square-meter: 
+          other: "{0}စတုရန်းမီတာ"
+        area-square-mile: 
+          other: "{0}စတုရန်းမိုင်"
+        duration-day: 
+          other: "{0}ရက်"
+        duration-hour: 
+          other: "{0}နာရီ"
+        duration-millisecond: 
+          other: "{0}မီလီစက္ကန့်"
+        duration-minute: 
+          other: "{0} မိနစ်"
+        duration-month: 
+          other: "{0}လ"
+        duration-second: 
+          other: "{0} စက္ကန့်"
+        duration-week: 
+          other: "{0}ပတ်"
+        duration-year: 
+          other: "{0}နှစ်"
+        length-centimeter: 
+          other: "{0} စင်တီမီတာ"
+        length-foot: 
+          other: "{0} ပေ"
+        length-inch: 
+          other: "{0} လက္မ"
+        length-kilometer: 
+          other: "{0} ကီလိုမီတာ"
+        length-light-year: 
+          other: "{0} အလင်းနှစ်"
+        length-meter: 
+          other: "{0}မီတာ"
+        length-mile: 
+          other: "{0} မိုင်"
+        length-millimeter: 
+          other: "{0} မီလီမီတာ"
+        length-picometer: 
+          other: "{0} ပီကိုမီတာ"
+        length-yard: 
+          other: "{0} ကိုက်"
+        mass-gram: 
+          other: "{0} ဂရမ်"
+        mass-kilogram: 
+          other: "{0}ကီလိုဂရမ်"
+        mass-ounce: 
+          other: "{0}အောင်စ"
+        mass-pound: 
+          other: "{0}ပေါင်"
+        power-horsepower: 
+          other: "{0}မြင်ကောင်ရေအား"
+        power-kilowatt: 
+          other: "{0}ကီလိုဝပ်"
+        power-watt: 
+          other: "{0}ဝပ်"
+        pressure-hectopascal: 
+          other: "{0}ဟက်တိုပါစကယ်"
+        pressure-inch-hg: 
+          other: "ပြဒါး{0}လက္မ"
+        pressure-millibar: 
+          other: "{0}မီလီဘား"
+        speed-kilometer-per-hour: 
+          other: "တစ်နာရီလျှင်{0}ကီလိုမီတာနှုန်း"
+        speed-meter-per-second: 
+          other: "တစ်စက္ကန့်လျှင်{0}မီတာနှုန်း"
+        speed-mile-per-hour: 
+          other: "တစ်နာရီလျှင်{0}မိုင်နှုန်း"
+        temperature-celsius: 
+          other: "{0}စင်တီဂရိတ်"
+        temperature-fahrenheit: 
+          other: "{0}ဖာရင်ဟိုက်"
+        volume-cubic-kilometer: 
+          other: "{0} ကုဗကီလိုမီတာ"
+        volume-cubic-mile: 
+          other: "{0}ကုဗမိုင်"
+        volume-liter: 
+          other: "{0}လီတာ"
+      narrow: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} ac"
+        area-hectare: 
+          other: "{0} ha"
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} mi²"
+        duration-day: 
+          other: "{0}ရက်"
+        duration-hour: 
+          other: "{0}နာရီ"
+        duration-millisecond: 
+          other: "{0} ms"
+        duration-minute: 
+          other: "{0}မိနစ်"
+        duration-month: 
+          other: "{0}လ"
+        duration-second: 
+          other: "{0} s"
+        duration-week: 
+          other: "{0}ပတ်"
+        duration-year: 
+          other: "{0} y"
+        length-centimeter: 
+          other: "{0} cm"
+        length-foot: 
+          other: "{0} '"
+        length-inch: 
+          other: "{0} ″"
+        length-kilometer: 
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} အလင်းနှစ်"
+        length-meter: 
+          other: "{0} m"
+        length-mile: 
+          other: "{0}မိုင်"
+        length-millimeter: 
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          other: "{0} ကိုက်"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} oz"
+        mass-pound: 
+          other: "{0} lb"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} mi/h"
+        temperature-celsius: 
+          other: "{0}°"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} mi³"
+        volume-liter: 
+          other: "{0} l"
+      short: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} ac"
+        area-hectare: 
+          other: "{0} ha"
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} mi²"
+        duration-day: 
+          other: "{0}ရက်"
+        duration-hour: 
+          other: "{0}နာရီ"
+        duration-millisecond: 
+          other: "{0} ms"
+        duration-minute: 
+          other: "{0}မိနစ်"
+        duration-month: 
+          other: "{0}လ"
+        duration-second: 
+          other: "{0} s"
+        duration-week: 
+          other: "{0}ပတ်"
+        duration-year: 
+          other: "{0} y"
+        length-centimeter: 
+          other: "{0} cm"
+        length-foot: 
+          other: "{0} ပေ"
+        length-inch: 
+          other: "{0} လက္မ"
+        length-kilometer: 
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} အလင်းနှစ်"
+        length-meter: 
+          other: "{0} m"
+        length-mile: 
+          other: "{0}မိုင်"
+        length-millimeter: 
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          other: "{0} ကိုက်"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} oz"
+        mass-pound: 
+          other: "{0} lb"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} mi/h"
+        temperature-celsius: 
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} mi³"
+        volume-liter: 
+          other: "{0} l"

@@ -1,0 +1,286 @@
+km: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          other: "{0} កម្លាំង​ទំនាញ"
+        angle-arc-minute: 
+          other: "{0} នាទី"
+        angle-arc-second: 
+          other: "{0} វិនាទី"
+        angle-degree: 
+          other: "{0} ដឺក្រេ"
+        area-acre: 
+          other: "{0} អា"
+        area-hectare: 
+          other: "{0} ហិកតា"
+        area-square-foot: 
+          other: "{0} ហ្វីត​ការ៉េ"
+        area-square-kilometer: 
+          other: "{0} គីឡូម៉ែត្រ​ការ៉េ"
+        area-square-meter: 
+          other: "{0} ម៉ែត្រ​ការ៉េ"
+        area-square-mile: 
+          other: "{0} ម៉ាយល៍​ការ៉េ"
+        duration-day: 
+          other: "{0} ថ្ងៃ"
+        duration-hour: 
+          other: "{0} ម៉ោង"
+        duration-millisecond: 
+          other: "{0} មិល្លី​វិនាទី"
+        duration-minute: 
+          other: "{0} នាទី"
+        duration-month: 
+          other: "{0} ខែ"
+        duration-second: 
+          other: "{0} វិនាទី"
+        duration-week: 
+          other: "{0} សប្ដាហ៍"
+        duration-year: 
+          other: "{0} ឆ្នាំ"
+        length-centimeter: 
+          other: "{0} សង់ទីម៉ែត្រ"
+        length-foot: 
+          other: "{0} ហ្វីត"
+        length-inch: 
+          other: "{0} អ៊ិន្ឈ៍"
+        length-kilometer: 
+          other: "{0} គីឡូម៉ែត្រ"
+        length-light-year: 
+          other: "{0} ឆ្នាំ​ពន្លឺ"
+        length-meter: 
+          other: "{0} ម៉ែត្រ"
+        length-mile: 
+          other: "{0} ម៉ាយល៍"
+        length-millimeter: 
+          other: "{0} មិល្លីម៉ែត្រ"
+        length-picometer: 
+          other: "{0} ពីកូម៉ែត្រ"
+        length-yard: 
+          other: "{0} យ៉ាត"
+        mass-gram: 
+          other: "{0} ក្រាម"
+        mass-kilogram: 
+          other: "{0} គីឡូក្រាម"
+        mass-ounce: 
+          other: "{0} អោនស៍"
+        mass-pound: 
+          other: "{0} ផោន"
+        power-horsepower: 
+          other: "{0} សេះ"
+        power-kilowatt: 
+          other: "{0} គីឡូវ៉ាត់"
+        power-watt: 
+          other: "{0} វ៉ាត់"
+        pressure-hectopascal: 
+          other: "{0} ហិចតូប៉ាស្កាល់"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} មិល្លីបារ"
+        speed-kilometer-per-hour: 
+          other: "{0} គីឡូម៉ែត្រ​ក្នុង​មួយ​ម៉ោង"
+        speed-meter-per-second: 
+          other: "{0} ម៉ែត្រ​ក្នុង​មួយ​វិនាទី"
+        speed-mile-per-hour: 
+          other: "{0} ម៉ាយល៍​ក្នុង​មួយ​ម៉ោង"
+        temperature-celsius: 
+          other: "{0}ដឺក្រេសែលស៊ីស"
+        temperature-fahrenheit: 
+          other: "{0}ដឺក្រេហ្វារិនហៃ"
+        volume-cubic-kilometer: 
+          other: "{0} គីឡូម៉ែត្រ​គីប"
+        volume-cubic-mile: 
+          other: "{0} ម៉ាយល៍​គីប"
+        volume-liter: 
+          other: "{0} លីត្រ"
+      narrow: 
+        acceleration-g-force: 
+          other: "{0} ក.ទ."
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} អា"
+        area-hectare: 
+          other: "{0} ហ."
+        area-square-foot: 
+          other: "{0} ហ្វ²."
+        area-square-kilometer: 
+          other: "{0} គ.ម²."
+        area-square-meter: 
+          other: "{0} ម²."
+        area-square-mile: 
+          other: "{0} ម៉²."
+        duration-day: 
+          other: "{0} ថ្ងៃ"
+        duration-hour: 
+          other: "{0} ម៉."
+        duration-millisecond: 
+          other: "{0} មិ.វិ."
+        duration-minute: 
+          other: "{0} ន."
+        duration-month: 
+          other: "{0} ខែ"
+        duration-second: 
+          other: "{0} វិ."
+        duration-week: 
+          other: "{0} សប្ដាហ៍"
+        duration-year: 
+          other: "{0} ឆ្នាំ"
+        length-centimeter: 
+          other: "{0} ស.ម."
+        length-foot: 
+          other: "{0}′"
+        length-inch: 
+          other: "{0}″"
+        length-kilometer: 
+          other: "{0} គ.ម"
+        length-light-year: 
+          other: "{0} ឆ្នាំ​ពន្លឺ"
+        length-meter: 
+          other: "{0} ម."
+        length-mile: 
+          other: "{0} ម៉."
+        length-millimeter: 
+          other: "{0} ម.ម."
+        length-picometer: 
+          other: "{0} ព.ម."
+        length-yard: 
+          other: "{0} យ៉."
+        mass-gram: 
+          other: "{0} ក."
+        mass-kilogram: 
+          other: "{0} គ.ក."
+        mass-ounce: 
+          other: "{0} អ."
+        mass-pound: 
+          other: "{0}#"
+        power-horsepower: 
+          other: "{0} សេះ"
+        power-kilowatt: 
+          other: "{0} គ.វ."
+        power-watt: 
+          other: "{0} វ."
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0}\" Hg"
+        pressure-millibar: 
+          other: "{0} ម.ប."
+        speed-kilometer-per-hour: 
+          other: "{0} គ.ម./ម៉"
+        speed-meter-per-second: 
+          other: "{0} ម./វិ."
+        speed-mile-per-hour: 
+          other: "{0} ម៉./ម៉"
+        temperature-celsius: 
+          other: "{0}°"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} គ.ម³."
+        volume-cubic-mile: 
+          other: "{0} ម៉³."
+        volume-liter: 
+          other: "{0} ល."
+      short: 
+        acceleration-g-force: 
+          other: "{0} ក.ទ."
+        angle-arc-minute: 
+          other: "{0} ន."
+        angle-arc-second: 
+          other: "{0} វិ."
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} អា"
+        area-hectare: 
+          other: "{0} ហ."
+        area-square-foot: 
+          other: "{0} ហ្វ²."
+        area-square-kilometer: 
+          other: "{0} គ.ម²."
+        area-square-meter: 
+          other: "{0} ម²."
+        area-square-mile: 
+          other: "{0} ម៉²."
+        duration-day: 
+          other: "{0} ថ្ងៃ"
+        duration-hour: 
+          other: "{0} ម៉."
+        duration-millisecond: 
+          other: "{0} មិ.វិ."
+        duration-minute: 
+          other: "{0} ន."
+        duration-month: 
+          other: "{0} ខែ"
+        duration-second: 
+          other: "{0} វិ."
+        duration-week: 
+          other: "{0} សប្ដាហ៍"
+        duration-year: 
+          other: "{0} ឆ្នាំ"
+        length-centimeter: 
+          other: "{0} ស.ម."
+        length-foot: 
+          other: "{0} ហ្វ."
+        length-inch: 
+          other: "{0} អ៊ិន្ឈ៍"
+        length-kilometer: 
+          other: "{0} គ.ម."
+        length-light-year: 
+          other: "{0} ឆ្នាំ​ពន្លឺ"
+        length-meter: 
+          other: "{0} ម."
+        length-mile: 
+          other: "{0} ម៉."
+        length-millimeter: 
+          other: "{0} ម.ម."
+        length-picometer: 
+          other: "{0} ព.ម."
+        length-yard: 
+          other: "{0} យ៉."
+        mass-gram: 
+          other: "{0} ក."
+        mass-kilogram: 
+          other: "{0} គ.ក."
+        mass-ounce: 
+          other: "{0} អ."
+        mass-pound: 
+          other: "{0} ផ."
+        power-horsepower: 
+          other: "{0} សេះ"
+        power-kilowatt: 
+          other: "{0} គ.វ."
+        power-watt: 
+          other: "{0} វ."
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} ម.ប."
+        speed-kilometer-per-hour: 
+          other: "{0} គ.ម./ម៉"
+        speed-meter-per-second: 
+          other: "{0} ម./វិ."
+        speed-mile-per-hour: 
+          other: "{0} ម៉./ម៉"
+        temperature-celsius: 
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} គ.ម³."
+        volume-cubic-mile: 
+          other: "{0} ម៉³."
+        volume-liter: 
+          other: "{0} ល."

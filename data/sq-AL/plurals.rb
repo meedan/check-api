@@ -1,0 +1,1 @@
+{ :'sq_AL' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

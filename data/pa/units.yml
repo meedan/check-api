@@ -1,0 +1,424 @@
+pa: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          one: "{0} ਗੁਰੂਤੱਵ ਆਕਰਸ਼ਨ ਸ਼ਕਤੀ"
+          other: "{0} ਗੁਰੂਤੱਵ ਆਕਰਸ਼ਨ ਸ਼ਕਤੀ"
+        angle-arc-minute: 
+          one: "{0} ਮਿਨਟ"
+          other: "{0} ਮਿਨਟ"
+        angle-arc-second: 
+          one: "{0} ਸੈਕੇਂਡ"
+          other: "{0} ਸੈਕੇਂਡ"
+        angle-degree: 
+          one: "{0} ਡਿਗਰੀ"
+          other: "{0} ਡਿਗਰੀ"
+        area-acre: 
+          one: "{0} ਏਕੜ"
+          other: "{0} ਏਕੜ"
+        area-hectare: 
+          one: "{0} ਹੈਕਟੇਅਰ"
+          other: "{0} ਹੈਕਟੇਅਰ"
+        area-square-foot: 
+          one: "{0} ਵਰਗ ਫੁੱਟ"
+          other: "{0} ਵਰਗ ਫੁੱਟ"
+        area-square-kilometer: 
+          one: "{0} ਵਰਗ ਕਿਲੋਮੀਟਰ"
+          other: "{0} ਵਰਗ ਕਿਲੋਮੀਟਰ"
+        area-square-meter: 
+          one: "{0} ਵਰਗ ਮੀਟਰ"
+          other: "{0} ਵਰਗ ਮੀਟਰ"
+        area-square-mile: 
+          one: "{0} ਵਰਗ ਮੀਲ"
+          other: "{0} ਵਰਗ ਮੀਲ"
+        duration-day: 
+          one: "{0} ਦਿਨ"
+          other: "{0} ਦਿਨ"
+        duration-hour: 
+          one: "{0} ਘੰਟਾ"
+          other: "{0} ਘੰਟੇ"
+        duration-millisecond: 
+          one: "{0} ਮਿਲੀ ਸਕਿੰਟ"
+          other: "{0} ਮਿਲੀ ਸਕਿੰਟ"
+        duration-minute: 
+          one: "{0} ਮਿੰਟ"
+          other: "{0} ਮਿੰਟ"
+        duration-month: 
+          one: "{0} ਮਹੀਨਾ"
+          other: "{0} ਮਹੀਨੇ"
+        duration-second: 
+          one: "{0} ਸਕਿੰਟ"
+          other: "{0} ਸਕਿੰਟ"
+        duration-week: 
+          one: "{0} ਹਫ਼ਤਾ"
+          other: "{0} ਹਫ਼ਤੇ"
+        duration-year: 
+          one: "{0} ਸਾਲ"
+          other: "{0} ਸਾਲ"
+        length-centimeter: 
+          one: "{0} ਸੈਂਟੀਮੀਟਰ"
+          other: "{0} ਸੈਂਟੀਮੀਟਰ"
+        length-foot: 
+          one: "{0} ਫੁੱਟ"
+          other: "{0} ਫੁੱਟ"
+        length-inch: 
+          one: "{0} ਇੰਚ"
+          other: "{0} ਇੰਚ"
+        length-kilometer: 
+          one: "{0} ਕਿਲੋਮੀਟਰ"
+          other: "{0} ਕਿਲੋਮੀਟਰ"
+        length-light-year: 
+          one: "{0} ਪ੍ਰਕਾਸ਼ ਸਾਲ"
+          other: "{0} ਪ੍ਰਕਾਸ਼ ਸਾਲ"
+        length-meter: 
+          one: "{0} ਮੀਟਰ"
+          other: "{0} ਮੀਟਰ"
+        length-mile: 
+          one: "{0} ਮੀਲ"
+          other: "{0} ਮੀਲ"
+        length-millimeter: 
+          one: "{0} ਮਿਲੀਮੀਟਰ"
+          other: "{0} ਮਿਲੀਮੀਟਰ"
+        length-picometer: 
+          one: "{0} ਪਿਕੋਮੀਟਰ"
+          other: "{0} ਪਿਕੋਮੀਟਰ"
+        length-yard: 
+          one: "{0} ਯਾਰਡ"
+          other: "{0} ਯਾਰਡ"
+        mass-gram: 
+          one: "{0} ਗ੍ਰਾਮ"
+          other: "{0} ਗ੍ਰਾਮ"
+        mass-kilogram: 
+          one: "{0} ਕਿਲੋਗ੍ਰਾਮ"
+          other: "{0} ਕਿਲੋਗ੍ਰਾਮ"
+        mass-ounce: 
+          one: "{0} ਆਉਂਸ"
+          other: "{0} ਆਉਂਸ"
+        mass-pound: 
+          one: "{0} ਪਾਉਂਡ"
+          other: "{0} ਪਾਉਂਡ"
+        power-horsepower: 
+          one: "{0} ਹੌਰਸਪਾਵਰ"
+          other: "{0} ਹੌਰਸਪਾਵਰ"
+        power-kilowatt: 
+          one: "{0} ਕਿਲੋਵਾਟ"
+          other: "{0} ਕਿਲੋਵਾਟ"
+        power-watt: 
+          one: "{0} ਵਾਟ"
+          other: "{0} ਵਾਟ"
+        pressure-hectopascal: 
+          one: "{0} ਹੈਕਟੋਪਾਸਕਲ"
+          other: "{0} ਹੈਕਟੋਪਾਸਕਲ"
+        pressure-inch-hg: 
+          one: "{0} ਪਾਰੇ ਦਾ ਇੰਚ"
+          other: "{0} ਪਾਰੇ ਦਾ ਇੰਚ"
+        pressure-millibar: 
+          one: "{0} ਮਿਲੀਬਾਰ"
+          other: "{0} ਮਿਲੀਬਾਰ"
+        speed-kilometer-per-hour: 
+          one: "{0} ਕਿਲੋਮੀਟਰ ਪ੍ਰਤੀ ਘੰਟਾ"
+          other: "{0} ਕਿਲੋਮੀਟਰ ਪ੍ਰਤੀ ਘੰਟਾ"
+        speed-meter-per-second: 
+          one: "{0} ਮੀਟਰ ਪ੍ਰਤੀ ਸਕਿੰਟ"
+          other: "{0} ਮੀਟਰ ਪ੍ਰਤੀ ਸਕਿੰਟ"
+        speed-mile-per-hour: 
+          one: "{0} ਮੀਲ ਪ੍ਰਤੀ ਘੰਟਾ"
+          other: "{0} ਮੀਲ ਪ੍ਰਤੀ ਘੰਟਾ"
+        temperature-celsius: 
+          one: "{0} ਡਿਗਰੀ ਸੈਲਸੀਅਸ"
+          other: "{0} ਡਿਗਰੀ ਸੈਲਸੀਅਸ"
+        temperature-fahrenheit: 
+          one: "{0} ਡਿਗਰੀ ਫਾਰੇਨਹਾਈਟ"
+          other: "{0} ਡਿਗਰੀ ਫਾਰੇਨਹਾਈਟ"
+        volume-cubic-kilometer: 
+          one: "{0} ਘਣ ਕਿਲੋਮੀਟਰ"
+          other: "{0} ਘਣ ਕਿਲੋਮੀਟਰ"
+        volume-cubic-mile: 
+          one: "{0} ਘਣ ਮੀਲ"
+          other: "{0} ਘਣ ਮੀਲ"
+        volume-liter: 
+          one: "{0} ਲੀਟਰ"
+          other: "{0} ਲੀਟਰ"
+      narrow: 
+        acceleration-g-force: 
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} ਏਕੜ"
+          other: "{0} ਏਕੜ"
+        area-hectare: 
+          one: "{0} ਹੈਕਟੇਅਰ"
+          other: "{0} ਹੈਕਟੇਅਰ"
+        area-square-foot: 
+          one: "{0} ਵ.ਫੁੱ."
+          other: "{0} ਵ.ਫੁੱ."
+        area-square-kilometer: 
+          one: "{0} ਵ.ਕਿਮੀ"
+          other: "{0} ਵ.ਕਿਮੀ"
+        area-square-meter: 
+          one: "{0} ਵ.ਮੀ."
+          other: "{0} ਵ.ਮੀ."
+        area-square-mile: 
+          one: "{0} ਵ. ਮੀਲ"
+          other: "{0} ਵ. ਮੀਲ"
+        duration-day: 
+          one: "{0} ਦਿਨ"
+          other: "{0} ਦਿਨ"
+        duration-hour: 
+          one: "{0} ਘੰਟੇ"
+          other: "{0} ਘੰਟੇ"
+        duration-millisecond: 
+          one: "{0} ms"
+          other: "{0} ms"
+        duration-minute: 
+          one: "{0} ਮਿੰਟ"
+          other: "{0} ਮਿੰਟ"
+        duration-month: 
+          one: "{0} ਮਹੀਨਾ"
+          other: "{0} ਮਹੀਨੇ"
+        duration-second: 
+          one: "{0} ਸਕਿੰਟ"
+          other: "{0} ਸਕਿੰਟ"
+        duration-week: 
+          one: "{0} ਹਫ਼ਤਾ"
+          other: "{0} ਹਫ਼ਤੇ"
+        duration-year: 
+          one: "{0} ਸਾਲ"
+          other: "{0} ਸਾਲ"
+        length-centimeter: 
+          one: "{0} ਸੈਂਟੀਮੀਟਰ"
+          other: "{0} ਸੈਂਟੀਮੀਟਰ"
+        length-foot: 
+          one: "{0}'"
+          other: "{0}'"
+        length-inch: 
+          one: "{0}\""
+          other: "{0}\""
+        length-kilometer: 
+          one: "{0} ਕਿਮੀ"
+          other: "{0} ਕਿਮੀ"
+        length-light-year: 
+          one: "{0} ਪ੍ਰਕਾਸ਼ ਸਾਲ"
+          other: "{0} ਪ੍ਰਕਾਸ਼ ਸਾਲ"
+        length-meter: 
+          one: "{0} ਮੀ"
+          other: "{0} ਮੀ"
+        length-mile: 
+          one: "{0} ਮੀਲ"
+          other: "{0} ਮੀਲ"
+        length-millimeter: 
+          one: "{0} ਮਿਮੀ"
+          other: "{0} ਮਿਮੀ"
+        length-picometer: 
+          one: "{0} ਪਿਕੋਮੀਟਰ"
+          other: "{0} ਪਿਕੋਮੀਟਰ"
+        length-yard: 
+          one: "{0} ਯਾਰਡ"
+          other: "{0} ਯਾਰਡ"
+        mass-gram: 
+          one: "{0} ਗ੍ਰਾ."
+          other: "{0} ਗ੍ਰਾ."
+        mass-kilogram: 
+          one: "{0} ਕਿ.ਗ੍ਰਾ."
+          other: "{0} ਕਿ.ਗ੍ਰਾ."
+        mass-ounce: 
+          one: "{0} ਆਉਂਸ"
+          other: "{0} ਆਉਂਸ"
+        mass-pound: 
+          one: "{0} ਪਾਉਂਡ"
+          other: "{0} ਪਾਉਂਡ"
+        power-horsepower: 
+          one: "{0} hp"
+          other: "{0} hp"
+        power-kilowatt: 
+          one: "{0}kW"
+          other: "{0}kW"
+        power-watt: 
+          one: "{0}W"
+          other: "{0}W"
+        pressure-hectopascal: 
+          one: "{0} hPa"
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          one: "{0} ਪਾਰੇ ਦਾ ਇੰਚ"
+          other: "{0} ਪਾਰੇ ਦਾ ਇੰਚ"
+        pressure-millibar: 
+          one: "{0} ਮਿਲੀਬਾਰ"
+          other: "{0} ਮਿਲੀਬਾਰ"
+        speed-kilometer-per-hour: 
+          one: "{0} km/h"
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          one: "{0} m/s"
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          one: "{0}mph"
+          other: "{0}mph"
+        temperature-celsius: 
+          one: "{0}°"
+          other: "{0}°"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "{0} ਘਣ ਕਿਮੀ"
+          other: "{0} ਘਣ ਕਿਮੀ"
+        volume-cubic-mile: 
+          one: "{0} ਘਣ ਮੀਲ"
+          other: "{0} ਘਣ ਮੀਲ"
+        volume-liter: 
+          one: "{0} ਲੀ."
+          other: "{0} ਲੀ."
+      short: 
+        acceleration-g-force: 
+          one: "{0} ਗੁ-ਸ਼ਕਤੀ"
+          other: "{0} ਗੁ-ਸ਼ਕਤੀ"
+        angle-arc-minute: 
+          one: "{0} ਮਿਨਟ"
+          other: "{0} ਮਿਨਟ"
+        angle-arc-second: 
+          one: "{0} ਸੈਕੇਂਡ"
+          other: "{0} ਸੈਕੇਂਡ"
+        angle-degree: 
+          one: "{0} ਡਿ."
+          other: "{0} ਡਿ."
+        area-acre: 
+          one: "{0} ਏਕੜ"
+          other: "{0} ਏਕੜ"
+        area-hectare: 
+          one: "{0} ਹੈਕਟੇਅਰ"
+          other: "{0} ਹੈਕਟੇਅਰ"
+        area-square-foot: 
+          one: "{0} ਵ.ਫੁੱ."
+          other: "{0} ਵ.ਫੁੱ."
+        area-square-kilometer: 
+          one: "{0} ਵ.ਕਿ.ਮੀ."
+          other: "{0} ਵ.ਕਿ.ਮੀ."
+        area-square-meter: 
+          one: "{0} ਵ.ਮੀ."
+          other: "{0} ਵ.ਮੀ."
+        area-square-mile: 
+          one: "{0} ਵ. ਮੀਲ"
+          other: "{0} ਵ. ਮੀਲ"
+        duration-day: 
+          one: "{0} ਦਿਨ"
+          other: "{0} ਦਿਨ"
+        duration-hour: 
+          one: "{0} ਘੰਟਾ"
+          other: "{0} ਘੰਟੇ"
+        duration-millisecond: 
+          one: "{0} ਮਿਲੀ ਸਕਿੰਟ"
+          other: "{0} ਮਿਲੀ ਸਕਿੰਟ"
+        duration-minute: 
+          one: "{0} ਮਿੰਟ"
+          other: "{0} ਮਿੰਟ"
+        duration-month: 
+          one: "{0} ਮਹੀਨਾ"
+          other: "{0} ਮਹੀਨੇ"
+        duration-second: 
+          one: "{0} ਸਕਿੰਟ"
+          other: "{0} ਸਕਿੰਟ"
+        duration-week: 
+          one: "{0} ਹਫ਼ਤਾ"
+          other: "{0} ਹਫ਼ਤੇ"
+        duration-year: 
+          one: "{0} ਸਾਲ"
+          other: "{0} ਸਾਲ"
+        length-centimeter: 
+          one: "{0} ਸੈਂਟੀਮੀਟਰ"
+          other: "{0} ਸੈਂਟੀਮੀਟਰ"
+        length-foot: 
+          one: "{0} ਫੁੱ."
+          other: "{0} ਫੁੱ."
+        length-inch: 
+          one: "{0} ਇੰਚ"
+          other: "{0} ਇੰਚ"
+        length-kilometer: 
+          one: "{0} ਕਿ.ਮੀ."
+          other: "{0} ਕਿ.ਮੀ."
+        length-light-year: 
+          one: "{0} ਪ੍ਰਕਾਸ਼ ਸਾਲ"
+          other: "{0} ਪ੍ਰਕਾਸ਼ ਸਾਲ"
+        length-meter: 
+          one: "{0} ਮੀ."
+          other: "{0} ਮੀ."
+        length-mile: 
+          one: "{0} ਮੀਲ"
+          other: "{0} ਮੀਲ"
+        length-millimeter: 
+          one: "{0} ਮਿ.ਮੀ."
+          other: "{0} ਮਿ.ਮੀ."
+        length-picometer: 
+          one: "{0} ਪਿਕੋਮੀਟਰ"
+          other: "{0} ਪਿਕੋਮੀਟਰ"
+        length-yard: 
+          one: "{0} ਯਾਰਡ"
+          other: "{0} ਯਾਰਡ"
+        mass-gram: 
+          one: "{0} ਗ੍ਰਾ."
+          other: "{0} ਗ੍ਰਾ."
+        mass-kilogram: 
+          one: "{0} ਕਿ.ਗ੍ਰਾ."
+          other: "{0} ਕਿ.ਗ੍ਰਾ."
+        mass-ounce: 
+          one: "{0} ਆਉਂਸ"
+          other: "{0} ਆਉਂਸ"
+        mass-pound: 
+          one: "{0} ਪਾਉਂਡ"
+          other: "{0} ਪਾਉਂਡ"
+        power-horsepower: 
+          one: "{0} ਹੌਰਸਪਾਵਰ"
+          other: "{0} ਹੌਰਸਪਾਵਰ"
+        power-kilowatt: 
+          one: "{0} ਕਿ. ਵਾਟ"
+          other: "{0} ਕਿ. ਵਾਟ"
+        power-watt: 
+          one: "{0} ਵਾਟ"
+          other: "{0} ਵਾਟ"
+        pressure-hectopascal: 
+          one: "{0} ਹੈਕਟੋਪਾਸਕਲ"
+          other: "{0} ਹੈਕਟੋਪਾਸਕਲ"
+        pressure-inch-hg: 
+          one: "{0} ਪਾਰੇ ਦਾ ਇੰਚ"
+          other: "{0} ਪਾਰੇ ਦਾ ਇੰਚ"
+        pressure-millibar: 
+          one: "{0} ਮਿਲੀਬਾਰ"
+          other: "{0} ਮਿਲੀਬਾਰ"
+        speed-kilometer-per-hour: 
+          one: "{0} ਕਿ.ਮੀ./ਘੰਟਾ"
+          other: "{0} ਕਿ.ਮੀ./ਘੰਟਾ"
+        speed-meter-per-second: 
+          one: "{0} ਮੀ./ਸਕਿੰਟ"
+          other: "{0} ਮੀ./ਸਕਿੰਟ"
+        speed-mile-per-hour: 
+          one: "{0} ਮੀਲ/ਘੰਟਾ"
+          other: "{0} ਮੀਲ/ਘੰਟਾ"
+        temperature-celsius: 
+          one: "{0} ਡਿਗਰੀ ਸੈਲਸੀਅਸ"
+          other: "{0} ਡਿਗਰੀ ਸੈਲਸੀਅਸ"
+        temperature-fahrenheit: 
+          one: "{0} ਡਿਗਰੀ ਫਾਰੇਨਹਾਈਟ"
+          other: "{0} ਡਿਗਰੀ ਫਾਰੇਨਹਾਈਟ"
+        volume-cubic-kilometer: 
+          one: "{0} ਘਣ ਕਿ.ਮੀ."
+          other: "{0} ਘਣ ਕਿ.ਮੀ."
+        volume-cubic-mile: 
+          one: "{0} ਘਣ ਮੀਲ"
+          other: "{0} ਘਣ ਮੀਲ"
+        volume-liter: 
+          one: "{0} ਲੀ."
+          other: "{0} ਲੀ."

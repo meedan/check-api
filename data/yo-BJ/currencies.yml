@@ -1,0 +1,219 @@
+yo-BJ: 
+  currencies: 
+    AED: 
+      one: "Diami ti Awon Orílɛ́ède Arabu"
+    AOA: 
+      one: "Wansa ti Orílɛ́ède Àngólà"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dɔla ti Orílɛ́ède Ástràlìá"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Dina ti Orílɛ́ède Báránì"
+    BIF: 
+      one: "Faransi ti Orílɛ́ède Bùùrúndì"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Pula ti Orílɛ́ède Bɔ̀tìsúwánà"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dɔla ti Orílɛ́ède Kánádà"
+      symbol: CA$
+    CDF: 
+      one: "Faransi ti Orílɛ́ède Kóngò"
+    CHF: 
+      one: "Faransi ti Orílɛ́ède Siwisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Reminibi ti Orílɛ́ède sháínà"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Kabofediano ti Orílɛ́ède Esuodo"
+    DJF: 
+      one: "Faransi ti Orílɛ́ède Dibouti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dina ti Orílɛ́ède Àlùgèríánì"
+    EGP: 
+      one: "pɔɔn ti Orílɛ́ède Egipiti"
+    ERN: 
+      one: "Nakifa ti Orílɛ́ède Eriteriani"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Biri ti Orílɛ́ède Eutopia"
+    EUR: 
+      one: Uro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Pɔɔn ti Orílɛ́ède Bírítísì"
+      symbol: £
+    GHC: 
+      one: "shidi ti Orílɛ́ède Gana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dalasi ti Orílɛ́ède Gamibia"
+    GNS: 
+      one: "Faransi ti Orílɛ́ède Gini"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupi ti Orílɛ́ède Indina"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yeni ti Orílɛ́ède Japani"
+      symbol: JP¥
+    KES: 
+      one: "shiili ti Orílɛ́ède Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Faransi ti Orílɛ́ède shomoriani"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dɔla ti Orílɛ́ède Liberia"
+      symbol: $
+    LSL: 
+      one: "Loti ti Orílɛ́ède Lesoto"
+    LYD: 
+      one: "Dina ti Orílɛ́ède Libiya"
+    MAD: 
+      one: "Dirami ti Orílɛ́ède Moroko"
+    MGA: 
+      one: "Faransi ti Orílɛ́ède Malagasi"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ouguiya ti Orílɛ́ède Maritania"
+    MUR: 
+      one: "Rupi ti Orílɛ́ède Maritiusi"
+    MWK: 
+      one: "Kasha ti Orílɛ́ède Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Metika ti Orílɛ́ède Mosamibiki"
+    NAD: 
+      one: "Dɔla ti Orílɛ́ède Namibia"
+      symbol: $
+    NGN: 
+      one: "Naira ti Orílɛ́ède Nàìjíríà"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Faransi ti Orílɛ́ède Ruwanda"
+    SAR: 
+      one: "Riya ti Orílɛ́ède Saudi"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupi ti Orílɛ́ède Sayiselesi"
+    SDG: 
+      one: "Dina ti Orílɛ́ède Sudani"
+    SDP: 
+      one: "Pɔɔun ti Orílɛ́ède Sudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Pɔɔun ti Orílɛ́ède ̣Elena"
+    SLL: 
+      one: Lioni
+    SOS: 
+      one: "Sile ti Orílɛ́ède Somali"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dobira ti Orílɛ́ède Sao tome Ati Pirisipe"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Dina ti Orílɛ́ède Tunisia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Sile ti Orílɛ́ède Tansania"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Siile ti Orílɛ́ède Uganda"
+    USD: 
+      one: "Dɔla ti Orílɛ́ède Amerika"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Faransi ti Orílɛ́ède BEKA"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Faransi ti Orílɛ́ède BIKEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Randi ti Orílɛ́ède Ariwa Afirika"
+    ZMK: 
+      one: "Kawasha ti Orílɛ́ède Saabia (1968–2012)"
+    ZMW: 
+      one: "Kawasha ti Orílɛ́ède Saabia"
+    ZWD: 
+      one: "Dɔla ti Orílɛ́ède Siibabuwe"

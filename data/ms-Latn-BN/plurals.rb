@@ -1,0 +1,1 @@
+{ :'ms_Latn_BN' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

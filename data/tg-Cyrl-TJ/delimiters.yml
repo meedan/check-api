@@ -1,0 +1,9 @@
+tg-Cyrl-TJ: 
+  delimiters: 
+    quotes: 
+      alternate: 
+        end: ’
+        start: ‘
+      default: 
+        end: ”
+        start: “

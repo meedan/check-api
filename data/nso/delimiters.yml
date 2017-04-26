@@ -1,0 +1,9 @@
+nso: 
+  delimiters: 
+    quotes: 
+      alternate: 
+        end: ”
+        start: “
+      default: 
+        end: ’
+        start: ‘

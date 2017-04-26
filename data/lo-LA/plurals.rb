@@ -1,0 +1,1 @@
+{ :'lo_LA' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

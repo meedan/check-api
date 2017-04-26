@@ -1,0 +1,218 @@
+rof: 
+  currencies: 
+    AED: 
+      one: "heleri sa Falme za Kiarabu"
+    AOA: 
+      one: "heleri sa Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "heleri sa Australia"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "heleri sa Bahareni"
+    BIF: 
+      one: "heleri sa Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "heleri sa Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "heleri sa Kanada"
+      symbol: CA$
+    CDF: 
+      one: "heleri sa Kongo"
+    CHF: 
+      one: "heleri sa Uswisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "heleri sa China"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "heleri sa Kepuvede"
+    DJF: 
+      one: "heleri sa Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "heleri sa Aljeria"
+    EGP: 
+      one: "heleri sa Misri"
+    ERN: 
+      one: "heleri sa Eritrea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "heleri sa Uhabeshi"
+    EUR: 
+      one: yuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "heleri sa Uingereza"
+      symbol: £
+    GHC: 
+      one: "heleri sa Ghana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "heleri sa Gambia"
+    GNS: 
+      one: "heleri sa Gine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "heleri sa India"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "heleri sa Japani"
+      symbol: JP¥
+    KES: 
+      one: "heleri sa Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "heleri sa Komoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "heleri sa Liberia"
+      symbol: $
+    LSL: 
+      one: "heleri sa Lesoto"
+    LYD: 
+      one: "heleri sa Libya"
+    MAD: 
+      one: "heleri sa Moroko"
+    MGA: 
+      one: "heleri sa Bukini"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "heleri sa Moritania"
+    MUR: 
+      one: "heleri sa Morisi"
+    MWK: 
+      one: "heleri sa Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "heleri sa Msumbiji"
+    NAD: 
+      one: "heleri sa Namibia"
+      symbol: $
+    NGN: 
+      one: "heleri sa Nijeria"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "heleri sa Rwanda"
+    SAR: 
+      one: "heleri sa Saudia"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "heleri sa Shelisheli"
+    SDG: 
+      one: "heleri sa Sudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "heleri sa Santahelena"
+    SLL: 
+      one: leoni
+    SOS: 
+      one: "heleri sa Somalia"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "heleri sa Sao Tome na Principe"
+    SZL: 
+      one: lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "heleri sa Tunisia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "heleri sa Tanzania"
+      symbol: TSh
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "heleri sa Uganda"
+    USD: 
+      one: "heleri sa Marekani"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "heleri sa CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "heleri sa CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "heleri sa Afrika Kusini"
+    ZMK: 
+      one: "heleri sa Zambia (1968–2012)"
+    ZMW: 
+      one: "heleri sa Zambia"
+    ZWD: 
+      one: "heleri sa Zimbabwe"

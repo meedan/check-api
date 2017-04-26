@@ -1,0 +1,282 @@
+kea: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "E, d"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        HHmm: "HH:mm"
+        HHmmss: "HH:mm:ss"
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, dd/MM"
+        MMM: LLL
+        MMMEd: "E, d MMM"
+        MMMMEd: "E, d 'di' MMMM"
+        MMMMd: "d 'di' MMMM"
+        MMMd: "d MMM"
+        MMdd: dd/MM
+        Md: dd/MM
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        mmss: "mm:ss"
+        ms: "mm:ss"
+        y: y
+        yM: MM/y
+        yMEd: "E, dd/MM/y"
+        yMM: MM/y
+        yMMM: "MMM 'di' y"
+        yMMMEd: "E, d 'di' MMM 'di' y"
+        yMMMM: "MMMM 'di' y"
+        yMMMd: "d MMM y"
+        yMd: dd/MM/y
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: ses
+            mon: sig
+            sat: sab
+            sun: dum
+            thu: kin
+            tue: ter
+            wed: kua
+          narrow: 
+            fri: s
+            mon: s
+            sat: s
+            sun: d
+            thu: k
+            tue: t
+            wed: k
+          short: 
+            fri: se
+            mon: si
+            sat: sa
+            sun: du
+            thu: ki
+            tue: te
+            wed: ku
+          wide: 
+            fri: sesta-fera
+            mon: sigunda-fera
+            sat: sabadu
+            sun: dumingu
+            thu: kinta-fera
+            tue: tersa-fera
+            wed: kuarta-fera
+        stand-alone: 
+          abbreviated: 
+            fri: ses
+            mon: sig
+            sat: sab
+            sun: dum
+            thu: kin
+            tue: ter
+            wed: kua
+          narrow: 
+            fri: s
+            mon: s
+            sat: s
+            sun: d
+            thu: k
+            tue: t
+            wed: k
+          short: 
+            fri: se
+            mon: si
+            sat: sa
+            sun: du
+            thu: ki
+            tue: te
+            wed: ku
+          wide: 
+            fri: sesta-fera
+            mon: sigunda-fera
+            sat: sabadu
+            sun: dumingu
+            thu: kinta-fera
+            tue: tersa-fera
+            wed: kuarta-fera
+      eras: 
+        abbr: 
+          0: AK
+          1: DK
+        name: 
+          0: "Antis di Kristu"
+          1: "Dispos di Kristu"
+        narrow: 
+          0: ""
+      fields: 
+        day: Dia
+        dayperiod: am/pm
+        era: Era
+        hour: Ora
+        minute: Minutu
+        month: Mes
+        second: Sigundu
+        week: Simana
+        weekday: "Dia di simana"
+        year: Anu
+        zone: "Ora lokal"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d 'di' MMMM 'di' y"
+          long: 
+            pattern: "d 'di' MMMM 'di' y"
+          medium: 
+            pattern: "d 'di' MMM 'di' y"
+          short: 
+            pattern: d/M/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "HH:mm:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: Jan
+            10: Otu
+            11: Nuv
+            12: Diz
+            2: Fev
+            3: Mar
+            4: Abr
+            5: Mai
+            6: Jun
+            7: Jul
+            8: Ago
+            9: Set
+          narrow: 
+            1: J
+            10: O
+            11: N
+            12: D
+            2: F
+            3: M
+            4: A
+            5: M
+            6: J
+            7: J
+            8: A
+            9: S
+          wide: 
+            1: Janeru
+            10: Otubru
+            11: Nuvenbru
+            12: Dizenbru
+            2: Fevereru
+            3: Marsu
+            4: Abril
+            5: Maiu
+            6: Junhu
+            7: Julhu
+            8: Agostu
+            9: Setenbru
+        stand-alone: 
+          abbreviated: 
+            1: Jan
+            10: Otu
+            11: Nuv
+            12: Diz
+            2: Fev
+            3: Mar
+            4: Abr
+            5: Mai
+            6: Jun
+            7: Jul
+            8: Ago
+            9: Set
+          narrow: 
+            1: J
+            10: O
+            11: N
+            12: D
+            2: F
+            3: M
+            4: A
+            5: M
+            6: J
+            7: J
+            8: A
+            9: S
+          wide: 
+            1: Janeru
+            10: Otubru
+            11: Nuvenbru
+            12: Dizenbru
+            2: Fevereru
+            3: Marsu
+            4: Abril
+            5: Maiu
+            6: Junhu
+            7: Julhu
+            8: Agostu
+            9: Setenbru
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: am
+            pm: pm
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: T1
+            2: T2
+            3: T3
+            4: T4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "Primeru Trimestri"
+            2: "Sigundu Trimestri"
+            3: "Terseru Trimestri"
+            4: "Kuartu Trimestri"
+        stand-alone: 
+          abbreviated: 
+            1: T1
+            2: T2
+            3: T3
+            4: T4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "Primeru Trimestri"
+            2: "Sigundu Trimestri"
+            3: "Terseru Trimestri"
+            4: "Kuartu Trimestri"

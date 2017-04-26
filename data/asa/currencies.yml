@@ -1,0 +1,220 @@
+asa: 
+  currencies: 
+    AED: 
+      one: "dirham ya Falme dha Kiarabu"
+    AOA: 
+      one: "kwandha ya Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "dola ya Authtralia"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "dinari ya Bahareni"
+    BIF: 
+      one: "faranga ya Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "pula ya Botthwana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "dola ya Kanada"
+      symbol: CA$
+    CDF: 
+      one: "faranga ya Kongo"
+    CHF: 
+      one: "faranga ya Uthwithi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "yuan renminbi ya China"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "ethkudo ya Kepuvede"
+    DJF: 
+      one: "faranga ya Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "dinari ya Aljeria"
+    EGP: 
+      one: "pauni ya Mithri"
+    ERN: 
+      one: "nakfa ya Eritrea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "bir ya Uhabeshi"
+    EUR: 
+      one: yuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "pauni ya Uingeredha"
+      symbol: £
+    GHC: 
+      one: "thedi ya Ghana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "dalathi ya Gambia"
+    GNS: 
+      one: "faranga ya Gine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "rupia ya India"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "tharafu ya Kijapani"
+      symbol: JP¥
+    KES: 
+      one: "shilingi ya Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "faranga ya Komoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "dola ya Liberia"
+      symbol: $
+    LSL: 
+      one: "loti ya Lethoto"
+    LYD: 
+      one: "dinari ya Libya"
+    MAD: 
+      one: "dirham ya Moroko"
+    MGA: 
+      one: "faranga ya Bukini"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "ugwiya ya Moritania"
+    MUR: 
+      one: "rupia ya Morithi"
+    MWK: 
+      one: "kwacha ya Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "metikali ya Mthumbiji"
+    NAD: 
+      one: "dola ya Namibia"
+      symbol: $
+    NGN: 
+      one: "naira ya Nijeria"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "faranga ya Rwanda"
+    SAR: 
+      one: "riyal ya Thaudia"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "rupia ya Shelisheli"
+    SDG: 
+      one: "dinari ya Thudani"
+    SDP: 
+      one: "pauni ya Thudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "pauni ya Thantahelena"
+    SLL: 
+      one: leoni
+    SOS: 
+      one: "shilingi ya Thomalia"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "dobra ya Thao Tome na Principe"
+    SZL: 
+      one: lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "dinari ya Tunithia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "shilingi ya Tandhania"
+      symbol: TSh
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "shilingi ya Uganda"
+    USD: 
+      one: "dola ya Marekani"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "faranga CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "faranga CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "randi ya Afrika Kuthini"
+    ZMK: 
+      one: "kwacha ya Dhambia (1968–2012)"
+    ZMW: 
+      one: "kwacha ya Dhambia"
+    ZWD: 
+      one: "dola ya Dhimbabwe"

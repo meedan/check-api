@@ -1,0 +1,641 @@
+uz: 
+  metazones: 
+    Afghanistan: 
+      long: 
+        standard: "Afgʻoniston vaqti"
+    Africa_Central: 
+      long: 
+        standard: "Markaziy Afrika vaqti"
+    Africa_Eastern: 
+      long: 
+        standard: "Sharqiy Afrika vaqti"
+    Africa_Southern: 
+      long: 
+        standard: "Janubiy Afrika vaqti"
+    Africa_Western: 
+      long: 
+        daylight: "Gʻarbiy Afrika yozgi vaqti"
+        generic: "Gʻarbiy Afrika vaqti"
+        standard: "Gʻarbiy Afrika standart vaqti"
+    Alaska: 
+      long: 
+        daylight: "Alyaska kunduzgi vaqti"
+        generic: "Alyaska vaqti"
+        standard: "Alyaska standart vaqti"
+    Amazon: 
+      long: 
+        daylight: "Amazonka yozgi vaqti"
+        generic: "Amazonka vaqti"
+        standard: "Amazonka standart vaqti"
+    America_Central: 
+      long: 
+        daylight: "Shimoliy Amerika markaziy kunduzgi vaqti"
+        generic: "Shimoliy Amerika markaziy vaqti"
+        standard: "Shimoliy Amerika markaziy standart vaqti"
+    America_Eastern: 
+      long: 
+        daylight: "Shimoliy Amerika sharqiy kunduzgi vaqti"
+        generic: "Shimoliy Amerika sharqiy vaqti"
+        standard: "Shimoliy Amerika sharqiy standart vaqti"
+    America_Mountain: 
+      long: 
+        daylight: "Shimoliy Amerika togʻ kunduzgi vaqti"
+        generic: "Shimoliy Amerika togʻ vaqti"
+        standard: "Shimoliy Amerika togʻ standart vaqti"
+    America_Pacific: 
+      long: 
+        daylight: "Shimoliy Amerika tinch okeani kunduzgi vaqti"
+        generic: "Shimoliy Amerika tinch okeani vaqti"
+        standard: "Shimoliy Amerika tinch okeani standart vaqti"
+    Arabian: 
+      long: 
+        daylight: "Arabiston kunduzgi vaqti"
+        generic: "Arabiston vaqti"
+        standard: "Arabiston standart vaqti"
+    Argentina: 
+      long: 
+        daylight: "Argentina yozgi vaqti"
+        generic: "Argentina vaqti"
+        standard: "Argentina standart vaqti"
+    Argentina_Western: 
+      long: 
+        daylight: "Gʻarbiy Argentina yozgi vaqti"
+        generic: "Gʻarbiy Argentina vaqti"
+        standard: "Gʻarbiy Argentina standart vaqti"
+    Armenia: 
+      long: 
+        daylight: "Armaniston yozgi vaqti"
+        generic: "Aramniston vaqti"
+        standard: "Armaniston standart vaqti"
+    Atlantic: 
+      long: 
+        daylight: "Atlantika kunduzgi vaqti"
+        generic: "Atlantika vaqti"
+        standard: "Atlantika standart vaqti"
+    Australia_Central: 
+      long: 
+        daylight: "Markaziy Avstraliya kunduzgi vaqti"
+        generic: "Markaziy Avstraliya vaqti"
+        standard: "Markaziy Avstraliya standart vaqti"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "Markaziy Avstraliya Gʻarbiy kunduzgi vaqti"
+        generic: "Markaziy Avstraliya Gʻarbiy vaqti"
+        standard: "Markaziy Avstraliya Gʻarbiy standart vaqti"
+    Australia_Eastern: 
+      long: 
+        daylight: "Sharqiy Avstraliya kunduzgi vaqti"
+        generic: "Sharqiy Avstraliya vaqti"
+        standard: "Sharqiy Avstraliya standart vaqti"
+    Australia_Western: 
+      long: 
+        daylight: "Gʻarbiy Avstraliya kunduzgi vaqti"
+        generic: "Gʻarbiy Avstraliya vaqti"
+        standard: "Gʻarbiy Avstraliya standart vaqti"
+    Azerbaijan: 
+      long: 
+        daylight: "Ozarbayjon yozgi vaqti"
+        generic: "Ozarbayjon vaqti"
+        standard: "Ozarbayjon standart vaqti"
+    Azores: 
+      long: 
+        daylight: "Azor yozgi vaqti"
+        generic: "Azor vaqti"
+        standard: "Azor standart vaqti"
+    Bangladesh: 
+      long: 
+        daylight: "Bangladesh yozgi vaqti"
+        generic: "Bangladesh vaqti"
+        standard: "Bangladesh standart vaqti"
+    Bhutan: 
+      long: 
+        standard: "Butan vaqti"
+    Bolivia: 
+      long: 
+        standard: "Boliviya vaqti"
+    Brasilia: 
+      long: 
+        daylight: "Braziliya yozgi vaqti"
+        generic: "Braziliya vaqti"
+        standard: "Braziliya standart vaqti"
+    Brunei: 
+      long: 
+        standard: "Bruney Darussalom vaqti"
+    Cape_Verde: 
+      long: 
+        daylight: "Kabo-Verde yozgi vaqti"
+        generic: "Kabo-Verde vaqti"
+        standard: "Kabo-Verde standart vaqti"
+    Chamorro: 
+      long: 
+        standard: "Kamorro vaqti"
+    Chatham: 
+      long: 
+        daylight: "Chatxam kunduzgi vaqti"
+        generic: "Chatxam vaqti"
+        standard: "Chatxam standart vaqti"
+    Chile: 
+      long: 
+        daylight: "Chili yozgi vaqti"
+        generic: "Chili vaqti"
+        standard: "Chili standart vaqti"
+    China: 
+      long: 
+        daylight: "Xitoy kunduzgi vaqti"
+        generic: "Xitoy vaqti"
+        standard: "Xitoy standart vaqti"
+    Choibalsan: 
+      long: 
+        daylight: "Choybalsan yozgi vaqti"
+        generic: "Choybalsan vaqti"
+        standard: "Choybalsan standart vaqti"
+    Christmas: 
+      long: 
+        standard: "Rojdestvo oroli vaqti"
+    Cocos: 
+      long: 
+        standard: "Kokos orollari vaqti"
+    Colombia: 
+      long: 
+        daylight: "Kolumbiya yozgi vaqti"
+        generic: "Kolumbiya vaqti"
+        standard: "Kolumbiya standart vaqti"
+    Cook: 
+      long: 
+        daylight: "Kuk orollari yarim yozgi vaqti"
+        generic: "Kuk orollari vaqti"
+        standard: "Kuk orollari standart vaqti"
+    Cuba: 
+      long: 
+        daylight: "Kuba kunduzgi vaqti"
+        generic: "Kuba vaqti"
+        standard: "Kuba standart vaqti"
+    Davis: 
+      long: 
+        standard: "Devis vaqti"
+    DumontDUrville: 
+      long: 
+        standard: "Dumont-d-Urvil vaqti"
+    East_Timor: 
+      long: 
+        standard: "Sharqiy Timor vaqti"
+    Easter: 
+      long: 
+        daylight: "Pasxi oroli yozgi vaqti"
+        generic: "Pasxi Oroli vaqti"
+        standard: "Pasxi oroli standart vaqti"
+    Ecuador: 
+      long: 
+        standard: "Ekvador vaqti"
+    Europe_Central: 
+      long: 
+        daylight: "Markaziy Yevropa yozgi vaqti"
+        generic: "Markaziy Yevropa vaqti"
+        standard: "Markaziy Yevropa standart vaqti"
+    Europe_Eastern: 
+      long: 
+        daylight: "Sharqiy Yevropa yozgi vaqti"
+        generic: "Sharqiy Yevropa vaqti"
+        standard: "Sharqiy Yevropa standart vaqti"
+    Europe_Western: 
+      long: 
+        daylight: "Gʻarbiy Yevropa yozgi vaqti"
+        generic: "Gʻarbiy Yevropa vaqti"
+        standard: "Gʻarbiy Yevropa standart vaqti"
+    Falkland: 
+      long: 
+        daylight: "Folklend orollari yozgi vaqti"
+        generic: "Folklend orollari vaqti"
+        standard: "Folklend orollari standart vaqti"
+    Fiji: 
+      long: 
+        daylight: "Fiji yozgi vaqti"
+        generic: "Fiji vaqti"
+        standard: "Fiji standart vaqti"
+    French_Guiana: 
+      long: 
+        standard: "Frantsuz Gvianasi vaqti"
+    French_Southern: 
+      long: 
+        standard: "Frantsuz janubiy va Antarktika vaqti"
+    GMT: 
+      long: 
+        standard: "Grinvich vaqti"
+    Galapagos: 
+      long: 
+        standard: "Galapagos vaqti"
+    Gambier: 
+      long: 
+        standard: "Gambiyer vaqti"
+    Georgia: 
+      long: 
+        daylight: "Gruziya yozgi vaqti"
+        generic: "Gruziya vaqti"
+        standard: "Gruziya standart vaqti"
+    Gilbert_Islands: 
+      long: 
+        standard: "Gilbert orollari vaqti"
+    Greenland_Eastern: 
+      long: 
+        daylight: "Sharqiy Grenlandiya yozgi vaqti"
+        generic: "Sharqiy Grenlandiya vaqti"
+        standard: "Sharqiy Grenlandiya standart vaqti"
+    Greenland_Western: 
+      long: 
+        daylight: "Gʻarbiy Grenlandiya yozgi vaqti"
+        generic: "Gʻarbiy Grenlandiya vaqti"
+        standard: "Gʻarbiy Grenlandiya standart vaqti"
+    Gulf: 
+      long: 
+        standard: "Koʻrfaz vaqti"
+    Guyana: 
+      long: 
+        standard: "Gayana vaqti"
+    Hawaii_Aleutian: 
+      long: 
+        daylight: "Gavayi-aleut kunduzgi vaqti"
+        generic: "Gavayi-aleut vaqti"
+        standard: "Gavayi-aleut standart vaqti"
+    Hong_Kong: 
+      long: 
+        daylight: "Gonkong yozgi vaqti"
+        generic: "Gonkong vaqti"
+        standard: "Gonkong standart vaqti"
+    Hovd: 
+      long: 
+        daylight: "Xovd yozgi vaqti"
+        generic: "Xovd vaqti"
+        standard: "Xovd standart vaqti"
+    India: 
+      long: 
+        standard: "Hindiston vaqti"
+    Indian_Ocean: 
+      long: 
+        standard: "Hind okeani vaqti"
+    Indochina: 
+      long: 
+        standard: "Hind-Xitoy vaqti"
+    Indonesia_Central: 
+      long: 
+        standard: "Markaziy Indoneziya vaqti"
+    Indonesia_Eastern: 
+      long: 
+        standard: "Sharqiy Indoneziya vaqti"
+    Indonesia_Western: 
+      long: 
+        standard: "Gʻarbiy Indoneziya vaqti"
+    Iran: 
+      long: 
+        daylight: "Eron kunduzgi vaqti"
+        generic: "Eron vaqti"
+        standard: "Eron standart vaqti"
+    Irkutsk: 
+      long: 
+        daylight: "Irkutsk yozgi vaqti"
+        generic: "Irkutsk vaqti"
+        standard: "Irkutsk standart vaqti"
+    Israel: 
+      long: 
+        daylight: "Isroil kunduzgi vaqti"
+        generic: "Isroil vaqti"
+        standard: "Isroil standart vaqti"
+    Japan: 
+      long: 
+        daylight: "Yaponiya kunduzgi vaqti"
+        generic: "Yaponiya vaqti"
+        standard: "Yaponiya standart vaqti"
+    Kazakhstan_Eastern: 
+      long: 
+        standard: "Sharqiy Qozogʻiston vaqti"
+    Kazakhstan_Western: 
+      long: 
+        standard: "Gʻarbiy Qozogʻiston vaqti"
+    Korea: 
+      long: 
+        daylight: "Koreya kunduzgi vaqti"
+        generic: "Koreya vaqti"
+        standard: "Koreya standart vaqti"
+    Kosrae: 
+      long: 
+        standard: "Kosraye vaqti"
+    Krasnoyarsk: 
+      long: 
+        daylight: "Krasnoyarsk yozgi vaqti"
+        generic: "Krasnoyarsk vaqti"
+        standard: "Krasnoyarsk standart vaqti"
+    Kyrgystan: 
+      long: 
+        standard: "Qirgʻiziston vaqti"
+    Line_Islands: 
+      long: 
+        standard: "Layn orollari vaqti"
+    Lord_Howe: 
+      long: 
+        daylight: "Lord Xove kunduzgi vaqti"
+        generic: "Lord Xove vaqti"
+        standard: "Lord Xove standart vaqti"
+    Macquarie: 
+      long: 
+        standard: "Makvari oroli vaqti"
+    Magadan: 
+      long: 
+        daylight: "Magadan yozgi vaqti"
+        generic: "Magadan vaqti"
+        standard: "Magadan standart vaqti"
+    Malaysia: 
+      long: 
+        standard: "Malayziya vaqti"
+    Maldives: 
+      long: 
+        standard: "Maldiv orollar"
+    Marquesas: 
+      long: 
+        standard: "Markezas vaqti"
+    Marshall_Islands: 
+      long: 
+        standard: "Marshall orollari vaqti"
+    Mauritius: 
+      long: 
+        daylight: "Mavrikiy yozgi vaqti"
+        generic: "Mavrikiy vaqti"
+        standard: "Mavrikiy standart vaqti"
+    Mawson: 
+      long: 
+        standard: "Mouvson vaqti"
+    Mongolia: 
+      long: 
+        daylight: "Ulan-Bator yozgi vaqti"
+        generic: "Ulan-Bator vaqti"
+        standard: "Ulan-Bator standart vaqti"
+    Moscow: 
+      long: 
+        daylight: "Moskva yozgi vaqti"
+        generic: "Moskva vaqti"
+        standard: "Moskva standart vaqti"
+    Myanmar: 
+      long: 
+        standard: "Myanma vaqti"
+    Nauru: 
+      long: 
+        standard: "Nauru vaqti"
+    Nepal: 
+      long: 
+        standard: "Nepal vaqti"
+    New_Caledonia: 
+      long: 
+        daylight: "Yangi Kaledoniya yozgi vaqti"
+        generic: "Yangi Kaledoniya vaqti"
+        standard: "Yangi Kaledoniya standart vaqti"
+    New_Zealand: 
+      long: 
+        daylight: "Yangi Zelandiya kunduzgi vaqti"
+        generic: "Yangi Zelandiya vaqti"
+        standard: "Yangi Zelandiya standart vaqti"
+    Newfoundland: 
+      long: 
+        daylight: "Nyufaundlend kunduzgi vaqti"
+        generic: "Nyufaundlend vaqti"
+        standard: "Nyufaundlend standart vaqti"
+    Niue: 
+      long: 
+        standard: "Niuye vaqti"
+    Norfolk: 
+      long: 
+        standard: "Norfolk oroli vaqti"
+    Noronha: 
+      long: 
+        daylight: "Fernando de Noronya yozgi vaqti"
+        generic: "Fernando de Noronya vaqti"
+        standard: "Fernando de Noronya standart vaqti"
+    Novosibirsk: 
+      long: 
+        daylight: "Novosibirsk yozgi vaqti"
+        generic: "Novosibirsk vaqti"
+        standard: "Novosibirsk standart vaqti"
+    Omsk: 
+      long: 
+        daylight: "Omsk yozgi vaqti"
+        generic: "Omsk vaqti"
+        standard: "Omsk standart vaqti"
+    Pakistan: 
+      long: 
+        daylight: "Pokiston yozgi vaqti"
+        generic: "Pokiston vaqti"
+        standard: "Pokiston standart vaqti"
+    Palau: 
+      long: 
+        standard: "Palau vaqti"
+    Papua_New_Guinea: 
+      long: 
+        standard: "Papua-Yangi Gvineya vaqti"
+    Paraguay: 
+      long: 
+        daylight: "Paragvay yozgi vaqti"
+        generic: "Paragvay vaqti"
+        standard: "Paragvay standart vaqti"
+    Peru: 
+      long: 
+        daylight: "Peru yozgi vaqti"
+        generic: "Peru vaqti"
+        standard: "Peru standart vaqti"
+    Philippines: 
+      long: 
+        daylight: "Filippin yozgi vaqti"
+        generic: "Filippin vaqti"
+        standard: "Filippin standart vaqti"
+    Phoenix_Islands: 
+      long: 
+        standard: "Feniks orollari vaqti"
+    Pierre_Miquelon: 
+      long: 
+        daylight: "Sent-Pyer va Mikelon kunduzgi vaqti"
+        generic: "Sent-Pyer va Mikelon vaqti"
+        standard: "Sent-Pyer va Mikelon standart vaqti"
+    Pitcairn: 
+      long: 
+        standard: "Pitkern vaqti"
+    Ponape: 
+      long: 
+        standard: "Ponape vaqti"
+    Reunion: 
+      long: 
+        standard: "Reyunon vaqti"
+    Rothera: 
+      long: 
+        standard: "Rotera vaqti"
+    Sakhalin: 
+      long: 
+        daylight: "Saxalin yozgi vaqti"
+        generic: "Saxalin vaqti"
+        standard: "Saxalin standart vaqti"
+    Samoa: 
+      long: 
+        daylight: "Samoa kunduzgi vaqti"
+        generic: "Samoa vaqti"
+        standard: "Samoa standart vaqti"
+    Seychelles: 
+      long: 
+        standard: "Seyshel orollari vaqti"
+    Singapore: 
+      long: 
+        standard: "Singapur vaqti"
+    Solomon: 
+      long: 
+        standard: "Solomon orollari vaqti"
+    South_Georgia: 
+      long: 
+        standard: "Janubiy Djordjiya vaqti"
+    Suriname: 
+      long: 
+        standard: "Surinam vaqti"
+    Syowa: 
+      long: 
+        standard: "Sova vaqti"
+    Tahiti: 
+      long: 
+        standard: "Taiti vaqti"
+    Taipei: 
+      long: 
+        daylight: "Taypey kunduzgi vaqti"
+        generic: "Taypey vaqti"
+        standard: "Taypey standart vaqti"
+    Tajikistan: 
+      long: 
+        standard: "Tojikiston vaqti"
+    Tokelau: 
+      long: 
+        standard: "Tokelau vaqti"
+    Tonga: 
+      long: 
+        daylight: "Tonga yozgi vaqti"
+        generic: "Tonga vaqti"
+        standard: "Tonga standart vaqti"
+    Truk: 
+      long: 
+        standard: "Chuuk vaqti"
+    Turkmenistan: 
+      long: 
+        daylight: "Turkmaniston yozgi vaqti"
+        generic: "Turkmaniston vaqti"
+        standard: "Turkmaniston standart vaqti"
+    Tuvalu: 
+      long: 
+        standard: "Tuvalu vaqti"
+    Uruguay: 
+      long: 
+        daylight: "Urugvay yozgi vaqti"
+        generic: "Urugvay vaqti"
+        standard: "Urugvay standart vaqti"
+    Uzbekistan: 
+      long: 
+        daylight: "Oʻzbekiston yozgi vaqti"
+        generic: "Oʻzbekiston vaqti"
+        standard: "Oʻzbekiston standart vaqti"
+    Vanuatu: 
+      long: 
+        daylight: "Vanuatu yozgi vaqti"
+        generic: "Vanuatu vaqti"
+        standard: "Vanuatu standart vaqti"
+    Venezuela: 
+      long: 
+        standard: "Venesuela vaqti"
+    Vladivostok: 
+      long: 
+        daylight: "Vladivostok yozgi vaqti"
+        generic: "Vladivostok vaqti"
+        standard: "Vladivostok standart vaqti"
+    Volgograd: 
+      long: 
+        daylight: "Volgograd yozgi vaqti"
+        generic: "Volgograd vaqti"
+        standard: "Volgograd standart vaqti"
+    Vostok: 
+      long: 
+        standard: "Vostok vaqti"
+    Wake: 
+      long: 
+        standard: "Ueyk oroli vaqti"
+    Wallis: 
+      long: 
+        standard: "Uellis va Futuna vaqti"
+    Yakutsk: 
+      long: 
+        daylight: "Yakutsk yozgi vaqti"
+        generic: "Yakutsk vaqti"
+        standard: "Yakutsk standart vaqti"
+    Yekaterinburg: 
+      long: 
+        daylight: "Yekaterinburg yozgi vaqti"
+        generic: "Yekaterinburg vaqti"
+        standard: "Yekaterinburg standart vaqti"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Asia/Tashkent: 
+      city: Toshkent
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: Nomaʼlum
+    Europe/Dublin: 
+      long: 
+        daylight: "Irlandiya yozgi vaqti"
+    Europe/London: 
+      long: 
+        daylight: "Britaniya yozgi vaqti"
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

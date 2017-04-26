@@ -1,0 +1,219 @@
+shi-Latn: 
+  currencies: 
+    AED: 
+      one: "adrim n limarat"
+    AOA: 
+      one: "kwanza n angula"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "adular n ustralya"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "adinar n bḥrayn"
+    BIF: 
+      one: "frank n burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "abula n butswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "adular n kanada"
+      symbol: CA$
+    CDF: 
+      one: "frank n kungu"
+    CHF: 
+      one: "afrank n swisra"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "ayan n ccinwa"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "iskudu n kabbirdi"
+    DJF: 
+      one: "frank n djibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "adinar n dzayr"
+    EGP: 
+      one: "ajnih n miṣṛ"
+    ERN: 
+      one: "nafka n iritirya"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "bir n ityubya"
+    EUR: 
+      one: uru
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "ajnih astrlini n nngliz"
+      symbol: £
+    GHC: 
+      one: "sidi n ɣana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "dalasi n gambya"
+    GNS: 
+      one: "frank n ɣinya"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "arubi n lhind"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "ayan n lyaban"
+      symbol: JP¥
+    KES: 
+      one: "acilin n kinya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "frank n qumuṛ"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "adular n libirya"
+      symbol: $
+    LSL: 
+      one: "luti n liṣuṭu"
+    LYD: 
+      one: "adinar n libya"
+    MAD: 
+      one: "adrim n lmɣrib"
+    MGA: 
+      one: "frank n madaɣacqar"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "uqiyya n muṛiṭanya"
+    MUR: 
+      one: "arubi n muris"
+    MWK: 
+      one: "kwaca n malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "amitikl n muznbiq"
+    NAD: 
+      one: "adular n namibya"
+      symbol: $
+    NGN: 
+      one: "nayra n nijirya"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "afrank n rwanda"
+    SAR: 
+      one: "aryal n ssaɛudiya"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "arubi n ssicil"
+    SDG: 
+      one: "adinar n ssudan"
+    SDP: 
+      one: "ajnih n ssudan"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "ajnih n santilin"
+    SLL: 
+      one: liyun
+    SOS: 
+      one: "acilin n ṣṣumal"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "adubra n sanṭumi"
+    SZL: 
+      one: lilanjini
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "adinar n tuns"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "acilin n ṭanẓanya"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "acilin n uɣanda"
+    USD: 
+      one: "adular n iwunak imunn"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "frank ṣifa"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "frank ṣifa bisaw"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "arand n afriqya n iffus"
+    ZMK: 
+      one: "akwaca n zambya (1968–2012)"
+    ZMW: 
+      one: "akwaca n zambya"
+    ZWD: 
+      one: "adular n zimbabwi"

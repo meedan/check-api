@@ -1,0 +1,190 @@
+eo: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "MM-dd, E"
+        MMM: LLL
+        MMMEd: "MMM d, E"
+        MMMd: "MMM d"
+        Md: MM-dd
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: y-MM
+        yMEd: "y-MM-dd, E"
+        yMMM: "y MMM"
+        yMMMEd: "y MMM d, E"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "y QQQ"
+        yQQQQ: "y QQQQ"
+      days: 
+        format: 
+          abbreviated: 
+            fri: ve
+            mon: lu
+            sat: sa
+            sun: di
+            thu: ĵa
+            tue: ma
+            wed: me
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: vendredo
+            mon: lundo
+            sat: sabato
+            sun: dimanĉo
+            thu: ĵaŭdo
+            tue: mardo
+            wed: merkredo
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: F
+            mon: M
+            sat: S
+            sun: S
+            thu: T
+            tue: T
+            wed: W
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: aK
+          1: pK
+        name: 
+          0: ""
+        narrow: 
+          0: ""
+      fields: 
+        day: Day
+        dayperiod: Dayperiod
+        era: Era
+        hour: Hour
+        minute: Minute
+        month: Month
+        second: Second
+        week: Week
+        weekday: "Day of the Week"
+        year: Year
+        zone: Zone
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d-'a' 'de' MMMM y"
+          long: 
+            pattern: y-MMMM-dd
+          medium: 
+            pattern: y-MMM-dd
+          short: 
+            pattern: yy-MM-dd
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "H-'a' 'horo' 'kaj' m:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: jan
+            10: okt
+            11: nov
+            12: dec
+            2: feb
+            3: mar
+            4: apr
+            5: maj
+            6: jun
+            7: jul
+            8: aŭg
+            9: sep
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: januaro
+            10: oktobro
+            11: novembro
+            12: decembro
+            2: februaro
+            3: marto
+            4: aprilo
+            5: majo
+            6: junio
+            7: julio
+            8: aŭgusto
+            9: septembro
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: atm
+            pm: ptm
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: K1
+            2: K2
+            3: K3
+            4: K4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "1a kvaronjaro"
+            2: "2a kvaronjaro"
+            3: "3a kvaronjaro"
+            4: "4a kvaronjaro"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

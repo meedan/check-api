@@ -1,0 +1,218 @@
+mas: 
+  currencies: 
+    AED: 
+      one: "Iropiyianí ɔ́ɔ̄ lmarabu"
+    AOA: 
+      one: "Iropiyianí e Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Iropiyianí e Austria"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Iropiyianí e Bahareini"
+    BIF: 
+      one: "Iropiyianí e Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Iropiyianí e Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Iropiyianí e Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Iropiyianí e Kongo"
+    CHF: 
+      one: "Iropiyianí e Uswisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Iropiyianí e China"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Iropiyianí e Kepuvede"
+    DJF: 
+      one: "Iropiyianí e Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Iropiyianí e Algeria"
+    EGP: 
+      one: "Iropiyianí e Misri"
+    ERN: 
+      one: "Iropiyianí e Eritrea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Iropiyianí e Uhabeshi"
+    EUR: 
+      one: "Iropiyianí e yuro"
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Iropiyianí e Nkɨ́resa"
+      symbol: £
+    GHC: 
+      one: "Iropiyianí e Ghana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Iropiyianí e Gambia"
+    GNS: 
+      one: "Iropiyianí e Gine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Iropiyianí e India"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Iropiyianí e Japani"
+      symbol: JP¥
+    KES: 
+      one: "Iropiyianí e Kenya"
+      symbol: Ksh
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Iropiyianí e Komoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Iropiyianí e Liberia"
+      symbol: $
+    LSL: 
+      one: "Iropiyianí e Lesoto"
+    LYD: 
+      one: "Iropiyianí e Libya"
+    MAD: 
+      one: "Iropiyianí e Moroko"
+    MGA: 
+      one: "Iropiyianí e Bukini"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Iropiyianí e Moritania"
+    MUR: 
+      one: "Iropiyianí e Morisi"
+    MWK: 
+      one: "Iropiyianí e Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Iropiyianí e Msumbiji"
+    NAD: 
+      one: "Iropiyianí e Namibia"
+      symbol: $
+    NGN: 
+      one: "Iropiyianí e Nijeria"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Iropiyianí e Rwanda"
+    SAR: 
+      one: "Iropiyianí e Saudi"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Iropiyianí e Shelisheli"
+    SDG: 
+      one: "Iropiyianí e Sudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Iropiyianí e Santahelena"
+    SLL: 
+      one: "Iropiyianí e leoni"
+    SOS: 
+      one: "Iropiyianí e Somalia"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Iropiyianí e Saotome"
+    SZL: 
+      one: "Iropiyianí e lilangeni"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Iropiyianí e Tunisia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Iropiyianí e Tanzania"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Iropiyianí e Uganda"
+    USD: 
+      one: "Iropiyianí ɔ́ɔ̄ lamarekani"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Iropiyianí e CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Iropiyianí e CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Iropiyianí e Afrika Kusini"
+    ZMK: 
+      one: "Iropiyianí e Sambia (1968–2012)"
+    ZMW: 
+      one: "Iropiyianí e Sambia"
+    ZWD: 
+      one: "Iropiyianí e Simbabwe"

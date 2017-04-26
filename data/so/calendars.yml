@@ -1,0 +1,194 @@
+so: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Jim
+            mon: Isn
+            sat: Sab
+            sun: Axd
+            thu: Kha
+            tue: Tal
+            wed: Arb
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Jimco
+            mon: Isniin
+            sat: Sabti
+            sun: Axad
+            thu: Khamiis
+            tue: Talaado
+            wed: Arbaco
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: J
+            mon: I
+            sat: S
+            sun: A
+            thu: K
+            tue: T
+            wed: A
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: CK
+          1: CD
+        name: 
+          0: "Ciise ka hor (CS)"
+          1: "Ciise ka dib (CS)"
+        narrow: 
+          0: ""
+      fields: 
+        day: Maalin
+        dayperiod: sn./gn.
+        era: Qarni
+        hour: Saacad
+        minute: Daqiiqad
+        month: Bil
+        second: "Il biriqsi"
+        week: Toddobaad
+        weekday: "Maalinta toddobaadka"
+        year: Sanad
+        zone: "Xadka waqtiga"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, MMMM dd, y"
+          long: 
+            pattern: "dd MMMM y"
+          medium: 
+            pattern: dd-MMM-y
+          short: 
+            pattern: dd/MM/yy
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: Kob
+            10: Tob
+            11: KIT
+            12: LIT
+            2: Lab
+            3: Sad
+            4: Afr
+            5: Sha
+            6: Lix
+            7: Tod
+            8: Sid
+            9: Sag
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: "Bisha Koobaad"
+            10: "Bisha Tobnaad"
+            11: "Bisha Kow iyo Tobnaad"
+            12: "Bisha Laba iyo Tobnaad"
+            2: "Bisha Labaad"
+            3: "Bisha Saddexaad"
+            4: "Bisha Afraad"
+            5: "Bisha Shanaad"
+            6: "Bisha Lixaad"
+            7: "Bisha Todobaad"
+            8: "Bisha Sideedaad"
+            9: "Bisha Sagaalaad"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: K
+            10: T
+            11: K
+            12: L
+            2: L
+            3: S
+            4: A
+            5: S
+            6: L
+            7: T
+            8: S
+            9: S
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: sn.
+            pm: gn.
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: R1
+            2: R2
+            3: R3
+            4: R4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "Rubaca 1aad"
+            2: "Rubaca 2aad"
+            3: "Rubaca 3aad"
+            4: "Rubaca 4aad"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

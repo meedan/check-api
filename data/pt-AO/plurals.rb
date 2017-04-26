@@ -1,0 +1,1 @@
+{ :'pt_AO' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

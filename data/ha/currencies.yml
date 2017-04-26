@@ -1,0 +1,217 @@
+ha: 
+  currencies: 
+    AED: 
+      one: "Kuɗin Haɗaɗɗiyar Daular Larabawa"
+    AOA: 
+      one: "Kuɗin Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dalar Ostareliya"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Kuɗin Baharan"
+    BIF: 
+      one: "Kuɗin Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Kuɗin Baswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dalar Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Kuɗin Kongo"
+    CHF: 
+      one: "Kuɗin Suwizalan"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Kuɗin Caina/Sin"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Kuɗin Tsibiran Kap Barde"
+    DJF: 
+      one: "Kuɗin Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Kuɗin Aljeriya"
+    EGP: 
+      one: "Fam kin Masar"
+    ERN: 
+      one: "Kuɗin Eritireya"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Kuɗin Habasha"
+    EUR: 
+      one: Yuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Fam kin Ingila"
+      symbol: £
+    GHC: 
+      one: Cedi
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Kuɗin Gambiya"
+    GNS: 
+      one: "Kuɗin Gini"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Kuɗin Indiya"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Kuɗin Japan"
+      symbol: JP¥
+    KES: 
+      one: "Sulen Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Kuɗin Kwamoras"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dalar Laberiya"
+      symbol: $
+    LSL: 
+      one: "Kuɗin Lesoto"
+    LYD: 
+      one: "Kuɗin Libiya"
+    MAD: 
+      one: "Kuɗin Maroko"
+    MGA: 
+      one: "Kuɗin Madagaskar"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Kuɗin Moritaniya"
+    MUR: 
+      one: "Kuɗin Moritus"
+    MWK: 
+      one: "Kuɗin Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Kuɗin Mozambik"
+    NAD: 
+      one: "Dalar Namibiya"
+      symbol: $
+    NGN: 
+      one: Naira
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Kuɗin Ruwanda"
+    SAR: 
+      one: Riyal
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Kuɗin Saishal"
+    SDG: 
+      one: "Fam kin Sudan"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Fam kin San Helena"
+    SLL: 
+      one: "Kuɗin Salewo"
+    SOS: 
+      one: "Sulen Somaliya"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Kuɗin Sawo Tome da Paransip"
+    SZL: 
+      one: "Kuɗin Lilangeni"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Kuɗin Tunisiya"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Sulen Tanzaniya"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Sule Yuganda"
+    USD: 
+      one: "Dalar Amurka"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Kuɗin Sefa na Afirka Ta Tsakiya"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Kuɗin Sefa na Afirka Ta Yamma"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Kuɗin Afirka Ta Kudu"
+    ZMK: 
+      one: "Kuɗin Zambiya (1968–2012)"
+    ZMW: 
+      one: "Kuɗin Zambiya"
+    ZWD: 
+      one: "Dalar zimbabuwe"

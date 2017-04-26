@@ -1,0 +1,1413 @@
+km: 
+  metazones: 
+    Afghanistan: 
+      long: 
+        standard: ម៉ោង​នៅ​អាហ្វហ្គានីស្ថាន
+    Africa_Central: 
+      long: 
+        standard: ម៉ោង​នៅ​អាហ្វ្រិក​កណ្ដាល
+    Africa_Eastern: 
+      long: 
+        standard: ម៉ោង​នៅ​អាហ្វ្រិក​ខាង​កើត
+    Africa_Southern: 
+      long: 
+        standard: ម៉ោង​នៅ​អាហ្វ្រិក​ខាង​ត្បូង
+    Africa_Western: 
+      long: 
+        daylight: ម៉ោង​​រដូវ​ក្ដៅ​នៅ​អាហ្វ្រិក​​​ខាងលិច
+        generic: ម៉ោង​នៅ​អាហ្វ្រិក​ខាង​លិច
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អាហ្វ្រិក​ខាង​លិច
+    Alaska: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​​អាឡាស្កា
+        generic: ម៉ោង​នៅ​អាឡាស្កា
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អាឡាស្កា
+    Amazon: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អាម៉ាសូន រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អាម៉ាសូន
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អាម៉ាសូន
+    America_Central: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​ភាគ​កណ្ដាល​នៅ​អាមេរិក​ខាង​ជើង
+        generic: ម៉ោង​ភាគ​កណ្ដាល​នៅ​អាមេរិក​ខាង​ជើង
+        standard: ម៉ោង​ស្តង់ដារ​ភាគ​កណ្ដាល​នៅ​អាមេរិក​ខាង​ជើង
+    America_Eastern: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​ភាគខាង​ជើង​នៅ​អាមេរិក​ខាង​ត្បូង
+        generic: ម៉ោង​ភាគ​ខាង​កើត​នៅ​អាមេរិក​ខាង​ជើង
+        standard: ម៉ោង​ស្តង់ដារ​ភាគ​ខាង​កើត​នៅ​អាមេរិក​ខាង​ជើង
+    America_Mountain: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​តំបន់​ភ្នំ​អាមេរិក​ភាគ​ខាង​ជើង
+        generic: ម៉ោង​នៅ​តំបន់​ភ្នំ​អាមេរិក​ភាគ​ខាង​ជើង
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​តំបន់​ភ្នំ​អាមេរិក​ខាង​ជើង
+    America_Pacific: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​​ភាគ​ខាងលិច​នៅ​អាមេរិក​ភាគ​ខាង​ជើង
+        generic: ម៉ោង​ភាគ​ខាង​លិច​នៅ​អាមរិក​ខាង​ជើង
+        standard: ម៉ោង​ស្តង់ដារ​ភាគ​ខាង​លិច​នៅ​អាមេរិក​ខាង​ជើង
+    Arabian: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​អារ៉ាប់
+        generic: ម៉ោង​នៅ​អារ៉ាប់
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អារ៉ាប់
+    Argentina: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អាង់ទីន រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អាសង់ទីន
+        standard: ម៉ោង​​ស្តង់ដារ​នៅ​អាសង់ទីន
+    Argentina_Western: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អាសង់ទីន​​ខាង​លិច រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អាសង់​ទីន​​ខាង​លិច
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អាសង់ទីន​​ខាង​លិច
+    Armenia: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អាមេនី រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អាមេនី
+        standard: ម៉ោង​ស្ដង់ដារ​នៅ​អាមេនី
+    Atlantic: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​អាត្លង់ទិក
+        generic: ម៉ោង​នៅ​អាត្លង់ទិក
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អាត្លង់ទិក
+    Australia_Central: 
+      long: 
+        daylight: ម៉ោង​ពេលថ្ងៃ​​​​នៅ​អូស្ត្រាលី​កណ្ដាល
+        generic: ម៉ោង​នៅអូស្ត្រាលី​កណ្ដាល
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អូស្ត្រាលី​កណ្ដាល
+    Australia_CentralWestern: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​​ភាគ​ខាង​លិច​នៃ​អូស្ត្រាលី​ខាង​លិច
+        generic: ម៉ោង​ពេល​ថ្ងៃ​​ភាគ​ខាង​លិច​នៅ​អូស្ត្រាលី​កណ្ដាល
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ភាគ​ខាង​លិច​នៃ​អូស្ត្រាលី​កណ្ដាល
+    Australia_Eastern: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​អូស្ត្រាលី​ខាង​កើត
+        generic: ម៉ោង​ស្តងដារ​នៅ​អូស្ត្រាលី​ខាង​កើត
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អូស្ត្រាលី​ខាង​កើត
+    Australia_Western: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​អូស្ត្រាលី​ខាង​លិច
+        generic: ម៉ោង​​​នៅ​អូស្ត្រាលី​ខាង​លិច
+        standard: ម៉ោង​​ស្តង់ដារ​នៅ​អូស្ត្រាលី​ខាង​លិច
+    Azerbaijan: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អាស៊ែបៃហ្សង់ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អាស៊ែបៃហ្សង់
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អាស៊ែបៃហ្សង់
+    Azores: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អេហ្សស រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អេហ្សស
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អេហ្សស
+    Bangladesh: 
+      long: 
+        daylight: "ម៉ោង​នៅ​បង់ក្លាដែស រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​បង់ក្លាដែស
+        standard: ម៉ោង​ស្ដង់ដារ​នៅ​បង់ក្លាដែស
+    Bhutan: 
+      long: 
+        standard: ម៉ោង​នៅ​ប៊ូតង់
+    Bolivia: 
+      long: 
+        standard: ម៉ោង​នៅ​បូលីវី
+    Brasilia: 
+      long: 
+        daylight: ម៉ោង​នៅ​ប្រាស៊ីលីយ៉ា​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​ប្រាស៊ីលីយ៉ា
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ប្រាស៊ីលីយ៉ា
+    Brunei: 
+      long: 
+        standard: "ម៉ោង​នៅ​ដារូសាឡឹម ប្រុយណេ"
+    Cape_Verde: 
+      long: 
+        daylight: ម៉ោង​​រដូវ​ក្ដៅនៅ​កាប់វែរ
+        generic: ម៉ោង​នៅ​កាប់វែរ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​កាប់វែរ
+    Chamorro: 
+      long: 
+        standard: ម៉ោង​នៅ​ចាំម៉ូរ៉ូ
+    Chatham: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​ចាថាំ
+        generic: ម៉ោង​នៅ​ចាថាំ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ចាថាំ
+    Chile: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ស៊ីលី រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ស៊ីលី
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ស៊ីលី
+    China: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​ចិន
+        generic: ម៉ោង​នៅ​ចិន
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ចិន
+    Choibalsan: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ឆូបាល់សាន រដូច​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ឆូបាល់សាន
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ឆូបាល់សាន
+    Christmas: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​គ្រីស្មាស
+    Cocos: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​កូកូស
+    Colombia: 
+      long: 
+        daylight: "ម៉ោង​នៅ​កូឡុំប៊ី រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​កូឡុំប៊ី
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​កូឡុំប៊ី
+    Cook: 
+      long: 
+        daylight: ម៉ោង​នៅ​កោះ​ខូក​ពាក់កណ្ដាល​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​កោះ​ខូក
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​កោះ​ខូក
+    Cuba: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​គុយបា
+        generic: ម៉ោង​នៅ​គុយបា
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​គុយបា
+    Davis: 
+      long: 
+        standard: ម៉ោង​នៅ​ដាវីស
+    DumontDUrville: 
+      long: 
+        standard: ម៉ោង​នៅ​ឌុយម៉ុងដឺអ៊ុយវីល
+    East_Timor: 
+      long: 
+        standard: ម៉ោង​នៅ​​ទីម័រ​ខាង​កើត
+    Easter: 
+      long: 
+        daylight: "ម៉ោង​នៅ​កោះ​​ខាង​កើត រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​កោះ​​ខាង​កើត
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​កោះ​​​ខាង​កើត
+    Ecuador: 
+      long: 
+        standard: ម៉ោង​នៅ​អេក្វាទ័រ
+    Europe_Central: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អឺរ៉ុប​កណ្ដាល រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អឺរ៉ុប​កណ្ដាល
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អឺរ៉ុប​កណ្ដាល
+    Europe_Eastern: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អឺរ៉ុប​​ខាង​កើត​ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អឺរ៉ុប​​ខាង​កើត​
+        standard: ម៉ោង​ស្តង់ដារ​​នៅ​អឺរ៉ុប​​ខាង​កើត​
+    Europe_Western: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អឺរ៉ុប​ខាង​លិច រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អឺរ៉ុប​ខាង​លិច
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អឺរ៉ុប​ខាង​លិច
+    Falkland: 
+      long: 
+        daylight: "ម៉ោង​នៅ​កោះ​ហ្វក់ឡែន រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​កោះ​ហ្វក់ឡែន
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​កោះ​ហ្វក់ឡែន
+    Fiji: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ហ៊្វីជី ​រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ហ្វីជី
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ហ៊្វីជី
+    French_Guiana: 
+      long: 
+        standard: ម៉ោង​នៅ​ឃ្វីយ៉ាន​បារាំង
+    French_Southern: 
+      long: 
+        standard: "ម៉ោង​នៅ​អែតាឃីត និង​បារាំខាង​ត្បូង"
+    GMT: 
+      long: 
+        standard: ម៉ោងនៅគ្រីនវិច
+    Galapagos: 
+      long: 
+        standard: ម៉ោង​នៅ​កាឡាប៉ាកូស
+    Gambier: 
+      long: 
+        standard: ម៉ោង​នៅ​កាំបៀ
+    Georgia: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ហ្សកហ្ស៊ី ​រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ហ្សកហ្ស៊ី
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ហ្សកហ្ស៊ី
+    Gilbert_Islands: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​កីប៊ឺត
+    Greenland_Eastern: 
+      long: 
+        daylight: "ម៉ោង​​នៅ​ហ្គ្រោអង់ឡង់​​ខាង​កើត​ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​​នៅ​ហ្គ្រោអង់ឡង់
+        standard: ម៉ោង​​​ស្តង់ដារ​នៅ​ហ្គ្រោអង់ឡង់​​​ខាង​កើត
+    Greenland_Western: 
+      long: 
+        daylight: "ម៉ោង​​នៅ​ហ្គ្រោអង់ឡង់​ខាង​​លិច​ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​​នៅ​ហ្គ្រោអង់ឡង់​​ខាងលិច
+        standard: ម៉ោង​​​ស្តង់ដារ​នៅ​ហ្គ្រោអង់ឡង់​​ខាង​លិច
+    Gulf: 
+      long: 
+        standard: ម៉ោង​នៅ​កាល់
+    Guyana: 
+      long: 
+        standard: ម៉ោង​នៅ​ឃ្វីយ៉ាន
+    Hawaii_Aleutian: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​ហាវៃ-អាល់ដ្យូសិន
+        generic: ម៉ោង​​នៅ​ហាវៃ-អាល់ដ្យូសិន
+        standard: ម៉ោង​ស្តង់ដារ​​នៅ​ហាវៃ-អាល់ដ្យូសិន
+    Hong_Kong: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ហុងកុង រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ហុងកុង
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ហុងកុង
+    Hovd: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ហូវ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ហូវ
+        standard: ម៉ោង​ស្តង់ដារ​នៅហូវ
+    India: 
+      long: 
+        standard: ម៉ោង​នៅ​ឥណ្ឌា
+    Indian_Ocean: 
+      long: 
+        standard: ម៉ោង​នៅ​មហាសមុទ្រ​ឥណ្ឌា
+    Indochina: 
+      long: 
+        standard: ម៉ោង​នៅ​ឥណ្ឌូចិន
+    Indonesia_Central: 
+      long: 
+        standard: ម៉ោង​នៅ​ឥណ្ឌូណេស៊ី​​​កណ្ដាល
+    Indonesia_Eastern: 
+      long: 
+        standard: ម៉ោង​នៅ​ឥណ្ឌូណេស៊ី​​ខាង​កើត
+    Indonesia_Western: 
+      long: 
+        standard: ម៉ោង​នៅ​ឥណ្ឌូណេស៊ី​​ខាង​លិច
+    Iran: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​អ៊ីរ៉ង់
+        generic: ម៉ោង​នៅ​អ៊ីរ៉ង់
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អ៊ីរ៉ង់
+    Irkutsk: 
+      long: 
+        daylight: ម៉ោង​នៅ​អ៊ីគុត​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​អ៊ីគុត
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អ៊ីគុត
+    Israel: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​អ៊ីស្រាអែល
+        generic: ម៉ោង​នៅ​អ៊ីស្រាអែល
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អ៊ីស្រាអែល
+    Japan: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅជប៉ុន
+        generic: ម៉ោង​នៅ​ជប៉ុន
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ជប៉ុន
+    Kazakhstan_Eastern: 
+      long: 
+        standard: ម៉ោង​កាហ្សាក់ស្ថាន​​ខាង​កើត
+    Kazakhstan_Western: 
+      long: 
+        standard: ម៉ោង​នៅ​កាហ្សាក់ស្ថាន​ខាង​​​លិច
+    Korea: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​កូរ៉េ
+        generic: ម៉ោង​នៅ​កូរ៉េ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​កូរ៉េ
+    Kosrae: 
+      long: 
+        standard: ម៉ោង​នៅ​កូស្រៃ
+    Krasnoyarsk: 
+      long: 
+        daylight: ម៉ោង​នៅ​ក្រាណូយ៉ាស​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​ក្រាណូយ៉ាស
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ក្រាណូយ៉ាស
+    Kyrgystan: 
+      long: 
+        standard: ម៉ោង​នៅ​ឃឺកីស្តង់
+    Line_Islands: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​ឡាញ
+    Lord_Howe: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​ឡតហៅ
+        generic: ម៉ោង​នៅ​ឡតហៅ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ឡត​ហៅ
+    Macquarie: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​ម៉ាកគែរី
+    Magadan: 
+      long: 
+        daylight: ម៉ោង​នៅ​ម៉ាហ្កាដាន​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​ម៉ាហ្កាដាន
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ម៉ាហ្កាដាន
+    Malaysia: 
+      long: 
+        standard: ម៉ោង​នៅ​ម៉ាឡេស៊ី
+    Maldives: 
+      long: 
+        standard: ម៉ោង​នៅ​ម៉ាល់ឌីវ
+    Marquesas: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​ម៉ាគឺសាស់
+    Marshall_Islands: 
+      long: 
+        standard: ម៉ោង​នៅ​ម៉ាសាល
+    Mauritius: 
+      long: 
+        daylight: ម៉ោង​​រដូវ​ក្ដៅនៅ​ម៉ូរីស
+        generic: ម៉ោង​នៅ​ម៉ូរីស
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ម៉ូរីស
+    Mawson: 
+      long: 
+        standard: ម៉ោង​នៅ​ម៉ៅ​សាន់
+    Mongolia: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អ៊ូឡាន​បាទូ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អ៊ូឡាន​បាទូ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អ៊ូឡាន​បាទូ
+    Moscow: 
+      long: 
+        daylight: "ម៉ោង​នៅ​មូស្គូ​ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​មូស្គូ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​មូស្គូ
+    Myanmar: 
+      long: 
+        standard: ម៉ោង​នៅ​ភូមា
+    Nauru: 
+      long: 
+        standard: ម៉ោង​នៅ​ណូរូ
+    Nepal: 
+      long: 
+        standard: ម៉ោង​នៅ​ណេប៉ាល់
+    New_Caledonia: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ញូ​កាឡេដូនៀ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​កាឡេដូនៀ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​កាឡេដូនៀ
+    New_Zealand: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​នូវែលសេឡង់
+        generic: ម៉ោង​នៅ​នូវែលសេឡង់
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​នូវែលសេឡង់
+    Newfoundland: 
+      long: 
+        daylight: ម៉ោង​ពេលថ្ងៃ​នៅ​ញូហ្វោនឡែន
+        generic: ម៉ោង​​នៅ​ញូហ្វោនឡែន
+        standard: ម៉ោង​​ស្តង់ដារ​​នៅ​ញូហ្វោនឡែន
+    Niue: 
+      long: 
+        standard: ម៉ោងនៅ​ដ្យូអៀ
+    Norfolk: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​ន័រហ្វក់
+    Noronha: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ហ្វឺណាន់ដូ​ដឺណូរ៉ុនហា រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ហ្វឺណាន់ដូ​ដឺណូរ៉ុនហា
+        standard: ម៉ោង​​ស្តង់ដារ​នៅ​ហ្វឺណាន់ដូ​ដឺណូរ៉ុនហា
+    Novosibirsk: 
+      long: 
+        daylight: ម៉ោង​នៅ​ណូវ៉ូស៊ីប៊ីក​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​ណូវ៉ូស៊ីប៊ីក
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ណូវ៉ូស៊ីប៊ីក
+    Omsk: 
+      long: 
+        daylight: ម៉ោង​នៅ​អូម​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​អូម
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អូម
+    Pakistan: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ប៉ាគីស្ថាន រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ប៉ាគីស្ថាន
+        standard: ម៉ោង​ស្ដង់ដារ​នៅ​ប៉ាគីស្ថាន
+    Palau: 
+      long: 
+        standard: ម៉ោង​នៅ​ផាឡៅ
+    Papua_New_Guinea: 
+      long: 
+        standard: ម៉ោង​នៅ​ប៉ាបៅញូកីនៀ
+    Paraguay: 
+      long: 
+        daylight: "ម៉ោង​នៅប៉ារ៉ាហ្គាយ រដូវ"
+        generic: ម៉ោង​នៅ​ប៉ារ៉ាហ្គាយ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ប៉ារ៉ាហ្គាយ
+    Peru: 
+      long: 
+        daylight: "ម៉ោង​នៅ​ប៉េរូ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ប៉េរូ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ប៉េរូ
+    Philippines: 
+      long: 
+        daylight: "ម៉ោង​​នៅ​ហ្វីលីពីន រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​ហ្វីលីពីន
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​ហ្វីលីពីន
+    Phoenix_Islands: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​ផូនីក
+    Pierre_Miquelon: 
+      long: 
+        daylight: "ម៉ោង​ពេល​ថ្ងៃ​នៅសង់​ព្យែរ និង​មីគុយឡុង"
+        generic: "ម៉ោង​​​នៅសង់​ព្យែរ និង​មីគុយឡុង"
+        standard: "ម៉ោង​ស្តង់ដារ​នៅសង់​ព្យែរ និង​មីគុយឡុង"
+    Pitcairn: 
+      long: 
+        standard: ម៉ោង​នៅ​ភីឃឺន
+    Ponape: 
+      long: 
+        standard: ម៉ោង​នៅ​ប៉ូណាប់
+    Reunion: 
+      long: 
+        standard: ម៉ោង​នៅ​អ៊ុយនៀន
+    Rothera: 
+      long: 
+        standard: ម៉ោង​នៅ​រ៉ូធឺរ៉ា
+    Sakhalin: 
+      long: 
+        daylight: ម៉ោង​នៅ​សាក់ខាលីន​រដួវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​សាក់ខាលីន
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​សាក់ខាលីន
+    Samoa: 
+      long: 
+        daylight: "ម៉ោង​នៅ​សាម៉ៅ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​សាម៉ៅ
+        standard: ម៉ោង​ស្តង់ដារនៅ​សាម៉ៅ
+    Seychelles: 
+      long: 
+        standard: ម៉ោង​នៅ​សីស្ហែល
+    Singapore: 
+      long: 
+        standard: ម៉ោង​នៅ​សិង្ហបូរី
+    Solomon: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​សូឡូម៉ុន
+    South_Georgia: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះ​ហ្សកហ្ស៊ី
+    Suriname: 
+      long: 
+        standard: ម៉ោង​នៅ​សូរីណាម
+    Syowa: 
+      long: 
+        standard: ម៉ោង​នៅ​ស៊ីអូវ៉ា
+    Tahiti: 
+      long: 
+        standard: ម៉ោង​នៅ​តាហិទី
+    Taipei: 
+      long: 
+        daylight: ម៉ោង​ពេល​ថ្ងៃ​នៅ​តៃប៉ិ
+        generic: ម៉ោង​នៅ​តៃប៉ិ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​តៃប៉ិ
+    Tajikistan: 
+      long: 
+        standard: ម៉ោង​នៅ​តាស៊ីគីស្តង់
+    Tokelau: 
+      long: 
+        standard: ម៉ោង​នៅ​តូខេឡៅ
+    Tonga: 
+      long: 
+        daylight: "ម៉ោង​នៅ​តុងកា រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​តុងកា
+        standard: ម៉ោង​ស្តង់ដារ​​នៅ​តុងកា
+    Truk: 
+      long: 
+        standard: ម៉ោង​នៅ​ចូអុក
+    Turkmenistan: 
+      long: 
+        daylight: ម៉ោង​តួកម៉េនីស្ថាន​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​តួកម៉េនីស្ថាន
+        standard: ម៉ោង​ស្តង់ដារ​នៅតួកម៉េនីស្ថាន
+    Tuvalu: 
+      long: 
+        standard: ម៉ោង​នៅ​ទុយវ៉ាឡុ
+    Uruguay: 
+      long: 
+        daylight: ម៉ោង​នៅ​អ៊ុយរូហ្គាយ​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​អ៊ុយរូហ្គាយ
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អ៊ុយរូហ្គាយ
+    Uzbekistan: 
+      long: 
+        daylight: "ម៉ោង​នៅ​អ៊ូសបេគីស្ថាន រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​អ៊ូសបេគីស្ថាន
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អ៊ូសបេគីស្ថាន
+    Vanuatu: 
+      long: 
+        daylight: "ម៉ោង​នៅ​វ៉ានូទូ រដូវ​ក្ដៅ"
+        generic: ម៉ោង​នៅ​វ៉ានូទូ
+        standard: ម៉ោង​​ស្តង់ដារ​នៅ​វ៉ានូទូ
+    Venezuela: 
+      long: 
+        standard: ម៉ោង​នៅ​វ៉េណេស៊ុយអេឡា
+    Vladivostok: 
+      long: 
+        daylight: ម៉ោង​នៅ​វ៉្លាឌីវ៉ូស្តក​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​វ៉្លាឌីវ៉ូស្តក
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​វ៉្លាឌីវ៉ូស្តក
+    Volgograd: 
+      long: 
+        daylight: ម៉ោង​នៅ​វ៉ូហ្កាក្រាត​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​វ៉ូហ្កាក្រាត
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​វ៉ូហ្កាក្រាត
+    Vostok: 
+      long: 
+        standard: ម៉ោង​នៅ​វ័រស្តុក
+    Wake: 
+      long: 
+        standard: ម៉ោង​នៅ​កោះវេក
+    Wallis: 
+      long: 
+        standard: "ម៉ោង​នៅ​វ៉ាលីស និង​ផូទូណា"
+    Yakutsk: 
+      long: 
+        daylight: ម៉ោង​នៅ​យ៉ាគុត​រដូវ​ក្ដៅ
+        generic: ម៉ោង​នៅ​យ៉ាគុត
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​យ៉ាគុត
+    Yekaterinburg: 
+      long: 
+        daylight: ម៉ោង​នៅ​អ៊ិខាធឺរីនប៊័ក​រដួវ​​ក្ដៅ
+        generic: ម៉ោង​នៅ​អ៊ិខាធឺរីនប៊័ក
+        standard: ម៉ោង​ស្តង់ដារ​នៅ​អ៊ិខាធឺរីនប៊័ក
+  timezones: 
+    Africa/Abidjan: 
+      city: អាប៊ីដ្យាន
+    Africa/Accra: 
+      city: អាក្រា
+    Africa/Addis_Ababa: 
+      city: អាឌីសអាបេបា
+    Africa/Algiers: 
+      city: អាល់ហ្សេ
+    Africa/Asmera: 
+      city: អាស្មារ៉ា
+    Africa/Bamako: 
+      city: បាម៉ាកូ
+    Africa/Bangui: 
+      city: បង់ហ្គី
+    Africa/Banjul: 
+      city: បង់ហ្ស៊ុល
+    Africa/Bissau: 
+      city: ប៊ីស្សូ
+    Africa/Blantyre: 
+      city: ប្លាំងទីរ៉េ
+    Africa/Brazzaville: 
+      city: ប្រាស្ហាវីល
+    Africa/Bujumbura: 
+      city: ប៊ូយ៉ាំប៊ូរ៉ា
+    Africa/Cairo: 
+      city: គែរ
+    Africa/Casablanca: 
+      city: កាសាប្លាំងកា
+    Africa/Ceuta: 
+      city: ឈៀតា
+    Africa/Conakry: 
+      city: កូណាគ្រី
+    Africa/Dakar: 
+      city: ដាកា
+    Africa/Dar_es_Salaam: 
+      city: ដាអ៊ីសាឡាំ
+    Africa/Djibouti: 
+      city: ជីប៊ូទី
+    Africa/Douala: 
+      city: ឌូអ៊ូឡា
+    Africa/El_Aaiun: 
+      city: អែល​អ៊ុយញៀន
+    Africa/Freetown: 
+      city: ហ្វ្រីថោន
+    Africa/Gaborone: 
+      city: ហ្គាបូរ៉ូន
+    Africa/Harare: 
+      city: ហារ៉ារ៉េ
+    Africa/Johannesburg: 
+      city: ជូហានណេប៊ឺហ្គ
+    Africa/Juba: 
+      city: ជូបា
+    Africa/Kampala: 
+      city: កំប៉ាឡា
+    Africa/Khartoum: 
+      city: ខាទុំ
+    Africa/Kigali: 
+      city: គីហ្គាលី
+    Africa/Kinshasa: 
+      city: គីនស្ហាសា
+    Africa/Lagos: 
+      city: ឡាហ្គូស
+    Africa/Libreville: 
+      city: លីប្រីវីល
+    Africa/Lome: 
+      city: ឡូម៉េ
+    Africa/Luanda: 
+      city: លូអង់ដា
+    Africa/Lubumbashi: 
+      city: លូប៊ុមបាស៊ី
+    Africa/Lusaka: 
+      city: លូសាកា
+    Africa/Malabo: 
+      city: ម៉ាឡាបូ
+    Africa/Maputo: 
+      city: ម៉ាពុយតូ
+    Africa/Maseru: 
+      city: ម៉ាសេរុយ
+    Africa/Mbabane: 
+      city: បាបាន
+    Africa/Mogadishu: 
+      city: ម៉ូហ្គាឌីស្យូ
+    Africa/Monrovia: 
+      city: ម៉ុងរ៉ូវីយ៉ា
+    Africa/Nairobi: 
+      city: ណៃរ៉ូប៊ី
+    Africa/Ndjamena: 
+      city: ដ្យាមេណា
+    Africa/Niamey: 
+      city: នីញ៉ាម៉េ
+    Africa/Nouakchott: 
+      city: ណួកសុត
+    Africa/Ouagadougou: 
+      city: អៅហ្គាឌូហ្គូ
+    Africa/Porto-Novo: 
+      city: ព័រតូណូវ៉ូ
+    Africa/Sao_Tome: 
+      city: សៅតុំ
+    Africa/Tripoli: 
+      city: ទ្រីប៉ូលី
+    Africa/Tunis: 
+      city: ទុយនីស
+    Africa/Windhoek: 
+      city: វីនដុក
+    America/Adak: 
+      city: អាដាក
+    America/Anchorage: 
+      city: អង់ចូរ៉ាក
+    America/Anguilla: 
+      city: អង់ហ្គីឡា
+    America/Antigua: 
+      city: អង់ទីហ្គា
+    America/Araguaina: 
+      city: អារ៉ាហ្គុយណា
+    America/Argentina/La_Rioja: 
+      city: ឡារ៉យ៉ា
+    America/Argentina/Rio_Gallegos: 
+      city: រ៉យហ្គាឡេហ្គូស
+    America/Argentina/Salta: 
+      city: សាល់តា
+    America/Argentina/San_Juan: 
+      city: សាំងហ្សង់
+    America/Argentina/San_Luis: 
+      city: សានលូអ៊ីស
+    America/Argentina/Tucuman: 
+      city: ទូគូម៉ង់
+    America/Argentina/Ushuaia: 
+      city: អ៊ុយសូអៃ
+    America/Aruba: 
+      city: អារ៉ូបា
+    America/Asuncion: 
+      city: អាសង់ស្យុង
+    America/Bahia: 
+      city: បាហៀ
+    America/Bahia_Banderas: 
+      city: បាហៀបង់ដេរ៉ាស
+    America/Barbados: 
+      city: បាបាដុស
+    America/Belem: 
+      city: បេឡឹម
+    America/Belize: 
+      city: បេលី
+    America/Blanc-Sablon: 
+      city: ប្លង់​សាប់ឡុង
+    America/Boa_Vista: 
+      city: បៅ​វីស្តា
+    America/Bogota: 
+      city: បូហ្គោតា
+    America/Boise: 
+      city: ប៊ូអ៊ីសេ
+    America/Buenos_Aires: 
+      city: ប៊ុយណូស៊ែ
+    America/Cambridge_Bay: 
+      city: ខេមប្រីដបេ
+    America/Campo_Grande: 
+      city: ខេមបូហ្គ្រានឌី
+    America/Cancun: 
+      city: ខានខុន
+    America/Caracas: 
+      city: ការ៉ាកាស
+    America/Catamarca: 
+      city: កាតាម៉ាកា
+    America/Cayenne: 
+      city: ហ្គៃយ៉ាណេ
+    America/Cayman: 
+      city: កៃមែន
+    America/Chicago: 
+      city: ស៊ីកាកូ
+    America/Chihuahua: 
+      city: ជីហួហួ
+    America/Coral_Harbour: 
+      city: អាទីកូកាន
+    America/Cordoba: 
+      city: កូដូបា
+    America/Costa_Rica: 
+      city: កូស្តារីកា
+    America/Creston: 
+      city: ក្រេស្តុន
+    America/Cuiaba: 
+      city: គុយអាបា
+    America/Curacao: 
+      city: កូរ៉ាកៅ
+    America/Danmarkshavn: 
+      city: ដែនម៉ាក់ស្ហាវិន
+    America/Dawson: 
+      city: ដាវសុន
+    America/Dawson_Creek: 
+      city: ដាវសុន​ក្រិក
+    America/Denver: 
+      city: ដែនវើ
+    America/Detroit: 
+      city: ដេត្រូអ៊ីត
+    America/Dominica: 
+      city: ដូមីនីក
+    America/Edmonton: 
+      city: អែតម៉ុងតុង
+    America/Eirunepe: 
+      city: អ៊ីរ៉ុយណេភី
+    America/El_Salvador: 
+      city: អែលសាល់វ៉ាឌ័រ
+    America/Fortaleza: 
+      city: ហ្វ័រតាឡេហ្សារ
+    America/Glace_Bay: 
+      city: ក្លាស​បេ
+    America/Godthab: 
+      city: ហ្កូដតាអាប
+    America/Goose_Bay: 
+      city: កូសេបេ
+    America/Grand_Turk: 
+      city: ហ្គ្រេន​ទូក
+    America/Grenada: 
+      city: ហ្គ្រើណាដ
+    America/Guadeloupe: 
+      city: ហ្គោដេលូប៉េ
+    America/Guatemala: 
+      city: ក្វាតេម៉ាឡា
+    America/Guayaquil: 
+      city: ហ្គុយ៉ាហ្គីល
+    America/Guyana: 
+      city: ហ្គីយ៉ាន
+    America/Halifax: 
+      city: ហាលីហ្វាក
+    America/Havana: 
+      city: ឡាហាវ៉ាន
+    America/Hermosillo: 
+      city: ហ៊ែម៉ូស៊ីឡូ
+    America/Indiana/Knox: 
+      city: "ណុក ឥណ្ឌា"
+    America/Indiana/Marengo: 
+      city: "ម៉ារេនកូ ឥណ្ឌា"
+    America/Indiana/Petersburg: 
+      city: "ភីធើ​ប៊ឹក ឥណ្ឌា"
+    America/Indiana/Tell_City: 
+      city: "ថែល​ស៊ីធី ឥណ្ឌា"
+    America/Indiana/Vevay: 
+      city: "វេវ៉ៃ ឥណ្ឌា"
+    America/Indiana/Vincennes: 
+      city: "វិនសេណេស ឥណ្ឌា"
+    America/Indiana/Winamac: 
+      city: "វីណាម៉ាក់ ឥណ្ឌា"
+    America/Indianapolis: 
+      city: ឥណ្ឌាណាប៉ូលីស
+    America/Inuvik: 
+      city: អ៊ីនូវីក
+    America/Iqaluit: 
+      city: អ៊ីកាឡូអ៊ីត
+    America/Jamaica: 
+      city: ហ្សាម៉ាអ៊ីក
+    America/Jujuy: 
+      city: សូសុយ
+    America/Juneau: 
+      city: ហ្យូនៀ
+    America/Kentucky/Monticello: 
+      city: "ម៉ងទីសេឡូ កេនទូគី"
+    America/Kralendijk: 
+      city: ក្រាលែនឌីក
+    America/La_Paz: 
+      city: ឡាប៉ាស
+    America/Lima: 
+      city: លីម៉ា
+    America/Los_Angeles: 
+      city: ឡូអង់ហ្គិឡេស
+    America/Louisville: 
+      city: លូអ៊ីវីល
+    America/Lower_Princes: 
+      city: ឡូវើ​ព្រីន​ហ្គ័រទ័រ
+    America/Maceio: 
+      city: ម៉ាកសេអូ
+    America/Managua: 
+      city: ម៉ាណាហ្គា
+    America/Manaus: 
+      city: ម៉ាណាអ៊ូស
+    America/Marigot: 
+      city: ម៉ារីហ្គុត
+    America/Martinique: 
+      city: ម៉ាទីនីហ្គី
+    America/Matamoros: 
+      city: ម៉ាតាម៉ូរ៉ូស
+    America/Mazatlan: 
+      city: ម៉ាហ្សាតឡង់
+    America/Mendoza: 
+      city: ម៉ែនឌូហ្សា
+    America/Menominee: 
+      city: ម៉េណូមីនី
+    America/Merida: 
+      city: ម៉េរីដា
+    America/Metlakatla: 
+      city: "មេត្លា ឃែតឡា"
+    America/Mexico_City: 
+      city: ម៉ិកស៊ីកូ​ស៊ីធី
+    America/Miquelon: 
+      city: មីហ្គីឡុង
+    America/Moncton: 
+      city: ម៉ុងតុន
+    America/Monterrey: 
+      city: ម៉ុនតេរ៉េ
+    America/Montevideo: 
+      city: ម៉ុងតេវីដេអូ
+    America/Montreal: 
+      city: ម៉ុងទ្រីអាល់
+    America/Montserrat: 
+      city: ម៉ុងស៊ែរ៉ា
+    America/Nassau: 
+      city: ណាស្សូ
+    America/New_York: 
+      city: ញូយ៉ក
+    America/Nipigon: 
+      city: នីពីកុន
+    America/Nome: 
+      city: ណូម
+    America/Noronha: 
+      city: ណូរ៉ុនហា
+    America/North_Dakota/Beulah: 
+      city: "ប៊ឺឡា ដាកូតា​ខាង​ត្បូង"
+    America/North_Dakota/Center: 
+      city: "សីនធឺ ដាកូតា​ខាង​ជើង"
+    America/North_Dakota/New_Salem: 
+      city: "ញូ​សាឡឹម ដាកូតា​ខាង​ជើង"
+    America/Ojinaga: 
+      city: អូជីណាហ្កា
+    America/Panama: 
+      city: ប៉ាណាម៉ា
+    America/Pangnirtung: 
+      city: ប៉ាងនីទុង
+    America/Paramaribo: 
+      city: ប៉ារ៉ាម៉ារីបូ
+    America/Phoenix: 
+      city: ផូនីក
+    America/Port-au-Prince: 
+      city: ព័រអូប៉្រប៉ាំង
+    America/Port_of_Spain: 
+      city: ព័រអេស្ប៉ាញ
+    America/Porto_Velho: 
+      city: ព័រតូ​វិលហូ
+    America/Puerto_Rico: 
+      city: ព័រតូរីកូ
+    America/Rainy_River: 
+      city: រ៉េនីរីវើ
+    America/Rankin_Inlet: 
+      city: រ៉ាន់ឃីន​អ៊ីនឡិត
+    America/Recife: 
+      city: រ៉េស៊ីហ្វី
+    America/Regina: 
+      city: រ៉េកីណា
+    America/Resolute: 
+      city: រ៉េ​ស៊ូឡូត
+    America/Rio_Branco: 
+      city: រ៉ៃអូប្រានកូ
+    America/Santa_Isabel: 
+      city: សាន់តាអ៊ីសាប៊ែល
+    America/Santarem: 
+      city: សាន់តារឹម
+    America/Santiago: 
+      city: សាន់ត្យាហ្គោ
+    America/Santo_Domingo: 
+      city: សាន់ដូម៉ាំង
+    America/Sao_Paulo: 
+      city: សៅ​ប៉ូឡូ
+    America/Scoresbysund: 
+      city: ស្ករ៉េប៊ីសាន់
+    America/Shiprock: 
+      city: ស្ស៊ីបរ៉ុក
+    America/Sitka: 
+      city: ស៊ីតកា
+    America/St_Barthelemy: 
+      city: សាំង​បាធីលីម៉ី
+    America/St_Johns: 
+      city: សាំង​ចន
+    America/St_Kitts: 
+      city: សាំង​ឃីត
+    America/St_Lucia: 
+      city: សាំង​លូសៀ
+    America/St_Thomas: 
+      city: សាំង​តូម៉ាស់
+    America/St_Vincent: 
+      city: សាំង​វីនសេន
+    America/Swift_Current: 
+      city: ស្វីត​ខឺរិន
+    America/Tegucigalpa: 
+      city: តេហ្គូស៊ីហ្គាល់ប៉ា
+    America/Thule: 
+      city: ធុឡេ
+    America/Thunder_Bay: 
+      city: សាន់ដឺ​បេ
+    America/Tijuana: 
+      city: ទីយ្យូអាណា
+    America/Toronto: 
+      city: តូរ៉ុនតូ
+    America/Tortola: 
+      city: តូតូឡា
+    America/Vancouver: 
+      city: វ៉ាន់កូវើ
+    America/Whitehorse: 
+      city: វាយហស
+    America/Winnipeg: 
+      city: វីនីភិក
+    America/Yakutat: 
+      city: យ៉ាគូតាត
+    America/Yellowknife: 
+      city: យេឡូណៃ
+    Antarctica/Casey: 
+      city: កាសី
+    Antarctica/Davis: 
+      city: ដាវីស
+    Antarctica/DumontDUrville: 
+      city: ឌុយម៉ុងដឺអ៊ុយវីល
+    Antarctica/Macquarie: 
+      city: ម៉ាកខ្វារី
+    Antarctica/Mawson: 
+      city: ម៉ៅសាន់
+    Antarctica/McMurdo: 
+      city: ម៉ាក់មុយដូ
+    Antarctica/Palmer: 
+      city: ផាល់ម័រ
+    Antarctica/Rothera: 
+      city: រ៉ូធីរ៉ា
+    Antarctica/South_Pole: 
+      city: ប៉ូល​ខាង​ត្បូង
+    Antarctica/Syowa: 
+      city: ស៊ីយ៉ូវ៉ា
+    Antarctica/Vostok: 
+      city: វ៉ូស្តុក
+    Arctic/Longyearbyen: 
+      city: ឡុង​យ៉ា​ប៊ីយេន
+    Asia/Aden: 
+      city: អាដែន
+    Asia/Almaty: 
+      city: អាល់ម៉ាទី
+    Asia/Amman: 
+      city: អាម៉ាន់
+    Asia/Anadyr: 
+      city: អាណាឌី
+    Asia/Aqtau: 
+      city: អាកទូ
+    Asia/Aqtobe: 
+      city: អាកទូប៊ី
+    Asia/Ashgabat: 
+      city: អាសហ្គាបាត
+    Asia/Baghdad: 
+      city: បាកដាដ
+    Asia/Bahrain: 
+      city: បារ៉ែន
+    Asia/Baku: 
+      city: បាគូ
+    Asia/Bangkok: 
+      city: បាងកក
+    Asia/Beirut: 
+      city: បេរូត
+    Asia/Bishkek: 
+      city: ប៊ីស្កេក
+    Asia/Brunei: 
+      city: ប្រុយណេ
+    Asia/Calcutta: 
+      city: កុលកាតា
+    Asia/Choibalsan: 
+      city: ឈូបាល់សាន
+    Asia/Chongqing: 
+      city: ឆុងហ្គីង
+    Asia/Colombo: 
+      city: កូឡុំបូ
+    Asia/Damascus: 
+      city: ដាម៉ាស
+    Asia/Dhaka: 
+      city: ដាក្កា
+    Asia/Dili: 
+      city: ដេលី
+    Asia/Dubai: 
+      city: ឌុយបៃ
+    Asia/Dushanbe: 
+      city: ឌូស្ហាន់បេ
+    Asia/Gaza: 
+      city: កាសា
+    Asia/Harbin: 
+      city: ហាប៊ីន
+    Asia/Hebron: 
+      city: ហេវ័ន
+    Asia/Hong_Kong: 
+      city: ហុងកុង
+    Asia/Hovd: 
+      city: ហ
+    Asia/Irkutsk: 
+      city: អ៊ីឃឺត
+    Asia/Jakarta: 
+      city: ហ្សាការតា
+    Asia/Jayapura: 
+      city: យ៉ាវ៉ាភូរ៉ា
+    Asia/Jerusalem: 
+      city: ហ្ស៊េរុយសាឡិម
+    Asia/Kabul: 
+      city: កាប៊ុល
+    Asia/Kamchatka: 
+      city: កាំឆាតកា
+    Asia/Karachi: 
+      city: ការ៉ាជី
+    Asia/Kashgar: 
+      city: កាសហ្គារ
+    Asia/Katmandu: 
+      city: កដ្ឋមណ្ឌូ
+    Asia/Khandyga: 
+      city: ខាន់ឌីហ្គា
+    Asia/Krasnoyarsk: 
+      city: ក្រាសនុយ៉ាក
+    Asia/Kuala_Lumpur: 
+      city: គូឡាឡាំពួ
+    Asia/Kuching: 
+      city: ឃឺតចីង
+    Asia/Kuwait: 
+      city: កូវ៉ែត
+    Asia/Macau: 
+      city: ម៉ាកាវ
+    Asia/Magadan: 
+      city: ម៉ាហ្គាដាន
+    Asia/Makassar: 
+      city: ម៉ាកាសសារ
+    Asia/Manila: 
+      city: ម៉ានីល
+    Asia/Muscat: 
+      city: ម៉ាស្កាត
+    Asia/Nicosia: 
+      city: នីកូស៊ី
+    Asia/Novokuznetsk: 
+      city: ណូវ៉ូឃូសណេត
+    Asia/Novosibirsk: 
+      city: ណូវ៉ូស៊ីប៊ឺក
+    Asia/Omsk: 
+      city: អ៊ូម
+    Asia/Oral: 
+      city: អូរ៉ាល់
+    Asia/Phnom_Penh: 
+      city: ភ្នំពេញ
+    Asia/Pontianak: 
+      city: ប៉ុនទីអាណាក់
+    Asia/Pyongyang: 
+      city: ព្យុងយ៉ាង
+    Asia/Qatar: 
+      city: កាតា
+    Asia/Qyzylorda: 
+      city: កីស៊ីឡូដា
+    Asia/Rangoon: 
+      city: រ៉ង់ហ្គូន
+    Asia/Riyadh: 
+      city: រីយ៉ាដ
+    Asia/Saigon: 
+      city: ហូជីមីញ
+    Asia/Sakhalin: 
+      city: សាខាលីន
+    Asia/Samarkand: 
+      city: សាម៉ាកាន់
+    Asia/Seoul: 
+      city: សេអ៊ូល
+    Asia/Shanghai: 
+      city: សៀងហៃ
+    Asia/Singapore: 
+      city: សិង្ហបូរី
+    Asia/Taipei: 
+      city: តៃប៉ិ
+    Asia/Tashkent: 
+      city: តាស្កិន
+    Asia/Tbilisi: 
+      city: ប៊ីលីស៊ី
+    Asia/Tehran: 
+      city: តេហេរ៉ង់
+    Asia/Thimphu: 
+      city: ធីមភូ
+    Asia/Tokyo: 
+      city: តូក្យូ
+    Asia/Ulaanbaatar: 
+      city: អ៊ូឡង់បាទ័រ
+    Asia/Urumqi: 
+      city: អ៊ូរាំហ្គី
+    Asia/Ust-Nera: 
+      city: អ៊ូសណេរ៉ា
+    Asia/Vientiane: 
+      city: វៀងចន្ទន៍
+    Asia/Vladivostok: 
+      city: វ័រលាដីវ៉ូស្តុក
+    Asia/Yakutsk: 
+      city: យ៉ាកូត
+    Asia/Yekaterinburg: 
+      city: យ៉េកាធឺរិនប៊ើក
+    Asia/Yerevan: 
+      city: យ៉េរ៉េវ៉ាន់
+    Atlantic/Azores: 
+      city: អាសូរ៉េស
+    Atlantic/Bermuda: 
+      city: ប៉ឺមុយដា
+    Atlantic/Canary: 
+      city: កាណារី
+    Atlantic/Cape_Verde: 
+      city: កាប់វែរ
+    Atlantic/Faeroe: 
+      city: ហ្វារ៉ូ
+    Atlantic/Madeira: 
+      city: ម៉ាដៀរ៉ា
+    Atlantic/Reykjavik: 
+      city: រីក្យាវីក
+    Atlantic/South_Georgia: 
+      city: ហ្សកហ្ស៊ី​ខាង​ត្បូង
+    Atlantic/St_Helena: 
+      city: សាំងហេឡេណា
+    Atlantic/Stanley: 
+      city: ស្តង់លី
+    Australia/Adelaide: 
+      city: អាឌីឡៃ
+    Australia/Brisbane: 
+      city: ប្រីសបាណេ
+    Australia/Broken_Hill: 
+      city: ប្រូកខិនហីល
+    Australia/Currie: 
+      city: ខូរៀ
+    Australia/Darwin: 
+      city: ដាវីន
+    Australia/Eucla: 
+      city: អ៊ុយក្លា
+    Australia/Hobart: 
+      city: ហូបាត
+    Australia/Lindeman: 
+      city: លីនឌីម៉ែន
+    Australia/Lord_Howe: 
+      city: ឡតហូវ៉េ
+    Australia/Melbourne: 
+      city: ម៉ែលប៊ើន
+    Australia/Perth: 
+      city: ភឺធ
+    Australia/Sydney: 
+      city: ស៊ីតនី
+    Etc/Unknown: 
+      city: មិនស្គាល់
+    Europe/Amsterdam: 
+      city: អាំស្ទែដាំ
+    Europe/Andorra: 
+      city: អង់ដូរ៉ា
+    Europe/Athens: 
+      city: អាថែន
+    Europe/Belgrade: 
+      city: បែលក្រាដ
+    Europe/Berlin: 
+      city: បែរឡាំង
+    Europe/Bratislava: 
+      city: ប្រាទីសឡាវ៉ា
+    Europe/Brussels: 
+      city: ព្រុចសែល
+    Europe/Bucharest: 
+      city: ប៊ុយការ៉េស
+    Europe/Budapest: 
+      city: ប៊ុយដាប៉ែស
+    Europe/Busingen: 
+      city: ប៊ូស៊ីងហ្គែន
+    Europe/Chisinau: 
+      city: ជីស៊ីណូ
+    Europe/Copenhagen: 
+      city: កូប៉ិនហាក
+    Europe/Dublin: 
+      city: ឌុយប្លាំង
+      long: 
+        daylight: "ម៉ោង​នៅ​អៀរឡង់​ រដូវ​ក្ដៅ"
+    Europe/Gibraltar: 
+      city: ហ្ស៊ីប្រាល់តា
+    Europe/Guernsey: 
+      city: ហ្គេនស៊ី
+    Europe/Helsinki: 
+      city: ហែលស៊ិងគី
+    Europe/Isle_of_Man: 
+      city: អែលអុហ្វម៉ែន
+    Europe/Istanbul: 
+      city: អ៊ីស្តង់ប៊ុល
+    Europe/Jersey: 
+      city: ជេស៊ី
+    Europe/Kaliningrad: 
+      city: កាលីនីងហ្រ្គាដ
+    Europe/Kiev: 
+      city: កៀវ
+    Europe/Lisbon: 
+      city: លីសបោន
+    Europe/Ljubljana: 
+      city: ជូបហ្សាណា
+    Europe/London: 
+      city: ឡុងដ៍
+      long: 
+        daylight: "ម៉ោង​​នៅ​ចក្រភព​អង់គ្លេស រដូវ​ក្ដៅ"
+    Europe/Luxembourg: 
+      city: លុចសំបួ
+    Europe/Madrid: 
+      city: ម៉ាឌ្រីដ
+    Europe/Malta: 
+      city: ម៉ាល់តា
+    Europe/Mariehamn: 
+      city: ម៉ារៀហាំ
+    Europe/Minsk: 
+      city: មីនស្កិ៍
+    Europe/Monaco: 
+      city: ម៉ូណាកូ
+    Europe/Moscow: 
+      city: មូស្គូ
+    Europe/Oslo: 
+      city: អូស្លូ
+    Europe/Paris: 
+      city: ប៉ារីស
+    Europe/Podgorica: 
+      city: ប៉ូដហ្គោរីកា
+    Europe/Prague: 
+      city: ប្រាក
+    Europe/Riga: 
+      city: រីហ្គា
+    Europe/Rome: 
+      city: រ៉ូម
+    Europe/Samara: 
+      city: សាម៉ារ៉ា
+    Europe/San_Marino: 
+      city: សាំងម៉ារ៉ាំង
+    Europe/Sarajevo: 
+      city: សារ៉ាយ៉េវ៉ូ
+    Europe/Simferopol: 
+      city: ស៊ីមហ្វើរ៉ុប៉ូល
+    Europe/Skopje: 
+      city: ស្កុបជេ
+    Europe/Sofia: 
+      city: សូហ៊្វីយ៉ា
+    Europe/Stockholm: 
+      city: ស្តុកខុល
+    Europe/Tallinn: 
+      city: តាលិន
+    Europe/Tirane: 
+      city: ទីរ៉ាណេ
+    Europe/Uzhgorod: 
+      city: អ៊ុយហ្គោរ៉ូដ
+    Europe/Vaduz: 
+      city: វ៉ាឌូស
+    Europe/Vatican: 
+      city: បុរីវ៉ាទីកង់
+    Europe/Vienna: 
+      city: វីយែន
+    Europe/Vilnius: 
+      city: វីលនីញូស
+    Europe/Volgograd: 
+      city: វ៉ុលហ្គោហ្គ្រាដ
+    Europe/Warsaw: 
+      city: វ៉ាសូវី
+    Europe/Zagreb: 
+      city: សាគ្រែប
+    Europe/Zaporozhye: 
+      city: ហ្សាប៉ូរ៉ូហ្ស៊ីយ៉េ
+    Europe/Zurich: 
+      city: សូរីច
+    Indian/Antananarivo: 
+      city: អង់តាណាណារីវ
+    Indian/Chagos: 
+      city: កាហ្គោ
+    Indian/Christmas: 
+      city: គ្រីស្មាស
+    Indian/Cocos: 
+      city: កូកូស
+    Indian/Comoro: 
+      city: កូម័រ
+    Indian/Kerguelen: 
+      city: ឃឺហ្គុយឡែន
+    Indian/Mahe: 
+      city: ម៉ាហេ
+    Indian/Maldives: 
+      city: ម៉ាល់ឌីវ
+    Indian/Mauritius: 
+      city: ម៉ូរីស
+    Indian/Mayotte: 
+      city: ម៉ាយុត
+    Indian/Reunion: 
+      city: រេអ៊ុយ៉ុង
+    Pacific/Apia: 
+      city: អាពី
+    Pacific/Auckland: 
+      city: អាអ៊ុកឡែន
+    Pacific/Chatham: 
+      city: ចាថាំ
+    Pacific/Easter: 
+      city: អ៊ីស្ទ័រ
+    Pacific/Efate: 
+      city: អ៊ីហ្វាតេ
+    Pacific/Enderbury: 
+      city: អ៊ីនដឺប៊ូរី
+    Pacific/Fakaofo: 
+      city: ហ្វាកៅហ្វូ
+    Pacific/Fiji: 
+      city: ហ្វីជី
+    Pacific/Funafuti: 
+      city: ហ្វូណាហ្វូទី
+    Pacific/Galapagos: 
+      city: ហ្គាឡាប៉ាហ្គោស
+    Pacific/Gambier: 
+      city: ហ្គាំបៀ
+    Pacific/Guadalcanal: 
+      city: ហ្គាដាល់ខាណាល់
+    Pacific/Guam: 
+      city: ហ្គាំ
+    Pacific/Honolulu: 
+      city: ហូណូលូលូ
+    Pacific/Johnston: 
+      city: ចនស្តុន
+    Pacific/Kiritimati: 
+      city: គីរីទីម៉ាទី
+    Pacific/Kosrae: 
+      city: កូស្រាអ៊ី
+    Pacific/Kwajalein: 
+      city: ក្វាហ្សាលៀន
+    Pacific/Majuro: 
+      city: ម៉ាហ្សូរ៉ូ
+    Pacific/Marquesas: 
+      city: ម៉ាហ្គីសាស
+    Pacific/Midway: 
+      city: មីតវ៉េ
+    Pacific/Nauru: 
+      city: ណៅរ៉ូ
+    Pacific/Niue: 
+      city: នុយ
+    Pacific/Norfolk: 
+      city: ណ័រហ្វុក
+    Pacific/Noumea: 
+      city: ណូមៀ
+    Pacific/Pago_Pago: 
+      city: "ប៉ាហ្គោ ប៉ាហ្គោ"
+    Pacific/Palau: 
+      city: ប៉ាឡៅ
+    Pacific/Pitcairn: 
+      city: ភីតខៃរ៉ិន
+    Pacific/Ponape: 
+      city: ផុនប៉ី
+    Pacific/Port_Moresby: 
+      city: ព័រម៉ូរេសប៊ី
+    Pacific/Rarotonga: 
+      city: រ៉ារ៉ូតុងហ្គា
+    Pacific/Saipan: 
+      city: សៃប៉ាន
+    Pacific/Tahiti: 
+      city: តាហីទី
+    Pacific/Tarawa: 
+      city: តារ៉ាវ៉ា
+    Pacific/Tongatapu: 
+      city: តុងហ្គាតាពូ
+    Pacific/Truk: 
+      city: ឈូអុក
+    Pacific/Wake: 
+      city: វ៉ាគី
+    Pacific/Wallis: 
+      city: វ៉ាលីស

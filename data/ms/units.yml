@@ -1,0 +1,286 @@
+ms: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          other: "{0} daya g"
+        angle-arc-minute: 
+          other: "{0} minit"
+        angle-arc-second: 
+          other: "{0} saat"
+        angle-degree: 
+          other: "{0} darjah"
+        area-acre: 
+          other: "{0} ekar"
+        area-hectare: 
+          other: "{0} hektar"
+        area-square-foot: 
+          other: "{0} kaki persegi"
+        area-square-kilometer: 
+          other: "{0} kilometer persegi"
+        area-square-meter: 
+          other: "{0} meter persegi"
+        area-square-mile: 
+          other: "{0} batu persegi"
+        duration-day: 
+          other: "{0} hari"
+        duration-hour: 
+          other: "{0} jam"
+        duration-millisecond: 
+          other: "{0} milisaat"
+        duration-minute: 
+          other: "{0} minit"
+        duration-month: 
+          other: "{0} bulan"
+        duration-second: 
+          other: "{0} saat"
+        duration-week: 
+          other: "{0} minggu"
+        duration-year: 
+          other: "{0} tahun"
+        length-centimeter: 
+          other: "{0} sentimeter"
+        length-foot: 
+          other: "{0} kaki"
+        length-inch: 
+          other: "{0} inci"
+        length-kilometer: 
+          other: "{0} kilometer"
+        length-light-year: 
+          other: "{0} tahun cahaya"
+        length-meter: 
+          other: "{0} meter"
+        length-mile: 
+          other: "{0} batu"
+        length-millimeter: 
+          other: "{0} milimeter"
+        length-picometer: 
+          other: "{0} pikometer"
+        length-yard: 
+          other: "{0} ela"
+        mass-gram: 
+          other: "{0} gram"
+        mass-kilogram: 
+          other: "{0} kilogram"
+        mass-ounce: 
+          other: "{0} auns"
+        mass-pound: 
+          other: "{0} paun"
+        power-horsepower: 
+          other: "{0} kuasa kuda"
+        power-kilowatt: 
+          other: "{0} kilowatt"
+        power-watt: 
+          other: "{0} watt"
+        pressure-hectopascal: 
+          other: "{0} hektopascal"
+        pressure-inch-hg: 
+          other: "{0} inci raksa"
+        pressure-millibar: 
+          other: "{0} milibar"
+        speed-kilometer-per-hour: 
+          other: "{0} kilometer sejam"
+        speed-meter-per-second: 
+          other: "{0} meter sesaat"
+        speed-mile-per-hour: 
+          other: "{0} batu sejam"
+        temperature-celsius: 
+          other: "{0}darjah Celsius"
+        temperature-fahrenheit: 
+          other: "{0}darjah Fahrenheit"
+        volume-cubic-kilometer: 
+          other: "{0} kilometer padu"
+        volume-cubic-mile: 
+          other: "{0} batu padu"
+        volume-liter: 
+          other: "{0} liter"
+      narrow: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} ekar"
+        area-hectare: 
+          other: "{0} ha"
+        area-square-foot: 
+          other: "{0} ka²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} bt²"
+        duration-day: 
+          other: "{0} h"
+        duration-hour: 
+          other: "{0} j"
+        duration-millisecond: 
+          other: "{0} ms"
+        duration-minute: 
+          other: "{0} min"
+        duration-month: 
+          other: "{0} bln"
+        duration-second: 
+          other: "{0} s"
+        duration-week: 
+          other: "{0} mgu"
+        duration-year: 
+          other: "{0} thn"
+        length-centimeter: 
+          other: "{0} sm"
+        length-foot: 
+          other: "{0}'"
+        length-inch: 
+          other: "{0}\""
+        length-kilometer: 
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} t. chya"
+        length-meter: 
+          other: "{0} m"
+        length-mile: 
+          other: "{0} bt"
+        length-millimeter: 
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          other: "{0} ela"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} auns"
+        mass-pound: 
+          other: "{0} paun"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mb"
+        speed-kilometer-per-hour: 
+          other: "{0} kmj"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} bsj"
+        temperature-celsius: 
+          other: "{0}°"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} bt³"
+        volume-liter: 
+          other: "{0} l"
+      short: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0} min"
+        angle-arc-second: 
+          other: "{0} saat"
+        angle-degree: 
+          other: "{0} darjah"
+        area-acre: 
+          other: "{0} ekar"
+        area-hectare: 
+          other: "{0} ha"
+        area-square-foot: 
+          other: "{0} ka²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} bt²"
+        duration-day: 
+          other: "{0} hari"
+        duration-hour: 
+          other: "{0} j"
+        duration-millisecond: 
+          other: "{0} ms"
+        duration-minute: 
+          other: "{0} min"
+        duration-month: 
+          other: "{0} bln"
+        duration-second: 
+          other: "{0} saat"
+        duration-week: 
+          other: "{0} mgu"
+        duration-year: 
+          other: "{0} thn"
+        length-centimeter: 
+          other: "{0} sm"
+        length-foot: 
+          other: "{0} ka"
+        length-inch: 
+          other: "{0} in"
+        length-kilometer: 
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} thn cahaya"
+        length-meter: 
+          other: "{0} m"
+        length-mile: 
+          other: "{0} bt"
+        length-millimeter: 
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          other: "{0} ela"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} auns"
+        mass-pound: 
+          other: "{0} paun"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mb"
+        speed-kilometer-per-hour: 
+          other: "{0} kmj"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} bsj"
+        temperature-celsius: 
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} bt³"
+        volume-liter: 
+          other: "{0} l"

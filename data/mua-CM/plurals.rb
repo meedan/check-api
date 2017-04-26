@@ -1,0 +1,1 @@
+{ :'mua_CM' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

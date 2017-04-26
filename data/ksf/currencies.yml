@@ -1,0 +1,217 @@
+ksf: 
+  currencies: 
+    AED: 
+      one: "mɔni mǝ á bǝlɔŋ bǝ kaksa bɛ táatáaŋzǝn"
+    AOA: 
+      one: "mɔni mǝ á angóla"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "mɔni mǝ á ɔstralí"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "mɔni mǝ á barǝ́n"
+    BIF: 
+      one: "mɔni mǝ á burundí"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "mɔni mǝ á botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "mɔni mǝ á kanada"
+      symbol: CA$
+    CDF: 
+      one: "mɔni mǝ á kɔngó"
+    CHF: 
+      one: "mɔni mǝ á swís"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "mɔni mǝ á cín"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "mɔni mǝ á kapvɛr"
+    DJF: 
+      one: "mɔni mǝ á dyibutí"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "mɔni mǝ á aljɛrí"
+    EGP: 
+      one: "mɔni mǝ á ɛjípt"
+    ERN: 
+      one: "mɔni mǝ á ɛritrɛ́"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "mɔni mǝ á ɛtyɔpí"
+    EUR: 
+      one: "mɔni mǝ á pɛrɛsǝ́"
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "mɔni mǝ á ingɛrís"
+      symbol: £
+    GHC: 
+      one: "mɔni mǝ á gána"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "mɔni mǝ á gambí"
+    GNS: 
+      one: "mɔni mǝ á ginɛ́"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "mɔni mǝ á indí"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "mɔni mǝ á japɔ́ŋ"
+      symbol: JP¥
+    KES: 
+      one: "mɔni mǝ á kɛnya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "mɔni mǝ á komɔr"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "mɔni mǝ á libɛrya"
+      symbol: $
+    LSL: 
+      one: "mɔni mǝ á lǝsóto"
+    LYD: 
+      one: "mɔni mǝ á libí"
+    MAD: 
+      one: "mɔni mǝ á marɔk"
+    MGA: 
+      one: "mɔni mǝ á madagaska"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "mɔni mǝ á mwaritaní"
+    MUR: 
+      one: "mɔni mǝ á mwarís"
+    MWK: 
+      one: "mɔni mǝ á malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "mɔni mǝ á mosambík"
+    NAD: 
+      one: "mɔni mǝ á namibí"
+      symbol: $
+    NGN: 
+      one: "mɔni mǝ á nijɛ́rya"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "mɔni mǝ á rwanda"
+    SAR: 
+      one: "mɔni mǝ á arabí saodí"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "mɔni mǝ á sɛcɛl"
+    SDG: 
+      one: "mɔni mǝ á sudan"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "mɔni mǝ á sɛntɛ́len"
+    SLL: 
+      one: "mɔni mǝ á syɛraleon"
+    SOS: 
+      one: "mɔni mǝ á somalí"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "mɔni mǝ á saotomɛ́ ri priŋsib"
+    SZL: 
+      one: "mɔni mǝ á swazilan"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "mɔni mǝ á tunɛsí"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "mɔni mǝ á tanzaní"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "mɔni mǝ á uganda"
+    USD: 
+      one: "mɔni mǝ á amɛrika"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: fráŋ
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "mɔni mǝ á afríka aná wɛs"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "mɔni mǝ á afrik anǝ a sud"
+    ZMK: 
+      one: "mɔni mǝ á zambí (1968–2012)"
+    ZMW: 
+      one: "mɔni mǝ á zambí"
+    ZWD: 
+      one: "mɔni mǝ á zimbabwɛ́"

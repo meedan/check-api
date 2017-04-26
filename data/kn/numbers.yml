@@ -1,0 +1,61 @@
+kn: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "¤#,##0.00;(¤#,##0.00)"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 ಸಾವಿರ"
+            10000: "00 ಸಾವಿರ"
+            100000: "000 ಸಾವಿರ"
+            1000000: "0 ಮಿಲಿಯನ್"
+            10000000: "00 ಮಿಲಿಯನ್"
+            100000000: "000 ಮಿಲಿಯನ್"
+            1000000000: "0 ಬಿಲಿಯನ್"
+            10000000000: "00 ಬಿಲಿಯನ್"
+            100000000000: "000 ಬಿಲಿಯನ್"
+            1000000000000: "0 ಟ್ರಿಲಿಯನ್‌"
+            10000000000000: "00 ಟ್ರಿಲಿಯನ್‌"
+            100000000000000: "000 ಟ್ರಿಲಿಯನ್‌"
+          short: 
+            1000: 0K
+            10000: 00K
+            100000: 000K
+            1000000: 0M
+            10000000: 00M
+            100000000: 000M
+            1000000000: 0B
+            10000000000: 00B
+            100000000000: 000B
+            1000000000000: 0T
+            10000000000000: 00T
+            100000000000000: 000T
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: "."
+      exponential: ಈ
+      group: ","
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

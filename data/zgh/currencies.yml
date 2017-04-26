@@ -1,0 +1,220 @@
+zgh: 
+  currencies: 
+    AED: 
+      one: "ⴰⴷⵔⵉⵎ ⵏ ⵍⵉⵎⴰⵔⴰⵜ"
+    AOA: 
+      one: "ⴽⵡⴰⵏⵣⴰ ⵏ ⴰⵏⴳⵓⵍⴰ"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "ⴰⴷⵓⵍⴰⵔ ⵏ ⵓⵙⵜⵔⴰⵍⵢⴰ"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "ⴰⴷⵉⵏⴰⵔ ⵏ ⴱⵃⵔⴰⵢⵏ"
+    BIF: 
+      one: "ⴼⵔⴰⵏⴽ ⵏ ⴱⵓⵔⵓⵏⴷⵉ"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "ⴰⴱⵓⵍⴰ ⵏ ⴱⵓⵜⵙⵡⴰⵏⴰ"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "ⴰⴷⵓⵍⴰⵔ ⵏ ⴽⴰⵏⴰⴷⴰ"
+      symbol: CA$
+    CDF: 
+      one: "ⴼⵔⴰⵏⴽ ⵏ ⴽⵓⵏⴳⵓ"
+    CHF: 
+      one: "ⴰⴼⵔⴰⵏⴽ ⵏ ⵙⵡⵉⵙⵔⴰ"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "ⴰⵢⴰⵏ ⵏ ⵛⵛⵉⵏⵡⴰ"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "ⵉⵙⴽⵓⴷⵓ ⵏ ⴽⴰⴱⴱⵉⵔⴷⵉ"
+    DJF: 
+      one: "ⴼⵔⴰⵏⴽ ⵏ ⴷⵊⵉⴱⵓⵜⵉ"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "ⴰⴷⵉⵏⴰⵔ ⵏ ⴷⵣⴰⵢⵔ"
+    EGP: 
+      one: "ⴰⵊⵏⵉⵀ ⵏ ⵎⵉⵚⵕ"
+    ERN: 
+      one: "ⵏⴰⴼⴽⴰ ⵏ ⵉⵔⵉⵜⵉⵔⵢⴰ"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "ⴱⵉⵔ ⵏ ⵉⵜⵢⵓⴱⵢⴰ"
+    EUR: 
+      one: ⵓⵔⵓ
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "ⴰⵊⵏⵉⵀ ⴰⵙⵜⵔⵍⵉⵏⵉ ⵏ ⵏⵏⴳⵍⵉⵣ"
+      symbol: £
+    GHS: 
+      one: "ⵙⵉⴷⵉ ⵏ ⵖⴰⵏⴰ"
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "ⴷⴰⵍⴰⵙⵉ ⵏ ⴳⴰⵎⴱⵢⴰ"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "ⴰⵔⵓⴱⵉ ⵏ ⵍⵀⵉⵏⴷ"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "ⴰⵢⴰⵏ ⵏ ⵍⵢⴰⴱⴰⵏ"
+      symbol: JP¥
+    KES: 
+      one: "ⴰⵛⵉⵍⵉⵏ ⵏ ⴽⵉⵏⵢⴰ"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "ⴼⵔⴰⵏⴽ ⵏ ⵇⵓⵎⵓⵕ"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "ⴰⴷⵓⵍⴰⵔ ⵏ ⵍⵉⴱⵉⵔⵢⴰ"
+      symbol: $
+    LSL: 
+      one: "ⵍⵓⵜⵉ ⵏ ⵍⵉⵚⵓⵟⵓ"
+    LYD: 
+      one: "ⴰⴷⵉⵏⴰⵔ ⵏ ⵍⵉⴱⵢⴰ"
+    MAD: 
+      one: "ⴰⴷⵔⵉⵎ ⵏ ⵍⵎⵖⵔⵉⴱ"
+    MGA: 
+      one: "ⴼⵔⴰⵏⴽ ⵏ ⵎⴰⴷⴰⵖⴰⵛⵇⴰⵔ"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "ⵓⵇⵉⵢⵢⴰ ⵏ ⵎⵓⵕⵉⵟⴰⵏⵢⴰ"
+    MUR: 
+      one: "ⴰⵔⵓⴱⵉ ⵏ ⵎⵓⵔⵉⵙ"
+    MWK: 
+      one: "ⴽⵡⴰⵛⴰ ⵏ ⵎⴰⵍⴰⵡⵉ"
+    MXN: 
+      symbol: MX$
+    MZN: 
+      one: "ⴰⵎⵉⵜⵉⴽⵍ ⵏ ⵎⵓⵣⵏⴱⵉⵇ"
+    NAD: 
+      one: "ⴰⴷⵓⵍⴰⵔ ⵏ ⵏⴰⵎⵉⴱⵢⴰ"
+      symbol: $
+    NGN: 
+      one: "ⵏⴰⵢⵔⴰ ⵏ ⵏⵉⵊⵉⵔⵢⴰ"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "ⴰⴼⵔⴰⵏⴽ ⵏ ⵔⵡⴰⵏⴷⴰ"
+    SAR: 
+      one: "ⴰⵔⵢⴰⵍ ⵏ ⵙⵙⴰⵄⵓⴷⵉⵢⴰ"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "ⴰⵔⵓⴱⵉ ⵏ ⵙⵙⵉⵛⵉⵍ"
+    SDG: 
+      one: "ⴰⴷⵉⵏⴰⵔ ⵏ ⵙⵙⵓⴷⴰⵏ"
+    SDP: 
+      one: "ⴰⵊⵏⵉⵀ ⵏ ⵙⵙⵓⴷⴰⵏ"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "ⴰⵊⵏⵉⵀ ⵏ ⵙⴰⵏⵜⵉⵍⵉⵏ"
+    SLL: 
+      one: ⵍⵉⵢⵓⵏ
+    SOS: 
+      one: "ⴰⵛⵉⵍⵉⵏ ⵏ ⵚⵚⵓⵎⴰⵍ"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "ⴰⴷⵓⴱⵔⴰ ⵏ ⵙⴰⵏⵟⵓⵎⵉ"
+    SZL: 
+      one: ⵍⵉⵍⴰⵏⵊⵉⵏⵉ
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "ⴰⴷⵉⵏⴰⵔ ⵏ ⵜⵓⵏⵙ"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "ⴰⵛⵉⵍⵉⵏ ⵏ ⵟⴰⵏⵥⴰⵏⵢⴰ"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "ⴰⵛⵉⵍⵉⵏ ⵏ ⵓⵖⴰⵏⴷⴰ"
+    USD: 
+      one: "ⴰⴷⵓⵍⴰⵔ ⵏ ⵉⵡⵓⵏⴰⴽ ⵉⵎⵓⵏⵏ"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "ⴼⵔⴰⵏⴽ ⵚⵉⴼⴰ"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "ⴼⵔⴰⵏⴽ ⵚⵉⴼⴰ ⴱⵉⵙⴰⵡ"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "ⴰⵔⴰⵏⴷ ⵏ ⴰⴼⵔⵉⵇⵢⴰ ⵏ ⵉⴼⴼⵓⵙ"
+    ZMK: 
+      one: "ⴰⴽⵡⴰⵛⴰ ⵏ ⵣⴰⵎⴱⵢⴰ (1968–2012)"
+    ZMW: 
+      one: "ⴰⴽⵡⴰⵛⴰ ⵏ ⵣⴰⵎⴱⵢⴰ"
+    ZWD: 
+      one: "ⴰⴷⵓⵍⴰⵔ ⵏ ⵣⵉⵎⴱⴰⴱⵡⵉ (1980–2008)"
+    ZWL: 
+      one: "ⴰⴷⵓⵍⴰⵔ ⵏ ⵣⵉⵎⴱⴰⴱⵡⵉ (2009)"
+    ZWR: 
+      one: "ⴰⴷⵓⵍⴰⵔ ⵏ ⵣⵉⵎⴱⴰⴱⵡⵉ (2008)"

@@ -1,0 +1,9 @@
+ar-001: 
+  delimiters: 
+    quotes: 
+      alternate: 
+        end: ’
+        start: ‘
+      default: 
+        end: ”
+        start: “

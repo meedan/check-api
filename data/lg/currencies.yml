@@ -1,0 +1,220 @@
+lg: 
+  currencies: 
+    AED: 
+      one: "Diraamu eya Emireeti"
+    AOA: 
+      one: "Kwanza ey'Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Doola ey'Awusiturelya"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Dinaali ey'eBaareeni"
+    BIF: 
+      one: "Faranga ey'eburundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Pula ey'eBotiswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Doola ey'eKanada"
+      symbol: CA$
+    CDF: 
+      one: "Faranga ey'eKongo"
+    CHF: 
+      one: "Faranga ey'eSwitizirandi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Yuwani Reniminibi ey'eCayina"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Esikudo ey'Keepu Veredi"
+    DJF: 
+      one: "Faranga ey'eJjibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dinaali ey'Aligerya"
+    EGP: 
+      one: "Pawundi ey'eMisiri"
+    ERN: 
+      one: "Nakifa ey'Eritureya"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Biiru ey'Esyopya"
+    EUR: 
+      one: Yuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Pawundi ey'eBungereza"
+      symbol: £
+    GHC: 
+      one: "Sedi ey'eGana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dalasi ey'eGambya"
+    GNS: 
+      one: "Faranga ey'eGini"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupiya ey'eBuyindi"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yeni ey'eJapani"
+      symbol: JP¥
+    KES: 
+      one: "Silingi ey'eKenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Faranga ey'eKomoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Doola ey'eLiberya"
+      symbol: $
+    LSL: 
+      one: "Loti ey'eLesoso"
+    LYD: 
+      one: "Dinaali ey'eLibya"
+    MAD: 
+      one: "Diraamu ey'eMoroko"
+    MGA: 
+      one: "Faranga ey'eMalagase"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Wugwiya ey'eMawritenya"
+    MUR: 
+      one: "Rupiya ey'eMawurisyasi"
+    MWK: 
+      one: "Kwaca ey'eMalawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Metikaali ey'eMozambiiki"
+    NAD: 
+      one: "Doola ey'eNamibiya"
+      symbol: $
+    NGN: 
+      one: "Nayira ey'eNayijerya"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Faranga ey'eRwanda"
+    SAR: 
+      one: "Riyaali ey'eBuwarabu"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupiya ey'eSesere"
+    SDG: 
+      one: "Dinaali ey'eSudaani"
+    SDP: 
+      one: "Pawundi ey'eSudaani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Pawundi ey'eSenti Herena"
+    SLL: 
+      one: Lewone
+    SOS: 
+      one: "Silingi ey'eSomaliya"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dobura ey'eSantome ne Purincipe"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Dinaali ey'eTunizya"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Silingi ey'eTanzaniya"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Silingi eya Yuganda"
+      symbol: USh
+    USD: 
+      one: "Doola ey'Amerika"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Faranga ey'omu Afirika eya wakati"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Faranga ey'omu Afirika ey'ebugwanjuba"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Randi ey'eSawusafirika"
+    ZMK: 
+      one: "Kwaca ey'eZambya (1968–2012)"
+    ZMW: 
+      one: "Kwaca ey'eZambya"
+    ZWD: 
+      one: "Doola ey'eZimbabwe"

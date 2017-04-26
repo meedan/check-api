@@ -1,0 +1,1 @@
+{ :'ha_Latn_NE' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

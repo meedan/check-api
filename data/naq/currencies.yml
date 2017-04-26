@@ -1,0 +1,219 @@
+naq: 
+  currencies: 
+    AED: 
+      one: "United Arab Emirates Dirham"
+    AOA: 
+      one: "Angolan Kwanzab"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Australian Dollari"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Bahrain Dinar"
+    BIF: 
+      one: "Burundi Franc"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Botswanan Pulab"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Canadian Dollari"
+      symbol: CA$
+    CDF: 
+      one: "Congolese Franc"
+    CHF: 
+      one: "Swiss Franci"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Chinese Yuan Renminbi"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Escudo Caboverdiano"
+    DJF: 
+      one: "Djibouti Franc"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Algerian Dinar"
+    EGP: 
+      one: "Egytian Ponds"
+    ERN: 
+      one: "Eritreian Nakfa"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Ethiopian Birr"
+    EUR: 
+      one: Eurob
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "British Ponds"
+      symbol: £
+    GHC: 
+      one: "Ghana Cedi"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Gambia Dalasi"
+    GNS: 
+      one: "Guinea Franc"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Indian Rupee"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Japanese Yenni"
+      symbol: JP¥
+    KES: 
+      one: "Kenyan Shilling"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Comorian Franc"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Liberian Dollar"
+      symbol: $
+    LSL: 
+      one: "Lesotho Loti"
+    LYD: 
+      one: "Libyan Dinar"
+    MAD: 
+      one: "Moroccan Dirham"
+    MGA: 
+      one: "Malagasy Franc"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Mauritania Ouguiya"
+    MUR: 
+      one: "Mauritius Rupeeb"
+    MWK: 
+      one: "Malawian Kwachab"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Mozambique Metical"
+    NAD: 
+      one: "Namibia Dollari"
+      symbol: $
+    NGN: 
+      one: "Nigerian Naira"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Rwanda Franci"
+    SAR: 
+      one: "Saudi Riyal"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Seychelles Rupee"
+    SDG: 
+      one: "Sudanese Dinar"
+    SDP: 
+      one: "Sudanese Ponds"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "St Helena Ponds"
+    SLL: 
+      one: Leone
+    SOS: 
+      one: "Somali Shillings"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Sao Tome and Principe Dobra"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Tunisian Dinar"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Tanzanian Shillings"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Ugandan Shillings"
+    USD: 
+      one: "US Dollari"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "CFA Franc BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "CFA Franc BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "South African Randi"
+    ZMK: 
+      one: "Zambian Kwachab (1968–2012)"
+    ZMW: 
+      one: "Zambian Kwachab"
+    ZWD: 
+      one: "Zimbabwe Dollari"

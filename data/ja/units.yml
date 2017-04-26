@@ -1,0 +1,286 @@
+ja: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          other: "{0} G フォース"
+        angle-arc-minute: 
+          other: "{0} 分"
+        angle-arc-second: 
+          other: "{0} 秒"
+        angle-degree: 
+          other: "{0} 度"
+        area-acre: 
+          other: "{0} エーカー"
+        area-hectare: 
+          other: "{0} ヘクタール"
+        area-square-foot: 
+          other: "{0} 平方フィート"
+        area-square-kilometer: 
+          other: "{0} 平方キロメートル"
+        area-square-meter: 
+          other: "{0} 平方メートル"
+        area-square-mile: 
+          other: "{0} 平方マイル"
+        duration-day: 
+          other: "{0} 日"
+        duration-hour: 
+          other: "{0} 時間"
+        duration-millisecond: 
+          other: "{0} ミリ秒"
+        duration-minute: 
+          other: "{0} 分"
+        duration-month: 
+          other: "{0} か月"
+        duration-second: 
+          other: "{0} 秒"
+        duration-week: 
+          other: "{0} 週間"
+        duration-year: 
+          other: "{0} 年"
+        length-centimeter: 
+          other: "{0} センチメートル"
+        length-foot: 
+          other: "{0} フィート"
+        length-inch: 
+          other: "{0} インチ"
+        length-kilometer: 
+          other: "{0} キロメートル"
+        length-light-year: 
+          other: "{0} 光年"
+        length-meter: 
+          other: "{0} メートル"
+        length-mile: 
+          other: "{0} マイル"
+        length-millimeter: 
+          other: "{0} ミリメートル"
+        length-picometer: 
+          other: "{0} ピコメートル"
+        length-yard: 
+          other: "{0} ヤード"
+        mass-gram: 
+          other: "{0} グラム"
+        mass-kilogram: 
+          other: "{0} キログラム"
+        mass-ounce: 
+          other: "{0} オンス"
+        mass-pound: 
+          other: "{0} ポンド"
+        power-horsepower: 
+          other: "{0} 馬力"
+        power-kilowatt: 
+          other: "{0} キロワット"
+        power-watt: 
+          other: "{0} ワット"
+        pressure-hectopascal: 
+          other: "{0} ヘクトパスカル"
+        pressure-inch-hg: 
+          other: "{0} 水銀柱インチ"
+        pressure-millibar: 
+          other: "{0} ミリバール"
+        speed-kilometer-per-hour: 
+          other: "時速 {0} キロ"
+        speed-meter-per-second: 
+          other: "秒速 {0} メートル"
+        speed-mile-per-hour: 
+          other: "時速 {0} マイル"
+        temperature-celsius: 
+          other: "摂氏 {0} 度"
+        temperature-fahrenheit: 
+          other: "華氏 {0} 度"
+        volume-cubic-kilometer: 
+          other: "{0} 立方キロメートル"
+        volume-cubic-mile: 
+          other: "{0} 立法マイル"
+        volume-liter: 
+          other: "{0} リットル"
+      narrow: 
+        acceleration-g-force: 
+          other: "{0}G"
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0}ac"
+        area-hectare: 
+          other: "{0}ha"
+        area-square-foot: 
+          other: "{0}ft²"
+        area-square-kilometer: 
+          other: "{0}km²"
+        area-square-meter: 
+          other: "{0}m²"
+        area-square-mile: 
+          other: "{0}mi²"
+        duration-day: 
+          other: "{0}日"
+        duration-hour: 
+          other: "{0}時間"
+        duration-millisecond: 
+          other: "{0}ms"
+        duration-minute: 
+          other: "{0}分"
+        duration-month: 
+          other: "{0}か月"
+        duration-second: 
+          other: "{0}秒"
+        duration-week: 
+          other: "{0}週間"
+        duration-year: 
+          other: "{0}年"
+        length-centimeter: 
+          other: "{0}cm"
+        length-foot: 
+          other: "{0}′"
+        length-inch: 
+          other: "{0}″"
+        length-kilometer: 
+          other: "{0}km"
+        length-light-year: 
+          other: "{0}光年"
+        length-meter: 
+          other: "{0}m"
+        length-mile: 
+          other: "{0}マイル"
+        length-millimeter: 
+          other: "{0}mm"
+        length-picometer: 
+          other: "{0}pm"
+        length-yard: 
+          other: "{0}ヤード"
+        mass-gram: 
+          other: "{0}g"
+        mass-kilogram: 
+          other: "{0}kg"
+        mass-ounce: 
+          other: "{0}oz"
+        mass-pound: 
+          other: "{0}lb"
+        power-horsepower: 
+          other: "{0}hp"
+        power-kilowatt: 
+          other: "{0}kW"
+        power-watt: 
+          other: "{0}W"
+        pressure-hectopascal: 
+          other: "{0}hPa"
+        pressure-inch-hg: 
+          other: "{0}\" Hg"
+        pressure-millibar: 
+          other: "{0}mb"
+        speed-kilometer-per-hour: 
+          other: "{0}km/h"
+        speed-meter-per-second: 
+          other: "{0}m/s"
+        speed-mile-per-hour: 
+          other: "{0}mi/h"
+        temperature-celsius: 
+          other: "{0}°"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0}km³"
+        volume-cubic-mile: 
+          other: "{0}mi³"
+        volume-liter: 
+          other: "{0}l"
+      short: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0} 分"
+        angle-arc-second: 
+          other: "{0} 秒"
+        angle-degree: 
+          other: "{0} 度"
+        area-acre: 
+          other: "{0} エーカー"
+        area-hectare: 
+          other: "{0} ヘクタール"
+        area-square-foot: 
+          other: "{0} 平方フィート"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} 平方マイル"
+        duration-day: 
+          other: "{0} 日"
+        duration-hour: 
+          other: "{0} 時間"
+        duration-millisecond: 
+          other: "{0} ms"
+        duration-minute: 
+          other: "{0} 分"
+        duration-month: 
+          other: "{0} か月"
+        duration-second: 
+          other: "{0} 秒"
+        duration-week: 
+          other: "{0} 週間"
+        duration-year: 
+          other: "{0} 年"
+        length-centimeter: 
+          other: "{0} cm"
+        length-foot: 
+          other: "{0} フィート"
+        length-inch: 
+          other: "{0} インチ"
+        length-kilometer: 
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} 光年"
+        length-meter: 
+          other: "{0} m"
+        length-mile: 
+          other: "{0} マイル"
+        length-millimeter: 
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          other: "{0} ヤード"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} オンス"
+        mass-pound: 
+          other: "{0} ポンド"
+        power-horsepower: 
+          other: "{0} 馬力"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mb"
+        speed-kilometer-per-hour: 
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} mi/h"
+        temperature-celsius: 
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} mi³"
+        volume-liter: 
+          other: "{0} l"

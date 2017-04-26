@@ -1,0 +1,217 @@
+nn: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: {}
+        angle-arc-minute: {}
+        angle-arc-second: {}
+        angle-degree: {}
+        area-acre: {}
+        area-hectare: {}
+        area-square-foot: {}
+        area-square-kilometer: {}
+        area-square-meter: {}
+        area-square-mile: {}
+        duration-day: {}
+        duration-hour: {}
+        duration-millisecond: {}
+        duration-minute: {}
+        duration-month: {}
+        duration-second: {}
+        duration-week: {}
+        duration-year: {}
+        length-centimeter: {}
+        length-foot: {}
+        length-inch: {}
+        length-kilometer: {}
+        length-light-year: {}
+        length-meter: {}
+        length-mile: {}
+        length-millimeter: {}
+        length-picometer: {}
+        length-yard: {}
+        mass-gram: {}
+        mass-kilogram: {}
+        mass-ounce: {}
+        mass-pound: {}
+        power-horsepower: {}
+        power-kilowatt: {}
+        power-watt: {}
+        pressure-hectopascal: {}
+        pressure-inch-hg: {}
+        pressure-millibar: {}
+        speed-kilometer-per-hour: {}
+        speed-meter-per-second: {}
+        speed-mile-per-hour: {}
+        temperature-celsius: {}
+        temperature-fahrenheit: {}
+        volume-cubic-kilometer: {}
+        volume-cubic-mile: {}
+        volume-liter: {}
+      narrow: 
+        acceleration-g-force: {}
+        angle-arc-minute: {}
+        angle-arc-second: {}
+        angle-degree: {}
+        area-acre: 
+          one: "{0} ac"
+          other: "{0} ac"
+        area-hectare: {}
+        area-square-foot: 
+          one: "{0} ft²"
+          other: "{0} ft²"
+        area-square-kilometer: {}
+        area-square-meter: {}
+        area-square-mile: 
+          one: "{0} mi²"
+          other: "{0} mi²"
+        duration-day: {}
+        duration-hour: {}
+        duration-millisecond: {}
+        duration-minute: {}
+        duration-month: {}
+        duration-second: {}
+        duration-week: {}
+        duration-year: {}
+        length-centimeter: {}
+        length-foot: {}
+        length-inch: {}
+        length-kilometer: {}
+        length-light-year: {}
+        length-meter: {}
+        length-mile: 
+          one: "{0} mi"
+          other: "{0} mi"
+        length-millimeter: {}
+        length-picometer: {}
+        length-yard: 
+          one: "{0} yd"
+          other: "{0} yd"
+        mass-gram: {}
+        mass-kilogram: {}
+        mass-ounce: {}
+        mass-pound: {}
+        power-horsepower: {}
+        power-kilowatt: {}
+        power-watt: {}
+        pressure-hectopascal: {}
+        pressure-inch-hg: 
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: {}
+        speed-kilometer-per-hour: {}
+        speed-meter-per-second: {}
+        speed-mile-per-hour: 
+          one: "{0} mi/h"
+          other: "{0} mi/h"
+        temperature-celsius: {}
+        temperature-fahrenheit: {}
+        volume-cubic-kilometer: {}
+        volume-cubic-mile: 
+          one: "{0} mi³"
+          other: "{0} mi³"
+        volume-liter: {}
+      short: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          one: "{0} ac"
+          other: "{0} ac"
+        area-hectare: 
+          other: "{0} ha"
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          one: "{0} mi²"
+          other: "{0} mi²"
+        duration-day: 
+          other: "{0} d"
+        duration-hour: 
+          other: "{0} h"
+        duration-millisecond: 
+          other: "{0} ms"
+        duration-minute: 
+          other: "{0} min"
+        duration-month: 
+          other: "{0} m"
+        duration-second: 
+          other: "{0} s"
+        duration-week: 
+          other: "{0} w"
+        duration-year: 
+          other: "{0} y"
+        length-centimeter: 
+          other: "{0} cm"
+        length-foot: 
+          other: "{0} ft"
+        length-inch: 
+          other: "{0} in"
+        length-kilometer: 
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} ly"
+        length-meter: 
+          other: "{0} m"
+        length-mile: 
+          one: "{0} mi"
+          other: "{0} mi"
+        length-millimeter: 
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          one: "{0} yd"
+          other: "{0} yd"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} oz"
+        mass-pound: 
+          other: "{0} lb"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          one: "{0} mi/h"
+          other: "{0} mi/h"
+        temperature-celsius: 
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          one: "{0} mi³"
+          other: "{0} mi³"
+        volume-liter: 
+          other: "{0} l"

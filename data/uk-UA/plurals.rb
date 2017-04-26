@@ -1,0 +1,1 @@
+{ :'uk_UA' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

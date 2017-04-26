@@ -1,0 +1,1 @@
+{ :'rn_BI' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

@@ -1,0 +1,169 @@
+nn: 
+  metazones: 
+    Africa_Central: 
+      long: 
+        standard: "sentralafrikansk tid"
+    Africa_Eastern: 
+      long: 
+        standard: "austafrikansk tid"
+    Africa_Southern: 
+      long: 
+        standard: "sørafrikansk tid"
+    Africa_Western: 
+      long: 
+        daylight: "vestafrikansk sommartid"
+        generic: "vestafrikansk tid"
+        standard: "vestafrikansk standardtid"
+    Australia_Central: 
+      long: 
+        daylight: "sentralaustralsk sommartid"
+        generic: "sentralaustralsk tid"
+        standard: "sentralaustralsk standardtid"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "vest-sentralaustralsk sommartid"
+        generic: "vest-sentralaustralsk tid"
+        standard: "vest-sentralaustralsk standardtid"
+    Australia_Eastern: 
+      long: 
+        daylight: "austaustralsk sommartid"
+        generic: "austaustralsk tid"
+        standard: "austaustralsk standardtid"
+    Australia_Western: 
+      long: 
+        daylight: "vestaustralsk sommartid"
+        generic: "vestaustralsk tid"
+        standard: "vestaustralsk standardtid"
+    Europe_Central: 
+      long: 
+        daylight: "sentraleuropeisk sommartid"
+        generic: "sentraleuropeisk tid"
+        standard: "sentraleuropeisk standardtid"
+      short: 
+        daylight: CEST
+        generic: CET
+        standard: CET
+    Europe_Eastern: 
+      long: 
+        daylight: "austeuropeisk sommartid"
+        generic: "austeuropeisk tid"
+        standard: "austeuropeisk standardtid"
+      short: 
+        daylight: EEST
+        generic: EET
+        standard: EET
+    Europe_Western: 
+      long: 
+        daylight: "vesteuropeisk sommartid"
+        generic: "vesteuropeisk tid"
+        standard: "vesteuropeisk standardtid"
+      short: 
+        daylight: WEST
+        generic: WET
+        standard: WET
+    GMT: 
+      long: 
+        standard: "greenwich middeltid"
+      short: 
+        standard: GMT
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    Africa/Sao_Tome: 
+      city: "São Tomé"
+    America/Belem: 
+      city: Belém
+    America/Cancun: 
+      city: Cancún
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Curacao: 
+      city: Curaçao
+    America/Godthab: 
+      city: Godthåb
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/Mexico_City: 
+      city: "Mexico by"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, Nord-Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Antarctica/South_Pole: 
+      city: Sørpolen
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Hong_Kong: 
+      city: Hongkong
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh-byen"
+    Asia/Tashkent: 
+      city: Tasjkent
+    Asia/Ulaanbaatar: 
+      city: "Ulan Bator"
+    Atlantic/Azores: 
+      city: Azorane
+    Atlantic/Canary: 
+      city: Kanariøyane
+    Atlantic/Cape_Verde: 
+      city: "Kapp Verde"
+    Atlantic/Faeroe: 
+      city: Færøyane
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: ukjend
+    Europe/Copenhagen: 
+      city: København
+    Europe/Lisbon: 
+      city: Lisboa
+    Europe/Luxembourg: 
+      city: Luxemburg
+    Europe/Moscow: 
+      city: Moskva
+    Indian/Maldives: 
+      city: Maldivane
+    Indian/Reunion: 
+      city: Réunion
+    Pacific/Easter: 
+      city: Påskeøya
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

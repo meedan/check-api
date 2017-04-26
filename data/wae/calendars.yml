@@ -1,0 +1,259 @@
+wae: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "E d."
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: LLL
+        MEd: "E, d. MMM"
+        MMM: LLL
+        MMMEd: "E, d. MMM"
+        MMMd: "d. MMM"
+        Md: "d. MMM"
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: y-MM
+        yMEd: "y-MM-dd, E"
+        yMMM: "MMM y"
+        yMMMEd: "E, d. MMM y"
+        yMMMd: "d. MMM y"
+        yMd: y-MM-dd
+        yQQQ: "y QQQ"
+        yQQQQ: "y QQQQ"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Fri
+            mon: Män
+            sat: Sam
+            sun: Sun
+            thu: Fró
+            tue: Ziš
+            wed: Mit
+          narrow: 
+            fri: F
+            mon: M
+            sat: S
+            sun: S
+            thu: F
+            tue: Z
+            wed: M
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Fritag
+            mon: Mäntag
+            sat: Samštag
+            sun: Sunntag
+            thu: Fróntag
+            tue: Zištag
+            wed: Mittwuč
+        stand-alone: 
+          abbreviated: 
+            fri: Fri
+            mon: Män
+            sat: Sam
+            sun: Sun
+            thu: Fró
+            tue: Ziš
+            wed: Mit
+          narrow: 
+            fri: F
+            mon: M
+            sat: S
+            sun: S
+            thu: F
+            tue: Z
+            wed: M
+          short: :"calendars.gregorian.days.format.short"
+          wide: 
+            fri: Fritag
+            mon: Mäntag
+            sat: Samštag
+            sun: Sunntag
+            thu: Fróntag
+            tue: Zištag
+            wed: Mittwuč
+      eras: 
+        abbr: 
+          0: "v. Chr."
+          1: "n. Chr"
+        name: 
+          0: ""
+        narrow: 
+          0: ""
+      fields: 
+        day: Tag
+        dayperiod: AM/PM
+        era: Epoča
+        hour: Schtund
+        minute: Mínütta
+        month: Mánet
+        second: Sekunda
+        week: Wuča
+        weekday: Wučetag
+        year: Jár
+        zone: Zitzóna
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d. MMMM y"
+          long: 
+            pattern: "d. MMMM y"
+          medium: 
+            pattern: "d. MMM y"
+          short: 
+            pattern: y-MM-dd
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "HH:mm:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: Jen
+            10: Wím
+            11: Win
+            12: Chr
+            2: Hor
+            3: Mär
+            4: Abr
+            5: Mei
+            6: Brá
+            7: Hei
+            8: Öig
+            9: Her
+          narrow: 
+            1: J
+            10: W
+            11: W
+            12: C
+            2: H
+            3: M
+            4: A
+            5: M
+            6: B
+            7: H
+            8: Ö
+            9: H
+          wide: 
+            1: Jenner
+            10: Wímánet
+            11: Wintermánet
+            12: Chrištmánet
+            2: Hornig
+            3: Märze
+            4: Abrille
+            5: Meije
+            6: Bráčet
+            7: Heiwet
+            8: Öigšte
+            9: Herbštmánet
+        stand-alone: 
+          abbreviated: 
+            1: Jen
+            10: Wím
+            11: Win
+            12: Chr
+            2: Hor
+            3: Mär
+            4: Abr
+            5: Mei
+            6: Brá
+            7: Hei
+            8: Öig
+            9: Her
+          narrow: 
+            1: J
+            10: W
+            11: W
+            12: C
+            2: H
+            3: M
+            4: A
+            5: M
+            6: B
+            7: H
+            8: Ö
+            9: H
+          wide: 
+            1: Jenner
+            10: Wímánet
+            11: Wintermánet
+            12: Chrištmánet
+            2: Hornig
+            3: Märze
+            4: Abrille
+            5: Meije
+            6: Bráčet
+            7: Heiwet
+            8: Öigšte
+            9: Herbštmánet
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: AM
+            pm: PM
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: Q1
+            2: Q2
+            3: Q3
+            4: Q4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "1. quartal"
+            2: "2. quartal"
+            3: "3. quartal"
+            4: "4. quartal"
+        stand-alone: 
+          abbreviated: 
+            1: Q1
+            2: Q2
+            3: Q3
+            4: Q4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "1. quartal"
+            2: "2. quartal"
+            3: "3. quartal"
+            4: "4. quartal"

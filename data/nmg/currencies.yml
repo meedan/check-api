@@ -1,0 +1,219 @@
+nmg: 
+  currencies: 
+    AED: 
+      one: "Mɔn B ´Arabe"
+    AOA: 
+      one: "Mɔn Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dɔ́llɔ Ɔstralia"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Mɔn Bahrein"
+    BIF: 
+      one: "Fraŋ Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Mɔn Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dɔ́llɔ Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Fraŋ bó Kongolɛ̌"
+    CHF: 
+      one: "Fraŋ Suisse"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Mɔn bó Chinois"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Mɔn Kapvɛrt"
+    DJF: 
+      one: "Fraŋ Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Mɔn Algeria"
+    EGP: 
+      one: "Mɔn Ägyptɛn"
+    ERN: 
+      one: "Mɔn Erytré"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Mɔn Ethiopia"
+    EUR: 
+      one: Euro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Mɔn Ngɛ̄lɛ̄n"
+      symbol: £
+    GHC: 
+      one: "Mɔn Gana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Mɔn Gambia"
+    GNS: 
+      one: "Fraŋ Guiné"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Mɔn India"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Mɔn Japɔn"
+      symbol: JP¥
+    KES: 
+      one: "Mɔn Kɛnya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Fraŋ bó Kɔmɔr"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dɔ́llɔ Liberia"
+      symbol: $
+    LSL: 
+      one: "Mɔn Lesoto"
+    LYD: 
+      one: "Mɔn Libya"
+    MAD: 
+      one: "Mɔn Marɔk"
+    MGA: 
+      one: "Mɔn Madagaskar"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Mɔn Moritania"
+    MUR: 
+      one: "Mɔn Moriss"
+    MWK: 
+      one: "Mɔn Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Mɔn Mozambik"
+    NAD: 
+      one: "Dɔ́llɔ Namibia"
+      symbol: $
+    NGN: 
+      one: "Naïra Nigeria"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Fraŋ Rwanda"
+    SAR: 
+      one: "Mɔn Saudi Arabia"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Mɔn Seychɛlle"
+    SDG: 
+      one: "Mɔn Sudan"
+    SDP: 
+      one: "Mɔn Sudan (1957–1998)"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Mɔn má Saint Lina"
+    SLL: 
+      one: "Mɔn Leɔne"
+    SOS: 
+      one: "Mɔn Somalía"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Mɔn Sao tomé na prinship"
+    SZL: 
+      one: "Mɔn Ligangeni"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Mɔn Tunisia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Mɔn Tanzania"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Mɔn Uganda"
+    USD: 
+      one: "Dɔ́llɔ Amɛŕka"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Fraŋ CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Fraŋ CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Mɔn Afrik yí sí"
+    ZMK: 
+      one: "Mɔn Zambia (1968–2012)"
+    ZMW: 
+      one: "Mɔn Zambia"
+    ZWD: 
+      one: "Dɔ́llɔ Zimbabwǝ (1980–2008)"

@@ -1,0 +1,220 @@
+mfe: 
+  currencies: 
+    AED: 
+      one: "dirham Emira arab ini"
+    AOA: 
+      one: "kwanza angole"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "dolar ostralien"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "dinar bahreïn"
+    BIF: 
+      one: "fran burunde"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "pula ya botswane"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "dolar kanadien"
+      symbol: CA$
+    CDF: 
+      one: "fran kongole"
+    CHF: 
+      one: "fran swis"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "yuan renminbi sinwa"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "eskudo kapverdien"
+    DJF: 
+      one: "fran djiboutien"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "dinar alzerien"
+    EGP: 
+      one: "liv ezipsien"
+    ERN: 
+      one: "nafka erythreen"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "birr etiopien"
+    EUR: 
+      one: euro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "liv sterlin"
+      symbol: £
+    GHC: 
+      one: "sedi ganeen"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "dalasi gambien"
+    GNS: 
+      one: "fran gineen"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: roupi
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "yen zapone"
+      symbol: JP¥
+    KES: 
+      one: "shiling kenyan"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "fran komorien"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "dolar liberien"
+      symbol: $
+    LSL: 
+      one: "loti lezoto"
+    LYD: 
+      one: "dinar libien"
+    MAD: 
+      one: "dirham marokin"
+    MGA: 
+      one: "fran malgas"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "ouguiya moritanien"
+    MUR: 
+      one: "roupi morisien"
+      symbol: Rs
+    MWK: 
+      one: "kwacha malawit"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "metikal mozanbikin"
+    NAD: 
+      one: "dolar namibien"
+      symbol: $
+    NGN: 
+      one: "naira nizerian"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "fran rwande"
+    SAR: 
+      one: "rial saoudien"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "roupi seselwa"
+    SDG: 
+      one: "dinar soudane"
+    SDP: 
+      one: "liv soudane"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "liv Sainte-Hélène"
+    SLL: 
+      one: "leonn Sierra-Leone"
+    SOS: 
+      one: "shilingi somalien"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "dobra santomeen"
+    SZL: 
+      one: "lilangeni swazi"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "dinar tinizien"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "shiling tanzanien"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "shiling ougande"
+    USD: 
+      one: "dolar amerikin"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "fran CFA (BEAC)"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "fran CFA (BCEAO)"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "rand sid-afrikin"
+    ZMK: 
+      one: "kwacha zanbien (1968–2012)"
+    ZMW: 
+      one: "kwacha zanbien"
+    ZWD: 
+      one: "dolar zimbawe"

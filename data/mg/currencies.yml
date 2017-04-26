@@ -1,0 +1,220 @@
+mg: 
+  currencies: 
+    AED: 
+      one: Dirham
+    AOA: 
+      one: "kwanza angoley"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dolara aostralianina"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "dinar bahreïni"
+    BIF: 
+      one: "Farantsa Borondi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Pola botsoaney"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dôlara Kanadianina"
+      symbol: CA$
+    CDF: 
+      one: "Farantsa kôngôley"
+    CHF: 
+      one: "Farantsa soisa"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Yoan sinoa Renminbi"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: Escudo
+    DJF: 
+      one: "Farantsa Djibotianina"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dinara alzerianina"
+    EGP: 
+      one: "vola venty ejipsiana"
+    ERN: 
+      one: "Nakfà Eritreanina"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Bir etiopianina"
+    EUR: 
+      one: Eoro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "livre sterling"
+      symbol: £
+    GHC: 
+      one: cédi
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dalasi gambianina"
+    GNS: 
+      one: "Farantsa Gineanina"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Ropia Indianina"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yen Japoney"
+      symbol: JP¥
+    KES: 
+      one: "Shilling kenianina"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Farantsa Komorianina"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dôlara Liberianina"
+      symbol: $
+    LSL: 
+      one: Loti
+    LYD: 
+      one: "Dinara Libyanina"
+    MAD: 
+      one: "Dirham marokianina"
+    MGA: 
+      one: Ariary
+      symbol: Ar
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ouguiya moritanianina"
+    MUR: 
+      one: "Ropia maorisianina"
+    MWK: 
+      one: "kwacha malawite"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: Metikaly
+    NAD: 
+      one: "Dolara namibianina"
+      symbol: $
+    NGN: 
+      one: "Naira nigerianina"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Farantsa Roande"
+    SAR: 
+      one: "Rial saodianina"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Ropia Seysheloà"
+    SDG: 
+      one: "Dinara Sodaney"
+    SDP: 
+      one: "livre soudanaise (1956–2007)"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "livre de Sainte-Hélène"
+    SLL: 
+      one: Leone
+    SOS: 
+      one: "Shilling somalianina"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: Dobra
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Dinar tonizianina"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Shilling tanzanianina"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Shilling ogandianina"
+    USD: 
+      one: "Dolara amerikanina"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Farantsa CFA (BEAC)"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Farantsa CFA (BCEAO)"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Rand afrikanina tatsimo"
+    ZMK: 
+      one: "Kwacha zambianina (1968–2012)"
+    ZMW: 
+      one: "Kwacha zambianina"
+    ZWD: 
+      one: "Dôlara Zimbaboeanina"

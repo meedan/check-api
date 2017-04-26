@@ -1,0 +1,9 @@
+fr-TD: 
+  delimiters: 
+    quotes: 
+      alternate: 
+        end: ’
+        start: ‘
+      default: 
+        end: ”
+        start: “

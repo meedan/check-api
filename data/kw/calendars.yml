@@ -1,0 +1,186 @@
+kw: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "MM-dd, E"
+        MMM: LLL
+        MMMEd: "MMM d, E"
+        MMMd: "MMM d"
+        Md: MM-dd
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: y-MM
+        yMEd: "y-MM-dd, E"
+        yMMM: "y MMM"
+        yMMMEd: "y MMM d, E"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "y QQQ"
+        yQQQQ: "y QQQQ"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Gwe
+            mon: Lun
+            sat: Sad
+            sun: Sul
+            thu: Yow
+            tue: Mth
+            wed: Mhr
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: "De Gwener"
+            mon: "De Lun"
+            sat: "De Sadorn"
+            sun: "De Sul"
+            thu: "De Yow"
+            tue: "De Merth"
+            wed: "De Merher"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: F
+            mon: M
+            sat: S
+            sun: S
+            thu: T
+            tue: T
+            wed: W
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: RC
+          1: AD
+        name: 
+          0: ""
+        narrow: 
+          0: ""
+      fields: 
+        day: Dedh
+        dayperiod: AM/PM
+        era: Era
+        hour: Eur
+        minute: Minute
+        month: Mis
+        second: Second
+        week: Seythun
+        weekday: "Dedh an seythun"
+        year: Bledhen
+        zone: Zone
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "HH:mm:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: Gen
+            10: Hed
+            11: Du
+            12: Kev
+            2: Whe
+            3: Mer
+            4: Ebr
+            5: Me
+            6: Efn
+            7: Gor
+            8: Est
+            9: Gwn
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: "Mys Genver"
+            10: "Mys Hedra"
+            11: "Mys Du"
+            12: "Mys Kevardhu"
+            2: "Mys Whevrel"
+            3: "Mys Merth"
+            4: "Mys Ebrel"
+            5: "Mys Me"
+            6: "Mys Efan"
+            7: "Mys Gortheren"
+            8: "Mye Est"
+            9: "Mys Gwyngala"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: a.m.
+            pm: p.m.
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: :"calendars.gregorian.quarters.format.wide"
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: Q1
+            2: Q2
+            3: Q3
+            4: Q4
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

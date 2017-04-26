@@ -1,0 +1,273 @@
+lo: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "E, d"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "MMM, G y"
+        GyMMMEd: "E d MMMM, G y"
+        GyMMMd: "d MMMM, G y"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, d/M"
+        MMM: LLL
+        MMMEd: "E d MMM"
+        MMMd: "d MMM"
+        Md: d/M
+        d: d
+        h: "h ໂມງa"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, d/M/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, d MMM y"
+        yMMMd: "d MMM y"
+        yMd: d/M/y
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: ວັນສຸກ
+            mon: ວັນຈັນ
+            sat: ວັນເສົາ
+            sun: ວັນອາທິດ
+            thu: ວັນພະຫັດ
+            tue: ວັນອັງຄານ
+            wed: ວັນພຸດ
+          narrow: 
+            fri: 6
+            mon: 2
+            sat: 7
+            sun: 1
+            thu: 5
+            tue: 3
+            wed: 4
+          short: 
+            fri: ວັນສຸກ
+            mon: ວັນຈັນ
+            sat: ວັນເສົາ
+            sun: ວັນອາທິດ
+            thu: ວັນພະຫັດ
+            tue: ວັນອັງຄານ
+            wed: ວັນພຸດ
+          wide: 
+            fri: ວັນສຸກ
+            mon: ວັນຈັນ
+            sat: ວັນເສົາ
+            sun: ວັນອາທິດ
+            thu: ວັນພະຫັດ
+            tue: ວັນອັງຄານ
+            wed: ວັນພຸດ
+        stand-alone: 
+          abbreviated: 
+            fri: ວັນສຸກ
+            mon: ວັນຈັນ
+            sat: ວັນເສົາ
+            sun: ວັນອາທິດ
+            thu: ວັນພະຫັດ
+            tue: ວັນອັງຄານ
+            wed: ວັນພຸດ
+          narrow: 
+            fri: ​ສຸ
+            mon: ຈ
+            sat: ສ
+            sun: ທ
+            thu: ພ
+            tue: ຄ
+            wed: ​ພຸ
+          short: 
+            fri: ວັນສຸກ
+            mon: ຈັນ
+            sat: ເສົາ
+            sun: ອ.ທ.
+            thu: ພຫ
+            tue: ຄ
+            wed: ພ
+          wide: 
+            fri: ວັນສຸກ
+            mon: ວັນຈັນ
+            sat: ວັນເສົາ
+            sun: ວັນອາທິດ
+            thu: ວັນພະຫັດ
+            tue: ວັນອັງຄານ
+            wed: ວັນພຸດ
+      eras: 
+        abbr: 
+          0: "ກ່ອນ ຄ.ສ."
+          1: ຄ.ສ.
+        name: 
+          0: ""
+        narrow: 
+          0: ""
+      fields: 
+        day: ມື້
+        dayperiod: ກ່ອນທ່ຽງ/ຫຼັງທ່ຽງ
+        era: ສະໄໝ
+        hour: ຊົ່ວໂມງ
+        minute: ນາທີ
+        month: ເດືອນ
+        second: ວິນາທີ
+        week: ອາທິດ
+        weekday: ມື້ຂອງອາທິດ
+        year: ປີ
+        zone: ເຂດເວລາ
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE ທີ d MMMM G y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: d/M/y
+        datetime: 
+          full: 
+            pattern: "{{date}}, {{time}}"
+          long: 
+            pattern: "{{date}}, {{time}}"
+          medium: 
+            pattern: "{{date}}, {{time}}"
+          short: 
+            pattern: "{{date}}, {{time}}"
+        time: 
+          full: 
+            pattern: "H ໂມງ m ນາທີ ss ວິນາທີ zzzz"
+          long: 
+            pattern: "H ໂມງ m ນາທີ ss ວິນາທີ z"
+          medium: 
+            pattern: "H:mm:ss"
+          short: 
+            pattern: "H:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: ມ.ກ.
+            10: ຕ.ລ.
+            11: ພ.ຈ.
+            12: ທ.ວ.
+            2: ກ.ພ.
+            3: ມ.ນ.
+            4: ມ.ສ.
+            5: ພ.ພ.
+            6: ມິ.ຖ.
+            7: ກ.ລ.
+            8: ສ.ຫ.
+            9: ກ.ຍ.
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: 
+            1: ມັງກອນ
+            10: ຕຸລາ
+            11: ພະຈິກ
+            12: ທັນວາ
+            2: ກຸມພາ
+            3: ມີນາ
+            4: ເມສາ
+            5: ພຶດສະພາ
+            6: ມິຖຸນາ
+            7: ກໍລະກົດ
+            8: ສິງຫາ
+            9: ກັນຍາ
+        stand-alone: 
+          abbreviated: 
+            1: ມ.ກ.
+            10: ຕ.ລ.
+            11: ພ.ຈ.
+            12: ທ.ວ.
+            2: ກ.ພ.
+            3: ມ.ນ.
+            4: ມ.ສ.
+            5: ພ.ພ.
+            6: ມິ.ຖ.
+            7: ກ.ລ.
+            8: ສ.ຫ.
+            9: ກ.ຍ.
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: 
+            1: ມັງກອນ
+            10: ຕຸລາ
+            11: ພະຈິກ
+            12: ທັນວາ
+            2: ກຸມພາ
+            3: ມີນາ
+            4: ເມສາ
+            5: ພຶດສະພາ
+            6: ມິຖຸນາ
+            7: ກໍລະກົດ
+            8: ສິງຫາ
+            9: ກັນຍາ
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: ກ່ອນທ່ຽງ
+            pm: ຫຼັງທ່ຽງ
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: ຕມ1
+            2: ຕມ2
+            3: ຕມ3
+            4: ຕມ4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "ໄຕຣມາດ 1"
+            2: "ໄຕຣມາດ 2"
+            3: "ໄຕຣມາດ 3"
+            4: "ໄຕຣມາດ 4"
+        stand-alone: 
+          abbreviated: 
+            1: ຕ1
+            2: ຕ2
+            3: ຕ3
+            4: ຕ4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "ໄຕຣມາດ 1"
+            2: "ໄຕຣມາດ 2"
+            3: "ໄຕຣມາດ 3"
+            4: "ໄຕຣມາດ 4"

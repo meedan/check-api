@@ -1,0 +1,61 @@
+am: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "¤#,##0.00;(¤#,##0.00)"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 ሺ"
+            10000: "00 ሺ"
+            100000: "000 ሺ"
+            1000000: "0 ሚሊዮን"
+            10000000: "00 ሚሊዮን"
+            100000000: "000 ሚሊዮን"
+            1000000000: "0 ቢሊዮን"
+            10000000000: "00 ቢሊዮን"
+            100000000000: "000 ቢሊዮን"
+            1000000000000: "0 ትሪሊዮን"
+            10000000000000: "00 ትሪሊዮን"
+            100000000000000: "000 ትሪሊዮን"
+          short: 
+            1000: 0 ሺ
+            10000: 00 ሺ
+            100000: 000 ሺ
+            1000000: 0 ሜትር
+            10000000: 00 ሜትር
+            100000000: 000 ሜትር
+            1000000000: 0 ቢ
+            10000000000: 00 ቢ
+            100000000000: 000 ቢ
+            1000000000000: 0 ት
+            10000000000000: 00 ት
+            100000000000000: 000 ት
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: "."
+      exponential: E
+      group: ","
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

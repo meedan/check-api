@@ -1,0 +1,292 @@
+ast: 
+  metazones: 
+    Africa_Central: 
+      long: 
+        standard: "Hora d'África central"
+    Africa_Eastern: 
+      long: 
+        standard: "Hora d'África oriental"
+    Africa_Southern: 
+      long: 
+        standard: "Hora de Sudáfrica"
+    Africa_Western: 
+      long: 
+        daylight: "Hora de branu d'África occidental"
+        generic: "Hora d'África occidental"
+        standard: "Hora estándar d'África occidental"
+    Alaska: 
+      long: 
+        daylight: "Hora de branu d'Alaska"
+        generic: "Hora d'Alaska"
+        standard: "Hora estándar d'Alaska"
+    America_Central: 
+      long: 
+        daylight: "Hora de branu central norteamericana"
+        generic: "Hora central norteamericana"
+        standard: "Hora estándar central norteamericana"
+    America_Eastern: 
+      long: 
+        daylight: "Hora de branu del este norteamericanu"
+        generic: "Hora del este norteamericanu"
+        standard: "Hora estándar del este norteamericanu"
+    America_Mountain: 
+      long: 
+        daylight: "Hora de branu de les montañes norteamericanes"
+        generic: "Hora de les montañes norteamericanes"
+        standard: "Hora estándar de les montañes norteamericanes"
+    America_Pacific: 
+      long: 
+        daylight: "Hora de branu del Pacíficu norteamericanu"
+        generic: "Hora del Pacíficu norteamericanu"
+        standard: "Hora estándar del Pacíficu norteamericanu"
+    Azores: 
+      long: 
+        daylight: "Hora de branu de les Azores"
+        generic: "Hora de les Azores"
+        standard: "Hora estándar de les Azores"
+    Cape_Verde: 
+      long: 
+        daylight: "Hora de branu de Cabu Verde"
+        generic: "Hora de Cabu Verde"
+        standard: "Hora estándar de Cabu Verde"
+    Europe_Central: 
+      long: 
+        daylight: "Hora de branu d'Europa Central"
+        generic: "Hora d'Europa Central"
+        standard: "Hora estándar d'Europa Central"
+    Europe_Eastern: 
+      long: 
+        daylight: "Hora de branu d'Europa del Este"
+        generic: "Hora d'Europa del Este"
+        standard: "Hora estándar d'Europa del Este"
+    Europe_Western: 
+      long: 
+        daylight: "Hora de branu d'Europa Occidental"
+        generic: "Hora d'Europa Occidental"
+        standard: "Hora estándar d'Europa Occidental"
+    GMT: 
+      long: 
+        standard: "Hora media de Greenwich"
+    Irkutsk: 
+      long: 
+        daylight: "Hora de branu d'Irkutsk"
+        generic: "Hora d'Irkutsk"
+        standard: "Hora estándar d'Irkutsk"
+    Krasnoyarsk: 
+      long: 
+        daylight: "Hora de branu de Krasnoyarsk"
+        generic: "Hora de Krasnoyarsk"
+        standard: "Hora estándar de Krasnoyarsk"
+    Magadan: 
+      long: 
+        daylight: "Hora de branu de Magadán"
+        generic: "Hora de Magadán"
+        standard: "Hora estándar de Magadán"
+    Mauritius: 
+      long: 
+        daylight: "Hora de branu de Mauriciu"
+        generic: "Hora de Mauriciu"
+        standard: "Hora estándar de Mauriciu"
+    Moscow: 
+      long: 
+        daylight: "Hora de branu de Moscú"
+        generic: "Hora de Moscú"
+        standard: "Hora estándar de Moscú"
+    Novosibirsk: 
+      long: 
+        daylight: "Hora de branu de Novosibirsk"
+        generic: "Hora de Novosibirsk"
+        standard: "Hora estándar de Novosibirsk"
+    Omsk: 
+      long: 
+        daylight: "Hora de branu d'Omsk"
+        generic: "Hora d'Omsk"
+        standard: "Hora estándar d'Omsk"
+    Reunion: 
+      long: 
+        standard: "Hora de Reunión"
+    Sakhalin: 
+      long: 
+        daylight: "Hora de branu de Saxalín"
+        generic: "Hora de Saxalín"
+        standard: "Hora estándar de Saxalín"
+    Seychelles: 
+      long: 
+        standard: "Hora de Les Seixeles"
+    Vladivostok: 
+      long: 
+        daylight: "Hora de branu de Vladivostok"
+        generic: "Hora de Vladivostok"
+        standard: "Hora estándar de Vladivostok"
+    Volgograd: 
+      long: 
+        daylight: "Hora de branu de Volgográu"
+        generic: "Hora de Volgográu"
+        standard: "Hora estándar de Volgográu"
+    Yakutsk: 
+      long: 
+        daylight: "Hora de branu de Yakutsk"
+        generic: "Hora de Yakutsk"
+        standard: "Hora estándar de Yakutsk"
+    Yekaterinburg: 
+      long: 
+        daylight: "Hora de branu de Yekaterimburgu"
+        generic: "Hora de Yekaterimburgu"
+        standard: "Hora estándar de Yekaterimburgu"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    America/Anguilla: 
+      city: Anguila
+    America/Cancun: 
+      city: Cancún
+    America/Cayman: 
+      city: Caimán
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Godthab: 
+      city: Nuuk
+    America/Grenada: 
+      city: Granada
+    America/Guadeloupe: 
+      city: Guadalupe
+    America/Havana: 
+      city: "La Habana"
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Jamaica: 
+      city: Xamaica
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/Martinique: 
+      city: "La Martinica"
+    America/Merida: 
+      city: Mérida
+    America/Mexico_City: 
+      city: "Ciudá de Méxicu"
+    America/New_York: 
+      city: "Nueva York"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, Dakota del Norte"
+    America/North_Dakota/Center: 
+      city: "Center, Dakota del Norte"
+    America/North_Dakota/New_Salem: 
+      city: "Nueva Salem, Dakota del Norte"
+    America/Panama: 
+      city: Panamá
+    America/Port-au-Prince: 
+      city: "Puertu Príncipe"
+    America/Puerto_Rico: 
+      city: "Puertu Ricu"
+    America/Santo_Domingo: 
+      city: "Santu Domingu"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "Santa Llucía"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Azores: 
+      city: "Les Azores"
+    Atlantic/Canary: 
+      city: Canaries
+    Atlantic/Faeroe: 
+      city: "Islles Feroe"
+    Atlantic/Reykjavik: 
+      city: Reikiavik
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: "Ciudá desconocida"
+    Europe/Athens: 
+      city: Atenes
+    Europe/Belgrade: 
+      city: Belgráu
+    Europe/Berlin: 
+      city: Berlín
+    Europe/Brussels: 
+      city: Bruxeles
+    Europe/Bucharest: 
+      city: Bucarest
+    Europe/Chisinau: 
+      city: Quixináu
+    Europe/Copenhagen: 
+      city: Copenhague
+    Europe/Dublin: 
+      city: Dublín
+    Europe/Gibraltar: 
+      city: Xibraltar
+    Europe/Helsinki: 
+      city: Ḥélsinki
+    Europe/Isle_of_Man: 
+      city: "Islla de Man"
+    Europe/Jersey: 
+      city: Xerséi
+    Europe/Lisbon: 
+      city: Lisboa
+    Europe/Ljubljana: 
+      city: Liubliana
+    Europe/London: 
+      city: Londres
+    Europe/Luxembourg: 
+      city: Luxemburgu
+    Europe/Monaco: 
+      city: Mónacu
+    Europe/Paris: 
+      city: París
+    Europe/Prague: 
+      city: Praga
+    Europe/Rome: 
+      city: Roma
+    Europe/San_Marino: 
+      city: "San Marín"
+    Europe/Sarajevo: 
+      city: Sarayevu
+    Europe/Skopje: 
+      city: Skopie
+    Europe/Sofia: 
+      city: Sofía
+    Europe/Stockholm: 
+      city: Estocolmu
+    Europe/Tirane: 
+      city: Tirana
+    Europe/Vatican: 
+      city: "El Vaticanu"
+    Europe/Vienna: 
+      city: Viena
+    Europe/Warsaw: 
+      city: Varsovia
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

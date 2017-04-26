@@ -1,0 +1,1 @@
+{ :'kl_GL' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

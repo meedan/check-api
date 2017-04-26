@@ -1,0 +1,1433 @@
+he: 
+  metazones: 
+    Afghanistan: 
+      long: 
+        standard: "שעון אפגניסטן"
+    Africa_Central: 
+      long: 
+        standard: "שעון מרכז אפריקה"
+    Africa_Eastern: 
+      long: 
+        standard: "שעון מזרח אפריקה"
+    Africa_Southern: 
+      long: 
+        standard: "שעון דרום אפריקה"
+    Africa_Western: 
+      long: 
+        daylight: "שעון קיץ, מערב אפריקה"
+        generic: "שעון מערב אפריקה"
+        standard: "שעון רגיל מערב אפריקה"
+    Alaska: 
+      long: 
+        daylight: "שעון קיץ אלסקה"
+        generic: "שעון אלסקה"
+        standard: "שעון רגיל אלסקה"
+    Amazon: 
+      long: 
+        daylight: "שעון קיץ אזור האמזונס"
+        generic: "שעון אזור האמזונס"
+        standard: "שעון רגיל אזור האמזונס"
+    America_Central: 
+      long: 
+        daylight: "שעון קיץ, צפון אמריקה"
+        generic: "שעון מרכז ארה״ב (אמריקה/שיקגו)"
+        standard: "שעון רגיל מרכז ארה״ב"
+    America_Eastern: 
+      long: 
+        daylight: "שעון קיץ מזרח ארה״ב"
+        generic: "שעון החוף המזרחי"
+        standard: "שעון רגיל של החוף המזרחי"
+    America_Mountain: 
+      long: 
+        daylight: "שעון קיץ, אזור ההרים בארה״ב"
+        generic: "שעון אזור ההרים בארה״ב (דנוור)"
+        standard: "שעון רגיל אזור ההרים"
+    America_Pacific: 
+      long: 
+        daylight: "שעון קיץ, מערב ארה״ב (לוס אנג׳לס)"
+        generic: "שעון מערב ארה״ב (לוס אנג׳לס)"
+        standard: "שעון רגיל האוקיינוס השקט"
+    Anadyr: 
+      long: 
+        daylight: "שעון קיץ אנדיר"
+        generic: "שעון אנדיר"
+        standard: "שעון רגיל אנדיר"
+    Arabian: 
+      long: 
+        daylight: "שעון קיץ חצי האי ערב"
+        generic: "שעון חצי האי ערב"
+        standard: "שעון רגיל חצי האי ערב"
+    Argentina: 
+      long: 
+        daylight: "שעון קיץ ארגנטינה"
+        generic: "שעון ארגנטינה"
+        standard: "שעון רגיל ארגנטינה"
+    Argentina_Western: 
+      long: 
+        daylight: "שעון קיץ מערב ארגנטינה"
+        generic: "שעון מערב ארגנטינה"
+        standard: "שעון רגיל מערב ארגנטינה"
+    Armenia: 
+      long: 
+        daylight: "שעון קיץ ארמניה"
+        generic: "שעון ארמניה"
+        standard: "שעון רגיל ארמניה"
+    Atlantic: 
+      long: 
+        daylight: "שעון קיץ אטלנטי"
+        generic: "שעון אטלנטי"
+        standard: "שעון אטלנטי תקני"
+    Australia_Central: 
+      long: 
+        daylight: "שעון קיץ מרכז אוסטרליה"
+        generic: "שעון מרכז אוסטרליה"
+        standard: "שעון רגיל מרכז אוסטרליה"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "שעון קיץ מרכז מערב אוסטרליה"
+        generic: "שעון מרכז-מערב אוסטרליה"
+        standard: "שעון רגיל מרכז מערב אוסטרליה"
+    Australia_Eastern: 
+      long: 
+        daylight: "שעון קיץ מזרח אוסטרליה"
+        generic: "שעון מזרח אוסטרליה"
+        standard: "שעון רגיל מזרח אוסטרליה"
+    Australia_Western: 
+      long: 
+        daylight: "שעון קיץ מערב אוסטרליה"
+        generic: "שעון מערב אוסטרליה"
+        standard: "שעון רגיל מערב אוסטרליה"
+    Azerbaijan: 
+      long: 
+        daylight: "שעון קיץ אזרבייג׳אן"
+        generic: "שעון אזרבייג׳אן"
+        standard: "שעון רגיל אזרבייג׳אן"
+    Azores: 
+      long: 
+        daylight: "שעון קיץ אזורס"
+        generic: "שעון אזורס"
+        standard: "שעון רגיל אזורס"
+    Bangladesh: 
+      long: 
+        daylight: "שעון קיץ בנגלדש"
+        generic: "שעון בנגלדש"
+        standard: "שעון רגיל בנגלדש"
+    Bhutan: 
+      long: 
+        standard: "שעון בהוטן"
+    Bolivia: 
+      long: 
+        standard: "שעון בוליביה"
+    Brasilia: 
+      long: 
+        daylight: "שעון קיץ ברזיליה"
+        generic: "שעון ברזיליה"
+        standard: "שעון רגיל ברזיליה"
+    Brunei: 
+      long: 
+        standard: "שעון ברוניי דארוסלאם"
+    Cape_Verde: 
+      long: 
+        daylight: "שעון קיץ קייפ ורדה"
+        generic: "שעון קייפ ורדה"
+        standard: "שעון רגיל קייפ ורדה"
+    Chamorro: 
+      long: 
+        standard: "שעון צ׳אמורו"
+    Chatham: 
+      long: 
+        daylight: "שעון קיץ צ׳טהאם"
+        generic: "שעון צ׳טהאם"
+        standard: "שעון רגיל צ׳טהאם"
+    Chile: 
+      long: 
+        daylight: "שעון קיץ צ׳ילה"
+        generic: "שעון צ׳ילה"
+        standard: "שעון רגיל צ׳ילה"
+    China: 
+      long: 
+        daylight: "שעון קיץ סין"
+        generic: "שעון סין"
+        standard: "שעון חורף סין"
+    Choibalsan: 
+      long: 
+        daylight: "שעון קיץ צ׳ויבלסן"
+        generic: "שעון צ׳ויבלסן"
+        standard: "שעון רגיל צ׳ויבלסן"
+    Christmas: 
+      long: 
+        standard: "שעון אי חג המולד"
+    Cocos: 
+      long: 
+        standard: "שעון איי קוקוס"
+    Colombia: 
+      long: 
+        daylight: "שעון קיץ קולומביה"
+        generic: "שעון קולומביה"
+        standard: "שעון רגיל קולומביה"
+    Cook: 
+      long: 
+        daylight: "שעון מחצית הקיץ איי קוק"
+        generic: "שעון איי קוק"
+        standard: "שעון רגיל איי קוק"
+    Cuba: 
+      long: 
+        daylight: "שעון קיץ קובה"
+        generic: "שעון קובה"
+        standard: "שעון רגיל קובה"
+    Davis: 
+      long: 
+        standard: "שעון דיוויס"
+    DumontDUrville: 
+      long: 
+        standard: "שעון דומון ד׳אורוויל"
+    East_Timor: 
+      long: 
+        standard: "שעון מזרח טימור"
+    Easter: 
+      long: 
+        daylight: "שעון קיץ אי הפסחא"
+        generic: "שעון אי הפסחא"
+        standard: "שעון רגיל אי הפסחא"
+    Ecuador: 
+      long: 
+        standard: "שעון אקוודור"
+    Europe_Central: 
+      long: 
+        daylight: "שעון קיץ מרכז אירופה"
+        generic: "שעון מרכז אירופה"
+        standard: "שעון רגיל מרכז אירופה"
+    Europe_Eastern: 
+      long: 
+        daylight: "שעון קיץ מזרח אירופה"
+        generic: "שעון מזרח אירופה"
+        standard: "שעון רגיל מזרח אירופה"
+    Europe_Western: 
+      long: 
+        daylight: "שעון קיץ מערב אירופה"
+        generic: "שעון מערב אירופה"
+        standard: "שעון רגיל מערב אירופה"
+    Falkland: 
+      long: 
+        daylight: "שעון קיץ איי פוקלנד"
+        generic: "שעון איי פוקלנד"
+        standard: "שעון רגיל איי פוקלנד"
+    Fiji: 
+      long: 
+        daylight: "שעון קיץ פיג׳י"
+        generic: "שעון פיג׳י"
+        standard: "שעון רגיל פיג׳י"
+    French_Guiana: 
+      long: 
+        standard: "שעון גיאנה הצרפתית"
+    French_Southern: 
+      long: 
+        standard: "שעון דרום צרפת ואנטארקטיקה"
+    GMT: 
+      long: 
+        standard: "שעון גריניץ׳‏"
+    Galapagos: 
+      long: 
+        standard: "שעון איי גלאפגוס"
+    Gambier: 
+      long: 
+        standard: "שעון גאמבייר"
+    Georgia: 
+      long: 
+        daylight: "שעון קיץ גאורגיה"
+        generic: "שעון גאורגיה"
+        standard: "שעון רגיל גאורגיה"
+    Gilbert_Islands: 
+      long: 
+        standard: "שעון איי גילברט"
+    Greenland_Eastern: 
+      long: 
+        daylight: "שעון קיץ מזרח גרינלנד"
+        generic: "שעון מזרח גרינלנד"
+        standard: "שעון רגיל מזרח גרינלנד"
+    Greenland_Western: 
+      long: 
+        daylight: "שעון קיץ מערב גרינלנד"
+        generic: "שעון מערב גרינלנד"
+        standard: "שעון רגיל מערב גרינלנד"
+    Gulf: 
+      long: 
+        standard: "שעון מדינות המפרץ"
+    Guyana: 
+      long: 
+        standard: "שעון גויאנה"
+    Hawaii_Aleutian: 
+      long: 
+        daylight: "שעון קיץ האיים האלאוטיים הוואי"
+        generic: "שעון האיים האלאוטיים הוואי"
+        standard: "שעון רגיל האיים האלאוטיים הוואי"
+    Hong_Kong: 
+      long: 
+        daylight: "שעון קיץ הונג קונג"
+        generic: "שעון הונג קונג"
+        standard: "שעון חורף הונג קונג"
+    Hovd: 
+      long: 
+        daylight: "שעון קיץ חובד"
+        generic: "שעון חובד"
+        standard: "שעון רגיל חובד"
+    India: 
+      long: 
+        standard: "שעון הודו"
+    Indian_Ocean: 
+      long: 
+        standard: "שעון האוקיינוס ההודי"
+    Indochina: 
+      long: 
+        standard: "שעון הודו-סין"
+    Indonesia_Central: 
+      long: 
+        standard: "שעון מרכז אינדונזיה"
+    Indonesia_Eastern: 
+      long: 
+        standard: "שעון מזרח אינדונזיה"
+    Indonesia_Western: 
+      long: 
+        standard: "שעון מערב אינדונזיה"
+    Iran: 
+      long: 
+        daylight: "שעון קיץ איראן"
+        generic: "שעון איראן"
+        standard: "שעון רגיל איראן"
+    Irkutsk: 
+      long: 
+        daylight: "שעון קיץ אירקוטסק"
+        generic: "שעון אירקוטסק"
+        standard: "שעון רגיל אירקוטסק"
+    Israel: 
+      long: 
+        daylight: "שעון קיץ ישראל"
+        generic: "שעון ישראל"
+        standard: "שעון רגיל ישראל"
+    Japan: 
+      long: 
+        daylight: "שעון קיץ יפן"
+        generic: "שעון יפן"
+        standard: "שעון חורף יפן"
+    Kamchatka: 
+      long: 
+        daylight: "שעון קיץ פטרופבלובסק-קמצ׳טסקי"
+        generic: "שעון פטרופבלובסק-קמצ׳טסקי"
+        standard: "שעון רגיל פטרופבלובסק-קמצ׳טסקי"
+    Kazakhstan_Eastern: 
+      long: 
+        standard: "שעון מזרח קזחסטן"
+    Kazakhstan_Western: 
+      long: 
+        standard: "שעון מערב קזחסטן"
+    Korea: 
+      long: 
+        daylight: "שעון קיץ קוריאה"
+        generic: "שעון קוריאה"
+        standard: "שעון חורף קוריאה"
+    Kosrae: 
+      long: 
+        standard: "שעון קוסראה"
+    Krasnoyarsk: 
+      long: 
+        daylight: "שעון קיץ קרסנויארסק"
+        generic: "שעון קרסנויארסק"
+        standard: "שעון רגיל קרסנויארסק"
+    Kyrgystan: 
+      long: 
+        standard: "שעון קירגיזסטן"
+    Line_Islands: 
+      long: 
+        standard: "שעון איי ליין"
+    Lord_Howe: 
+      long: 
+        daylight: "שעון קיץ של אי הלורד האו"
+        generic: "שעון של אי הלורד האו"
+        standard: "שעון רגיל של אי הלורד האו"
+    Macau: 
+      long: 
+        daylight: "שעון קיץ מקאו"
+        generic: "שעון מקאו"
+        standard: "שעון חורף מקאו"
+    Macquarie: 
+      long: 
+        standard: "שעון מקווארי"
+    Magadan: 
+      long: 
+        daylight: "שעון קיץ מגדן"
+        generic: "שעון מגדן"
+        standard: "שעון רגיל מגדן"
+    Malaysia: 
+      long: 
+        standard: "שעון מלזיה"
+    Maldives: 
+      long: 
+        standard: "שעון האיים המלדיביים"
+    Marquesas: 
+      long: 
+        standard: "שעון איי מרקיז"
+    Marshall_Islands: 
+      long: 
+        standard: "שעון איי מרשל"
+    Mauritius: 
+      long: 
+        daylight: "שעון קיץ מאוריציוס"
+        generic: "שעון מאוריציוס"
+        standard: "שעון חורף מאוריציוס"
+    Mawson: 
+      long: 
+        standard: "שעון מאוסון"
+    Mongolia: 
+      long: 
+        daylight: "שעון קיץ אולן בטור"
+        generic: "שעון אולן בטור"
+        standard: "שעון רגיל אולן בטור"
+    Moscow: 
+      long: 
+        daylight: "שעון קיץ מוסקבה"
+        generic: "שעון מוסקבה"
+        standard: "שעון רגיל מוסקבה"
+    Myanmar: 
+      long: 
+        standard: "שעון בורמה"
+    Nauru: 
+      long: 
+        standard: "שעון נאורו"
+    Nepal: 
+      long: 
+        standard: "שעון נפאל"
+    New_Caledonia: 
+      long: 
+        daylight: "שעון קיץ ניו-קלדוניה"
+        generic: "שעון ניו-קלדוניה"
+        standard: "שעון רגיל ניו-קלדוניה"
+    New_Zealand: 
+      long: 
+        daylight: "שעון קיץ ניו זילנד"
+        generic: "שעון ניו זילנד"
+        standard: "שעון רגיל ניו זילנד"
+    Newfoundland: 
+      long: 
+        daylight: "שעון קיץ ניופאונדלנד"
+        generic: "שעון ניופאונדלנד"
+        standard: "שעון רגיל ניופאונדלנד"
+    Niue: 
+      long: 
+        standard: "שעון ניואה"
+    Norfolk: 
+      long: 
+        standard: "שעון איי נורפולק"
+    Noronha: 
+      long: 
+        daylight: "שעון קיץ פרננדו דה נורוניה"
+        generic: "שעון פרננדו דה נורוניה"
+        standard: "שעון רגיל פרננדו דה נורוניה"
+    Novosibirsk: 
+      long: 
+        daylight: "שעון קיץ נובוסיבירסק"
+        generic: "שעון נובוסיבירסק"
+        standard: "שעון רגיל נובוסיבירסק"
+    Omsk: 
+      long: 
+        daylight: "שעון קיץ אומסק"
+        generic: "שעון אומסק"
+        standard: "שעון רגיל אומסק"
+    Pakistan: 
+      long: 
+        daylight: "שעון קיץ פקיסטן"
+        generic: "שעון פקיסטן"
+        standard: "שעון רגיל פקיסטן"
+    Palau: 
+      long: 
+        standard: "שעון פלאו"
+    Papua_New_Guinea: 
+      long: 
+        standard: "שעון פפואה גיניאה החדשה"
+    Paraguay: 
+      long: 
+        daylight: "שעון קיץ פרגוואי"
+        generic: "שעון פרגוואי"
+        standard: "שעון רגיל פרגוואי"
+    Peru: 
+      long: 
+        daylight: "שעון קיץ פרו"
+        generic: "שעון פרו"
+        standard: "שעון רגיל פרו"
+    Philippines: 
+      long: 
+        daylight: "שעון קיץ הפיליפינים"
+        generic: "שעון הפיליפינים"
+        standard: "שעון רגיל פיליפינים"
+    Phoenix_Islands: 
+      long: 
+        standard: "שעון איי פיניקס"
+    Pierre_Miquelon: 
+      long: 
+        daylight: "שעון קיץ סנט פייר ומיקלון"
+        generic: "שעון סנט פייר ומיקלון"
+        standard: "שעון רגיל סנט פייר ומיקלון"
+    Pitcairn: 
+      long: 
+        standard: "שעון פיטקרן"
+    Ponape: 
+      long: 
+        standard: "שעון פונאפי"
+    Reunion: 
+      long: 
+        standard: "שעון ראוניון"
+    Rothera: 
+      long: 
+        standard: "שעון רות׳רה"
+    Sakhalin: 
+      long: 
+        daylight: "שעון קיץ סחלין"
+        generic: "שעון סחלין"
+        standard: "שעון רגיל סחלין"
+    Samara: 
+      long: 
+        daylight: "שעון קיץ סמרה"
+        generic: "שעון סמרה"
+        standard: "שעון רגיל סמרה"
+    Samoa: 
+      long: 
+        daylight: "שעון קיץ סמואה"
+        generic: "שעון סמואה"
+        standard: "שעון רגיל סמואה"
+    Seychelles: 
+      long: 
+        standard: "שעון איי סיישל"
+    Singapore: 
+      long: 
+        standard: "שעון סינגפור"
+    Solomon: 
+      long: 
+        standard: "שעון איי שלמה"
+    South_Georgia: 
+      long: 
+        standard: "שעון דרום ג׳ורג׳יה"
+    Suriname: 
+      long: 
+        standard: "שעון סורינאם"
+    Syowa: 
+      long: 
+        standard: "שעון סייווה"
+    Tahiti: 
+      long: 
+        standard: "שעון טהיטי"
+    Taipei: 
+      long: 
+        daylight: "שעון קיץ טאיפיי"
+        generic: "שעון טאיפיי"
+        standard: "שעון רגיל טאיפיי"
+    Tajikistan: 
+      long: 
+        standard: "שעון טג׳יקיסטן"
+    Tokelau: 
+      long: 
+        standard: "שעון טוקלאו"
+    Tonga: 
+      long: 
+        daylight: "שעון קיץ טונגה"
+        generic: "שעון טונגה"
+        standard: "שעון רגיל טונגה"
+    Truk: 
+      long: 
+        standard: "שעון צ׳וק"
+    Turkmenistan: 
+      long: 
+        daylight: "שעון קיץ טורקמניסטן"
+        generic: "שעון טורקמניסטן"
+        standard: "שעון רגיל טורקמניסטן"
+    Tuvalu: 
+      long: 
+        standard: "שעון טובאלו"
+    Uruguay: 
+      long: 
+        daylight: "שעון קיץ אורוגוואי"
+        generic: "שעון אורוגוואי"
+        standard: "שעון רגיל אורוגוואי"
+    Uzbekistan: 
+      long: 
+        daylight: "שעון קיץ אוזבקיסטן"
+        generic: "שעון אוזבקיסטן"
+        standard: "שעון רגיל אוזבקיסטן"
+    Vanuatu: 
+      long: 
+        daylight: "שעון קיץ ונואטו"
+        generic: "שעון ונואטו"
+        standard: "שעון רגיל ונואטו"
+    Venezuela: 
+      long: 
+        standard: "שעון ונצואלה"
+    Vladivostok: 
+      long: 
+        daylight: "שעון קיץ ולדיווסטוק"
+        generic: "שעון ולדיווסטוק"
+        standard: "שעון רגיל ולדיווסטוק"
+    Volgograd: 
+      long: 
+        daylight: "שעון קיץ וולגוגרד"
+        generic: "שעון וולגוגרד"
+        standard: "שעון רגיל וולגוגרד"
+    Vostok: 
+      long: 
+        standard: "שעון ווסטוק"
+    Wake: 
+      long: 
+        standard: "שעון האי וייק"
+    Wallis: 
+      long: 
+        standard: "שעון וואליס ופוטונה"
+    Yakutsk: 
+      long: 
+        daylight: "שעון קיץ יקוטסק"
+        generic: "שעון יקוטסק"
+        standard: "שעון רגיל יקוטסק"
+    Yekaterinburg: 
+      long: 
+        daylight: "שעון קיץ יקטרינבורג"
+        generic: "שעון יקטרינבורג"
+        standard: "שעון רגיל יקטרינבורג"
+  timezones: 
+    Africa/Abidjan: 
+      city: אביג׳אן
+    Africa/Accra: 
+      city: אקרה
+    Africa/Addis_Ababa: 
+      city: "אדיס אבבה"
+    Africa/Algiers: 
+      city: אלג׳יר
+    Africa/Asmera: 
+      city: אסמרה
+    Africa/Bamako: 
+      city: במאקו
+    Africa/Bangui: 
+      city: בנגואי
+    Africa/Banjul: 
+      city: בנג׳ול
+    Africa/Bissau: 
+      city: ביסאו
+    Africa/Blantyre: 
+      city: בלנטיר
+    Africa/Brazzaville: 
+      city: ברזוויל
+    Africa/Bujumbura: 
+      city: בוג׳ומבורה
+    Africa/Cairo: 
+      city: קהיר
+    Africa/Casablanca: 
+      city: קזבלנקה
+    Africa/Ceuta: 
+      city: סאוטה
+    Africa/Conakry: 
+      city: קונאקרי
+    Africa/Dakar: 
+      city: דקאר
+    Africa/Dar_es_Salaam: 
+      city: "דאר א-סלאם"
+    Africa/Djibouti: 
+      city: ג׳יבוטי
+    Africa/Douala: 
+      city: דואלה
+    Africa/El_Aaiun: 
+      city: "אל עיון"
+    Africa/Freetown: 
+      city: פריטאון
+    Africa/Gaborone: 
+      city: גבורונה
+    Africa/Harare: 
+      city: הרארה
+    Africa/Johannesburg: 
+      city: יוהנסבורג
+    Africa/Juba: 
+      city: ג׳ובה
+    Africa/Kampala: 
+      city: קמפאלה
+    Africa/Khartoum: 
+      city: חרטום
+    Africa/Kigali: 
+      city: קיגלי
+    Africa/Kinshasa: 
+      city: קינשסה
+    Africa/Lagos: 
+      city: לגוס
+    Africa/Libreville: 
+      city: ליברוויל
+    Africa/Lome: 
+      city: לומה
+    Africa/Luanda: 
+      city: לואנדה
+    Africa/Lubumbashi: 
+      city: לובומבאשי
+    Africa/Lusaka: 
+      city: לוסקה
+    Africa/Malabo: 
+      city: מלבו
+    Africa/Maputo: 
+      city: מאפוטו
+    Africa/Maseru: 
+      city: מסרו
+    Africa/Mbabane: 
+      city: אמבאבאנה
+    Africa/Mogadishu: 
+      city: מוגדישו
+    Africa/Monrovia: 
+      city: מונרוביה
+    Africa/Nairobi: 
+      city: ניירובי
+    Africa/Ndjamena: 
+      city: נג׳מנה
+    Africa/Niamey: 
+      city: ניאמיי
+    Africa/Nouakchott: 
+      city: נואקצ׳וט
+    Africa/Ouagadougou: 
+      city: וואגאדוגו
+    Africa/Porto-Novo: 
+      city: "פורטו נובו"
+    Africa/Sao_Tome: 
+      city: "סאו טומה"
+    Africa/Tripoli: 
+      city: טריפולי
+    Africa/Tunis: 
+      city: טוניס
+    Africa/Windhoek: 
+      city: וינדהוק
+    America/Adak: 
+      city: אדאק
+    America/Anchorage: 
+      city: אנקורג׳
+    America/Anguilla: 
+      city: אנגווילה
+    America/Antigua: 
+      city: אנטיגואה
+    America/Araguaina: 
+      city: אראגואינה
+    America/Argentina/La_Rioja: 
+      city: "לה ריוחה"
+    America/Argentina/Rio_Gallegos: 
+      city: "ריו גאייגוס"
+    America/Argentina/Salta: 
+      city: סלטה
+    America/Argentina/San_Juan: 
+      city: אמריקה/ארגנטינה/סאן-חואן
+    America/Argentina/San_Luis: 
+      city: "סן לואיס"
+    America/Argentina/Tucuman: 
+      city: טוקומן
+    America/Argentina/Ushuaia: 
+      city: אושוואיה
+    America/Aruba: 
+      city: ארובה
+    America/Asuncion: 
+      city: אסונסיון
+    America/Bahia: 
+      city: אמריקה/בהיאה
+    America/Bahia_Banderas: 
+      city: "באהיה בנדרס"
+    America/Barbados: 
+      city: ברבדוס
+    America/Belem: 
+      city: בלם
+    America/Belize: 
+      city: בליז
+    America/Blanc-Sablon: 
+      city: בלאן-סבלון
+    America/Boa_Vista: 
+      city: "בואה ויסטה"
+    America/Bogota: 
+      city: בוגוטה
+    America/Boise: 
+      city: בויסי
+    America/Buenos_Aires: 
+      city: "בואנוס איירס"
+    America/Cambridge_Bay: 
+      city: "קיימברידג׳ ביי"
+    America/Campo_Grande: 
+      city: "קמפו גרנדה"
+    America/Cancun: 
+      city: אמריקה/קנקון
+    America/Caracas: 
+      city: קראקס
+    America/Catamarca: 
+      city: קטמרקה
+    America/Cayenne: 
+      city: קאיין
+    America/Cayman: 
+      city: קיימן
+    America/Chicago: 
+      city: אמריקה/שיקגו
+    America/Chihuahua: 
+      city: צ׳יוואווה
+    America/Coral_Harbour: 
+      city: אטיקוקן
+    America/Cordoba: 
+      city: אמריקה/קורדובה
+    America/Costa_Rica: 
+      city: "קוסטה ריקה"
+    America/Creston: 
+      city: קרסטון
+    America/Cuiaba: 
+      city: קויאבה
+    America/Curacao: 
+      city: קוראסאו
+    America/Danmarkshavn: 
+      city: דנמרקסהוון
+    America/Dawson: 
+      city: דאוסון
+    America/Dawson_Creek: 
+      city: אמריקה/דוסון-קריק
+    America/Denver: 
+      city: אמריקה/דנוור
+    America/Detroit: 
+      city: אמריקה/דטרויט
+    America/Dominica: 
+      city: דומיניקה
+    America/Edmonton: 
+      city: אמריקה/אדמנטון
+    America/Eirunepe: 
+      city: אירונפי
+    America/El_Salvador: 
+      city: "אל סלבדור"
+    America/Fortaleza: 
+      city: פורטאלזה
+    America/Glace_Bay: 
+      city: "גלייס ביי"
+    America/Godthab: 
+      city: נואוק
+    America/Goose_Bay: 
+      city: "גוס ביי"
+    America/Grand_Turk: 
+      city: "גרנד טורק"
+    America/Grenada: 
+      city: גרנדה
+    America/Guadeloupe: 
+      city: גואדלופ
+    America/Guatemala: 
+      city: גואטמלה
+    America/Guayaquil: 
+      city: גואיאקיל
+    America/Guyana: 
+      city: גיאנה
+    America/Halifax: 
+      city: אמריקה/הליפקס
+    America/Havana: 
+      city: הוואנה
+    America/Hermosillo: 
+      city: ארמוסיו
+    America/Indiana/Knox: 
+      city: "נוקס, אינדיאנה"
+    America/Indiana/Marengo: 
+      city: "מרנגו, אינדיאנה"
+    America/Indiana/Petersburg: 
+      city: "פיטרסבורג, אינדיאנה"
+    America/Indiana/Tell_City: 
+      city: "טל סיטי, אינדיאנה"
+    America/Indiana/Vevay: 
+      city: "ויוואיי, אינדיאנה"
+    America/Indiana/Vincennes: 
+      city: "וינסנס, אינדיאנה"
+    America/Indiana/Winamac: 
+      city: "וינמאק, אינדיאנה"
+    America/Indianapolis: 
+      city: אינדיאנפוליס
+    America/Inuvik: 
+      city: אינוויק
+    America/Iqaluit: 
+      city: איקלואיט
+    America/Jamaica: 
+      city: ג׳מייקה
+    America/Jujuy: 
+      city: חוחוי
+    America/Juneau: 
+      city: ג׳ונו
+    America/Kentucky/Monticello: 
+      city: "מונטיצ׳לו, קנטאקי"
+    America/Kralendijk: 
+      city: קרלנדייק
+    America/La_Paz: 
+      city: "לה פאס"
+    America/Lima: 
+      city: לימה
+    America/Los_Angeles: 
+      city: אמריקה/לוס-אנג׳לס
+    America/Louisville: 
+      city: אמריקה/לואיסוויל
+    America/Lower_Princes: 
+      city: "לואוור פרינסס קוורטר"
+    America/Maceio: 
+      city: מאסיו
+    America/Managua: 
+      city: מנגואה
+    America/Manaus: 
+      city: מנאוס
+    America/Marigot: 
+      city: מריגו
+    America/Martinique: 
+      city: מרטיניק
+    America/Matamoros: 
+      city: מטמורוס
+    America/Mazatlan: 
+      city: אמריקה/מזטלן
+    America/Mendoza: 
+      city: אמריקה/מנדוזה
+    America/Menominee: 
+      city: מנומיני
+    America/Merida: 
+      city: מרידה
+    America/Metlakatla: 
+      city: מטלקטלה
+    America/Mexico_City: 
+      city: "אמריקה/מקסיקו סיטי"
+    America/Miquelon: 
+      city: מיקלון
+    America/Moncton: 
+      city: מונקטון
+    America/Monterrey: 
+      city: אמריקה/מונטריי
+    America/Montevideo: 
+      city: מונטווידאו
+    America/Montreal: 
+      city: אמריקה/מונטריאול
+    America/Montserrat: 
+      city: מונסראט
+    America/Nassau: 
+      city: נסאו
+    America/New_York: 
+      city: אמריקה/ניו-יורק
+    America/Nipigon: 
+      city: ניפיגון
+    America/Nome: 
+      city: נום
+    America/Noronha: 
+      city: נורונהה
+    America/North_Dakota/Beulah: 
+      city: "ביולה, צפון דקוטה"
+    America/North_Dakota/Center: 
+      city: "אמריקה/צפון דקוטה/מרכז"
+    America/North_Dakota/New_Salem: 
+      city: "ניו סיילם, צפון דקוטה"
+    America/Ojinaga: 
+      city: אוג׳ינאגה
+    America/Panama: 
+      city: פנמה
+    America/Pangnirtung: 
+      city: פנגנירטונג
+    America/Paramaribo: 
+      city: פרמריבו
+    America/Phoenix: 
+      city: אמריקה/פיניקס
+    America/Port-au-Prince: 
+      city: "פורט או פראנס"
+    America/Port_of_Spain: 
+      city: "פורט אוף ספיין"
+    America/Porto_Velho: 
+      city: "פורטו וולהו"
+    America/Puerto_Rico: 
+      city: "פוארטו ריקו"
+    America/Rainy_River: 
+      city: "רייני ריבר"
+    America/Rankin_Inlet: 
+      city: "רנקין אינלט"
+    America/Recife: 
+      city: רסיפה
+    America/Regina: 
+      city: רג׳ינה
+    America/Resolute: 
+      city: רזולוט
+    America/Rio_Branco: 
+      city: "ריאו ברנצ׳ו"
+    America/Santa_Isabel: 
+      city: "סנטה איסבל"
+    America/Santarem: 
+      city: סנטרם
+    America/Santiago: 
+      city: אמריקה/סנטיאגו
+    America/Santo_Domingo: 
+      city: "סנטו דומינגו"
+    America/Sao_Paulo: 
+      city: אמריקה/סאן-פאולו
+    America/Scoresbysund: 
+      city: סקורסביסונד
+    America/Shiprock: 
+      city: אמריקה/שיפרוק
+    America/Sitka: 
+      city: סיטקה
+    America/St_Barthelemy: 
+      city: "סנט ברתלמי"
+    America/St_Johns: 
+      city: "סנט ג׳ונס"
+    America/St_Kitts: 
+      city: "סנט קיטס"
+    America/St_Lucia: 
+      city: "סנט לוסיה"
+    America/St_Thomas: 
+      city: "סנט תומאס"
+    America/St_Vincent: 
+      city: "סנט וינסנט"
+    America/Swift_Current: 
+      city: "סוויפט קרנט"
+    America/Tegucigalpa: 
+      city: טגוסיגלפה
+    America/Thule: 
+      city: טולה
+    America/Thunder_Bay: 
+      city: "ת׳אנדר ביי"
+    America/Tijuana: 
+      city: טיחואנה
+    America/Toronto: 
+      city: אמריקה/טורנטו
+    America/Tortola: 
+      city: טורטולה
+    America/Vancouver: 
+      city: אמריקה/ונקובר
+    America/Whitehorse: 
+      city: ווייטהורס
+    America/Winnipeg: 
+      city: אמריקה/וויניפוג
+    America/Yakutat: 
+      city: יקוטאט
+    America/Yellowknife: 
+      city: ילונייף
+    Antarctica/Casey: 
+      city: קאסיי
+    Antarctica/Davis: 
+      city: דייויס
+    Antarctica/DumontDUrville: 
+      city: "דומון ד׳אורווי"
+    Antarctica/Macquarie: 
+      city: מקרי
+    Antarctica/Mawson: 
+      city: מאוסון
+    Antarctica/McMurdo: 
+      city: מקמרדו
+    Antarctica/Palmer: 
+      city: אמריקה/פאלמר
+    Antarctica/Rothera: 
+      city: רות׳רה
+    Antarctica/South_Pole: 
+      city: "הקוטב הדרומי"
+    Antarctica/Syowa: 
+      city: שויה
+    Antarctica/Vostok: 
+      city: ווסטוק
+    Arctic/Longyearbyen: 
+      city: לונגיירביאן
+    Asia/Aden: 
+      city: עדן
+    Asia/Almaty: 
+      city: אלמאטי
+    Asia/Amman: 
+      city: עמאן
+    Asia/Anadyr: 
+      city: אנדיר
+    Asia/Aqtau: 
+      city: אקטאו
+    Asia/Aqtobe: 
+      city: אקטובה
+    Asia/Ashgabat: 
+      city: אשגבט
+    Asia/Baghdad: 
+      city: בגדד
+    Asia/Bahrain: 
+      city: בחריין
+    Asia/Baku: 
+      city: באקו
+    Asia/Bangkok: 
+      city: בנגקוק
+    Asia/Beirut: 
+      city: ביירות
+    Asia/Bishkek: 
+      city: בישקק
+    Asia/Brunei: 
+      city: ברוניי
+    Asia/Calcutta: 
+      city: קולקטה
+    Asia/Choibalsan: 
+      city: צ׳ואיבלסאן
+    Asia/Chongqing: 
+      city: צ׳ונגקינג
+    Asia/Colombo: 
+      city: קולומבו
+    Asia/Damascus: 
+      city: דמשק
+    Asia/Dhaka: 
+      city: דאקה
+    Asia/Dili: 
+      city: דילי
+    Asia/Dubai: 
+      city: דובאי
+    Asia/Dushanbe: 
+      city: דושנבה
+    Asia/Gaza: 
+      city: עזה
+    Asia/Harbin: 
+      city: חרבין
+    Asia/Hebron: 
+      city: חברון
+    Asia/Hong_Kong: 
+      city: "הונג קונג"
+    Asia/Hovd: 
+      city: חובד
+    Asia/Irkutsk: 
+      city: אירקוטסק
+    Asia/Jakarta: 
+      city: אסיה/ג׳קרטה
+    Asia/Jayapura: 
+      city: ג׳איאפורה
+    Asia/Jerusalem: 
+      city: ירושלים
+    Asia/Kabul: 
+      city: קאבול
+    Asia/Kamchatka: 
+      city: קמצ׳טקה
+    Asia/Karachi: 
+      city: קרצ׳י
+    Asia/Kashgar: 
+      city: קשגר
+    Asia/Katmandu: 
+      city: קטמנדו
+    Asia/Khandyga: 
+      city: חנדיגה
+    Asia/Krasnoyarsk: 
+      city: קרסנויארסק
+    Asia/Kuala_Lumpur: 
+      city: "קואלה לומפור"
+    Asia/Kuching: 
+      city: קוצ׳ינג
+    Asia/Kuwait: 
+      city: כווית
+    Asia/Macau: 
+      city: מקאו
+    Asia/Magadan: 
+      city: מגדן
+    Asia/Makassar: 
+      city: מאקאסאר
+    Asia/Manila: 
+      city: מנילה
+    Asia/Muscat: 
+      city: מוסקט
+    Asia/Nicosia: 
+      city: ניקוסיה
+    Asia/Novokuznetsk: 
+      city: נובוקוזנטסק
+    Asia/Novosibirsk: 
+      city: אסיה/נובוסיבירסק
+    Asia/Omsk: 
+      city: איה/אומסק
+    Asia/Oral: 
+      city: אסיה/אורל
+    Asia/Phnom_Penh: 
+      city: "פנום פן"
+    Asia/Pontianak: 
+      city: פונטיאנק
+    Asia/Pyongyang: 
+      city: פיונגיאנג
+    Asia/Qatar: 
+      city: קטאר
+    Asia/Qyzylorda: 
+      city: קיזילורדה
+    Asia/Rangoon: 
+      city: רנגון
+    Asia/Riyadh: 
+      city: ריאד
+    Asia/Saigon: 
+      city: "הו צ׳י מין סיטי"
+    Asia/Sakhalin: 
+      city: סחלין
+    Asia/Samarkand: 
+      city: אסיה/סמרקנד
+    Asia/Seoul: 
+      city: סיאול
+    Asia/Shanghai: 
+      city: אסיה/שנחאי
+    Asia/Singapore: 
+      city: סינגפור
+    Asia/Taipei: 
+      city: טאיפיי
+    Asia/Tashkent: 
+      city: אסיה/טשקנט
+    Asia/Tbilisi: 
+      city: טביליסי
+    Asia/Tehran: 
+      city: טהרן
+    Asia/Thimphu: 
+      city: ת׳ימפו
+    Asia/Tokyo: 
+      city: טוקיו
+    Asia/Ulaanbaatar: 
+      city: אולאאנבטאר
+    Asia/Urumqi: 
+      city: אורומקי
+    Asia/Ust-Nera: 
+      city: אוסט-נרה
+    Asia/Vientiane: 
+      city: האנוי
+    Asia/Vladivostok: 
+      city: ולדיווסטוק
+    Asia/Yakutsk: 
+      city: יקוטסק
+    Asia/Yekaterinburg: 
+      city: יקטרינבורג
+    Asia/Yerevan: 
+      city: ירוואן
+    Atlantic/Azores: 
+      city: "האיים האזורים"
+    Atlantic/Bermuda: 
+      city: ברמודה
+    Atlantic/Canary: 
+      city: אטלנטי/קנרי
+    Atlantic/Cape_Verde: 
+      city: "כף ורדה"
+    Atlantic/Faeroe: 
+      city: פארו
+    Atlantic/Madeira: 
+      city: מדיירה
+    Atlantic/Reykjavik: 
+      city: רייקיאוויק
+    Atlantic/South_Georgia: 
+      city: "סאות׳ ג׳ורג׳יה"
+    Atlantic/St_Helena: 
+      city: "סנט הלנה"
+    Atlantic/Stanley: 
+      city: סטנלי
+    Australia/Adelaide: 
+      city: אדלייד
+    Australia/Brisbane: 
+      city: אוסטרליה/בריסבן
+    Australia/Broken_Hill: 
+      city: אוסטרליה/ברוקן-היל
+    Australia/Currie: 
+      city: קרי
+    Australia/Darwin: 
+      city: אוסטרליה/דרווין
+    Australia/Eucla: 
+      city: יוקלה
+    Australia/Hobart: 
+      city: אוסטרליה/הוברט
+    Australia/Lindeman: 
+      city: לינדמן
+    Australia/Lord_Howe: 
+      city: "לורד האו"
+    Australia/Melbourne: 
+      city: אוסטרליה/מלבורן
+    Australia/Perth: 
+      city: אוסטרליה/פרת׳
+    Australia/Sydney: 
+      city: אוסטרליה/סידני
+    Etc/Unknown: 
+      city: "עיר לא ידועה"
+    Europe/Amsterdam: 
+      city: אמסטרדם
+    Europe/Andorra: 
+      city: אנדורה
+    Europe/Athens: 
+      city: אתונה
+    Europe/Belgrade: 
+      city: בלגרד
+    Europe/Berlin: 
+      city: ברלין
+    Europe/Bratislava: 
+      city: ברטיסלבה
+    Europe/Brussels: 
+      city: בריסל
+    Europe/Bucharest: 
+      city: בוקרשט
+    Europe/Budapest: 
+      city: בודפשט
+    Europe/Busingen: 
+      city: בוזינגן
+    Europe/Chisinau: 
+      city: צ׳יסינאו
+    Europe/Copenhagen: 
+      city: קופנהגן
+    Europe/Dublin: 
+      city: דבלין
+      long: 
+        daylight: "שעון קיץ אירי"
+    Europe/Gibraltar: 
+      city: גיברלטר
+    Europe/Guernsey: 
+      city: גרנזי
+    Europe/Helsinki: 
+      city: הלסינקי
+    Europe/Isle_of_Man: 
+      city: "האי מאן"
+    Europe/Istanbul: 
+      city: איסטנבול
+    Europe/Jersey: 
+      city: ג׳רסי
+    Europe/Kaliningrad: 
+      city: קלינינגרד
+    Europe/Kiev: 
+      city: אירופה/קייב
+    Europe/Lisbon: 
+      city: אירופה/ליסבון
+    Europe/Ljubljana: 
+      city: לובליאנה
+    Europe/London: 
+      city: אירופה/לונדון
+      long: 
+        daylight: "שעון קיץ בריטי"
+    Europe/Luxembourg: 
+      city: לוקסמבורג
+    Europe/Madrid: 
+      city: אירופה/מדריד
+    Europe/Malta: 
+      city: מלטה
+    Europe/Mariehamn: 
+      city: מריהמן
+    Europe/Minsk: 
+      city: מינסק
+    Europe/Monaco: 
+      city: מונקו
+    Europe/Moscow: 
+      city: אירופה/מוסקבה
+    Europe/Oslo: 
+      city: אוסלו
+    Europe/Paris: 
+      city: פריז
+    Europe/Podgorica: 
+      city: פודגוריקה
+    Europe/Prague: 
+      city: פראג
+    Europe/Riga: 
+      city: ריגה
+    Europe/Rome: 
+      city: רומא
+    Europe/Samara: 
+      city: אירופה/סמרה
+    Europe/San_Marino: 
+      city: "סן מרינו"
+    Europe/Sarajevo: 
+      city: סרייבו
+    Europe/Simferopol: 
+      city: סימפרופול
+    Europe/Skopje: 
+      city: סקופיה
+    Europe/Sofia: 
+      city: סופיה
+    Europe/Stockholm: 
+      city: שטוקהולם
+    Europe/Tallinn: 
+      city: טלין
+    Europe/Tirane: 
+      city: טיראנה
+    Europe/Uzhgorod: 
+      city: אוז׳הורוד
+    Europe/Vaduz: 
+      city: ואדוז
+    Europe/Vatican: 
+      city: ותיקן
+    Europe/Vienna: 
+      city: וינה
+    Europe/Vilnius: 
+      city: וילנה
+    Europe/Volgograd: 
+      city: וולגוגרד
+    Europe/Warsaw: 
+      city: ורשה
+    Europe/Zagreb: 
+      city: זגרב
+    Europe/Zaporozhye: 
+      city: זפוריז׳יה
+    Europe/Zurich: 
+      city: ציריך
+    Indian/Antananarivo: 
+      city: אנטננריבו
+    Indian/Chagos: 
+      city: צ׳אגוס
+    Indian/Christmas: 
+      city: קריסמס
+    Indian/Cocos: 
+      city: קוקוס
+    Indian/Comoro: 
+      city: קומורו
+    Indian/Kerguelen: 
+      city: קרגוולן
+    Indian/Mahe: 
+      city: מהא
+    Indian/Maldives: 
+      city: "האיים המלדיביים"
+    Indian/Mauritius: 
+      city: מאוריציוס
+    Indian/Mayotte: 
+      city: מאיוט
+    Indian/Reunion: 
+      city: ראוניון
+    Pacific/Apia: 
+      city: אפיה
+    Pacific/Auckland: 
+      city: פסיפי/אוקלנד
+    Pacific/Chatham: 
+      city: צ׳אטהאם
+    Pacific/Easter: 
+      city: "איי הפסחא"
+    Pacific/Efate: 
+      city: אפטה
+    Pacific/Enderbury: 
+      city: אנדרבורי
+    Pacific/Fakaofo: 
+      city: פקאופו
+    Pacific/Fiji: 
+      city: פיג׳י
+    Pacific/Funafuti: 
+      city: פונפוטי
+    Pacific/Galapagos: 
+      city: פסיפי/גלאפגוס
+    Pacific/Gambier: 
+      city: "איי גמביר"
+    Pacific/Guadalcanal: 
+      city: גוודלקנאל
+    Pacific/Guam: 
+      city: גואם
+    Pacific/Honolulu: 
+      city: פסיפי/הונולולו
+    Pacific/Johnston: 
+      city: ג׳ונסטון
+    Pacific/Kiritimati: 
+      city: קיריטימאטי
+    Pacific/Kosrae: 
+      city: קוסרה
+    Pacific/Kwajalein: 
+      city: קוואג׳ליין
+    Pacific/Majuro: 
+      city: מאג׳ורו
+    Pacific/Marquesas: 
+      city: "איי מרקיז"
+    Pacific/Midway: 
+      city: מידוויי
+    Pacific/Nauru: 
+      city: נאורו
+    Pacific/Niue: 
+      city: ניווה
+    Pacific/Norfolk: 
+      city: נורפוק
+    Pacific/Noumea: 
+      city: נומאה
+    Pacific/Pago_Pago: 
+      city: "פאגו פאגו"
+    Pacific/Palau: 
+      city: פלאו
+    Pacific/Pitcairn: 
+      city: פיטקרן
+    Pacific/Ponape: 
+      city: פונפה
+    Pacific/Port_Moresby: 
+      city: "פורט מורסבי"
+    Pacific/Rarotonga: 
+      city: רארוטונגה
+    Pacific/Saipan: 
+      city: סייפן
+    Pacific/Tahiti: 
+      city: פסיפי/טהיטי
+    Pacific/Tarawa: 
+      city: טאראווה
+    Pacific/Tongatapu: 
+      city: טונגטפו
+    Pacific/Truk: 
+      city: טרוק
+    Pacific/Wake: 
+      city: וואק
+    Pacific/Wallis: 
+      city: ווליס

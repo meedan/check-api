@@ -1,0 +1,896 @@
+gl: 
+  metazones: 
+    Afghanistan: 
+      long: 
+        standard: "Horario de Afganistán"
+    Africa_Central: 
+      long: 
+        standard: "Horario de África Central"
+    Africa_Eastern: 
+      long: 
+        standard: "Horario de África Oriental"
+    Africa_Southern: 
+      long: 
+        standard: "Horario estándar de Sudáfrica"
+    Africa_Western: 
+      long: 
+        daylight: "Horario de verán de África Occidental"
+        generic: "Horario de África Occidental"
+        standard: "Horario estándar de África Occidental"
+    Alaska: 
+      long: 
+        daylight: "Horario de verán de Alasca"
+        generic: "Horario de Alasca"
+        standard: "Horario estándar de Alasca"
+    Amazon: 
+      long: 
+        daylight: "Horario de verán do Amazonas"
+        generic: "Horario do Amazonas"
+        standard: "Horario estándar do Amazonas"
+    America_Central: 
+      long: 
+        daylight: "Horario de verán da zona central"
+        generic: "Horario central"
+        standard: "Horario estándar central"
+    America_Eastern: 
+      long: 
+        daylight: "Horario de verán de América Oriental"
+        generic: "Horario de América Oriental"
+        standard: "Horario estándar América Oriental"
+    America_Mountain: 
+      long: 
+        daylight: "Horario de verán das montañas americanas"
+        generic: "Horario das montañas de América"
+        standard: "Horario estándar das montañas americanas"
+    America_Pacific: 
+      long: 
+        daylight: "Horario de verán do Pacífico"
+        generic: "Horario do Pacífico"
+        standard: "Horario estándar do Pacífico"
+    Anadyr: 
+      long: 
+        daylight: "Horario de verán de Anadir"
+        generic: "Horario de Anadir"
+        standard: "Horario estándar de Anadir"
+    Arabian: 
+      long: 
+        daylight: "Horario de verán árabe"
+        generic: "Horario árabe"
+        standard: "Horario estándar árabe"
+    Argentina: 
+      long: 
+        daylight: "Horario de verán de Arxentina"
+        generic: "Horario de Arxentina"
+        standard: "Horario estándar de Arxentina"
+    Argentina_Western: 
+      long: 
+        daylight: "Horario de verán de Arxentina Occidental"
+        generic: "Horario de Arxentina Occidental"
+        standard: "Horario estándar de Arxentina Occidental"
+    Armenia: 
+      long: 
+        daylight: "Horario de verán de Armenia"
+        generic: "Horario de Armenia"
+        standard: "Horario estándar de Armenia"
+    Atlantic: 
+      long: 
+        daylight: "Horario de verán do Atlántico"
+        generic: "Horario do Atlántico"
+        standard: "Horario estándar do Atlántico"
+    Australia_Central: 
+      long: 
+        daylight: "Horario de verán de Australia Central"
+        generic: "Horario de Australia Central"
+        standard: "Horario estándar de Australia Central"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "Horario de verán de Australia Occidental Central"
+        generic: "Horario de Australia Occidental Central"
+        standard: "Horario estándar de Australia Occidental Central"
+    Australia_Eastern: 
+      long: 
+        daylight: "Horario de verán de Australia Oriental"
+        generic: "Horario de Australia Oriental"
+        standard: "Horario estándar de Australia Oriental"
+    Australia_Western: 
+      long: 
+        daylight: "Horario de verán de Australia Occidental"
+        generic: "Horario de Australia Occidental"
+        standard: "Horario estándar de Australia Occidental"
+    Azerbaijan: 
+      long: 
+        daylight: "Horario de verán de Acerbaixán"
+        generic: "Horario de Acerbaixán"
+        standard: "Horario estándar de Acerbaixán"
+    Azores: 
+      long: 
+        daylight: "Horario de verán das Azores"
+        generic: "Horario das Azores"
+        standard: "Horario estándar das Azores"
+    Bangladesh: 
+      long: 
+        daylight: "Horario de verán de Bangladesh"
+        generic: "Horario de Bangladesh"
+        standard: "Horario estándar de Bangladesh"
+    Bhutan: 
+      long: 
+        standard: "Horario de Bután"
+    Bolivia: 
+      long: 
+        standard: "Horario de Bolivia"
+    Brasilia: 
+      long: 
+        daylight: "Horario de verán de Brasilia"
+        generic: "Horario de Brasilia"
+        standard: "Horario estándar de Brasilia"
+    Brunei: 
+      long: 
+        standard: "Horario de Brunei Darussalam"
+    Cape_Verde: 
+      long: 
+        daylight: "Horario de verán de Cabo Verde"
+        generic: "Horario de Cabo Verde"
+        standard: "Horario estándar de Cabo Verde"
+    Chamorro: 
+      long: 
+        standard: "Horario estándar de Chamorro"
+    Chatham: 
+      long: 
+        daylight: "Horario de verán de Chatham"
+        generic: "Horario de Chatham"
+        standard: "Horario estándar de Chatham"
+    Chile: 
+      long: 
+        daylight: "Horario de verán de Chile"
+        generic: "Horario de Chile"
+        standard: "Horario estándar de Chile"
+    China: 
+      long: 
+        daylight: "Horario de verán de China"
+        generic: "Horario de China"
+        standard: "Horario estándar de China"
+    Choibalsan: 
+      long: 
+        daylight: "Horario de verán de Choibalsan"
+        generic: "Horario de Choibalsan"
+        standard: "Horario estándar de Choibalsan"
+    Christmas: 
+      long: 
+        standard: "Horario da Illa de Nadal"
+    Cocos: 
+      long: 
+        standard: "Horario das Illas Cocos"
+    Colombia: 
+      long: 
+        daylight: "Horario de verán de Colombia"
+        generic: "Horario de Colombia"
+        standard: "Horario estándar de Colombia"
+    Cook: 
+      long: 
+        daylight: "Horario de verán medio das Illas Cook"
+        generic: "Horario das Illas Cook"
+        standard: "Horario estándar das Illas Cook"
+    Cuba: 
+      long: 
+        daylight: "Horario de verán de Cuba"
+        generic: "Horario de Cuba"
+        standard: "Horario estándar de Cuba"
+    Davis: 
+      long: 
+        standard: "Horario de Davis"
+    DumontDUrville: 
+      long: 
+        standard: "Horario de Dumont-d’Urville"
+    East_Timor: 
+      long: 
+        standard: "Horario de Timor Leste"
+    Easter: 
+      long: 
+        daylight: "Horario de verán da Illa de Pascua"
+        generic: "Horario da Illa de Pascua"
+        standard: "Horario estándar da Illa de Pascua"
+    Ecuador: 
+      long: 
+        standard: "Horario de Ecuador"
+    Europe_Central: 
+      long: 
+        daylight: "Horario de verán de Europa Central"
+        generic: "Horario de Europa Central"
+        standard: "Horario estándar de Europa Central"
+    Europe_Eastern: 
+      long: 
+        daylight: "Horario de verán de Europa Oriental"
+        generic: "Horario de Europa Oriental"
+        standard: "Horario estándar de Europa Oriental"
+    Europe_Western: 
+      long: 
+        daylight: "Horario de verán de Europa Occidental"
+        generic: "Horario de Europa Occidental"
+        standard: "Horario estándar de Europa Occidental"
+    Falkland: 
+      long: 
+        daylight: "Horario de verán das Illas Malvinas"
+        generic: "Horario das Illas Malvinas"
+        standard: "Horario estándar das Illas Malvinas"
+    Fiji: 
+      long: 
+        daylight: "Horario de verán de Fidxi"
+        generic: "Horario de Fidxi"
+        standard: "Horario estándar de Fidxi"
+    French_Guiana: 
+      long: 
+        standard: "Horario da Güiana Francesa"
+    French_Southern: 
+      long: 
+        standard: "Horario das Terras Austrais e Antárticas Francesas"
+    GMT: 
+      long: 
+        standard: "Horario do meridiano de Greenwich"
+    Galapagos: 
+      long: 
+        standard: "Horario das Galápagos"
+    Gambier: 
+      long: 
+        standard: "Horario de Gambier"
+    Georgia: 
+      long: 
+        daylight: "Horario de verán de Xeorxia"
+        generic: "Horario de Xeorxia"
+        standard: "Horario estándar de Xeorxia"
+    Gilbert_Islands: 
+      long: 
+        standard: "Horario das Illas Gilbert"
+    Greenland_Eastern: 
+      long: 
+        daylight: "Horario de verán de Grenlandia Oriental"
+        generic: "Horario de Grenlandia Oriental"
+        standard: "Horario estándar de Grenlandia Oriental"
+    Greenland_Western: 
+      long: 
+        daylight: "Horario de verán de Grenlandia Occidental"
+        generic: "Horario de Grenlandia Occidental"
+        standard: "Horario estándar de Grenlandia Occidental"
+    Gulf: 
+      long: 
+        standard: "Horario estándar do Golfo"
+    Guyana: 
+      long: 
+        standard: "Horario da Güiana"
+    Hawaii_Aleutian: 
+      long: 
+        daylight: "Horario de verán de Hawai-Aleutiano"
+        generic: "Horario de Hawai-Aleutiano"
+        standard: "Horario estándar de Hawai-Aleutiano"
+    Hong_Kong: 
+      long: 
+        daylight: "Horario de verán de Hong Kong"
+        generic: "Horario de Hong Kong"
+        standard: "Horario estándar de Hong Kong"
+    Hovd: 
+      long: 
+        daylight: "Horario de verán de Hovd"
+        generic: "Horario de Hovd"
+        standard: "Horario estándar de Hovd"
+    India: 
+      long: 
+        standard: "Horario estándar da India"
+    Indian_Ocean: 
+      long: 
+        standard: "Horario do Océano Índico"
+    Indochina: 
+      long: 
+        standard: "Horario de Indochina"
+    Indonesia_Central: 
+      long: 
+        standard: "Horario de Indonesia Central"
+    Indonesia_Eastern: 
+      long: 
+        standard: "Horario de Indonesia Oriental"
+    Indonesia_Western: 
+      long: 
+        standard: "Horario de Indonesia Occidental"
+    Iran: 
+      long: 
+        daylight: "Horario de verán de Irán"
+        generic: "Horario de Irán"
+        standard: "Horario estándar de Irán"
+    Irkutsk: 
+      long: 
+        daylight: "Horario de verán de Irkutsk"
+        generic: "Horario de Irkutsk"
+        standard: "Horario estándar de Irkutsk"
+    Israel: 
+      long: 
+        daylight: "Horario de verán de Israel"
+        generic: "Horario de Israel"
+        standard: "Horario estándar de Israel"
+    Japan: 
+      long: 
+        daylight: "Horario de verán de Xapón"
+        generic: "Horario de Xapón"
+        standard: "Horario estándar de Xapón"
+    Kamchatka: 
+      long: 
+        daylight: "Horario de verán de Petropávlovsk-Kamchatski"
+        generic: "Horario de Petropávlovsk-Kamchatski"
+        standard: "Horario estándar de Petropávlovsk-Kamchatski"
+    Kazakhstan_Eastern: 
+      long: 
+        standard: "Horario de Casaquistán este"
+    Kazakhstan_Western: 
+      long: 
+        standard: "Horario de Casaquistán oeste"
+    Korea: 
+      long: 
+        daylight: "Horario de verán de Corea"
+        generic: "Horario de Corea"
+        standard: "Horario estándar de Corea"
+    Kosrae: 
+      long: 
+        standard: "Horario de Kosrae"
+    Krasnoyarsk: 
+      long: 
+        daylight: "Horario de verán de Krasnoyarsk"
+        generic: "Horario de Krasnoyarsk"
+        standard: "Horario estándar de Krasnoyarsk"
+    Kyrgystan: 
+      long: 
+        standard: "Horario de Quirguicistán"
+    Line_Islands: 
+      long: 
+        standard: "Horario das Illas da Liña"
+    Lord_Howe: 
+      long: 
+        daylight: "Horario de verán de Lord Howe"
+        generic: "Horario de Lord Howe"
+        standard: "Horario estándar de Lord Howe"
+    Macquarie: 
+      long: 
+        standard: "Horario da Illa Macquarie"
+    Magadan: 
+      long: 
+        daylight: "Horario de verán de Magadán"
+        generic: "Horario de Magadán"
+        standard: "Horario estándar de Magadán"
+    Malaysia: 
+      long: 
+        standard: "Horario de Malaisia"
+    Maldives: 
+      long: 
+        standard: "Horario das Maldivas"
+    Marquesas: 
+      long: 
+        standard: "Horario das Marquesas"
+    Marshall_Islands: 
+      long: 
+        standard: "Horario das Illas Marshall"
+    Mauritius: 
+      long: 
+        daylight: "Horario de verán de Mauricio"
+        generic: "Horario de Mauricio"
+        standard: "Horario estándar de Mauricio"
+    Mawson: 
+      long: 
+        standard: "Horario de Mawson"
+    Mongolia: 
+      long: 
+        daylight: "Horario de verán de Ulán Bátor"
+        generic: "Horario de Ulán Bátor"
+        standard: "Horario estándar de Ulán Bátor"
+    Moscow: 
+      long: 
+        daylight: "Horario de verán de Moscova"
+        generic: "Horario de Moscova"
+        standard: "Horario estándar de Moscova"
+    Myanmar: 
+      long: 
+        standard: "Horario de Birmania"
+    Nauru: 
+      long: 
+        standard: "Horario de Nauru"
+    Nepal: 
+      long: 
+        standard: "Horario de Nepal"
+    New_Caledonia: 
+      long: 
+        daylight: "Horario de verán de Nova Caledonia"
+        generic: "Horario de Nova Caledonia"
+        standard: "Horario estándar de Nova Caledonia"
+    New_Zealand: 
+      long: 
+        daylight: "Horario de verán de Nova Celandia"
+        generic: "Horario de Nova Celandia"
+        standard: "Horario estándar de Nova Celandia"
+    Newfoundland: 
+      long: 
+        daylight: "Horario de verán de Terranova"
+        generic: "Horario de Terranova"
+        standard: "Horario estándar de Terranova"
+    Niue: 
+      long: 
+        standard: "Horario de Niue"
+    Norfolk: 
+      long: 
+        standard: "Horario das Illas Norfolk"
+    Noronha: 
+      long: 
+        daylight: "Horario de verán de Fernando de Noronha"
+        generic: "Horario de Fernando de Noronha"
+        standard: "Horario estándar de Fernando de Noronha"
+    Novosibirsk: 
+      long: 
+        daylight: "Horario de verán de Novosibirsk"
+        generic: "Horario de Novosibirsk"
+        standard: "Horario estándar de Novosibirsk"
+    Omsk: 
+      long: 
+        daylight: "Horario de verán de Omsk"
+        generic: "Horario de Omsk"
+        standard: "Horario estándar de Omsk"
+    Pakistan: 
+      long: 
+        daylight: "Horario de verán de Paquistán"
+        generic: "Horario de Paquistán"
+        standard: "Horario estándar de Paquistán"
+    Palau: 
+      long: 
+        standard: "Horario de Palau"
+    Papua_New_Guinea: 
+      long: 
+        standard: "Horario de Papúa Nova Guinea"
+    Paraguay: 
+      long: 
+        daylight: "Horario de verán de Paraguai"
+        generic: "Horario de Paraguai"
+        standard: "Horario estándar de Paraguai"
+    Peru: 
+      long: 
+        daylight: "Horario de verán de Perú"
+        generic: "Horario de Perú"
+        standard: "Horario estándar de Perú"
+    Philippines: 
+      long: 
+        daylight: "Horario de verán de Filipinas"
+        generic: "Horario de Filipinas"
+        standard: "Horario estándar de Filipinas"
+    Phoenix_Islands: 
+      long: 
+        standard: "Horario das Illas Fénix"
+    Pierre_Miquelon: 
+      long: 
+        daylight: "Horario de verán de San Pedro e Miguelón"
+        generic: "Horario de San Pedro e Miguelón"
+        standard: "Horario estándar de San Pedro e Miguelón"
+    Pitcairn: 
+      long: 
+        standard: "Horario de Pitcairn"
+    Ponape: 
+      long: 
+        standard: "Horario de Pohnpei"
+    Reunion: 
+      long: 
+        standard: "Horario de Reunión"
+    Rothera: 
+      long: 
+        standard: "Horario de Rothera"
+    Sakhalin: 
+      long: 
+        daylight: "Horario de verán de Sakhalin"
+        generic: "Horario de Sakhalin"
+        standard: "Horario estándar de Sakhalín"
+    Samara: 
+      long: 
+        daylight: "Horario de verán de Samara"
+        generic: "Horario de Samara"
+        standard: "Horario estándar de Samara"
+    Samoa: 
+      long: 
+        daylight: "Horario de verán de Samoa"
+        generic: "Horario de Samoa"
+        standard: "Horario estándar de Samoa"
+    Seychelles: 
+      long: 
+        standard: "Horario das Seixeles"
+    Singapore: 
+      long: 
+        standard: "Horario estándar de Singapur"
+    Solomon: 
+      long: 
+        standard: "Horario das Illas Salomón"
+    South_Georgia: 
+      long: 
+        standard: "Horario de Xeorxia do Sur"
+    Suriname: 
+      long: 
+        standard: "Horario de Surinam"
+    Syowa: 
+      long: 
+        standard: "Horario de Syowa"
+    Tahiti: 
+      long: 
+        standard: "Horario de Tahití"
+    Taipei: 
+      long: 
+        daylight: "Horario de verán de Taipei"
+        generic: "Horario de Taipei"
+        standard: "Horario estándar de Taipei"
+    Tajikistan: 
+      long: 
+        standard: "Horario de Taxiquistán"
+    Tokelau: 
+      long: 
+        standard: "Horario de Toquelau"
+    Tonga: 
+      long: 
+        daylight: "Horario de verán de Tonga"
+        generic: "Horario de Tonga"
+        standard: "Horario estándar de Tonga"
+    Truk: 
+      long: 
+        standard: "Horario de Chuuk"
+    Turkmenistan: 
+      long: 
+        daylight: "Horario de verán de Turcomenistán"
+        generic: "Horario de Turcomenistán"
+        standard: "Horario estándar de Turcomenistán"
+    Tuvalu: 
+      long: 
+        standard: "Horario de Tuvalu"
+    Uruguay: 
+      long: 
+        daylight: "Horario de verán de Uruguai"
+        generic: "Horario de Uruguai"
+        standard: "Horario estándar de Uruguai"
+    Uzbekistan: 
+      long: 
+        daylight: "Horario de verán de Usbequistán"
+        generic: "Horario de Usbequistán"
+        standard: "Horario estándar de Usbequistán"
+    Vanuatu: 
+      long: 
+        daylight: "Horario de verán de Vanuatu"
+        generic: "Horario de Vanuatu"
+        standard: "Horario estándar de Vanuatu"
+    Venezuela: 
+      long: 
+        standard: "Horario de Venezuela"
+    Vladivostok: 
+      long: 
+        daylight: "Horario de verán de Vladivostok"
+        generic: "Horario de Vladivostok"
+        standard: "Horario estándar de Vladivostok"
+    Volgograd: 
+      long: 
+        daylight: "Horario de verán de Volgogrado"
+        generic: "Horario de Volgogrado"
+        standard: "Horario estándar de Volgogrado"
+    Vostok: 
+      long: 
+        standard: "Horario de Vostok"
+    Wake: 
+      long: 
+        standard: "Horario da Illa Wake"
+    Wallis: 
+      long: 
+        standard: "Horario de Wallis e Futuna"
+    Yakutsk: 
+      long: 
+        daylight: "Horario de verán de Yakutsk"
+        generic: "Horario de Iakutsk"
+        standard: "Horario estándar de Yakutsk"
+    Yekaterinburg: 
+      long: 
+        daylight: "Horario de verán de Ekaterimburgo"
+        generic: "Horario de Ekaterimburgo"
+        standard: "Horario estándar de Ekaterimburgo"
+  timezones: 
+    Africa/Accra: 
+      city: Acra
+    Africa/Addis_Ababa: 
+      city: "Adís Abeba"
+    Africa/Algiers: 
+      city: Alxer
+    Africa/Asmera: 
+      city: Asmak
+    Africa/Bamako: 
+      city: Bamaco
+    Africa/Dakar: 
+      city: Dacar
+    Africa/Djibouti: 
+      city: Xibutí
+    Africa/El_Aaiun: 
+      city: "O Aiún"
+    Africa/Johannesburg: 
+      city: Xohanesburgo
+    Africa/Khartoum: 
+      city: Khartún
+    Africa/Lome: 
+      city: Lomé
+    Africa/Lusaka: 
+      city: Lusaca
+    Africa/Mogadishu: 
+      city: Mogadixo
+    Africa/Ndjamena: 
+      city: Xamena
+    Africa/Ouagadougou: 
+      city: Uagadugú
+    Africa/Porto-Novo: 
+      city: "Porto Novo"
+    Africa/Sao_Tome: 
+      city: "São Tomé"
+    Africa/Tripoli: 
+      city: Trípoli
+    Africa/Tunis: 
+      city: Túnez
+    America/Anguilla: 
+      city: Anguila
+    America/Antigua: 
+      city: Antiga
+    America/Araguaina: 
+      city: Araguaína
+    America/Argentina/Rio_Gallegos: 
+      city: "Río Gallegos"
+    America/Argentina/Tucuman: 
+      city: Tucumán
+    America/Asuncion: 
+      city: Asunción
+    America/Bahia_Banderas: 
+      city: "Baía de Bandeiras"
+    America/Belem: 
+      city: Belém
+    America/Belize: 
+      city: Belice
+    America/Bogota: 
+      city: Bogotá
+    America/Buenos_Aires: 
+      city: "Bos Aires"
+    America/Cambridge_Bay: 
+      city: "Abadía de Cambridge"
+    America/Cancun: 
+      city: Cancún
+    America/Cayenne: 
+      city: Caiena
+    America/Cayman: 
+      city: Caimán
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Cordoba: 
+      city: Córdoba
+    America/Cuiaba: 
+      city: Cuiabá
+    America/Curacao: 
+      city: Curaçao
+    America/El_Salvador: 
+      city: "O Salvador"
+    America/Godthab: 
+      city: Nuuk
+    America/Grand_Turk: 
+      city: "Gran Turca"
+    America/Grenada: 
+      city: Granada
+    America/Guadeloupe: 
+      city: Guadalupe
+    America/Guyana: 
+      city: Güiana
+    America/Havana: 
+      city: Habana
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburgo, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Indianapolis: 
+      city: Indianápolis
+    America/Jamaica: 
+      city: Xamaica
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Los_Angeles: 
+      city: "Os Ánxeles"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/Maceio: 
+      city: Maceió
+    America/Martinique: 
+      city: Martinica
+    America/Mazatlan: 
+      city: Mazatlán
+    America/Merida: 
+      city: Mérida
+    America/Mexico_City: 
+      city: "Cidade de México"
+    America/Monterrey: 
+      city: Monterrei
+    America/New_York: 
+      city: "Nova York"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, Dakota do Norte"
+    America/North_Dakota/Center: 
+      city: "Center, Dakota do Norte"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, Dakota do Norte"
+    America/Panama: 
+      city: Panamá
+    America/Port-au-Prince: 
+      city: "Porto Príncipe"
+    America/Port_of_Spain: 
+      city: "Porto España"
+    America/Puerto_Rico: 
+      city: "Porto Rico"
+    America/Rio_Branco: 
+      city: "Río Branco"
+    America/Sao_Paulo: 
+      city: "São Paulo"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "San Bartolomé"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "San Cristovo"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "San Vicente"
+    Antarctica/DumontDUrville: 
+      city: Dumont-d'Urville
+    Antarctica/South_Pole: 
+      city: "Polo Sur"
+    Asia/Aden: 
+      city: Adén
+    Asia/Almaty: 
+      city: Almati
+    Asia/Amman: 
+      city: Amán
+    Asia/Anadyr: 
+      city: Anadir
+    Asia/Baghdad: 
+      city: Bagdad
+    Asia/Baku: 
+      city: Bacú
+    Asia/Calcutta: 
+      city: Calcuta
+    Asia/Damascus: 
+      city: Damasco
+    Asia/Jakarta: 
+      city: Iacarta
+    Asia/Jayapura: 
+      city: Jaiapura
+    Asia/Kabul: 
+      city: Cabul
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Muscat: 
+      city: Mascat
+    Asia/Riyadh: 
+      city: Riad
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Asia/Samarkand: 
+      city: Samarcanda
+    Asia/Seoul: 
+      city: Seúl
+    Asia/Singapore: 
+      city: Singapur
+    Asia/Thimphu: 
+      city: Timbu
+    Asia/Tokyo: 
+      city: Toquio
+    Asia/Ulaanbaatar: 
+      city: "Ulán Bátor"
+    Asia/Yekaterinburg: 
+      city: Ecaterinburgo
+    Asia/Yerevan: 
+      city: Iereván
+    Atlantic/Bermuda: 
+      city: Bermudas
+    Atlantic/Canary: 
+      city: "Illas Canarias"
+    Atlantic/Cape_Verde: 
+      city: "Cabo Verde"
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/Reykjavik: 
+      city: Reiquiavik
+    Atlantic/South_Georgia: 
+      city: "Xeorxia do Sur"
+    Atlantic/St_Helena: 
+      city: "Santa Helena"
+    Australia/Sydney: 
+      city: Sidney
+    Etc/Unknown: 
+      city: "Cidade descoñecida"
+    Europe/Amsterdam: 
+      city: Ámsterdan
+    Europe/Belgrade: 
+      city: Belgrado
+    Europe/Berlin: 
+      city: Berlín
+    Europe/Brussels: 
+      city: Bruxelas
+    Europe/Bucharest: 
+      city: Bucarest
+    Europe/Copenhagen: 
+      city: Copenhaguen
+    Europe/Dublin: 
+      city: Dublín
+    Europe/Gibraltar: 
+      city: Xibraltar
+    Europe/Guernsey: 
+      city: Guernesei
+    Europe/Isle_of_Man: 
+      city: "Illa de Man"
+    Europe/Istanbul: 
+      city: Estanbul
+    Europe/Kaliningrad: 
+      city: Kaliningrado
+    Europe/Lisbon: 
+      city: Lisboa
+    Europe/Ljubljana: 
+      city: Liubliana
+    Europe/London: 
+      city: Londres
+    Europe/Luxembourg: 
+      city: Luxemburgo
+    Europe/Monaco: 
+      city: Mónaco
+    Europe/Moscow: 
+      city: Moscova
+    Europe/Paris: 
+      city: París
+    Europe/Prague: 
+      city: Praga
+    Europe/Tallinn: 
+      city: Talín
+    Europe/Tirane: 
+      city: Tirana
+    Europe/Vatican: 
+      city: Vaticano
+    Europe/Vienna: 
+      city: Viena
+    Europe/Volgograd: 
+      city: Volgogrado
+    Europe/Warsaw: 
+      city: Varsovia
+    Europe/Zaporozhye: 
+      city: Zaporizhia
+    Europe/Zurich: 
+      city: Zúric
+    Indian/Christmas: 
+      city: "Illa de Nadal"
+    Indian/Comoro: 
+      city: "Illas Comores"
+    Indian/Maldives: 
+      city: Maldivas
+    Indian/Mauritius: 
+      city: Mauricio
+    Indian/Reunion: 
+      city: Reunión
+    Pacific/Easter: 
+      city: "Illa de Pascua"
+    Pacific/Fiji: 
+      city: Fidxi
+    Pacific/Galapagos: 
+      city: "Illas Galápagos"
+    Pacific/Honolulu: 
+      city: Honolulú
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Saipan: 
+      city: Saipán
+    Pacific/Tahiti: 
+      city: Tahití
+    Pacific/Truk: 
+      city: Chuuk

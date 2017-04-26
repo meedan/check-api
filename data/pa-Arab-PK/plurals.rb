@@ -1,0 +1,1 @@
+{ :'pa_Arab_PK' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

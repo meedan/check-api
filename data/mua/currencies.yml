@@ -1,0 +1,219 @@
+mua: 
+  currencies: 
+    AED: 
+      one: "Solai Arabiya"
+    AOA: 
+      one: "solai Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "solai Australya"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "solai Barenya"
+    BIF: 
+      one: "solai Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "solai Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "solai Kanada"
+      symbol: CA$
+    CDF: 
+      one: "solai Kongo"
+    CHF: 
+      one: "Solai Swiss"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "solai Syiŋ"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "solai Kapverdiya"
+    DJF: 
+      one: "solai Djibouti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "solai Algerya"
+    EGP: 
+      one: "solai Egypt"
+    ERN: 
+      one: "solai Eritre"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "solai Etiopia"
+    EUR: 
+      one: "solai Euro"
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "solai Britaniya"
+      symbol: £
+    GHC: 
+      one: "solai Gana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "solai Gambiya"
+    GNS: 
+      one: "solai Guine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "solai India"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "solai Japoŋ"
+      symbol: JP¥
+    KES: 
+      one: "solai Kenia"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "solai Komorya"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "solai Liberiya"
+      symbol: $
+    LSL: 
+      one: "solai Lesotho"
+    LYD: 
+      one: "solai Libya"
+    MAD: 
+      one: "Solai Marok"
+    MGA: 
+      one: "Solai Malagasya"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Solai Mauritaniya"
+    MUR: 
+      one: "Solai Mauricǝ"
+    MWK: 
+      one: "Solai Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Solai Mozambika"
+    NAD: 
+      one: "Solai Namibiya"
+      symbol: $
+    NGN: 
+      one: "Solai Nigeriya"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Solai Rwanda"
+    SAR: 
+      one: "Solai Saudiya"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Solai Saichel"
+    SDG: 
+      one: "Solai Sudaŋ ma dii ne dinar"
+    SDP: 
+      one: "Solai Sudaŋ ma dii ne livre"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Solai Helena"
+    SLL: 
+      one: "solai Sierra leonǝ"
+    SOS: 
+      one: "Solai Somaliya"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Solai Sao Tome"
+    SZL: 
+      one: "solai Swaziland"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Solai Tunisiya"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Solai Tanzaniya"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Solai Uganda"
+    USD: 
+      one: "Solai Amerika"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "solai BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "solai BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Solai Africa nekǝsǝŋ"
+    ZMK: 
+      one: "Solai Zambiya (1968–2012)"
+    ZMW: 
+      one: "Solai Zambiya"
+    ZWD: 
+      one: "Solai Zimbabwe"

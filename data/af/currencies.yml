@@ -1,0 +1,399 @@
+af: 
+  currencies: 
+    AED: 
+      one: "Verenigde Arabiese Emirate dirham"
+    AFN: 
+      one: "Afgaanse afgani"
+    ALL: 
+      one: "Albanese lek"
+    AMD: 
+      one: "Armeense dram"
+    ANG: 
+      one: "Nederlands-Antilliaanse gulde"
+    AOA: 
+      one: "Angolese kwanza"
+    ARS: 
+      one: "Argentynse peso"
+      symbol: $
+    AUD: 
+      one: "Australiese dollar"
+      other: "Australiese dollar"
+      symbol: A$
+    AWG: 
+      one: "Arubaanse floryn"
+    AZN: 
+      one: "Azerbeidjaanse manat"
+    BAM: 
+      one: "Bosnië en Herzegowina omskakelbare marka"
+    BBD: 
+      one: Barbados-dollar
+      symbol: $
+    BDT: 
+      one: "Bangladesjiese taka"
+      symbol: ৳
+    BGN: 
+      one: "Bulgaarse lev"
+    BHD: 
+      one: "Bahrainse dinar"
+    BIF: 
+      one: "Burundiese frank"
+    BMD: 
+      one: Bermuda-dollar
+      symbol: $
+    BND: 
+      one: "Broeneise dollar"
+      symbol: $
+    BOB: 
+      one: "Boliviaanse boliviano"
+    BRL: 
+      one: "Brasiliaanse real"
+      symbol: R$
+    BSD: 
+      one: "Bahamiaanse dollar"
+      symbol: $
+    BTN: 
+      one: "Bhoetanese ngoeltroem"
+    BWP: 
+      one: "Botswana pula"
+    BYR: 
+      one: "Belo-Russiese roebel"
+      symbol: р.
+    BZD: 
+      one: "Beliziese dollar"
+      symbol: $
+    CAD: 
+      one: "Kanadese dollar"
+      symbol: CA$
+    CDF: 
+      one: "Kongolese frank"
+    CHF: 
+      one: "Switserse frank"
+    CLP: 
+      one: "Chileense peso"
+      symbol: $
+    CNY: 
+      one: "Sjinese joean renminbi"
+      symbol: CN¥
+    COP: 
+      one: "Colombiaanse peso"
+      symbol: $
+    CRC: 
+      one: "Costa Ricaanse colón"
+      symbol: ₡
+    CUC: 
+      one: "Kubaanse omskakelbare peso"
+    CUP: 
+      one: "Kubaanse peso"
+      symbol: $
+    CVE: 
+      one: "Kaap Verdiese escudo"
+    CZK: 
+      one: "Tsjeggiese kroon"
+    DJF: 
+      one: "Djiboeti frank"
+    DKK: 
+      one: "Deense kroon"
+    DOP: 
+      one: "Dominikaanse peso"
+      other: "Dominikaanse peso"
+      symbol: $
+    DZD: 
+      one: "Algeriese dinar"
+    EGP: 
+      one: "Egiptiese pond"
+    ERN: 
+      one: "Eritrese nakfa"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Etiopiese birr"
+    EUR: 
+      one: Euro
+      symbol: €
+    FJD: 
+      one: "Fidjiaanse dollar"
+      symbol: $
+    FKP: 
+      one: "Falkland-eilande pond"
+    GBP: 
+      one: "Britse pond"
+      symbol: £
+    GEL: 
+      one: "Georgiese lari"
+    GHC: 
+      one: "Ghanese cedi (1979–2007)"
+    GHS: 
+      one: "Ghanese cedi"
+      symbol: ₵
+    GIP: 
+      one: "Gibraltarese pond"
+      symbol: £
+    GMD: 
+      one: "Gambiese dalasi"
+    GNF: 
+      one: "Guinese frank"
+    GNS: 
+      one: "Guinese syli"
+    GTQ: 
+      one: "Guatemalaanse quetzal"
+    GYD: 
+      one: "Guyanese dollar"
+      symbol: $
+    HKD: 
+      one: "Hong Kong dollar"
+      symbol: HK$
+    HNL: 
+      one: "Hondurese lempira"
+    HRK: 
+      one: "Kroatiese kuna"
+    HTG: 
+      one: "Haïtiaanse gourde"
+    IDR: 
+      one: "Indonesiese roepia"
+    ILS: 
+      one: "Israeliese nuwe sikkel"
+      symbol: ₪
+    INR: 
+      one: "Indiese rupee"
+      symbol: ₹
+    IQD: 
+      one: "Irakse dinar"
+    IRR: 
+      one: "Iranse rial"
+    ISK: 
+      one: "Yslandse kroon"
+    ITL: 
+      one: "Italiaanse lier"
+    JMD: 
+      one: "Jamaikaanse dollar"
+      symbol: $
+    JOD: 
+      one: "Jordaniese dinar"
+    JPY: 
+      one: "Japannese jen"
+      symbol: JP¥
+    KES: 
+      one: "Keniaanse sjieling"
+    KGS: 
+      one: "Kirgisiese som"
+    KHR: 
+      one: "Kambodjaanse riel"
+      symbol: ៛
+    KMF: 
+      one: "Comoriese frank"
+    KPW: 
+      one: "Noord-Koreaanse won"
+    KRW: 
+      one: "Suid-Koreaanse won"
+      symbol: ₩
+    KWD: 
+      one: "Koeweitse dinar"
+    KYD: 
+      one: "Cayman-eilande dollar"
+      symbol: $
+    KZT: 
+      one: "Kazakse tenge"
+      symbol: ₸
+    LAK: 
+      one: "Laosiaanse kip"
+      symbol: ₭
+    LBP: 
+      one: "Lebanese pond"
+    LKR: 
+      one: "Sri Lankaanse roepee"
+    LRD: 
+      one: "Liberiese dollar"
+      symbol: $
+    LSL: 
+      one: "Lesotho loti"
+    LTL: 
+      one: "Litause litas"
+    LVL: 
+      one: "Lettiese lats"
+    LYD: 
+      one: "Libiese dinar"
+    MAD: 
+      one: "Marokkaanse dirham"
+    MDL: 
+      one: "Moldowiese leu"
+    MGA: 
+      one: "Malgassiese ariary"
+    MKD: 
+      one: "Macedoniese denar"
+    MMK: 
+      one: "Myanma kyat"
+    MNT: 
+      one: "Mongoolse toegrik"
+      symbol: ₮
+    MOP: 
+      one: "Macaose pataca"
+    MRO: 
+      one: "Mauritaniese ouguiya"
+    MUR: 
+      one: "Mauritiaanse rupee"
+    MVR: 
+      one: "Malediviese rufia"
+    MWK: 
+      one: "Malawiese kwacha"
+    MXN: 
+      one: "Meksikaanse peso"
+      symbol: MX$
+    MYR: 
+      one: "Maleisiese ringgit"
+    MZM: 
+      one: "Mosambiekse metical (1980–2006)"
+    MZN: 
+      one: "Mosambiekse metical"
+    NAD: 
+      one: "Namibiese dollar"
+      symbol: $
+    NGN: 
+      one: "Nigeriese naira"
+      symbol: ₦
+    NIO: 
+      one: "Nicaraguaanse córdoba"
+    NOK: 
+      one: "Noorse kroon"
+    NPR: 
+      one: "Nepalese roepee"
+    NZD: 
+      one: "Nieu-Seeland dollar"
+      symbol: NZ$
+    OMR: 
+      one: "Omaanse rial"
+    PAB: 
+      one: "Panamese balboa"
+    PEN: 
+      one: "Peruaanse nuwe sol"
+    PGK: 
+      one: "Papoease kina"
+    PHP: 
+      one: "Filippynse peso"
+      symbol: ₱
+    PKR: 
+      one: "Pakistanse roepee"
+    PLN: 
+      one: "Poolse zloty"
+    PYG: 
+      one: "Paraguaanse guarani"
+      symbol: ₲
+    QAR: 
+      one: "Katarese rial"
+    RON: 
+      one: "Roemeense leu"
+      other: "Roemeense leu"
+    RSD: 
+      one: "Serbiese dinar"
+    RUB: 
+      one: "Russiese roebel"
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Rwandiese frank"
+    SAR: 
+      one: "Saoedi-Arabiese riyal"
+    SBD: 
+      one: "Salomonseilande dollar"
+      other: "Salomonseilande dollar"
+      symbol: $
+    SCR: 
+      one: "Seychellese rupee"
+    SDG: 
+      one: "Soedannese pond"
+    SDP: 
+      one: "Soedannese pond (1957–1998)"
+    SEK: 
+      one: "Sweedse kroon"
+    SGD: 
+      one: Singapoer-dollar
+      symbol: $
+    SHP: 
+      one: "Sint Helena pond"
+    SLL: 
+      one: "Sierra Leonese leone"
+    SOS: 
+      one: "Somaliese sjieling"
+    SRD: 
+      one: "Surinaamse dollar"
+      symbol: $
+    SSP: 
+      one: "Suid-Soedanese pond"
+      other: "Suid-Soedanese pond"
+      symbol: £
+    STD: 
+      one: "São Tomé en Príncipe dobra"
+    SYP: 
+      one: "Siriese pond"
+    SZL: 
+      one: "Swazilandse lilangeni"
+    THB: 
+      one: "Thaise baht"
+      symbol: ฿
+    TJS: 
+      one: "Tadjikse roebel"
+    TMT: 
+      one: "Toerkmeense manat"
+    TND: 
+      one: "Tunisiese dinar"
+    TOP: 
+      one: "Tongaanse pa'anga"
+    TRL: 
+      one: "Turkse lier (1922–2005)"
+    TRY: 
+      one: "Turkse lier"
+      symbol: ₺
+    TTD: 
+      one: "Trinidad en Tobago dollar"
+      symbol: $
+    TWD: 
+      one: "Nuwe Taiwanese dollar"
+      symbol: NT$
+    TZS: 
+      one: "Tanzaniese sjieling"
+    UAH: 
+      one: "Oekraïnse hriwna"
+      symbol: ₴
+    UGX: 
+      one: "Ugandese sjieling"
+    USD: 
+      one: "Amerikaanse dollar"
+      symbol: US$
+    UYU: 
+      one: "Uruguaanse peso"
+      symbol: $
+    UZS: 
+      one: "Oezbekiese som"
+    VEF: 
+      one: "Venezolaanse bolivar"
+    VND: 
+      one: "Viëtnamese dong"
+      symbol: ₫
+    VUV: 
+      one: "Vanuatu vatu"
+    WST: 
+      one: "Samoaanse tala"
+    XAF: 
+      one: "CFA frank BEAC"
+      symbol: FCFA
+    XCD: 
+      one: "Oos-Karibbiese dollar"
+      symbol: EC$
+    XOF: 
+      one: "CFA frank BCEAO"
+      symbol: CFA
+    XPF: 
+      one: CFP-frank
+      symbol: CFPF
+    XXX: 
+      one: "Onbekende geldeenheid"
+    YER: 
+      one: "Jemenitiese rial"
+    ZAR: 
+      one: "Suid-Afrikaanse rand"
+      symbol: R
+    ZMK: 
+      one: "Zambiese kwacha (1968–2012)"
+    ZMW: 
+      one: "Zambiese kwacha"
+    ZWD: 
+      one: "Zimbabwiese dollar"

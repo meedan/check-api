@@ -1,0 +1,9 @@
+uz-Cyrl-UZ: 
+  delimiters: 
+    quotes: 
+      alternate: 
+        end: ’
+        start: ‘
+      default: 
+        end: ”
+        start: “

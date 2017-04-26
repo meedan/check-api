@@ -1,0 +1,1415 @@
+pa: 
+  metazones: 
+    Afghanistan: 
+      long: 
+        standard: "ਅਫ਼ਗਾਨਿਸਤਾਨ ਸਮਾਂ"
+    Africa_Central: 
+      long: 
+        standard: "ਕੇਂਦਰੀ ਅਫਰੀਕਾ ਸਮਾਂ"
+    Africa_Eastern: 
+      long: 
+        standard: "ਪੂਰਬੀ ਅਫਰੀਕਾ ਸਮਾਂ"
+    Africa_Southern: 
+      long: 
+        standard: "ਦੱਖਣੀ ਅਫਰੀਕਾ ਸਮਾਂ"
+    Africa_Western: 
+      long: 
+        daylight: "ਪੱਛਮੀ ਅਫਰੀਕਾ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਪੱਛਮੀ ਅਫਰੀਕਾ ਸਮਾਂ"
+        standard: "ਪੱਛਮੀ ਅਫਰੀਕਾ ਮਿਆਰੀ ਸਮਾਂ"
+    Alaska: 
+      long: 
+        daylight: "ਅਲਾਸਕਾ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਅਲਾਸਕਾ ਸਮਾਂ"
+        standard: "ਅਲਾਸਕਾ ਮਿਆਰੀ ਸਮਾਂ"
+    Amazon: 
+      long: 
+        daylight: "ਅਮੇਜ਼ਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਅਮੇਜ਼ਨ ਸਮਾਂ"
+        standard: "ਅਮੇਜ਼ਨ ਮਿਆਰੀ ਸਮਾਂ"
+    America_Central: 
+      long: 
+        daylight: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਕੇਂਦਰੀ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਕੇਂਦਰੀ ਸਮਾਂ"
+        standard: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਕੇਂਦਰੀ ਮਿਆਰੀ ਸਮਾਂ"
+    America_Eastern: 
+      long: 
+        daylight: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਪੂਰਬੀ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਪੂਰਬੀ ਸਮਾਂ"
+        standard: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਮਿਆਰੀ ਸਮਾਂ"
+    America_Mountain: 
+      long: 
+        daylight: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਮਾਉਂਟੇਨ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਮਾਉਂਟੇਨ ਸਮਾਂ"
+        standard: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਮਾਉਂਟੇਨ ਮਿਆਰੀ ਸਮਾਂ"
+    America_Pacific: 
+      long: 
+        daylight: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਪੈਸਿਫਿਕ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਪੈਸਿਫਿਕ ਸਮਾਂ"
+        standard: "ਉੱਤਰੀ ਅਮੇਰਿਕਨ ਪੈਸਿਫਿਕ ਮਿਆਰੀ ਸਮਾਂ"
+    Arabian: 
+      long: 
+        daylight: "ਅਰੇਬੀਅਨ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਅਰੇਬੀਅਨ ਸਮਾਂ"
+        standard: "ਅਰੇਬੀਅਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Argentina: 
+      long: 
+        daylight: "ਅਰਜਨਟੀਨਾ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਅਰਜਨਟੀਨਾ ਸਮਾਂ"
+        standard: "ਅਰਜਨਟੀਨਾ ਮਿਆਰੀ ਸਮਾਂ"
+    Argentina_Western: 
+      long: 
+        daylight: "ਪੱਛਮੀ ਅਰਜਨਟੀਨਾ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਪੱਛਮੀ ਅਰਜਨਟੀਨਾ ਸਮਾਂ"
+        standard: "ਪੱਛਮੀ ਅਰਜਨਟੀਨਾ ਮਿਆਰੀ ਸਮਾਂ"
+    Armenia: 
+      long: 
+        daylight: "ਆਰਮੀਨਿਆ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਆਰਮੀਨਿਆ ਸਮਾਂ"
+        standard: "ਆਰਮੀਨਿਆ ਮਿਆਰੀ ਸਮਾਂ"
+    Atlantic: 
+      long: 
+        daylight: "ਅਟਲਾਂਟਿਕ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਅਟਲਾਂਟਿਕ ਸਮਾਂ"
+        standard: "ਅਟਲਾਂਟਿਕ ਮਿਆਰੀ ਸਮਾਂ"
+    Australia_Central: 
+      long: 
+        daylight: "ਆਸਟ੍ਰੇਲੀਅਨ ਕੇਂਦਰੀ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਕੇਂਦਰੀ ਆਸਟ੍ਰੇਲੀਅਨ ਸਮਾਂ"
+        standard: "ਆਸਟ੍ਰੇਲੀਅਨ ਕੇਂਦਰੀ ਮਿਆਰੀ ਸਮਾਂ"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "ਆਸਟ੍ਰੇਲੀਅਨ ਕੇਂਦਰੀ ਪੱਛਮੀ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਆਸਟ੍ਰੇਲੀਅਨ ਕੇਂਦਰੀ ਪੱਛਮੀ ਸਮਾਂ"
+        standard: "ਆਸਟ੍ਰੇਲੀਅਨ ਕੇਂਦਰੀ ਪੱਛਮੀ ਮਿਆਰੀ ਸਮਾਂ"
+    Australia_Eastern: 
+      long: 
+        daylight: "ਆਸਟ੍ਰੇਲੀਅਨ ਪੂਰਬੀ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਪੂਰਬੀ ਆਸਟ੍ਰੇਲੀਅਨ ਸਮਾਂ"
+        standard: "ਆਸਟ੍ਰੇਲੀਅਨ ਪੂਰਬੀ ਮਿਆਰੀ ਸਮਾਂ"
+    Australia_Western: 
+      long: 
+        daylight: "ਆਸਟ੍ਰੇਲੀਅਨ ਪੱਛਮੀ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਪੱਛਮੀ ਆਸਟ੍ਰੇਲੀਅਨ ਸਮਾਂ"
+        standard: "ਆਸਟ੍ਰੇਲੀਅਨ ਪੱਛਮੀ ਮਿਆਰੀ ਸਮਾਂ"
+    Azerbaijan: 
+      long: 
+        daylight: "ਅਜ਼ਰਬੈਜਾਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਅਜ਼ਰਬੈਜਾਨ ਸਮਾਂ"
+        standard: "ਅਜ਼ਰਬੈਜਾਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Azores: 
+      long: 
+        daylight: "ਅਜੋਰੇਸ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਅਜੋਰੇਸ ਸਮਾਂ"
+        standard: "ਅਜੋਰੇਸ ਮਿਆਰੀ ਸਮਾਂ"
+    Bangladesh: 
+      long: 
+        daylight: "ਬੰਗਲਾਦੇਸ਼ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਬੰਗਲਾਦੇਸ਼ ਸਮਾਂ"
+        standard: "ਬੰਗਲਾਦੇਸ਼ ਮਿਆਰੀ ਸਮਾਂ"
+    Bhutan: 
+      long: 
+        standard: "ਭੂਟਾਨ ਸਮਾਂ"
+    Bolivia: 
+      long: 
+        standard: "ਬੋਲੀਵੀਆ ਸਮਾਂ"
+    Brasilia: 
+      long: 
+        daylight: "ਬ੍ਰਾਜ਼ੀਲੀਆਂ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਬ੍ਰਾਜ਼ੀਲੀਆਂ ਸਮਾਂ"
+        standard: "ਬ੍ਰਾਜ਼ੀਲੀਆਂ ਮਿਆਰੀ ਸਮਾਂ"
+    Brunei: 
+      long: 
+        standard: "ਬਰੂਨੇਈ ਦਾਰੂਸਲਾਮ ਸਮਾਂ"
+    Cape_Verde: 
+      long: 
+        daylight: "ਕੇਪ ਵਰਡ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਕੇਪ ਵਰਡ ਸਮਾਂ"
+        standard: "ਕੇਪ ਵਰਡ ਮਿਆਰੀ ਸਮਾਂ"
+    Chamorro: 
+      long: 
+        standard: "ਚਾਮੋਰੋ ਸਮਾਂ"
+    Chatham: 
+      long: 
+        daylight: "ਚੈਟਹੇਮ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਚੈਟਹੇਮ ਸਮਾਂ"
+        standard: "ਚੈਟਹੇਮ ਮਿਆਰੀ ਸਮਾਂ"
+    Chile: 
+      long: 
+        daylight: "ਚਿਲੀ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਚਿਲੀ ਸਮਾਂ"
+        standard: "ਚਿਲੀ ਮਿਆਰੀ ਸਮਾਂ"
+    China: 
+      long: 
+        daylight: "ਚੀਨ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਚੀਨ ਸਮਾਂ"
+        standard: "ਚੀਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Choibalsan: 
+      long: 
+        daylight: "ਚੌਇਬਾਲਸਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਚੌਇਬਾਲਸਨ ਸਮਾਂ"
+        standard: "ਚੌਇਬਾਲਸਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Christmas: 
+      long: 
+        standard: "ਕ੍ਰਿਸਮਸ ਆਈਲੈਂਡ ਸਮਾਂ"
+    Cocos: 
+      long: 
+        standard: "ਕੋਕੋਜ਼ ਆਈਲੈਂਡ ਸਮਾਂ"
+    Colombia: 
+      long: 
+        daylight: "ਕੋਲੰਬੀਆ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਕੋਲੰਬੀਆ ਸਮਾਂ"
+        standard: "ਕੋਲੰਬੀਆ ਮਿਆਰੀ ਸਮਾਂ"
+    Cook: 
+      long: 
+        daylight: "ਕੁੱਕ ਆਈਲੈਂਡ ਅੱਧਾ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਕੁੱਕ ਆਈਲੈਂਡ ਸਮਾਂ"
+        standard: "ਕੁੱਕ ਆਈਲੈਂਡ ਅੱਧਾ ਮਿਆਰੀ ਸਮਾਂ"
+    Cuba: 
+      long: 
+        daylight: "ਕਿਊਬਾ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਕਿਊਬਾ ਸਮਾਂ"
+        standard: "ਕਿਊਬਾ ਮਿਆਰੀ ਸਮਾਂ"
+    Davis: 
+      long: 
+        standard: "ਡੇਵਿਸ ਸਮਾਂ"
+    DumontDUrville: 
+      long: 
+        standard: "ਡਿਉਮੋਂਟ ਡਿਉਰਵਿਲੇ ਸਮਾਂ"
+    East_Timor: 
+      long: 
+        standard: "ਪੂਰਬੀ ਟੀਮੁਰ ਸਮਾਂ"
+    Easter: 
+      long: 
+        daylight: "ਈਸਟਰ ਆਈਲੈਂਡ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਈਸਟਰ ਆਈਲੈਂਡ ਸਮਾਂ"
+        standard: "ਈਸਟਰ ਆਈਲੈਂਡ ਮਿਆਰੀ ਸਮਾਂ"
+    Ecuador: 
+      long: 
+        standard: "ਇਕਵੇਡੋਰ ਸਮਾਂ"
+    Europe_Central: 
+      long: 
+        daylight: "ਕੇਂਦਰੀ ਯੂਰੋਪੀਅਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਕੇਂਦਰੀ ਯੂਰੋਪੀਅਨ ਸਮਾਂ"
+        standard: "ਕੇਂਦਰੀ ਯੂਰੋਪੀਅਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Europe_Eastern: 
+      long: 
+        daylight: "ਪੂਰਬੀ ਯੂਰੋਪੀਅਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਪੂਰਬੀ ਯੂਰੋਪੀਅਨ ਸਮਾਂ"
+        standard: "ਪੂਰਬੀ ਯੂਰੋਪੀਅਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Europe_Western: 
+      long: 
+        daylight: "ਪੱਛਮੀ ਯੂਰੋਪੀਅਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਪੱਛਮੀ ਯੂਰੋਪੀਅਨ ਸਮਾਂ"
+        standard: "ਪੱਛਮੀ ਯੂਰੋਪੀਅਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Falkland: 
+      long: 
+        daylight: "ਫ਼ਾਕਲੈਂਡ ਆਈਲੈਂਡਸ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਫ਼ਾਕਲੈਂਡ ਆਈਲੈਂਡਸ ਸਮਾਂ"
+        standard: "ਫ਼ਾਕਲੈਂਡ ਆਈਲੈਂਡਸ ਮਿਆਰੀ ਸਮਾਂ"
+    Fiji: 
+      long: 
+        daylight: "ਫ਼ਿਜ਼ੀ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਫ਼ਿਜ਼ੀ ਸਮਾਂ"
+        standard: "ਫ਼ਿਜ਼ੀ ਮਿਆਰੀ ਸਮਾਂ"
+    French_Guiana: 
+      long: 
+        standard: "ਫ੍ਰੈਂਚ ਗੁਏਨਾ ਸਮਾਂ"
+    French_Southern: 
+      long: 
+        standard: "ਫ੍ਰੈਂਚ ਦੱਖਣੀ ਅਤੇ ਐਂਟਾਰਟਿਕ ਸਮਾਂ"
+    GMT: 
+      long: 
+        standard: "ਗ੍ਰੀਨਵਿਚ ਮੀਨ ਟਾਈਮ"
+    Galapagos: 
+      long: 
+        standard: "ਗਲਾਪਾਗੋਸ ਸਮਾਂ"
+    Gambier: 
+      long: 
+        standard: "ਗੈਂਬੀਅਰ ਸਮਾਂ"
+    Georgia: 
+      long: 
+        daylight: "ਜਾਰਜਿਆ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਜਾਰਜਿਆ ਸਮਾਂ"
+        standard: "ਜਾਰਜਿਆ ਮਿਆਰੀ ਸਮਾਂ"
+    Gilbert_Islands: 
+      long: 
+        standard: "ਗਿਲਬਰਟ ਆਈਲੈਂਡ ਸਮਾਂ"
+    Greenland_Eastern: 
+      long: 
+        daylight: "ਪੂਰਬੀ ਗ੍ਰੀਨਲੈਂਡ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਪੂਰਬੀ ਗ੍ਰੀਨਲੈਂਡ ਸਮਾਂ"
+        standard: "ਪੂਰਬੀ ਗ੍ਰੀਨਲੈਂਡ ਮਿਆਰੀ ਸਮਾਂ"
+    Greenland_Western: 
+      long: 
+        daylight: "ਪੱਛਮੀ ਗ੍ਰੀਨਲੈਂਡ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਪੱਛਮੀ ਗ੍ਰੀਨਲੈਂਡ ਸਮਾਂ"
+        standard: "ਪੱਛਮੀ ਗ੍ਰੀਨਲੈਂਡ ਮਿਆਰੀ ਸਮਾਂ"
+    Gulf: 
+      long: 
+        standard: "ਖਾੜੀ ਸਮਾਂ"
+    Guyana: 
+      long: 
+        standard: "ਗੁਯਾਨਾ ਸਮਾਂ"
+    Hawaii_Aleutian: 
+      long: 
+        daylight: "ਹਵਾਈ-ਅਲੇਯੂਸ਼ਿਅਨ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਹਵਾਈ-ਅਲੇਯੂਸ਼ਿਅਨ ਸਮਾਂ"
+        standard: "ਹਵਾਈ-ਅਲੇਯੂਸ਼ਿਅਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Hong_Kong: 
+      long: 
+        daylight: "ਹਾਂਗ ਕਾਂਗ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਹਾਂਗ ਕਾਂਗ ਸਮਾਂ"
+        standard: "ਹਾਂਗ ਕਾਂਗ ਮਿਆਰੀ ਸਮਾਂ"
+    Hovd: 
+      long: 
+        daylight: "ਹੋਵਡ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਹੋਵਡ ਸਮਾਂ"
+        standard: "ਹੋਵਡ ਮਿਆਰੀ ਸਮਾਂ"
+    India: 
+      long: 
+        standard: "ਭਾਰਤ ਸਮਾਂ"
+      short: 
+        standard: IST
+    Indian_Ocean: 
+      long: 
+        standard: "ਭਾਰਤੀ ਓਸ਼ਨ ਸਮਾਂ"
+    Indochina: 
+      long: 
+        standard: "ਇੰਡੋਚਾਈਨਾ ਸਮਾਂ"
+    Indonesia_Central: 
+      long: 
+        standard: "ਕੇਂਦਰੀ ਇੰਡੋਨੇਸ਼ੀਆ ਸਮਾਂ"
+    Indonesia_Eastern: 
+      long: 
+        standard: "ਪੂਰਬੀ ਇੰਡੋਨੇਸ਼ੀਆ ਸਮਾਂ"
+    Indonesia_Western: 
+      long: 
+        standard: "ਪੱਛਮੀ ਇੰਡੋਨੇਸ਼ੀਆ ਸਮਾਂ"
+    Iran: 
+      long: 
+        daylight: "ਈਰਾਨ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਈਰਾਨ ਸਮਾਂ"
+        standard: "ਈਰਾਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Irkutsk: 
+      long: 
+        daylight: "ਇਰਕੁਤਸਕ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਇਰਕੁਤਸਕ ਸਮਾਂ"
+        standard: "ਇਰਕੁਤਸਕ ਮਿਆਰੀ ਸਮਾਂ"
+    Israel: 
+      long: 
+        daylight: "ਇਜ਼ਰਾਈਲ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਇਜ਼ਰਾਈਲ ਸਮਾਂ"
+        standard: "ਇਜ਼ਰਾਈਲ ਮਿਆਰੀ ਸਮਾਂ"
+    Japan: 
+      long: 
+        daylight: "ਜਾਪਾਨ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਜਾਪਾਨ ਸਮਾਂ"
+        standard: "ਜਾਪਾਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Kazakhstan_Eastern: 
+      long: 
+        standard: "ਪੂਰਬੀ ਕਜ਼ਾਕਸਤਾਨ ਸਮਾਂ"
+    Kazakhstan_Western: 
+      long: 
+        standard: "ਪੱਛਮੀ ਕਜ਼ਾਕਸਤਾਨ ਸਮਾਂ"
+    Korea: 
+      long: 
+        daylight: "ਕੋਰੀਆਈ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਕੋਰੀਆਈ ਸਮਾਂ"
+        standard: "ਕੋਰੀਆਈ ਮਿਆਰੀ ਸਮਾਂ"
+    Kosrae: 
+      long: 
+        standard: "ਕੋਸ੍ਰਾਏ ਸਮਾਂ"
+    Krasnoyarsk: 
+      long: 
+        daylight: "ਕ੍ਰਾਸਨੋਯਾਰਕਸ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਕ੍ਰਾਸਨੋਯਾਰਕਸ ਸਮਾਂ"
+        standard: "ਕ੍ਰਾਸਨੋਯਾਰਕਸ ਮਿਆਰੀ ਸਮਾਂ"
+    Kyrgystan: 
+      long: 
+        standard: "ਕਿਰਗਿਸਤਾਨ ਸਮਾਂ"
+    Line_Islands: 
+      long: 
+        standard: "ਲਾਈਨ ਆਈਲੈਂਡ ਸਮਾਂ"
+    Lord_Howe: 
+      long: 
+        daylight: "ਲੌਰਡ ਹੋਵੇ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਲੌਰਡ ਹੋਵੇ ਸਮਾਂ"
+        standard: "ਲੌਰਡ ਹੋਵੇ ਮਿਆਰੀ ਸਮਾਂ"
+    Macquarie: 
+      long: 
+        standard: "ਮੈਕਕਵੇਰੀ ਆਈਲੈਂਡ ਸਮਾਂ"
+    Magadan: 
+      long: 
+        daylight: "ਮੈਗੇਡਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਮੈਗੇਡਨ ਸਮਾਂ"
+        standard: "ਮੈਗੇਡਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Malaysia: 
+      long: 
+        standard: "ਮਲੇਸ਼ੀਆ ਸਮਾਂ"
+    Maldives: 
+      long: 
+        standard: "ਮਾਲਦੀਵ ਸਮਾਂ"
+    Marquesas: 
+      long: 
+        standard: "ਮਾਰਕਿਸਾਸ ਸਮਾਂ"
+    Marshall_Islands: 
+      long: 
+        standard: "ਮਾਰਸ਼ਲ ਆਈਲੈਂਡ ਸਮਾਂ"
+    Mauritius: 
+      long: 
+        daylight: "ਮੌਰਿਸ਼ਸ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਮੌਰਿਸ਼ਸ ਸਮਾਂ"
+        standard: "ਮੌਰਿਸ਼ਸ ਮਿਆਰੀ ਸਮਾਂ"
+    Mawson: 
+      long: 
+        standard: "ਮੌਸਨ ਸਮਾਂ"
+    Mongolia: 
+      long: 
+        daylight: "ਉਲਨ ਬਟੋਰ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਉਲਨ ਬਟੋਰ ਸਮਾਂ"
+        standard: "ਉਲਨ ਬਟੋਰ ਮਿਆਰੀ ਸਮਾਂ"
+    Moscow: 
+      long: 
+        daylight: "ਮਾਸਕੋ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਮਾਸਕੋ ਸਮਾਂ"
+        standard: "ਮਾਸਕੋ ਮਿਆਰੀ ਸਮਾਂ"
+    Myanmar: 
+      long: 
+        standard: "ਮਿਆਂਮਾਰ ਸਮਾਂ"
+    Nauru: 
+      long: 
+        standard: "ਨਾਉਰੂ ਸਮਾਂ"
+    Nepal: 
+      long: 
+        standard: "ਨੇਪਾਲ ਸਮਾਂ"
+    New_Caledonia: 
+      long: 
+        daylight: "ਨਿਊ ਕੈਲੇਡੋਨਿਆ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਨਿਊ ਕੈਲੇਡੋਨਿਆ ਸਮਾਂ"
+        standard: "ਨਿਊ ਕੈਲੇਡੋਨਿਆ ਮਿਆਰੀ ਸਮਾਂ"
+    New_Zealand: 
+      long: 
+        daylight: "ਨਿਊਜ਼ੀਲੈਂਡ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਨਿਊਜ਼ੀਲੈਂਡ ਸਮਾਂ"
+        standard: "ਨਿਊਜ਼ੀਲੈਂਡ ਮਿਆਰੀ ਸਮਾਂ"
+    Newfoundland: 
+      long: 
+        daylight: "ਨਿਊਫਾਉਂਡਲੈਂਡ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਨਿਊਫਾਉਂਡਲੈਂਡ ਸਮਾਂ"
+        standard: "ਨਿਊਫਾਉਂਡਲੈਂਡ ਮਿਆਰੀ ਸਮਾਂ"
+    Niue: 
+      long: 
+        standard: "ਨਿਊ ਸਮਾਂ"
+    Norfolk: 
+      long: 
+        standard: "ਨੋਰਫੌਕ ਆਈਲੈਂਡ ਸਮਾਂ"
+    Noronha: 
+      long: 
+        daylight: "ਫਰਨਾਂਡੋ ਡੇ ਨੋਰੋਨਹਾ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਫਰਨਾਂਡੋ ਡੇ ਨੋਰੋਨਹਾ ਸਮਾਂ"
+        standard: "ਫਰਨਾਂਡੋ ਡੇ ਨੋਰੋਨਹਾ ਮਿਆਰੀ ਸਮਾਂ"
+    Novosibirsk: 
+      long: 
+        daylight: "ਨੌਵੋਸਿਬੀਰਕਸ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਨੌਵੋਸਿਬੀਰਕਸ ਸਮਾਂ"
+        standard: "ਨੌਵੋਸਿਬੀਰਕਸ ਮਿਆਰੀ ਸਮਾਂ"
+    Omsk: 
+      long: 
+        daylight: "ਓਮਸਕ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਓਮਸਕ ਸਮਾਂ"
+        standard: "ਓਮਸਕ ਮਿਆਰੀ ਸਮਾਂ"
+    Pakistan: 
+      long: 
+        daylight: "ਪਾਕਿਸਤਾਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਪਾਕਿਸਤਾਨ ਸਮਾਂ"
+        standard: "ਪਾਕਿਸਤਾਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Palau: 
+      long: 
+        standard: "ਪਲਾਉ ਸਮਾਂ"
+    Papua_New_Guinea: 
+      long: 
+        standard: "ਪਾਪੂਆ ਨਿਊ ਗਿਨੀ ਸਮਾਂ"
+    Paraguay: 
+      long: 
+        daylight: "ਪੈਰਾਗਵੇ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਪੈਰਾਗਵੇ ਸਮਾਂ"
+        standard: "ਪੈਰਾਗਵੇ ਮਿਆਰੀ ਸਮਾਂ"
+    Peru: 
+      long: 
+        daylight: "ਪੇਰੂ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਪੇਰੂ ਸਮਾਂ"
+        standard: "ਪੇਰੂ ਮਿਆਰੀ ਸਮਾਂ"
+    Philippines: 
+      long: 
+        daylight: "ਫਿਲਿਪਾਈਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਫਿਲਿਪਾਈਨ ਸਮਾਂ"
+        standard: "ਫਿਲਿਪਾਈਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Phoenix_Islands: 
+      long: 
+        standard: "ਫੋਨਿਕਸ ਆਈਲੈਂਡ ਸਮਾਂ"
+    Pierre_Miquelon: 
+      long: 
+        daylight: "ਸੈਂਟ ਪੀਅਰੇ ਅਤੇ ਮਿਕੇਲਨ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਸੈਂਟ ਪੀਅਰੇ ਅਤੇ ਮਿਕੇਲਨ ਸਮਾਂ"
+        standard: "ਸੈਂਟ ਪੀਅਰੇ ਅਤੇ ਮਿਕੇਲਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Pitcairn: 
+      long: 
+        standard: "ਪਿਟਕੈਰਨ ਸਮਾਂ"
+    Ponape: 
+      long: 
+        standard: "ਪੋਹਨਪੇਈ ਸਮਾਂ"
+    Reunion: 
+      long: 
+        standard: "ਰਿਯੂਨੀਅਨ ਸਮਾਂ"
+    Rothera: 
+      long: 
+        standard: "ਰੋਥੇਰਾ ਸਮਾਂ"
+    Sakhalin: 
+      long: 
+        daylight: "ਸਖਲੀਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਸਖਲੀਨ ਸਮਾਂ"
+        standard: "ਸਖਲੀਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Samoa: 
+      long: 
+        daylight: "ਸਾਮੋਆ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਸਾਮੋਆ ਸਮਾਂ"
+        standard: "ਸਾਮੋਆ ਮਿਆਰੀ ਸਮਾਂ"
+    Seychelles: 
+      long: 
+        standard: "ਸੇਸ਼ਲਸ ਸਮਾਂ"
+    Singapore: 
+      long: 
+        standard: "ਸਿੰਗਾਪੁਰ ਸਮਾਂ"
+    Solomon: 
+      long: 
+        standard: "ਸੋਲੋਮਨ ਆਈਲੈਂਡਸ ਸਮਾਂ"
+    South_Georgia: 
+      long: 
+        standard: "ਦੱਖਣੀ ਜਾਰਜਿਆ ਸਮਾਂ"
+    Suriname: 
+      long: 
+        standard: "ਸੂਰੀਨਾਮ ਸਮਾਂ"
+    Syowa: 
+      long: 
+        standard: "ਸਵੋਯਾ ਸਮਾਂ"
+    Tahiti: 
+      long: 
+        standard: "ਤਹਿਤੀ ਸਮਾਂ"
+    Taipei: 
+      long: 
+        daylight: "ਤੈਪਈ ਪ੍ਰਕਾਸ਼ ਸਮਾਂ"
+        generic: "ਤੈਪਈ ਸਮਾਂ"
+        standard: "ਤੈਪਈ ਮਿਆਰੀ ਸਮਾਂ"
+    Tajikistan: 
+      long: 
+        standard: "ਤਾਜਿਕਿਸਤਾਨ ਸਮਾਂ"
+    Tokelau: 
+      long: 
+        standard: "ਟੋਕੇਲਾਉ ਸਮਾਂ"
+    Tonga: 
+      long: 
+        daylight: "ਟੋਂਗਾ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਟੋਂਗਾ ਸਮਾਂ"
+        standard: "ਟੋਂਗਾ ਮਿਆਰੀ ਸਮਾਂ"
+    Truk: 
+      long: 
+        standard: "ਚੂਕ ਸਮਾਂ"
+    Turkmenistan: 
+      long: 
+        daylight: "ਤੁਰਕਮੇਨਿਸਤਾਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਤੁਰਕਮੇਨਿਸਤਾਨ ਸਮਾਂ"
+        standard: "ਤੁਰਕਮੇਨਿਸਤਾਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Tuvalu: 
+      long: 
+        standard: "ਟੁਵਾਲੂ ਸਮਾਂ"
+    Uruguay: 
+      long: 
+        daylight: "ਉਰੂਗਵੇ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਉਰੂਗਵੇ ਸਮਾਂ"
+        standard: "ਉਰੂਗਵੇ ਮਿਆਰੀ ਸਮਾਂ"
+    Uzbekistan: 
+      long: 
+        daylight: "ਉਜ਼ਬੇਕਿਸਤਾਨ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਉਜ਼ਬੇਕਿਸਤਾਨ ਸਮਾਂ"
+        standard: "ਉਜ਼ਬੇਕਿਸਤਾਨ ਮਿਆਰੀ ਸਮਾਂ"
+    Vanuatu: 
+      long: 
+        daylight: "ਵਾਨੂਆਟੂ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਵਾਨੂਆਟੂ ਸਮਾਂ"
+        standard: "ਵਾਨੂਆਟੂ ਮਿਆਰੀ ਸਮਾਂ"
+    Venezuela: 
+      long: 
+        standard: "ਵੈਨੇਜ਼ੂਏਲਾ ਸਮਾਂ"
+    Vladivostok: 
+      long: 
+        daylight: "ਵਲਾਦੀਵੋਸਤਕ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਵਲਾਦੀਵੋਸਤਕ ਸਮਾਂ"
+        standard: "ਵਲਾਦੀਵੋਸਤਕ ਮਿਆਰੀ ਸਮਾਂ"
+    Volgograd: 
+      long: 
+        daylight: "ਵੋਲਵੋਗ੍ਰੇਡ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਵੋਲਵੋਗ੍ਰੇਡ ਸਮਾਂ"
+        standard: "ਵੋਲਵੋਗ੍ਰੇਡ ਮਿਆਰੀ ਸਮਾਂ"
+    Vostok: 
+      long: 
+        standard: "ਵੋਸਟੋਕ ਸਮਾਂ"
+    Wake: 
+      long: 
+        standard: "ਵੇਕ ਆਈਲੈਂਡ ਸਮਾਂ"
+    Wallis: 
+      long: 
+        standard: "ਵਾਲਿਸ ਅਤੇ ਫਯੁਚੁਨਾ ਸਮਾਂ"
+    Yakutsk: 
+      long: 
+        daylight: "ਯਕੁਤਸਕ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਯਕੁਤਸਕ ਸਮਾਂ"
+        standard: "ਯਕੁਤਸਕ ਮਿਆਰੀ ਸਮਾਂ"
+    Yekaterinburg: 
+      long: 
+        daylight: "ਯਕੇਤਰਿਨਬਰਗ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+        generic: "ਯਕੇਤਰਿਨਬਰਗ ਸਮਾਂ"
+        standard: "ਯਕੇਤਰਿਨਬਰਗ ਮਿਆਰੀ ਸਮਾਂ"
+  timezones: 
+    Africa/Abidjan: 
+      city: ਐਬੀਡਜਾਨ
+    Africa/Accra: 
+      city: ਅੱਕਰਾ
+    Africa/Addis_Ababa: 
+      city: "ਐਡਿਸ ਅਬਾਬਾ"
+    Africa/Algiers: 
+      city: ਅਲਜੀਅਰਸ
+    Africa/Asmera: 
+      city: ਅਸਮਾਰਾ
+    Africa/Bamako: 
+      city: ਬਮੇਕੋ
+    Africa/Bangui: 
+      city: ਬਾਂਗੁਈ
+    Africa/Banjul: 
+      city: ਬਾਂਜੁਲ
+    Africa/Bissau: 
+      city: ਬਿਸਾਉ
+    Africa/Blantyre: 
+      city: ਬਲੰਟਾਇਰ
+    Africa/Brazzaville: 
+      city: ਬ੍ਰਾਜ਼ਾਵਿਲੇ
+    Africa/Bujumbura: 
+      city: ਬੁਜੁੰਬੁਰਾ
+    Africa/Cairo: 
+      city: ਕੈਰੋ
+    Africa/Casablanca: 
+      city: ਕਾਸਬਲੈਂਕਾ
+    Africa/Ceuta: 
+      city: ਸੀਊਟਾ
+    Africa/Conakry: 
+      city: ਕੋਨੇਕਰੀ
+    Africa/Dakar: 
+      city: ਡਕਾਰ
+    Africa/Dar_es_Salaam: 
+      city: "ਦਾਰ ਏਸ ਸਲਾਮ"
+    Africa/Djibouti: 
+      city: ਜ਼ੀਬੂਤੀ
+    Africa/Douala: 
+      city: ਡੌਆਲਾ
+    Africa/El_Aaiun: 
+      city: "ਅਲ ਅਯੂਨ"
+    Africa/Freetown: 
+      city: ਫਰੀਟਾਉਨ
+    Africa/Gaborone: 
+      city: ਗਾਬੋਰੋਨ
+    Africa/Harare: 
+      city: ਹਰਾਰੇ
+    Africa/Johannesburg: 
+      city: ਜੋਹਨਸਬਰਗ
+    Africa/Juba: 
+      city: ਜੂਬਾ
+    Africa/Kampala: 
+      city: ਕੰਪਾਲਾ
+    Africa/Khartoum: 
+      city: ਖਾਰਟੌਮ
+    Africa/Kigali: 
+      city: ਕਿਗਾਲੀ
+    Africa/Kinshasa: 
+      city: ਕਿੰਸ਼ਾਸਾ
+    Africa/Lagos: 
+      city: ਲਾਗੋਸ
+    Africa/Libreville: 
+      city: ਲਿਬਰਵਿਲੇ
+    Africa/Lome: 
+      city: ਲੋਮ
+    Africa/Luanda: 
+      city: ਲੁਆਂਡਾ
+    Africa/Lubumbashi: 
+      city: ਲੁਬੁਮਬਾਸ਼ੀ
+    Africa/Lusaka: 
+      city: ਲੁਸਾਕਾ
+    Africa/Malabo: 
+      city: ਮਾਲਾਬੋ
+    Africa/Maputo: 
+      city: ਮਾਪੁਟੋ
+    Africa/Maseru: 
+      city: ਮਸੇਰੂ
+    Africa/Mbabane: 
+      city: ਏਮਬਾਬਾਨੇ
+    Africa/Mogadishu: 
+      city: ਮੋਗਾਦਿਸ਼ੂ
+    Africa/Monrovia: 
+      city: ਮੋਨਰੋਵੀਆ
+    Africa/Nairobi: 
+      city: ਨੈਰੋਬੀ
+    Africa/Ndjamena: 
+      city: ਐੰਜਾਮੀਨਾ
+    Africa/Niamey: 
+      city: ਨਿਆਮੇ
+    Africa/Nouakchott: 
+      city: ਨੌਆਕਸ਼ਾਟ
+    Africa/Ouagadougou: 
+      city: ਉਆਗਾਡੂਗੂ
+    Africa/Porto-Novo: 
+      city: ਪੋਰਟੋ-ਨੋਵੋ
+    Africa/Sao_Tome: 
+      city: "ਸਾਓ ਟੋਮ"
+    Africa/Tripoli: 
+      city: ਟ੍ਰਿਪੋਲੀ
+    Africa/Tunis: 
+      city: ਟਿਉਨੀਸ
+    Africa/Windhoek: 
+      city: ਵਿੰਡਹੋਇਕ
+    America/Adak: 
+      city: ਏਡਕ
+    America/Anchorage: 
+      city: ਐਂਕਰੇਜ
+    America/Anguilla: 
+      city: ਅੰਗੁਇਲਾ
+    America/Antigua: 
+      city: ਐਂਟੀਗੁਆ
+    America/Araguaina: 
+      city: ਆਰਗੁਆਇਨਾ
+    America/Argentina/La_Rioja: 
+      city: "ਲਾ ਰਿਉਜਾ"
+    America/Argentina/Rio_Gallegos: 
+      city: "ਰਿਓ ਗੈਲੇਗੋਸ"
+    America/Argentina/Salta: 
+      city: ਸਾਲਟਾ
+    America/Argentina/San_Juan: 
+      city: "ਸੇਨ ਜੁਆਨ"
+    America/Argentina/San_Luis: 
+      city: "ਸੇਨ ਲੂਈਸ"
+    America/Argentina/Tucuman: 
+      city: ਟੁਕੁਮਨ
+    America/Argentina/Ushuaia: 
+      city: ਉਸ਼ਵਾਇਆ
+    America/Aruba: 
+      city: ਅਰੂਬਾ
+    America/Asuncion: 
+      city: ਐਸੁਂਕੀਅਨ
+    America/Bahia: 
+      city: ਬਾਹੀਆ
+    America/Bahia_Banderas: 
+      city: "ਬਾਹੀਆ ਬਾਂਦੇਰਸ"
+    America/Barbados: 
+      city: ਬਾਰਬਾਡੋਸ
+    America/Belem: 
+      city: ਬੇਲੇਮ
+    America/Belize: 
+      city: ਬੇਲੀਜ਼
+    America/Blanc-Sablon: 
+      city: ਬਲੈਂਕ-ਸੈਬਲਾਨ
+    America/Boa_Vista: 
+      city: "ਬੋਆ ਵਿਸਟਾ"
+    America/Bogota: 
+      city: ਬੋਗੋਟਾ
+    America/Boise: 
+      city: ਬੋਇਸ
+    America/Buenos_Aires: 
+      city: "ਬਿਉਨੋ ਆਇਰਸ"
+    America/Cambridge_Bay: 
+      city: "ਕੈਮਬ੍ਰਿਜ ਬੇ"
+    America/Campo_Grande: 
+      city: "ਕੈਂਪੋ ਗ੍ਰਾਂਡੇ"
+    America/Cancun: 
+      city: ਕੈਨਕੁਨ
+    America/Caracas: 
+      city: ਕੈਰਾਕਾਸ
+    America/Catamarca: 
+      city: ਕੈਟਾਮਾਰਕਾ
+    America/Cayenne: 
+      city: ਕੇਯੇਨੇ
+    America/Cayman: 
+      city: ਕੇਮੈਨ
+    America/Chicago: 
+      city: ਸ਼ਿਕਾਗੋ
+    America/Chihuahua: 
+      city: ਚਿਹੁਆਹੁਆ
+    America/Coral_Harbour: 
+      city: ਐਟੀਕੋਕਨ
+    America/Cordoba: 
+      city: ਕੋਰਡੋਬਾ
+    America/Costa_Rica: 
+      city: "ਕੋਸਟਾ ਰੀਕਾ"
+    America/Creston: 
+      city: ਕ੍ਰੈਸਟਨ
+    America/Cuiaba: 
+      city: ਕਯੁਏਬਾ
+    America/Curacao: 
+      city: ਕੁਰਾਕਾਓ
+    America/Danmarkshavn: 
+      city: ਡੈਨਮਾਰਕਸ਼ੌਨ
+    America/Dawson: 
+      city: ਡੌਅਸਨ
+    America/Dawson_Creek: 
+      city: "ਡੌਅਸਨ ਕ੍ਰੀਕ"
+    America/Denver: 
+      city: ਡੇਨਵਰ
+    America/Detroit: 
+      city: ਡਿਟਰੋਇਟ
+    America/Dominica: 
+      city: ਡੋਮੀਨਿਕਾ
+    America/Edmonton: 
+      city: ਐਡਮੋਂਟਨ
+    America/Eirunepe: 
+      city: ਯੁਰੂਨੀਪੇ
+    America/El_Salvador: 
+      city: "ਅਲ ਸਲਵਾਡੋਰ"
+    America/Fortaleza: 
+      city: ਫੋਰਟਾਲੇਜ਼ਾ
+    America/Glace_Bay: 
+      city: "ਗਲੇਸ ਬੇ"
+    America/Godthab: 
+      city: ਨੂਕ
+    America/Goose_Bay: 
+      city: "ਗੂਜ਼ ਬੇ"
+    America/Grand_Turk: 
+      city: "ਗਰਾਂਡ ਤੁਰਕ"
+    America/Grenada: 
+      city: ਗ੍ਰੇਨਾਡਾ
+    America/Guadeloupe: 
+      city: ਗੁਆਡੇਲੋਪ
+    America/Guatemala: 
+      city: ਗੁਆਟੇਮਾਲਾ
+    America/Guayaquil: 
+      city: ਗੁਆਇਕਵਿਲ
+    America/Guyana: 
+      city: ਗੁਯਾਨਾ
+    America/Halifax: 
+      city: ਹੈਲੀਫੈਕਸ
+    America/Havana: 
+      city: ਹਵਾਨਾ
+    America/Hermosillo: 
+      city: ਹਰਮੋਸਿੱਲੋ
+    America/Indiana/Knox: 
+      city: "ਨੋਕਸ, ਇੰਡੀਆਨਾ"
+    America/Indiana/Marengo: 
+      city: "ਮਾਰੇਂਗੋ, ਇੰਡੀਆਨਾ"
+    America/Indiana/Petersburg: 
+      city: "ਪੀਟਰਸਬਰਗ, ਇੰਡੀਆਨਾ"
+    America/Indiana/Tell_City: 
+      city: "ਟੈਲ ਸਿਟੀ, ਇੰਡੀਆਨਾ"
+    America/Indiana/Vevay: 
+      city: ਵੇਵੇ
+    America/Indiana/Vincennes: 
+      city: "ਵਿੰਸੇਨੇਸ, ਇੰਡੀਆਨਾ"
+    America/Indiana/Winamac: 
+      city: "ਵਿਨਮੈਕ, ਇੰਡੀਆਨਾ"
+    America/Indianapolis: 
+      city: ਇੰਡੀਆਨਾਪੋਲਿਸ
+    America/Inuvik: 
+      city: ਇਨੁਵਿਕ
+    America/Iqaluit: 
+      city: ਇਕਾਲੁਈਟ
+    America/Jamaica: 
+      city: ਜਮਾਇਕਾ
+    America/Jujuy: 
+      city: ਜੂਜੁਏ
+    America/Juneau: 
+      city: ਜਯੂਨੋ
+    America/Kentucky/Monticello: 
+      city: "ਮੋੰਟੀਸੈਲੋ, ਕੈਂਟਕੀ"
+    America/Kralendijk: 
+      city: ਕ੍ਰਾਲੇਂਦਿਜਕ
+    America/La_Paz: 
+      city: "ਲਾ ਪਾਜ਼"
+    America/Lima: 
+      city: ਲੀਮਾ
+    America/Los_Angeles: 
+      city: "ਲਾਸ ਐਂਜਲਸ"
+    America/Louisville: 
+      city: ਲੁਈਸਵਿਲੇ
+    America/Lower_Princes: 
+      city: "ਲੋਅਰ ਪ੍ਰਿੰਸ'ਸ ਕਵਾਰਟਰ"
+    America/Maceio: 
+      city: ਮੈਸੀਓ
+    America/Managua: 
+      city: ਮਨਾਗੁਆ
+    America/Manaus: 
+      city: ਮਨੌਸ
+    America/Marigot: 
+      city: ਮੈਰੀਗੋਟ
+    America/Martinique: 
+      city: ਮਾਰਟੀਨਿਕ
+    America/Matamoros: 
+      city: ਮਾਟਾਮੋਰਸ
+    America/Mazatlan: 
+      city: ਮਜ਼ੇਤਲਾਨ
+    America/Mendoza: 
+      city: ਮੈਂਡੋਜ਼ਾ
+    America/Menominee: 
+      city: ਮੈਨੋਮਿਨੀ
+    America/Merida: 
+      city: ਮੇਰਿਡਾ
+    America/Metlakatla: 
+      city: ਮੇਟਲਾਕਾਟਲਾ
+    America/Mexico_City: 
+      city: "ਮੈਕਸੀਕੋ ਸਿਟੀ"
+    America/Miquelon: 
+      city: ਮਿਕੇਲਨ
+    America/Moncton: 
+      city: ਮੋਂਕਟਨ
+    America/Monterrey: 
+      city: ਮੋਨਟੇਰੀ
+    America/Montevideo: 
+      city: ਮੋਂਟੇਵੀਡੀਓ
+    America/Montreal: 
+      city: ਮੋਂਟਰੀਅਲ
+    America/Montserrat: 
+      city: ਮੋਂਟਸੇਰਾਤ
+    America/Nassau: 
+      city: ਨਾਸਾਓ
+    America/New_York: 
+      city: "ਨਿਊ ਯਾਰਕ"
+    America/Nipigon: 
+      city: ਨਿਪਿਗੌਨ
+    America/Nome: 
+      city: ਨੋਮ
+    America/Noronha: 
+      city: ਨੌਰੋਨਹਾ
+    America/North_Dakota/Beulah: 
+      city: "ਬਿਉਲਾ, ਉੱਤਰੀ ਡਕੋਟਾ"
+    America/North_Dakota/Center: 
+      city: "ਸੇਂਟਰ, ਉੱਤਰੀ ਡਕੋਟਾ"
+    America/North_Dakota/New_Salem: 
+      city: "ਨਿਊ ਸਲੇਮ, ਉੱਤਰੀ ਡਕੋਟਾ"
+    America/Ojinaga: 
+      city: ਓਜੀਨਾਗਾ
+    America/Panama: 
+      city: ਪਨਾਮਾ
+    America/Pangnirtung: 
+      city: ਪੈਂਗਨਿਰਟੰਗ
+    America/Paramaribo: 
+      city: ਪੈਰਾਮਰੀਬੋ
+    America/Phoenix: 
+      city: ਫੋਨਿਕਸ
+    America/Port-au-Prince: 
+      city: ਪੋਰਟ-ਔ-ਪ੍ਰਿੰਸ
+    America/Port_of_Spain: 
+      city: "ਪੋਰਟ ਔਫ ਸਪੇਨ"
+    America/Porto_Velho: 
+      city: "ਪੋਰਟੋ ਵੇਲ੍ਹੋ"
+    America/Puerto_Rico: 
+      city: "ਪਿਊਰਟੋ ਰੀਕੋ"
+    America/Rainy_River: 
+      city: "ਰੇਨੀ ਰਿਵਰ"
+    America/Rankin_Inlet: 
+      city: "ਰੈਂਕਿਨ ਇਨਲੈਟ"
+    America/Recife: 
+      city: ਰੇਸੀਫੇ
+    America/Regina: 
+      city: ਰੈਜੀਨਾ
+    America/Resolute: 
+      city: ਰੈਜ਼ੋਲਿਊਟ
+    America/Rio_Branco: 
+      city: "ਰਿਓ ਬ੍ਰਾਂਕੋ"
+    America/Santa_Isabel: 
+      city: "ਸੈਂਟਾ ਇਸਾਬੇਲ"
+    America/Santarem: 
+      city: ਸੇਂਟਾਰਮ
+    America/Santiago: 
+      city: ਸੇਂਟੀਆਗੋ
+    America/Santo_Domingo: 
+      city: "ਸੇਂਟੋ ਡੋਮਿੰਗੋ"
+    America/Sao_Paulo: 
+      city: "ਸਾਓ ਪੌਲੋ"
+    America/Scoresbysund: 
+      city: ਇੱਟੋਕੋਰਟੂਰਮੀਟ
+    America/Shiprock: 
+      city: ਸ਼ਿਪਰੌਕ
+    America/Sitka: 
+      city: ਸਿਟਕਾ
+    America/St_Barthelemy: 
+      city: "ਸੇਂਟ ਬਾਰਥੇਲੇਮੀ"
+    America/St_Johns: 
+      city: "ਸੇਂਟ ਜੌਨਸ"
+    America/St_Kitts: 
+      city: "ਸੇਂਟ ਕਿਟਸ"
+    America/St_Lucia: 
+      city: "ਸੇਂਟ ਲੁਸੀਆ"
+    America/St_Thomas: 
+      city: "ਸੇਂਟ ਥੋਮਸ"
+    America/St_Vincent: 
+      city: "ਸੇਂਟ ਵਿਨਸੇਂਟ"
+    America/Swift_Current: 
+      city: "ਸਵਿਫਟ ਕਰੈਂਟ"
+    America/Tegucigalpa: 
+      city: ਟੇਗੁਸੀਗਲਪਾ
+    America/Thule: 
+      city: ਥੁਲੇ
+    America/Thunder_Bay: 
+      city: "ਥੰਡਰ ਬੇ"
+    America/Tijuana: 
+      city: ਟਿਜੂਆਨਾ
+    America/Toronto: 
+      city: ਟੋਰੰਟੋ
+    America/Tortola: 
+      city: ਟੋਰਟੋਲਾ
+    America/Vancouver: 
+      city: ਵੈਨਕੂਵਰ
+    America/Whitehorse: 
+      city: ਵਾਈਟਹੌਰਸ
+    America/Winnipeg: 
+      city: ਵਿਨੀਪੇਗ
+    America/Yakutat: 
+      city: ਯਕੁਤਤ
+    America/Yellowknife: 
+      city: ਯੈਲੋਨਾਈਫ
+    Antarctica/Casey: 
+      city: ਕਾਸੇ
+    Antarctica/Davis: 
+      city: ਡੇਵਿਸ
+    Antarctica/DumontDUrville: 
+      city: "ਡਿਉਮੋਂਟ ਡਿਉਰਵਿਲੇ"
+    Antarctica/Macquarie: 
+      city: ਮੈਕਕਵੈਰੀ
+    Antarctica/Mawson: 
+      city: ਮੌਸਨ
+    Antarctica/McMurdo: 
+      city: ਮੈਕਮੁਰਡੋ
+    Antarctica/Palmer: 
+      city: ਪਾਮਰ
+    Antarctica/Rothera: 
+      city: ਰੋਥੇਰਾ
+    Antarctica/South_Pole: 
+      city: "ਦੱਖਣੀ ਧਰੁੱਵ"
+    Antarctica/Syowa: 
+      city: ਸਵੋਯਾ
+    Antarctica/Vostok: 
+      city: ਵੋਸਟੋਕ
+    Arctic/Longyearbyen: 
+      city: ਲੋਂਗਈਅਰਬਾਇਨ
+    Asia/Aden: 
+      city: ਅਡੇਨ
+    Asia/Almaty: 
+      city: ਅਲਮੇਟੀ
+    Asia/Amman: 
+      city: ਅੰਮਾਨ
+    Asia/Anadyr: 
+      city: ਇਨਾਡਾਇਰ
+    Asia/Aqtau: 
+      city: ਅਕਤੌ
+    Asia/Aqtobe: 
+      city: ਅਕਤੋਬੇ
+    Asia/Ashgabat: 
+      city: ਅਸ਼ਗਾਬਾਟ
+    Asia/Baghdad: 
+      city: ਬਗਦਾਦ
+    Asia/Bahrain: 
+      city: ਬਹਿਰੀਨ
+    Asia/Baku: 
+      city: ਬਾਕੂ
+    Asia/Bangkok: 
+      city: ਬੈਂਗਕਾਕ
+    Asia/Beirut: 
+      city: ਬੈਰੂਤ
+    Asia/Bishkek: 
+      city: ਬਿਸ਼ਕੇਕ
+    Asia/Brunei: 
+      city: ਬਰੂਨੇਈ
+    Asia/Calcutta: 
+      city: ਕੋਲਕਾਤਾ
+    Asia/Choibalsan: 
+      city: ਚੋਇਲਬਾਲਸਨ
+    Asia/Chongqing: 
+      city: ਚੋਂਗਿੰਗ
+    Asia/Colombo: 
+      city: ਕੋਲੰਬੋ
+    Asia/Damascus: 
+      city: ਡੈਮਸਕਸ
+    Asia/Dhaka: 
+      city: ਢਾਕਾ
+    Asia/Dili: 
+      city: ਡਿਲੀ
+    Asia/Dubai: 
+      city: ਦੁਬਈ
+    Asia/Dushanbe: 
+      city: ਦੁਸ਼ਾਂਬੇ
+    Asia/Gaza: 
+      city: ਗਾਜਾ
+    Asia/Harbin: 
+      city: ਹਾਰਬਿਨ
+    Asia/Hebron: 
+      city: ਹੇਬਰਾਨ
+    Asia/Hong_Kong: 
+      city: "ਹਾਂਗ ਕਾਂਗ"
+    Asia/Hovd: 
+      city: ਹੋਵਡ
+    Asia/Irkutsk: 
+      city: ਇਰਕੁਤਸਕ
+    Asia/Jakarta: 
+      city: ਜਕਾਰਤਾ
+    Asia/Jayapura: 
+      city: ਜਯਾਪੁਰਾ
+    Asia/Jerusalem: 
+      city: ਜੇਰੂਸਲਮ
+    Asia/Kabul: 
+      city: ਕਾਬੁਲ
+    Asia/Kamchatka: 
+      city: ਕਮਚਟਕਾ
+    Asia/Karachi: 
+      city: ਕਰਾਚੀ
+    Asia/Kashgar: 
+      city: ਕੈਸ਼ਗਰ
+    Asia/Katmandu: 
+      city: ਕਾਠਮਾਂਡੂ
+    Asia/Khandyga: 
+      city: ਖਾਨਡਿਗਾ
+    Asia/Krasnoyarsk: 
+      city: ਕਰੈਸਨੇਜਰਸ
+    Asia/Kuala_Lumpur: 
+      city: "ਕੌਲਾ ਲੁੰਪੁਰ"
+    Asia/Kuching: 
+      city: ਕੁਚਿੰਗ
+    Asia/Kuwait: 
+      city: ਕੁਵੈਤ
+    Asia/Macau: 
+      city: ਮਕਾਉ
+    Asia/Magadan: 
+      city: ਮੈਗੇਡਨ
+    Asia/Makassar: 
+      city: ਮਕਸਾਰ
+    Asia/Manila: 
+      city: ਮਨੀਲਾ
+    Asia/Muscat: 
+      city: ਮਸਕਟ
+    Asia/Nicosia: 
+      city: ਨਿਕੋਸੀਆ
+    Asia/Novokuznetsk: 
+      city: ਨੋਵੋਕੁਜ਼ਨੇਟਸਕ
+    Asia/Novosibirsk: 
+      city: ਨੋਵੋਸਿਬੀਰਸਕ
+    Asia/Omsk: 
+      city: ਓਮਸਕ
+    Asia/Oral: 
+      city: ਓਰਲ
+    Asia/Phnom_Penh: 
+      city: "ਫਨੋਮ ਪੇਨਹ"
+    Asia/Pontianak: 
+      city: ਪੌਂਟੀਆਨਾਕ
+    Asia/Pyongyang: 
+      city: ਪਯੋਂਗਯਾਂਗ
+    Asia/Qatar: 
+      city: ਕਤਰ
+    Asia/Qyzylorda: 
+      city: ਕਿਜ਼ੀਲੋਰਡਾ
+    Asia/Rangoon: 
+      city: ਰੰਗੂਨ
+    Asia/Riyadh: 
+      city: ਰਿਯਾਧ
+    Asia/Saigon: 
+      city: "ਹੋ ਚਾਈ ਮਿਨ੍ਹ ਸਿਟੀ"
+    Asia/Sakhalin: 
+      city: ਸਖਲੀਨ
+    Asia/Samarkand: 
+      city: ਸਮਰਕਂਡ
+    Asia/Seoul: 
+      city: ਸਿਉਲ
+    Asia/Shanghai: 
+      city: ਸ਼ੰਘਾਈ
+    Asia/Singapore: 
+      city: ਸਿੰਗਾਪੁਰ
+    Asia/Taipei: 
+      city: ਤੈਪਈ
+    Asia/Tashkent: 
+      city: ਤਾਸ਼ਕੈਂਟ
+    Asia/Tbilisi: 
+      city: ਟਬਿਲਿਸੀ
+    Asia/Tehran: 
+      city: ਤੇਹਰਾਨ
+    Asia/Thimphu: 
+      city: ਥਿੰਫੂ
+    Asia/Tokyo: 
+      city: ਟੋਕਯੋ
+    Asia/Ulaanbaatar: 
+      city: ਉਲਾਨਬਾਤਰ
+    Asia/Urumqi: 
+      city: ਊਰੂਮਕੀ
+    Asia/Ust-Nera: 
+      city: ਉਸਤ-ਨੇਰਾ
+    Asia/Vientiane: 
+      city: ਵਾਏਨਟਿਆਨੇ
+    Asia/Vladivostok: 
+      city: ਵਲਾਦੀਵੋਸਤਕ
+    Asia/Yakutsk: 
+      city: ਯਕੁਤਸਕ
+    Asia/Yekaterinburg: 
+      city: ਯਕੇਤਰਿਨਬਰਗ
+    Asia/Yerevan: 
+      city: ਯੇਰੇਵਨ
+    Atlantic/Azores: 
+      city: ਅਜੋਰੇਸ
+    Atlantic/Bermuda: 
+      city: ਬਰਮੂਡਾ
+    Atlantic/Canary: 
+      city: ਕੇਨੇਰੀ
+    Atlantic/Cape_Verde: 
+      city: "ਕੇਪ ਵਰਡ"
+    Atlantic/Faeroe: 
+      city: ਫੈਰੋ
+    Atlantic/Madeira: 
+      city: ਮਡੀਅਰਾ
+    Atlantic/Reykjavik: 
+      city: ਰੇਕਜਾਵਿਕ
+    Atlantic/South_Georgia: 
+      city: "ਦੱਖਣੀ ਜਾਰਜਿਆ"
+    Atlantic/St_Helena: 
+      city: "ਸੇਂਟ ਹੇਲੇਨਾ"
+    Atlantic/Stanley: 
+      city: ਸਟੇਨਲੀ
+    Australia/Adelaide: 
+      city: ਏਡੀਲੇਡ
+    Australia/Brisbane: 
+      city: ਬ੍ਰਿਸਬੇਨ
+    Australia/Broken_Hill: 
+      city: "ਬ੍ਰੋਕਨ ਹਿਲ"
+    Australia/Currie: 
+      city: ਕਰੀ
+    Australia/Darwin: 
+      city: ਡਾਰਵਿਨ
+    Australia/Eucla: 
+      city: ਯੂਕਲਾ
+    Australia/Hobart: 
+      city: ਹੋਬਾਰਟ
+    Australia/Lindeman: 
+      city: ਲਿੰਡੇਮਨ
+    Australia/Lord_Howe: 
+      city: "ਲੌਰਡ ਹੋਵੇ"
+    Australia/Melbourne: 
+      city: ਮੈਲਬੋਰਨ
+    Australia/Perth: 
+      city: ਪਰਥ
+    Australia/Sydney: 
+      city: ਸਿਡਨੀ
+    Etc/Unknown: 
+      city: "ਅਗਿਆਤ ਸ਼ਹਿਰ"
+    Europe/Amsterdam: 
+      city: ਐਮਸਟਰਡਮ
+    Europe/Andorra: 
+      city: ਅੰਡੋਰਾ
+    Europe/Athens: 
+      city: ਏਥਨਸ
+    Europe/Belgrade: 
+      city: ਬੈਲਗ੍ਰੇਡ
+    Europe/Berlin: 
+      city: ਬਰਲਿਨ
+    Europe/Bratislava: 
+      city: ਬ੍ਰਟਿਸਲਾਵਾ
+    Europe/Brussels: 
+      city: ਬਰੂਸੇਲਸ
+    Europe/Bucharest: 
+      city: ਬੁਚਾਰੇਸਟ
+    Europe/Budapest: 
+      city: ਬੁਡਾਪੇਸਟ
+    Europe/Busingen: 
+      city: ਬੁਸਿਂਜੇਨ
+    Europe/Chisinau: 
+      city: ਚਿਸਿਨੌ
+    Europe/Copenhagen: 
+      city: ਕੋਪੇਨਹੇਗਨ
+    Europe/Dublin: 
+      city: ਡਬਲਿਨ
+      long: 
+        daylight: "ਆਇਰਿਸ਼ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+    Europe/Gibraltar: 
+      city: ਜਿਬਰਾਲਟਰ
+    Europe/Guernsey: 
+      city: ਗਰਨਸੀ
+    Europe/Helsinki: 
+      city: ਹੇਲਸਿੰਕੀ
+    Europe/Isle_of_Man: 
+      city: "ਆਇਲ ਆਫ ਮੈਨ"
+    Europe/Istanbul: 
+      city: ਇਸਤਨਾਬੁਲ
+    Europe/Jersey: 
+      city: ਜਰਸੀ
+    Europe/Kaliningrad: 
+      city: ਕਾਲੀਨਿੰਗ੍ਰੇਡ
+    Europe/Kiev: 
+      city: ਕੀਵ
+    Europe/Lisbon: 
+      city: ਲਿਸਬਨ
+    Europe/Ljubljana: 
+      city: ਲਜੁਬਲਜਾਨਾ
+    Europe/London: 
+      city: ਲੰਡਨ
+      long: 
+        daylight: "ਬ੍ਰਿਟਿਸ਼ ਗਰਮੀ-ਰੁੱਤ ਸਮਾਂ"
+    Europe/Luxembourg: 
+      city: ਲਕਜ਼ਮਬਰਗ
+    Europe/Madrid: 
+      city: ਮੈਡ੍ਰਿਡ
+    Europe/Malta: 
+      city: ਮਾਲਟਾ
+    Europe/Mariehamn: 
+      city: ਮਾਰੀਏਹਾਮੇਨ
+    Europe/Minsk: 
+      city: ਮਿੰਸਕ
+    Europe/Monaco: 
+      city: ਮੋਨਾਕੋ
+    Europe/Moscow: 
+      city: ਮਾਸਕੋ
+    Europe/Oslo: 
+      city: ਓਸਲੋ
+    Europe/Paris: 
+      city: ਪੈਰਿਸ
+    Europe/Podgorica: 
+      city: ਪੋਡਗੋਰੀਕਾ
+    Europe/Prague: 
+      city: ਪ੍ਰਾਗ
+    Europe/Riga: 
+      city: ਰਿਗਾ
+    Europe/Rome: 
+      city: ਰੋਮ
+    Europe/Samara: 
+      city: ਸਮਾਰਾ
+    Europe/San_Marino: 
+      city: "ਸੈਨ ਮਰੀਨੋ"
+    Europe/Sarajevo: 
+      city: ਸਾਰਾਜੇਵੋ
+    Europe/Simferopol: 
+      city: ਸਿਮਫਰੋਪੋਲ
+    Europe/Skopje: 
+      city: ਸਕੋਪਜੇ
+    Europe/Sofia: 
+      city: ਸੋਫੀਆ
+    Europe/Stockholm: 
+      city: ਸਟਾਕਹੋਮ
+    Europe/Tallinn: 
+      city: ਟੱਲਿਨ
+    Europe/Tirane: 
+      city: ਤਿਰਾਨੇ
+    Europe/Uzhgorod: 
+      city: ਉਝਗੋਰੋਡ
+    Europe/Vaduz: 
+      city: ਵਾਡੁਜ਼
+    Europe/Vatican: 
+      city: ਵੈਟਿਕਨ
+    Europe/Vienna: 
+      city: ਵਿਏਨਾ
+    Europe/Vilnius: 
+      city: ਵਿਲਨਿਅਸ
+    Europe/Volgograd: 
+      city: ਵੋਲਗੋਗ੍ਰੇਡ
+    Europe/Warsaw: 
+      city: ਵਾਰਸਾਅ
+    Europe/Zagreb: 
+      city: ਜ਼ਗਰੇਬ
+    Europe/Zaporozhye: 
+      city: ਜਪੋਰੋਜ਼ਾਏ
+    Europe/Zurich: 
+      city: ਜਿਊਰਿਖ
+    Indian/Antananarivo: 
+      city: ਅੰਟਾਨਨੇਰਿਵੋ
+    Indian/Chagos: 
+      city: ਚਾਗੋਸ
+    Indian/Christmas: 
+      city: ਕ੍ਰਿਸਮਸ
+    Indian/Cocos: 
+      city: ਕੋਕੋਜ਼
+    Indian/Comoro: 
+      city: ਕੋਮੋਰੋ
+    Indian/Kerguelen: 
+      city: ਕਰਗਯੂਲੇਨ
+    Indian/Mahe: 
+      city: ਮਾਹੇ
+    Indian/Maldives: 
+      city: ਮਾਲਦੀਵ
+    Indian/Mauritius: 
+      city: ਮੌਰਿਸ਼ਸ
+    Indian/Mayotte: 
+      city: ਮਾਯੋਟੀ
+    Indian/Reunion: 
+      city: ਰਿਯੂਨੀਅਨ
+    Pacific/Apia: 
+      city: ਐਪਿਆ
+    Pacific/Auckland: 
+      city: ਔਕਲੈਂਡ
+    Pacific/Chatham: 
+      city: ਚੈਤਹੈਮ
+    Pacific/Easter: 
+      city: ਈਸਟਰ
+    Pacific/Efate: 
+      city: ਇਫੇਟ
+    Pacific/Enderbury: 
+      city: ਏੰਡਰਬਰੀ
+    Pacific/Fakaofo: 
+      city: ਫਕਾਉਫੋ
+    Pacific/Fiji: 
+      city: ਫ਼ਿਜੀ
+    Pacific/Funafuti: 
+      city: ਫੁਨਾਫੁਟੀ
+    Pacific/Galapagos: 
+      city: ਗਲਪੇਗੋਸ
+    Pacific/Gambier: 
+      city: ਗੈਂਬੀਅਰ
+    Pacific/Guadalcanal: 
+      city: ਗੁਆਡਾਕੇਨਲ
+    Pacific/Guam: 
+      city: ਗੁਆਮ
+    Pacific/Honolulu: 
+      city: ਹੋਨੋਲੁਲੂ
+    Pacific/Johnston: 
+      city: ਜੋਨਸਟਨ
+    Pacific/Kiritimati: 
+      city: ਕਿਰਿਤਿਮਤੀ
+    Pacific/Kosrae: 
+      city: ਕੋਸ੍ਰਾਏ
+    Pacific/Kwajalein: 
+      city: ਕਵਾਜਾਲੀਨ
+    Pacific/Majuro: 
+      city: ਮੇਜੁਰੋ
+    Pacific/Marquesas: 
+      city: ਮਾਰਕਿਸਾਸ
+    Pacific/Midway: 
+      city: ਮਿਡਵੇ
+    Pacific/Nauru: 
+      city: ਨਾਉਰੂ
+    Pacific/Niue: 
+      city: ਨਿਯੂ
+    Pacific/Norfolk: 
+      city: ਨੋਰਫੌਕ
+    Pacific/Noumea: 
+      city: ਨਾਉਮੇ
+    Pacific/Pago_Pago: 
+      city: "ਪਾਗੋ ਪਾਗੋ"
+    Pacific/Palau: 
+      city: ਪਲਾਉ
+    Pacific/Pitcairn: 
+      city: ਪਿਟਕੈਰਨ
+    Pacific/Ponape: 
+      city: ਪੋਹਨਪੇਈ
+    Pacific/Port_Moresby: 
+      city: "ਪੋਰਟ ਮੋਰੇਸਬੀ"
+    Pacific/Rarotonga: 
+      city: ਰਾਰੋਟੋਂਗਾ
+    Pacific/Saipan: 
+      city: ਸੈਪਾਨ
+    Pacific/Tahiti: 
+      city: ਤਹਿਤੀ
+    Pacific/Tarawa: 
+      city: ਟਾਰਾਵਾ
+    Pacific/Tongatapu: 
+      city: ਟੋਂਗਾਟਾਪੂ
+    Pacific/Truk: 
+      city: ਚੂਕ
+    Pacific/Wake: 
+      city: ਵੇਕ
+    Pacific/Wallis: 
+      city: ਵਾਲਿਸ

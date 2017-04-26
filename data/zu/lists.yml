@@ -1,0 +1,10 @@
+zu: 
+  lists: 
+    default: 
+      2: "I-{0} ne-{1}"
+      end: "{0}, no-{1}"
+      middle: "{0}, {1}"
+      start: "{0}, {1}"
+    unit: {}
+    unit-narrow: {}
+    unit-short: {}

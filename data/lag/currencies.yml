@@ -1,0 +1,218 @@
+lag: 
+  currencies: 
+    AED: 
+      one: "Diriháamu ya Ʉtemi wa Kɨaráabu"
+    AOA: 
+      one: "Kwáanza ya Angóola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dóola ya Ausitereelía"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Dináari ya Baharéeni"
+    BIF: 
+      one: "Faráanga ya Burúundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Púula ya Botiswáana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dóola ya Kánada"
+      symbol: CA$
+    CDF: 
+      one: "Faráanga ya Kóongo"
+    CHF: 
+      one: "Faráaka ya Uswíisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Yúani Renimínibi ya Chíina"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Esikúudo ya Kepuvéede"
+    DJF: 
+      one: "Faráanga ya Jibóuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dináairi ya Alijéria"
+    EGP: 
+      one: "Páundi ya Mísiri"
+    ERN: 
+      one: "Nákɨfa ya Eriterea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Bíiri ya Ʉhabéeshi"
+    EUR: 
+      one: Yúuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Páundi ya Ʉɨngɨréesa"
+      symbol: £
+    GHC: 
+      one: "Séedi ya Gáana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Daláasi ya Gámbia"
+    GNS: 
+      one: "Faráanga ya Gíine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupía ya Índia"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yéeni ya Japáani"
+      symbol: JP¥
+    KES: 
+      one: "Shilíingi ya Kéenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Faráanga ya Komóoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dóola ya Libéria"
+      symbol: $
+    LSL: 
+      one: "Lóoti ya Lesóoto"
+    LYD: 
+      one: "Dináari ya Líbia"
+    MAD: 
+      one: "Diriháamu ya Moróoko"
+    MGA: 
+      one: "Mpía ya bukini"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ungwíiya ya Moritánia"
+    MUR: 
+      one: "Rupía ya Moríisi"
+    MWK: 
+      one: "Kwáacha ya Maláawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Metikáali ya Musumbíiji"
+    NAD: 
+      one: "Dóola ya Namíbia"
+      symbol: $
+    NGN: 
+      one: "Naíira ya Niijéria"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Faráanga ya Rwáanda"
+    SAR: 
+      one: "Riyáali ya Saudía"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupía ya Shelishéeli"
+    SDG: 
+      one: "Páundi ya Sudáani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Páundi ya Mʉtakatíifu Heléena"
+    SLL: 
+      one: Leóoni
+    SOS: 
+      one: "Shilíingi ya Somália"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dóbura ya SaoTóome na Pirínsipe"
+    SZL: 
+      one: Lilengéeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Dináari ya Tunísia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Shilíingi ya Taansanía"
+      symbol: TSh
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Shilíingi ya Ugáanda"
+    USD: 
+      one: "Dóola ya Amerɨ́ka"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Faráanga ya CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Faráanga ya CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Ráandi ya Afɨrɨka ya Saame"
+    ZMK: 
+      one: "Kwácha ya Sámbia (1968–2012)"
+    ZMW: 
+      one: "Kwácha ya Sámbia"
+    ZWD: 
+      one: "Dóola ya Simbáabwe"

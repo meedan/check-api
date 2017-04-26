@@ -1,0 +1,656 @@
+zu: 
+  metazones: 
+    Afghanistan: 
+      long: 
+        standard: "Isikhathi sase-Afghanistan"
+    Africa_Central: 
+      long: 
+        standard: "Isikhathi sase-Central Africa"
+    Africa_Eastern: 
+      long: 
+        standard: "Isikhathi saseMpumalanga Afrika"
+    Africa_Southern: 
+      long: 
+        standard: "Isikhathi esivamile saseNingizimu Afrika"
+    Africa_Western: 
+      long: 
+        daylight: "Isikhathi sehlobo saseNtshonalanga Afrika"
+        generic: "Isikhathi saseNtshonalanga Afrika"
+        standard: "Isikhathi esivamile saseNtshonalanga Afrika"
+    Alaska: 
+      long: 
+        daylight: "esase-Alaska Daylight Time"
+        generic: "esase-Alaska Time"
+        standard: "esase-Alaska Standard Time"
+    Amazon: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Amazon"
+        generic: "esase-Amazon Time"
+        standard: "Isikhathi esivamile sase-Amazon"
+    America_Central: 
+      long: 
+        daylight: "esase-Central Daylight Time"
+        generic: "esase-Central Time"
+        standard: "esase-Central Standard Time"
+    America_Eastern: 
+      long: 
+        daylight: "esase-Eastern Daylight Time"
+        generic: "esase-Eastern Time"
+        standard: "esase-Eastern Standard Time"
+    America_Mountain: 
+      long: 
+        daylight: "esase-Mountain Daylight Time"
+        generic: "esase-Mountain Time"
+        standard: "esase-Mountain Standard Time"
+    America_Pacific: 
+      long: 
+        daylight: "esase-Pacific Daylight Time"
+        generic: "esase-Pacific Time"
+        standard: "esase-Pacific Standard Time"
+    Anadyr: 
+      long: 
+        daylight: "esase-Anadyr Summer Time"
+        generic: "esase-Anadyr Time"
+        standard: "esase-Anadyr Standard Time"
+    Arabian: 
+      long: 
+        daylight: "Isikhathi semini sase-Arabian"
+        generic: "Isikhathi sase-Arabian"
+        standard: "Isikhathi esivamile sase-Arabian"
+    Argentina: 
+      long: 
+        daylight: "esase-Argentina Summer Time"
+        generic: "esase-Argentina Time"
+        standard: "Isikhathi esimisiwe sase-Argentina"
+    Argentina_Western: 
+      long: 
+        daylight: "Isikhathi sasehlobo sase-Ntshonalanga ne-Argentina"
+        generic: "Isikhathi saseNyakatho ne-Argentina"
+        standard: "Isikhathi esimisiwe sase-Ntshonalanga ne-Argentina"
+    Armenia: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Armenia"
+        generic: "Isikhathi saseArmenia"
+        standard: "Isikhathi esezingeni sase-Armenia"
+    Atlantic: 
+      long: 
+        daylight: "esase-Atlantic Daylight Time"
+        generic: "esase-Atlantic Time"
+        standard: "esase-Atlantic Standard Time"
+    Australia_Central: 
+      long: 
+        daylight: "esase-Austrilian Central Daylight Time"
+        generic: "esase-Central Australia Time"
+        standard: "esase-Austrilian Central Standard Time"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "esase-Austrilian Central Western Daylight Time"
+        generic: "esase-Austrilian Central Western Time"
+        standard: "esase-Austrilian Central Western Standard Time"
+    Australia_Eastern: 
+      long: 
+        daylight: "esase-Australian Eastern Daylight Time"
+        generic: "esase-Austrilian Eastern Time"
+        standard: "esase-Australian Eastern Standard Time"
+    Australia_Western: 
+      long: 
+        daylight: "esase-Austrilian Western Daylight Time"
+        generic: "esase-Western Australia Time"
+        standard: "esase-Austrilian Western Standard Time"
+    Azerbaijan: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Azerbaijan"
+        generic: "Isikhathi sase-Azerbaijan"
+        standard: "Isikhathi esivamile sase-Azerbaijan"
+    Azores: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Azores"
+        generic: "Isikhathi sase-Azores"
+        standard: "Isikhathi esivamile sase-Azores"
+    Bangladesh: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Bangladesh"
+        generic: "Isikhathi sase-Bangladesh"
+        standard: "Isikhathi esivamile sase-Bangladesh"
+    Bhutan: 
+      long: 
+        standard: "Isikhathi sase-Bhutan"
+    Bolivia: 
+      long: 
+        standard: "Isikhathi sase-Bolivia"
+    Brasilia: 
+      long: 
+        daylight: "esase-Brasilia Summer Time"
+        generic: "esase-Brasilia Time"
+        standard: "Isikhathi esimisiwe sase-Brasilia"
+    Brunei: 
+      long: 
+        standard: "Isikhathi sase-Brunei Darussalam"
+    Cape_Verde: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Cape Verde"
+        generic: "Isikhathi sase-Cape Verde"
+        standard: "Isikhathi esezingeni sase-Cape Verde"
+    Chamorro: 
+      long: 
+        standard: "Isikhathi esezingeni sase-Chamorro"
+    Chatham: 
+      long: 
+        daylight: "Isikhathi semini sase-Chatham"
+        generic: "Isikhathi sase-Chatham"
+        standard: "Isikhathi esivamile sase-Chatham"
+    Chile: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Chile"
+        generic: "Isikhathi sase-Chile"
+        standard: "Isikhathi esivamile sase-Chile"
+    China: 
+      long: 
+        daylight: "Isikhathi semini sase-China"
+        generic: "Isikhathi sase-China"
+        standard: "Isikhathi esivamile sase-China"
+    Choibalsan: 
+      long: 
+        daylight: "esase-Choibalsan Summer Time"
+        generic: "esase-Choibalsan Time"
+        standard: "Isikhathi Esimisiwe sase-Choibalsan"
+    Christmas: 
+      long: 
+        standard: "Isikhathi sase-Christmas Island"
+    Cocos: 
+      long: 
+        standard: "Isikhathi sase-Cocos Islands"
+    Colombia: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Colombia"
+        generic: "Isikhathi sase-Colombia"
+        standard: "Isikhathi esivamile sase-Colombia"
+    Cook: 
+      long: 
+        daylight: "Isikhathi esiyingxenye yasehlobo sase-Cook Islands"
+        generic: "Isikhathi sase-Cook Islands"
+        standard: "Isikhathi esivamile sase-Cook Islands"
+    Cuba: 
+      long: 
+        daylight: "Isikhathi semini sase-Cuba"
+        generic: "Isikhathi sase-Cuba"
+        standard: "Isikhathi esivamile sase-Cuba"
+    Davis: 
+      long: 
+        standard: "Isikhathi sase-Davis"
+    DumontDUrville: 
+      long: 
+        standard: "Isikhathi sase-Dumont-d’Urville"
+    East_Timor: 
+      long: 
+        standard: "Isikhathi sase-East Timor"
+    Easter: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Easter Island"
+        generic: "Isikhathi sase-Easter Island"
+        standard: "Isikhathi esivamile sase-Easter Island"
+    Ecuador: 
+      long: 
+        standard: "Isikhathi sase-Ecuador"
+    Europe_Central: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Central Europe"
+        generic: "Isikhathi sase-Central Europe"
+        standard: "Isikhathi esivamile sase-Central Europe"
+    Europe_Eastern: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Eastern Europe"
+        generic: "Isikhathi sase-Eastern Europe"
+        standard: "Isikhathi esivamile sase-Eastern Europe"
+    Europe_Western: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Western Europe"
+        generic: "Isikhathi sase-Western Europe"
+        standard: "Isikhathi esivamile sase-Western Europe"
+    Falkland: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Falkland Islands"
+        generic: "Isikhathi sase-Falkland Islands"
+        standard: "Isikhathi esivamile sase-Falkland Islands"
+    Fiji: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Fiji"
+        generic: "Isikhathi sase-Fiji"
+        standard: "Isikhathi esivamile sase-Fiji"
+    French_Guiana: 
+      long: 
+        standard: "Isikhathi sase-French Guiana"
+    French_Southern: 
+      long: 
+        standard: "Isikhathi sase-French Southern and Antarctic"
+    GMT: 
+      long: 
+        standard: "Isikhathi sase-Greenwich Mean"
+    Galapagos: 
+      long: 
+        standard: "Isikhathi sase-Galapagos"
+    Gambier: 
+      long: 
+        standard: "Isikhathi sase-Gambier"
+    Georgia: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Georgia"
+        generic: "Isikhathi sase-Georgia"
+        standard: "Isikhathi esivamile sase-Georgia"
+    Gilbert_Islands: 
+      long: 
+        standard: "Isikhathi sase-Gilbert Islands"
+    Greenland_Eastern: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-East Greenland"
+        generic: "Isikhathi sase-East Greenland"
+        standard: "Isikhathi esivamile sase-East Greenland"
+    Greenland_Western: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-West Greenland"
+        generic: "Isikhathi sase-West Greenland"
+        standard: "Isikhathi esivamile sase-West Greenland"
+    Gulf: 
+      long: 
+        standard: "Isikhathi esivamile sase-Gulf"
+    Guyana: 
+      long: 
+        standard: "Isikhathi sase-Guyana"
+    Hawaii_Aleutian: 
+      long: 
+        daylight: "Isikhathi semini sase-Hawaii-Aleutian"
+        generic: "Isikathi sase-Hawaii-Aleutian"
+        standard: "Isikhathi esivamile sase-Hawaii-Aleutian"
+    Hong_Kong: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Hong Kong"
+        generic: "Isikhathi sase-Hong Kong"
+        standard: "Isikhathi esivamile sase-Hong Kong"
+    Hovd: 
+      long: 
+        daylight: "esase-Hovd Summer Time"
+        generic: "esase-Hovd Time"
+        standard: "Isikhathi Esimisiwe sase-Hovd"
+    India: 
+      long: 
+        standard: "Isikhathi esivamile sase-India"
+    Indian_Ocean: 
+      long: 
+        standard: "Isikhathi sase-Indian Ocean"
+    Indochina: 
+      long: 
+        standard: "Isikhathi sase-Indochina"
+    Indonesia_Central: 
+      long: 
+        standard: "Isikhathi sase-Central Indonesia"
+    Indonesia_Eastern: 
+      long: 
+        standard: "Isikhathi sase-Eastern Indonesia"
+    Indonesia_Western: 
+      long: 
+        standard: "Isikhathi sase-Western Indonesia"
+    Iran: 
+      long: 
+        daylight: "Isikhathi sasemini sase-Iran"
+        generic: "Isikhathi sase-Iran"
+        standard: "Isikhathi esivamile sase-Iran"
+    Irkutsk: 
+      long: 
+        daylight: "esase-Irkutsk Summer Time"
+        generic: "esase-Irkutsk Time"
+        standard: "Isikhathi Esimisiwe sase-Irkutsk"
+    Israel: 
+      long: 
+        daylight: "Isikhathi sasemini sase-Israel"
+        generic: "Isikhathi sase-Israel"
+        standard: "Isikhathi esivamile sase-Israel"
+    Japan: 
+      long: 
+        daylight: "Isikhathi semini sase-Japan"
+        generic: "Isikhathi sase-Japan"
+        standard: "Isikhathi esivamile sase-Japan"
+    Kamchatka: 
+      long: 
+        daylight: "esase-Petropavlovsk-Kamchatski Summer Time"
+        generic: "esase-Petropavlovsk-Kamchatski Time"
+        standard: "esase-Petropavlovsk-Kamchatski Standard Time"
+    Kazakhstan_Eastern: 
+      long: 
+        standard: "Isikhathi sase-Mpumalanga ne-Kazakhstan"
+    Kazakhstan_Western: 
+      long: 
+        standard: "Isikhathi saseNtshonalanga ne-Kazakhstan"
+    Korea: 
+      long: 
+        daylight: "Isikhathi semini sase-Korea"
+        generic: "Isikhathi sase-Korea"
+        standard: "Isikhathi esisezengeni sase-Korea"
+    Kosrae: 
+      long: 
+        standard: "Isikhathi sase-Kosrae"
+    Krasnoyarsk: 
+      long: 
+        daylight: "esase-Krasnoyarsk Summer Time"
+        generic: "esase-Krasnoyarsk Time"
+        standard: "Isikhathi Esimisiwe sase-Krasnoyarsk"
+    Kyrgystan: 
+      long: 
+        standard: "Isikhathi sase-Kyrgystan"
+    Line_Islands: 
+      long: 
+        standard: "Isikhathi sase-Line Islands"
+    Lord_Howe: 
+      long: 
+        daylight: "esase-Lord Howe Daylight Time"
+        generic: "esase-Lord Howe Time"
+        standard: "esase-Lord Howe Standard Time"
+    Macquarie: 
+      long: 
+        standard: "Isikhathi sase-Macquarie Island"
+    Magadan: 
+      long: 
+        daylight: "esase-Magadan Summer Time"
+        generic: "esase-Magadan Time"
+        standard: "Isikhathi Esimisiwe sase-Magadan"
+    Malaysia: 
+      long: 
+        standard: "Isikhathi sase-Malaysia"
+    Maldives: 
+      long: 
+        standard: "Isikhathi sase-Maldives"
+    Marquesas: 
+      long: 
+        standard: "Isikhathi sase-Marquesas"
+    Marshall_Islands: 
+      long: 
+        standard: "Isikhathi sase-Marshall Islands"
+    Mauritius: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Mauritius"
+        generic: "Isikhathi sase-Mauritius"
+        standard: "Isikhathi esivamile sase-Mauritius"
+    Mawson: 
+      long: 
+        standard: "Isikhathi sase-Mawson"
+    Mongolia: 
+      long: 
+        daylight: "esase-Ulan Bator Summer Time"
+        generic: "Isikhathi sase-Ulan Bator"
+        standard: "Isikhathi Esimisiwe sase-Ulan Bator"
+    Moscow: 
+      long: 
+        daylight: "esase-Moscow Summer Time"
+        generic: "esase-Moscow Time"
+        standard: "esase-Moscow Standard Time"
+    Myanmar: 
+      long: 
+        standard: "Isikhathi sase-Myanmar"
+    Nauru: 
+      long: 
+        standard: "Isikhathi sase-Nauru"
+    Nepal: 
+      long: 
+        standard: "Isikhathi sase-Nepal"
+    New_Caledonia: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-New Caledonia"
+        generic: "Isikhathi sase-New Caledonia"
+        standard: "Isikhathi esivamile sase-New Caledonia"
+    New_Zealand: 
+      long: 
+        daylight: "Isikhathi sasemini sase-New Zealand"
+        generic: "Isikhathi sase-New Zealand"
+        standard: "Isikhathi esivamile sase-New Zealand"
+    Newfoundland: 
+      long: 
+        daylight: "esase-Newfoundland Daylight Time"
+        generic: "esase-Newfoundland Time"
+        standard: "esase-Newfoundland Standard Time"
+    Niue: 
+      long: 
+        standard: "Isikhathi sase-Niue"
+    Norfolk: 
+      long: 
+        standard: "Isikhathi sase-Norfolk Islands"
+    Noronha: 
+      long: 
+        daylight: "esase-Fernando de Noronha Summer Time"
+        generic: "Isikhathi sase-Fernando de Noronha"
+        standard: "Isikhathi esimisiwe sase-Fernando de Noronha"
+    Novosibirsk: 
+      long: 
+        daylight: "esase-Novosibirsk Summer Time"
+        generic: "esase-Novosibirsk Time"
+        standard: "Isikhathi Esimisiwe sase-Novosibirsk"
+    Omsk: 
+      long: 
+        daylight: "esase-Omsk Summer Time"
+        generic: "esase-Omsk Time"
+        standard: "Isikhathi Esimisiwe sase-Omsk"
+    Pakistan: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Pakistan"
+        generic: "Isikhathi sase-Pakistan"
+        standard: "Isikhathi esivamile sase-Pakistan"
+    Palau: 
+      long: 
+        standard: "Isikhathi sase-Palau"
+    Papua_New_Guinea: 
+      long: 
+        standard: "Isikhathi sase-Papua New Guinea"
+    Paraguay: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Paraguay"
+        generic: "Isikhathi sase-Paraguay"
+        standard: "Isikhathi esivamile sase-Paraguay"
+    Peru: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Peru"
+        generic: "Isikhathi sase-Peru"
+        standard: "Isikhathi esivamile sase-Peru"
+    Philippines: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Philippine"
+        generic: "Isikhathi sase-Philippine"
+        standard: "Isikhathi esivamile sase-Philippine"
+    Phoenix_Islands: 
+      long: 
+        standard: "Isikhathi sase-Phoenix Islands"
+    Pierre_Miquelon: 
+      long: 
+        daylight: "Isikhathi semini sase-Saint Pierre kanye ne-Miquelon"
+        generic: "Isikhathi sase-Saint Pierre kanye ne-Miquelon"
+        standard: "Isikhathi esivamile sase-Saint Pierre kanye ne-Miquelon"
+    Pitcairn: 
+      long: 
+        standard: "Isikhathi sase-Pitcairn"
+    Ponape: 
+      long: 
+        standard: "Isikhathi sase-Ponape"
+    Reunion: 
+      long: 
+        standard: "Isikhathi sase-Reunion"
+    Rothera: 
+      long: 
+        standard: "Isikhathi sase-Rothera"
+    Sakhalin: 
+      long: 
+        daylight: "esase-Sakhalin Summer Time"
+        generic: "esase-Sakhalin Time"
+        standard: "Isikhathi Esimisiwe sase-Sakhalin"
+    Samara: 
+      long: 
+        daylight: "esase-Samara Summer Time"
+        generic: "esase-Samara Time"
+        standard: "esase-Samara Standard Time"
+    Samoa: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Samoa"
+        generic: "Isikhathi sase-Samoa"
+        standard: "Isikhathi esivamile sase-Samoa"
+    Seychelles: 
+      long: 
+        standard: "Isikhathi sase-Seychelles"
+    Singapore: 
+      long: 
+        standard: "Isikhathi esivamile sase-Singapore"
+    Solomon: 
+      long: 
+        standard: "Isikhathi sase-Solomon Islands"
+    South_Georgia: 
+      long: 
+        standard: "Isikhathi sase-South Georgia"
+    Suriname: 
+      long: 
+        standard: "Isikhathi sase-Suriname"
+    Syowa: 
+      long: 
+        standard: "Isikhathi sase-Syowa"
+    Tahiti: 
+      long: 
+        standard: "Isikhathi sase-Tahiti"
+    Taipei: 
+      long: 
+        daylight: "Isikhathi semini sase-Taipei"
+        generic: "Isikhathi sase-Taipei"
+        standard: "Isikhathi esivamile sase-Taipei"
+    Tajikistan: 
+      long: 
+        standard: "Isikhathi sase-Tajikistan"
+    Tokelau: 
+      long: 
+        standard: "Isikhathi sase-Tokelau"
+    Tonga: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Tonga"
+        generic: "Isikhathi sase-Tonga"
+        standard: "Isikhathi esivamile sase-Tonga"
+    Truk: 
+      long: 
+        standard: "Isikhathi sase-Chuuk"
+    Turkmenistan: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Turkmenistan"
+        generic: "Isikhathi sase-Turkmenistan"
+        standard: "Isikhathi esivamile sase-Turkmenistan"
+    Tuvalu: 
+      long: 
+        standard: "Isikhathi sase-Tuvalu"
+    Uruguay: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Uruguay"
+        generic: "Isikhathi sase-Uruguay"
+        standard: "Isikhathi esivamile sase-Uruguay"
+    Uzbekistan: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Uzbekistan"
+        generic: "Isikhathi sase-Uzbekistan"
+        standard: "Isikhathi esivamile sase-Uzbekistan"
+    Vanuatu: 
+      long: 
+        daylight: "Isikhathi sehlobo sase-Vanuatu"
+        generic: "Isikhathi sase-Vanuatu"
+        standard: "Isikhathi esivamile sase-Vanuatu"
+    Venezuela: 
+      long: 
+        standard: "Isikhathi sase-Venezuela"
+    Vladivostok: 
+      long: 
+        daylight: "esase-Vladivostok Summer Time"
+        generic: "esase-Vladivostok Time"
+        standard: "Isikhathi Esimisiwe sase-Vladivostok"
+    Volgograd: 
+      long: 
+        daylight: "esase-Volgograd Summer Time"
+        generic: "esase-Volgograd Time"
+        standard: "Isikhathi Esimisiwe sase-Volgograd"
+    Vostok: 
+      long: 
+        standard: "Isikhathi sase-Vostok"
+    Wake: 
+      long: 
+        standard: "Isikhathi sase-Wake Island"
+    Wallis: 
+      long: 
+        standard: "Isikhathi sase-Wallis and Futuna"
+    Yakutsk: 
+      long: 
+        daylight: "esase-Yakutsk Summer Time"
+        generic: "esase-Yakutsk Time"
+        standard: "Isikhathi Esimisiwe sase-Yakutsk"
+    Yekaterinburg: 
+      long: 
+        daylight: "esase-Yekaterinburg Summer Time"
+        generic: "esase-Yekaterinburg Time"
+        standard: "Isikhathi Esimisiwe sase-Yekaterinburg"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    Africa/Sao_Tome: 
+      city: "I-São Tomé"
+    America/Asuncion: 
+      city: I-Asunción
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Curacao: 
+      city: I-Curaçao
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "I-Lower Prince's Quarter"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "I-Saint Barthélemy"
+    America/St_Johns: 
+      city: "I-St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: Unknown
+    Indian/Reunion: 
+      city: I-Réunion
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

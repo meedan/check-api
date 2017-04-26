@@ -1,0 +1,228 @@
+uz-Cyrl: 
+  currencies: 
+    ANG: 
+      one: "Голланд Антил гульдени"
+      other: "Голланд Антил гульдени"
+    ARS: 
+      one: "Аргентина песоси"
+      other: "Аргентина песоси"
+      symbol: $
+    AUD: 
+      symbol: A$
+    AWG: 
+      one: "Аруба флорини"
+      other: "Аруба флорини"
+    BBD: 
+      one: "Барбадос доллари"
+      other: "Барбадос доллари"
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BMD: 
+      one: "Бермуда доллари"
+      other: "Бермуда доллари"
+      symbol: $
+    BND: 
+      symbol: $
+    BOB: 
+      one: "Боливия болвиани"
+      other: "Боливия болвиани"
+    BRL: 
+      one: "Бразил реали"
+      other: "Бразил реали"
+      symbol: R$
+    BSD: 
+      one: "Багама доллари"
+      other: "Багама доллари"
+      symbol: $
+    BYR: 
+      symbol: р.
+    BZD: 
+      one: "Белиз доллари"
+      other: "Белиз доллари"
+      symbol: $
+    CAD: 
+      one: "Канада доллари"
+      other: "Канада доллари"
+      symbol: CA$
+    CLP: 
+      one: "Чили песоси"
+      other: "Чили песоси"
+      symbol: $
+    CNY: 
+      one: "Хитой юани"
+      other: "Хитой юани"
+      symbol: CN¥
+    COP: 
+      one: "Колумбия песоси"
+      other: "Колумбия песоси"
+      symbol: $
+    CRC: 
+      one: "Коста-Рика колони"
+      other: "Коста-Рика колони"
+      symbol: ₡
+    CUC: 
+      one: "Куба айирбошлаш песоси"
+      other: "Куба айирбошлаш песоси"
+    CUP: 
+      one: "Куба песоси"
+      other: "Куба песоси"
+      symbol: $
+    DOP: 
+      one: "Доминикан песоси"
+      other: "Доминикан песоси"
+      symbol: $
+    DZD: 
+      one: "Жазоир динори"
+      other: "Жазоир динори"
+    EGP: 
+      one: "Миср фунти"
+      other: "Миср фунти"
+    ESP: 
+      symbol: ₧
+    EUR: 
+      one: Евро
+      other: Евро
+      symbol: €
+    FJD: 
+      symbol: $
+    FKP: 
+      one: "Фолькленд ороли фунти"
+      other: "Фолькленд ороли фунти"
+    GBP: 
+      one: "Инглиз фунт стерлинги"
+      other: "Инглиз фунт стерлинги"
+      symbol: £
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GTQ: 
+      one: "Гватемала кветзали"
+      other: "Гватемала кветзали"
+    GYD: 
+      one: "Гаяна доллари"
+      other: "Гаяна доллари"
+      symbol: $
+    HKD: 
+      symbol: HK$
+    HNL: 
+      one: "Гондурас лемпираси"
+      other: "Гондурас лемпираси"
+    HTG: 
+      one: "Гаити гурдаси"
+      other: "Гаити гурдаси"
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Ҳинд рупияси"
+      symbol: ₹
+    JMD: 
+      one: "Ямайка доллари"
+      other: "Ямайка доллари"
+      symbol: $
+    JPY: 
+      one: "Япон йенаси"
+      other: "Япон йенаси"
+      symbol: JP¥
+    KHR: 
+      symbol: ៛
+    KRW: 
+      symbol: ₩
+    KYD: 
+      one: "Кайман ороли доллари"
+      other: "Кайман ороли доллари"
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      symbol: $
+    LYD: 
+      one: "Ливия динори"
+      other: "Ливия динори"
+    MAD: 
+      one: "Марокаш дирҳами"
+      other: "Марокаш дирҳами"
+    MNT: 
+      symbol: ₮
+    MXN: 
+      one: "Мексика песоси"
+      other: "Мексика песоси"
+      symbol: MX$
+    NAD: 
+      symbol: $
+    NGN: 
+      symbol: ₦
+    NIO: 
+      one: "Никарагуа кордобаси"
+      other: "Никарагуа кордобаси"
+    NZD: 
+      symbol: NZ$
+    PAB: 
+      one: "Панама бальбоаси"
+      other: "Панама бальбоаси"
+    PEN: 
+      one: "Перу нуево сол"
+      other: "Перу нуево сол"
+    PHP: 
+      symbol: ₱
+    PYG: 
+      one: "Парагвай гуарани"
+      other: "Парагвай гуарани"
+      symbol: ₲
+    RUB: 
+      one: "Рус рубли"
+      other: "Рус рубли"
+    RUR: 
+      symbol: р.
+    SBD: 
+      symbol: $
+    SGD: 
+      symbol: $
+    SRD: 
+      one: "Суринам доллари"
+      other: "Суринам доллари"
+      symbol: $
+    SSP: 
+      symbol: £
+    THB: 
+      symbol: ฿
+    TRY: 
+      symbol: ₺
+    TTD: 
+      one: "Тринидад ва Тобаго доллари"
+      other: "Тринидад ва Тобаго доллари"
+      symbol: $
+    TWD: 
+      symbol: NT$
+    UAH: 
+      symbol: ₴
+    USD: 
+      one: "АҚШ доллари"
+      other: "АҚШ доллари"
+      symbol: US$
+    UYU: 
+      one: "Уругвай песоси"
+      other: "Уругвай песоси"
+      symbol: $
+    UZS: 
+      one: "Ўзбекистон сўм"
+      other: "Ўзбекистон сўм"
+      symbol: сўм
+    VEF: 
+      one: "Венесуэла боливари"
+      other: "Венесуэла боливари"
+    VND: 
+      symbol: ₫
+    XAF: 
+      symbol: FCFA
+    XCD: 
+      one: "Шарқ Кариб доллари"
+      other: "Шарқ Кариб доллари"
+      symbol: EC$
+    XOF: 
+      symbol: CFA
+    XPF: 
+      symbol: CFPF

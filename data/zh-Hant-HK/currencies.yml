@@ -1,0 +1,164 @@
+zh-Hant-HK: 
+  currencies: 
+    AED: 
+      one: 阿拉伯聯合酋長國迪爾汗
+      other: 阿拉伯聯合酋長國迪爾汗
+    ARS: 
+      symbol: $
+    AUD: 
+      one: 澳元
+      symbol: A$
+    AZN: 
+      one: 亞塞拜疆馬納特
+      other: 亞塞拜疆馬納特
+    BAD: 
+      one: 波斯尼亞-黑塞哥維那第納爾
+    BAM: 
+      one: 波斯尼亞-黑塞哥維那可轉換馬克
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: 加元
+      symbol: CA$
+    CLP: 
+      symbol: $
+    CNY: 
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      one: 哥斯達黎加科郎
+      other: 哥斯達黎加科郎
+      symbol: ₡
+    CUP: 
+      symbol: $
+    DOP: 
+      symbol: $
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: 埃塞俄比亞比爾
+      other: 埃塞俄比亞比爾
+    EUR: 
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      symbol: £
+    GEL: 
+      one: 格魯吉亞拉里
+      other: 格魯吉亞拉里
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GYD: 
+      symbol: $
+    HKD: 
+      one: 港元
+      symbol: $
+    ILS: 
+      symbol: ₪
+    INR: 
+      symbol: ₹
+    ITL: 
+      one: 意大利里拉
+    JMD: 
+      symbol: $
+    JPY: 
+      symbol: JP¥
+    KHR: 
+      symbol: ៛
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: 利比利亞元
+      other: 利比利亞元
+      symbol: $
+    MNT: 
+      symbol: ₮
+    MUR: 
+      one: 毛里求斯盧布
+      other: 毛里求斯盧布
+    MXN: 
+      symbol: MX$
+    MZN: 
+      one: 莫桑比克美提卡
+      other: 莫桑比克美提卡
+    NAD: 
+      symbol: $
+    NGN: 
+      one: 尼日利亞奈拉
+      other: 尼日利亞奈拉
+      symbol: ₦
+    NZD: 
+      one: 紐西蘭元
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RSD: 
+      one: 塞爾維亞第納爾
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: 盧旺達法郎
+      other: 盧旺達法郎
+    SBD: 
+      symbol: $
+    SGD: 
+      one: 新加坡元
+      symbol: $
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    THB: 
+      symbol: ฿
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      one: 新台幣
+      symbol: NT$
+    UAH: 
+      symbol: ₴
+    USD: 
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: 中非法郎
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: 多哥非洲共同體法郎
+      symbol: CFA
+    XPF: 
+      one: 太平洋法郎
+      symbol: CFPF

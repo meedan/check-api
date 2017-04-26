@@ -1,0 +1,147 @@
+en-Dsrt: 
+  metazones: 
+    Alaska: 
+      long: 
+        daylight: "𐐊𐑊𐐰𐑅𐐿𐐲 𐐔𐐩𐑊𐐴𐐻 𐐓𐐴𐑋"
+        generic: "𐐊𐑊𐐰𐑅𐐿𐐲 𐐓𐐴𐑋"
+        standard: "𐐊𐑊𐐰𐑅𐐿𐐲 𐐝𐐻𐐰𐑌𐐼𐐲𐑉𐐼 𐐓𐐴𐑋"
+    America_Central: 
+      long: 
+        daylight: "𐐝𐐯𐑌𐐻𐑉𐐲𐑊 𐐔𐐩𐑊𐐴𐐻 𐐓𐐴𐑋"
+        generic: "𐐝𐐯𐑌𐐻𐑉𐐲𐑊 𐐓𐐴𐑋"
+        standard: "𐐝𐐯𐑌𐐻𐑉𐐲𐑊 𐐝𐐻𐐰𐑌𐐼𐐲𐑉𐐼 𐐓𐐴𐑋"
+    America_Eastern: 
+      long: 
+        daylight: "𐐀𐑅𐐻𐐲𐑉𐑌 𐐔𐐩𐑊𐐴𐐻 𐐓𐐴𐑋"
+        generic: "𐐀𐑅𐐻𐐲𐑉𐑌 𐐓𐐴𐑋"
+        standard: "𐐀𐑅𐐻𐐲𐑉𐑌 𐐝𐐻𐐰𐑌𐐼𐐲𐑉𐐼 𐐓𐐴𐑋"
+    America_Mountain: 
+      long: 
+        daylight: "𐐣𐐵𐑌𐐻𐐲𐑌 𐐔𐐩𐑊𐐴𐐻 𐐓𐐴𐑋"
+        generic: "𐐣𐐵𐑌𐐻𐐲𐑌 𐐓𐐴𐑋"
+        standard: "𐐣𐐵𐑌𐐻𐐲𐑌 𐐝𐐻𐐰𐑌𐐼𐐲𐑉𐐼 𐐓𐐴𐑋"
+    America_Pacific: 
+      long: 
+        daylight: "𐐑𐐲𐑅𐐮𐑁𐐮𐐿 𐐔𐐩𐑊𐐴𐐻 𐐓𐐴𐑋"
+        generic: "𐐑𐐲𐑅𐐮𐑁𐐮𐐿 𐐓𐐴𐑋"
+        standard: "𐐑𐐲𐑅𐐮𐑁𐐮𐐿 𐐝𐐻𐐰𐑌𐐼𐐲𐑉𐐼 𐐓𐐴𐑋"
+    Atlantic: 
+      long: 
+        daylight: "𐐈𐐻𐑊𐐰𐑌𐐻𐐮𐐿 𐐔𐐩𐑊𐐴𐐻 𐐓𐐴𐑋"
+        generic: "𐐈𐐻𐑊𐐰𐑌𐐻𐐮𐐿 𐐓𐐴𐑋"
+        standard: "𐐈𐐻𐑊𐐰𐑌𐐻𐐮𐐿 𐐝𐐻𐐰𐑌𐐼𐐲𐑉𐐼 𐐓𐐴𐑋"
+    Hong_Kong: 
+      long: 
+        daylight: "𐐐𐐱𐑍 𐐗𐐱𐑍 𐐔𐐩𐑊𐐴𐐻 𐐓𐐴𐑋"
+        generic: "𐐐𐐱𐑍 𐐗𐐱𐑍 𐐓𐐴𐑋"
+        standard: "𐐐𐐱𐑍 𐐗𐐱𐑍 𐐝𐐻𐐰𐑌𐐼𐐲𐑉𐐼 𐐓𐐴𐑋"
+    Newfoundland: 
+      long: 
+        daylight: "𐐤𐐭𐑁𐐲𐑌𐐼𐑊𐐲𐑌𐐼 𐐔𐐩𐑊𐐴𐐻 𐐓𐐴𐑋"
+        generic: "𐐤𐐭𐑁𐐲𐑌𐐼𐑊𐐲𐑌𐐼 𐐓𐐴𐑋"
+        standard: "𐐤𐐭𐑁𐐲𐑌𐐼𐑊𐐲𐑌𐐼 𐐝𐐻𐐰𐑌𐐼𐐲𐑉𐐼 𐐓𐐴𐑋"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    America/Adak: 
+      city: 𐐈𐐼𐐰𐐿
+    America/Anchorage: 
+      city: 𐐁𐑍𐐿𐐲𐑉𐐮𐐾
+    America/Boise: 
+      city: 𐐒𐐱𐐮𐑆𐐨
+    America/Chicago: 
+      city: 𐐟𐐮𐐿𐐪𐑀𐐬
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Denver: 
+      city: 𐐔𐐯𐑌𐑂𐐲𐑉
+    America/Detroit: 
+      city: 𐐔𐐲𐐻𐑉𐐱𐐮𐐻
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "𐐤𐐪𐐿𐑅, 𐐆𐑌𐐼𐐨𐐰𐑌𐐲"
+    America/Indiana/Marengo: 
+      city: "𐐣𐐲𐑉𐐯𐑍𐑀𐐬, 𐐆𐑌𐐼𐐨𐐰𐑌𐐲"
+    America/Indiana/Petersburg: 
+      city: "𐐑𐐨𐐻𐐲𐑉𐑆𐐺𐐲𐑉𐑀, 𐐆𐑌𐐼𐐨𐐰𐑌𐐲"
+    America/Indiana/Tell_City: 
+      city: "𐐓𐐯𐑊 𐐝𐐮𐐼𐐨, 𐐆𐑌𐐼𐐨𐐰𐑌𐐲"
+    America/Indiana/Vevay: 
+      city: "𐐚𐐯𐑂𐐩, 𐐆𐑌𐐼𐐨𐐰𐑌𐐲"
+    America/Indiana/Vincennes: 
+      city: "𐐚𐐮𐑌𐑅𐐯𐑌𐑆, 𐐆𐑌𐐼𐐨𐐰𐑌𐐲"
+    America/Indiana/Winamac: 
+      city: "𐐎𐐮𐑌𐐲𐑋𐐰𐐿, 𐐆𐑌𐐼𐐨𐐰𐑌𐐲"
+    America/Indianapolis: 
+      city: 𐐆𐑌𐐼𐐨𐐲𐑌𐐰𐐹𐐬𐑊𐐲𐑅
+    America/Juneau: 
+      city: 𐐖𐐭𐑌𐐬
+    America/Kentucky/Monticello: 
+      city: "𐐣𐐪𐑌𐐻𐐲𐑅𐐯𐑊𐐬, 𐐗𐐲𐑌𐐻𐐲𐐿𐐨"
+    America/Los_Angeles: 
+      city: "𐐢𐐱𐑅 𐐈𐑌𐐾𐐲𐑊𐑅"
+    America/Louisville: 
+      city: 𐐢𐐭𐐶𐐨𐑂𐐮𐑊
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/Menominee: 
+      city: 𐐣𐐲𐑌𐐪𐑋𐐲𐑌𐐨
+    America/New_York: 
+      city: "𐐤𐐭 𐐏𐐱𐑉𐐿"
+    America/Nome: 
+      city: 𐐤𐐬𐑋
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "𐐝𐐯𐑌𐐻𐐲𐑉, 𐐤𐐱𐑉𐑃 𐐔𐐲𐐿𐐬𐐼𐐲"
+    America/North_Dakota/New_Salem: 
+      city: "𐐤𐐭 𐐝𐐩𐑊𐐲𐑋, 𐐤𐐱𐑉𐑃 𐐔𐐲𐐿𐐬𐐼𐐲"
+    America/Phoenix: 
+      city: 𐐙𐐨𐑌𐐮𐐿𐑅
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/Shiprock: 
+      city: 𐐟𐐮𐐹𐑉𐐱𐐿
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    America/Yakutat: 
+      city: 𐐏𐐰𐐿𐐭𐐻𐐰𐐻
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Antarctica/South_Pole: 
+      city: "𐐝𐐵𐑃 𐐑𐐬𐑊"
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: 𐐊𐑌𐑌𐐬𐑌
+    Pacific/Honolulu: 
+      city: 𐐐𐐪𐑌𐐲𐑊𐐭𐑊𐐭
+    Pacific/Johnston: 
+      city: 𐐖𐐪𐑌𐑅𐐻𐐲𐑌
+    Pacific/Midway: 
+      city: 𐐣𐐮𐐼𐐶𐐩
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk
+    Pacific/Wake: 
+      city: 𐐎𐐩𐐿

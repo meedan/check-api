@@ -1,0 +1,1 @@
+{ :'ln_CG' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

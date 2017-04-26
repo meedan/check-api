@@ -1,0 +1,61 @@
+te: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "¤#,##0.00;(¤#,##0.00)"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 వేలు"
+            10000: "00 వేలు"
+            100000: "000 వేలు"
+            1000000: "0 మిలియన్"
+            10000000: "00 మిలియన్"
+            100000000: "000 మిలియన్"
+            1000000000: "0 బిలియన్"
+            10000000000: "00 బిలియన్"
+            100000000000: "000 బిలియన్"
+            1000000000000: "0 ట్రిలియన్"
+            10000000000000: "00 ట్రిలియన్"
+            100000000000000: "000 ట్రిలియన్"
+          short: 
+            1000: 0వే
+            10000: 00వే
+            100000: 000వే
+            1000000: 0మి
+            10000000: 00మి
+            100000000: 000మి
+            1000000000: 0బి
+            10000000000: 00బి
+            100000000000: 000బి
+            1000000000000: 0ట్రి
+            10000000000000: 00ట్రి
+            100000000000000: 000ట్రి
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: "."
+      exponential: E
+      group: ","
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×
