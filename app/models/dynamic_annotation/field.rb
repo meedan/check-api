@@ -9,23 +9,16 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   before_validation :set_annotation_type, :set_field_type
 
   def to_s
-    # FIXME: Rewrite the four lines below it as a formatter
-    if self.field_type == 'language'
-      code = self.value.to_s.downcase
-      return CheckCldr.language_code_to_name(code)
+    [
+      "field_formatter_#{self.annotation.annotation_type}_#{self.field_name}",
+      "field_formatter_name_#{self.field_name}",
+      "field_formatter_type_#{self.field_instance.field_type}",
+    ].each do |name|
+      if self.respond_to?(name)
+        return self.send(name)
+      end
     end
-
-    begin
-      # FIXME This is hardcoded to values of 'selected' + 'other' as per the current structure of tasks.
-      #       Should convert to a generic mechanism to specify value extractors for different dynamic field types.
-      value = JSON.parse(self.value)
-      answer = value['selected']
-      answer.insert(-1, value['other']) if !value['other'].blank?
-      v = answer.to_sentence(locale: I18n.locale)
-    rescue
-      v = self.value
-    end
-    v
+    self.value
   end
 
   include Versioned

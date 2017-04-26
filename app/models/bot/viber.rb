@@ -9,7 +9,7 @@ class Bot::Viber < ActiveRecord::Base
     http.use_ssl = true
     req = Net::HTTP::Post.new(uri.path, 'Content-Type' => 'application/json')
     req['X-Viber-Auth-Token'] = CONFIG['viber_token']
-    req.body = body 
+    req.body = body
     http.request(req)
   end
 
@@ -33,10 +33,6 @@ class Bot::Viber < ActiveRecord::Base
 
     def previous_value
       self.value_was.nil? ? self.value : self.value_was
-    end
-
-    def language_name
-      self.to_s if self.field_type == 'language'
     end
 
     private
@@ -81,9 +77,9 @@ class Bot::Viber < ActiveRecord::Base
     def translation_to_message
       if self.annotation_type == 'translation'
         begin
-          source_language = self.annotated.get_dynamic_annotation('language').get_field('language').language_name
+          source_language = self.annotated.get_dynamic_annotation('language').get_field('language').to_s
           source_text = self.annotated.text
-          target_language = self.get_field('translation_language').language_name
+          target_language = self.get_field('translation_language').to_s
           target_text = self.get_field_value('translation_text')
           [source_language.to_s + ':', source_text, target_language.to_s + ':', target_text].join("\n")
         rescue
@@ -102,7 +98,7 @@ class Bot::Viber < ActiveRecord::Base
           color: '#000',
           background_alpha: 'ff',
           text_transform: nil
-        })    
+        })
       end
     end
 
