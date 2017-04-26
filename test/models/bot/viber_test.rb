@@ -365,6 +365,26 @@ class Bot::ViberTest < ActiveSupport::TestCase
     Dynamic.unstub(:respond_to_user)
   end
 
+  test "should respond to user in background" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    create_annotation_type annotation_type: 'translation'
+    create_dynamic_annotation annotated: pm, annotation_type: 'translation'
+
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        stub_config('viber_token', 'test') do
+          d = Dynamic.find(d.id)
+          d.set_fields = { translation_status_status: 'error' }.to_json
+          d.save!
+        end
+      end
+    end
+  end
+
   private
 
   def create_translation_status_stuff

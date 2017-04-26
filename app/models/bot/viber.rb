@@ -125,7 +125,7 @@ class Bot::Viber < ActiveRecord::Base
         ts.skip_check_ability = true
         ts.annotation_type = 'translation_status'
         ts.annotated = self.annotated
-        ts.set_fields = { translation_status_status: 'pending' }.to_json
+        ts.set_fields = { translation_status_status: 'pending', translation_status_note: '' }.to_json
         ts.save!
       end
     end
