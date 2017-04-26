@@ -23,8 +23,49 @@ class Bot::Viber < ActiveRecord::Base
     self.send_message(body)
   end
 
+  DynamicAnnotation::Field.class_eval do
+    validate :translation_status_is_valid
+    validate :can_set_translation_status
+
+    after_update :respond_to_user
+
+    private
+
+    def translation_status_is_valid
+      if self.field_name == 'translation_status_status'
+        options = self.field_instance.settings[:options_and_roles]
+        value = self.value.to_sym
+
+        errors.add(:base, I18n.t(:translation_status_not_valid, default: 'Status not valid')) unless options.keys.include?(value)
+      end
+    end
+
+    def can_set_translation_status
+      if self.field_name == 'translation_status_status'
+        options = self.field_instance.settings[:options_and_roles]
+        value = self.value.to_sym
+        old_value = self.value_was.nil? ? value : self.value_was.to_sym
+        user = User.current
+
+        if !user.nil? && !options[value].blank? && (!user.role?(options[value]) || !user.role?(options[old_value]))
+          errors.add(:base, I18n.t(:translation_status_permission_error), default: 'You are not allowed to make this status change')
+        end
+      end
+    end
+
+    def respond_to_user
+      if self.field_name == 'translation_status_status'
+        translation = self.annotation.annotated.get_dynamic_annotation('translation')
+        if !translation.nil? && self.value_was != self.value
+          translation.respond_to_user(true) if self.value == 'ready' 
+          translation.respond_to_user(false) if self.value == 'error'
+        end
+      end
+    end
+  end
+
   Dynamic.class_eval do
-    after_create :respond_to_user
+    after_create :create_first_translation_status
 
     def translation_to_message
       if self.annotation_type == 'translation'
@@ -54,22 +95,38 @@ class Bot::Viber < ActiveRecord::Base
       end
     end
 
-    def self.respond_to_user(tid)
+    def self.respond_to_user(tid, success = true)
       translation = Dynamic.where(id: tid).last
       return if translation.nil?
       request = translation.annotated.get_dynamic_annotation('translation_request')
       if !request.nil? && request.get_field_value('translation_request_type') == 'viber'
         data = JSON.parse(request.get_field_value('translation_request_raw_data'))
-        Bot::Viber.default.send_text_message(data['sender'], translation.translation_to_message)
-        Bot::Viber.default.send_image_message(data['sender'], translation.translation_to_message_as_image)
+        if success
+          Bot::Viber.default.send_text_message(data['sender'], translation.translation_to_message)
+          Bot::Viber.default.send_image_message(data['sender'], translation.translation_to_message_as_image)
+        else
+          message = translation.annotated.get_dynamic_annotation('translation_status').get_field_value('translation_status_note')
+          Bot::Viber.default.send_text_message(data['sender'], message) unless message.blank?
+        end
       end
     end
 
+    def respond_to_user(success = true)
+      if !CONFIG['viber_token'].blank? && self.annotation_type == 'translation' && self.annotated_type == 'ProjectMedia'
+        Dynamic.delay_for(1.second).respond_to_user(self.id, success)
+      end
+    end
+    
     private
 
-    def respond_to_user
-      if !CONFIG['viber_token'].blank? && self.annotation_type == 'translation' && self.annotated_type == 'ProjectMedia'
-        Dynamic.delay_for(1.second).respond_to_user(self.id)
+    def create_first_translation_status
+      if self.annotation_type == 'translation_request'
+        ts = Dynamic.new
+        ts.skip_check_ability = true
+        ts.annotation_type = 'translation_status'
+        ts.annotated = self.annotated
+        ts.set_fields = { translation_status_status: 'pending' }.to_json
+        ts.save!
       end
     end
   end

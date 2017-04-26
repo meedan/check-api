@@ -4,6 +4,7 @@ require 'sidekiq/testing'
 class Bot::ViberTest < ActiveSupport::TestCase
   def setup
     super
+    create_translation_status_stuff
     ft = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
     at = create_annotation_type annotation_type: 'translation_request', label: 'Translation Request'
     create_field_instance annotation_type_object: at, name: 'translation_request_raw_data', label: 'Translation Request Raw Data', field_type_object: ft, optional: false
@@ -96,6 +97,11 @@ class Bot::ViberTest < ActiveSupport::TestCase
 
     Dynamic.respond_to_user(d.id)
 
+    Bot::Viber.any_instance.expects(:send_text_message).once
+    Bot::Viber.any_instance.expects(:send_image_message).never
+
+    Dynamic.respond_to_user(d.id, false)
+
     Bot::Viber.any_instance.unstub(:send_text_message)
     Bot::Viber.any_instance.unstub(:send_image_message)
   end
@@ -177,4 +183,196 @@ class Bot::ViberTest < ActiveSupport::TestCase
     assert_not_equal '', d.translation_to_message
     assert_not_nil d.translation_to_message
   end
-end 
+
+  test "should set translation status" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    pm = create_project_media media: create_claim_media
+    with_current_user_and_team(u, t) do
+      assert_difference "Dynamic.where(annotation_type: 'translation_status').count" do
+        create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'ready' }.to_json
+      end
+    end
+  end
+
+  test "should not set invalid translation status" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    pm = create_project_media media: create_claim_media
+    with_current_user_and_team(u, t) do
+      assert_no_difference "Dynamic.where(annotation_type: 'translation_status').count" do
+        assert_raises ActiveRecord::RecordInvalid do
+          create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'invalid' }.to_json
+        end
+      end
+    end
+  end
+
+  test "should set translation status if has permission to change current value" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        d = Dynamic.find(d.id)
+        d.set_fields = { translation_status_status: 'in_progress' }.to_json
+        d.save!
+      end
+    end
+  end
+
+  test "should set translation status if has permission to change current value 2" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'ready' }.to_json
+    
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        d = Dynamic.find(d.id)
+        d.set_fields = { translation_status_status: 'in_progress' }.to_json
+        d.save!
+      end
+    end
+  end
+
+  test "should not set translation status if does not have permission to change current value" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'ready' }.to_json
+    
+    with_current_user_and_team(u, t) do
+      assert_raises ActiveRecord::RecordInvalid do
+        d = Dynamic.find(d.id)
+        d.set_fields = { translation_status_status: 'in_progress' }.to_json
+        d.save!
+      end
+    end
+  end
+
+  test "should not set translation status if does not have permission to change for target value" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    
+    with_current_user_and_team(u, t) do
+      assert_raises ActiveRecord::RecordInvalid do
+        d = Dynamic.find(d.id)
+        d.set_fields = { translation_status_status: 'ready' }.to_json
+        d.save!
+      end
+    end
+  end
+
+  test "should set translation status if has permission to change for target value" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        d = Dynamic.find(d.id)
+        d.set_fields = { translation_status_status: 'translated' }.to_json
+        d.save!
+      end
+    end
+  end
+
+  test "should set translation status if has permission to change for target value 2" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        d = Dynamic.find(d.id)
+        d.set_fields = { translation_status_status: 'ready' }.to_json
+        d.save!
+      end
+    end
+  end
+
+  test "should create first translation status when translation request is created" do
+    pm = create_project_media
+    assert_difference "Dynamic.where(annotation_type: 'translation_status').count" do
+      create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
+    end
+  end
+
+  test "should respond to user when translation status changes to ready" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    create_annotation_type annotation_type: 'translation'
+    create_dynamic_annotation annotated: pm, annotation_type: 'translation'
+
+    Dynamic.expects(:respond_to_user).with(true).once
+
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        Sidekiq::Testing.inline! do
+          stub_config('viber_token', nil) do
+            d = Dynamic.find(d.id)
+            d.set_fields = { translation_status_status: 'ready' }.to_json
+            d.save!
+          end
+        end
+      end
+    end
+    
+    Dynamic.unstub(:respond_to_user)
+  end
+
+  test "should respond to user when translation status changes to error" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    create_annotation_type annotation_type: 'translation'
+    create_dynamic_annotation annotated: pm, annotation_type: 'translation'
+
+    Dynamic.expects(:respond_to_user).with(false).once
+
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        Sidekiq::Testing.inline! do
+          stub_config('viber_token', nil) do
+            d = Dynamic.find(d.id)
+            d.set_fields = { translation_status_status: 'error' }.to_json
+            d.save!
+          end
+        end
+      end
+    end
+    
+    Dynamic.unstub(:respond_to_user)
+  end
+
+  private
+
+  def create_translation_status_stuff
+    [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+    ft1 = create_field_type(field_type: 'select', label: 'Select')
+    ft2 = create_field_type(field_type: 'text', label: 'Text')
+    at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
+    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
+    create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
+  end
+end
