@@ -147,9 +147,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {
-      bot = Bot::Alegre.default
-      obj = bot.language_object(project_media)
-      obj.nil? ? nil : obj.to_s
+      Bot::Alegre.default.language_object(project_media, :to_s)
     }
   end
 
@@ -157,9 +155,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {
-      bot = Bot::Alegre.default
-      obj = bot.language_object(project_media)
-      obj.nil? ? nil : obj.value
+      Bot::Alegre.default.language_object(project_media, :value)
     }
   end
 
