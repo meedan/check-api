@@ -94,6 +94,17 @@ We call "localizable strings" any call to the `I18n.t` function like this: `I18n
 
 Clients should send the `Accept-Language` header in order to get localized content. If you want to serve everything in English, just add `locale: 'en'` to your `config/config.yml`.
 
+#### Update CLDR data
+
+CLDR data lives in `data/` (symlinked as `cldr-data` too) and contains data from CLDR download by `ruby-cldr`. In order to update its contents (as explained [here](https://github.com/svenfuchs/ruby-cldr/issues/24#issuecomment-65855492)), run this in Rails console:
+
+```ruby
+require 'cldr/thor'
+thor = Cldr::Thor.new
+thor.download
+thor.export
+```
+
 ### Admin UI
 
 #### Add new settings fields

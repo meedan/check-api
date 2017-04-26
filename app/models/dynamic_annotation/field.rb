@@ -9,6 +9,12 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   before_validation :set_annotation_type, :set_field_type
 
   def to_s
+    # FIXME: Rewrite the four lines below it as a formatter
+    if self.field_type == 'language'
+      code = self.value.to_s.downcase
+      return CheckCldr.language_code_to_name(code)
+    end
+
     begin
       # FIXME This is hardcoded to values of 'selected' + 'other' as per the current structure of tasks.
       #       Should convert to a generic mechanism to specify value extractors for different dynamic field types.
@@ -20,21 +26,6 @@ class DynamicAnnotation::Field < ActiveRecord::Base
       v = self.value
     end
     v
-  end
-
-  def language
-    self.value if self.field_type == 'language'
-  end
-
-  def language_name
-    if self.field_type == 'language'
-      locale = I18n.locale || :en
-      begin
-        I18nData.languages(locale.to_s.upcase)[self.value.upcase].capitalize
-      rescue
-        self.value
-      end
-    end
   end
 
   include Versioned

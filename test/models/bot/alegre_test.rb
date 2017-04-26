@@ -46,18 +46,18 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should return language name" do
+  test "should return language object" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
         assert_equal 'fr', @bot.get_language_from_alegre('I like apples', @pm)
-        assert_equal 'fr', @bot.language(@pm)
+        assert_equal 'fr', @bot.language_object(@pm).value
       end
     end
   end
 
-  test "should return null for language name if there is no annotation" do
+  test "should return null for language object if there is no annotation" do
     pm = create_project_media
-    assert_nil @bot.language(pm)
+    assert_nil @bot.language_object(pm)
   end
 end

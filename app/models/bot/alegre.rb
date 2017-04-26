@@ -21,9 +21,8 @@ class Bot::Alegre < ActiveRecord::Base
     lang
   end
 
-  def language(target)
-    field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'language', 'annotations.annotated_type' => target.class.name, 'annotations.annotated_id' => target.id.to_s, field_type: 'language').first
-    field.nil? ? nil : field.language
+  def language_object(target)
+    DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'language', 'annotations.annotated_type' => target.class.name, 'annotations.annotated_id' => target.id.to_s, field_type: 'language').first
   end
 
   protected

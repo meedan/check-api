@@ -35,6 +35,10 @@ class Bot::Viber < ActiveRecord::Base
       self.value_was.nil? ? self.value : self.value_was
     end
 
+    def language_name
+      self.to_s if self.field_type == 'language'
+    end
+
     private
 
     def translation_status_is_valid

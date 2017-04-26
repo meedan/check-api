@@ -128,12 +128,13 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, last_status_obj {dbid} } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, language_code, last_status_obj {dbid} } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
     assert JSON.parse(@response.body)['data']['project_media'].has_key?('language')
+    assert JSON.parse(@response.body)['data']['project_media'].has_key?('language_code')
   end
 
   test "should read project media and fallback to media" do
@@ -1011,5 +1012,15 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_token
     post :create, query: 'query Query { about { name, version } }'
     assert_response :success
+  end
+
+  test "should get supported languages" do
+    authenticate_with_user
+    @request.headers['Accept-Language'] = 'pt-BR'
+    post :create, query: 'query Query { about { languages_supported } }'
+    assert_equal :pt, I18n.locale
+    assert_response :success
+    languages = JSON.parse(JSON.parse(@response.body)['data']['about']['languages_supported'])
+    assert_equal 'Francês', languages['fr']
   end
 end
