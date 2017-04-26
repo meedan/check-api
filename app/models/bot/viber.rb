@@ -29,6 +29,10 @@ class Bot::Viber < ActiveRecord::Base
 
     after_update :respond_to_user
 
+    def previous_value
+      self.value_was.nil? ? self.value : self.value_was
+    end
+
     private
 
     def translation_status_is_valid
@@ -44,7 +48,7 @@ class Bot::Viber < ActiveRecord::Base
       if self.field_name == 'translation_status_status'
         options = self.field_instance.settings[:options_and_roles]
         value = self.value.to_sym
-        old_value = self.value_was.nil? ? value : self.value_was.to_sym
+        old_value = self.previous_value.to_sym
         user = User.current
 
         if !user.nil? && !options[value].blank? && (!user.role?(options[value]) || !user.role?(options[old_value]))
