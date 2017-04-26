@@ -29,6 +29,8 @@ class Bot::Viber < ActiveRecord::Base
 
     after_update :respond_to_user
 
+    attr_accessor :previous_status
+
     def previous_value
       self.value_was.nil? ? self.value : self.value_was
     end
@@ -49,6 +51,7 @@ class Bot::Viber < ActiveRecord::Base
         options = self.field_instance.settings[:options_and_roles]
         value = self.value.to_sym
         old_value = self.previous_value.to_sym
+        self.previous_status = old_value
         user = User.current
 
         if !user.nil? && !options[value].blank? && (!user.role?(options[value]) || !user.role?(options[old_value]))
@@ -60,7 +63,7 @@ class Bot::Viber < ActiveRecord::Base
     def respond_to_user
       if self.field_name == 'translation_status_status'
         translation = self.annotation.annotated.get_dynamic_annotation('translation')
-        if !translation.nil? && self.value_was != self.value
+        if !translation.nil? && self.previous_status.to_s != self.value.to_s
           translation.respond_to_user(true) if self.value == 'ready' 
           translation.respond_to_user(false) if self.value == 'error'
         end
