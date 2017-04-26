@@ -35,7 +35,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should not access Admin UI if user has no role" do
-    assert_equal nil, @user.role
+    assert_nil @user.role
 
     post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
 
