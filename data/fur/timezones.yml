@@ -1,0 +1,126 @@
+fur: 
+  metazones: 
+    Europe_Central: 
+      long: 
+        daylight: "Ore estive de Europe centrâl"
+        generic: "Ore de Europe centrâl"
+        standard: "Ore standard de Europe centrâl"
+      short: 
+        daylight: CEST
+        generic: CET
+        standard: CET
+    Europe_Eastern: 
+      long: 
+        daylight: "Ore estive de Europe orientâl"
+        generic: "Ore de Europe orientâl"
+        standard: "Ore standard de Europe orientâl"
+      short: 
+        daylight: EEST
+        generic: EET
+        standard: EET
+    Europe_Western: 
+      long: 
+        daylight: "Ore estive de Europe ocidentâl"
+        generic: "Ore de Europe ocidentâl"
+        standard: "Ore standard de Europe ocidentâl"
+      short: 
+        daylight: WEST
+        generic: WET
+        standard: WET
+    GMT: 
+      short: 
+        standard: GMT
+    Moscow: 
+      long: 
+        daylight: "Ore estive di Mosche"
+        generic: "Ore di Mosche"
+        standard: "Ore standard di Mosche"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/New_York: 
+      city: "Gnove York"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Sao_Paulo: 
+      city: "San Pauli dal Brasîl"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Azores: 
+      city: Azoris
+    Atlantic/Canary: 
+      city: Canariis
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: "Citât no cognossude"
+    Europe/Belgrade: 
+      city: Belgrât
+    Europe/Lisbon: 
+      city: Lisbone
+    Europe/Ljubljana: 
+      city: Lubiane
+    Europe/Luxembourg: 
+      city: Lussemburc
+    Europe/Malta: 
+      city: Malte
+    Europe/Moscow: 
+      city: Mosche
+    Europe/Prague: 
+      city: Praghe
+    Europe/San_Marino: 
+      city: "San Marin"
+    Europe/Vienna: 
+      city: Viene
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

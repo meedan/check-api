@@ -1,0 +1,141 @@
+kea: 
+  metazones: 
+    Africa_Central: 
+      long: 
+        standard: "Ora di Afrika Sentral"
+    Africa_Eastern: 
+      long: 
+        standard: "Ora di Afrika Oriental"
+    Africa_Southern: 
+      long: 
+        standard: "Ora di Sul di Afrika"
+    Africa_Western: 
+      long: 
+        daylight: "Ora di Verão di Afrika Osidental"
+        generic: "Ora di Afrika Osidental"
+        standard: "Ora Padrãu di Afrika Osidental"
+    America_Central: 
+      long: 
+        daylight: "Ora Sentral di Verãu"
+        generic: "Ora Sentral"
+        standard: "Ora Sentral Padrãu"
+    America_Eastern: 
+      long: 
+        daylight: "Ora Oriental di Verãu"
+        generic: "Ora Oriental"
+        standard: "Ora Oriental Padrãu"
+    America_Mountain: 
+      long: 
+        daylight: "Ora di Verãu di Montanha"
+        generic: "Ora di Montanha"
+        standard: "Ora di Montanha Padrãu"
+    America_Pacific: 
+      long: 
+        daylight: "Ora di Pasifiku di Verãu"
+        generic: "Ora di Pasifiku"
+        standard: "Ora di Pasifiku Padrãu"
+    Atlantic: 
+      long: 
+        daylight: "Ora di Verãu di Atlantiku"
+        generic: "Ora di Atlantiku"
+        standard: "Ora Padrãu di Atlantiku"
+    Australia_Central: 
+      long: 
+        daylight: "Ora di Verãu di Australia Sentral"
+        generic: "Ora di Australia Sentral"
+        standard: "Ora Padrãu di Australia Sentral"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "Ora di Verãu di Australia Sentru-Osidental"
+        generic: "Ora di Autralia Sentru-Osidental"
+        standard: "Ora Padrãu di Australia Sentru-Osidental"
+    Australia_Eastern: 
+      long: 
+        daylight: "Ora di Verãu di Australia Oriental"
+        generic: "Ora di Australia Oriental"
+        standard: "Ora Padrãu di Australia Oriental"
+    Australia_Western: 
+      long: 
+        daylight: "Ora di Verãu di Australia Osidental"
+        generic: "Ora di Australia Osidental"
+        standard: "Ora Padrãu di Australia Osidental"
+    Europe_Central: 
+      long: 
+        daylight: "Ora di Verãu di Europa Sentral"
+        generic: "Ora di Europa Sentral"
+        standard: "Ora Padrãu di Europa Sentral"
+    Europe_Eastern: 
+      long: 
+        daylight: "Ora di Verãu di Europa Oriental"
+        generic: "Ora di Europa Oriental"
+        standard: "Ora Padrãu di Europa Oriental"
+    Europe_Western: 
+      long: 
+        daylight: "Ora di Verãu di Europa Osidental"
+        generic: "Ora di Europa Osidental"
+        standard: "Ora Padrãu di Europa Osidental"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    America/Blanc-Sablon: 
+      city: Blank-Sablon
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: "Sidadi Diskonxedu"
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

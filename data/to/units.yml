@@ -1,0 +1,286 @@
+to: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          other: "{0} g-force"
+        angle-arc-minute: 
+          other: "miniti seakale ʻe {0}"
+        angle-arc-second: 
+          other: "sekoni siakale ʻe {0}"
+        angle-degree: 
+          other: "tikili seakale ʻe {0}"
+        area-acre: 
+          other: "ʻeka ʻe {0}"
+        area-hectare: 
+          other: "hekitale ʻe {0}"
+        area-square-foot: 
+          other: "fute sikuea ʻe {0}"
+        area-square-kilometer: 
+          other: "kilomita sikuea ʻe {0}"
+        area-square-meter: 
+          other: "mita sikuea ʻe {0}"
+        area-square-mile: 
+          other: "maile sikuea ʻe {0}"
+        duration-day: 
+          other: "ʻaho ʻe {0}"
+        duration-hour: 
+          other: "houa ʻe {0}"
+        duration-millisecond: 
+          other: "milisekoni ʻe {0}"
+        duration-minute: 
+          other: "miniti ʻe {0}"
+        duration-month: 
+          other: "māhina ʻe {0}"
+        duration-second: 
+          other: "sekoni ʻe {0}"
+        duration-week: 
+          other: "uike ʻe {0}"
+        duration-year: 
+          other: "taʻu ʻe {0}"
+        length-centimeter: 
+          other: "senitimita ʻe {0}"
+        length-foot: 
+          other: "fute ʻe {0}"
+        length-inch: 
+          other: "ʻinisi ʻe {0}"
+        length-kilometer: 
+          other: "kilomita ʻe {0}"
+        length-light-year: 
+          other: "taʻumaama ʻe {0}"
+        length-meter: 
+          other: "mita ʻe {0}"
+        length-mile: 
+          other: "maile ʻe {0}"
+        length-millimeter: 
+          other: "milimita ʻe {0}"
+        length-picometer: 
+          other: "pikomita ʻe {0}"
+        length-yard: 
+          other: "iate ʻe {0}"
+        mass-gram: 
+          other: "kalami ʻe {0}"
+        mass-kilogram: 
+          other: "kilokalami ʻe {0}"
+        mass-ounce: 
+          other: "ʻaunisi ʻe {0}"
+        mass-pound: 
+          other: "pāuni ʻe {0}"
+        power-horsepower: 
+          other: "hoosipaoa ʻe {0}"
+        power-kilowatt: 
+          other: "kilouate ʻe {0}"
+        power-watt: 
+          other: "uate ʻe {0}"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "ʻinisi ʻe {0} mēkuli"
+        pressure-millibar: 
+          other: "milipā ʻe {0}"
+        speed-kilometer-per-hour: 
+          other: "kilomita he houa ʻe {0}"
+        speed-meter-per-second: 
+          other: "mita he sekoni ʻe {0}"
+        speed-mile-per-hour: 
+          other: "maile he houa ʻe {0}"
+        temperature-celsius: 
+          other: "tikili selisiasi ʻe {0}"
+        temperature-fahrenheit: 
+          other: "tikili felenihaiti ʻe {0}"
+        volume-cubic-kilometer: 
+          other: "kilomita kiupiki ʻe {0}"
+        volume-cubic-mile: 
+          other: "maile kiupiki ʻe {0}"
+        volume-liter: 
+          other: "lita ʻe {0}"
+      narrow: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} ac"
+        area-hectare: 
+          other: "{0}ha"
+        area-square-foot: 
+          other: "{0}ft²"
+        area-square-kilometer: 
+          other: "{0}km²"
+        area-square-meter: 
+          other: "{0}m²"
+        area-square-mile: 
+          other: "{0} mi²"
+        duration-day: 
+          other: "ʻaho ʻe {0}"
+        duration-hour: 
+          other: "{0}h"
+        duration-millisecond: 
+          other: "{0}ms"
+        duration-minute: 
+          other: "{0}m"
+        duration-month: 
+          other: "{0}m"
+        duration-second: 
+          other: "{0}s"
+        duration-week: 
+          other: "uike ʻe {0}"
+        duration-year: 
+          other: "{0}t"
+        length-centimeter: 
+          other: "{0} cm"
+        length-foot: 
+          other: "{0}ft"
+        length-inch: 
+          other: "{0} in"
+        length-kilometer: 
+          other: "{0}km"
+        length-light-year: 
+          other: "{0}tm"
+        length-meter: 
+          other: "{0}m"
+        length-mile: 
+          other: "{0} mi"
+        length-millimeter: 
+          other: "{0}mm"
+        length-picometer: 
+          other: "{0}pm"
+        length-yard: 
+          other: "{0} yd"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} oz"
+        mass-pound: 
+          other: "{0} lb"
+        power-horsepower: 
+          other: "{0}hp"
+        power-kilowatt: 
+          other: "{0}kW"
+        power-watt: 
+          other: "{0}W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          other: "{0}km/h"
+        speed-meter-per-second: 
+          other: "{0}m/s"
+        speed-mile-per-hour: 
+          other: "{0} mi/h"
+        temperature-celsius: 
+          other: "{0}°"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0}km³"
+        volume-cubic-mile: 
+          other: "{0}ma³"
+        volume-liter: 
+          other: "{0}l"
+      short: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} ac"
+        area-hectare: 
+          other: "{0} ha"
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} mi²"
+        duration-day: 
+          other: "ʻaho ʻe {0}"
+        duration-hour: 
+          other: "{0} h"
+        duration-millisecond: 
+          other: "{0} ms"
+        duration-minute: 
+          other: "{0} m"
+        duration-month: 
+          other: "māhina ʻe {0}"
+        duration-second: 
+          other: "{0} s"
+        duration-week: 
+          other: "uike ʻe {0}"
+        duration-year: 
+          other: "{0} t"
+        length-centimeter: 
+          other: "{0} cm"
+        length-foot: 
+          other: "{0} ft"
+        length-inch: 
+          other: "{0} in"
+        length-kilometer: 
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} tm"
+        length-meter: 
+          other: "{0} m"
+        length-mile: 
+          other: "{0} mi"
+        length-millimeter: 
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          other: "{0} yd"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} oz"
+        mass-pound: 
+          other: "{0} lb"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} mi/h"
+        temperature-celsius: 
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} mi³"
+        volume-liter: 
+          other: "{0} l"

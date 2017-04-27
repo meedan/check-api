@@ -1,0 +1,183 @@
+bem: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "d MMM y"
+        yMd: d/M/y
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: :"calendars.gregorian.days.format.wide"
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Palichisano
+            mon: Palichimo
+            sat: Pachibelushi
+            sun: "Pa Mulungu"
+            thu: Palichine
+            tue: Palichibuli
+            wed: Palichitatu
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: F
+            mon: M
+            sat: S
+            sun: S
+            thu: T
+            tue: T
+            wed: W
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: BC
+          1: AD
+        name: 
+          0: "Before Yesu"
+          1: "After Yesu"
+        narrow: 
+          0: ""
+      fields: 
+        day: Ubushiku
+        dayperiod: Akasuba
+        era: Inkulo
+        hour: Insa
+        minute: Mineti
+        month: Umweshi
+        second: Sekondi
+        week: Umulungu
+        weekday: "Day of the Week"
+        year: Umwaka
+        zone: Zone
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: Jan
+            10: Okt
+            11: Nov
+            12: Dis
+            2: Feb
+            3: Mac
+            4: Epr
+            5: Mei
+            6: Jun
+            7: Jul
+            8: Oga
+            9: Sep
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: Januari
+            10: Oktoba
+            11: Novemba
+            12: Disemba
+            2: Februari
+            3: Machi
+            4: Epreo
+            5: Mei
+            6: Juni
+            7: Julai
+            8: Ogasti
+            9: Septemba
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: J
+            10: O
+            11: N
+            12: D
+            2: F
+            3: M
+            4: E
+            5: M
+            6: J
+            7: J
+            8: O
+            9: S
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: uluchelo
+            pm: akasuba
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: :"calendars.gregorian.quarters.format.wide"
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: Q1
+            2: Q2
+            3: Q3
+            4: Q4
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

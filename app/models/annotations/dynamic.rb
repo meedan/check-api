@@ -35,9 +35,9 @@ class Dynamic < ActiveRecord::Base
   def data
     fields = self.fields
     {
-      'fields' => fields,
+      'fields' => fields.to_a,
       'indexable' => fields.map(&:value).select{ |v| v.is_a?(String) }.join('. ')
-    }
+    }.with_indifferent_access
   end
 
   # Given field names, return a hash of the corresponding field values.
@@ -54,6 +54,15 @@ class Dynamic < ActiveRecord::Base
       end
     end
     values
+  end
+
+  def get_field(name)
+    self.get_fields.select{ |f| f['field_name'] == name.to_s }.first
+  end
+
+  def get_field_value(name)
+    field = self.get_field(name)
+    field.nil? ? nil : field.value
   end
 
   private

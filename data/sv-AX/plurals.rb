@@ -1,0 +1,1 @@
+{ :'sv_AX' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

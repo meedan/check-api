@@ -87,6 +87,7 @@ class ActiveSupport::TestCase
     ::Pusher.stubs(:trigger).returns(nil)
     Rails.unstub(:env)
     User.current = Team.current = nil
+    WebMock.stub_request(:post, 'api.pusherapp.com')
   end
 
   # This will run after any test

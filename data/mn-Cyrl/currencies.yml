@@ -1,0 +1,120 @@
+mn-Cyrl: 
+  currencies: 
+    ARS: 
+      symbol: $
+    AUD: 
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      symbol: CA$
+    CLP: 
+      symbol: $
+    CNY: 
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    DOP: 
+      symbol: $
+    ESP: 
+      symbol: ₧
+    EUR: 
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      symbol: £
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      symbol: JP¥
+    KHR: 
+      symbol: ៛
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      symbol: $
+    MNT: 
+      symbol: ₮
+    MXN: 
+      symbol: MX$
+    NAD: 
+      symbol: $
+    NGN: 
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    SBD: 
+      symbol: $
+    SGD: 
+      symbol: $
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    THB: 
+      symbol: ฿
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    UAH: 
+      symbol: ₴
+    USD: 
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      symbol: CFA
+    XPF: 
+      symbol: CFPF

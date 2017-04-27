@@ -1,0 +1,217 @@
+agq: 
+  currencies: 
+    AED: 
+      one: "Dilàm è Yùnaetɛ Alab Emelɛ̀"
+    AOA: 
+      one: "Kwanzà è Àŋgolà"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dɔlà e Ùsɨ̀tɛ̀lɛlìa"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Dinà è Balae"
+    BIF: 
+      one: "Fàlâŋ è Bùlundì"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Kpuwlà è Botɨshǔanà"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dɔlà è Kanadà"
+      symbol: CA$
+    CDF: 
+      one: "Fàlâŋ è Kuŋgùlê"
+    CHF: 
+      one: "Fàlâŋ è Sues"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Yùwân Lèmembi è Chaenî"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Kàbòvàdianù è Èsùkudò"
+    DJF: 
+      one: "Fàlâŋ è Dzìbutì"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dinà è Àdzɛlìa"
+    EGP: 
+      one: "Bɔ̀ŋ è Edzì"
+    ERN: 
+      one: "Nakafa è Èletɨ̀làe"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Bîi è Etyǒkpìa"
+    EUR: 
+      one: Yulù
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Bɔ̀ŋ Sɨ̀telè è Bèletì"
+      symbol: £
+    GHC: 
+      one: "Sɛ̀di è Gaanà"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dàlasì è Gambìa"
+    GNS: 
+      one: "Fàlâŋ è Ginè"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Lukpì è Endìa"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Ghɨ̂n Dzàkpànê"
+      symbol: JP¥
+    KES: 
+      one: "Shwɨlà tɨ Kenyà"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Fàlâŋ è Komolìa"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dɔlà Làebɛlìa"
+      symbol: $
+    LSL: 
+      one: "Lɔtì Lèsutù"
+    LYD: 
+      one: "Dinà è Lebìa"
+    MAD: 
+      one: "Dilàm è Mòlokò"
+    MGA: 
+      one: "Àlǐalè è Màlàgasì"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ùgueya è Mùlètenyìa"
+    MUR: 
+      one: "Lukpìi è Mùleshòs"
+    MWK: 
+      one: "Kwachà è Màlawè"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Mètikà è Mùzàmbî"
+    NAD: 
+      one: "Dɔlà è Nàmibìa"
+      symbol: $
+    NGN: 
+      one: "Naelà è Gɨ̀anyɨ"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Fàlâŋ è Lùwandà"
+    SAR: 
+      one: "Leyà è Sàwudì"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Lukpìi è Sɛchɛ̀lɛ̀"
+    SDG: 
+      one: "Bɔ̀ŋ è Sùdànê"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Bɔ̀ŋ è Sɛ̀n Èlenà"
+    SLL: 
+      one: Lyɔ̂ŋ
+    SOS: 
+      one: "Shwɨlà è Sùmalìa"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dɔbàlà è Sàwu Tɔ̀me à Pèlènsipè"
+    SZL: 
+      one: Lèlàŋgenè
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Dinà è Tùwneshìa"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Shwɨlà è Tàanzanyìa"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Shwɨlà è Yùgandà"
+    USD: 
+      one: "Dɔlà è US"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "CFA Fàlâŋ BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "CFA Fàlâŋ BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Lân è Afɨlekà ghɨ Emàm ghò"
+    ZMK: 
+      one: "Kwachà è Zambìa (1968–2012)"
+    ZMW: 
+      one: "Kwachà è Zambìa"
+    ZWD: 
+      one: "Dɔlà è Zìmbagbɛ̀"

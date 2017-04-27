@@ -1,0 +1,1 @@
+{ :'fa_IR' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

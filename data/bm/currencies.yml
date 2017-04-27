@@ -1,0 +1,219 @@
+bm: 
+  currencies: 
+    AED: 
+      one: "arabu mara kafoli Diram"
+    AOA: 
+      one: "angola Kwanza"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "ositirali Dolar"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "bareyini Dinar"
+    BIF: 
+      one: "burundi Fraŋ"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "bɔtisiwana Pula"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "kanada Dolar"
+      symbol: CA$
+    CDF: 
+      one: "kongole Fraŋ"
+    CHF: 
+      one: "suwisi Fraŋ"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "siniwa Yuwan"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "capivɛrdi Esekudo"
+    DJF: 
+      one: "jibuti Fraŋ"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "alizeri Dinar"
+    EGP: 
+      one: "eziputi Livri"
+    ERN: 
+      one: "eritere Nafika"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "etiopi Bir"
+    EUR: 
+      one: ero
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "angilɛ Livri Siterlingi"
+      symbol: £
+    GHC: 
+      one: "gana Sedi"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "gambi Dalasi"
+    GNS: 
+      one: "gine Fraŋ"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Ɛndu Rupi"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "zapɔne Yɛn"
+      symbol: JP¥
+    KES: 
+      one: "keniya Siling"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "komɔri Fraŋ"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "liberiya Dolar"
+      symbol: $
+    LSL: 
+      one: "lesoto Loti"
+    LYD: 
+      one: "libi Dinar"
+    MAD: 
+      one: "marɔku Diram"
+    MGA: 
+      one: "madagasikari Fraŋ"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "mɔritani Uguwiya"
+    MUR: 
+      one: "morisi Rupi"
+    MWK: 
+      one: "malawi Kwaca"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "mozanbiki Metikali"
+    NAD: 
+      one: "namibi Dolar"
+      symbol: $
+    NGN: 
+      one: "nizeriya Nɛra"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "ruwanda Fraŋ"
+    SAR: 
+      one: "sawudiya Riyal"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "sesɛli Rupi"
+    SDG: 
+      one: "sudani Dinar"
+    SDP: 
+      one: "sudani Livri"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Ɛlɛni-Senu Livri"
+    SLL: 
+      one: "siyeralewɔni Lewɔni"
+    SOS: 
+      one: "somali Siling"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "sawotome Dobra"
+    SZL: 
+      one: "swazilandi Lilangeni"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "tunizi Dinar"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "tanzani Siling"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "uganda Siling"
+    USD: 
+      one: "ameriki Dolar"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "sefa Fraŋ (BEAC)"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "sefa Fraŋ (BCEAO)"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "sudafriki Randi"
+    ZMK: 
+      one: "zambi Kwaca (1968–2012)"
+    ZMW: 
+      one: "zambi Kwaca"
+    ZWD: 
+      one: "zimbabuwe Dolar"

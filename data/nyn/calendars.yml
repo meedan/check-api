@@ -1,0 +1,194 @@
+nyn: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: OKT
+            mon: ORK
+            sat: OMK
+            sun: SAN
+            thu: OKN
+            tue: OKB
+            wed: OKS
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Orwakataano
+            mon: Orwokubanza
+            sat: Orwamukaaga
+            sun: Sande
+            thu: Orwakana
+            tue: Orwakabiri
+            wed: Orwakashatu
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: T
+            mon: K
+            sat: M
+            sun: S
+            thu: N
+            tue: R
+            wed: S
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: BC
+          1: AD
+        name: 
+          0: "Kurisito Atakaijire"
+          1: "Kurisito Yaijire"
+        narrow: 
+          0: ""
+      fields: 
+        day: Eizooba
+        dayperiod: Nyomushana/nyekiro
+        era: Obunaku
+        hour: Shaaha
+        minute: Edakiika
+        month: Omwezi
+        second: Obucweka/Esekendi
+        week: Esande
+        weekday: "Eizooba ry'okukora"
+        year: Omwaka
+        zone: "Eshaaha za"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: KBZ
+            10: KKM
+            11: KNK
+            12: KNB
+            2: KBR
+            3: KST
+            4: KKN
+            5: KTN
+            6: KMK
+            7: KMS
+            8: KMN
+            9: KMW
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: Okwokubanza
+            10: Okwaikumi
+            11: "Okwaikumi na kumwe"
+            12: "Okwaikumi na ibiri"
+            2: Okwakabiri
+            3: Okwakashatu
+            4: Okwakana
+            5: Okwakataana
+            6: Okwamukaaga
+            7: Okwamushanju
+            8: Okwamunaana
+            9: Okwamwenda
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: J
+            10: O
+            11: N
+            12: D
+            2: F
+            3: M
+            4: A
+            5: M
+            6: J
+            7: J
+            8: A
+            9: S
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: AM
+            pm: PM
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: K1
+            2: K2
+            3: K3
+            4: K4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "KWOTA 1"
+            2: "KWOTA 2"
+            3: "KWOTA 3"
+            4: "KWOTA 4"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

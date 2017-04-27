@@ -1,0 +1,403 @@
+to: 
+  metazones: 
+    Africa_Central: 
+      long: 
+        standard: "houa fakaʻafelika-loto"
+    Africa_Eastern: 
+      long: 
+        standard: "houa fakaʻafelika-hahake"
+    Africa_Southern: 
+      long: 
+        standard: "houa fakaʻafelika-tonga"
+    Africa_Western: 
+      long: 
+        daylight: "houa fakaʻafelika-hihifo fakamaama"
+        generic: "houa fakaʻafelika-hihifo"
+        standard: "houa fakaʻafelika-hihifo fakasīpinga"
+    America_Central: 
+      long: 
+        daylight: "houa fakaʻamelika-tokelau loto fakamaama"
+        generic: "houa fakaʻamelika-tokelau loto"
+        standard: "houa fakaʻamelika-tokelau loto fakasīpinga"
+    America_Eastern: 
+      long: 
+        daylight: "houa fakaʻamelika-tokelau hahake fakamaama"
+        generic: "houa fakaʻamelika-tokelau hahake"
+        standard: "houa fakaʻamelika-tokelau hahake fakasīpinga"
+    America_Mountain: 
+      long: 
+        daylight: "houa fakaʻamelika-tokelau moʻunga fakamaama"
+        generic: "houa fakaʻamelika-tokelau moʻunga"
+        standard: "houa fakaʻamelika-tokelau moʻunga fakasīpinga"
+    America_Pacific: 
+      long: 
+        daylight: "houa fakaʻamelika-tokelau pasifika fakamaama"
+        generic: "houa fakaʻamelika-tokelau pasifika"
+        standard: "houa fakaʻamelika-tokelau pasifika fakasīpinga"
+    Arabian: 
+      long: 
+        daylight: "houa fakaʻalepea fakamaama"
+        generic: "houa fakaʻalepea"
+        standard: "houa fakaʻalepea fakasīpinga"
+    Atlantic: 
+      long: 
+        daylight: "houa fakaʻamelika-tokelau ʻatalanitiki fakamaama"
+        generic: "houa fakaʻamelika-tokelau ʻatalanitiki"
+        standard: "houa fakaʻamelika-tokelau ʻatalanitiki fakasīpinga"
+    Australia_Central: 
+      long: 
+        daylight: "houa fakaʻaositelēlia-loto fakamaama"
+        generic: "houa fakaʻaositelēlia-loto"
+        standard: "houa fakaʻaositelēlia-loto fakasīpinga"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "houa fakaʻaositelēlia-loto-hihifo fakamaama"
+        generic: "houa fakaʻaositelēlia-loto-hihifo"
+        standard: "houa fakaʻaositelēlia-loto-hihifo fakasīpinga"
+    Australia_Eastern: 
+      long: 
+        daylight: "houa fakaʻaositelēlia-hahake fakamaama"
+        generic: "houa fakaʻaositelēlia-hahake"
+        standard: "houa fakaʻaositelēlia-hahake fakasīpinga"
+    Australia_Western: 
+      long: 
+        daylight: "houa fakaʻaositelēlia-hihifo fakamaama"
+        generic: "houa fakaʻaositelēlia-hihifo"
+        standard: "houa fakaʻaositelēlia-hihifo fakasīpinga"
+    Chamorro: 
+      long: 
+        standard: "houa fakakamolo"
+    Chatham: 
+      long: 
+        daylight: "houa fakasatihami fakamaama"
+        generic: "houa fakasatihami"
+        standard: "houa fakasatihami fakasīpinga"
+    China: 
+      long: 
+        daylight: "houa fakasiaina fakamaama"
+        generic: "houa fakasiaina"
+        standard: "houa fakasiaina fakasīpinga"
+    Christmas: 
+      long: 
+        standard: "houa fakamotukilisimasi"
+    Cocos: 
+      long: 
+        standard: "houa fakamotukokosi"
+    Cook: 
+      long: 
+        daylight: "houa fakaʻotumotukuki fakamaama"
+        generic: "houa fakaʻotumotukuki"
+        standard: "houa fakaʻotumotukuki fakasīpinga"
+    Easter: 
+      long: 
+        daylight: "houa fakalapanui fakamaama"
+        generic: "houa fakalapanui"
+        standard: "houa fakalapanui fakasīpinga"
+    Europe_Central: 
+      long: 
+        daylight: "houa fakaʻeulope-loto fakamaama"
+        generic: "houa fakaʻeulope-loto"
+        standard: "houa fakaʻeulope-loto fakasīpinga"
+    Europe_Eastern: 
+      long: 
+        daylight: "houa fakaʻeulope-hahake fakamaama"
+        generic: "houa fakaʻeulope-hahake"
+        standard: "houa fakaʻeulope-hahake fakasīpinga"
+    Europe_Western: 
+      long: 
+        daylight: "houa fakaʻeulope-hihifo fakamaama"
+        generic: "houa fakaʻeulope-hihifo"
+        standard: "houa fakaʻeulope-hihifo fakasīpinga"
+    Fiji: 
+      long: 
+        daylight: "houa fakafisi fakamaama"
+        generic: "houa fakafisi"
+        standard: "houa fakafisi fakasīpinga"
+    French_Southern: 
+      long: 
+        standard: "houa fakaʻanetātikafalanisē"
+    GMT: 
+      long: 
+        standard: "houa fakakiliniuisi mālie"
+    Galapagos: 
+      long: 
+        standard: "houa fakakalapakosi"
+    Gambier: 
+      long: 
+        standard: "houa fakakamipiē"
+    Gilbert_Islands: 
+      long: 
+        standard: "houa fakakilipasi"
+    Guam: 
+      long: 
+        standard: "houa fakakuami"
+    Hawaii_Aleutian: 
+      long: 
+        daylight: "houa fakahauaʻi fakamaama"
+        generic: "houa fakahauaʻi"
+        standard: "houa fakahauaʻi fakasīpinga"
+    India: 
+      long: 
+        standard: "houa fakaʻinitia"
+    Indian_Ocean: 
+      long: 
+        standard: "houa fakamoanaʻinitia"
+    Indochina: 
+      long: 
+        standard: "houa fakaʻinitosiaina"
+    Indonesia_Central: 
+      long: 
+        standard: "houa fakaʻinitonisia-loto"
+    Indonesia_Eastern: 
+      long: 
+        standard: "houa fakaʻinitonisia-hahake"
+    Indonesia_Western: 
+      long: 
+        standard: "houa fakaʻinitonisia-hihifo"
+    Israel: 
+      long: 
+        daylight: "houa fakaʻisileli fakamaama"
+        generic: "houa fakaʻisileli"
+        standard: "houa fakaʻisileli fakasīpinga"
+    Japan: 
+      long: 
+        daylight: "houa fakasiapani fakamaama"
+        generic: "houa fakasiapani"
+        standard: "houa fakasiapani fakasīpinga"
+    Korea: 
+      long: 
+        daylight: "houa fakakolea fakamaama"
+        generic: "houa fakakolea"
+        standard: "houa fakakolea fakasīpinga"
+    Kosrae: 
+      long: 
+        standard: "houa fakakosilae"
+    Line_Islands: 
+      long: 
+        standard: "houa fakaʻotumotulaine"
+    Lord_Howe: 
+      long: 
+        daylight: "houa fakamotuʻeikihoue fakamaama"
+        generic: "houa fakamotuʻeikihoue"
+        standard: "houa fakamotuʻeikihoue fakasīpinga"
+    Macquarie: 
+      long: 
+        standard: "houa fakamotumakuali"
+    Marquesas: 
+      long: 
+        standard: "houa fakamākesasi"
+    Marshall_Islands: 
+      long: 
+        standard: "houa fakaʻotumotumasolo"
+    Moscow: 
+      long: 
+        daylight: "houa fakamosikou fakamaama"
+        generic: "houa fakamosikou"
+        standard: "houa fakamosikou fakasīpinga"
+    Nauru: 
+      long: 
+        standard: "houa fakanaulu"
+    New_Caledonia: 
+      long: 
+        daylight: "houa fakakaletōniafoʻou fakamaama"
+        generic: "houa fakakaletōniafoʻou"
+        standard: "houa fakakaletōniafoʻou fakasīpinga"
+    New_Zealand: 
+      long: 
+        daylight: "houa fakanuʻusila fakamaama"
+        generic: "houa fakanuʻusila"
+        standard: "houa fakanuʻusila fakasīpinga"
+    Niue: 
+      long: 
+        standard: "houa fakaniuē"
+    Norfolk: 
+      long: 
+        standard: "houa fakanōfōki"
+    North_Mariana: 
+      long: 
+        standard: "houa fakamalianatokelau"
+    Palau: 
+      long: 
+        standard: "houa fakapalau"
+    Papua_New_Guinea: 
+      long: 
+        standard: "houa fakapapuaniukini"
+    Phoenix_Islands: 
+      long: 
+        standard: "houa fakaʻotumotufoinikisi"
+    Pitcairn: 
+      long: 
+        standard: "houa fakapitikani"
+    Ponape: 
+      long: 
+        standard: "houa fakapōnapē"
+    Samoa: 
+      long: 
+        daylight: "houa fakahaʻamoa fakamaama"
+        generic: "houa fakahaʻamoa"
+        standard: "houa fakahaʻamoa fakasīpinga"
+    Solomon: 
+      long: 
+        standard: "houa fakaʻotumotusolomone"
+    South_Georgia: 
+      long: 
+        standard: "houa fakasiosiatonga"
+    Tahiti: 
+      long: 
+        standard: "houa fakatahisi"
+    Tokelau: 
+      long: 
+        standard: "houa fakatokelau"
+    Tonga: 
+      long: 
+        daylight: "houa fakatonga lotohē"
+        generic: "houa fakatonga"
+        standard: "houa fakatonga fakasīpinga"
+    Truk: 
+      long: 
+        standard: "houa fakatūke"
+    Tuvalu: 
+      long: 
+        standard: "houa fakatūvalu"
+    Vanuatu: 
+      long: 
+        daylight: "houa fakavanuatu fakamaama"
+        generic: "houa fakavanuatu"
+        standard: "houa fakavanuatu fakasīpinga"
+    Wake: 
+      long: 
+        standard: "houa fakamotuueke"
+    Wallis: 
+      long: 
+        standard: "houa fakaʻuvea mo futuna"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    America/Anchorage: 
+      city: "Houa Puleʻanga fakataha ʻAmelika (Anchorage)"
+    America/Campo_Grande: 
+      city: "Houa Palāsili (Campo Grande)"
+    America/Chicago: 
+      city: "Houa Puleʻanga fakataha ʻAmelika (Chicago)"
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Denver: 
+      city: "Houa Puleʻanga fakataha ʻAmelika (Denver)"
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Indianapolis: 
+      city: "Houa Puleʻanga fakataha ʻAmelika (Indianapolis)"
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Los_Angeles: 
+      city: "Houa Puleʻanga fakataha ʻAmelika (Los Angeles)"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/New_York: 
+      city: "Houa Puleʻanga fakataha ʻAmelika (New York)"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Phoenix: 
+      city: "Houa Puleʻanga fakataha ʻAmelika (Phoenix)"
+    America/Rio_Branco: 
+      city: "Houa Palāsili (Rio Branco)"
+    America/Sao_Paulo: 
+      city: "Houa Palāsili (Sao Paulo)"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Antarctica/South_Pole: 
+      city: "pole tonga"
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Jerusalem: 
+      city: Selūsalema
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Australia/Adelaide: 
+      city: Atelaite
+    Australia/Brisbane: 
+      city: Pelisipane
+    Australia/Melbourne: 
+      city: Melipoane
+    Australia/Sydney: 
+      city: Senē
+    Etc/Unknown: 
+      city: Halaʻata
+    Europe/Athens: 
+      city: ʻAtenisi
+    Europe/London: 
+      city: Lonitoni
+    Europe/Paris: 
+      city: Palesi
+    Europe/Rome: 
+      city: Loma
+    Europe/Vatican: 
+      city: Vatikani
+    Pacific/Auckland: 
+      city: ʻAokalani
+    Pacific/Easter: 
+      city: Lapanui
+    Pacific/Fiji: 
+      city: Fisi
+    Pacific/Guam: 
+      city: Kuami
+    Pacific/Honolulu: 
+      city: "Houa Puleʻanga fakataha ʻAmelika (Honolulu)"
+    Pacific/Kosrae: 
+      city: Kosilae
+    Pacific/Nauru: 
+      city: Naulu
+    Pacific/Niue: 
+      city: Niuē
+    Pacific/Pago_Pago: 
+      city: Pangopango
+    Pacific/Ponape: 
+      city: Ponapē
+    Pacific/Rarotonga: 
+      city: Lalotonga
+    Pacific/Tahiti: 
+      city: Tahisi
+    Pacific/Tarawa: 
+      city: Talava
+    Pacific/Truk: 
+      city: Tūke
+    Pacific/Wallis: 
+      city: ʻUvea

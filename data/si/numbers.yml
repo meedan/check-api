@@ -1,0 +1,61 @@
+si: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "¤#,##0.00;(¤#,##0.00)"
+        unit: 
+          one: "{1}{0}"
+          other: "{1}{0}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: 0K
+            10000: 00K
+            100000: 000K
+            1000000: "මිලියන 0"
+            10000000: "මිලියන 00"
+            100000000: "මිලියන 000"
+            1000000000: "බිලියන 0"
+            10000000000: "බිලියන 00"
+            100000000000: "බිලියන 000"
+            1000000000000: "ට්‍රිලියන 0"
+            10000000000000: "ට්‍රිලියන 00"
+            100000000000000: "ට්‍රිලියන 000"
+          short: 
+            1000: 0K
+            10000: 00K
+            100000: 000K
+            1000000: මි0
+            10000000: මි00
+            100000000: මි000
+            1000000000: බි0
+            10000000000: බි00
+            100000000000: බි000
+            1000000000000: ට්‍රි0
+            10000000000000: ට්‍රි00
+            100000000000000: ට්‍රි000
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: "."
+      exponential: E
+      group: ","
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

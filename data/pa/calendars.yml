@@ -1,0 +1,275 @@
+pa: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "MMM, G y"
+        GyMMMEd: "E d MMM, G y"
+        GyMMMd: "d MMM y"
+        H: HH
+        HHmmss: "HH:mm:ss"
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, dd-MM."
+        MMM: LLL
+        MMMEd: "E, d MMM"
+        MMMd: "d MMM"
+        Md: d/M
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        mmss: "mm:ss"
+        ms: "mm:ss"
+        y: y
+        yM: M-y
+        yMEd: "E, d/M/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, d MMM y"
+        yMMMd: "d MMM y"
+        yMd: d/M/y
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: ਸ਼ੁੱਕਰ.
+            mon: ਸੋਮ.
+            sat: ਸ਼ਨੀ.
+            sun: ਐਤ.
+            thu: ਵੀਰ.
+            tue: ਮੰਗਲ.
+            wed: ਬੁਧ.
+          narrow: 
+            fri: ਸ਼ੁੱ
+            mon: ਸੋ
+            sat: ਸ਼
+            sun: ਐ
+            thu: ਵੀ
+            tue: ਮੰ
+            wed: ਬੁੱ
+          short: 
+            fri: ਸ਼ੁੱਕਰ.
+            mon: ਸੋਮ.
+            sat: ਸ਼ਨੀ.
+            sun: ਐਤ.
+            thu: ਵੀਰ.
+            tue: ਮੰਗਲ.
+            wed: ਬੁਧ.
+          wide: 
+            fri: ਸ਼ੁੱਕਰਵਾਰ
+            mon: ਸੋਮਵਾਰ
+            sat: ਸ਼ਨੀਵਾਰ
+            sun: ਐਤਵਾਰ
+            thu: ਵੀਰਵਾਰ
+            tue: ਮੰਗਲਵਾਰ
+            wed: ਬੁਧਵਾਰ
+        stand-alone: 
+          abbreviated: 
+            fri: ਸ਼ੁੱਕਰ.
+            mon: ਸੋਮ.
+            sat: ਸ਼ਨੀ.
+            sun: ਐਤ.
+            thu: ਵੀਰ.
+            tue: ਮੰਗਲ.
+            wed: ਬੁਧ.
+          narrow: 
+            fri: ਸ਼ੁੱ
+            mon: ਸੋ
+            sat: ਸ਼
+            sun: ਐ
+            thu: ਵੀ
+            tue: ਮੰ
+            wed: ਬੁੱ
+          short: 
+            fri: ਸ਼ੁੱਕਰ.
+            mon: ਸੋਮ.
+            sat: ਸ਼ਨੀ.
+            sun: ਐਤ.
+            thu: ਵੀਰ.
+            tue: ਮੰਗਲ.
+            wed: ਬੁਧ.
+          wide: 
+            fri: ਸ਼ੁੱਕਰਵਾਰ
+            mon: ਸੋਮਵਾਰ
+            sat: ਸ਼ਨੀਵਾਰ
+            sun: ਐਤਵਾਰ
+            thu: ਵੀਰਵਾਰ
+            tue: ਮੰਗਲਵਾਰ
+            wed: ਬੁਧਵਾਰ
+      eras: 
+        abbr: 
+          0: "ਈ. ਪੂ. ਯੁ."
+          1: ਈ.ਯੁ.
+        name: 
+          0: ""
+        narrow: 
+          0: ""
+      fields: 
+        day: ਦਿਨ
+        dayperiod: AM/PM
+        era: ਯੁੱਗ
+        hour: ਘੰਟਾ
+        minute: ਮਿੰਟ
+        month: ਮਹੀਨਾ
+        second: ਸਕਿੰਟ
+        week: ਹਫ਼ਤਾ
+        weekday: "ਹਫ਼ਤੇ ਦਾ ਦਿਨ"
+        year: ਸਾਲ
+        zone: ਖੇਤਰ
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: d/M/yy
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}}, {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: ਜਨਵਰੀ
+            10: ਅਕਤੂਬਰ
+            11: ਨਵੰਬਰ
+            12: ਦਸੰਬਰ
+            2: ਫ਼ਰਵਰੀ
+            3: ਮਾਰਚ
+            4: ਅਪ੍ਰੈਲ
+            5: ਮਈ
+            6: ਜੂਨ
+            7: ਜੁਲਾਈ
+            8: ਅਗਸਤ
+            9: ਸਤੰਬਰ
+          narrow: 
+            1: ਜ
+            10: ਅ
+            11: ਨ
+            12: ਦ
+            2: ਫ਼
+            3: ਮਾ
+            4: ਅ
+            5: ਮ
+            6: ਜੂ
+            7: ਜੁ
+            8: ਅ
+            9: ਸ
+          wide: 
+            1: ਜਨਵਰੀ
+            10: ਅਕਤੂਬਰ
+            11: ਨਵੰਬਰ
+            12: ਦਸੰਬਰ
+            2: ਫ਼ਰਵਰੀ
+            3: ਮਾਰਚ
+            4: ਅਪ੍ਰੈਲ
+            5: ਮਈ
+            6: ਜੂਨ
+            7: ਜੁਲਾਈ
+            8: ਅਗਸਤ
+            9: ਸਤੰਬਰ
+        stand-alone: 
+          abbreviated: 
+            1: ਜਨਵਰੀ
+            10: ਅਕਤੂਬਰ
+            11: ਨਵੰਬਰ
+            12: ਦਸੰਬਰ
+            2: ਫ਼ਰਵਰੀ
+            3: ਮਾਰਚ
+            4: ਅਪ੍ਰੈਲ
+            5: ਮਈ
+            6: ਜੂਨ
+            7: ਜੁਲਾਈ
+            8: ਅਗਸਤ
+            9: ਸਤੰਬਰ
+          narrow: 
+            1: ਜ
+            10: ਅ
+            11: ਨ
+            12: ਦ
+            2: ਫ਼
+            3: ਮਾ
+            4: ਅ
+            5: ਮ
+            6: ਜੂ
+            7: ਜੁ
+            8: ਅ
+            9: ਸ
+          wide: 
+            1: ਜਨਵਰੀ
+            10: ਅਕਤੂਬਰ
+            11: ਨਵੰਬਰ
+            12: ਦਸੰਬਰ
+            2: ਫ਼ਰਵਰੀ
+            3: ਮਾਰਚ
+            4: ਅਪ੍ਰੈਲ
+            5: ਮਈ
+            6: ਜੂਨ
+            7: ਜੁਲਾਈ
+            8: ਅਗਸਤ
+            9: ਸਤੰਬਰ
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: AM
+            pm: PM
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: ਪਊਆ
+            2: ਅੱਧਾ
+            3: ਪੌਣਾ
+            4: ਪੂਰਾ
+          narrow: 
+            1: ੧
+            2: ੨
+            3: ੩
+            4: ੪
+          wide: 
+            1: ਪਊਆ
+            2: ਅੱਧਾ
+            3: ਪੌਣਾ
+            4: ਪੂਰਾ
+        stand-alone: 
+          abbreviated: 
+            1: ਪਊਆ
+            2: ਅੱਧਾ
+            3: ਪੌਣਾ
+            4: ਪੂਰਾ
+          narrow: 
+            1: ੧
+            2: ੨
+            3: ੩
+            4: ੪
+          wide: 
+            1: ਪਊਆ
+            2: ਅੱਧਾ
+            3: ਪੌਣਾ
+            4: ਪੂਰਾ

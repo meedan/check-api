@@ -1,0 +1,217 @@
+ak: 
+  currencies: 
+    AED: 
+      one: "Ɛmirete Arab Nkabɔmu Deram"
+    AOA: 
+      one: "Angola Kwanza"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Ɔstrelia Dɔla"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Baren Dina"
+    BIF: 
+      one: "Burundi Frank"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Botswana Pula"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Kanada Dɔla"
+      symbol: CA$
+    CDF: 
+      one: "Kongo Frank"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: Yuan
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: Ɛskudo
+    DJF: 
+      one: "Gyebuti Frank"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Ɔlgyeria Dina"
+    EGP: 
+      one: "Egypt Pɔn"
+    ERN: 
+      one: "Ɛretereya Nakfa"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Itiopia Bir"
+    EUR: 
+      one: Iro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Breten Pɔn"
+      symbol: £
+    GHC: 
+      one: "Ghana Sidi (1979–2007)"
+    GHS: 
+      one: "Ghana Sidi"
+      symbol: GH₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Gambia Dalasi"
+    GNS: 
+      one: "Gini Frank"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "India Rupi"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Gyapan Yɛn"
+      symbol: JP¥
+    KES: 
+      one: "Kenya Hyelen"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Komoro Frank"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Laeberia Dɔla"
+      symbol: $
+    LSL: 
+      one: "Lesoto Loti"
+    LYD: 
+      one: "Libya Dina"
+    MAD: 
+      one: "Moroko Diram"
+    MGA: 
+      one: "Madagasi Frank"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Mɔretenia Ouguiya"
+    MUR: 
+      one: "Mɔrehyeɔs Rupi"
+    MWK: 
+      one: "Malawi Kwacha"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Mozambik Metical"
+    NAD: 
+      one: "Namibia Dɔla"
+      symbol: $
+    NGN: 
+      one: "Naegyeria Naira"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Rewanda Frank"
+    SAR: 
+      one: "Saudi Riyal"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Seyhyɛls Rupi"
+    SDG: 
+      one: "Sudan Dina"
+    SDP: 
+      one: "Sudan Pɔn"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "St Helena Pɔn"
+    SLL: 
+      one: Leone
+    SOS: 
+      one: "Somailia Hyelen"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Sao Tome ne Principe Dobra"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Tunisia Dina"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Tanzania Hyelen"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Uganda Hyelen"
+    USD: 
+      one: "Amɛrika Dɔla"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: Sefa
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Afrika Anaafo Rand"
+    ZMK: 
+      one: "Zambia Kwacha (1968–2012)"
+    ZMW: 
+      one: "Zambia Kwacha"
+    ZWD: 
+      one: "Zimbabwe Dɔla"

@@ -1,0 +1,1 @@
+{ :'ja_JP' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

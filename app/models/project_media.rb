@@ -209,6 +209,10 @@ class ProjectMedia < ActiveRecord::Base
     mt = self.annotations.where(annotation_type: 'mt').last
     MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(User.current)) unless mt.nil?
   end
+    
+  def get_dynamic_annotation(type)
+    Dynamic.where(annotation_type: type, annotated_type: 'ProjectMedia', annotated_id: self.id).last
+  end
 
   private
 

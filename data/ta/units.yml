@@ -1,0 +1,424 @@
+ta: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          one: "{0} ஜி-ஃபோர்ஸ்"
+          other: "{0} ஜி-ஃபோர்ஸ்"
+        angle-arc-minute: 
+          one: "{0}நிமிடம்"
+          other: "{0}நிமிடங்கள்"
+        angle-arc-second: 
+          one: "{0}விநாடி"
+          other: "{0}விநாடிகள்"
+        angle-degree: 
+          one: "{0}டிகிரி"
+          other: "{0}டிகிரி"
+        area-acre: 
+          one: "{0} ஏக்கர்"
+          other: "{0} ஏக்கர்"
+        area-hectare: 
+          one: "{0} ஹெக்டேர்"
+          other: "{0} ஹெக்டேர்"
+        area-square-foot: 
+          one: "{0} சதுர அடி"
+          other: "{0} சதுர அடி"
+        area-square-kilometer: 
+          one: "{0} சதுர கிலோமீட்டர்"
+          other: "{0} சதுர கிலோமீட்டர்"
+        area-square-meter: 
+          one: "{0} சதுர மீட்டர்"
+          other: "{0} சதுர மீட்டர்"
+        area-square-mile: 
+          one: "{0} சதுர மைல்"
+          other: "{0} சதுர மைல்"
+        duration-day: 
+          one: "{0} நாள்"
+          other: "{0} நாட்கள்"
+        duration-hour: 
+          one: "{0} மணிநேரம்"
+          other: "{0} மணிநேரம்"
+        duration-millisecond: 
+          one: "{0} மில்லிவிநாடி"
+          other: "{0} மில்லிவிநாடி"
+        duration-minute: 
+          one: "{0} நிமிடம்"
+          other: "{0} நிமிடங்கள்"
+        duration-month: 
+          one: "{0} மாதம்"
+          other: "{0} மாதங்கள்"
+        duration-second: 
+          one: "{0} வினாடி"
+          other: "{0} விநாடிகள்"
+        duration-week: 
+          one: "{0} வாரம்"
+          other: "{0} வாரங்கள்"
+        duration-year: 
+          one: "{0} ஆண்டு"
+          other: "{0} ஆண்டுகள்"
+        length-centimeter: 
+          one: "{0} சென்டிமீட்டர்"
+          other: "{0} சென்டிமீட்டர்கள்"
+        length-foot: 
+          one: "{0} அடி"
+          other: "{0} அடி"
+        length-inch: 
+          one: "{0} அங்குலம்"
+          other: "{0} அங்குலங்கள்"
+        length-kilometer: 
+          one: "{0} கிலோமீட்டர்"
+          other: "{0} கிலோமீட்டர்கள்"
+        length-light-year: 
+          one: "{0} ஒளி ஆண்டு"
+          other: "{0} ஒளி ஆண்டுகள்"
+        length-meter: 
+          one: "{0} மீட்டர்"
+          other: "{0} மீட்டர்கள்"
+        length-mile: 
+          one: "{0} மைல்"
+          other: "{0} மைல்கள்"
+        length-millimeter: 
+          one: "{0} மில்லிமீட்டர்"
+          other: "{0} மில்லிமீட்டர்கள்"
+        length-picometer: 
+          one: "{0} பைக்கோமீட்டர்"
+          other: "{0} பைக்கோமீட்டர்கள்"
+        length-yard: 
+          one: "{0} நீட்டளவு"
+          other: "{0} நீட்டளவுகள்"
+        mass-gram: 
+          one: "{0} கிராம்"
+          other: "{0} கிராம்கள்"
+        mass-kilogram: 
+          one: "{0} கிலோகிராம்"
+          other: "{0} கிலோகிராம்கள்"
+        mass-ounce: 
+          one: "{0} அவுன்ஸ்"
+          other: "{0} அவுன்ஸ்கள்"
+        mass-pound: 
+          one: "{0} பவுண்டு"
+          other: "{0} பவுண்டுகள்"
+        power-horsepower: 
+          one: "{0} குதிரைவேகம்"
+          other: "{0} குதிரைவேகம்"
+        power-kilowatt: 
+          one: "{0} கிலோவாட்"
+          other: "{0} கிலோவாட்"
+        power-watt: 
+          one: "{0} வாட்"
+          other: "{0} வாட்"
+        pressure-hectopascal: 
+          one: "{0} ஹெக்டோபாஸ்கல்"
+          other: "{0} ஹெக்டோபாஸ்கல்"
+        pressure-inch-hg: 
+          one: "{0} பாதரச அங்குலம்"
+          other: "{0} பாதரச அங்குலம்"
+        pressure-millibar: 
+          one: "{0} மில்லிபார்"
+          other: "{0} மில்லிபார்"
+        speed-kilometer-per-hour: 
+          one: "{0} கிலோமீட்டர்/மணிநேரம்"
+          other: "{0} கிலோமீட்டர்/மணிநேரம்"
+        speed-meter-per-second: 
+          one: "{0} மீட்டர்/விநாடி"
+          other: "{0} மீட்டர்/விநாடி"
+        speed-mile-per-hour: 
+          one: "{0} மைல்/மணிநேரம்"
+          other: "{0} மைல்/மணிநேரம்"
+        temperature-celsius: 
+          one: "{0}டிகிரி செல்சியஸ்"
+          other: "{0}டிகிரி செல்சியஸ்"
+        temperature-fahrenheit: 
+          one: "{0}டிகிரி ஃபாரன்ஹீட்"
+          other: "{0}டிகிரி ஃபாரன்ஹீட்"
+        volume-cubic-kilometer: 
+          one: "{0} கன கிலோமீட்டர்"
+          other: "{0} கன கிலோமீட்டர்"
+        volume-cubic-mile: 
+          one: "{0} கன மைல்"
+          other: "{0} கன மைல்"
+        volume-liter: 
+          one: "{0} லிட்டர்"
+          other: "{0} லிட்டர்"
+      narrow: 
+        acceleration-g-force: 
+          one: "{0} ஜி.ஃபோ."
+          other: "{0} ஜி.ஃபோ."
+        angle-arc-minute: 
+          one: "{0}நிமி."
+          other: "{0}நிமி."
+        angle-arc-second: 
+          one: "{0}வி."
+          other: "{0}வி."
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} ஏக்."
+          other: "{0} ஏக்."
+        area-hectare: 
+          one: "{0} ஹெக்."
+          other: "{0} ஹெக்."
+        area-square-foot: 
+          one: "{0} ச.அ."
+          other: "{0} ச.அ."
+        area-square-kilometer: 
+          one: "{0} ச.கிமீ."
+          other: "{0} ச.கிமீ."
+        area-square-meter: 
+          one: "{0} ச.மீ."
+          other: "{0} ச.மீ."
+        area-square-mile: 
+          one: "{0} ச. மை."
+          other: "{0} ச. மை."
+        duration-day: 
+          one: "{0} நா"
+          other: "{0} நா"
+        duration-hour: 
+          one: "{0} ம.நே."
+          other: "{0} ம.நே."
+        duration-millisecond: 
+          one: "{0} மி.வி."
+          other: "{0} மி.வி."
+        duration-minute: 
+          one: "{0} நிமி."
+          other: "{0} நிமி."
+        duration-month: 
+          one: "{0} மா"
+          other: "{0} மா"
+        duration-second: 
+          one: "{0} வி."
+          other: "{0} வி."
+        duration-week: 
+          one: "{0} வா"
+          other: "{0} வா"
+        duration-year: 
+          one: "{0} ஆ"
+          other: "{0} ஆ"
+        length-centimeter: 
+          one: "{0} செ.மீ."
+          other: "{0} செ.மீ."
+        length-foot: 
+          one: "{0} அடி"
+          other: "{0} அடி"
+        length-inch: 
+          one: "{0} அங்."
+          other: "{0} அங்."
+        length-kilometer: 
+          one: "{0} கி.மீ."
+          other: "{0} கி.மீ."
+        length-light-year: 
+          one: "{0} ஒ.ஆ."
+          other: "{0} ஒ.ஆ."
+        length-meter: 
+          one: "{0} மீ."
+          other: "{0} மீ."
+        length-mile: 
+          one: "{0} மை."
+          other: "{0} மை."
+        length-millimeter: 
+          one: "{0} மி.மீ."
+          other: "{0} மி.மீ."
+        length-picometer: 
+          one: "{0} பை.மீ."
+          other: "{0} பை.மீ."
+        length-yard: 
+          one: "{0} நீட்."
+          other: "{0} நீட்."
+        mass-gram: 
+          one: "{0} கி."
+          other: "{0} கி."
+        mass-kilogram: 
+          one: "{0} கி.கி."
+          other: "{0} கி.கி."
+        mass-ounce: 
+          one: "{0} அவு."
+          other: "{0} அவு."
+        mass-pound: 
+          one: "{0} பவு."
+          other: "{0} பவு."
+        power-horsepower: 
+          one: "{0} கு.வே."
+          other: "{0} கு.வே."
+        power-kilowatt: 
+          one: "{0} கி.வா."
+          other: "{0} கி.வா."
+        power-watt: 
+          one: "{0} வா."
+          other: "{0} வா."
+        pressure-hectopascal: 
+          one: "{0} ஹெ.பா."
+          other: "{0} ஹெ.பா."
+        pressure-inch-hg: 
+          one: "{0} பா.அங்."
+          other: "{0} பா.அங்."
+        pressure-millibar: 
+          one: "{0} மி.பா."
+          other: "{0} மி.பா."
+        speed-kilometer-per-hour: 
+          one: "{0} கி.மீ./ம."
+          other: "{0} கி.மீ./ம"
+        speed-meter-per-second: 
+          one: "{0} மீ/வி"
+          other: "{0} மீ/வி"
+        speed-mile-per-hour: 
+          one: "{0} மை/ம.நே."
+          other: "{0} மை/ம.நே."
+        temperature-celsius: 
+          one: "{0}°செ."
+          other: "{0}°செ."
+        temperature-fahrenheit: 
+          one: "{0}°ஃபா."
+          other: "{0}°ஃபா."
+        volume-cubic-kilometer: 
+          one: "{0} க.கி.மீ."
+          other: "{0} க.கி.மீ."
+        volume-cubic-mile: 
+          one: "{0} க.மை."
+          other: "{0} க.மை."
+        volume-liter: 
+          one: "{0} லி."
+          other: "{0} லி."
+      short: 
+        acceleration-g-force: 
+          one: "{0} ஜி.ஃபோ."
+          other: "{0} ஜி.ஃபோ."
+        angle-arc-minute: 
+          one: "{0}நிமி."
+          other: "{0}நிமி."
+        angle-arc-second: 
+          one: "{0}வி."
+          other: "{0}வி."
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} ஏக்."
+          other: "{0} ஏக்."
+        area-hectare: 
+          one: "{0} ஹெக்."
+          other: "{0} ஹெக்."
+        area-square-foot: 
+          one: "{0} ச.அ."
+          other: "{0} ச.அ."
+        area-square-kilometer: 
+          one: "{0} ச.கிமீ."
+          other: "{0} ச.கிமீ."
+        area-square-meter: 
+          one: "{0} ச.மீ."
+          other: "{0} ச.மீ."
+        area-square-mile: 
+          one: "{0} ச. மை."
+          other: "{0} ச. மை."
+        duration-day: 
+          one: "{0} நாள்"
+          other: "{0} நாட்கள்"
+        duration-hour: 
+          one: "{0} மணிநேரம்"
+          other: "{0} மணிநேரம்"
+        duration-millisecond: 
+          one: "{0} மி.வி."
+          other: "{0} மி.வி."
+        duration-minute: 
+          one: "{0} நிமிடம்"
+          other: "{0} நிமிடங்கள்"
+        duration-month: 
+          one: "{0} மாதம்"
+          other: "{0} மாதங்கள்"
+        duration-second: 
+          one: "{0} வினாடி"
+          other: "{0} விநாடிகள்"
+        duration-week: 
+          one: "{0} வாரம்"
+          other: "{0} வாரங்கள்"
+        duration-year: 
+          one: "{0} ஆண்டு"
+          other: "{0} ஆண்டுகள்"
+        length-centimeter: 
+          one: "{0} செ.மீ."
+          other: "{0} செ.மீ."
+        length-foot: 
+          one: "{0} அடி"
+          other: "{0} அடி"
+        length-inch: 
+          one: "{0} அங்."
+          other: "{0} அங்."
+        length-kilometer: 
+          one: "{0} கி.மீ."
+          other: "{0} கி.மீ."
+        length-light-year: 
+          one: "{0} ஒ.ஆ."
+          other: "{0} ஒ.ஆ."
+        length-meter: 
+          one: "{0} மீ."
+          other: "{0} மீ."
+        length-mile: 
+          one: "{0} மை."
+          other: "{0} மை."
+        length-millimeter: 
+          one: "{0} மி.மீ."
+          other: "{0} மி.மீ."
+        length-picometer: 
+          one: "{0} பை.மீ."
+          other: "{0} பை.மீ."
+        length-yard: 
+          one: "{0} நீட்."
+          other: "{0} நீட்."
+        mass-gram: 
+          one: "{0} கி."
+          other: "{0} கி."
+        mass-kilogram: 
+          one: "{0} கி.கி."
+          other: "{0} கி.கி."
+        mass-ounce: 
+          one: "{0} அவு."
+          other: "{0} அவு."
+        mass-pound: 
+          one: "{0} பவு."
+          other: "{0} பவு."
+        power-horsepower: 
+          one: "{0} கு.வே."
+          other: "{0} கு.வே."
+        power-kilowatt: 
+          one: "{0} கி.வா."
+          other: "{0} கி.வா."
+        power-watt: 
+          one: "{0} வா."
+          other: "{0} வா."
+        pressure-hectopascal: 
+          one: "{0} ஹெ.பாஸ்."
+          other: "{0} ஹெ.பாஸ்."
+        pressure-inch-hg: 
+          one: "{0} பா.அங்."
+          other: "{0} பா.அங்."
+        pressure-millibar: 
+          one: "{0} மி.பா."
+          other: "{0} மி.பா."
+        speed-kilometer-per-hour: 
+          one: "{0} கி.மீ./ம.நே."
+          other: "{0} கி.மீ./ம.நே."
+        speed-meter-per-second: 
+          one: "{0} மீட்டர்/விநாடி"
+          other: "{0} மீ/வி"
+        speed-mile-per-hour: 
+          one: "{0} மை/ம.நே."
+          other: "{0} மை/ம.நே."
+        temperature-celsius: 
+          one: "{0}°செ."
+          other: "{0}°செ."
+        temperature-fahrenheit: 
+          one: "{0}°ஃபா."
+          other: "{0}°ஃபா."
+        volume-cubic-kilometer: 
+          one: "{0} கன.கி.மீ."
+          other: "{0} கன.கி.மீ."
+        volume-cubic-mile: 
+          one: "{0} க.மை."
+          other: "{0} க.மை."
+        volume-liter: 
+          one: "{0} லி."
+          other: "{0} லி."

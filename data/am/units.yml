@@ -1,0 +1,424 @@
+am: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          one: "{0} ጂ-ኃይል"
+          other: "{0} ጂ-ኃይል"
+        angle-arc-minute: 
+          one: "{0} ደቂቃ"
+          other: "{0} ደቂቃ"
+        angle-arc-second: 
+          one: "{0} ሰከንድ"
+          other: "{0} ሰከንድ"
+        angle-degree: 
+          one: "{0}°ዲግሪ"
+          other: "{0}°ዲግሪ"
+        area-acre: 
+          one: "{0} ኤክር"
+          other: "{0} ኤክር"
+        area-hectare: 
+          one: "{0} ሄክታር"
+          other: "{0} ሄክታር"
+        area-square-foot: 
+          one: "{0} ካሬ ጫማ"
+          other: "{0} ካሬ ጫማ"
+        area-square-kilometer: 
+          one: "{0} ካሬ ኪሎሜትር"
+          other: "{0} ካሬ ኪሎሜትር"
+        area-square-meter: 
+          one: "{0} ካሬ ሜትር"
+          other: "{0} ካሬ ሜትር"
+        area-square-mile: 
+          one: "{0} ካሬ ማይል"
+          other: "{0} ካሬ ማይል"
+        duration-day: 
+          one: "{0} ቀናት"
+          other: "{0} ቀናት"
+        duration-hour: 
+          one: "{0} ሰዓት"
+          other: "{0} ሰዓቶች"
+        duration-millisecond: 
+          one: "{0} ሚሊሰከንድ"
+          other: "{0} ሚሊሰከንድ"
+        duration-minute: 
+          one: "{0} ደቂቃ"
+          other: "{0} ደቂቃዎች"
+        duration-month: 
+          one: "{0} ወር"
+          other: "{0} ወራት"
+        duration-second: 
+          one: "{0} ሰከንድ"
+          other: "{0} ሰከንዶች"
+        duration-week: 
+          one: "{0} ሳምንት"
+          other: "{0} ሳምንታት"
+        duration-year: 
+          one: "{0} ዓመታት"
+          other: "{0} ዓመታት"
+        length-centimeter: 
+          one: "{0} ሴንቲሜትር"
+          other: "{0} ሴንቲሜትር"
+        length-foot: 
+          one: "{0} ጫማ"
+          other: "{0} ጫማ"
+        length-inch: 
+          one: "{0} ኢንች"
+          other: "{0} ኢንች"
+        length-kilometer: 
+          one: "{0} ኪሎሜትር"
+          other: "{0} ኪሎሜትር"
+        length-light-year: 
+          one: "{0} የብርሃን ዓመት"
+          other: "{0} የብርሃን ዓመት"
+        length-meter: 
+          one: "{0} ሜትር"
+          other: "{0} ሜትር"
+        length-mile: 
+          one: "{0} ማይል"
+          other: "{0} ማይል"
+        length-millimeter: 
+          one: "{0} ሚሊሜትር"
+          other: "{0} ሚሊሜትር"
+        length-picometer: 
+          one: "{0} ፒኮሜትር"
+          other: "{0} ፒኮሜትር"
+        length-yard: 
+          one: "{0} ያርድ"
+          other: "{0} ያርድ"
+        mass-gram: 
+          one: "{0} ግራም"
+          other: "{0} ግራም"
+        mass-kilogram: 
+          one: "{0} ኪሎግራም"
+          other: "{0} ኪሎግራም"
+        mass-ounce: 
+          one: "{0} አውንስ"
+          other: "{0} አውንስ"
+        mass-pound: 
+          one: "{0} ፓውንድ"
+          other: "{0} ፓውንድ"
+        power-horsepower: 
+          one: "{0} የፈረስ ኃይል"
+          other: "{0} የፈረስ ኃይል"
+        power-kilowatt: 
+          one: "{0} ኪሎዋት"
+          other: "{0} ኪሎዋት"
+        power-watt: 
+          one: "{0} ዋት"
+          other: "{0} ዋት"
+        pressure-hectopascal: 
+          one: "{0} ሄክቶፓስካል"
+          other: "{0} ሄክቶፓስካል"
+        pressure-inch-hg: 
+          one: "{0} ኢንች ሜርኩሪ"
+          other: "{0} ኢንች ሜርኩሪ"
+        pressure-millibar: 
+          one: "{0} ሚሊባር"
+          other: "{0} ሚሊባር"
+        speed-kilometer-per-hour: 
+          one: "{0} ኪሎሜትር በሰዓት"
+          other: "{0} ኪሎሜትር በሰዓት"
+        speed-meter-per-second: 
+          one: "{0} ሜትር በሰከንድ"
+          other: "{0} ሜትር በሰከንድ"
+        speed-mile-per-hour: 
+          one: "{0} ማይል በሰዓት"
+          other: "{0} ማይል በሰዓት"
+        temperature-celsius: 
+          one: "{0} ዲግሪ ሴልሺየስ"
+          other: "{0} ዲግሪ ሴልሺየስ"
+        temperature-fahrenheit: 
+          one: "{0}°ዲግሪ ፋራንሃይት"
+          other: "{0}°ዲግሪ ፋራንሃይት"
+        volume-cubic-kilometer: 
+          one: "{0} ኩቢክ ኪሎሜትር"
+          other: "{0} ኩቢክ ኪሎሜትር"
+        volume-cubic-mile: 
+          one: "{0} ኩቢክ ማይል³"
+          other: "{0} ኩቢክ ማይል³"
+        volume-liter: 
+          one: "{0} ሊትር"
+          other: "{0} ሊትር"
+      narrow: 
+        acceleration-g-force: 
+          one: "{0} ጂ"
+          other: "{0} ጂ"
+        angle-arc-minute: 
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} ኤክር"
+          other: "{0} ኤክር"
+        area-hectare: 
+          one: "{0} ሄክታር"
+          other: "{0} ሄክታር"
+        area-square-foot: 
+          one: "{0} ጫማ²"
+          other: "{0} ጫማ²"
+        area-square-kilometer: 
+          one: "{0} ኪሜ²"
+          other: "{0} ኪሜ²"
+        area-square-meter: 
+          one: "{0} ሜ²"
+          other: "{0} ሜ²"
+        area-square-mile: 
+          one: "{0} ማይል²"
+          other: "{0} ማይል²"
+        duration-day: 
+          one: "{0} ቀ"
+          other: "{0} ቀ"
+        duration-hour: 
+          one: "{0} ሰ"
+          other: "{0} ሰ"
+        duration-millisecond: 
+          one: "{0} ሚሴ"
+          other: "{0} ሚሴ"
+        duration-minute: 
+          one: "{0} ደ"
+          other: "{0} ደ"
+        duration-month: 
+          one: "{0} ወር"
+          other: "{0} ወር"
+        duration-second: 
+          one: "{0} ሴ"
+          other: "{0} ሴ"
+        duration-week: 
+          one: "{0} ሳምንት"
+          other: "{0} ሳምንት"
+        duration-year: 
+          one: "{0} ዓመት"
+          other: "{0} y"
+        length-centimeter: 
+          one: "{0} ሴሜ"
+          other: "{0} ሴሜ"
+        length-foot: 
+          one: "{0} ጫማ"
+          other: "{0} ጫማ"
+        length-inch: 
+          one: "{0} ኢንች"
+          other: "{0} ኢንች"
+        length-kilometer: 
+          one: "{0} ኪሜ"
+          other: "{0} ኪሜ"
+        length-light-year: 
+          one: "{0} ly"
+          other: "{0} ly"
+        length-meter: 
+          one: "{0} ሜ"
+          other: "{0} ሜ"
+        length-mile: 
+          one: "{0} ማይል"
+          other: "{0} ማይል"
+        length-millimeter: 
+          one: "{0} ሚሜ"
+          other: "{0} ሚሜ"
+        length-picometer: 
+          one: "{0} ፒሜ"
+          other: "{0} ፒሜ"
+        length-yard: 
+          one: "{0} ያርድ"
+          other: "{0} ያርድ"
+        mass-gram: 
+          one: "{0} ግ"
+          other: "{0} ግ"
+        mass-kilogram: 
+          one: "{0} ኪግ"
+          other: "{0} ኪግ"
+        mass-ounce: 
+          one: "{0} አውንስ"
+          other: "{0} አውንስ"
+        mass-pound: 
+          one: "{0} ፓውንድ"
+          other: "{0} ፓውንድ"
+        power-horsepower: 
+          one: "{0} የፈረስ ኃይል"
+          other: "{0} የፈረስ ኃይል"
+        power-kilowatt: 
+          one: "{0} ኪዋ"
+          other: "{0} ኪዋ"
+        power-watt: 
+          one: "{0} ዋ"
+          other: "{0} ዋ"
+        pressure-hectopascal: 
+          one: "{0} hPa"
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: 
+          one: "{0} ሚባ"
+          other: "{0} ሚባ"
+        speed-kilometer-per-hour: 
+          one: "{0} ኪሜ/ሰ"
+          other: "{0} ኪሜ/ሰ"
+        speed-meter-per-second: 
+          one: "{0} ሜ/ሴ"
+          other: "{0} ሜ/ሴ"
+        speed-mile-per-hour: 
+          one: "{0} ማይል/ሰ"
+          other: "{0} ማይል/ሰ"
+        temperature-celsius: 
+          one: "{0}°ሴ"
+          other: "{0}°ሴ"
+        temperature-fahrenheit: 
+          one: "{0}°ፋ"
+          other: "{0}°ፋ"
+        volume-cubic-kilometer: 
+          one: "{0} ኪሜ³"
+          other: "{0} ኪሜ³"
+        volume-cubic-mile: 
+          one: "{0} ማይል³"
+          other: "{0} ማይል³"
+        volume-liter: 
+          one: "{0} ሊ"
+          other: "{0} ሊ"
+      short: 
+        acceleration-g-force: 
+          one: "{0} ጂ"
+          other: "{0} ጂ"
+        angle-arc-minute: 
+          one: "{0} ደቂቃ"
+          other: "{0} ደቂቃ"
+        angle-arc-second: 
+          one: "{0} ሰከንድ"
+          other: "{0} ሰከንድ"
+        angle-degree: 
+          one: "{0}°ዲግሪ"
+          other: "{0}°ዲግሪ"
+        area-acre: 
+          one: "{0} ኤክር"
+          other: "{0} ኤክር"
+        area-hectare: 
+          one: "{0} ሄክታር"
+          other: "{0} ሄክታር"
+        area-square-foot: 
+          one: "{0} ካሬ ጫማ"
+          other: "{0} ካሬ ጫማ"
+        area-square-kilometer: 
+          one: "{0} ኪሜ²"
+          other: "{0} ኪሜ²"
+        area-square-meter: 
+          one: "{0} ሜ²"
+          other: "{0} ሜ²"
+        area-square-mile: 
+          one: "{0} ካሬ ማይል"
+          other: "{0} ካሬ ማይል"
+        duration-day: 
+          one: "{0} ቀናት"
+          other: "{0} ቀናት"
+        duration-hour: 
+          one: "{0} ሰዓ"
+          other: "{0} ሰዓ"
+        duration-millisecond: 
+          one: "{0} ሚሴ"
+          other: "{0} ሚሴ"
+        duration-minute: 
+          one: "{0} ደቂ"
+          other: "{0} ደቂቃ"
+        duration-month: 
+          one: "{0} ወራት"
+          other: "{0} ወራት"
+        duration-second: 
+          one: "{0} ሰከ"
+          other: "{0} ሰከ"
+        duration-week: 
+          one: "{0} ሳምንት"
+          other: "{0} ሳምንታት"
+        duration-year: 
+          one: "{0} ዓመት"
+          other: "{0} ዓመታት"
+        length-centimeter: 
+          one: "{0} ሴሜ"
+          other: "{0} ሴሜ"
+        length-foot: 
+          one: "{0} ጫማ"
+          other: "{0} ጫማ"
+        length-inch: 
+          one: "{0} ኢንች"
+          other: "{0} ኢንች"
+        length-kilometer: 
+          one: "{0} ኪሜ"
+          other: "{0} ኪሜ"
+        length-light-year: 
+          one: "{0} ly"
+          other: "{0} ly"
+        length-meter: 
+          one: "{0} ሜ"
+          other: "{0} ሜ"
+        length-mile: 
+          one: "{0} ማይል"
+          other: "{0} ማይል"
+        length-millimeter: 
+          one: "{0} ሚሜ"
+          other: "{0} ሚሜ"
+        length-picometer: 
+          one: "{0} ፒሜ"
+          other: "{0} ፒሜ"
+        length-yard: 
+          one: "{0} ያርድ"
+          other: "{0} ያርድ"
+        mass-gram: 
+          one: "{0} ግ"
+          other: "{0} ግ"
+        mass-kilogram: 
+          one: "{0} ኪግ"
+          other: "{0} ኪግ"
+        mass-ounce: 
+          one: "{0} አውንስ"
+          other: "{0} አውንስ"
+        mass-pound: 
+          one: "{0} ፓውንድ"
+          other: "{0} ፓውንድ"
+        power-horsepower: 
+          one: "{0} የፈረስ ኃይል"
+          other: "{0} የፈረስ ኃይል"
+        power-kilowatt: 
+          one: "{0} ኪዋ"
+          other: "{0} ኪዋ"
+        power-watt: 
+          one: "{0} ዋ"
+          other: "{0} ዋ"
+        pressure-hectopascal: 
+          one: "{0} ሄክቶፓስካል"
+          other: "{0} ሄክቶፓስካል"
+        pressure-inch-hg: 
+          one: "{0} ኢንች ሜርኩሪ"
+          other: "{0} ኢንች ሜርኩሪ"
+        pressure-millibar: 
+          one: "{0} ሚባ"
+          other: "{0} ሚባ"
+        speed-kilometer-per-hour: 
+          one: "{0} ኪሜ/ሰ"
+          other: "{0} ኪሜ/ሰ"
+        speed-meter-per-second: 
+          one: "{0} ሜ/ሴ"
+          other: "{0} ሜ/ሴ"
+        speed-mile-per-hour: 
+          one: "{0} ማይል/ሰ"
+          other: "{0} ማይል/ሰ"
+        temperature-celsius: 
+          one: "{0}°ሴ"
+          other: "{0}°ሴ"
+        temperature-fahrenheit: 
+          one: "{0}°ፋ"
+          other: "{0}°ፋ"
+        volume-cubic-kilometer: 
+          one: "{0} ኪሜ³"
+          other: "{0} ኪሜ³"
+        volume-cubic-mile: 
+          one: "{0} ማይል³"
+          other: "{0} ማይል³"
+        volume-liter: 
+          one: "{0} ሊ"
+          other: "{0} ሊ"

@@ -1,0 +1,1 @@
+{ :'yo_NG' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

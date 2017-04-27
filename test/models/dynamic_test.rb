@@ -151,4 +151,22 @@ class DynamicTest < ActiveSupport::TestCase
     assert_equal u2, d2.reload.annotator
     User.current = nil
   end
+
+  test "should get field" do
+    at = create_annotation_type annotation_type: 'test'
+    ft = create_field_type
+    fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
+    a = create_dynamic_annotation annotation_type: 'test', set_fields: { test: 'Test' }.to_json
+    assert_kind_of DynamicAnnotation::Field, a.get_field('test')
+    assert_nil a.get_field('test2')
+  end
+
+  test "should get field value" do
+    at = create_annotation_type annotation_type: 'test'
+    ft = create_field_type
+    fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
+    a = create_dynamic_annotation annotation_type: 'test', set_fields: { test: 'Test' }.to_json
+    assert_equal 'Test', a.get_field_value('test')
+    assert_nil a.get_field_value('test2')
+  end
 end

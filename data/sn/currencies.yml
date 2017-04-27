@@ -1,0 +1,219 @@
+sn: 
+  currencies: 
+    AED: 
+      one: "Diramu re United Arab Emirates"
+    AOA: 
+      one: "Kwanza ye Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dora re Australia"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Dhinari re Bhahareni"
+    BIF: 
+      one: "Furenki re Bhurundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Pura re Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dora re Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Furenki re Kongo"
+    CHF: 
+      one: "Furenki re Swisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Yuan Renminbi ye China"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Dhora re Escudo"
+    DJF: 
+      one: "Furenki re Jibhuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dhinari re Aljeria"
+    EGP: 
+      one: "Paundi re Ijipita"
+    ERN: 
+      one: "Nakfa re Eritrea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Dhora re Etiopia"
+    EUR: 
+      one: Yuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Paundi ye Bhiriteni"
+      symbol: £
+    GHC: 
+      one: "Sedi ye Ghana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dalasi ye Gambia"
+    GNS: 
+      one: "Furenki re Gine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupe re India"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yeni ye Japani"
+      symbol: JP¥
+    KES: 
+      one: "Shiringi ye Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Furenki re Komoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dora re Liberia"
+      symbol: $
+    LSL: 
+      one: "Loti ye Lesoto"
+    LYD: 
+      one: "Dinari re Libya"
+    MAD: 
+      one: "Dirham ye Moroko"
+    MGA: 
+      one: "Furenki re Malagasi"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ugwiya ye Moritania"
+    MUR: 
+      one: "Rupi ye Morishasi"
+    MWK: 
+      one: "Kwacha ye Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Metika ye Mozambiki"
+    NAD: 
+      one: "Dora re Namibia"
+      symbol: $
+    NGN: 
+      one: "Naira ye Nijeria"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Furenki re Ruwanda"
+    SAR: 
+      one: "Riyali re Saudi"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupi re Seyisheri"
+    SDG: 
+      one: "Dinari re Sudani"
+    SDP: 
+      one: "Paundi re Sudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Paundi re Senti Helena"
+    SLL: 
+      one: Leoni
+    SOS: 
+      one: "Shiringi re Somalia"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dobra re Sao Tome ne Principe"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Dinari re Tunisia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Shiringi re Tanzania"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Shiringi re Uganda"
+    USD: 
+      one: "Dora re Amerika"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Furenki CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Furenki CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: Randi
+    ZMK: 
+      one: "Kwacha ye Zambia (1968–2012)"
+    ZMW: 
+      one: "Kwacha ye Zambia"
+    ZWD: 
+      one: "Dora re Zimbabwe"

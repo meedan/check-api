@@ -1,0 +1,900 @@
+sk: 
+  currencies: 
+    ADP: 
+      one: "Andorská peseta"
+    AED: 
+      few: "SAE dirhamy"
+      many: "SAE dirhamov"
+      one: "SAE dirham"
+      other: "SAE dirhamov"
+    AFN: 
+      few: "afganské afgání"
+      many: "afganského afgání"
+      one: "afganský afgání"
+      other: "afganských afgání"
+    ALL: 
+      one: "Albánsky lek"
+    AMD: 
+      one: "Armenský dram"
+    ANG: 
+      few: "antilské guldeny"
+      many: "antilského guldena"
+      one: "antilský gulden"
+      other: "antilských guldenov"
+    AOA: 
+      one: "Angolská kwanza"
+    AOK: 
+      one: "Angolská kwanza (1977–1990)"
+    AON: 
+      one: "Angolská nová kwanza (1990–2000)"
+    AOR: 
+      one: "Angolská kwanza Reajustado (1995–1999)"
+    ARA: 
+      one: "Argentinský austral"
+    ARP: 
+      one: "Argentinské peso (1983–1985)"
+    ARS: 
+      one: "Argentinské peso"
+      symbol: $
+    ATS: 
+      one: "Rakúsky šiling"
+    AUD: 
+      few: "austrálske doláre"
+      many: "austrálskeho dolára"
+      one: "austrálsky dolár"
+      other: "austrálskych dolárov"
+      symbol: AUD
+    AWG: 
+      one: "Arubský guilder"
+    AZM: 
+      few: "azerbajdžanské manaty (1993–2006)"
+      many: "azerbajdžanského manatu (1993–2006)"
+      one: "azerbajdžanský manat (1993–2006)"
+      other: "azerbajdžanských manatov (1993–2006)"
+    AZN: 
+      few: "azerbajdžanské manaty"
+      many: "azerbajdžanského manatu"
+      one: "azerbajdžanský manat"
+      other: "azerbajdžanských manatov"
+    BAD: 
+      one: "Bosnianský dinár"
+    BAM: 
+      few: "bosnianske konvertibilné marky"
+      many: "bosnianskej konvertibilnej marky"
+      one: "bosnianska konvertibilná marka"
+      other: "bosnianskych konvertibilných mariek"
+    BBD: 
+      few: "barbadoské doláre"
+      many: "barbadoského dolára"
+      one: "barbadoský dolár"
+      other: "barbadoských dolárov"
+      symbol: $
+    BDT: 
+      one: "Bangladéšska taka"
+      symbol: ৳
+    BEC: 
+      one: "Belgický frank (konvertibilný)"
+    BEF: 
+      one: "Belgický frank"
+    BEL: 
+      one: "Belgický frank (finančný)"
+    BGL: 
+      one: "Bulharský leva"
+    BGN: 
+      few: "bulharské leva"
+      many: "bulharského leva"
+      one: "bulharský lev"
+      other: "bulharských leva"
+    BHD: 
+      few: "bahrajnské dináre"
+      many: "bahrajnského dinára"
+      one: "bahrajnský dinár"
+      other: "bahrajnských dinárov"
+    BIF: 
+      one: "Burundský frank"
+    BMD: 
+      one: "Bermudský dolár"
+      symbol: $
+    BND: 
+      few: "brunejské doláre"
+      many: "brunejského dolára"
+      one: "brunejský dolár"
+      other: "brunejských dolárov"
+      symbol: $
+    BOB: 
+      few: "bolívijské boliviany"
+      many: "bolívijského boliviana"
+      one: "bolívijské boliviano"
+      other: "bolívijských bolivianov"
+    BOP: 
+      one: "Bolivíjske peso"
+    BOV: 
+      one: "Bolivíjske mvdol"
+    BRB: 
+      one: "Bolivíjske Cruzeiro Novo (1967–1986)"
+    BRC: 
+      one: "Bolivíjske cruzado"
+    BRE: 
+      one: "Bolivíjske cruzeiro (1990–1993)"
+    BRL: 
+      few: "brazílske realy"
+      many: "brazílskeho realu"
+      one: "brazílsky real"
+      other: "brazílskych realov"
+      symbol: BRL
+    BRN: 
+      one: "Brazílske Cruzado Novo"
+    BRR: 
+      one: "Brazílske cruzeiro"
+    BSD: 
+      one: "Bahamský dolár"
+      symbol: $
+    BTN: 
+      few: "bhutánske ngultrumy"
+      many: "bhutánskeho ngultrumu"
+      one: "bhutánsky ngultrum"
+      other: "bhutánskych ngultrumov"
+    BUK: 
+      one: "Burmese Kyat"
+    BWP: 
+      few: "botswanské puly"
+      many: "botswanskej puly"
+      one: "botswanská pula"
+      other: "botswanských púl"
+    BYB: 
+      few: "bieloruské nové ruble (1994–1999)"
+      many: "bieloruského nového rubľa (1994–1999)"
+      one: "bieloruský nový rubeľ (1994–1999)"
+      other: "bieloruských nových rubľov (1994–1999)"
+    BYR: 
+      few: "bieloruské ruble"
+      many: "bieloruského rubľa"
+      one: "bieloruský rubeľ"
+      other: "bieloruských rubľov"
+      symbol: р.
+    BZD: 
+      few: "belizské doláre"
+      many: "belizských dolárov"
+      one: "belizský dolár"
+      other: "belizských dolárov"
+      symbol: $
+    CAD: 
+      few: "kanadské doláre"
+      many: "kanadského dolára"
+      one: "kanadský dolár"
+      other: "kanadských dolárov"
+      symbol: CAD
+    CDF: 
+      few: "konžské franky"
+      many: "konžského franku"
+      one: "konžský frank"
+      other: "konžských frankov"
+    CHF: 
+      few: "švajčiarske franky"
+      many: "švajčiarskeho franku"
+      one: "švajčiarsky frank"
+      other: "švajčiarskych frankov"
+    CLF: 
+      one: "Čílske Unidades de Fomento"
+    CLP: 
+      one: "Čílske peso"
+      symbol: $
+    CNY: 
+      few: "čínske jüany"
+      many: "čínskeho jüana"
+      one: "čínsky jüan"
+      other: "čínskych jüanov"
+      symbol: CNY
+    COP: 
+      few: "kolumbijské pesos"
+      many: "kolumbijského pesa"
+      one: "kolumbijské peso"
+      other: "kolumbijských pesos"
+      symbol: $
+    CRC: 
+      few: "kostarické colóny"
+      many: "kostarického colónu"
+      one: "kostarický colón"
+      other: "kostarických colónov"
+      symbol: ₡
+    CSK: 
+      one: "Československá koruna"
+    CUC: 
+      few: "kubánske konvertibilné pesos"
+      many: "kubánskeho konvertibilného pesa"
+      one: "kubánske konvertibilné peso"
+      other: "kubánskych konvertibilných pesos"
+    CUP: 
+      few: "kubánske pesos"
+      many: "kubánskeho pesa"
+      one: "kubánske peso"
+      other: "kubánskych pesos"
+      symbol: $
+    CVE: 
+      few: "kapverdské escudá"
+      many: "kapverdského escuda"
+      one: "kapverdské escudo"
+      other: "kapverdských escúd"
+    CYP: 
+      one: "Cypruská libra"
+    CZK: 
+      few: "české koruny"
+      many: "českej koruny"
+      one: "česká koruna"
+      other: "českých korún"
+    DDM: 
+      one: "Východonemecká marka"
+    DEM: 
+      one: "Nemecká marka"
+    DJF: 
+      one: "Džibutský frank"
+    DKK: 
+      few: "dánske koruny"
+      many: "dánskej koruny"
+      one: "dánska koruna"
+      other: "dánskych korún"
+    DOP: 
+      one: "Dominikánske peso"
+      symbol: $
+    DZD: 
+      one: "Alžírsky dinár"
+    ECS: 
+      one: "Ekuadorský sucre"
+    ECV: 
+      one: "Ekuadorský Unidad de Valor Constante (UVC)"
+    EEK: 
+      few: "estónske kroony"
+      many: "estónskej kroony"
+      one: "estónska kroon"
+      other: "estónskych kroon"
+    EGP: 
+      one: "Egyptská libra"
+    ERN: 
+      one: "Eritrejská nakfa"
+    ESP: 
+      one: "Španielská peseta"
+      symbol: ₧
+    ETB: 
+      one: "Ethiopský birr"
+    EUR: 
+      few: eurá
+      many: eura
+      one: euro
+      other: eur
+      symbol: €
+    FIM: 
+      one: "Finská marka"
+    FJD: 
+      few: "fidžijské doláre"
+      many: "fidžijského dolára"
+      one: "fidžijský dolár"
+      other: "fidžijských dolárov"
+      symbol: $
+    FKP: 
+      one: "Falklandská libra"
+    FRF: 
+      one: "Francúzsky frank"
+    GBP: 
+      few: "britskej libry"
+      many: "britskej libry"
+      one: "britská libra"
+      other: "britských libier"
+      symbol: GBP
+    GEK: 
+      one: "Gruzínsky Kupon Larit"
+    GEL: 
+      one: "Gruzínsky lari"
+    GHC: 
+      few: "ghanské cedi (1979–2007)"
+      many: "ghanského cedi (1979–2007)"
+      one: "ghanský cedi (1979–2007)"
+      other: "ghanských cedi (1979–2007)"
+    GHS: 
+      few: "ghanské cedi"
+      many: "ghanského cedi"
+      one: "ghanský cedi"
+      other: "ghanských cedi"
+      symbol: ₵
+    GIP: 
+      one: "Gibraltarská libra"
+      symbol: £
+    GMD: 
+      few: "gambijské dalasi"
+      many: "gambijského dalasi"
+      one: "gambijský dalasi"
+      other: "gambijských dalasi"
+    GNF: 
+      one: "Guinejský frank"
+    GNS: 
+      one: "Guinejský syli"
+    GQE: 
+      one: "Rovníková Guinea Ekwele Guineana"
+    GRD: 
+      one: "Grécka drachma"
+    GTQ: 
+      one: "Guatemalský quetzal"
+    GWE: 
+      one: "Portugalská Guinea eskudo"
+    GWP: 
+      few: "Guinea-Bissau pesos"
+      many: "Guinea-Bissau pesa"
+      one: "Guinea-Bissau peso"
+      other: "Guinea-Bissau pesos"
+    GYD: 
+      one: "Guyanský dolár"
+      symbol: $
+    HKD: 
+      few: "hongkonské doláre"
+      many: "hongkonského dolára"
+      one: "hongkonský dolár"
+      other: "hongkonských dolárov"
+      symbol: HKD
+    HNL: 
+      few: "honduraské lempiry"
+      many: "honduraskej lempiry"
+      one: "honduraská lempira"
+      other: "honduraských lempír"
+    HRD: 
+      one: "Chorvátsky dinár"
+    HRK: 
+      one: "Chorvátska kuna"
+    HTG: 
+      one: "Haitské gourde"
+    HUF: 
+      few: "maďarské forinty"
+      many: "maďarského forinta"
+      one: "maďarský forint"
+      other: "maďarských forintov"
+    IDR: 
+      few: "indonézske rupie"
+      many: "indonézskej rupie"
+      one: "indonézska rupia"
+      other: "indonézskych rupií"
+    IEP: 
+      one: "Írska libra"
+    ILP: 
+      one: "Izraelská libra"
+    ILS: 
+      one: "Izraelský šekel"
+      symbol: ₪
+    INR: 
+      few: "indické rupie"
+      many: "indickej rupie"
+      one: "indická rupia"
+      other: "indických rupií"
+      symbol: INR
+    IQD: 
+      one: "Iracký dinár"
+    IRR: 
+      one: "Iránsky rial"
+    ISK: 
+      one: "Islandská krona"
+    ITL: 
+      one: "Talianská lira"
+    JMD: 
+      one: "Jamajský dolár"
+      symbol: $
+    JOD: 
+      one: "Jordánsky dinár"
+    JPY: 
+      few: "japonské jeny"
+      many: "japonského jenu"
+      one: "japonský jen"
+      other: "japonských jenov"
+      symbol: JPY
+    KES: 
+      one: "Keňský šiling"
+    KGS: 
+      few: "kirgizské somy"
+      many: "kirgizského somu"
+      one: "kirgizský som"
+      other: "kirgizských somov"
+    KHR: 
+      one: "Kambodžský riel"
+      symbol: ៛
+    KMF: 
+      few: "komorské franky"
+      many: "komorského franku"
+      one: "Comoro frank"
+      other: "komorských frankov"
+    KPW: 
+      one: "Severokórejský won"
+    KRW: 
+      few: "juhokórejské wony"
+      many: "juhokórejského wonu"
+      one: "juhokórejský won"
+      other: "juhokórejských wonov"
+      symbol: KRW
+    KWD: 
+      few: "kuvajtské dináre"
+      many: "kuvajtského dinára"
+      one: "kuvajtský dinár"
+      other: "kuvajtských dinárov"
+    KYD: 
+      one: "Kajmanský dolár"
+      symbol: $
+    KZT: 
+      few: "kazašské tenge"
+      many: "kazašského tenge"
+      one: "kazašské tenge"
+      other: "kazašských tenge"
+      symbol: ₸
+    LAK: 
+      one: "Laoský kip"
+      symbol: ₭
+    LBP: 
+      one: "Libanonská libra"
+    LKR: 
+      few: "srílanské rupie"
+      many: "srílanskej rupie"
+      one: "srílanská rupia"
+      other: "srílanských rupií"
+    LRD: 
+      one: "Libérský dolár"
+      symbol: $
+    LSL: 
+      one: "Lesothský loti"
+    LTL: 
+      few: "litovské litasy"
+      many: "litovského litasa"
+      one: "litovský litas"
+      other: "litovských litasov"
+    LTT: 
+      one: "Litevský talonas"
+    LUF: 
+      one: "Luxemburský frank"
+    LVL: 
+      few: "lotyšské laty"
+      many: "lotyšského latu"
+      one: "lotyšský lat"
+      other: "lotyšských latov"
+    LVR: 
+      one: "Lotyšský rubeľ"
+    LYD: 
+      one: "Libyjský dinár"
+    MAD: 
+      one: "Marocký dirham"
+    MAF: 
+      one: "Marocký frank"
+    MDL: 
+      one: "Moldavský leu"
+    MGA: 
+      one: "Madagaskarský ariary"
+    MGF: 
+      one: "Madagaskarský frank"
+    MKD: 
+      one: "Macedónsky denár"
+    MLF: 
+      one: "Malský frank"
+    MMK: 
+      one: "Myanmarský kyat"
+    MNT: 
+      one: "Mongolský tugrik"
+      symbol: ₮
+    MOP: 
+      few: "macajské patacy"
+      many: "macajskej patacy"
+      one: "macajská pataca"
+      other: "macajských patác"
+    MRO: 
+      few: "mauritánske ukije"
+      many: "mauritánskej ukije"
+      one: "mauritánska ukija"
+      other: "mauritánskych ukijí"
+    MTL: 
+      one: "Maltská lira"
+    MTP: 
+      one: "Maltská libra"
+    MUR: 
+      few: "maurícijské rupie"
+      many: "maurícijskej rupie"
+      one: "maurícijská rupia"
+      other: "maurícijských rupií"
+    MVR: 
+      one: "Maldivská rufiyaa"
+    MWK: 
+      few: "malawijské kwachy"
+      many: "malawijskej kwachy"
+      one: "malawijská kwacha"
+      other: "malawijských kwách"
+    MXN: 
+      few: "mexické pesos"
+      many: "mexického pesa"
+      one: "mexické peso"
+      other: "mexických pesos"
+      symbol: Mex$
+    MXP: 
+      one: "Mexické striborné peso (1861–1992)"
+    MXV: 
+      one: "Mexické Unidad de Inversion (UDI)"
+    MYR: 
+      few: "malajské ringgity"
+      many: "malajského ringgitu"
+      one: "malajský ringgit"
+      other: "malajských ringgitov"
+    MZE: 
+      few: "mozabické escudá"
+      many: "mozabického escuda"
+      one: "mozabické escudo"
+      other: "mozabických escúd"
+    MZM: 
+      few: "mozambické meticaly (1980–2006)"
+      many: "mozambického meticalu (1980–2006)"
+      one: "mozambický metical (1980–2006)"
+      other: "mozambických meticalov (1980–2006)"
+    MZN: 
+      few: "mozambické meticaly"
+      many: "mozambického meticalu"
+      one: "mozambický metical"
+      other: "mozambických meticalov"
+    NAD: 
+      few: "namíbijské doláre"
+      many: "namíbijského dolára"
+      one: "namíbijský dolár"
+      other: "namíbijských dolárov"
+      symbol: $
+    NGN: 
+      one: "Nigerská naira"
+      symbol: ₦
+    NIC: 
+      few: "nikaragujské córdoby (1988–1991)"
+      many: "nikaragujskej córdoby (1988–1991)"
+      one: "nikaragujská córdoba (1988–1991)"
+      other: "nikaragujských córdob (1988–1991)"
+    NIO: 
+      few: "nikaragujské córdoby"
+      many: "nikaragujskej córdoby"
+      one: "nikaragujská córdoba"
+      other: "nikaragujských córdob"
+    NLG: 
+      one: "Nizozemský guilder"
+    NOK: 
+      few: "nórske koruny"
+      many: "nórskej koruny"
+      one: "nórska koruna"
+      other: "nórskych korún"
+    NPR: 
+      one: "Nepálska rupia"
+    NZD: 
+      one: "Novozélandský dolár"
+      symbol: NZ$
+    OMR: 
+      one: "Ománský rial"
+    PAB: 
+      one: "Panamská balboa"
+    PEI: 
+      one: "Peruvský inti"
+    PEN: 
+      few: "peruánske nové soly"
+      many: "peruánskeho nového sola"
+      one: "peruánsky nový sol"
+      other: "peruánskych nových solov"
+    PES: 
+      one: "Peruvský sol"
+    PGK: 
+      few: "papuánske kiny"
+      many: "papuánskej kiny"
+      one: "papuánska kina"
+      other: "papuánskych kín"
+    PHP: 
+      one: "Filipínske peso"
+      symbol: ₱
+    PKR: 
+      one: "Pakistanská rupia"
+    PLN: 
+      few: "poľské zloté"
+      many: "poľského zlotého"
+      one: "poľský zlotý"
+      other: "poľských zlotých"
+      symbol: zl
+    PLZ: 
+      few: "poľské zloté (1950–1995)"
+      many: "poľského zlotého (1950–1995)"
+      one: "poľský zlotý (1950–1995)"
+      other: "poľských zlotých (1950–1995)"
+    PTE: 
+      one: "Portugalské eskudo"
+    PYG: 
+      few: "paraguayské guarani"
+      many: "paraguayského guarani"
+      one: "paraguajské guaraní"
+      other: "paraguayských guarani"
+      symbol: ₲
+    QAR: 
+      few: "katarské rialy"
+      many: "katarského rialu"
+      one: "katarský rial"
+      other: "katarských rialov"
+    ROL: 
+      few: "rumunské leu (1952–2006)"
+      many: "rumunského leu (1952–2006)"
+      one: "rumunský leu (1952–2006)"
+      other: "rumunských leu (1952–2006)"
+    RON: 
+      few: "rumunské leu"
+      many: "rumunského leu"
+      one: "rumunský leu"
+      other: "rumunských leu"
+    RSD: 
+      few: "srbské dináre"
+      many: "srbského dinára"
+      one: "srbský dinár"
+      other: "srbských dinárov"
+    RUB: 
+      few: "ruské ruble"
+      many: "ruského rubľa"
+      one: "ruský rubeľ"
+      other: "ruských rubľov"
+    RUR: 
+      one: "Ruský rubeľ (1991–1998)"
+      symbol: р.
+    RWF: 
+      one: "Rwandský frank"
+    SAR: 
+      few: "saudskoarabské rialy"
+      many: "saudskoarabského rialu"
+      one: "saudskoarabský rial"
+      other: "saudskoarabských rialov"
+    SBD: 
+      few: "šalamúnske doláre"
+      many: "šalamúnskeho dolára"
+      one: "šalamúnsky dolár"
+      other: "šalamúnskych dolárov"
+      symbol: $
+    SCR: 
+      few: "seychelské rupie"
+      many: "seychelskej rupie"
+      one: "seychelská rupia"
+      other: "seychelských rupií"
+    SDD: 
+      one: "Sudánsky dinár"
+    SDG: 
+      few: "sudánske libry"
+      many: "sudánskej libry"
+      one: "sudánska libra"
+      other: "sudánskych libier"
+    SDP: 
+      few: "sudánske libry (1957–1998)"
+      many: "sudánskej libry (1957–1998)"
+      one: "sudánska libra (1957–1998)"
+      other: "sudánskych libier (1957–1998)"
+    SEK: 
+      few: "švédske koruny"
+      many: "švédskej koruny"
+      one: "švédska koruna"
+      other: "švédskych korún"
+    SGD: 
+      one: "Singapúrsky dolár"
+      symbol: $
+    SHP: 
+      few: "svätohelenské libry"
+      many: "svätohelenskej libry"
+      one: "svätohelenská libra"
+      other: "svätohelenských libier"
+    SIT: 
+      one: "Slovinský Tolar"
+    SKK: 
+      one: "Slovenská koruna"
+    SLL: 
+      few: "sierraleonské leone"
+      many: "sierraleonského leone"
+      one: "sierraleonský leone"
+      other: "sierraleonských leone"
+    SOS: 
+      one: "Somálsky šiling"
+    SRD: 
+      few: "surinamské doláre"
+      many: "surinamského dolára"
+      one: "surinamský dolár"
+      other: "surinamských dolárov"
+      symbol: $
+    SRG: 
+      one: "Surinamský guilder"
+    SSP: 
+      few: "juhosudánske libry"
+      many: "juhosudánskej libry"
+      one: "juhosudánska libra"
+      other: "juhosudánskych libier"
+      symbol: £
+    STD: 
+      few: "svätotomášske dobry"
+      many: "svätotomášskej dobry"
+      one: "svätotomášska dobra"
+      other: "svätotomášskych dobrí"
+    SUR: 
+      one: "Sovietsky rubeľ"
+    SVC: 
+      few: "salvádorské colóny"
+      many: "salvádorského colóna"
+      one: "salvádorský colón"
+      other: "salvádorských colónov"
+    SYP: 
+      one: "Syrská libra"
+    SZL: 
+      few: "svazijské lilangeni"
+      many: "svazijského lilangeni"
+      one: "svazijské lilangeni"
+      other: "svazijských lilangeni"
+    THB: 
+      few: "thajské bahty"
+      many: "thajského bahtu"
+      one: "thajský baht"
+      other: "thajských bahtov"
+      symbol: THB
+    TJR: 
+      one: "Tadžický rubeľ"
+    TJS: 
+      few: "tadžické somoni"
+      many: "tadžického somoni"
+      one: "tadžické somoni"
+      other: "tadžických somoni"
+    TMM: 
+      few: "turkménske manaty (1993–2009)"
+      many: "turkménskeho manatu (1993–2009)"
+      one: "turkménsky manat (1993–2009)"
+      other: "turkménskych manatov (1993–2009)"
+    TMT: 
+      few: "turkménske manaty"
+      many: "turkménskeho manatu"
+      one: "turkménsky manat"
+      other: "turkménskych manatov"
+    TND: 
+      one: "Tuniský dinár"
+    TOP: 
+      few: "tongské pa'anga"
+      many: "tongského pa'anga"
+      one: "tongská pa'anga"
+      other: "tongských pa'anga"
+    TPE: 
+      one: "Timorské eskudo"
+    TRL: 
+      few: "turecké líry (1922–2005)"
+      many: "tureckej líry (1922–2005)"
+      one: "turecká líra (1922–2005)"
+      other: "tureckých lír (1922–2005)"
+    TRY: 
+      few: "turecké líry"
+      many: "tureckej líry"
+      one: "turecká líra"
+      other: "tureckých lír"
+      symbol: ₺
+    TTD: 
+      few: "trinidadsko-tobažské doláre"
+      many: "trinidadsko-tobažského dolára"
+      one: "trinidadsko-tobažský dolár"
+      other: "trinidadsko-tobažských dolárov"
+      symbol: $
+    TWD: 
+      few: "nové taiwanské doláre"
+      many: "nového taiwanského dolára"
+      one: "nový taiwanský dolár"
+      other: "nových taiwanských dolárov"
+      symbol: TWD
+    TZS: 
+      one: "Tanzanský šiling"
+    UAH: 
+      few: "ukrajinské hrivny"
+      many: "ukrajinskej hrivny"
+      one: "ukrajinská hrivna"
+      other: "ukrajinských hrivien"
+      symbol: ₴
+    UAK: 
+      one: "Ukrainský karbovanetz"
+    UGS: 
+      one: "Ugandan šiling (1966–1987)"
+    UGX: 
+      one: "Ugandský šiling"
+    USD: 
+      few: "americké doláre"
+      many: "amerického dolára"
+      one: "americký dolár"
+      other: "amerických dolárov"
+      symbol: USD
+    USN: 
+      one: "US dolár (Next day)"
+    USS: 
+      one: "US dolár (Same day)"
+    UYP: 
+      one: "Uruguajské peso (1975–1993)"
+    UYU: 
+      few: "uruguajské pesos"
+      many: "uruguajských pesos"
+      one: "uruguajské peso"
+      other: "uruguajských pesos"
+      symbol: $
+    UZS: 
+      few: "uzbecké sumy"
+      many: "uzbeckého sumu"
+      one: "uzbecký sum"
+      other: "uzbeckých sumov"
+    VEB: 
+      one: "Venezuelský bolívar (1871–2008)"
+    VEF: 
+      one: "Venezuelský bolívar"
+    VND: 
+      one: "Vietnamský dong"
+      symbol: ₫
+    VUV: 
+      few: "vanuatské vatu"
+      many: "vanuatského vatu"
+      one: "vanuatské vatu"
+      other: "vanuatských vatu"
+    WST: 
+      few: "samojské taly"
+      many: "samojskej taly"
+      one: "samojská tala"
+      other: "samojských tál"
+    XAF: 
+      one: "CFA frank BEAC"
+      symbol: FCFA
+    XAU: 
+      one: Zlato
+    XCD: 
+      few: "východokaribské doláre"
+      many: "východokaribského dolára"
+      one: "východokaribský dolár"
+      other: "východokaribských dolárov"
+      symbol: EC$
+    XDR: 
+      one: "Špeciálne práva čerpania"
+    XFO: 
+      one: "Francúzsky zlatý frank"
+    XFU: 
+      one: "Francúzsky UIC-frank"
+    XOF: 
+      one: "CFA frank BCEAO"
+      symbol: CFA
+    XPF: 
+      one: "CFP frank"
+      symbol: CFPF
+    XXX: 
+      few: "Neznáma mena"
+      many: "Neznáma mena"
+      one: "Neznáma mena"
+      other: "Neznáma mena"
+    YDD: 
+      one: "Jemenský dinár"
+    YER: 
+      one: "Jemenský rial"
+    YUD: 
+      one: "Juhoslávsky dinár [YUD]"
+    YUM: 
+      one: "Juhoslávsky Noviy dinár"
+    YUN: 
+      one: "Juhoslávsky dinár"
+    ZAL: 
+      one: "Juhoafrický rand (financial)"
+    ZAR: 
+      few: "juhoafrické randy"
+      many: "juhoafrického randu"
+      one: "juhoafrický rand"
+      other: "juhoafrických randov"
+    ZMK: 
+      few: "zambijské kwachy (1968–2012)"
+      many: "zambijskej kwachy (1968–2012)"
+      one: "zambijská kwacha (1968–2012)"
+      other: "zambijských kwách (1968–2012)"
+    ZMW: 
+      few: "zambijské kwachy"
+      many: "zambijskej kwachy"
+      one: "zambijská kwacha"
+      other: "zambijských kwách"
+    ZRN: 
+      one: "Zairský nový zaire"
+    ZRZ: 
+      one: "Zairský Zaire"
+    ZWD: 
+      few: "zimbabwianske doláre (1980–2008)"
+      many: "zimbabwianskeho dolára (1980–2008)"
+      one: "zimbabwiansky dolár (1980–2008)"
+      other: "zimbabwianskych dolárov (1980–2008)"
+    ZWL: 
+      few: "zimbabwianske doláre (2009)"
+      many: "zimbabwianskeho dolára (2009)"
+      one: "zimbabwiansky dolár (2009)"
+      other: "zimbabwianskych dolárov (2009)"
+    ZWR: 
+      few: "zimbabwianske doláre (2008)"
+      many: "zimbabwianskeho dolára (2008)"
+      one: "zimbabwiansky dolár (2008)"
+      other: "zimbabwianskych dolárov (2008)"

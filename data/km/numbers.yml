@@ -1,0 +1,60 @@
+km: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "¤#,##0.00;(¤#,##0.00)"
+        unit: 
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: 0ពាន់
+            10000: 0ម៉ឺន
+            100000: 0សែន
+            1000000: 0លាន
+            10000000: 00លាន
+            100000000: 000លាន
+            1000000000: 0ពាន់លាន
+            10000000000: 00ពាន់លាន
+            100000000000: 000ពាន់លាន
+            1000000000000: 0លានលាន
+            10000000000000: 00លានលាន
+            100000000000000: 000លានលាន
+          short: 
+            1000: 0ព
+            10000: 0ម
+            100000: 0ស
+            1000000: 0ល
+            10000000: 00ល
+            100000000: 000ល
+            1000000000: 0ព'.'ល
+            10000000000: 00ព'.'ល
+            100000000000: 000ព'.'ល
+            1000000000000: 0ល'.'ល
+            10000000000000: 00ល'.'ល
+            100000000000000: 000ល'.'ល
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: ","
+      exponential: E
+      group: "."
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

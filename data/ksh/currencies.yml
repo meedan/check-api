@@ -1,0 +1,241 @@
+ksh: 
+  currencies: 
+    ARS: 
+      one: "ajentiinesche Peesos"
+      other: "ajentiinesche Peesos"
+      symbol: $
+      zero: "ajentiinesche Peesos"
+    AUD: 
+      symbol: A$
+    BAM: 
+      one: "öpmtuuschbaa Mark us Boßnije un dä Hächejovvina"
+      other: "öpmtuuschbaa Mark us Boßnije un dä Hächejovvina"
+      zero: "öpmtuuschbaa Mark us Boßnije un dä Hächejovvina"
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BMD: 
+      symbol: $
+    BND: 
+      one: Brunei-Dollaaa
+      other: Brunei-Dollaaa
+      symbol: $
+      zero: Brunei-Dollaaa
+    BOB: 
+      one: Bollivijano
+      other: Bollivijano
+      zero: Bollivijano
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BTN: 
+      one: "Bhutanesesche Ngultrum"
+      other: "Bhutanesesche Ngultrum"
+      zero: "Bhutanesesche Ngultrum"
+    BYR: 
+      symbol: р.
+    BZD: 
+      one: "Belizjaanesche Dollaa"
+      other: "Belizjaanesche Dollaa"
+      symbol: $
+      zero: "Belizjaanesche Dollaa"
+    CAD: 
+      symbol: CA$
+    CLP: 
+      one: "schileenesche Peesos"
+      other: "schileenesche Peesos"
+      symbol: $
+      zero: "schileenesche Peesos"
+    CNY: 
+      symbol: CN¥
+    COP: 
+      one: "kolumbesche Pesos"
+      other: "kolumbesche Pesos"
+      symbol: $
+      zero: "kolumbesche Pesos"
+    CRC: 
+      one: "Kaßtarikaanesche Colón"
+      other: "Kaßtarikaanesche Colón"
+      symbol: ₡
+      zero: "Kaßtarikaanesche Colón"
+    CUC: 
+      one: "ömtuuschbaa kubaanesche Pesos"
+      other: "ömtuuschbaa kubaanesche Pesos"
+      zero: "ömtuuschbaa kubaanesche Pesos"
+    CUP: 
+      one: "kubaanesche Peesos"
+      other: "kubaanesche Peesos"
+      symbol: $
+      zero: "kubaanesche Peesos"
+    CVE: 
+      one: "kapverdesche Eskuudos"
+      other: "kapverdesche Eskuudos"
+      zero: "kapverdesche Eskuudos"
+    CZK: 
+      one: "tschäschesche Kruhne"
+      other: "tschäschesche Kruhne"
+      zero: "tschäschesche Kruhne"
+    DKK: 
+      one: "dänesche Kruhne"
+      other: "dänesche Kruhne"
+      zero: "dänesche Kruhne"
+    DOP: 
+      symbol: $
+    ESP: 
+      symbol: ₧
+    EUR: 
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      symbol: £
+    GEL: 
+      one: "jeorjesche LAri"
+      other: "jeorjesche LAri"
+      zero: "jeorjesche LAri"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GNF: 
+      one: Jineea-Franke
+      other: Jineea-Franke
+      zero: Jineea-Franke
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      symbol: ₹
+    ISK: 
+      one: "ißländesche Kruhne"
+      other: "ißländesche Kruhne"
+      zero: "ißländesche Kruhne"
+    JMD: 
+      symbol: $
+    JPY: 
+      symbol: JP¥
+    KES: 
+      one: "Kenjaanesche Schillinge"
+      other: "Kenjaanesche Schillinge"
+      zero: "Kenjaanesche Schillinge"
+    KHR: 
+      symbol: ៛
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      one: "kasakstaanesche Tenge"
+      other: "kasakstaanesche Tenge"
+      symbol: ₸
+      zero: "kasakstaanesche Tenge"
+    LAK: 
+      symbol: ₭
+    LKR: 
+      one: "schri-lankesche Ruupije"
+      other: "schri-lankesche Ruupije"
+      zero: "schri-lankesche Ruupije"
+    LRD: 
+      symbol: $
+    MNT: 
+      symbol: ₮
+    MXN: 
+      one: "mexekaanesche Peeso"
+      other: "mexekaanesche Peeso"
+      symbol: MX$
+      zero: "mexekaanesche Peeso"
+    NAD: 
+      symbol: $
+    NGN: 
+      symbol: ₦
+    NIO: 
+      one: "nikarajaanesche Córdoba"
+      other: "nikarajaanesche Córdoba"
+      zero: "nikarajaanesche Córdoba"
+    NOK: 
+      one: "norrweejesche Kruhne"
+      other: "norrweejesche Kruhne"
+      zero: "norrweejesche Kruhne"
+    NZD: 
+      symbol: NZ$
+    PAB: 
+      one: "pannameesesche Balboa"
+      other: "pannameesesche Balboa"
+      zero: "pannameesesche Balboa"
+    PHP: 
+      one: "fillipiinesche Pesos"
+      other: "fillipiinesche Pesos"
+      symbol: ₱
+      zero: "fillipiinesche Pesos"
+    PLN: 
+      one: "polnesche Złoty"
+      other: "polnesche Złoty"
+      zero: "polnesche Złoty"
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    SBD: 
+      symbol: $
+    SEK: 
+      one: "schweedesche Kruhne"
+      other: "schweedesche Kruhne"
+      zero: "schweedesche Kruhne"
+    SGD: 
+      symbol: $
+    SOS: 
+      one: "somaalesche Schillenge"
+      other: "somaalesche Schillenge"
+      zero: "somaalesche Schillenge"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dobra vun São Tomé un Príncipe"
+      other: "Dobra vun São Tomé un Príncipe"
+      zero: "Dobra vun São Tomé un Príncipe"
+    THB: 
+      symbol: ฿
+    TMT: 
+      one: "turkmeneßtaanesche Manat"
+      other: "turkmeneßtaanesche Manat"
+      zero: "turkmeneßtaanesche Manat"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "tansaanesche Schillenge"
+      other: "tansaanesche Schillenge"
+      zero: "tansaanesche Schillenge"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "ujandesche Schillenge"
+      other: "ujandesche Schillenge"
+      zero: "ujandesche Schillenge"
+    USD: 
+      symbol: US$
+    UYU: 
+      one: "urrujuwaische Peeso"
+      other: "urrujuwaische Peeso"
+      symbol: $
+      zero: "urrujuwaische Peeso"
+    VND: 
+      symbol: ₫
+    XAF: 
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      symbol: CFA
+    XPF: 
+      symbol: CFPF

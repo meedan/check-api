@@ -1,0 +1,1444 @@
+uk: 
+  metazones: 
+    Acre: 
+      long: 
+        daylight: "Час: Акрі, літній"
+        generic: "Час: Акрі"
+        standard: "Час: Акрі, стандартний"
+    Afghanistan: 
+      long: 
+        standard: "за часом в Афганістані"
+    Africa_Central: 
+      long: 
+        standard: "за центральноафриканським часом"
+    Africa_Eastern: 
+      long: 
+        standard: "за східноафриканським часом"
+    Africa_Southern: 
+      long: 
+        standard: "за південноафриканським часом"
+    Africa_Western: 
+      long: 
+        daylight: "за західноафриканським літнім часом"
+        generic: "за західноафриканським часом"
+        standard: "за західноафриканським стандартним часом"
+    Alaska: 
+      long: 
+        daylight: "Час: Аляска, літній"
+        generic: "Час: Аляска"
+        standard: "Час: Аляска, стандартний"
+    Amazon: 
+      long: 
+        daylight: "Час: Амазонка, літній"
+        generic: "Час: Амазонка"
+        standard: "Час: Амазонка, стандартний"
+    America_Central: 
+      long: 
+        daylight: "за північноамериканським центральним літнім часом"
+        generic: "за північноамериканським центральним часом"
+        standard: "за північноамериканським центральним стандартним часом"
+    America_Eastern: 
+      long: 
+        daylight: "за північноамериканським східним літнім часом"
+        generic: "за північноамериканським східним часом"
+        standard: "за північноамериканським східним стандартним часом"
+    America_Mountain: 
+      long: 
+        daylight: "за північноамериканським гірним літнім часом"
+        generic: "за північноамериканським гірним часом"
+        standard: "за північноамериканським гірним стандартним часом"
+    America_Pacific: 
+      long: 
+        daylight: "за північноамериканським тихоокеанським літнім часом"
+        generic: "за північноамериканським тихоокеанським часом"
+        standard: "за північноамериканським тихоокеанським стандартним часом"
+    Anadyr: 
+      long: 
+        daylight: "Час: Анадир, літній"
+        generic: "Час: Анадир"
+        standard: "Час: Анадир, стандартний"
+    Arabian: 
+      long: 
+        daylight: "за арабським літнім часом"
+        generic: "за арабським часом"
+        standard: "за арабським стандартним часом"
+    Argentina: 
+      long: 
+        daylight: "Час: Аргентина, літній"
+        generic: "Час: Аргентина"
+        standard: "Час: Аргентина, стандартний"
+    Argentina_Western: 
+      long: 
+        daylight: "Час: Аргентина, західний літній"
+        generic: "Час: Аргентина, західний"
+        standard: "Час: Аргентина, західний стандартний"
+    Armenia: 
+      long: 
+        daylight: "за вірменським літнім часом"
+        generic: "за вірменським часом"
+        standard: "за вірменським стандартним часом"
+    Atlantic: 
+      long: 
+        daylight: "за атлантичним літнім часом"
+        generic: "за атлантичним часом"
+        standard: "за атлантичним стандартним часом"
+    Australia_Central: 
+      long: 
+        daylight: "Час: Австралія, центральний літній"
+        generic: "Час: Австралія, центральний"
+        standard: "Час: Австралія, центральний стандартний"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "Час: Австралія, центрально-західний літній"
+        generic: "Час: Австралія, центрально-західний"
+        standard: "Час: Австралія, центрально-західний стандартний"
+    Australia_Eastern: 
+      long: 
+        daylight: "Час: Австралія, східний літній"
+        generic: "Час: Австралія, східний"
+        standard: "Час: Австралія, східний стандартний"
+    Australia_Western: 
+      long: 
+        daylight: "Час: Австралія, західний літній"
+        generic: "Час: Австралія, західний"
+        standard: "Час: Австралія, західний стандартний"
+    Azerbaijan: 
+      long: 
+        daylight: "за літнім часом в Азербайджані"
+        generic: "за часом в Азербайджані"
+        standard: "за стандартним часом в Азербайджані"
+    Azores: 
+      long: 
+        daylight: "за літнім часом на Азорських островах"
+        generic: "за часом на Азорських островах"
+        standard: "за стандартним часом на Азорських островах"
+    Bangladesh: 
+      long: 
+        daylight: "за літнім часом у Бангладеш"
+        generic: "за часом у Бангладеш"
+        standard: "за стандартним часом у Бангладеш"
+    Bhutan: 
+      long: 
+        standard: "за часом у Бутані"
+    Bolivia: 
+      long: 
+        standard: "Час: Болівія"
+    Brasilia: 
+      long: 
+        daylight: "Час: Бразилія, літній"
+        generic: "Час: Бразилія"
+        standard: "Час: Бразилія, стандартний"
+    Brunei: 
+      long: 
+        standard: "за часом у Брунеї"
+    Cape_Verde: 
+      long: 
+        daylight: "за літнім часом на островах Кабо-Верде"
+        generic: "за часом на островах Кабо-Верде"
+        standard: "за стандартним часом на островах Кабо-Верде"
+    Chamorro: 
+      long: 
+        standard: "за часом на Північних Маріанських островах"
+    Chatham: 
+      long: 
+        daylight: "за літнім часом на архіпелазі Чатем"
+        generic: "за часом на архіпелазі Чатем"
+        standard: "за стандартним часом на архіпелазі Чатем"
+    Chile: 
+      long: 
+        daylight: "Час: Чилі, літній"
+        generic: "Час: Чилі"
+        standard: "Час: Чилі, стандартний"
+    China: 
+      long: 
+        daylight: "за китайським літнім часом"
+        generic: "за китайським часом"
+        standard: "за китайським стандартним часом"
+    Choibalsan: 
+      long: 
+        daylight: "Час: Чойбалсан, літній"
+        generic: "Час: Чойбалсан"
+        standard: "Час: Чойбалсан, стандартний"
+    Christmas: 
+      long: 
+        standard: "за часом на острові Різдва"
+    Cocos: 
+      long: 
+        standard: "за часом на Кокосових островах"
+    Colombia: 
+      long: 
+        daylight: "Час: Колумбія, літній"
+        generic: "Час: Колумбія"
+        standard: "Час: Колумбія, стандартний"
+    Cook: 
+      long: 
+        daylight: "за літнім часом на островах Кука"
+        generic: "за часом на островах Кука"
+        standard: "за стандартним часом на островах Кука"
+    Cuba: 
+      long: 
+        daylight: "за літнім часом на Кубі"
+        generic: "за часом на Кубі"
+        standard: "за стандартним часом на Кубі"
+    Davis: 
+      long: 
+        standard: "Час: Девіс"
+    DumontDUrville: 
+      long: 
+        standard: "Час: Дюмон д’Юрвіль"
+    East_Timor: 
+      long: 
+        standard: "за часом у Східному Тиморі"
+    Easter: 
+      long: 
+        daylight: "за літнім часом на острові Пасхи"
+        generic: "за часом на острові Пасхи"
+        standard: "за стандартним часом на острові Пасхи"
+    Ecuador: 
+      long: 
+        standard: "Час: Еквадор"
+    Europe_Central: 
+      long: 
+        daylight: "за центральноєвропейським літнім часом"
+        generic: "за центральноєвропейським часом"
+        standard: "за центральноєвропейським стандартним часом"
+    Europe_Eastern: 
+      long: 
+        daylight: "за східноєвропейським літнім часом"
+        generic: "за східноєвропейським часом"
+        standard: "за східноєвропейським стандартним часом"
+    Europe_Western: 
+      long: 
+        daylight: "за західноєвропейським літнім часом"
+        generic: "за західноєвропейським часом"
+        standard: "за західноєвропейським стандартним часом"
+    Falkland: 
+      long: 
+        daylight: "за літнім часом на Фолклендських островах"
+        generic: "за часом на Фолклендських островах"
+        standard: "за стандартним часом на Фолклендських островах"
+    Fiji: 
+      long: 
+        daylight: "за літнім часом на островах Фіджі"
+        generic: "за часом на островах Фіджі"
+        standard: "за стандартним часом на островах Фіджі"
+    French_Guiana: 
+      long: 
+        standard: "Час: Французька Гвіана"
+    French_Southern: 
+      long: 
+        standard: "за часом на Французьких Південних і Антарктичних територіях"
+    GMT: 
+      long: 
+        standard: "за Грінвічем"
+    Galapagos: 
+      long: 
+        standard: "за часом на Галапагоських островах"
+    Gambier: 
+      long: 
+        standard: "за часом на острові Гамб’є"
+    Georgia: 
+      long: 
+        daylight: "за літнім часом у Грузії"
+        generic: "за часом у Грузії"
+        standard: "за стандартним часом у Грузії"
+    Gilbert_Islands: 
+      long: 
+        standard: "за часом на островах Гілберта"
+    Greenland_Eastern: 
+      long: 
+        daylight: "за літнім східним часом у Гренландії"
+        generic: "за східним часом у Гренландії"
+        standard: "за стандартним східним часом у Гренландії"
+    Greenland_Western: 
+      long: 
+        daylight: "за літнім західним часом у Гренландії"
+        generic: "за західним часом у Гренландії"
+        standard: "за стандартним західним часом у Гренландії"
+    Guam: 
+      long: 
+        standard: "за часом на острові Гуам"
+    Gulf: 
+      long: 
+        standard: "за часом Перської затоки"
+    Guyana: 
+      long: 
+        standard: "за часом у Гаяні"
+    Hawaii_Aleutian: 
+      long: 
+        daylight: "за літнім гавайсько-алеутським часом"
+        generic: "за гавайсько-алеутським часом"
+        standard: "за стандартним гавайсько-алеутським часом"
+    Hong_Kong: 
+      long: 
+        daylight: "за літнім часом у Гонконзі"
+        generic: "за часом у Гонконзі"
+        standard: "за стандартним часом у Гонконзі"
+    Hovd: 
+      long: 
+        daylight: "Час: Говд, літній"
+        generic: "Час: Говд"
+        standard: "Час: Говд, стандартний"
+    India: 
+      long: 
+        standard: "за індійським стандартним часом"
+    Indian_Ocean: 
+      long: 
+        standard: "за часом в Індійському Океані"
+    Indochina: 
+      long: 
+        standard: "Час: Індокитай"
+    Indonesia_Central: 
+      long: 
+        standard: "Час: Індонезія, центральний"
+    Indonesia_Eastern: 
+      long: 
+        standard: "Час: Індонезія, східний"
+    Indonesia_Western: 
+      long: 
+        standard: "Час: Індонезія, західний"
+    Iran: 
+      long: 
+        daylight: "за іранським літнім часом"
+        generic: "за іранським часом"
+        standard: "за іранським стандартним часом"
+    Irkutsk: 
+      long: 
+        daylight: "за іркутським літнім часом"
+        generic: "за іркутським часом"
+        standard: "за іркутським стандартним часом"
+    Israel: 
+      long: 
+        daylight: "за ізраїльським літнім часом"
+        generic: "за ізраїльським часом"
+        standard: "за ізраїльським стандартним часом"
+    Japan: 
+      long: 
+        daylight: "за японським літнім часом"
+        generic: "за японським часом"
+        standard: "за японським стандартним часом"
+    Kamchatka: 
+      long: 
+        daylight: "за камчатським літнім часом"
+        generic: "за камчатським часом"
+        standard: "за камчатським стандартним часом"
+    Kazakhstan_Eastern: 
+      long: 
+        standard: "Час: Казахстан, східний"
+    Kazakhstan_Western: 
+      long: 
+        standard: "Час: Казахстан, західний"
+    Korea: 
+      long: 
+        daylight: "за корейським літнім часом"
+        generic: "за корейським часом"
+        standard: "за корейським стандартним часом"
+    Kosrae: 
+      long: 
+        standard: "за часом на острові Косрае"
+    Krasnoyarsk: 
+      long: 
+        daylight: "за красноярським літнім часом"
+        generic: "за красноярським часом"
+        standard: "за красноярським стандартним часом"
+    Kyrgystan: 
+      long: 
+        standard: "Час: Киргизстан"
+    Lanka: 
+      long: 
+        standard: "Час: Ланка"
+    Line_Islands: 
+      long: 
+        standard: "за часом на острові Лайн"
+    Lord_Howe: 
+      long: 
+        daylight: "Час: Лорд-Гоув, літній"
+        generic: "Час: Логд-Гоув"
+        standard: "Час: Лорд-Гоув, стандартний"
+    Macquarie: 
+      long: 
+        standard: "Час: Макквері"
+    Magadan: 
+      long: 
+        daylight: "за магаданським літнім часом"
+        generic: "за магаданським часом"
+        standard: "за магаданським стандартним часом"
+    Malaysia: 
+      long: 
+        standard: "Час: Малайзія"
+    Maldives: 
+      long: 
+        standard: "за часом на Мальдівах"
+    Marquesas: 
+      long: 
+        standard: "за часом на Маркізьких островах"
+    Marshall_Islands: 
+      long: 
+        standard: "за часом на Маршалових островах"
+    Mauritius: 
+      long: 
+        daylight: "за літнім часом на острові Маврикій"
+        generic: "за часом на острові Маврикій"
+        standard: "за стандартним часом на острові Маврикій"
+    Mawson: 
+      long: 
+        standard: "за часом на станції Моусон"
+    Mongolia: 
+      long: 
+        daylight: "Час: Улан-Батор, літній"
+        generic: "Час: Улан-Батор"
+        standard: "Час: Улан-Батор, стандартний"
+    Moscow: 
+      long: 
+        daylight: "за московським літнім часом"
+        generic: "за московським часом"
+        standard: "за московським стандартним часом"
+    Myanmar: 
+      long: 
+        standard: "за часом у М’янмі"
+    Nauru: 
+      long: 
+        standard: "за часом на острові Науру"
+    Nepal: 
+      long: 
+        standard: "за часом у Непалі"
+    New_Caledonia: 
+      long: 
+        daylight: "за літнім часом на островах Нової Каледонії"
+        generic: "за часом на островах Нової Каледонії"
+        standard: "за стандартним часом на островах Нової Каледонії"
+    New_Zealand: 
+      long: 
+        daylight: "Час: Нова Зеландія, літній"
+        generic: "Час: Нова Зеландія"
+        standard: "Час: Нова Зеландія, стандартний"
+    Newfoundland: 
+      long: 
+        daylight: "Час: Ньюфаундленд, літній"
+        generic: "Час: Ньюфаундленд"
+        standard: "Час: Ньюфаундленд, стандартний"
+    Niue: 
+      long: 
+        standard: "за часом на острові Ніуе"
+    Norfolk: 
+      long: 
+        standard: "за часом на острові Норфолк"
+    Noronha: 
+      long: 
+        daylight: "Час: Фернандо-де-Норонья, літній"
+        generic: "Час: Фернандо-де-Норонья"
+        standard: "Час: Фернандо-де-Норонья, стандартний"
+    Novosibirsk: 
+      long: 
+        daylight: "за новосибірським літнім часом"
+        generic: "за новосибірським часом"
+        standard: "за новосибірським стандартним часом"
+    Omsk: 
+      long: 
+        daylight: "за омським літнім часом"
+        generic: "за омським часом"
+        standard: "за омським стандартним часом"
+    Pakistan: 
+      long: 
+        daylight: "за літнім часом у Пакистані"
+        generic: "за часом у Пакистані"
+        standard: "за стандартним часом у Пакистані"
+    Palau: 
+      long: 
+        standard: "за часом на острові Палау"
+    Papua_New_Guinea: 
+      long: 
+        standard: "за часом на островах Папуа Нова Гвінея"
+    Paraguay: 
+      long: 
+        daylight: "Час: Парагвай, літній"
+        generic: "Час: Парагвай"
+        standard: "Час: Парагвай, стандартний"
+    Peru: 
+      long: 
+        daylight: "Час: Перу, літній"
+        generic: "Час: Перу"
+        standard: "Час: Перу, стандартний"
+    Philippines: 
+      long: 
+        daylight: "Час: Філіппіни, літній"
+        generic: "Час: Філіппіни"
+        standard: "Час: Філіппіни, стандартний"
+    Phoenix_Islands: 
+      long: 
+        standard: "за часом на островах Фенікс"
+    Pierre_Miquelon: 
+      long: 
+        daylight: "за літнім часом на островах Сен-П’єр і Мікелон"
+        generic: "за часом на островах Сен-П’єр і Мікелон"
+        standard: "за стандартним часом на островах Сен-П’єр і Мікелон"
+    Pitcairn: 
+      long: 
+        standard: "за часом на островах Піткерн"
+    Ponape: 
+      long: 
+        standard: "за часом на острові Понапе"
+    Qyzylorda: 
+      long: 
+        daylight: "Час: Кизилорда, літній"
+        generic: "Час: Кизилорда"
+        standard: "Час: Кизилорда, стандартний"
+    Reunion: 
+      long: 
+        standard: "за часом на острові Реюньйон"
+    Rothera: 
+      long: 
+        standard: "за часом на станції Ротера"
+    Sakhalin: 
+      long: 
+        daylight: "за сахалін літнім часом"
+        generic: "за сахалін часом"
+        standard: "за сахалін стандартним часом"
+    Samara: 
+      long: 
+        daylight: "за самарським літнім часом"
+        generic: "за самарським часом"
+        standard: "за самарським стандартним часом"
+    Samoa: 
+      long: 
+        daylight: "за літнім часом на острові Самоа"
+        generic: "за часом на острові Самоа"
+        standard: "за стандартним часом на острові Самоа"
+    Seychelles: 
+      long: 
+        standard: "за часом на Сейшельських островах"
+    Singapore: 
+      long: 
+        standard: "за часом у Сінгапурі"
+    Solomon: 
+      long: 
+        standard: "за часом на Соломонових островах"
+    South_Georgia: 
+      long: 
+        standard: "за часом на острові Південна Джорджія"
+    Suriname: 
+      long: 
+        standard: "за часом у Суринамі"
+    Syowa: 
+      long: 
+        standard: "за часом на станції Сева"
+    Tahiti: 
+      long: 
+        standard: "за часом на острові Таїті"
+    Taipei: 
+      long: 
+        daylight: "Час: Тайбей, літній"
+        generic: "Час: Тайбей"
+        standard: "Час: Тайбей, стандартний"
+    Tajikistan: 
+      long: 
+        standard: "за часом у Таджикистані"
+    Tokelau: 
+      long: 
+        standard: "за часом на островах Токелау"
+    Tonga: 
+      long: 
+        daylight: "за літнім часом на островах Тонга"
+        generic: "за часом на островах Тонга"
+        standard: "за стандартним часом на островах Тонга"
+    Truk: 
+      long: 
+        standard: "за часом на островах Чуук"
+    Turkmenistan: 
+      long: 
+        daylight: "Час: Туркменістан, літній"
+        generic: "Час: Туркменістан"
+        standard: "Час: Туркменістан, стандартний"
+    Tuvalu: 
+      long: 
+        standard: "за часом на островах Тувалу"
+    Uruguay: 
+      long: 
+        daylight: "Час: Уругвай, літній"
+        generic: "Час: Уругвай"
+        standard: "Час: Уругвай, стандартний"
+    Uzbekistan: 
+      long: 
+        daylight: "Час: Узбекистан, літній"
+        generic: "Час: Узбекистан"
+        standard: "Час: Узбекистан, стандартний"
+    Vanuatu: 
+      long: 
+        daylight: "за літнім часом на островах Вануату"
+        generic: "за часом на островах Вануату"
+        standard: "за стандартним часом на островах Вануату"
+    Venezuela: 
+      long: 
+        standard: "Час: Венесуела"
+    Vladivostok: 
+      long: 
+        daylight: "за владивостоцьким літнім часом"
+        generic: "за владивостоцьким часом"
+        standard: "за владивостоцьким стандартним часом"
+    Volgograd: 
+      long: 
+        daylight: "за волгоградським літнім часом"
+        generic: "за волгоградським часом"
+        standard: "за волгоградським стандартним часом"
+    Vostok: 
+      long: 
+        standard: "Час: Восток"
+    Wake: 
+      long: 
+        standard: "за часом на острові Вейк"
+    Wallis: 
+      long: 
+        standard: "за часом на островах Волліс і Футуна"
+    Yakutsk: 
+      long: 
+        daylight: "за якутським літнім часом"
+        generic: "за якутським часом"
+        standard: "за якутським стандартним часом"
+    Yekaterinburg: 
+      long: 
+        daylight: "за єкатеринбурзьким літнім часом"
+        generic: "за єкатеринбурзьким часом"
+        standard: "за єкатеринбурзьким стандартним часом"
+  timezones: 
+    Africa/Abidjan: 
+      city: Абіджан
+    Africa/Accra: 
+      city: Аккра
+    Africa/Addis_Ababa: 
+      city: Аддис-Абеба
+    Africa/Algiers: 
+      city: "м. Алжир"
+    Africa/Asmera: 
+      city: Асмера
+    Africa/Bamako: 
+      city: Бамако
+    Africa/Bangui: 
+      city: Бангі
+    Africa/Banjul: 
+      city: Банжул
+    Africa/Bissau: 
+      city: Бісау
+    Africa/Blantyre: 
+      city: Блантир
+    Africa/Brazzaville: 
+      city: Браззавіль
+    Africa/Bujumbura: 
+      city: Бужумбура
+    Africa/Cairo: 
+      city: Каїр
+    Africa/Casablanca: 
+      city: Касабланка
+    Africa/Ceuta: 
+      city: Сеута
+    Africa/Conakry: 
+      city: Конакрі
+    Africa/Dakar: 
+      city: Дакар
+    Africa/Dar_es_Salaam: 
+      city: Дар-ес-Салаам
+    Africa/Djibouti: 
+      city: Джибуті
+    Africa/Douala: 
+      city: Дуала
+    Africa/El_Aaiun: 
+      city: Ель-Аюн
+    Africa/Freetown: 
+      city: Фрітаун
+    Africa/Gaborone: 
+      city: Габороне
+    Africa/Harare: 
+      city: Хараре
+    Africa/Johannesburg: 
+      city: Йоганнесбург
+    Africa/Juba: 
+      city: Джуба
+    Africa/Kampala: 
+      city: Кампала
+    Africa/Khartoum: 
+      city: Хартум
+    Africa/Kigali: 
+      city: Кігалі
+    Africa/Kinshasa: 
+      city: Кіншаса
+    Africa/Lagos: 
+      city: Лагос
+    Africa/Libreville: 
+      city: Лібревіль
+    Africa/Lome: 
+      city: Ломе
+    Africa/Luanda: 
+      city: Луанда
+    Africa/Lubumbashi: 
+      city: Лубумбаші
+    Africa/Lusaka: 
+      city: Лусака
+    Africa/Malabo: 
+      city: Малабо
+    Africa/Maputo: 
+      city: Мапуту
+    Africa/Maseru: 
+      city: Масеру
+    Africa/Mbabane: 
+      city: Мбабане
+    Africa/Mogadishu: 
+      city: Могадішо
+    Africa/Monrovia: 
+      city: Монровія
+    Africa/Nairobi: 
+      city: Найробі
+    Africa/Ndjamena: 
+      city: Нджамена
+    Africa/Niamey: 
+      city: Ніамей
+    Africa/Nouakchott: 
+      city: Нуакшот
+    Africa/Ouagadougou: 
+      city: Уагадугу
+    Africa/Porto-Novo: 
+      city: Порто-Ново
+    Africa/Sao_Tome: 
+      city: "Сан-Томе і Принсіпі"
+    Africa/Tripoli: 
+      city: Тріполі
+    Africa/Tunis: 
+      city: "м. Туніс"
+    Africa/Windhoek: 
+      city: Віндхук
+    America/Adak: 
+      city: Адак
+    America/Anchorage: 
+      city: Анкоридж
+    America/Anguilla: 
+      city: Ангілья
+    America/Antigua: 
+      city: Антигуа
+    America/Araguaina: 
+      city: Арагуайна
+    America/Argentina/La_Rioja: 
+      city: Ла-Ріоха
+    America/Argentina/Rio_Gallegos: 
+      city: Ріо-Ґалеґос
+    America/Argentina/Salta: 
+      city: Сальта
+    America/Argentina/San_Juan: 
+      city: Сан-Хуан
+    America/Argentina/San_Luis: 
+      city: Сан-Луїс
+    America/Argentina/Tucuman: 
+      city: Тукуман
+    America/Argentina/Ushuaia: 
+      city: Ушуая
+    America/Aruba: 
+      city: Аруба
+    America/Asuncion: 
+      city: Асунсьйон
+    America/Bahia: 
+      city: Байя
+    America/Bahia_Banderas: 
+      city: "Баїя Бандерас"
+    America/Barbados: 
+      city: Барбадос
+    America/Belem: 
+      city: Белен
+    America/Belize: 
+      city: Беліз
+    America/Blanc-Sablon: 
+      city: Бланк-Саблон
+    America/Boa_Vista: 
+      city: Боа-Віста
+    America/Bogota: 
+      city: Богота
+    America/Boise: 
+      city: Бойсе
+    America/Buenos_Aires: 
+      city: Буенос-Айрес
+    America/Cambridge_Bay: 
+      city: Кембридж-Бей
+    America/Campo_Grande: 
+      city: Кампу-Гранді
+    America/Cancun: 
+      city: Канкун
+    America/Caracas: 
+      city: Каракас
+    America/Catamarca: 
+      city: Катамарка
+    America/Cayenne: 
+      city: Кайенна
+    America/Cayman: 
+      city: "Кайманові острови"
+    America/Chicago: 
+      city: Чикаго
+    America/Chihuahua: 
+      city: Чіуауа
+    America/Coral_Harbour: 
+      city: Корал-Харбор
+    America/Cordoba: 
+      city: Кордоба
+    America/Costa_Rica: 
+      city: "Коста Ріка"
+    America/Creston: 
+      city: Крестон
+    America/Cuiaba: 
+      city: Куяба
+    America/Curacao: 
+      city: Кюрасао
+    America/Danmarkshavn: 
+      city: Денмарксхавн
+    America/Dawson: 
+      city: Доусон
+    America/Dawson_Creek: 
+      city: Доусон-Крік
+    America/Denver: 
+      city: Денвер
+    America/Detroit: 
+      city: Детройт
+    America/Dominica: 
+      city: Домініка
+    America/Edmonton: 
+      city: Едмонтон
+    America/Eirunepe: 
+      city: Ейрунепе
+    America/El_Salvador: 
+      city: Сальвадор
+    America/Fortaleza: 
+      city: Форталеза
+    America/Glace_Bay: 
+      city: Глейс-Бей
+    America/Godthab: 
+      city: Готхоб
+    America/Goose_Bay: 
+      city: Гуз-Бей
+    America/Grand_Turk: 
+      city: Гранд-Терк
+    America/Grenada: 
+      city: Гренада
+    America/Guadeloupe: 
+      city: Гваделупа
+    America/Guatemala: 
+      city: Гватемала
+    America/Guayaquil: 
+      city: Гуаякіль
+    America/Guyana: 
+      city: Гайана
+    America/Halifax: 
+      city: Галіфакс
+    America/Havana: 
+      city: Гавана
+    America/Hermosillo: 
+      city: Ермосільйо
+    America/Indiana/Knox: 
+      city: Нокс
+    America/Indiana/Marengo: 
+      city: Маренго
+    America/Indiana/Petersburg: 
+      city: Петербург
+    America/Indiana/Tell_City: 
+      city: Телл-сіті
+    America/Indiana/Vevay: 
+      city: Вівей
+    America/Indiana/Vincennes: 
+      city: Вінсенс
+    America/Indiana/Winamac: 
+      city: Вінамак
+    America/Indianapolis: 
+      city: Індіанаполіс
+    America/Inuvik: 
+      city: Інувік
+    America/Iqaluit: 
+      city: Ікалуіт
+    America/Jamaica: 
+      city: Ямайка
+    America/Jujuy: 
+      city: Жужуй
+    America/Juneau: 
+      city: Джуно
+    America/Kentucky/Monticello: 
+      city: Монтичелло
+    America/Kralendijk: 
+      city: Кралендейк
+    America/La_Paz: 
+      city: Ла-Пас
+    America/Lima: 
+      city: Ліма
+    America/Los_Angeles: 
+      city: Лос-Анджелес
+    America/Louisville: 
+      city: Луїсвілль
+    America/Lower_Princes: 
+      city: Лоуер-Принсес-Квотер
+    America/Maceio: 
+      city: Масейо
+    America/Managua: 
+      city: Манагуа
+    America/Manaus: 
+      city: Манаус
+    America/Marigot: 
+      city: Марігот
+    America/Martinique: 
+      city: Мартініка
+    America/Matamoros: 
+      city: Матаморос
+    America/Mazatlan: 
+      city: Масатлан
+    America/Mendoza: 
+      city: Мендоса
+    America/Menominee: 
+      city: Меноміні
+    America/Merida: 
+      city: Меріда
+    America/Metlakatla: 
+      city: Метлакатла
+    America/Mexico_City: 
+      city: Мехіко
+    America/Miquelon: 
+      city: Мікелон
+    America/Moncton: 
+      city: Монктон
+    America/Monterrey: 
+      city: Монтерей
+    America/Montevideo: 
+      city: Монтевідео
+    America/Montreal: 
+      city: Монреаль
+    America/Montserrat: 
+      city: Монсерат
+    America/Nassau: 
+      city: Насау
+    America/New_York: 
+      city: Нью-Йорк
+    America/Nipigon: 
+      city: Ніпігон
+    America/Nome: 
+      city: Ном
+    America/Noronha: 
+      city: Норонья
+    America/North_Dakota/Beulah: 
+      city: "Б’юла, Північна Дакота"
+    America/North_Dakota/Center: 
+      city: Центр
+    America/North_Dakota/New_Salem: 
+      city: Нью-Салем
+    America/Ojinaga: 
+      city: Охінага
+    America/Panama: 
+      city: Панама
+    America/Pangnirtung: 
+      city: Панґніртунґ
+    America/Paramaribo: 
+      city: Парамарібо
+    America/Phoenix: 
+      city: Фінікс
+    America/Port-au-Prince: 
+      city: Порт-о-Пренс
+    America/Port_of_Spain: 
+      city: Порт-оф-Спейн
+    America/Porto_Velho: 
+      city: Порто-Велью
+    America/Puerto_Rico: 
+      city: "Пуерто Ріко"
+    America/Rainy_River: 
+      city: Рейні-Рівер
+    America/Rankin_Inlet: 
+      city: Ренкін-Інлет
+    America/Recife: 
+      city: Ресіфі
+    America/Regina: 
+      city: Реджайна
+    America/Resolute: 
+      city: Резолют
+    America/Rio_Branco: 
+      city: Ріо-Бранко
+    America/Santa_Isabel: 
+      city: Санта-Ісабель
+    America/Santarem: 
+      city: Сантарен
+    America/Santiago: 
+      city: Сантьяго
+    America/Santo_Domingo: 
+      city: Санто-Домінго
+    America/Sao_Paulo: 
+      city: Сан-Паулу
+    America/Scoresbysund: 
+      city: Скорсбисун
+    America/Shiprock: 
+      city: Шипрок
+    America/Sitka: 
+      city: Сітка
+    America/St_Barthelemy: 
+      city: Сен-Бартельмі
+    America/St_Johns: 
+      city: Сент-Джонс
+    America/St_Kitts: 
+      city: "Сент-Кітс і Невіс"
+    America/St_Lucia: 
+      city: Сент-Лусія
+    America/St_Thomas: 
+      city: Сент-Томас
+    America/St_Vincent: 
+      city: Сент-Вінсент
+    America/Swift_Current: 
+      city: Свіфт-Каррент
+    America/Tegucigalpa: 
+      city: Тегусігальпа
+    America/Thule: 
+      city: Туле
+    America/Thunder_Bay: 
+      city: Тандер-Бей
+    America/Tijuana: 
+      city: Тіхуана
+    America/Toronto: 
+      city: Торонто
+    America/Tortola: 
+      city: Тортола
+    America/Vancouver: 
+      city: Ванкувер
+    America/Whitehorse: 
+      city: Вайтгорс
+    America/Winnipeg: 
+      city: Вінніпеґ
+    America/Yakutat: 
+      city: Якутат
+    America/Yellowknife: 
+      city: Єллоунайф
+    Antarctica/Casey: 
+      city: Кейсі
+    Antarctica/Davis: 
+      city: Девіс
+    Antarctica/DumontDUrville: 
+      city: Дюмон-д'Юрвіль
+    Antarctica/Macquarie: 
+      city: Маккуорі
+    Antarctica/Mawson: 
+      city: Моусон
+    Antarctica/McMurdo: 
+      city: Мак-Мердо
+    Antarctica/Palmer: 
+      city: Палмер
+    Antarctica/Rothera: 
+      city: Ротера
+    Antarctica/South_Pole: 
+      city: "Південний полюс"
+    Antarctica/Syowa: 
+      city: Сьова
+    Antarctica/Vostok: 
+      city: Восток
+    Arctic/Longyearbyen: 
+      city: Лонгербюйн
+    Asia/Aden: 
+      city: Аден
+    Asia/Almaty: 
+      city: Алмати
+    Asia/Amman: 
+      city: Амман
+    Asia/Anadyr: 
+      city: Анадир
+    Asia/Aqtau: 
+      city: Актау
+    Asia/Aqtobe: 
+      city: Актобе
+    Asia/Ashgabat: 
+      city: Ашгабат
+    Asia/Baghdad: 
+      city: Багдад
+    Asia/Bahrain: 
+      city: Бахрейн
+    Asia/Baku: 
+      city: Баку
+    Asia/Bangkok: 
+      city: Бангкок
+    Asia/Beirut: 
+      city: Бейрут
+    Asia/Bishkek: 
+      city: Бішкек
+    Asia/Brunei: 
+      city: Бруней
+    Asia/Calcutta: 
+      city: Колката
+    Asia/Choibalsan: 
+      city: Чойбалсан
+    Asia/Chongqing: 
+      city: Чунцин
+    Asia/Colombo: 
+      city: Коломбо
+    Asia/Damascus: 
+      city: Дамаск
+    Asia/Dhaka: 
+      city: Дака
+    Asia/Dili: 
+      city: Ділі
+    Asia/Dubai: 
+      city: Дубаї
+    Asia/Dushanbe: 
+      city: Душанбе
+    Asia/Gaza: 
+      city: Газа
+    Asia/Harbin: 
+      city: Харбін
+    Asia/Hebron: 
+      city: Хеврон
+    Asia/Hong_Kong: 
+      city: Гонконг
+    Asia/Hovd: 
+      city: Говд
+    Asia/Irkutsk: 
+      city: Іркутськ
+    Asia/Jakarta: 
+      city: Джакарта
+    Asia/Jayapura: 
+      city: Джайпур
+    Asia/Jerusalem: 
+      city: Єрусалим
+    Asia/Kabul: 
+      city: Кабул
+    Asia/Kamchatka: 
+      city: Камчатка
+    Asia/Karachi: 
+      city: Карачі
+    Asia/Kashgar: 
+      city: Кашгар
+    Asia/Katmandu: 
+      city: Катманду
+    Asia/Khandyga: 
+      city: Хандига
+    Asia/Krasnoyarsk: 
+      city: Красноярськ
+    Asia/Kuala_Lumpur: 
+      city: Куала-Лумпур
+    Asia/Kuching: 
+      city: Кучінґ
+    Asia/Kuwait: 
+      city: Кувейт
+    Asia/Macau: 
+      city: Макао
+    Asia/Magadan: 
+      city: Магадан
+    Asia/Makassar: 
+      city: Макасар
+    Asia/Manila: 
+      city: Маніла
+    Asia/Muscat: 
+      city: Маскат
+    Asia/Nicosia: 
+      city: Нікосія
+    Asia/Novokuznetsk: 
+      city: Новокузнецьк
+    Asia/Novosibirsk: 
+      city: Новосибірськ
+    Asia/Omsk: 
+      city: Омськ
+    Asia/Oral: 
+      city: Орал
+    Asia/Phnom_Penh: 
+      city: Пномпень
+    Asia/Pontianak: 
+      city: Понтіанак
+    Asia/Pyongyang: 
+      city: Пхеньян
+    Asia/Qatar: 
+      city: Катар
+    Asia/Qyzylorda: 
+      city: Кзил-Орда
+    Asia/Rangoon: 
+      city: Рангун
+    Asia/Riyadh: 
+      city: Ер-Ріяд
+    Asia/Saigon: 
+      city: Хошимін
+    Asia/Sakhalin: 
+      city: Сахалін
+    Asia/Samarkand: 
+      city: Самарканд
+    Asia/Seoul: 
+      city: Сеул
+    Asia/Shanghai: 
+      city: Шанхай
+    Asia/Singapore: 
+      city: Сингапур
+    Asia/Taipei: 
+      city: Тайпей
+    Asia/Tashkent: 
+      city: Ташкент
+    Asia/Tbilisi: 
+      city: Тбілісі
+    Asia/Tehran: 
+      city: Тегеран
+    Asia/Thimphu: 
+      city: Тхімпху
+    Asia/Tokyo: 
+      city: Токіо
+    Asia/Ulaanbaatar: 
+      city: Улан-Батор
+    Asia/Urumqi: 
+      city: Урумчі
+    Asia/Ust-Nera: 
+      city: Усть-Нера
+    Asia/Vientiane: 
+      city: В’єнтьян
+    Asia/Vladivostok: 
+      city: Владивосток
+    Asia/Yakutsk: 
+      city: Якутськ
+    Asia/Yekaterinburg: 
+      city: Єкатеринбург
+    Asia/Yerevan: 
+      city: Єреван
+    Atlantic/Azores: 
+      city: "Азорські острови"
+    Atlantic/Bermuda: 
+      city: Бермуди
+    Atlantic/Canary: 
+      city: Канари
+    Atlantic/Cape_Verde: 
+      city: Кабо-Верде
+    Atlantic/Faeroe: 
+      city: "Фарерські острови"
+    Atlantic/Madeira: 
+      city: Мадейра
+    Atlantic/Reykjavik: 
+      city: Рейк'явік
+    Atlantic/South_Georgia: 
+      city: "Південна Джорджія"
+    Atlantic/St_Helena: 
+      city: "Острів Святої Єлени"
+    Atlantic/Stanley: 
+      city: Стенлі
+    Australia/Adelaide: 
+      city: Аделаїда
+    Australia/Brisbane: 
+      city: Брисбен
+    Australia/Broken_Hill: 
+      city: Брокен-Гіл
+    Australia/Currie: 
+      city: Каррі
+    Australia/Darwin: 
+      city: Дарвін
+    Australia/Eucla: 
+      city: Евкла
+    Australia/Hobart: 
+      city: Хобарт
+    Australia/Lindeman: 
+      city: Ліндеман
+    Australia/Lord_Howe: 
+      city: Лорд-Хау
+    Australia/Melbourne: 
+      city: Мельбурн
+    Australia/Perth: 
+      city: Перт
+    Australia/Sydney: 
+      city: Сідней
+    Etc/Unknown: 
+      city: "Невідоме місто"
+    Europe/Amsterdam: 
+      city: Амстердам
+    Europe/Andorra: 
+      city: Андора
+    Europe/Athens: 
+      city: Афіни
+    Europe/Belgrade: 
+      city: Белград
+    Europe/Berlin: 
+      city: Берлін
+    Europe/Bratislava: 
+      city: Братислава
+    Europe/Brussels: 
+      city: Брюссель
+    Europe/Bucharest: 
+      city: Бухарест
+    Europe/Budapest: 
+      city: Будапешт
+    Europe/Busingen: 
+      city: Бюзінген
+    Europe/Chisinau: 
+      city: Кишинів
+    Europe/Copenhagen: 
+      city: Копенгаген
+    Europe/Dublin: 
+      city: Дублін
+      long: 
+        daylight: "за літнім часом в Ірландії"
+    Europe/Gibraltar: 
+      city: Гібралтар
+    Europe/Guernsey: 
+      city: "Острів Гернсі"
+    Europe/Helsinki: 
+      city: Гельсінкі
+    Europe/Isle_of_Man: 
+      city: "Острів Мен"
+    Europe/Istanbul: 
+      city: Стамбул
+    Europe/Jersey: 
+      city: Джерсі
+    Europe/Kaliningrad: 
+      city: Калінінград
+    Europe/Kiev: 
+      city: Київ
+    Europe/Lisbon: 
+      city: Лісабон
+    Europe/Ljubljana: 
+      city: Любляна
+    Europe/London: 
+      city: Лондон
+      long: 
+        daylight: "за літнім часом у Великобританії"
+    Europe/Luxembourg: 
+      city: Люксембург
+    Europe/Madrid: 
+      city: Мадрид
+    Europe/Malta: 
+      city: Мальта
+    Europe/Mariehamn: 
+      city: Маріегамн
+    Europe/Minsk: 
+      city: Мінськ
+    Europe/Monaco: 
+      city: Монако
+    Europe/Moscow: 
+      city: Москва
+    Europe/Oslo: 
+      city: Осло
+    Europe/Paris: 
+      city: Париж
+    Europe/Podgorica: 
+      city: Подгориця
+    Europe/Prague: 
+      city: Прага
+    Europe/Riga: 
+      city: Рига
+    Europe/Rome: 
+      city: Рим
+    Europe/Samara: 
+      city: Самара
+    Europe/San_Marino: 
+      city: Сан-Марино
+    Europe/Sarajevo: 
+      city: Сараєво
+    Europe/Simferopol: 
+      city: Сімферополь
+    Europe/Skopje: 
+      city: Скоп’є
+    Europe/Sofia: 
+      city: Софія
+    Europe/Stockholm: 
+      city: Стокгольм
+    Europe/Tallinn: 
+      city: Таллін
+    Europe/Tirane: 
+      city: Тірана
+    Europe/Uzhgorod: 
+      city: Ужгород
+    Europe/Vaduz: 
+      city: Вадуц
+    Europe/Vatican: 
+      city: Ватикан
+    Europe/Vienna: 
+      city: Відень
+    Europe/Vilnius: 
+      city: Вільнюс
+    Europe/Volgograd: 
+      city: Волгоград
+    Europe/Warsaw: 
+      city: Варшава
+    Europe/Zagreb: 
+      city: Загреб
+    Europe/Zaporozhye: 
+      city: Запоріжжя
+    Europe/Zurich: 
+      city: Цюріх
+    Indian/Antananarivo: 
+      city: Антананаріву
+    Indian/Chagos: 
+      city: Чагос
+    Indian/Christmas: 
+      city: "Острів Різдва"
+    Indian/Cocos: 
+      city: "Кокосові острови"
+    Indian/Comoro: 
+      city: Коморо
+    Indian/Kerguelen: 
+      city: "Острів Кергелен"
+    Indian/Mahe: 
+      city: Махе
+    Indian/Maldives: 
+      city: Мальдіви
+    Indian/Mauritius: 
+      city: Маврикій
+    Indian/Mayotte: 
+      city: Майорка
+    Indian/Reunion: 
+      city: Реюньйон
+    Pacific/Apia: 
+      city: Апіа
+    Pacific/Auckland: 
+      city: Окленд
+    Pacific/Chatham: 
+      city: Чатем
+    Pacific/Easter: 
+      city: "Острів Пасхи"
+    Pacific/Efate: 
+      city: Ефате
+    Pacific/Enderbury: 
+      city: Ендербері
+    Pacific/Fakaofo: 
+      city: Факаофо
+    Pacific/Fiji: 
+      city: Фіджи
+    Pacific/Funafuti: 
+      city: Фунафуті
+    Pacific/Galapagos: 
+      city: "Галапагоські острови (Еквадор)"
+    Pacific/Gambier: 
+      city: Гамбер
+    Pacific/Guadalcanal: 
+      city: Гвадалканал
+    Pacific/Guam: 
+      city: Гуам
+    Pacific/Honolulu: 
+      city: Гонолулу
+    Pacific/Johnston: 
+      city: Джонстон
+    Pacific/Kiritimati: 
+      city: Кірітіматі
+    Pacific/Kosrae: 
+      city: Косрае
+    Pacific/Kwajalein: 
+      city: Кваджалейн
+    Pacific/Majuro: 
+      city: Маджуро
+    Pacific/Marquesas: 
+      city: "Маркизькі о-ви"
+    Pacific/Midway: 
+      city: Мідуей
+    Pacific/Nauru: 
+      city: Науру
+    Pacific/Niue: 
+      city: Ніуе
+    Pacific/Norfolk: 
+      city: Норфолк
+    Pacific/Noumea: 
+      city: Нумеа
+    Pacific/Pago_Pago: 
+      city: "Паго Паго"
+    Pacific/Palau: 
+      city: Палау
+    Pacific/Pitcairn: 
+      city: Піткерн
+    Pacific/Ponape: 
+      city: Понапе
+    Pacific/Port_Moresby: 
+      city: Порт-Морсбі
+    Pacific/Rarotonga: 
+      city: Раротонга
+    Pacific/Saipan: 
+      city: Сайпан
+    Pacific/Tahiti: 
+      city: Таїті
+    Pacific/Tarawa: 
+      city: Тарава
+    Pacific/Tongatapu: 
+      city: Тонгатапу
+    Pacific/Truk: 
+      city: Трук
+    Pacific/Wake: 
+      city: Вейк
+    Pacific/Wallis: 
+      city: Уолліс

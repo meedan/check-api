@@ -1,0 +1,284 @@
+lo: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          other: "{0} ແຮງຈີ"
+        angle-arc-minute: 
+          other: "{0} ນາທີ"
+        angle-arc-second: 
+          other: "{0} ວິນາທີ"
+        angle-degree: 
+          other: "{0} ອົງສາ"
+        area-acre: 
+          other: "{0} ເອເຄີ"
+        area-hectare: 
+          other: "{0} ເຮັກຕາ"
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} ກິໂລຕາແມັດ"
+        area-square-meter: 
+          other: "{0} ຕາແມັດ"
+        area-square-mile: 
+          other: "{0} ຕາໄມ"
+        duration-day: 
+          other: "{0} ມື້"
+        duration-hour: 
+          other: "{0} ຊົ່ວໂມງ"
+        duration-millisecond: 
+          other: "{0} ມິນລີວິນາທີ"
+        duration-minute: 
+          other: "{0} ນາທີ"
+        duration-month: 
+          other: "{0} ເດືອນ"
+        duration-second: 
+          other: "{0} ວິນາທີ"
+        duration-week: 
+          other: "{0} ອາທິດ"
+        duration-year: 
+          other: "{0} ປີ"
+        length-centimeter: 
+          other: "{0} ຊັງຕີແມັດ"
+        length-foot: 
+          other: "{0} ຟຸດ"
+        length-inch: 
+          other: "{0} ນິ້ວ"
+        length-kilometer: 
+          other: "{0} ກິໂລແມັດ"
+        length-light-year: 
+          other: "{0} ປີແສງ"
+        length-meter: 
+          other: "{0} ແມັດ"
+        length-mile: 
+          other: "{0} ໄມ"
+        length-millimeter: 
+          other: "{0} ມິນລິແມັດ"
+        length-picometer: 
+          other: "{0} ປິໂກແມັດ"
+        length-yard: 
+          other: "{0} ຫລາ"
+        mass-gram: 
+          other: "{0} ກຣາມ"
+        mass-kilogram: 
+          other: "{0} ກິໂລກຣາມ"
+        mass-ounce: 
+          other: "{0} ອອນ"
+        mass-pound: 
+          other: "{0} ປອນ"
+        power-horsepower: 
+          other: "{0} ແຮງມ້າ"
+        power-kilowatt: 
+          other: "{0} ກິໂລວັດ"
+        power-watt: 
+          other: "{0} ວັດ"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} ມິນລິບາ"
+        speed-kilometer-per-hour: 
+          other: "{0} ກິໂລແມັດຕໍ່ຊົ່ວໂມງ"
+        speed-meter-per-second: 
+          other: "{0} ແມັດຕໍ່ນາທີ"
+        speed-mile-per-hour: 
+          other: "{0} ໄມຕໍ່ຊົ່ວໂມງ"
+        temperature-celsius: 
+          other: "{0} ອົງສາເຊວຊຽສ"
+        temperature-fahrenheit: 
+          other: "{0} ອົງສາຟາເຣນຮາຍ"
+        volume-cubic-kilometer: 
+          other: "{0} ກິໂລແມັດກ້ອນ"
+        volume-cubic-mile: 
+          other: "{0} ໄມກ້ອນ"
+        volume-liter: 
+          other: "{0} ລິດ"
+      narrow: 
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} ac"
+        area-hectare: 
+          other: "{0} ຮຕ"
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} mi²"
+        duration-day: 
+          other: "{0} ມື້"
+        duration-hour: 
+          other: "{0} ຊມ"
+        duration-millisecond: 
+          other: "{0} ມລ. ວິ."
+        duration-minute: 
+          other: "{0} ນທ"
+        duration-month: 
+          other: "{0} ດ"
+        duration-second: 
+          other: "{0} ວິ"
+        duration-week: 
+          other: "{0} ອທ"
+        duration-year: 
+          other: "{0} ປ"
+        length-centimeter: 
+          other: "{0} ຊມ"
+        length-foot: 
+          other: "{0} ຟ"
+        length-inch: 
+          other: "{0} ນ"
+        length-kilometer: 
+          other: "{0} ກມ"
+        length-light-year: 
+          other: "{0} ປສ"
+        length-meter: 
+          other: "{0} ມ"
+        length-mile: 
+          other: "{0} ໄມ"
+        length-millimeter: 
+          other: "{0} ມິນ"
+        length-picometer: 
+          other: "{0} ປກມ"
+        length-yard: 
+          other: "{0} ຫລາ"
+        mass-gram: 
+          other: "{0} ກຼ"
+        mass-kilogram: 
+          other: "{0} ກລ"
+        mass-ounce: 
+          other: "{0} ອ"
+        mass-pound: 
+          other: "{0} ປ"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} ມິນ. ບາ"
+        speed-kilometer-per-hour: 
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} mi/h"
+        temperature-celsius: 
+          other: "{0} ອົງສາ ຊີ."
+        temperature-fahrenheit: 
+          other: "{0} ອົງສາ ຟ."
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} mi³"
+        volume-liter: 
+          other: "{0} ລ"
+      short: 
+        acceleration-g-force: 
+          other: "{0} g force"
+        angle-arc-minute: 
+          other: "{0} ນທ."
+        angle-arc-second: 
+          other: "{0} ວິ."
+        angle-degree: 
+          other: "{0} ອົງສາ"
+        area-acre: 
+          other: "{0} ເອເຄີ"
+        area-hectare: 
+          other: "{0} ຮຕ."
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} mi²"
+        duration-day: 
+          other: "{0} ມື້"
+        duration-hour: 
+          other: "{0} ຊມ."
+        duration-millisecond: 
+          other: "{0} ມລ ວິນາທີ"
+        duration-minute: 
+          other: "{0} ນທ."
+        duration-month: 
+          other: "{0} ດ."
+        duration-second: 
+          other: "{0} ວິ."
+        duration-week: 
+          other: "{0} ອທ."
+        duration-year: 
+          other: "{0} ປີ"
+        length-centimeter: 
+          other: "{0} ຊມ"
+        length-foot: 
+          other: "{0} ຟ"
+        length-inch: 
+          other: "{0} ນິ"
+        length-kilometer: 
+          other: "{0} ກມ"
+        length-light-year: 
+          other: "{0} ປສ"
+        length-meter: 
+          other: "{0} ມ"
+        length-mile: 
+          other: "{0} ໄມ"
+        length-millimeter: 
+          other: "{0} ມິນ"
+        length-picometer: 
+          other: "{0} ປກມ"
+        length-yard: 
+          other: "{0} ຫລາ"
+        mass-gram: 
+          other: "{0} ກຼ"
+        mass-kilogram: 
+          other: "{0} ກິໂລ"
+        mass-ounce: 
+          other: "{0} ອ"
+        mass-pound: 
+          other: "{0} ປ"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} ກລ. ວັດ"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} ມິນ. ບາ"
+        speed-kilometer-per-hour: 
+          other: "{0} ກມ/ຊມ"
+        speed-meter-per-second: 
+          other: "{0} ມ/ນທ"
+        speed-mile-per-hour: 
+          other: "{0} ໄມ/ຊມ"
+        temperature-celsius: 
+          other: "{0} ອົງສາ ຊີ."
+        temperature-fahrenheit: 
+          other: "{0} ອົງສາ ຟ."
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} mi³"
+        volume-liter: 
+          other: "{0} ລິດ"

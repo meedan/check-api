@@ -1,0 +1,562 @@
+hr: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          few: "{0} G"
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          few: "{0} minute"
+          one: "{0} minuta"
+          other: "{0} minuta"
+        angle-arc-second: 
+          few: "{0} sekunde"
+          one: "{0} sekunda"
+          other: "{0} sekundi"
+        angle-degree: 
+          few: "{0} stupnja"
+          one: "{0} stupanj"
+          other: "{0} stupnjeva"
+        area-acre: 
+          few: "{0} katastarska jutra"
+          one: "{0} katastarsko jutro"
+          other: "{0} katastarskih jutara"
+        area-hectare: 
+          few: "{0} hektra"
+          one: "{0} hektar"
+          other: "{0} hektara"
+        area-square-foot: 
+          few: "{0} kvadratne stope"
+          one: "{0} kvadratna stopa"
+          other: "{0} kvadratnih stopa"
+        area-square-kilometer: 
+          few: "{0} kvadratna kilometra"
+          one: "{0} kvadratni kilometar"
+          other: "{0} kvadratnih kilometara"
+        area-square-meter: 
+          few: "{0} kvadratna metra"
+          one: "{0} kvadratni metar"
+          other: "{0} kvadratnih metara"
+        area-square-mile: 
+          few: "{0} kvadratne milje"
+          one: "{0} kvadratna milja"
+          other: "{0} kvadratnih milja"
+        duration-day: 
+          few: "{0} dana"
+          one: "{0} dan"
+          other: "{0} dana"
+        duration-hour: 
+          few: "{0} sata"
+          one: "{0} sat"
+          other: "{0} sati"
+        duration-millisecond: 
+          few: "{0} milisekunde"
+          one: "{0} milisekunda"
+          other: "{0} milisekundi"
+        duration-minute: 
+          few: "{0} minute"
+          one: "{0} minuta"
+          other: "{0} minuta"
+        duration-month: 
+          few: "{0} mjeseca"
+          one: "{0} mjesec"
+          other: "{0} mjeseci"
+        duration-second: 
+          few: "{0} sekunde"
+          one: "{0} sekunda"
+          other: "{0} sekundi"
+        duration-week: 
+          few: "{0} tjedna"
+          one: "{0} tjedan"
+          other: "{0} tjedana"
+        duration-year: 
+          few: "{0} godine"
+          one: "{0} godina"
+          other: "{0} godina"
+        length-centimeter: 
+          few: "{0} centimetra"
+          one: "{0} centimetar"
+          other: "{0} centimetara"
+        length-foot: 
+          few: "{0} stope"
+          one: "{0} stopa"
+          other: "{0} stopa"
+        length-inch: 
+          few: "{0} inča"
+          one: "{0} inč"
+          other: "{0} inča"
+        length-kilometer: 
+          few: "{0} kilometra"
+          one: "{0} kilometar"
+          other: "{0} kilometara"
+        length-light-year: 
+          few: "{0} svjetlosne godine"
+          one: "{0} svjetlosna godina"
+          other: "{0} svjetlosnih godina"
+        length-meter: 
+          few: "{0} metra"
+          one: "{0} metar"
+          other: "{0} metara"
+        length-mile: 
+          few: "{0} milje"
+          one: "{0} milja"
+          other: "{0} milja"
+        length-millimeter: 
+          few: "{0} milimetra"
+          one: "{0} milimetar"
+          other: "{0} milimetara"
+        length-picometer: 
+          few: "{0} pikometra"
+          one: "{0} pikometar"
+          other: "{0} pikometara"
+        length-yard: 
+          few: "{0} jarda"
+          one: "{0} jard"
+          other: "{0} jardi"
+        mass-gram: 
+          few: "{0} grama"
+          one: "{0} gram"
+          other: "{0} grama"
+        mass-kilogram: 
+          few: "{0} kilograma"
+          one: "{0} kilogram"
+          other: "{0} kilograma"
+        mass-ounce: 
+          few: "{0} unce"
+          one: "{0} unca"
+          other: "{0} unci"
+        mass-pound: 
+          few: "{0} funte"
+          one: "{0} funta"
+          other: "{0} funti"
+        power-horsepower: 
+          few: "{0} konjske snage"
+          one: "{0} konjska snaga"
+          other: "{0} konjskih snaga"
+        power-kilowatt: 
+          few: "{0} kilovata"
+          one: "{0} kilovat"
+          other: "{0} kilovata"
+        power-watt: 
+          few: "{0} vata"
+          one: "{0} vat"
+          other: "{0} vati"
+        pressure-hectopascal: 
+          few: "{0} hektopaskala"
+          one: "{0} hektopaskal"
+          other: "{0} hektopaskala"
+        pressure-inch-hg: 
+          few: "{0} inča žive"
+          one: "{0} inč žive"
+          other: "{0} inča žive"
+        pressure-millibar: 
+          few: "{0} milibara"
+          one: "{0} milibar"
+          other: "{0} milibara"
+        speed-kilometer-per-hour: 
+          few: "{0} kilometra na sat"
+          one: "{0} kilometar na sat"
+          other: "{0} kilometara na sat"
+        speed-meter-per-second: 
+          few: "{0} metra u sekundi"
+          one: "{0} metar u sekundi"
+          other: "{0} metara u sekundi"
+        speed-mile-per-hour: 
+          few: "{0} milje na sat"
+          one: "{0} milja na sat"
+          other: "{0} milja na sat"
+        temperature-celsius: 
+          few: "{0} Celzijeva stupnja"
+          one: "{0} Celzijev stupanj"
+          other: "{0} Celzijevih stupnjeva"
+        temperature-fahrenheit: 
+          few: "{0} Fahrenheitova stupnja"
+          one: "{0} Fahrenheitov stupanj"
+          other: "{0} Fahrenheitovih stupnjeva"
+        volume-cubic-kilometer: 
+          few: "{0} kubna kilometra"
+          one: "{0} kubni kilometar"
+          other: "{0} kubnih kilometara"
+        volume-cubic-mile: 
+          few: "{0} kubne milje"
+          one: "{0} kubna milja"
+          other: "{0} kubnih milja"
+        volume-liter: 
+          few: "{0} litre"
+          one: "{0} litra"
+          other: "{0} litara"
+      narrow: 
+        acceleration-g-force: 
+          few: "{0} G"
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          few: "{0}′"
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          few: "{0}″"
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          few: "{0}°"
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          few: "{0} kj"
+          one: "{0} kj"
+          other: "{0} kj"
+        area-hectare: 
+          few: "{0} ha"
+          one: "{0} ha"
+          other: "{0} ha"
+        area-square-foot: 
+          few: "{0} ft²"
+          one: "{0} ft²"
+          other: "{0} ft²"
+        area-square-kilometer: 
+          few: "{0} km²"
+          one: "{0} km²"
+          other: "{0} km²"
+        area-square-meter: 
+          few: "{0} m²"
+          one: "{0} m²"
+          other: "{0} m²"
+        area-square-mile: 
+          few: "{0} mi²"
+          one: "{0} mi²"
+          other: "{0} mi²"
+        duration-day: 
+          few: "{0} d."
+          one: "{0} d."
+          other: "{0} d."
+        duration-hour: 
+          few: "{0} h"
+          one: "{0} h"
+          other: "{0} h"
+        duration-millisecond: 
+          few: "{0} ms"
+          one: "{0} ms"
+          other: "{0} ms"
+        duration-minute: 
+          few: "{0} m"
+          one: "{0} m"
+          other: "{0} m"
+        duration-month: 
+          few: "{0} mj."
+          one: "{0} mj."
+          other: "{0} mj."
+        duration-second: 
+          few: "{0} s"
+          one: "{0} s"
+          other: "{0} s"
+        duration-week: 
+          few: "{0} tj."
+          one: "{0} tj."
+          other: "{0} tj."
+        duration-year: 
+          few: "{0} g."
+          one: "{0} g."
+          other: "{0} g."
+        length-centimeter: 
+          few: "{0} cm"
+          one: "{0} cm"
+          other: "{0} cm"
+        length-foot: 
+          few: "{0}′"
+          one: "{0}′"
+          other: "{0}′"
+        length-inch: 
+          few: "{0}″"
+          one: "{0}″"
+          other: "{0}″"
+        length-kilometer: 
+          few: "{0} km"
+          one: "{0} km"
+          other: "{0} km"
+        length-light-year: 
+          few: "{0} ly"
+          one: "{0} ly"
+          other: "{0} ly"
+        length-meter: 
+          few: "{0} m"
+          one: "{0} m"
+          other: "{0} m"
+        length-mile: 
+          few: "{0} mi"
+          one: "{0} mi"
+          other: "{0} mi"
+        length-millimeter: 
+          few: "{0} mm"
+          one: "{0} mm"
+          other: "{0} mm"
+        length-picometer: 
+          few: "{0} pm"
+          one: "{0} pm"
+          other: "{0} pm"
+        length-yard: 
+          few: "{0} yd"
+          one: "{0} yd"
+          other: "{0} yd"
+        mass-gram: 
+          few: "{0} g"
+          one: "{0} g"
+          other: "{0} g"
+        mass-kilogram: 
+          few: "{0} kg"
+          one: "{0} kg"
+          other: "{0} kg"
+        mass-ounce: 
+          few: "{0} oz"
+          one: "{0} oz"
+          other: "{0} oz"
+        mass-pound: 
+          few: "{0} lb"
+          one: "{0} lb"
+          other: "{0} lb"
+        power-horsepower: 
+          few: "{0} KS"
+          one: "{0} KS"
+          other: "{0} KS"
+        power-kilowatt: 
+          few: "{0} kW"
+          one: "{0} kW"
+          other: "{0} kW"
+        power-watt: 
+          few: "{0} W"
+          one: "{0} W"
+          other: "{0} W"
+        pressure-hectopascal: 
+          few: "{0} hPa"
+          one: "{0} hPa"
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          few: "{0} inHg"
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: 
+          few: "{0} mb"
+          one: "{0} mb"
+          other: "{0} mb"
+        speed-kilometer-per-hour: 
+          few: "{0} km/h"
+          one: "{0} km/h"
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          few: "{0} m/s"
+          one: "{0} m/s"
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          few: "{0} mi/h"
+          one: "{0} mi/h"
+          other: "{0} mi/h"
+        temperature-celsius: 
+          few: "{0}°"
+          one: "{0}°"
+          other: "{0}°"
+        temperature-fahrenheit: 
+          few: "{0}°F"
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          few: "{0} km³"
+          one: "{0} km³"
+          other: "{0} km³"
+        volume-cubic-mile: 
+          few: "{0} mi³"
+          one: "{0} mi³"
+          other: "{0} mi³"
+        volume-liter: 
+          few: "{0} l"
+          one: "{0} l"
+          other: "{0} l"
+      short: 
+        acceleration-g-force: 
+          few: "{0} G"
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          few: "{0} min"
+          one: "{0} min"
+          other: "{0} min"
+        angle-arc-second: 
+          few: "{0} s"
+          one: "{0} s"
+          other: "{0} s"
+        angle-degree: 
+          few: "{0}°"
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          few: "{0} kj"
+          one: "{0} kj"
+          other: "{0} kj"
+        area-hectare: 
+          few: "{0} ha"
+          one: "{0} ha"
+          other: "{0} ha"
+        area-square-foot: 
+          few: "{0} ft²"
+          one: "{0} ft²"
+          other: "{0} ft²"
+        area-square-kilometer: 
+          few: "{0} km²"
+          one: "{0} km²"
+          other: "{0} km²"
+        area-square-meter: 
+          few: "{0} m²"
+          one: "{0} m²"
+          other: "{0} m²"
+        area-square-mile: 
+          few: "{0} mi²"
+          one: "{0} mi²"
+          other: "{0} mi²"
+        duration-day: 
+          few: "{0} dana"
+          one: "{0} dan"
+          other: "{0} dana"
+        duration-hour: 
+          few: "{0} h"
+          one: "{0} h"
+          other: "{0} h"
+        duration-millisecond: 
+          few: "{0} ms"
+          one: "{0} ms"
+          other: "{0} ms"
+        duration-minute: 
+          few: "{0} min"
+          one: "{0} min"
+          other: "{0} min"
+        duration-month: 
+          few: "{0} mj."
+          one: "{0} mj."
+          other: "{0} mj."
+        duration-second: 
+          few: "{0} s"
+          one: "{0} s"
+          other: "{0} s"
+        duration-week: 
+          few: "{0} tj."
+          one: "{0} tj."
+          other: "{0} tj."
+        duration-year: 
+          few: "{0} g."
+          one: "{0} g."
+          other: "{0} g."
+        length-centimeter: 
+          few: "{0} cm"
+          one: "{0} cm"
+          other: "{0} cm"
+        length-foot: 
+          few: "{0} ft"
+          one: "{0} ft"
+          other: "{0} ft"
+        length-inch: 
+          few: "{0} in"
+          one: "{0} in"
+          other: "{0} in"
+        length-kilometer: 
+          few: "{0} km"
+          one: "{0} km"
+          other: "{0} km"
+        length-light-year: 
+          few: "{0} ly"
+          one: "{0} ly"
+          other: "{0} ly"
+        length-meter: 
+          few: "{0} m"
+          one: "{0} m"
+          other: "{0} m"
+        length-mile: 
+          few: "{0} mi"
+          one: "{0} mi"
+          other: "{0} mi"
+        length-millimeter: 
+          few: "{0} mm"
+          one: "{0} mm"
+          other: "{0} mm"
+        length-picometer: 
+          few: "{0} pm"
+          one: "{0} pm"
+          other: "{0} pm"
+        length-yard: 
+          few: "{0} yd"
+          one: "{0} yd"
+          other: "{0} yd"
+        mass-gram: 
+          few: "{0} g"
+          one: "{0} g"
+          other: "{0} g"
+        mass-kilogram: 
+          few: "{0} kg"
+          one: "{0} kg"
+          other: "{0} kg"
+        mass-ounce: 
+          few: "{0} oz"
+          one: "{0} oz"
+          other: "{0} oz"
+        mass-pound: 
+          few: "{0} lb"
+          one: "{0} lb"
+          other: "{0} lb"
+        power-horsepower: 
+          few: "{0} KS"
+          one: "{0} KS"
+          other: "{0} KS"
+        power-kilowatt: 
+          few: "{0} kW"
+          one: "{0} kW"
+          other: "{0} kW"
+        power-watt: 
+          few: "{0} W"
+          one: "{0} W"
+          other: "{0} W"
+        pressure-hectopascal: 
+          few: "{0} hPa"
+          one: "{0} hPa"
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          few: "{0} inHg"
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: 
+          few: "{0} mbar"
+          one: "{0} mbar"
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          few: "{0} km/h"
+          one: "{0} km/h"
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          few: "{0} m/s"
+          one: "{0} m/s"
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          few: "{0} mi/h"
+          one: "{0} mi/h"
+          other: "{0} mi/h"
+        temperature-celsius: 
+          few: "{0}°C"
+          one: "{0}°C"
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          few: "{0}°F"
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          few: "{0} km³"
+          one: "{0} km³"
+          other: "{0} km³"
+        volume-cubic-mile: 
+          few: "{0} mi³"
+          one: "{0} mi³"
+          other: "{0} mi³"
+        volume-liter: 
+          few: "{0} l"
+          one: "{0} l"
+          other: "{0} l"

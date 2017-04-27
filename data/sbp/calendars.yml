@@ -1,0 +1,191 @@
+sbp: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "E d"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "m:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMd: "MMM d y"
+        yMd: M/d/y
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Iju
+            mon: Jtt
+            sat: Jmo
+            sun: Mul
+            thu: Alh
+            tue: Jnn
+            wed: Jtn
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Ijumaa
+            mon: Jumatatu
+            sat: Jumamosi
+            sun: Mulungu
+            thu: Alahamisi
+            tue: Jumanne
+            wed: Jumatano
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: I
+            mon: J
+            sat: J
+            sun: M
+            thu: A
+            tue: J
+            wed: J
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: AK
+          1: PK
+        name: 
+          0: "Ashanali uKilisito"
+          1: "Pamwandi ya Kilisto"
+        narrow: 
+          0: ""
+      fields: 
+        day: Lusiku
+        dayperiod: "Uluhaavi lwa lusiku"
+        era: "Uluhaavi lwa"
+        hour: Ilisala
+        minute: Idakika
+        month: Mwesi
+        second: Isekunde
+        week: Ilijuma
+        weekday: "Ulusiku lwa Lijuma"
+        year: Mwakha
+        zone: "Uluhaavi lwa lisaa"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: Mup
+            10: Mok
+            11: Mus
+            12: Muh
+            2: Mwi
+            3: Msh
+            4: Mun
+            5: Mag
+            6: Muj
+            7: Msp
+            8: Mpg
+            9: Mye
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: Mupalangulwa
+            10: Mokhu
+            11: Musongandembwe
+            12: Muhaano
+            2: Mwitope
+            3: Mushende
+            4: Munyi
+            5: "Mushende Magali"
+            6: Mujimbi
+            7: Mushipepo
+            8: Mupuguto
+            9: Munyense
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: Lwamilawu
+            pm: Pashamihe
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: L1
+            2: L2
+            3: L3
+            4: L4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "Lobo 1"
+            2: "Lobo 2"
+            3: "Lobo 3"
+            4: "Lobo 4"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

@@ -1,0 +1,825 @@
+ky: 
+  rbnf: 
+    grouping: 
+      - 
+        ? :ruleset
+        : 
+          - 
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : "=#,###0.#=;"
+                ? :value
+                : x.x
+              - 
+                ? :rule
+                : =%spellout-numbering=;
+                ? :value
+                : 0
+            ? :type
+            : spellout-numbering-year
+          - 
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : =%spellout-cardinal=;
+                ? :value
+                : 0
+            ? :type
+            : spellout-numbering
+          - 
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : "минус >>;"
+                ? :value
+                : "-x"
+              - 
+                ? :rule
+                : "<< бүтүн >%%z-spellout-fraction>;"
+                ? :value
+                : x.x
+              - 
+                ? :rule
+                : нөл;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : бир;
+                ? :value
+                : 1
+              - 
+                ? :rule
+                : эки;
+                ? :value
+                : 2
+              - 
+                ? :rule
+                : үч;
+                ? :value
+                : 3
+              - 
+                ? :rule
+                : төрт;
+                ? :value
+                : 4
+              - 
+                ? :rule
+                : беш;
+                ? :value
+                : 5
+              - 
+                ? :rule
+                : алты;
+                ? :value
+                : 6
+              - 
+                ? :rule
+                : жети;
+                ? :value
+                : 7
+              - 
+                ? :rule
+                : сегиз;
+                ? :value
+                : 8
+              - 
+                ? :rule
+                : тогуз;
+                ? :value
+                : 9
+              - 
+                ? :rule
+                : "он[ >>];"
+                ? :value
+                : 10
+              - 
+                ? :rule
+                : "жыйырма[ >>];"
+                ? :value
+                : 20
+              - 
+                ? :rule
+                : "отуз[ >>];"
+                ? :value
+                : 30
+              - 
+                ? :rule
+                : "кырк[ >>];"
+                ? :value
+                : 40
+              - 
+                ? :rule
+                : "элүү[ >>];"
+                ? :value
+                : 50
+              - 
+                ? :rule
+                : "алтымыш[ >>];"
+                ? :value
+                : 60
+              - 
+                ? :rule
+                : "жетимиш[ >>];"
+                ? :value
+                : 70
+              - 
+                ? :rule
+                : "сексен[ >>];"
+                ? :value
+                : 80
+              - 
+                ? :rule
+                : "токсон[ >>];"
+                ? :value
+                : 90
+              - 
+                ? :rule
+                : жүз;
+                ? :value
+                : 100
+              - 
+                ? :rule
+                : "<< жүз[ >>];"
+                ? :value
+                : 101
+              - 
+                ? :rule
+                : "<< жүз[ >>];"
+                ? :value
+                : 200
+              - 
+                ? :rule
+                : миң;
+                ? :value
+                : 1000
+              - 
+                ? :rule
+                : "<< миң[ >>];"
+                ? :value
+                : 1001
+              - 
+                ? :rule
+                : "<< миң[ >>];"
+                ? :value
+                : 2000
+              - 
+                ? :rule
+                : миллион;
+                ? :value
+                : 1000000
+              - 
+                ? :rule
+                : "<< миллион[ >>];"
+                ? :value
+                : 1000001
+              - 
+                ? :rule
+                : "<< миллион[ >>];"
+                ? :value
+                : 2000000
+              - 
+                ? :rule
+                : миллиард;
+                ? :value
+                : 1000000000
+              - 
+                ? :rule
+                : "<< миллиард[ >>];"
+                ? :value
+                : 1000000001
+              - 
+                ? :rule
+                : "<< миллиард[ >>];"
+                ? :value
+                : 2000000000
+              - 
+                ? :rule
+                : триллион;
+                ? :value
+                : 1000000000000
+              - 
+                ? :rule
+                : "<< триллион[ >>];"
+                ? :value
+                : 1000000000001
+              - 
+                ? :rule
+                : "<< триллион[ >>];"
+                ? :value
+                : 2000000000000
+              - 
+                ? :rule
+                : квадриллион;
+                ? :value
+                : 1000000000000000
+              - 
+                ? :rule
+                : "<< квадриллион[ >>];"
+                ? :value
+                : 1000000000000001
+              - 
+                ? :rule
+                : "<< квадриллион[ >>];"
+                ? :value
+                : 2000000000000000
+              - 
+                ? :rule
+                : "=#,##0=;"
+                ? :value
+                : 1000000000000000000
+            ? :type
+            : spellout-cardinal
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : " жана =%spellout-cardinal-verbose=;"
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : " =%spellout-cardinal-verbose=;"
+                ? :value
+                : 100
+            ? :type
+            : and
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : " жана =%spellout-cardinal-verbose=;"
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : ", =%spellout-cardinal-verbose=;"
+                ? :value
+                : 100
+              - 
+                ? :rule
+                : ", <%spellout-cardinal-verbose< миң[>%%commas>];"
+                ? :value
+                : 1000
+              - 
+                ? :rule
+                : ", =%spellout-cardinal-verbose=;"
+                ? :value
+                : 1000000
+            ? :type
+            : commas
+          - 
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : "минус >>;"
+                ? :value
+                : "-x"
+              - 
+                ? :rule
+                : "<< бүтүн >%%z-spellout-fraction>;"
+                ? :value
+                : x.x
+              - 
+                ? :rule
+                : =%spellout-cardinal=;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : жүз;
+                ? :value
+                : 100
+              - 
+                ? :rule
+                : "<< жүз[>%%and>];"
+                ? :value
+                : 101
+              - 
+                ? :rule
+                : "<< жүз[>%%and>];"
+                ? :value
+                : 200
+              - 
+                ? :rule
+                : миң;
+                ? :value
+                : 1000
+              - 
+                ? :rule
+                : "<< миң[>%%and>];"
+                ? :value
+                : 1001
+              - 
+                ? :rule
+                : "<< миң[>%%and>];"
+                ? :value
+                : 2000
+              - 
+                ? :rule
+                : "<< миң[>%%commas>];"
+                ? :value
+                : 100000
+              - 
+                ? :rule
+                : миллион;
+                ? :value
+                : 1000000
+              - 
+                ? :rule
+                : "<< миллион[>%%commas>];"
+                ? :value
+                : 1000001
+              - 
+                ? :rule
+                : "<< миллион[>%%commas>];"
+                ? :value
+                : 2000000
+              - 
+                ? :rule
+                : миллиард;
+                ? :value
+                : 1000000000
+              - 
+                ? :rule
+                : "<< миллиард[>%%commas>];"
+                ? :value
+                : 1000000001
+              - 
+                ? :rule
+                : "<< миллиард[>%%commas>];"
+                ? :value
+                : 2000000000
+              - 
+                ? :rule
+                : триллион;
+                ? :value
+                : 1000000000000
+              - 
+                ? :rule
+                : "<< триллион[>%%commas>];"
+                ? :value
+                : 1000000000001
+              - 
+                ? :rule
+                : "<< триллион[>%%commas>];"
+                ? :value
+                : 2000000000000
+              - 
+                ? :rule
+                : квадриллион;
+                ? :value
+                : 1000000000000000
+              - 
+                ? :rule
+                : "<< квадриллион[>%%commas>];"
+                ? :value
+                : 1000000000000001
+              - 
+                ? :rule
+                : "<< квадриллион[>%%commas>];"
+                ? :value
+                : 2000000000000000
+              - 
+                ? :rule
+                : "=#,##0=;"
+                ? :value
+                : 1000000000000000000
+            ? :type
+            : spellout-cardinal-verbose
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : инчи;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : " =%spellout-ordinal=;"
+                ? :value
+                : 1
+            ? :type
+            : инчи
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : иңчи;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : " =%spellout-ordinal=;"
+                ? :value
+                : 1
+            ? :type
+            : иңчи
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : ынчы;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : " =%spellout-ordinal=;"
+                ? :value
+                : 1
+            ? :type
+            : ынчы
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : нчы;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : " =%spellout-ordinal=;"
+                ? :value
+                : 1
+            ? :type
+            : нчы
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : үнчү;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : " =%spellout-ordinal=;"
+                ? :value
+                : 1
+            ? :type
+            : үнчү
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : нчү;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : " =%spellout-ordinal=;"
+                ? :value
+                : 1
+            ? :type
+            : нчү
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : унчу;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : " =%spellout-ordinal=;"
+                ? :value
+                : 1
+            ? :type
+            : унчу
+          - 
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : "минус >>;"
+                ? :value
+                : "-x"
+              - 
+                ? :rule
+                : "=#,##0.#=;"
+                ? :value
+                : x.x
+              - 
+                ? :rule
+                : нөлүнчү;
+                ? :value
+                : 0
+              - 
+                ? :rule
+                : биринчи;
+                ? :value
+                : 1
+              - 
+                ? :rule
+                : экинчи;
+                ? :value
+                : 2
+              - 
+                ? :rule
+                : үчүнчү;
+                ? :value
+                : 3
+              - 
+                ? :rule
+                : төртүнчү;
+                ? :value
+                : 4
+              - 
+                ? :rule
+                : бешинчи;
+                ? :value
+                : 5
+              - 
+                ? :rule
+                : алтынчы;
+                ? :value
+                : 6
+              - 
+                ? :rule
+                : жетинчи;
+                ? :value
+                : 7
+              - 
+                ? :rule
+                : сегизинчи;
+                ? :value
+                : 8
+              - 
+                ? :rule
+                : тогузунчу;
+                ? :value
+                : 9
+              - 
+                ? :rule
+                : он>%%унчу>;
+                ? :value
+                : 10
+              - 
+                ? :rule
+                : жыйырма>%%нчы>;
+                ? :value
+                : 20
+              - 
+                ? :rule
+                : отуз>%%унчу>;
+                ? :value
+                : 30
+              - 
+                ? :rule
+                : кырк>%%ынчы>;
+                ? :value
+                : 40
+              - 
+                ? :rule
+                : элүү>%%нчү>;
+                ? :value
+                : 50
+              - 
+                ? :rule
+                : алтымыш>%%ынчы>;
+                ? :value
+                : 60
+              - 
+                ? :rule
+                : жетимиш>%%инчи>;
+                ? :value
+                : 70
+              - 
+                ? :rule
+                : сексен>%%инчи>;
+                ? :value
+                : 80
+              - 
+                ? :rule
+                : токсон>%%унчу>;
+                ? :value
+                : 90
+              - 
+                ? :rule
+                : жүзүнчү;
+                ? :value
+                : 100
+              - 
+                ? :rule
+                : "<%spellout-numbering< жүз>%%үнчү>;"
+                ? :value
+                : 101
+              - 
+                ? :rule
+                : "<%spellout-numbering< жүз>%%үнчү>;"
+                ? :value
+                : 200
+              - 
+                ? :rule
+                : миңиңчи;
+                ? :value
+                : 1000
+              - 
+                ? :rule
+                : "<%spellout-numbering< миң>%%иңчи>;"
+                ? :value
+                : 1001
+              - 
+                ? :rule
+                : "<%spellout-numbering< миң>%%иңчи>;"
+                ? :value
+                : 2000
+              - 
+                ? :rule
+                : миллионунчу;
+                ? :value
+                : 1000000
+              - 
+                ? :rule
+                : "<%spellout-numbering< миллион>%%унчу>;"
+                ? :value
+                : 1000001
+              - 
+                ? :rule
+                : "<%spellout-numbering< миллион>%%унчу>;"
+                ? :value
+                : 2000000
+              - 
+                ? :rule
+                : миллиардынчы;
+                ? :value
+                : 1000000000
+              - 
+                ? :rule
+                : "<%spellout-numbering< миллиард>%%ынчы>;"
+                ? :value
+                : 1000000001
+              - 
+                ? :rule
+                : "<%spellout-numbering< миллиард>%%ынчы>;"
+                ? :value
+                : 2000000000
+              - 
+                ? :rule
+                : триллионунчу;
+                ? :value
+                : 1000000000000
+              - 
+                ? :rule
+                : "<%spellout-numbering< триллион>%%унчу>;"
+                ? :value
+                : 1000000000001
+              - 
+                ? :rule
+                : "<%spellout-numbering< триллион>%%унчу>;"
+                ? :value
+                : 2000000000000
+              - 
+                ? :rule
+                : квадриллионунчу;
+                ? :value
+                : 1000000000000000
+              - 
+                ? :rule
+                : "<%spellout-numbering< квадриллион>%%унчу>;"
+                ? :value
+                : 1000000000000001
+              - 
+                ? :rule
+                : "<%spellout-numbering< квадриллион>%%унчу>;"
+                ? :value
+                : 2000000000000000
+              - 
+                ? :rule
+                : "=#,##0='инчи;"
+                ? :value
+                : 1000000000000000000
+            ? :type
+            : spellout-ordinal
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : "ондон <%spellout-numbering<;"
+                ? :value
+                : 10
+              - 
+                ? :rule
+                : "жүздөн <%spellout-numbering<;"
+                ? :value
+                : 100
+              - 
+                ? :rule
+                : "миңден <%spellout-numbering<;"
+                ? :value
+                : 1000
+              - 
+                ? :rule
+                : "он миңден <%spellout-numbering<;"
+                ? :value
+                : 10000
+              - 
+                ? :rule
+                : "жүз миңден <%spellout-numbering<;"
+                ? :value
+                : 100000
+              - 
+                ? :rule
+                : "миллиондон <%spellout-numbering<;"
+                ? :value
+                : 1000000
+              - 
+                ? :rule
+                : "он миллиондон <%spellout-numbering<;"
+                ? :value
+                : 10000000
+              - 
+                ? :rule
+                : "жүз миллиондон <%spellout-numbering<;"
+                ? :value
+                : 100000000
+              - 
+                ? :rule
+                : "миллиарддан <%spellout-numbering<;"
+                ? :value
+                : 1000000000
+              - 
+                ? :rule
+                : "он миллиарддан <%spellout-numbering<;"
+                ? :value
+                : 10000000000
+              - 
+                ? :rule
+                : "жүз миллиарддан <%spellout-numbering<;"
+                ? :value
+                : 100000000000
+              - 
+                ? :rule
+                : "0* <#,##0<<;"
+                ? :value
+                : 1000000000000
+            ? :type
+            : z-spellout-fraction
+        ? :type
+        : SpelloutRules
+      - 
+        ? :ruleset
+        : 
+          - 
+            ? :access
+            : private
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : "'инчи;"
+                ? :value
+                : 0
+            ? :type
+            : digits-ordinal-indicator
+          - 
+            ? :rules
+            : 
+              - 
+                ? :rule
+                : −>>;
+                ? :value
+                : "-x"
+              - 
+                ? :rule
+                : "=#,##0==%%digits-ordinal-indicator=;"
+                ? :value
+                : 0
+            ? :type
+            : digits-ordinal
+        ? :type
+        : OrdinalRules

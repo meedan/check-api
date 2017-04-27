@@ -1,0 +1,216 @@
+rn: 
+  currencies: 
+    AED: 
+      one: "Idiramu ryo muri Leta Zunze Ubumwe z'Abarabu"
+    AOA: 
+      one: "Ikwanza ryo muri Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Idolari ryo muri Ositaraliya"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Idinari ry'iribahireyini"
+    BIF: 
+      one: "Ifaranga ry'Uburundi"
+      symbol: FBu
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Ipula ryo muri Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Idolari rya Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Ifaranga rya Kongo"
+    CHF: 
+      one: "Ifaranga ry'Ubusuwisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Iyuwani ryo mu Bushinwa"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Irikaboveridiyano ryo muri Esikudo"
+    DJF: 
+      one: "Ifaranga ryo muri Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Idinari ryo muri Alijeriya"
+    EGP: 
+      one: "Ipawundi rya Misiri"
+    ERN: 
+      one: "Irinakufa ryo muri Eritereya"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Ibiri ryo muri Etiyopiya"
+    EUR: 
+      one: Iyero
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Ipawundi ryo mu Bwongereza"
+      symbol: £
+    GHC: 
+      one: "Icedi ryo muri Gana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Idalasi ryo muri Gambiya"
+    GNS: 
+      one: "Ifaranga ryo muri Gineya"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Irupiya ryo mu Buhindi"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Iyeni ry'Ubuyapani"
+      symbol: JP¥
+    KES: 
+      one: "Ishilingi rya Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Ifaranga rya Komore"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Idolari rya Liberiya"
+      symbol: $
+    LSL: 
+      one: "Iloti ryo muro Lesoto"
+    LYD: 
+      one: "Idinari rya Libiya"
+    MAD: 
+      one: "Idiramu ryo muri Maroke"
+    MGA: 
+      one: "Iriyari ryo muri Madagasikari"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ugwiya ryo muri Moritaniya"
+    MUR: 
+      one: "Irupiya ryo mu birwa bya Morise"
+    MWK: 
+      one: "Ikwaca ryo muri Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Irimetikali ryo muri Mozambike"
+    NAD: 
+      one: "Idolari rya Namibiya"
+      symbol: $
+    NGN: 
+      one: "Inayira ryo muri Nijeriya"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Ifaranga ry'u Rwanda"
+    SAR: 
+      one: "Iriyari ryo muri Arabiya Sawudite"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Irupiya ryo mu birwa bya Sayisheli"
+    SDG: 
+      one: "Ipawundi rya Sudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Ipawundi rya Sente Helena"
+    SLL: 
+      one: Ilewone
+    SOS: 
+      one: "Ishilingi ryo muri Somaliya"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Idobura ryo muri Sawotome na Perensipe"
+    SZL: 
+      one: Ililangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Idinari ryo muri Tuniziya"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Ishilingi rya Tanzaniya"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Ishilingi ry'Ubugande"
+    USD: 
+      one: "Idolari ry'abanyamerika"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Irandi ryo muri Afurika y'Epfo"
+    ZMK: 
+      one: "Ikwaca ryo muri Zambiya (1968–2012)"
+    ZMW: 
+      one: "Ikwaca ryo muri Zambiya"
+    ZWD: 
+      one: "Idolari ryo muri Zimbabwe"

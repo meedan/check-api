@@ -1,0 +1,424 @@
+sw: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          one: "Mvuto wa graviti{0}"
+          other: "Mvuto wa graviti {0}"
+        angle-arc-minute: 
+          one: "Dakika {0}′"
+          other: "Dakika {0}′"
+        angle-arc-second: 
+          one: "Sekunde {0}″"
+          other: "Sekunde {0}″"
+        angle-degree: 
+          one: "Digrii {0}°"
+          other: "Digrii {0}°"
+        area-acre: 
+          one: "Ekari {0}"
+          other: "Ekari {0}"
+        area-hectare: 
+          one: "Hektari {0}"
+          other: "Hektari {0}"
+        area-square-foot: 
+          one: "Futi {0} ya mraba"
+          other: "Futi {0} za mraba"
+        area-square-kilometer: 
+          one: "Kilomita {0} ya mraba"
+          other: "Kilomita {0} za mraba"
+        area-square-meter: 
+          one: "Mita {0} ya mraba"
+          other: "Mita {0} za mraba"
+        area-square-mile: 
+          one: "Maili {0} ya mraba"
+          other: "Maili {0} za mraba"
+        duration-day: 
+          one: "siku {0}"
+          other: "siku {0}"
+        duration-hour: 
+          one: "saa {0}"
+          other: "saa {0}"
+        duration-millisecond: 
+          one: "millisekunde {0}"
+          other: "millisekunde {0}"
+        duration-minute: 
+          one: "dakika {0}"
+          other: "dakika {0}"
+        duration-month: 
+          one: "mwezi {0}"
+          other: "miezi {0}"
+        duration-second: 
+          one: "sekunde {0}"
+          other: "sekunde {0}"
+        duration-week: 
+          one: "wiki {0}"
+          other: "wiki {0}"
+        duration-year: 
+          one: "mwaka {0}"
+          other: "miaka {0}"
+        length-centimeter: 
+          one: "Sentimita {0}"
+          other: "Sentimita {0}"
+        length-foot: 
+          one: "Futi {0}"
+          other: "Futi {0}"
+        length-inch: 
+          one: "Inchi {0}"
+          other: "Inchi {0}"
+        length-kilometer: 
+          one: "Kilomita {0}"
+          other: "Kilomita {0}"
+        length-light-year: 
+          one: "Mwaka wa mwanga {0}"
+          other: "Miaka ya mwanga {0}"
+        length-meter: 
+          one: "Mita {0}"
+          other: "Mita {0}"
+        length-mile: 
+          one: "Maili {0}"
+          other: "Maili {0}"
+        length-millimeter: 
+          one: "Millimita {0}"
+          other: "Millimita {0}"
+        length-picometer: 
+          one: "Pikomita {0}"
+          other: "Pikomita {0}"
+        length-yard: 
+          one: "Yadi {0}"
+          other: "Yadi {0}"
+        mass-gram: 
+          one: "Gramu {0}"
+          other: "Gramu {0}"
+        mass-kilogram: 
+          one: "Kilogramu {0}"
+          other: "Kilogramu {0}"
+        mass-ounce: 
+          one: "Aunsi {0}"
+          other: "Aunsi {0}"
+        mass-pound: 
+          one: "Ratili {0}"
+          other: "Ratili {0}"
+        power-horsepower: 
+          one: "Kipimo cha Hospawa {0}"
+          other: "Kipimo cha Hospawa {0}"
+        power-kilowatt: 
+          one: "Kilowati {0}"
+          other: "Kilowati {0}"
+        power-watt: 
+          one: "Wati {0}"
+          other: "Wati {0}"
+        pressure-hectopascal: 
+          one: "Hektopaskali {0}"
+          other: "Hektopaskali {0}"
+        pressure-inch-hg: 
+          one: "Inchi za zebaki {0}"
+          other: "Inchi za zebaki {0}"
+        pressure-millibar: 
+          one: "Kipimo cha milibari {0}"
+          other: "Kipimo cha milibari {0}"
+        speed-kilometer-per-hour: 
+          one: "Kilomita {0} kwa saa"
+          other: "Kilomita {0} kwa saa"
+        speed-meter-per-second: 
+          one: "Mita {0} kwa sekunde"
+          other: "Mita {0} kwa sekunde"
+        speed-mile-per-hour: 
+          one: "Maili {0} kwa saa"
+          other: "Maili {0} kwa saa"
+        temperature-celsius: 
+          one: "Nyuzi za Selisiasi {0}"
+          other: "Nyuzi za Selisiasi {0}"
+        temperature-fahrenheit: 
+          one: "Nyuzi za Farenheiti {0}"
+          other: "Nyuzi za Farenheiti {0}"
+        volume-cubic-kilometer: 
+          one: "Kilomita {0} ya ujazo"
+          other: "Kilomita {0} ya ujazo"
+        volume-cubic-mile: 
+          one: "Maili {0} ya ujazo"
+          other: "Maili {0} ya ujazo"
+        volume-liter: 
+          one: "Lita {0}"
+          other: "Lita {0}"
+      narrow: 
+        acceleration-g-force: 
+          one: "G {0}"
+          other: "G {0}"
+        angle-arc-minute: 
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "Ekari {0}"
+          other: "Ekari {0}"
+        area-hectare: 
+          one: "ha {0}"
+          other: "ha {0}"
+        area-square-foot: 
+          one: "ft² {0}"
+          other: "ft² {0}"
+        area-square-kilometer: 
+          one: "km² {0}"
+          other: "km² {0}"
+        area-square-meter: 
+          one: "m² {0}"
+          other: "m² {0}"
+        area-square-mile: 
+          one: "mi² {0}"
+          other: "mi² {0}"
+        duration-day: 
+          one: "siku {0}"
+          other: "siku {0}"
+        duration-hour: 
+          one: "saa {0}"
+          other: "saa {0}"
+        duration-millisecond: 
+          one: "ms {0}"
+          other: "ms {0}"
+        duration-minute: 
+          one: "dakika {0}"
+          other: "dakika {0}"
+        duration-month: 
+          one: "mwezi {0}"
+          other: "miezi {0}"
+        duration-second: 
+          one: "s {0}"
+          other: "s {0}"
+        duration-week: 
+          one: "wiki {0}"
+          other: "wiki {0}"
+        duration-year: 
+          one: "mwaka {0}"
+          other: "miaka {0}"
+        length-centimeter: 
+          one: "cm {0}"
+          other: "cm {0}"
+        length-foot: 
+          one: "Futi {0}"
+          other: "Futi {0}"
+        length-inch: 
+          one: "Inchi {0}"
+          other: "Inchi {0}"
+        length-kilometer: 
+          one: "km {0}"
+          other: "km {0}"
+        length-light-year: 
+          one: "ly {0}"
+          other: "ly {0}"
+        length-meter: 
+          one: "Mita {0}"
+          other: "Mita {0}"
+        length-mile: 
+          one: "Maili {0}"
+          other: "Maili {0}"
+        length-millimeter: 
+          one: "mm {0}"
+          other: "mm {0}"
+        length-picometer: 
+          one: "pm {0}"
+          other: "pm {0}"
+        length-yard: 
+          one: "Yadi {0}"
+          other: "Yadi {0}"
+        mass-gram: 
+          one: "g {0}"
+          other: "g {0}"
+        mass-kilogram: 
+          one: "kg {0}"
+          other: "kg {0}"
+        mass-ounce: 
+          one: "Aunsi {0}"
+          other: "Aunsi {0}"
+        mass-pound: 
+          one: "Ratili {0}"
+          other: "Ratili {0}"
+        power-horsepower: 
+          one: "hp {0}"
+          other: "hp {0}"
+        power-kilowatt: 
+          one: "kW {0}"
+          other: "kW {0}"
+        power-watt: 
+          one: "Wati {0}"
+          other: "Wati {0}"
+        pressure-hectopascal: 
+          one: "hPa {0}"
+          other: "hPa {0}"
+        pressure-inch-hg: 
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: 
+          one: "mbar {0}"
+          other: "mbar {0}"
+        speed-kilometer-per-hour: 
+          one: "km {0}/saa"
+          other: "km {0}/saa"
+        speed-meter-per-second: 
+          one: "m {0}/s"
+          other: "m {0}/s"
+        speed-mile-per-hour: 
+          one: "mi {0}/saa"
+          other: "mi {0}/saa"
+        temperature-celsius: 
+          one: "{0}°"
+          other: "{0}°"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "km³ {0}"
+          other: "km³ {0}"
+        volume-cubic-mile: 
+          one: "mi³ {0}"
+          other: "mi³ {0}"
+        volume-liter: 
+          one: "Lita {0}"
+          other: "Lita {0}"
+      short: 
+        acceleration-g-force: 
+          one: "G {0}"
+          other: "G {0}"
+        angle-arc-minute: 
+          one: "Dakika{0}′"
+          other: "Dakika {0}′"
+        angle-arc-second: 
+          one: "Sekunde {0}″"
+          other: "Sekunde {0}″"
+        angle-degree: 
+          one: "Digrii {0}°"
+          other: "Digrii {0}°"
+        area-acre: 
+          one: "Ekari {0}"
+          other: "Ekari {0}"
+        area-hectare: 
+          one: "Hektari {0}"
+          other: "Hektari {0}"
+        area-square-foot: 
+          one: "ft² {0}"
+          other: "ft² {0}"
+        area-square-kilometer: 
+          one: "km² {0}"
+          other: "km² {0}"
+        area-square-meter: 
+          one: "m² {0}"
+          other: "m² {0}"
+        area-square-mile: 
+          one: "mi² {0}"
+          other: "mi² {0}"
+        duration-day: 
+          one: "siku {0}"
+          other: "siku {0}"
+        duration-hour: 
+          one: "saa {0}"
+          other: "saa {0}"
+        duration-millisecond: 
+          one: "ms {0}"
+          other: "ms {0}"
+        duration-minute: 
+          one: "dakika {0}"
+          other: "dakika {0}"
+        duration-month: 
+          one: "mwezi {0}"
+          other: "miezi {0}"
+        duration-second: 
+          one: "sekunde {0}"
+          other: "sekunde {0}"
+        duration-week: 
+          one: "wiki {0}"
+          other: "wiki {0}"
+        duration-year: 
+          one: "mwaka {0}"
+          other: "miaka {0}"
+        length-centimeter: 
+          one: "Sentimita {0}"
+          other: "Sentimita {0}"
+        length-foot: 
+          one: "Futi {0}"
+          other: "Futi {0}"
+        length-inch: 
+          one: "Inchi {0}"
+          other: "Inchi {0}"
+        length-kilometer: 
+          one: "Kilomita {0}"
+          other: "Kilomita {0}"
+        length-light-year: 
+          one: "ly {0}"
+          other: "ly {0}"
+        length-meter: 
+          one: "Mita {0}"
+          other: "Mita {0}"
+        length-mile: 
+          one: "Maili {0}"
+          other: "Maili {0}"
+        length-millimeter: 
+          one: "Millimita {0}"
+          other: "Millimita {0}"
+        length-picometer: 
+          one: "Pikomita {0}"
+          other: "Pikomita {0}"
+        length-yard: 
+          one: "Yadi {0}"
+          other: "Yadi {0}"
+        mass-gram: 
+          one: "Gramu {0}"
+          other: "Gramu {0}"
+        mass-kilogram: 
+          one: "kg {0}"
+          other: "kg {0}"
+        mass-ounce: 
+          one: "Aunsi {0}"
+          other: "Aunsi {0}"
+        mass-pound: 
+          one: "Ratili {0}"
+          other: "Ratili {0}"
+        power-horsepower: 
+          one: "hp {0}"
+          other: "hp {0}"
+        power-kilowatt: 
+          one: "Kilowati {0}"
+          other: "Kilowati {0}"
+        power-watt: 
+          one: "Wati {0}"
+          other: "Wati {0}"
+        pressure-hectopascal: 
+          one: "hPa {0}"
+          other: "hPa {0}"
+        pressure-inch-hg: 
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: 
+          one: "mbar {0}"
+          other: "mbar {0}"
+        speed-kilometer-per-hour: 
+          one: "km {0}/saa"
+          other: "km {0}/saa"
+        speed-meter-per-second: 
+          one: "m {0}/s"
+          other: "m {0}/s"
+        speed-mile-per-hour: 
+          one: "mi {0}/saa"
+          other: "mi {0}/saa"
+        temperature-celsius: 
+          one: "{0}°C"
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "km³ {0}"
+          other: "km³ {0}"
+        volume-cubic-mile: 
+          one: "mi³ {0}"
+          other: "mi³ {0}"
+        volume-liter: 
+          one: "Lita {0}"
+          other: "Lita {0}"

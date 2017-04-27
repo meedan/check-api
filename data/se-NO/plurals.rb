@@ -1,0 +1,1 @@
+{ :'se_NO' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

@@ -1,0 +1,194 @@
+sn: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Chis
+            mon: Muv
+            sat: Mug
+            sun: Svo
+            thu: Chin
+            tue: Chip
+            wed: Chit
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Chishanu
+            mon: Muvhuro
+            sat: Mugovera
+            sun: Svondo
+            thu: China
+            tue: Chipiri
+            wed: Chitatu
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: C
+            mon: M
+            sat: M
+            sun: S
+            thu: C
+            tue: C
+            wed: C
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: BC
+          1: AD
+        name: 
+          0: "Kristo asati auya"
+          1: "Kristo ashaya"
+        narrow: 
+          0: ""
+      fields: 
+        day: Zuva
+        dayperiod: Dayperiod
+        era: Mukore
+        hour: Awa
+        minute: Mineti
+        month: Mwedzi
+        second: Sekondi
+        week: Vhiki
+        weekday: "Zuva revhiki"
+        year: Gore
+        zone: Nguva
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: Ndi
+            10: Gum
+            11: Mb
+            12: Zvi
+            2: Kuk
+            3: Kur
+            4: Kub
+            5: Chv
+            6: Chk
+            7: Chg
+            8: Nya
+            9: Gun
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: Ndira
+            10: Gumiguru
+            11: Mbudzi
+            12: Zvita
+            2: Kukadzi
+            3: Kurume
+            4: Kubvumbi
+            5: Chivabvu
+            6: Chikumi
+            7: Chikunguru
+            8: Nyamavhuvhu
+            9: Gunyana
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: N
+            10: G
+            11: M
+            12: Z
+            2: K
+            3: K
+            4: K
+            5: C
+            6: C
+            7: C
+            8: N
+            9: G
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: AM
+            pm: PM
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: K1
+            2: K2
+            3: K3
+            4: K4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "Kota 1"
+            2: "Kota 2"
+            3: "Kota 3"
+            4: "Kota 4"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

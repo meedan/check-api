@@ -1,0 +1,61 @@
+mk: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "¤ #,##0.00"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 илјади"
+            10000: "00 илјади"
+            100000: "000 илјади"
+            1000000: "0 милиони"
+            10000000: "00 милиони"
+            100000000: "000 милиони"
+            1000000000: "0 милијарди"
+            10000000000: "00 милијарди"
+            100000000000: "000 милијарди"
+            1000000000000: "0 трилиони"
+            10000000000000: "00 трилиони"
+            100000000000000: "000 трилиони"
+          short: 
+            1000: 0 илј'.'
+            10000: 00 илј'.'
+            100000: 000 илј'.'
+            1000000: 0 мил'.'
+            10000000: 00 мил'.'
+            100000000: 000 мил'.'
+            1000000000: 0 милј'.'
+            10000000000: 00 милј'.'
+            100000000000: 000 милј'.'
+            1000000000000: 0 трил'.'
+            10000000000000: 00 трил'.'
+            100000000000000: 000 трил'.'
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: ","
+      exponential: E
+      group: "."
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

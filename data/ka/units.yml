@@ -1,0 +1,424 @@
+ka: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          one: "{0} ინერციის ძალა"
+          other: "{0} ინერციის ძალა"
+        angle-arc-minute: 
+          one: "{0} წუთი"
+          other: "{0} წუთი"
+        angle-arc-second: 
+          one: "{0} წამი"
+          other: "{0} წამი"
+        angle-degree: 
+          one: "{0} გრადუსი"
+          other: "{0} გრადუსი"
+        area-acre: 
+          one: "{0} აკრი"
+          other: "{0} აკრი"
+        area-hectare: 
+          one: "{0} ჰექტარი"
+          other: "{0} ჰექტარი"
+        area-square-foot: 
+          one: "{0} კვადრატული ფუტი"
+          other: "{0} კვადრატული ფუტი"
+        area-square-kilometer: 
+          one: "{0} კვადრატული კილომეტრი"
+          other: "{0} კვადრატული კილომეტრი"
+        area-square-meter: 
+          one: "{0} კვადრატული მეტრი"
+          other: "{0} კვადრატული მეტრი"
+        area-square-mile: 
+          one: "{0} კვადრატული მილი"
+          other: "{0} კვადრატული მილი"
+        duration-day: 
+          one: "{0} დღე"
+          other: "{0} დღე"
+        duration-hour: 
+          one: "{0} საათი"
+          other: "{0} საათი"
+        duration-millisecond: 
+          one: "{0} მილიწამი"
+          other: "{0} მილიწამი"
+        duration-minute: 
+          one: "{0} წუთი"
+          other: "{0} წუთი"
+        duration-month: 
+          one: "{0} თვე"
+          other: "{0} თვე"
+        duration-second: 
+          one: "{0} წამი"
+          other: "{0} წამი"
+        duration-week: 
+          one: "{0} კვირა"
+          other: "{0} კვირა"
+        duration-year: 
+          one: "{0} წელი"
+          other: "{0} წელი"
+        length-centimeter: 
+          one: "{0} სანტიმეტრი"
+          other: "{0} სანტიმეტრი"
+        length-foot: 
+          one: "{0} ფუტი"
+          other: "{0} ფუტი"
+        length-inch: 
+          one: "{0} დუიმი"
+          other: "{0} დუიმი"
+        length-kilometer: 
+          one: "{0} კილომეტრი"
+          other: "{0} კილომეტრი"
+        length-light-year: 
+          one: "{0} სინათლის წელი"
+          other: "{0} სინათლის წელი"
+        length-meter: 
+          one: "{0}მეტრი"
+          other: "{0}მეტრი"
+        length-mile: 
+          one: "{0} მილი"
+          other: "{0} მილი"
+        length-millimeter: 
+          one: "{0} მილიმეტრი"
+          other: "{0} მილიმეტრი"
+        length-picometer: 
+          one: "{0} პიკომეტრი"
+          other: "{0} პიკომეტრი"
+        length-yard: 
+          one: "{0} იარდი"
+          other: "{0} იარდი"
+        mass-gram: 
+          one: "{0} გრამი"
+          other: "{0} გრამი"
+        mass-kilogram: 
+          one: "{0} კილოგრამი"
+          other: "{0} კილოგრამი"
+        mass-ounce: 
+          one: "{0} უნცია"
+          other: "{0} უნცია"
+        mass-pound: 
+          one: "{0} ფუნტი"
+          other: "{0} ფუნტი"
+        power-horsepower: 
+          one: "{0} ცხენის ძალა"
+          other: "{0} ცხენის ძალა"
+        power-kilowatt: 
+          one: "{0} კილოვატი"
+          other: "{0} კილოვატი"
+        power-watt: 
+          one: "{0} ვატი"
+          other: "{0} ვატი"
+        pressure-hectopascal: 
+          one: "{0} ჰექტოპასკალი"
+          other: "{0} ჰექტოპასკალი"
+        pressure-inch-hg: 
+          one: "{0} ვერცხლისწყლის დუიმი"
+          other: "{0} ვერცხლისწყლის დუიმი"
+        pressure-millibar: 
+          one: "{0} მილიბარი"
+          other: "{0} მილიბარი"
+        speed-kilometer-per-hour: 
+          one: "{0} კილომეტრი საათში"
+          other: "{0} კილომეტრი საათში"
+        speed-meter-per-second: 
+          one: "{0} მეტრი წამში"
+          other: "{0} მეტრი წამში"
+        speed-mile-per-hour: 
+          one: "{0} მილი საათში"
+          other: "{0} მილი საათში"
+        temperature-celsius: 
+          one: "{0} გრადუსი ცელსიუსით"
+          other: "{0} გრადუსი ცელსიუსით"
+        temperature-fahrenheit: 
+          one: "{0} გრადუსი ფარენჰეიტით"
+          other: "{0} გრადუსი ფარენჰეიტით"
+        volume-cubic-kilometer: 
+          one: "{0} კუბური კილომეტრი"
+          other: "{0} კუბური კილომეტრი"
+        volume-cubic-mile: 
+          one: "{0} კუბური მილი"
+          other: "{0} კუბური მილი"
+        volume-liter: 
+          one: "{0} ლიტრი"
+          other: "{0} ლიტრი"
+      narrow: 
+        acceleration-g-force: 
+          one: "{0} ინ. ძ."
+          other: "{0} ინ. ძ."
+        angle-arc-minute: 
+          one: "{0} წთ"
+          other: "{0} წთ"
+        angle-arc-second: 
+          one: "{0} წმ"
+          other: "{0} წმ"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} აკრი"
+          other: "{0} აკრი"
+        area-hectare: 
+          one: "{0} ჰა"
+          other: "{0} ჰა"
+        area-square-foot: 
+          one: "{0} ფტ²"
+          other: "{0} ფტ²"
+        area-square-kilometer: 
+          one: "{0} კმ²"
+          other: "{0} კმ²"
+        area-square-meter: 
+          one: "{0} მ²"
+          other: "{0} მ²"
+        area-square-mile: 
+          one: "{0} მილი²"
+          other: "{0} მილი²"
+        duration-day: 
+          one: "{0} დღე"
+          other: "{0} დღე"
+        duration-hour: 
+          one: "{0} სთ"
+          other: "{0} სთ"
+        duration-millisecond: 
+          one: "{0} მწ"
+          other: "{0} მწ"
+        duration-minute: 
+          one: "{0} წთ"
+          other: "{0} წთ"
+        duration-month: 
+          one: "{0} თვე"
+          other: "{0} თვე"
+        duration-second: 
+          one: "{0} წმ"
+          other: "{0} წმ"
+        duration-week: 
+          one: "{0} კვრ"
+          other: "{0} კვრ"
+        duration-year: 
+          one: "{0} წ"
+          other: "{0} წ"
+        length-centimeter: 
+          one: "{0} სმ"
+          other: "{0} სმ"
+        length-foot: 
+          one: "{0} ფტ"
+          other: "{0} ფტ"
+        length-inch: 
+          one: "{0} დმ"
+          other: "{0} დმ"
+        length-kilometer: 
+          one: "{0} კმ"
+          other: "{0} კმ"
+        length-light-year: 
+          one: "{0} სწ"
+          other: "{0} სწ"
+        length-meter: 
+          one: "{0}მ"
+          other: "{0}მ"
+        length-mile: 
+          one: "{0} მილი"
+          other: "{0} მილი"
+        length-millimeter: 
+          one: "{0} მმ"
+          other: "{0} მმ"
+        length-picometer: 
+          one: "{0} პმ"
+          other: "{0} პმ"
+        length-yard: 
+          one: "{0} იარდი"
+          other: "{0} იარდი"
+        mass-gram: 
+          one: "{0} გ"
+          other: "{0} გ"
+        mass-kilogram: 
+          one: "{0} კგ"
+          other: "{0} კგ"
+        mass-ounce: 
+          one: "{0} უნც"
+          other: "{0} უნც"
+        mass-pound: 
+          one: "{0} ფნტ"
+          other: "{0} ფნტ"
+        power-horsepower: 
+          one: "{0}ცხ.ძ."
+          other: "{0}ცხ.ძ."
+        power-kilowatt: 
+          one: "{0} კვტ"
+          other: "{0} კვტ"
+        power-watt: 
+          one: "{0} ვტ"
+          other: "{0} ვტ"
+        pressure-hectopascal: 
+          one: "{0} ჰპა"
+          other: "{0} ჰპა"
+        pressure-inch-hg: 
+          one: "{0} ვრც. დმ."
+          other: "{0} ვრც. დმ."
+        pressure-millibar: 
+          one: "{0} მბრ"
+          other: "{0} მბრ"
+        speed-kilometer-per-hour: 
+          one: "{0} კმ/სთ"
+          other: "{0} კმ/სთ"
+        speed-meter-per-second: 
+          one: "{0} მ/წმ"
+          other: "{0} მ/წმ"
+        speed-mile-per-hour: 
+          one: "{0} მილი/სთ"
+          other: "{0} მილი/სთ"
+        temperature-celsius: 
+          one: "{0}°"
+          other: "{0}°"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "{0} კმ³"
+          other: "{0} კმ³"
+        volume-cubic-mile: 
+          one: "{0} მილი³"
+          other: "{0} მილი³"
+        volume-liter: 
+          one: "{0}ლ"
+          other: "{0}ლ"
+      short: 
+        acceleration-g-force: 
+          one: "{0} ინ. ძ."
+          other: "{0} ინ. ძ."
+        angle-arc-minute: 
+          one: "{0} წთ"
+          other: "{0} წთ"
+        angle-arc-second: 
+          one: "{0} წმ"
+          other: "{0} წმ"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} აკრი"
+          other: "{0} აკრი"
+        area-hectare: 
+          one: "{0} ჰა"
+          other: "{0} ჰა"
+        area-square-foot: 
+          one: "{0} ფტ²"
+          other: "{0} ფტ²"
+        area-square-kilometer: 
+          one: "{0} კმ²"
+          other: "{0} კმ²"
+        area-square-meter: 
+          one: "{0} მ²"
+          other: "{0} მ²"
+        area-square-mile: 
+          one: "{0} მილი²"
+          other: "{0} მილი²"
+        duration-day: 
+          one: "{0} დღე"
+          other: "{0} დღე"
+        duration-hour: 
+          one: "{0} სთ"
+          other: "{0} სთ"
+        duration-millisecond: 
+          one: "{0} მწ"
+          other: "{0} მწ"
+        duration-minute: 
+          one: "{0} წთ"
+          other: "{0} წთ"
+        duration-month: 
+          one: "{0} თვე"
+          other: "{0} თვე"
+        duration-second: 
+          one: "{0} წმ"
+          other: "{0} წმ"
+        duration-week: 
+          one: "{0} კვრ"
+          other: "{0} კვრ"
+        duration-year: 
+          one: "{0} წ"
+          other: "{0} წ"
+        length-centimeter: 
+          one: "{0} სმ"
+          other: "{0} სმ"
+        length-foot: 
+          one: "{0} ფტ"
+          other: "{0} ფტ"
+        length-inch: 
+          one: "{0} დმ"
+          other: "{0} დმ"
+        length-kilometer: 
+          one: "{0} კმ"
+          other: "{0} კმ"
+        length-light-year: 
+          one: "{0} სწ"
+          other: "{0} სწ"
+        length-meter: 
+          one: "{0} მ"
+          other: "{0} მ"
+        length-mile: 
+          one: "{0} მილი"
+          other: "{0} მილი"
+        length-millimeter: 
+          one: "{0} მმ"
+          other: "{0} მმ"
+        length-picometer: 
+          one: "{0} პმ"
+          other: "{0} პმ"
+        length-yard: 
+          one: "{0} იარდი"
+          other: "{0} იარდი"
+        mass-gram: 
+          one: "{0} გ"
+          other: "{0} გ"
+        mass-kilogram: 
+          one: "{0} კგ"
+          other: "{0} კგ"
+        mass-ounce: 
+          one: "{0} უნც"
+          other: "{0} უნც"
+        mass-pound: 
+          one: "{0} ფნტ"
+          other: "{0} ფნტ"
+        power-horsepower: 
+          one: "{0} ცხ. ძ."
+          other: "{0} ცხ. ძ."
+        power-kilowatt: 
+          one: "{0} კვტ"
+          other: "{0} კვტ"
+        power-watt: 
+          one: "{0} ვტ"
+          other: "{0} ვტ"
+        pressure-hectopascal: 
+          one: "{0} ჰპა"
+          other: "{0} ჰპა"
+        pressure-inch-hg: 
+          one: "{0} ვრც. დმ."
+          other: "{0} ვრც. დმ."
+        pressure-millibar: 
+          one: "{0} მბარი"
+          other: "{0} მბარი"
+        speed-kilometer-per-hour: 
+          one: "{0} კმ/სთ"
+          other: "{0} კმ/სთ"
+        speed-meter-per-second: 
+          one: "{0} მ/წმ"
+          other: "{0} მ/წმ"
+        speed-mile-per-hour: 
+          one: "{0} მილი/სთ"
+          other: "{0} მილი/სთ"
+        temperature-celsius: 
+          one: "{0}°C"
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "{0} კმ³"
+          other: "{0} კმ³"
+        volume-cubic-mile: 
+          one: "{0} მილი³"
+          other: "{0} მილი³"
+        volume-liter: 
+          one: "{0} ლ"
+          other: "{0}ლ"

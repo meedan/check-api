@@ -1,0 +1,424 @@
+el: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          one: "{0} λεπτό"
+          other: "{0} λεπτά"
+        angle-arc-second: 
+          one: "{0} δευτερόλεπτο"
+          other: "{0} δευτερόλεπτα"
+        angle-degree: 
+          one: "{0} μοίρα"
+          other: "{0} μοίρες"
+        area-acre: 
+          one: "{0} ακρ"
+          other: "{0} ακρ"
+        area-hectare: 
+          one: "{0} εκτάριο"
+          other: "{0} εκτάρια"
+        area-square-foot: 
+          one: "{0} τετραγωνικό πόδι"
+          other: "{0} τετραγωνικά πόδια"
+        area-square-kilometer: 
+          one: "{0} τετραγωνικό χιλιόμετρο"
+          other: "{0} τετραγωνικά χιλιόμετρα"
+        area-square-meter: 
+          one: "{0} τετραγωνικό μέτρο"
+          other: "{0} τετραγωνικά μέτρα"
+        area-square-mile: 
+          one: "{0} τετραγωνικό μίλι"
+          other: "{0} τετραγωνικά μίλια"
+        duration-day: 
+          one: "{0} ημέρα"
+          other: "{0} ημέρες"
+        duration-hour: 
+          one: "{0} ώρα"
+          other: "{0} ώρες"
+        duration-millisecond: 
+          one: "{0} χιλιοστό του δευτερολέπτου"
+          other: "{0} χιλιοστά του δευτερολέπτου"
+        duration-minute: 
+          one: "{0} λεπτό"
+          other: "{0} λεπτά"
+        duration-month: 
+          one: "{0} μήνας"
+          other: "{0} μήνες"
+        duration-second: 
+          one: "{0} δευτερόλεπτο"
+          other: "{0} δευτερόλεπτα"
+        duration-week: 
+          one: "{0} εβδομάδα"
+          other: "{0} εβδομάδες"
+        duration-year: 
+          one: "{0} έτος"
+          other: "{0} έτη"
+        length-centimeter: 
+          one: "{0} εκατοστό"
+          other: "{0} εκατοστά"
+        length-foot: 
+          one: "{0} πόδι"
+          other: "{0} πόδια"
+        length-inch: 
+          one: "{0} ίντσα"
+          other: "{0} ίντσες"
+        length-kilometer: 
+          one: "{0} χιλιόμετρο"
+          other: "{0} χιλιόμετρα"
+        length-light-year: 
+          one: "{0} έτος φωτός"
+          other: "{0} έτη φωτός"
+        length-meter: 
+          one: "{0} μέτρο"
+          other: "{0} μέτρα"
+        length-mile: 
+          one: "{0} μίλι"
+          other: "{0} μίλια"
+        length-millimeter: 
+          one: "{0} χιλιοστόμετρο"
+          other: "{0} χιλιοστόμετρα"
+        length-picometer: 
+          one: "{0} πικόμετρο"
+          other: "{0} πικόμετρα"
+        length-yard: 
+          one: "{0} γιάρδα"
+          other: "{0} γιάρδες"
+        mass-gram: 
+          one: "{0} γραμμάριο"
+          other: "{0} γραμμάρια"
+        mass-kilogram: 
+          one: "{0} χιλιόγραμμο"
+          other: "{0} χιλιόγραμμα"
+        mass-ounce: 
+          one: "{0} ουγγιά"
+          other: "{0} ουγγιές"
+        mass-pound: 
+          one: "{0} λίβρα"
+          other: "{0} λίβρες"
+        power-horsepower: 
+          one: "{0} ίππος"
+          other: "{0} ίπποι"
+        power-kilowatt: 
+          one: "{0} κιλοβάτ"
+          other: "{0} κιλοβάτ"
+        power-watt: 
+          one: "{0} watt"
+          other: "{0} watt"
+        pressure-hectopascal: 
+          one: "{0} εκτοπασκάλ"
+          other: "{0} εκτοπασκάλ"
+        pressure-inch-hg: 
+          one: "{0} ίντσα στήλης υδραργύρου"
+          other: "{0} ίντσες στήλης υδραργύρου"
+        pressure-millibar: 
+          one: "{0} μιλιμπάρ"
+          other: "{0} μιλιμπάρ"
+        speed-kilometer-per-hour: 
+          one: "{0} χιλιόμετρο ανά ώρα"
+          other: "{0} χιλιόμετρα ανά ώρα"
+        speed-meter-per-second: 
+          one: "{0} μέτρο ανά δευτερόλεπτο"
+          other: "{0} μέτρα ανά δευτερόλεπτο"
+        speed-mile-per-hour: 
+          one: "{0} μίλι ανά ώρα"
+          other: "{0} μίλια ανά ώρα"
+        temperature-celsius: 
+          one: "{0} βαθμός Κελσίου"
+          other: "{0} βαθμοί Κελσίου"
+        temperature-fahrenheit: 
+          one: "{0} βαθμός Φαρενάιτ"
+          other: "{0} βαθμοί Φαρενάιτ"
+        volume-cubic-kilometer: 
+          one: "{0} κυβικό χιλιόμετρο"
+          other: "{0} κυβικά χιλιόμετρα"
+        volume-cubic-mile: 
+          one: "{0} κυβικό μίλι"
+          other: "{0} κυβικά μίλια"
+        volume-liter: 
+          one: "{0} λίτρο"
+          other: "{0} λίτρα"
+      narrow: 
+        acceleration-g-force: 
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} ac"
+          other: "{0} ac"
+        area-hectare: 
+          one: "{0} ha"
+          other: "{0} ha"
+        area-square-foot: 
+          one: "{0} ft²"
+          other: "{0} ft²"
+        area-square-kilometer: 
+          one: "{0} km²"
+          other: "{0} km²"
+        area-square-meter: 
+          one: "{0} m²"
+          other: "{0} m²"
+        area-square-mile: 
+          one: "{0} mi²"
+          other: "{0} mi²"
+        duration-day: 
+          one: "{0} ημ."
+          other: "{0} ημ."
+        duration-hour: 
+          one: "{0} ώρα"
+          other: "{0} ώρες"
+        duration-millisecond: 
+          one: "{0} ms"
+          other: "{0} ms"
+        duration-minute: 
+          one: "{0} λεπ."
+          other: "{0} λεπ."
+        duration-month: 
+          one: "{0} μήν."
+          other: "{0} μήν."
+        duration-second: 
+          one: "{0} δευτ."
+          other: "{0} δευτ."
+        duration-week: 
+          one: "{0} εβδ."
+          other: "{0} εβδ."
+        duration-year: 
+          one: "{0} έτ."
+          other: "{0} έτ."
+        length-centimeter: 
+          one: "{0} εκ."
+          other: "{0} εκ."
+        length-foot: 
+          one: "{0} ft"
+          other: "{0} ft"
+        length-inch: 
+          one: "{0} in"
+          other: "{0} in"
+        length-kilometer: 
+          one: "{0} χλμ."
+          other: "{0} χλμ."
+        length-light-year: 
+          one: "{0} ly"
+          other: "{0} ly"
+        length-meter: 
+          one: "{0} μ."
+          other: "{0} μ."
+        length-mile: 
+          one: "{0} mi"
+          other: "{0} mi"
+        length-millimeter: 
+          one: "{0} χλστ."
+          other: "{0} χλστ."
+        length-picometer: 
+          one: "{0} pm"
+          other: "{0} pm"
+        length-yard: 
+          one: "{0} yd"
+          other: "{0} yd"
+        mass-gram: 
+          one: "{0} g"
+          other: "{0} g"
+        mass-kilogram: 
+          one: "{0} kg"
+          other: "{0} kg"
+        mass-ounce: 
+          one: "{0} oz"
+          other: "{0} oz"
+        mass-pound: 
+          one: "{0} lb"
+          other: "{0} lb"
+        power-horsepower: 
+          one: "{0} hp"
+          other: "{0} hp"
+        power-kilowatt: 
+          one: "{0} kW"
+          other: "{0} kW"
+        power-watt: 
+          one: "{0} W"
+          other: "{0} W"
+        pressure-hectopascal: 
+          one: "{0} hPa"
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: 
+          one: "{0} mbar"
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          one: "{0} χλμ./ώρα"
+          other: "{0} χλμ./ώρα"
+        speed-meter-per-second: 
+          one: "{0} m/s"
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          one: "{0} mi/h"
+          other: "{0} mi/h"
+        temperature-celsius: 
+          one: "{0}°"
+          other: "{0}°"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "{0} km³"
+          other: "{0} km³"
+        volume-cubic-mile: 
+          one: "{0} mi³"
+          other: "{0} mi³"
+        volume-liter: 
+          one: "{0} l"
+          other: "{0} l"
+      short: 
+        acceleration-g-force: 
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          one: "{0} λεπ."
+          other: "{0} λεπ."
+        angle-arc-second: 
+          one: "{0} δευτ."
+          other: "{0} δευτ."
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} ac"
+          other: "{0} ac"
+        area-hectare: 
+          one: "{0} ha"
+          other: "{0} ha"
+        area-square-foot: 
+          one: "{0} ft²"
+          other: "{0} ft²"
+        area-square-kilometer: 
+          one: "{0} km²"
+          other: "{0} km²"
+        area-square-meter: 
+          one: "{0} m²"
+          other: "{0} m²"
+        area-square-mile: 
+          one: "{0} mi²"
+          other: "{0} mi²"
+        duration-day: 
+          one: "{0} ημέρα"
+          other: "{0} ημέρες"
+        duration-hour: 
+          one: "{0} ώρα"
+          other: "{0} ώρες"
+        duration-millisecond: 
+          one: "{0} ms"
+          other: "{0} ms"
+        duration-minute: 
+          one: "{0} λεπ."
+          other: "{0} λεπ."
+        duration-month: 
+          one: "{0} μήν."
+          other: "{0} μήν."
+        duration-second: 
+          one: "{0} δευτ."
+          other: "{0} δευτ."
+        duration-week: 
+          one: "{0} εβδ."
+          other: "{0} εβδ."
+        duration-year: 
+          one: "{0} έτος"
+          other: "{0} έτη"
+        length-centimeter: 
+          one: "{0} εκ."
+          other: "{0} εκ."
+        length-foot: 
+          one: "{0} ft"
+          other: "{0} ft"
+        length-inch: 
+          one: "{0} in"
+          other: "{0} in"
+        length-kilometer: 
+          one: "{0} χλμ."
+          other: "{0} χλμ."
+        length-light-year: 
+          one: "{0} ly"
+          other: "{0} ly"
+        length-meter: 
+          one: "{0} μ."
+          other: "{0} μ."
+        length-mile: 
+          one: "{0} mi"
+          other: "{0} mi"
+        length-millimeter: 
+          one: "{0} χλστ."
+          other: "{0} χλστ."
+        length-picometer: 
+          one: "{0} pm"
+          other: "{0} pm"
+        length-yard: 
+          one: "{0} yd"
+          other: "{0} yd"
+        mass-gram: 
+          one: "{0} γρ."
+          other: "{0} γρ."
+        mass-kilogram: 
+          one: "{0} χλγρ."
+          other: "{0} χλγρ."
+        mass-ounce: 
+          one: "{0} oz"
+          other: "{0} oz"
+        mass-pound: 
+          one: "{0} lb"
+          other: "{0} lb"
+        power-horsepower: 
+          one: "{0} hp"
+          other: "{0} hp"
+        power-kilowatt: 
+          one: "{0} kW"
+          other: "{0} kW"
+        power-watt: 
+          one: "{0} W"
+          other: "{0} W"
+        pressure-hectopascal: 
+          one: "{0} hPa"
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: 
+          one: "{0} mbar"
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          one: "{0} χλμ./ώρα"
+          other: "{0} χλμ./ώρα"
+        speed-meter-per-second: 
+          one: "{0} μέτρο/δευτ."
+          other: "{0} μέτρα/δευτ."
+        speed-mile-per-hour: 
+          one: "{0} μίλι/ώρα"
+          other: "{0} μίλια/ώρα"
+        temperature-celsius: 
+          one: "{0}°C"
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "{0} km³"
+          other: "{0} km³"
+        volume-cubic-mile: 
+          one: "{0} mi³"
+          other: "{0} mi³"
+        volume-liter: 
+          one: "{0} λίτ."
+          other: "{0} λίτ."

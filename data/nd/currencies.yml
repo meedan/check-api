@@ -1,0 +1,219 @@
+nd: 
+  currencies: 
+    AED: 
+      one: "Dola laseArab"
+    AOA: 
+      one: "Kwanza yase Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dola yase Australia"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Dinari yase Bhahareni"
+    BIF: 
+      one: "Fulenki yase Bhurundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Phula yase Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dola yase Khanada"
+      symbol: CA$
+    CDF: 
+      one: "Fulenki yase Khongo"
+    CHF: 
+      one: "Fulenki yase Swisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Yuan Renminbi yase China"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Escudo Caboverdiano"
+    DJF: 
+      one: "Fulenki yase Jibhuthi"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dinali yase Aljeriya"
+    EGP: 
+      one: "Phawundi laseGibhide"
+    ERN: 
+      one: "Nakfa yase Eritrea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Dola laseEthiopia"
+    EUR: 
+      one: Yuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Phawundi yase Ngilandi"
+      symbol: £
+    GHC: 
+      one: "Sedi yase Ghana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dalasi yase Gambia"
+    GNS: 
+      one: "Fulenki yase Gine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupi yase Indiya"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yeni yase Japhani"
+      symbol: JP¥
+    KES: 
+      one: "Shilingi yase Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Fulenki yase Khomoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dola yase Libheriya"
+      symbol: $
+    LSL: 
+      one: "Lothi yase Lesotho"
+    LYD: 
+      one: "Dinari yase Libya"
+    MAD: 
+      one: "Dirham yase Morokho"
+    MGA: 
+      one: "Fulenki yase Malagasi"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ugwiya yase Moritaniya"
+    MUR: 
+      one: "Rupi yase Morishasi"
+    MWK: 
+      one: "Kwacha yase Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Metikali yase Mozambiki"
+    NAD: 
+      one: "Dola yase Namibiya"
+      symbol: $
+    NGN: 
+      one: "Nayira yase Nijeriya"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Fulenki yase Ruwanda"
+    SAR: 
+      one: "Riyal yase Saudi"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupi yase Seyisheli"
+    SDG: 
+      one: "Dinari yase Sudani"
+    SDP: 
+      one: "Phawundi yase Sudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Phawundindi laseSt Helena"
+    SLL: 
+      one: Leyoni
+    SOS: 
+      one: "Shilingi yase Somaliya"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dobra yase Sao Tome lo Principe"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Dinari yase Tunisiya"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Shilingi yase Tanzaniya"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Shilingi yase Uganda"
+    USD: 
+      one: "Dola yase Amelika"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Fulenki CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Fulenki CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Randi yase Afrika ye Zanzi"
+    ZMK: 
+      one: "Kwacha yase Zambiya (1968–2012)"
+    ZMW: 
+      one: "Kwacha yase Zambiya"
+    ZWD: 
+      one: "Dola yase Zimbabwe"

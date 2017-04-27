@@ -1,0 +1,130 @@
+be: 
+  metazones: 
+    America_Central: 
+      long: 
+        daylight: "Паўночнаамэрыканскі цэнтральны летні час"
+        generic: "Паўночнаамэрыканскі цэнтральны час"
+        standard: "Паўночнаамэрыканскі цэнтральны стандартны час"
+    America_Eastern: 
+      long: 
+        daylight: "Паўночнаамэрыканскі усходні летні час"
+        generic: "Паўночнаамэрыканскі усходні час"
+        standard: "Паўночнаамэрыканскі усходні стандартны час"
+    America_Mountain: 
+      long: 
+        daylight: "Паўночнаамэрыканскі горны летні час"
+        generic: "Паўночнаамэрыканскі горны час"
+        standard: "Паўночнаамэрыканскі горны стандартны час"
+    America_Pacific: 
+      long: 
+        daylight: "Ціхаакіянскі летні час"
+        generic: "Ціхаакіянскі час"
+        standard: "Ціхаакіянскі стандартны час"
+    Atlantic: 
+      long: 
+        daylight: "Атлянтычны летні час"
+        generic: "Атлянтычны час"
+        standard: "Атлянтычны стандартны час"
+    Europe_Central: 
+      long: 
+        daylight: "Цэнтральнаэўрапейскі летні час"
+        generic: "Цэнтральнаэўрапейскі час"
+        standard: "Цэнтральнаэўрапейскі стандартны час"
+    Europe_Eastern: 
+      long: 
+        daylight: "Усходнеэўрапейскі летні час"
+        generic: "Усходнеэўрапейскі час"
+        standard: "Усходнеэўрапейскі стандартны час"
+    Europe_Western: 
+      long: 
+        daylight: "Заходнеэўрапейскі летні час"
+        generic: "Заходнеэўрапейскі час"
+        standard: "Заходнеэўрапейскі стандартны час"
+    GMT: 
+      long: 
+        standard: "Грынвічскі час"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    America/Anchorage: 
+      city: Анкорыдж
+    America/Campo_Grande: 
+      city: "Кампа Грандэ"
+    America/Chicago: 
+      city: Чыкага
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Denver: 
+      city: Дэнвэр
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Indianapolis: 
+      city: Індыянапаліс
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Los_Angeles: 
+      city: Лос-Анджэлас
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/New_York: 
+      city: Нью-Ёрк
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Phoenix: 
+      city: Фэнікс
+    America/Rio_Branco: 
+      city: "Рыё Бранка"
+    America/Sao_Paulo: 
+      city: Сан-Паўлу
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: Невядомы
+    Pacific/Honolulu: 
+      city: Ганалулу
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

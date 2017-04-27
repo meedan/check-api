@@ -1,0 +1,809 @@
+nn: 
+  currencies: 
+    ADP: 
+      one: "andorransk peseta"
+    AED: 
+      one: "UAE dirham"
+    AFA: 
+      one: "afghani (1927–2002)"
+    AFN: 
+      one: afghani
+    ALL: 
+      one: "albansk lek"
+    AMD: 
+      one: "armensk dram"
+    ANG: 
+      one: "nederlansk antillegylden"
+    AOA: 
+      one: "angolsk kwanza"
+    AOK: 
+      one: "angolsk kwanza (1977–1990)"
+    AON: 
+      one: "angolsk ny kwanza (1990–2000)"
+    AOR: 
+      one: "angolsk kwanza reajustado (1995–1999)"
+    ARA: 
+      one: "argentisk austral"
+    ARP: 
+      one: "argentinsk peso (1983–1985)"
+    ARS: 
+      one: "argentinsk peso"
+      symbol: $
+    ATS: 
+      one: "austerriksk schilling"
+    AUD: 
+      one: "australsk dollar"
+      symbol: A$
+    AWG: 
+      one: "arubisk gylden"
+    AZM: 
+      one: "aserbaijansk manat"
+    AZN: 
+      one: "aserbajdsjansk manat"
+      other: "aserbajdsjanske manat"
+    BAD: 
+      one: "bosnisk-hercegovinsk dinar"
+    BAM: 
+      one: "bosnisk-hercegovinsk mark (konvertibel)"
+    BBD: 
+      one: "barbadisk dollar"
+      symbol: $
+    BDT: 
+      one: "bangladeshisk taka"
+      symbol: ৳
+    BEC: 
+      one: "belgisk franc (konvertibel)"
+    BEF: 
+      one: "belgisk franc"
+    BEL: 
+      one: "belgisk franc (finansiell)"
+    BGL: 
+      one: "bulgarsk hard lev"
+    BGN: 
+      one: "bulgarsk ny lev"
+    BHD: 
+      one: "bahrainsk dinar"
+    BIF: 
+      one: "burundisk franc"
+    BMD: 
+      one: "bermudisk dollar"
+      symbol: $
+    BND: 
+      one: "bruneisk dollar"
+      symbol: $
+    BOB: 
+      one: boliviano
+    BOP: 
+      one: "bolivisk peso"
+    BOV: 
+      one: "bolivisk mvdol"
+    BRB: 
+      one: "brasiliansk cruzeiro novo (1967–1986)"
+    BRC: 
+      one: "brasiliansk cruzado"
+    BRE: 
+      one: "brasiliansk cruzeiro (1990–1993)"
+    BRL: 
+      one: "brasiliansk real"
+      symbol: R$
+    BRN: 
+      one: "brasiliansk cruzado novo"
+    BRR: 
+      one: "brasiliansk cruzeiro"
+    BSD: 
+      one: "bahamisk dollar"
+      symbol: $
+    BTN: 
+      one: "bhutansk ngultrum"
+    BUK: 
+      one: "burmesisk kyat"
+    BWP: 
+      one: "botswansk pula"
+      other: "botswanske pula"
+    BYB: 
+      one: "kviterussisk ny rubel (BYB)"
+      other: "kviterussiske nye rublar (BYB)"
+    BYR: 
+      one: "kviterussisk rubel"
+      other: "kviterussiske rublar"
+      symbol: р.
+    BZD: 
+      one: "belizisk dollar"
+      other: "beliziske dollar"
+      symbol: $
+    CAD: 
+      one: "kanadisk dollar"
+      other: "kanadiske dollar"
+      symbol: CA$
+    CDF: 
+      one: "kongolesisk franc"
+      other: "kongolesiske franc"
+    CHE: 
+      one: "WIR euro"
+      other: "WIR euro"
+    CHF: 
+      one: "sveitsisk franc"
+      other: "sveitsiske franc"
+    CHW: 
+      one: "WIR franc"
+      other: "WIR franc"
+    CLF: 
+      one: "chilensk unidades de fomento"
+      other: "chilenske unidades de fomento"
+    CLP: 
+      one: "chilensk peso"
+      other: "chilenske peso"
+      symbol: $
+    CNY: 
+      one: "kinesisk yuan renminbi"
+      symbol: CN¥
+    COP: 
+      one: "colombiansk peso"
+      other: "colombianske peso"
+      symbol: $
+    COU: 
+      one: "unidad de valor real"
+      other: "unidad de valor real"
+    CRC: 
+      one: "costaricansk colon"
+      other: "costaricanske colon"
+      symbol: ₡
+    CSD: 
+      one: "gammal serbisk dinar"
+      other: "gamle serbiske dinarar"
+    CSK: 
+      one: "tsjekkoslovakisk koruna (hard)"
+      other: "tsjekkoslovakiske koruna (hard)"
+    CUP: 
+      one: "kubansk peso"
+      other: "kubanske peso"
+      symbol: $
+    CVE: 
+      one: "kappverdisk escudo"
+    CYP: 
+      one: "kypriotisk pund"
+      other: "kypriotiske pund"
+    CZK: 
+      one: "tsjekkisk koruna"
+      other: "tsjekkiske koruna"
+    DDM: 
+      one: "austtysk mark"
+      other: "austtyske mark"
+    DEM: 
+      one: "tysk mark"
+      other: "tyske mark"
+    DJF: 
+      one: "djiboutisk franc"
+      other: "djiboutiske franc"
+    DKK: 
+      one: "dansk krone"
+    DOP: 
+      one: "dominikansk peso"
+      other: "dominikanske peso"
+      symbol: $
+    DZD: 
+      one: "algerisk dinar"
+      other: "algeriske dinarar"
+    ECS: 
+      one: "ecuadoriansk sucre"
+      other: "ecuadorianske sucre"
+    ECV: 
+      one: "ecuadoriansk unidad de valor constante (UVC)"
+      other: "ecuadorianske unidad de valor constante (UVC)"
+    EEK: 
+      one: "estisk kroon"
+      other: "estiske kroon"
+    EGP: 
+      one: "egyptisk pund"
+      other: "egyptiske pund"
+    ERN: 
+      one: "eritreisk nakfa"
+      other: "eritreiske nakfa"
+    ESA: 
+      one: "spansk peseta (A–konto)"
+      other: "spanske peseta (A–konto)"
+    ESB: 
+      one: "spansk peseta (konvertibel konto)"
+      other: "spanske peseta (konvertibel konto)"
+    ESP: 
+      one: "spansk peseta"
+      other: "spanske peseta"
+      symbol: ₧
+    ETB: 
+      one: "etiopisk birr"
+      other: "etiopiske birr"
+    EUR: 
+      one: euro
+      symbol: €
+    FIM: 
+      one: "finsk mark"
+      other: "finske mark"
+    FJD: 
+      one: "fijiansk dollar"
+      other: "fijianske dollar"
+      symbol: $
+    FKP: 
+      one: Falkland-pund
+      other: Falkland-pund
+    FRF: 
+      one: "fransk franc"
+      other: "franske franc"
+    GBP: 
+      one: "britisk pund sterling"
+      symbol: £
+    GEK: 
+      one: "georgisk kupon larit"
+      other: "georgiske kupon larit"
+    GEL: 
+      one: "georgisk lari"
+      other: "georgiske lari"
+    GHC: 
+      one: "ghanesisk cedi (GHC)"
+      other: "ghanesiske cedi (GHC)"
+    GHS: 
+      one: "ghanesisk cedi"
+      other: "ghanesiske cedi"
+      symbol: ₵
+    GIP: 
+      one: "gibraltarsk pund"
+      other: "gibraltarske pund"
+      symbol: £
+    GMD: 
+      one: "gambisk dalasi"
+      other: "gambiske dalasi"
+    GNF: 
+      one: "guineansk franc"
+      other: "guineanske franc"
+    GNS: 
+      one: "guineansk syli"
+      other: "guineanske syli"
+    GQE: 
+      one: "ekvatorialguineansk ekwele"
+      other: "ekvatorialguineanske ekwele"
+    GRD: 
+      one: "gresk drakme"
+      other: "greske drakmer"
+    GTQ: 
+      one: "guatemalansk quetzal"
+      other: "guatemalanske quetzal"
+    GWE: 
+      one: "portugisisk guinea escudo"
+      other: "portugisiske guinea escudo"
+    GWP: 
+      one: Guinea-Bissau-peso
+    GYD: 
+      one: "guyansk dollar"
+      other: "guyanske dollar"
+      symbol: $
+    HKD: 
+      one: Hongkong-dollar
+      other: Hongkong-dollar
+      symbol: HK$
+    HNL: 
+      one: "honduransk lempira"
+      other: "honduranske lempira"
+    HRD: 
+      one: "kroatisk dinar"
+      other: "kroatiske dinarar"
+    HRK: 
+      one: "kroatisk kuna"
+      other: "kroatiske kuna"
+    HTG: 
+      one: "haitisk gourde"
+      other: "haitiske gourde"
+    HUF: 
+      one: "ungarsk forint"
+      other: "ungarske forintar"
+    IDR: 
+      one: "indonesisk rupi"
+      other: "indonesiske rupiar"
+    IEP: 
+      one: "irsk pund"
+      other: "irske pund"
+    ILP: 
+      one: "israelsk pund"
+      other: "israelske pund"
+    ILS: 
+      one: "israelsk ny shekel"
+      other: "israelske nye sheklar"
+      symbol: ₪
+    INR: 
+      one: "indisk rupi"
+      symbol: ₹
+    IQD: 
+      one: "irakisk dinar"
+      other: "irakiske dinarar"
+    IRR: 
+      one: "iransk rial"
+      other: "iranske rialar"
+    ISK: 
+      one: "islandsk krone"
+      other: "islandske kroner"
+    ITL: 
+      one: "italiensk lire"
+      other: "italienske lire"
+    JMD: 
+      one: "jamaikansk dollar"
+      other: "jamaikanske dollar"
+      symbol: $
+    JOD: 
+      one: "jordansk dinar"
+      other: "jordanske dinarar"
+    JPY: 
+      one: "japansk yen"
+      symbol: JP¥
+    KES: 
+      one: "kenyansk shilling"
+      other: "kenyanske shilling"
+    KGS: 
+      one: "kirgisisk som"
+      other: "kirgisiske som"
+    KHR: 
+      one: "kambodsjansk riel"
+      other: "kambodsjanske riel"
+      symbol: ៛
+    KMF: 
+      one: "komorisk franc"
+      other: "komoriske franc"
+    KPW: 
+      one: "nordkoreansk won"
+      other: "nordkoreanske won"
+    KRW: 
+      one: "sørkoreansk won"
+      other: "sørkoreanske won"
+      symbol: ₩
+    KWD: 
+      one: "kuwaitisk dinar"
+      other: "kuwaitiske dinarar"
+    KYD: 
+      one: "caymansk dollar"
+      other: "caymanske dollar"
+      symbol: $
+    KZT: 
+      one: "kasakhstansk tenge"
+      other: "kasakhstanske tenge"
+      symbol: ₸
+    LAK: 
+      one: "laotisk kip"
+      other: "laotiske kip"
+      symbol: ₭
+    LBP: 
+      one: "libanesisk pund"
+      other: "libanesiske pund"
+    LKR: 
+      one: "srilankisk rupi"
+      other: "srilankiske rupiar"
+    LRD: 
+      one: "liberisk dollar"
+      other: "liberiske dollar"
+      symbol: $
+    LSL: 
+      one: "lesothisk loti"
+      other: "lesothiske loti"
+    LTL: 
+      one: "litauisk lita"
+      other: "litauiske lita"
+    LTT: 
+      one: "litauisk talona"
+      other: "litauiske talona"
+    LUC: 
+      one: "luxemburgsk konvertibel franc"
+      other: "luxemburgske konvertible franc"
+    LUF: 
+      one: "luxemburgsk franc"
+      other: "luxemburgske franc"
+    LUL: 
+      one: "luxemburgsk finansiell franc"
+      other: "luxemburgske finansielle franc"
+    LVL: 
+      one: "latvisk lat"
+      other: "latviske lat"
+    LVR: 
+      one: "latvisk rubel"
+      other: "latviske rublar"
+    LYD: 
+      one: "libysk dinar"
+      other: "libyske dinarar"
+    MAD: 
+      one: "marokkansk dirham"
+      other: "marokkanske dirham"
+    MAF: 
+      one: "marokkansk franc"
+      other: "marokkanske franc"
+    MDL: 
+      one: "moldovsk leu"
+      other: "moldovske lei"
+    MGA: 
+      one: "madagassisk ariary"
+      other: "madagassiske ariary"
+    MGF: 
+      one: "madagassisk franc"
+      other: "madagassiske franc"
+    MKD: 
+      one: "makedonsk denar"
+      other: "makedonske denarar"
+    MLF: 
+      one: "malisk franc"
+      other: "maliske franc"
+    MMK: 
+      one: "myanmarsk kyat"
+      other: "myanmarske kyat"
+    MNT: 
+      one: "mongolsk tugrik"
+      other: "mongolske tugrik"
+      symbol: ₮
+    MOP: 
+      one: "makaosk pataca"
+      other: "makaoske pataca"
+    MRO: 
+      one: "mauritansk ouguiya"
+      other: "mauritanske ouguiya"
+    MTL: 
+      one: "maltesisk lira"
+      other: "maltesiske lira"
+    MTP: 
+      one: "maltesisk pund"
+      other: "maltesiske pund"
+    MUR: 
+      one: "mauritansk rupi"
+      other: "mauritanske rupiar"
+    MVR: 
+      one: "maldivisk rufiyaa"
+      other: "maldiviske rufiyaa"
+    MWK: 
+      one: "malawisk kwacha"
+      other: "malawiske kwacha"
+    MXN: 
+      one: "meksikansk peso"
+      other: "meksikanske peso"
+      symbol: MX$
+    MXP: 
+      one: "meksikansk sølvpeso (MXP)"
+      other: "meksikanske sølvpeso (MXP)"
+    MXV: 
+      one: "meksikansk unidad de inversion (UDI)"
+      other: "meksikanske unidad de inversion (UDI)"
+    MYR: 
+      one: "malaysisk ringgit"
+      other: "malaysiske ringgit"
+    MZE: 
+      one: "mosambikisk escudo"
+      other: "mosambikiske escudo"
+    MZM: 
+      one: "gammal mosambikisk metical"
+      other: "gamle mosambikiske metical"
+    MZN: 
+      one: "mosambikisk metical"
+    NAD: 
+      one: "namibisk dollar"
+      other: "namibiske dollar"
+      symbol: $
+    NGN: 
+      one: "nigeriansk naira"
+      other: "nigerianske naira"
+      symbol: ₦
+    NIC: 
+      one: "nicaraguansk cordoba"
+      other: "nicaraguanske cordoba"
+    NIO: 
+      one: "nicaraguansk cordoba oro"
+      other: "nicaraguanske cordoba oro"
+    NLG: 
+      one: "nederlandsk gylden"
+      other: "nederlandske gylden"
+    NOK: 
+      one: "norsk krone"
+      symbol: kr
+    NPR: 
+      one: "nepalsk rupi"
+      other: "nepalske rupiar"
+    NZD: 
+      one: "new zealandsk dollar"
+      other: "new zealandske dollar"
+      symbol: NZ$
+    OMR: 
+      one: "omansk rial"
+      other: "omanske rial"
+    PAB: 
+      one: "panamansk balboa"
+      other: "panamanske balboa"
+    PEI: 
+      one: "peruansk inti"
+      other: "peruanske inti"
+    PEN: 
+      one: "peruansk nuevo sol"
+      other: "peruanske nuevo sol"
+    PES: 
+      one: "peruansk sol"
+      other: "peruanske sol"
+    PGK: 
+      one: "papuansk kina"
+      other: "papuanske kina"
+    PHP: 
+      one: "filippinsk peso"
+      other: "filippinske peso"
+      symbol: ₱
+    PKR: 
+      one: "pakistansk rupi"
+      other: "pakistanske rupiar"
+    PLN: 
+      one: "polsk zloty"
+      other: "polske zloty"
+    PLZ: 
+      one: "polsk zloty (PLZ)"
+      other: "polske zloty (PLZ)"
+    PTE: 
+      one: "portugisisk escudo"
+      other: "portugisiske escudo"
+    PYG: 
+      one: "paraguayansk guarani"
+      other: "paraguayanske guarani"
+      symbol: ₲
+    QAR: 
+      one: "qatarsk rial"
+      other: "qatarske rial"
+    RHD: 
+      one: "rhodesisk dollar"
+      other: "rhodesiske dollar"
+    ROL: 
+      one: "gammal rumensk leu"
+      other: "gamle rumenske lei"
+    RON: 
+      one: "rumensk leu"
+      other: "rumenske lei"
+    RSD: 
+      one: "serbisk dinar"
+      other: "serbiske dinarar"
+    RUB: 
+      one: "russisk rubel"
+    RUR: 
+      one: "russisk rubel (RUR)"
+      other: "russiske rublar (RUR)"
+      symbol: р.
+    RWF: 
+      one: "rwandisk franc"
+      other: "rwandiske franc"
+    SAR: 
+      one: "saudiarabisk rial"
+      other: "saudiarabiske rial"
+    SBD: 
+      one: "salomonsk dollar"
+      other: "salomonske dollar"
+      symbol: $
+    SCR: 
+      one: "seychellisk rupi"
+      other: "seychelliske rupiar"
+    SDD: 
+      one: "gammal sudansk dinar"
+      other: "gamle sudanske dinarar"
+    SDG: 
+      one: "sudansk pund"
+      other: "sudanske pund"
+    SDP: 
+      one: "gammalt sudansk pund"
+      other: "gamle sudanske pund"
+    SEK: 
+      one: "svensk krone"
+      other: "svenske kroner"
+    SGD: 
+      one: "singaporsk dollar"
+      other: "singaporske dollar"
+      symbol: $
+    SHP: 
+      one: "sankthelensk pund"
+      other: "sankthelenske pund"
+    SIT: 
+      one: "slovensk tolar"
+      other: "slovenske tolar"
+    SKK: 
+      one: "slovakisk koruna"
+      other: "slovakiske koruna"
+    SLL: 
+      one: "sierraleonsk leone"
+      other: "sierraleonske leone"
+    SOS: 
+      one: "somalisk shilling"
+      other: "somaliske shilling"
+    SRD: 
+      one: "surinamsk dollar"
+      other: "surinamske dollar"
+      symbol: $
+    SRG: 
+      one: "surinamsk gylden"
+      other: "surinamske gylden"
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Sao Tome og Principe-dobra"
+    SUR: 
+      one: "sovjetisk rubel"
+      other: "sovjetiske rublar"
+    SVC: 
+      one: "salvadoransk colon"
+      other: "salvadoranske colon"
+    SYP: 
+      one: "syrisk pund"
+      other: "syriske pund"
+    SZL: 
+      one: "swazilandsk lilangeni"
+      other: "swazilandske lilangeni"
+    THB: 
+      one: "thailandsk baht"
+      other: "thailandske baht"
+      symbol: ฿
+    TJR: 
+      one: "tadsjikisk rubel"
+      other: "tadsjikiske rublar"
+    TJS: 
+      one: "tadsjikisk somoni"
+      other: "tadsjikiske somoni"
+    TMM: 
+      one: "turkmensk manat"
+      other: "turkmenske manat"
+    TND: 
+      one: "tunisisk dinar"
+      other: "tunisiske dinarar"
+    TOP: 
+      one: "tongansk paʻanga"
+      other: "tonganske paʻanga"
+    TPE: 
+      one: "timoresisk escudo"
+      other: "timoresiske escudo"
+    TRL: 
+      one: "gammal tyrkisk lire"
+      other: "gamle tyrkiske lire"
+    TRY: 
+      one: "tyrkisk lire"
+      other: "tyrkiske lire"
+      symbol: ₺
+    TTD: 
+      one: "trinidadisk dollar"
+      other: "trinidadiske dollar"
+      symbol: $
+    TWD: 
+      one: "taiwansk ny dollar"
+      other: "taiwanske nye dollar"
+      symbol: NT$
+    TZS: 
+      one: "tanzaniansk shilling"
+      other: "tanzanianske shilling"
+    UAH: 
+      one: "ukrainsk hryvnia"
+      other: "ukrainske hryvnia"
+      symbol: ₴
+    UAK: 
+      one: "ukrainsk karbovanetz"
+      other: "ukrainske karbovanetz"
+    UGS: 
+      one: "ugandisk shilling (UGS)"
+      other: "ugandiske shilling (UGS)"
+    UGX: 
+      one: "ugandisk shilling"
+      other: "ugandiske shilling"
+    USD: 
+      one: "amerikansk dollar"
+      symbol: US$
+    USN: 
+      one: "amerikansk dollar (neste dag)"
+      other: "amerikanske dollar (neste dag)"
+    USS: 
+      one: "amerikansk dollar (same dag)"
+      other: "amerikanske dollar (same dag)"
+    UYI: 
+      one: "uruguayansk peso en unidades indexadas"
+      other: "uruguayanske peso en unidades indexadas"
+    UYP: 
+      one: "uruguayansk peso (UYP)"
+      other: "uruguayanske peso (UYP)"
+    UYU: 
+      one: "uruguayansk peso"
+      other: "uruguayanske peso"
+      symbol: $
+    UZS: 
+      one: "usbekisk sum"
+      other: "usbekiske sum"
+    VEB: 
+      one: "venezuelansk bolivar (1871–2008)"
+      other: "venezuelanske bolivar (1871–2008)"
+    VEF: 
+      one: "venezuelansk bolivar"
+      other: "venezuelanske bolivar"
+    VND: 
+      one: "vietnamesisk dong"
+      other: "vietnamesiske dong"
+      symbol: ₫
+    VUV: 
+      one: "vanuatuisk vatu"
+      other: "vanuatuiske vatu"
+    WST: 
+      one: "vestsamoisk tala"
+      other: "vestsamoiske tala"
+    XAF: 
+      one: "CFA franc BEAC"
+      other: "CFA franc BEAC"
+      symbol: FCFA
+    XAG: 
+      one: sølv
+      other: sølv
+    XAU: 
+      one: gull
+      other: gull
+    XBA: 
+      one: "europeisk samansett eining"
+      other: "europeiske samansette einingar"
+    XBB: 
+      one: "europeisk monetær eining"
+      other: "europeiske monetære einingar"
+    XBC: 
+      one: "europeisk kontoeining (XBC)"
+      other: "europeiske kontoeiningar (XBC)"
+    XBD: 
+      one: "europeisk kontoeining (XBD)"
+      other: "europeiske kontoeiningar (XBD)"
+    XCD: 
+      one: "austkaribisk dollar"
+      other: "austkaribiske dollar"
+      symbol: EC$
+    XDR: 
+      one: "spesiell trekkrett"
+      other: "spesielle trekkrettar"
+    XEU: 
+      one: "europeisk valutaeining"
+      other: "europeiske valutaeiningar"
+    XFO: 
+      one: "fransk gullfranc"
+      other: "franske gullfranc"
+    XFU: 
+      one: "fransk UIC-franc"
+      other: "franske UIC-franc"
+    XOF: 
+      one: "CFA franc BCEAO"
+      symbol: CFA
+    XPD: 
+      one: palladium
+      other: palladium
+    XPF: 
+      one: CFP-franc
+      other: CFP-franc
+      symbol: CFPF
+    XPT: 
+      one: platina
+      other: platina
+    XRE: 
+      one: RINET-fond
+      other: RINET-fond
+    XTS: 
+      one: testvalutakode
+      other: testvalutakode
+    XXX: 
+      one: "ukjend/ugyldig valuta"
+      other: "ukjend eller ugyldig valuta"
+    YDD: 
+      one: "jemenittisk dinar"
+      other: "jemenittiske dinarar"
+    YER: 
+      one: "jemenittisk rial"
+      other: "jemenittiske rialar"
+    YUD: 
+      one: "jugoslavisk dinar (hard)"
+      other: "jugoslaviske dinarar (hard)"
+    YUM: 
+      one: "jugoslavisk noviy-dinarar"
+      other: "jugoslaviske noviy-dinar"
+    YUN: 
+      one: "jugoslavisk konvertibel dinar"
+      other: "jugoslaviske konvertible dinarar"
+    ZAL: 
+      one: "sørafrikansk rand (finansiell)"
+    ZAR: 
+      one: "sørafrikansk rand"
+    ZMK: 
+      one: "zambisk kwacha (1968–2012)"
+    ZMW: 
+      one: "zambisk kwacha"
+    ZRN: 
+      one: "zairisk ny zaire"
+    ZRZ: 
+      one: "zairisk zaire"
+    ZWD: 
+      one: "zimbabwisk dollar"

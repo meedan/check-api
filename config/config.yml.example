@@ -42,6 +42,7 @@ development: &default
   locale:
   alegre_host:
   alegre_token:
+  viber_token:
 
 test:
   <<: *default

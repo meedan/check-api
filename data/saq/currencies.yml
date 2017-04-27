@@ -1,0 +1,218 @@
+saq: 
+  currencies: 
+    AED: 
+      one: "Njilingi eel Falme za Kiarabu"
+    AOA: 
+      one: "Njilingi eel Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Njilingi eel Australia"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Njilingi eel Bahareni"
+    BIF: 
+      one: "Njilingi eel Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Njilingi eel Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Njilingi eel Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Njilingi eel Kongo"
+    CHF: 
+      one: "Njilingi eel Uswisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Njilingi eel China"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Njilingi eel Kepuvede"
+    DJF: 
+      one: "Njilingi eel Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Njilingi eel Aljeria"
+    EGP: 
+      one: "Njilingi eel Misri"
+    ERN: 
+      one: "Njilingi eel Eritrea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Njilingi eel Uhabeshi"
+    EUR: 
+      one: Yuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Njilingi eel Uingereza"
+      symbol: £
+    GHC: 
+      one: "Njilingi eel Ghana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Njilingi eel Gambia"
+    GNS: 
+      one: "Njilingi eel Gine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Njilingi eel India"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Njilingi eel Kijapani"
+      symbol: JP¥
+    KES: 
+      one: "Njilingi eel Kenya"
+      symbol: Ksh
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Njilingi eel Komoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dola eel Liberia"
+      symbol: $
+    LSL: 
+      one: "Njilingi eel Lesoto"
+    LYD: 
+      one: "Njilingi eel Libya"
+    MAD: 
+      one: "Njilingi eel Moroko"
+    MGA: 
+      one: "Njilingi eel Bukini"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Njilingi eel Moritania"
+    MUR: 
+      one: "Njilingi eel Morisi"
+    MWK: 
+      one: "Njilingi eel Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Njilingi eel Msumbiji"
+    NAD: 
+      one: "Njilingi eel Namibia"
+      symbol: $
+    NGN: 
+      one: "Njilingi eel Nijeria"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Njilingi eel Rwanda"
+    SAR: 
+      one: "Njilingi eel Saudia"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Njilingi eel Shelisheli"
+    SDG: 
+      one: "Paunt eel Sudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Paunt eel Santahelena"
+    SLL: 
+      one: Leoni
+    SOS: 
+      one: "Njilingi eel Somalia"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Njilingi eel Sao Tome na Principe"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Njilingi eel Tunisia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Njilingi eel Tanzania"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Njilingi eel Uganda"
+    USD: 
+      one: "Dola eel Marekani"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Njilingi eel CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Njilingi eel CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Njilingi eel Afrika Kusini"
+    ZMK: 
+      one: "Njilingi eel Zambia (1968–2012)"
+    ZMW: 
+      one: "Njilingi eel Zambia"
+    ZWD: 
+      one: "Dola eel Zimbabwe"

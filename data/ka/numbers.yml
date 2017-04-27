@@ -1,0 +1,61 @@
+ka: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.00 ¤"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 ათასი"
+            10000: "00 ათასი"
+            100000: "000 ათასი"
+            1000000: "0 მილიონი"
+            10000000: "00 მილიონი"
+            100000000: "000 მილიონი"
+            1000000000: "0 მილიარდი"
+            10000000000: "00 მილიარდი"
+            100000000000: "000 მილიარდი"
+            1000000000000: "0 ტრილიონი"
+            10000000000000: "00 ტრილიონი"
+            100000000000000: "000 ტრილიონი"
+          short: 
+            1000: 0 ათ'.'
+            10000: 00 ათ'.'
+            100000: 000 ათ'.'
+            1000000: 0 მლნ'.'
+            10000000: 00 მლნ'.'
+            100000000: 000 მლნ'.'
+            1000000000: 0 მლრდ'.'
+            10000000000: 00 მლრდ'.'
+            100000000000: 000 მლრ'.'
+            1000000000000: 0 ტრლ'.'
+            10000000000000: 00 ტრლ'.'
+            100000000000000: 000 ტრლ'.'
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0 %"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: ","
+      exponential: E
+      group:  
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: არ არის რიცხვი
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

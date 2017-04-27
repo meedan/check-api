@@ -1,0 +1,194 @@
+dav: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "d MMM y"
+        yMd: d/M/y
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Kas
+            mon: Jim
+            sat: Ngu
+            sun: Jum
+            thu: Kan
+            tue: Kaw
+            wed: Kad
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: "Kuramuka kasanu"
+            mon: "Kuramuka jimweri"
+            sat: "Kifula nguwo"
+            sun: "Ituku ja jumwa"
+            thu: "Kuramuka kana"
+            tue: "Kuramuka kawi"
+            wed: "Kuramuka kadadu"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: K
+            mon: J
+            sat: N
+            sun: J
+            thu: K
+            tue: K
+            wed: K
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: KK
+          1: BK
+        name: 
+          0: "Kabla ya Kristo"
+          1: "Baada ya Kristo"
+        narrow: 
+          0: ""
+      fields: 
+        day: Ituku
+        dayperiod: KE/PE
+        era: Ngelo
+        hour: Saa
+        minute: Dakika
+        month: Mori
+        second: Sekunde
+        week: Juma
+        weekday: "Day of the Week"
+        year: Mwaka
+        zone: "Majira ya saa"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: Imb
+            10: Iku
+            11: Imw
+            12: Iwi
+            2: Kaw
+            3: Kad
+            4: Kan
+            5: Kas
+            6: Kar
+            7: Mfu
+            8: Wun
+            9: Ike
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: "Mori ghwa imbiri"
+            10: "Mori ghwa ikumi"
+            11: "Mori ghwa ikumi na imweri"
+            12: "Mori ghwa ikumi na iwi"
+            2: "Mori ghwa kawi"
+            3: "Mori ghwa kadadu"
+            4: "Mori ghwa kana"
+            5: "Mori ghwa kasanu"
+            6: "Mori ghwa karandadu"
+            7: "Mori ghwa mfungade"
+            8: "Mori ghwa wunyanya"
+            9: "Mori ghwa ikenda"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: I
+            10: I
+            11: I
+            12: I
+            2: K
+            3: K
+            4: K
+            5: K
+            6: K
+            7: M
+            8: W
+            9: I
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: "Luma lwa K"
+            pm: "luma lwa p"
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: K1
+            2: K2
+            3: K3
+            4: K4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "Kimu cha imbiri"
+            2: "Kimu cha kawi"
+            3: "Kimu cha kadadu"
+            4: "Kimu cha kana"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

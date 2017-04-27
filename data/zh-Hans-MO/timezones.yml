@@ -1,0 +1,103 @@
+zh-Hans-MO: 
+  metazones: 
+    Cocos: 
+      long: 
+        standard: 科科斯岛时间
+    DumontDUrville: 
+      long: 
+        standard: 杜蒙特杜维尔时间
+    French_Southern: 
+      long: 
+        standard: 法属南部和南极洲时间
+    Gilbert_Islands: 
+      long: 
+        standard: 吉尔柏特群岛时间
+    Phoenix_Islands: 
+      long: 
+        standard: 凤凰岛时间
+    Pierre_Miquelon: 
+      long: 
+        daylight: 圣皮埃尔和密克隆夏令时间
+        generic: 圣皮埃尔和密克隆时间
+        standard: 圣皮埃尔和密克隆标准时间
+    South_Georgia: 
+      long: 
+        standard: 南乔治亚时间
+    Tahiti: 
+      long: 
+        standard: 大溪地时间
+    Truk: 
+      long: 
+        standard: 特鲁克时间
+    Tuvalu: 
+      long: 
+        standard: 吐瓦鲁时间
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/Menominee: 
+      city: 梅诺米尼
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Santo_Domingo: 
+      city: 圣多明戈
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: 圣巴太累米
+    America/St_Johns: 
+      city: 圣约翰
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: 杜蒙杜威勒
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: Unknown
+    Europe/Zaporozhye: 
+      city: 扎波罗什
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

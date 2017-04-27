@@ -1,0 +1,287 @@
+te: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "E d"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G MMM y"
+        GyMMMEd: "G E, d, MMM y"
+        GyMMMd: "G d, MMM y"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, d/M"
+        MMM: LLL
+        MMMEd: "E, d MMM"
+        MMMMd: "d MMMM"
+        MMMd: "d MMM"
+        MMdd: dd-MM
+        Md: d/M
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, d/M/y"
+        yMM: MM-y
+        yMMM: "MMM y"
+        yMMMEd: "E, d, MMM y"
+        yMMMM: "MMMM y"
+        yMMMd: "d, MMM y"
+        yMd: d/M/y
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: శుక్ర
+            mon: సోమ
+            sat: శని
+            sun: ఆది
+            thu: గురు
+            tue: మంగళ
+            wed: బుధ
+          narrow: 
+            fri: శు
+            mon: సో
+            sat: శ
+            sun: ఆ
+            thu: గు
+            tue: మ
+            wed: బు
+          short: 
+            fri: శుక్ర
+            mon: సోమ
+            sat: శని
+            sun: ఆది
+            thu: గురు
+            tue: మం
+            wed: బుధ
+          wide: 
+            fri: శుక్రవారం
+            mon: సోమవారం
+            sat: శనివారం
+            sun: ఆదివారం
+            thu: గురువారం
+            tue: మంగళవారం
+            wed: బుధవారం
+        stand-alone: 
+          abbreviated: 
+            fri: శుక్ర
+            mon: సోమ
+            sat: శని
+            sun: ఆది
+            thu: గురు
+            tue: మంగళ
+            wed: బుధ
+          narrow: 
+            fri: శు
+            mon: సో
+            sat: శ
+            sun: ఆ
+            thu: గు
+            tue: మ
+            wed: బు
+          short: 
+            fri: శుక్ర
+            mon: సోమ
+            sat: శని
+            sun: ఆది
+            thu: గురు
+            tue: మం
+            wed: బుధ
+          wide: 
+            fri: శుక్రవారం
+            mon: సోమవారం
+            sat: శనివారం
+            sun: ఆదివారం
+            thu: గురువారం
+            tue: మంగళవారం
+            wed: బుధవారం
+      eras: 
+        abbr: 
+          0: BCE
+          1: CE
+        name: 
+          0: ఈసాపూర్వ.
+          1: సన్.
+        narrow: 
+          0: ఈసాపూర్వ.
+          1: సన్.
+      fields: 
+        day: దినం
+        dayperiod: AM/PM
+        era: "యుగం, శకము"
+        hour: గంట
+        minute: నిమిషము
+        month: నెల
+        second: క్షణం
+        week: వారము
+        weekday: "వారంలో రోజు"
+        year: సంవత్సరం
+        zone: మండలం
+      formats: 
+        date: 
+          full: 
+            pattern: "d MMMM y EEEE"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd-MM-yy
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: జన
+            10: అక్టో
+            11: నవం
+            12: డిసెం
+            2: ఫిబ్ర
+            3: మార్చి
+            4: ఏప్రి
+            5: మే
+            6: జూన్
+            7: జులై
+            8: ఆగ
+            9: సెప్టెం
+          narrow: 
+            1: జ
+            10: అ
+            11: న
+            12: డి
+            2: ఫి
+            3: మా
+            4: ఏ
+            5: మే
+            6: జూ
+            7: జు
+            8: ఆ
+            9: సె
+          wide: 
+            1: జనవరి
+            10: అక్టోబర్
+            11: నవంబర్
+            12: డిసెంబర్
+            2: ఫిబ్రవరి
+            3: మార్చి
+            4: ఎప్రిల్
+            5: మే
+            6: జూన్
+            7: జులై
+            8: ఆగస్టు
+            9: సెప్టెంబర్
+        stand-alone: 
+          abbreviated: 
+            1: జన
+            10: అక్టో
+            11: నవం
+            12: డిసెం
+            2: ఫిబ్ర
+            3: మార్చి
+            4: ఏప్రి
+            5: మే
+            6: జూన్
+            7: జులై
+            8: ఆగస్టు
+            9: సెప్టెం
+          narrow: 
+            1: జ
+            10: అ
+            11: న
+            12: డి
+            2: ఫి
+            3: మా
+            4: ఏ
+            5: మే
+            6: జూ
+            7: జు
+            8: ఆ
+            9: సె
+          wide: 
+            1: జనవరి
+            10: అక్టోబర్
+            11: నవంబర్
+            12: డిసెంబర్
+            2: ఫిబ్రవరి
+            3: మార్చి
+            4: ఎప్రిల్
+            5: మే
+            6: జూన్
+            7: జూలై
+            8: ఆగస్టు
+            9: సెప్టెంబర్
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: 
+            am: AM
+            pm: PM
+          wide: 
+            afternoon: రాత్రి
+            am: AM
+            earlyMorning: ఉదయం
+            evening: అర్ధరాత్రి
+            morning: మధ్యాహ్నం
+            night: తెల్లవారుఝాము
+            noon: సాయంకాలం
+            pm: PM
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: త్రై1
+            2: త్రై2
+            3: త్రై3
+            4: త్రై4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "1వ త్రైమాసం"
+            2: "2వ త్రైమాసం"
+            3: "3వ త్రైమాసం"
+            4: "4వ త్రైమాసం"
+        stand-alone: 
+          abbreviated: 
+            1: త్రై1
+            2: త్రై2
+            3: త్రై3
+            4: త్రై4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "మొదటి త్రైమాసికం"
+            2: "రెండవ త్రైమాసికం"
+            3: "మూడవ త్రైమాసికం"
+            4: "నాల్గవ త్రైమాసికం"

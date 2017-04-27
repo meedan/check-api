@@ -1,0 +1,218 @@
+teo: 
+  currencies: 
+    AED: 
+      one: "Ango'otol lok' Falme za Kiarabu"
+    AOA: 
+      one: "Ango'otol lok' Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Ango'otol lok' Australia"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Ango'otol lok' Bahareni"
+    BIF: 
+      one: "Ango'otol lok' Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Ango'otol lok' Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Edola lok'Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Ango'otol lok' Kongo"
+    CHF: 
+      one: "Ango'otol lok' Uswisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Ango'otol lok' China"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Ango'otol lok' Kepuvede"
+    DJF: 
+      one: "Ango'otol lok' Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Ango'otol lok' Aljeria"
+    EGP: 
+      one: "Epaunt lok' Misri"
+    ERN: 
+      one: "Ango'otol lok' Eritrea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Ango'otol lok' Uhabeshi"
+    EUR: 
+      one: Yuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Epaunt lok' Uingereza"
+      symbol: £
+    GHC: 
+      one: "Sedi ya Ghana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dalasi ya Gambia"
+    GNS: 
+      one: "Ango'otol lok' Gine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Ango'otol lok' India"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Ango'otol lok' Kijapani"
+      symbol: JP¥
+    KES: 
+      one: "Ango'otol lok' Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Ango'otol lok' Komoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "edola lok' Liberia"
+      symbol: $
+    LSL: 
+      one: "Ango'otol lok' Lesoto"
+    LYD: 
+      one: "Ango'otol lok' Libya"
+    MAD: 
+      one: "Ango'otol lok' Moroko"
+    MGA: 
+      one: "Ango'otol lok' Bukini"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ango'otol lok' Moritania"
+    MUR: 
+      one: "Ango'otol lok' Morisi"
+    MWK: 
+      one: "Ango'otol lok' Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Ango'otol lok' Msumbiji"
+    NAD: 
+      one: "Ango'otol lok' Namibia"
+      symbol: $
+    NGN: 
+      one: "Ango'otol lok' Nijeria"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Ango'otol lok' Rwanda"
+    SAR: 
+      one: "Ango'otol lok' Saudia"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Ango'otol lok' Shelisheli"
+    SDG: 
+      one: "Epaunt Lok' Sudan"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Ango'otol lok' Santahelena"
+    SLL: 
+      one: Leoni
+    SOS: 
+      one: "Ango'otol lok' Somalia"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Ango'otol lok' Sao Tome na Principe"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Ango'otol lok' Tunisia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Ango'otol lok' Tanzania"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Ango'otol lok' Uganda"
+      symbol: USh
+    USD: 
+      one: "edola lok' Amareka"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Ango'otol lok' CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Ango'otol lok' CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Ango'otol lok' Afrika Kusini"
+    ZMK: 
+      one: "Ango'otol lok' Zambia (1968–2012)"
+    ZMW: 
+      one: "Ango'otol lok' Zambia"
+    ZWD: 
+      one: "Edola lok'Zimbabwe"

@@ -104,7 +104,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [], t.users
     t.users << u1
     t.users << u2
-    assert_equal [u1, u2], t.users
+    assert_equal [u1, u2].sort, t.users.sort
   end
 
   test "should have team users" do

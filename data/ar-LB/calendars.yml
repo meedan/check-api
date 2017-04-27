@@ -1,0 +1,215 @@
+ar-LB: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "E, MMM d, y G"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "MM-dd, E"
+        MMM: LLL
+        MMMEd: "MMM d, E"
+        MMMd: "MMM d"
+        Md: MM-dd
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: y-MM
+        yMEd: "y-MM-dd, E"
+        yMMM: "y MMM"
+        yMMMEd: "y MMM d, E"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "y QQQ"
+        yQQQQ: "y QQQQ"
+      days: 
+        format: 
+          abbreviated: :"calendars.gregorian.days.format.wide"
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Fri
+            mon: Mon
+            sat: Sat
+            sun: Sun
+            thu: Thu
+            tue: Tue
+            wed: Wed
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: F
+            mon: M
+            sat: S
+            sun: S
+            thu: T
+            tue: T
+            wed: W
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: BCE
+          1: CE
+        name: 
+          0: ""
+        narrow: 
+          0: ""
+      fields: 
+        day: Day
+        dayperiod: Dayperiod
+        era: Era
+        hour: Hour
+        minute: Minute
+        month: Month
+        second: Second
+        week: Week
+        weekday: "Day of the Week"
+        year: Year
+        zone: Zone
+      formats: 
+        date: 
+          full: 
+            pattern: "y MMMM d, EEEE"
+          long: 
+            pattern: "y MMMM d"
+          medium: 
+            pattern: "MMM d, y"
+          short: 
+            pattern: y-MM-dd
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "HH:mm:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: "كانون الثاني"
+            10: "تشرين الأول"
+            11: "تشرين الثاني"
+            12: "كانون الأول"
+            2: شباط
+            3: آذار
+            4: نيسان
+            5: أيار
+            6: حزيران
+            7: تموز
+            8: آب
+            9: أيلول
+          narrow: 
+            1: ك
+            10: ت
+            11: ت
+            12: ك
+            2: ش
+            3: آ
+            4: ن
+            5: أ
+            6: ح
+            7: ت
+            8: آ
+            9: أ
+          wide: 
+            1: "كانون الثاني"
+            10: "تشرين الأول"
+            11: "تشرين الثاني"
+            12: "كانون الأول"
+            2: شباط
+            3: آذار
+            4: نيسان
+            5: أيار
+            6: حزيران
+            7: تموز
+            8: آب
+            9: أيلول
+        stand-alone: 
+          abbreviated: 
+            1: "كانون الثاني"
+            10: "تشرين الأول"
+            11: "تشرين الثاني"
+            12: "كانون الأول"
+            2: شباط
+            3: آذار
+            4: نيسان
+            5: أيار
+            6: حزيران
+            7: تموز
+            8: آب
+            9: أيلول
+          narrow: 
+            1: ك
+            10: ت
+            11: ت
+            12: ك
+            2: ش
+            3: آ
+            4: ن
+            5: أ
+            6: ح
+            7: ت
+            8: آ
+            9: أ
+          wide: 
+            1: "كانون الثاني"
+            10: "تشرين الأول"
+            11: "تشرين الثاني"
+            12: "كانون الأول"
+            2: شباط
+            3: آذار
+            4: نيسان
+            5: أيار
+            6: حزيران
+            7: تموز
+            8: آب
+            9: أيلول
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: AM
+            pm: PM
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: :"calendars.gregorian.quarters.format.wide"
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: Q1
+            2: Q2
+            3: Q3
+            4: Q4
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"
