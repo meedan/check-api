@@ -1023,4 +1023,14 @@ class GraphqlControllerTest < ActionController::TestCase
     languages = JSON.parse(JSON.parse(@response.body)['data']['about']['languages_supported'])
     assert_equal 'Francês', languages['fr']
   end
+
+  test "should get translation statuses" do
+    t = create_team
+    create_field_instance name: 'translation_status_status', settings: { statuses: [{ id: 'pending', label: 'Pending' }] }
+    authenticate_with_user
+    post :create, query: 'query { team { translation_statuses } }', team: t.slug
+    assert_response :success
+    statuses = JSON.parse(JSON.parse(@response.body)['data']['team']['translation_statuses'])
+    assert_equal 'Pending', statuses['statuses'][0]['label']
+  end
 end
