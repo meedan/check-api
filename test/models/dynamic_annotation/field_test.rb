@@ -86,4 +86,11 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     f3 = create_field field_name: 'language', value: 'xx'
     assert_equal 'xx', f3.to_s
   end
+
+  test "should get formatted value in JSON" do
+    ft = create_field_type field_type: 'language'
+    fi = create_field_instance name: 'language', field_type_object: ft
+    f1 = create_field field_name: 'language', value: 'fr'
+    assert_equal 'French', f1.as_json['formatted_value']
+  end
 end
