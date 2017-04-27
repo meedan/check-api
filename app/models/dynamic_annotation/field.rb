@@ -21,6 +21,11 @@ class DynamicAnnotation::Field < ActiveRecord::Base
     self.value
   end
 
+  def as_json(options = {})
+    json = super(options)
+    json.merge({ formatted_value: self.to_s.to_s })
+  end
+
   include Versioned
 
   private

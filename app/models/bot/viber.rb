@@ -137,4 +137,29 @@ class Bot::Viber < ActiveRecord::Base
       end
     end
   end
+
+  # All GraphQL types can have access to the translation_statuses
+
+  GraphqlCrudOperations.class_eval do
+    singleton_class.send(:alias_method, :define_default_type_original, :define_default_type)
+
+    def self.define_default_type(&block)
+      GraphqlCrudOperations.define_default_type_original do
+        field :translation_statuses, types.String do
+          resolve -> (_obj, _args, ctx) {
+            fi = DynamicAnnotation::FieldInstance.where(name: 'translation_status_status').last
+            return '{}' if fi.nil?
+            statuses = []
+            fi.settings[:statuses].each do |status|
+              status[:label] = I18n.t("label_translation_status_#{status[:id]}".to_sym, default: status[:label])
+              statuses << status
+            end
+            { label: 'translation_status', default: 'pending', statuses: statuses }.to_json 
+          }
+        end
+
+        instance_eval(&block)
+      end
+    end
+  end
 end
