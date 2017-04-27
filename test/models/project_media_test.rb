@@ -693,6 +693,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         assert_equal 0, JSON.parse(mt_field.value).size
       end
     end
+  end
 
   test "should get dynamic annotation by type" do
     create_annotation_type annotation_type: 'foo'
