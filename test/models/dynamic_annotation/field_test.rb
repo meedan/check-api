@@ -91,6 +91,6 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     ft = create_field_type field_type: 'language'
     fi = create_field_instance name: 'language', field_type_object: ft
     f1 = create_field field_name: 'language', value: 'fr'
-    assert_equal 'French', f1.as_json['formatted_value']
+    assert_equal 'French', f1.as_json[:formatted_value]
   end
 end
