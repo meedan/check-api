@@ -1049,7 +1049,6 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation(annotation_type: \"translation_status\") { dbid }, field_value(annotation_type_field_name: \"translation_status:translation_status_status\") } }"
     post :create, query: query, team: @team.slug
     assert_response :success
-    puts @response.body
     data = JSON.parse(@response.body)['data']['project_media']
     assert_equal a.id, data['dynamic_annotation']['dbid'].to_i
     assert_equal 'translated', data['field_value']
