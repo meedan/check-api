@@ -18,7 +18,12 @@ DynamicAnnotation::Field.class_eval do
   private
 
     def response_value(field_value)
-      value = JSON.parse(field_value)
+      value = nil
+      begin
+        value = JSON.parse(field_value)
+      rescue JSON::ParserError
+        return field_value
+      end
       answer = value['selected'] || []
       answer.insert(-1, value['other']) if !value['other'].blank?
       answer.to_sentence(locale: I18n.locale)
