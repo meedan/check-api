@@ -3,6 +3,10 @@ class Bot::Alegre < ActiveRecord::Base
     Bot::Alegre.where(name: 'Alegre Bot').last
   end
 
+  def profile_image
+
+  end
+
   def should_classify?(text)
     !text.blank? && !CONFIG['alegre_host'].blank? && !CONFIG['alegre_token'].blank?
   end
