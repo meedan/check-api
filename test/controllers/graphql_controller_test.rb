@@ -1033,4 +1033,24 @@ class GraphqlControllerTest < ActionController::TestCase
     statuses = JSON.parse(JSON.parse(@response.body)['data']['team']['translation_statuses'])
     assert_equal 'Pending', statuses['statuses'][0]['label']
   end
+
+  test "should get field value and dynamic annotation" do
+    [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+    ft1 = create_field_type(field_type: 'select', label: 'Select')
+    ft2 = create_field_type(field_type: 'text', label: 'Text')
+    at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
+    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
+    create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
+    
+    authenticate_with_user
+    p = create_project team: @team
+    pm = create_project_media project: p
+    a = create_dynamic_annotation annotation_type: 'translation_status', annotated: pm, set_fields: { translation_status_status: 'translated' }.to_json
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation(annotation_type: \"translation_status\") { dbid }, field_value(annotation_type_field_name: \"translation_status:translation_status_status\") } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_equal a.id, data['dynamic_annotation']['dbid'].to_i
+    assert_equal 'translated', data['field_value']
+  end
 end
