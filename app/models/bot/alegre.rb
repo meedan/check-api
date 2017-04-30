@@ -1,10 +1,14 @@
 class Bot::Alegre < ActiveRecord::Base
+
+  mount_uploader :avatar, ImageUploader
+  validates_presence_of :name
+
   def self.default
     Bot::Alegre.where(name: 'Alegre Bot').last
   end
 
   def profile_image
-
+    CONFIG['checkdesk_base_url'] + self.avatar.url
   end
 
   def should_classify?(text)

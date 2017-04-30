@@ -80,7 +80,7 @@ module SampleData
     options.each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
-    
+
     file = nil
     if options.has_key?(:file)
       file = options[:file]
@@ -90,7 +90,7 @@ module SampleData
         c.file = f
       end
     end
-    
+
     c.save!
     c
   end
@@ -409,6 +409,15 @@ module SampleData
   def create_alegre_bot(options = {})
     bot = Bot::Alegre.new
     bot.name = options[:name] || 'Alegre Bot'
+    file = 'rails.png'
+    if options.has_key?(:avatar)
+      file = options[:avatar]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        bot.avatar = f
+      end
+    end
     bot.save!
     bot.reload
   end
@@ -510,6 +519,6 @@ module SampleData
       t.send("#{key}=", value) if t.respond_to?("#{key}=")
     end
     t.save!
-    t   
+    t
   end
 end
