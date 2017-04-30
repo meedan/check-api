@@ -60,4 +60,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm = create_project_media
     assert_nil @bot.language_object(pm)
   end
+
+  test "should have profile image" do
+    b = create_alegre_bot
+    assert_kind_of String, b.profile_image
+  end
 end

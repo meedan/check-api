@@ -10,7 +10,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation
   after_update :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
 
@@ -205,6 +205,11 @@ class ProjectMedia < ActiveRecord::Base
     self.project && self.project.team && !self.project.team.get_checklist.blank?
   end
 
+  def update_mt=(_update)
+    mt = self.annotations.where(annotation_type: 'mt').last
+    MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(User.current)) unless mt.nil?
+  end
+    
   def get_dynamic_annotation(type)
     Dynamic.where(annotation_type: type, annotated_type: 'ProjectMedia', annotated_id: self.id).last
   end

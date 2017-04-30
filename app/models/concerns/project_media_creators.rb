@@ -49,6 +49,21 @@ module ProjectMediaCreators
     end
   end
 
+  def create_mt_annotation
+    bot = Bot::Alegre.default
+    if !bot.nil? && bot.should_classify?(self.text)
+      languages = self.project.get_languages
+      unless languages.nil?
+        annotation = Dynamic.new
+        annotation.annotated = self
+        annotation.annotator = bot
+        annotation.annotation_type = 'mt'
+        annotation.set_fields = {'mt_translations': [].to_json}.to_json
+        annotation.save!
+      end
+    end
+  end
+
   protected
 
   def create_image
