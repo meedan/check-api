@@ -681,6 +681,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
         url = CONFIG['alegre_host'] + "/api/mt?from=en&to=ar&text=" + text
         # Test with machine translation
         response = '{"type":"mt","data": "testing -ar"}'
+        # Test handle raising an error
+        WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> 'in_valid_token'}).to_return(body: response)
+        pm.update_mt=1
+        mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
+        assert_equal 0, JSON.parse(mt_field.value).size
+        # Test with valid response
         WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> CONFIG['alegre_token']}).to_return(body: response)
         pm.update_mt=1
         mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first

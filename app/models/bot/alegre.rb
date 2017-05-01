@@ -39,7 +39,11 @@ class Bot::Alegre < ActiveRecord::Base
     languages.each do |lang|
       begin
         response = AlegreClient::Request.get_mt(CONFIG['alegre_host'], { text: text, from: src_lang, to: lang }, CONFIG['alegre_token'])
-        mt_text = response['data'] if response['type'] == 'mt'
+        if response['type'] == 'mt'
+          mt_text = response['data']
+        else
+          Rails.logger.error response['data']['message']
+        end
       rescue
         mt_text = nil
       end
