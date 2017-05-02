@@ -18,6 +18,7 @@ class Project < ActiveRecord::Base
   validates_presence_of :title
   validates :lead_image, size: true
   validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
+  validate :project_languages_format, unless: proc { |p| p.settings.nil? }
 
   has_annotations
 
@@ -170,6 +171,14 @@ class Project < ActiveRecord::Base
   end
 
   private
+
+  def project_languages_format
+    anguages = self.get_languages
+    unless languages.blank?
+      error_message = "Languages is invalid, it should have the format ['en', 'ar', 'fr']"
+      errors.add(:base, I18n.t(:invalid_format_for_project_languages, default: error_message)) unless languages.is_a?(Array)
+    end
+  end
 
   def set_description_and_team_and_user
     self.description ||= ''
