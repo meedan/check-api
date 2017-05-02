@@ -168,6 +168,14 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :dynamic_annotations, -> { AnnotationType.connection_type } do
+    argument :annotation_type, !types.String 
+    
+    resolve ->(project_media, args, _ctx) {
+      project_media.get_annotations(args['annotation_type'])
+    }
+  end
+
   field :field_value do
     type types.String
     argument :annotation_type_field_name, !types.String 

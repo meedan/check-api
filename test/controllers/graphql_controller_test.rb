@@ -1034,7 +1034,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Pending', statuses['statuses'][0]['label']
   end
 
-  test "should get field value and dynamic annotation" do
+  test "should get field value and dynamic annotation(s)" do
     [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
     ft1 = create_field_type(field_type: 'select', label: 'Select')
     ft2 = create_field_type(field_type: 'text', label: 'Text')
@@ -1046,11 +1046,12 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     pm = create_project_media project: p
     a = create_dynamic_annotation annotation_type: 'translation_status', annotated: pm, set_fields: { translation_status_status: 'translated' }.to_json
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation(annotation_type: \"translation_status\") { dbid }, field_value(annotation_type_field_name: \"translation_status:translation_status_status\") } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation(annotation_type: \"translation_status\") { dbid }, field_value(annotation_type_field_name: \"translation_status:translation_status_status\"), dynamic_annotations(annotation_type: \"translation_status\") { edges { node { dbid } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_equal a.id, data['dynamic_annotation']['dbid'].to_i
+    assert_equal a.id, data['dynamic_annotations']['edges'][0]['node']['dbid'].to_i
     assert_equal 'translated', data['field_value']
   end
 end
