@@ -226,6 +226,9 @@ RailsAdmin.config do |config|
       configure :get_slack_channel do
         label 'Slack #channel'
       end
+      configure :get_languages, :json do
+        label 'Languages'
+      end
     end
 
     edit do
@@ -249,6 +252,10 @@ RailsAdmin.config do |config|
         formatted_value{ bindings[:object].get_slack_channel }
         help 'The Slack channel to which Check should send notifications about events that occur in this project.'
         render_settings('field')
+      end
+      field :languages, :yaml do
+        label 'Languages'
+        help "A list of the project's preferred languages for machine translation (e.g. ['ar', 'fr'])."
       end
     end
   end
