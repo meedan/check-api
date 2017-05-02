@@ -96,9 +96,9 @@ class Bot::Viber < ActiveRecord::Base
     def translation_to_message
       if self.annotation_type == 'translation'
         begin
-          source_language = self.annotated.get_dynamic_annotation('language').get_field('language').to_s
+          source_language = CheckCldr.language_code_to_name(self.annotated.get_dynamic_annotation('language').get_field('language').value, 'en')
           source_text = self.annotated.text
-          target_language = self.get_field('translation_language').to_s
+          target_language = CheckCldr.language_code_to_name(self.get_field('translation_language').value, 'en')
           target_text = self.get_field_value('translation_text')
           [source_language.to_s + ':', source_text, target_language.to_s + ':', target_text].join("\n")
         rescue
