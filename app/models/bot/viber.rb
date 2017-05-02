@@ -42,11 +42,17 @@ class Bot::Viber < ActiveRecord::Base
       self.value if self.field_name == 'translation_status_status'
     end
 
+    def status=(value)
+      if self.field_name == 'translation_status_status'
+        self.value = value
+      end
+    end
+
     private
 
     def update_elasticsearch_status
       if self.field_name == 'translation_status_status'
-        self.update_media_search(%w(status), {}, self.annotation.annotated_id)
+        self.update_media_search(['status'], { 'status' => self.value }, self.annotation.annotated_id)
       end
     end
 
