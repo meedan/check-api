@@ -466,6 +466,24 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should save valid languages" do
+    p = create_project
+    value = ["en", "ar", "fr"]
+    assert_nothing_raised do
+      p.set_languages(value)
+      p.save!
+    end
+  end
+
+  test "should not save invalid languages" do
+    p = create_project
+    value = "en"
+    assert_raises ActiveRecord::RecordInvalid do
+      p.set_languages(value)
+      p.save!
+    end
+  end
+
   test "should get project languages" do
     p = create_project
     assert_equal [], p.languages
