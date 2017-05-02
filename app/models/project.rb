@@ -173,7 +173,7 @@ class Project < ActiveRecord::Base
   private
 
   def project_languages_format
-    anguages = self.get_languages
+    languages = self.get_languages
     unless languages.blank?
       error_message = "Languages is invalid, it should have the format ['en', 'ar', 'fr']"
       errors.add(:base, I18n.t(:invalid_format_for_project_languages, default: error_message)) unless languages.is_a?(Array)
