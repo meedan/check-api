@@ -470,7 +470,7 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project
     value = ["en", "ar", "fr"]
     assert_nothing_raised do
-      p.set_languages(value)
+      p.languages=(value)
       p.save!
     end
   end
