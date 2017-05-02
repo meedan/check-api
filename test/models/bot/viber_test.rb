@@ -385,6 +385,12 @@ class Bot::ViberTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get translation status value" do
+    pm = create_project_media
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    assert_equal 'pending', DynamicAnnotation::Field.last.status
+  end
+
   private
 
   def create_translation_status_stuff

@@ -24,18 +24,31 @@ class Bot::Viber < ActiveRecord::Base
   end
 
   DynamicAnnotation::Field.class_eval do
+    include CheckElasticSearch
+    
     validate :translation_status_is_valid
     validate :can_set_translation_status
 
     after_update :respond_to_user
+    after_save :update_elasticsearch_status
 
-    attr_accessor :previous_status
+    attr_accessor :previous_status, :disable_es_callbacks
 
     def previous_value
       self.value_was.nil? ? self.value : self.value_was
     end
 
+    def status
+      self.value if self.field_name == 'translation_status_status'
+    end
+
     private
+
+    def update_elasticsearch_status
+      if self.field_name == 'translation_status_status'
+        self.update_media_search(%w(status), {}, self.annotation.annotated_id)
+      end
+    end
 
     def translation_status_is_valid
       if self.field_name == 'translation_status_status'
