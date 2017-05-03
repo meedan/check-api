@@ -102,9 +102,9 @@ class Bot::Viber < ActiveRecord::Base
           rescue
             viber_user_locale = 'en'
           end
-          source_language = CheckCldr.language_code_to_name(self.annotated.get_dynamic_annotation('language').get_field('language').value, 'en')
+          source_language = CheckCldr.language_code_to_name(self.annotated.get_dynamic_annotation('language').get_field('language').value, viber_user_locale)
           source_text = self.annotated.text
-          target_language = CheckCldr.language_code_to_name(self.get_field('translation_language').value, 'en')
+          target_language = CheckCldr.language_code_to_name(self.get_field('translation_language').value, viber_user_locale)
           target_text = self.get_field_value('translation_text')
           [source_language.to_s + ':', source_text, target_language.to_s + ':', target_text].join("\n")
         rescue
