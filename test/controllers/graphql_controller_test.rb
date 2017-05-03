@@ -1050,8 +1050,8 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
-    assert_equal a.id, data['dynamic_annotation']['dbid'].to_i
-    assert_equal a.id, data['dynamic_annotations']['edges'][0]['node']['dbid'].to_i
+    assert_equal a.id, data['annotation']['dbid'].to_i
+    assert_equal a.id, data['annotations']['edges'][0]['node']['dbid'].to_i
     assert_equal 'translated', data['field_value']
   end
 end
