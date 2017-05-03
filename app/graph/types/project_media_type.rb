@@ -159,7 +159,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :dynamic_annotation do
+  field :annotation do
     type -> { AnnotationType }
     argument :annotation_type, !types.String 
 
@@ -168,7 +168,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :dynamic_annotations, -> { AnnotationType.connection_type } do
+  connection :annotations, -> { AnnotationType.connection_type } do
     argument :annotation_type, !types.String 
     
     resolve ->(project_media, args, _ctx) {

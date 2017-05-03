@@ -1046,7 +1046,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     pm = create_project_media project: p
     a = create_dynamic_annotation annotation_type: 'translation_status', annotated: pm, set_fields: { translation_status_status: 'translated' }.to_json
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation(annotation_type: \"translation_status\") { dbid }, field_value(annotation_type_field_name: \"translation_status:translation_status_status\"), dynamic_annotations(annotation_type: \"translation_status\") { edges { node { dbid } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"translation_status\") { dbid }, field_value(annotation_type_field_name: \"translation_status:translation_status_status\"), annotations(annotation_type: \"translation_status\") { edges { node { dbid } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
