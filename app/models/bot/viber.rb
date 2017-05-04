@@ -116,7 +116,7 @@ class Bot::Viber < ActiveRecord::Base
     def translation_to_message_as_image
       if self.annotation_type == 'translation'
         MagickTitle.say(self.translation_to_message, {
-          font: 'freesans.ttf',
+          font: 'arial.ttf',
           font_path: File.join(Rails.root, 'app', 'assets', 'fonts'),
           font_size: 32,
           extension: 'jpg',
