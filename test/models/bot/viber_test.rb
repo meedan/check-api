@@ -416,6 +416,22 @@ class Bot::ViberTest < ActiveSupport::TestCase
     Dynamic.unstub(:respond_to_user)
   end
 
+  test "should change status if admin" do
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    pm = create_project_media media: create_claim_media
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        d = Dynamic.find(d.id)
+        d.set_fields = { translation_status_status: 'ready' }.to_json
+        d.save!
+      end
+    end
+  end
+
   private
 
   def create_translation_status_stuff

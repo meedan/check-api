@@ -49,6 +49,7 @@ module SampleData
     u.url = options[:url] if options.has_key?(:url)
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
     u.omniauth_info = options[:omniauth_info]
+    u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
 
     file = nil
     if options.has_key?(:image)

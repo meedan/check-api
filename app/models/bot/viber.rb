@@ -77,7 +77,7 @@ class Bot::Viber < ActiveRecord::Base
         self.previous_status = old_value
         user = User.current
 
-        if !user.nil? && !options[value].blank? && (!user.role?(options[value]) || !user.role?(options[old_value]))
+        if !user.nil? && !options[value].blank? && !user.is_admin? && (!user.role?(options[value]) || !user.role?(options[old_value]))
           errors.add(:base, I18n.t(:translation_status_permission_error), default: 'You are not allowed to make this status change')
         end
       end
