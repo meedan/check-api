@@ -139,7 +139,7 @@ class Bot::Viber < ActiveRecord::Base
             Bot::Viber.default.send_image_message(data['sender'], translation.translation_to_message_as_image)
           end
         else
-          message = translation.annotated.get_dynamic_annotation('translation_status').get_field_value('translation_status_note')
+          message = request.annotated.get_dynamic_annotation('translation_status').get_field_value('translation_status_note')
           Bot::Viber.default.send_text_message(data['sender'], message) unless message.blank?
         end
       end
