@@ -52,6 +52,12 @@ class Bot::Viber < ActiveRecord::Base
       end
     end
 
+    protected
+
+    def cant_change_status(user, options, from_status, to_status)
+      !user.nil? && !options[to_status].blank? && !user.is_admin? && (!user.role?(options[to_status]) || !user.role?(options[from_status]))
+    end
+
     private
 
     def update_elasticsearch_status
@@ -77,7 +83,7 @@ class Bot::Viber < ActiveRecord::Base
         self.previous_status = old_value
         user = User.current
 
-        if !user.nil? && !options[value].blank? && !user.is_admin? && (!user.role?(options[value]) || !user.role?(options[old_value]))
+        if self.cant_change_status(user, options, old_value, value)
           errors.add(:base, I18n.t(:translation_status_permission_error), default: 'You are not allowed to make this status change')
         end
       end
