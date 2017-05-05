@@ -81,10 +81,10 @@ class Bot::Viber < ActiveRecord::Base
 
     def respond_to_user
       if self.field_name == 'translation_status_status'
-        translation = self.annotation.annotated.get_dynamic_annotation('translation')
-        if !translation.nil? && self.previous_status.to_s != self.value.to_s
-          translation.respond_to_user(true) if self.value == 'ready' 
-          translation.respond_to_user(false) if self.value == 'error'
+        request = self.annotation.annotated.get_dynamic_annotation('translation_request')
+        if !request.nil? && self.previous_status.to_s != self.value.to_s
+          request.respond_to_user(true) if self.value == 'ready' 
+          request.respond_to_user(false) if self.value == 'error'
         end
       end
     end
@@ -128,14 +128,16 @@ class Bot::Viber < ActiveRecord::Base
     end
 
     def self.respond_to_user(tid, success = true)
-      translation = Dynamic.where(id: tid).last
-      return if translation.nil?
-      request = translation.annotated.get_dynamic_annotation('translation_request')
-      if !request.nil? && request.get_field_value('translation_request_type') == 'viber'
+      request = Dynamic.where(id: tid).last
+      return if request.nil?
+      if request.get_field_value('translation_request_type') == 'viber'
         data = JSON.parse(request.get_field_value('translation_request_raw_data'))
         if success
-          Bot::Viber.default.send_text_message(data['sender'], translation.translation_to_message)
-          Bot::Viber.default.send_image_message(data['sender'], translation.translation_to_message_as_image)
+          translation = request.annotated.get_dynamic_annotation('translation')
+          unless translation.nil?
+            Bot::Viber.default.send_text_message(data['sender'], translation.translation_to_message)
+            Bot::Viber.default.send_image_message(data['sender'], translation.translation_to_message_as_image)
+          end
         else
           message = translation.annotated.get_dynamic_annotation('translation_status').get_field_value('translation_status_note')
           Bot::Viber.default.send_text_message(data['sender'], message) unless message.blank?
@@ -144,7 +146,7 @@ class Bot::Viber < ActiveRecord::Base
     end
 
     def respond_to_user(success = true)
-      if !CONFIG['viber_token'].blank? && self.annotation_type == 'translation' && self.annotated_type == 'ProjectMedia'
+      if !CONFIG['viber_token'].blank? && self.annotation_type == 'translation_request' && self.annotated_type == 'ProjectMedia'
         Dynamic.delay_for(1.second).respond_to_user(self.id, success)
       end
     end
