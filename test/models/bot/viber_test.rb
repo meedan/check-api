@@ -85,22 +85,22 @@ class Bot::ViberTest < ActiveSupport::TestCase
     tr = DynamicAnnotation::AnnotationType.where(annotation_type: 'translation_request').last || create_annotation_type(annotation_type: 'translation_request')
     create_field_instance(name: 'translation_request_type', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
-    create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
     
-    d = nil
+    d1 = d2 = nil
     stub_config('viber_token', nil) do
-      d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
+      d1 = create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
+      d2 = create_dynamic_annotation annotation_type: 'translation', annotated: pm
     end
     
     Bot::Viber.any_instance.expects(:send_text_message).once
     Bot::Viber.any_instance.expects(:send_image_message).once
 
-    Dynamic.respond_to_user(d.id)
+    Dynamic.respond_to_user(d1.id)
 
     Bot::Viber.any_instance.expects(:send_text_message).once
     Bot::Viber.any_instance.expects(:send_image_message).never
 
-    Dynamic.respond_to_user(d.id, false)
+    Dynamic.respond_to_user(d1.id, false)
 
     Bot::Viber.any_instance.unstub(:send_text_message)
     Bot::Viber.any_instance.unstub(:send_image_message)
@@ -318,6 +318,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
     pm = create_project_media media: create_claim_media
+    create_dynamic_annotation annotated: pm, annotation_type: 'translation_request'
     d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
     create_annotation_type annotation_type: 'translation'
     create_dynamic_annotation annotated: pm, annotation_type: 'translation'

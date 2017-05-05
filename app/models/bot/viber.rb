@@ -13,13 +13,17 @@ class Bot::Viber < ActiveRecord::Base
     http.request(req)
   end
 
+  def sender
+    { name: 'Bridge', avatar: CONFIG['checkdesk_base_url'] + '/images/bridge.png' }
+  end
+
   def send_text_message(user_id, text)
-    body = { receiver: user_id, sender: { name: 'Bridge' }, type: 'text', text: text }.to_json
+    body = { receiver: user_id, sender: self.sender, type: 'text', text: text }.to_json
     self.send_message(body)
   end
 
   def send_image_message(user_id, image)
-    body = { receiver: user_id, sender: { name: 'Bridge' }, type: 'picture', text: '', media: CONFIG['checkdesk_base_url'] + image.url }.to_json
+    body = { receiver: user_id, sender: self.sender, type: 'picture', text: '', media: CONFIG['checkdesk_base_url'] + image.url }.to_json
     self.send_message(body)
   end
 
