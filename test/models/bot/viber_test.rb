@@ -404,6 +404,18 @@ class Bot::ViberTest < ActiveSupport::TestCase
     assert_equal 'foo', f.value
   end
 
+  test "should send message to user in background" do
+    Dynamic.expects(:respond_to_user).once
+    pm = create_project_media
+    d = create_dynamic_annotation annotation_type: 'translation_request', annotated: pm
+    Sidekiq::Testing.inline! do
+      stub_config('viber_token', 'test') do
+        d.respond_to_user
+      end
+    end
+    Dynamic.unstub(:respond_to_user)
+  end
+
   private
 
   def create_translation_status_stuff
