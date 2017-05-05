@@ -25,7 +25,7 @@ ENV DEPLOYUSER=checkdeploy \
 #
 # DEPENDENCIES
 #
-RUN apt-get install -y imagemagick libgirepository1.0-dev
+RUN apt-get install -y imagemagick libgirepository1.0-dev libcairo2-dev
 
 # nginx for check-api
 
