@@ -26,4 +26,4 @@ tmp/restart.txt
 tmp/puma-*
 dump.rdb
 /vendor/
-public/system
+public/system/translations/*.jpg

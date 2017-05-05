@@ -27,7 +27,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
 
   test "should send image message to Viber" do
     assert_nothing_raised do
-      @bot.send_image_message('123456', OpenStruct.new(url: 'http://meedan.com/image.png'))
+      @bot.send_image_message('123456', 'http://meedan.com/image.png')
     end
   end
 

@@ -3,6 +3,24 @@ class Bot::Viber < ActiveRecord::Base
     Bot::Viber.where(name: 'Viber Bot').last
   end
 
+  def text_to_image(text)
+    surface = Cairo::ImageSurface.new Cairo::FORMAT_ARGB32, 800, 2000
+    context = Cairo::Context.new surface
+    context.set_source_rgba 1, 1, 1, 1
+    context.paint
+    layout = context.create_pango_layout
+    layout.width = 800 * Pango::SCALE
+    layout.markup = '<span size="x-large">' + text + '</span>'
+    context.set_source_color :black
+    context.update_pango_layout layout
+    context.show_pango_layout layout
+    filename = Digest::MD5.hexdigest(text) + '.jpg'
+    output = File.join(Rails.root, 'public', 'system', 'translations', filename)
+    surface.write_to_png output
+    system "convert #{output} -trim -strip -quality 86 #{output}"
+    filename
+  end
+
   def send_message(body)
     uri = URI('https://chatapi.viber.com/pa/send_message')
     http = Net::HTTP.new(uri.host, uri.port)
@@ -23,7 +41,7 @@ class Bot::Viber < ActiveRecord::Base
   end
 
   def send_image_message(user_id, image)
-    body = { receiver: user_id, sender: self.sender, type: 'picture', text: '', media: CONFIG['checkdesk_base_url'] + image.url }.to_json
+    body = { receiver: user_id, sender: self.sender, type: 'picture', text: '', media: image }.to_json
     self.send_message(body)
   end
 
@@ -125,15 +143,8 @@ class Bot::Viber < ActiveRecord::Base
 
     def translation_to_message_as_image
       if self.annotation_type == 'translation'
-        MagickTitle.say(self.translation_to_message, {
-          font: 'arial.ttf',
-          font_path: File.join(Rails.root, 'app', 'assets', 'fonts'),
-          font_size: 32,
-          extension: 'jpg',
-          color: '#000',
-          background_alpha: 'ff',
-          text_transform: nil
-        })
+        imagefilename = Bot::Viber.default.text_to_image(self.translation_to_message)
+        CONFIG['checkdesk_base_url'] + '/system/translations/' + imagefilename
       end
     end
 
