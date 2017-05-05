@@ -92,7 +92,9 @@ class Bot::ViberTest < ActiveSupport::TestCase
       d2 = create_dynamic_annotation annotation_type: 'translation', annotated: pm
     end
 
-    d1.respond_to_user
+    Sidekiq::Testing.inline! do
+      d1.respond_to_user
+    end
     
     Bot::Viber.any_instance.expects(:send_text_message).once
     Bot::Viber.any_instance.expects(:send_image_message).once
