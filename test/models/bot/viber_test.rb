@@ -91,6 +91,8 @@ class Bot::ViberTest < ActiveSupport::TestCase
       d1 = create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
       d2 = create_dynamic_annotation annotation_type: 'translation', annotated: pm
     end
+
+    d1.respond_to_user
     
     Bot::Viber.any_instance.expects(:send_text_message).once
     Bot::Viber.any_instance.expects(:send_image_message).once
