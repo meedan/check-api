@@ -128,13 +128,16 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, language_code, last_status_obj {dbid} } }"
+    create_comment annotated: pm
+    create_tag annotated: pm
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
     assert JSON.parse(@response.body)['data']['project_media'].has_key?('language')
     assert JSON.parse(@response.body)['data']['project_media'].has_key?('language_code')
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['annotations']['edges'].size
   end
 
   test "should read project media and fallback to media" do
