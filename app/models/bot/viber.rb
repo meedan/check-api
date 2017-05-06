@@ -17,7 +17,7 @@ class Bot::Viber < ActiveRecord::Base
     filename = Digest::MD5.hexdigest(text) + '.jpg'
     output = File.join(Rails.root, 'public', 'system', 'translations', filename)
     surface.write_to_png output
-    system "convert #{Shellwords.escape(output)} -trim -strip -quality 86 #{Shellwords.escape(output)}"
+    system "convert", "#{Shellwords.escape(output)} -trim -strip -quality 86 #{Shellwords.escape(output)}"
     filename
   end
 
