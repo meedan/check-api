@@ -432,6 +432,17 @@ class Bot::ViberTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get translation source language" do
+    pm = create_project_media
+    create_annotation_type annotation_type: 'translation'
+    at = create_annotation_type annotation_type: 'language'
+    create_field_instance name: 'language', annotation_type_object: at
+    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
+    assert_nil d.from_language('pt')
+    create_dynamic_annotation annotated: pm, annotation_type: 'language', set_fields: { language: 'pt' }.to_json
+    assert_equal 'Português', d.from_language('pt')
+  end
+
   private
 
   def create_translation_status_stuff

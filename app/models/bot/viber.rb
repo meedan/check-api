@@ -17,7 +17,7 @@ class Bot::Viber < ActiveRecord::Base
     filename = Digest::MD5.hexdigest(text) + '.jpg'
     output = File.join(Rails.root, 'public', 'system', 'translations', filename)
     surface.write_to_png output
-    system "convert #{output} -trim -strip -quality 86 #{output}"
+    system "convert #{Shellwords.escape(output)} -trim -strip -quality 86 #{Shellwords.escape(output)}"
     filename
   end
 
@@ -121,6 +121,18 @@ class Bot::Viber < ActiveRecord::Base
   Dynamic.class_eval do
     after_create :create_first_translation_status
 
+    def from_language(locale = 'en')
+      if self.annotation_type == 'translation'
+        lang = nil
+        begin
+          lang = CheckCldr.language_code_to_name(self.annotated.get_dynamic_annotation('language').get_field('language').value, locale)
+        rescue
+          lang = nil
+        end
+        lang
+      end
+    end
+
     def translation_to_message
       if self.annotation_type == 'translation'
         begin
@@ -130,11 +142,13 @@ class Bot::Viber < ActiveRecord::Base
           rescue
             viber_user_locale = 'en'
           end
-          source_language = CheckCldr.language_code_to_name(self.annotated.get_dynamic_annotation('language').get_field('language').value, viber_user_locale)
+          source_language = self.from_language(viber_user_locale)
           source_text = self.annotated.text
           target_language = CheckCldr.language_code_to_name(self.get_field('translation_language').value, viber_user_locale)
           target_text = self.get_field_value('translation_text')
-          [source_language.to_s + ':', source_text, target_language.to_s + ':', target_text].join("\n")
+          message = [source_text, target_language.to_s + ':', target_text]
+          message.unshift(source_language) unless source_language.blank?
+          message.join("\n")
         rescue
           ''
         end
