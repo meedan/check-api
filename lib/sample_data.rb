@@ -481,10 +481,16 @@ module SampleData
   def create_field(options = {})
     f = DynamicAnnotation::Field.new
     f.annotation_id = options.has_key?(:annotation_id) ? options[:annotation_id] : create_dynamic_annotation.id
+    f.annotation_type = options[:annotation_type] if options.has_key?(:annotation_type)
+    f.field_type = options[:field_type] if options.has_key?(:field_type)
     f.field_name = options.has_key?(:field_name) ? options[:field_name] : create_field_instance.name
     f.value = options.has_key?(:value) ? options[:value] : random_string
-    f.save!
-    f
+    if options[:skip_validation]
+      f.save(validate: false)
+    else
+      f.save!
+    end
+    f.reload
   end
 
   def create_dynamic_annotation(options = {})

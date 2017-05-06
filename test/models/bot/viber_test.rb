@@ -443,6 +443,45 @@ class Bot::ViberTest < ActiveSupport::TestCase
     assert_equal 'Português', d.from_language('pt')
   end
 
+  test "should not create translation request for the same Viber message" do
+    DynamicAnnotation::FieldInstance.delete_all
+    create_translation_status_stuff
+    tr = DynamicAnnotation::AnnotationType.where(annotation_type: 'translation_request').last || create_annotation_type(annotation_type: 'translation_request')
+    create_field_instance(name: 'translation_request_type', annotation_type_object: tr)
+    create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr)
+    create_field_instance(name: 'translation_request_id', annotation_type_object: tr)
+    pm = nil
+   
+    assert_difference 'ProjectMedia.count', 2 do
+      assert_nothing_raised do
+        create_project_media set_annotation: { annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: '{}', translation_request_id: '123456' }.to_json }.to_json
+        create_project_media set_annotation: { annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: '{}', translation_request_id: '654321' }.to_json }.to_json
+      end
+    end
+
+    assert_no_difference 'ProjectMedia.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_project_media set_annotation: { annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: '{}', translation_request_id: '123456' }.to_json }.to_json
+      end
+    end
+  end
+
+  test "should not create duplicate translation request id because of database partial index" do
+    at = create_annotation_type
+    fi1 = create_field_instance name: 'foo', annotation_type_object: at
+    fi2 = create_field_instance name: 'translation_request_id', annotation_type_object: at
+
+    assert_nothing_raised do
+      create_field value: '123', field_name: 'translation_request_id', skip_validation: true, annotation_type: at.annotation_type, field_type: fi2.field_type
+      create_field value: '123', field_name: 'foo', skip_validation: true, annotation_type: at.annotation_type, field_type: fi1.field_type
+      create_field value: '123', field_name: 'foo', skip_validation: true, annotation_type: at.annotation_type, field_type: fi1.field_type
+    end
+    
+    assert_raises ActiveRecord::RecordNotUnique do
+      create_field value: '123', field_name: 'translation_request_id', skip_validation: true, annotation_type: at.annotation_type, field_type: fi2.field_type
+    end
+  end
+
   private
 
   def create_translation_status_stuff

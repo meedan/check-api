@@ -151,3 +151,4 @@ en:
   slack_channel_format_wrong: 'Slack channel is invalid, it should have the format #general'
   translation_status_not_valid: 'Status not valid'
   translation_status_permission_error: 'You are not allowed to make this status change'
+  translation_request_id_exists: 'There is already a translation request for this message'

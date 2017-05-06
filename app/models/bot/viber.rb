@@ -50,6 +50,7 @@ class Bot::Viber < ActiveRecord::Base
     
     validate :translation_status_is_valid
     validate :can_set_translation_status
+    validate :translation_request_id_is_unique, on: :create
 
     after_update :respond_to_user
     after_save :update_elasticsearch_status
@@ -102,7 +103,7 @@ class Bot::Viber < ActiveRecord::Base
         user = User.current
 
         if self.cant_change_status(user, options, old_value, value)
-          errors.add(:base, I18n.t(:translation_status_permission_error), default: 'You are not allowed to make this status change')
+          errors.add(:base, I18n.t(:translation_status_permission_error, default: 'You are not allowed to make this status change'))
         end
       end
     end
@@ -114,6 +115,13 @@ class Bot::Viber < ActiveRecord::Base
           request.respond_to_user(true) if self.value == 'ready' 
           request.respond_to_user(false) if self.value == 'error'
         end
+      end
+    end
+
+    def translation_request_id_is_unique
+      if self.field_name == 'translation_request_id' &&
+         DynamicAnnotation::Field.where(field_name: 'translation_request_id', value: self.value).exists?
+        errors.add(:base, I18n.t(:translation_request_id_exists, default: 'There is already a translation request for this message'))
       end
     end
   end
