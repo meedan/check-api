@@ -71,7 +71,7 @@ module AnnotationBase
                     if: proc { |a| a.annotated_type === 'ProjectMedia' },
                     event: 'media_updated',
                     targets: proc { |a| [a.annotated.project, a.annotated.media] },
-                    data: proc { |a| a.load.to_json }
+                    data: proc { |a| Annotation.find(a.id).load.to_json }
 
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
