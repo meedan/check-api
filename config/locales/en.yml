@@ -152,3 +152,4 @@ en:
   translation_status_not_valid: 'Status not valid'
   translation_status_permission_error: 'You are not allowed to make this status change'
   translation_request_id_exists: 'There is already a translation request for this message'
+  slack_update_translation_status: "*%{user}* changed translation status on *%{report}* from *%{from}* to *%{to}*"

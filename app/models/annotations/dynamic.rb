@@ -29,6 +29,14 @@ class Dynamic < ActiveRecord::Base
         response: self.class.to_slack_quote(response),
         note: self.class.to_slack_quote(note)
       )
+
+    elsif !self.set_fields.blank? && self.annotation_type == 'translation_status'
+      I18n.t(:slack_update_translation_status,
+        user: self.class.to_slack(User.current.name),
+        report: self.class.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
+        from: self.class.to_slack(self.previous_translation_status),
+        to: self.class.to_slack(self.translation_status)
+      )
     end
   end
 

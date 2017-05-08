@@ -128,6 +128,19 @@ class Bot::Viber < ActiveRecord::Base
 
   Dynamic.class_eval do
     after_create :create_first_translation_status
+    before_validation :store_previous_status
+
+    def translation_status
+      self.get_field('translation_status_status').to_s if self.annotation_type == 'translation_status'
+    end
+
+    def previous_translation_status
+      @previous_translation_status
+    end
+
+    def previous_translation_status=(status)
+      @previous_translation_status = status
+    end
 
     def from_language(locale = 'en')
       if self.annotation_type == 'translation'
@@ -195,6 +208,10 @@ class Bot::Viber < ActiveRecord::Base
     end
     
     private
+
+    def store_previous_status
+      self.previous_translation_status = self.translation_status if self.annotation_type == 'translation_status'
+    end
 
     def create_first_translation_status
       if self.annotation_type == 'translation_request'

@@ -22,6 +22,10 @@ DynamicAnnotation::Field.class_eval do
     response
   end
 
+  def field_formatter_name_translation_status_status
+    self.value.titleize
+  end
+
   private
 
   def response_value(field_value)
@@ -35,5 +39,4 @@ DynamicAnnotation::Field.class_eval do
     answer.insert(-1, value['other']) if !value['other'].blank?
     answer.to_sentence(locale: I18n.locale)
   end
-
 end
