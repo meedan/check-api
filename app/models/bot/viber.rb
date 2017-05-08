@@ -77,6 +77,20 @@ class Bot::Viber < ActiveRecord::Base
       !user.nil? && !options[to_status].blank? && !user.is_admin? && (!user.role?(options[to_status]) || !user.role?(options[from_status]))
     end
 
+    def store_approver
+      if self.field_name == 'translation_status_status' && self.value == 'ready' && User.current.present?
+        url = begin
+                User.current.accounts.first.url
+              rescue
+                nil
+              end
+
+        annotation = self.annotation.load
+        annotation.set_fields = { translation_status_approver: { name: User.current.name, url: url }.to_json }.to_json 
+        annotation.save!
+      end
+    end
+
     private
 
     def update_elasticsearch_status
@@ -112,7 +126,10 @@ class Bot::Viber < ActiveRecord::Base
       if self.field_name == 'translation_status_status'
         request = self.annotation.annotated.get_dynamic_annotation('translation_request')
         if !request.nil? && self.previous_status.to_s != self.value.to_s
-          request.respond_to_user(true) if self.value == 'ready' 
+          if self.value == 'ready'
+            self.store_approver
+            request.respond_to_user(true)
+          end
           request.respond_to_user(false) if self.value == 'error'
         end
       end
@@ -219,7 +236,7 @@ class Bot::Viber < ActiveRecord::Base
         ts.skip_check_ability = true
         ts.annotation_type = 'translation_status'
         ts.annotated = self.annotated
-        ts.set_fields = { translation_status_status: 'pending', translation_status_note: '' }.to_json
+        ts.set_fields = { translation_status_status: 'pending', translation_status_note: '', translation_status_approver: '{}' }.to_json
         ts.save!
       end
     end

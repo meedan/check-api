@@ -299,7 +299,8 @@ class Bot::ViberTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
     pm = create_project_media media: create_claim_media
-    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending', translation_status_approver: '{}' }.to_json
+    create_dynamic_annotation annotated: pm, annotation_type: 'translation_request', set_fields: { translation_request_raw_data: '', translation_request_type: 'viber' }.to_json
     
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
@@ -307,6 +308,10 @@ class Bot::ViberTest < ActiveSupport::TestCase
         d.set_fields = { translation_status_status: 'ready' }.to_json
         d.save!
       end
+
+      approver = d.get_field('translation_status_approver')
+      assert_equal u.name, JSON.parse(approver.value)['name']
+      assert_nil JSON.parse(approver.value)['url']
     end
   end
 
@@ -491,5 +496,6 @@ class Bot::ViberTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
     create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
     create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
+    create_field_instance annotation_type_object: at, name: 'translation_status_approver', label: 'Translation Status Approver', field_type_object: ft2, optional: true
   end
 end
