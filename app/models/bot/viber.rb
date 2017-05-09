@@ -185,7 +185,7 @@ class Bot::Viber < ActiveRecord::Base
           target_language = CheckCldr.language_code_to_name(self.get_field('translation_language').value, viber_user_locale)
           target_text = self.get_field_value('translation_text')
           message = [source_text, target_language.to_s + ':', target_text]
-          message.unshift(source_language) unless source_language.blank?
+          message.unshift(source_language + ':') unless source_language.blank?
           message.join("\n")
         rescue
           ''
