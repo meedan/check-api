@@ -173,7 +173,11 @@ class DynamicTest < ActiveSupport::TestCase
   test "should have Slack message for translation status" do
     DynamicAnnotation::AnnotationType.delete_all
     at = create_annotation_type annotation_type: 'translation_status'
-    d = create_dynamic_annotation annotation_type: 'translation_status', set_fields: '{}'
+    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
+    d = create_dynamic_annotation annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    d = Dynamic.find(d.id)
+    d.set_fields = { translation_status_status: 'ready' }.to_json
+    d.save!
     u = create_user
     t = create_team
     with_current_user_and_team(u, t) do
