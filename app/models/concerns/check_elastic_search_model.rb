@@ -26,7 +26,7 @@ module CheckElasticSearchModel
           type: 'custom',
           char_filter: 'space_hashtags',
           tokenizer: 'whitespace',
-          filter: ['lowercase', 'hashtag_as_alphanum']
+          filter: ['lowercase', 'hashtag_as_alphanum', 'asciifolding','icu_normalizer','arabic_normalization']
         }
       }
     }
@@ -66,6 +66,41 @@ module CheckElasticSearchModel
       if client.indices.exists? index: index_name
         client.indices.delete index: index_name
       end
+    end
+
+    def reindex_es_data(mapping_keys = nil)
+      old_index = CONFIG['old_elasticsearch_index']
+      unless old_index.blank?
+        mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch] if mapping_keys.nil?
+        MediaSearch.delete_index
+        MediaSearch.create_index
+        n = 0
+        mapping_keys.each do |klass|
+          puts "[ES MIGRATION] Migrating #{klass.name.parameterize} to #{CONFIG['elasticsearch_index']}"
+          # Load data from old index
+          url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
+          repository = Elasticsearch::Persistence::Repository.new url: url
+          repository.type = klass.name.underscore
+          repository.klass = klass
+          repository.index = CONFIG['old_elasticsearch_index']
+          results = repository.search(query: { match: { annotation_type: klass.name.parameterize } }, size: 10000)
+          # Save data in new index
+          results.each_with_hit do |obj, hit|
+            n += 1
+            begin
+              options = {}
+              options = {parent: hit._parent} unless hit._parent.nil?
+              obj.id = hit._id
+              obj.save!(options)
+              puts "[ES MIGRATION] Migrated #{klass.name} ##{n}"
+            rescue Exception => e
+              puts "[ES MIGRATION] Could not migrate this item: #{obj.inspect}: #{e.message}"
+            end
+          end
+          puts
+        end
+      end
+      puts "Migration is finished! #{n} items were migrated."
     end
 
     def all_sorted(order = 'asc', field = 'created_at')
