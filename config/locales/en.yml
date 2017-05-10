@@ -103,10 +103,12 @@ en:
   slack_create_project: "*%{user}* created a project: %{url}"
   slack_create_team_user: "*%{user}* joined team %{url}"
   slack_create_project_media: "*%{user}* added a new %{type} to *%{project}*: %{url}"
-  slack_create_task: "*%{user}* created task %{url} in *%{project}* with note: %{note}"
+  slack_create_task: "*%{user}* created task %{url} in *%{project}*%{create_note}"
+  slack_create_task_note: " with note: %{note}"
   slack_answer_task: |-
     *%{user}* answered task %{url} in *%{project}*: %{response}
-    *Note:* %{note}
+    %{answer_note}
+  slack_answer_task_note: "*Note:* %{note}"
   slack_update_task_label: |-
     *%{user}* edited task %{url} in *%{project}* from: %{from}
     *To:* %{to}
