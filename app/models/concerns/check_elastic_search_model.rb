@@ -76,7 +76,7 @@ module CheckElasticSearchModel
         MediaSearch.create_index
         n = 0
         mapping_keys.each do |klass|
-          puts "[ES MIGRATION] Migrating #{klass.name.parameterize} to #{CONFIG['elasticsearch_index']}"
+          Rails.logger.info "[ES MIGRATION] Migrating #{klass.name.parameterize} to #{CONFIG['elasticsearch_index']}"
           # Load data from old index
           url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
           repository = Elasticsearch::Persistence::Repository.new url: url
@@ -92,15 +92,14 @@ module CheckElasticSearchModel
               options = {parent: hit._parent} unless hit._parent.nil?
               obj.id = hit._id
               obj.save!(options)
-              puts "[ES MIGRATION] Migrated #{klass.name} ##{n}"
-            rescue Exception => e
-              puts "[ES MIGRATION] Could not migrate this item: #{obj.inspect}: #{e.message}"
+              Rails.logger.info "[ES MIGRATION] Migrated #{klass.name} ##{n}"
+            rescue StandardError => e
+              Rails.logger.error "[ES MIGRATION] Could not migrate this item: #{obj.inspect}: #{e.message}"
             end
           end
-          puts
         end
       end
-      puts "Migration is finished! #{n} items were migrated."
+      Rails.logger.info "Migration is finished! #{n} items were migrated."
     end
 
     def all_sorted(order = 'asc', field = 'created_at')
