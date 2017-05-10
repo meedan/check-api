@@ -22,7 +22,7 @@ module CheckElasticSearchModel
         }
       },
       analyzer: {
-        hashtag: {
+        check: {
           type: 'custom',
           char_filter: 'space_hashtags',
           tokenizer: 'whitespace',
