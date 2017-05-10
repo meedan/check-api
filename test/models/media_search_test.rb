@@ -18,4 +18,10 @@ class MediaSearchTest < ActiveSupport::TestCase
     m = create_media_search
     assert_equal 'mediasearch', m.annotation_type
   end
+
+  test "should re-index data" do
+    m = create_media_search
+    MediaSearch.reindex_es_data
+  end
+
 end
