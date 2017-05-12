@@ -96,18 +96,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :annotations, -> { AnnotationType.connection_type } do
-    argument :annotation_type, types.String
-
-    resolve ->(project_media, args, _ctx) {
-      if args['annotation_type'].blank?
-        project_media.get_annotations
-      else
-        project_media.get_annotations(args['annotation_type'])
-      end
-    }
-  end
-
   connection :tags, -> { TagType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
       project_media.get_annotations('tag')
