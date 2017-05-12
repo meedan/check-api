@@ -294,7 +294,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     end
   end
 
-  test "should set translation status if has permission to change for target value 2" do
+  test "should set translation status if has permission to change for target value and publish to Twitter and Facebook" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
@@ -302,6 +302,9 @@ class Bot::ViberTest < ActiveSupport::TestCase
     d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending', translation_status_approver: '{}' }.to_json
     create_dynamic_annotation annotated: pm, annotation_type: 'translation_request', set_fields: { translation_request_raw_data: '', translation_request_type: 'viber' }.to_json
     
+    Bot::Twitter.any_instance.stubs(:send_to_twitter_in_background).once
+    Bot::Facebook.any_instance.stubs(:send_to_facebook_in_background).once
+
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         d = Dynamic.find(d.id)
@@ -313,6 +316,9 @@ class Bot::ViberTest < ActiveSupport::TestCase
       assert_equal u.name, JSON.parse(approver.value)['name']
       assert_nil JSON.parse(approver.value)['url']
     end
+    
+    Bot::Twitter.any_instance.unstub(:send_to_twitter_in_background)
+    Bot::Facebook.any_instance.unstub(:send_to_facebook_in_background)
   end
 
   test "should create first translation status when translation request is created" do

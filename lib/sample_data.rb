@@ -430,6 +430,20 @@ module SampleData
     bot.reload
   end
 
+  def create_twitter_bot(options = {})
+    bot = Bot::Twitter.new
+    bot.name = options[:name] || 'Twitter Bot'
+    bot.save!
+    bot.reload
+  end
+
+  def create_facebook_bot(options = {})
+    bot = Bot::Facebook.new
+    bot.name = options[:name] || 'Facebook Bot'
+    bot.save!
+    bot.reload
+  end
+
   def create_bounce(options = {})
     b = Bounce.new
     b.email = options.has_key?(:email) ? options[:email] : random_email

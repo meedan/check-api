@@ -12,6 +12,7 @@ class Project < ActiveRecord::Base
   mount_uploader :lead_image, ImageUploader
 
   before_validation :set_description_and_team_and_user, on: :create
+  before_validation :generate_token, on: :create
 
   after_update :update_elasticsearch_data
 
@@ -168,6 +169,10 @@ class Project < ActiveRecord::Base
   def languages
     languages = self.get_languages
     languages.nil? ? [] : languages
+  end
+
+  def generate_token
+    self.token ||= SecureRandom.uuid
   end
 
   private

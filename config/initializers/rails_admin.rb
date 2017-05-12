@@ -217,6 +217,19 @@ RailsAdmin.config do |config|
       field :description
       field :team
       field :archived
+      field :settings do
+        label 'Link to authorize Bridge to publish translations automatically'
+        formatted_value do
+          project = bindings[:object]
+          token = project.token
+          host = CONFIG['checkdesk_base_url']
+          %w(twitter facebook).collect do |p|
+            dest = "#{host}/api/admin/project/#{project.id}/add_publisher/#{p}?token=#{token}"
+            link = "#{host}/api/users/auth/#{p}?destination=#{dest}"
+            bindings[:view].link_to(p.capitalize, link)
+          end.join(' | ').html_safe
+        end
+      end
     end
 
     show do
