@@ -83,16 +83,11 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :annotations_count do
+  field :log_count do
     type types.Int
-    argument :annotation_type, types.String
 
-    resolve ->(project_media, args, _ctx) {
-      if args['annotation_type'].blank?
-        project_media.get_versions_log_count
-      else
-        project_media.get_annotations(args['annotation_type']).count
-      end
+    resolve ->(project_media, _args, _ctx) {
+      project_media.get_versions_log_count
     }
   end
 
@@ -178,6 +173,15 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
     resolve ->(project_media, args, _ctx) {
       project_media.get_annotations(args['annotation_type'].split(',').map(&:strip))
+    }
+  end
+
+  field :annotations_count do
+    type types.Int
+    argument :annotation_type, !types.String
+
+    resolve ->(project_media, args, _ctx) {
+      project_media.get_annotations(args['annotation_type'].split(',').map(&:strip)).count
     }
   end
 
