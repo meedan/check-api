@@ -85,7 +85,7 @@ class CheckSearch
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
     unless @options["keyword"].blank?
       # add keyword conditions
-      keyword_fields = %w(title description quote account.username account.title account.description)
+      keyword_fields = %w(title description quote account.username account.title)
       keyword_c = [{ query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
 
       [['comment', 'text'], ['dynamic', 'indexable']].each do |pair|
