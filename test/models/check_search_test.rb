@@ -50,6 +50,50 @@ class CheckSearchTest < ActiveSupport::TestCase
      assert_equal [pm.id], result.medias.map(&:id)
    end
 
+   test "should search with keyword in account info" do
+     t = create_team
+     p = create_project team: t
+     pender_url = CONFIG['pender_host'] + '/api/medias'
+     media_url = 'http://www.facebook.com/meedan/posts/123456'
+     author_url = 'http://facebook.com/123456'
+     author_normal_url = 'http://www.facebook.com/meedan'
+
+     data = { url: media_url, author_url: author_url, type: 'item' }
+     response = '{"type":"media","data":' + data.to_json + '}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+
+     data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
+     response = '{"type":"media","data":' + data.to_json + '}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+
+     m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
+     pm = create_project_media project: p, media: m, disable_es_callbacks: false
+     sleep 1
+     Team.stubs(:current).returns(t)
+     result = CheckSearch.new({keyword: "non_exist_username"}.to_json)
+     assert_empty result.medias
+     # Search with account name
+     result = CheckSearch.new({keyword: "username"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     # Search with account title
+     result = CheckSearch.new({keyword: "Foo"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     # Search with account description
+     result = CheckSearch.new({keyword: "Bar"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     # Add another media with same account info
+     media_url = 'http://www.facebook.com/meedan/posts/456789'
+     data = { url: media_url, author_url: author_url, type: 'item' }
+     response = '{"type":"media","data":' + data.to_json + '}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+     m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
+     pm2 = create_project_media project: p, media: m, disable_es_callbacks: false
+     sleep 1
+     # Search with account name
+     result = CheckSearch.new({keyword: "username"}.to_json)
+     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+   end
+
    test "should search with context" do
      t = create_team
      p = create_project team: t
