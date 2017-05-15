@@ -3,10 +3,10 @@ class ReindexAccountInfo < ActiveRecord::Migration
     url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
     client = Elasticsearch::Client.new url: url
     options = {
-      index: CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index'],
+      index: CheckElasticSearchModel.index_name,
       type: 'media_search'
     }
-    Account.all.each do |a|
+    Account.find_each do |a|
       # Account info
       data = {}
       em = a.annotations('embed').last
