@@ -8,7 +8,7 @@ class Bot::Twitter < ActiveRecord::Base
   end
 
   def send_to_twitter_in_background(annotation)
-    Bot::Twitter.delay_for(1.second).send_to_twitter(annotation.id) if !annotation.nil? && annotation.annotation_type == 'translation'
+    self.send_to_social_network_in_background(:send_to_twitter, annotation)
   end
 
   def self.send_to_twitter(annotation_id)
@@ -29,7 +29,7 @@ class Bot::Twitter < ActiveRecord::Base
 
       text = self.format_for_twitter(self.text)
       tweet = self.twitter_client.update(text)
-      tweet.id
+      tweet.url.to_s
     end
 
     # Waiting for Check integration with Bridge Reader

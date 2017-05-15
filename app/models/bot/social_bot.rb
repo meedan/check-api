@@ -2,20 +2,24 @@ module Bot
   module SocialBot
     attr_accessor :translation
 
-    def send_to_social_network(provider, translation, &block)
+    def send_to_social_network_in_background(callback, annotation)
+      self.class.delay_for(1.second, retry: 0).send(callback, annotation.id) if !annotation.nil? && annotation.annotation_type == 'translation'
+    end
+
+    def send_to_social_network(provider, translation)
       return if translation.nil?
       self.translation = translation
 
       auth = self.get_auth(provider)
       return if auth.nil?
 
-      return unless self.published[provider].blank?
+      return if self.published_to?(provider)
 
-      id = yield
+      link = yield
       
-      self.store_id(provider, id)
+      self.store_id(provider, link)
     end
-    
+
     protected
 
     def text
@@ -27,21 +31,21 @@ module Bot
       publishers[provider]
     end
 
-    def published
-      published = self.translation.get_field_value('translation_published')
-      published.blank? ? {} : JSON.parse(published)
+    def published_to?(provider)
+      publishings = DynamicAnnotation::Field.where(annotation_id: self.translation.id, field_name: 'translation_published').to_a
+      publishings.select{ |p| JSON.parse(p.value).has_key?(provider.to_s) }.any?
     end
 
-    def store_id(provider, id)
-      published = self.published
-      published[provider] = id
-
+    def store_id(provider, link)
       f = DynamicAnnotation::Field.new
       f.skip_check_ability = true
       f.field_name = 'translation_published'
-      f.value = published.to_json
+      f.value = { provider => link }.to_json
       f.annotation_id = self.translation.id
+      user = User.current
+      User.current = self.translation.annotator
       f.save!
+      User.current = user
     end
   end
 end

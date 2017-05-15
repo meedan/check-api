@@ -24,7 +24,7 @@ class ProjectMedia < ActiveRecord::Base
                   event: 'media_updated',
                   targets: proc { |pm| [pm.project, pm.media] },
                   if: proc { |pm| !pm.skip_notifications },
-                  data: proc { |pm| pm.media.to_json }
+                  data: proc { |pm| pm.media.as_json.merge(class_name: 'media').to_json }
 
   include CheckElasticSearch
 

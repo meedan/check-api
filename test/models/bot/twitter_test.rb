@@ -42,9 +42,9 @@ class Bot::TwitterTest < ActiveSupport::TestCase
     p.save!
     pm = create_project_media project: p
     t = create_dynamic_annotation annotation_type: 'translation', set_fields: { 'translation_text' => 'Test' }.to_json, annotated: pm
-    Twitter::REST::Client.any_instance.stubs(:update).with('Test').returns(OpenStruct.new({ id: '654321' })).once
+    Twitter::REST::Client.any_instance.stubs(:update).with('Test').returns(OpenStruct.new({ url: 'https://twitter.com/test/654321' })).once
     Bot::Twitter.send_to_twitter(t.id)
-    assert_equal '654321', JSON.parse(DynamicAnnotation::Field.where(field_name: 'translation_published').last.value)['twitter']
+    assert_equal 'https://twitter.com/test/654321', JSON.parse(DynamicAnnotation::Field.where(field_name: 'translation_published').last.value)['twitter']
   end
 
   test "should truncate text" do

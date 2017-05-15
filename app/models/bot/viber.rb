@@ -91,6 +91,10 @@ class Bot::Viber < ActiveRecord::Base
       end
     end
 
+    def should_respond_to_user?
+      self.field_name == 'translation_status_status' && self.previous_status.to_s != self.value.to_s
+    end
+
     private
 
     def update_elasticsearch_status
@@ -123,7 +127,7 @@ class Bot::Viber < ActiveRecord::Base
     end
 
     def respond_to_user
-      if self.field_name == 'translation_status_status' && self.previous_status.to_s != self.value.to_s
+      if self.should_respond_to_user?
         request = self.annotation.annotated.get_dynamic_annotation('translation_request')
         if self.value == 'ready'
           self.store_approver

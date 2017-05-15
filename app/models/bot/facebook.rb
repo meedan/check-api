@@ -6,7 +6,7 @@ class Bot::Facebook < ActiveRecord::Base
   end
 
   def send_to_facebook_in_background(annotation)
-    Bot::Facebook.delay_for(1.second).send_to_facebook(annotation.id) if !annotation.nil? && annotation.annotation_type == 'translation'
+    self.send_to_social_network_in_background(:send_to_facebook, annotation)
   end
 
   def self.send_to_facebook(annotation_id)
@@ -24,7 +24,7 @@ class Bot::Facebook < ActiveRecord::Base
       }
       # data.merge!({ link: self.embed_url })
       response = Net::HTTP.post_form(uri, data)
-      JSON.parse(response.body)['id']
+      'https://facebook.com/' + JSON.parse(response.body)['id'].to_s
     end
   end
 end
