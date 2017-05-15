@@ -3,7 +3,7 @@ class ReindexAccountInfo < ActiveRecord::Migration
     url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
     client = Elasticsearch::Client.new url: url
     options = {
-      index: CheckElasticSearchModel.index_name,
+      index: CheckElasticSearchModel.get_index_name,
       type: 'media_search'
     }
     Account.find_each do |a|

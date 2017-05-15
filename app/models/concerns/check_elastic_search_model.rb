@@ -6,6 +6,8 @@ module CheckElasticSearchModel
     include ActiveModel::Validations::Callbacks
     include Elasticsearch::Persistence::Model
 
+    index_name CheckElasticSearchModel.get_index_name
+
     settings analysis: {
       char_filter: {
         space_hashtags: {
@@ -37,7 +39,7 @@ module CheckElasticSearchModel
     raise 'Sorry, this is not valid' unless self.save(options)
   end
 
-  def self.index_name
+  def self.get_index_name
     CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
   end
 
@@ -50,7 +52,7 @@ module CheckElasticSearchModel
   module ClassMethods
     def create_index
       client = self.gateway.client
-      index_name = CheckElasticSearchModel.index_name
+      index_name = self.index_name
       settings = []
       mappings = []
       [MediaSearch, CommentSearch, TagSearch, DynamicSearch].each do |klass|
@@ -64,7 +66,7 @@ module CheckElasticSearchModel
 
     def delete_index
       client = self.gateway.client
-      index_name = CheckElasticSearchModel.index_name
+      index_name = self.index_name
       if client.indices.exists? index: index_name
         client.indices.delete index: index_name
       end
