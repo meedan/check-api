@@ -6,7 +6,7 @@ module CheckElasticSearchModel
     include ActiveModel::Validations::Callbacks
     include Elasticsearch::Persistence::Model
 
-    index_name CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
+    index_name CheckElasticSearchModel.get_index_name
 
     settings analysis: {
       char_filter: {
@@ -37,6 +37,10 @@ module CheckElasticSearchModel
 
   def save!(options = {})
     raise 'Sorry, this is not valid' unless self.save(options)
+  end
+
+  def self.get_index_name
+    CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
   end
 
   private

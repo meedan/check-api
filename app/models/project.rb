@@ -93,7 +93,8 @@ class Project < ActiveRecord::Base
       type: 'media_search',
       body: {
         script: { inline: "ctx._source.team_id=team_id", lang: "groovy", params: { team_id: self.team_id } },
-        query: { term: { project_id: { value: self.id } } } }
+        query: { term: { project_id: { value: self.id } } }
+      }
     }
     client.update_by_query options
   end
