@@ -79,6 +79,7 @@ class ProjectMedia < ActiveRecord::Base
       ms.description = data['description']
       ms.quote = m.quote
     end
+    ms.account = self.set_es_account_data unless self.media.account.nil?
     ms.save!
     # ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')
   end
@@ -209,7 +210,7 @@ class ProjectMedia < ActiveRecord::Base
     mt = self.annotations.where(annotation_type: 'mt').last
     MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(User.current)) unless mt.nil?
   end
-    
+
   def get_dynamic_annotation(type)
     Dynamic.where(annotation_type: type, annotated_type: 'ProjectMedia', annotated_id: self.id).last
   end
@@ -250,5 +251,15 @@ class ProjectMedia < ActiveRecord::Base
   def override_embed_data(em, info)
     info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
     em.save!
+  end
+
+  def set_es_account_data
+    data = {}
+    a = self.media.account
+    em = a.annotations('embed').last
+    embed = JSON.parse(em.data['embed']) unless em.nil?
+    self.overridden_embed_attributes.each{ |k| sk = k.to_s; data[sk] = embed[sk] unless embed[sk].nil? } unless embed.nil?
+    data["id"] = a.id unless data.blank?
+    [data]
   end
 end
