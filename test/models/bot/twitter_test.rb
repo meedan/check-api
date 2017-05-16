@@ -42,13 +42,16 @@ class Bot::TwitterTest < ActiveSupport::TestCase
     p.save!
     pm = create_project_media project: p
     t = create_dynamic_annotation annotation_type: 'translation', set_fields: { 'translation_text' => 'Test' }.to_json, annotated: pm
-    Twitter::REST::Client.any_instance.stubs(:update).with('Test').returns(OpenStruct.new({ url: 'https://twitter.com/test/654321' })).once
+    Twitter::REST::Client.any_instance.stubs(:update_with_media).returns(OpenStruct.new({ url: 'https://twitter.com/test/654321' })).once
+    Twitter::REST::Client.any_instance.stubs(:configuration).returns(OpenStruct.new({ short_url_length_https: 10 }))
     Bot::Twitter.send_to_twitter(t.id)
     assert_equal 'https://twitter.com/test/654321', JSON.parse(DynamicAnnotation::Field.where(field_name: 'translation_published').last.value)['twitter']
   end
 
   test "should truncate text" do
-    text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-    assert_equal 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad mi...', @bot.send(:format_for_twitter, text)
+    Bot::Twitter.any_instance.stubs(:twitter_client).returns(OpenStruct.new(configuration: OpenStruct.new({ short_url_length_https: 10 })))
+    text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna... aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+    assert_equal 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna... ', @bot.send(:format_for_twitter, text)
+    Bot::Twitter.any_instance.unstub(:twitter_client)
   end
 end

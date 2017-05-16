@@ -20,6 +20,7 @@ class Bot::Facebook < ActiveRecord::Base
       uri = URI('https://graph.facebook.com/me/feed')
       data = {
         message: self.text,
+        link: self.embed_url,
         access_token: auth['token']
       }
       # data.merge!({ link: self.embed_url })
