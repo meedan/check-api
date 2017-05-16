@@ -51,7 +51,7 @@ module Bot
     def embed_url(visibility = :public, format = :html)
       t = self.translation
       if t && t.annotated && t.annotated.project && t.annotated.project.team
-        base_url = CONFIG["bridge_reader_url_#{visibility}"]
+        base_url = visibility == :public ? CONFIG['bridge_reader_url'] : CONFIG['bridge_reader_url_private']
         "#{base_url}/medias/embed/#{t.annotated.project.team.slug}/#{t.annotated.project.id}/#{t.annotated.id}.#{format}"
       end
     end

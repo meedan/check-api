@@ -43,8 +43,8 @@ development: &default
   alegre_host:
   alegre_token:
   viber_token:
-  bridge_reader_host_private: # http://localhost:3001 - used to download screenshot
-  bridge_reader_host_public: # http://localhost:3001 - used to publish
+  bridge_reader_url_private: # http://localhost:3001 - used to download screenshot
+  bridge_reader_url: # http://localhost:3001 - used to publish
 
 test:
   <<: *default
