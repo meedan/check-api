@@ -491,4 +491,11 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal ['ar', 'en'], p.languages
   end
 
+  test "should have token" do
+    p1 = create_project
+    p2 = create_project
+    assert p1.token.size > 5
+    assert p2.token.size > 5
+    assert p1.token != p2.token
+  end
 end

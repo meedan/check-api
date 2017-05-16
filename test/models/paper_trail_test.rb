@@ -119,4 +119,9 @@ class PaperTrailTest < ActiveSupport::TestCase
     User.current = nil
     assert_equal 'update_comment', c.reload.versions.last.event_type
   end
+
+  test "should skip ability" do
+    v = create_version
+    assert v.skip_check_ability
+  end
 end

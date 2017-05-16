@@ -161,6 +161,10 @@ module PaperTrail
         pm.update_columns(cached_annotations_count: count)
       end
     end
+
+    def skip_check_ability
+      true
+    end
   end
 end
 
