@@ -42,10 +42,11 @@ class Bot::Twitter < ActiveRecord::Base
     require 'open-uri'
     url = self.embed_url(:private, :png)
     path = File.join(Dir::tmpdir, "#{Time.now.to_i}_#{rand(100000)}.png")
+    # Try to get screenshot from Reader... if it doesn't work, use a default image
     begin
       IO.copy_stream(open(url, { ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE }), path)
     rescue
-      path = File.join(Rails.root, 'public', 'images', 'bridge.png')
+      FileUtils.cp File.join(Rails.root, 'public', 'images', 'bridge.png'), path
     end
     path
   end
