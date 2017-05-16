@@ -52,7 +52,7 @@ module Bot
       t = self.translation
       if t && t.annotated && t.annotated.project && t.annotated.project.team
         base_url = CONFIG["bridge_reader_url_#{visibility}"]
-        "#{base_url}/medias/embed/#{t.annotated.project.team.slug}/#{t.annotated.project.id.to_s}/#{t.annotated.id}.#{format}"
+        "#{base_url}/medias/embed/#{t.annotated.project.team.slug}/#{t.annotated.project.id}/#{t.annotated.id}.#{format}"
       end
     end
   end
