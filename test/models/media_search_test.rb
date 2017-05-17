@@ -39,6 +39,11 @@ class MediaSearchTest < ActiveSupport::TestCase
     sleep 1
     MediaSearch.index_name = source_index
     assert_equal 1, MediaSearch.length
+    MediaSearch.stubs(:migrate_es_data).raises(StandardError)
+    assert_raise StandardError do
+      MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+    end
+    MediaSearch.unstub(:migrate_es_data)
   end
 
 end
