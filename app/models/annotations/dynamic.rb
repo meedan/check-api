@@ -134,6 +134,6 @@ class Dynamic < ActiveRecord::Base
   end
 
   def set_annotator
-    self.annotator = User.current if !User.current.nil?
+    self.annotator = User.current if !User.current.nil? && (self.annotator.nil? || self.annotation_type_object.singleton)
   end
 end

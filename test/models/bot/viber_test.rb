@@ -493,6 +493,29 @@ class Bot::ViberTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not get credit as translator when editing translator" do
+    u1 = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u1, team: t, role: 'editor'
+    create_team_user user: u2, team: t, role: 'editor'
+    t = t.reload
+    p = create_project team: t
+    pm = create_project_media project: p
+    create_annotation_type annotation_type: 'translation', singleton: false
+    d = nil
+    with_current_user_and_team(u1.reload, t) do
+      d = create_dynamic_annotation(annotation_type: 'translation', annotated: pm, annotator: nil)
+    end
+    assert_equal u1, Dynamic.find(d.id).annotator
+    with_current_user_and_team(u2.reload, t) do
+      d = Dynamic.find(d.id)
+      d.set_fields = '{}'
+      d.save!
+    end
+    assert_equal u1, Dynamic.find(d.id).annotator
+  end
+
   private
 
   def create_translation_status_stuff
