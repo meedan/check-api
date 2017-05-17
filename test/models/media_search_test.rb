@@ -20,8 +20,25 @@ class MediaSearchTest < ActiveSupport::TestCase
   end
 
   test "should re-index data" do
+    mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch]
+    source_index = CheckElasticSearchModel.get_index_name
+    target_index = "#{source_index}_reindex"
     m = create_media_search
-    MediaSearch.reindex_es_data
+    sleep 1
+    assert_equal 1, MediaSearch.length
+    # Test migrate data into target index
+    MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+    sleep 1
+    MediaSearch.index_name = target_index
+    assert_equal 1, MediaSearch.length
+    MediaSearch.delete_index
+    MediaSearch.index_name = source_index
+    MediaSearch.create_index
+    m = create_media_search
+    CheckElasticSearchModel.reindex_es_data
+    sleep 1
+    MediaSearch.index_name = source_index
+    assert_equal 1, MediaSearch.length
   end
 
 end
