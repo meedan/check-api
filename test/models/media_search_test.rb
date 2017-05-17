@@ -26,14 +26,18 @@ class MediaSearchTest < ActiveSupport::TestCase
     m = create_media_search
     sleep 1
     assert_equal 1, MediaSearch.length
-    CheckElasticSearchModel.reindex_es_data
-    sleep 1
-    MediaSearch.index_name = source_index
-    assert_equal 1, MediaSearch.length
     # Test migrate data into target index
     MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
     sleep 1
     MediaSearch.index_name = target_index
+    assert_equal 1, MediaSearch.length
+    MediaSearch.delete_index
+    MediaSearch.index_name = source_index
+    MediaSearch.create_index
+    m = create_media_search
+    CheckElasticSearchModel.reindex_es_data
+    sleep 1
+    MediaSearch.index_name = source_index
     assert_equal 1, MediaSearch.length
   end
 

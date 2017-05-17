@@ -5,6 +5,9 @@ class ProjectTest < ActiveSupport::TestCase
     super
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
+    MediaSearch.delete_index
+    MediaSearch.create_index
+    sleep 1
   end
 
   test "should create project" do
