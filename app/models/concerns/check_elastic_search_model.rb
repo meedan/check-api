@@ -73,9 +73,8 @@ module CheckElasticSearchModel
       client.indices.create index: index_name, body: { settings: settings.to_hash, mappings: mappings.to_hash }
     end
 
-    def delete_index
+    def delete_index(index_name = self.index_name)
       client = self.gateway.client
-      index_name = self.index_name
       if client.indices.exists? index: index_name
         client.indices.delete index: index_name
       end
