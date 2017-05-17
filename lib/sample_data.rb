@@ -466,6 +466,7 @@ module SampleData
     at.annotation_type = options.has_key?(:annotation_type) ? options[:annotation_type] : random_machine_name
     at.label = options.has_key?(:label) ? options[:label] : random_string(10)
     at.description = options.has_key?(:description) ? options[:description] : ''
+    at.singleton = options[:singleton] if options.has_key?(:singleton)
     at.save!
     at
   end
@@ -512,7 +513,7 @@ module SampleData
     create_annotation_type(annotation_type: t) if !options[:skip_create_annotation_type] && !t.blank? && !DynamicAnnotation::AnnotationType.where(annotation_type: t).exists?
     a = Dynamic.new
     a.annotation_type = t
-    a.annotator = options[:annotator] || create_user
+    a.annotator = options.has_key?(:annotator) ? options[:annotator] : create_user
     a.annotated = options[:annotated] || create_project_media
     a.set_fields = options[:set_fields]
     a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
