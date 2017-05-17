@@ -141,8 +141,9 @@ class DynamicTest < ActiveSupport::TestCase
     p = create_project team: t
     pm1 = create_project_media project: p 
     pm2 = create_project_media project: p
+    at = create_annotation_type
     User.current = u1
-    d1 = create_dynamic_annotation annotator: u3, annotated: pm1
+    d1 = create_dynamic_annotation annotator: u3, annotated: pm1, annotation_type: at.annotation_type
     assert_equal u1, d1.reload.annotator
     User.current = u2
     d2 = Dynamic.last
