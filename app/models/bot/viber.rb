@@ -241,7 +241,10 @@ class Bot::Viber < ActiveRecord::Base
     private
 
     def create_first_translation_status
-      if DynamicAnnotation::AnnotationType.where(annotation_type: 'translation_status').exists?
+      if DynamicAnnotation::AnnotationType.where(annotation_type: 'translation_status').exists? &&
+         DynamicAnnotation::FieldInstance.where(name: 'translation_status_status').exists? &&
+         DynamicAnnotation::FieldInstance.where(name: 'translation_status_note').exists? &&
+         DynamicAnnotation::FieldInstance.where(name: 'translation_status_approver').exists?
         ts = Dynamic.new
         ts.skip_check_ability = true
         ts.annotation_type = 'translation_status'
