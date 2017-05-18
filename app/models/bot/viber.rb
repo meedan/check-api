@@ -149,7 +149,6 @@ class Bot::Viber < ActiveRecord::Base
   end
 
   Dynamic.class_eval do
-    after_create :create_first_translation_status
     before_validation :store_previous_status
 
     def translation_status
@@ -234,16 +233,20 @@ class Bot::Viber < ActiveRecord::Base
     def store_previous_status
       self.previous_translation_status = self.translation_status if self.annotation_type == 'translation_status'
     end
+  end
+
+  ProjectMedia.class_eval do
+    after_create :create_first_translation_status
+
+    private
 
     def create_first_translation_status
-      if self.annotation_type == 'translation_request'
-        ts = Dynamic.new
-        ts.skip_check_ability = true
-        ts.annotation_type = 'translation_status'
-        ts.annotated = self.annotated
-        ts.set_fields = { translation_status_status: 'pending', translation_status_note: '', translation_status_approver: '{}' }.to_json
-        ts.save!
-      end
+      ts = Dynamic.new
+      ts.skip_check_ability = true
+      ts.annotation_type = 'translation_status'
+      ts.annotated = self
+      ts.set_fields = { translation_status_status: 'pending', translation_status_note: '', translation_status_approver: '{}' }.to_json
+      ts.save!
     end
   end
 

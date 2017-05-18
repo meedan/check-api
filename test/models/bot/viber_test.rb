@@ -322,9 +322,8 @@ class Bot::ViberTest < ActiveSupport::TestCase
   end
 
   test "should create first translation status when translation request is created" do
-    pm = create_project_media
     assert_difference "Dynamic.where(annotation_type: 'translation_status').count" do
-      create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
+      create_project_media
     end
   end
 
