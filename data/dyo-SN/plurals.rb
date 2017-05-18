@@ -1,0 +1,1 @@
+{ :'dyo_SN' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

@@ -1,0 +1,18 @@
+ka: 
+  lists: 
+    default: 
+      2: "{0} და {1}"
+      end: "{0} და {1}"
+      middle: "{0}, {1}"
+      start: "{0}, {1}"
+    unit: 
+      2: "{0}, {1}"
+      end: "{0}, {1}"
+      middle: "{0}, {1}"
+      start: "{0}, {1}"
+    unit-narrow: {}
+    unit-short: 
+      2: "{0}, {1}"
+      end: "{0}, {1}"
+      middle: "{0}, {1}"
+      start: "{0}, {1}"

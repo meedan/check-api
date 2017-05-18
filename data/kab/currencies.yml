@@ -1,0 +1,218 @@
+kab: 
+  currencies: 
+    AED: 
+      one: "Adirham n Tgeldunin Taɛrabin Yedduklen"
+    AOA: 
+      one: "Akwanza n Ungula"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Adular n Lusṭrali"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Adinar Abaḥrini"
+    BIF: 
+      one: "Afrank Aburandi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Apula Abusṭwanan"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Adular Akanadi"
+      symbol: CA$
+    CDF: 
+      one: "Afrank Akunguli"
+    CHF: 
+      one: "Afrank Aswis"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Ayuwan Renminbi Acinwa"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Akabuviradinu Askudi"
+    DJF: 
+      one: "Afrank Ajibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Adinar Azzayri"
+      symbol: DA
+    EGP: 
+      one: "Apund Amaṣri"
+    ERN: 
+      one: "Anakfa Iritiri"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Abir Utyupi"
+    EUR: 
+      one: Uru
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Apund Sterling Aglizi"
+      symbol: £
+    GHC: 
+      one: "Asidi Aɣani"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Adalasi Agambi"
+    GNS: 
+      one: "Afrank Aɣini"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Arupi Ahendi"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Ayen Ajappuni"
+      symbol: JP¥
+    KES: 
+      one: "Aciling Akini"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Afrank Akamiruni"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Adular Alibiri"
+      symbol: $
+    LSL: 
+      one: "Aluṭi Alizuṭi"
+    LYD: 
+      one: "Adinar Alibi"
+    MAD: 
+      one: "Adirham Amerruki"
+    MGA: 
+      one: "Aryari Amalgac"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Agiya Amuriṭani"
+    MUR: 
+      one: "Arupi Amurisi"
+    MWK: 
+      one: "Akwaca Amalawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Amitikal Amuzembiqi"
+    NAD: 
+      one: "Adular Anamibi"
+      symbol: $
+    NGN: 
+      one: "Anayra Anijiri"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Afrank Aruwandi"
+    SAR: 
+      one: "Aryal Asuɛudi"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Arupi Aseycili"
+    SDG: 
+      one: "Apund Asudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Apund Asant Ilini"
+    SLL: 
+      one: Alyun
+    SOS: 
+      one: "Aciling Aṣumali"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Asw Ṭum d Udubra Amenzay"
+    SZL: 
+      one: Alilangini
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Adinar Atunsi"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Aciling Aṭanẓani"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Aciling Awgandi"
+    USD: 
+      one: "Adular WD"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Afrank BCEA CFA"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Afrank BCEAO CFA"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Arand Afriqi n Wadda"
+    ZMK: 
+      one: "Akwaca Azambi (1968–2012)"
+    ZMW: 
+      one: "Akwaca Azambi"
+    ZWD: 
+      one: "Adular Azimbabwi"

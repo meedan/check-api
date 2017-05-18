@@ -1,0 +1,219 @@
+tzm: 
+  currencies: 
+    AED: 
+      one: "Derhem Uymarati"
+    AOA: 
+      one: "Kwanza Unguli"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Ḍular Usṭrali"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Ḍinar Ubaḥrayni"
+    BIF: 
+      one: "Frank Uburundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Pula Ubutswani"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Ḍular Ukanadi"
+      symbol: CA$
+    CDF: 
+      one: "Frank Ukunguli"
+    CHF: 
+      one: "Frank Uswisri"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Ywan Renminbi Ucinwi"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Iskudu Ukabuvirdyani"
+    DJF: 
+      one: "Frank Uğibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Ḍinar Udzayri"
+    EGP: 
+      one: "Junih Umiṣṛi"
+    ERN: 
+      one: "Nakfa Uyritri"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Birr Uyityuppi"
+    EUR: 
+      one: Uṛu
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Junih Usterlini Ubriṭani"
+      symbol: £
+    GHC: 
+      one: "Sidi Uɣani"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dalasi Agambi"
+    GNS: 
+      one: "Frank Uɣini"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupi Uḥindi"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yann Ujappuni"
+      symbol: JP¥
+    KES: 
+      one: "Cillin Ukini"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Frank Uqumuri"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Ḍular Ulibiri"
+      symbol: $
+    LSL: 
+      one: "Luti Ulusuṭi"
+    LYD: 
+      one: "Ḍinar Ulibi"
+    MAD: 
+      one: "Derhem Umeṛṛuki"
+    MGA: 
+      one: "Aryari Umalɣaci"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Uqiyya Umuritani"
+    MUR: 
+      one: "Rupi Umurisi"
+    MWK: 
+      one: "Kwača Umalawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Mitikal Umuzambiqi"
+    NAD: 
+      one: "Ḍular Unamibi"
+      symbol: $
+    NGN: 
+      one: "Nayra Unijiri"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Frank Urwandi"
+    SAR: 
+      one: "Ryal Usaεudi"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupi Usicili"
+    SDG: 
+      one: "Junih Usudani"
+    SDP: 
+      one: "Junih Usudani (1956–2007)"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Junih Usantehilini"
+    SLL: 
+      one: "Lyun Usirralyuni"
+    SOS: 
+      one: "Cilin Uṣumali"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dubra Usawṭumi"
+    SZL: 
+      one: "Lilanjini Uswazi"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Ḍinar Utunsi"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Cilin Uṭanzani"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Cilin Uɣandi (1966–1987)"
+    USD: 
+      one: "Ḍular Umirikani"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Frank CFA (BEAC)"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Frank CFA (BCEAO)"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Rand Ufriki Unzul"
+    ZMK: 
+      one: "Kwača Uzambi (1968–2012)"
+    ZMW: 
+      one: "Kwača Uzambi"
+    ZWD: 
+      one: "Ḍular Uzimbabwi"

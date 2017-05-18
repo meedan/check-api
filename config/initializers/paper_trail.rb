@@ -40,6 +40,7 @@ module PaperTrail
     end
 
     def annotation
+      return Annotation.find(self.item.annotation_id) if self.item.respond_to?(:annotation_id)
       Annotation.find(self.item_id) if self.item_class.new.is_annotation?
     end
 
@@ -142,7 +143,7 @@ module PaperTrail
     end
 
     def set_project_media_id
-      self.project_media_id = self.get_project_media_id    
+      self.project_media_id = self.get_project_media_id
     end
 
     def increment_project_media_annotations_count
@@ -159,6 +160,10 @@ module PaperTrail
         count = pm.cached_annotations_count + value
         pm.update_columns(cached_annotations_count: count)
       end
+    end
+
+    def skip_check_ability
+      true
     end
   end
 end

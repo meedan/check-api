@@ -50,6 +50,50 @@ class CheckSearchTest < ActiveSupport::TestCase
      assert_equal [pm.id], result.medias.map(&:id)
    end
 
+   test "should search with keyword in account info" do
+     t = create_team
+     p = create_project team: t
+     pender_url = CONFIG['pender_host'] + '/api/medias'
+     media_url = 'http://www.facebook.com/meedan/posts/123456'
+     author_url = 'http://facebook.com/123456'
+     author_normal_url = 'http://www.facebook.com/meedan'
+
+     data = { url: media_url, author_url: author_url, type: 'item' }
+     response = '{"type":"media","data":' + data.to_json + '}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+
+     data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
+     response = '{"type":"media","data":' + data.to_json + '}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+
+     m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
+     pm = create_project_media project: p, media: m, disable_es_callbacks: false
+     sleep 1
+     Team.stubs(:current).returns(t)
+     result = CheckSearch.new({keyword: "non_exist_username"}.to_json)
+     assert_empty result.medias
+     # Search with account name
+     result = CheckSearch.new({keyword: "username"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     # Search with account title
+     result = CheckSearch.new({keyword: "Foo"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     # Search with account description
+     result = CheckSearch.new({keyword: "Bar"}.to_json)
+     assert_empty result.medias
+     # Add another media with same account info
+     media_url = 'http://www.facebook.com/meedan/posts/456789'
+     data = { url: media_url, author_url: author_url, type: 'item' }
+     response = '{"type":"media","data":' + data.to_json + '}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+     m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
+     pm2 = create_project_media project: p, media: m, disable_es_callbacks: false
+     sleep 1
+     # Search with account name
+     result = CheckSearch.new({keyword: "username"}.to_json)
+     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+   end
+
    test "should search with context" do
      t = create_team
      p = create_project team: t
@@ -576,14 +620,14 @@ class CheckSearchTest < ActiveSupport::TestCase
     pm1a = create_project_media project: p1a
     sleep 1
     pm1b = create_project_media project: p1b
-    
+
     t2 = create_team
     p2a = create_project team: t2
     p2b = create_project team: t2
     pm2a = create_project_media project: p2a
     sleep 1
     pm2b = create_project_media project: p2b
-    
+
     Team.stubs(:current).returns(t1)
     assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
     assert_equal 2, CheckSearch.new('{}').number_of_results
@@ -620,5 +664,69 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal p.pusher_channel, cs.pusher_channel
     cs = CheckSearch.new('{}')
     assert_nil cs.pusher_channel
+  end
+
+  test "should search with diacritics PT" do
+     t = create_team
+     p = create_project team: t
+     pender_url = CONFIG['pender_host'] + '/api/medias'
+     url = 'http://test.com'
+     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "coração", "description":"vovô foi à são paulo"}}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+     m = create_media(account: create_valid_account, url: url)
+     pm = create_project_media project: p, media: m, disable_es_callbacks: false
+     sleep 1
+     Team.stubs(:current).returns(t)
+     result = CheckSearch.new({keyword: "coração"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     # search in description
+     result = CheckSearch.new({keyword: "vovô foi à são paulo"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     result = CheckSearch.new({keyword: "vovo foi a sao paulo"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+   end
+
+  test "should search with diacritics FR" do
+     t = create_team
+     p = create_project team: t
+     pender_url = CONFIG['pender_host'] + '/api/medias'
+     url = 'http://test.com'
+     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "cañon", "description":"légion française"}}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+     m = create_media(account: create_valid_account, url: url)
+     pm = create_project_media project: p, media: m, disable_es_callbacks: false
+     sleep 1
+     Team.stubs(:current).returns(t)
+     result = CheckSearch.new({keyword: "cañon"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     result = CheckSearch.new({keyword: "canon"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     # search in description
+     result = CheckSearch.new({keyword: "légion française"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     result = CheckSearch.new({keyword: "legion francaise"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+   end
+
+  test "should search with diacritics AR" do
+     t = create_team
+     p = create_project team: t
+     pender_url = CONFIG['pender_host'] + '/api/medias'
+     url = 'http://test.com'
+     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"تْشِك"}}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+     m = create_media(account: create_valid_account, url: url)
+     pm = create_project_media project: p, media: m, disable_es_callbacks: false
+     sleep 1
+     Team.stubs(:current).returns(t)
+     result = CheckSearch.new({keyword: "ﻻ"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     result = CheckSearch.new({keyword: "لا"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     # search in description
+     result = CheckSearch.new({keyword: "تْشِك"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     result = CheckSearch.new({keyword: "تشك"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
   end
 end

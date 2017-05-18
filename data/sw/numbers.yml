@@ -1,0 +1,61 @@
+sw: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "¤#,##0.00;(¤#,##0.00)"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "Elfu 0"
+            10000: "Elfu 00"
+            100000: "Elfu 000"
+            1000000: "Milioni 0"
+            10000000: "Milioni 00"
+            100000000: "Milioni 000"
+            1000000000: "Bilioni 0"
+            10000000000: "Bilioni 00"
+            100000000000: "Bilioni 000"
+            1000000000000: "Trilioni 0"
+            10000000000000: "Trilioni 00"
+            100000000000000: "Trilioni 000"
+          short: 
+            1000: elfu 0
+            10000: elfu 00
+            100000: laki0
+            1000000: M0
+            10000000: M00
+            100000000: M000
+            1000000000: B0
+            10000000000: B00
+            100000000000: B000
+            1000000000000: T0
+            10000000000000: T00
+            100000000000000: T000
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: "."
+      exponential: E
+      group: ","
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

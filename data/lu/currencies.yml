@@ -1,0 +1,220 @@
+lu: 
+  currencies: 
+    AED: 
+      one: "Ndiriha wa Lemila alabu"
+    AOA: 
+      one: "Kwanza wa Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Ndola wa Ositali"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Ndina wa Bahrene"
+    BIF: 
+      one: "Nfalanga wa Bulundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Pula wa Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Ndola wa Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Nfalanga wa Kongu"
+      symbol: FC
+    CHF: 
+      one: "Nfalanga wa Swise"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Yuani Renminbi wa Shine"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Esikuludo wa Kapevere"
+    DJF: 
+      one: "Nfalanga wa Dzibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Ndina wa Alijeri"
+    EGP: 
+      one: "Pauni wa Mushidi"
+    ERN: 
+      one: "Nakfa wa Elitle"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Bira wa Etshiopi"
+    EUR: 
+      one: Iro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Pauni wa Angeletele"
+      symbol: £
+    GHC: 
+      one: "Sedi wa Ngana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Ndalasi wa Ngambi"
+    GNS: 
+      one: "Nfalanga wa Ngina"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupi wa Inde"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yeni wa Zapɔ"
+      symbol: JP¥
+    KES: 
+      one: "Nshili wa Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Nfalanga wa Komoru"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Ndola wa Liberya"
+      symbol: $
+    LSL: 
+      one: "Loti wa Lesoto"
+    LYD: 
+      one: "Ndina wa Libi"
+    MAD: 
+      one: "Ndiriha wa Maroke"
+    MGA: 
+      one: "Nfalanga wa Madagasikare"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ugwiya wa Moritani"
+    MUR: 
+      one: "Rupia wa Morisi"
+    MWK: 
+      one: "Kwasha wa Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Metikali wa Mozambiki"
+    NAD: 
+      one: "Ndola wa Namibi"
+      symbol: $
+    NGN: 
+      one: "Naira wa Nizerya"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Nfalanga wa Rwanda"
+    SAR: 
+      one: "Riyale wa Alabu Nsawu"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupya wa Seshele"
+    SDG: 
+      one: "Ndina wa Suda"
+    SDP: 
+      one: "Pauni wa Suda"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Pauni wa Santu Elena"
+    SLL: 
+      one: Leone
+    SOS: 
+      one: "Nshili wa Somali"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dobra wa Sao Tome ne Presipe"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Ndina wa Tinizi"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Nshili wa Tanzani"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Nshili wa Uganda"
+    USD: 
+      one: "Ndola wa Ameriki"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Nfalanga CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Nfalanga CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Rande wa Afrika wa Mwinshi"
+    ZMK: 
+      one: "Kwasha wa Zambi (1968–2012)"
+    ZMW: 
+      one: "Kwasha wa Zambi"
+    ZWD: 
+      one: "Ndola wa Zimbabwe"

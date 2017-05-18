@@ -1,0 +1,180 @@
+sw: 
+  languages: 
+    ab: Kiabkhazi
+    ach: Kiakoli
+    af: Kiafrikana
+    ak: Kiakani
+    am: Kiamhari
+    ar: Kiarabu
+    as: Kiassam
+    ay: Aimara
+    az: Kiazeri
+    be: Kibelarusi
+    bem: Kibemba
+    bg: Kibulgaria
+    bh: Kibihari
+    bn: Kibangla
+    bo: Kitibeti
+    br: Kibretoni
+    bs: Kibosnia
+    ca: Kikatalani
+    chr: Kicherokee
+    ckb: "Kisorani Kikurdi"
+    co: Kikosikani
+    cs: Kicheki
+    cy: Kiwelisi
+    da: Kidenmaki
+    de: Kijerumani
+    de-AT: "Kijerumani cha Austria"
+    de-CH: "Kijerumani cha Juu cha Uswisi"
+    dv: Kidivehi
+    dz: Kizongkha
+    ee: Kiwe
+    efi: Kiefiki
+    el: Kigiriki
+    en: Kiingereza
+    en-AU: "Kiingereza cha Australia"
+    en-CA: "Kiingereza cha Kanada"
+    en-GB: "Kiingereza cha Uingereza"
+    en-US: "Kiingereza cha Marekani"
+    eo: Kiesperanto
+    es: Kihispania
+    es-419: "Kihispania cha Amerika ya Kilatinini"
+    es-ES: "Kihispania cha Ulaya"
+    es-MX: "Kihispania cha Meksiko"
+    et: Kiestonia
+    eu: Kibasque
+    fa: Kiajemi
+    fi: Kifinlandi
+    fil: Kifilipino
+    fj: Kifiji
+    fo: Kifaroe
+    fr: Kifaransa
+    fr-CA: "Kifaransa cha Kanada"
+    fr-CH: "Kifaransa cha Uswisi"
+    fy: "Kifrisia cha Magharibi"
+    ga: Kiayalandi
+    gaa: Kiga
+    gd: "Kigaeli cha Uskoti"
+    gl: Kigalisia
+    gn: Kiguarani
+    gsw: "Kijerumani cha Uswisi"
+    gu: Kigujarati
+    ha: Kihausa
+    haw: Kihawai
+    he: Kiebrania
+    hi: Kihindi
+    hr: Kroeshia
+    ht: Kihaiti
+    hu: Kihungari
+    hy: Kiarmenia
+    ia: Kiintalingua
+    id: Kiindonesia
+    ig: Kiigbo
+    is: Kiaisilandi
+    it: Kiitaliano
+    ja: Kijapani
+    jv: Kijava
+    ka: Kijojia
+    kg: Kikongo
+    kk: Kikazaki
+    km: Kikambodia
+    kn: Kikannada
+    ko: Kikorea
+    ks: Kikashmiri
+    ku: Kikurdi
+    ky: Kirigizi
+    la: Kilatini
+    lb: Kilasembagi
+    lg: Kiganda
+    ln: Kilingala
+    lo: Kilaosi
+    loz: Kilozi
+    lt: Kilithuania
+    lua: Kiluba-Lulua
+    lv: Kilatvia
+    mfe: Kimoriseni
+    mg: Malagasi
+    mi: Kimaori
+    mk: Kimasedonia
+    ml: Kimalayalam
+    mn: Mongolia
+    mr: Kimarathi
+    ms: Kimalesia
+    mt: Kimalta
+    my: Kiburma
+    nb: "Kibokmal cha Norwe"
+    nd: "Kindebele cha Kaskazini"
+    ne: Kinepali
+    nl: Kiholanzi
+    nl-BE: Kiflemi
+    nn: "Kinorwe Kipya"
+    nso: "Kisotho cha Kaskazini"
+    ny: Kinyanja
+    nyn: Kinyankole
+    oc: Kiokitani
+    om: Kioromo
+    or: Kioriya
+    os: Kiosetia
+    pa: Kipunjabi
+    pl: Kipolandi
+    ps: Kipushto
+    pt: Kireno
+    pt-BR: "Kireno cha Brazil"
+    pt-PT: "Kireno cha Ulaya"
+    qu: Kiquechua
+    rm: Kiromanshi
+    rn: Kirundi
+    ro: Kiromania
+    ru: Kirusi
+    rw: Kinyarwanda
+    sa: Kisanskriti
+    sd: Kisindhi
+    se: "Kisami cha Kaskazini"
+    sg: Kisango
+    si: Kisinhala
+    sk: Kislovakia
+    sl: Kislovenia
+    sm: Kisamoa
+    sn: Kishona
+    so: Kisomali
+    sq: Kialbania
+    sr: Kiserbia
+    ss: Kiswati
+    st: "Kisotho cha Kusini"
+    su: Kisunda
+    sv: Kiswidi
+    sw: Kiswahili
+    ta: Kitamil
+    te: Kitelugu
+    tet: Kitetum
+    tg: Tajiki
+    th: Kitailandi
+    ti: Kitigrinya
+    tk: Kiturukimeni
+    tlh: Kiklingoni
+    tn: Kitswana
+    to: Tonga
+    tpi: Kitokpisin
+    tr: Kituruki
+    ts: Kitsonga
+    tt: Kitatari
+    tum: Kitumbuka
+    ty: Kitahiti
+    ug: Kiuiguri
+    uk: Kiukrania
+    und: "Lugha Isiyojulikana"
+    ur: Kiurdu
+    uz: Kiuzbeki
+    ve: Kivenda
+    vi: Kivietinamu
+    wo: Kiwolofu
+    xh: Kixhosa
+    yi: Kiyidi
+    yo: Kiyoruba
+    zgh: "Tamaziti Msingi ya Kimoroko"
+    zh: Kichina
+    zh-Hans: "Kichina Rahisi"
+    zh-Hant: "Kichina cha Jadi"
+    zu: Kizulu
+    zxx: "Hakuna maudhui ya lugha"

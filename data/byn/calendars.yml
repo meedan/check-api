@@ -1,0 +1,186 @@
+byn: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "MM-dd, E"
+        MMM: LLL
+        MMMEd: "MMM d, E"
+        MMMd: "MMM d"
+        Md: MM-dd
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: y-MM
+        yMEd: "y-MM-dd, E"
+        yMMM: "y MMM"
+        yMMMEd: "y MMM d, E"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "y QQQ"
+        yQQQQ: "y QQQQ"
+      days: 
+        format: 
+          abbreviated: 
+            fri: ኣርብ
+            mon: ሰኑ
+            sat: ሰ/ሽ
+            sun: ሰ/ቅ
+            thu: ኣምድ
+            tue: ሰሊጝ
+            wed: ለጓ
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: ኣርብ
+            mon: ሰኑ
+            sat: "ሰንበር ሽጓዅ"
+            sun: "ሰንበር ቅዳዅ"
+            thu: ኣምድ
+            tue: ሰሊጝ
+            wed: "ለጓ ወሪ ለብዋ"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: ኣ
+            mon: ሰ
+            sat: ሰ
+            sun: ሰ
+            thu: ኣ
+            tue: ሰ
+            wed: ለ
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: ይጅ
+          1: ኣድ
+        name: 
+          0: ""
+        narrow: 
+          0: ""
+      fields: 
+        day: Day
+        dayperiod: Dayperiod
+        era: Era
+        hour: Hour
+        minute: Minute
+        month: Month
+        second: Second
+        week: Week
+        weekday: "Day of the Week"
+        year: Year
+        zone: Zone
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE፡ dd MMMM ግርጋ y G"
+          long: 
+            pattern: "dd MMMM y"
+          medium: 
+            pattern: dd-MMM-y
+          short: 
+            pattern: dd/MM/yy
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: ልደት
+            10: መተሉ
+            11: ም/ም
+            12: ተሕሳ
+            2: ካብኽ
+            3: ክብላ
+            4: ፋጅኺ
+            5: ክቢቅ
+            6: ም/ት
+            7: ኰር
+            8: ማርያ
+            9: ያኸኒ
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: ልደትሪ
+            10: መተሉ
+            11: "ምኪኤል መሽወሪ"
+            12: ተሕሳስሪ
+            2: ካብኽብቲ
+            3: ክብላ
+            4: ፋጅኺሪ
+            5: ክቢቅሪ
+            6: "ምኪኤል ትጟኒሪ"
+            7: ኰርኩ
+            8: "ማርያም ትሪ"
+            9: "ያኸኒ መሳቅለሪ"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: ል
+            10: መ
+            11: ም
+            12: ተ
+            2: ካ
+            3: ክ
+            4: ፋ
+            5: ክ
+            6: ም
+            7: ኰ
+            8: ማ
+            9: ያ
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: "ፋዱስ ጃብ"
+            pm: "ፋዱስ ደምቢ"
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: :"calendars.gregorian.quarters.format.wide"
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: Q1
+            2: Q2
+            3: Q3
+            4: Q4
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

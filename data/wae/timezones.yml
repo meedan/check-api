@@ -1,0 +1,175 @@
+wae: 
+  metazones: 
+    Atlantic: 
+      long: 
+        daylight: "Atlantiši Summerzit"
+        generic: "Atlantiši Zit"
+        standard: "Atlantiši Standardzit"
+    Europe_Central: 
+      long: 
+        daylight: "Mitteleuropäiši Summerzit"
+        generic: "Mitteleuropäiši Zit"
+        standard: "Mitteleuropäiši Standardzit"
+      short: 
+        daylight: MESZ
+        generic: MEZ
+        standard: MEZ
+    Europe_Eastern: 
+      long: 
+        daylight: "Ošteuropäiši Summerzit"
+        generic: "Ošteuropäiši Zit"
+        standard: "Ošteuropäiši Standardzit"
+      short: 
+        daylight: OESZ
+        generic: OEZ
+        standard: OEZ
+    Europe_Western: 
+      long: 
+        daylight: "Wešteuropäiši Summerzit"
+        generic: "Wešteuropäiši Zit"
+        standard: "Wešteuropäiši Standardzit"
+      short: 
+        daylight: WESZ
+        generic: WEZ
+        standard: WEZ
+  timezones: 
+    Africa/Accra: 
+      city: Akra
+    Africa/Algiers: 
+      city: Algier
+    Africa/Asmera: 
+      city: Asmara
+    Africa/Cairo: 
+      city: Kairo
+    Africa/Djibouti: 
+      city: Dšibuti
+    Africa/Khartoum: 
+      city: Kartum
+    Africa/Mogadishu: 
+      city: Mogadišu
+    Africa/Ouagadougou: 
+      city: Wagadugu
+    Africa/Tripoli: 
+      city: Tripolis
+    America/Cayman: 
+      city: Kaimaninsla
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Cordoba: 
+      city: Kordoba
+    America/Godthab: 
+      city: Nuuk
+    America/Havana: 
+      city: Hawanna
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Jamaica: 
+      city: Jamaika
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/Montserrat: 
+      city: Monserat
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Baghdad: 
+      city: Bagdad
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Damascus: 
+      city: Damaskus
+    Asia/Hong_Kong: 
+      city: Hongkong
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Asia/Singapore: 
+      city: Singapur
+    Asia/Tokyo: 
+      city: Tokio
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/Reykjavik: 
+      city: Rikjawik
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Australia/Sydney: 
+      city: Sidnei
+    Etc/Unknown: 
+      city: "Unbekannti Stadt"
+    Europe/Amsterdam: 
+      city: Amšterdam
+    Europe/Belgrade: 
+      city: Belgrad
+    Europe/Brussels: 
+      city: Brüssel
+    Europe/Bucharest: 
+      city: Bukarešt
+    Europe/Budapest: 
+      city: Budapešt
+    Europe/Copenhagen: 
+      city: Kopehage
+    Europe/Istanbul: 
+      city: Konštantinopel
+    Europe/Kaliningrad: 
+      city: Königsbärg
+    Europe/Ljubljana: 
+      city: Laibač
+    Europe/Prague: 
+      city: Prag
+    Europe/Rome: 
+      city: Rom
+    Europe/Tallinn: 
+      city: Reval
+    Europe/Tirane: 
+      city: Tiran
+    Europe/Vatican: 
+      city: Vatikan
+    Europe/Vienna: 
+      city: Wien
+    Europe/Vilnius: 
+      city: Wilna
+    Europe/Volgograd: 
+      city: Wolgograd
+    Europe/Warsaw: 
+      city: Waršau
+    Europe/Zurich: 
+      city: Zürič
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk

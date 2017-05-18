@@ -1,0 +1,1 @@
+{ :'sl_SI' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

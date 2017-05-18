@@ -1,0 +1,217 @@
+sg: 
+  currencies: 
+    AED: 
+      one: "dirâm tî âEmirâti tî Arâbo Ôko"
+    AOA: 
+      one: "kwânza tî Angoläa"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "dolära tî Ostralïi"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "dolùara tî Bahrâina"
+    BIF: 
+      one: "farânga tî Burundïi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "pûla tî Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "dolära tî kanadäa"
+      symbol: CA$
+    CDF: 
+      one: "farânga tî Kongöo"
+    CHF: 
+      one: "farânga tî Sûîsi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "yuan renminbi tî Shîni"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "eskûêdo tî Kâpo-Vêre"
+    DJF: 
+      one: "farânga tî Dibutïi"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "dinäri tî Alzerïi"
+    EGP: 
+      one: "pôndo tî Kâmitâ"
+    ERN: 
+      one: "nakafa tî Eritrëe"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "bir tî Etiopïi"
+    EUR: 
+      one: zoröo
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "pôndo tî Anglëe"
+      symbol: £
+    GHC: 
+      one: "sêdi tî Ganäa"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "dalasi tî gambïi"
+    GNS: 
+      one: "sili tî Ginëe"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "rupïi tî Ênnde"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "yêni tî Zapön"
+      symbol: JP¥
+    KES: 
+      one: "shilîngi tî Kenyäa"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "farânga tî Kömôro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "dolära tî Liberïa"
+      symbol: $
+    LSL: 
+      one: "loti tî Lesôtho"
+    LYD: 
+      one: "dinäar tî Libïi"
+    MAD: 
+      one: "dirâm tî Marôko"
+    MGA: 
+      one: "ariâri tî Madagasikära"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "ugîya tî Moritanïi"
+    MUR: 
+      one: "rupïi tî Mörîsi"
+    MWK: 
+      one: "kwâtia tî Malawïi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "metikala tî Mozambîka"
+    NAD: 
+      one: "dolära tî Namibïi"
+      symbol: $
+    NGN: 
+      one: "nâîra tî Nizerïa"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "farânga tî Ruandäa"
+    SAR: 
+      one: "riâli tî Saûdi Arabïi"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "rupïi tî Sëyshêle"
+    SDG: 
+      one: "pôndo tî Sudäan"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "pôndo tî Zûâ Sênt-Helêna"
+    SLL: 
+      one: "leône tî Sierâ-Leône"
+    SOS: 
+      one: "shilîngi tî Somalïi"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "dôbra tî Sâô Tomë na Prinsîpe"
+    SZL: 
+      one: "lilangùeni tî Swazïlânde"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "dinära tî Tunizïi"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "shilîngi tî Tanzanïi"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "shilîngi tî Ugandäa"
+    USD: 
+      one: "dol$ara ttî äLetäa-Ôko tî Amerîka"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "farânga CFA (BEAC)"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "farânga CFA (BCEAO)"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "rânde tî Mbongo-Afrîka"
+    ZMK: 
+      one: "kwâtia tî Zambïi (1968–2012)"
+    ZMW: 
+      one: "kwâtia tî Zambïi"
+    ZWD: 
+      one: "dolära tî Zimbäbwe"

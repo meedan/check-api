@@ -1,0 +1,61 @@
+hy: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "#0.00 ¤"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#0.###"
+          long: 
+            1000: "0 հազար"
+            10000: "00 հազար"
+            100000: "000 հազար"
+            1000000: "0 միլիոն"
+            10000000: "00 միլիոն"
+            100000000: "000 միլիոն"
+            1000000000: "0 միլիարդ"
+            10000000000: "00 միլիարդ"
+            100000000000: "000 միլիարդ"
+            1000000000000: "0 տրիլիոն"
+            10000000000000: "00 տրիլիոն"
+            100000000000000: "000 տրիլիոն"
+          short: 
+            1000: 0 հզր
+            10000: 00 հզր
+            100000: 000 հզր
+            1000000: 0 մլն
+            10000000: 00 մլն
+            100000000: 000 մլն
+            1000000000: 0 մլրդ
+            10000000000: 00 մլրդ
+            100000000000: 000 մլրդ
+            1000000000000: 0 տրլն
+            10000000000000: 00 տրլն
+            100000000000000: 000 տրլն
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: ","
+      exponential: E
+      group: "."
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

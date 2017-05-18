@@ -1,0 +1,60 @@
+lo: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "¤#,##0.00;¤-#,##0.00"
+        unit: 
+          other: "{0} {1}"
+      decimal: 
+        number_system: laoo
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 ພັນ"
+            10000: "00 ພັນ"
+            100000: "0 ແສນ"
+            1000000: "0 ລ້ານ"
+            10000000: "00 ລ້ານ"
+            100000000: "000 ລ້ານ"
+            1000000000: "0 ຕື້"
+            10000000000: "00 ຕື້"
+            100000000000: "000 ຕື້"
+            1000000000000: "0 ລ້ານລ້ານ"
+            10000000000000: "00 ລ້ານລ້ານ"
+            100000000000000: "000 ລ້ານລ້ານ"
+          short: 
+            1000: 0 ພັນ
+            10000: 00 ພັນ
+            100000: 000 ກີບ
+            1000000: 0 ລ້ານ
+            10000000: 00 ລ້ານ
+            100000000: 000 ລ້ານ
+            1000000000: 0 ຕື້
+            10000000000: 00 ຕື້
+            100000000000: 000 ຕື້
+            1000000000000: 0 ລ້ານລ້ານ
+            10000000000000: 00 ລ້ານລ້ານ
+            100000000000000: 000 ລ້ານລ້ານ
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#"
+    symbols: 
+      alias: ""
+      decimal: ","
+      exponential: E
+      group: "."
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: ບໍ່ແມ່ນໂຕເລກ
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

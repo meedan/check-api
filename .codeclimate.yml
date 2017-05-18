@@ -46,3 +46,5 @@ exclude_paths:
 - "app/models/admin_ability.rb"
 - "config/initializers/rails_admin.rb"
 - ".codeclimate.yml"
+- "cldr-data"
+- "data"

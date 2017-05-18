@@ -1,0 +1,274 @@
+km: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "y នៃ G"
+        GyMMM: "MMM y នៃ G"
+        GyMMMEd: "E d MMM y នៃ G"
+        GyMMMd: "d MMM y នៃ G"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E d MMM"
+        MMM: LLL
+        MMMEd: "E d MMM"
+        MMMd: "d MMM"
+        Md: d-M
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M-y
+        yMEd: "E d-M-y"
+        yMMM: "MMM y"
+        yMMMEd: "E d MMM y"
+        yMMMd: "d MMM y"
+        yMd: d-M-y
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: សុក្រ
+            mon: ចន្ទ
+            sat: សៅរ៍
+            sun: អាទិត្យ
+            thu: ព្រហស្បតិ៍
+            tue: អង្គារ
+            wed: ពុធ
+          narrow: 
+            fri: 6
+            mon: 2
+            sat: 7
+            sun: 1
+            thu: 5
+            tue: 3
+            wed: 4
+          short: 
+            fri: សុក្រ
+            mon: ចន្ទ
+            sat: សៅរ៍
+            sun: អាទិត្យ
+            thu: ព្រហស្បតិ៍
+            tue: អង្គារ
+            wed: ពុធ
+          wide: 
+            fri: សុក្រ
+            mon: ចន្ទ
+            sat: សៅរ៍
+            sun: អាទិត្យ
+            thu: ព្រហស្បតិ៍
+            tue: អង្គារ
+            wed: ពុធ
+        stand-alone: 
+          abbreviated: 
+            fri: សុក្រ
+            mon: ចន្ទ
+            sat: សៅរ៍
+            sun: អាទិត្យ
+            thu: ព្រហស្បតិ៍
+            tue: អង្គារ
+            wed: ពុធ
+          narrow: 
+            fri: 6
+            mon: 2
+            sat: 7
+            sun: 1
+            thu: 5
+            tue: 3
+            wed: 4
+          short: 
+            fri: សុក្រ
+            mon: ចន្ទ
+            sat: សៅរ៍
+            sun: អាទិត្យ
+            thu: ព្រហស្បតិ៍
+            tue: អង្គារ
+            wed: ពុធ
+          wide: 
+            fri: សុក្រ
+            mon: ចន្ទ
+            sat: សៅរ៍
+            sun: អាទិត្យ
+            thu: ព្រហស្បតិ៍
+            tue: អង្គារ
+            wed: ពុធ
+      eras: 
+        abbr: 
+          0: "ក្រោយ គ.ស."
+          1: គ.ស.
+        name: 
+          0: មុន​គ្រិស្តសករាជ
+          1: គ្រិស្តសករាជ
+        narrow: 
+          0: ""
+      fields: 
+        day: ថ្ងៃ
+        dayperiod: ព្រឹក/ល្ងាច
+        era: សករាជ
+        hour: ម៉ោង
+        minute: នាទី
+        month: ខែ
+        second: វិនាទី
+        week: សប្ដាហ៍
+        weekday: ថ្ងៃ​នៃ​សប្ដាហ៍
+        year: ឆ្នាំ
+        zone: តំបន់​ពេល​វេលា
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: d/M/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: មករា
+            10: តុលា
+            11: វិច្ឆិកា
+            12: ធ្នូ
+            2: កុម្ភៈ
+            3: មីនា
+            4: មេសា
+            5: ឧសភា
+            6: មិថុនា
+            7: កក្កដា
+            8: សីហា
+            9: កញ្ញា
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: 
+            1: មករា
+            10: តុលា
+            11: វិច្ឆិកា
+            12: ធ្នូ
+            2: កុម្ភៈ
+            3: មីនា
+            4: មេសា
+            5: ឧសភា
+            6: មិថុនា
+            7: កក្កដា
+            8: សីហា
+            9: កញ្ញា
+        stand-alone: 
+          abbreviated: 
+            1: មករា
+            10: តុលា
+            11: វិច្ឆិកា
+            12: ធ្នូ
+            2: កុម្ភៈ
+            3: មីនា
+            4: មេសា
+            5: ឧសភា
+            6: មិថុនា
+            7: កក្កដា
+            8: សីហា
+            9: កញ្ញា
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: 
+            1: មករា
+            10: តុលា
+            11: វិច្ឆិកា
+            12: ធ្នូ
+            2: កុម្ភៈ
+            3: មីនា
+            4: មេសា
+            5: ឧសភា
+            6: មិថុនា
+            7: កក្កដា
+            8: សីហា
+            9: កញ្ញា
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: ព្រឹក
+            pm: ល្ងាច
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: "ត្រីមាស ១"
+            2: "ត្រីមាស ២"
+            3: "ត្រីមាស ៣"
+            4: "ត្រីមាស ៤"
+          narrow: 
+            1: ១
+            2: ២
+            3: ៣
+            4: ៤
+          wide: 
+            1: "ត្រីមាសទី ១"
+            2: "ត្រីមាសទី ២"
+            3: "ត្រីមាសទី ៣"
+            4: "ត្រីមាសទី ៤"
+        stand-alone: 
+          abbreviated: 
+            1: "ត្រីមាស ១"
+            2: "ត្រីមាស ២"
+            3: "ត្រីមាស ៣"
+            4: "ត្រីមាស ៤"
+          narrow: 
+            1: ១
+            2: ២
+            3: ៣
+            4: ៤
+          wide: 
+            1: "ត្រីមាសទី ១"
+            2: "ត្រីមាសទី ២"
+            3: "ត្រីមាសទី ៣"
+            4: "ត្រីមាសទី ៤"

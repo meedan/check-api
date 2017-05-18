@@ -10,7 +10,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation
   after_update :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
 
@@ -24,7 +24,7 @@ class ProjectMedia < ActiveRecord::Base
                   event: 'media_updated',
                   targets: proc { |pm| [pm.project, pm.media] },
                   if: proc { |pm| !pm.skip_notifications },
-                  data: proc { |pm| pm.media.to_json }
+                  data: proc { |pm| pm.media.as_json.merge(class_name: 'media').to_json }
 
   include CheckElasticSearch
 
@@ -79,6 +79,7 @@ class ProjectMedia < ActiveRecord::Base
       ms.description = data['description']
       ms.quote = m.quote
     end
+    ms.account = self.set_es_account_data unless self.media.account.nil?
     ms.save!
     # ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')
   end
@@ -205,6 +206,15 @@ class ProjectMedia < ActiveRecord::Base
     self.project && self.project.team && !self.project.team.get_checklist.blank?
   end
 
+  def update_mt=(_update)
+    mt = self.annotations.where(annotation_type: 'mt').last
+    MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(User.current)) unless mt.nil?
+  end
+
+  def get_dynamic_annotation(type)
+    Dynamic.where(annotation_type: type, annotated_type: 'ProjectMedia', annotated_id: self.id).last
+  end
+
   private
 
   def is_unique
@@ -241,5 +251,15 @@ class ProjectMedia < ActiveRecord::Base
   def override_embed_data(em, info)
     info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
     em.save!
+  end
+
+  def set_es_account_data
+    data = {}
+    a = self.media.account
+    em = a.annotations('embed').last
+    embed = JSON.parse(em.data['embed']) unless em.nil?
+    self.overridden_embed_attributes.each{ |k| sk = k.to_s; data[sk] = embed[sk] unless embed[sk].nil? } unless embed.nil?
+    data["id"] = a.id unless data.blank?
+    [data]
   end
 end

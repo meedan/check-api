@@ -83,7 +83,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :annotations_count do
+  field :log_count do
     type types.Int
 
     resolve ->(project_media, _args, _ctx) {
@@ -147,8 +147,54 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {
-      bot = Bot::Alegre.default
-      bot.nil? ? nil : bot.language(project_media)
+      Bot::Alegre.default.language_object(project_media, :to_s)
+    }
+  end
+
+  field :language_code do
+    type types.String
+
+    resolve ->(project_media, _args, _ctx) {
+      Bot::Alegre.default.language_object(project_media, :value)
+    }
+  end
+
+  field :annotation do
+    type -> { AnnotationType }
+    argument :annotation_type, !types.String 
+
+    resolve ->(project_media, args, _ctx) {
+      project_media.get_dynamic_annotation(args['annotation_type'])
+    }
+  end
+
+  connection :annotations, -> { AnnotationType.connection_type } do
+    argument :annotation_type, !types.String
+
+    resolve ->(project_media, args, _ctx) {
+      project_media.get_annotations(args['annotation_type'].split(',').map(&:strip))
+    }
+  end
+
+  field :annotations_count do
+    type types.Int
+    argument :annotation_type, !types.String
+
+    resolve ->(project_media, args, _ctx) {
+      project_media.get_annotations(args['annotation_type'].split(',').map(&:strip)).count
+    }
+  end
+
+  field :field_value do
+    type types.String
+    argument :annotation_type_field_name, !types.String 
+
+    resolve ->(project_media, args, _ctx) {
+      annotation_type, field_name = args['annotation_type_field_name'].to_s.split(':')
+      if !annotation_type.blank? && !field_name.blank?
+        annotation = project_media.get_dynamic_annotation(annotation_type)
+        annotation.nil? ? nil : annotation.get_field_value(field_name)
+      end
     }
   end
 
@@ -156,4 +202,3 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
 # End of fields
 end
-

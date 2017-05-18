@@ -1,0 +1,218 @@
+sbp: 
+  currencies: 
+    AED: 
+      one: "Ihela ya Shitwa sha Shiyalabu"
+    AOA: 
+      one: "Ihela ya Angola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Ihela ya Awusitilaliya"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Ihela ya Bahaleni"
+    BIF: 
+      one: "Ihela ya Bulundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Ihela ya Botiswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Ihela ya Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Ihela ya Kongo"
+    CHF: 
+      one: "Ihela ya Uswisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Ihela ya Shina"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Ihela ya Kepuvede"
+    DJF: 
+      one: "Ihela ya Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Ihela ya Alijeliya"
+    EGP: 
+      one: "Ihela ya Misili"
+    ERN: 
+      one: "Ihela ya Elitileya"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Ihela ya Uhabeshi"
+    EUR: 
+      one: "Ihela ya Ulaya"
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Ihela ya Uwingelesa"
+      symbol: £
+    GHC: 
+      one: "Ihela ya Ghana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Ihela ya Gambiya"
+    GNS: 
+      one: "Ihela ya Gine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Ihela ya Indiya"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Ihela ya Japani"
+      symbol: JP¥
+    KES: 
+      one: "Ihela ya Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Ihela ya Komolo"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Ihela ya Libeliya"
+      symbol: $
+    LSL: 
+      one: "Ihela ya Lesoto"
+    LYD: 
+      one: "Ihela ya Libiya"
+    MAD: 
+      one: "Ihela ya Moloko"
+    MGA: 
+      one: "Ihela ya Bukini"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ihela ya Molitaniya"
+    MUR: 
+      one: "Ihela ya Molisi"
+    MWK: 
+      one: "Ihela ya Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Ihela ya Musumbiji"
+    NAD: 
+      one: "Ihela ya Namibiya"
+      symbol: $
+    NGN: 
+      one: "Ihela ya Nijeliya"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Ihela ya Lwanda"
+    SAR: 
+      one: "Ihela ya Sawudiya"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Ihela ya Shelisheli"
+    SDG: 
+      one: "Ihela ya Sudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Ihela ya Santahelena"
+    SLL: 
+      one: "Ihela ya Siela Liyoni"
+    SOS: 
+      one: "Ihela ya Somaliya"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Ihela ya Sao Tome ni Pilinsipe"
+    SZL: 
+      one: "Ihela ya Uswasi"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Ihela ya Tunisiya"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Ihela ya Tansaniya"
+      symbol: TSh
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Ihela ya Uganda"
+    USD: 
+      one: "Ihela ya Malekani"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Ihela ya CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Ihela ya CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Ihela ya Afilika Kusini"
+    ZMK: 
+      one: "Ihela ya Sambiya (1968–2012)"
+    ZMW: 
+      one: "Ihela ya Sambiya"
+    ZWD: 
+      one: "Ihela ya Simbabwe"

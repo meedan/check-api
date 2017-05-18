@@ -1,0 +1,240 @@
+kea: 
+  currencies: 
+    AED: 
+      one: "Diren di Emiradus Arabi Unidu"
+    AOA: 
+      one: Kuanza
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dola australianu"
+      symbol: AU$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Dinar di Barain"
+    BIF: 
+      one: "Franku borundes"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      one: "Rial brazileru"
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Pula di Botsuana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dola kanadianu"
+      symbol: CA$
+    CDF: 
+      one: "Franku kongoles"
+    CHF: 
+      one: "Franku suisu"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Iuan xines"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Skudu Kabuverdianu"
+    DJF: 
+      one: "Franku di Djibuti"
+    DKK: 
+      one: "Kuroa dinamarkeza"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dinar arjelinu"
+    EGP: 
+      one: "Libra ejipsiu"
+    ERN: 
+      one: "Nafka di Eritreia"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Bir etiopi"
+    EUR: 
+      one: Euro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Libra sterlina britaniku"
+      symbol: £
+    GHC: 
+      one: "Sedi di Gana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: Dalasi
+    GNS: 
+      one: Sili
+    GYD: 
+      symbol: $
+    HKD: 
+      one: "Dola di Ong Kong"
+      symbol: HK$
+    IDR: 
+      one: "Rupia indoneziu"
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupia indianu"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Ieni japones"
+      symbol: JP¥
+    KES: 
+      one: "Xelin kenianu"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Franku di Komoris"
+    KRW: 
+      one: "Won sul-koreanu"
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dola liberianu"
+      symbol: $
+    LSL: 
+      one: "Loti di Lezotu"
+    LYD: 
+      one: "Dinar libiu"
+    MAD: 
+      one: "Diren marokinu"
+    MGA: 
+      one: "Ariari di Madagaskar"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: Ougia
+    MUR: 
+      one: "Rupia di Maurisias"
+    MWK: 
+      one: "Kuaxa di Malaui"
+    MXN: 
+      one: "Pezu mexikanu"
+      symbol: MX$
+    MZM: 
+      one: Metikal
+    NAD: 
+      one: "Dola namibianu"
+      symbol: $
+    NGN: 
+      one: Naira
+      symbol: ₦
+    NOK: 
+      one: "Kuroa norueges"
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PLN: 
+      one: "Zloty polaku"
+    PYG: 
+      symbol: ₲
+    RUB: 
+      one: "Rublu rusu"
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Franku ruandes"
+    SAR: 
+      one: "Rial saudita"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupia di Seixelis"
+    SDG: 
+      one: "Libra sudanes"
+    SDP: 
+      one: "Libra sudanes antigu"
+    SEK: 
+      one: "Kuroa sueku"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Libra di Santa Ilena"
+    SLL: 
+      one: "Leone di Sera Leoa"
+    SOS: 
+      one: "Xelin somalianu"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dobra di Sãu Tume i Prinsipi"
+    SZL: 
+      one: Lilanjeni
+    THB: 
+      one: "Baht tailandes"
+      symbol: ฿
+    TND: 
+      one: "Dinar tunizianu"
+    TRY: 
+      one: "Lira turku"
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      one: "Dola Novu di Taiwan"
+      symbol: NT$
+    TZS: 
+      one: "Xelin di Tanzania"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Xelin ugandensi"
+    USD: 
+      one: "Dola merkanu"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Franku CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Franku CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    XXX: 
+      one: "Mueda diskonxedu"
+    ZAR: 
+      one: "Rand sulafrikanu"
+    ZMK: 
+      one: "Kuaxa zambianu (1968–2012)"
+    ZMW: 
+      one: "Kuaxa zambianu"
+    ZWD: 
+      one: "Dola di Zimbabue"

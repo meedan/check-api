@@ -5,6 +5,9 @@ class ProjectTest < ActiveSupport::TestCase
     super
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
+    MediaSearch.delete_index
+    MediaSearch.create_index
+    sleep 1
   end
 
   test "should create project" do
@@ -466,4 +469,36 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should save valid languages" do
+    p = create_project
+    value = ["en", "ar", "fr"]
+    assert_nothing_raised do
+      p.languages=(value)
+      p.save!
+    end
+  end
+
+  test "should not save invalid languages" do
+    p = create_project
+    value = "en"
+    assert_raises ActiveRecord::RecordInvalid do
+      p.set_languages(value)
+      p.save!
+    end
+  end
+
+  test "should get project languages" do
+    p = create_project
+    assert_equal [], p.languages
+    p.settings = {:languages => ['ar', 'en']}; p.save!
+    assert_equal ['ar', 'en'], p.languages
+  end
+
+  test "should have token" do
+    p1 = create_project
+    p2 = create_project
+    assert p1.token.size > 5
+    assert p2.token.size > 5
+    assert p1.token != p2.token
+  end
 end

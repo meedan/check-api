@@ -1,0 +1,1 @@
+{ :'fr_DZ' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

@@ -1,0 +1,1 @@
+{ :'kk_Cyrl_KZ' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

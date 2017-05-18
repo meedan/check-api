@@ -22,7 +22,8 @@ QueryType = GraphQL::ObjectType.define do
         upload_max_size: UploadedFile.max_size_readable,
         upload_extensions: ImageUploader.upload_extensions.join(', '),
         upload_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",
-        upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}"
+        upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
+        languages_supported: CheckCldr.localized_languages.to_json
       })
     end
   end
@@ -71,11 +72,11 @@ QueryType = GraphQL::ObjectType.define do
 
   field :project_media do
     type ProjectMediaType
-    description 'Information about a project media, The argument should be given like this: "project_media_id,project_id"'
+    description 'Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"'
     argument :ids, !types.String
     resolve -> (_obj, args, ctx) do
-      pmid, pid = args['ids'].split(',').map(&:to_i)
-      tid = Team.current.blank? ? 0 : Team.current.id
+      pmid, pid, tid = args['ids'].split(',').map(&:to_i)
+      tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
       project = Project.where(id: pid, team_id: tid).last
       pid = project.nil? ? 0 : project.id
       pmid = ProjectMedia.belonged_to_project(pmid, pid) || 0
@@ -87,11 +88,14 @@ QueryType = GraphQL::ObjectType.define do
     type ProjectType
     description 'Information about a project, given its id and its team id'
 
-    argument :id, !types.ID
+    argument :id, types.ID
+    argument :ids, types.String
 
     resolve -> (_obj, args, ctx) do
-      tid = Team.current.blank? ? 0 : Team.current.id
-      project = Project.where(id: args['id'], team_id: tid).last
+      pid = args['id'].to_i unless args['id'].blank?
+      pid, tid = args['ids'].split(',').map(&:to_i) unless args['ids'].blank?
+      tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
+      project = Project.where(id: pid, team_id: tid).last
       id = project.nil? ? 0 : project.id
       GraphqlCrudOperations.load_if_can(Project, id, ctx)
     end

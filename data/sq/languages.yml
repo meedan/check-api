@@ -1,0 +1,127 @@
+sq: 
+  languages: 
+    ab: Abkazisht
+    af: Afrikane
+    am: Amarike
+    ar: Arabisht
+    ar-001: "Arabishte Standarde Moderne"
+    as: Asamezisht
+    az: Azere
+    be: Bjellorusisht
+    bg: Bullgarisht
+    bn: Bengalisht
+    bo: Tibetiane
+    bs: Boshnjakisht
+    ca: Katalonisht
+    cs: Çekisht
+    cy: Uellsisht
+    da: Danisht
+    de: Gjermanisht
+    de-CH: "Gjermanisht (Zvicër-Dialekti i Alpeve)"
+    el: Greqisht
+    en: Anglisht
+    en-GB: "Anglisht (Britani)"
+    en-US: "Anglisht (SHBA)"
+    eo: Esperanto
+    es: Spanjisht
+    es-ES: "Spanjisht (Europë)"
+    et: Estonisht
+    eu: Baske
+    fa: Persisht
+    fi: Finlandisht
+    fil: Filipinase
+    fj: Fixhiane
+    fo: Faroisht
+    fr: Frëngjisht
+    fy: Frizianisht
+    ga: Irlandisht
+    gl: Galike
+    gn: Guarane
+    gsw: "Gjermanisht (Zvicër)"
+    gu: Guxharatisht
+    ha: Hausisht
+    haw: Havajane
+    he: Hebraisht
+    hi: Indisht
+    hr: Kroatisht
+    ht: Haitianshe
+    hu: Hungarisht
+    hy: Armenisht
+    id: Indonezisht
+    ig: Igbe
+    is: Islandisht
+    it: Italisht
+    ja: Japonisht
+    jv: Javanisht
+    ka: Gjeorgjisht
+    kk: Kazake
+    km: "Kmere (Kamboxhiane)"
+    kn: Kanada
+    ko: Koreanisht
+    ks: Kashmire
+    ku: Kurde
+    ky: Kirgize
+    la: Latinisht
+    lb: Luksemburgase
+    lo: Laosisht
+    lt: Lituanisht
+    lv: Letonisht
+    mg: Malageze
+    mi: Maorisht
+    mk: Maqedonisht
+    ml: Malajalame
+    mr: Maratisht
+    ms: Malajisht
+    mt: Malteze
+    my: Birmanisht
+    nb: "Bokmalisht (Norvegji)"
+    ne: Nepalisht
+    nl: Holandisht
+    nl-BE: Fleminge
+    nn: "Ninorske (Norvegji)"
+    or: Orije
+    pa: Panxhabe
+    pl: Polonisht
+    ps: Pashto
+    pt: Portugalisht
+    pt-PT: "Portugalisht (Europë)"
+    qu: Keçua
+    rm: Rome
+    ro: Rumanisht
+    ru: Rusisht
+    sa: Sanskritisht
+    sd: Sindi
+    sh: Serbo-Kroatisht
+    si: Sinhale
+    sk: Sllovakisht
+    sl: Sllovenisht
+    so: Somalisht
+    sq: Shqip
+    sr: Serbisht
+    su: Sundanisht
+    sv: Suedisht
+    sw: Suahili
+    ta: Tamile
+    te: Teluge
+    tg: Taxhikisht
+    th: Tajlandisht
+    ti: Tigrinje
+    tk: Turkmenisht
+    to: Tonganisht
+    tr: Turqisht
+    tt: Tatarisht
+    ug: Ujgure
+    uk: Ukrainisht
+    und: "E panjohur"
+    ur: Urdu
+    uz: Uzbeke
+    vi: Vietnamisht
+    wo: Ulufisht
+    xh: Xhose
+    yo: Jorubisht
+    zgh: "Tamazishte Standarde Marokene"
+    zh: Kinezisht
+    zh-Hans: "Kinezçe e Thjeshtuar"
+    zh-Hant: "Kinezçe Tradicionale"
+    zu: Zulu
+    zxx: "Mungesë përmbajtjeje gjuhësore"

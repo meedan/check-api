@@ -1,0 +1,1 @@
+{ :'is_IS' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

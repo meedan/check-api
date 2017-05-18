@@ -1,0 +1,1413 @@
+ky: 
+  metazones: 
+    Afghanistan: 
+      long: 
+        standard: "Афганистан убактысы"
+    Africa_Central: 
+      long: 
+        standard: "Борбордук Африка убактысы"
+    Africa_Eastern: 
+      long: 
+        standard: "Чыгыш Африка убактысы"
+    Africa_Southern: 
+      long: 
+        standard: "Түштүк Африка убактысы"
+    Africa_Western: 
+      long: 
+        daylight: "Батыш Африка жайкы убактысы"
+        generic: "Батыш Африка убактысы"
+        standard: "Батыш Африка стандарт убактысы"
+    Alaska: 
+      long: 
+        daylight: "Аляска үнөмдөө убактысы"
+        generic: "Аляска убактысы"
+        standard: "Аляска стандарт убактысы"
+    Amazon: 
+      long: 
+        daylight: "Амазон жайкы убактысы"
+        generic: "Амазон убактысы"
+        standard: "Амазон стандарт убактысы"
+    America_Central: 
+      long: 
+        daylight: "Түндүк Америка борбордук үнөмдөө убактысы"
+        generic: "Түндүк Америка борбордук убактысы"
+        standard: "Түндүк Америка борбордук стандарт убактысы"
+    America_Eastern: 
+      long: 
+        daylight: "Түндүк Америка чыгыш үнөмдөө убактысы"
+        generic: "Түндүк Америка чыгыш убактысы"
+        standard: "Түндүк Америка чыгыш стандарт убактысы"
+    America_Mountain: 
+      long: 
+        daylight: "Түндүк Америка тоолук үнөмдөө убактысы"
+        generic: "Түндүк Америка тоолук убактысы"
+        standard: "Түндүк Америка тоолук стандарт убактысы"
+    America_Pacific: 
+      long: 
+        daylight: "Түндүк Америка Тынч океандык үнөмдөө убактысы"
+        generic: "Түндүк Америка Тынч океандык убактысы"
+        standard: "Түндүк Америка Тынч океандык стандарт убактысы"
+    Arabian: 
+      long: 
+        daylight: "Арабия үнөмдөө убактысы"
+        generic: "Арабия убактысы"
+        standard: "Арабия стандарт убактысы"
+    Argentina: 
+      long: 
+        daylight: "Аргентина жайкы убактысы"
+        generic: "Аргентина убактысы"
+        standard: "Аргентина стандарт убактысы"
+    Argentina_Western: 
+      long: 
+        daylight: "Батыш Аргентина жайкы убактысы"
+        generic: "Батыш Аргентина убактысы"
+        standard: "Батыш Аргентина стандарт убактысы"
+    Armenia: 
+      long: 
+        daylight: "Армения жайкы убактысы"
+        generic: "Армения убактысы"
+        standard: "Армения стандарт убактысы"
+    Atlantic: 
+      long: 
+        daylight: "Атлантика үнөмдөө убактысы"
+        generic: "Атлантика убактысы"
+        standard: "Атлантика стандарт убактысы"
+    Australia_Central: 
+      long: 
+        daylight: "Австралия борбордук үнөмдөө убактысы"
+        generic: "Австралия борбордук убактысы"
+        standard: "Австралия борбордук стандарт убактысы"
+    Australia_CentralWestern: 
+      long: 
+        daylight: "Австралия борбордук батыш үнөмдөө убактысы"
+        generic: "Австралия борбордук батыш убактысы"
+        standard: "Австралия борбордук батыш стандарт убактысы"
+    Australia_Eastern: 
+      long: 
+        daylight: "Австралия чыгыш үнөмдөө убактысы"
+        generic: "Австралия чыгыш убактысы"
+        standard: "Австралия чыгыш стандарт убактысы"
+    Australia_Western: 
+      long: 
+        daylight: "Австралия батыш үнөмдөө убактысы"
+        generic: "Австралия батыш убактысы"
+        standard: "Австралия батыш стандарт убактысы"
+    Azerbaijan: 
+      long: 
+        daylight: "Азербайжан жайкы убактысы"
+        generic: "Азербайжан убактысы"
+        standard: "Азербайжан стандарт убактысы"
+    Azores: 
+      long: 
+        daylight: "Азорс жайкы убактысы"
+        generic: "Азорс убактысы"
+        standard: "Азорс стандарт убактысы"
+    Bangladesh: 
+      long: 
+        daylight: "Бангладеш жайкы убактысы"
+        generic: "Бангладеш убактысы"
+        standard: "Бангладеш стандарт убактысы"
+    Bhutan: 
+      long: 
+        standard: "Бутан убактысы"
+    Bolivia: 
+      long: 
+        standard: "Боливия убактысы"
+    Brasilia: 
+      long: 
+        daylight: "Бразилия жайкы убактысы"
+        generic: "Бразилия убактысы"
+        standard: "Бразилия стандарт убактысы"
+    Brunei: 
+      long: 
+        standard: "Бруней Даруссалам убактысы"
+    Cape_Verde: 
+      long: 
+        daylight: "Капе Верде жайкы убактысы"
+        generic: "Капе Верде убактысы"
+        standard: "Капе Верде стандарт убактысы"
+    Chamorro: 
+      long: 
+        standard: "Чаморро убактысы"
+    Chatham: 
+      long: 
+        daylight: "Чатам үнөмдөө убактысы"
+        generic: "Чатам убактысы"
+        standard: "Чатам стандарт убактысы"
+    Chile: 
+      long: 
+        daylight: "Чили жайкы убактысы"
+        generic: "Чили убактысы"
+        standard: "Чили стандарт убактысы"
+    China: 
+      long: 
+        daylight: "Кытай үнөмдөө убактысы"
+        generic: "Кытай убактысы"
+        standard: "Кытай стандарт убактысы"
+    Choibalsan: 
+      long: 
+        daylight: "Чойбалсан жайкы убактысы"
+        generic: "Чойбалсан убактысы"
+        standard: "Чойбалсан стандарт убактысы"
+    Christmas: 
+      long: 
+        standard: "Крисмас убактысы"
+    Cocos: 
+      long: 
+        standard: "Кокос убактысы"
+    Colombia: 
+      long: 
+        daylight: "Колумбия жайкы убактысы"
+        generic: "Колумбия убактысы"
+        standard: "Колумбия стандарт убактысы"
+    Cook: 
+      long: 
+        daylight: "Кук аралдарынын жарым жай убактысы"
+        generic: "Кук аралдарынын убактысы"
+        standard: "Кук аралдарынын стандарт убактысы"
+    Cuba: 
+      long: 
+        daylight: "Куба үнөмдөө убактысы"
+        generic: "Куба убактысы"
+        standard: "Куба стандарт убактысы"
+    Davis: 
+      long: 
+        standard: "Дэвис убактысы"
+    DumontDUrville: 
+      long: 
+        standard: "Дүмон-д-Өрвил убактысы"
+    East_Timor: 
+      long: 
+        standard: "Чыгыш Тимор убактысы"
+    Easter: 
+      long: 
+        daylight: "Истер жайкы убактысы"
+        generic: "Истер убактысы"
+        standard: "Истер стандарт убактысы"
+    Ecuador: 
+      long: 
+        standard: "Экуадор убактысы"
+    Europe_Central: 
+      long: 
+        daylight: "Борбордук Европа жайкы убактысы"
+        generic: "Борбордук Европа убактысы"
+        standard: "Борбордук Европа стандарт убактысы"
+    Europe_Eastern: 
+      long: 
+        daylight: "Чыгыш Европа жайкы убактысы"
+        generic: "Чыгыш Европа убактысы"
+        standard: "Чыгыш Европа стандарт убактысы"
+    Europe_Western: 
+      long: 
+        daylight: "Батыш Европа жайкы убактысы"
+        generic: "Батыш Европа убактысы"
+        standard: "Батыш Европа стандарт убактысы"
+    Falkland: 
+      long: 
+        daylight: "Фолкленд жайкы убактысы"
+        generic: "Фолкленд убактысы"
+        standard: "Фолкленд стандарт убактысы"
+    Fiji: 
+      long: 
+        daylight: "Фижи жайкы убактысы"
+        generic: "Фижи убактысы"
+        standard: "Фижи стандарт убактысы"
+    French_Guiana: 
+      long: 
+        standard: "Френч Гуйана убактысы"
+    French_Southern: 
+      long: 
+        standard: "Френч Түштүк жана Антарктик убактысы"
+    GMT: 
+      long: 
+        standard: "Гринвич универсалдуу убактысы"
+    Galapagos: 
+      long: 
+        standard: "Галапагос убактысы"
+    Gambier: 
+      long: 
+        standard: "Гамбие убактысы"
+    Georgia: 
+      long: 
+        daylight: "Грузия жайкы убактысы"
+        generic: "Грузия убактысы"
+        standard: "Грузия стандарт убактысы"
+    Gilbert_Islands: 
+      long: 
+        standard: "Гилберт убактысы"
+    Greenland_Eastern: 
+      long: 
+        daylight: "Чыгыш Гринлэнд жайкы убактысы"
+        generic: "Чыгыш Гринлэнд убактысы"
+        standard: "Чыгыш Гринлэнд стандарт убактысы"
+    Greenland_Western: 
+      long: 
+        daylight: "Батыш Гринлэнд жайкы убактысы"
+        generic: "Батыш Гринлэнд убактысы"
+        standard: "Батыш Гринлэнд стандарт убактысы"
+    Gulf: 
+      long: 
+        standard: "Булуӊ убактысы"
+    Guyana: 
+      long: 
+        standard: "Гуйана убактысы"
+    Hawaii_Aleutian: 
+      long: 
+        daylight: "Гавайи-Алеут үнөмдөө убактысы"
+        generic: "Гавайи-Алеут убактысы"
+        standard: "Гавайи-Алеут стандарт убактысы"
+    Hong_Kong: 
+      long: 
+        daylight: "Гоӊ Коӊ жайкы убактысы"
+        generic: "Гоӊ Коӊ убактысы"
+        standard: "Гоӊ Коӊ стандарт убактысы"
+    Hovd: 
+      long: 
+        daylight: "Ховд жайкы убактысы"
+        generic: "Ховд убактысы"
+        standard: "Ховд стандарт убактысы"
+    India: 
+      long: 
+        standard: "Индия убактысы"
+    Indian_Ocean: 
+      long: 
+        standard: "Инд Океаны убактысы"
+    Indochina: 
+      long: 
+        standard: "Индокытай убактысы"
+    Indonesia_Central: 
+      long: 
+        standard: "Борбордук Индонезия убактысы"
+    Indonesia_Eastern: 
+      long: 
+        standard: "Чыгыш Индонезия убактысы"
+    Indonesia_Western: 
+      long: 
+        standard: "Батыш Индонезия убактысы"
+    Iran: 
+      long: 
+        daylight: "Иран үнөмдөө убактысы"
+        generic: "Иран убактысы"
+        standard: "Иран стандарт убактысы"
+    Irkutsk: 
+      long: 
+        daylight: "Иркутск жайкы убактысы"
+        generic: "Иркутск убактысы"
+        standard: "Иркутск стандарт убактысы"
+    Israel: 
+      long: 
+        daylight: "Израил үнөмдөө убактысы"
+        generic: "Израил убактысы"
+        standard: "Израил стандарт убактысы"
+    Japan: 
+      long: 
+        daylight: "Жапан үнөмдөө убактысы"
+        generic: "Жапан убактысы"
+        standard: "Жапан стандарт убактысы"
+    Kazakhstan_Eastern: 
+      long: 
+        standard: "Чыгыш Казакстан убактысы"
+    Kazakhstan_Western: 
+      long: 
+        standard: "Батыш Казакстан убактысы"
+    Korea: 
+      long: 
+        daylight: "Корея үнөмдөө убактысы"
+        generic: "Корея убактысы"
+        standard: "Корея стандарт убактысы"
+    Kosrae: 
+      long: 
+        standard: "Косрае убактысы"
+    Krasnoyarsk: 
+      long: 
+        daylight: "Красноярск жайкы убактысы"
+        generic: "Красноярск убактысы"
+        standard: "Красноярск стандарт убактысы"
+    Kyrgystan: 
+      long: 
+        standard: "Кыргызстан убактысы"
+    Line_Islands: 
+      long: 
+        standard: "Лайн убактысы"
+    Lord_Howe: 
+      long: 
+        daylight: "Лорд Хау үнөмдөө убактысы"
+        generic: "Лорд Хау убактысы"
+        standard: "Лорд Хау стандарт убактысы"
+    Macquarie: 
+      long: 
+        standard: "Макуари убактысы"
+    Magadan: 
+      long: 
+        daylight: "Магадан жайкы убактысы"
+        generic: "Магадан убактысы"
+        standard: "Магадан стандарт убактысы"
+    Malaysia: 
+      long: 
+        standard: "Малайзия убактысы"
+    Maldives: 
+      long: 
+        standard: "Малдив убактысы"
+    Marquesas: 
+      long: 
+        standard: "Маркезас убактысы"
+    Marshall_Islands: 
+      long: 
+        standard: "Маршалл убактысы"
+    Mauritius: 
+      long: 
+        daylight: "Маврикий жайкы убактысы"
+        generic: "Маврикий убактысы"
+        standard: "Маврикий стандарт убактысы"
+    Mawson: 
+      long: 
+        standard: "Мосон убактысы"
+    Mongolia: 
+      long: 
+        daylight: "Улан Батор жайкы убактысы"
+        generic: "Улан Батор убактысы"
+        standard: "Улан Батор стандарт убактысы"
+    Moscow: 
+      long: 
+        daylight: "Москва жайкы убактысы"
+        generic: "Москва убактысы"
+        standard: "Москва стандарт убактысы"
+    Myanmar: 
+      long: 
+        standard: "Мйанмар убактысы"
+    Nauru: 
+      long: 
+        standard: "Науру убактысы"
+    Nepal: 
+      long: 
+        standard: "Непал убактысы"
+    New_Caledonia: 
+      long: 
+        daylight: "Жаӊы Каледония жайкы убактысы"
+        generic: "Жаӊы Каледония убактысы"
+        standard: "Жаӊы Каледония стандарт убактысы"
+    New_Zealand: 
+      long: 
+        daylight: "Жаӊы Зеландия үнөмдөө убактысы"
+        generic: "Жаӊы Зеландия убактысы"
+        standard: "Жаӊы Зеландия стандарт убактысы"
+    Newfoundland: 
+      long: 
+        daylight: "Нюфаундлэнд үнөмдөө убактысы"
+        generic: "Нюфаундлэнд убактысы"
+        standard: "Нюфаундлэнд стандарт убактысы"
+    Niue: 
+      long: 
+        standard: "Ниуэ убактысы"
+    Norfolk: 
+      long: 
+        standard: "Норфолк убактысы"
+    Noronha: 
+      long: 
+        daylight: "Фернандо де Норонья жайкы убактысы"
+        generic: "Фернандо де Норонья убактысы"
+        standard: "Фернандо де Норонья стандарт убактысы"
+    Novosibirsk: 
+      long: 
+        daylight: "Новосибирск жайкы убактысы"
+        generic: "Новосибирск убактысы"
+        standard: "Новосибирск стандарт убактысы"
+    Omsk: 
+      long: 
+        daylight: "Омск жайкы убактысы"
+        generic: "Омск убактысы"
+        standard: "Омск стандарт убактысы"
+    Pakistan: 
+      long: 
+        daylight: "Пакистан жайкы убактысы"
+        generic: "Пакистан убактысы"
+        standard: "Пакистан стандарт убактысы"
+    Palau: 
+      long: 
+        standard: "Палау убактысы"
+    Papua_New_Guinea: 
+      long: 
+        standard: "Папуа Жаӊы Гине убактысы"
+    Paraguay: 
+      long: 
+        daylight: "Парагвай жайкы убактысы"
+        generic: "Парагвай убактысы"
+        standard: "Парагвай стандарт убактысы"
+    Peru: 
+      long: 
+        daylight: "Перу жайкы убактысы"
+        generic: "Перу убактысы"
+        standard: "Перу стандарт убактысы"
+    Philippines: 
+      long: 
+        daylight: "Филиппинз жайкы убактысы"
+        generic: "Филиппинз убактысы"
+        standard: "Филиппинз стандарт убактысы"
+    Phoenix_Islands: 
+      long: 
+        standard: "Феникс аралдарынын убактысы"
+    Pierre_Miquelon: 
+      long: 
+        daylight: "Сен Пьер жана Микелон үнөмдөө убактысы"
+        generic: "Сен Пьер жана Микелон убактысы"
+        standard: "Сен Пьер жана Микелон стандарт убактысы"
+    Pitcairn: 
+      long: 
+        standard: "Питкэрнг убактысы"
+    Ponape: 
+      long: 
+        standard: "Понапе убактысы"
+    Reunion: 
+      long: 
+        standard: "Реюнион убактысы"
+    Rothera: 
+      long: 
+        standard: "Ротера убактысы"
+    Sakhalin: 
+      long: 
+        daylight: "Сахалин жайкы убактысы"
+        generic: "Сахалин убактысы"
+        standard: "Сахалин стандарт убактысы"
+    Samoa: 
+      long: 
+        daylight: "Самоа үнөм убактысы"
+        generic: "Сама убактысы"
+        standard: "Самоа стандарт убактысы"
+    Seychelles: 
+      long: 
+        standard: "Сейшел убактысы"
+    Singapore: 
+      long: 
+        standard: "Сингапур убактысы"
+    Solomon: 
+      long: 
+        standard: "Соломон аралдарынын убактысы"
+    South_Georgia: 
+      long: 
+        standard: "Түштүк Жоржия убактысы"
+    Suriname: 
+      long: 
+        standard: "Суринаме убактысы"
+    Syowa: 
+      long: 
+        standard: "Саоа убактысы"
+    Tahiti: 
+      long: 
+        standard: "Таити убактысы"
+    Taipei: 
+      long: 
+        daylight: "Тайпей үнөмдөө убактысы"
+        generic: "Тайпей убактысы"
+        standard: "Тайпей стандарт убактысы"
+    Tajikistan: 
+      long: 
+        standard: "Тажикстан убактысы"
+    Tokelau: 
+      long: 
+        standard: "Токелау убактысы"
+    Tonga: 
+      long: 
+        daylight: "Тонга жайкы убактысы"
+        generic: "Тонга убактысы"
+        standard: "Тонга стандарт убактысы"
+    Truk: 
+      long: 
+        standard: "Чуук убактысы"
+    Turkmenistan: 
+      long: 
+        daylight: "Түркмөнстан жайкы убактысы"
+        generic: "Түркмөнстан убактысы"
+        standard: "Түркмөнстан стандарт убактысы"
+    Tuvalu: 
+      long: 
+        standard: "Тувалу убактысы"
+    Uruguay: 
+      long: 
+        daylight: "Уругвай жайкы убактысы"
+        generic: "Уругвай убактысы"
+        standard: "Уругвай стандарт убактысы"
+    Uzbekistan: 
+      long: 
+        daylight: "Өзбекстан жайкы убактысы"
+        generic: "Өзбекстан убактысы"
+        standard: "Өзбекстан стандарт убактысы"
+    Vanuatu: 
+      long: 
+        daylight: "Вануату жайкы убактысы"
+        generic: "Вануату убактысы"
+        standard: "Вануату стандарт убактысы"
+    Venezuela: 
+      long: 
+        standard: "Венесуэла убактысы"
+    Vladivostok: 
+      long: 
+        daylight: "Владивосток жайкы убактысы"
+        generic: "Владивосток убактысы"
+        standard: "Владивосток стандарт убактысы"
+    Volgograd: 
+      long: 
+        daylight: "Волгоград жайкы убактысы"
+        generic: "Волгоград убактысы"
+        standard: "Волгоград стандарт убактысы"
+    Vostok: 
+      long: 
+        standard: "Восток убактысы"
+    Wake: 
+      long: 
+        standard: "Уейк убактысы"
+    Wallis: 
+      long: 
+        standard: "Уолис жана Футуна убактысы"
+    Yakutsk: 
+      long: 
+        daylight: "Якутск жайкы убактысы"
+        generic: "Якутск убактысы"
+        standard: "Якутск стандарт убактысы"
+    Yekaterinburg: 
+      long: 
+        daylight: "Екатеринбург жайкы убактысы"
+        generic: "Екатеринбург убактысы"
+        standard: "Екатеринбург стандарт убактысы"
+  timezones: 
+    Africa/Abidjan: 
+      city: Абиджан
+    Africa/Accra: 
+      city: Аккра
+    Africa/Addis_Ababa: 
+      city: "Аддис Абеба"
+    Africa/Algiers: 
+      city: Алжир
+    Africa/Asmera: 
+      city: Асмара
+    Africa/Bamako: 
+      city: Бамако
+    Africa/Bangui: 
+      city: Баги
+    Africa/Banjul: 
+      city: Банжул
+    Africa/Bissau: 
+      city: Бисау
+    Africa/Blantyre: 
+      city: Блантайр
+    Africa/Brazzaville: 
+      city: Браззавилл
+    Africa/Bujumbura: 
+      city: Бужумбура
+    Africa/Cairo: 
+      city: Каир
+    Africa/Casablanca: 
+      city: Касабланка
+    Africa/Ceuta: 
+      city: Сеута
+    Africa/Conakry: 
+      city: Конакри
+    Africa/Dakar: 
+      city: Дакар
+    Africa/Dar_es_Salaam: 
+      city: "Дар эс Салаам"
+    Africa/Djibouti: 
+      city: Жибути
+    Africa/Douala: 
+      city: Дуала
+    Africa/El_Aaiun: 
+      city: "Эл Айун"
+    Africa/Freetown: 
+      city: Фритаун
+    Africa/Gaborone: 
+      city: Габороне
+    Africa/Harare: 
+      city: Хараре
+    Africa/Johannesburg: 
+      city: Йоханнесбург
+    Africa/Juba: 
+      city: Жуба
+    Africa/Kampala: 
+      city: Кампала
+    Africa/Khartoum: 
+      city: Картум
+    Africa/Kigali: 
+      city: Кигали
+    Africa/Kinshasa: 
+      city: Киншаса
+    Africa/Lagos: 
+      city: Лагос
+    Africa/Libreville: 
+      city: Либревилл
+    Africa/Lome: 
+      city: Ломе
+    Africa/Luanda: 
+      city: Луанда
+    Africa/Lubumbashi: 
+      city: Лубумбаши
+    Africa/Lusaka: 
+      city: Лусака
+    Africa/Malabo: 
+      city: Малабо
+    Africa/Maputo: 
+      city: Мапуто
+    Africa/Maseru: 
+      city: Масеру
+    Africa/Mbabane: 
+      city: Мбабане
+    Africa/Mogadishu: 
+      city: Могадишу
+    Africa/Monrovia: 
+      city: Монровиа
+    Africa/Nairobi: 
+      city: Найроби
+    Africa/Ndjamena: 
+      city: Нжамена
+    Africa/Niamey: 
+      city: Нйаме
+    Africa/Nouakchott: 
+      city: Нуакшот
+    Africa/Ouagadougou: 
+      city: Уагадугу
+    Africa/Porto-Novo: 
+      city: Порто-Ново
+    Africa/Sao_Tome: 
+      city: "Сао Томе"
+    Africa/Tripoli: 
+      city: Триполи
+    Africa/Tunis: 
+      city: Тунис
+    Africa/Windhoek: 
+      city: Уиндхук
+    America/Adak: 
+      city: Адак
+    America/Anchorage: 
+      city: Анкориж
+    America/Anguilla: 
+      city: Ангуила
+    America/Antigua: 
+      city: Антигуа
+    America/Araguaina: 
+      city: Арагуаина
+    America/Argentina/La_Rioja: 
+      city: "Ла Риоха"
+    America/Argentina/Rio_Gallegos: 
+      city: "Рио Галлегос"
+    America/Argentina/Salta: 
+      city: Салта
+    America/Argentina/San_Juan: 
+      city: "Сан Хуан"
+    America/Argentina/San_Luis: 
+      city: "Сан Луи"
+    America/Argentina/Tucuman: 
+      city: Тукуман
+    America/Argentina/Ushuaia: 
+      city: Ушуайа
+    America/Aruba: 
+      city: Аруба
+    America/Asuncion: 
+      city: Асунсион
+    America/Bahia: 
+      city: Байиа
+    America/Bahia_Banderas: 
+      city: "Баийа Бандерас"
+    America/Barbados: 
+      city: Барбадос
+    America/Belem: 
+      city: Белем
+    America/Belize: 
+      city: Белиз
+    America/Blanc-Sablon: 
+      city: Бланк-Саблон
+    America/Boa_Vista: 
+      city: "Боа Виста"
+    America/Bogota: 
+      city: Богота
+    America/Boise: 
+      city: Бойсе
+    America/Buenos_Aires: 
+      city: "Буэнос Айрес"
+    America/Cambridge_Bay: 
+      city: "Кэмбриж Бей"
+    America/Campo_Grande: 
+      city: "Кампо Гранде"
+    America/Cancun: 
+      city: Канкун
+    America/Caracas: 
+      city: Каракас
+    America/Catamarca: 
+      city: Катамарка
+    America/Cayenne: 
+      city: Кайен
+    America/Cayman: 
+      city: Кайман
+    America/Chicago: 
+      city: Чикаго
+    America/Chihuahua: 
+      city: Чихуахуа
+    America/Coral_Harbour: 
+      city: Атикокан
+    America/Cordoba: 
+      city: Кордова
+    America/Costa_Rica: 
+      city: "Коста Рика"
+    America/Creston: 
+      city: Крестон
+    America/Cuiaba: 
+      city: Куйаба
+    America/Curacao: 
+      city: Кюрасао
+    America/Danmarkshavn: 
+      city: Данмарксхавн
+    America/Dawson: 
+      city: Доусон
+    America/Dawson_Creek: 
+      city: "Доусон Грек"
+    America/Denver: 
+      city: Денвер
+    America/Detroit: 
+      city: Детройт
+    America/Dominica: 
+      city: Доминика
+    America/Edmonton: 
+      city: Эдмонтон
+    America/Eirunepe: 
+      city: Эйрунепе
+    America/El_Salvador: 
+      city: "Эл Салвадор"
+    America/Fortaleza: 
+      city: Форталеза
+    America/Glace_Bay: 
+      city: "Глейс Бей"
+    America/Godthab: 
+      city: Нуук
+    America/Goose_Bay: 
+      city: "Гус Бей"
+    America/Grand_Turk: 
+      city: "Гранд Түрк"
+    America/Grenada: 
+      city: Гренада
+    America/Guadeloupe: 
+      city: Гваделупе
+    America/Guatemala: 
+      city: Гватемала
+    America/Guayaquil: 
+      city: Гуайакил
+    America/Guyana: 
+      city: Гуйана
+    America/Halifax: 
+      city: Галифакс
+    America/Havana: 
+      city: Гавана
+    America/Hermosillo: 
+      city: Эрмосийо
+    America/Indiana/Knox: 
+      city: "Нокс, Индиана"
+    America/Indiana/Marengo: 
+      city: "Маренго, Индиана"
+    America/Indiana/Petersburg: 
+      city: "Питерсбург, Индиана"
+    America/Indiana/Tell_City: 
+      city: "Телл шаары, Индиана"
+    America/Indiana/Vevay: 
+      city: "Вивей, Индиана"
+    America/Indiana/Vincennes: 
+      city: "Венсен, Индиана"
+    America/Indiana/Winamac: 
+      city: "Уинамак, Индиана"
+    America/Indianapolis: 
+      city: Индианаполис
+    America/Inuvik: 
+      city: Инувик
+    America/Iqaluit: 
+      city: Икалуит
+    America/Jamaica: 
+      city: Жамайка
+    America/Jujuy: 
+      city: Жужуй
+    America/Juneau: 
+      city: Жуно
+    America/Kentucky/Monticello: 
+      city: "Монтичелло, Кентукки"
+    America/Kralendijk: 
+      city: Кралендейк
+    America/La_Paz: 
+      city: "Ла Пас"
+    America/Lima: 
+      city: Лима
+    America/Los_Angeles: 
+      city: "Лос Анжелес"
+    America/Louisville: 
+      city: Луизвилл
+    America/Lower_Princes: 
+      city: "Лоуэр Принсес Куате"
+    America/Maceio: 
+      city: Масейо
+    America/Managua: 
+      city: Манагуа
+    America/Manaus: 
+      city: Манаус
+    America/Marigot: 
+      city: Мариго
+    America/Martinique: 
+      city: Мартиник
+    America/Matamoros: 
+      city: Матаморос
+    America/Mazatlan: 
+      city: Мазатлан
+    America/Mendoza: 
+      city: Мендоза
+    America/Menominee: 
+      city: Меномини
+    America/Merida: 
+      city: Мерида
+    America/Metlakatla: 
+      city: Метлакатла
+    America/Mexico_City: 
+      city: "Мехико шаары"
+    America/Miquelon: 
+      city: Микелон
+    America/Moncton: 
+      city: Монктон
+    America/Monterrey: 
+      city: Монтерей
+    America/Montevideo: 
+      city: Монтевидео
+    America/Montreal: 
+      city: Монреал
+    America/Montserrat: 
+      city: Монсерат
+    America/Nassau: 
+      city: Нассау
+    America/New_York: 
+      city: "Нью Йорк"
+    America/Nipigon: 
+      city: Нипигон
+    America/Nome: 
+      city: Ноум
+    America/Noronha: 
+      city: Норониа
+    America/North_Dakota/Beulah: 
+      city: "Беула, Түндүк Дакота"
+    America/North_Dakota/Center: 
+      city: "Сентер, Түндүк Дакота"
+    America/North_Dakota/New_Salem: 
+      city: "Ню Салем, Түндүк Дакота"
+    America/Ojinaga: 
+      city: Охинага
+    America/Panama: 
+      city: Панама
+    America/Pangnirtung: 
+      city: Пангиртуӊ
+    America/Paramaribo: 
+      city: Парамарибо
+    America/Phoenix: 
+      city: Феникс
+    America/Port-au-Prince: 
+      city: Порт-о-Пренс
+    America/Port_of_Spain: 
+      city: "Порт оф Спейн"
+    America/Porto_Velho: 
+      city: "Порто Велио"
+    America/Puerto_Rico: 
+      city: "Пуэрто Рико"
+    America/Rainy_River: 
+      city: "Рейни Ривер"
+    America/Rankin_Inlet: 
+      city: "Рэнкин Инлет"
+    America/Recife: 
+      city: Ресифи
+    America/Regina: 
+      city: Регина
+    America/Resolute: 
+      city: Резолут
+    America/Rio_Branco: 
+      city: "Рио Бранко"
+    America/Santa_Isabel: 
+      city: "Санта Изабел"
+    America/Santarem: 
+      city: Сантарем
+    America/Santiago: 
+      city: Сантиаго
+    America/Santo_Domingo: 
+      city: "Санто Доминго"
+    America/Sao_Paulo: 
+      city: "Сао Пауло"
+    America/Scoresbysund: 
+      city: Иттоккортоормиит
+    America/Shiprock: 
+      city: Шипрок
+    America/Sitka: 
+      city: Ситка
+    America/St_Barthelemy: 
+      city: "Ыйык Бартелеми"
+    America/St_Johns: 
+      city: "Сент Жонс"
+    America/St_Kitts: 
+      city: "Ыйык Китс"
+    America/St_Lucia: 
+      city: "Санта Лючия"
+    America/St_Thomas: 
+      city: "Ыйык Томас"
+    America/St_Vincent: 
+      city: "Ыйык Винсент"
+    America/Swift_Current: 
+      city: "Свифт Каррент"
+    America/Tegucigalpa: 
+      city: Тегусигальпа
+    America/Thule: 
+      city: Туле
+    America/Thunder_Bay: 
+      city: "Сандер Бей"
+    America/Tijuana: 
+      city: Тихуана
+    America/Toronto: 
+      city: Торонто
+    America/Tortola: 
+      city: Тортола
+    America/Vancouver: 
+      city: Ванкувер
+    America/Whitehorse: 
+      city: Уайтхорс
+    America/Winnipeg: 
+      city: Уиннипег
+    America/Yakutat: 
+      city: Якутат
+    America/Yellowknife: 
+      city: Йеллоунайф
+    Antarctica/Casey: 
+      city: Кейси
+    Antarctica/Davis: 
+      city: Дэвис
+    Antarctica/DumontDUrville: 
+      city: "Дүмон д-Өрвил"
+    Antarctica/Macquarie: 
+      city: Маккуори
+    Antarctica/Mawson: 
+      city: Моосон
+    Antarctica/McMurdo: 
+      city: МакМөрдо
+    Antarctica/Palmer: 
+      city: Палмер
+    Antarctica/Rothera: 
+      city: Ротера
+    Antarctica/South_Pole: 
+      city: "Түштүк Уюл"
+    Antarctica/Syowa: 
+      city: Саоа
+    Antarctica/Vostok: 
+      city: Восток
+    Arctic/Longyearbyen: 
+      city: Лонгйербиен
+    Asia/Aden: 
+      city: Аден
+    Asia/Almaty: 
+      city: Алматы
+    Asia/Amman: 
+      city: Амман
+    Asia/Anadyr: 
+      city: Анадыр
+    Asia/Aqtau: 
+      city: Актау
+    Asia/Aqtobe: 
+      city: Актобе
+    Asia/Ashgabat: 
+      city: Ашгабат
+    Asia/Baghdad: 
+      city: Багдад
+    Asia/Bahrain: 
+      city: Бахрейн
+    Asia/Baku: 
+      city: Баку
+    Asia/Bangkok: 
+      city: Бангкок
+    Asia/Beirut: 
+      city: Бейрут
+    Asia/Bishkek: 
+      city: Бишкек
+    Asia/Brunei: 
+      city: Бруней
+    Asia/Calcutta: 
+      city: Калькутта
+    Asia/Choibalsan: 
+      city: Чойбалсан
+    Asia/Chongqing: 
+      city: Чунцин
+    Asia/Colombo: 
+      city: Коломбо
+    Asia/Damascus: 
+      city: Дамаск
+    Asia/Dhaka: 
+      city: Дакка
+    Asia/Dili: 
+      city: Дили
+    Asia/Dubai: 
+      city: Дубай
+    Asia/Dushanbe: 
+      city: Душамбе
+    Asia/Gaza: 
+      city: Газа
+    Asia/Harbin: 
+      city: Харбин
+    Asia/Hebron: 
+      city: Хеброн
+    Asia/Hong_Kong: 
+      city: "Гоӊ Коӊ"
+    Asia/Hovd: 
+      city: Ховд
+    Asia/Irkutsk: 
+      city: Иркутск
+    Asia/Jakarta: 
+      city: Жакарта
+    Asia/Jayapura: 
+      city: Жайапура
+    Asia/Jerusalem: 
+      city: Иерусалим
+    Asia/Kabul: 
+      city: Кабул
+    Asia/Kamchatka: 
+      city: Камчатка
+    Asia/Karachi: 
+      city: Карачи
+    Asia/Kashgar: 
+      city: Кашкар
+    Asia/Katmandu: 
+      city: Катманду
+    Asia/Khandyga: 
+      city: Кандыга
+    Asia/Krasnoyarsk: 
+      city: Красноярск
+    Asia/Kuala_Lumpur: 
+      city: "Куала Лумпур"
+    Asia/Kuching: 
+      city: Кучиӊ
+    Asia/Kuwait: 
+      city: Кувейт
+    Asia/Macau: 
+      city: Макау
+    Asia/Magadan: 
+      city: Магадан
+    Asia/Makassar: 
+      city: Макассар
+    Asia/Manila: 
+      city: Манила
+    Asia/Muscat: 
+      city: Мускат
+    Asia/Nicosia: 
+      city: Никосия
+    Asia/Novokuznetsk: 
+      city: Новокузнецк
+    Asia/Novosibirsk: 
+      city: Новосибирск
+    Asia/Omsk: 
+      city: Омск
+    Asia/Oral: 
+      city: Орал
+    Asia/Phnom_Penh: 
+      city: Пномпень
+    Asia/Pontianak: 
+      city: Понтианак
+    Asia/Pyongyang: 
+      city: Пхенйан
+    Asia/Qatar: 
+      city: Катар
+    Asia/Qyzylorda: 
+      city: Кызылорда
+    Asia/Rangoon: 
+      city: Рангун
+    Asia/Riyadh: 
+      city: Рийад
+    Asia/Saigon: 
+      city: "Хо Ши Мин"
+    Asia/Sakhalin: 
+      city: Сахалин
+    Asia/Samarkand: 
+      city: Самарканд
+    Asia/Seoul: 
+      city: Сеул
+    Asia/Shanghai: 
+      city: Шанхай
+    Asia/Singapore: 
+      city: Сингапур
+    Asia/Taipei: 
+      city: Тайпей
+    Asia/Tashkent: 
+      city: Ташкент
+    Asia/Tbilisi: 
+      city: Тбилиси
+    Asia/Tehran: 
+      city: Тегеран
+    Asia/Thimphu: 
+      city: Тимпу
+    Asia/Tokyo: 
+      city: Токио
+    Asia/Ulaanbaatar: 
+      city: "Улан Батор"
+    Asia/Urumqi: 
+      city: Үрүмчү
+    Asia/Ust-Nera: 
+      city: Усть-Нера
+    Asia/Vientiane: 
+      city: Виентиан
+    Asia/Vladivostok: 
+      city: Владивосток
+    Asia/Yakutsk: 
+      city: Якутск
+    Asia/Yekaterinburg: 
+      city: Екатеринбург
+    Asia/Yerevan: 
+      city: Ереван
+    Atlantic/Azores: 
+      city: Азорс
+    Atlantic/Bermuda: 
+      city: Бермуда
+    Atlantic/Canary: 
+      city: Канари
+    Atlantic/Cape_Verde: 
+      city: "Капе Верде"
+    Atlantic/Faeroe: 
+      city: Фарер
+    Atlantic/Madeira: 
+      city: Мадейра
+    Atlantic/Reykjavik: 
+      city: Рейкьявик
+    Atlantic/South_Georgia: 
+      city: "Түштүк Жоржия"
+    Atlantic/St_Helena: 
+      city: "Ыйык Елена"
+    Atlantic/Stanley: 
+      city: Стэнли
+    Australia/Adelaide: 
+      city: Аделаида
+    Australia/Brisbane: 
+      city: Брисбен
+    Australia/Broken_Hill: 
+      city: "Броукен Хил"
+    Australia/Currie: 
+      city: Керри
+    Australia/Darwin: 
+      city: Дарвин
+    Australia/Eucla: 
+      city: Юкла
+    Australia/Hobart: 
+      city: Хобарт
+    Australia/Lindeman: 
+      city: Линдеман
+    Australia/Lord_Howe: 
+      city: "Лорд Хау"
+    Australia/Melbourne: 
+      city: Мелбурн
+    Australia/Perth: 
+      city: Перт
+    Australia/Sydney: 
+      city: Сидней
+    Etc/Unknown: 
+      city: Белгисиз
+    Europe/Amsterdam: 
+      city: Амстердам
+    Europe/Andorra: 
+      city: Андорра
+    Europe/Athens: 
+      city: Афины
+    Europe/Belgrade: 
+      city: Белград
+    Europe/Berlin: 
+      city: Берлин
+    Europe/Bratislava: 
+      city: Братислава
+    Europe/Brussels: 
+      city: Брюссел
+    Europe/Bucharest: 
+      city: Бухарест
+    Europe/Budapest: 
+      city: Будапешт
+    Europe/Busingen: 
+      city: Бузинген
+    Europe/Chisinau: 
+      city: Кишинев
+    Europe/Copenhagen: 
+      city: Копенгаген
+    Europe/Dublin: 
+      city: Дублин
+      long: 
+        daylight: "Ирландия жайкы убактысы"
+    Europe/Gibraltar: 
+      city: Гибралтар
+    Europe/Guernsey: 
+      city: Гернси
+    Europe/Helsinki: 
+      city: Хелсинки
+    Europe/Isle_of_Man: 
+      city: "Мэн аралы"
+    Europe/Istanbul: 
+      city: Стамбул
+    Europe/Jersey: 
+      city: Жерси
+    Europe/Kaliningrad: 
+      city: Калининград
+    Europe/Kiev: 
+      city: Киев
+    Europe/Lisbon: 
+      city: Лиссабон
+    Europe/Ljubljana: 
+      city: Любляна
+    Europe/London: 
+      city: Лондон
+      long: 
+        daylight: "Британия жайкы убактысы"
+    Europe/Luxembourg: 
+      city: Люксембург
+    Europe/Madrid: 
+      city: Мадрид
+    Europe/Malta: 
+      city: Мальта
+    Europe/Mariehamn: 
+      city: Мариехамн
+    Europe/Minsk: 
+      city: Минск
+    Europe/Monaco: 
+      city: Монако
+    Europe/Moscow: 
+      city: Москва
+    Europe/Oslo: 
+      city: Осло
+    Europe/Paris: 
+      city: Париж
+    Europe/Podgorica: 
+      city: Подгорица
+    Europe/Prague: 
+      city: Прага
+    Europe/Riga: 
+      city: Рига
+    Europe/Rome: 
+      city: Рим
+    Europe/Samara: 
+      city: Самара
+    Europe/San_Marino: 
+      city: "Сан Марино"
+    Europe/Sarajevo: 
+      city: Сараево
+    Europe/Simferopol: 
+      city: Симферополь
+    Europe/Skopje: 
+      city: Скопйе
+    Europe/Sofia: 
+      city: София
+    Europe/Stockholm: 
+      city: Стокголм
+    Europe/Tallinn: 
+      city: Таллинн
+    Europe/Tirane: 
+      city: Тирана
+    Europe/Uzhgorod: 
+      city: Ужгород
+    Europe/Vaduz: 
+      city: Фадуц
+    Europe/Vatican: 
+      city: Ватикан
+    Europe/Vienna: 
+      city: Вена
+    Europe/Vilnius: 
+      city: Вилнюс
+    Europe/Volgograd: 
+      city: Волгоград
+    Europe/Warsaw: 
+      city: Варшава
+    Europe/Zagreb: 
+      city: Загреб
+    Europe/Zaporozhye: 
+      city: Запорожье
+    Europe/Zurich: 
+      city: Цюрих
+    Indian/Antananarivo: 
+      city: Антананариво
+    Indian/Chagos: 
+      city: Чагос
+    Indian/Christmas: 
+      city: Крисмас
+    Indian/Cocos: 
+      city: Кокос
+    Indian/Comoro: 
+      city: Коморо
+    Indian/Kerguelen: 
+      city: Кергелен
+    Indian/Mahe: 
+      city: Маэ
+    Indian/Maldives: 
+      city: Малдивз
+    Indian/Mauritius: 
+      city: Маврикий
+    Indian/Mayotte: 
+      city: Майотт
+    Indian/Reunion: 
+      city: Реюнион
+    Pacific/Apia: 
+      city: Апиа
+    Pacific/Auckland: 
+      city: Оклэнд
+    Pacific/Chatham: 
+      city: Чатем
+    Pacific/Easter: 
+      city: Истер
+    Pacific/Efate: 
+      city: Эфат
+    Pacific/Enderbury: 
+      city: Эндербери
+    Pacific/Fakaofo: 
+      city: Факаофо
+    Pacific/Fiji: 
+      city: Фижи
+    Pacific/Funafuti: 
+      city: Фунафути
+    Pacific/Galapagos: 
+      city: Галапагос
+    Pacific/Gambier: 
+      city: Гамбие
+    Pacific/Guadalcanal: 
+      city: Гуадалканал
+    Pacific/Guam: 
+      city: Гуам
+    Pacific/Honolulu: 
+      city: Гонолулу
+    Pacific/Johnston: 
+      city: Жонстон
+    Pacific/Kiritimati: 
+      city: Киритимати
+    Pacific/Kosrae: 
+      city: Козрае
+    Pacific/Kwajalein: 
+      city: Куажалейн
+    Pacific/Majuro: 
+      city: Мажуро
+    Pacific/Marquesas: 
+      city: Маркезас
+    Pacific/Midway: 
+      city: Мидуэй
+    Pacific/Nauru: 
+      city: Науру
+    Pacific/Niue: 
+      city: Ниуэ
+    Pacific/Norfolk: 
+      city: Норфолк
+    Pacific/Noumea: 
+      city: Нумеа
+    Pacific/Pago_Pago: 
+      city: "Паго Паго"
+    Pacific/Palau: 
+      city: Палау
+    Pacific/Pitcairn: 
+      city: Питкэрн
+    Pacific/Ponape: 
+      city: Понпей
+    Pacific/Port_Moresby: 
+      city: "Порт Моэрсби"
+    Pacific/Rarotonga: 
+      city: Раготонга
+    Pacific/Saipan: 
+      city: Сайпан
+    Pacific/Tahiti: 
+      city: Таити
+    Pacific/Tarawa: 
+      city: Тарава
+    Pacific/Tongatapu: 
+      city: Тонгатапу
+    Pacific/Truk: 
+      city: Чуук
+    Pacific/Wake: 
+      city: Уейк
+    Pacific/Wallis: 
+      city: Уолис

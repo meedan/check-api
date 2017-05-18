@@ -5,7 +5,7 @@
 [![Issue Count](https://codeclimate.com/repos/58bdc058359261025a0020fa/badges/be660888a1cd1f246167/issue_count.svg)](https://codeclimate.com/repos/58bdc058359261025a0020fa/feed)
 [![Travis](https://travis-ci.org/meedan/check-api.svg?branch=develop)](https://travis-ci.org/meedan/check-api/)
 
-Verify breaking news online
+Verify breaking news online.
 
 ### Installation
 
@@ -93,6 +93,17 @@ Localization is powered by Transifex + I18n. In order to localize the applicatio
 We call "localizable strings" any call to the `I18n.t` function like this: `I18n.t(:string_unique_id, default: 'English string')`.
 
 Clients should send the `Accept-Language` header in order to get localized content. If you want to serve everything in English, just add `locale: 'en'` to your `config/config.yml`.
+
+#### Update CLDR data
+
+CLDR data lives in `data/` (symlinked as `cldr-data` too) and contains data from CLDR download by `ruby-cldr`. In order to update its contents (as explained [here](https://github.com/svenfuchs/ruby-cldr/issues/24#issuecomment-65855492)), run this in Rails console:
+
+```ruby
+require 'cldr/thor'
+thor = Cldr::Thor.new
+thor.download
+thor.export
+```
 
 ### Admin UI
 

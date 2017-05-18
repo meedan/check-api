@@ -1,0 +1,141 @@
+fr-CA: 
+  metazones: 
+    America_Central: 
+      long: 
+        daylight: "heure avancée du Centre"
+        generic: "heure du Centre"
+        standard: "heure normale du Centre"
+      short: 
+        daylight: HAC
+        generic: HC
+        standard: HNC
+    America_Eastern: 
+      long: 
+        daylight: "heure avancée de l’Est"
+        generic: "heure de l’Est"
+        standard: "heure normale de l’Est"
+      short: 
+        daylight: HAE
+        generic: HE
+        standard: HNE
+    America_Mountain: 
+      short: 
+        daylight: HAR
+        generic: HR
+        standard: HNR
+    America_Pacific: 
+      long: 
+        daylight: "heure avancée du Pacifique"
+        generic: "heure du Pacifique"
+        standard: "heure normale du Pacifique"
+      short: 
+        daylight: HAP
+        generic: HP
+        standard: HNP
+    Ecuador: 
+      long: 
+        standard: "heure normale d’Équateur"
+    French_Guiana: 
+      long: 
+        standard: "heure de Guyane française"
+    Newfoundland: 
+      short: 
+        daylight: HAT
+        generic: HT
+        standard: HNT
+    Uruguay: 
+      long: 
+        daylight: "heure avancée de l'Uruguay"
+        generic: "heure de l'Uruguay"
+        standard: "heure normale de l'Uruguay"
+  timezones: 
+    Africa/Asmera: 
+      city: Asmara
+    Africa/Ndjamena: 
+      city: Ndjamena
+    America/Barbados: 
+      city: "Barbade (La)"
+    America/Cayman: 
+      city: "Îles Caïmans"
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, Dakota du Nord"
+    America/Port_of_Spain: 
+      city: Port-d'Espagne
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: Saint-Christophe-et-Niévès
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "Saint Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Baghdad: 
+      city: Baghdad
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Dhaka: 
+      city: Dacca
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Atlantic/Faeroe: 
+      city: "Îles Féroé"
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: Unknown
+    Europe/Vatican: 
+      city: Vatican
+    Indian/Chagos: 
+      city: "Archipel des Chagos"
+    Indian/Christmas: 
+      city: "Île Christmas"
+    Indian/Cocos: 
+      city: "Îles Cocos"
+    Indian/Comoro: 
+      city: "Union des Comores"
+    Indian/Kerguelen: 
+      city: "Îles Kerguelen"
+    Pacific/Pitcairn: 
+      city: "Île Pitcairn"
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Truk: 
+      city: Chuuk
+    Pacific/Wallis: 
+      city: Uvéa

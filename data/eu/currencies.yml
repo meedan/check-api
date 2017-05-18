@@ -1,0 +1,538 @@
+eu: 
+  currencies: 
+    AED: 
+      one: "Arabiar Emirerri Batuetako dirham"
+      other: "Arabiar Emirerri Batuetako dirham"
+    AFN: 
+      one: "Afganistango afghani"
+      other: "Afganistango afghani"
+    ALL: 
+      one: "Albaniako lek"
+      other: "Albaniako lek"
+    AMD: 
+      one: "Armeniako dram"
+      other: "Armeniako dram"
+    ANG: 
+      one: "Holandarren Antilletako guilder"
+      other: "Holandarren Antilletako guilder"
+    AOA: 
+      one: "Angolako kwanza"
+      other: "Angolako kwanza"
+    ARS: 
+      one: "Argentinako peso"
+      other: "Argentinako peso"
+      symbol: $
+    AUD: 
+      one: "Australiako dolar"
+      other: "Australiako dolar"
+      symbol: A$
+    AWG: 
+      one: "Arubeko florin"
+      other: "Arubeko florin"
+    AZN: 
+      one: "Azerbaijango manat"
+      other: "Azerbaijango manat"
+    BAM: 
+      one: "Bosnia-Herzegovinako marko trukakor"
+      other: "Bosnia-Herzegovinako marko trukakor"
+    BBD: 
+      one: "Barbadosetako dolar"
+      other: "Barbadosetako dolar"
+      symbol: $
+    BDT: 
+      one: "Bangladesheko taka"
+      other: "Bangladesheko taka"
+      symbol: ৳
+    BGN: 
+      one: "Bulgariako lev"
+      other: "Bulgariako lev"
+    BHD: 
+      one: "Bahraingo dinar"
+      other: "Bahraingo dinar"
+    BIF: 
+      one: "Burundiko franko"
+      other: "Burundiko franko"
+    BMD: 
+      one: "Bermudetako dolar"
+      other: "Bermudetako dolar"
+      symbol: $
+    BND: 
+      one: "Bruneiko dolar"
+      other: "Bruneiko dolar"
+      symbol: $
+    BOB: 
+      one: "Boliviako boliviano"
+      other: "Boliviako boliviano"
+    BRL: 
+      one: "Brasilgo erreal"
+      other: "Brasilgo erreal"
+      symbol: R$
+    BSD: 
+      one: "Bahametako dolar"
+      other: "Bahametako dolar"
+      symbol: $
+    BTN: 
+      one: "Bhutango ngultrum"
+      other: "Bhutango ngultrum"
+    BWP: 
+      one: "Bosniako pula"
+      other: "Bosniako pula"
+    BYR: 
+      one: "Bielorrusiako errublo"
+      other: "Bielorrusiako errublo"
+      symbol: р.
+    BZD: 
+      one: "Belizeko dolar"
+      other: "Belizeko dolar"
+      symbol: $
+    CAD: 
+      one: "Kanadako dolar"
+      other: "Kanadako dolar"
+      symbol: CA$
+    CDF: 
+      one: "Kongoko franko"
+      other: "Kongoko franko"
+    CHF: 
+      one: "Suitzako franko"
+      other: "Suitzako franko"
+    CLP: 
+      one: "Txileko peso"
+      other: "Txileko peso"
+      symbol: $
+    CNY: 
+      one: "Txinako yuan"
+      other: "Txinako yuan"
+      symbol: CN¥
+    COP: 
+      one: "Kolonbiako peso"
+      other: "Kolonbiako peso"
+      symbol: $
+    CRC: 
+      one: "Costa Ricako colon"
+      other: "Costa Ricako colon"
+      symbol: ₡
+    CUC: 
+      one: "Kubako peso trukakor"
+      other: "Kubako peso trukakor"
+    CUP: 
+      one: "Kubako peso"
+      other: "Kubako peso"
+      symbol: $
+    CVE: 
+      one: "Cabo Verdeko ezkutu"
+      other: "Cabo Verdeko ezkutu"
+    CZK: 
+      one: "Txekiar Errepublikako koroa"
+      other: "Txekiar Errepublikako koroa"
+    DJF: 
+      one: "Djibouteko franko"
+      other: "Djibouteko franko"
+    DKK: 
+      one: "Danimarkako koroa"
+      other: "Danimarkako koroa"
+    DOP: 
+      one: "Dominikar Errepublikako peso"
+      other: "Dominikar Errepublikako peso"
+      symbol: $
+    DZD: 
+      one: "Algeriako dinar"
+      other: "Algeriako dinar"
+    EGP: 
+      one: "Egiptoko libera"
+      other: "Egiptoko libera"
+    ERN: 
+      one: "Eritreako nakfa"
+      other: "Eritreako nakfa"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Etiopiako birra"
+      other: "Etiopiako birra"
+    EUR: 
+      one: euro
+      other: euro
+      symbol: €
+    FJD: 
+      one: "Fijiko dolar"
+      other: "Fijiko dolar"
+      symbol: $
+    FKP: 
+      one: "Falkland uharteetako libera"
+      other: "Falkland uharteetako libera"
+    GBP: 
+      one: "libera esterlina"
+      other: "libera esterlina"
+      symbol: £
+    GEL: 
+      one: "Georgiako lari"
+      other: "Georgiako lari"
+    GHS: 
+      one: "Ghanako cedi"
+      other: "Ghanako cedi"
+      symbol: ₵
+    GIP: 
+      one: "Gibraltarreko libera"
+      other: "Gibraltarreko libera"
+      symbol: £
+    GMD: 
+      one: "Ganbiako dalasi"
+      other: "Ganbiako dalasi"
+    GNF: 
+      one: "Gineako franko"
+      other: "Gineako franko"
+    GTQ: 
+      one: "Guatemalako quetzal"
+      other: "Guatemalako quetzal"
+    GYD: 
+      one: "Guyanako dolar"
+      other: "Guyanako dolar"
+      symbol: $
+    HKD: 
+      one: "Hong Kongeko dolar"
+      other: "Hong Kongeko dolar"
+      symbol: HK$
+    HNL: 
+      one: "Hondurasko lempira"
+      other: "Hondurasko lempira"
+    HRK: 
+      one: "Kroaziako kuna"
+      other: "Kroaziako kuna"
+    HTG: 
+      one: "Haitiko gourde"
+      other: "Haitiko gourde"
+    HUF: 
+      one: "Hungariako florin"
+      other: "Hungariako florin"
+    IDR: 
+      one: "Indonesiako errupia"
+      other: "Indonesiako errupia"
+    ILS: 
+      one: "Israeleko sheqel berri"
+      other: "Israeleko sheqel berri"
+      symbol: ₪
+    INR: 
+      one: "Indiako errupia"
+      other: "Indiako errupia"
+      symbol: ₹
+    IQD: 
+      one: "Irakeko dinar"
+      other: "Irakeko dinar"
+    IRR: 
+      one: "Irango rial"
+      other: "Irango rial"
+    ISK: 
+      one: "Islandiako koroa"
+      other: "Islandiako koroa"
+    JMD: 
+      one: "Jamaikako dolar"
+      other: "Jamaikako dolar"
+      symbol: $
+    JOD: 
+      one: "Jordaniako dinar"
+      other: "Jordaniako dinar"
+    JPY: 
+      one: "Japoniako yen"
+      other: "Japoniako yen"
+      symbol: JP¥
+    KES: 
+      one: "Kenyako txelin"
+      other: "Kenyako txelin"
+    KGS: 
+      one: "Kirgizistango som"
+      other: "Kirgizistango som"
+    KHR: 
+      one: "Kanbodiako riel"
+      other: "Kanbodiako riel"
+      symbol: ៛
+    KMF: 
+      one: "Komoreetako franko"
+      other: "Komoreetako franko"
+    KPW: 
+      one: "Ipar Koreako won"
+      other: "Ipar Koreako won"
+    KRW: 
+      one: "Hego Koreako won"
+      other: "Hego Koreako won"
+      symbol: ₩
+    KWD: 
+      one: "Kuwaiteko dinar"
+      other: "Kuwaiteko dinar"
+    KYD: 
+      one: "Kaiman uharteetako dolar"
+      other: "Kaiman uharteetako dolar"
+      symbol: $
+    KZT: 
+      one: "Kazakhstango tenge"
+      other: "Kazakhstango tenge"
+      symbol: ₸
+    LAK: 
+      one: "Laoseko kip"
+      other: "Laoseko kip"
+      symbol: ₭
+    LBP: 
+      one: "Libanoko libera"
+      other: "Libanoko libera"
+    LKR: 
+      one: "Sri Lankako errupia"
+      other: "Sri Lankako errupia"
+    LRD: 
+      one: "Liberiako dolar"
+      other: "Liberiako dolar"
+      symbol: $
+    LSL: 
+      one: "Lesothoko lotia"
+    LTL: 
+      one: "Lituaniako litas"
+      other: "Lituaniako litas"
+    LVL: 
+      one: "Letoniako lats"
+      other: "Letoniako lats"
+    LYD: 
+      one: "Libiako dinar"
+      other: "Libiako dinar"
+    MAD: 
+      one: "Marokoko dirham"
+      other: "Marokoko dirham"
+    MDL: 
+      one: "Moldaviako leu"
+      other: "Moldaviako leu"
+    MGA: 
+      one: "Madagaskarreko ariary"
+      other: "Madagaskarreko ariary"
+    MKD: 
+      one: "Mazedoniako dinar"
+      other: "Mazedoniako dinar"
+    MMK: 
+      one: "Myanmarreko kyat"
+      other: "Myanmarreko kyat"
+    MNT: 
+      one: "Mongoliako tugrik"
+      other: "Mongoliako tugrik"
+      symbol: ₮
+    MOP: 
+      one: "Macanako pataca"
+      other: "Macanako pataca"
+    MRO: 
+      one: "Mauritaniako ouguiya"
+      other: "Mauritaniako ouguiya"
+    MUR: 
+      one: "Maurizio uharteetako errupia"
+      other: "Maurizio uharteetako errupia"
+    MVR: 
+      one: "Maldivetako rufiyaa"
+      other: "Maldivetako rufiyaa"
+    MWK: 
+      one: "Malawiko kwacha"
+      other: "Malawiko kwacha"
+    MXN: 
+      one: "Mexikoko peso"
+      other: "Mexikoko peso"
+      symbol: MX$
+    MYR: 
+      one: "Malaysiako ringgit"
+      other: "Malaysiako ringgit"
+    MZN: 
+      one: "Mozambikeko metikal"
+      other: "Mozambikeko metikal"
+    NAD: 
+      one: "Namibiako dolar"
+      other: "Namibiako dolar"
+      symbol: $
+    NGN: 
+      one: "Nigeriako naira"
+      other: "Nigeriako naira"
+      symbol: ₦
+    NIO: 
+      one: "Nikaraguako cordoba"
+      other: "Nikaraguako cordoba"
+    NOK: 
+      one: "Norvegiako koroa"
+      other: "Norvegiako koroa"
+    NPR: 
+      one: "Nepalgo errupia"
+      other: "Nepalgo errupia"
+    NZD: 
+      one: "Zeelanda Berriko dolar"
+      other: "Zeelanda Berriko dolar"
+      symbol: NZ$
+    OMR: 
+      one: "Omango rial"
+      other: "Omango rial"
+    PAB: 
+      one: "Panamako balboa"
+      other: "Panamako balboa"
+    PEN: 
+      one: "Peruko sol berri"
+      other: "Peruko sol berri"
+    PGK: 
+      one: "Papua Ginea Berriko kina"
+      other: "Papua Ginea Berriko kina"
+    PHP: 
+      one: "Filipinetako peso"
+      other: "Filipinetako peso"
+      symbol: ₱
+    PKR: 
+      one: "Pakistango errupia"
+      other: "Pakistango errupia"
+    PLN: 
+      one: "Poloniako zloty"
+      other: "Poloniako zloty"
+    PYG: 
+      one: "Paraguaiko guarani"
+      other: "Paraguaiko guarani"
+      symbol: ₲
+    QAR: 
+      one: "Qatarreko rial"
+      other: "Qatarreko rial"
+    RON: 
+      one: "Errumaniako leu"
+      other: "Errumaniako leu"
+    RSD: 
+      one: "Serbiako dinar"
+      other: "Serbiako dinar"
+    RUB: 
+      one: "Errusiako errublo"
+      other: "Errusiako errublo"
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Ruandako franko"
+      other: "Ruandako franko"
+    SAR: 
+      one: "Saudiko rial"
+      other: "Saudiko rial"
+    SBD: 
+      one: "Salomon uharteetako dolar"
+      other: "Salomon uharteetako dolar"
+      symbol: $
+    SCR: 
+      one: "Seychelleetako errupia"
+      other: "Seychelleetako errupia"
+    SDG: 
+      one: "Sudango libera"
+      other: "Sudango libera"
+    SEK: 
+      one: "Suediako koroa"
+      other: "Suediako koroa"
+    SGD: 
+      one: "Singapurreko dolar"
+      other: "Singapurreko dolar"
+      symbol: $
+    SHP: 
+      one: "Santa Helenako libera"
+      other: "Santa Helenako libera"
+    SLL: 
+      one: "Sierra Leonako leona"
+      other: "Sierra Leonako leona"
+    SOS: 
+      one: "Somaliako txelin"
+      other: "Somaliako txelin"
+    SRD: 
+      one: "Surinameko dolar"
+      other: "Surinameko dolar"
+      symbol: $
+    SSP: 
+      one: "Hego Sudango libera"
+      other: "Hego Sudango libera"
+      symbol: £
+    STD: 
+      one: "Sao Tomeko eta Principeko dobra"
+      other: "Sao Tomeko eta Principeko dobra"
+    SYP: 
+      one: "Siriako libera"
+      other: "Siriako libera"
+    SZL: 
+      one: "Swaziko lilangeni"
+      other: "Swaziko lilangeni"
+    THB: 
+      one: "Thailandiako baht"
+      other: "Thailandiako baht"
+      symbol: ฿
+    TJS: 
+      one: "Tajikistango somoni"
+      other: "Tajikistango somoni"
+    TMT: 
+      one: "Turkmenistango manat"
+      other: "Turkmenistango manat"
+    TND: 
+      one: "Tunisiako dinar"
+      other: "Tunisiako dinar"
+    TOP: 
+      one: "Tongako Paʻanga"
+      other: "Tongako Paʻanga"
+    TRY: 
+      one: "Turkiako lira"
+      other: "Turkiako lira"
+      symbol: ₺
+    TTD: 
+      one: "Trinidadeko eta Tobagoko dolar"
+      other: "Trinidadeko eta Tobagoko dolar"
+      symbol: $
+    TWD: 
+      one: "Taiwango dolar berri"
+      other: "Taiwango dolar berri"
+      symbol: NT$
+    TZS: 
+      one: "Tanzaniako txelin"
+      other: "Tanzaniako txelin"
+    UAH: 
+      one: "Ukrainako hryvnia"
+      other: "Ukrainako hryvnia"
+      symbol: ₴
+    UGX: 
+      one: "Ugandako txelin"
+      other: "Ugandako txelin"
+    USD: 
+      one: "AEBetako dolar"
+      other: "AEBetako dolar"
+      symbol: US$
+    UYU: 
+      one: "Uruguaiko peso"
+      other: "Uruguaiko peso"
+      symbol: $
+    UZS: 
+      one: "Uzbekistango som"
+      other: "Uzbekistango som"
+    VEF: 
+      one: "Venezuelako bolivar"
+      other: "Venezuelako bolivar"
+    VND: 
+      one: "Vietnameko dong"
+      other: "Vietnameko dong"
+      symbol: ₫
+    VUV: 
+      one: "Vanuatuko vatu"
+      other: "Vanuatuko vatu"
+    WST: 
+      one: "Samoko tala"
+      other: "Samoko tala"
+    XAF: 
+      one: "Afrika erdialdeko franko BEAC"
+      other: "Afrika erdialdeko franko BEAC"
+      symbol: FCFA
+    XCD: 
+      one: "Karibe ekialdeko dolar"
+      other: "Karibe ekialdeko dolar"
+      symbol: EC$
+    XOF: 
+      one: "Afrika ekialdeko franko BCEAO"
+      other: "Afrika ekialdeko franko BCEAO"
+      symbol: CFA
+    XPF: 
+      one: "CFP franko"
+      other: "CFP franko"
+      symbol: CFPF
+    XXX: 
+      one: "(moneta ezezaguna)"
+      other: "(moneta ezezaguna)"
+    YER: 
+      one: "Yemengo rial"
+      other: "Yemengo rial"
+    ZAR: 
+      one: "Hegoafrikako randa"
+      other: "Hegoafrikako randa"
+    ZMK: 
+      one: "Zambiako kwacha (1968–2012)"
+    ZMW: 
+      one: "Zambiako kwacha"
+      other: "Zambiako kwacha"

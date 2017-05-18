@@ -1,0 +1,158 @@
+gd: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        duration-day: 
+          few: "{0} làithean"
+          one: "{0} latha"
+          other: "{0} latha"
+          two: "{0} latha"
+        duration-hour: 
+          few: "{0} uairean a thìde"
+          one: "{0} uair a thìde"
+          other: "{0} uair a thìde"
+          two: "{0} uair a thìde"
+        duration-minute: 
+          few: "{0} mionaidean"
+          one: "{0} mhionaid"
+          other: "{0} mionaid"
+          two: "{0} mhionaid"
+        duration-month: 
+          few: "{0} mìosan"
+          one: "{0} mhìos"
+          other: "{0} mìos"
+          two: "{0} mhìosan"
+        duration-second: 
+          few: "{0} diogan"
+          one: "{0} diog"
+          other: "{0} diog"
+          two: "{0} dhiog"
+        duration-week: 
+          few: "{0} seachdainean"
+          one: "{0} seachdain"
+          other: "{0} seachdain"
+          two: "{0} sheachdain"
+        duration-year: 
+          few: "{0} bliadhna"
+          one: "{0} bhliadhna"
+          other: "{0} bliadhna"
+          two: "{0} bhliadhna"
+      narrow: {}
+      short: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} ac"
+        area-hectare: 
+          other: "{0} ha"
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} mi²"
+        duration-day: 
+          few: "{0} làithean"
+          one: "{0} latha"
+          other: "{0} latha"
+          two: "{0} latha"
+        duration-hour: 
+          few: "{0} uair"
+          one: "{0} uair"
+          other: "{0} uair"
+          two: "{0} uair"
+        duration-millisecond: 
+          other: "{0} ms"
+        duration-minute: 
+          few: "{0} mion"
+          one: "{0} mhion"
+          other: "{0} mion"
+          two: "{0} mhion"
+        duration-month: 
+          few: "{0} mìos"
+          one: "{0} mhìos"
+          other: "{0} mìos"
+          two: "{0} mhìos"
+        duration-second: 
+          few: "{0} d"
+          one: "{0} d"
+          other: "{0} d"
+          two: "{0} dh"
+        duration-week: 
+          few: "{0} s"
+          one: "{0} s"
+          other: "{0} s"
+          two: "{0} sh"
+        duration-year: 
+          few: "{0} bl"
+          one: "{0} bhl"
+          other: "{0} bl"
+          two: "{0} bhl"
+        length-centimeter: 
+          other: "{0} cm"
+        length-foot: 
+          other: "{0} ft"
+        length-inch: 
+          other: "{0} in"
+        length-kilometer: 
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} ly"
+        length-meter: 
+          other: "{0} m"
+        length-mile: 
+          other: "{0} mi"
+        length-millimeter: 
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          other: "{0} yd"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} oz"
+        mass-pound: 
+          other: "{0} lb"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} mi/h"
+        temperature-celsius: 
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} mi³"
+        volume-liter: 
+          other: "{0} l"

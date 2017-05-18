@@ -1,0 +1,281 @@
+ka: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "y G"
+        GyMMM: "MMM, y G"
+        GyMMMEd: "E, d MMM, y G"
+        GyMMMd: "d MMM, y G"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, d.M"
+        MMM: LLL
+        MMMEd: "E, d MMM"
+        MMMd: "d MMM"
+        Md: d.M
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M.y
+        yMEd: "E, d.M.y"
+        yMMM: "MMM, y"
+        yMMMEd: "E, d MMM, y"
+        yMMMd: "d MMM, y"
+        yMd: d.M.y
+        yQQQ: "QQQ, y"
+        yQQQQ: "QQQQ, y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: პარ
+            mon: ორშ
+            sat: შაბ
+            sun: კვი
+            thu: ხუთ
+            tue: სამ
+            wed: ოთხ
+          narrow: 
+            fri: პ
+            mon: ო
+            sat: შ
+            sun: კ
+            thu: ხ
+            tue: ს
+            wed: ო
+          short: 
+            fri: პრ
+            mon: ორ
+            sat: შბ
+            sun: კვ
+            thu: ხთ
+            tue: სმ
+            wed: ოთ
+          wide: 
+            fri: პარასკევი
+            mon: ორშაბათი
+            sat: შაბათი
+            sun: კვირა
+            thu: ხუთშაბათი
+            tue: სამშაბათი
+            wed: ოთხშაბათი
+        stand-alone: 
+          abbreviated: 
+            fri: პარ
+            mon: ორშ
+            sat: შაბ
+            sun: კვი
+            thu: ხუთ
+            tue: სამ
+            wed: ოთხ
+          narrow: 
+            fri: პ
+            mon: ო
+            sat: შ
+            sun: კ
+            thu: ხ
+            tue: ს
+            wed: ო
+          short: 
+            fri: პრ
+            mon: ორ
+            sat: შბ
+            sun: კვ
+            thu: ხთ
+            tue: სმ
+            wed: ოთ
+          wide: 
+            fri: პარასკევი
+            mon: ორშაბათი
+            sat: შაბათი
+            sun: კვირა
+            thu: ხუთშაბათი
+            tue: სამშაბათი
+            wed: ოთხშაბათი
+      eras: 
+        abbr: 
+          0: "ძვ. წ."
+          1: "ახ. წ."
+        name: 
+          0: "ძველი წელთაღრიცხვით"
+          1: "ახალი წელთაღრიცხვით"
+        narrow: 
+          0: ""
+      fields: 
+        day: დღე
+        dayperiod: "დღის ნახევარი"
+        era: ეპოქა
+        hour: საათი
+        minute: წუთი
+        month: თვე
+        second: წამი
+        week: კვირა
+        weekday: "კვირის დღე"
+        year: წელი
+        zone: "დროის სარტყელი"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, dd MMMM, y"
+          long: 
+            pattern: "d MMMM, y"
+          medium: 
+            pattern: "d MMM, y"
+          short: 
+            pattern: dd.MM.yy
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}}, {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}}, {{time}}"
+        time: 
+          full: 
+            pattern: "HH:mm:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: იან
+            10: ოქტ
+            11: ნოე
+            12: დეკ
+            2: თებ
+            3: მარ
+            4: აპრ
+            5: მაი
+            6: ივნ
+            7: ივლ
+            8: აგვ
+            9: სექ
+          narrow: 
+            1: ი
+            10: ო
+            11: ნ
+            12: დ
+            2: თ
+            3: მ
+            4: ა
+            5: მ
+            6: ი
+            7: ი
+            8: ა
+            9: ს
+          wide: 
+            1: იანვარი
+            10: ოქტომბერი
+            11: ნოემბერი
+            12: დეკემბერი
+            2: თებერვალი
+            3: მარტი
+            4: აპრილი
+            5: მაისი
+            6: ივნისი
+            7: ივლისი
+            8: აგვისტო
+            9: სექტემბერი
+        stand-alone: 
+          abbreviated: 
+            1: იან
+            10: ოქტ
+            11: ნოე
+            12: დეკ
+            2: თებ
+            3: მარ
+            4: აპრ
+            5: მაი
+            6: ივნ
+            7: ივლ
+            8: აგვ
+            9: სექ
+          narrow: 
+            1: ი
+            10: ო
+            11: ნ
+            12: დ
+            2: თ
+            3: მ
+            4: ა
+            5: მ
+            6: ი
+            7: ი
+            8: ა
+            9: ს
+          wide: 
+            1: იანვარი
+            10: ოქტომბერი
+            11: ნოემბერი
+            12: დეკემბერი
+            2: თებერვალი
+            3: მარტი
+            4: აპრილი
+            5: მაისი
+            6: ივნისი
+            7: ივლისი
+            8: აგვისტო
+            9: სექტემბერი
+      periods: 
+        format: 
+          abbreviated: 
+            am: AM
+            noon: შუადღე
+            pm: PM
+          narrow: 
+            am: AM
+            noon: შუადღე
+            pm: PM
+          wide: 
+            am: დილის
+            noon: შუადღე
+            pm: საღამოს
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: "I კვ."
+            2: "II კვ."
+            3: "III კვ."
+            4: "IV კვ."
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "I კვარტალი"
+            2: "II კვარტალი"
+            3: "III კვარტალი"
+            4: "IV კვარტალი"
+        stand-alone: 
+          abbreviated: 
+            1: "I კვ."
+            2: "II კვ."
+            3: "III კვ."
+            4: "IV კვ."
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "I კვარტალი"
+            2: "II კვარტალი"
+            3: "III კვარტალი"
+            4: "IV კვარტალი"

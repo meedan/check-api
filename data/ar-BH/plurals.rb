@@ -1,0 +1,1 @@
+{ :'ar_BH' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

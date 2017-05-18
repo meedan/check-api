@@ -1,0 +1,1 @@
+{ :'be_BY' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

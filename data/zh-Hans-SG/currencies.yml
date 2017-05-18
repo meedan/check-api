@@ -1,0 +1,133 @@
+zh-Hans-SG: 
+  currencies: 
+    ANG: 
+      one: 荷属安的列斯盾
+      other: 荷兰安的列斯盾
+    ARS: 
+      symbol: $
+    AUD: 
+      symbol: A$
+    AWG: 
+      one: 阿鲁巴弗罗林
+      other: 阿鲁巴弗罗林
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      symbol: CA$
+    CLP: 
+      symbol: $
+    CNY: 
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    DOP: 
+      symbol: $
+    ESP: 
+      symbol: ₧
+    EUR: 
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      symbol: £
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      symbol: JP¥
+    KHR: 
+      symbol: ៛
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      one: 哈萨克斯坦腾格
+      other: 哈萨克斯坦腾格
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      symbol: $
+    MNT: 
+      symbol: ₮
+    MXN: 
+      symbol: MX$
+    NAD: 
+      symbol: $
+    NGN: 
+      symbol: ₦
+    NIO: 
+      one: 尼加拉瓜科多巴
+      other: 尼加拉瓜科多巴
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    SBD: 
+      symbol: $
+    SGD: 
+      symbol: $
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    THB: 
+      symbol: ฿
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    UAH: 
+      symbol: ₴
+    USD: 
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      symbol: FCFA
+    XAG: 
+      one: 白银
+    XCD: 
+      symbol: EC$
+    XOF: 
+      symbol: CFA
+    XPF: 
+      symbol: CFPF

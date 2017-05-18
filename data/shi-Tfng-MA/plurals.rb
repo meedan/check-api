@@ -1,0 +1,1 @@
+{ :'shi_Tfng_MA' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

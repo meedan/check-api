@@ -1,0 +1,194 @@
+tzm: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Asm
+            mon: Ayn
+            sat: Asḍ
+            sun: Asa
+            thu: Akw
+            tue: Asn
+            wed: Akr
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Asimwas
+            mon: Aynas
+            sat: Asiḍyas
+            sun: Asamas
+            thu: Akwas
+            tue: Asinas
+            wed: Akras
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: A
+            mon: A
+            sat: A
+            sun: A
+            thu: A
+            tue: A
+            wed: A
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: ZƐ
+          1: ḌƐ
+        name: 
+          0: "Zdat Ɛisa (TAƔ)"
+          1: "Ḍeffir Ɛisa (TAƔ)"
+        narrow: 
+          0: ""
+      fields: 
+        day: Ass
+        dayperiod: "Zdat azal/Deffir azal"
+        era: Tallit
+        hour: Tasragt
+        minute: Tusdat
+        month: Ayur
+        second: Tusnat
+        week: Imalass
+        weekday: "Ass n Imalass"
+        year: Asseggas
+        zone: "Aseglem asergan"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: Yen
+            10: Kṭu
+            11: Nwa
+            12: Duj
+            2: Yeb
+            3: Mar
+            4: Ibr
+            5: May
+            6: Yun
+            7: Yul
+            8: Ɣuc
+            9: Cut
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: Yennayer
+            10: Kṭuber
+            11: Nwanbir
+            12: Dujanbir
+            2: Yebrayer
+            3: Mars
+            4: Ibrir
+            5: Mayyu
+            6: Yunyu
+            7: Yulyuz
+            8: Ɣuct
+            9: Cutanbir
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: Y
+            10: K
+            11: N
+            12: D
+            2: Y
+            3: M
+            4: I
+            5: M
+            6: Y
+            7: Y
+            8: Ɣ
+            9: C
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: "Zdat azal"
+            pm: "Ḍeffir aza"
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: IA1
+            2: IA2
+            3: IA3
+            4: IA4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "Imir adamsan 1"
+            2: "Imir adamsan 2"
+            3: "Imir adamsan 3"
+            4: "Imir adamsan 4"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

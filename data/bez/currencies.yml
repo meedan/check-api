@@ -1,0 +1,218 @@
+bez: 
+  currencies: 
+    AED: 
+      one: "Lupila lwa Hufalme dza Huhihalabu"
+    AOA: 
+      one: "Lupila lwa Huangola"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Lupila lwa Huaustlalia"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Lupila lwa Hubahareni"
+    BIF: 
+      one: "Lupila lwa Huburundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Lupila lwa Hubotswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Lupila lwa Hukanada"
+      symbol: CA$
+    CDF: 
+      one: "Lupila lwa Hukongo"
+    CHF: 
+      one: "Lupila lwa Huuswisi"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Lupila lwa Huchina"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Lupila lwa Hukepuvede"
+    DJF: 
+      one: "Lupila lwa Hujibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Lupila lwa Hualjelia"
+    EGP: 
+      one: "Lupila lwa Humisri"
+    ERN: 
+      one: "Lupila lwa Hueritrea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Lupila lwa Huuhabeshi"
+    EUR: 
+      one: "Lupila lwa Yulo"
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Lupila lwa Huuingereza"
+      symbol: £
+    GHC: 
+      one: "Lupila lwa Hughana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Lupila lwa Hugambia"
+    GNS: 
+      one: "Lupila lwa Hujine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Lupila lwa Huindia"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Lupila lwa Hijapani"
+      symbol: JP¥
+    KES: 
+      one: "Shilingi ya Hukenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Lupila lwa Hukomoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Lupila lwa Hulibelia"
+      symbol: $
+    LSL: 
+      one: "Lupila lwa Hulesoto"
+    LYD: 
+      one: "Lupila lwa Hulibya"
+    MAD: 
+      one: "Lupila lwa Humoloko"
+    MGA: 
+      one: "Lupila lwa Hubukini"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Lupila lwa Humolitania"
+    MUR: 
+      one: "Lupila lwa Humolisi"
+    MWK: 
+      one: "Lupila lwa Humalawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Lupila lwa Humsumbiji"
+    NAD: 
+      one: "Lupila lwa Hunamibia"
+      symbol: $
+    NGN: 
+      one: "Lupila lwa Hunijelia"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Lupila lwa Hurwanda"
+    SAR: 
+      one: "Lupila lwa Husaudi"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Lupila lwa Hushelisheli"
+    SDG: 
+      one: "Lupila lwa Husudani"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Lupila lwa Husantahelena"
+    SLL: 
+      one: "Lupila lwa Lioni"
+    SOS: 
+      one: "Lupila lwa Husomalia"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Lupila lwa Husaotome na Huprinisipe"
+    SZL: 
+      one: "Lupila lwa Lilangeni"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Lupila lwa Hutunisia"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Shilingi ya Hutanzania"
+      symbol: TSh
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Shilingi ya Huuganda"
+    USD: 
+      one: "Lupila lwa Humalekani"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Lupila lwa CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Lupila lwa CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Lupila lwa Huafriaka ya Hukusini"
+    ZMK: 
+      one: "Lupila lwa Huzambia (1968–2012)"
+    ZMW: 
+      one: "Lupila lwa Huzambia"
+    ZWD: 
+      one: "Lupila lwa Huzimbabwe"

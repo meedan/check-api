@@ -639,4 +639,98 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media
     assert_kind_of CheckSearch, pm.check_search_project
   end
+
+  test "should have empty mt annotation" do
+    create_bot name: 'Alegre Bot'
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON structure')
+      at = create_annotation_type annotation_type: 'mt', label: 'Machine translation'
+      create_field_instance annotation_type_object: at, name: 'mt_translations', label: 'Machine translations', field_type_object: ft, optional: false
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p, quote: 'Test'
+      mt = pm.annotations.where(annotation_type: 'mt').last
+      assert_nil mt
+      p.settings = {:languages => ['ar']}; p.save!
+      pm = create_project_media project: p, quote: 'Test'
+      mt = pm.annotations.where(annotation_type: 'mt').last
+      assert_not_nil mt
+    end
+  end
+
+  test "should update mt annotation" do
+    ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
+    at = create_annotation_type annotation_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
+
+    ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON structure')
+    at = create_annotation_type annotation_type: 'mt', label: 'Machine translation'
+    create_field_instance annotation_type_object: at, name: 'mt_translations', label: 'Machine translations', field_type_object: ft, optional: false
+
+    t = create_team
+    p = create_project team: t
+    p.settings = {:languages => ['ar', 'en']}; p.save!
+    text = 'Testing'
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      url = CONFIG['alegre_host'] + "/api/languages/identification?text=" + text
+      response = '{"type":"language","data": [["EN", 1]]}'
+      WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> CONFIG['alegre_token']}).to_return(body: response)
+      pm = create_project_media project: p, quote: text
+      pm2 = create_project_media project: p, quote: text
+      Sidekiq::Testing.inline! do
+        url = CONFIG['alegre_host'] + "/api/mt?from=en&to=ar&text=" + text
+        # Test with machine translation
+        response = '{"type":"mt","data": "testing -ar"}'
+        # Test handle raising an error
+        WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> 'in_valid_token'}).to_return(body: response)
+        pm.update_mt=1
+        mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
+        assert_equal 0, JSON.parse(mt_field.value).size
+        # Test with valid response
+        WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> CONFIG['alegre_token']}).to_return(body: response)
+        pm.update_mt=1
+        mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
+        assert_equal 1, JSON.parse(mt_field.value).size
+        # Test with type => error
+        response = '{"type":"error","data": {"message": "Language not supported"}}'
+        WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> CONFIG['alegre_token']}).to_return(body: response)
+        pm2.update_mt=1
+        mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm2.class.name, 'annotations.annotated_id' => pm2.id.to_s, field_type: 'json').first
+        assert_equal 0, JSON.parse(mt_field.value).size
+      end
+    end
+  end
+
+  test "should get dynamic annotation by type" do
+    create_annotation_type annotation_type: 'foo'
+    create_annotation_type annotation_type: 'bar'
+    pm = create_project_media
+    d1 = create_dynamic_annotation annotation_type: 'foo', annotated: pm
+    d2 = create_dynamic_annotation annotation_type: 'bar', annotated: pm
+    assert_equal d1, pm.get_dynamic_annotation('foo')
+    assert_equal d2, pm.get_dynamic_annotation('bar')
+  end
+
+  test "should set es data for media account" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    media_url = 'http://www.facebook.com/meedan/posts/123456'
+    author_url = 'http://facebook.com/123456'
+    author_normal_url = 'http://www.facebook.com/meedan'
+
+    data = { url: media_url, author_url: author_url, type: 'item' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+
+    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+
+    m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.account[0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar", "username"=>"username"}.sort
+  end
 end

@@ -1,0 +1,160 @@
+zh-Hant-HK: 
+  metazones: 
+    Azerbaijan: 
+      long: 
+        daylight: 亞塞拜疆夏令時間
+        generic: 亞塞拜疆時間
+        standard: 亞塞拜疆標準時間
+    Georgia: 
+      long: 
+        daylight: 格魯吉亞夏令時間
+        generic: 格魯吉亞時間
+        standard: 格魯吉亞標準時間
+    Maldives: 
+      long: 
+        standard: 馬爾代夫時間
+    Mauritius: 
+      long: 
+        daylight: 毛里求斯夏令時間
+        generic: 毛里求斯時間
+        standard: 毛里求斯標準時間
+    Solomon: 
+      long: 
+        standard: 所羅門群島時間
+  timezones: 
+    Africa/Abidjan: 
+      city: 阿比贊
+    Africa/Addis_Ababa: 
+      city: 亞的斯亞貝巴
+    Africa/Asmera: 
+      city: 阿斯馬拉
+    Africa/Dar_es_Salaam: 
+      city: 達累斯薩拉姆
+    Africa/Khartoum: 
+      city: 喀土木
+    Africa/Lagos: 
+      city: 拉各斯
+    Africa/Libreville: 
+      city: 利布維
+    Africa/Luanda: 
+      city: 盧安達
+    Africa/Lusaka: 
+      city: 盧薩卡
+    Africa/Malabo: 
+      city: 馬拉波
+    Africa/Maseru: 
+      city: 馬塞魯
+    Africa/Mogadishu: 
+      city: 摩加迪沙
+    Africa/Windhoek: 
+      city: 溫特和克
+    America/Cayenne: 
+      city: 法屬蓋亞那
+    America/Coral_Harbour: 
+      city: Atikokan
+    America/Costa_Rica: 
+      city: 哥斯達黎加
+    America/Godthab: 
+      city: Nuuk
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: 印第安那州彼得堡
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: 印第安那州威納馬克
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/North_Dakota/Beulah: 
+      city: 比尤拉，北達科他州
+    America/North_Dakota/Center: 
+      city: 北達科他州申特城
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: 聖巴夫林米
+    America/St_Johns: 
+      city: "St. John’s"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: 聖文森特
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Asia/Bishkek: 
+      city: 比斯凱克
+    Asia/Calcutta: 
+      city: Kolkata
+    Asia/Dushanbe: 
+      city: 杜尚別
+    Asia/Karachi: 
+      city: 卡拉奇
+    Asia/Katmandu: 
+      city: Kathmandu
+    Asia/Muscat: 
+      city: 馬斯喀特
+    Asia/Nicosia: 
+      city: 尼科西亞
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Asia/Yerevan: 
+      city: 耶烈萬
+    Atlantic/Faeroe: 
+      city: Faroe
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Atlantic/Stanley: 
+      city: 史坦雷
+    Etc/Unknown: 
+      city: Unknown
+    Europe/Belgrade: 
+      city: 貝爾格萊德
+    Europe/Bratislava: 
+      city: 伯拉第斯拉瓦
+    Europe/Chisinau: 
+      city: 基希訥烏
+    Europe/Jersey: 
+      city: 澤西
+    Europe/Ljubljana: 
+      city: 盧布爾雅那
+    Europe/Mariehamn: 
+      city: 馬里漢姆
+    Europe/Podgorica: 
+      city: 波德戈里察
+    Europe/Sarajevo: 
+      city: 薩拉熱窩
+    Europe/Skopje: 
+      city: 斯科普里
+    Europe/Sofia: 
+      city: 索非亞
+    Indian/Comoro: 
+      city: 科摩羅
+    Indian/Kerguelen: 
+      city: 凱爾蓋朗
+    Indian/Mahe: 
+      city: 馬希
+    Pacific/Guadalcanal: 
+      city: 瓜達爾卡納爾
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Port_Moresby: 
+      city: 莫爾斯比港
+    Pacific/Tongatapu: 
+      city: 湯加塔布
+    Pacific/Truk: 
+      city: Chuuk

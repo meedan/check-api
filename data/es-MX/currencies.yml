@@ -1,0 +1,678 @@
+es-MX: 
+  currencies: 
+    AED: 
+      one: "dírham de los Emiratos Árabes Unidos"
+      other: "dírhams de los Emiratos Árabes Unidos"
+      symbol: AED
+    AFN: 
+      one: "afgani afgano"
+      other: "afganis afganos"
+    ALL: 
+      one: "lek albanés"
+      other: "lekë albaneses"
+      symbol: ALL
+    AMD: 
+      one: "dram armenio"
+      other: "dram armenios"
+      symbol: AMD
+    ANG: 
+      one: "florín de las Antillas Neerlandesas"
+      other: "florines de las Antillas Neerlandesas"
+      symbol: Naf
+    AOA: 
+      one: "kwanza angoleño"
+      other: "kwanzas angoleños"
+      symbol: Kz
+    ARA: 
+      one: "austral argentino"
+      other: "australes argentinos"
+      symbol: ARA
+    ARP: 
+      one: "peso argentino (ARP)"
+      other: "pesos argentinos (ARP)"
+    ARS: 
+      one: "peso argentino"
+      other: "pesos argentinos"
+      symbol: $
+    AUD: 
+      one: "dólar australiano"
+      other: "dólares australianos"
+      symbol: A$
+    AWG: 
+      symbol: Afl.
+    AZN: 
+      one: "manat azerí"
+      other: "manat azeríes"
+      symbol: AZN
+    BAM: 
+      one: "marco convertible de Bosnia-Herzegovina"
+      other: "marcos convertibles de Bosnia-Herzegovina"
+      symbol: BAM
+    BBD: 
+      symbol: BBD
+    BDT: 
+      one: "taka de Bangladesh"
+      other: "taka de Bangladesh"
+      symbol: BDT
+    BGN: 
+      one: "lev búlgaro"
+      other: "levas búlgaras"
+      symbol: BGN
+    BHD: 
+      one: "dinar bahreiní"
+      other: "dinares bahreiníes"
+      symbol: BHD
+    BIF: 
+      symbol: BIF
+    BMD: 
+      one: "dólar de Bermudas"
+      other: "dólares de Bermudas"
+      symbol: BMD
+    BND: 
+      one: "dólar de Brunéi"
+      other: "dólares de Brunéi"
+      symbol: BND
+    BOB: 
+      one: boliviano
+      other: bolivianos
+      symbol: BOB
+    BOL: 
+      symbol: BOL
+    BOP: 
+      one: "peso boliviano"
+      other: "pesos bolivianos"
+      symbol: BOP
+    BOV: 
+      one: "MVDOL boliviano"
+      other: "MVDOL bolivianos"
+      symbol: BOV
+    BRB: 
+      symbol: BRB
+    BRC: 
+      one: "cruzado brasileño"
+      other: "cruzados brasileños"
+      symbol: BRC
+    BRE: 
+      symbol: BRE
+    BRL: 
+      one: "real brasileño"
+      other: "reales brasileños"
+      symbol: BRL
+    BRN: 
+      one: "nuevo cruzado brasileño"
+      other: "nuevos cruzados brasileños"
+      symbol: BRN
+    BRR: 
+      symbol: BRR
+    BRZ: 
+      symbol: BRZ
+    BSD: 
+      symbol: BSD
+    BTN: 
+      one: "ngultrum butanés"
+      other: "ngultrum butaneses"
+      symbol: BTN
+    BWP: 
+      one: "pula botsuano"
+      symbol: BWP
+    BYR: 
+      one: "rublo bielorruso"
+      other: "rublos bielorrusos"
+      symbol: BYR
+    BZD: 
+      symbol: BZD
+    CAD: 
+      one: "dólar canadiense"
+      other: "dólares canadienses"
+      symbol: CAD
+    CDF: 
+      one: "franco congoleño"
+      other: "francos congoleños"
+      symbol: CDF
+    CHF: 
+      one: "franco suizo"
+      other: "francos suizos"
+      symbol: CHF
+    CLE: 
+      symbol: CLE
+    CLF: 
+      one: "unidad de fomento chilena"
+      other: "unidades de fomento chilenas"
+      symbol: CLF
+    CLP: 
+      one: "peso chileno"
+      other: "pesos chilenos"
+      symbol: CLP
+    CNY: 
+      one: "yuan chino"
+      other: "yuanes chinos"
+      symbol: CN¥
+    COP: 
+      one: "peso colombiano"
+      other: "pesos colombianos"
+      symbol: COP
+    COU: 
+      one: "unidad de valor real colombiana"
+      symbol: COU
+    CRC: 
+      one: "colón costarricense"
+      other: "colones costarricenses"
+      symbol: CRC
+    CUC: 
+      one: "peso cubano convertible"
+      other: "pesos cubanos convertibles"
+      symbol: CUC
+    CUP: 
+      one: "peso cubano"
+      other: "pesos cubanos"
+      symbol: CUP
+    CVE: 
+      one: "escudo de Cabo Verde"
+      other: "escudos de Cabo Verde"
+      symbol: CVE
+    CZK: 
+      one: "corona checa"
+      other: "coronas checas"
+      symbol: CZK
+    DJF: 
+      symbol: DJF
+    DKK: 
+      one: "corona danesa"
+      other: "coronas danesas"
+      symbol: DKK
+    DOP: 
+      one: "peso dominicano"
+      other: "pesos dominicanos"
+      symbol: DOP
+    DZD: 
+      one: "dinar argelino"
+      other: "dinares argelinos"
+      symbol: DZD
+    ECS: 
+      one: "sucre ecuatoriano"
+      other: "sucres ecuatorianos"
+      symbol: ECS
+    ECV: 
+      one: "unidad de valor constante (UVC) ecuatoriana"
+      other: "unidades de valor constante (UVC) ecuatorianas"
+      symbol: ECV
+    EGP: 
+      one: "libra egipcia"
+      other: "libras egipcias"
+      symbol: EGP
+    ERN: 
+      one: "nakfa eritreo"
+      other: "nakfas eritreos"
+      symbol: ERN
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "birr etíope"
+      other: "birrs etíopes"
+      symbol: ETB
+    EUR: 
+      one: euro
+      other: euros
+      symbol: EUR
+    FJD: 
+      symbol: FJD
+    FKP: 
+      symbol: FKP
+    GBP: 
+      one: "libra esterlina británica"
+      other: "libras esterlinas británicas"
+      symbol: GBP
+    GEL: 
+      one: "lari georgiano"
+      other: "laris georgianos"
+      symbol: GEL
+    GHS: 
+      one: "cedi ghanés"
+      other: "cedis ghaneses"
+      symbol: GHS
+    GIP: 
+      one: "libra gibraltareña"
+      other: "libras gibraltareñas"
+      symbol: GIP
+    GMD: 
+      one: "dalasi gambiano"
+      other: "dalasis gambianos"
+      symbol: GMD
+    GNF: 
+      one: "franco guineano"
+      other: "francos guineanos"
+      symbol: GNF
+    GTQ: 
+      one: "quetzal guatemalteco"
+      other: "quetzales guatemaltecos"
+      symbol: GTQ
+    GYD: 
+      one: "dólar guyanés"
+      other: "dólares guyaneses"
+      symbol: GYD
+    HKD: 
+      one: "dólar de Hong Kong"
+      other: "dólares de Hong Kong"
+      symbol: HKD
+    HNL: 
+      one: "lempira hondureño"
+      other: "lempiras hondureños"
+      symbol: HNL
+    HRK: 
+      one: "kuna croata"
+      other: "kunas croatas"
+      symbol: HRK
+    HTG: 
+      one: "gourde haitiano"
+      other: "gourdes haitianos"
+      symbol: HTG
+    HUF: 
+      one: "florín húngaro"
+      other: "florines húngaros"
+      symbol: HUF
+    IDR: 
+      one: "rupia indonesia"
+      other: "rupias indonesias"
+      symbol: IDR
+    ILS: 
+      symbol: ILS
+    INR: 
+      one: "rupia india"
+      other: "rupias indias"
+      symbol: INR
+    IQD: 
+      one: "dinar iraquí"
+      other: "dinares iraquíes"
+      symbol: IQD
+    IRR: 
+      one: "rial iraní"
+      other: "riales iraníes"
+      symbol: IRR
+    ISK: 
+      one: "corona islandesa"
+      other: "coronas islandesas"
+      symbol: ISK
+    JMD: 
+      symbol: JMD
+    JOD: 
+      one: "dinar jordano"
+      other: "dinares jordanos"
+      symbol: JOD
+    JPY: 
+      one: "yen japonés"
+      other: "yenes japoneses"
+      symbol: JPY
+    KES: 
+      symbol: KES
+    KGS: 
+      one: "som kirguís"
+      other: "soms kirguises"
+      symbol: KGS
+    KHR: 
+      one: "riel camboyano"
+      other: "rieles camboyanos"
+      symbol: KHR
+    KMF: 
+      one: "franco comorense"
+      other: "francos comorenses"
+      symbol: KMF
+    KPW: 
+      one: "won norcoreano"
+      other: "wons norcoreanos"
+      symbol: KPW
+    KRW: 
+      one: "won surcoreano"
+      other: "wons surcoreanos"
+      symbol: KRW
+    KWD: 
+      one: "dinar kuwaití"
+      other: "dinares kuwaitíes"
+      symbol: KWD
+    KYD: 
+      symbol: KYD
+    KZT: 
+      symbol: KZT
+    LAK: 
+      one: "kip laosiano"
+      other: "kips laosianos"
+      symbol: LAK
+    LBP: 
+      one: "libra libanesa"
+      other: "libras libanesas"
+      symbol: LBP
+    LKR: 
+      one: "rupia de Sri Lanka"
+      other: "rupias de Sri Lanka"
+      symbol: LKR
+    LRD: 
+      one: "dólar liberiano"
+      other: "dólares liberianos"
+      symbol: LRD
+    LTL: 
+      one: "litas lituano"
+      symbol: LTL
+    LVL: 
+      one: "lats letón"
+      other: "lats letones"
+      symbol: LVL
+    LYD: 
+      one: "dinar libio"
+      other: "dinares libios"
+      symbol: LYD
+    MAD: 
+      one: "dírham marroquí"
+      other: "dírhams marroquíes"
+      symbol: MAD
+    MDL: 
+      one: "leu moldavo"
+      other: "leus moldavos"
+      symbol: MDL
+    MGA: 
+      one: "ariary malgache"
+      other: "ariarys malgaches"
+      symbol: MGA
+    MKD: 
+      one: "dinar macedonio"
+      other: "dinares macedonios"
+      symbol: MKD
+    MMK: 
+      one: "kyat de Myanmar"
+      other: "kyats de Myanmar"
+      symbol: MMK
+    MNT: 
+      one: "tugrik mongol"
+      other: "tugriks mongoles"
+      symbol: MNT
+    MOP: 
+      one: "pataca de Macao"
+      other: "patacas de Macao"
+      symbol: MOP
+    MRO: 
+      one: "ouguiya mauritano"
+      other: "ouguiyas mauritanos"
+      symbol: MRO
+    MUR: 
+      one: "rupia mauriciana"
+      other: "rupias mauricianas"
+      symbol: MUR
+    MVR: 
+      one: "rufiyaa de Maldivas"
+      other: "rufiyaas de Maldivas"
+      symbol: MVR
+    MWK: 
+      symbol: MWK
+    MXN: 
+      one: "peso mexicano"
+      other: "pesos mexicanos"
+      symbol: $
+    MXP: 
+      one: "peso de plata mexicano (MXP)"
+      other: "pesos de plata mexicanos (MXP)"
+      symbol: MXP
+    MYR: 
+      symbol: MYR
+    MZN: 
+      one: "metical mozambiqueño"
+      other: "meticales mozambiqueños"
+      symbol: MZN
+    NAD: 
+      symbol: NAD
+    NGN: 
+      one: "naira nigeriano"
+      other: "nairas nigerianos"
+      symbol: NGN
+    NIC: 
+      one: "córdoba nicaragüense (1988–1991)"
+      other: "córdobas nicaragüenses (1988–1991)"
+      symbol: NIC
+    NIO: 
+      one: "córdoba nicaragüense"
+      other: "córdobas nicaragüenses"
+      symbol: NIO
+    NOK: 
+      one: "corona noruega"
+      other: "coronas noruegas"
+      symbol: NOK
+    NPR: 
+      symbol: NPR
+    NZD: 
+      one: "dólar neozelandés"
+      other: "dólares neozelandeses"
+      symbol: NZD
+    OMR: 
+      one: "rial omaní"
+      other: "riales omaníes"
+      symbol: OMR
+    PAB: 
+      one: "balboa panameño"
+      other: "balboas panameños"
+      symbol: PAB
+    PEI: 
+      one: "inti peruano"
+      other: "intis peruanos"
+      symbol: PEI
+    PEN: 
+      one: "nuevo sol peruano"
+      other: "nuevos soles peruanos"
+      symbol: PEN
+    PES: 
+      one: "sol peruano"
+      other: "soles peruanos"
+      symbol: PES
+    PGK: 
+      one: "kina de Papúa Nueva Guinea"
+      other: "kinas de Papúa Nueva Guinea"
+      symbol: PGK
+    PHP: 
+      one: "peso filipino"
+      other: "pesos filipinos"
+      symbol: PHP
+    PKR: 
+      one: "rupia pakistaní"
+      other: "rupias pakistaníes"
+      symbol: PKR
+    PLN: 
+      one: "zloty polaco"
+      other: "zlotys polacos"
+      symbol: PLN
+    PYG: 
+      one: "guaraní paraguayo"
+      other: "guaraníes paraguayos"
+      symbol: PYG
+    QAR: 
+      one: "riyal de Qatar"
+      other: "riyales de Qatar"
+      symbol: QAR
+    RON: 
+      one: "leu rumano"
+      other: "lei rumanos"
+      symbol: RON
+    RSD: 
+      one: "dinar serbio"
+      other: "dinares serbios"
+      symbol: RSD
+    RUB: 
+      one: "rublo ruso"
+      other: "rublos rusos"
+      symbol: RUB
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "franco ruandés"
+      other: "francos ruandeses"
+      symbol: RWF
+    SAR: 
+      one: "riyal saudí"
+      other: "riyales saudíes"
+      symbol: SAR
+    SBD: 
+      one: "dólar de las Islas Salomón"
+      other: "dólares de las Islas Salomón"
+      symbol: SBD
+    SCR: 
+      one: "rupia de Seychelles"
+      other: "rupias de Seychelles"
+      symbol: SCR
+    SDG: 
+      one: "libra sudanesa"
+      other: "libras sudanesas"
+      symbol: SDG
+    SEK: 
+      one: "corona sueca"
+      other: "coronas suecas"
+      symbol: SEK
+    SGD: 
+      one: "dólar singapurense"
+      other: "dólares singapurenses"
+      symbol: SGD
+    SHP: 
+      one: "libra de Santa Elena"
+      other: "libras de Santa Elena"
+      symbol: SHP
+    SLL: 
+      one: "leone de Sierra Leona"
+      other: "leones de Sierra Leona"
+      symbol: SLL
+    SOS: 
+      one: "chelín somalí"
+      other: "chelines somalíes"
+      symbol: SOS
+    SRD: 
+      one: "dólar surinamés"
+      other: "dólares surinameses"
+      symbol: SRD
+    SRG: 
+      one: "florín surinamés"
+      symbol: SRG
+    SSP: 
+      one: "libra sursudanesa"
+      other: "libras sursudanesas"
+      symbol: SSP
+    STD: 
+      one: "dobra de Santo Tomé y Príncipe"
+      other: "dobras de Santo Tomé y Príncipe"
+      symbol: STD
+    SVC: 
+      one: "colón salvadoreño"
+      other: "colones salvadoreños"
+      symbol: SVC
+    SYP: 
+      one: "libra siria"
+      other: "libras sirias"
+      symbol: SYP
+    SZL: 
+      one: "lilangeni suazi"
+      other: "lilangenis suazis"
+      symbol: SZL
+    THB: 
+      one: "baht tailandés"
+      other: "bahts tailandeses"
+      symbol: THB
+    TJS: 
+      one: "somoni tayiko"
+      other: "somonis tayikos"
+      symbol: TJS
+    TMT: 
+      symbol: TMT
+    TND: 
+      one: "dinar tunecino"
+      other: "dinares tunecinos"
+      symbol: TND
+    TOP: 
+      one: "paʻanga tongano"
+      other: "paʻangas tonganos"
+      symbol: TOP
+    TRY: 
+      one: "lira turca"
+      other: "liras turcas"
+      symbol: TRY
+    TTD: 
+      one: "dólar de Trinidad y Tobago"
+      other: "dólares de Trinidad y Tobago"
+      symbol: TTD
+    TWD: 
+      one: "nuevo dólar taiwanés"
+      other: "nuevos dólares taiwaneses"
+      symbol: TWD
+    TZS: 
+      one: "chelín tanzano"
+      other: "chelines tanzanos"
+      symbol: TZS
+    UAH: 
+      one: "grivna ucraniana"
+      symbol: UAH
+    UGX: 
+      one: "chelín ugandés"
+      other: "chelines ugandeses"
+      symbol: UGX
+    USD: 
+      one: "dólar estadounidense"
+      other: "dólares estadounidenses"
+      symbol: USD
+    USN: 
+      one: "dólar estadounidense (día siguiente)"
+      other: "dólares estadounidenses (día siguiente)"
+      symbol: USN
+    USS: 
+      one: "dólar estadounidense (mismo día)"
+      other: "dólares estadounidenses (mismo día)"
+      symbol: USS
+    UYI: 
+      one: "peso uruguayo en unidades indexadas"
+      other: "pesos uruguayos en unidades indexadas"
+      symbol: UYI
+    UYU: 
+      one: "peso uruguayo"
+      other: "pesos uruguayos"
+      symbol: UYU
+    UZS: 
+      one: "som uzbeko"
+      other: "soms uzbekos"
+      symbol: UZS
+    VEF: 
+      one: "bolívar venezolano"
+      other: "bolívares venezolanos"
+      symbol: VEF
+    VND: 
+      one: "dong vietnamita"
+      other: "dongs vietnamitas"
+      symbol: VND
+    VUV: 
+      one: "vatu vanuatuense"
+      other: "vatus vanuatuenses"
+      symbol: VUV
+    WST: 
+      one: "tala samoano"
+      other: "talas samoanos"
+      symbol: WST
+    XAF: 
+      one: "franco CFA BEAC"
+      other: "francos CFA BEAC"
+      symbol: XAF
+    XCD: 
+      one: "dólar del Caribe Oriental"
+      other: "dólares del Caribe Oriental"
+      symbol: XCD
+    XOF: 
+      one: "franco CFA BCEAO"
+      other: "francos CFA BCEAO"
+      symbol: XOF
+    XPF: 
+      one: "franco CFP"
+      other: "francos CFP"
+      symbol: XPF
+    XXX: 
+      one: "moneda desconocida/no válida"
+      other: "monedas desconocidas/no válidas"
+    YER: 
+      one: "rial yemení"
+      other: "riales yemeníes"
+      symbol: YER
+    ZAR: 
+      one: "rand sudafricano"
+      other: "rands sudafricanos"
+      symbol: ZAR
+    ZMW: 
+      one: "kwacha zambiano"
+      other: "kwachas zambianos"
+      symbol: ZMK

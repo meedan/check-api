@@ -20,6 +20,7 @@ module Api
 
       def start_session_and_redirect
         auth = request.env['omniauth.auth']
+        session['check.' + auth.provider.to_s + '.authdata'] = { token: auth.credentials.token, secret: auth.credentials.secret }
         user = nil
 
         begin

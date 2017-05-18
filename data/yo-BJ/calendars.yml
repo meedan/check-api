@@ -1,0 +1,194 @@
+yo-BJ: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Ɛtì
+            mon: Ajé
+            sat: Àbámɛ́ta
+            sun: Àìkú
+            thu: Ɔjɔ́bɔ
+            tue: Ìsɛ́gun
+            wed: Ɔjɔ́rú
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: "Ɔjɔ́ Ɛtì"
+            mon: "Ɔjɔ́ Ajé"
+            sat: "Ɔjɔ́ Àbámɛ́ta"
+            sun: "Ɔjɔ́ Àìkú"
+            thu: Ɔjɔ́bɔ
+            tue: "Ɔjɔ́ Ìsɛ́gun"
+            wed: Ɔjɔ́rú
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: F
+            mon: M
+            sat: S
+            sun: S
+            thu: T
+            tue: T
+            wed: W
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: SK
+          1: LK
+        name: 
+          0: "Saju Kristi"
+          1: "Lehin Kristi"
+        narrow: 
+          0: ""
+      fields: 
+        day: Ɔjɔ́
+        dayperiod: Àárɔ̀/ɔ̀sán
+        era: Ìgbà
+        hour: wákàtí
+        minute: Ìsɛ́jú
+        month: Osù
+        second: "Ìsɛ́jú Ààyá"
+        week: Ɔ̀sè
+        weekday: "Ɔjɔ́ Ɔ̀sɛ̀"
+        year: Ɔdún
+        zone: "Ibi Àkókò Àgbáyé"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: Shɛ́rɛ́
+            10: Ɔ̀wàrà
+            11: Bélú
+            12: Ɔ̀pɛ̀
+            2: Èrèlè
+            3: Ɛrɛ̀nà
+            4: Ìgbé
+            5: Ɛ̀bibi
+            6: Òkúdu
+            7: Agɛmɔ
+            8: Ògún
+            9: Owewe
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: "Oshù Shɛ́rɛ́"
+            10: "Oshù Ɔ̀wàrà"
+            11: "Oshù Bélú"
+            12: "Oshù Ɔ̀pɛ̀"
+            2: "Oshù Èrèlè"
+            3: "Oshù Ɛrɛ̀nà"
+            4: "Oshù Ìgbé"
+            5: "Oshù Ɛ̀bibi"
+            6: "Oshù Òkúdu"
+            7: "Oshù Agɛmɔ"
+            8: "Oshù Ògún"
+            9: "Oshù Owewe"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: Àárɔ̀
+            pm: Ɔ̀sán
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: K1
+            2: K2
+            3: K3
+            4: K4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "Kɔ́tà Kínní"
+            2: "Kɔ́tà Kejì"
+            3: "Kɔ́à Keta"
+            4: "Kɔ́tà Kɛrin"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

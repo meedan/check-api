@@ -141,8 +141,9 @@ class DynamicTest < ActiveSupport::TestCase
     p = create_project team: t
     pm1 = create_project_media project: p 
     pm2 = create_project_media project: p
+    at = create_annotation_type
     User.current = u1
-    d1 = create_dynamic_annotation annotator: u3, annotated: pm1
+    d1 = create_dynamic_annotation annotator: u3, annotated: pm1, annotation_type: at.annotation_type
     assert_equal u1, d1.reload.annotator
     User.current = u2
     d2 = Dynamic.last
@@ -150,5 +151,51 @@ class DynamicTest < ActiveSupport::TestCase
     d2.save!
     assert_equal u2, d2.reload.annotator
     User.current = nil
+  end
+
+  test "should get field" do
+    at = create_annotation_type annotation_type: 'test'
+    ft = create_field_type
+    fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
+    a = create_dynamic_annotation annotation_type: 'test', set_fields: { test: 'Test' }.to_json
+    assert_kind_of DynamicAnnotation::Field, a.get_field('test')
+    assert_nil a.get_field('test2')
+  end
+
+  test "should get field value" do
+    at = create_annotation_type annotation_type: 'test'
+    ft = create_field_type
+    fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
+    a = create_dynamic_annotation annotation_type: 'test', set_fields: { test: 'Test' }.to_json
+    assert_equal 'Test', a.get_field_value('test')
+    assert_nil a.get_field_value('test2')
+  end
+
+  test "should have Slack message for translation status" do
+    DynamicAnnotation::AnnotationType.delete_all
+    at = create_annotation_type annotation_type: 'translation_status'
+    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
+    d = create_dynamic_annotation annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    d = Dynamic.find(d.id)
+    d.set_fields = { translation_status_status: 'ready' }.to_json
+    d.save!
+    u = create_user
+    t = create_team
+    with_current_user_and_team(u, t) do
+      assert_kind_of String, d.slack_message
+    end
+  end
+
+  test "should store previous translation status" do
+    DynamicAnnotation::AnnotationType.delete_all
+    at = create_annotation_type annotation_type: 'translation_status'
+    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
+    d = create_dynamic_annotation annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    assert_equal 'Pending', d.translation_status
+    d = Dynamic.find(d.id)
+    d.set_fields = { translation_status_status: 'translated' }.to_json
+    d.save!
+    assert_equal 'Pending', d.previous_translation_status
+    assert_equal 'Translated', d.translation_status
   end
 end

@@ -1,0 +1,61 @@
+ky: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.00 ¤"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 миӊ"
+            10000: "00 миӊ"
+            100000: "000 миӊ"
+            1000000: "0 миллион"
+            10000000: "00 миллион"
+            100000000: "000 миллион"
+            1000000000: "0 миллиард"
+            10000000000: "00 миллиард"
+            100000000000: "000 миллиард"
+            1000000000000: "0 триллион"
+            10000000000000: "00 триллион"
+            100000000000000: "000 триллион"
+          short: 
+            1000: 0 миӊ
+            10000: 00 миӊ
+            100000: 000 миӊ
+            1000000: 0 млн
+            10000000: 00 млн
+            100000000: 000 млн
+            1000000000: 0 млд
+            10000000000: 00 млд
+            100000000000: 000 млд
+            1000000000000: 0 трн
+            10000000000000: 00 трн
+            100000000000000: 000 трн
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: ","
+      exponential: E
+      group:  
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: сан эмес
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

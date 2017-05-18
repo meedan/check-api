@@ -1,0 +1,414 @@
+is: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: {}
+        angle-arc-second: {}
+        angle-degree: 
+          one: "{0} gráða"
+          other: "{0} gráður"
+        area-acre: 
+          one: "{0} ekra"
+          other: "{0} ekrur"
+        area-hectare: 
+          one: "{0} hektari"
+          other: "{0} hektarar"
+        area-square-foot: 
+          one: "{0} ferfet"
+          other: "{0} ferfet"
+        area-square-kilometer: 
+          one: "{0} ferkílómetri"
+          other: "{0} ferkílómetrar"
+        area-square-meter: 
+          one: "{0} fermetri"
+          other: "{0} fermetrar"
+        area-square-mile: 
+          one: "{0} fermíla"
+          other: "{0} fermílur"
+        duration-day: 
+          one: "{0} dagur"
+          other: "{0} dagar"
+        duration-hour: 
+          one: "{0} klukkustund"
+          other: "{0} klukkustundir"
+        duration-millisecond: 
+          one: "{0} millisekúnda"
+          other: "{0} millisekúndur"
+        duration-minute: 
+          one: "{0} mínúta"
+          other: "{0} mínútur"
+        duration-month: 
+          one: "{0} mánuður"
+          other: "{0} mánuðir"
+        duration-second: 
+          one: "{0} sekúnda"
+          other: "{0} sekúndur"
+        duration-week: 
+          one: "{0} vika"
+          other: "{0} vikur"
+        duration-year: 
+          one: "{0} ár"
+          other: "{0} ár"
+        length-centimeter: 
+          one: "{0} sentimetri"
+          other: "{0} sentimetrar"
+        length-foot: 
+          one: "{0} fet"
+          other: "{0} fet"
+        length-inch: 
+          one: "{0} tomma"
+          other: "{0} tommu"
+        length-kilometer: 
+          one: "{0} kílómetri"
+          other: "{0} kílómetrar"
+        length-light-year: 
+          one: "{0} ljósár"
+          other: "{0} ljósár"
+        length-meter: 
+          one: "{0} metri"
+          other: "{0} metrar"
+        length-mile: 
+          one: "{0} míla"
+          other: "{0} mílur"
+        length-millimeter: 
+          one: "{0} millimetri"
+          other: "{0} millimetrar"
+        length-picometer: 
+          one: "{0} píkómetri"
+          other: "{0} píkómetrar"
+        length-yard: 
+          one: "{0} yard"
+          other: "{0} yardar"
+        mass-gram: 
+          one: "{0} gramm"
+          other: "{0} grömm"
+        mass-kilogram: 
+          one: "{0} kílógramm"
+          other: "{0} kílógrömm"
+        mass-ounce: 
+          one: "{0} únsa"
+          other: "{0} únsur"
+        mass-pound: 
+          one: "{0} pund"
+          other: "{0} pund"
+        power-horsepower: 
+          one: "{0} hestafl"
+          other: "{0} hestöfl"
+        power-kilowatt: 
+          one: "{0} kílóvatt"
+          other: "{0} kílóvött"
+        power-watt: 
+          one: "{0} vatt"
+          other: "{0} vött"
+        pressure-hectopascal: 
+          one: "{0} hektópaskal"
+          other: "{0} hektópasköl"
+        pressure-inch-hg: 
+          one: "{0} tomma af kvikasilfri"
+          other: "{0} tommur af kvikvasilfri"
+        pressure-millibar: 
+          one: "{0} millibar"
+          other: "{0} millibör"
+        speed-kilometer-per-hour: 
+          one: "{0} kílómetri á klukkustund"
+          other: "{0} kílómetrar á klukkustund"
+        speed-meter-per-second: 
+          one: "{0} metri á sekúndu"
+          other: "{0} metrar á sekúndu"
+        speed-mile-per-hour: 
+          one: "{0} míla á klukkustund"
+          other: "{0} mílur á klukkustund"
+        temperature-celsius: 
+          one: "{0} gráða á Celsíus"
+          other: "{0} gráður á Celsíus"
+        temperature-fahrenheit: 
+          one: "{0} gráða á Fahrenheit"
+          other: "{0} gráður á Fahrenheit"
+        volume-cubic-kilometer: 
+          one: "{0} rúmkílómetri"
+          other: "{0} rúmkílómetrar"
+        volume-cubic-mile: 
+          one: "{0} rúmmíla"
+          other: "{0} rúmmílur"
+        volume-liter: 
+          one: "{0} lítri"
+          other: "{0} lítrar"
+      narrow: 
+        acceleration-g-force: 
+          one: "{0}G"
+          other: "{0}G"
+        angle-arc-minute: {}
+        angle-arc-second: {}
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} ek."
+          other: "{0} ek."
+        area-hectare: 
+          one: "{0} ha"
+          other: "{0} ha"
+        area-square-foot: 
+          one: "{0} ferfet"
+          other: "{0} ferfet"
+        area-square-kilometer: 
+          one: "{0} km²"
+          other: "{0} km²"
+        area-square-meter: 
+          one: "{0} m²"
+          other: "{0} m²"
+        area-square-mile: 
+          one: "{0}mí²"
+          other: "{0}mí²"
+        duration-day: 
+          one: "{0} d."
+          other: "{0} d."
+        duration-hour: 
+          one: "{0} klst."
+          other: "{0} klst."
+        duration-millisecond: 
+          one: "{0}ms"
+          other: "{0}ms"
+        duration-minute: 
+          one: "{0} mín."
+          other: "{0} mín."
+        duration-month: 
+          one: "{0} mán."
+          other: "{0} mán."
+        duration-second: 
+          one: "{0} sek."
+          other: "{0} sek."
+        duration-week: 
+          one: "{0} v."
+          other: "{0} v."
+        duration-year: 
+          one: "{0}á"
+          other: "{0}á"
+        length-centimeter: 
+          one: "{0} cm"
+          other: "{0} cm"
+        length-foot: 
+          one: "{0} fet"
+          other: "{0} fet"
+        length-inch: 
+          one: "{0}″"
+          other: "{0}″"
+        length-kilometer: 
+          one: "{0} km"
+          other: "{0} km"
+        length-light-year: 
+          one: "{0} lj."
+          other: "{0} lj."
+        length-meter: 
+          one: "{0} m"
+          other: "{0} m"
+        length-mile: 
+          one: "{0} mí"
+          other: "{0} mí"
+        length-millimeter: 
+          one: "{0} mm"
+          other: "{0} mm"
+        length-picometer: 
+          one: "{0} pm"
+          other: "{0} pm"
+        length-yard: 
+          one: "{0} yd"
+          other: "{0} yd"
+        mass-gram: 
+          one: "{0} g"
+          other: "{0} g"
+        mass-kilogram: 
+          one: "{0} kg"
+          other: "{0} kg"
+        mass-ounce: 
+          one: "{0} únsa"
+          other: "{0} únsur"
+        mass-pound: 
+          one: "{0} p."
+          other: "{0} p."
+        power-horsepower: 
+          one: "{0} ek"
+          other: "{0} ek"
+        power-kilowatt: 
+          one: "{0} kW"
+          other: "{0} kW"
+        power-watt: 
+          one: "{0} W"
+          other: "{0} W"
+        pressure-hectopascal: 
+          one: "{0} hPa"
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          one: "{0}\" Hg"
+          other: "{0}\" Hg"
+        pressure-millibar: 
+          one: "{0} mbar"
+          other: "{0} mbör"
+        speed-kilometer-per-hour: 
+          one: "{0} km/klst."
+          other: "{0} km/klst."
+        speed-meter-per-second: 
+          one: "{0} m/sek."
+          other: "{0} m/sek."
+        speed-mile-per-hour: 
+          one: "{0} míla/klst."
+          other: "{0} míl./klst."
+        temperature-celsius: 
+          one: "{0}°"
+          other: "{0}°"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "{0} km³"
+          other: "{0} km³"
+        volume-cubic-mile: 
+          one: "{0}mi³"
+          other: "{0}mi³"
+        volume-liter: 
+          one: "{0} l"
+          other: "{0} l"
+      short: 
+        acceleration-g-force: 
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          other: "{0}′"
+        angle-arc-second: 
+          other: "{0}″"
+        angle-degree: 
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          one: "{0} ek."
+          other: "{0} ek."
+        area-hectare: 
+          one: "{0} ha"
+          other: "{0} ha"
+        area-square-foot: 
+          one: "{0} ferfet"
+          other: "{0} ferfet"
+        area-square-kilometer: 
+          one: "{0} km²"
+          other: "{0} km²"
+        area-square-meter: 
+          one: "{0} m²"
+          other: "{0} m²"
+        area-square-mile: 
+          one: "{0} fermíla"
+          other: "{0} fermílur"
+        duration-day: 
+          one: "{0} dagur"
+          other: "{0} dagar"
+        duration-hour: 
+          one: "{0} klst."
+          other: "{0} klst."
+        duration-millisecond: 
+          one: "{0} ms"
+          other: "{0} ms"
+        duration-minute: 
+          one: "{0} mín."
+          other: "{0} mín."
+        duration-month: 
+          one: "{0} mán."
+          other: "{0} mán."
+        duration-second: 
+          one: "{0} sek."
+          other: "{0} sek."
+        duration-week: 
+          one: "{0} vika"
+          other: "{0} vikur"
+        duration-year: 
+          one: "{0} ár"
+          other: "{0} ár"
+        length-centimeter: 
+          one: "{0} cm"
+          other: "{0} cm"
+        length-foot: 
+          one: "{0} fet"
+          other: "{0} fet"
+        length-inch: 
+          one: "{0} t."
+          other: "{0} t."
+        length-kilometer: 
+          one: "{0} km"
+          other: "{0} km"
+        length-light-year: 
+          one: "{0} ljósár"
+          other: "{0} ljósár"
+        length-meter: 
+          one: "{0} m"
+          other: "{0} m"
+        length-mile: 
+          one: "{0} mí"
+          other: "{0} mí"
+        length-millimeter: 
+          one: "{0} mm"
+          other: "{0} mm"
+        length-picometer: 
+          one: "{0} pm"
+          other: "{0} pm"
+        length-yard: 
+          one: "{0} y."
+          other: "{0} y."
+        mass-gram: 
+          one: "{0} g"
+          other: "{0} g"
+        mass-kilogram: 
+          one: "{0} kg"
+          other: "{0} kg"
+        mass-ounce: 
+          one: "{0} únsa"
+          other: "{0} únsur"
+        mass-pound: 
+          one: "{0} p."
+          other: "{0} p."
+        power-horsepower: 
+          one: "{0} hestafl"
+          other: "{0} hestöfl"
+        power-kilowatt: 
+          one: "{0} kW"
+          other: "{0} kW"
+        power-watt: 
+          one: "{0} W"
+          other: "{0} W"
+        pressure-hectopascal: 
+          one: "{0} hPa"
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          one: "{0} tomma Hg"
+          other: "{0} tommur Hg"
+        pressure-millibar: 
+          one: "{0} mbar"
+          other: "{0} mbör"
+        speed-kilometer-per-hour: 
+          one: "{0} km/klst."
+          other: "{0} km/klst."
+        speed-meter-per-second: 
+          one: "{0} m/sek."
+          other: "{0} m/sek."
+        speed-mile-per-hour: 
+          one: "{0} míla/klst."
+          other: "{0} mílur/klst."
+        temperature-celsius: 
+          one: "{0}°C"
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          one: "{0} km³"
+          other: "{0} km³"
+        volume-cubic-mile: 
+          one: "{0} rúmmíla"
+          other: "{0} rúmmílur"
+        volume-liter: 
+          one: "{0} l"
+          other: "{0} l"

@@ -1,0 +1,61 @@
+ne: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: deva
+        patterns: 
+          default: "¤ #,##0.00"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: deva
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 हजार"
+            10000: "00 हजार"
+            100000: "0 लाख"
+            1000000: "0 करोड"
+            10000000: "00 करोड"
+            100000000: "000 करोड"
+            1000000000: "0 अर्ब"
+            10000000000: "00 अर्ब"
+            100000000000: "0 खरब"
+            1000000000000: 0T
+            10000000000000: "0 शंख"
+            100000000000000: "00 शंख"
+          short: 
+            1000: 0 हजार
+            10000: 00 हजार
+            100000: 0 लाख
+            1000000: 00 लाख
+            10000000: 0 करोड
+            100000000: 00 करोड
+            1000000000: 0 अरब
+            10000000000: 00 अरब
+            100000000000: 0 खरब
+            1000000000000: 00 खरब
+            10000000000000: 0 शंख
+            100000000000000: 00 शंख
+      percent: 
+        number_system: deva
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: deva
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: "."
+      exponential: E
+      group: ","
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

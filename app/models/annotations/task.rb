@@ -36,8 +36,9 @@ class Task < ActiveRecord::Base
   end
 
   def slack_message_on_create
+    note = self.description.blank? ? '' : I18n.t(:slack_create_task_note, {note: self.class.to_slack_quote(self.description)})
     params = self.slack_default_params.merge({
-      note: self.class.to_slack_quote(self.description)
+      create_note: note
     })
     I18n.t(:slack_create_task, params)
   end

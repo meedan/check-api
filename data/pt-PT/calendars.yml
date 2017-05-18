@@ -1,0 +1,293 @@
+pt-PT: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E, HH:mm"
+        EHms: "E, HH:mm:ss"
+        Ed: "E, d"
+        Ehm: "E, h:mm a"
+        Ehms: "E, h:mm:ss a"
+        Gy: "y G"
+        GyMMM: "MMM 'de' y G"
+        GyMMMEd: "E, d 'de' MMM 'de' y G"
+        GyMMMd: "d 'de' MMM 'de' y G"
+        H: HH
+        HHmm: "HH:mm"
+        HHmmss: "HH:mm:ss"
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, dd/MM"
+        MMM: LLL
+        MMMEd: "E, d/MM"
+        MMMMEd: "E, d 'de' MMMM"
+        MMMMd: "d 'de' MMMM"
+        MMMd: d/MM
+        MMdd: dd/MM
+        Md: d/M
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: MM/y
+        yMEd: "E, dd/MM/y"
+        yMM: MM/y
+        yMMM: MM/y
+        yMMMEEEEd: "EEEE, d/MM/y"
+        yMMMEd: "E, d/MM/y"
+        yMMMM: "MMMM 'de' y"
+        yMMMMEd: "E, d 'de' MMMM 'de' y"
+        yMMMMd: "d 'de' MMMM 'de' y"
+        yMMMd: d/MM/y
+        yMd: dd/MM/y
+        yQQQ: "QQQQ 'de' y"
+        yQQQQ: "QQQQ 'de' y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: sex
+            mon: seg
+            sat: sáb
+            sun: dom
+            thu: qui
+            tue: ter
+            wed: qua
+          narrow: 
+            fri: S
+            mon: S
+            sat: S
+            sun: D
+            thu: Q
+            tue: T
+            wed: Q
+          short: 
+            fri: sx
+            mon: sg
+            sat: sb
+            sun: do
+            thu: qi
+            tue: te
+            wed: qu
+          wide: 
+            fri: sexta-feira
+            mon: segunda-feira
+            sat: sábado
+            sun: domingo
+            thu: quinta-feira
+            tue: terça-feira
+            wed: quarta-feira
+        stand-alone: 
+          abbreviated: 
+            fri: sex
+            mon: seg
+            sat: sáb
+            sun: dom
+            thu: qui
+            tue: ter
+            wed: qua
+          narrow: 
+            fri: S
+            mon: S
+            sat: S
+            sun: D
+            thu: Q
+            tue: T
+            wed: Q
+          short: 
+            fri: sx
+            mon: sg
+            sat: sb
+            sun: do
+            thu: qi
+            tue: te
+            wed: qu
+          wide: 
+            fri: sexta-feira
+            mon: segunda-feira
+            sat: sábado
+            sun: domingo
+            thu: quinta-feira
+            tue: terça-feira
+            wed: quarta-feira
+      eras: 
+        abbr: 
+          0: a.E.C.
+          1: E.C.
+        name: 
+          0: ""
+        narrow: 
+          0: ""
+      fields: 
+        day: Dia
+        dayperiod: "Da manhã/da tarde"
+        era: Era
+        hour: Hora
+        minute: Minuto
+        month: Mês
+        second: Segundo
+        week: Semana
+        weekday: "Dia da semana"
+        year: Ano
+        zone: "Fuso horário"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d 'de' MMMM 'de' y"
+          long: 
+            pattern: "d 'de' MMMM 'de' y"
+          medium: 
+            pattern: dd/MM/y
+          short: 
+            pattern: dd/MM/yy
+        datetime: 
+          full: 
+            pattern: "{{date}} 'às' {{time}}"
+          long: 
+            pattern: "{{date}} 'às' {{time}}"
+          medium: 
+            pattern: "{{date}}, {{time}}"
+          short: 
+            pattern: "{{date}}, {{time}}"
+        time: 
+          full: 
+            pattern: "HH:mm:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: Jan
+            10: Out
+            11: Nov
+            12: Dez
+            2: Fev
+            3: Mar
+            4: Abr
+            5: Mai
+            6: Jun
+            7: Jul
+            8: Ago
+            9: Set
+          narrow: 
+            1: J
+            10: O
+            11: N
+            12: D
+            2: F
+            3: M
+            4: A
+            5: M
+            6: J
+            7: J
+            8: A
+            9: S
+          wide: 
+            1: Janeiro
+            10: Outubro
+            11: Novembro
+            12: Dezembro
+            2: Fevereiro
+            3: Março
+            4: Abril
+            5: Maio
+            6: Junho
+            7: Julho
+            8: Agosto
+            9: Setembro
+        stand-alone: 
+          abbreviated: 
+            1: Jan
+            10: Out
+            11: Nov
+            12: Dez
+            2: Fev
+            3: Mar
+            4: Abr
+            5: Mai
+            6: Jun
+            7: Jul
+            8: Ago
+            9: Set
+          narrow: 
+            1: J
+            10: O
+            11: N
+            12: D
+            2: F
+            3: M
+            4: A
+            5: M
+            6: J
+            7: J
+            8: A
+            9: S
+          wide: 
+            1: Janeiro
+            10: Outubro
+            11: Novembro
+            12: Dezembro
+            2: Fevereiro
+            3: Março
+            4: Abril
+            5: Maio
+            6: Junho
+            7: Julho
+            8: Agosto
+            9: Setembro
+      periods: 
+        format: 
+          abbreviated: 
+            am: a.m.
+            pm: p.m.
+          narrow: 
+            am: a.m.
+            pm: p.m.
+          wide: 
+            am: "da manhã"
+            pm: "da tarde"
+        stand-alone: 
+          abbreviated: 
+            am: a.m.
+            pm: p.m.
+          wide: 
+            am: a.m.
+            pm: p.m.
+      quarters: 
+        format: 
+          abbreviated: 
+            1: T1
+            2: T2
+            3: T3
+            4: T4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "1.º trimestre"
+            2: "2.º trimestre"
+            3: "3.º trimestre"
+            4: "4.º trimestre"
+        stand-alone: 
+          abbreviated: 
+            1: T1
+            2: T2
+            3: T3
+            4: T4
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "1.º trimestre"
+            2: "2.º trimestre"
+            3: "3.º trimestre"
+            4: "4.º trimestre"

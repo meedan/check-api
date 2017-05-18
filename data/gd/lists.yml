@@ -1,0 +1,10 @@
+gd: 
+  lists: 
+    default: 
+      2: "{0} agus {1}"
+      end: "{0}, agus {1}"
+      middle: "{0}, {1}"
+      start: "{0}, {1}"
+    unit: {}
+    unit-narrow: {}
+    unit-short: {}

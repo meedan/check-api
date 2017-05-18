@@ -1,0 +1,196 @@
+af: 
+  languages: 
+    ab: Abkasies
+    ach: Akoli
+    af: Afrikaans
+    afa: "Ander Afro-Asiaties"
+    ak: Akan
+    am: Amharies
+    ar: Arabies
+    ar-001: "Moderne Standaard Arabies"
+    arc: Aramees
+    art: "Kunsmatige taal"
+    as: Assamees
+    ay: Aymara
+    az: Azeri
+    be: Wit-Russies
+    bem: Bemba
+    ber: Berbers
+    bg: Bulgaars
+    bh: Bihari
+    bn: Bengaals
+    bnt: Bantoe
+    bo: Tibettaans
+    br: Bretons
+    bs: Bosnies
+    ca: Katalaans
+    cel: "Keltiese taal"
+    chr: Cherokees
+    ckb: "Sorani Koerdies"
+    co: Korsikaans
+    cs: Tsjeggies
+    cy: Wallies
+    da: Deens
+    de: Duits
+    de-AT: "Oostenrykse Duits"
+    de-CH: "Switserse hoog-Duits"
+    dv: Divehi
+    dz: Dzongkha
+    ee: Ewe
+    efi: Efik
+    egy: "Antieke Egipties"
+    el: Grieks
+    en: Engels
+    en-AU: "Australiese Engels"
+    en-CA: "Kanadese Engels"
+    en-GB: "Engels (GB)"
+    en-US: "Engels (US)"
+    eo: Esperanto
+    es: Spaans
+    es-419: "Latyns-Amerikaanse Spaans"
+    es-ES: "Europese Spaans"
+    es-MX: "Meksikaanse Spaans"
+    et: Estnies
+    eu: Baskies
+    fa: Persies
+    fi: Fins
+    fil: Filippyns
+    fj: Fidjiaans
+    fo: Faroees
+    fr: Frans
+    fr-CA: "Kanadese Frans"
+    fr-CH: "Switserse Frans"
+    fy: Wes-Fries
+    ga: Iers
+    gaa: Gaa
+    gd: "Skotse Gallies"
+    gem: "Germaanse taal"
+    gl: Galisies
+    gn: Guarani
+    got: Goties
+    grc: "Antieke Grieks"
+    gsw: "Switserse Duits"
+    gu: Gudjarati
+    ha: Hausa
+    haw: Hawaiies
+    he: Hebreeus
+    hi: Hindi
+    hr: Kroaties
+    ht: Haïtiaans
+    hu: Hongaars
+    hy: Armeens
+    ia: Interlingua
+    id: Indonesies
+    ie: Interlingue
+    ig: Igbo
+    ine: "Indo-Europese taal"
+    is: Yslands
+    it: Italiaans
+    ja: Japannees
+    jv: Javaans
+    ka: Georgies
+    kg: Kongolees
+    kk: Kazak
+    km: Khmer
+    kn: Kannada
+    ko: Koreaans
+    ks: Kasjmirs
+    ku: Koerdies
+    ky: Kirgisies
+    la: Latyn
+    lb: Luxemburgs
+    lg: Ganda
+    ln: Lingaals
+    lo: Lao
+    loz: Lozi
+    lt: Litaus
+    lua: Luba-Lulua
+    lv: Letties
+    mfe: Morisjen
+    mg: Malgassies
+    mi: Maori
+    mk: Masedonies
+    ml: Malabaars
+    mn: Mongools
+    mr: Marathi
+    ms: Maleisies
+    mt: Maltees
+    mul: "Veelvuldige tale"
+    my: Birmaans
+    nb: "Noorse Bokmål"
+    nd: Noord-Ndebele
+    ne: Nepalees
+    nl: Nederlands
+    nl-BE: Vlaams
+    nn: "Noorweegse Nynorsk"
+    nr: Suid-Ndebele
+    nso: Noord-Sotho
+    ny: Nyanja
+    nyn: Nyankole
+    oc: Oksitaans
+    om: Oromo
+    or: Oriya
+    os: Osseties
+    pa: Pandjabi
+    pl: Pools
+    ps: Pushto
+    pt: Portugees
+    pt-BR: "Brasiliaanse Portugees"
+    pt-PT: "Europese Portugees"
+    qu: Quechua
+    rm: Reto-Romaans
+    rn: Rundi
+    ro: Roemeens
+    ru: Russies
+    rw: Rwandees
+    sa: Sanskrit
+    sd: Sindhi
+    se: "Noordelike Sami"
+    sg: Sango
+    si: Sinhala
+    sk: Slowaaks
+    sl: Sloweens
+    sla: "Slawiese taal"
+    sm: Samoaans
+    sn: Shona
+    so: Somalies
+    sq: Albanees
+    sr: Serwies
+    ss: Swazi
+    st: Suid-Sotho
+    su: Sundanees
+    sv: Sweeds
+    sw: Swahili
+    ta: Tamil
+    te: Telugu
+    tet: Tetum
+    tg: Tadjik
+    th: Thais
+    ti: Tigrinya
+    tk: Turkmeens
+    tlh: Klingon
+    tn: Tswana
+    to: Tongaans
+    tpi: "Tok Pisin"
+    tr: Turks
+    ts: Tsonga
+    tt: Tataars
+    tum: Toemboeka
+    ty: Tahities
+    ug: Uyghur
+    uk: Oekraïens
+    und: "Onbekende of ongeldige taal"
+    ur: Oerdoe
+    uz: Oezbeeks
+    ve: Venda
+    vi: Viëtnamees
+    wo: Wolof
+    xh: Xhosa
+    yi: Jiddisj
+    yo: Yoruba
+    zgh: "Standaard Marokkaanse Tamazight"
+    zh: Sjinees
+    zh-Hans: "Vereenvoudigde Chinees"
+    zh-Hant: "Tradisionele Chinees"
+    zu: Zoeloe
+    zxx: "Geen linguistiese inhoud"

@@ -19,25 +19,42 @@ class Dynamic < ActiveRecord::Base
 
   def slack_message
     if !self.set_fields.blank? && self.annotation_type =~ /^task_response/
-      response, note, task = self.values(['response', 'note', 'task'], '-').values_at('response', 'note', 'task')
-      task = Task.find(task).label
+      self.slack_answer_task_message
 
-      I18n.t(:slack_answer_task,
-        user: self.class.to_slack(User.current.name),
-        url: self.class.to_slack_url("#{self.annotated_client_url}", "#{task}"),
-        project: self.class.to_slack(self.annotated.project.title),
-        response: self.class.to_slack_quote(response),
-        note: self.class.to_slack_quote(note)
-      )
+    elsif !self.set_fields.blank? && self.annotation_type == 'translation_status'
+      from, to = self.class.to_slack(self.previous_translation_status), self.class.to_slack(self.translation_status)
+
+      if from != to
+        I18n.t(:slack_update_translation_status,
+          user: self.class.to_slack(User.current.name),
+          report: self.class.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
+          from: from,
+          to: to
+        )
+      end
     end
+  end
+
+  def slack_answer_task_message
+    response, note, task = self.values(['response', 'note', 'task'], '-').values_at('response', 'note', 'task')
+    task = Task.find(task).label
+
+    note = I18n.t(:slack_answer_task_note, {note: self.class.to_slack_quote(note)}) unless note.blank?
+    I18n.t(:slack_answer_task,
+      user: self.class.to_slack(User.current.name),
+      url: self.class.to_slack_url("#{self.annotated_client_url}", "#{task}"),
+      project: self.class.to_slack(self.annotated.project.title),
+      response: self.class.to_slack_quote(response),
+      answer_note: note
+    )
   end
 
   def data
     fields = self.fields
     {
-      'fields' => fields,
+      'fields' => fields.to_a,
       'indexable' => fields.map(&:value).select{ |v| v.is_a?(String) }.join('. ')
-    }
+    }.with_indifferent_access
   end
 
   # Given field names, return a hash of the corresponding field values.
@@ -54,6 +71,15 @@ class Dynamic < ActiveRecord::Base
       end
     end
     values
+  end
+
+  def get_field(name)
+    self.get_fields.select{ |f| f['field_name'] == name.to_s }.first
+  end
+
+  def get_field_value(name)
+    field = self.get_field(name)
+    field.nil? ? nil : field.value
   end
 
   private
@@ -108,6 +134,6 @@ class Dynamic < ActiveRecord::Base
   end
 
   def set_annotator
-    self.annotator = User.current if !User.current.nil?
+    self.annotator = User.current if !User.current.nil? && (self.annotator.nil? || self.annotation_type_object.singleton)
   end
 end

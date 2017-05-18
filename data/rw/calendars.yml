@@ -1,0 +1,190 @@
+rw: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "MM-dd, E"
+        MMM: LLL
+        MMMEd: "MMM d, E"
+        MMMd: "MMM d"
+        Md: MM-dd
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: y-MM
+        yMEd: "y-MM-dd, E"
+        yMMM: "y MMM"
+        yMMMEd: "y MMM d, E"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "y QQQ"
+        yQQQQ: "y QQQQ"
+      days: 
+        format: 
+          abbreviated: 
+            fri: gnu.
+            mon: mbe.
+            sat: gnd.
+            sun: cyu.
+            thu: kan.
+            tue: kab.
+            wed: gtu.
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: "Kuwa gatanu"
+            mon: "Kuwa mbere"
+            sat: "Kuwa gatandatu"
+            sun: "Ku cyumweru"
+            thu: "Kuwa kane"
+            tue: "Kuwa kabiri"
+            wed: "Kuwa gatatu"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: F
+            mon: M
+            sat: S
+            sun: S
+            thu: T
+            tue: T
+            wed: W
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: BCE
+          1: CE
+        name: 
+          0: ""
+        narrow: 
+          0: ""
+      fields: 
+        day: Day
+        dayperiod: Dayperiod
+        era: Era
+        hour: Hour
+        minute: Minute
+        month: Month
+        second: Second
+        week: Week
+        weekday: "Day of the Week"
+        year: Year
+        zone: Zone
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, y MMMM dd"
+          long: 
+            pattern: "y MMMM d"
+          medium: 
+            pattern: "y MMM d"
+          short: 
+            pattern: yy/MM/dd
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "HH:mm:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: mut.
+            10: ukw.
+            11: ugu.
+            12: uku.
+            2: gas.
+            3: wer.
+            4: mat.
+            5: gic.
+            6: kam.
+            7: nya.
+            8: kan.
+            9: nze.
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: Mutarama
+            10: Ukwakira
+            11: Ugushyingo
+            12: Ukuboza
+            2: Gashyantare
+            3: Werurwe
+            4: Mata
+            5: Gicuransi
+            6: Kamena
+            7: Nyakanga
+            8: Kanama
+            9: Nzeli
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: AM
+            pm: PM
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: I1
+            2: I2
+            3: I3
+            4: I4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "igihembwe cya mbere"
+            2: "igihembwe cya kabiri"
+            3: "igihembwe cya gatatu"
+            4: "igihembwe cya kane"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

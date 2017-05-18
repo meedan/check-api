@@ -128,8 +128,24 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, last_status_obj {dbid} } }"
+    create_comment annotated: pm
+    create_tag annotated: pm
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
     post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
+    assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
+    assert JSON.parse(@response.body)['data']['project_media'].has_key?('language')
+    assert JSON.parse(@response.body)['data']['project_media'].has_key?('language_code')
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['annotations']['edges'].size
+  end
+
+  test "should read project medias with team_id as argument" do
+    authenticate_with_token
+    p = create_project team: @team
+    pm = create_project_media project: p
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { published, language, last_status_obj {dbid}, annotations_count(annotation_type: \"translation\"), log_count } }"
+    post :create, query: query
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
@@ -250,6 +266,17 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project" do
     assert_graphql_read('project', 'title')
+  end
+
+  test "should read project with team_id as argument" do
+    authenticate_with_token
+    p = create_project team: @team
+    pm = create_project_media project: p
+    query = "query GetById { project(ids: \"#{p.id},#{@team.id}\") { title, description} }"
+    post :create, query: query
+    assert_response :success
+    assert_equal p.title, JSON.parse(@response.body)['data']['project']['title']
+    assert_equal p.description, JSON.parse(@response.body)['data']['project']['description']
   end
 
   test "should update project" do
@@ -550,7 +577,7 @@ class GraphqlControllerTest < ActionController::TestCase
       create_comment annotated: pm, annotator: u
       create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
     end
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count, user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, created_at, meta, object_changes_json, user { name }, annotation { id }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"translation,comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, created_at, meta, object_changes_json, user { name }, annotation { id }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
     assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
@@ -709,7 +736,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    assert_queries (2 * n + n * m + 16) do
+    assert_queries (5 * n + n * m + 16) do
       post :create, query: query, team: 'team'
     end
 
@@ -1011,5 +1038,46 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_token
     post :create, query: 'query Query { about { name, version } }'
     assert_response :success
+  end
+
+  test "should get supported languages" do
+    authenticate_with_user
+    @request.headers['Accept-Language'] = 'pt-BR'
+    post :create, query: 'query Query { about { languages_supported } }'
+    assert_equal :pt, I18n.locale
+    assert_response :success
+    languages = JSON.parse(JSON.parse(@response.body)['data']['about']['languages_supported'])
+    assert_equal 'Francês', languages['fr']
+  end
+
+  test "should get translation statuses" do
+    t = create_team
+    create_field_instance name: 'translation_status_status', settings: { statuses: [{ id: 'pending', label: 'Pending' }] }
+    authenticate_with_user
+    post :create, query: 'query { team { translation_statuses } }', team: t.slug
+    assert_response :success
+    statuses = JSON.parse(JSON.parse(@response.body)['data']['team']['translation_statuses'])
+    assert_equal 'Pending', statuses['statuses'][0]['label']
+  end
+
+  test "should get field value and dynamic annotation(s)" do
+    [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+    ft1 = create_field_type(field_type: 'select', label: 'Select')
+    ft2 = create_field_type(field_type: 'text', label: 'Text')
+    at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
+    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
+    create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
+    
+    authenticate_with_user
+    p = create_project team: @team
+    pm = create_project_media project: p
+    a = create_dynamic_annotation annotation_type: 'translation_status', annotated: pm, set_fields: { translation_status_status: 'translated' }.to_json
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"translation_status\") { dbid }, field_value(annotation_type_field_name: \"translation_status:translation_status_status\"), annotations(annotation_type: \"translation_status\") { edges { node { dbid } } } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_equal a.id, data['annotation']['dbid'].to_i
+    assert_equal a.id, data['annotations']['edges'][0]['node']['dbid'].to_i
+    assert_equal 'translated', data['field_value']
   end
 end

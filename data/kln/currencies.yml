@@ -1,0 +1,218 @@
+kln: 
+  currencies: 
+    AED: 
+      one: "Rabisiekab Kibagegeitab arabuk"
+    AOA: 
+      one: "Rabisiekab Angolan"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dolaitab Australian"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Rabisiekab Bahrain"
+    BIF: 
+      one: "Rabisiekab Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Rabisiekab Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dolaitab Kanada"
+      symbol: CA$
+    CDF: 
+      one: "Rabisiekab Congo"
+    CHF: 
+      one: "Rabisiekab Swiss"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Rabisiekab China"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Rabisiekab Kepuvede"
+    DJF: 
+      one: "Rabisiekab Jibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Rabisiekab Algerian"
+    EGP: 
+      one: "Pauditab Misri"
+    ERN: 
+      one: "Rabisiekab Eritrea"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Rabisiekab Ethiopia"
+    EUR: 
+      one: Yuroit
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "pounditab Uingereza"
+      symbol: £
+    GHC: 
+      one: "Rabisiekab Ghana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Rabisiekab Gambia"
+    GNS: 
+      one: "Rabisiekab Guinea"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rabisiekab India"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Rabisiekab Japan"
+      symbol: JP¥
+    KES: 
+      one: "Silingitab ya Kenya"
+      symbol: Ksh
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Rabisiekab Komoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dolaitab Liberia"
+      symbol: $
+    LSL: 
+      one: "Rabisiekab Lesoto"
+    LYD: 
+      one: "Rabisiekab Libya"
+    MAD: 
+      one: "Rabisiekab Moroccan"
+    MGA: 
+      one: "Rabisiekab Malagasy"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Rabisiekab Mauritania"
+    MUR: 
+      one: "Rabisiekab Mauritius"
+    MWK: 
+      one: "Rabisiekaby Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Rabisiekab Msumbiji"
+    NAD: 
+      one: "Dolaitab Namibia"
+      symbol: $
+    NGN: 
+      one: "Rabisiekab Nigeria"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Rabisiekab Rwanda"
+    SAR: 
+      one: "Rabisiekab Saudia"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rabisiekab Shelisheli"
+    SDG: 
+      one: "Pouditab Sudan"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Pouditab helena ne tilil"
+    SLL: 
+      one: Leonit
+    SOS: 
+      one: "siligitab Somalia"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Rabisiekab Sao Tome ak Principe"
+    SZL: 
+      one: Lilangenit
+    THB: 
+      symbol: ฿
+    TND: 
+      one: RabisiekabTunisia
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "silingitab Tanzania"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Silingitab Uganda"
+    USD: 
+      one: "Dolaitab ya Amareka"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Rabisiekab CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Rabisiekab CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Randitab Afrika nebo murot tai"
+    ZMK: 
+      one: "Kwachaitab Zambia (1968–2012)"
+    ZMW: 
+      one: "Kwachaitab Zambia"
+    ZWD: 
+      one: "Dolaitab ya Zimbabwe"

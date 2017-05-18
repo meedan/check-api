@@ -26,6 +26,7 @@ Rails.application.routes.draw do
       match '/me' => 'base_api#me', via: [:get]
       match '/graphql' => 'graphql#create', via: [:post]
       match '/search' => 'search#create', via: [:post]
+      match '/admin/project/:id/add_publisher/:provider' => 'admin#add_publisher_to_project', via: [:get]
       devise_for :users, controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', omniauth_callbacks: 'api/v1/omniauth_callbacks', confirmations: 'api/v1/confirmations' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'

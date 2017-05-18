@@ -1,0 +1,220 @@
+ln: 
+  currencies: 
+    AED: 
+      one: "Dirihamɛ ya Lémila alabo"
+    AOA: 
+      one: "Kwanza ya Angóla"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dolarɛ ya Ositali"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Dinarɛ ya Bahrɛnɛ"
+    BIF: 
+      one: "Falánga ya Burundi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Pula ya Botswana"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dolarɛ ya Kanadá"
+      symbol: CA$
+    CDF: 
+      one: "Falánga ya Kongó"
+      symbol: FC
+    CHF: 
+      one: "Falánga ya Swisɛ"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Yuanɛ Renminbi ya Sinɛ"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Esikudo ya Kapevɛrɛ"
+    DJF: 
+      one: "Falánga ya Dzibuti"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dinarɛ ya Alizeri"
+    EGP: 
+      one: "Paunɛ ya Ezípitɛ"
+    ERN: 
+      one: "Nakfa ya Elitlɛ"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Birɛ ya Etsiópi"
+    EUR: 
+      one: Ɛlɔ́
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Paunɛ ya Angɛlɛtɛ́lɛ"
+      symbol: £
+    GHC: 
+      one: "Sedi ya Gana"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dalasi ya Gambi"
+    GNS: 
+      one: "Falánga ya Ginɛ"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupi ya Índɛ"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yeni ya Zapɔ"
+      symbol: JP¥
+    KES: 
+      one: "Shilingɛ ya Kenya"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Falánga ya Komoro"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dolarɛ ya Liberya"
+      symbol: $
+    LSL: 
+      one: "Loti ya Lesóto"
+    LYD: 
+      one: "Dinarɛ ya Libí"
+    MAD: 
+      one: "Dirihame ya Marokɛ"
+    MGA: 
+      one: "Falánga ya Madagasikarɛ"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ugwiya ya Moritani"
+    MUR: 
+      one: "Rupi ya Morisi"
+    MWK: 
+      one: "Kwasha ya Malawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Metikali ya Mozambiki"
+    NAD: 
+      one: "Dolarɛ ya Namibi"
+      symbol: $
+    NGN: 
+      one: "Naira ya Nizerya"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Falánga ya Rwanda"
+    SAR: 
+      one: "Riyalɛ ya Alabi Sawuditɛ"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupi ya Sɛshɛlɛ"
+    SDG: 
+      one: "Dinarɛ ya Sudá"
+    SDP: 
+      one: "Paunɛ ya Sudá"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Paunɛ ya Sántu elena"
+    SLL: 
+      one: Leonɛ
+    SOS: 
+      one: "Shilingɛ ya Somali"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dobra ya Sao Tomé mpé Presipe"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Dinarɛ ya Tinizi"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Shilingɛ ya Tanzani"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Shilingɛ ya Uganda"
+    USD: 
+      one: "Dolarɛ ya Ameriki"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Falánga CFA BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Falánga CFA BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Randɛ ya Afríka Súdi"
+    ZMK: 
+      one: "Kwasha ya Zambi (1968–2012)"
+    ZMW: 
+      one: "Kwasha ya Zambi"
+    ZWD: 
+      one: "Dolarɛ ya Zimbabwɛ"

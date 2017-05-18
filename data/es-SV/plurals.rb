@@ -1,0 +1,1 @@
+{ :'es_SV' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

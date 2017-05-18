@@ -1,0 +1,61 @@
+mn: 
+  numbers: 
+    formats: 
+      currency: 
+        number_system: latn
+        patterns: 
+          default: "¤ #,##0.00"
+        unit: 
+          one: "{0} {1}"
+          other: "{0} {1}"
+      decimal: 
+        number_system: latn
+        patterns: 
+          default: "#,##0.###"
+          long: 
+            1000: "0 мянга"
+            10000: "00 мянга"
+            100000: "000 мянга"
+            1000000: "0 сая"
+            10000000: "00 сая"
+            100000000: "000 сая"
+            1000000000: "0 тэрбум"
+            10000000000: "00 тэрбум"
+            100000000000: "000 тэрбум"
+            1000000000000: "0 их наяд"
+            10000000000000: "00 их наяд"
+            100000000000000: "000 их наяд"
+          short: 
+            1000: 0 мянга
+            10000: 00 мянга
+            100000: 000 мянга
+            1000000: 0 сая
+            10000000: 00 сая
+            100000000: 000 сая
+            1000000000: 0 тэрбум
+            10000000000: 00 тэрбум
+            100000000000: 000B
+            1000000000000: 0 их наяд
+            10000000000000: 00их наяд
+            100000000000000: 000ИН
+      percent: 
+        number_system: latn
+        patterns: 
+          default: "#,##0%"
+      scientific: 
+        number_system: latn
+        patterns: 
+          default: "#E0"
+    symbols: 
+      alias: ""
+      decimal: "."
+      exponential: E
+      group: ","
+      infinity: ∞
+      list: ;
+      minus_sign: "-"
+      nan: NaN
+      per_mille: ‰
+      percent_sign: "%"
+      plus_sign: +
+      superscripting_exponent: ×

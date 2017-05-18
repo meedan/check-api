@@ -1,0 +1,155 @@
+en-GB: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        angle-arc-minute: 
+          one: "{0} minute"
+          other: "{0} minutes"
+        angle-arc-second: 
+          one: "{0} second"
+          other: "{0} seconds"
+        area-square-kilometer: 
+          one: "{0} square kilometre"
+          other: "{0} square kilometres"
+        area-square-meter: 
+          one: "{0} square metre"
+          other: "{0} square metres"
+        length-centimeter: 
+          one: "{0} centimetre"
+          other: "{0} centimetres"
+        length-kilometer: 
+          one: "{0} kilometre"
+          other: "{0} kilometres"
+        length-meter: 
+          one: "{0} metre"
+          other: "{0} metres"
+        length-millimeter: 
+          one: "{0} millimetre"
+          other: "{0} millimetres"
+        length-picometer: 
+          one: "{0} picometre"
+          other: "{0} picometres"
+        speed-kilometer-per-hour: 
+          one: "{0} kilometre per hour"
+          other: "{0} kilometres per hour"
+        speed-meter-per-second: 
+          one: "{0} metre per second"
+          other: "{0} metres per second"
+        volume-cubic-kilometer: 
+          one: "{0} cubic kilometre"
+          other: "{0} cubic kilometres"
+        volume-liter: 
+          one: "{0} litre"
+          other: "{0} litres"
+      narrow: 
+        acceleration-g-force: 
+          one: "{0}G"
+          other: "{0}G"
+        duration-millisecond: 
+          one: "{0} ms"
+          other: "{0} ms"
+        mass-pound: 
+          one: "{0}lb"
+          other: "{0}lb"
+        temperature-celsius: 
+          one: "{0}°"
+          other: "{0}°"
+      short: 
+        acceleration-g-force: 
+          other: "{0} G"
+        angle-arc-minute: 
+          one: "{0} min"
+          other: "{0} min"
+        angle-arc-second: 
+          one: "{0} sec"
+          other: "{0} secs"
+        angle-degree: 
+          other: "{0}°"
+        area-acre: 
+          other: "{0} ac"
+        area-hectare: 
+          other: "{0} ha"
+        area-square-foot: 
+          other: "{0} ft²"
+        area-square-kilometer: 
+          other: "{0} km²"
+        area-square-meter: 
+          other: "{0} m²"
+        area-square-mile: 
+          other: "{0} mi²"
+        duration-day: 
+          other: "{0} d"
+        duration-hour: 
+          other: "{0} h"
+        duration-millisecond: 
+          other: "{0} ms"
+        duration-minute: 
+          other: "{0} min"
+        duration-month: 
+          other: "{0} m"
+        duration-second: 
+          other: "{0} s"
+        duration-week: 
+          other: "{0} w"
+        duration-year: 
+          other: "{0} y"
+        length-centimeter: 
+          other: "{0} cm"
+        length-foot: 
+          other: "{0} ft"
+        length-inch: 
+          other: "{0} in"
+        length-kilometer: 
+          other: "{0} km"
+        length-light-year: 
+          other: "{0} ly"
+        length-meter: 
+          other: "{0} m"
+        length-mile: 
+          other: "{0} mi"
+        length-millimeter: 
+          other: "{0} mm"
+        length-picometer: 
+          other: "{0} pm"
+        length-yard: 
+          other: "{0} yd"
+        mass-gram: 
+          other: "{0} g"
+        mass-kilogram: 
+          other: "{0} kg"
+        mass-ounce: 
+          other: "{0} oz"
+        mass-pound: 
+          other: "{0} lb"
+        power-horsepower: 
+          other: "{0} hp"
+        power-kilowatt: 
+          other: "{0} kW"
+        power-watt: 
+          other: "{0} W"
+        pressure-hectopascal: 
+          other: "{0} hPa"
+        pressure-inch-hg: 
+          other: "{0} inHg"
+        pressure-millibar: 
+          other: "{0} mbar"
+        speed-kilometer-per-hour: 
+          other: "{0} km/h"
+        speed-meter-per-second: 
+          other: "{0} m/s"
+        speed-mile-per-hour: 
+          other: "{0} mi/h"
+        temperature-celsius: 
+          other: "{0}°C"
+        temperature-fahrenheit: 
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          other: "{0} km³"
+        volume-cubic-mile: 
+          other: "{0} mi³"
+        volume-liter: 
+          other: "{0} l"

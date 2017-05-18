@@ -11,6 +11,7 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int
   field :permissions, types.String
   field :get_slack_channel, types.String
+  field :get_languages, types.String
   field :pusher_channel, types.String
   field :medias_count, types.Int
   field :search_id, types.String

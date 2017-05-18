@@ -1,0 +1,217 @@
+ff: 
+  currencies: 
+    AED: 
+      one: "Dirham Emiraati Araab Dentuɗi"
+    AOA: 
+      one: "Kwansaa Anngolaa"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Dolaar Ostaraalii"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Dinaar Bahrayn"
+    BIF: 
+      one: "Mbuuɗu Burunndi"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Pulaa Botwanaa"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Dolaar Kandaaa"
+      symbol: CA$
+    CDF: 
+      one: "Faraa Konngo"
+    CHF: 
+      one: "Faraa Suwiis"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Yuam Siin"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Eskudoo Kap Weer"
+    DJF: 
+      one: "Faraa Jibutii"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Dinaar Alaseri"
+    EGP: 
+      one: "Liibar Ejipt"
+    ERN: 
+      one: "Nafka Eriteree"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Biir Ecoppi"
+    EUR: 
+      one: Oroo
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Liibar Sterling"
+      symbol: £
+    GHC: 
+      one: "Sedi Ganaa"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Dalasi Gammbi"
+    GNS: 
+      one: "Faraa Gine"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Rupii Enndo"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Yen Sapoo"
+      symbol: JP¥
+    KES: 
+      one: "Siling Keñaa"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Faraa Komoor"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Dolaar Liberiyaa"
+      symbol: $
+    LSL: 
+      one: "Loti Lesotoo"
+    LYD: 
+      one: "Dinaar Libi"
+    MAD: 
+      one: "Diraham Maruk"
+    MGA: 
+      one: "Ariyari Madagaskaar"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Ugiyya Muritani"
+    MUR: 
+      one: "Rupii Moriis"
+    MWK: 
+      one: "Kuwacca Malaawi"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Metikal Mosammbik"
+    NAD: 
+      one: "Dolaar Namibii"
+      symbol: $
+    NGN: 
+      one: "Nayraa Nijeriyaa"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Faraa Ruwanndaa"
+    SAR: 
+      one: "Riyaal Arabi Sawdit"
+    SBD: 
+      symbol: $
+    SCR: 
+      one: "Rupii Seysel"
+    SDG: 
+      one: "Liibar Sudaan"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Liibar Sent Helen"
+    SLL: 
+      one: "Lewoon Seraa Liyon"
+    SOS: 
+      one: "Siling Soomali"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Dobra Sawo Tome e Prensipe"
+    SZL: 
+      one: "Lilangeni Swaasilannda"
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Dinaar Tunisii"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Siling Tansanii"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Siling Uganndaa"
+    USD: 
+      one: "Dolaar Dowlaaji Dentuɗi"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Mbuuɗi Seefaa BEAC"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Mbuuɗu Seefaa BCEAO"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Rannda Afrik Bŋ Worgo"
+    ZMK: 
+      one: "Kuwacca Sammbi (1968–2012)"
+    ZMW: 
+      one: "Kuwacca Sammbi"
+    ZWD: 
+      one: "Dolaar Simbaabuwe"

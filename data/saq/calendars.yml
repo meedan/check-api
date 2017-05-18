@@ -1,0 +1,194 @@
+saq: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "y MMM d"
+        yMd: y-MM-dd
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Sap
+            mon: Kun
+            sat: Kwe
+            sun: Are
+            thu: Ile
+            tue: Ong
+            wed: Ine
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: "Mderot ee sapa"
+            mon: "Mderot ee kuni"
+            sat: "Mderot ee kwe"
+            sun: "Mderot ee are"
+            thu: "Mderot ee ile"
+            tue: "Mderot ee ong'wan"
+            wed: "Mderot ee inet"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: S
+            mon: K
+            sat: K
+            sun: A
+            thu: I
+            tue: O
+            wed: I
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: KK
+          1: BK
+        name: 
+          0: "Kabla ya Christo"
+          1: "Baada ya Christo"
+        narrow: 
+          0: ""
+      fields: 
+        day: Mpari
+        dayperiod: TS/TP
+        era: Nyamata
+        hour: Saai
+        minute: Idakika
+        month: Lapa
+        second: Isekondi
+        week: "Saipa napo"
+        weekday: "Day of the Week"
+        year: Lari
+        zone: "Majira ya saa"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, d MMMM y"
+          long: 
+            pattern: "d MMMM y"
+          medium: 
+            pattern: "d MMM y"
+          short: 
+            pattern: dd/MM/y
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: Obo
+            10: Tom
+            11: Tob
+            12: Tow
+            2: Waa
+            3: Oku
+            4: Ong
+            5: Ime
+            6: Ile
+            7: Sap
+            8: Isi
+            9: Saa
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: "Lapa le obo"
+            10: "Lapa le tomon"
+            11: "Lapa le tomon obo"
+            12: "Lapa le tomon waare"
+            2: "Lapa le waare"
+            3: "Lapa le okuni"
+            4: "Lapa le ong'wan"
+            5: "Lapa le imet"
+            6: "Lapa le ile"
+            7: "Lapa le sapa"
+            8: "Lapa le isiet"
+            9: "Lapa le saal"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: O
+            10: T
+            11: T
+            12: T
+            2: W
+            3: O
+            4: O
+            5: I
+            6: I
+            7: S
+            8: I
+            9: S
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: Tesiran
+            pm: Teipa
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: R1
+            2: R2
+            3: R3
+            4: R4
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: "Robo 1"
+            2: "Robo 2"
+            3: "Robo 3"
+            4: "Robo 4"
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

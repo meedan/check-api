@@ -1,0 +1,262 @@
+ml: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "M/d, E"
+        MMM: LLL
+        MMMEd: "MMM d, E"
+        MMMMEd: "MMMM d, E"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        MMdd: dd-MM
+        Md: d/M
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M-y
+        yMEd: "d-M-y, E"
+        yMM: MM-y
+        yMMM: "y MMM"
+        yMMMEd: "y MMM d, E"
+        yMMMM: "y MMMM"
+        yMMMd: "y MMM d"
+        yMd: d/M/y
+        yQQQ: "y QQQ"
+        yQQQQ: "y QQQQ"
+      days: 
+        format: 
+          abbreviated: 
+            fri: വെള്ളി
+            mon: തിങ്കൾ
+            sat: ശനി
+            sun: ഞായർ
+            thu: വ്യാഴം
+            tue: ചൊവ്വ
+            wed: ബുധൻ
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: 
+            fri: വെ
+            mon: തി
+            sat: ശ
+            sun: ഞാ
+            thu: വ്യാ
+            tue: ചൊ
+            wed: ബു
+          wide: 
+            fri: വെള്ളിയാഴ്‌ച
+            mon: തിങ്കളാഴ്‌ച
+            sat: ശനിയാഴ്‌ച
+            sun: ഞായറാഴ്‌ച
+            thu: വ്യാഴാഴ്‌ച
+            tue: ചൊവ്വാഴ്ച
+            wed: ബുധനാഴ്‌ച
+        stand-alone: 
+          abbreviated: 
+            fri: വെള്ളി
+            mon: തിങ്കൾ
+            sat: ശനി
+            sun: ഞായർ
+            thu: വ്യാഴം
+            tue: ചൊവ്വ
+            wed: ബുധൻ
+          narrow: 
+            fri: വെ
+            mon: തി
+            sat: ശ
+            sun: ഞാ
+            thu: വ്യാ
+            tue: ചൊ
+            wed: ബു
+          short: 
+            fri: വെ
+            mon: തി
+            sat: ശ
+            sun: ഞാ
+            thu: വ്യാ
+            tue: ചൊ
+            wed: ബു
+          wide: 
+            fri: വെള്ളിയാഴ്‌ച
+            mon: തിങ്കളാഴ്‌ച
+            sat: ശനിയാഴ്‌ച
+            sun: ഞായറാഴ്‌ച
+            thu: വ്യാഴാഴ്‌ച
+            tue: ചൊവ്വാഴ്‌ച
+            wed: ബുധനാഴ്‌ച
+      eras: 
+        abbr: 
+          0: ബിസിഇ
+          1: സിഇ
+        name: 
+          0: "ക്രിസ്തുവിനു് മുമ്പ്‌"
+          1: "ക്രിസ്തുവിന് പിൻപ്"
+        narrow: 
+          0: ""
+      fields: 
+        day: ദിവസം
+        dayperiod: am/pm
+        era: കാലഘട്ടം
+        hour: മണിക്കൂർ
+        minute: മിനിട്ട്
+        month: മാസം
+        second: സെക്കൻറ്
+        week: ആഴ്ച
+        weekday: "ആഴ്ചയിലെ ദിവസം"
+        year: വർഷം
+        zone: മേഖല
+      formats: 
+        date: 
+          full: 
+            pattern: "y, MMMM d, EEEE"
+          long: 
+            pattern: "y, MMMM d"
+          medium: 
+            pattern: "y, MMM d"
+          short: 
+            pattern: dd/MM/yy
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "h:mm:ss a zzzz"
+          long: 
+            pattern: "h:mm:ss a z"
+          medium: 
+            pattern: "h:mm:ss a"
+          short: 
+            pattern: "h:mm a"
+      months: 
+        format: 
+          abbreviated: 
+            1: ജനു
+            10: ഒക്ടോ
+            11: നവം
+            12: ഡിസം
+            2: ഫെബ്രു
+            3: മാർ
+            4: ഏപ്രി
+            5: മേയ്
+            6: ജൂൺ
+            7: ജൂലൈ
+            8: ഓഗ
+            9: സെപ്റ്റം
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: ജനുവരി
+            10: ഒക്‌ടോബർ
+            11: നവംബർ
+            12: ഡിസംബർ
+            2: ഫെബ്രുവരി
+            3: മാർച്ച്
+            4: ഏപ്രിൽ
+            5: മേയ്
+            6: ജൂൺ
+            7: ജൂലൈ
+            8: ആഗസ്റ്റ്
+            9: സെപ്റ്റംബർ
+        stand-alone: 
+          abbreviated: 
+            1: ജനു
+            10: ഒക്ടോ
+            11: നവം
+            12: ഡിസം
+            2: ഫെബ്രു
+            3: മാർ
+            4: ഏപ്രി
+            5: മേയ്
+            6: ജൂൺ
+            7: ജൂലൈ
+            8: ഓഗ
+            9: സെപ്റ്റം
+          narrow: 
+            1: ജ
+            10: ഒ
+            11: ന
+            12: ഡി
+            2: ഫെ
+            3: മാ
+            4: ഏ
+            5: മേ
+            6: ജൂ
+            7: ജൂ
+            8: ഓ
+            9: സെ
+          wide: 
+            1: ജനുവരി
+            10: ഒക്‌ടോബർ
+            11: നവംബർ
+            12: ഡിസംബർ
+            2: ഫെബ്രുവരി
+            3: മാർച്ച്
+            4: ഏപ്രിൽ
+            5: മേയ്
+            6: ജൂൺ
+            7: ജൂലൈ
+            8: ആഗസ്റ്റ്
+            9: സെപ്റ്റംബർ
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: 
+            am: AM
+            pm: PM
+          wide: 
+            am: AM
+            pm: PM
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: 
+            1: "ഒന്നാം പാദം"
+            2: "രണ്ടാം പാദം"
+            3: "മൂന്നാം പാദം"
+            4: "നാലാം പാദം"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "ഒന്നാം പാദം"
+            2: "രണ്ടാം പാദം"
+            3: "മൂന്നാം പാദം"
+            4: "നാലാം പാദം"
+        stand-alone: 
+          abbreviated: 
+            1: "ഒന്നാം പാദം"
+            2: "രണ്ടാം പാദം"
+            3: "മൂന്നാം പാദം"
+            4: "നാലാം പാദം"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: 
+            1: "ഒന്നാം പാദം"
+            2: "രണ്ടാം പാദം"
+            3: "മൂന്നാം പാദം"
+            4: "നാലാം പാദം"

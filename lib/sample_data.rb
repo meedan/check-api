@@ -49,6 +49,7 @@ module SampleData
     u.url = options[:url] if options.has_key?(:url)
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
     u.omniauth_info = options[:omniauth_info]
+    u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
 
     file = nil
     if options.has_key?(:image)
@@ -80,7 +81,7 @@ module SampleData
     options.each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
-    
+
     file = nil
     if options.has_key?(:file)
       file = options[:file]
@@ -90,7 +91,7 @@ module SampleData
         c.file = f
       end
     end
-    
+
     c.save!
     c
   end
@@ -409,6 +410,36 @@ module SampleData
   def create_alegre_bot(options = {})
     bot = Bot::Alegre.new
     bot.name = options[:name] || 'Alegre Bot'
+    file = 'rails.png'
+    if options.has_key?(:avatar)
+      file = options[:avatar]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        bot.avatar = f
+      end
+    end
+    bot.save!
+    bot.reload
+  end
+
+  def create_viber_bot(options = {})
+    bot = Bot::Viber.new
+    bot.name = options[:name] || 'Viber Bot'
+    bot.save!
+    bot.reload
+  end
+
+  def create_twitter_bot(options = {})
+    bot = Bot::Twitter.new
+    bot.name = options[:name] || 'Twitter Bot'
+    bot.save!
+    bot.reload
+  end
+
+  def create_facebook_bot(options = {})
+    bot = Bot::Facebook.new
+    bot.name = options[:name] || 'Facebook Bot'
     bot.save!
     bot.reload
   end
@@ -435,6 +466,7 @@ module SampleData
     at.annotation_type = options.has_key?(:annotation_type) ? options[:annotation_type] : random_machine_name
     at.label = options.has_key?(:label) ? options[:label] : random_string(10)
     at.description = options.has_key?(:description) ? options[:description] : ''
+    at.singleton = options[:singleton] if options.has_key?(:singleton)
     at.save!
     at
   end
@@ -464,10 +496,16 @@ module SampleData
   def create_field(options = {})
     f = DynamicAnnotation::Field.new
     f.annotation_id = options.has_key?(:annotation_id) ? options[:annotation_id] : create_dynamic_annotation.id
+    f.annotation_type = options[:annotation_type] if options.has_key?(:annotation_type)
+    f.field_type = options[:field_type] if options.has_key?(:field_type)
     f.field_name = options.has_key?(:field_name) ? options[:field_name] : create_field_instance.name
     f.value = options.has_key?(:value) ? options[:value] : random_string
-    f.save!
-    f
+    if options[:skip_validation]
+      f.save(validate: false)
+    else
+      f.save!
+    end
+    f.reload
   end
 
   def create_dynamic_annotation(options = {})
@@ -475,7 +513,7 @@ module SampleData
     create_annotation_type(annotation_type: t) if !options[:skip_create_annotation_type] && !t.blank? && !DynamicAnnotation::AnnotationType.where(annotation_type: t).exists?
     a = Dynamic.new
     a.annotation_type = t
-    a.annotator = options[:annotator] || create_user
+    a.annotator = options.has_key?(:annotator) ? options[:annotator] : create_user
     a.annotated = options[:annotated] || create_project_media
     a.set_fields = options[:set_fields]
     a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
@@ -503,6 +541,6 @@ module SampleData
       t.send("#{key}=", value) if t.respond_to?("#{key}=")
     end
     t.save!
-    t   
+    t
   end
 end

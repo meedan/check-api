@@ -1,0 +1,750 @@
+dz: 
+  metazones: 
+    Afghanistan: 
+      long: 
+        standard: ཨཕ་ག་ནི་ས྄ཏཱནཆུ་ཚོད
+    Africa_Central: 
+      long: 
+        standard: དབུས་ཕྱོགས་ཨཕ་རི་ཀཱ་ཆུ་ཚོད
+    Africa_Eastern: 
+      long: 
+        standard: ཤར་ཕྱོགས་ཨཕ་རི་ཀཱ་ཆུ་ཚོད
+    Africa_Southern: 
+      long: 
+        standard: ལྷོ་ཕྱོགས་ཨཕ་རི་ཀཱ་ཆུ་ཚོད
+    Africa_Western: 
+      long: 
+        daylight: ནུབ་ཕྱོགས་ཨཕ་རི་ཀཱ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ནུབ་ཕྱོགས་ཨཕ་རི་ཀཱ་ཆུ་ཚོད
+        standard: ནུབ་ཕྱོགས་ཨཕ་རི་ཀཱ་ཚད་ལྡན་ཆུ་ཚོད
+    Alaska: 
+      long: 
+        daylight: ཨ་ལསི་ཀ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ཨ་ལསི་ཀ་ཆུ་ཚོད
+        standard: ཨ་ལསི་ཀ་ཚད་ལྡན་ཆུ་ཚོད
+    Amazon: 
+      long: 
+        daylight: ཨེ་མ་ཛཱོན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཨེ་མ་ཛཱོན་ཆུ་ཚོད
+        standard: ཨེ་མ་ཛཱོན་ཚད་ལྡན་ཆུ་ཚོད
+    America_Central: 
+      long: 
+        daylight: བྱང་ཨ་མི་རི་ཀ་དབུས་ཕྱོགས་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: བྱང་ཨ་མི་རི་ཀ་དབུས་ཕྱོགས་ཆུ་ཚོད
+        standard: བྱང་ཨ་མི་རི་ཀ་དབུས་ཕྱོགས་ཚད་ལྡན་ཆུ་ཚོད
+    America_Eastern: 
+      long: 
+        daylight: བྱང་ཨ་མི་རི་ཀ་ཤར་ཕྱོགས་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: བྱང་ཨ་མི་རི་ཀ་ཤར་ཕྱོགས་ཆུ་ཚོད
+        standard: བྱང་ཨ་མི་རི་ཀ་ཤར་ཕྱོགས་ཚད་ལྡན་ཆུ་ཚོད
+    America_Mountain: 
+      long: 
+        daylight: བྱང་ཨ་མི་རི་ཀ་མའུ་ཊེན་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: བྱང་ཨ་མི་རི་ཀ་མའུ་ཊེན་ཆུ་ཚོད
+        standard: བྱང་ཨ་མི་རི་ཀ་མའུ་ཊེན་ཚད་ལྡན་ཆུ་ཚོད
+    America_Pacific: 
+      long: 
+        daylight: བྱང་ཨ་མི་རི་ཀ་པེ་སི་ཕིག་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: བྱང་ཨ་མི་རི་ཀ་པེ་སི་ཕིག་ཆུ་ཚོད
+        standard: བྱང་ཨ་མི་རི་ཀ་པེ་སི་ཕིག་ཚད་ལྡན་ཆུ་ཚོད
+    Arabian: 
+      long: 
+        daylight: ཨ་རེ་བྷི་ཡན་སྲུང་ཆུ་ཚོད
+        generic: ཨ་རེ་བྷི་ཡན་ཆུ་ཚོད
+        standard: ཨ་རེ་བྷི་ཡན་ཚད་ལྡན་ཆུ་ཚོད
+    Argentina: 
+      long: 
+        daylight: ཨར་ཇེན་ཊི་ན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཨར་ཇེན་ཊི་ན་ཆུ་ཚོད
+        standard: ཨར་ཇེན་ཊི་ན་ཚད་ལྡན་ཆུ་ཚོད
+    Argentina_Western: 
+      long: 
+        daylight: ནུབ་ཕྱོགས་ཨར་ཇེན་ཊི་ན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ནུབ་ཕྱོགས་ཨར་ཇེན་ཊི་ན་ཆུ་ཚོད
+        standard: ནུབ་ཕྱོགས་ཨར་ཇེན་ཊི་ན་ཚད་ལྡན་ཆུ་ཚོད
+    Armenia: 
+      long: 
+        daylight: ཨར་མི་ནི་ཡ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཨར་མི་ནི་ཡ་ཆུ་ཚོད
+        standard: ཨར་མི་ནི་ཡ་ཚད་ལྡན་ཆུ་ཚོད
+    Atlantic: 
+      long: 
+        daylight: ཨེཊ་ལེན་ཊིཀ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ཨེཊ་ལེན་ཊིཀ་ཆུ་ཚོད
+        standard: ཨེཊ་ལེན་ཊིཀ་ཚད་ལྡན་ཆུ་ཚོད
+    Australia_Central: 
+      long: 
+        daylight: དབུས་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: དབུས་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཆུ་ཚོད
+        standard: དབུས་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཚད་ལྡན་ཆུ་ཚོད
+    Australia_CentralWestern: 
+      long: 
+        daylight: དབུས་ནུབ་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: བུས་ནུབ་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཆུ་ཚོད
+        standard: དབུས་ནུབ་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཚད་ལྡན་ཆུ་ཚོད
+    Australia_Eastern: 
+      long: 
+        daylight: ཤར་ཕྱོགས་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ཤར་ཕྱོགས་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཆུ་ཚོད
+        standard: ཤར་ཕྱོགས་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཚད་ལྡན་ཆུ་ཚོད
+    Australia_Western: 
+      long: 
+        daylight: ནུབ་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ནུབ་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཆུ་ཚོད
+        standard: ནུབ་ཕྱོགས་ཨཱོས་ཊྲེལ་ལི་ཡ་ཚད་ལྡན་ཆུ་ཚོད
+    Azerbaijan: 
+      long: 
+        daylight: ཨ་ཛར་བྷའི་ཇཱན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཨ་ཛར་བྷའི་ཇཱན་ཆུ་ཚོད
+        standard: ཨ་ཛར་བྷའི་ཇཱན་ཚད་ལྡན་ཆུ་ཚོད
+    Azores: 
+      long: 
+        daylight: ཨེ་ཛོརས་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཨེ་ཛོརས་ཆུ་ཚོད
+        standard: ཨེ་ཛོརས་ཚད་ལྡན་ཆུ་ཚོད
+    Bangladesh: 
+      long: 
+        daylight: བངྒ་ལ་དེཤ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: བངྒ་ལ་དེཤ་ཆུ་ཚོད
+        standard: བངྒ་ལ་དེཤ་ཚད་ལྡན་ཆུ་ཚོད
+    Bhutan: 
+      long: 
+        standard: འབྲུག་ཡུལ་ཆུ་ཚོད
+      short: 
+        standard: BT
+    Bolivia: 
+      long: 
+        standard: བྷོ་ལི་བི་ཡ་ཆུ་ཚོད
+    Brasilia: 
+      long: 
+        daylight: བྲ་ཛི་ལི་ཡ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: བྲ་ཛི་ལི་ཡ་ཆུ་ཚོད
+        standard: བྲ་ཛི་ལི་ཡ་ཚད་ལྡན་ཆུ་ཚོད
+    Cape_Verde: 
+      long: 
+        daylight: ཀེཔ་བཱཌ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཀེཔ་བཱཌ་ཆུ་ཚོད
+        standard: ཀེཔ་བཱཌ་ཚད་ལྡན་ཆུ་ཚོད
+    Chile: 
+      long: 
+        daylight: ཅི་ལི་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཅི་ལི་ཆུ་ཚོད
+        standard: ཅི་ལི་ཚད་ལྡན་ཆུ་ཚོད
+    China: 
+      long: 
+        daylight: རྒྱ་ནག་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: རྒྱ་ནག་ཆུ་ཚོད
+        standard: རྒྱ་ནག་ཚད་ལྡན་ཆུ་ཚོད
+    Christmas: 
+      long: 
+        standard: ཁི་རིསྟ་མེས་མཚོ་གླིང་ཆུ་ཚོད
+    Colombia: 
+      long: 
+        daylight: ཀོ་ལོམ་བྷི་ཡ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཀོ་ལོམ་བྷི་ཡ་ཆུ་ཚོད
+        standard: ཀོ་ལོམ་བྷི་ཡ་ཚད་ལྡན་ཆུ་ཚོད
+    Cuba: 
+      long: 
+        daylight: ཀིའུ་བྷ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ཀིའུ་བྷ་ཆུ་ཚོད
+        standard: ཀིའུ་བྷ་ཚད་ལྡན་ཆུ་ཚོད
+    Easter: 
+      long: 
+        daylight: ཨིསི་ཊར་ཨཱའི་ལེནཌ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཨིསི་ཊར་ཨཱའི་ལེནཌ་ཆུ་ཚོད
+        standard: ཨིསི་ཊར་ཨཱའི་ལེནཌ་ཚད་ལྡན་ཆུ་ཚོད
+    Ecuador: 
+      long: 
+        standard: ཨེ་ཀུ་ཌཽ་ཆུ་ཚོད
+    Europe_Central: 
+      long: 
+        daylight: དབུས་ཕྱོགས་ཡུ་རོ་པེན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: དབུས་ཕྱོགས་ཡུ་རོ་པེན་ཆུ་ཚོད
+        standard: དབུས་ཕྱོགས་ཡུ་རོ་པེན་ཚད་ལྡན་ཆུ་ཚོད
+    Europe_Eastern: 
+      long: 
+        daylight: ཤར་ཕྱོགས་ཡུ་རོ་པེན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཤར་ཕྱོགས་ཡུ་རོ་པེན་ཆུ་ཚོད
+        standard: ཤར་ཕྱོགས་ཡུ་རོ་པེན་ཚད་ལྡན་ཆུ་ཚོད
+    Europe_Western: 
+      long: 
+        daylight: ནུབ་ཕྱོགས་ཡུ་རོ་པེན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ནུབ་ཕྱོགས་ཡུ་རོ་པེན་ཆུ་ཚོད
+        standard: ནུབ་ཕྱོགས་ཡུ་རོ་པེན་ཚད་ལྡན་ཆུ་ཚོད
+    Falkland: 
+      long: 
+        daylight: ཕལཀ་ལེནཌ་ཨཱའི་ལེནཌས་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཕལཀ་ལེནཌ་ཨཱའི་ལེནཌས་ཆུ་ཚོད
+        standard: ཕལཀ་ལེནཌ་ཨཱའི་ལེནཌས་ཚད་ལྡན་ཆུ་ཚོད
+    French_Guiana: 
+      long: 
+        standard: ཕིརེནཅ་གི་ཡ་ན་ཆུ་ཚོད
+    GMT: 
+      long: 
+        standard: གིརིན་ཝིཆ་ལུ་ཡོད་པའི་ཆུ་ཚོད
+    Galapagos: 
+      long: 
+        standard: ག་ལ་པ་གོསི་ཆུ་ཚོད
+    Georgia: 
+      long: 
+        daylight: ཇཽ་ཇཱ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཇཽ་ཇཱ་ཆུ་ཚོད
+        standard: ཇཽ་ཇཱ་ཚད་ལྡན་ཆུ་ཚོད
+    Greenland_Eastern: 
+      long: 
+        daylight: ཤར་ཕྱོགས་གིརིན་ལེནཌ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཤར་ཕྱོགས་གིརིན་ལེནཌ་ཆུ་ཚོད
+        standard: ཤར་ཕྱོགས་གིརིན་ལེནཌ་ཚད་ལྡན་ཆུ་ཚོད
+    Greenland_Western: 
+      long: 
+        daylight: ནུབ་ཕྱོགས་གིརིན་ལེནཌ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ནུབ་ཕྱོགས་གིརིན་ལེནཌ་ཆུ་ཚོད
+        standard: ནུབ་ཕྱོགས་གིརིན་ལེནཌ་ཚད་ལྡན་ཆུ་ཚོད
+    Gulf: 
+      long: 
+        standard: གཱལཕི་ཆུ་ཚོད
+    Guyana: 
+      long: 
+        standard: གུ་ཡ་ན་ཆུ་ཚོད
+    Hawaii_Aleutian: 
+      long: 
+        daylight: ཧ་ཝའི་-ཨེ་ལིའུ་ཤེན་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ཧ་ཝའི་-ཨེ་ལིའུ་ཤེན་ཆུ་ཚོད
+        standard: ཧ་ཝའི་-ཨེ་ལིའུ་ཤེན་ཚད་ལྡན་ཆུ་ཚོད
+    India: 
+      long: 
+        standard: རྒྱ་གར་ཆུ་ཚོད
+    Indian_Ocean: 
+      long: 
+        standard: རྒྱ་གར་གྱི་རྒྱ་མཚོ་ཆུ་ཚོད
+    Indochina: 
+      long: 
+        standard: ཨིན་ཌོ་ཅཱའི་ན་ཆུ་ཚོད
+    Indonesia_Central: 
+      long: 
+        standard: དབུས་ཕྱོགས་ཨིན་ཌོ་ནེ་ཤི་ཡ་ཆུ་ཚོད
+    Indonesia_Eastern: 
+      long: 
+        standard: ཤར་ཕྱོགས་ཨིན་ཌོ་ནེ་ཤི་ཡ་ཆུ་ཚོད
+    Indonesia_Western: 
+      long: 
+        standard: ནུབ་ཕྱོགས་ཨིན་ཌོ་ནེ་ཤི་ཡ་ཆུ་ཚོད
+    Iran: 
+      long: 
+        daylight: ཨི་རཱན་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ཨི་རཱན་ཆུ་ཚོད
+        standard: ཨི་རཱན་ཚད་ལྡན་ཆུ་ཚོད
+    Irkutsk: 
+      long: 
+        daylight: ཨར་ཀུཙི་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཨར་ཀུཙི་ཆུ་ཚོད
+        standard: ཨར་ཀུཙི་ཚད་ལྡན་ཆུ་ཚོད
+    Israel: 
+      long: 
+        daylight: ཨིས་རེལ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ཨིས་རེལ་ཆུ་ཚོད
+        standard: ཨིས་རེལ་ཚད་ལྡན་ཆུ་ཚོད
+    Japan: 
+      long: 
+        daylight: ཇ་པཱན་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ཇ་པཱན་ཆུ་ཚོད
+        standard: ཇ་པཱན་ཚད་ལྡན་ཆུ་ཚོད
+    Korea: 
+      long: 
+        daylight: ཀོ་རི་ཡ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ཀོ་རི་ཡ་ཆུ་ཚོད
+        standard: ཀོ་རི་ཡ་ཚད་ལྡན་ཆུ་ཚོད
+    Krasnoyarsk: 
+      long: 
+        daylight: ཀརསི་ནོ་ཡརསཀི་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཀརསི་ནོ་ཡརསཀི་ཆུ་ཚོད
+        standard: ཀརསི་ནོ་ཡརསཀི་ཚད་ལྡན་ཆུ་ཚོད
+    Magadan: 
+      long: 
+        daylight: མ་གྷ་དཱན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: མ་གྷ་དཱན་ཆུ་ཚོད
+        standard: མ་གྷ་དཱན་ཚད་ལྡན་ཆུ་ཚོད
+    Maldives: 
+      long: 
+        standard: མཱལ་དིབས་ཆུ་ཚོད
+    Mauritius: 
+      long: 
+        daylight: མོ་རི་ཤཱས་བྱཱར་དུས་ཆུ་ཚོད
+        generic: མོ་རི་ཤཱས་ཆུ་ཚོད
+        standard: མོ་རི་ཤཱས་ཚད་ལྡན་ཆུ་ཚོད
+    Moscow: 
+      long: 
+        daylight: མཽས་ཀོ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: མཽས་ཀོ་ཆུ་ཚོད
+        standard: མཽས་ཀོ་ཚད་ལྡན་ཆུ་ཚོད
+    Nepal: 
+      long: 
+        standard: ནེ་པཱལ་ཆུ་ཚོད
+    New_Zealand: 
+      long: 
+        daylight: ནིའུ་ཛི་ལེནཌ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ནིའུ་ཛི་ལེནཌ་ཆུ་ཚོད
+        standard: ནིའུ་ཛི་ལེནཌ་ཚད་ལྡན་ཆུ་ཚོད
+    Newfoundland: 
+      long: 
+        daylight: ནིའུ་ཕའུནཌ་ལེནཌ་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: ནིའུ་ཕའུནཌ་ལེནཌ་ཆུ་ཚོད
+        standard: ནིའུ་ཕའུནཌ་ལེནཌ་ཚད་ལྡན་ཆུ་ཚོད
+    Noronha: 
+      long: 
+        daylight: "ཕར་ནེན་ཌོ་ ཌི་ ནོ་རཱོན་ཧ་བྱཱར་དུས་ཆུ་ཚོད"
+        generic: "ཕར་ནེན་ཌོ་ ཌི་ ནོ་རཱོན་ཧ་ཆུ་ཚོད"
+        standard: "ཕར་ནེན་ཌོ་ ཌི་ ནོ་རཱོན་ཧ་ཚད་ལྡན་ཆུ་ཚོད"
+    Novosibirsk: 
+      long: 
+        daylight: ནོ་བོ་སི་བིརསཀི་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ནོ་བོ་སི་བིརསཀི་ཆུ་ཚོད
+        standard: ནོ་བོ་སི་བིརསཀི་ཚད་ལྡན་ཆུ་ཚོད
+    Omsk: 
+      long: 
+        daylight: ཨོམསཀི་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཨོམསཀི་ཆུ་ཚོད
+        standard: ཨོམསཀི་ཚད་ལྡན་ཆུ་ཚོད
+    Pakistan: 
+      long: 
+        daylight: པ་ཀི་ས྄ཏཱན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: པ་ཀི་ས྄ཏཱན་ཆུ་ཚོད
+        standard: པ་ཀི་ས྄ཏཱན་ཚད་ལྡན་ཆུ་ཚོད
+    Paraguay: 
+      long: 
+        daylight: པ་ར་གུ་ཝའི་བྱཱར་དུས་ཆུ་ཚོད
+        generic: པ་ར་གུ་ཝའི་ཆུ་ཚོད
+        standard: པ་ར་གུ་ཝའི་ཚད་ལྡན་ཆུ་ཚོད
+    Peru: 
+      long: 
+        daylight: པ་རུ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: པ་རུ་ཆུ་ཚོད
+        standard: པ་རུ་ཚད་ལྡན་ཆུ་ཚོད
+    Pierre_Miquelon: 
+      long: 
+        daylight: པའི་རི་དང་མི་ཀི་ལཱོན་ཉིན་སྲུང་ཆུ་ཚོད
+        generic: པའི་རི་དང་མི་ཀི་ལཱོན་ཆུ་ཚོད
+        standard: པའི་རི་དང་མི་ཀི་ལཱོན་ཚད་ལྡན་ཆུ་ཚོད
+    Reunion: 
+      long: 
+        standard: རི་ཡུ་ནི་ཡཱན་ཆུ་ཚོད
+    Sakhalin: 
+      long: 
+        daylight: ས་ཁ་ལིན་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ས་ཁ་ལིན་ཆུ་ཚོད
+        standard: ས་ཁ་ལིན་ཚད་ལྡན་ཆུ་ཚོད
+    Seychelles: 
+      long: 
+        standard: སེ་ཤཱལས་ཆུ་ཚོད
+    Suriname: 
+      long: 
+        standard: སུ་རི་ནཱམ་ཆུ་ཚོད
+    Uruguay: 
+      long: 
+        daylight: ཡུ་རུ་གུ་ཝཱའི་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཡུ་རུ་གུ་ཝཱའི་ཆུ་ཚོད
+        standard: ཡུ་རུ་གུ་ཝཱའི་ཚད་ལྡན་ཆུ་ཚོད
+    Venezuela: 
+      long: 
+        standard: བེ་ནི་ཛུ་ཝེ་ལ་ཆུ་ཚོད
+    Vladivostok: 
+      long: 
+        daylight: བ་ལ་ཌི་བོསི་ཏོཀ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: བ་ལ་ཌི་བོསི་ཏོཀ་ཆུ་ཚོད
+        standard: བ་ལ་ཌི་བོསི་ཏོཀ་ཚད་ལྡན་ཆུ་ཚོད
+    Volgograd: 
+      long: 
+        daylight: བཱོལ་གོ་གིརེཌ་བྱཱར་དུས་ཆུ་ཚོད
+        generic: བཱོལ་གོ་གིརེཌ་ཆུ་ཚོད
+        standard: བཱོལ་གོ་གིརེཌ་ཚད་ལྡན་ཆུ་ཚོད
+    Yakutsk: 
+      long: 
+        daylight: ཡ་ཀུཙིཀི་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཡ་ཀུཙིཀི་ཆུ་ཚོད
+        standard: ཡ་ཀུཙིཀི་ཚད་ལྡན་ཆུ་ཚོད
+    Yekaterinburg: 
+      long: 
+        daylight: ཡེ་ཀ་ཏེ་རིན་བརག་བྱཱར་དུས་ཆུ་ཚོད
+        generic: ཡེ་ཀ་ཏེ་རིན་བརག་ཆུ་ཚོད
+        standard: ཡེ་ཀ་ཏེ་རིན་བརག་ཚད་ལྡན་ཆུ་ཚོད
+  timezones: 
+    Africa/Accra: 
+      city: ཨེཀ་ཀྲ
+    Africa/Addis_Ababa: 
+      city: "ཨ་ཌིས་ ཨ་བྷ་བྷ"
+    Africa/Algiers: 
+      city: ཨལ་ཇི་ཡས
+    Africa/Asmera: 
+      city: ཨཱས་མ་ར
+    Africa/Bamako: 
+      city: བྷ་མ་ཀོ
+    Africa/Bangui: 
+      city: བྷང་གི
+    Africa/Banjul: 
+      city: བྷཱན་ཇུལ
+    Africa/Bissau: 
+      city: བྷི་སཱའུ
+    Africa/Brazzaville: 
+      city: བྷྲ་ཛ་བིལ
+    Africa/Bujumbura: 
+      city: བྷུ་ཇུམ་བྷུ་ར
+    Africa/Cairo: 
+      city: ཀཱའི་རོ
+    Africa/Conakry: 
+      city: ཀོ་ནཀ་རི
+    Africa/Dakar: 
+      city: ཌཱ་ཀར
+    Africa/Djibouti: 
+      city: ཇི་བྷུ་ཊི
+    Africa/Gaborone: 
+      city: གྷ་བྷོ་རོ་ནེ
+    Africa/Harare: 
+      city: ཧ་རཱ་རེ
+    Africa/Kampala: 
+      city: ཀེམ་པ་ལ
+    Africa/Khartoum: 
+      city: ཁཱར་ཊུམ
+    Africa/Kigali: 
+      city: ཀི་གྷ་ལི
+    Africa/Kinshasa: 
+      city: ཀིན་ཤ་ས
+    Africa/Libreville: 
+      city: ལི་བྷྲ་བིལ
+    Africa/Lome: 
+      city: ལོ་མེ
+    Africa/Luanda: 
+      city: ལུ་ཝེན་ཌ
+    Africa/Lusaka: 
+      city: ལུ་སཱ་ཀ
+    Africa/Malabo: 
+      city: མ་ལ་བྷོ
+    Africa/Maputo: 
+      city: མ་པུ་ཏོ
+    Africa/Maseru: 
+      city: མ་ས་རུ
+    Africa/Mbabane: 
+      city: འུམ་བྷ་བྷ་ནི
+    Africa/Mogadishu: 
+      city: མོ་གཱ་ཌི་ཤུ
+    Africa/Monrovia: 
+      city: མཱན་རོ་བི་ཡ
+    Africa/Nairobi: 
+      city: ནཱའི་རོ་བི
+    Africa/Niamey: 
+      city: ནི་ཡ་མེ
+    Africa/Nouakchott: 
+      city: ནུ་ཨཀ་ཤའོཊ
+    Africa/Ouagadougou: 
+      city: ཝ་གཱ་ཌུ་གུ
+    Africa/Sao_Tome: 
+      city: "སཝ་ ཊོ་མེ"
+    Africa/Tripoli: 
+      city: ཏྲི་པོ་ལི
+    Africa/Tunis: 
+      city: ཊུ་ནིས྄
+    Africa/Windhoek: 
+      city: ཝིནཌ་ཧུཀ
+    America/Antigua: 
+      city: ཨན་ཊི་གུ་ཝ་
+    America/Asuncion: 
+      city: ཨ་སུན་སི་འོན
+    America/Barbados: 
+      city: བྷར་བེ་ཌོས
+    America/Belize: 
+      city: བྷེ་ལིཛ
+    America/Bogota: 
+      city: བྷོ་ག་ཊ
+    America/Buenos_Aires: 
+      city: "བྷུའི་ནོས་ ཨའི་རིས"
+    America/Cambridge_Bay: 
+      city: "ཀེམ་བིརིདཆ་ བའེ"
+    America/Caracas: 
+      city: ཀ་ར་ཀཱས
+    America/Chicago: 
+      city: ཅི་ཀཱ་གོ
+    America/Coral_Harbour: 
+      city: ཨ་ཏི་ཀོ་ཀཱན
+    America/Costa_Rica: 
+      city: ཀོས་ཊ་རི་ཀ
+    America/Dawson: 
+      city: དའུ་སཱོན
+    America/Dawson_Creek: 
+      city: "དའུ་སཱོན་ ཀིརིཀ"
+    America/Dominica: 
+      city: ཌོ་མི་ནི་ཀ
+    America/Edmonton: 
+      city: ཨེཌ་མཱོན་ཊོན
+    America/El_Salvador: 
+      city: "ཨེལ་ སཱལ་བ་ཌོ"
+    America/Godthab: 
+      city: Nuuk
+    America/Goose_Bay: 
+      city: "གཱུསི་ བའེ"
+    America/Guatemala: 
+      city: གྷོ་ཊ་མ་ལ
+    America/Guyana: 
+      city: གྷ་ཡ་ན
+    America/Halifax: 
+      city: ཧ་ལི་ཕེགསི
+    America/Indiana/Knox: 
+      city: "Knox, Indiana"
+    America/Indiana/Marengo: 
+      city: "Marengo, Indiana"
+    America/Indiana/Petersburg: 
+      city: "Petersburg, Indiana"
+    America/Indiana/Tell_City: 
+      city: "Tell City, Indiana"
+    America/Indiana/Vevay: 
+      city: "Vevay, Indiana"
+    America/Indiana/Vincennes: 
+      city: "Vincennes, Indiana"
+    America/Indiana/Winamac: 
+      city: "Winamac, Indiana"
+    America/Inuvik: 
+      city: ཨི་ནུ་ཝིཀ
+    America/Jamaica: 
+      city: ཇཱ་མའེ་ཀ
+    America/Kentucky/Monticello: 
+      city: "Monticello, Kentucky"
+    America/La_Paz: 
+      city: ལ་པཱཛ྄
+    America/Lima: 
+      city: ལི་མ
+    America/Lower_Princes: 
+      city: "Lower Prince's Quarter"
+    America/Mexico_City: 
+      city: "མེཀ་སི་ཀོ་ སི་ཊི"
+    America/Moncton: 
+      city: མཱོངཀ་ཊོན
+    America/Montevideo: 
+      city: མོན་ཊེ་བྷི་ཌིའོ
+    America/Montreal: 
+      city: མཱོནཊ་རི་ཡལ
+    America/Nassau: 
+      city: ན་སའོ
+    America/Nipigon: 
+      city: ནི་པི་གཱོན
+    America/North_Dakota/Beulah: 
+      city: "Beulah, North Dakota"
+    America/North_Dakota/Center: 
+      city: "Center, North Dakota"
+    America/North_Dakota/New_Salem: 
+      city: "New Salem, North Dakota"
+    America/Panama: 
+      city: པ་ན་མ
+    America/Pangnirtung: 
+      city: པེང་ནིར་ཏུང
+    America/Paramaribo: 
+      city: པ་ར་མ་རི་བྷོ
+    America/Rainy_River: 
+      city: རཱེ་ནི་རི་ཝར
+    America/Rankin_Inlet: 
+      city: "རེན་ཀིན་ ཨིན་ལེཊ"
+    America/Regina: 
+      city: རི་ཇི་ན
+    America/Resolute: 
+      city: རི་སོ་ལིའུཊ
+    America/Santiago: 
+      city: སཱན་ཊི་ཡ་གྷོ
+    America/Santo_Domingo: 
+      city: "སཱན་ཊོ་ ཌོ་མིང་གྷོ"
+    America/Scoresbysund: 
+      city: Ittoqqortoormiit
+    America/St_Barthelemy: 
+      city: "St. Barthelemy"
+    America/St_Johns: 
+      city: "ཨིསི་ཊེཊ་ ཇཱོནསི་"
+    America/St_Kitts: 
+      city: "St. Kitts"
+    America/St_Lucia: 
+      city: "St. Lucia"
+    America/St_Thomas: 
+      city: "St. Thomas"
+    America/St_Vincent: 
+      city: "St. Vincent"
+    America/Swift_Current: 
+      city: སུ་ཨིཕཊ་ཀ་རེནཊ
+    America/Tegucigalpa: 
+      city: ཊེ་གུ་སི་གཱལ་པ
+    America/Thunder_Bay: 
+      city: "ཐན་ཌར་ བའེ"
+    America/Tijuana: 
+      city: ཏིའུ་ཝ་ན
+    America/Toronto: 
+      city: ཊོ་རོན་ཊོ
+    America/Yakutat: 
+      city: ཡ་ཀུ་ཏཏ
+    Antarctica/Davis: 
+      city: ཌེ་ཝིས།
+    Antarctica/DumontDUrville: 
+      city: "Dumont d’Urville"
+    Antarctica/Mawson: 
+      city: མའུ་སཱོན
+    Antarctica/Palmer: 
+      city: ཕཱལ་མར
+    Antarctica/Rothera: 
+      city: རཱོ་ཐེ་ར
+    Antarctica/South_Pole: 
+      city: སཱའུཐ་པོལ
+    Antarctica/Vostok: 
+      city: ཝོསི་ཊོཀ
+    Asia/Bahrain: 
+      city: བྷ་རེན་
+    Asia/Brunei: 
+      city: བྷྲུ་ནའི
+    Asia/Calcutta: 
+      city: ཀཱོལ་ཀ་ཊ
+    Asia/Colombo: 
+      city: ཀོ་ལོམ་བྷོ
+    Asia/Dhaka: 
+      city: ཌཱ་ཀ
+    Asia/Jakarta: 
+      city: ཇཱ་ཀར་ཊ
+    Asia/Jayapura: 
+      city: ཇ་ཡ་པུ་ར
+    Asia/Kabul: 
+      city: ཀ་བྷུལ
+    Asia/Karachi: 
+      city: ཀ་ར་ཅི
+    Asia/Katmandu: 
+      city: ཀཱཊ་མཱན་ཌུ
+    Asia/Kuala_Lumpur: 
+      city: "ཀོ་ལ་ ལམ་པུར"
+    Asia/Pontianak: 
+      city: པཱོན་ཊའེ་ནཀ
+    Asia/Rangoon: 
+      city: རང་གྷུན
+    Asia/Saigon: 
+      city: "Ho Chi Minh"
+    Asia/Tehran: 
+      city: ཊེ་རཱན
+    Asia/Thimphu: 
+      city: ཐིམ་ཕུག
+    Asia/Vientiane: 
+      city: བི་ཡཱན་ཊི་ཡཱན
+    Atlantic/Bermuda: 
+      city: བར་མུ་ད
+    Atlantic/Cape_Verde: 
+      city: ཀེཔ་བཱཌ
+    Atlantic/Faeroe: 
+      city: ཕཱའེ་རོ་
+    Atlantic/Reykjavik: 
+      city: རེ་ཁི་ཡ་བིཀ
+    Atlantic/South_Georgia: 
+      city: སཱའུཐ་ཇོ་ཇཱ
+    Atlantic/St_Helena: 
+      city: "St. Helena"
+    Etc/Unknown: 
+      city: མ་ཤེས་པའི་ཁྲོམ་སྡེ
+    Europe/Amsterdam: 
+      city: ཨམས་ཊར་ཌམ
+    Europe/Andorra: 
+      city: ཨཱན་དོ་ར
+    Europe/Athens: 
+      city: ཨེ་ཐེནས་
+    Europe/Berlin: 
+      city: བྷར་ལིན
+    Europe/Brussels: 
+      city: བྲ་སེལས
+    Europe/Bucharest: 
+      city: བྷུ་ཀ་རེསཊ
+    Europe/Budapest: 
+      city: བྷུ་ཌ་པེསཊ
+    Europe/Chisinau: 
+      city: ཀི་ཤི་ནཱཝ
+    Europe/Copenhagen: 
+      city: ཀོ་པེན་ཧེ་གེན
+    Europe/Dublin: 
+      city: ཌབ་ལིན
+      long: 
+        daylight: ཨཱ་ཡརིཤ་བྱཱར་དུས་ཆུ་ཚོད
+    Europe/Helsinki: 
+      city: ཧེལ་སིང་ཀི
+    Europe/London: 
+      city: ལཱན་ཌཱན
+      long: 
+        daylight: བྲཱི་ཊིཤ་བྱཱར་དུས་ཆུ་ཚོད
+    Europe/Luxembourg: 
+      city: ལག་སམ་བྷཀ
+    Europe/Madrid: 
+      city: མ་ཌེ་རེཌ
+    Europe/Minsk: 
+      city: མིནསཀ
+    Europe/Monaco: 
+      city: མོ་ན་ཀོ
+    Europe/Moscow: 
+      city: མཱོས་ཀོ
+    Europe/Oslo: 
+      city: ཨོས་ལོ
+    Europe/Paris: 
+      city: པེ་རིས
+    Europe/Prague: 
+      city: པྲག
+    Europe/Riga: 
+      city: རི་གྷ
+    Europe/Sarajevo: 
+      city: ས་ར་ཡེ་བོ
+    Europe/Sofia: 
+      city: སོ་ཕི་ཡ
+    Europe/Stockholm: 
+      city: ཨིས་ཊོཀ་ཧོལམ
+    Europe/Tallinn: 
+      city: ཊཱ་ལཱིན
+    Europe/Tirane: 
+      city: ཊ་ར་ནི
+    Europe/Vaduz: 
+      city: བ་དུདས
+    Europe/Vienna: 
+      city: ཝི་ཡེ་ན
+    Europe/Vilnius: 
+      city: བིལ་ནི་ཡཱས
+    Europe/Warsaw: 
+      city: ཝར་སོ
+    Europe/Zurich: 
+      city: ཛུ་རིཆ
+    Indian/Antananarivo: 
+      city: ཨཱན་ཏ་ན་ན་དི་བོ
+    Indian/Christmas: 
+      city: ཀིརིསཊ་མསི
+    Indian/Cocos: 
+      city: ཀོ་ཀོསི
+    Indian/Comoro: 
+      city: ཀོ་མོ་རོ
+    Indian/Kerguelen: 
+      city: ཀིར་གུ་ལིན
+    Indian/Maldives: 
+      city: མཱལ་དིབས
+    Indian/Mauritius: 
+      city: མོ་རི་ཤཱས
+    Pacific/Apia: 
+      city: ཨ་པི་ཡ
+    Pacific/Fakaofo: 
+      city: ཕ་ཀའོ་ཕོ
+    Pacific/Funafuti: 
+      city: ཕུ་ན་ཕུ་ཊི
+    Pacific/Gambier: 
+      city: གེམ་བིཡར
+    Pacific/Johnston: 
+      city: ཇཱོནསི་ཊོན
+    Pacific/Majuro: 
+      city: མེ་ཇུ་རོ
+    Pacific/Midway: 
+      city: མིཌ་ཝེ
+    Pacific/Nauru: 
+      city: ནཱཝ་རུ
+    Pacific/Pago_Pago: 
+      city: "པ་གོ་ པ་གོ"
+    Pacific/Palau: 
+      city: པ་ལཱཝ
+    Pacific/Ponape: 
+      city: Pohnpei
+    Pacific/Rarotonga: 
+      city: རཱ་རོ་་ཏོང་ག
+    Pacific/Saipan: 
+      city: སཱའེ་ཕཱན
+    Pacific/Tongatapu: 
+      city: ཏོང་ག་ཏ་པུ
+    Pacific/Truk: 
+      city: Chuuk
+    Pacific/Wake: 
+      city: ཝེཀ

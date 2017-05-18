@@ -1,0 +1,1 @@
+{ :'my_MM' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

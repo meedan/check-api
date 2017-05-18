@@ -1,0 +1,562 @@
+ru: 
+  units: 
+    durationUnit: 
+      hm: "h:mm"
+      hms: "h:mm:ss"
+      ms: "m:ss"
+    unitLength: 
+      long: 
+        acceleration-g-force: 
+          many: "{0} G"
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          many: "{0}минут"
+          one: "{0}минута"
+          other: "{0}минуты"
+        angle-arc-second: 
+          many: "{0}секунд"
+          one: "{0}секунда"
+          other: "{0}секунды"
+        angle-degree: 
+          many: "{0} градусов"
+          one: "{0}градус"
+          other: "{0} градуса"
+        area-acre: 
+          many: "{0} акров"
+          one: "{0} акр"
+          other: "{0} акра"
+        area-hectare: 
+          many: "{0} гектар"
+          one: "{0} гектар"
+          other: "{0} гектара"
+        area-square-foot: 
+          many: "{0} квадратных футов"
+          one: "{0} квадратный фут"
+          other: "{0} квадратных фута"
+        area-square-kilometer: 
+          many: "{0} квадратных километров"
+          one: "{0} квадратный километр"
+          other: "{0} квадратных километра"
+        area-square-meter: 
+          many: "{0} квадратных метров"
+          one: "{0} квадратный метр"
+          other: "{0} квадратных метра"
+        area-square-mile: 
+          many: "{0} квадратных миль"
+          one: "{0} квадратная миля"
+          other: "{0} квадратных мили"
+        duration-day: 
+          many: "{0} дней"
+          one: "{0} день"
+          other: "{0} дня"
+        duration-hour: 
+          many: "{0} часов"
+          one: "{0} час"
+          other: "{0} часа"
+        duration-millisecond: 
+          many: "{0} миллисекунды"
+          one: "{0} миллисекунда"
+          other: "{0} миллисекунды"
+        duration-minute: 
+          many: "{0} минут"
+          one: "{0} минута"
+          other: "{0} минуты"
+        duration-month: 
+          many: "{0} месяцев"
+          one: "{0} месяц"
+          other: "{0} месяца"
+        duration-second: 
+          many: "{0} секунд"
+          one: "{0} секунда"
+          other: "{0} секунды"
+        duration-week: 
+          many: "{0} недель"
+          one: "{0} неделя"
+          other: "{0} недели"
+        duration-year: 
+          many: "{0} лет"
+          one: "{0} год"
+          other: "{0} года"
+        length-centimeter: 
+          many: "{0} сантиметров"
+          one: "{0} сантиметр"
+          other: "{0} сантиметра"
+        length-foot: 
+          many: "{0} футов"
+          one: "{0} фут"
+          other: "{0} фута"
+        length-inch: 
+          many: "{0} дюймов"
+          one: "{0} дюйм"
+          other: "{0} дюйма"
+        length-kilometer: 
+          many: "{0} километров"
+          one: "{0} километр"
+          other: "{0} километра"
+        length-light-year: 
+          many: "{0} световых лет"
+          one: "{0} световой год"
+          other: "{0} световых года"
+        length-meter: 
+          many: "{0} метров"
+          one: "{0} метр"
+          other: "{0} метра"
+        length-mile: 
+          many: "{0} миль"
+          one: "{0} миля"
+          other: "{0} мили"
+        length-millimeter: 
+          many: "{0} миллиметров"
+          one: "{0} миллиметр"
+          other: "{0} миллиметра"
+        length-picometer: 
+          many: "{0} пикометров"
+          one: "{0} пикометр"
+          other: "{0} пикометра"
+        length-yard: 
+          many: "{0} ярдов"
+          one: "{0} ярд"
+          other: "{0} ярда"
+        mass-gram: 
+          many: "{0} грамм"
+          one: "{0} грамм"
+          other: "{0} грамма"
+        mass-kilogram: 
+          many: "{0} килограмм"
+          one: "{0} килограмм"
+          other: "{0} килограмма"
+        mass-ounce: 
+          many: "{0} унций"
+          one: "{0} унция"
+          other: "{0} унции"
+        mass-pound: 
+          many: "{0} фунтов"
+          one: "{0} фунт"
+          other: "{0} фунта"
+        power-horsepower: 
+          many: "{0} лошадиных сил"
+          one: "{0} лошадиная сила"
+          other: "{0} лошадиных сил"
+        power-kilowatt: 
+          many: "{0} киловатт"
+          one: "{0} киловатт"
+          other: "{0} киловатта"
+        power-watt: 
+          many: "{0} ватт"
+          one: "{0} ватт"
+          other: "{0} ватта"
+        pressure-hectopascal: 
+          many: "{0} гектопаскалей"
+          one: "{0} гектопаскаль"
+          other: "{0} гектопаскаля"
+        pressure-inch-hg: 
+          many: "{0} дюймов ртутного столба"
+          one: "{0} дюйм ртутного столба"
+          other: "{0}дюйма ртутного столба"
+        pressure-millibar: 
+          many: "{0} миллибар"
+          one: "{0} миллибар"
+          other: "{0} миллибара"
+        speed-kilometer-per-hour: 
+          many: "{0} километров в час"
+          one: "{0} километр в час"
+          other: "{0} километра в час"
+        speed-meter-per-second: 
+          many: "{0} метров в секунду"
+          one: "{0} метр в секунду"
+          other: "{0} метра в секунду"
+        speed-mile-per-hour: 
+          many: "{0} миль в час"
+          one: "{0} миля в час"
+          other: "{0} миль в час"
+        temperature-celsius: 
+          many: "{0}градусов Цельсия"
+          one: "{0}градус Цельсия"
+          other: "{0}градуса Цельсия"
+        temperature-fahrenheit: 
+          many: "{0}градусов по Фаренгейту"
+          one: "{0}градус по Фаренгейту"
+          other: "{0}градуса по Фаренгейту"
+        volume-cubic-kilometer: 
+          many: "{0} кубических километров"
+          one: "{0} кубический километр"
+          other: "{0} кубических километра"
+        volume-cubic-mile: 
+          many: "{0} кубических мили"
+          one: "{0} кубическая миля"
+          other: "{0} кубических мили"
+        volume-liter: 
+          many: "{0} литра"
+          one: "{0} литр"
+          other: "{0} литра"
+      narrow: 
+        acceleration-g-force: 
+          many: "{0} G"
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          many: "{0}′"
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          many: "{0}″"
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          many: "{0}°"
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          many: "{0} акров"
+          one: "{0} акр"
+          other: "{0} акра"
+        area-hectare: 
+          many: "{0} га"
+          one: "{0} га"
+          other: "{0} га"
+        area-square-foot: 
+          many: "{0} кв. футов"
+          one: "{0} кв. фут"
+          other: "{0} кв. фута"
+        area-square-kilometer: 
+          many: "{0} км²"
+          one: "{0} км²"
+          other: "{0} км²"
+        area-square-meter: 
+          many: "{0} м²"
+          one: "{0} м²"
+          other: "{0} м²"
+        area-square-mile: 
+          many: "{0} кв. миль"
+          one: "{0} кв. миля"
+          other: "{0} кв. мили"
+        duration-day: 
+          many: "{0} д."
+          one: "{0} д."
+          other: "{0} д."
+        duration-hour: 
+          many: "{0} ч"
+          one: "{0} ч"
+          other: "{0} ч"
+        duration-millisecond: 
+          many: "{0} мс"
+          one: "{0} мс"
+          other: "{0} мс"
+        duration-minute: 
+          many: "{0} мин"
+          one: "{0} м."
+          other: "{0} мин"
+        duration-month: 
+          many: "{0} м."
+          one: "{0} м."
+          other: "{0} м."
+        duration-second: 
+          many: "{0} с"
+          one: "{0} с"
+          other: "{0} с"
+        duration-week: 
+          many: "{0} н."
+          one: "{0} н."
+          other: "{0} н."
+        duration-year: 
+          many: "{0} л."
+          one: "{0} г."
+          other: "{0} г."
+        length-centimeter: 
+          many: "{0} см"
+          one: "{0} см"
+          other: "{0} см"
+        length-foot: 
+          many: "{0} футов"
+          one: "{0} фут"
+          other: "{0} фута"
+        length-inch: 
+          many: "{0} дюймов"
+          one: "{0} дюйм"
+          other: "{0} дюйма"
+        length-kilometer: 
+          many: "{0} км"
+          one: "{0} км"
+          other: "{0} км"
+        length-light-year: 
+          many: "{0} св. л."
+          one: "{0} св. г."
+          other: "{0} св. г."
+        length-meter: 
+          many: "{0} м"
+          one: "{0} м"
+          other: "{0} м"
+        length-mile: 
+          many: "{0} миль"
+          one: "{0} миля"
+          other: "{0} мили"
+        length-millimeter: 
+          many: "{0} мм"
+          one: "{0} мм"
+          other: "{0} мм"
+        length-picometer: 
+          many: "{0} pm"
+          one: "{0} pm"
+          other: "{0} pm"
+        length-yard: 
+          many: "{0} ярдов"
+          one: "{0} ярд"
+          other: "{0} ярда"
+        mass-gram: 
+          many: "{0} гр"
+          one: "{0} гр"
+          other: "{0} гр"
+        mass-kilogram: 
+          many: "{0} кг"
+          one: "{0} кг"
+          other: "{0} кг"
+        mass-ounce: 
+          many: "{0} oz"
+          one: "{0} oz"
+          other: "{0} oz"
+        mass-pound: 
+          many: "{0} lb"
+          one: "{0} lb"
+          other: "{0} lb"
+        power-horsepower: 
+          many: "{0} л.с."
+          one: "{0} л.с."
+          other: "{0} л.с."
+        power-kilowatt: 
+          many: "{0} кВт"
+          one: "{0} кВт"
+          other: "{0} кВт"
+        power-watt: 
+          many: "{0} Вт"
+          one: "{0} Вт"
+          other: "{0} Вт"
+        pressure-hectopascal: 
+          many: "{0} гПа"
+          one: "{0} гПа"
+          other: "{0} гПа"
+        pressure-inch-hg: 
+          many: "{0} inHg"
+          one: "{0} inHg"
+          other: "{0} inHg"
+        pressure-millibar: 
+          many: "{0} мбар"
+          one: "{0} мбар"
+          other: "{0} мбар"
+        speed-kilometer-per-hour: 
+          many: "{0} км/ч"
+          one: "{0} км/ч"
+          other: "{0} км/ч"
+        speed-meter-per-second: 
+          many: "{0} м/с"
+          one: "{0} м/с"
+          other: "{0} м/с"
+        speed-mile-per-hour: 
+          many: "{0} миль/ч"
+          one: "{0} миль/ч"
+          other: "{0} миль/ч"
+        temperature-celsius: 
+          many: "{0} °"
+          one: "{0} °"
+          other: "{0} °"
+        temperature-fahrenheit: 
+          many: "{0}°F"
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          many: "{0} км³"
+          one: "{0} км³"
+          other: "{0} км³"
+        volume-cubic-mile: 
+          many: "{0} куб. мили"
+          one: "{0} куб. миля"
+          other: "{0} куб. мили"
+        volume-liter: 
+          many: "{0} л"
+          one: "{0} л"
+          other: "{0} л"
+      short: 
+        acceleration-g-force: 
+          many: "{0} G"
+          one: "{0} G"
+          other: "{0} G"
+        angle-arc-minute: 
+          many: "{0}′"
+          one: "{0}′"
+          other: "{0}′"
+        angle-arc-second: 
+          many: "{0}″"
+          one: "{0}″"
+          other: "{0}″"
+        angle-degree: 
+          many: "{0}°"
+          one: "{0}°"
+          other: "{0}°"
+        area-acre: 
+          many: "{0} акров"
+          one: "{0} акр"
+          other: "{0} акра"
+        area-hectare: 
+          many: "{0} га"
+          one: "{0} га"
+          other: "{0} га"
+        area-square-foot: 
+          many: "{0} кв. футов"
+          one: "{0} кв. фут"
+          other: "{0} кв. фута"
+        area-square-kilometer: 
+          many: "{0} км²"
+          one: "{0} км²"
+          other: "{0} км²"
+        area-square-meter: 
+          many: "{0} м²"
+          one: "{0} м²"
+          other: "{0} м²"
+        area-square-mile: 
+          many: "{0} кв. миль"
+          one: "{0} кв. миля"
+          other: "{0} кв. мили"
+        duration-day: 
+          many: "{0} дн"
+          one: "{0} дн"
+          other: "{0} дн"
+        duration-hour: 
+          many: "{0} ч"
+          one: "{0} ч"
+          other: "{0} ч"
+        duration-millisecond: 
+          many: "{0} мс"
+          one: "{0} мс"
+          other: "{0} мс"
+        duration-minute: 
+          many: "{0} мин"
+          one: "{0} мин"
+          other: "{0} мин"
+        duration-month: 
+          many: "{0} мес"
+          one: "{0} мес"
+          other: "{0} мес"
+        duration-second: 
+          many: "{0} с"
+          one: "{0} с"
+          other: "{0} с"
+        duration-week: 
+          many: "{0} нед"
+          one: "{0} нед"
+          other: "{0} нед"
+        duration-year: 
+          many: "{0} лет"
+          one: "{0} г."
+          other: "{0} г."
+        length-centimeter: 
+          many: "{0} см"
+          one: "{0} см"
+          other: "{0} см"
+        length-foot: 
+          many: "{0} футов"
+          one: "{0} фут"
+          other: "{0} фута"
+        length-inch: 
+          many: "{0} дюймов"
+          one: "{0} дюйм"
+          other: "{0} дюйма"
+        length-kilometer: 
+          many: "{0} км"
+          one: "{0} км"
+          other: "{0} км"
+        length-light-year: 
+          many: "{0} св. л."
+          one: "{0} св. г."
+          other: "{0} св. г."
+        length-meter: 
+          many: "{0} м"
+          one: "{0} м"
+          other: "{0} м"
+        length-mile: 
+          many: "{0} миль"
+          one: "{0} миля"
+          other: "{0} мили"
+        length-millimeter: 
+          many: "{0} мм"
+          one: "{0} мм"
+          other: "{0} мм"
+        length-picometer: 
+          many: "{0} pm"
+          one: "{0} pm"
+          other: "{0} pm"
+        length-yard: 
+          many: "{0} ярдов"
+          one: "{0} ярд"
+          other: "{0} ярда"
+        mass-gram: 
+          many: "{0} гр"
+          one: "{0} гр"
+          other: "{0} гр"
+        mass-kilogram: 
+          many: "{0} кг"
+          one: "{0} кг"
+          other: "{0} кг"
+        mass-ounce: 
+          many: "{0} oz"
+          one: "{0} oz"
+          other: "{0} oz"
+        mass-pound: 
+          many: "{0} lb"
+          one: "{0} lb"
+          other: "{0} lb"
+        power-horsepower: 
+          many: "{0} л.с."
+          one: "{0} л.с."
+          other: "{0} л.с."
+        power-kilowatt: 
+          many: "{0} кВт"
+          one: "{0} кВт"
+          other: "{0} кВт"
+        power-watt: 
+          many: "{0} Вт"
+          one: "{0} Вт"
+          other: "{0} Вт"
+        pressure-hectopascal: 
+          many: "{0} гПа"
+          one: "{0} гПа"
+          other: "{0} гПа"
+        pressure-inch-hg: 
+          many: "{0} дюймов рт. ст"
+          one: "{0} дюйм рт. ст"
+          other: "{0} дюйма рт. ст"
+        pressure-millibar: 
+          many: "{0} мбар"
+          one: "{0} мбар"
+          other: "{0} мбар"
+        speed-kilometer-per-hour: 
+          many: "{0} км/ч"
+          one: "{0} км/ч"
+          other: "{0} км/ч"
+        speed-meter-per-second: 
+          many: "{0} м/с"
+          one: "{0} м/с"
+          other: "{0} м/с"
+        speed-mile-per-hour: 
+          many: "{0} миль/час"
+          one: "{0} миль/час"
+          other: "{0} миль/час"
+        temperature-celsius: 
+          many: "{0} °C"
+          one: "{0} °C"
+          other: "{0} °C"
+        temperature-fahrenheit: 
+          many: "{0}°F"
+          one: "{0}°F"
+          other: "{0}°F"
+        volume-cubic-kilometer: 
+          many: "{0} км³"
+          one: "{0} км³"
+          other: "{0} км³"
+        volume-cubic-mile: 
+          many: "{0} куб. мили"
+          one: "{0} куб. миля"
+          other: "{0} куб. мили"
+        volume-liter: 
+          many: "{0} л"
+          one: "{0} л"
+          other: "{0} л"

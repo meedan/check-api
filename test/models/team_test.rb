@@ -104,7 +104,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [], t.users
     t.users << u1
     t.users << u2
-    assert_equal [u1, u2], t.users
+    assert_equal [u1, u2].sort, t.users.sort
   end
 
   test "should have team users" do
@@ -116,8 +116,8 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [], t.team_users
     t.team_users << tu1
     t.team_users << tu2
-    assert_equal [tu1, tu2], t.team_users
-    assert_equal [u1, u2], t.users
+    assert_equal [tu1, tu2].sort, t.team_users.sort
+    assert_equal [u1, u2].sort, t.users.sort
   end
 
   test "should get logo from callback" do

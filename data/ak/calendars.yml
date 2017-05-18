@@ -1,0 +1,190 @@
+ak: 
+  calendars: 
+    gregorian: 
+      additional_formats: 
+        EHm: "E HH:mm"
+        EHms: "E HH:mm:ss"
+        Ed: "d, E"
+        Ehm: "E h:mm a"
+        Ehms: "E h:mm:ss a"
+        Gy: "G y"
+        GyMMM: "G y MMM"
+        GyMMMEd: "G y MMM d, E"
+        GyMMMd: "G y MMM d"
+        H: HH
+        Hm: "HH:mm"
+        Hms: "HH:mm:ss"
+        M: L
+        MEd: "E, M/d"
+        MMM: LLL
+        MMMEd: "E, MMM d"
+        MMMMEd: "E, MMMM d"
+        MMMMd: "MMMM d"
+        MMMd: "MMM d"
+        Md: M/d
+        d: d
+        h: "h a"
+        hm: "h:mm a"
+        hms: "h:mm:ss a"
+        ms: "mm:ss"
+        y: y
+        yM: M/y
+        yMEd: "E, M/d/y"
+        yMMM: "MMM y"
+        yMMMEd: "E, MMM d, y"
+        yMMMM: "MMMM y"
+        yMMMd: "y MMM d"
+        yMd: y/M/d
+        yQQQ: "QQQ y"
+        yQQQQ: "QQQQ y"
+      days: 
+        format: 
+          abbreviated: 
+            fri: Fia
+            mon: Dwo
+            sat: Mem
+            sun: Kwe
+            thu: Yaw
+            tue: Ben
+            wed: Wuk
+          narrow: :"calendars.gregorian.days.stand-alone.narrow"
+          short: :"calendars.gregorian.days.format.abbreviated"
+          wide: 
+            fri: Fida
+            mon: Dwowda
+            sat: Memeneda
+            sun: Kwesida
+            thu: Yawda
+            tue: Benada
+            wed: Wukuda
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.days.format.abbreviated"
+          narrow: 
+            fri: F
+            mon: D
+            sat: M
+            sun: K
+            thu: Y
+            tue: B
+            wed: W
+          short: :"calendars.gregorian.days.format.short"
+          wide: :"calendars.gregorian.days.format.wide"
+      eras: 
+        abbr: 
+          0: AK
+          1: KE
+        name: 
+          0: "Ansa Kristo"
+          1: "Kristo Ekyiri"
+        narrow: 
+          0: ""
+      fields: 
+        day: Da
+        dayperiod: "Da bere"
+        era: Bere
+        hour: Dɔnhwer
+        minute: Sema
+        month: Bosome
+        second: Sɛkɛnd
+        week: Dapɛn
+        weekday: "Dapɛn mu da"
+        year: Afe
+        zone: "Bere apaamu"
+      formats: 
+        date: 
+          full: 
+            pattern: "EEEE, y MMMM dd"
+          long: 
+            pattern: "y MMMM d"
+          medium: 
+            pattern: "y MMM d"
+          short: 
+            pattern: yy/MM/dd
+        datetime: 
+          full: 
+            pattern: "{{date}} {{time}}"
+          long: 
+            pattern: "{{date}} {{time}}"
+          medium: 
+            pattern: "{{date}} {{time}}"
+          short: 
+            pattern: "{{date}} {{time}}"
+        time: 
+          full: 
+            pattern: "HH:mm:ss zzzz"
+          long: 
+            pattern: "HH:mm:ss z"
+          medium: 
+            pattern: "HH:mm:ss"
+          short: 
+            pattern: "HH:mm"
+      months: 
+        format: 
+          abbreviated: 
+            1: S-Ɔ
+            10: Ɔ-A
+            11: Ɔ-O
+            12: M-Ɔ
+            2: K-Ɔ
+            3: E-Ɔ
+            4: E-O
+            5: E-K
+            6: O-A
+            7: A-K
+            8: D-Ɔ
+            9: F-Ɛ
+          narrow: :"calendars.gregorian.months.stand-alone.narrow"
+          wide: 
+            1: Sanda-Ɔpɛpɔn
+            10: Ɔbɛsɛ-Ahinime
+            11: Ɔberɛfɛw-Obubuo
+            12: Mumu-Ɔpɛnimba
+            2: Kwakwar-Ɔgyefuo
+            3: Ebɔw-Ɔbenem
+            4: Ebɔbira-Oforisuo
+            5: "Esusow Aketseaba-Kɔtɔnimba"
+            6: Obirade-Ayɛwohomumu
+            7: Ayɛwoho-Kitawonsa
+            8: Difuu-Ɔsandaa
+            9: Fankwa-Ɛbɔ
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.months.format.abbreviated"
+          narrow: 
+            1: 1
+            10: 10
+            11: 11
+            12: 12
+            2: 2
+            3: 3
+            4: 4
+            5: 5
+            6: 6
+            7: 7
+            8: 8
+            9: 9
+          wide: :"calendars.gregorian.months.format.wide"
+      periods: 
+        format: 
+          abbreviated: :"calendars.gregorian.dayPeriods.format.wide"
+          narrow: :"calendars.gregorian.dayPeriods.format.abbreviated"
+          wide: 
+            am: AN
+            pm: EW
+        stand-alone: {}
+      quarters: 
+        format: 
+          abbreviated: :"calendars.gregorian.quarters.format.wide"
+          narrow: :"calendars.gregorian.quarters.stand-alone.narrow"
+          wide: 
+            1: Q1
+            2: Q2
+            3: Q3
+            4: Q4
+        stand-alone: 
+          abbreviated: :"calendars.gregorian.quarters.format.abbreviated"
+          narrow: 
+            1: 1
+            2: 2
+            3: 3
+            4: 4
+          wide: :"calendars.gregorian.quarters.format.wide"

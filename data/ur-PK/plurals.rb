@@ -1,0 +1,1 @@
+{ :'ur_PK' => { :i18n => { :plural => { :keys => nil, :rule =>  } } } }

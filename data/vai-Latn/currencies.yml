@@ -1,0 +1,215 @@
+vai-Latn: 
+  currencies: 
+    AED: 
+      one: "Yunaitɛ Arabhi Ɛmire Dihami"
+    AOA: 
+      one: "Angola Kuwaŋza"
+    ARS: 
+      symbol: $
+    AUD: 
+      one: "Ɔ́situwa Dala"
+      symbol: A$
+    BBD: 
+      symbol: $
+    BDT: 
+      symbol: ৳
+    BHD: 
+      one: "Bharɛŋ Dina"
+    BIF: 
+      one: "Bhurundi Furaŋki"
+    BMD: 
+      symbol: $
+    BND: 
+      symbol: $
+    BRL: 
+      symbol: R$
+    BSD: 
+      symbol: $
+    BWP: 
+      one: "Bhosuwana Pula"
+    BYR: 
+      symbol: р.
+    BZD: 
+      symbol: $
+    CAD: 
+      one: "Kanada Dala"
+      symbol: CA$
+    CDF: 
+      one: "Kóngo Furaŋki"
+    CHF: 
+      one: "Suwesi Furaŋki"
+    CLP: 
+      symbol: $
+    CNY: 
+      one: "Chaníĩ Yuwaŋ Rɛŋmimbi"
+      symbol: CN¥
+    COP: 
+      symbol: $
+    CRC: 
+      symbol: ₡
+    CUP: 
+      symbol: $
+    CVE: 
+      one: "Ɛsikudo Cabovɛdiyano"
+    DJF: 
+      one: "Jibhuti Furaŋki"
+    DOP: 
+      symbol: $
+    DZD: 
+      one: "Agiriya Dina"
+    EGP: 
+      one: "Míséla Pɔɔ̃"
+    ERN: 
+      one: "Ɛritera Nakifa"
+    ESP: 
+      symbol: ₧
+    ETB: 
+      one: "Ítiyopiya Bhii"
+    EUR: 
+      one: Yuro
+      symbol: €
+    FJD: 
+      symbol: $
+    GBP: 
+      one: "Jengési Pɔɔ̃ Sitɛ́liŋ"
+      symbol: £
+    GHC: 
+      one: "Gana Sidi"
+    GHS: 
+      symbol: ₵
+    GIP: 
+      symbol: £
+    GMD: 
+      one: "Gambiya Dalasi"
+    GNS: 
+      one: "Gini Furaŋki"
+    GYD: 
+      symbol: $
+    HKD: 
+      symbol: HK$
+    ILS: 
+      symbol: ₪
+    INR: 
+      one: "Índiya Rupi"
+      symbol: ₹
+    JMD: 
+      symbol: $
+    JPY: 
+      one: "Japaniĩ Yɛŋ"
+      symbol: JP¥
+    KES: 
+      one: "Kénya Siyeŋ"
+    KHR: 
+      symbol: ៛
+    KMF: 
+      one: "Komoro Furaŋki"
+    KRW: 
+      symbol: ₩
+    KYD: 
+      symbol: $
+    KZT: 
+      symbol: ₸
+    LAK: 
+      symbol: ₭
+    LRD: 
+      one: "Laibhiya Dala"
+      symbol: $
+    LSL: 
+      one: "Lisóto Loti"
+    LYD: 
+      one: "Libhiya Dina"
+    MAD: 
+      one: "Mɔroko Dihami"
+    MGA: 
+      one: "Malagasi Ariyari"
+    MNT: 
+      symbol: ₮
+    MRO: 
+      one: "Mɔretani Yugiya"
+    MUR: 
+      one: "Mɔreshɔ Rupi"
+    MWK: 
+      one: "Malawi Kuwacha"
+    MXN: 
+      symbol: MX$
+    MZM: 
+      one: "Mozambiki Mɛtikali"
+    NAD: 
+      one: "Namibiya Dala"
+      symbol: $
+    NGN: 
+      one: "Naĩjiriya Naĩra"
+      symbol: ₦
+    NZD: 
+      symbol: NZ$
+    PHP: 
+      symbol: ₱
+    PYG: 
+      symbol: ₲
+    RUR: 
+      symbol: р.
+    RWF: 
+      one: "Rawunda Furaŋki"
+    SAR: 
+      one: "Lahabu Sawodi Riya"
+    SBD: 
+      symbol: $
+    SDG: 
+      one: "Sudaniĩ Pɔɔ̃"
+    SGD: 
+      symbol: $
+    SHP: 
+      one: "Siŋ Hɛlina Pɔɔ̃"
+    SLL: 
+      one: Liyɔɔ̀
+    SOS: 
+      one: "Somaliya Siyeŋ"
+    SRD: 
+      symbol: $
+    SSP: 
+      symbol: £
+    STD: 
+      one: "Sawo Tombe ɓɛ a Gbawo Dobura"
+    SZL: 
+      one: Lilangeni
+    THB: 
+      symbol: ฿
+    TND: 
+      one: "Tunisiya Dina"
+    TRY: 
+      symbol: ₺
+    TTD: 
+      symbol: $
+    TWD: 
+      symbol: NT$
+    TZS: 
+      one: "Taŋzaniya Siyeŋ"
+    UAH: 
+      symbol: ₴
+    UGX: 
+      one: "Yuganda Siyeŋ"
+    USD: 
+      one: "Poo Dala"
+      symbol: US$
+    UYU: 
+      symbol: $
+    VND: 
+      symbol: ₫
+    XAF: 
+      one: "Áfíríka Tɛ Sifa"
+      symbol: FCFA
+    XCD: 
+      symbol: EC$
+    XOF: 
+      one: "Áfíríka Tele Jíí Sifa"
+      symbol: CFA
+    XPF: 
+      symbol: CFPF
+    ZAR: 
+      one: "Afirika Kɔi Leŋŋɛ lɔ Randi"
+    ZMK: 
+      one: "Zambiya Kuwacha (1968–2012)"
+    ZMW: 
+      one: "Zambiya Kuwacha"
+    ZWD: 
+      one: "Zimbhabhuwe Dala"

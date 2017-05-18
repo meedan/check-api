@@ -217,6 +217,19 @@ RailsAdmin.config do |config|
       field :description
       field :team
       field :archived
+      field :settings do
+        label 'Link to authorize Bridge to publish translations automatically'
+        formatted_value do
+          project = bindings[:object]
+          token = project.token
+          host = CONFIG['checkdesk_base_url']
+          %w(twitter facebook).collect do |p|
+            dest = "#{host}/api/admin/project/#{project.id}/add_publisher/#{p}?token=#{token}"
+            link = "#{host}/api/users/auth/#{p}?destination=#{dest}"
+            bindings[:view].link_to(p.capitalize, link)
+          end.join(' | ').html_safe
+        end
+      end
     end
 
     show do
@@ -225,6 +238,9 @@ RailsAdmin.config do |config|
       end
       configure :get_slack_channel do
         label 'Slack #channel'
+      end
+      configure :get_languages, :json do
+        label 'Languages'
       end
     end
 
@@ -249,6 +265,10 @@ RailsAdmin.config do |config|
         formatted_value{ bindings[:object].get_slack_channel }
         help 'The Slack channel to which Check should send notifications about events that occur in this project.'
         render_settings('field')
+      end
+      field :languages, :yaml do
+        label 'Languages'
+        help "A list of the project's preferred languages for machine translation (e.g. ['ar', 'fr'])."
       end
     end
   end
