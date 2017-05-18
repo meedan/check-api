@@ -24,9 +24,13 @@ class ProjectMedia < ActiveRecord::Base
                   event: 'media_updated',
                   targets: proc { |pm| [pm.project, pm.media] },
                   if: proc { |pm| !pm.skip_notifications },
-                  data: proc { |pm| pm.media.as_json.merge(class_name: 'media').to_json }
+                  data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
   include CheckElasticSearch
+
+  def report_type
+    self.media.class.name.downcase
+  end
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)

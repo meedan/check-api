@@ -515,6 +515,14 @@ class Bot::ViberTest < ActiveSupport::TestCase
     assert_equal u1, Dynamic.find(d.id).annotator
   end
 
+  test "should get report type" do
+    c = create_claim_media
+    pm = create_project_media media: c
+    assert_equal 'claim', pm.report_type
+    create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
+    assert_equal 'translation_request', pm.report_type
+  end
+
   private
 
   def create_translation_status_stuff

@@ -238,6 +238,12 @@ class Bot::Viber < ActiveRecord::Base
   ProjectMedia.class_eval do
     after_create :create_first_translation_status
 
+    alias_method :report_type_original, :report_type
+
+    def report_type
+      self.get_annotations('translation_request').any? ? 'translation_request' : self.report_type_original
+    end
+
     private
 
     def create_first_translation_status
