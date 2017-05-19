@@ -23,7 +23,7 @@ before_script:
 - cp config/database.yml.travis config/database.yml
 - psql -c 'create database travis_ci_test;' -U postgres
 - RAILS_ENV=test bundle exec rake db:migrate
-script: ruby -I"lib:test" test/models/check_search_test.rb
+script: ruby -I"lib:test" test/controllers/graphql_controller_test.rb
 rvm:
 - 2.3.1
 notifications:

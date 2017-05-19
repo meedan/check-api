@@ -655,7 +655,7 @@ class GraphqlControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m2 = create_media(account: create_valid_account, url: url)
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
@@ -665,7 +665,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_equal [pm2.id], ids
     create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
     post :create, query: query
     assert_response :success
@@ -688,7 +688,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media(account: create_valid_account, url: url)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     pm2 = create_project_media project: p2, media: m,  disable_es_callbacks:  false
-    sleep 1
+    sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
     post :create, query: query
     assert_response :success
@@ -701,7 +701,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal [pm.id, pm2.id], m_ids.sort
     assert_equal [p.id, p2.id], p_ids.sort
     pm2.embed= {description: 'new_description'}.to_json
-    sleep 1
+    sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, embed } } } } }'
     post :create, query: query
     assert_response :success
