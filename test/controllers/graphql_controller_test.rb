@@ -655,7 +655,7 @@ class GraphqlControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m2 = create_media(account: create_valid_account, url: url)
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    sleep 1
+    sleep 5
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
@@ -673,7 +673,7 @@ class GraphqlControllerTest < ActionController::TestCase
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
       ids << id["node"]["dbid"]
     end
-    assert_equal [pm1.id, pm2.id], ids
+    assert_equal [pm1.id, pm2.id], ids.sort
   end
 
   test "should search media with multiple projects" do
@@ -839,9 +839,7 @@ test "should search by dynamic annotation" do
   f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
   f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
   a.save!
-
-  sleep 5
-
+  sleep 10
   query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
   post :create, query: query
   assert_response :success
@@ -850,7 +848,6 @@ test "should search by dynamic annotation" do
     ids << id["node"]["dbid"]
   end
   assert_equal [pm1.id], ids
-
   query = 'query Search { search(query: "{\"keyword\":\"dynamic note\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
   post :create, query: query
   assert_response :success
