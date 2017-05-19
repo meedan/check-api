@@ -98,10 +98,6 @@ ar:
   slack_create_project: "أضاف %{user}*  مشروع: %{url}"
   slack_create_team_user: "إنضم *%{user}* لفريق %{url}"
   slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
-  slack_create_task: "أضاف *%{user}* المهمة %{url} في مشروع *%{project}* وكتب التعليق الإضافي: %{note}"
-  slack_answer_task: |-
-    أتمّ *%{user}* المهمة %{url} في مشروع *%{project}* وكتب: %{response}
-    *والتعليق الإضافي:* %{note}
   slack_update_task_label: |-
     حرر *%{user}* المهمة %{url} في مشروع *%{project}* من %{from}
     *إلى:* %{to}
