@@ -94,6 +94,12 @@ pt:
   slack_create_project: "*%{user}* criou um projeto: %{url}"
   slack_create_team_user: "*%{user}*  juntou-se à equipe %{url}"
   slack_create_project_media: "*%{user}* inseriu um novo %{type} ao *%{project}*: %{url}"
+  slack_create_task: "*%{user}* criou a tarefa %{url} em *%{project}*%{create_note}"
+  slack_create_task_note: " com nota: %{note}"
+  slack_answer_task: |-
+    *%{user}* respondeu a tarefa %{url} em *%{project}*: %{response}
+    %{answer_note}
+  slack_answer_task_note: "*Nota:* %{note}"
   slack_update_task_label: |-
     *%{user}* editou a tarefa %{url} em *%{project}* de: %{from}
     *Para:* %{to}
@@ -121,3 +127,9 @@ pt:
   reset_password_instructions: Instruções para redefinir a senha do Check
   email_not_found: E-mail não encontrado
   slack_channel_format_wrong: 'O canal do Slack é inválido, ele deve ter o formato #general'
+  translation_status_not_valid: Status inválido
+  translation_status_permission_error: Você não tem permissão para fazer essa alteração de status
+  translation_request_id_exists: Já existe um pedido de tradução para esta mensagem
+  slack_update_translation_status: "*%{user}* mudou o status da tradução em *%{report}* de *%{from}* para *%{to}*"
+  auto_publisher_added_to_project: Obrigado! Agora todas as novas traduções no projeto %{project} serão automaticamente publicadas nesta conta no %{provider}. Se você mudar de ideia, por favor contacte o administrador ou simplesmente remova a autorização do Bridge no %{provider}.
+  invalid_token: Token inválido

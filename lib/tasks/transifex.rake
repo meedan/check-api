@@ -59,11 +59,11 @@ namespace :transifex do
   task parse: [:environment] do
     path = File.join(Rails.root, 'config', 'locales', 'en.yml')
     yaml = YAML.load(File.read(path))
-    Dir.glob('{app,lib}/**/*').each do |filename|
+    Dir.glob('{app,lib}/**/*.rb').each do |filename|
       next if File.directory?(filename)
       file = File.open(filename, 'r')
       file.readlines.each do |line|
-        line.unpack("C*").pack("U*").scan(/I18n\.t[( ][':"]([a-z\-_0-9]+)['"]?, default: ['"]([^'"]+)['"]/).each { |id, default| yaml['en'][id] = default }
+        line.scan(/I18n\.t[( ][':"]([a-z\-_0-9]+)['"]?, default: ['"]([^'"]+)['"]/).each { |id, default| yaml['en'][id] = default }
       end
     end
 
