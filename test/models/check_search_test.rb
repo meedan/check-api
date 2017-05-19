@@ -134,7 +134,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
     create_tag tag: 'news', annotated: pm, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({tags: ['non_exist_tag']}.to_json)
     assert_empty result.medias
@@ -225,7 +225,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({projects: [p.id], tags: ['sports']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -251,7 +251,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     pm.embed= info
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], projects: [p.id]}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -278,7 +278,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
     create_status status: 'verified', annotated: pm, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({tags: ['sports'], status: ['verified'], projects: [p.id]}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -293,7 +293,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     pm.embed= info
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
     create_status status: 'verified', annotated: pm, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], status: ['verified']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -308,7 +308,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     pm.embed= info
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
     create_status status: 'verified', annotated: pm, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], status: ['verified'], projects: [p.id]}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -320,7 +320,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     create_comment text: 'add_comment', annotated: pm, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -340,7 +340,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
     pm3.embed= info
     create_comment text: 'search_sort', annotated: pm1, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     # sort with keywords
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
@@ -350,7 +350,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     # sort with keywords and tags
     create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
     create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
@@ -359,7 +359,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     create_status status: 'verified', annotated: pm2, disable_es_callbacks: false
     create_status status: 'verified', annotated: pm1, disable_es_callbacks: false
     create_status status: 'false', annotated: pm1, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     # sort with keywords, tags and status
     result = CheckSearch.new({status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
@@ -385,7 +385,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
     create_tag tag: 'sorts', annotated: pm1, disable_es_callbacks: false
     create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json)
     assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
@@ -445,7 +445,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     m2 = create_valid_media
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     create_tag tag: 'iron', annotated: pm2, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({tags: ['iron maiden']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -462,7 +462,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     m2 = create_valid_media
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     create_tag tag: 'monkey', annotated: pm2, disable_es_callbacks: false
-    sleep 5
+    sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({tags: ['monkey']}.to_json)
     assert_equal [pm2.id, pm.id].sort, result.medias.map(&:id).sort
