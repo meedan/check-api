@@ -3,21 +3,21 @@ class Bot::Viber < ActiveRecord::Base
     Bot::Viber.where(name: 'Viber Bot').last
   end
 
-  def text_to_image(text)
-    surface = Cairo::ImageSurface.new Cairo::FORMAT_ARGB32, 800, 2000
-    context = Cairo::Context.new surface
-    context.set_source_rgba 1, 1, 1, 1
-    context.paint
-    layout = context.create_pango_layout
-    layout.width = 800 * Pango::SCALE
-    layout.markup = '<span size="x-large">' + text + '</span>'
-    context.set_source_color :black
-    context.update_pango_layout layout
-    context.show_pango_layout layout
-    filename = Digest::MD5.hexdigest(text) + '.jpg'
-    output = File.join(Rails.root, 'public', 'system', 'translations', filename)
-    surface.write_to_png output
-    system 'convert', Shellwords.escape(output), '-trim', '-strip', '-quality', '86', Shellwords.escape(output)
+  def text_to_image(m)
+    av = ActionView::Base.new(Rails.root.join('app', 'views'))
+    av.assign(m)
+    content = av.render(template: 'viber/screenshot.html.erb', layout: nil)
+    filename = 'screenshot-' + Digest::MD5.hexdigest(m.inspect)
+    html_path = File.join(Rails.root, 'public', 'viber', filename + '.html')
+    image_path = File.join(Rails.root, 'public', 'viber', filename + '.jpg')
+    File.atomic_write(html_path) do |file|
+      file.write(content)
+    end
+  
+    bot = Bot::Screenshoter.new
+    bot.take_screenshot CONFIG['checkdesk_base_url'] + '/viber/' + filename + '.html', '.card', image_path
+
+    # system 'convert', Shellwords.escape(image_path), '-trim', '-strip', '-quality', '90', Shellwords.escape(image_path)
     filename
   end
 
@@ -186,21 +186,33 @@ class Bot::Viber < ActiveRecord::Base
           end
           source_language = self.from_language(viber_user_locale)
           source_text = self.annotated.text
-          target_language = CheckCldr.language_code_to_name(self.get_field('translation_language').value, viber_user_locale)
+          language_code = self.get_field('translation_language').value
+          target_language = CheckCldr.language_code_to_name(language_code, viber_user_locale)
           target_text = self.get_field_value('translation_text')
-          message = [source_text, '', target_language.to_s + ':', target_text]
-          message.unshift(source_language + ':') unless source_language.blank?
-          message.join("\n")
+          { source_language: source_language, source_text: source_text, target_language: target_language, target_text: target_text, language_code: language_code.downcase }
         rescue
           ''
         end
       end
     end
 
+    def translation_to_message_as_text
+      text = ''
+      if self.annotation_type == 'translation'
+        m = self.translation_to_message
+        if m.is_a?(Hash)
+          message = [m[:source_text], '', m[:target_language].to_s + ':', m[:target_text]]
+          message.unshift(m[:source_language] + ':') unless m[:source_language].blank?
+          text = message.join("\n")
+        end
+      end
+      text
+    end
+
     def translation_to_message_as_image
       if self.annotation_type == 'translation'
         imagefilename = Bot::Viber.default.text_to_image(self.translation_to_message)
-        CONFIG['checkdesk_base_url'] + '/system/translations/' + imagefilename
+        CONFIG['checkdesk_base_url'] + '/viber/' + imagefilename + '.jpg'
       end
     end
 
@@ -212,7 +224,7 @@ class Bot::Viber < ActiveRecord::Base
         if success
           translation = request.annotated.get_dynamic_annotation('translation')
           unless translation.nil?
-            Bot::Viber.default.send_text_message(data['sender'], translation.translation_to_message)
+            Bot::Viber.default.send_text_message(data['sender'], translation.translation_to_message_as_text)
             Bot::Viber.default.send_image_message(data['sender'], translation.translation_to_message_as_image)
           end
         else

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Translation</title>
+  <style>
+    @font-face {
+      font-family: 'Noto Naskh Arabic';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Noto Naskh Arabic'), url('./NotoNaskhArabic-Regular.ttf') format('truetype');
+    }
+
+    @font-face {
+      font-family: 'Noto Naskh Arabic';
+      font-style: normal;
+      font-weight: 700;
+      src: local('Noto Naskh Arabic'), url('./NotoNaskhArabic-Bold.ttf') format('truetype');
+    }
+
+    @font-face {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Roboto'), url('./Roboto.ttf') format('truetype');
+    }
+
+    .viber-bot-translation {
+      display: flex;
+      flex-wrap: wrap;
+      font-family: Roboto;
+    }
+
+    .viber-bot-translation [lang='ar'] {
+      direction: rtl;
+      font-family: 'Noto Naskh Arabic', serif;
+      line-height: 1.7;
+    }
+
+    .viber-bot-translation .card {
+      align-content: center;
+      background-color: #655bac;
+      color: #ffffff;
+      display: flex;
+      flex-flow: nowrap column;
+      height: 600px;
+      justify-content: center;
+      margin: 5px;
+      overflow: hidden;
+      padding: 45px;
+      width: 600px;
+    }
+
+    .viber-bot-translation .card-inner {
+      width: 600px;
+    }
+
+    .viber-bot-translation p[lang='ar'] {
+      text-align: left;
+    }
+
+    .viber-bot-translation p {
+      color: rgba(256, 256, 256, 0.50);
+      text-align: right;
+    }
+
+    .viber-bot-translation p span:before {
+      content: " — ";
+      display: inline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="viber-bot-translation">
+    <section class="card">
+      <div class="card-inner">
+        <h1 class="target-text" lang="<%= @language_code %>"><span><%= @target_text %></span></h1>
+        <p class="source-text">
+          <span>
+            <%= I18n.t(:viber_screenshot_footer, default: '%{target_language} translation from %{source_language}: “%{source_text}”',
+                        target_language: @target_language,
+                        source_language: @source_language,
+                        source_text: @source_text
+                      ) 
+            %>
+          </span>
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <script src="/viber/bigtext.js"></script>
+  <script>
+    $('.target-text').bigtext();
+    $('.source-text').bigtext();
+  </script>
+</body>
