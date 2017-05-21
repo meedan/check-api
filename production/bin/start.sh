@@ -45,6 +45,10 @@ fi
 echo "tailing ${LOGFILE}"
 tail -f $LOGFILE &
 
+echo "starting google chrome headless"
+LC_ALL=C google-chrome --headless --hide-scrollbars --remote-debugging-port=9333 --disable-gpu --ignore-certificate-errors &
+sleep 3
+
 echo "starting sidekiq"
 su ${DEPLOYUSER} -c "bundle exec sidekiq -L log/sidekiq.log -d"
 
