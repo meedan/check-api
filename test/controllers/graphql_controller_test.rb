@@ -7,6 +7,9 @@ class GraphqlControllerTest < ActionController::TestCase
     @url = 'https://www.youtube.com/user/MeedanTube'
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    MediaSearch.delete_index
+    MediaSearch.create_index
+    sleep 1
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
