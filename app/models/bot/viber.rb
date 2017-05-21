@@ -18,6 +18,7 @@ class Bot::Viber < ActiveRecord::Base
     screenshoter = File.join(Rails.root, 'bin', 'take-screenshot.js')
     system 'nodejs', screenshoter, "--url=#{url}", "--output=#{image_path}", "--delay=3"
     system 'convert', Shellwords.escape(image_path), '-trim', '-strip', '-quality', '90', Shellwords.escape(image_path)
+    FileUtils.rm_f html_path
     filename
   end
 

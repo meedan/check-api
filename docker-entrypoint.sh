@@ -11,10 +11,8 @@ export SECRET_KEY_BASE=$(bundle exec rake secret)
 bundle exec rake lapis:api_keys:create_default
 
 # Google Chrome
-echo 'Starting Google Chrome...'
 LC_ALL=C google-chrome --headless --hide-scrollbars --remote-debugging-port=9333 --disable-gpu --ignore-certificate-errors &
 sleep 3
-echo 'Google Chrome started!'
 
 # Sidekiq
 redis-server &
