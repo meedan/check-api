@@ -9,15 +9,10 @@ class Bot::Viber < ActiveRecord::Base
     content = av.render(template: 'viber/screenshot.html.erb', layout: nil)
     filename = 'screenshot-' + Digest::MD5.hexdigest(m.inspect)
     html_path = File.join(Rails.root, 'public', 'viber', filename + '.html')
-    image_path = File.join(Rails.root, 'public', 'viber', filename + '.jpg')
-    File.atomic_write(html_path) do |file|
-      file.write(content)
-    end
-  
-    url = CONFIG['checkdesk_base_url_private'] + '/viber/' + filename + '.html'
-    screenshoter = File.join(Rails.root, 'bin', 'take-screenshot.js')
-    system 'nodejs', screenshoter, "--url=#{url}", "--output=#{image_path}", "--delay=3"
-    system 'convert', Shellwords.escape(image_path), '-trim', '-strip', '-quality', '90', Shellwords.escape(image_path)
+    File.atomic_write(html_path) { |file| file.write(content) }
+
+    Bot::Screenshot.take_screenshot(CONFIG['checkdesk_base_url_private'] + '/viber/' + filename + '.html', File.join(Rails.root, 'public', 'viber', filename + '.jpg'))
+    
     FileUtils.rm_f html_path
     filename
   end
@@ -212,8 +207,9 @@ class Bot::Viber < ActiveRecord::Base
 
     def translation_to_message_as_image
       if self.annotation_type == 'translation'
-        imagefilename = Bot::Viber.default.text_to_image(self.translation_to_message)
-        CONFIG['checkdesk_base_url'] + '/viber/' + imagefilename + '.jpg'
+        m = self.translation_to_message
+        imagefilename = Bot::Viber.default.text_to_image(m) if m.is_a?(Hash)
+        CONFIG['checkdesk_base_url'] + '/viber/' + imagefilename.to_s + '.jpg'
       end
     end
 
