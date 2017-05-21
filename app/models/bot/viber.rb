@@ -14,10 +14,10 @@ class Bot::Viber < ActiveRecord::Base
       file.write(content)
     end
   
-    bot = Bot::Screenshoter.new
-    bot.take_screenshot CONFIG['checkdesk_base_url'] + '/viber/' + filename + '.html', '.card', image_path
-
-    # system 'convert', Shellwords.escape(image_path), '-trim', '-strip', '-quality', '90', Shellwords.escape(image_path)
+    url = CONFIG['checkdesk_base_url_private'] + '/viber/' + filename + '.html'
+    screenshoter = File.join(Rails.root, 'bin', 'take-screenshot.js')
+    system 'nodejs', screenshoter, "--url=#{url}", "--output=#{image_path}", "--delay=3"
+    system 'convert', Shellwords.escape(image_path), '-trim', '-strip', '-quality', '90', Shellwords.escape(image_path)
     filename
   end
 

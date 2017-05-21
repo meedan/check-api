@@ -76,13 +76,13 @@
   <div class="viber-bot-translation">
     <section class="card">
       <div class="card-inner">
-        <h1 class="target-text" lang="<%= @language_code %>"><span><%= @target_text %></span></h1>
+        <h1 class="target-text" lang="<%= @language_code %>"><span><%= word_wrap(@target_text, line_width: 50).gsub("\n", '<br />').html_safe %></span></h1>
         <p class="source-text">
           <span>
             <%= I18n.t(:viber_screenshot_footer, default: '%{target_language} translation from %{source_language}: “%{source_text}”',
                         target_language: @target_language,
                         source_language: @source_language,
-                        source_text: @source_text
+                        source_text: word_wrap(@source_text, line_width: 50).gsub("\n", '<br />').html_safe
                       ) 
             %>
           </span>
@@ -94,7 +94,10 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
   <script src="/viber/bigtext.js"></script>
   <script>
-    $('.target-text').bigtext();
-    $('.source-text').bigtext();
+    var bigText = function() {
+      $('.target-text').bigtext();
+      $('.source-text').bigtext();
+    }
+    window.setTimeout(bigText, 1000);
   </script>
 </body>
