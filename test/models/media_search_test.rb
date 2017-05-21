@@ -35,19 +35,21 @@ class MediaSearchTest < ActiveSupport::TestCase
     MediaSearch.delete_index
     MediaSearch.index_name = source_index
     MediaSearch.create_index
+
+    MediaSearch.any_instance.stubs(:save!).raises(StandardError)
+    Rails.logger.stubs(:error).once
+    MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+    MediaSearch.any_instance.unstub(:save!)
+    Rails.logger.unstub(:error)
+
+    MediaSearch.delete_index(target_index)
+    MediaSearch.index_name = source_index
+    MediaSearch.create_index
     m = create_media_search
     CheckElasticSearchModel.reindex_es_data
     sleep 1
     MediaSearch.index_name = source_index
     assert_equal 1, MediaSearch.length
-
-    MediaSearch.delete_index(target_index)
-    MediaSearch.any_instance.stubs(:save!).raises(StandardError)
-    Rails.logger.stubs(:error).once
-    MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
-    MediaSearch.delete_index(target_index)
-    MediaSearch.any_instance.unstub(:save!)
-    Rails.logger.unstub(:error)
   end
 
 end
