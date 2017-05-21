@@ -45,6 +45,7 @@ class MediaSearchTest < ActiveSupport::TestCase
     MediaSearch.any_instance.stubs(:save!).raises(StandardError)
     Rails.logger.stubs(:error).once
     MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+    MediaSearch.delete_index(target_index)
     MediaSearch.any_instance.unstub(:save!)
     Rails.logger.unstub(:error)
   end
