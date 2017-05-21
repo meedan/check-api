@@ -26,4 +26,6 @@ tmp/restart.txt
 tmp/puma-*
 dump.rdb
 /vendor/
-public/system/translations/*.jpg
+/public/viber/*.html
+/public/viber/*.png
+/public/viber/*.jpg
