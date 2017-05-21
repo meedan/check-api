@@ -83,7 +83,7 @@
                         target_language: @target_language,
                         source_language: @source_language,
                         source_text: word_wrap(@source_text, line_width: 50).gsub("\n", '<br />').html_safe
-                      ) 
+                      ).html_safe
             %>
           </span>
         </p>
