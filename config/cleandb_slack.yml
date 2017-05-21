@@ -1,2 +1,2 @@
-slack_webhook: 'https://hooks.slack.com/services/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'
+slack_webhook: ''
 slack_channel: '#bot-notifications'
