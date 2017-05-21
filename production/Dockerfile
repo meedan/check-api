@@ -25,7 +25,7 @@ ENV DEPLOYUSER=checkdeploy \
 #
 # DEPENDENCIES
 #
-RUN apt-get install -y imagemagick
+RUN apt-get update && apt-get install -y imagemagick
 
 # install stuff needed to take screenshots
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
