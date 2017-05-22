@@ -30,7 +30,7 @@ namespace :check do
     Project.find_each do |p|
       if !p.settings.blank? && p.get_slack_notifications_enabled == "1"
         slack_settings.each do |k, v|
-          p.send("set_#{k}", v) if p.respond_to?("set_#{k}")
+          p.send("set_#{k}", v)
         end
         p.reset_slack_notifications_enabled if slack_settings.blank?
         p.save(:validate => false)
