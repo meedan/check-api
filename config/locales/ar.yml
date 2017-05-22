@@ -98,6 +98,12 @@ ar:
   slack_create_project: "أضاف %{user}*  مشروع: %{url}"
   slack_create_team_user: "إنضم *%{user}* لفريق %{url}"
   slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
+  slack_create_task: "أضاف *%{user}* المهمة %{url} في مشروع *%{project}*%{create_note}"
+  slack_create_task_note: "مع التعليق: %{note}"
+  slack_answer_task: |-
+    أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
+    %{answer_note}
+  slack_answer_task_note: "*التعليق:* %{note}"
   slack_update_task_label: |-
     حرر *%{user}* المهمة %{url} في مشروع *%{project}* من %{from}
     *إلى:* %{to}
@@ -125,3 +131,10 @@ ar:
   reset_password_instructions: التحقق من تعليمات إعادة ضبط كلمة المرور
   email_not_found: هذا البريد الإلكتروني غير موجود
   slack_channel_format_wrong: 'صيغة قناة Slack غير صحيحة - الصيغة المطلوبة هي `#general`'
+  translation_status_not_valid: الحالة غير صحيحة
+  translation_status_permission_error: عفواً ليس لديك الإذن ﻹحداث هذا التغيير
+  translation_request_id_exists: هناك طلب آخر لترجمة هذه الرسالة
+  slack_update_translation_status: "غير(ت) *%{user}* حالة الترجمة على *%{report}* من *%{from}* إلى *%{to}*"
+  auto_publisher_added_to_project: من الآن سوف يتم نشر كل ترجمة في %{project} إلى الحساب الذي أخترته على %{provider}. إن غيرت رأيك من فضلك تواصل مع فريق الدعم أو أحذف تطبيق Bridge من الحساب على %{provider}.
+  invalid_token: رمز الأمان غير صحيح
+  viber_screenshot_footer: "ترجمة إلى %{target_language} من %{source_language}: “%{source_text}”"
