@@ -162,3 +162,4 @@ en:
     you change your mind, please contact the administrator or simply revoke the Bridge
     authorization from %{provider}.
   invalid_token: Invalid Token
+  viber_screenshot_footer: "%{target_language} translation from %{source_language}: “%{source_text}”"
