@@ -3,29 +3,31 @@ require 'yaml'
 namespace :check do
   desc "clean private data from the database"
   task cleandb: :environment do
-    # config/cleandb_slack.yml is an array of slack keys settings.
+    # config/cleandb.yml is an array of settings.
     begin
-      slack_settings = YAML.load(File.open(File.join(File.dirname(__FILE__), '..', '..', 'config', 'cleandb_slack.yml')))
-    rescue
-      slack_settings = {}
+      cleandb_config = YAML.load(File.open(File.join(File.dirname(__FILE__), '..', '..', 'config', 'cleandb.yml')))
+      exceptions = cleandb_config["email_exceptions"] if cleandb_config.has_key?("email_exceptions")
+      slack_settings = cleandb_config["slack_settings"] if cleandb_config.has_key?("slack_settings")
+    rescue Exception => e
+      puts e.message
     end
+    exceptions ||= []
+    slack_settings ||= {}
+    puts "Exception ----------------"
+    pp exceptions
+    puts "Slack ----------------------------"
+    pp slack_settings
     Team.find_each do |t|
       if !t.settings.blank? && t.get_slack_notifications_enabled == "1"
         slack_settings.each do |k, v|
-          t.send("set_#{k}", v) if t.respond_to?("set_#{k}")
+          t.send("set_#{k}", v)
         end
       end
       t.reset_slack_notifications_enabled if slack_settings.blank?
       t.private = false
       t.save(:validate => false)
     end
-    # config/cleandb_exceptions.yml is an array of emails that should not be cleaned up.
-    begin
-      exceptions = YAML.load(File.open(File.join(File.dirname(__FILE__), '..', '..', 'config', 'cleandb_exceptions.yml')))
-    rescue Exception => e
-      puts e.message
-      exceptions = []
-    end
+
     User.find_each do |u|
       u.update_columns(email: '', encrypted_password: '') unless u.email =~ /@meedan\./ || exceptions.include?(u.email)
     end
