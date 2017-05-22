@@ -7,6 +7,9 @@ class GraphqlControllerTest < ActionController::TestCase
     @url = 'https://www.youtube.com/user/MeedanTube'
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    MediaSearch.delete_index
+    MediaSearch.create_index
+    sleep 1
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
@@ -364,8 +367,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read collection from source" do
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
-                                               'annotations' => 'content','medias' => 'media_id', 'collaborators' => 'name',
-                                               'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
+     'annotations' => 'content','medias' => 'media_id', 'collaborators' => 'name',
+     'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
   end
 
   test "should read collection from project" do
@@ -655,7 +658,7 @@ class GraphqlControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m2 = create_media(account: create_valid_account, url: url)
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    sleep 1
+    sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
@@ -665,7 +668,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_equal [pm2.id], ids
     create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
-    sleep 1
+    sleep 15
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
     post :create, query: query
     assert_response :success
@@ -673,7 +676,7 @@ class GraphqlControllerTest < ActionController::TestCase
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
       ids << id["node"]["dbid"]
     end
-    assert_equal [pm1.id, pm2.id], ids
+    assert_equal [pm1.id, pm2.id], ids.sort
   end
 
   test "should search media with multiple projects" do
@@ -688,7 +691,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media(account: create_valid_account, url: url)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     pm2 = create_project_media project: p2, media: m,  disable_es_callbacks:  false
-    sleep 1
+    sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
     post :create, query: query
     assert_response :success
@@ -701,7 +704,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal [pm.id, pm2.id], m_ids.sort
     assert_equal [p.id, p2.id], p_ids.sort
     pm2.embed= {description: 'new_description'}.to_json
-    sleep 1
+    sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, embed } } } } }'
     post :create, query: query
     assert_response :success
@@ -750,7 +753,7 @@ class GraphqlControllerTest < ActionController::TestCase
    id = Base64.encode64("CheckSearch/#{options}")
    post :create, query: "query Query { node(id: \"#{id}\") { id } }"
    assert_equal id, JSON.parse(@response.body)['data']['node']['id']
-  end
+ end
 
   test "should create project media with image" do
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
@@ -839,9 +842,7 @@ class GraphqlControllerTest < ActionController::TestCase
     f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
     f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
     a.save!
-
-    sleep 1
-
+    sleep 15
     query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
@@ -850,7 +851,6 @@ class GraphqlControllerTest < ActionController::TestCase
       ids << id["node"]["dbid"]
     end
     assert_equal [pm1.id], ids
-
     query = 'query Search { search(query: "{\"keyword\":\"dynamic note\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
@@ -1067,7 +1067,7 @@ class GraphqlControllerTest < ActionController::TestCase
     at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
     create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
     create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
-    
+
     authenticate_with_user
     p = create_project team: @team
     pm = create_project_media project: p

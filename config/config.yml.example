@@ -19,6 +19,7 @@ development: &default
   allow_duplicated_urls: false
   default_mail: root@localhost
   checkdesk_base_url: http://localhost:3000
+  checkdesk_base_url_private: http://api:3000
   send_welcome_email_on_registration: false
   elasticsearch_index:
   # smtp mail settings

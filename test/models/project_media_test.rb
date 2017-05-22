@@ -733,4 +733,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ms = MediaSearch.find(pm.id)
     assert_equal ms.account[0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar", "username"=>"username"}.sort
   end
+
+  test "should get report type" do
+    c = create_claim_media
+    l = create_link
+    
+    m = create_project_media media: c
+    assert_equal 'claim', m.report_type
+    m = create_project_media media: l
+    assert_equal 'link', m.report_type
+  end
 end

@@ -62,6 +62,8 @@ fr:
         phone: Le téléphone
       comment:
         text: Le commentaire
+      user:
+        reset_password_token: Jeton de réinitialisation du mot de passe
     errors:
       messages:
         record_invalid: 'La validation a échoué : %{errors}'
@@ -92,10 +94,12 @@ fr:
   slack_create_project: "*%{user}* a créé un projet : %{url}"
   slack_create_team_user: "*%{user}* s'est joint à l'équipe %{url}"
   slack_create_project_media: "*%{user}* a rajouté un(e) nouveau(elle) %{type} dans *%{project}* : %{url}"
-  slack_create_task: "*%{user}* a créé une tâche %{url} dans *%{project}* avec commentaire : %{note}"
+  slack_create_task: "*%{user}* a créé la tâche %{url} dans *%{project}*%{create_note}"
+  slack_create_task_note: "avec note: %{note}"
   slack_answer_task: |-
-    *%{user}* a résolu la tâche %{url} dans *%{project}* : %{response}
-    *Note :* %{note}
+    *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
+    %{answer_note}
+  slack_answer_task_note: "*Note:* %{note}"
   slack_update_task_label: |-
     *%{user}* a modifié la tâche %{url} dans *%{project}* de : %{from}
     *à :* %{to}
@@ -123,3 +127,9 @@ fr:
   reset_password_instructions: Instructions pour réinitialiser le mot de passe
   email_not_found: Courriel introuvable
   slack_channel_format_wrong: 'Canal Slack non valide : le format doit être `#general`'
+  translation_status_not_valid: Statut invalide
+  translation_status_permission_error: Vous n'êtes pas autorisé à effectuer ce changement de statut
+  translation_request_id_exists: Il existe déjà une demande de traduction pour ce message
+  slack_update_translation_status: "*%{user}* a modifié le statut de traduction pour *%{report}* de *%{from}* à *%{to}*"
+  auto_publisher_added_to_project: Merci ! Dorénavant toutes les traductions du projet %{project} seront automatiquement publiées via ce compte %{provider}. Si vous changez d'avis, contactez notre équipe de support ou bien révoquez l'autorisation de Bridge pour %{provider}.
+  invalid_token: Jeton de sécurité invalide

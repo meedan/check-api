@@ -13,7 +13,7 @@ config/sidekiq.yml
 config/sidekiq-test.yml
 config/initializers/errbit.rb
 config/initializers/secret_token.rb
-config/cleandb_exceptions.yml
+config/cleandb.yml
 *.sw*
 *~
 public/assets
@@ -26,4 +26,6 @@ tmp/restart.txt
 tmp/puma-*
 dump.rdb
 /vendor/
-public/system/translations/*.jpg
+/public/viber/*.html
+/public/viber/*.png
+/public/viber/*.jpg

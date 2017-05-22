@@ -22,7 +22,7 @@ namespace :transifex do
     apprb_path = File.join(Rails.root, 'config', 'application.rb')
     apprb_contents = File.read(apprb_path)
     apprb = File.open(apprb_path, 'w+')
-    disclaimer = 'Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`' 
+    disclaimer = 'Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`'
     apprb.puts apprb_contents.gsub(/config\.i18n\.available_locales = \[[^\]]*\] # #{disclaimer}/, "config.i18n.available_locales = #{@langs.to_json} # #{disclaimer}")
     apprb.close
     puts "Set languages #{@langs.join(', ')} on #{apprb_path}."
@@ -59,7 +59,7 @@ namespace :transifex do
   task parse: [:environment] do
     path = File.join(Rails.root, 'config', 'locales', 'en.yml')
     yaml = YAML.load(File.read(path))
-    Dir.glob('{app,lib}/**/*').each do |filename|
+    Dir.glob('{app,lib}/**/*.rb').each do |filename|
       next if File.directory?(filename)
       file = File.open(filename, 'r')
       file.readlines.each do |line|

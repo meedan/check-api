@@ -1,3 +1,135 @@
-pt: {slug_format_validation_message: 'aceita apenas letras, números e hífens', slug_is_reserved: é
-    reservado, invalid_media_item: 'Desculpe, este não é um item de mídia válido',
-  already_exists: já existe}
+pt:
+  link: Link
+  claim: Alegação
+  uploadedimage: Imagem
+  uploadefile: Arquivo
+  blank: "(vazio)"
+  statuses:
+    media:
+      undetermined:
+        label: Pendente
+        description: Padrão, recém adicionado ao Check, o trabalho ainda não foi iniciado
+      not_applicable:
+        label: Inconclusivo
+        description: Não é possível obter conclusões a partir das evidências disponíveis.
+      in_progress:
+        label: Em andamento
+        description: O trabalho começou, mas nenhuma conclusão foi feita ainda
+      not_true:
+        label: 'Falso'
+        description: 'Conclusão: o relato é falso'
+      verified:
+        label: Verificado
+        description: 'Conclusão: o relato foi verificado'
+    source:
+      undetermined:
+        label: Não iniciado
+        description: Padrão, recentemente inserido no Check, nenhum trabalho iniciado
+      credible:
+        label: Verossímil
+        description: 'Conclusão: a fonte é verossímil'
+      not_credible:
+        label: Inverossímil
+        description: 'Conclusão: esta fonte não é verossímil'
+      slightly_credible:
+        label: Ligeiramente verossímil
+        description: 'Conclusão: esta fonte é ligeiramente verossímil'
+      sockpuppet:
+        label: Fake
+        description: 'Conclusão: a fonte da informação é um fake'
+  errors:
+    messages:
+      extension_white_list_error: 'Não pode ter o tipo %{extension}, tipos permitidos: %{allowed_types}'
+      invalid_size: Deve ter entre %{min_width} x %{min_height} e %{max_width} x %{max_height} pixels
+  activerecord:
+    models:
+      link: Link
+      claim: Alegação
+      uploaded_image: Imagem
+      uploaded_file: Arquivo
+    attributes:
+      tag:
+        data: Tag
+      uploaded_file:
+        file: Arquivo
+      uploaded_image:
+        file: Imagem
+      team:
+        slug: Identificação
+      source:
+        name: Nome
+      contact:
+        phone: Telefone
+      comment:
+        text: Comentário
+      user:
+        reset_password_token: Redefinir o token da senha
+    errors:
+      messages:
+        record_invalid: 'Falhas na validação:% {errors}'
+        improbable_phone: é um número inválido
+        too_short:
+          one: é muito curto (mínimo de 1 caractere)
+          other: É muito curto (mínimo de %{count} caracteres)
+      models:
+        user:
+          attributes:
+            email:
+              taken: 'Ops, pequeno problema: você já usou esse endereço de e-mail para fazer login com outro método. Acabamos de lhe enviar um e-mail que lembra como você fez o login. Verifique seu e-mail e faça login com o método usado anteriormente.'
+  slug_format_validation_message: aceita apenas letras, números e hífens
+  slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slug_is_reserved: é reservado
+  invalid_format_for_custom_verification_status: Status de verificação personalizado é inválido, ele deve ter o formato conforme exemplificado abaixo do campo
+  invalid_media_item: Desculpe, este não é um item de mídia válido
+  already_exists: já existe
+  mail_account_confirmation: Confirmação da conta do Check
+  mail_request_to_join: "%{User} quer participar da equipe %{team} no Check!"
+  approved: Aprovado!
+  rejected: Não aprovado
+  mail_request_to_join_processed: Sua solicitação para participar do time %{team} no Check foi %{status}
+  mail_new_account: Nova conta para você no Check
+  slack_update_status: "*%{User}* alterou o status de verificação em %{url} em *%{project}* de _%{previous_status}_ para *%{current_status}*"
+  slack_save_embed: "*%{user}* alterou o título  do relato no *%{project}* de _%{from}_ para %{to}"
+  slack_save_comment: "*%{user}* inseriu uma nota em %{url} em *%{project}*: %{comment}"
+  slack_create_project: "*%{user}* criou um projeto: %{url}"
+  slack_create_team_user: "*%{user}*  juntou-se à equipe %{url}"
+  slack_create_project_media: "*%{user}* inseriu um novo %{type} ao *%{project}*: %{url}"
+  slack_create_task: "*%{user}* criou a tarefa %{url} em *%{project}*%{create_note}"
+  slack_create_task_note: " com nota: %{note}"
+  slack_answer_task: |-
+    *%{user}* respondeu a tarefa %{url} em *%{project}*: %{response}
+    %{answer_note}
+  slack_answer_task_note: "*Nota:* %{note}"
+  slack_update_task_label: |-
+    *%{user}* editou a tarefa %{url} em *%{project}* de: %{from}
+    *Para:* %{to}
+  slack_update_task_description: |-
+    *%{user}* editou a nota da tarefa em %{url} em *%{project}* de: %{from}
+    *Para:* %{to}
+  mail_view_welcome: Bem-vindo ao Check
+  mail_view_register: 'Você está apenas a um passo de usar o Check! Por favor confirme o seu endereço de e-mail clicando no seguinte link:'
+  mail_view_joined: Sua solicitação para participar de %{team} foi aprovada! Agora você pode ir para %{url} e começar a contribuir!
+  mail_view_rejected_to_join: Desculpe, mas sua solicitação para participar de %{team} foi rejeitada.
+  mail_view_request_to_join: "%{user} (%{handle}) quer participar da equipe %{team} no Check!"
+  mail_view_process_request: 'Para processar esta solicitação, por favor faça o login e visite:'
+  pender_could_not_parse: Não foi possível analisar esta mídia
+  mail_duplicate_email_exists: Seu método de login no Check
+  mail_duplicate_email_exists_body: "<p>Olá, este é apenas um lembrete para ajudar a certificar-se de que você está logado no Check.</p> <p>O que aconteceu: você tentou fazer login com a conta %{user_provider} ligada a %{user_email}. Mas este endereço de e-mail já está associado a uma conta baseada em %{duplicate_provider} no Check.</p> <p>O que fazer a seguir: Faça login com %{duplicate_provider}.</p> <p>Então você estará logado com a conta que você estava usando anteriormente. Se você precisar de ajuda adicional, por favor envie um e-mail para check@meedan.com.</p> <p>- Equipe Check</p>"
+  mail_duplicate_email_exists_body_both_emails: " <p>Olá, este é apenas um lembrete para ajudar a garantir que você faça login no Check.</p> <p>O que aconteceu: você tentou criar uma nova conta no Check baseada em um e-mail, mas essa conta já existe.</p> <p>Tente fazer login com seu e-mail e senha em vez de criar uma nova conta.</p> <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para check@meedan.com.</p> <p> - Equipe Check</p>"
+  mail_duplicate_email_exists_email: e-mail
+  slack_restricted_join_to_members: Lamentamos, mas não pode juntar-se a equipe %{team_name} porque o acesso está restrito aos integrantes da(s) equipe(s) %{teams} do Slack.
+  admin:
+    actions:
+      send_reset_password_email:
+        menu: Enviar instruções para redefinir a senha
+      export_project:
+        menu: Exportar dados do projeto
+  reset_password_instructions: Instruções para redefinir a senha do Check
+  email_not_found: E-mail não encontrado
+  slack_channel_format_wrong: 'O canal do Slack é inválido, ele deve ter o formato #general'
+  translation_status_not_valid: Status inválido
+  translation_status_permission_error: Você não tem permissão para fazer essa alteração de status
+  translation_request_id_exists: Já existe um pedido de tradução para esta mensagem
+  slack_update_translation_status: "*%{user}* mudou o status da tradução em *%{report}* de *%{from}* para *%{to}*"
+  auto_publisher_added_to_project: Obrigado! Agora todas as novas traduções no projeto %{project} serão automaticamente publicadas nesta conta no %{provider}. Se você mudar de ideia, por favor contacte o administrador ou simplesmente remova a autorização do Bridge no %{provider}.
+  invalid_token: Token inválido
