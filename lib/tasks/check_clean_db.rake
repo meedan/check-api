@@ -13,10 +13,6 @@ namespace :check do
     end
     exceptions ||= []
     slack_settings ||= {}
-    puts "Exception ----------------"
-    pp exceptions
-    puts "Slack ----------------------------"
-    pp slack_settings
     Team.find_each do |t|
       if !t.settings.blank? && t.get_slack_notifications_enabled == "1"
         slack_settings.each do |k, v|
