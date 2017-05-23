@@ -17,6 +17,15 @@ class Bot::Facebook < ActiveRecord::Base
   def send_to_facebook(translation)
     send_to_social_network 'facebook', translation do
       auth = self.get_auth('facebook')
+      
+      # Ask Bridge Reader to generate the screenshot for Facebook
+      begin
+        screenshot_uri = URI(self.embed_url(:private, :png))
+        Net::HTTP.get(screenshot_uri)
+      rescue
+        screenshot_uri = nil
+      end
+
       uri = URI('https://graph.facebook.com/me/feed')
       data = {
         message: self.text,
