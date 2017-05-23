@@ -12,7 +12,7 @@ class Bot::Viber < ActiveRecord::Base
     File.atomic_write(html_path) { |file| file.write(content) }
 
     Bot::Screenshot.take_screenshot(CONFIG['checkdesk_base_url_private'] + '/viber/' + filename + '.html', File.join(Rails.root, 'public', 'viber', filename + '.jpg'))
-    
+
     FileUtils.rm_f html_path
     filename
   end
@@ -28,7 +28,7 @@ class Bot::Viber < ActiveRecord::Base
   end
 
   def sender
-    { name: 'Bridge', avatar: CONFIG['checkdesk_base_url'] + '/images/bridge.png' }
+    { name: 'Bridge' }
   end
 
   def send_text_message(user_id, text)
@@ -43,7 +43,7 @@ class Bot::Viber < ActiveRecord::Base
 
   DynamicAnnotation::Field.class_eval do
     include CheckElasticSearch
-    
+
     validate :translation_status_is_valid
     validate :can_set_translation_status
     validate :translation_request_id_is_unique, on: :create
@@ -82,7 +82,7 @@ class Bot::Viber < ActiveRecord::Base
               end
 
         annotation = self.annotation.load
-        annotation.set_fields = { translation_status_approver: { name: User.current.name, url: url }.to_json }.to_json 
+        annotation.set_fields = { translation_status_approver: { name: User.current.name, url: url }.to_json }.to_json
         annotation.save!
       end
     end
@@ -236,7 +236,7 @@ class Bot::Viber < ActiveRecord::Base
         Dynamic.delay_for(1.second).respond_to_user(self.id, success)
       end
     end
-    
+
     private
 
     def store_previous_status
@@ -289,7 +289,7 @@ class Bot::Viber < ActiveRecord::Base
               status[:label] = I18n.t("label_translation_status_#{status[:id]}".to_sym, default: status[:label])
               statuses << status
             end
-            { label: 'translation_status', default: 'pending', statuses: statuses }.to_json 
+            { label: 'translation_status', default: 'pending', statuses: statuses }.to_json
           }
         end
 
