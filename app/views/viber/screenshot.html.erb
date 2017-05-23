@@ -82,7 +82,8 @@
             <%= I18n.t(:viber_screenshot_footer, default: '%{target_language} translation from %{source_language}: “%{source_text}”',
                         target_language: @target_language,
                         source_language: @source_language,
-                        source_text: word_wrap(@source_text, line_width: 50).gsub("\n", '<br />').html_safe
+                        source_text: word_wrap(@source_text, line_width: 50).gsub("\n", '<br />').html_safe,
+                        locale: @locale
                       ).html_safe
             %>
           </span>
