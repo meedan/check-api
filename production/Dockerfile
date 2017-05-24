@@ -19,23 +19,24 @@ ENV DEPLOYUSER=checkdeploy \
     # MIN_INSTANCES and MAX_POOL_SIZE control the pool size of passenger
 
 #
-# APP CONFIG
-#
-
-#
 # DEPENDENCIES
 #
-RUN apt-get update && apt-get install -y imagemagick
+
+# nodejs7 repo
+RUN curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+# chrome repo
+RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+
+RUN apt-get update && apt-get install -y \
+    imagemagick \
+    nodejs \
+    google-chrome-stable
 
 # install stuff needed to take screenshots
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' && \
-    apt-get update && apt-get install -y google-chrome-stable
-RUN curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash - && apt-get install -y nodejs && \
-    npm install chrome-remote-interface minimist
+RUN npm install chrome-remote-interface minimist
 
 # nginx for check-api
-
 COPY production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
 # swap in DEPLOYUSER
 RUN sed -i "s/ddDEPLOYUSERdd/${DEPLOYUSER}/g" /etc/nginx/sites-available/${APP}
@@ -53,7 +54,7 @@ RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 #
 RUN mkdir -p ${DEPLOYDIR}/latest \
     && chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR} \
-    && chmod 775 ${DEPLOYDIR} \
+    && chmod -R 775 ${DEPLOYDIR} \
     && chmod g+s ${DEPLOYDIR}/latest
 
 WORKDIR ${DEPLOYDIR}
@@ -74,7 +75,9 @@ RUN chmod 755 /opt/bin/*
 
 # copy in the code
 COPY . ./latest
-RUN chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR}
+RUN chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR} \
+    && chmod -R 775 ${DEPLOYDIR} \
+    && chmod g+s ${DEPLOYDIR}/latest
 USER ${DEPLOYUSER}
 
 
