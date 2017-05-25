@@ -177,6 +177,7 @@ class Bot::Viber < ActiveRecord::Base
           viber_user_locale = nil
           begin
             viber_user_locale = JSON.parse(self.annotated.get_dynamic_annotation('translation_request').get_field_value('translation_request_raw_data'))['originalRequest']['sender']['language']
+            viber_user_locale = 'en' unless I18n.available_locales.include?(viber_user_locale.to_sym)
           rescue
             viber_user_locale = 'en'
           end
@@ -233,7 +234,7 @@ class Bot::Viber < ActiveRecord::Base
 
     def respond_to_user(success = true)
       if !CONFIG['viber_token'].blank? && self.annotation_type == 'translation_request' && self.annotated_type == 'ProjectMedia'
-        Dynamic.delay_for(1.second).respond_to_user(self.id, success)
+        Dynamic.delay_for(1.second, retry: 0).respond_to_user(self.id, success)
       end
     end
 
