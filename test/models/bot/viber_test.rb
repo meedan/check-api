@@ -537,6 +537,21 @@ class Bot::ViberTest < ActiveSupport::TestCase
     Dynamic.any_instance.unstub(:translation_to_message)
   end
 
+  test "should fallback to English if Viber language is not supported" do
+    at = create_annotation_type annotation_type: 'translation'
+    create_field_instance annotation_type_object: at, name: 'translation_language'
+    at = create_annotation_type annotation_type: 'language'
+    create_field_instance annotation_type_object: at, name: 'language'
+    c = create_claim_media
+    pm = create_project_media media: c
+    create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { originalRequest: { sender: { language: 'de' } } }.to_json }.to_json, annotated: pm
+    create_dynamic_annotation annotation_type: 'language', set_fields: { language: 'pt' }.to_json, annotated: pm
+    t = create_dynamic_annotation annotation_type: 'translation', set_fields: { translation_language: 'es' }.to_json, annotated: pm
+    locale = t.translation_to_message[:locale]
+    
+    assert_equal 'en', locale 
+  end
+
   private
 
   def create_translation_status_stuff
