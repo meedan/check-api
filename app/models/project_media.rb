@@ -10,15 +10,9 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification
   after_update :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
-
-  notifies_slack on: :create,
-                 if: proc { |pm| t = pm.project.team; User.current.present? && t.present? && t.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |pm| pm.slack_notification_message },
-                 channel: proc { |pm| p = pm.project; p.setting(:slack_channel) || p.team.setting(:slack_channel) },
-                 webhook: proc { |pm| pm.project.team.setting(:slack_webhook) }
 
   notifies_pusher on: :save,
                   event: 'media_updated',
@@ -54,10 +48,10 @@ class ProjectMedia < ActiveRecord::Base
   def slack_notification_message
     type = self.media.class.name.demodulize.downcase
     I18n.t(:slack_create_project_media,
-      user: self.class.to_slack(User.current.name),
+      user: self.to_slack(User.current.name),
       type: I18n.t(type.to_sym),
-      url: self.class.to_slack_url(self.full_url, "*#{self.title}*"),
-      project: self.class.to_slack(self.project.title)
+      url: self.to_slack_url(self.full_url, "*#{self.title}*"),
+      project: self.to_slack(self.project.title)
     )
   end
 

@@ -8,13 +8,7 @@ class Embed < ActiveRecord::Base
   field :published_at, Integer
   field :refreshes_count, Integer
 
-  notifies_slack on: :save,
-                 if: proc { |em| em.should_notify? and em.title_is_overridden? },
-                 message: proc { |em| em.slack_notification_message},
-                 channel: proc { |em| em.annotated.project.setting(:slack_channel) || em.current_team.setting(:slack_channel) },
-                 webhook: proc { |em| em.current_team.setting(:slack_webhook) }
-
-  after_save :update_elasticsearch_embed
+  after_save :update_elasticsearch_embed, :send_slack_notification
 
   def content
     {
@@ -29,10 +23,10 @@ class Embed < ActiveRecord::Base
   def slack_notification_message
     data = self.overridden_data
     I18n.t(:slack_save_embed,
-      user: self.class.to_slack(User.current.name),
-      from: self.class.to_slack(data[0]['title']),
-      to: self.class.to_slack_url("#{self.annotated_client_url}", "*#{data[1]['title']}*"),
-      project: self.class.to_slack(self.annotated.project.title)
+      user: self.to_slack(User.current.name),
+      from: self.to_slack(data[0]['title']),
+      to: self.to_slack_url("#{self.annotated_client_url}", "*#{data[1]['title']}*"),
+      project: self.to_slack(self.annotated.project.title)
     )
   end
 

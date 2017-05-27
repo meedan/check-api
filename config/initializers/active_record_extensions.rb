@@ -3,7 +3,6 @@ module ActiveRecordExtensions
 
   included do
     include CheckPermissions
-    include CheckNotifications::Slack
     include CheckNotifications::Pusher
 
     attr_accessor :no_cache, :skip_check_ability, :skip_notifications
@@ -51,6 +50,35 @@ module ActiveRecordExtensions
   def destroy_annotations_and_versions
     self.versions.destroy_all if self.class_name.constantize.paper_trail.enabled?
     self.annotations.destroy_all if self.respond_to?(:annotations)
+  end
+
+  def to_slack(text)
+    # https://api.slack.com/docs/message-formatting#how_to_escape_characters
+    { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
+      text = text.gsub(k,v)
+    }
+    text
+  end
+
+  def to_slack_url(url, text)
+    url.insert(0, "#{CONFIG['checkdesk_client']}/") unless url.start_with? "#{CONFIG['checkdesk_client']}/"
+    text = self.to_slack(text)
+    text = text.tr("\n", ' ')
+    "<#{url}|#{text}>"
+  end
+
+  def to_slack_quote(text)
+    text = I18n.t(:blank) if text.blank?
+    text = self.to_slack(text)
+    text.insert(0, "\n") unless text.start_with? "\n"
+    text.gsub("\n", "\n>")
+  end
+
+  private
+
+  def send_slack_notification
+    bot = Bot::Slack.default
+    bot.notify_slack(self) unless bot.nil?
   end
 
 end
