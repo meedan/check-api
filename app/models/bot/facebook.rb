@@ -17,13 +17,23 @@ class Bot::Facebook < ActiveRecord::Base
   def send_to_facebook(translation)
     send_to_social_network 'facebook', translation do
       auth = self.get_auth('facebook')
+      
+      # Ask Bridge Reader to generate the screenshot for Facebook
+      screenshot_uri = nil
+      begin
+        screenshot_uri = URI(self.embed_url(:private, :png))
+        Net::HTTP.get(screenshot_uri)
+      rescue
+        Rails.logger.info('Could not request screenshot: ' + screenshot_uri.to_s)
+      end
+
       uri = URI('https://graph.facebook.com/me/feed')
       data = {
         message: self.text,
         link: self.embed_url,
         access_token: auth['token']
       }
-      # data.merge!({ link: self.embed_url })
+      
       response = Net::HTTP.post_form(uri, data)
       'https://facebook.com/' + JSON.parse(response.body)['id'].to_s
     end

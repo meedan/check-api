@@ -12,7 +12,7 @@ class Bot::Viber < ActiveRecord::Base
     File.atomic_write(html_path) { |file| file.write(content) }
 
     Bot::Screenshot.take_screenshot(CONFIG['checkdesk_base_url_private'] + '/viber/' + filename + '.html', File.join(Rails.root, 'public', 'viber', filename + '.jpg'))
-    
+
     FileUtils.rm_f html_path
     filename
   end
@@ -28,7 +28,7 @@ class Bot::Viber < ActiveRecord::Base
   end
 
   def sender
-    { name: 'Bridge', avatar: CONFIG['checkdesk_base_url'] + '/images/bridge.png' }
+    { name: 'Bridge' }
   end
 
   def send_text_message(user_id, text)
@@ -43,7 +43,7 @@ class Bot::Viber < ActiveRecord::Base
 
   DynamicAnnotation::Field.class_eval do
     include CheckElasticSearch
-    
+
     validate :translation_status_is_valid
     validate :can_set_translation_status
     validate :translation_request_id_is_unique, on: :create
@@ -82,7 +82,7 @@ class Bot::Viber < ActiveRecord::Base
               end
 
         annotation = self.annotation.load
-        annotation.set_fields = { translation_status_approver: { name: User.current.name, url: url }.to_json }.to_json 
+        annotation.set_fields = { translation_status_approver: { name: User.current.name, url: url }.to_json }.to_json
         annotation.save!
       end
     end
@@ -177,6 +177,7 @@ class Bot::Viber < ActiveRecord::Base
           viber_user_locale = nil
           begin
             viber_user_locale = JSON.parse(self.annotated.get_dynamic_annotation('translation_request').get_field_value('translation_request_raw_data'))['originalRequest']['sender']['language']
+            viber_user_locale = 'en' unless I18n.available_locales.include?(viber_user_locale.to_sym)
           rescue
             viber_user_locale = 'en'
           end
@@ -185,7 +186,7 @@ class Bot::Viber < ActiveRecord::Base
           language_code = self.get_field('translation_language').value
           target_language = CheckCldr.language_code_to_name(language_code, viber_user_locale)
           target_text = self.get_field_value('translation_text')
-          { source_language: source_language, source_text: source_text, target_language: target_language, target_text: target_text, language_code: language_code.downcase }
+          { source_language: source_language, source_text: source_text, target_language: target_language, target_text: target_text, language_code: language_code.downcase, locale: viber_user_locale }
         rescue
           ''
         end
@@ -233,10 +234,10 @@ class Bot::Viber < ActiveRecord::Base
 
     def respond_to_user(success = true)
       if !CONFIG['viber_token'].blank? && self.annotation_type == 'translation_request' && self.annotated_type == 'ProjectMedia'
-        Dynamic.delay_for(1.second).respond_to_user(self.id, success)
+        Dynamic.delay_for(1.second, retry: 0).respond_to_user(self.id, success)
       end
     end
-    
+
     private
 
     def store_previous_status
@@ -289,7 +290,7 @@ class Bot::Viber < ActiveRecord::Base
               status[:label] = I18n.t("label_translation_status_#{status[:id]}".to_sym, default: status[:label])
               statuses << status
             end
-            { label: 'translation_status', default: 'pending', statuses: statuses }.to_json 
+            { label: 'translation_status', default: 'pending', statuses: statuses }.to_json
           }
         end
 

@@ -102,7 +102,7 @@ module CheckElasticSearchModel
             options = {parent: hit._parent} unless hit._parent.nil?
             obj.id = hit._id
             obj.save!(options)
-            Rails.logger.info "[ES MIGRATION] Migrated #{klass.name} ##{n}"
+            Rails.logger.debug "[ES MIGRATION] Migrated #{klass.name} ##{n}"
           rescue StandardError => e
             Rails.logger.error "[ES MIGRATION] Could not migrate this item: #{obj.inspect}: #{e.message}"
           end

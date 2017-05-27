@@ -13,7 +13,7 @@ config/sidekiq.yml
 config/sidekiq-test.yml
 config/initializers/errbit.rb
 config/initializers/secret_token.rb
-config/cleandb_exceptions.yml
+config/cleandb.yml
 *.sw*
 *~
 public/assets
