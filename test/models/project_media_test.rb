@@ -737,10 +737,27 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get report type" do
     c = create_claim_media
     l = create_link
-    
+
     m = create_project_media media: c
     assert_equal 'claim', m.report_type
     m = create_project_media media: l
     assert_equal 'link', m.report_type
+  end
+
+  test "should delete project media" do
+    t = create_team
+    u = create_user
+    u2 = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u2
+    p = create_project team: t
+    pm = create_project_media project: p, quote: 'Claim', user: u2
+    at = create_annotation_type annotation_type: 'test'
+    ft = create_field_type
+    fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
+    a = create_dynamic_annotation annotator: u2, annotated: pm, annotation_type: 'test', set_fields: { test: 'Test' }.to_json
+    with_current_user_and_team(u, t) do
+      pm.destroy
+    end
   end
 end
