@@ -51,6 +51,9 @@ class Ability
         obj.get_team.include? @context_team.id
       end
     end
+    can :destroy, DynamicAnnotation::Field do |obj|
+      obj.annotation.get_team.include? @context_team.id
+    end
     can :destroy, PaperTrail::Version do |obj|
       teams = []
       v_obj = obj.item_type.constantize.find(obj.item_id)
