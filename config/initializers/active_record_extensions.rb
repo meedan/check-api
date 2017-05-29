@@ -52,6 +52,14 @@ module ActiveRecordExtensions
     self.annotations.destroy_all if self.respond_to?(:annotations)
   end
 
+  def sent_to_slack
+    @sent_to_slack
+  end
+
+  def sent_to_slack=(bool)
+    @sent_to_slack = bool
+  end
+
   def to_slack(text)
     # https://api.slack.com/docs/message-formatting#how_to_escape_characters
     { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|

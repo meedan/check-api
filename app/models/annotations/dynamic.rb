@@ -36,7 +36,7 @@ class Dynamic < ActiveRecord::Base
     response, note, task = self.values(['response', 'note', 'task'], '-').values_at('response', 'note', 'task')
     task = Task.find(task).label
 
-    note = I18n.t(:slack_answer_task_note, {note: self.class.to_slack_quote(note)}) unless note.blank?
+    note = I18n.t(:slack_answer_task_note, {note: self.to_slack_quote(note)}) unless note.blank?
     I18n.t(:slack_answer_task,
       user: self.to_slack(User.current.name),
       url: self.to_slack_url("#{self.annotated_client_url}", "#{task}"),

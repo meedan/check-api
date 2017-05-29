@@ -21,6 +21,7 @@ class Embed < ActiveRecord::Base
   end
 
   def slack_notification_message
+    return unless self.title_is_overridden?
     data = self.overridden_data
     I18n.t(:slack_save_embed,
       user: self.to_slack(User.current.name),

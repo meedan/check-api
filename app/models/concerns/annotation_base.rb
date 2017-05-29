@@ -60,7 +60,6 @@ module AnnotationBase
     include ActiveModel::Validations::Callbacks
     include PaperTrail::Model
     include CheckPermissions
-    include CheckNotifications::Slack
     include CheckNotifications::Pusher
     include CheckElasticSearch
 
@@ -138,7 +137,7 @@ module AnnotationBase
   end
 
   def project
-    self.annotated
+    self.annotated if self.annotated_type == 'Project'
   end
 
   def annotated
