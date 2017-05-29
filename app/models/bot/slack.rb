@@ -1,11 +1,17 @@
 class Bot::Slack < ActiveRecord::Base
 
+  include CheckSettings
+
   def self.default
     Bot::Slack.where(name: 'Slack Bot').last
   end
 
   def should_notify?(team, model)
     User.current.present? && team.present? && !model.skip_notifications && team.setting(:slack_notifications_enabled).to_i === 1
+  end
+
+  def should_notify_super_admin?
+    User.current.present? && !self.skip_notifications && self.setting(:slack_notifications_enabled).to_i === 1
   end
 
   def notify_slack(model)
@@ -15,7 +21,25 @@ class Bot::Slack < ActiveRecord::Base
       channel = p.setting(:slack_channel) unless p.nil?
       channel ||= t.setting(:slack_channel)
       message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
-      return if webhook.blank? || channel.blank? || message.blank?
+      self.send_slack_notification(model, webhook, channel, message)
+    end
+    self.notify_super_admin(model, t, p) if self.should_notify_super_admin?
+  end
+
+  def notify_super_admin(model, team, project)
+    webhook = self.setting(:slack_webhook)
+    channel = self.setting(:slack_channel)
+    message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
+    unless message.blank?
+      prefix = team.name
+      prefix += ": #{project.title}" unless project.nil?
+      message  = "[#{prefix}] - #{message}"
+    end
+    self.send_slack_notification(model, webhook, channel, message)
+  end
+
+  def send_slack_notification(model, webhook, channel, message)
+    return if webhook.blank? || channel.blank? || message.blank?
 
       data = {
         payload: {
@@ -25,7 +49,6 @@ class Bot::Slack < ActiveRecord::Base
       }
 
       Rails.env === 'test' ? self.request_slack(model, webhook, data) : SlackNotificationWorker.perform_async(webhook, YAML::dump(data), YAML::dump(User.current))
-    end
   end
 
   def request_slack(model, webhook, data)
