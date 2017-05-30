@@ -121,6 +121,10 @@ class Team < ActiveRecord::Base
     self.send(:set_suggested_tags, tags)
   end
 
+  def keep_enabled=(enabled)
+    self.send(:set_keep_enabled, enabled)
+  end
+
   protected
 
   def custom_statuses_format(type)
