@@ -24,10 +24,10 @@ class Embed < ActiveRecord::Base
     return unless self.title_is_overridden?
     data = self.overridden_data
     I18n.t(:slack_save_embed,
-      user: self.to_slack(User.current.name),
-      from: self.to_slack(data[0]['title']),
-      to: self.to_slack_url("#{self.annotated_client_url}", "*#{data[1]['title']}*"),
-      project: self.to_slack(self.annotated.project.title)
+      user: Bot::Slack.to_slack(User.current.name),
+      from: Bot::Slack.to_slack(data[0]['title']),
+      to: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "*#{data[1]['title']}*"),
+      project: Bot::Slack.to_slack(self.annotated.project.title)
     )
   end
 

@@ -43,8 +43,8 @@ class TeamUser < ActiveRecord::Base
 
   def slack_notification_message
     I18n.t(:slack_create_team_user,
-      user: self.to_slack(self.user.name),
-      url: self.to_slack_url("#{self.team.slug}", "*#{self.team.name}*")
+      user: Bot::Slack.to_slack(self.user.name),
+      url: Bot::Slack.to_slack_url("#{self.team.slug}", "*#{self.team.name}*")
     )
   end
 

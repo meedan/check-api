@@ -19,12 +19,12 @@ class Dynamic < ActiveRecord::Base
       self.slack_answer_task_message
 
     elsif !self.set_fields.blank? && self.annotation_type == 'translation_status'
-      from, to = self.to_slack(self.previous_translation_status), self.to_slack(self.translation_status)
+      from, to = Bot::Slack.to_slack(self.previous_translation_status), Bot::Slack.to_slack(self.translation_status)
 
       if from != to
         I18n.t(:slack_update_translation_status,
-          user: self.to_slack(User.current.name),
-          report: self.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
+          user: Bot::Slack.to_slack(User.current.name),
+          report: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
           from: from,
           to: to
         )
@@ -36,12 +36,12 @@ class Dynamic < ActiveRecord::Base
     response, note, task = self.values(['response', 'note', 'task'], '-').values_at('response', 'note', 'task')
     task = Task.find(task).label
 
-    note = I18n.t(:slack_answer_task_note, {note: self.to_slack_quote(note)}) unless note.blank?
+    note = I18n.t(:slack_answer_task_note, {note: Bot::Slack.to_slack_quote(note)}) unless note.blank?
     I18n.t(:slack_answer_task,
-      user: self.to_slack(User.current.name),
-      url: self.to_slack_url("#{self.annotated_client_url}", "#{task}"),
-      project: self.to_slack(self.annotated.project.title),
-      response: self.to_slack_quote(response),
+      user: Bot::Slack.to_slack(User.current.name),
+      url: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{task}"),
+      project: Bot::Slack.to_slack(self.annotated.project.title),
+      response: Bot::Slack.to_slack_quote(response),
       answer_note: note
     )
   end

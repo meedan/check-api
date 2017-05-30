@@ -74,11 +74,11 @@ class Status < ActiveRecord::Base
 
   def slack_notification_message
     I18n.t(:slack_update_status,
-      user: self.to_slack(User.current.name),
-      url: self.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
-      previous_status: self.to_slack(self.id_to_label(self.previous_annotated_status)),
-      current_status: self.to_slack(self.id_to_label(self.status)),
-      project: self.to_slack(self.annotated.project.title)
+      user: Bot::Slack.to_slack(User.current.name),
+      url: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
+      previous_status: Bot::Slack.to_slack(self.id_to_label(self.previous_annotated_status)),
+      current_status: Bot::Slack.to_slack(self.id_to_label(self.status)),
+      project: Bot::Slack.to_slack(self.annotated.project.title)
     )
   end
 
