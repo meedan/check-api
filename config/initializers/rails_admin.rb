@@ -233,6 +233,9 @@ RailsAdmin.config do |config|
     end
 
     show do
+      configure :get_viber_token do
+        label 'Viber token'
+      end
       configure :get_slack_notifications_enabled do
         label 'Enable Slack notifications'
       end
@@ -259,6 +262,10 @@ RailsAdmin.config do |config|
         hide do
           bindings[:object].new_record?
         end
+      end
+      field :viber_token do
+        label 'Viber token'
+        formatted_value{ bindings[:object].get_viber_token }
       end
       field :slack_channel do
         label 'Slack default #channel'
