@@ -126,7 +126,7 @@ class DynamicTest < ActiveSupport::TestCase
       a.set_fields = { location_name: 'San Francisco' }.to_json
       a.save!
     end
-    
+
     assert_equal 'San Francisco', f.reload.value
   end
 
@@ -139,7 +139,7 @@ class DynamicTest < ActiveSupport::TestCase
     create_team_user team: t, user: u2
     create_team_user team: t, user: u3
     p = create_project team: t
-    pm1 = create_project_media project: p 
+    pm1 = create_project_media project: p
     pm2 = create_project_media project: p
     at = create_annotation_type
     User.current = u1
@@ -182,7 +182,7 @@ class DynamicTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     with_current_user_and_team(u, t) do
-      assert_kind_of String, d.slack_message
+      assert_kind_of String, d.slack_notification_message
     end
   end
 

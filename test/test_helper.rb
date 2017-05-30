@@ -71,7 +71,6 @@ class ActiveSupport::TestCase
 
   def setup
     Pusher::Client.any_instance.stubs(:trigger)
-    CheckNotifications::Slack::Request.any_instance.stubs(:request).returns(nil)
     [Annotation, Team, TeamUser, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |klass| klass.delete_all }
     [ProjectMedia, Media, Account, Source, User, Annotation].each{ |m| m.destroy_all }
     # create index
@@ -85,7 +84,6 @@ class ActiveSupport::TestCase
       @team = create_team
       @project = create_project team: @team
     end
-    Rails.unstub(:env)
     User.current = Team.current = nil
   end
 
@@ -294,7 +292,7 @@ class ActiveSupport::TestCase
     type === 'user' ? authenticate_with_user(obj) : authenticate_with_user
 
     post :create, query: query
-    
+
     yield if block_given?
 
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
