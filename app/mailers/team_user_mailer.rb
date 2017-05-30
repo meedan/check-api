@@ -8,7 +8,7 @@ class TeamUserMailer < ApplicationMailer
       @url = origin.blank? ? '' : URI.join(origin, "/#{@team.slug}/members")
       @handle = requestor.handle
       recipients = team.recipients(requestor)
-      self.send_email_to_recipients(recipients, I18n.t(:mail_request_to_join, default: "%{user} wants to join %{team} team on Check!", user: requestor.name, team: team.name))
+      self.send_email_to_recipients(recipients, I18n.t(:mail_request_to_join, default: "%{user} wants to join %{team} team on %{app_name}!", user: requestor.name, team: team.name, app_name: CONFIG['app_name']))
     end
   end
 
@@ -20,7 +20,8 @@ class TeamUserMailer < ApplicationMailer
       @url = origin.blank? ? '' : URI.join(origin, "/#{@team.slug}")
       Rails.logger.info "Sending e-mail to #{requestor.email}"
       status = accepted ? I18n.t(:approved, default: "approved!") : I18n.t(:rejected, default: "not approved")
-      self.send_email_to_recipients(requestor.email, I18n.t(:mail_request_to_join_processed, default: "Your request to join %{team} on Check was %{status}", team: team.name, status: status))
+      self.send_email_to_recipients(requestor.email,
+      I18n.t(:mail_request_to_join_processed, default: "Your request to join %{team} on %{app_name} was %{status}", team: team.name, status: status, app_name: CONFIG['app_name']))
     end
   end
 
