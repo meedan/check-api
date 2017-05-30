@@ -21,6 +21,14 @@ class ConfirmationsControllerTest < ActionController::TestCase
     assert_nil u.reload.confirmed_at
   end
 
+  test "should redirect to already confirmed page if user is valid" do
+    u = create_user provider: ''
+    u.confirm
+    assert_not_nil u.reload.confirmed_at
+    get :show, confirmation_token: u.confirmation_token, client_host: 'http://localhost:3333'
+    assert_redirected_to 'http://localhost:3333/check/user/already-confirmed'
+  end
+
   test "should confirm account" do
     u = create_user provider: ''
     get :show, confirmation_token: u.confirmation_token, client_host: 'http://localhost:3333'
