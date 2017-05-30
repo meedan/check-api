@@ -15,7 +15,10 @@ class Bot::Slack < ActiveRecord::Base
   end
 
   def notify_slack(model)
-    t, p = self.get_team_and_project(model)
+    # Get team & project
+    p = self.get_project(model)
+    t = self.get_team(model, p)
+
     if self.should_notify?(t, model)
       webhook = t.setting(:slack_webhook)
       channel = p.setting(:slack_channel) unless p.nil?
@@ -65,16 +68,21 @@ class Bot::Slack < ActiveRecord::Base
     http.request(request)
   end
 
-  def get_team_and_project(model)
-    t = model.team if model.respond_to?(:team)
+  protected
+
+  def get_project(model)
     p = model if model.class.to_s == 'Project'
+    p = model.project if model.respond_to?(:project)
     if model.is_annotation? && model.annotated_type == 'ProjectMedia'
       p = model.annotated.project
-      t = model.current_team
     end
-    p = model.project if p.nil? && model.respond_to?(:project)
-    t ||= p.team unless p.nil?
-    return t, p
+    p
+  end
+
+  def get_team(model, project)
+    t = model.team if model.respond_to?(:team)
+    t ||= project.team unless project.nil?
+    t
   end
 
 end
