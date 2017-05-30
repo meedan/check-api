@@ -29,17 +29,13 @@ class Bot::Viber < ActiveRecord::Base
     http.request(req)
   end
 
-  def sender
-    { name: 'Bridge' }
-  end
-
   def send_text_message(user_id, text)
-    body = { receiver: user_id, sender: self.sender, type: 'text', text: text }.to_json
+    body = { receiver: user_id, sender: { name: 'Bridge' }, type: 'text', text: text }.to_json
     self.send_message(body)
   end
 
   def send_image_message(user_id, image)
-    body = { receiver: user_id, sender: self.sender, type: 'picture', text: '', media: image }.to_json
+    body = { receiver: user_id, sender: { name: 'Bridge' }, type: 'picture', text: '', media: image }.to_json
     self.send_message(body)
   end
 
@@ -96,9 +92,7 @@ class Bot::Viber < ActiveRecord::Base
     private
 
     def update_elasticsearch_status
-      if self.field_name == 'translation_status_status'
-        self.update_media_search(['status'], { 'status' => self.value }, self.annotation.annotated_id)
-      end
+      self.update_media_search(['status'], { 'status' => self.value }, self.annotation.annotated_id) if self.field_name == 'translation_status_status'
     end
 
     def translation_status_is_valid

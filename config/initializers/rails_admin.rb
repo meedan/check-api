@@ -266,6 +266,10 @@ RailsAdmin.config do |config|
       field :viber_token do
         label 'Viber token'
         formatted_value{ bindings[:object].get_viber_token }
+        help ''
+        hide do
+          bindings[:object].new_record?
+        end
       end
       field :slack_channel do
         label 'Slack default #channel'
