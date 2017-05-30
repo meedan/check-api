@@ -233,8 +233,8 @@ RailsAdmin.config do |config|
     end
 
     show do
-      configure :get_keep_enabled do
-        label 'Enable Keep archiving'
+      configure :get_viber_token do
+        label 'Viber token'
       end
       configure :get_slack_notifications_enabled do
         label 'Enable Slack notifications'
@@ -255,17 +255,17 @@ RailsAdmin.config do |config|
       field :archived
       field :lead_image
       field :user
-      field :keep_enabled, :boolean do
-        label 'Enable Keep archiving'
-        formatted_value{ bindings[:object].get_keep_enabled }
+      field :slack_notifications_enabled, :boolean do
+        label 'Enable Slack notifications'
+        formatted_value{ bindings[:object].get_slack_notifications_enabled }
         help ''
         hide do
           bindings[:object].new_record?
         end
       end
-      field :slack_notifications_enabled, :boolean do
-        label 'Enable Slack notifications'
-        formatted_value{ bindings[:object].get_slack_notifications_enabled }
+      field :viber_token do
+        label 'Viber token'
+        formatted_value{ bindings[:object].get_viber_token }
         help ''
         hide do
           bindings[:object].new_record?
