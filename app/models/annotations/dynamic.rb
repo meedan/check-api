@@ -7,27 +7,24 @@ class Dynamic < ActiveRecord::Base
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
 
   after_save :add_update_elasticsearch_dynamic_annotation
-  after_create :create_fields
-  after_update :update_fields
+  after_create :create_fields, :send_slack_notification
+  after_update :update_fields, :send_slack_notification
   before_destroy :destroy_elasticsearch_dynamic_annotation
 
   validate :annotation_type_exists
   validate :mandatory_fields_are_set, on: :create
 
-  annotation_notifies_slack :update
-  annotation_notifies_slack :create
-
-  def slack_message
+  def slack_notification_message
     if !self.set_fields.blank? && self.annotation_type =~ /^task_response/
       self.slack_answer_task_message
 
     elsif !self.set_fields.blank? && self.annotation_type == 'translation_status'
-      from, to = self.class.to_slack(self.previous_translation_status), self.class.to_slack(self.translation_status)
+      from, to = Bot::Slack.to_slack(self.previous_translation_status), Bot::Slack.to_slack(self.translation_status)
 
       if from != to
         I18n.t(:slack_update_translation_status,
-          user: self.class.to_slack(User.current.name),
-          report: self.class.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
+          user: Bot::Slack.to_slack(User.current.name),
+          report: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
           from: from,
           to: to
         )
@@ -39,12 +36,12 @@ class Dynamic < ActiveRecord::Base
     response, note, task = self.values(['response', 'note', 'task'], '-').values_at('response', 'note', 'task')
     task = Task.find(task).label
 
-    note = I18n.t(:slack_answer_task_note, {note: self.class.to_slack_quote(note)}) unless note.blank?
+    note = I18n.t(:slack_answer_task_note, {note: Bot::Slack.to_slack_quote(note)}) unless note.blank?
     I18n.t(:slack_answer_task,
-      user: self.class.to_slack(User.current.name),
-      url: self.class.to_slack_url("#{self.annotated_client_url}", "#{task}"),
-      project: self.class.to_slack(self.annotated.project.title),
-      response: self.class.to_slack_quote(response),
+      user: Bot::Slack.to_slack(User.current.name),
+      url: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{task}"),
+      project: Bot::Slack.to_slack(self.annotated.project.title),
+      response: Bot::Slack.to_slack_quote(response),
       answer_note: note
     )
   end

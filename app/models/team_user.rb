@@ -10,15 +10,9 @@ class TeamUser < ActiveRecord::Base
   validate :user_is_member_in_slack_team
 
   before_validation :set_role_default_value, on: :create
-  after_create :send_email_to_team_owners
+  after_create :send_email_to_team_owners, :send_slack_notification
   after_save :send_email_to_requestor, :update_user_cached_teams_after_save
   after_destroy :update_user_cached_teams_after_destroy
-
-  notifies_slack on: :create,
-                 if: proc { |tu| User.current.present? && tu.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |tu| tu.slack_notification_message },
-                 channel: proc { |tu| tu.team.setting(:slack_channel) },
-                 webhook: proc { |tu| tu.team.setting(:slack_webhook) }
 
   def self.status_types
     %w(member requested invited banned)
@@ -49,8 +43,8 @@ class TeamUser < ActiveRecord::Base
 
   def slack_notification_message
     I18n.t(:slack_create_team_user,
-      user: self.class.to_slack(self.user.name),
-      url: self.class.to_slack_url("#{self.team.slug}", "*#{self.team.name}*")
+      user: Bot::Slack.to_slack(self.user.name),
+      url: Bot::Slack.to_slack_url("#{self.team.slug}", "*#{self.team.name}*")
     )
   end
 
