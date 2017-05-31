@@ -17,8 +17,24 @@ class Bot::Keep
 
     # If not finished (error or success), run again
     if !data.has_key?('location') && data['status'].to_i != 418 && data.has_key?('package')
-      Bot::Keep.delay_for(5.minutes).send_to_keep({ package: data['package'], token: params[:token] }, annotation_id)
+      # Bot::Keep.delay_for(5.minutes).send_to_keep({ package: data['package'], token: params[:token] }, annotation_id)
+      Bot::Keep.delay_for(5.minutes).is_archived?(data['package'], annotation_id)
     end
+  end
+
+  def self.is_archived?(package, annotation_id)
+    uri = URI("https://www.bravenewtech.org/review.php?p=#{package}")
+    response = Net::HTTP.get_response(uri)
+    annotation = Dynamic.find(annotation_id)
+    data = { timestamp: Time.now.to_i, package: package }
+    if response.body =~ /SHA1 hash: [a-z0-9]+/
+      data[:location] = uri.to_s
+    else
+      data[:status] = 'Processing'
+      Bot::Keep.delay_for(5.minutes).is_archived?(package, annotation_id)
+    end
+    annotation.set_fields = { keep_backup_response: data.to_json }.to_json
+    annotation.save!
   end
 
   ProjectMedia.class_eval do
