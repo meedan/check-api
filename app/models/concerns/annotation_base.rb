@@ -60,7 +60,6 @@ module AnnotationBase
     include ActiveModel::Validations::Callbacks
     include PaperTrail::Model
     include CheckPermissions
-    include CheckNotifications::Slack
     include CheckNotifications::Pusher
     include CheckElasticSearch
 
@@ -123,13 +122,6 @@ module AnnotationBase
       end
     end
 
-    def annotation_notifies_slack(event)
-      notifies_slack on: event,
-                     if: proc { |a| a.should_notify? },
-                     message: proc { |a| a.slack_message },
-                     channel: proc { |a| a.annotated.project.setting(:slack_channel) || a.current_team.setting(:slack_channel) },
-                     webhook: proc { |a| a.current_team.setting(:slack_webhook) }
-    end
   end
 
   def versions(options = {})
@@ -145,7 +137,7 @@ module AnnotationBase
   end
 
   def project
-    self.annotated
+    self.annotated if self.annotated_type == 'Project'
   end
 
   def annotated
@@ -203,10 +195,6 @@ module AnnotationBase
 
   def current_team
     self.annotated.project.team if self.annotated_type === 'ProjectMedia' && self.annotated.project
-  end
-
-  def should_notify?
-    User.current.present? && !self.skip_notifications && self.current_team.present? && self.current_team.setting(:slack_notifications_enabled).to_i === 1 && self.annotated_type === 'ProjectMedia'
   end
 
   # Supports only media for the time being

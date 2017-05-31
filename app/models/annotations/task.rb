@@ -2,6 +2,8 @@ class Task < ActiveRecord::Base
   include AnnotationBase
 
   before_validation :set_initial_status, on: :create
+  after_create :send_slack_notification
+  after_update :send_slack_notification
   after_destroy :destroy_responses
 
   field :label
@@ -24,10 +26,7 @@ class Task < ActiveRecord::Base
   end
   validates :status, included: { values: self.task_statuses }, allow_blank: true
 
-  annotation_notifies_slack :update
-  annotation_notifies_slack :create
-
-  def slack_message
+  def slack_notification_message
     if self.versions.count > 1
       self.slack_message_on_update
     else
@@ -36,7 +35,7 @@ class Task < ActiveRecord::Base
   end
 
   def slack_message_on_create
-    note = self.description.blank? ? '' : I18n.t(:slack_create_task_note, {note: self.class.to_slack_quote(self.description)})
+    note = self.description.blank? ? '' : I18n.t(:slack_create_task_note, {note: Bot::Slack.to_slack_quote(self.description)})
     params = self.slack_default_params.merge({
       create_note: note
     })
@@ -45,9 +44,9 @@ class Task < ActiveRecord::Base
 
   def slack_default_params
     {
-      user: self.class.to_slack(User.current.name),
-      url: self.class.to_slack_url("#{self.annotated_client_url}", "#{self.label}"),
-      project: self.class.to_slack(self.annotated.project.title)
+      user: Bot::Slack.to_slack(User.current.name),
+      url: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.label}"),
+      project: Bot::Slack.to_slack(self.annotated.project.title)
     }
   end
 
@@ -60,8 +59,8 @@ class Task < ActiveRecord::Base
       ['label', 'description'].each do |key|
         if data_was[key] != data[key]
           params = self.slack_default_params.merge({
-            from: self.class.to_slack_quote(data_was[key]),
-            to: self.class.to_slack_quote(data[key])
+            from: Bot::Slack.to_slack_quote(data_was[key]),
+            to: Bot::Slack.to_slack_quote(data[key])
           })
           messages << I18n.t("slack_update_task_#{key}".to_sym, params)
         end

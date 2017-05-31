@@ -32,13 +32,14 @@ class Bot::ViberTest < ActiveSupport::TestCase
   end
 
   test "should respond to user when annotation is created" do
-    pm = create_project_media
+    p = create_project
+    p.set_viber_token = 'test'
+    p.save!
+    pm = create_project_media project: p
     at = create_annotation_type annotation_type: 'translation'
     Dynamic.expects(:respond_to_user).once
     Sidekiq::Testing.inline! do
-      stub_config('viber_token', 'test') do
-        d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-      end
+      d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
     end
     Dynamic.unstub(:respond_to_user)
   end
@@ -48,33 +49,34 @@ class Bot::ViberTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'translation'
     Dynamic.expects(:respond_to_user).never
     Sidekiq::Testing.inline! do
-      stub_config('viber_token', nil) do
-        d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-      end
+      d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
     end
     Dynamic.unstub(:respond_to_user)
   end
 
   test "should not respond to user when annotation is created if annotation type is not translation" do
-    pm = create_project_media
+    p = create_project
+    p.set_viber_token = 'test'
+    p.save!
+    pm = create_project_media project: p
     at = create_annotation_type annotation_type: 'not_translation'
     Dynamic.expects(:respond_to_user).never
     Sidekiq::Testing.inline! do
-      stub_config('viber_token', 'test') do
-        d = create_dynamic_annotation annotation_type: 'not_translation', annotated: pm
-      end
+      d = create_dynamic_annotation annotation_type: 'not_translation', annotated: pm
     end
     Dynamic.unstub(:respond_to_user)
   end
 
   test "should not respond to user when annotation is created if annotated is not project media" do
+    p = create_project
+    p.set_viber_token = 'test'
+    p.save!
     s = create_source
+    create_project_source source: s, project: p
     at = create_annotation_type annotation_type: 'translation'
     Dynamic.expects(:respond_to_user).never
     Sidekiq::Testing.inline! do
-      stub_config('viber_token', 'test') do
-        d = create_dynamic_annotation annotation_type: 'translation', annotated: s
-      end
+      d = create_dynamic_annotation annotation_type: 'translation', annotated: s
     end
     Dynamic.unstub(:respond_to_user)
   end
@@ -86,11 +88,8 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_field_instance(name: 'translation_request_type', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     
-    d1 = d2 = nil
-    stub_config('viber_token', nil) do
-      d1 = create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
-      d2 = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    end
+    d1 = create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
+    d2 = create_dynamic_annotation annotation_type: 'translation', annotated: pm
 
     Sidekiq::Testing.inline! do
       d1.respond_to_user
@@ -99,12 +98,12 @@ class Bot::ViberTest < ActiveSupport::TestCase
     Bot::Viber.any_instance.expects(:send_text_message).once
     Bot::Viber.any_instance.expects(:send_image_message).once
 
-    Dynamic.respond_to_user(d1.id)
+    Dynamic.respond_to_user(d1.id, true, nil)
 
     Bot::Viber.any_instance.expects(:send_text_message).once
     Bot::Viber.any_instance.expects(:send_image_message).never
 
-    Dynamic.respond_to_user(d1.id, false)
+    Dynamic.respond_to_user(d1.id, false, nil)
 
     Bot::Viber.any_instance.unstub(:send_text_message)
     Bot::Viber.any_instance.unstub(:send_image_message)
@@ -118,15 +117,12 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
     
-    d = nil
-    stub_config('viber_token', nil) do
-      d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    end
+    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
     
     Bot::Viber.any_instance.expects(:send_text_message).never
     Bot::Viber.any_instance.expects(:send_image_message).never
 
-    Dynamic.respond_to_user(d.id + 1)
+    Dynamic.respond_to_user(d.id + 1, true, nil)
 
     Bot::Viber.any_instance.unstub(:send_text_message)
     Bot::Viber.any_instance.unstub(:send_image_message)
@@ -139,15 +135,12 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_field_instance(name: 'translation_request_type', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     
-    d = nil
-    stub_config('viber_token', nil) do
-      d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    end
+    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
     
     Bot::Viber.any_instance.expects(:send_text_message).never
     Bot::Viber.any_instance.expects(:send_image_message).never
 
-    Dynamic.respond_to_user(d.id)
+    Dynamic.respond_to_user(d.id, true, nil)
 
     Bot::Viber.any_instance.unstub(:send_text_message)
     Bot::Viber.any_instance.unstub(:send_image_message)
@@ -161,15 +154,12 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'telegram', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
     
-    d = nil
-    stub_config('viber_token', nil) do
-      d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    end
+    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
     
     Bot::Viber.any_instance.expects(:send_text_message).never
     Bot::Viber.any_instance.expects(:send_image_message).never
 
-    Dynamic.respond_to_user(d.id)
+    Dynamic.respond_to_user(d.id, true, nil)
 
     Bot::Viber.any_instance.unstub(:send_text_message)
     Bot::Viber.any_instance.unstub(:send_image_message)
@@ -342,11 +332,9 @@ class Bot::ViberTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         Sidekiq::Testing.inline! do
-          stub_config('viber_token', nil) do
-            d = Dynamic.find(d.id)
-            d.set_fields = { translation_status_status: 'ready' }.to_json
-            d.save!
-          end
+          d = Dynamic.find(d.id)
+          d.set_fields = { translation_status_status: 'ready' }.to_json
+          d.save!
         end
       end
     end
@@ -368,11 +356,9 @@ class Bot::ViberTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         Sidekiq::Testing.inline! do
-          stub_config('viber_token', nil) do
-            d = Dynamic.find(d.id)
-            d.set_fields = { translation_status_status: 'error' }.to_json
-            d.save!
-          end
+          d = Dynamic.find(d.id)
+          d.set_fields = { translation_status_status: 'error' }.to_json
+          d.save!
         end
       end
     end
@@ -391,11 +377,9 @@ class Bot::ViberTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        stub_config('viber_token', 'test') do
-          d = Dynamic.find(d.id)
-          d.set_fields = { translation_status_status: 'error' }.to_json
-          d.save!
-        end
+        d = Dynamic.find(d.id)
+        d.set_fields = { translation_status_status: 'error' }.to_json
+        d.save!
       end
     end
   end
@@ -416,12 +400,13 @@ class Bot::ViberTest < ActiveSupport::TestCase
 
   test "should send message to user in background" do
     Dynamic.expects(:respond_to_user).once
-    pm = create_project_media
+    p = create_project
+    p.set_viber_token = 'test'
+    p.save!
+    pm = create_project_media project: p
     d = create_dynamic_annotation annotation_type: 'translation_request', annotated: pm
     Sidekiq::Testing.inline! do
-      stub_config('viber_token', 'test') do
-        d.respond_to_user
-      end
+      d.respond_to_user
     end
     Dynamic.unstub(:respond_to_user)
   end

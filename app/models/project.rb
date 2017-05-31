@@ -14,6 +14,7 @@ class Project < ActiveRecord::Base
   before_validation :set_description_and_team_and_user, on: :create
   before_validation :generate_token, on: :create
 
+  after_create :send_slack_notification
   after_update :update_elasticsearch_data
 
   validates_presence_of :title
@@ -22,12 +23,6 @@ class Project < ActiveRecord::Base
   validate :project_languages_format, unless: proc { |p| p.settings.nil? }
 
   has_annotations
-
-  notifies_slack on: :create,
-                 if: proc { |p| User.current.present? && p.team.setting(:slack_notifications_enabled).to_i === 1 },
-                 message: proc { |p| p.slack_notification_message },
-                 channel: proc { |p| p.setting(:slack_channel) || p.team.setting(:slack_channel) },
-                 webhook: proc { |p| p.team.setting(:slack_webhook) }
 
   notifies_pusher on: :create,
                   event: 'project_created',
@@ -80,6 +75,10 @@ class Project < ActiveRecord::Base
     self.send(:set_slack_channel, channel)
   end
 
+  def viber_token=(token)
+    self.send(:set_viber_token, token)
+  end
+
   def admin_label
     unless self.new_record? || self.team.nil?
       [self.team.name.truncate(15),self.title.truncate(25)].join(' - ')
@@ -102,8 +101,8 @@ class Project < ActiveRecord::Base
 
   def slack_notification_message
     I18n.t(:slack_create_project,
-      user: self.class.to_slack(User.current.name),
-      url: self.class.to_slack_url(self.url, "*#{self.title}*")
+      user:  Bot::Slack.to_slack(User.current.name),
+      url:  Bot::Slack.to_slack_url(self.url, "*#{self.title}*")
     )
   end
 

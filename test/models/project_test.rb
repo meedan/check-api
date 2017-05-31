@@ -291,22 +291,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil p.sent_to_slack
   end
 
-  test "should notify Slack in background" do
-    Rails.stubs(:env).returns(:production)
-    t = create_team slug: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    assert_equal 0, CheckNotifications::Slack::Worker.jobs.size
-    with_current_user_and_team(u, t) do
-      p = create_project team: t
-      assert_equal 1, CheckNotifications::Slack::Worker.jobs.size
-      CheckNotifications::Slack::Worker.drain
-      assert_equal 0, CheckNotifications::Slack::Worker.jobs.size
-      Rails.unstub(:env)
-    end
-  end
-
   test "should notify Pusher when project is created" do
     p = create_project
     assert p.sent_to_pusher
@@ -500,5 +484,12 @@ class ProjectTest < ActiveSupport::TestCase
     assert p1.token.size > 5
     assert p2.token.size > 5
     assert p1.token != p2.token
+  end
+
+  test "should set Viber token" do
+    p = create_project
+    p.viber_token = 'test'
+    p.save!
+    assert_equal 'test', p.get_viber_token
   end
 end

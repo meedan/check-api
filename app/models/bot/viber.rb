@@ -1,4 +1,6 @@
 class Bot::Viber < ActiveRecord::Base
+  attr_accessor :token
+
   def self.default
     Bot::Viber.where(name: 'Viber Bot').last
   end
@@ -22,22 +24,18 @@ class Bot::Viber < ActiveRecord::Base
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     req = Net::HTTP::Post.new(uri.path, 'Content-Type' => 'application/json')
-    req['X-Viber-Auth-Token'] = CONFIG['viber_token']
+    req['X-Viber-Auth-Token'] = self.token
     req.body = body
     http.request(req)
   end
 
-  def sender
-    { name: 'Bridge' }
-  end
-
   def send_text_message(user_id, text)
-    body = { receiver: user_id, sender: self.sender, type: 'text', text: text }.to_json
+    body = { receiver: user_id, sender: { name: 'Bridge' }, type: 'text', text: text }.to_json
     self.send_message(body)
   end
 
   def send_image_message(user_id, image)
-    body = { receiver: user_id, sender: self.sender, type: 'picture', text: '', media: image }.to_json
+    body = { receiver: user_id, sender: { name: 'Bridge' }, type: 'picture', text: '', media: image }.to_json
     self.send_message(body)
   end
 
@@ -94,9 +92,7 @@ class Bot::Viber < ActiveRecord::Base
     private
 
     def update_elasticsearch_status
-      if self.field_name == 'translation_status_status'
-        self.update_media_search(['status'], { 'status' => self.value }, self.annotation.annotated_id)
-      end
+      self.update_media_search(['status'], { 'status' => self.value }, self.annotation.annotated_id) if self.field_name == 'translation_status_status'
     end
 
     def translation_status_is_valid
@@ -214,27 +210,30 @@ class Bot::Viber < ActiveRecord::Base
       end
     end
 
-    def self.respond_to_user(tid, success = true)
+    def self.respond_to_user(tid, success, token)
       request = Dynamic.where(id: tid).last
       return if request.nil?
       if request.get_field_value('translation_request_type') == 'viber'
         data = JSON.parse(request.get_field_value('translation_request_raw_data'))
+        bot = Bot::Viber.default
+        bot.token = token
         if success
           translation = request.annotated.get_dynamic_annotation('translation')
           unless translation.nil?
-            Bot::Viber.default.send_text_message(data['sender'], translation.translation_to_message_as_text)
-            Bot::Viber.default.send_image_message(data['sender'], translation.translation_to_message_as_image)
+            bot.send_text_message(data['sender'], translation.translation_to_message_as_text)
+            bot.send_image_message(data['sender'], translation.translation_to_message_as_image)
           end
         else
           message = request.annotated.get_dynamic_annotation('translation_status').get_field_value('translation_status_note')
-          Bot::Viber.default.send_text_message(data['sender'], message) unless message.blank?
+          bot.send_text_message(data['sender'], message) unless message.blank?
         end
       end
     end
 
     def respond_to_user(success = true)
-      if !CONFIG['viber_token'].blank? && self.annotation_type == 'translation_request' && self.annotated_type == 'ProjectMedia'
-        Dynamic.delay_for(1.second, retry: 0).respond_to_user(self.id, success)
+      if self.annotation_type == 'translation_request' && self.annotated_type == 'ProjectMedia'
+        token = self.annotated.project.get_viber_token
+        Dynamic.delay_for(1.second, retry: 0).respond_to_user(self.id, success, token) unless token.blank?
       end
     end
 
