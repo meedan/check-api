@@ -485,4 +485,11 @@ class ProjectTest < ActiveSupport::TestCase
     assert p2.token.size > 5
     assert p1.token != p2.token
   end
+
+  test "should set Viber token" do
+    p = create_project
+    p.viber_token = 'test'
+    p.save!
+    assert_equal 'test', p.get_viber_token
+  end
 end
