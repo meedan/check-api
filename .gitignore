@@ -1,7 +1,7 @@
 /.bundle
 /db/*.sqlite3
 /db/*.sqlite3-journal
-/db/schema.rb
+db/schema.rb
 /log/*.log
 /tmp/cache
 /tmp/pids
@@ -14,9 +14,6 @@ config/sidekiq-test.yml
 config/initializers/errbit.rb
 config/initializers/secret_token.rb
 config/cleandb.yml
-config/environments/production.rb
-config/environments/test.rb
-config/initializers/sidekiq.rb
 *.sw*
 *~
 public/assets

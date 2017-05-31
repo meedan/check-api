@@ -8017,34 +8017,6 @@
               "deprecationReason": null
             },
             {
-              "name": "privacy_policy",
-              "description": "Privacy Policy",
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "tos",
-              "description": "Terms of Service",
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "upload_extensions",
               "description": "Allowed upload types",
               "args": [
