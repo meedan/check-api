@@ -45,7 +45,7 @@ class Embed < ActiveRecord::Base
   def get_overridden_data(version)
     data = version.changeset['data']
     # Get title from pender if Link has only one version
-    if self.annotated.media.type == 'Link' and self.versions.size == 1
+    if self.annotated_type == 'ProjectMedia' and self.annotated.media.type == 'Link' and self.versions.size == 1
       pender = self.annotated.get_media_annotations('embed')
       data[0]['title'] = pender['data']['title'] unless pender.nil?
     end
