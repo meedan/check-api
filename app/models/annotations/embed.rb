@@ -21,7 +21,7 @@ class Embed < ActiveRecord::Base
   end
 
   def slack_notification_message
-    return unless self.title_is_overridden?
+    return if !self.title_is_overridden? || self.annotated_type != 'ProjectMedia'
     data = self.overridden_data
     I18n.t(:slack_save_embed,
       user: Bot::Slack.to_slack(User.current.name),
