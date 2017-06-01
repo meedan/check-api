@@ -15,7 +15,7 @@ class Team < ActiveRecord::Base
 
   validates_presence_of :name
   validates_presence_of :slug
-  validates_format_of :slug, with: /\A[[:alnum:]-]+\z/, message: I18n.t(:slug_format_validation_message, default: 'accepts only letters, numbers and hyphens'), on: :create
+  validates_format_of :slug, with: /\A[[:alnum:]-]+\z/, message: I18n.t(:slug_format_validation_message), on: :create
   validates :slug, length: { in: 4..63 }, on: :create
   validates :slug, uniqueness: true, on: :create
   validate :slug_is_not_reserved
@@ -130,7 +130,7 @@ class Team < ActiveRecord::Base
   def custom_statuses_format(type)
     statuses = self.send("get_#{type}_verification_statuses")
     if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status, default: 'Custom verification statuses is invalid, it should have the format as exemplified below the field'))
+      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status))
     else
       statuses[:statuses].each do |status|
         errors.add(:base, 'Custom verification statuses is invalid, it should have the format as exemplified below the field') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
@@ -185,7 +185,7 @@ class Team < ActiveRecord::Base
   end
 
   def slug_is_not_reserved
-    errors.add(:slug, I18n.t(:slug_is_reserved, default: 'is reserved')) if RESERVED_SLUGS.include?(self.slug)
+    errors.add(:slug, I18n.t(:slug_is_reserved)) if RESERVED_SLUGS.include?(self.slug)
   end
 
 end

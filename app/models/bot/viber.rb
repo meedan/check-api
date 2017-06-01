@@ -100,7 +100,7 @@ class Bot::Viber < ActiveRecord::Base
         options = self.field_instance.settings[:options_and_roles]
         value = self.value.to_sym
 
-        errors.add(:base, I18n.t(:translation_status_not_valid, default: 'Status not valid')) unless options.keys.include?(value)
+        errors.add(:base, I18n.t(:translation_status_not_valid)) unless options.keys.include?(value)
       end
     end
 
@@ -113,7 +113,7 @@ class Bot::Viber < ActiveRecord::Base
         user = User.current
 
         if self.cant_change_status(user, options, old_value, value)
-          errors.add(:base, I18n.t(:translation_status_permission_error, default: 'You are not allowed to make this status change'))
+          errors.add(:base, I18n.t(:translation_status_permission_error))
         end
       end
     end
@@ -135,7 +135,7 @@ class Bot::Viber < ActiveRecord::Base
     def translation_request_id_is_unique
       if self.field_name == 'translation_request_id' &&
          DynamicAnnotation::Field.where(field_name: 'translation_request_id', value: self.value).exists?
-        errors.add(:base, I18n.t(:translation_request_id_exists, default: 'There is already a translation request for this message'))
+        errors.add(:base, I18n.t(:translation_request_id_exists))
       end
     end
   end
