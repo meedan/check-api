@@ -1,3 +1,2 @@
 # Initialize the bots by just calling the classes here
-Bot::Viber
-Bot::Keep
+Bot::Viber && Bot::Keep
