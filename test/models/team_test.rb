@@ -472,4 +472,10 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should enable Keep" do
+    t = create_team
+    t.keep_enabled = 1
+    assert_equal 1, t.get_keep_enabled.to_i
+  end
 end
