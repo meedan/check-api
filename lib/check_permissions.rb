@@ -16,17 +16,13 @@ module CheckPermissions
   module ClassMethods
     def find_if_can(id, ability = nil)
       id = id.id if id.is_a?(ActiveRecord::Base)
-      if User.current.nil?
-        self.find(id)
+      model = self.name == 'Project' ? self.eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0] : self.find(id)
+      raise ActiveRecord::RecordNotFound if model.nil?
+      ability ||= Ability.new
+      if ability.can?(:read, model)
+        model
       else
-        model = self.name == 'Project' ? self.eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0] : self.find(id)
-        raise ActiveRecord::RecordNotFound if model.nil?
-        ability ||= Ability.new
-        if ability.can?(:read, model)
-          model
-        else
-          raise AccessDenied, "Sorry, you can't read this #{model.class.name.downcase}"
-        end
+        raise AccessDenied, "Sorry, you can't read this #{model.class.name.downcase}"
       end
     end
   end
