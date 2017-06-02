@@ -144,6 +144,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pu = create_user
     pt = create_team private: true
     create_team_user team: pt, user: pu
+    pu2 = create_user
+    create_team_user team: pt, user: pu2, status: 'requested'
     pp = create_project team: pt
     m = create_media project: pp
     ppm = create_project_media project: pp, media: m
@@ -156,11 +158,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     with_current_user_and_team(pu, pt) do
       ProjectMedia.find_if_can(ppm.id)
     end
-    tu = pt.team_users.last
-    tu.status = 'requested'
-    tu.save(validate: false)
     assert_raise CheckPermissions::AccessDenied do
-      with_current_user_and_team(pu, pt) do
+      with_current_user_and_team(pu2, pt) do
         ProjectMedia.find_if_can(ppm.id)
       end
     end

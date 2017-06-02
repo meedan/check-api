@@ -1051,11 +1051,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should fallback to find" do
-    u = create_user
-    assert_equal u, User.find_if_can(u.id)
-  end
-
   test "should read source without user" do
     u = create_user
     t = create_team
