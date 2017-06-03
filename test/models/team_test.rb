@@ -478,4 +478,13 @@ class TeamTest < ActiveSupport::TestCase
     t.keep_enabled = 1
     assert_equal 1, t.get_keep_enabled.to_i
   end
+
+  test "should be private by default" do
+    Team.delete_all
+    t = Team.new
+    t.name = 'Test'
+    t.slug = 'test'
+    t.save!
+    assert t.reload.private
+  end
 end
