@@ -10,8 +10,12 @@ class Bot::Slack < ActiveRecord::Base
     User.current.present? && team.present? && !model.skip_notifications && team.setting(:slack_notifications_enabled).to_i === 1
   end
 
-  def should_notify_super_admin?
-    User.current.present? && !self.skip_notifications && self.setting(:slack_notifications_enabled).to_i === 1
+  def should_notify_super_admin?(model)
+    User.current.present? && should_notify_annotation?(model) && !self.skip_notifications && self.setting(:slack_notifications_enabled).to_i === 1
+  end
+
+  def should_notify_annotation?(model)
+    (model.is_annotation? && model.annotated_type != 'ProjectMedia') ? false : true
   end
 
   def notify_slack(model)
@@ -26,7 +30,7 @@ class Bot::Slack < ActiveRecord::Base
       message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
       self.send_slack_notification(model, webhook, channel, message)
     end
-    self.notify_super_admin(model, t, p) if self.should_notify_super_admin?
+    self.notify_super_admin(model, t, p) if self.should_notify_super_admin?(model)
   end
 
   def notify_super_admin(model, team, project)

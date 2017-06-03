@@ -5,9 +5,9 @@
   </head>
   <body>
     <% if @accepted %>
-      <p><%= I18n.t(:mail_view_joined, default: "Your request to join %{team} was approved! You can now go to %{url} and start contributing!", team: @team.name, url: @url) %></p>
+      <p><%= I18n.t(:mail_view_joined, team: @team.name, url: @url) %></p>
     <% else %>
-      <p><%= I18n.t(:mail_view_rejected_to_join, default: "Sorry, but your request to join %{team} was rejected.", team: @team.name) %></p>
+      <p><%= I18n.t(:mail_view_rejected_to_join, team: @team.name) %></p>
     <% end %>
   </body>
 </html>

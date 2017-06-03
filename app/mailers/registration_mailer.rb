@@ -4,7 +4,7 @@ class RegistrationMailer < ApplicationMailer
   def welcome_email(user)
     @user = user
     @url = CONFIG['checkdesk_client']
-    mail(to: @user.email, subject: I18n.t(:mail_new_account))
+    mail(to: @user.email, subject: I18n.t(:mail_new_account, app_name: CONFIG['app_name']))
   end
 
   def duplicate_email_detection(user, duplicate)
