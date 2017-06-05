@@ -1,5 +1,5 @@
-<%= I18n.t(:mail_view_welcome, default: "Welcome to %{app_name}", app_name: CONFIG['app_name']) %>, <%= @resource.name %>!
+<%= I18n.t(:mail_view_welcome, app_name: CONFIG['app_name']) %>, <%= @resource.name %>!
 
-<%= I18n.t(:mail_view_register, default: "You are only one step away from using %{app_name}! Please confirm your email address by clicking the following link:", app_name: CONFIG['app_name']) %>
+<%= I18n.t(:mail_view_register, app_name: CONFIG['app_name']) %>
 
 <%= confirmation_url(@resource, host: @host, confirmation_token: @resource.confirmation_token, client_host: @client_host) %>

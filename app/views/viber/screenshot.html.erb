@@ -79,7 +79,7 @@
         <h1 class="target-text" lang="<%= @language_code %>"><span><%= word_wrap(@target_text, line_width: 50).gsub("\n", '<br />').html_safe %></span></h1>
         <p class="source-text">
           <span>
-            <%= I18n.t(:viber_screenshot_footer, default: '%{target_language} translation from %{source_language}: “%{source_text}”',
+            <%= I18n.t(:viber_screenshot_footer,
                         target_language: @target_language,
                         source_language: @source_language,
                         source_text: word_wrap(@source_text, line_width: 50).gsub("\n", '<br />').html_safe,

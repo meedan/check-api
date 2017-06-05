@@ -19,7 +19,7 @@ class Bot::Keep
     if !data.has_key?('location') && data['status'].to_i != 418 && data.has_key?('package')
       Bot::Keep.delay_for(3.minutes).send_to_keep({ package: data['package'], token: params[:token] }, annotation_id, 'status.php')
     else
-      ::Pusher.trigger([annotation.annotated.media.pusher_channel], 'media_updated', { message: data }) unless CONFIG['pusher_key'].blank?
+      ::Pusher.trigger([annotation.annotated.media.pusher_channel], 'media_updated', { message: data.to_json }) unless CONFIG['pusher_key'].blank?
     end
   end
 

@@ -21,7 +21,7 @@ class Embed < ActiveRecord::Base
   end
 
   def slack_notification_message
-    return unless self.title_is_overridden?
+    return if self.annotated_type != 'ProjectMedia' || !self.title_is_overridden?
     data = self.overridden_data
     I18n.t(:slack_save_embed,
       user: Bot::Slack.to_slack(User.current.name),
@@ -45,7 +45,7 @@ class Embed < ActiveRecord::Base
   def get_overridden_data(version)
     data = version.changeset['data']
     # Get title from pender if Link has only one version
-    if self.annotated_type == 'ProjectMedia' and self.annotated.media.type == 'Link' and self.versions.size == 1
+    if self.annotated.media.type == 'Link' and self.versions.size == 1
       pender = self.annotated.get_media_annotations('embed')
       data[0]['title'] = pender['data']['title'] unless pender.nil?
     end

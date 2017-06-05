@@ -62,13 +62,21 @@ module Api
 
       # User token or session
       def authenticate_user!
+        identify_user(true)
+      end
+
+      def authenticate_user
+        identify_user(false)
+      end
+
+      def identify_user(mandatory)
         header = CONFIG['authorization_header'] || 'X-Token'
         token = request.headers[header].to_s
         key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
         if key.nil?
           user = User.where(token: token).last
           User.current = user
-          (token && user) ? sign_in(user, store: false) : authenticate_api_user!
+          (token && user) ? sign_in(user, store: false) : (authenticate_api_user! if mandatory)
         end
       end
 

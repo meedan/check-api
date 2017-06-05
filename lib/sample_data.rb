@@ -242,7 +242,7 @@ module SampleData
       end
     end
     team.archived = options[:archived] || false
-    team.private = options[:private] || false
+    team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
     team.save!
     team.reload
