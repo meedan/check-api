@@ -301,6 +301,9 @@ RailsAdmin.config do |config|
       configure :get_source_verification_statuses, :json do
         label 'Source verification statuses'
       end
+      configure :get_keep_enabled do
+        label 'Enable Keep archiving'
+      end
       configure :get_slack_notifications_enabled do
         label 'Enable Slack notifications'
       end
@@ -334,6 +337,14 @@ RailsAdmin.config do |config|
         label 'Source verification statuses'
         help "A list of custom verification statuses for sources that match your team's journalistic guidelines."
         render_settings('text')
+      end
+      field :keep_enabled, :boolean do
+        label 'Enable Keep archiving'
+        formatted_value{ bindings[:object].get_keep_enabled }
+        help ''
+        hide do
+          bindings[:object].new_record?
+        end
       end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'

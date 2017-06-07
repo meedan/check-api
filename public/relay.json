@@ -8017,34 +8017,6 @@
               "deprecationReason": null
             },
             {
-              "name": "privacy_policy",
-              "description": "Privacy Policy",
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "tos",
-              "description": "Terms of Service",
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "upload_extensions",
               "description": "Allowed upload types",
               "args": [
@@ -12676,6 +12648,16 @@
               "defaultValue": null
             },
             {
+              "name": "update_keep",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "embed",
               "description": null,
               "type": {
@@ -13070,27 +13052,7 @@
               "defaultValue": null
             },
             {
-              "name": "email",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
               "name": "profile_image",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "login",
               "description": null,
               "type": {
                 "kind": "SCALAR",

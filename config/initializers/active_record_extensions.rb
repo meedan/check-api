@@ -3,7 +3,6 @@ module ActiveRecordExtensions
 
   included do
     include CheckPermissions
-    include CheckNotifications::Slack
     include CheckNotifications::Pusher
 
     attr_accessor :no_cache, :skip_check_ability, :skip_notifications
@@ -51,6 +50,21 @@ module ActiveRecordExtensions
   def destroy_annotations_and_versions
     self.versions.destroy_all if self.class_name.constantize.paper_trail.enabled?
     self.annotations.destroy_all if self.respond_to?(:annotations)
+  end
+
+  def sent_to_slack
+    @sent_to_slack
+  end
+
+  def sent_to_slack=(bool)
+    @sent_to_slack = bool
+  end
+
+  private
+
+  def send_slack_notification
+    bot = Bot::Slack.default
+    bot.notify_slack(self) unless bot.nil?
   end
 
 end

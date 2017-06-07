@@ -14,8 +14,6 @@ development: &default
   elasticsearch_log: false
   graphql_debug: true
   checkdesk_client: 'http://localhost:3333'
-  terms_of_service: 'Your content of TOS'
-  privacy_policy: 'Your content of privacy policy'
   allow_duplicated_urls: false
   default_mail: root@localhost
   checkdesk_base_url: http://localhost:3000
@@ -45,6 +43,8 @@ development: &default
   alegre_token:
   bridge_reader_url_private: # http://localhost:3001 - used to download screenshot
   bridge_reader_url: # http://localhost:3001 - used to publish
+  keep_token:
+  app_name: "Check"
 
 test:
   <<: *default

@@ -80,14 +80,16 @@ pt:
   slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
   invalid_format_for_custom_verification_status: Status de verificação personalizado é inválido, ele deve ter o formato conforme exemplificado abaixo do campo
+  invalid_format_for_checklist: 'O Checklist é inválido, ele deve ter o formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
+  invalid_format_for_languages: 'O campo "Languages" é inválido, ele deve ter o formato [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Desculpe, este não é um item de mídia válido
   already_exists: já existe
-  mail_account_confirmation: Confirmação da conta do Check
-  mail_request_to_join: "%{User} quer participar da equipe %{team} no Check!"
+  mail_account_confirmation: "Confirmação da conta do %{app_name} "
+  mail_request_to_join: "%{user} quer participar da equipe %{team} no %{app_name}!"
   approved: Aprovado!
   rejected: Não aprovado
-  mail_request_to_join_processed: Sua solicitação para participar do time %{team} no Check foi %{status}
-  mail_new_account: Nova conta para você no Check
+  mail_request_to_join_processed: Seu pedido para participar do time %{team} no %{app_name} foi %{status}
+  mail_new_account: Nova conta para você no %{app_name}
   slack_update_status: "*%{User}* alterou o status de verificação em %{url} em *%{project}* de _%{previous_status}_ para *%{current_status}*"
   slack_save_embed: "*%{user}* alterou o título  do relato no *%{project}* de _%{from}_ para %{to}"
   slack_save_comment: "*%{user}* inseriu uma nota em %{url} em *%{project}*: %{comment}"
@@ -106,16 +108,16 @@ pt:
   slack_update_task_description: |-
     *%{user}* editou a nota da tarefa em %{url} em *%{project}* de: %{from}
     *Para:* %{to}
-  mail_view_welcome: Bem-vindo ao Check
-  mail_view_register: 'Você está apenas a um passo de usar o Check! Por favor confirme o seu endereço de e-mail clicando no seguinte link:'
+  mail_view_welcome: Bem-vindo ao %{app_name}
+  mail_view_register: 'Você está apenas a um passo de usar o %{app_name}! Por favor confirme o seu endereço de e-mail clicando no seguinte link:'
   mail_view_joined: Sua solicitação para participar de %{team} foi aprovada! Agora você pode ir para %{url} e começar a contribuir!
   mail_view_rejected_to_join: Desculpe, mas sua solicitação para participar de %{team} foi rejeitada.
-  mail_view_request_to_join: "%{user} (%{handle}) quer participar da equipe %{team} no Check!"
+  mail_view_request_to_join: "%{user} (%{handle}) quer participar da equipe %{team} no %{app_name}!"
   mail_view_process_request: 'Para processar esta solicitação, por favor faça o login e visite:'
   pender_could_not_parse: Não foi possível analisar esta mídia
-  mail_duplicate_email_exists: Seu método de login no Check
-  mail_duplicate_email_exists_body: "<p>Olá, este é apenas um lembrete para ajudar a certificar-se de que você está logado no Check.</p> <p>O que aconteceu: você tentou fazer login com a conta %{user_provider} ligada a %{user_email}. Mas este endereço de e-mail já está associado a uma conta baseada em %{duplicate_provider} no Check.</p> <p>O que fazer a seguir: Faça login com %{duplicate_provider}.</p> <p>Então você estará logado com a conta que você estava usando anteriormente. Se você precisar de ajuda adicional, por favor envie um e-mail para check@meedan.com.</p> <p>- Equipe Check</p>"
-  mail_duplicate_email_exists_body_both_emails: " <p>Olá, este é apenas um lembrete para ajudar a garantir que você faça login no Check.</p> <p>O que aconteceu: você tentou criar uma nova conta no Check baseada em um e-mail, mas essa conta já existe.</p> <p>Tente fazer login com seu e-mail e senha em vez de criar uma nova conta.</p> <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para check@meedan.com.</p> <p> - Equipe Check</p>"
+  mail_duplicate_email_exists: Seu método de login no %{app_name}
+  mail_duplicate_email_exists_body: "<p>Olá, este é apenas um lembrete para ajudar a garantir que você faça login no %{app_name}.</p> <p>O que aconteceu: você tentou se registrar no %{app_name} com uma conta de %{user_provider} associada ao e-mail %{user_email}. Esse endereço de e-mail já está associado a uma conta de %{duplicate_provider} no %{app_name}.</p> <p>O que fazer agora: Faça login com sua conta %{duplicate_provider}.</p> <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para check@meedan.com.</p> <p> - Equipe %{app_name}</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>Olá, este é apenas um lembrete para ajudar a garantir que você faça login no  %{app_name}.</p> <p>O que aconteceu: você tentou criar uma nova conta no %{app_name} baseada em um email, mas essa conta já existe.</p> <p>Tente fazer login com seu e-mail e senha em vez de criar uma nova conta.</p> <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para check@meedan.com.</p> <p> - Equipe %{app_name}</p>"
   mail_duplicate_email_exists_email: e-mail
   slack_restricted_join_to_members: Lamentamos, mas não pode juntar-se a equipe %{team_name} porque o acesso está restrito aos integrantes da(s) equipe(s) %{teams} do Slack.
   admin:
@@ -124,7 +126,7 @@ pt:
         menu: Enviar instruções para redefinir a senha
       export_project:
         menu: Exportar dados do projeto
-  reset_password_instructions: Instruções para redefinir a senha do Check
+  reset_password_instructions: "Instruções para redefinir a senha do %{app_name}"
   email_not_found: E-mail não encontrado
   slack_channel_format_wrong: 'O canal do Slack é inválido, ele deve ter o formato #general'
   translation_status_not_valid: Status inválido

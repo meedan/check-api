@@ -6,21 +6,19 @@ class Comment < ActiveRecord::Base
   validates_presence_of :text, if: proc { |comment| comment.file.blank? }
 
   before_save :extract_check_entities
-  after_save :add_update_elasticsearch_comment
+  after_save :add_update_elasticsearch_comment, :send_slack_notification
   before_destroy :destroy_elasticsearch_comment
-
-  annotation_notifies_slack :save
 
   def content
     { text: self.text }.to_json
   end
 
-  def slack_message
+  def slack_notification_message
     I18n.t(:slack_save_comment,
-      user: self.class.to_slack(User.current.name),
-      url: self.class.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
-      comment: self.class.to_slack_quote(self.text),
-      project: self.class.to_slack(self.annotated.project.title)
+      user: Bot::Slack.to_slack(User.current.name),
+      url: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
+      comment: Bot::Slack.to_slack_quote(self.text),
+      project: Bot::Slack.to_slack(self.annotated.project.title)
     )
   end
 
@@ -67,5 +65,4 @@ class Comment < ActiveRecord::Base
   def destroy_elasticsearch_comment
     destroy_elasticsearch_data(CommentSearch)
   end
-
 end

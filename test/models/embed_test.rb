@@ -139,4 +139,18 @@ class EmbedTest < ActiveSupport::TestCase
       Embed.create(params)
     end
   end
+
+  test "should not send Slack notification for embed that is not related to project media" do
+    l = create_link
+    em = create_embed annotated: l
+    Embed.any_instance.stubs(:title_is_overridden?).returns(true)
+    Embed.any_instance.stubs(:overridden_data).returns([{'title' => 'Test'}])
+    User.stubs(:current).returns(create_user)
+    assert_nothing_raised do
+      em.slack_notification_message
+    end
+    Embed.any_instance.unstub(:title_is_overridden?)
+    Embed.any_instance.unstub(:overridden_data)
+    User.unstub(:current)
+  end
 end

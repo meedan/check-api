@@ -17,8 +17,6 @@ QueryType = GraphQL::ObjectType.define do
         version: VERSION,
         id: 1,
         type: 'About',
-        tos: CONFIG['terms_of_service'],
-        privacy_policy: CONFIG['privacy_policy'],
         upload_max_size: UploadedFile.max_size_readable,
         upload_extensions: ImageUploader.upload_extensions.join(', '),
         upload_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",

@@ -15,8 +15,13 @@ class GraphqlControllerTest < ActionController::TestCase
     User.current = nil
   end
 
-  test "should not access GraphQL if not authenticated" do
+  test "should access GraphQL query if not authenticated" do
     post :create, query: 'query Query { about { name, version } }'
+    assert_response 200
+  end
+
+  test "should not access GraphQL mutation if not authenticated" do
+    post :create, query: 'mutation Test { }'
     assert_response 401
   end
 
