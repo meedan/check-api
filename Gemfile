@@ -11,7 +11,7 @@ group :development do
 end
 
 # Use pender from git
-gem 'pender_client', git: "https://github.com/meedan/pender-client.git"
+gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '88df056'
 
 gem 'logstash-logger'
 gem 'rails', '4.2.7.1'

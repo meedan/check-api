@@ -27,6 +27,7 @@ class Team < ActiveRecord::Base
   validate :checklist_format
 
   after_create :add_user_to_team
+  after_update :delete_embeds_from_pender_if_team_became_private
 
   has_annotations
 
@@ -125,6 +126,19 @@ class Team < ActiveRecord::Base
     self.send(:set_keep_enabled, enabled)
   end
 
+  def self.delete_embeds_from_pender(team_id)
+    urls = []
+    ProjectMedia.joins(:project).where('projects.team_id' => team_id).find_each(batch_size: 10).with_index do |pm, index|
+      i = index + 1
+      urls << pm.full_url
+      if i % 10 == 0
+        PenderClient::Request.delete_medias(CONFIG['pender_host'], { url: urls.join(' ') }, CONFIG['pender_key'])
+        urls = []
+      end
+    end
+    PenderClient::Request.delete_medias(CONFIG['pender_host'], { url: urls.join(' ') }, CONFIG['pender_key']) unless urls.empty?
+  end
+
   protected
 
   def custom_statuses_format(type)
@@ -188,4 +202,9 @@ class Team < ActiveRecord::Base
     errors.add(:slug, I18n.t(:slug_is_reserved)) if RESERVED_SLUGS.include?(self.slug)
   end
 
+  def delete_embeds_from_pender_if_team_became_private
+    if self.private_changed? && self.private == true
+      Team.delay_for(1.second, retry: 0).delete_embeds_from_pender(self.id)
+    end
+  end
 end

@@ -1,4 +1,5 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require 'sidekiq/testing'
 
 class TeamTest < ActiveSupport::TestCase
   test "should create team" do
@@ -486,5 +487,33 @@ class TeamTest < ActiveSupport::TestCase
     t.slug = 'test'
     t.save!
     assert t.reload.private
+  end
+
+  test "should delete embeds from Pender when team becomes private" do
+    create_annotation_type_and_fields('Reverse Image', { 'Path' => ['Text'] })
+    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+    t = create_team private: false
+    pms = []
+    11.times do |i|
+      url = "http://test.com/#{i}"
+      pender_url = CONFIG['pender_host'] + '/api/medias'
+      response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      p = create_project team: t
+      l = create_link url: url
+      pms << create_project_media(media: l, project: p)
+    end
+    t = Team.find(t.id)
+    t.private = true
+    urls = []
+    10.times do |i|
+      urls << pms[i].full_url
+    end
+    PenderClient::Request.expects(:delete_medias).with(CONFIG['pender_host'], { url: urls.join(' ') }, CONFIG['pender_key']).once
+    PenderClient::Request.expects(:delete_medias).with(CONFIG['pender_host'], { url: pms.last.full_url }, CONFIG['pender_key']).once
+    Sidekiq::Testing.inline! do
+      t.save!
+    end
+    PenderClient::Request.unstub(:delete_medias)
   end
 end
