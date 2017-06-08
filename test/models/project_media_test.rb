@@ -759,4 +759,21 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.destroy
     end
   end
+
+  test "should have oEmbed endpoint" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    pm = create_project_media media: m
+    assert_equal 'test media', pm.as_oembed[:title]
+  end
+
+  test "should have oEmbed URL" do
+    pm = create_project_media
+    stub_config('checkdesk_base_url', 'https://checkmedia.org') do
+      assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
+    end
+  end
 end

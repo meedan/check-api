@@ -45,6 +45,7 @@ development: &default
   bridge_reader_url: # http://localhost:3001 - used to publish
   keep_token:
   app_name: "Check"
+  app_url: "http://checkmedia.org"
 
 test:
   <<: *default

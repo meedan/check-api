@@ -3,6 +3,7 @@ class ProjectMedia < ActiveRecord::Base
 
   include ProjectMediaAssociations
   include ProjectMediaCreators
+  include ProjectMediaEmbed
   include Versioned
 
   validates_presence_of :media_id, :project_id
