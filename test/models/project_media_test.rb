@@ -230,10 +230,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should set initial status for media" do
+    u = create_user
+    t = create_team
+    p = create_project team: t
     stub_config('app_name', 'Check') do
-      u = create_user
-      t = create_team
-      p = create_project team: t
       m = create_valid_media user: u
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       assert_equal Status.default_id(m, p), pm.annotations('status').last.status
@@ -242,9 +242,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal Status.default_id(m, p), ms.status
     end
     stub_config('app_name', 'Bridge') do
-      u = create_user
-      t = create_team
-      p = create_project team: t
       m = create_valid_media user: u
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       assert_equal Status.default_id(m, p), pm.annotations('status').last.status

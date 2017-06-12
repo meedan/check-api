@@ -386,9 +386,11 @@ class Bot::ViberTest < ActiveSupport::TestCase
 
   test "should get translation status value" do
     pm = create_project_media disable_es_callbacks: false
-    Sidekiq::Testing.inline! do
-      d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-      assert_equal 'pending', DynamicAnnotation::Field.last.status
+    stub_config('app_name', 'Bridge') do
+      Sidekiq::Testing.inline! do
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+        assert_equal 'pending', DynamicAnnotation::Field.last.status
+      end
     end
     sleep 1
     ms = MediaSearch.find(pm.id)
