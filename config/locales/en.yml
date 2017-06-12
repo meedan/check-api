@@ -136,13 +136,13 @@ en:
     But this email address is already associated with a %{duplicate_provider}-based
     account in %{app_name}.</p> <p>What to do next: Sign in with %{duplicate_provider}.</p>
     <p>Then you'll be logged in with the account you were using before. If you need
-    additional help, please email check@meedan.com.</p> <p>— The %{app_name} team</p>"
+    additional help, please email %{support_email}.</p> <p>— The %{app_name} team</p>"
   mail_duplicate_email_exists_body_both_emails: "<p>Hello, this is just a friendly
     reminder to help make sure you get logged in to %{app_name}.</p> <p>What happened: You
     tried to create a new email- based account on %{app_name}, but this account already
     exists.</p> <p>Try signing in with your email and password, rather than creating
     a new account.</p> <p>Then you'll be logged in with the account you were using
-    before. If you need additional help, please email check@meedan.com.</p> <p>— The
+    before. If you need additional help, please email %{support_email}.</p> <p>— The
     %{app_name} team</p>"
   mail_duplicate_email_exists_email: email
   slack_restricted_join_to_members: Sorry, you cannot join %{team_name} because it
