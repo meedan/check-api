@@ -89,7 +89,7 @@ class Project < ActiveRecord::Base
     url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
     client = Elasticsearch::Client.new url: url
     options = {
-      index: CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index'],
+      index: CheckElasticSearchModel.get_index_name,
       type: 'media_search',
       body: {
         script: { inline: "ctx._source.team_id=team_id", lang: "groovy", params: { team_id: self.team_id } },
