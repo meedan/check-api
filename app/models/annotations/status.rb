@@ -69,7 +69,7 @@ class Status < ActiveRecord::Base
   end
 
   def update_elasticsearch_status
-    self.update_media_search(%w(status))
+    self.update_media_search(%w(status)) unless CONFIG['app_name'] === 'Bridge'
   end
 
   def slack_notification_message

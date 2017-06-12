@@ -92,7 +92,7 @@ class Bot::Viber < ActiveRecord::Base
     private
 
     def update_elasticsearch_status
-      self.update_media_search(['status'], { 'status' => self.value }, self.annotation.annotated_id) if self.field_name == 'translation_status_status'
+      self.update_media_search(['status'], { 'status' => self.value }, self.annotation.annotated_id) if self.field_name == 'translation_status_status' && CONFIG['app_name'] === 'Bridge'
     end
 
     def translation_status_is_valid
