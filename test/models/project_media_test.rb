@@ -247,7 +247,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       p = create_project team: t
       m = create_valid_media user: u
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      assert_equal 'pending', pm.annotations('status').last.status
+      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
       sleep 1
       ms = MediaSearch.find(pm.id)
       assert_nil ms.status
