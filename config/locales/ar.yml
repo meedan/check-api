@@ -84,14 +84,16 @@ ar:
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
   invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالات التحقق الخاصة - الصيغة المطلوبة موضحة أسفل الحقل
+  invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة - الصيغة المطلوبة هي `[ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]`'
+  invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
   invalid_media_item: ' عذراً، هذا ليس تقرير مسموح بإدخاله'
   already_exists: موجود بالفعل
-  mail_account_confirmation: تأكيد حساب Check
-  mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على !Check"
+  mail_account_confirmation: "تأكيد حساب %{app_name}"
+  mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على %{app_name}"
   approved: تم الموافقة
   rejected: لم يتم الموافقة
-  mail_request_to_join_processed: '%{status} على طلب انضمامك إلى فريق %{team} على Check'
-  mail_new_account: حساب جديد لك على Check
+  mail_request_to_join_processed: '%{status} على طلب انضمامك إلى فريق %{team} على %{app_name}'
+  mail_new_account: حساب جديد لك على %{app_name}
   slack_update_status: "غير(ت) *%{user}* حالة التحقق على %{url} في *%{project}* من _%{previous_status}_ إلى *%{current_status}*"
   slack_save_embed: "غير(ت) *%{user}* عنوان التقرير في  *%{project}* من _%{from}_ إلى %{to}"
   slack_save_comment: "أضاف *%{user}* تعليقاً على %{url} في %{project}*: %{comment}"
@@ -110,16 +112,16 @@ ar:
   slack_update_task_description: |-
     حرر *%{user}* التعليق الإضافي للمهمة %{url} في مشروع *%{project}* من %{from}
     *إلى:* %{to}
-  mail_view_welcome: مرحباً بك في Check
-  mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على Check! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
+  mail_view_welcome: مرحباً بك في %{app_name}
+  mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
   mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
   mail_view_rejected_to_join: عذراً، رُفض طلب انضمامك إلى فريق %{team}
-  mail_view_request_to_join: "%{user} (%{handle}) يريد الانضمام إلى فريق %{team} على Check!"
+  mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
   mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
   pender_could_not_parse: تعذّر تحليل الميديا
-  mail_duplicate_email_exists: كيفية تسجيل الدخول الخاصة بك
-  mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نذكرك بطريقة تسجيل حسابك الحالية على Check.</p> <p>\nما الذي حدث؟ لقد حاولت التسجيل على Check باستخدام حساب على %{user_provider} المربوط بالبريد الإلكتروني %{user_email}. ولكن هذا البريد الإلكتروني مسجل بالفعل على Check مرتبطاً بحساب اخر على %{duplicate_provider}.</p> <p>\nما الذي يمكنك فعله الآن؟ قم بتسجيل الدخول باستخدام  %{duplicate_provider}.</p> <p>\nللدخول نفس الطريقة المستخدمة سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني check@meedan.com.</p> <p>\n— فريق عمل Check</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على Check.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على Check باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى Check باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني check@meedan.com.</p> <p>\n— فريق عمل Check</p>"
+  mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
+  mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نذكرك بطريقة تسجيل حسابك الحالية على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت التسجيل على %{app_name} باستخدام حساب على %{user_provider} المربوط بالبريد الإلكتروني %{user_email}. ولكن هذا البريد الإلكتروني مسجل بالفعل على %{app_name} مرتبطاً بحساب اخر على %{duplicate_provider}.</p> <p>\nما الذي يمكنك فعله الآن؟ قم بتسجيل الدخول باستخدام  %{duplicate_provider}.</p> <p>\nللدخول نفس الطريقة المستخدمة سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني check@meedan.com.</p> <p>\n— فريق عمل %{app_name}</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني check@meedan.com.</p> <p>\n— فريق عمل %{app_name}</p>"
   mail_duplicate_email_exists_email: البريد الإلكتروني
   slack_restricted_join_to_members: عذراً، لا يمكنك الانضمام إلى فريق %{team_name} حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
@@ -128,7 +130,7 @@ ar:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
       export_project:
         menu: تصدير معلومات المشروع
-  reset_password_instructions: التحقق من تعليمات إعادة ضبط كلمة المرور
+  reset_password_instructions: "تعليمات إعادة ضبط كلمة المرور لدى %{app_name}"
   email_not_found: هذا البريد الإلكتروني غير موجود
   slack_channel_format_wrong: 'صيغة قناة Slack غير صحيحة - الصيغة المطلوبة هي `#general`'
   translation_status_not_valid: الحالة غير صحيحة
