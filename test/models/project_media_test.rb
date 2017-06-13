@@ -233,9 +233,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     p = create_project team: t
-    m = create_valid_media user: u
-    pm = create_project_media project: p, media: m
-    assert_equal Status.default_id(m, p), pm.annotations('status').last.status
+    stub_config('app_name', 'Check') do
+      m = create_valid_media user: u
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_equal Status.default_id(m, p), ms.status
+    end
+    stub_config('app_name', 'Bridge') do
+      m = create_valid_media user: u
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_nil ms.status
+    end
   end
 
   test "should update project media embed data" do

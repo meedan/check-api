@@ -70,7 +70,7 @@ class ProjectMedia < ActiveRecord::Base
     ms.team_id = p.team.id
     ms.project_id = p.id
     ms.set_es_annotated(self)
-    ms.status = self.last_status
+    ms.status = self.last_status unless CONFIG['app_name'] === 'Bridge'
     data = self.embed
     unless data.nil?
       ms.title = data['title']
@@ -79,7 +79,6 @@ class ProjectMedia < ActiveRecord::Base
     end
     ms.account = self.set_es_account_data unless self.media.account.nil?
     ms.save!
-    # ElasticSearchWorker.perform_in(1.second, YAML::dump(ms), YAML::dump({}), 'add_parent')
   end
 
   def update_elasticsearch_data
