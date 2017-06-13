@@ -168,4 +168,22 @@ class TaskTest < ActiveSupport::TestCase
       assert tk.sent_to_slack
     end
   end
+
+  test "should get first response from task" do
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
+    fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
+
+    t = create_task
+    assert_nil t.first_response
+   
+    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Test', task_reference: t.id.to_s }.to_json }.to_json
+    t.save!
+    
+    t = Task.find(t.id)
+    assert_equal 'Test', t.first_response
+  end
 end

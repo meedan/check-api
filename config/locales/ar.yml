@@ -140,3 +140,6 @@ ar:
   auto_publisher_added_to_project: من الآن سوف يتم نشر كل ترجمة في %{project} إلى الحساب الذي أخترته على %{provider}. إن غيرت رأيك من فضلك تواصل مع فريق الدعم أو أحذف تطبيق Bridge من الحساب على %{provider}.
   invalid_token: رمز الأمان غير صحيح
   viber_screenshot_footer: "ترجمة إلى %{target_language} من %{source_language}: “%{source_text}”"
+  time:
+    formats:
+      oembed: "%Y %B %d"

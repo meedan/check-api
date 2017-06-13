@@ -2,7 +2,7 @@ module Api
   module V1
     class ProjectMediasController < BaseApiController
       skip_before_filter :authenticate_from_token!
-      
+
       def oembed
         media = ProjectMedia.where(id: params[:id]).last
         if media.nil?

@@ -136,3 +136,6 @@ pt:
   auto_publisher_added_to_project: Obrigado! Agora todas as novas traduções no projeto %{project} serão automaticamente publicadas nesta conta no %{provider}. Se você mudar de ideia, por favor contacte o administrador ou simplesmente remova a autorização do Bridge no %{provider}.
   invalid_token: Token inválido
   viber_screenshot_footer: "Tradução de %{source_language} para %{target_language}: “%{source_text}”"
+  time:
+    formats:
+      oembed: "%d de %B de %Y"

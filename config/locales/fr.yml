@@ -136,3 +136,6 @@ fr:
   auto_publisher_added_to_project: Merci ! Dorénavant toutes les traductions du projet %{project} seront automatiquement publiées via ce compte %{provider}. Si vous changez d'avis, contactez notre équipe de support ou bien révoquez l'autorisation de Bridge pour %{provider}.
   invalid_token: Jeton de sécurité invalide
   viber_screenshot_footer: "Traduction en %{target_language} de l'original en %{source_language}: “%{source_text}”"
+  time:
+    formats:
+      oembed: "%d %B %Y"
