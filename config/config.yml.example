@@ -46,6 +46,7 @@ development: &default
   keep_token:
   app_name: "Check"
   app_url: "http://checkmedia.org"
+  support_email: "check@meedan.com"
 
 test:
   <<: *default

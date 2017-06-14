@@ -12,7 +12,7 @@ class RegistrationMailer < ApplicationMailer
     @duplicate_provider = duplicate.provider? ? duplicate.provider.camelcase : I18n.t(:mail_duplicate_email_exists_email)
     @user_provider = user.provider? ? user.provider.camelcase : I18n.t(:mail_duplicate_email_exists_email)
     @mail_body = (duplicate.provider? || user.provider?) ? :mail_duplicate_email_exists_body : :mail_duplicate_email_exists_body_both_emails
-    mail(to: @user.email, subject: I18n.t(:mail_duplicate_email_exists))
+    mail(to: @user.email, subject: I18n.t(:mail_duplicate_email_exists, app_name: CONFIG['app_name']))
   end
 
 end
