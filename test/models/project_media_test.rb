@@ -940,4 +940,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ProjectMedia.any_instance.unstub(:created_at)
     ProjectMedia.any_instance.unstub(:updated_at)
   end
+
+  test "should have metadata for oEmbed" do
+    pm = create_project_media
+    assert_kind_of String, pm.metadata
+  end
 end

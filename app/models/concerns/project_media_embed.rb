@@ -72,6 +72,17 @@ module ProjectMediaEmbed
     data
   end
 
+  def metadata
+    {
+      title: self.title.to_s,
+      description: self.text.to_s,
+      picture: self.media.picture.to_s,
+      permalink: self.full_url.to_s,
+      oembed_url: CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed',
+      embed_url: CONFIG['pender_host'] + '/api/medias.html?url=' + self.full_url.to_s
+    }.to_json
+  end
+
   def as_oembed(options = {})
     {
       type: 'rich',
