@@ -29,4 +29,10 @@ class ProjectMediasControllerTest < ActionController::TestCase
     get :oembed, id: pm.id
     assert_response :success
   end
+
+  test "should allow iframe" do
+    pm = create_project_media
+    get :oembed, id: pm.id
+    assert !@response.headers.include?('X-Frame-Options')
+  end
 end

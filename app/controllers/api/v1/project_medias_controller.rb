@@ -2,6 +2,7 @@ module Api
   module V1
     class ProjectMediasController < BaseApiController
       skip_before_filter :authenticate_from_token!
+      after_action :allow_iframe, only: :oembed
 
       def oembed
         media = ProjectMedia.where(id: params[:id]).last
@@ -12,6 +13,12 @@ module Api
         else
           render json: media.as_oembed(params), status: 200
         end
+      end
+
+      private
+
+      def allow_iframe
+        response.headers.except! 'X-Frame-Options'
       end
     end
   end
