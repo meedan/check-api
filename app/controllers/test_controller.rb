@@ -10,6 +10,15 @@ class TestController < ApplicationController
     render text: 'OK'
   end
 
+  def make_team_public
+    team = Team.where(slug: params[:slug]).last
+    unless team.nil?
+      team.private = false
+      team.save!
+    end
+    render text: 'OK'
+  end
+
   private
 
   def check_environment

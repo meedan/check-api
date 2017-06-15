@@ -18,4 +18,22 @@ class TestControllerTest < ActionController::TestCase
     assert_nil u.reload.confirmed_at
     Rails.unstub(:env)
   end
+
+  test "should make team public if in test mode" do
+    t = create_team private: true
+    assert t.private
+    get :make_team_public, slug: t.slug
+    assert_response :success
+    assert !t.reload.private
+  end
+
+  test "should not make team public if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    t = create_team private: true
+    assert t.private
+    get :make_team_public, slug: t.slug
+    assert_response 400
+    assert t.reload.private
+    Rails.unstub(:env)
+  end
 end
