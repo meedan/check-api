@@ -87,14 +87,14 @@ class Bot::ViberTest < ActiveSupport::TestCase
     tr = DynamicAnnotation::AnnotationType.where(annotation_type: 'translation_request').last || create_annotation_type(annotation_type: 'translation_request')
     create_field_instance(name: 'translation_request_type', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
-    
+
     d1 = create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
     d2 = create_dynamic_annotation annotation_type: 'translation', annotated: pm
 
     Sidekiq::Testing.inline! do
       d1.respond_to_user
     end
-    
+
     Bot::Viber.any_instance.expects(:send_text_message).once
     Bot::Viber.any_instance.expects(:send_image_message).once
 
@@ -116,9 +116,9 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_field_instance(name: 'translation_request_type', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
-    
+
     d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    
+
     Bot::Viber.any_instance.expects(:send_text_message).never
     Bot::Viber.any_instance.expects(:send_image_message).never
 
@@ -134,9 +134,9 @@ class Bot::ViberTest < ActiveSupport::TestCase
     tr = DynamicAnnotation::AnnotationType.where(annotation_type: 'translation_request').last || create_annotation_type(annotation_type: 'translation_request')
     create_field_instance(name: 'translation_request_type', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
-    
+
     d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    
+
     Bot::Viber.any_instance.expects(:send_text_message).never
     Bot::Viber.any_instance.expects(:send_image_message).never
 
@@ -153,9 +153,9 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_field_instance(name: 'translation_request_type', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr) unless DynamicAnnotation::FieldInstance.where(name: 'translation_request_type').exists?
     create_dynamic_annotation annotation_type: 'translation_request', set_fields: { translation_request_type: 'telegram', translation_request_raw_data: { sender: '123456' }.to_json }.to_json, annotated: pm
-    
+
     d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    
+
     Bot::Viber.any_instance.expects(:send_text_message).never
     Bot::Viber.any_instance.expects(:send_image_message).never
 
@@ -210,7 +210,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'contributor'
     pm = create_project_media media: create_claim_media
     d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-    
+
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         d = Dynamic.find(d.id)
@@ -226,7 +226,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'editor'
     pm = create_project_media media: create_claim_media
     d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'ready' }.to_json
-    
+
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         d = Dynamic.find(d.id)
@@ -242,7 +242,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'contributor'
     pm = create_project_media media: create_claim_media
     d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'ready' }.to_json
-    
+
     with_current_user_and_team(u, t) do
       assert_raises ActiveRecord::RecordInvalid do
         d = Dynamic.find(d.id)
@@ -258,7 +258,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'contributor'
     pm = create_project_media media: create_claim_media
     d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-    
+
     with_current_user_and_team(u, t) do
       assert_raises ActiveRecord::RecordInvalid do
         d = Dynamic.find(d.id)
@@ -274,7 +274,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'contributor'
     pm = create_project_media media: create_claim_media
     d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-    
+
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         d = Dynamic.find(d.id)
@@ -291,7 +291,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     pm = create_project_media media: create_claim_media
     d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending', translation_status_approver: '{}' }.to_json
     create_dynamic_annotation annotated: pm, annotation_type: 'translation_request', set_fields: { translation_request_raw_data: '', translation_request_type: 'viber' }.to_json
-    
+
     Bot::Twitter.any_instance.stubs(:send_to_twitter_in_background).once
     Bot::Facebook.any_instance.stubs(:send_to_facebook_in_background).once
 
@@ -306,7 +306,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
       assert_equal u.name, JSON.parse(approver.value)['name']
       assert_nil JSON.parse(approver.value)['url']
     end
-    
+
     Bot::Twitter.any_instance.unstub(:send_to_twitter_in_background)
     Bot::Facebook.any_instance.unstub(:send_to_facebook_in_background)
   end
@@ -338,7 +338,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     Dynamic.unstub(:respond_to_user)
   end
 
@@ -362,7 +362,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     Dynamic.unstub(:respond_to_user)
   end
 
@@ -385,9 +385,27 @@ class Bot::ViberTest < ActiveSupport::TestCase
   end
 
   test "should get translation status value" do
-    pm = create_project_media
-    d = create_dynamic_annotation annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-    assert_equal 'pending', DynamicAnnotation::Field.last.status
+    stub_config('app_name', 'Bridge') do
+      pm = create_project_media disable_es_callbacks: false
+      Sidekiq::Testing.inline! do
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+        assert_equal 'pending', DynamicAnnotation::Field.last.status
+      end
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_equal 'pending', ms.status
+    end
+    stub_config('app_name', 'Check') do
+      m = create_valid_media
+      pm = create_project_media media: m, disable_es_callbacks: false
+      Sidekiq::Testing.inline! do
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+        assert_equal Status.default_id(m, p), pm.annotations('status').last.status
+      end
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_equal Status.default_id(m, p), ms.status
+    end
   end
 
   test "should set translation status value" do
@@ -417,7 +435,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'contributor'
     pm = create_project_media media: create_claim_media
     d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-    
+
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         d = Dynamic.find(d.id)
@@ -446,7 +464,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_field_instance(name: 'translation_request_raw_data', annotation_type_object: tr)
     create_field_instance(name: 'translation_request_id', annotation_type_object: tr)
     pm = nil
-   
+
     assert_difference 'ProjectMedia.count', 2 do
       assert_nothing_raised do
         create_project_media set_annotation: { annotation_type: 'translation_request', set_fields: { translation_request_type: 'viber', translation_request_raw_data: '{}', translation_request_id: '123456' }.to_json }.to_json
@@ -471,7 +489,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
       create_field value: '123', field_name: 'foo', skip_validation: true, annotation_type: at.annotation_type, field_type: fi1.field_type
       create_field value: '123', field_name: 'foo', skip_validation: true, annotation_type: at.annotation_type, field_type: fi1.field_type
     end
-    
+
     assert_raises ActiveRecord::RecordNotUnique do
       create_field value: '123', field_name: 'translation_request_id', skip_validation: true, annotation_type: at.annotation_type, field_type: fi2.field_type
     end
@@ -533,8 +551,8 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_dynamic_annotation annotation_type: 'language', set_fields: { language: 'pt' }.to_json, annotated: pm
     t = create_dynamic_annotation annotation_type: 'translation', set_fields: { translation_language: 'es' }.to_json, annotated: pm
     locale = t.translation_to_message[:locale]
-    
-    assert_equal 'en', locale 
+
+    assert_equal 'en', locale
   end
 
   private
