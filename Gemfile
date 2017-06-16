@@ -55,7 +55,7 @@ gem 'elasticsearch-persistence', '0.1.9', require: 'elasticsearch/persistence/mo
 gem 'paper_trail'
 gem 'graphiql-rails', git: 'https://github.com/caiosba/graphiql-rails.git', ref: 'd03dd94'
 gem 'graphql-formatter'
-gem 'nokogiri', '1.7.1'
+gem 'nokogiri', '1.7.2'
 gem 'mini_magick'
 gem 'puma'
 gem 'rack-cors', :require => 'rack/cors'
