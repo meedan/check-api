@@ -6,7 +6,9 @@ module Api
 
       def oembed
         media = ProjectMedia.where(id: params[:id]).last
-        if media.nil?
+        if CONFIG['app_name'] != 'Check'
+          render_error('Not implemented', 'UNKNOWN', 501)
+        elsif media.nil?
           render_error('Not found', 'ID_NOT_FOUND', 404)
         elsif media.project.team.private
           render_unauthorized

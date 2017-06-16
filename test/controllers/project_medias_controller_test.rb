@@ -35,4 +35,12 @@ class ProjectMediasControllerTest < ActionController::TestCase
     get :oembed, id: pm.id
     assert !@response.headers.include?('X-Frame-Options')
   end
+
+  test "should not embed if app is not Check" do
+    stub_config('app_name', 'Bridge') do
+      pm = create_project_media
+      get :oembed, id: pm.id
+      assert_response 501
+    end
+  end
 end
