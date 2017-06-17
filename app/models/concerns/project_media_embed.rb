@@ -3,8 +3,16 @@ require 'active_support/concern'
 module ProjectMediaEmbed
   extend ActiveSupport::Concern
 
+  included do
+    after_update :clear_caches
+  end
+
   def oembed_url
     self.project.team.private ? '' : CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed'
+  end
+
+  def embed_url
+    CONFIG['pender_host'] + '/api/medias.html?url=' + self.full_url.to_s
   end
 
   def author_name
@@ -78,8 +86,8 @@ module ProjectMediaEmbed
       description: self.text.to_s,
       picture: self.media.picture.to_s,
       permalink: self.full_url.to_s,
-      oembed_url: CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed',
-      embed_url: CONFIG['pender_host'] + '/api/medias.html?url=' + self.full_url.to_s
+      oembed_url: self.oembed_url,
+      embed_url: self.embed_url
     }.to_json
   end
 
@@ -103,5 +111,20 @@ module ProjectMediaEmbed
     av = ActionView::Base.new(Rails.root.join('app', 'views'))
     av.assign({ project_media: self, source_author: self.source_author }.merge(options))
     av.render(template: 'project_medias/oembed.html.erb', layout: nil)
+  end
+
+  def clear_caches
+    ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id) if CONFIG['app_name'] == 'Check'
+  end
+  
+  module ClassMethods
+    def clear_caches(pmid)
+      pm = ProjectMedia.find(pmid)
+      ['', '?hide_tasks=1', '?hide_notes=1', '?hide_tasks=1&hide_notes=1'].each do |part|
+        url = pm.full_url.to_s + part
+        PenderClient::Request.get_medias(CONFIG['pender_host'], { url: url, refresh: '1' }, CONFIG['pender_key'])
+        CcDeville.clear_cache_for_url(url)
+      end
+    end
   end
 end

@@ -47,6 +47,9 @@ development: &default
   app_name: "Check"
   app_url: "http://checkmedia.org"
   support_email: "check@meedan.com"
+  cc_deville_host:
+  cc_deville_token:
+  cc_deville_httpauth:
 
 test:
   <<: *default

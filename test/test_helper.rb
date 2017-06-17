@@ -85,6 +85,7 @@ class ActiveSupport::TestCase
       @project = create_project team: @team
     end
     User.current = Team.current = nil
+    ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
   end
 
   # This will run after any test
