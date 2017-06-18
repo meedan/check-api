@@ -97,6 +97,7 @@ module AnnotationBase
     def touch_annotated
       annotated = self.annotated
       unless annotated.nil?
+        annotated.skip_check_ability = true
         annotated.updated_at = Time.now
         annotated.save!
       end

@@ -963,7 +963,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media
     ProjectMedia.any_instance.unstub(:clear_caches)
     CcDeville.expects(:clear_cache_for_url).returns(nil).times(12)
-    PenderClient::Request.expects(:get_medias).returns(nil).times(12)
+    PenderClient::Request.expects(:get_medias).returns(nil).times(13)
 
     Sidekiq::Testing.inline! do
       info = { title: 'Changed title' }.to_json
