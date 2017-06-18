@@ -86,6 +86,7 @@ class ActiveSupport::TestCase
     end
     User.current = Team.current = nil
     ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
+    WebMock.stub_request(:get, CONFIG['pender_host']).with({ query: { url: /#{CONFIG['checkdesk_client']}/ } }).to_return(body: '{}')
   end
 
   # This will run after any test
