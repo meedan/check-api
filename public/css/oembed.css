@@ -300,7 +300,6 @@ html, body {
 
 .oembed__verification-task-answer {
   color: #000;
-  cursor: pointer;
 }
 
 .oembed__collapsed-text {
@@ -311,12 +310,15 @@ html, body {
 
 .oembed__note {
   color: #000;
-  cursor: pointer;
 }
 
 .oembed__note i {
   color: #757575;
   opacity: 0.5;
+}
+
+.oembed__clickable {
+  cursor: pointer;
 }
 
 .rtl, .rtl * {

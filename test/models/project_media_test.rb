@@ -961,18 +961,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should clear caches when media is updated" do
     pm = create_project_media
+    u = create_user
     ProjectMedia.any_instance.unstub(:clear_caches)
     CcDeville.expects(:clear_cache_for_url).returns(nil).times(12)
-    PenderClient::Request.expects(:get_medias).returns(nil).times(13)
+    PenderClient::Request.expects(:get_medias).returns(nil).times(12)
 
     Sidekiq::Testing.inline! do
       info = { title: 'Changed title' }.to_json
       pm.embed = info
       pm.save!
 
-      create_comment annotated: pm
+      create_comment annotated: pm, user: u
 
-      create_task annotated: pm
+      create_task annotated: pm, user: u
     end
+
+    CcDeville.unstub(:clear_cache_for_url)
+    PenderClient::Request.unstub(:get_medias)
   end
 end

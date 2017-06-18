@@ -24,6 +24,16 @@ jQuery.getScript(host + '/javascripts/timeago/locales/jquery.timeago.' + locale 
   });
 });
 
+// Use hand cursor only on texts that are really expandable
+jQuery(document).ready(function() {
+  jQuery('.oembed__verification-task-answer, .oembed__note span').each(function() {
+    var element = jQuery(this);
+    if (element[0].offsetWidth < element[0].scrollWidth) {
+      element.addClass('oembed__clickable');
+    }
+  });
+});
+
 // Expand tasks
 
 jQuery(document).ready(function() {
