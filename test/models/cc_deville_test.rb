@@ -13,21 +13,9 @@ class CcDevilleTest < ActiveSupport::TestCase
   end
 
   test "should clear cache from Cloudflare" do
-    url = 'https://pender.checkmedia.org/api/medias.html?url=https://twitter.com/caiosba/status/811777768174260225'
-
-    status = @cc.get_status(url)
-    cf = status['data']['caches'].last
-    assert_equal 'cloudflare', cf['name']
-    old_expiration_time = Time.parse(cf['expires'])
-
-    @cc.clear_cache(url)
-    sleep 1
-
-    status = @cc.get_status(url)
-    cf = status['data']['caches'].last
-    assert_equal 'cloudflare', cf['name']
-    new_expiration_time = Time.parse(cf['expires'])
-
-    assert new_expiration_time > old_expiration_time
+    WebMock.stub_request(:delete, /http:\/\/cc-deville.org/).to_return(body: 'ok')
+    stub_configs({ 'cc_deville_host' => 'http://cc-deville.org', 'cc_deville_token' => 'test', 'cc_deville_httpauth' => 'u:p' }) do
+      CcDeville.clear_cache_for_url('http://test.com')
+    end
   end
 end

@@ -19,11 +19,6 @@ class CcDeville
     code
   end 
 
-  def get_status(url)
-    response = make_request('get', 'status', URI.encode(url))
-    JSON.parse(response.body)
-  end
-
   private
 
   def make_request(verb, endpoint, url)

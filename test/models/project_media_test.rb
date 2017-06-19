@@ -963,16 +963,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media
     u = create_user
     ProjectMedia.any_instance.unstub(:clear_caches)
-    CcDeville.expects(:clear_cache_for_url).returns(nil).times(12)
-    PenderClient::Request.expects(:get_medias).returns(nil).times(12)
+    CcDeville.expects(:clear_cache_for_url).returns(nil).times(8)
+    PenderClient::Request.expects(:get_medias).returns(nil).times(8)
 
     Sidekiq::Testing.inline! do
-      info = { title: 'Changed title' }.to_json
-      pm.embed = info
-      pm.save!
-
       create_comment annotated: pm, user: u
-
       create_task annotated: pm, user: u
     end
 
