@@ -100,7 +100,7 @@ module CheckPermissions
   end
 
   def check_destroy_ability
-    unless User.current.nil?
+    unless self.skip_check_ability or User.current.nil?
       ability = Ability.new
       raise "No permission to delete #{self.class.name}" unless ability.can?(:destroy, self)
     end
