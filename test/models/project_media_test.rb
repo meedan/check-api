@@ -688,7 +688,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'mt', label: 'Machine translation'
     create_field_instance annotation_type_object: at, name: 'mt_translations', label: 'Machine translations', field_type_object: ft, optional: false
 
+    u = create_user
     t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    User.stubs(:current).returns(u)
+    Team.stubs(:current).returns(t)
     p = create_project team: t
     p.settings = {:languages => ['ar', 'en']}; p.save!
     text = 'Testing'
@@ -720,6 +724,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
         assert_equal 0, JSON.parse(mt_field.value).size
       end
     end
+    User.unstub(:current)
+    Team.unstub(:current)
   end
 
   test "should get dynamic annotation by type" do

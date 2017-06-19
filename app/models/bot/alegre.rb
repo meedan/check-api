@@ -87,7 +87,7 @@ class Bot::Alegre < ActiveRecord::Base
       versions = mt_field.versions.to_a unless mt_field.nil?
       unless versions.blank?
         versions.pop
-        versions.each{|v| v.destroy}
+        versions.each{|v| v.skip_check_ability = true; v.destroy}
       end
     end
   end
