@@ -252,6 +252,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source
     p = create_project team: @team
     assert_graphql_create('project_source', { source_id: s.id, project_id: p.id })
+    assert_graphql_create('project_source', { name: 'New source', project_id: p.id })
   end
 
   test "should read project sources" do

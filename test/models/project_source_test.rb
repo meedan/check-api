@@ -60,9 +60,42 @@ class ProjectSourceTest < ActiveSupport::TestCase
     raw_params = { project: create_project, source: create_source }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       ProjectSource.create(params)
     end
   end
 
+  test "should set user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    s = create_source
+    with_current_user_and_team(u, t) do
+      ps = create_project_source project: p, source: s
+      assert_equal u, ps.user
+    end
+  end
+
+  test "should have a project and source" do
+    assert_no_difference 'ProjectSource.count' do
+      assert_raise ActiveRecord::RecordInvalid do
+        create_project_source project: nil
+      end
+      assert_raise ActiveRecord::RecordInvalid do
+        create_project_source source: nil
+      end
+    end
+  end
+
+  test "should create source if name set" do
+    assert_difference 'ProjectSource.count' do
+      ps = create_project_source name: 'New source'
+      assert_not_nil ps.source
+    end
+  end
+
+  test "should create account if url set" do
+
+  end
 end
