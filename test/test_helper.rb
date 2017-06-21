@@ -84,7 +84,7 @@ class ActiveSupport::TestCase
       @team = create_team
       @project = create_project team: @team
     end
-    User.current = Team.current = nil
+    ApiKey.current = User.current = Team.current = nil
     ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
   end
 
