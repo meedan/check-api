@@ -16,12 +16,12 @@ class ProjectMediasControllerTest < ActionController::TestCase
     assert_response 404
   end
 
-  test "should not get oembed of private media" do
+  test "should get oembed of private media" do
     t = create_team private: true
     p = create_project team: t
     pm = create_project_media project: p
     get :oembed, id: pm.id
-    assert_response 401
+    assert_response :success
   end
 
   test "should get oembed of existing media" do

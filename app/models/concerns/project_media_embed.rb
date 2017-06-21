@@ -8,7 +8,7 @@ module ProjectMediaEmbed
   end
 
   def oembed_url
-    self.project.team.private ? '' : CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed'
+    CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed'
   end
 
   def embed_url

@@ -1041,8 +1041,10 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should access GraphQL if authenticated with API key" do
     authenticate_with_token
+    assert_nil ApiKey.current
     post :create, query: 'query Query { about { name, version } }'
     assert_response :success
+    assert_not_nil ApiKey.current
   end
 
   test "should get supported languages" do

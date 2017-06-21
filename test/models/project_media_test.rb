@@ -810,7 +810,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     stub_config('checkdesk_base_url', 'https://checkmedia.org') do
-      assert_equal '', pm.oembed_url
+      assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
     end
   end
 
