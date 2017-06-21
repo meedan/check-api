@@ -209,9 +209,6 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source
     s.project_sources << ps
     assert_equal [t.id], s.get_team
-    ps.project = nil
-    ps.save
-    assert_equal [], s.reload.get_team
   end
 
   test "should protect attributes from mass assignment" do
