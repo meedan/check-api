@@ -1,5 +1,6 @@
 class Dynamic < ActiveRecord::Base
   include AnnotationBase
+  include NotifyEmbedSystem
 
   attr_accessor :set_fields
 
@@ -77,6 +78,27 @@ class Dynamic < ActiveRecord::Base
   def get_field_value(name)
     field = self.get_field(name)
     field.nil? ? nil : field.value
+  end
+
+  def notify_destroyed?
+    self.annotation_type == 'translation'
+  end
+  alias notify_created? notify_destroyed?
+  alias notify_updated? notify_destroyed?
+
+  def notify_embed_system_created_object
+    { id: self.annotated_id.to_s }
+  end
+  alias notify_embed_system_updated_object notify_embed_system_created_object
+
+  def notify_embed_system_payload(event, object)
+    { translation: object, condition: event, timestamp: time.now.to_i }.to_json
+  end
+
+  def notification_uri(_event)
+    project = self.annotated.project
+    url = project.nil? ? '' : [CONFIG['bridge_reader_url_private'], 'medias', 'notify', project.team.slug, project.id, self.annotated.id.to_s].join('/')
+    URI.parse(URI.encode(url))
   end
 
   private

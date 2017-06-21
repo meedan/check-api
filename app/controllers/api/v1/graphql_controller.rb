@@ -40,7 +40,7 @@ module Api
       end
 
       def load_ability
-        @ability = Ability.new if User.current.present? && Team.current.present?
+        @ability = Ability.new
       end
 
       def set_current_user
