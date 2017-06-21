@@ -1,6 +1,12 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class DynamicTest < ActiveSupport::TestCase
+  def setup
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+    super
+  end
+
   test "should create dynamic annotation" do
     u = create_user
     pm = create_project_media

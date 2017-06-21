@@ -40,7 +40,7 @@ module Api
       end
 
       def load_ability
-        @ability = Ability.new
+        @ability = Ability.new if signed_in?
       end
 
       def set_current_user

@@ -50,6 +50,7 @@ development: &default
 
 test:
   <<: *default
+  bridge_reader_url_private: http://bridgembed
 
 production:
   <<: *default

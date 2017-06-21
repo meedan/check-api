@@ -81,7 +81,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def notify_destroyed?
-    self.annotation_type == 'translation'
+    self.annotation_type == 'translation' && self.annotated_type == 'ProjectMedia'
   end
   alias notify_created? notify_destroyed?
   alias notify_updated? notify_destroyed?
@@ -92,7 +92,7 @@ class Dynamic < ActiveRecord::Base
   alias notify_embed_system_updated_object notify_embed_system_created_object
 
   def notify_embed_system_payload(event, object)
-    { translation: object, condition: event, timestamp: time.now.to_i }.to_json
+    { translation: object, condition: event, timestamp: Time.now.to_i }.to_json
   end
 
   def notification_uri(_event)
