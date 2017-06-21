@@ -91,6 +91,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     pm = nil
     stub_config('keep_token', '123456') do
       Sidekiq::Testing.inline! do
+        ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
         pm = create_project_media project: p, media: l
       end
     end
