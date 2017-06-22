@@ -3,6 +3,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 class AdminAbilityTest < ActiveSupport::TestCase
 
   def setup
+    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
     @u = create_user
     @t = create_team
     @tu = create_team_user user: u , team: t, role: 'owner'

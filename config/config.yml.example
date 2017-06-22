@@ -43,12 +43,14 @@ development: &default
   alegre_token:
   bridge_reader_url_private: # http://localhost:3001 - used to download screenshot
   bridge_reader_url: # http://localhost:3001 - used to publish
+  bridge_reader_token: mysecrettoken
   keep_token:
   app_name: "Check"
   support_email: "check@meedan.com"
 
 test:
   <<: *default
+  bridge_reader_url_private: http://bridgembed
 
 production:
   <<: *default

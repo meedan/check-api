@@ -1,6 +1,12 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class DynamicTest < ActiveSupport::TestCase
+  def setup
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+    super
+  end
+
   test "should create dynamic annotation" do
     u = create_user
     pm = create_project_media
@@ -198,4 +204,43 @@ class DynamicTest < ActiveSupport::TestCase
     assert_equal 'Pending', d.previous_translation_status
     assert_equal 'Translated', d.translation_status
   end
+
+  test "should not notify embed system if type is not translation" do
+    at = create_annotation_type annotation_type: 'translation'
+    create_field_instance annotation_type_object: at, name: 'translation_text'
+    Dynamic.any_instance.stubs(:notify_embed_system).never
+    d = create_dynamic_annotation
+    Dynamic.any_instance.unstub(:notify_embed_system)
+  end
+
+  test "should notify embed system when translation is created" do
+    pm = create_project_media
+    at = create_annotation_type annotation_type: 'translation'
+    create_field_instance annotation_type_object: at, name: 'translation_text'
+    Dynamic.any_instance.stubs(:notify_embed_system).with('created', { id: pm.id.to_s}).once
+    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
+    Dynamic.any_instance.unstub(:notify_embed_system)
+  end
+
+  test "should notify embed system when translation is updated" do
+    pm = create_project_media
+    at = create_annotation_type annotation_type: 'translation'
+    create_field_instance annotation_type_object: at, name: 'translation_text'
+    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
+    d.set_fields = { translation_text: 'translated' }.to_json
+    Dynamic.any_instance.stubs(:notify_embed_system).with('updated', { id: pm.id.to_s}).once
+    d.save!
+    Dynamic.any_instance.unstub(:notify_embed_system)
+  end
+
+  test "should notify embed system when translation is destroyed" do
+    pm = create_project_media
+    at = create_annotation_type annotation_type: 'translation'
+    create_field_instance annotation_type_object: at, name: 'translation_text'
+    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
+    Dynamic.any_instance.stubs(:notify_embed_system).with('destroyed', nil).once
+    d.destroy
+    Dynamic.any_instance.unstub(:notify_embed_system)
+  end
+
 end

@@ -2,9 +2,9 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class ProjectTest < ActiveSupport::TestCase
   def setup
-    super
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
+    super
     MediaSearch.delete_index
     MediaSearch.create_index
     sleep 1

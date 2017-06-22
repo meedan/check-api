@@ -1,6 +1,12 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class TeamTest < ActiveSupport::TestCase
+  def setup
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+    super
+  end
+
   test "should create team" do
     assert_difference 'Team.count' do
       create_team
@@ -487,4 +493,19 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     assert t.reload.private
   end
+
+  test "should notify embed system when team is created" do
+    Team.any_instance.stubs(:notify_embed_system).with('created', { slug: 'check-team' }).once
+    t = create_team(slug: 'check-team')
+    Team.any_instance.unstub(:notify_embed_system)
+  end
+
+  test "should notify embed system when project is updated" do
+    t = create_team(slug: 'check-team-updated')
+    t.name = 'Changed'
+    Team.any_instance.expects(:notify_embed_system).with('updated', t.as_json).once
+    t.save!
+    Team.any_instance.unstub(:notify_embed_system)
+  end
+
 end
