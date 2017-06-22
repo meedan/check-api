@@ -149,7 +149,7 @@ class Team < ActiveRecord::Base
 
   def notification_uri(event)
     slug = (event == 'created') ? 'check-api' : self.slug
-    url = URI.parse(URI.encode([CONFIG['bridge_reader_url_private'], 'medias', 'notify', slug].join('/')))
+    URI.parse(URI.encode([CONFIG['bridge_reader_url_private'], 'medias', 'notify', slug].join('/')))
   end
 
   protected
