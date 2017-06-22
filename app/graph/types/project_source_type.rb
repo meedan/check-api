@@ -10,6 +10,8 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
   field :source_id, types.Int
   field :project_id, types.Int
   field :permissions, types.String
+  field :dbid, types.Int
+
   field :project do
     type -> { ProjectType }
 
