@@ -11,6 +11,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     @bot = Bot::Keep.new
     WebMock.stub_request(:post, 'https://www.bravenewtech.org/api/').to_return(body: { package: '123456' }.to_json)
     WebMock.stub_request(:post, 'https://www.bravenewtech.org/api/status.php').to_return(body: { location: 'http://keep.org' }.to_json)
+    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
   end
 
   test "should exist" do
