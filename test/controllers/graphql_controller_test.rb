@@ -2,11 +2,11 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class GraphqlControllerTest < ActionController::TestCase
   def setup
-    super
     @controller = Api::V1::GraphqlController.new
     @url = 'https://www.youtube.com/user/MeedanTube'
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    super
     MediaSearch.delete_index
     MediaSearch.create_index
     sleep 1
@@ -537,9 +537,11 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should not get team by context" do
     authenticate_with_user
+    Team.stubs(:current).returns(nil)
     t = create_team slug: 'context', name: 'Context Team'
     post :create, query: 'query Team { team { name } }', team: 'test'
     assert_response 404
+    Team.unstub(:current)
   end
 
   test "should update current team based on context team" do
@@ -723,8 +725,10 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should return 404 if public team does not exist" do
     authenticate_with_user
+    Team.stubs(:current).returns(nil)
     post :create, query: 'query PublicTeam { public_team { name } }', team: 'foo'
     assert_response 404
+    Team.unstub(:current)
   end
 
   test "should run few queries to get project data" do

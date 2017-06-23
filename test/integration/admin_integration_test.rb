@@ -3,6 +3,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 class AdminIntegrationTest < ActionDispatch::IntegrationTest
 
   def setup
+    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
     @user = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', provider: ''
     @user.confirm
     @admin_user = create_user login: 'admin_user', password: '12345678', password_confirmation: '12345678', email: 'admin@test.com', provider: ''
