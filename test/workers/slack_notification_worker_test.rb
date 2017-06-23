@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class SlackNotificationWorkerTest < ActiveSupport::TestCase
   def setup

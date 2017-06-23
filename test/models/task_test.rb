@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class TaskTest < ActiveSupport::TestCase
   def setup
@@ -142,7 +142,7 @@ class TaskTest < ActiveSupport::TestCase
     fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
     fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
     pm = create_project_media project: p
-    
+
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo', note_task: 'Bar', task_reference: tk.id.to_s }.to_json }.to_json
