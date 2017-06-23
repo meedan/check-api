@@ -2,9 +2,9 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
 class ProjectMediaTest < ActiveSupport::TestCase
   def setup
-    super
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
+    super
   end
 
   test "should create project media" do
@@ -787,4 +787,27 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.destroy
     end
   end
+
+  test "should notify embed system when project media is updated" do
+    pm = create_project_media project: @project
+    pm.created_at = DateTime.now - 1.day
+    ProjectMedia.any_instance.stubs(:notify_embed_system).with('updated', { id: pm.id.to_s}).once
+    puts pm.created_at
+    pm.save!
+    ProjectMedia.any_instance.unstub(:notify_embed_system)
+  end
+
+  test "should notify embed system when project media is destroyed" do
+    pm = create_project_media project: @project
+    ProjectMedia.any_instance.stubs(:notify_embed_system).with('destroyed', nil).once
+    pm.destroy
+    ProjectMedia.any_instance.unstub(:notify_embed_system)
+  end
+
+  test "should notify embed system and receive a success response" do
+    pm = create_project_media project: @project
+    response = pm.send(:notify_embed_system, 'updated', pm.notify_embed_system_updated_object)
+    assert_equal '200', response.code
+  end
+
 end
