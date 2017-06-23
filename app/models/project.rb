@@ -139,7 +139,13 @@ class Project < ActiveRecord::Base
         "task_date_#{i+1}": r&.created_at,
         "task_answer_#{i+1}": r&.values(['response'], '')&.dig('response'),
         "task_note_#{i+1}": r&.values(['note'], '')&.dig('note'),
-       ]}.reduce({}){ |h,o| h.merge(o) }
+      ]}.reduce({}){ |h,o| h.merge(o) }
+    ).merge(
+      pm.get_annotations('translation').map(&:load).to_enum.reverse_each.with_index.collect{ |t,i| Hash[
+        "translation_#{i+1}": t.get_field('translation_text')&.value,
+        "translation_language_#{i+1}": t.get_field('translation_language')&.value,
+        "translation_note_#{i+1}": t.get_field('translation_note')&.value,
+      ]}.reduce({}){ |h,o| h.merge(o) }
     )}
   end
 
