@@ -405,25 +405,43 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should export data" do
-    create_translation_status_stuff
-    at = create_annotation_type annotation_type: 'translation'
-    create_field_instance name: 'translation_text', annotation_type_object: at
-    create_field_instance name: 'translation_language', annotation_type_object: at
-    create_field_instance name: 'translation_note', annotation_type_object: at
-    p = create_project
-    pm = create_project_media project: p, media: create_valid_media
-    c = create_comment annotated: pm, text: 'Note 1'
-    tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
-    task = create_task annotator: create_user, annotated: pm
-    tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
-    exported_data = p.export
-    assert_equal 1, exported_data.size
-    assert_equal p.id, exported_data.first[:project_id]
-    assert_equal pm.id, exported_data.first[:report_id]
-    assert_equal 'sports', exported_data.first[:tags]
-    assert_equal c.text, exported_data.first[:note_content_1]
-    assert_equal task.label, exported_data.first[:task_question_1]
-    assert_equal tr.get_field('translation_text').value, exported_data.first[:translation_text_1]
+    stub_config('app_name', 'Check') do
+      p = create_project
+      pm = create_project_media project: p, media: create_valid_media
+      c = create_comment annotated: pm, text: 'Note 1'
+      tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
+      task = create_task annotator: create_user, annotated: pm
+      exported_data = p.export
+      assert_equal 1, exported_data.size
+      assert_equal p.id, exported_data.first[:project_id]
+      assert_equal pm.id, exported_data.first[:report_id]
+      assert_equal 'sports', exported_data.first[:tags]
+      assert_equal c.text, exported_data.first[:note_content_1]
+      assert_equal task.label, exported_data.first[:task_question_1]
+      assert_equal 'undetermined', exported_data.first[:report_status]
+    end
+    stub_config('app_name', 'Bridge') do
+      create_translation_status_stuff
+      at = create_annotation_type annotation_type: 'translation'
+      create_field_instance name: 'translation_text', annotation_type_object: at
+      create_field_instance name: 'translation_language', annotation_type_object: at
+      create_field_instance name: 'translation_note', annotation_type_object: at
+      p = create_project
+      pm = create_project_media project: p, media: create_valid_media
+      c = create_comment annotated: pm, text: 'Note 1'
+      tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
+      task = create_task annotator: create_user, annotated: pm
+      tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
+      exported_data = p.export
+      assert_equal 1, exported_data.size
+      assert_equal p.id, exported_data.first[:project_id]
+      assert_equal pm.id, exported_data.first[:report_id]
+      assert_equal 'sports', exported_data.first[:tags]
+      assert_equal c.text, exported_data.first[:note_content_1]
+      assert_equal task.label, exported_data.first[:task_question_1]
+      assert_equal tr.get_field('translation_text').value, exported_data.first[:translation_text_1]
+      assert_equal 'pending', exported_data.first[:report_status]
+    end
   end
 
   test "should export data to CSV" do
