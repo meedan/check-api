@@ -41,8 +41,8 @@ development: &default
   locale:
   alegre_host:
   alegre_token:
-  bridge_reader_url_private: # http://localhost:3001 - used to download screenshot
-  bridge_reader_url: # http://localhost:3001 - used to publish
+  bridge_reader_url_private: http://reader:3400
+  bridge_reader_url: http://localhost:3400
   bridge_reader_token: mysecrettoken
   keep_token:
   app_name: "Check"
@@ -54,7 +54,14 @@ development: &default
 
 test:
   <<: *default
-  bridge_reader_url_private: http://bridgembed
+  pender_host: http://pender.test:13200
+  pender_key: test
+  alegre_host: http://alegre.test:13100
+  alegre_token: test
+  checkdesk_client: 'http://web.test:13333'
+  checkdesk_base_url: http://api.test:13000
+  elasticsearch_log: false
+  bridge_reader_url_private: http://reader.test:13400
 
 production:
   <<: *default

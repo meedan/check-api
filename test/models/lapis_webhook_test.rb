@@ -1,5 +1,5 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', '..', 'lib', 'lapis_webhook')
+require_relative '../test_helper'
+require_relative '../../lib/lapis_webhook'
 
 class LapisWebhookTest < ActiveSupport::TestCase
   def setup

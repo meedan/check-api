@@ -29,3 +29,5 @@ dump.rdb
 /public/viber/*.html
 /public/viber/*.png
 /public/viber/*.jpg
+travis
+travis.zip

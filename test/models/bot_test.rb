@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class BotTest < ActiveSupport::TestCase
   test "should create bot" do
@@ -22,7 +22,7 @@ class BotTest < ActiveSupport::TestCase
     raw_params = { name: "My bot" }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Bot::Bot.create(params)
     end
     assert_difference 'Bot::Bot.count' do

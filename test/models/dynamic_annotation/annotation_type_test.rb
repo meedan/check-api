@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', '..', 'test_helper')
+require_relative '../../test_helper'
 
 class DynamicAnnotation::AnnotationTypeTest < ActiveSupport::TestCase
   test "should create annotation type" do
@@ -54,7 +54,7 @@ class DynamicAnnotation::AnnotationTypeTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordInvalid do
         create_annotation_type annotation_type: 'comment'
       end
-    end   
+    end
   end
 
   test "should have many annotations" do

@@ -2,6 +2,8 @@ language: ruby
 services:
 - postgresql
 before_install:
+- openssl aes-256-cbc -K $encrypted_a0bd94d37b7c_key -iv $encrypted_a0bd94d37b7c_iv -in travis.zip.enc -out travis.zip -d
+- unzip travis.zip
 - sudo apt-get -qq update
 - sudo apt-get install wget openjdk-7-jre redis-server
 - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.4.1.deb && sudo dpkg -i --force-confnew elasticsearch-2.4.1.deb && sudo service elasticsearch restart
@@ -18,9 +20,9 @@ before_script:
 - sudo /usr/share/elasticsearch/bin/plugin install analysis-icu
 - sudo service elasticsearch restart
 - sleep 15
-- cp config/config.yml.example config/config.yml
+- cp travis/config.yml config/config.yml
 - cp config/initializers/secret_token.rb.example config/initializers/secret_token.rb
-- cp config/database.yml.travis config/database.yml
+- cp travis/database.yml config/database.yml
 - psql -c 'create database travis_ci_test;' -U postgres
 - RAILS_ENV=test bundle exec rake db:migrate
 script: bundle exec rake test:coverage

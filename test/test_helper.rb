@@ -324,6 +324,16 @@ class ActiveSupport::TestCase
     assert_equal value, data[field]
   end
 
+  def create_translation_status_stuff
+    [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+    ft1 = create_field_type(field_type: 'select', label: 'Select')
+    ft2 = create_field_type(field_type: 'text', label: 'Text')
+    at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
+    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
+    create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
+    create_field_instance annotation_type_object: at, name: 'translation_status_approver', label: 'Translation Status Approver', field_type_object: ft2, optional: true
+  end
+
   # Document GraphQL queries in Markdown format
   def document_graphql_query(action, type, query, response)
     if ENV['DOCUMENT']

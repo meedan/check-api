@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', '..', 'test_helper')
+require_relative '../../test_helper'
 
 class DynamicAnnotation::FieldTypeTest < ActiveSupport::TestCase
   test "should create field type" do
