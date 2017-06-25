@@ -31,9 +31,4 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify slack even on empty user" do
-    pm = create_project_media({ user: nil })
-    assert pm.sent_to_slack
-  end
-
 end
