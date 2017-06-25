@@ -70,6 +70,7 @@ class Bot::Alegre < ActiveRecord::Base
     annotation.annotator = self
     annotation.annotation_type = 'language'
     annotation.set_fields = { language: lang }.to_json
+    annotation.skip_notifications = true
     annotation.save!
     annotation.update_columns(annotator_id: self.id, annotator_type: 'Bot::Alegre')
   end
