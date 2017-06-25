@@ -100,6 +100,7 @@ ar:
   slack_create_project: "أضاف %{user}*  مشروع: %{url}"
   slack_create_team_user: "إنضم *%{user}* لفريق %{url}"
   slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
+  slack_create_project_media_no_user: 'أضيف %{type} جديد إلى مشروع *%{project}*: %{url}'
   slack_create_task: "أضاف *%{user}* المهمة %{url} في مشروع *%{project}*%{create_note}"
   slack_create_task_note: "مع التعليق: %{note}"
   slack_answer_task: |-
@@ -120,8 +121,8 @@ ar:
   mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
   pender_could_not_parse: تعذّر تحليل الميديا
   mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
-  mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نذكرك بطريقة تسجيل حسابك الحالية على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت التسجيل على %{app_name} باستخدام حساب على %{user_provider} المربوط بالبريد الإلكتروني %{user_email}. ولكن هذا البريد الإلكتروني مسجل بالفعل على %{app_name} مرتبطاً بحساب اخر على %{duplicate_provider}.</p> <p>\nما الذي يمكنك فعله الآن؟ قم بتسجيل الدخول باستخدام  %{duplicate_provider}.</p> <p>\nللدخول نفس الطريقة المستخدمة سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني check@meedan.com.</p> <p>\n— فريق عمل %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني check@meedan.com.</p> <p>\n— فريق عمل %{app_name}</p>"
+  mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
   mail_duplicate_email_exists_email: البريد الإلكتروني
   slack_restricted_join_to_members: عذراً، لا يمكنك الانضمام إلى فريق %{team_name} حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
