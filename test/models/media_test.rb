@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class MediaTest < ActiveSupport::TestCase
   def setup
@@ -484,7 +484,7 @@ class MediaTest < ActiveSupport::TestCase
     url = 'https://twitter.com/test/statuses/123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'entities' => { 'media' => [{ 'media_url_https' => 'http://twitter.com/picture/123.png' }] } } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    l = create_link url: url 
+    l = create_link url: url
     assert_match /^http/, l.picture
   end
 
@@ -493,7 +493,7 @@ class MediaTest < ActiveSupport::TestCase
     url = 'https://facebook.com/posts/123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'photos' => ['http://facebook.com/images/123.png'] } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    l = create_link url: url 
+    l = create_link url: url
     assert_match /^http/, l.picture
   end
 
@@ -502,7 +502,7 @@ class MediaTest < ActiveSupport::TestCase
     url = 'https://youtube.com/watch?v=123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'picture' => 'http://youtube.com/images/123.png' } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    l = create_link url: url 
+    l = create_link url: url
     assert_match /^http/, l.picture
   end
 
@@ -511,7 +511,7 @@ class MediaTest < ActiveSupport::TestCase
     url = 'https://twitter.com/test/statuses/123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'entities' => {} } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    l = create_link url: url 
+    l = create_link url: url
     assert_equal '', l.picture
   end
 
