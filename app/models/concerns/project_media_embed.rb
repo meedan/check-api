@@ -114,7 +114,7 @@ module ProjectMediaEmbed
   end
 
   def clear_caches
-    ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id) if CONFIG['app_name'] == 'Check' &&Rails.env.test?
+    ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id) if CONFIG['app_name'] == 'Check' && Rails.env.test?
   end
   
   module ClassMethods
