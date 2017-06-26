@@ -176,8 +176,8 @@ class StatusTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
     with_current_user_and_team(u, t) do
+      p = create_project team: t
       m = create_valid_media
       pm = create_project_media project: p, media: m
       s = create_status status: 'false', annotator: u, annotated: pm

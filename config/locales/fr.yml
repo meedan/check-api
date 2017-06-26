@@ -96,6 +96,7 @@ fr:
   slack_create_project: "*%{user}* a créé un projet : %{url}"
   slack_create_team_user: "*%{user}* s'est joint à l'équipe %{url}"
   slack_create_project_media: "*%{user}* a rajouté un(e) nouveau(elle) %{type} dans *%{project}* : %{url}"
+  slack_create_project_media_no_user: 'Un(e) nouveau(elle) %{type} a été rajouté(e) dans *%{project}* : %{url}'
   slack_create_task: "*%{user}* a créé la tâche %{url} dans *%{project}*%{create_note}"
   slack_create_task_note: "avec note: %{note}"
   slack_answer_task: |-
@@ -116,8 +117,8 @@ fr:
   mail_view_process_request: 'Pour traiter cette requête, prière de vous connecter et de visiter:'
   pender_could_not_parse: Ce n'était pas possible d'analyser ce média
   mail_duplicate_email_exists: Votre connexion à %{app_name}
-  mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte %{app_name} via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à %{app_name} via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à check@meedan.com. </p> <p>— L'équipe %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de créer un nouveau compte %{app_name}, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à check@meedan.com. </p> <p>— L'équipe %{app_name}</p>"
+  mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte %{app_name} via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à %{app_name} via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de créer un nouveau compte %{app_name}, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
   mail_duplicate_email_exists_email: courriel
   slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à l'équipe %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.
   admin:
