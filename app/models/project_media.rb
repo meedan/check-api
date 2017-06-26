@@ -49,12 +49,18 @@ class ProjectMedia < ActiveRecord::Base
 
   def slack_notification_message
     type = self.media.class.name.demodulize.downcase
-    I18n.t(:slack_create_project_media,
-      user: Bot::Slack.to_slack(User.current.name),
-      type: I18n.t(type.to_sym),
-      url: Bot::Slack.to_slack_url(self.full_url, "*#{self.title}*"),
-      project: Bot::Slack.to_slack(self.project.title)
-    )
+    User.current.present? ?
+      I18n.t(:slack_create_project_media,
+        user: Bot::Slack.to_slack(User.current.name),
+        type: I18n.t(type.to_sym),
+        url: Bot::Slack.to_slack_url(self.full_url, "*#{self.title}*"),
+        project: Bot::Slack.to_slack(self.project.title)
+      ) :
+      I18n.t(:slack_create_project_media_no_user,
+        type: I18n.t(type.to_sym),
+        url: Bot::Slack.to_slack_url(self.full_url, "*#{self.title}*"),
+        project: Bot::Slack.to_slack(self.project.title)
+      )
   end
 
   def title

@@ -189,6 +189,32 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should notify Slack when project media is created with empty user" do
+    t = create_team slug: 'test'
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    with_current_user_and_team(nil, t) do
+      m = create_valid_media
+      pm = create_project_media project: p, media: m, user: nil
+      assert pm.sent_to_slack
+      msg = pm.slack_notification_message
+      # verify base URL
+      assert_match "#{CONFIG['checkdesk_client']}/#{t.slug}", msg
+      # verify notification URL
+      match = msg.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
+      assert_equal p.id, match[1].to_i
+      assert_equal pm.id, match[2].to_i
+      # claim media
+      m = create_claim_media
+      pm = create_project_media project: p, media: m, user: nil
+      assert pm.sent_to_slack
+      msg = pm.slack_notification_message
+      assert_match "A new Claim has been added", msg
+    end
+  end
+
   test "should verify attribution of Slack notifications" do
     t = create_team slug: 'test'
     u = create_user
