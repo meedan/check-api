@@ -4,6 +4,8 @@ class ApiKey < ActiveRecord::Base
 
   before_validation :generate_access_token, on: :create
   before_validation :calculate_expiration_date, on: :create
+
+  has_one :bot_user
   
   # Reimplement this method in your application
   def self.applications

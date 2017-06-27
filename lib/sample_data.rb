@@ -35,6 +35,37 @@ module SampleData
     a.reload
   end
 
+  def create_bot_user(options = {})
+    u = BotUser.new
+    u.name = options[:name] || random_string
+    u.login = options.has_key?(:login) ? options[:login] : random_string
+    u.profile_image = options.has_key?(:profile_image) ? options[:profile_image] : random_url
+    u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
+    u.email = options[:email] || "#{random_string}@#{random_string}.com"
+    u.password = options[:password] || random_string
+    u.password_confirmation = options[:password_confirmation] || u.password
+    u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
+    u.api_key_id = options.has_key?(:api_key_id) ? options[:api_key_id] : create_api_key.id
+
+    file = nil
+    if options.has_key?(:image)
+      file = options[:image]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        u.image = f
+      end
+    end
+
+    u.save!
+
+    if options[:team]
+      create_team_user team: options[:team], user: u
+    end
+
+    u.reload
+  end
+
   def create_user(options = {})
     u = User.new
     u.name = options[:name] || random_string
@@ -50,6 +81,8 @@ module SampleData
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
     u.omniauth_info = options[:omniauth_info]
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
+    u.type = options[:type] if options.has_key?(:type)
+    u.api_key_id = options[:api_key_id]
 
     file = nil
     if options.has_key?(:image)

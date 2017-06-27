@@ -39,6 +39,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_kind_of String, data['version']
   end
 
+  test "should not access GraphQL if authenticated as a bot" do
+    authenticate_with_user(create_bot_user)
+    post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}'
+    assert_response 401
+  end
+
   test "should get node from global id" do
     authenticate_with_user
     id = Base64.encode64('About/1')

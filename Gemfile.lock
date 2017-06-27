@@ -1,12 +1,4 @@
 GIT
-  remote: https://github.com/caiosba/graphiql-rails.git
-  revision: d03dd94f8d28bbae3d3b13e568ad48b1c79cff7c
-  ref: d03dd94
-  specs:
-    graphiql-rails (1.2.0)
-      rails
-
-GIT
   remote: https://github.com/iain/http_accept_language.git
   revision: 1d1837136eba5723132eebbd8c0176860c184e0c
   specs:
@@ -18,6 +10,14 @@ GIT
   ref: 31f8ab5
   specs:
     alegre_client (0.0.9)
+
+GIT
+  remote: https://github.com/meedan/graphiql-rails.git
+  revision: 8db0eacf56006c11f46ded70bf3da47c7854cea5
+  ref: 8db0eac
+  specs:
+    graphiql-rails (1.4.2)
+      rails
 
 GIT
   remote: https://github.com/meedan/pender-client.git

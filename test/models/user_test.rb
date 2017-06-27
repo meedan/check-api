@@ -506,4 +506,18 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not have User type" do
+    u = create_user
+    assert_nil u.type
+  end
+
+  test "should not have API key" do
+    a = create_api_key
+    assert_raises ActiveRecord::RecordInvalid do
+      create_user api_key_id: a.id
+    end
+    assert_nothing_raised do
+      create_user api_key_id: nil
+    end
+  end
 end
