@@ -4,12 +4,16 @@ class Ability
   def initialize(user = nil)
     alias_action :create, :update, :destroy, :to => :cud
     @user = User.current ||= user || User.new
+    @api_key = ApiKey.current
     @context_team = Team.current ||= @user.current_team
     # Define User abilities
     if @user.is_admin?
       global_admin_perms
     else
       extra_perms_for_all_users
+      unless @api_key.nil?
+        api_key_perms
+      end
       if @user.id
         authenticated_perms
       end
@@ -29,6 +33,10 @@ class Ability
   end
 
   private
+
+  def api_key_perms
+    can :read, :all
+  end
 
   def owner_perms
     can :access, :rails_admin

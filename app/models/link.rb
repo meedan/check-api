@@ -12,6 +12,11 @@ class Link < Media
     host.nil? ? nil : host.gsub(/^(www|m)\./, '')
   end
 
+  def provider
+    domain = self.domain
+    domain.nil? ? nil : domain.gsub(/\..*/, '').capitalize
+  end
+
   def picture
     path = ''
     begin

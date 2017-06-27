@@ -264,6 +264,7 @@ class Bot::Viber < ActiveRecord::Base
         User.current = nil
         ts = Dynamic.new
         ts.skip_check_ability = true
+        ts.skip_notifications = true
         ts.annotation_type = 'translation_status'
         ts.annotated = self
         ts.set_fields = { translation_status_status: 'pending', translation_status_note: '', translation_status_approver: '{}' }.to_json

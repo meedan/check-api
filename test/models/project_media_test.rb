@@ -1,10 +1,10 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class ProjectMediaTest < ActiveSupport::TestCase
   def setup
-    super
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
+    super
   end
 
   test "should create project media" do
@@ -189,6 +189,32 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should notify Slack when project media is created with empty user" do
+    t = create_team slug: 'test'
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    with_current_user_and_team(nil, t) do
+      m = create_valid_media
+      pm = create_project_media project: p, media: m, user: nil
+      assert pm.sent_to_slack
+      msg = pm.slack_notification_message
+      # verify base URL
+      assert_match "#{CONFIG['checkdesk_client']}/#{t.slug}", msg
+      # verify notification URL
+      match = msg.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
+      assert_equal p.id, match[1].to_i
+      assert_equal pm.id, match[2].to_i
+      # claim media
+      m = create_claim_media
+      pm = create_project_media project: p, media: m, user: nil
+      assert pm.sent_to_slack
+      msg = pm.slack_notification_message
+      assert_match "A new Claim has been added", msg
+    end
+  end
+
   test "should verify attribution of Slack notifications" do
     t = create_team slug: 'test'
     u = create_user
@@ -223,7 +249,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 2, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 3, CheckNotifications::Pusher::Worker.jobs.size
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -786,5 +812,229 @@ class ProjectMediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       pm.destroy
     end
+  end
+
+  test "should have oEmbed endpoint" do
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    pm = create_project_media media: m
+    assert_equal 'test media', pm.as_oembed[:title]
+  end
+
+  test "should have oEmbed URL" do
+    t = create_team private: false
+    p = create_project team: t
+    pm = create_project_media project: p
+    stub_config('checkdesk_base_url', 'https://checkmedia.org') do
+      assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
+    end
+
+    t = create_team private: true
+    p = create_project team: t
+    pm = create_project_media project: p
+    stub_config('checkdesk_base_url', 'https://checkmedia.org') do
+      assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
+    end
+  end
+
+  test "should get author name for oEmbed" do
+    u = create_user name: 'Foo Bar'
+    pm = create_project_media user: u
+    assert_equal 'Foo Bar', pm.author_name
+    pm.user = nil
+    assert_equal '', pm.author_name
+  end
+
+  test "should get author URL for oEmbed" do
+    url = 'http://twitter.com/test'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"profile"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    u = create_user url: url, provider: 'twitter'
+    pm = create_project_media user: u
+    assert_equal url, pm.author_url
+    pm.user = create_user
+    assert_equal '', pm.author_url
+    pm.user = nil
+    assert_equal '', pm.author_url
+  end
+
+  test "should get author picture for oEmbed" do
+    u = create_user
+    pm = create_project_media user: u
+    assert_match /^http/, pm.author_picture
+  end
+
+  test "should get author username for oEmbed" do
+    u = create_user login: 'test'
+    pm = create_project_media user: u
+    assert_equal 'test', pm.author_username
+    pm.user = nil
+    assert_equal '', pm.author_username
+  end
+
+  test "should get author role for oEmbed" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'journalist'
+    p = create_project team: t
+    pm = create_project_media project: p, user: u
+    assert_equal 'journalist', pm.author_role
+    pm.user = create_user
+    assert_equal 'none', pm.author_role
+    pm.user = nil
+    assert_equal 'none', pm.author_role
+  end
+
+  test "should get source URL for external link for oEmbed" do
+    url = 'http://twitter.com/test/123456'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"profile"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+    assert_equal url, pm.source_url
+    c = create_claim_media
+    pm = create_project_media media: c
+    assert_match CONFIG['checkdesk_client'], pm.source_url
+  end
+
+  test "should get resolved tasks for oEmbed" do
+    create_annotation_type annotation_type: 'response'
+    pm = create_project_media
+    assert_equal [], pm.completed_tasks
+    assert_equal 0, pm.completed_tasks_count
+    t1 = create_task annotated: pm
+    t1.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t1.save!
+    t2 = create_task annotated: pm
+    assert_equal [t1], pm.completed_tasks
+    assert_equal 1, pm.completed_tasks_count
+  end
+
+  test "should get comments for oEmbed" do
+    pm = create_project_media
+    assert_equal [], pm.comments
+    assert_equal 0, pm.comments_count
+    c = create_comment annotated: pm
+    assert_equal [c], pm.comments
+    assert_equal 1, pm.comments_count
+  end
+
+  test "should get provider for oEmbed" do
+    url = 'http://twitter.com/test/123456'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"profile"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+    assert_equal 'Twitter', pm.provider
+    c = create_claim_media
+    pm = create_project_media media: c
+    stub_config('app_name', 'Check') do
+      assert_equal 'Check', pm.provider
+    end
+  end
+
+  test "should get published time for oEmbed" do
+    url = 'http://twitter.com/test/123456'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+    assert_equal '25/01/1989', pm.published_at.strftime('%d/%m/%Y')
+    c = create_claim_media
+    pm = create_project_media media: c
+    assert_equal Time.now.strftime('%d/%m/%Y'), pm.published_at.strftime('%d/%m/%Y')
+  end
+
+  test "should get source author for oEmbed" do
+    u = create_user name: 'Foo'
+    url = 'http://twitter.com/test/123456'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","author_name":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l, user: u
+    assert_equal 'Bar', pm.source_author[:author_name]
+    c = create_claim_media
+    pm = create_project_media media: c, user: u
+    assert_equal 'Foo', pm.source_author[:author_name]
+  end
+
+  test "should render oEmbed HTML" do
+    u = create_user login: 'test', name: 'Test', profile_image: 'http://profile.picture'
+    c = create_claim_media quote: 'Test'
+    t = create_team name: 'Test Team', slug: 'test-team' 
+    p = create_project title: 'Test Project', team: t 
+    pm = create_project_media media: c, user: u, project: p
+    create_comment text: 'A comment', annotated: pm
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
+    fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
+    t = create_task annotated: pm
+    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Task response', task_reference: t.id.to_s }.to_json }.to_json
+    t.save!
+
+    ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
+    ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
+
+    expected = File.read(File.join(Rails.root, 'test', 'data', 'oembed.html')).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
+    actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
+
+    assert_equal expected, actual
+
+    ProjectMedia.any_instance.unstub(:created_at)
+    ProjectMedia.any_instance.unstub(:updated_at)
+  end
+
+  test "should have metadata for oEmbed" do
+    pm = create_project_media
+    assert_kind_of String, pm.metadata
+  end
+
+  test "should clear caches when media is updated" do
+    pm = create_project_media
+    u = create_user
+    ProjectMedia.any_instance.unstub(:clear_caches)
+    CcDeville.expects(:clear_cache_for_url).returns(nil).times(8)
+    PenderClient::Request.expects(:get_medias).returns(nil).times(8)
+
+    Sidekiq::Testing.inline! do
+      create_comment annotated: pm, user: u
+      create_task annotated: pm, user: u
+    end
+
+    CcDeville.unstub(:clear_cache_for_url)
+    PenderClient::Request.unstub(:get_medias)
+  end
+
+  test "should notify embed system when project media is updated" do
+    pm = create_project_media project: @project
+    pm.created_at = DateTime.now - 1.day
+    ProjectMedia.any_instance.stubs(:notify_embed_system).with('updated', { id: pm.id.to_s}).once
+    puts pm.created_at
+    pm.save!
+    ProjectMedia.any_instance.unstub(:notify_embed_system)
+  end
+
+  test "should notify embed system when project media is destroyed" do
+    pm = create_project_media project: @project
+    ProjectMedia.any_instance.stubs(:notify_embed_system).with('destroyed', nil).once
+    pm.destroy
+    ProjectMedia.any_instance.unstub(:notify_embed_system)
+  end
+
+  test "should notify embed system and receive a success response" do
+    pm = create_project_media project: @project
+    response = pm.send(:notify_embed_system, 'updated', pm.notify_embed_system_updated_object)
+    assert_equal '200', response.code
   end
 end

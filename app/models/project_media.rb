@@ -3,7 +3,9 @@ class ProjectMedia < ActiveRecord::Base
 
   include ProjectMediaAssociations
   include ProjectMediaCreators
+  include ProjectMediaEmbed
   include Versioned
+  include NotifyEmbedSystem
 
   validates_presence_of :media_id, :project_id
 
@@ -47,12 +49,18 @@ class ProjectMedia < ActiveRecord::Base
 
   def slack_notification_message
     type = self.media.class.name.demodulize.downcase
-    I18n.t(:slack_create_project_media,
-      user: Bot::Slack.to_slack(User.current.name),
-      type: I18n.t(type.to_sym),
-      url: Bot::Slack.to_slack_url(self.full_url, "*#{self.title}*"),
-      project: Bot::Slack.to_slack(self.project.title)
-    )
+    User.current.present? ?
+      I18n.t(:slack_create_project_media,
+        user: Bot::Slack.to_slack(User.current.name),
+        type: I18n.t(type.to_sym),
+        url: Bot::Slack.to_slack_url(self.full_url, "*#{self.title}*"),
+        project: Bot::Slack.to_slack(self.project.title)
+      ) :
+      I18n.t(:slack_create_project_media_no_user,
+        type: I18n.t(type.to_sym),
+        url: Bot::Slack.to_slack_url(self.full_url, "*#{self.title}*"),
+        project: Bot::Slack.to_slack(self.project.title)
+      )
   end
 
   def title
@@ -210,6 +218,31 @@ class ProjectMedia < ActiveRecord::Base
 
   def get_dynamic_annotation(type)
     Dynamic.where(annotation_type: type, annotated_type: 'ProjectMedia', annotated_id: self.id).last
+  end
+
+  def notify_destroyed?
+    true
+  end
+
+  def notify_updated?
+    true
+  end
+
+  def notify_created?
+    false
+  end
+
+  def notify_embed_system_updated_object
+    { id: self.id.to_s }
+  end
+
+  def notify_embed_system_payload(event, object)
+    { translation: object, condition: event, timestamp: Time.now.to_i }.to_json
+  end
+
+  def notification_uri(_event)
+    url = self.project.nil? ? '' : [CONFIG['bridge_reader_url_private'], 'medias', 'notify', self.project.team.slug, self.project.id, self.id.to_s].join('/')
+    URI.parse(URI.encode(url))
   end
 
   private

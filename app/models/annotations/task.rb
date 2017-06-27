@@ -104,6 +104,11 @@ class Task < ActiveRecord::Base
     self.status = 'Resolved'
   end
 
+  def first_response
+    response = self.responses.first
+    response.get_fields.select{ |f| f.field_name =~ /^response_/ }.first.value unless response.nil?
+  end
+
   private
 
   def task_options_is_array

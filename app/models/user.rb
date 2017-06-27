@@ -32,8 +32,8 @@ class User < ActiveRecord::Base
     ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.nil?
   end
 
-  def role
-    context_team = Team.current || self.current_team
+  def role(team = nil)
+    context_team = team || Team.current || self.current_team
     role = nil
     unless context_team.nil?
       role = Rails.cache.fetch("role_#{context_team.id}_#{self.id}", expires_in: 30.seconds, race_condition_ttl: 30.seconds) do

@@ -96,6 +96,7 @@ pt:
   slack_create_project: "*%{user}* criou um projeto: %{url}"
   slack_create_team_user: "*%{user}*  juntou-se à equipe %{url}"
   slack_create_project_media: "*%{user}* inseriu um novo %{type} ao *%{project}*: %{url}"
+  slack_create_project_media_no_user: 'Um novo %{type} foi inserido ao *%{project}*: %{url}'
   slack_create_task: "*%{user}* criou a tarefa %{url} em *%{project}*%{create_note}"
   slack_create_task_note: " com nota: %{note}"
   slack_answer_task: |-
@@ -116,8 +117,8 @@ pt:
   mail_view_process_request: 'Para processar esta solicitação, por favor faça o login e visite:'
   pender_could_not_parse: Não foi possível analisar esta mídia
   mail_duplicate_email_exists: Seu método de login no %{app_name}
-  mail_duplicate_email_exists_body: "<p>Olá, este é apenas um lembrete para ajudar a garantir que você faça login no %{app_name}.</p> <p>O que aconteceu: você tentou se registrar no %{app_name} com uma conta de %{user_provider} associada ao e-mail %{user_email}. Esse endereço de e-mail já está associado a uma conta de %{duplicate_provider} no %{app_name}.</p> <p>O que fazer agora: Faça login com sua conta %{duplicate_provider}.</p> <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para check@meedan.com.</p> <p> - Equipe %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>Olá, este é apenas um lembrete para ajudar a garantir que você faça login no  %{app_name}.</p> <p>O que aconteceu: você tentou criar uma nova conta no %{app_name} baseada em um email, mas essa conta já existe.</p> <p>Tente fazer login com seu e-mail e senha em vez de criar uma nova conta.</p> <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para check@meedan.com.</p> <p> - Equipe %{app_name}</p>"
+  mail_duplicate_email_exists_body: "<p>Olá, este é apenas um lembrete para ajudar a garantir que você faça login no %{app_name}.</p> <p>O que aconteceu: você tentou se registrar no %{app_name} com uma conta de %{user_provider} associada ao e-mail %{user_email}. Esse endereço de e-mail já está associado a uma conta de %{duplicate_provider} no %{app_name}.</p> <p>O que fazer agora: Faça login com sua conta %{duplicate_provider}.</p> <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para %{support_email}.</p> <p> - Equipe %{app_name}</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>Olá, este é apenas um lembrete para ajudar a garantir que você faça login no  %{app_name}.</p> <p>O que aconteceu: você tentou criar uma nova conta no %{app_name} baseada em um email, mas essa conta já existe.</p> <p>Tente fazer login com seu e-mail e senha em vez de criar uma nova conta.</p> <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para %{support_email}.</p> <p> - Equipe %{app_name}</p>"
   mail_duplicate_email_exists_email: e-mail
   slack_restricted_join_to_members: Lamentamos, mas não pode juntar-se a equipe %{team_name} porque o acesso está restrito aos integrantes da(s) equipe(s) %{teams} do Slack.
   admin:
@@ -136,3 +137,6 @@ pt:
   auto_publisher_added_to_project: Obrigado! Agora todas as novas traduções no projeto %{project} serão automaticamente publicadas nesta conta no %{provider}. Se você mudar de ideia, por favor contacte o administrador ou simplesmente remova a autorização do Bridge no %{provider}.
   invalid_token: Token inválido
   viber_screenshot_footer: "Tradução de %{source_language} para %{target_language}: “%{source_text}”"
+  time:
+    formats:
+      oembed: "%d de %B de %Y"
