@@ -46,6 +46,17 @@ class ProjectSource < ActiveRecord::Base
     self.user = User.current unless User.current.nil?
   end
 
+  def self.belonged_to_project(pmid, pid)
+    # TODO support versions
+    pm = ProjectSource.find_by_id pmid
+    if pm && (pm.project_id == pid)
+      return pm.id
+    else
+      pm = ProjectSource.where(project_id: pid, media_id: pmid).last
+      return pm.id if pm
+    end
+  end
+
   protected
 
   def create_source
