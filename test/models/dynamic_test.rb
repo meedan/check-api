@@ -144,6 +144,9 @@ class DynamicTest < ActiveSupport::TestCase
     create_team_user team: t, user: u1
     create_team_user team: t, user: u2
     create_team_user team: t, user: u3
+    u1 = User.find(u1.id)
+    u2 = User.find(u2.id)
+    u3 = User.find(u3.id)
     p = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p

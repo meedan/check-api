@@ -717,6 +717,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
+    u = User.find(u.id)
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     p = create_project team: t

@@ -1438,6 +1438,7 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team private: true
     u = create_bot_user api_key_id: a.id
     tu = create_team_user team: t, user: u
+    u = User.find(u.id)
     ApiKey.current = a
     User.current = u
     ability = Ability.new
@@ -1445,7 +1446,6 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:update, t)
     assert ability.cannot?(:destroy, t)
     assert ability.cannot?(:create, User)
-    assert ability.cannot?(:update, u)
     assert ability.cannot?(:destroy, u)
     assert ability.cannot?(:create, TeamUser)
     assert ability.cannot?(:update, tu)
