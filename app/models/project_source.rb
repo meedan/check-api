@@ -6,6 +6,7 @@ class ProjectSource < ActiveRecord::Base
   belongs_to :source
   belongs_to :user
   has_annotations
+  include Versioned
 
   validates_presence_of :source_id, :project_id
   before_validation :set_source, :set_account, :set_user, on: :create
@@ -46,14 +47,13 @@ class ProjectSource < ActiveRecord::Base
     self.user = User.current unless User.current.nil?
   end
 
-  def self.belonged_to_project(pmid, pid)
-    # TODO support versions
-    pm = ProjectSource.find_by_id pmid
-    if pm && (pm.project_id == pid)
-      return pm.id
+  def self.belonged_to_project(psid, pid)
+    ps = ProjectSource.find_by_id psid
+    if ps && (ps.project_id == pid || ps.versions.where_object(project_id: pid).exists?)
+      return ps.id
     else
-      pm = ProjectSource.where(project_id: pid, media_id: pmid).last
-      return pm.id if pm
+      ps = ProjectSource.where(project_id: pid, source_id: psid).last
+      return ps.id if ps
     end
   end
 
