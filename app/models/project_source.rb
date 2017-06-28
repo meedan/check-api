@@ -57,6 +57,10 @@ class ProjectSource < ActiveRecord::Base
     end
   end
 
+  def get_annotations(type = nil)
+    self.annotations.where(annotation_type: type)
+  end
+
   protected
 
   def create_source

@@ -28,5 +28,44 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :user do
+    type -> { UserType }
+
+    resolve -> (project_source, _args, _ctx) {
+      project_source.user
+    }
+  end
+
+  field :team do
+    type -> { TeamType }
+
+    resolve ->(project_source, _args, _ctx) {
+      project_source.project.team
+    }
+  end
+
+  connection :tags, -> { TagType.connection_type } do
+    resolve ->(project_source, _args, _ctx) {
+      project_source.get_annotations('tag')
+    }
+  end
+
+  connection :annotations, -> { AnnotationType.connection_type } do
+    argument :annotation_type, !types.String
+
+    resolve ->(project_source, args, _ctx) {
+      project_source.get_annotations(args['annotation_type'].split(',').map(&:strip))
+    }
+  end
+
+  field :annotations_count do
+    type types.Int
+    argument :annotation_type, !types.String
+
+    resolve ->(project_media, args, _ctx) {
+      project_media.get_annotations(args['annotation_type'].split(',').map(&:strip)).count
+    }
+  end
+
 # End of fields
 end
