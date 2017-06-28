@@ -98,6 +98,7 @@ module AnnotationBase
       annotated = self.annotated
       unless annotated.nil?
         annotated.skip_check_ability = true
+        annotated.skip_notifications = true # the notification will be triggered by the annotation already
         annotated.updated_at = Time.now
         annotated.save!
       end
