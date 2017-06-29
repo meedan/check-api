@@ -190,7 +190,7 @@ class GraphqlCrudOperations
       end
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
-      
+
       instance_eval(&block) if block_given?
     end
   end
@@ -211,4 +211,9 @@ class GraphqlCrudOperations
     obj = klass.find_if_can(id, ctx[:ability])
     obj
   end
+end
+
+JsonStringType = GraphQL::ScalarType.define do
+  name "JsonStringType"
+  coerce_input -> (val, ctx) { JSON.parse(val) }
 end
