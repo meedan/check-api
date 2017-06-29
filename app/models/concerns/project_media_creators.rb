@@ -103,4 +103,14 @@ module ProjectMediaCreators
     end
     m
   end
+
+  def create_project_source
+    a = self.media.account
+    unless a.nil? or a.source_id.blank?
+      ps = ProjectSource.new
+      ps.project_id = self.project_id
+      ps.source_id = a.source_id
+      ps.save!
+    end
+  end
 end
