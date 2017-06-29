@@ -40,7 +40,7 @@ class Account < ActiveRecord::Base
 
   def embed
     em = self.annotations('embed').last
-    embed = em.data['embed'] unless em.nil?
+    embed = JSON.parse(em.data['embed']) unless em.nil?
     embed
   end
 

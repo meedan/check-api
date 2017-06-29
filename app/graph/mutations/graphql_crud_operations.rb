@@ -215,6 +215,6 @@ end
 
 JsonStringType = GraphQL::ScalarType.define do
   name "JsonStringType"
-  coerce_input -> (val) { val.as_json }
-  coerce_result -> (val) { JSON.parse(val) }
+  coerce_input -> (val) { JSON.parse(val) }
+  coerce_result -> (val) { val.as_json }
 end
