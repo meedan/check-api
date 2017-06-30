@@ -551,14 +551,6 @@ class Bot::ViberTest < ActiveSupport::TestCase
     create_dynamic_annotation annotation_type: 'language', set_fields: { language: 'pt' }.to_json, annotated: pm
     t = create_dynamic_annotation annotation_type: 'translation', set_fields: { translation_language: 'es' }.to_json, annotated: pm
     locale = t.translation_to_message[:locale]
-<<<<<<< HEAD
-
-    assert_equal 'en', locale
-  end
-
-  private
-=======
->>>>>>> develop
 
     assert_equal 'en', locale
   end
