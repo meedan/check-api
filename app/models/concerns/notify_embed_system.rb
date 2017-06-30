@@ -5,9 +5,9 @@ module NotifyEmbedSystem
   extend ActiveSupport::Concern
 
   included do
-    after_create :notify_embed_system_created, if: :notify_created?
-    after_update :notify_embed_system_updated, if: :notify_updated?
-    after_destroy :notify_embed_system_destroyed, if: :notify_destroyed?
+    after_create :notify_embed_system_created, if: :notify_created?, unless: :disabled?
+    after_update :notify_embed_system_updated, if: :notify_updated?, unless: :disabled?
+    after_destroy :notify_embed_system_destroyed, if: :notify_destroyed?, unless: :disabled?
 
     protected
 
@@ -28,6 +28,10 @@ module NotifyEmbedSystem
 
     def notify_embed_system_destroyed
       self.delay_for(1.second).notify_embed_system('destroyed', nil)
+    end
+
+    def disabled?
+      CONFIG['bridge_reader_url_private'].blank? || CONFIG['bridge_reader_url'].blank? || CONFIG['bridge_reader_token'].blank?
     end
   end
 end
