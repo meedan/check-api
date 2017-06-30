@@ -77,6 +77,8 @@ module Api
           user = User.where(token: token).last
           User.current = user
           (token && user) ? sign_in(user, store: false) : (authenticate_api_user! if mandatory)
+        else
+          ApiKey.current = key
         end
       end
 

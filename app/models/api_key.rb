@@ -12,6 +12,14 @@ class ApiKey < ActiveRecord::Base
   
   validates :application, inclusion: { in: proc { ApiKey.applications } }
 
+  def self.current
+    Thread.current[:api_key]
+  end
+
+  def self.current=(api_key)
+    Thread.current[:api_key] = api_key
+  end
+
   private
 
   def generate_access_token

@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class TestControllerTest < ActionController::TestCase
   test "should confirm user by email if in test mode" do
@@ -16,6 +16,24 @@ class TestControllerTest < ActionController::TestCase
     get :confirm_user, email: u.email
     assert_response 400
     assert_nil u.reload.confirmed_at
+    Rails.unstub(:env)
+  end
+
+  test "should make team public if in test mode" do
+    t = create_team private: true
+    assert t.private
+    get :make_team_public, slug: t.slug
+    assert_response :success
+    assert !t.reload.private
+  end
+
+  test "should not make team public if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    t = create_team private: true
+    assert t.private
+    get :make_team_public, slug: t.slug
+    assert_response 400
+    assert t.reload.private
     Rails.unstub(:env)
   end
 end

@@ -1,6 +1,7 @@
 class Team < ActiveRecord::Base
 
   include ValidationsHelper
+  include NotifyEmbedSystem
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
 
   has_many :projects, dependent: :destroy
@@ -125,6 +126,32 @@ class Team < ActiveRecord::Base
     self.send(:set_keep_enabled, enabled)
   end
 
+  def notify_destroyed?
+    false
+  end
+
+  def notify_created?
+    true
+  end
+  alias notify_updated? notify_created?
+
+  def notify_embed_system_created_object
+    { slug: self.slug }
+  end
+
+  def notify_embed_system_updated_object
+    self.as_json
+  end
+
+  def notify_embed_system_payload(event, object)
+    { project: object, condition: event, timestamp: Time.now.to_i, token: CONFIG['bridge_reader_token'] }.to_json
+  end
+
+  def notification_uri(event)
+    slug = (event == 'created') ? 'check-api' : self.slug
+    URI.parse(URI.encode([CONFIG['bridge_reader_url_private'], 'medias', 'notify', slug].join('/')))
+  end
+
   protected
 
   def custom_statuses_format(type)
@@ -187,5 +214,4 @@ class Team < ActiveRecord::Base
   def slug_is_not_reserved
     errors.add(:slug, I18n.t(:slug_is_reserved)) if RESERVED_SLUGS.include?(self.slug)
   end
-
 end

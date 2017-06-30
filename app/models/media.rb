@@ -3,7 +3,7 @@ class Media < ActiveRecord::Base
 
   attr_accessor :project_id, :project_object
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at]
   belongs_to :account
   belongs_to :user
   has_many :project_medias, dependent: :destroy

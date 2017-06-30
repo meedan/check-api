@@ -1,10 +1,10 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class ProjectTest < ActiveSupport::TestCase
   def setup
-    super
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
+    super
     MediaSearch.delete_index
     MediaSearch.create_index
     sleep 1
@@ -273,15 +273,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil p.sent_to_slack
   end
 
-  test "should not notify Slack when project is created if there is no user" do
-    t = create_team slug: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    p = create_project context_team: t, team: t
-    assert_nil p.sent_to_slack
-  end
-
   test "should not notify Slack when project is created if not enabled" do
     t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 0; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
@@ -405,28 +396,59 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should export data" do
-    p = create_project
-    pm = create_project_media project: p, media: create_valid_media
-    c = create_comment annotated: pm, text: 'Note 1'
-    tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
-    task = create_task annotator: create_user, annotated: pm
-    exported_data = p.export
-    assert_equal 1, exported_data.size
-    assert_equal p.id, exported_data.first[:project_id]
-    assert_equal pm.id, exported_data.first[:report_id]
-    assert_equal 'sports', exported_data.first[:tags]
-    assert_equal c.text, exported_data.first[:note_content_1]
-    assert_equal task.label, exported_data.first[:task_question_1]
+    stub_config('app_name', 'Check') do
+      p = create_project
+      pm = create_project_media project: p, media: create_valid_media
+      c = create_comment annotated: pm, text: 'Note 1'
+      tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
+      task = create_task annotator: create_user, annotated: pm
+      exported_data = p.export
+      assert_equal 1, exported_data.size
+      assert_equal p.id, exported_data.first[:project_id]
+      assert_equal pm.id, exported_data.first[:report_id]
+      assert_equal 'sports', exported_data.first[:tags]
+      assert_equal c.text, exported_data.first[:note_content_1]
+      assert_equal task.label, exported_data.first[:task_question_1]
+      assert_equal 'undetermined', exported_data.first[:report_status]
+    end
+    stub_config('app_name', 'Bridge') do
+      create_translation_status_stuff
+      at = create_annotation_type annotation_type: 'translation'
+      create_field_instance name: 'translation_text', annotation_type_object: at
+      create_field_instance name: 'translation_language', annotation_type_object: at
+      create_field_instance name: 'translation_note', annotation_type_object: at
+      p = create_project
+      pm = create_project_media project: p, media: create_valid_media
+      c = create_comment annotated: pm, text: 'Note 1'
+      tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
+      task = create_task annotator: create_user, annotated: pm
+      tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
+      exported_data = p.export
+      assert_equal 1, exported_data.size
+      assert_equal p.id, exported_data.first[:project_id]
+      assert_equal pm.id, exported_data.first[:report_id]
+      assert_equal 'sports', exported_data.first[:tags]
+      assert_equal c.text, exported_data.first[:note_content_1]
+      assert_equal task.label, exported_data.first[:task_question_1]
+      assert_equal tr.get_field('translation_text').value, exported_data.first[:translation_text_1]
+      assert_equal 'pending', exported_data.first[:report_status]
+    end
   end
 
   test "should export data to CSV" do
+    create_translation_status_stuff
+    at = create_annotation_type annotation_type: 'translation'
+    create_field_instance name: 'translation_text', annotation_type_object: at
+    create_field_instance name: 'translation_language', annotation_type_object: at
+    create_field_instance name: 'translation_note', annotation_type_object: at
     p = create_project
     pm = create_project_media project: p, media: create_valid_media
     c = create_comment annotated: pm, text: 'Note 1'
     tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
     task = create_task annotator: create_user, annotated: pm
+    tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
     exported_data = p.export_to_csv
-    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_question_1,task_user_1,task_date_1,task_answer_1,task_note_1"
+    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_question_1,task_user_1,task_date_1,task_answer_1,task_note_1,translation_text_1,translation_language_1,translation_note_1"
     assert_match(header, exported_data)
   end
 

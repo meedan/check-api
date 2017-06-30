@@ -1,7 +1,7 @@
 class Account < ActiveRecord::Base
   include PenderData
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at]
   belongs_to :user
   belongs_to :source
   belongs_to :team

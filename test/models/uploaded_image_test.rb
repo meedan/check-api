@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class UploadedImageTest < ActiveSupport::TestCase
   test "should create image" do
@@ -51,7 +51,7 @@ class UploadedImageTest < ActiveSupport::TestCase
       end
     end
   end
-  
+
   test "should create versions" do
     i = create_uploaded_image
     assert_not_nil i.file.thumbnail

@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class AccountTest < ActiveSupport::TestCase
   def setup
@@ -174,12 +174,12 @@ class AccountTest < ActiveSupport::TestCase
     create_team_user user: u, team: u
     a = create_valid_account
     perm_keys = ["read Account", "update Account", "destroy Account", "create Media", "create Claim", "create Link"].sort
-    
+
     # load permissions as owner
     with_current_user_and_team(u, t) do
       assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
     end
-    
+
     # load as editor
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) do
@@ -197,13 +197,13 @@ class AccountTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
     end
-    
+
     # load as contributor
     tu = u.team_users.last; tu.role = 'contributor'; tu.save!
     with_current_user_and_team(u, t) do
       assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
     end
-    
+
     # load as authenticated
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
@@ -219,7 +219,7 @@ class AccountTest < ActiveSupport::TestCase
     raw_params = { user: user, source: source, team: team, url: random_url }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Account.create(params)
     end
   end

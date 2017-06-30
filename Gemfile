@@ -11,7 +11,7 @@ group :development do
 end
 
 # Use pender from git
-gem 'pender_client', git: "https://github.com/meedan/pender-client.git"
+gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '88df056'
 
 gem 'logstash-logger'
 gem 'rails', '4.2.7.1'
@@ -55,7 +55,7 @@ gem 'elasticsearch-persistence', '0.1.9', require: 'elasticsearch/persistence/mo
 gem 'paper_trail'
 gem 'graphiql-rails', git: 'https://github.com/caiosba/graphiql-rails.git', ref: 'd03dd94'
 gem 'graphql-formatter'
-gem 'nokogiri', '1.7.1'
+gem 'nokogiri', '1.7.2'
 gem 'mini_magick'
 gem 'puma'
 gem 'rack-cors', :require => 'rack/cors'

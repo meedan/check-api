@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
+require_relative '../test_helper'
 
 class ProjectSourceTest < ActiveSupport::TestCase
 
@@ -60,7 +60,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
     raw_params = { project: create_project, source: create_source }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do 
+    assert_raise ActiveModel::ForbiddenAttributesError do
       ProjectSource.create(params)
     end
   end

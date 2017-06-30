@@ -75,6 +75,7 @@ module AnnotationBase
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
     after_save :touch_annotated
+    after_destroy :touch_annotated
 
     has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities], if: proc { |_x| User.current.present? }
 
@@ -94,7 +95,13 @@ module AnnotationBase
     end
 
     def touch_annotated
-      self.annotated.touch unless self.annotated.nil?
+      annotated = self.annotated
+      unless annotated.nil?
+        annotated.skip_check_ability = true
+        annotated.skip_notifications = true # the notification will be triggered by the annotation already
+        annotated.updated_at = Time.now
+        annotated.save!
+      end
     end
   end
 

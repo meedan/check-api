@@ -70,6 +70,7 @@ class Bot::Alegre < ActiveRecord::Base
     annotation.annotator = self
     annotation.annotation_type = 'language'
     annotation.set_fields = { language: lang }.to_json
+    annotation.skip_notifications = true
     annotation.save!
     annotation.update_columns(annotator_id: self.id, annotator_type: 'Bot::Alegre')
   end
@@ -77,14 +78,18 @@ class Bot::Alegre < ActiveRecord::Base
   def update_machine_translation(target, translations, author)
     mt = target.annotations.where(annotation_type: 'mt').last
     unless mt.nil?
-      # Delete old versions
-      mt_field = self.get_dynamic_field_value(target, 'mt', 'json')
-      mt_field.versions.destroy_all
       mt = mt.load
       User.current = author
       mt.set_fields = {'mt_translations': translations.to_json}.to_json
       mt.save!
       User.current = nil
+      # Delete old versions
+      mt_field = self.get_dynamic_field_value(target, 'mt', 'json')
+      versions = mt_field.versions.to_a unless mt_field.nil?
+      unless versions.blank?
+        versions.pop
+        versions.each{|v| v.skip_check_ability = true; v.destroy}
+      end
     end
   end
 end
