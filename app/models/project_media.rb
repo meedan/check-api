@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id, :set_annotation
+  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id, :set_annotation, :set_tasks_responses
 
   include ProjectMediaAssociations
   include ProjectMediaCreators
@@ -205,10 +205,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def check_search_project
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.project.id }, 'projects' => [self.project.id] }.to_json)
-  end
-
-  def should_create_auto_tasks?
-    self.project && self.project.team && !self.project.team.get_checklist.blank?
   end
 
   def update_mt=(_update)

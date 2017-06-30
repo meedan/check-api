@@ -76,7 +76,8 @@ class GraphqlCrudOperations
         '!int' => !types.Int,
         'id'   => types.ID,
         '!id'  => !types.ID,
-        'bool' => types.Boolean
+        'bool' => types.Boolean,
+        'json' => JsonStringType
       }
 
       name "#{action.camelize}#{type.camelize}"
@@ -211,4 +212,10 @@ class GraphqlCrudOperations
     obj = klass.find_if_can(id, ctx[:ability])
     obj
   end
+end
+
+JsonStringType = GraphQL::ScalarType.define do
+  name "JsonStringType"
+  coerce_input -> (val) { JSON.parse(val) }
+  coerce_result -> (val) { val.as_json }
 end

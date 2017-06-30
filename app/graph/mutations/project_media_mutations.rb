@@ -4,7 +4,8 @@ module ProjectMediaMutations
     project_id: '!int',
     url: 'str',
     quote: 'str',
-    set_annotation: 'str'
+    set_annotation: 'str',
+    set_tasks_responses: 'json'
   }
 
   update_fields = {
