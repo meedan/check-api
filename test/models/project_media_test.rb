@@ -249,7 +249,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 3, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 2, CheckNotifications::Pusher::Worker.jobs.size
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -1020,7 +1020,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: @project
     pm.created_at = DateTime.now - 1.day
     ProjectMedia.any_instance.stubs(:notify_embed_system).with('updated', { id: pm.id.to_s}).once
-    puts pm.created_at
     pm.save!
     ProjectMedia.any_instance.unstub(:notify_embed_system)
   end
@@ -1036,5 +1035,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: @project
     response = pm.send(:notify_embed_system, 'updated', pm.notify_embed_system_updated_object)
     assert_equal '200', response.code
+  end
+
+  test "should not notify embed system if there are no configs" do
+    pm = create_project_media project: @project
+    pm.created_at = DateTime.now - 1.day
+    ProjectMedia.any_instance.stubs(:notify_embed_system).with('updated', { id: pm.id.to_s}).never
+    stub_config('bridge_reader_private_url', '') do
+      pm.save!
+    end
+    ProjectMedia.any_instance.unstub(:notify_embed_system)
   end
 end
