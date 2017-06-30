@@ -71,6 +71,17 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal u, s.user
   end
 
+  test "should set user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    with_current_user_and_team(u, t) do
+      s = create_source project_id: p.id
+      assert_equal u, s.user
+    end
+  end
+
   test "should have annotations" do
     s = create_source
     c1 = create_comment
@@ -198,9 +209,6 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source
     s.project_sources << ps
     assert_equal [t.id], s.get_team
-    ps.project = nil
-    ps.save
-    assert_equal [], s.reload.get_team
   end
 
   test "should protect attributes from mass assignment" do

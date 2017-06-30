@@ -12,7 +12,7 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification
+  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
 
@@ -266,6 +266,10 @@ class ProjectMedia < ActiveRecord::Base
 
   def set_user
     self.user = User.current unless User.current.nil?
+  end
+
+  def set_project_source
+    self.create_project_source if self.media.type == 'Link'
   end
 
   protected

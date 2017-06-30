@@ -2,7 +2,7 @@ language: ruby
 services:
 - postgresql
 before_install:
-- openssl aes-256-cbc -K $encrypted_a0bd94d37b7c_key -iv $encrypted_a0bd94d37b7c_iv -in travis.zip.enc -out travis.zip -d
+- openssl aes-256-cbc -K $encrypted_309dd1ea690c_key -iv $encrypted_309dd1ea690c_iv -in travis.zip.enc -out travis.zip -d
 - unzip travis.zip
 - sudo apt-get -qq update
 - sudo apt-get install wget openjdk-7-jre redis-server

@@ -31,9 +31,17 @@ ProjectType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :project_sources, -> { ProjectSourceType.connection_type } do
+    resolve ->(project, _args, _ctx) {
+      project.project_sources.to_a
+    }
+  end
+
+  # TODO Remove this when `check-web` is updated
   connection :sources, -> { SourceType.connection_type } do
     resolve ->(project, _args, _ctx) {
       project.sources
     }
   end
+
 end
