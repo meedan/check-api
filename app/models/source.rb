@@ -33,11 +33,11 @@ class Source < ActiveRecord::Base
   end
 
   def image
-    self.avatar
+    self.avatar || (self.accounts.empty? ? '' : self.accounts.first.data['picture'].to_s)
   end
 
   def description
-    return self.slogan unless self.slogan == self.name
+    return self.slogan if self.slogan != self.name && !self.slogan.nil?
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
