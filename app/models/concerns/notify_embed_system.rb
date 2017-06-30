@@ -19,6 +19,7 @@ module NotifyEmbedSystem
     private
 
     def notify_embed_system_created
+      raise 'here'
       self.delay_for(1.second).notify_embed_system('created', self.notify_embed_system_created_object)
     end
 
