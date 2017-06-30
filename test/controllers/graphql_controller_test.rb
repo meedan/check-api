@@ -252,10 +252,28 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source
     p = create_project team: @team
     assert_graphql_create('project_source', { source_id: s.id, project_id: p.id })
+    assert_graphql_create('project_source', { name: 'New source', project_id: p.id })
   end
 
   test "should read project sources" do
-    assert_graphql_read('project_source', 'source_id')
+    assert_graphql_read('project_media', 'source_id')
+    authenticate_with_user
+    p = create_project team: @team
+    ps = create_project_source project: p
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { dbid } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_not_empty JSON.parse(@response.body)['data']['project_source']['dbid']
+  end
+
+  test "should read project sources with team_id as argument" do
+    authenticate_with_token
+    p = create_project team: @team
+    ps = create_project_media project: p
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id},#{@team.id}\") { dbid } }"
+    post :create, query: query
+    assert_response :success
+    assert_not_empty JSON.parse(@response.body)['data']['project_source']['dbid']
   end
 
   test "should update project source" do

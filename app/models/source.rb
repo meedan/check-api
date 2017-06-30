@@ -7,6 +7,8 @@ class Source < ActiveRecord::Base
 
   has_annotations
 
+  before_validation :set_user, on: :create
+
   validates_presence_of :name
 
   def user_id_callback(value, _mapping_ids = nil)
@@ -31,11 +33,11 @@ class Source < ActiveRecord::Base
   end
 
   def image
-    self.avatar
+    self.avatar || (self.accounts.empty? ? '' : self.accounts.first.data['picture'].to_s)
   end
 
   def description
-    return self.slogan unless self.slogan == self.name
+    return self.slogan if self.slogan != self.name && !self.slogan.nil?
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
@@ -49,6 +51,12 @@ class Source < ActiveRecord::Base
 
   def comments
     self.annotations('comment')
+  end
+
+  private
+
+  def set_user
+    self.user = User.current unless User.current.nil?
   end
 
 end

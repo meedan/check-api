@@ -320,10 +320,11 @@ module SampleData
 
   def create_project_source(options = {})
     ps = ProjectSource.new
-    project = options[:project] || create_project(team: options[:team])
-    source = options[:source] || create_source
-    ps.project_id = options[:project_id] || project.id
-    ps.source_id = options[:source_id] || source.id
+    options[:project] = create_project(team: options[:team]) unless options.has_key?(:project)
+    options[:source] = create_source unless options.has_key?(:source)
+    options.each do |key, value|
+      ps.send("#{key}=", value) if ps.respond_to?("#{key}=")
+    end
     ps.save!
     ps.reload
   end
