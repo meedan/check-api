@@ -186,4 +186,9 @@ class TaskTest < ActiveSupport::TestCase
     t = Task.find(t.id)
     assert_equal 'Test', t.first_response
   end
+
+  test "should set slug when task is created" do
+    t = create_task label: 'Where did it happen?'
+    assert_equal 'where_did_it_happen', t.slug
+  end
 end

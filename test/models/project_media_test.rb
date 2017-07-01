@@ -1047,4 +1047,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     ProjectMedia.any_instance.unstub(:notify_embed_system)
   end
+
+  test "should respond to auto-tasks on creation" do
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
+    fi2 = create_field_instance annotation_type_object: at, name: 'note_free_text', label: 'Note', field_type_object: ft1
+    fi3 = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft2
+    
+    t = create_team
+    p = create_project team: t
+    t.checklist = [ { 'label' => 'When?', 'type' => 'free_text', 'description' => '', 'projects' => [] } ]
+    t.save!
+    pm = create_project_media(project: p, set_tasks_responses: { 'when' => 'Yesterday' })
+
+    t = Task.where(annotation_type: 'task').last
+    assert_equal 'Yesterday', t.first_response
+  end
 end
