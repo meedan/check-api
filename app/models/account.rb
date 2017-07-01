@@ -38,6 +38,12 @@ class Account < ActiveRecord::Base
     JSON.parse(em.embed)
   end
 
+  def embed
+    em = self.annotations('embed').last
+    embed = JSON.parse(em.data['embed']) unless em.nil?
+    embed
+  end
+
   private
 
   def create_source

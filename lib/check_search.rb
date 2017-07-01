@@ -31,25 +31,30 @@ class CheckSearch
     'CheckSearch'
   end
 
-  def create
-    query = build_search_query
-    get_search_result(query)
-  end
-
-  def search_result
-    if self.should_hit_elasticsearch?
-      self.create
+  def medias
+    if should_hit_elasticsearch?
+      query = medias_build_search_query
+      ids = medias_get_search_result(query).map(&:id)
+      items = ProjectMedia.where(id: ids).eager_load(:media)
+      ids_sort = items.sort_by{|x| ids.index x.id.to_s}
+      ids_sort.to_a
     else
-      self.from_relational_db
+      results = ProjectMedia.eager_load(:media).joins(:project)
+      results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
+      results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
+      sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
+      sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
+      results.order(sort_field => sort_type)
     end
   end
 
-  def should_hit_elasticsearch?
-    !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank?)
+  def project_medias
+    medias
   end
 
-  def from_relational_db
-    results = ProjectMedia.eager_load(:media).joins(:project)
+  def sources
+    # TODO support ES
+    results = ProjectSource.eager_load(:source).joins(:project)
     results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
     results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
     sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
@@ -57,30 +62,22 @@ class CheckSearch
     results.order(sort_field => sort_type)
   end
 
-  def medias
-    if self.should_hit_elasticsearch?
-      # should loop in search result and return media
-      # for now all results are medias
-      ids = self.search_result.map(&:id)
-      items = ProjectMedia.where(id: ids).eager_load(:media)
-      ids_sort = items.sort_by{|x| ids.index x.id.to_s}
-      ids_sort.to_a
-    else
-      self.from_relational_db
-    end
-  end
-
-  def project_medias
-    self.medias
+  def project_sources
+    sources
   end
 
   def number_of_results
-    self.search_result.count
+    # TODO cache `medias` and `sources` results?
+    medias.count + sources.count
   end
 
   private
 
-  def build_search_query
+  def should_hit_elasticsearch?
+    !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank?)
+  end
+
+  def medias_build_search_query
     conditions = []
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
     unless @options["keyword"].blank?
@@ -108,9 +105,8 @@ class CheckSearch
     { bool: { must: conditions } }
   end
 
-  def get_search_result(query)
-    field = 'created_at'
-    field = 'last_activity_at' if @options['sort'] == 'recent_activity'
+  def medias_get_search_result(query)
+    field = @options['sort'] == 'recent_activity' ? 'last_activity_at' : 'created_at'
     MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"].downcase }}, '_score'], size: 10000).results
   end
 

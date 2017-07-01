@@ -32,6 +32,6 @@ class ApiKey < ActiveRecord::Base
   end
 
   def calculate_expiration_date
-    self.expire_at = Time.now.since(30.days)
+    self.expire_at ||= Time.now.since(30.days)
   end
 end

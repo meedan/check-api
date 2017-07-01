@@ -191,7 +191,7 @@ class GraphqlCrudOperations
       end
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
-      
+
       instance_eval(&block) if block_given?
     end
   end

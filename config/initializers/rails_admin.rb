@@ -136,12 +136,15 @@ RailsAdmin.config do |config|
     end
 
     create do
-      field :access_token
-      field :expire_at
+      field :expire_at do
+        strftime_format "%Y-%m-%d"
+      end
     end
 
     edit do
-      field :expire_at
+      field :expire_at do
+        strftime_format "%Y-%m-%d"
+      end
     end
   end
 
