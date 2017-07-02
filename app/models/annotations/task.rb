@@ -112,7 +112,7 @@ class Task < ActiveRecord::Base
   end
 
   def self.slug(label)
-    label.parameterize.gsub('-', '_')
+    label.to_s.parameterize.gsub('-', '_')
   end
 
   private
