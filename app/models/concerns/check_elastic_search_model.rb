@@ -13,8 +13,7 @@ module CheckElasticSearchModel
         space_hashtags_and_arabic: {
           type: 'mapping',
           mappings: [
-              "ا=> ٱِ",
-              "لا=>لا",
+              "ٱ=>ا",
               "#=>|#"              ]
         }
       },
