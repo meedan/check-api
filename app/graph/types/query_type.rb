@@ -68,33 +68,9 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  field :project_media do
-    type ProjectMediaType
-    description 'Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"'
-    argument :ids, !types.String
-    resolve -> (_obj, args, ctx) do
-      pmid, pid, tid = args['ids'].split(',').map(&:to_i)
-      tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-      project = Project.where(id: pid, team_id: tid).last
-      pid = project.nil? ? 0 : project.id
-      pmid = ProjectMedia.belonged_to_project(pmid, pid) || 0
-      GraphqlCrudOperations.load_if_can(ProjectMedia, pmid, ctx)
-    end
-  end
+  instance_exec ProjectMedia, :project_media, ProjectMediaType , &GraphqlCrudOperations.project_association
 
-  field :project_source do
-    type ProjectSourceType
-    description 'Information about a project source, The argument should be given like this: "project_source_id,project_id,team_id"'
-    argument :ids, !types.String
-    resolve -> (_obj, args, ctx) do
-      psid, pid, tid = args['ids'].split(',').map(&:to_i)
-      tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-      project = Project.where(id: pid, team_id: tid).last
-      pid = project.nil? ? 0 : project.id
-      psid = ProjectSource.belonged_to_project(psid, pid) || 0
-      GraphqlCrudOperations.load_if_can(ProjectSource, psid, ctx)
-    end
-  end
+  instance_exec ProjectSource, :project_source, ProjectSourceType , &GraphqlCrudOperations.project_association
 
   field :project do
     type ProjectType

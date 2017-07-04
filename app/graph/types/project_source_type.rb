@@ -50,22 +50,9 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :annotations, -> { AnnotationType.connection_type } do
-    argument :annotation_type, !types.String
+  instance_exec :project_source, &GraphqlCrudOperations.field_annotations
 
-    resolve ->(project_source, args, _ctx) {
-      project_source.get_annotations(args['annotation_type'].split(',').map(&:strip))
-    }
-  end
-
-  field :annotations_count do
-    type types.Int
-    argument :annotation_type, !types.String
-
-    resolve ->(project_media, args, _ctx) {
-      project_media.get_annotations(args['annotation_type'].split(',').map(&:strip)).count
-    }
-  end
+  instance_exec :project_source, &GraphqlCrudOperations.field_annotations_count
 
 # End of fields
 end

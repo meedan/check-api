@@ -153,6 +153,49 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.field_annotations
+    proc do |_classname|
+      connection :annotations, -> { AnnotationType.connection_type } do
+        argument :annotation_type, !types.String
+
+        resolve ->(obj, args, _ctx) {
+          obj.get_annotations(args['annotation_type'].split(',').map(&:strip))
+        }
+      end
+    end
+  end
+
+  def self.field_annotations_count
+    proc do |_classname|
+      field :annotations_count do
+        type types.Int
+        argument :annotation_type, !types.String
+
+        resolve ->(obj, args, _ctx) {
+          obj.get_annotations(args['annotation_type'].split(',').map(&:strip)).count
+        }
+      end
+    end
+  end
+
+  def self.project_association
+    proc do |class_name, field_name, type|
+        field field_name do
+        type type
+        description 'Information about a project association, The argument should be given like this: "project_association_id,project_id,team_id"'
+        argument :ids, !types.String
+        resolve -> (_obj, args, ctx) do
+          objid, pid, tid = args['ids'].split(',').map(&:to_i)
+          tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
+          project = Project.where(id: pid, team_id: tid).last
+          pid = project.nil? ? 0 : project.id
+          objid = class_name.belonged_to_project(objid, pid) || 0
+          GraphqlCrudOperations.load_if_can(class_name, objid, ctx)
+        end
+      end
+    end
+  end
+
   def self.define_annotation_fields
     [:annotation_type, :updated_at, :created_at,
      :annotated_id, :annotated_type, :content, :dbid ]

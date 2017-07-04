@@ -1,6 +1,7 @@
 class ProjectMedia < ActiveRecord::Base
   attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id, :set_annotation, :set_tasks_responses
 
+  include ProjectAssociation
   include ProjectMediaAssociations
   include ProjectMediaCreators
   include ProjectMediaEmbed
@@ -9,7 +10,6 @@ class ProjectMedia < ActiveRecord::Base
 
   validates_presence_of :media_id, :project_id
 
-  before_validation :set_media, :set_user, on: :create
   validate :is_unique, on: :create
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
@@ -167,16 +167,6 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
-  def self.belonged_to_project(pmid, pid)
-    pm = ProjectMedia.find_by_id pmid
-    if pm && (pm.project_id == pid || pm.versions.where_object(project_id: pid).exists?)
-      return pm.id
-    else
-      pm = ProjectMedia.where(project_id: pid, media_id: pmid).last
-      return pm.id if pm
-    end
-  end
-
   def project_was
     Project.find(self.previous_project_id) unless self.previous_project_id.blank?
   end
@@ -248,20 +238,9 @@ class ProjectMedia < ActiveRecord::Base
     errors.add(:base, "This media already exists in this project and has id #{pm.id}") unless pm.nil?
   end
 
-  def set_media
-    unless self.url.blank? && self.quote.blank? && self.file.blank?
-      m = self.create_media
-      self.media_id = m.id unless m.nil?
-    end
-  end
-
   def set_quote_embed
     self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
     self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
-  end
-
-  def set_user
-    self.user = User.current unless User.current.nil?
   end
 
   def set_project_source
