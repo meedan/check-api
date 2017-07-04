@@ -10,9 +10,11 @@ module CheckElasticSearchModel
 
     settings analysis: {
       char_filter: {
-        space_hashtags: {
+        space_hashtags_and_arabic: {
           type: 'mapping',
-          mappings: ['#=>|#']
+          mappings: [
+              "ٱ=>ا",
+              "#=>|#"              ]
         }
       },
       filter: {
@@ -24,7 +26,7 @@ module CheckElasticSearchModel
       analyzer: {
         check: {
           type: 'custom',
-          char_filter: 'space_hashtags',
+          char_filter: 'space_hashtags_and_arabic',
           tokenizer: 'whitespace',
           filter: ['lowercase', 'hashtag_as_alphanum', 'asciifolding','icu_normalizer','arabic_normalization']
         }
