@@ -728,7 +728,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({keyword: "تشك"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
   end
-  
+
   test "should search AR - ticket 6066" do
      t = create_team
      p = create_project team: t
@@ -745,6 +745,4 @@ class CheckSearchTest < ActiveSupport::TestCase
      result = CheckSearch.new({keyword: "بسم الله"}.to_json)
      assert_equal [pm.id], result.medias.map(&:id)
   end
-
-
 end
