@@ -136,13 +136,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :published do
-    type types.String
-
-    resolve ->(project_media, _args, _ctx) {
-      project_media.created_at.to_i.to_s
-    }
-  end
+  instance_exec :project_media, &GraphqlCrudOperations.field_published
 
   field :language do
     type types.String
