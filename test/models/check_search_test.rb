@@ -738,4 +738,20 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_includes result.project_sources.map(&:id), ps.id
   end
 
+  test "should search AR - ticket 6066" do
+     t = create_team
+     p = create_project team: t
+     pender_url = CONFIG['pender_host'] + '/api/medias'
+     url = 'http://test.com'
+     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"بِسْمِ ٱللهِ ٱلرَّحْمٰنِ ٱلرَّحِيمِ"}}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+     m = create_media(account: create_valid_account, url: url)
+     pm = create_project_media project: p, media: m, disable_es_callbacks: false
+     sleep 1
+     Team.stubs(:current).returns(t)
+     result = CheckSearch.new({keyword: "بسم"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     result = CheckSearch.new({keyword: "بسم الله"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+  end
 end
