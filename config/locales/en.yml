@@ -190,3 +190,4 @@ en:
   oembed_collapse_all: "Collapse all"
   oembed_resolved_tasks_count: { zero: 'No resolved verification tasks', one: 'One resolved verification task', other: '%{count} resolved verification tasks' }
   oembed_notes: "Notes"
+  pender_conflict: "This link is already being parsed, please try again in a few seconds."

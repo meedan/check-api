@@ -1065,4 +1065,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = Task.where(annotation_type: 'task').last
     assert_equal 'Yesterday', t.first_response
   end
+
+  test "should expose conflict error from Pender" do
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    response = '{"type":"error","data":{"message":"Conflict","code":9}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response, status: 409)
+    p = create_project
+    pm = ProjectMedia.new
+    pm.project = p
+    pm.url = url
+    assert !pm.valid?
+    assert pm.errors.messages.values.flatten.include?('This link is already being parsed, please try again in a few seconds.')
+  end
 end
