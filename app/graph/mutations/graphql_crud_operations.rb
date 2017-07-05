@@ -153,6 +153,18 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.field_published
+    proc do |_classname|
+      field :published do
+        type types.String
+
+        resolve ->(obj, _args, _ctx) {
+          obj.created_at.to_i.to_s
+        }
+      end
+    end
+  end
+
   def self.field_annotations
     proc do |_classname|
       connection :annotations, -> { AnnotationType.connection_type } do
