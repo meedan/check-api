@@ -96,6 +96,28 @@ class ProjectSourceTest < ActiveSupport::TestCase
   end
 
   test "should create account if url set" do
-
+    url = random_url
+    pender_url = CONFIG['pender_host'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    assert_difference 'Account.count' do
+      ps = create_project_source name: 'New source', url: url
+      assert_includes ps.source.accounts.map(&:url), url
+    end
   end
+
+  test "should check if project source belonged to a previous project" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t
+    p = create_project team: t
+    p2 = create_project team: t
+    with_current_user_and_team(u, t) do
+      ps = create_project_source project: p
+      assert ProjectSource.belonged_to_project(ps.id, p.id)
+      ps.project = p2; ps.save!
+      assert_equal p2, ps.project
+      assert ProjectSource.belonged_to_project(ps.id, p.id)
+    end
+  end
+
 end

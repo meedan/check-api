@@ -352,6 +352,8 @@ module SampleData
   end
 
   def create_project_source(options = {})
+    u = options[:user] || create_user
+    options = { disable_es_callbacks: true, user: u }.merge(options)
     ps = ProjectSource.new
     options[:project] = create_project(team: options[:team]) unless options.has_key?(:project)
     options[:source] = create_source unless options.has_key?(:source)

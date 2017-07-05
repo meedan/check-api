@@ -729,4 +729,13 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [pm.id], result.medias.map(&:id)
   end
 
+  test "should search in project sources" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({}.to_json)
+    assert_includes result.project_sources.map(&:id), ps.id
+  end
+
 end

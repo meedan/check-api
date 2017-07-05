@@ -180,7 +180,7 @@ class GraphqlCrudOperations
 
   def self.project_association
     proc do |class_name, field_name, type|
-        field field_name do
+      field field_name do
         type type
         description 'Information about a project association, The argument should be given like this: "project_association_id,project_id,team_id"'
         argument :ids, !types.String
