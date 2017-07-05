@@ -493,7 +493,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
-    assert_difference 'PaperTrail::Version.count', 2 do
+    assert_difference 'PaperTrail::Version.count', 3 do
       pm = create_project_media project: p, media: m, user: u
     end
     assert_equal 1, pm.versions.count
@@ -970,8 +970,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should render oEmbed HTML" do
     u = create_user login: 'test', name: 'Test', profile_image: 'http://profile.picture'
     c = create_claim_media quote: 'Test'
-    t = create_team name: 'Test Team', slug: 'test-team' 
-    p = create_project title: 'Test Project', team: t 
+    t = create_team name: 'Test Team', slug: 'test-team'
+    p = create_project title: 'Test Project', team: t
     pm = create_project_media media: c, user: u, project: p
     create_comment text: 'A comment', annotated: pm
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
@@ -1055,7 +1055,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     fi1 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
     fi2 = create_field_instance annotation_type_object: at, name: 'note_free_text', label: 'Note', field_type_object: ft1
     fi3 = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft2
-    
+
     t = create_team
     p = create_project team: t
     t.checklist = [ { 'label' => 'When?', 'type' => 'free_text', 'description' => '', 'projects' => [] } ]

@@ -601,7 +601,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     sleep 1
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({projects: [p.id], status: ['in_progress'], sort: "recent_activity"}.to_json)
-    assert_equal 1, result.number_of_results
+    assert_equal 1, result.project_medias.count
   end
 
   test "should load all items sorted" do
@@ -629,20 +629,20 @@ class CheckSearchTest < ActiveSupport::TestCase
 
     Team.stubs(:current).returns(t1)
     assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
-    assert_equal 2, CheckSearch.new('{}').number_of_results
+    assert_equal 2, CheckSearch.new('{}').project_medias.count
     assert_equal [pm1a], CheckSearch.new({ projects: [p1a.id] }.to_json).medias
-    assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).number_of_results
+    assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).project_medias.count
     assert_equal [pm1a, pm1b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
-    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).number_of_results
+    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).project_medias.count
     Team.unstub(:current)
 
     Team.stubs(:current).returns(t2)
     assert_equal [pm2b, pm2a], CheckSearch.new('{}').medias
-    assert_equal 2, CheckSearch.new('{}').number_of_results
+    assert_equal 2, CheckSearch.new('{}').project_medias.count
     assert_equal [pm2a], CheckSearch.new({ projects: [p2a.id] }.to_json).medias
-    assert_equal 1, CheckSearch.new({ projects: [p2a.id] }.to_json).number_of_results
+    assert_equal 1, CheckSearch.new({ projects: [p2a.id] }.to_json).project_medias.count
     assert_equal [pm2a, pm2b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
-    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).number_of_results
+    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).project_medias.count
     Team.unstub(:current)
   end
 
