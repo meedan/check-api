@@ -6,10 +6,12 @@ class ProjectSource < ActiveRecord::Base
   belongs_to :source
   belongs_to :user
   has_annotations
+
+  include ProjectAssociation
   include Versioned
 
   validates_presence_of :source_id, :project_id
-  before_validation :set_source, :set_account, :set_user, on: :create
+  before_validation :set_account, on: :create
 
   def get_team
     p = self.project
@@ -28,37 +30,16 @@ class ProjectSource < ActiveRecord::Base
     self.annotators
   end
 
-  private
-
-  def set_source
-    unless self.name.blank?
-      s = self.create_source
-      self.source_id = s.id unless s.nil?
-    end
+  def get_annotations(type = nil)
+    self.annotations.where(annotation_type: type)
   end
+
+  private
 
   def set_account
     unless self.url.blank?
       self.create_account
     end
-  end
-
-  def set_user
-    self.user = User.current unless User.current.nil?
-  end
-
-  def self.belonged_to_project(psid, pid)
-    ps = ProjectSource.find_by_id psid
-    if ps && (ps.project_id == pid || ps.versions.where_object(project_id: pid).exists?)
-      return ps.id
-    else
-      ps = ProjectSource.where(project_id: pid, source_id: psid).last
-      return ps.id if ps
-    end
-  end
-
-  def get_annotations(type = nil)
-    self.annotations.where(annotation_type: type)
   end
 
   protected

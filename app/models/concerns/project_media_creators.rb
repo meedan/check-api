@@ -128,6 +128,7 @@ module ProjectMediaCreators
       ps = ProjectSource.new
       ps.project_id = self.project_id
       ps.source_id = a.source_id
+      ps.skip_check_ability = true
       ps.save!
     end
   end

@@ -94,6 +94,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read accounts" do
     assert_graphql_read('account', 'url')
+    assert_graphql_read('account', 'embed')
   end
 
   test "should update account" do
@@ -262,30 +263,30 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read project sources" do
-    assert_graphql_read('project_media', 'source_id')
+    assert_graphql_read('project_source', 'source_id')
     authenticate_with_user
     p = create_project team: @team
-    ps = create_project_source project: p
-    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { dbid } }"
+    ps = create_project_source project: p, user: create_user
+    create_comment annotated: ps
+    create_tag annotated: ps
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { user{id}, team{id}, tags { edges { node { dbid } } },annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
-    assert_not_empty JSON.parse(@response.body)['data']['project_source']['dbid']
+    data = JSON.parse(@response.body)['data']['project_source']
+    assert_not_empty data['user']['id']
+    assert_not_empty data['team']['id']
+    assert_equal 2, data['annotations']['edges'].size
+    assert_equal 2, data['annotations_count']
   end
 
   test "should read project sources with team_id as argument" do
     authenticate_with_token
     p = create_project team: @team
-    ps = create_project_media project: p
+    ps = create_project_source project: p
     query = "query GetById { project_source(ids: \"#{ps.id},#{p.id},#{@team.id}\") { dbid } }"
     post :create, query: query
     assert_response :success
-    assert_not_empty JSON.parse(@response.body)['data']['project_source']['dbid']
-  end
-
-  test "should update project source" do
-    p1 = create_project team: @team
-    p2 = create_project team: @team
-    assert_graphql_update('project_source', :project_id, p1.id, p2.id)
+    assert_equal ps.id, JSON.parse(@response.body)['data']['project_source']['dbid']
   end
 
   test "should destroy project source" do
@@ -401,7 +402,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id' })
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id', 'project_sources' => 'source_id' })
   end
 
   test "should read object from media" do
