@@ -29,6 +29,10 @@ class AccountTest < ActiveSupport::TestCase
     assert_not_empty @account.data
   end
 
+  test "should get embed" do
+    assert_not_empty @account.embed
+  end
+
   test "should have user" do
     assert_kind_of User, @account.user
   end
