@@ -209,6 +209,7 @@ class User < ActiveRecord::Base
     source.avatar = self.profile_image
     source.slogan = self.name
     source.save!
+    self.update_columns(source_id: source.id)
 
     if !self.provider.blank? && !self.url.blank?
       begin
