@@ -4,10 +4,11 @@ class Source < ActiveRecord::Base
   has_many :project_sources
   has_many :projects , through: :project_sources
   belongs_to :user
+  belongs_to :team
 
   has_annotations
 
-  before_validation :set_user, on: :create
+  before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
 
@@ -57,6 +58,10 @@ class Source < ActiveRecord::Base
 
   def set_user
     self.user = User.current unless User.current.nil?
+  end
+
+  def set_team
+    self.team = Team.current unless Team.current.nil?
   end
 
 end
