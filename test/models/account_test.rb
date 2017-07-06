@@ -5,7 +5,7 @@ class AccountTest < ActiveSupport::TestCase
     super
     @url = 'https://www.youtube.com/user/MeedanTube'
     s = create_source
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
       @account = create_account(url: @url, source: s)
     end
@@ -13,7 +13,7 @@ class AccountTest < ActiveSupport::TestCase
 
   test "should create account" do
     assert_difference 'Account.count' do
-      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
         create_valid_account
       end
@@ -137,7 +137,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should not create account with duplicated URL" do
     assert_no_difference 'Account.count' do
       exception = assert_raises ActiveRecord::RecordInvalid do
-        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
           WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
           create_account(url: @url)
         end
@@ -231,7 +231,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should skip Pender and save URL as is" do
     WebMock.disable_net_connect!
     url = 'http://keep.it'
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}')
     a = create_account url: 'http://keep.it', skip_pender: true
     assert_equal 'http://keep.it', a.url

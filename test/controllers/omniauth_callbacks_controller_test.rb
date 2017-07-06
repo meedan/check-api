@@ -66,7 +66,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     })
     request.env['devise.mapping'] = Devise.mappings[:api_user]
     ['https://twitter.com/test', 'https://facebook.com/654321'].each do |url|
-      WebMock.stub_request(:get, CONFIG['pender_host'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"type":"profile"}}')
+      WebMock.stub_request(:get, CONFIG['pender_url_private'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"type":"profile"}}')
     end
     User.current = nil
   end
@@ -160,7 +160,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   end
 
   test "should get URL for Slack" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://meedan.slack.com/team/melsawy' } }).to_return(body: '{"type":"media","data":{"url":"https://meedan.slack.com/?redir=/team/melsawy","type":"profile"}}')
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
     get :slack

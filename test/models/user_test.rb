@@ -122,7 +122,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should create account if user has provider and url" do
     assert_difference 'Account.count' do
-      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
         create_user provider: 'youtube', url: 'https://www.youtube.com/user/MeedanTube'
       end

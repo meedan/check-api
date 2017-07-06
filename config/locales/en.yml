@@ -175,19 +175,29 @@ en:
   time:
     formats:
       oembed: "%B %d, %Y"
-  oembed_disclaimer: "The accuracy of this media was verified by the %{team} team on %{date}"
+  oembed_disclaimer: The accuracy of this media was verified by the %{team} team on
+    %{date}
   oembed_source_date: "%{date} on %{provider}"
-  role_editor: "editor"
-  role_owner: "owner"
-  role_contributor: "contributor"
-  role_journalist: "journalist"
-  role_none: "member"
-  oembed_credit: "Added by %{user} (%{role}) %{date}"
-  oembed_notes_count: { zero: 'No notes', one: 'One note', other: '%{count} notes' }
-  oembed_completed_tasks_count: { zero: 'No completed tasks', one: 'One completed task', other: '%{count} completed tasks' }
-  oembed_verification_tasks: "Verification tasks"
-  oembed_expand_all: "Expand all"
-  oembed_collapse_all: "Collapse all"
-  oembed_resolved_tasks_count: { zero: 'No resolved verification tasks', one: 'One resolved verification task', other: '%{count} resolved verification tasks' }
-  oembed_notes: "Notes"
-  pender_conflict: "This link is already being parsed, please try again in a few seconds."
+  role_editor: editor
+  role_owner: owner
+  role_contributor: contributor
+  role_journalist: journalist
+  role_none: member
+  oembed_credit: Added by %{user} (%{role}) %{date}
+  oembed_notes_count:
+    zero: No notes
+    one: One note
+    other: "%{count} notes"
+  oembed_completed_tasks_count:
+    zero: No completed tasks
+    one: One completed task
+    other: "%{count} completed tasks"
+  oembed_verification_tasks: Verification tasks
+  oembed_expand_all: Expand all
+  oembed_collapse_all: Collapse all
+  oembed_resolved_tasks_count:
+    zero: No resolved verification tasks
+    one: One resolved verification task
+    other: "%{count} resolved verification tasks"
+  oembed_notes: Notes
+  pender_conflict: This link is already being parsed, please try again in a few seconds.

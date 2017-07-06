@@ -139,4 +139,29 @@ fr:
   viber_screenshot_footer: "Traduction en %{target_language} de l'original en %{source_language}: “%{source_text}”"
   time:
     formats:
-      oembed: "%d %B %Y"
+      oembed: "%B %d, %Y"
+  oembed_disclaimer: L'exactitude de ce média a été vérifiée par l'équipe %{team}le %{date}
+  oembed_source_date: "%{date} via %{provider}"
+  role_editor: rédacteur
+  role_owner: administrateur
+  role_contributor: contributeur
+  role_journalist: journaliste
+  role_none: membre
+  oembed_credit: Ajouté par %{user} (%{role}) %{date}
+  oembed_notes_count:
+    zero: Aucune note
+    one: Une note
+    other: "%{count} notes"
+  oembed_completed_tasks_count:
+    zero: Aucune tâche complétée
+    one: Une tâche complétée
+    other: "%{count}tâches complétées"
+  oembed_verification_tasks: Tâches de vérification
+  oembed_expand_all: Développer tout
+  oembed_collapse_all: Réduire tout
+  oembed_resolved_tasks_count:
+    zero: Aucune tâche résolue
+    one: Une tâche résolue
+    other: "%{count}tâches résolues"
+  oembed_notes: Notes
+  pender_conflict: Ce lien est déjà en cours de traitement, veuillez ressayer dans quelques secondes.

@@ -398,14 +398,14 @@ module SampleData
   end
 
   def create_valid_media(options = {})
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item"}}')
     create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
   end
 
   def create_valid_account(options = {})
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     options[:data] ||= {}
     data = { url: url, provider: 'twitter', picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile' }.merge(options[:data])

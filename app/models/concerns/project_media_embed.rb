@@ -12,7 +12,7 @@ module ProjectMediaEmbed
   end
 
   def embed_url
-    CONFIG['pender_host'] + '/api/medias.html?url=' + self.full_url.to_s
+    CONFIG['pender_url'] + '/api/medias.html?url=' + self.full_url.to_s
   end
 
   def author_name
@@ -122,7 +122,7 @@ module ProjectMediaEmbed
       pm = ProjectMedia.find(pmid)
       ['', '?hide_tasks=1', '?hide_notes=1', '?hide_tasks=1&hide_notes=1'].each do |part|
         url = pm.full_url.to_s + part
-        PenderClient::Request.get_medias(CONFIG['pender_host'], { url: url, refresh: '1' }, CONFIG['pender_key'])
+        PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
         CcDeville.clear_cache_for_url(url)
       end
     end

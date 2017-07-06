@@ -143,4 +143,29 @@ ar:
   viber_screenshot_footer: "ترجمة إلى %{target_language} من %{source_language}: “%{source_text}”"
   time:
     formats:
-      oembed: "%Y %B %d"
+      oembed: "%B %d, %Y"
+  oembed_disclaimer: قام فريق %{team} بالتحقق من دقة هذا الميديا في %{date}
+  oembed_source_date: "%{provider}%{date} على "
+  role_editor: محرر
+  role_owner: مدير
+  role_contributor: مشارك
+  role_journalist: صحفي
+  role_none: عضو
+  oembed_credit: تمت الإضافة من %{user} (%{role}) في %{date}
+  oembed_notes_count:
+    zero: لا توجد ملحوظات
+    one: ملحوظة واحدة
+    other: "%{count} ملحوظات"
+  oembed_completed_tasks_count:
+    zero: لا توجد مهام منتهية
+    one: مهمة واحدة منتهية
+    other: "%{count} مهام منتهية"
+  oembed_verification_tasks: مهام التحقق من المعلومات
+  oembed_expand_all: توسيع الكل
+  oembed_collapse_all: طيّ الكل
+  oembed_resolved_tasks_count:
+    zero: لا توجد مهام تم إنجازها
+    one: مهمة واحدة تم إنجازها
+    other: "%{count} مهام تم إنجازها"
+  oembed_notes: ملحوظات
+  pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع ثوانٍ.

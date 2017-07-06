@@ -97,7 +97,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
 
   test "should create account if url set" do
     url = random_url
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
     assert_difference 'Account.count' do
       ps = create_project_source name: 'New source', url: url

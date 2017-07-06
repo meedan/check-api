@@ -3,7 +3,7 @@ module PenderData
     if !self.url.blank? && !self.skip_pender
       params = { url: self.url }
       params[:refresh] = '1' if force
-      result = PenderClient::Request.get_medias(CONFIG['pender_host'], params, CONFIG['pender_key'])
+      result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
       if (result['type'] == 'error')
         errors.add :base, self.handle_pender_error(result['data']['code'])
       else
