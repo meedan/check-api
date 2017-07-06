@@ -3,7 +3,7 @@ class User < ActiveRecord::Base
   attr_accessor :url, :skip_confirmation_mail
 
   include ValidationsHelper
-  has_one :source
+  belongs_to :source
   has_many :team_users
   has_many :teams, through: :team_users
   has_many :projects

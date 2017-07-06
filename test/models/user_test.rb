@@ -104,6 +104,7 @@ class UserTest < ActiveSupport::TestCase
       u = create_user
     end
     s = create_source user: u
+    u = u.reload
     assert_equal u.source_id, u.source.id
   end
 
