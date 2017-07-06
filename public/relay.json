@@ -104,7 +104,7 @@
             },
             {
               "name": "project_media",
-              "description": "Information about a project media, The argument should be given like this: \"project_media_id,project_id,team_id\"",
+              "description": "Information about a project association, The argument should be given like this: \"project_association_id,project_id,team_id\"",
               "args": [
                 {
                   "name": "ids",
@@ -131,7 +131,7 @@
             },
             {
               "name": "project_source",
-              "description": "Information about a project source, The argument should be given like this: \"project_source_id,project_id,team_id\"",
+              "description": "Information about a project association, The argument should be given like this: \"project_association_id,project_id,team_id\"",
               "args": [
                 {
                   "name": "ids",
@@ -4181,6 +4181,20 @@
               "deprecationReason": null
             },
             {
+              "name": "published",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "source",
               "description": null,
               "args": [
@@ -4334,6 +4348,20 @@
           "name": "Project",
           "description": "Project type",
           "fields": [
+            {
+              "name": "auto_tasks",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "JsonStringType",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
             {
               "name": "avatar",
               "description": null,
@@ -4692,6 +4720,16 @@
               "ofType": null
             }
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "JsonStringType",
+          "description": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -7747,16 +7785,6 @@
               "ofType": null
             }
           ],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "SCALAR",
-          "name": "JsonStringType",
-          "description": null,
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -12829,6 +12857,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "set_tasks_responses",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "defaultValue": null
