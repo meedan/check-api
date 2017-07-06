@@ -18,7 +18,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with keyword" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -56,7 +56,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with keyword in account info" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     media_url = 'http://www.facebook.com/meedan/posts/123456'
     author_url = 'http://facebook.com/123456'
     author_normal_url = 'http://www.facebook.com/meedan'
@@ -100,7 +100,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with context" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -403,7 +403,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search annotations for multiple projects" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -476,7 +476,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with project and status" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -498,7 +498,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should include tag and status in recent activity sort" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -524,7 +524,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should include notes in recent activity sort" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -568,7 +568,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   # test "should search annotations with non exist media and project" do
   #   t = create_team
   #   p = create_project team: t
-  #   pender_url = CONFIG['pender_host'] + '/api/medias'
+  #   pender_url = CONFIG['pender_url_private'] + '/api/medias'
   #   url = 'http://test.com'
   #   response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
   #   WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -591,7 +591,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should sort by recent activity with project and status filters" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -668,7 +668,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with diacritics PT" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "coração", "description":"vovô foi à são paulo"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -688,7 +688,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with diacritics FR" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "cañon", "description":"légion française"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -710,7 +710,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with diacritics AR" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"تْشِك"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -741,7 +741,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search AR - ticket 6066" do
      t = create_team
      p = create_project team: t
-     pender_url = CONFIG['pender_host'] + '/api/medias'
+     pender_url = CONFIG['pender_url_private'] + '/api/medias'
      url = 'http://test.com'
      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"بِسْمِ ٱللهِ ٱلرَّحْمٰنِ ٱلرَّحِيمِ"}}'
      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
