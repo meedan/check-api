@@ -4,10 +4,17 @@ class AdminAbilityTest < ActiveSupport::TestCase
 
   def setup
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
-    @u = create_user
     @t = create_team
+    Team.stubs(:current).returns(@t)
+    @u = create_user
     @tu = create_team_user user: u , team: t, role: 'owner'
   end
+
+  def teardown
+    super
+    Team.unstub(:current)
+  end
+
   attr_reader :u, :t, :tu
 
   test "owner permissions for project" do
