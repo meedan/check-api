@@ -3,7 +3,7 @@ class User < ActiveRecord::Base
   attr_accessor :url, :skip_confirmation_mail
 
   include ValidationsHelper
-  has_one :source
+  belongs_to :source
   has_many :team_users
   has_many :teams, through: :team_users
   has_many :projects
@@ -209,6 +209,7 @@ class User < ActiveRecord::Base
     source.avatar = self.profile_image
     source.slogan = self.name
     source.save!
+    self.update_columns(source_id: source.id)
 
     if !self.provider.blank? && !self.url.blank?
       begin

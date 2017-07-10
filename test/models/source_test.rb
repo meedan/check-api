@@ -71,7 +71,7 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal u, s.user
   end
 
-  test "should set user" do
+  test "should set user and team" do
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
@@ -79,6 +79,7 @@ class SourceTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       s = create_source project_id: p.id
       assert_equal u, s.user
+      assert_equal t, s.team
     end
   end
 

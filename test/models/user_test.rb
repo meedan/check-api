@@ -103,7 +103,9 @@ class UserTest < ActiveSupport::TestCase
     assert_difference 'Source.count' do
       u = create_user
     end
-    assert_equal u.source, Source.last
+    s = create_source user: u
+    u = u.reload
+    assert_equal u.source_id, u.source.id
   end
 
   test "should not create account if user has no url" do
