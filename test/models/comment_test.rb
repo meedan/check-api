@@ -452,4 +452,13 @@ class CommentTest < ActiveSupport::TestCase
     c = create_comment text: text, annotated: pm
     assert_includes c.entity_objects, pm
   end
+
+  test "should get team for a source comment" do
+    t = create_team
+    s = create_source
+    s.team_id = t.id
+    s.save!
+    c = create_comment annotated: s
+    assert_equal [t.id], c.get_team
+  end
 end

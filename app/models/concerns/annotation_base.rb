@@ -193,6 +193,7 @@ module AnnotationBase
 
   def get_team
     team = []
+    obj = self.annotated
     obj = self.annotated.project if self.annotated.respond_to?(:project)
     if !obj.nil? and obj.respond_to?(:team)
       team = [obj.team.id] unless obj.team.nil?
