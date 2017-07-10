@@ -130,7 +130,7 @@ class Ability
     can :create, [Media, Account, Source, Embed, Link, Claim]
     %w(comment dynamic).each do |annotation_type|
       can :create, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        (obj.get_team & @user.cached_teams).any?
+        (obj.get_team & @user.cached_teams).any? || (obj.annotated.present? && obj.annotated.user_id.to_i == @user.id)
       end
     end
     can :update, [Media, Link, Claim], :user_id => @user.id
