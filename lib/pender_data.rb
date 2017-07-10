@@ -3,14 +3,23 @@ module PenderData
     if !self.url.blank? && !self.skip_pender
       params = { url: self.url }
       params[:refresh] = '1' if force
-      result = PenderClient::Request.get_medias(CONFIG['pender_host'], params, CONFIG['pender_key'])
+      result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
       if (result['type'] == 'error')
-        errors.add(:base, I18n.t(:pender_could_not_parse, default: 'Could not parse this media'))
+        errors.add :base, self.handle_pender_error(result['data']['code'])
       else
         self.pender_data = result['data']
         # set url with normalized pender URL
         self.url = result['data']['url']
       end
+    end
+  end
+
+  def handle_pender_error(code)
+    case code.to_i
+    when 9
+      I18n.t(:pender_conflict, default: 'This link is already being parsed, please try again in a few seconds.')
+    else
+      I18n.t(:pender_could_not_parse, default: 'Could not parse this media')
     end
   end
 

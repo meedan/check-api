@@ -6,22 +6,22 @@ module ProjectMediaCreators
   private
 
   def create_auto_tasks
-    if self.should_create_auto_tasks?
-      self.project.team.get_checklist.each do |task|
-        if task['projects'].blank? || task['projects'].empty? || task['projects'].include?(self.project.id)
-          t = Task.new
-          t.label = task['label']
-          t.type = task['type']
-          t.description = task['description']
-          t.jsonoptions = task['options'] unless task['options'].blank?
-          t.annotator = User.current
-          t.annotated = self
-          t.skip_check_ability = true
-          t.skip_notifications = true
-          t.save!
-        end
-      end
+    tasks = self.project.nil? ? [] : self.project.auto_tasks
+    created = []
+    tasks.each do |task|
+      t = Task.new
+      t.label = task['label']
+      t.type = task['type']
+      t.description = task['description']
+      t.jsonoptions = task['options'] unless task['options'].blank?
+      t.annotator = User.current
+      t.annotated = self
+      t.skip_check_ability = true
+      t.skip_notifications = true
+      t.save!
+      created << t
     end
+    self.respond_to_auto_tasks(created)
   end
 
   def create_reverse_image_annotation
@@ -102,5 +102,34 @@ module ProjectMediaCreators
       m = self.create_link
     end
     m
+  end
+
+  def respond_to_auto_tasks(tasks)
+    # set_tasks_responses = { task_slug (string) => response (string) }
+    responses = self.set_tasks_responses.to_h
+    tasks.each do |task|
+      if responses.has_key?(task.slug)
+        task = Task.find(task.id)
+        type = "task_response_#{task.type}"
+        fields = {
+          "response_#{task.type}" => responses[task.slug],
+          "note_#{task.type}" => '',
+          "task_#{task.type}" => task.id.to_s
+        }
+        task.response = { annotation_type: type, set_fields: fields.to_json }.to_json
+        task.save!
+      end
+    end
+  end
+
+  def create_project_source
+    a = self.media.account
+    unless a.nil? or a.source_id.blank?
+      ps = ProjectSource.new
+      ps.project_id = self.project_id
+      ps.source_id = a.source_id
+      ps.skip_check_ability = true
+      ps.save!
+    end
   end
 end

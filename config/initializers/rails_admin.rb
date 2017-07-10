@@ -54,7 +54,7 @@ RailsAdmin.config do |config|
 
   config.main_app_name = ['Check']
 
-  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Embed', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Status', 'Tag', 'Team', 'TeamUser', 'User']
+  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Embed', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Status', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser']
 
   config.navigation_static_links = {
     'API Explorer' => '/api',
@@ -136,12 +136,15 @@ RailsAdmin.config do |config|
     end
 
     create do
-      field :access_token
-      field :expire_at
+      field :expire_at do
+        strftime_format "%Y-%m-%d"
+      end
     end
 
     edit do
-      field :expire_at
+      field :expire_at do
+        strftime_format "%Y-%m-%d"
+      end
     end
   end
 
@@ -406,6 +409,7 @@ RailsAdmin.config do |config|
     end
 
   end
+
   config.model 'User' do
 
     list do
@@ -459,4 +463,28 @@ RailsAdmin.config do |config|
     end
   end
 
+  config.model 'BotUser' do
+    label 'Bot User'
+    label_plural 'Bot Users'
+
+    list do
+      field :name
+      field :login
+      field :api_key
+    end
+
+    show do
+      field :name
+      field :login
+      field :api_key
+    end
+
+    edit do
+      field :name
+      field :login
+      field :profile_image
+      field :image
+      field :api_key
+    end
+  end
 end

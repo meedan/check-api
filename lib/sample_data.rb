@@ -35,6 +35,37 @@ module SampleData
     a.reload
   end
 
+  def create_bot_user(options = {})
+    u = BotUser.new
+    u.name = options[:name] || random_string
+    u.login = options.has_key?(:login) ? options[:login] : random_string
+    u.profile_image = options.has_key?(:profile_image) ? options[:profile_image] : random_url
+    u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
+    u.email = options[:email] || "#{random_string}@#{random_string}.com"
+    u.password = options[:password] || random_string
+    u.password_confirmation = options[:password_confirmation] || u.password
+    u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
+    u.api_key_id = options.has_key?(:api_key_id) ? options[:api_key_id] : create_api_key.id
+
+    file = nil
+    if options.has_key?(:image)
+      file = options[:image]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        u.image = f
+      end
+    end
+
+    u.save!
+
+    if options[:team]
+      create_team_user team: options[:team], user: u
+    end
+
+    u.reload
+  end
+
   def create_user(options = {})
     u = User.new
     u.name = options[:name] || random_string
@@ -50,6 +81,8 @@ module SampleData
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
     u.omniauth_info = options[:omniauth_info]
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
+    u.type = options[:type] if options.has_key?(:type)
+    u.api_key_id = options[:api_key_id]
 
     file = nil
     if options.has_key?(:image)
@@ -319,11 +352,14 @@ module SampleData
   end
 
   def create_project_source(options = {})
+    u = options[:user] || create_user
+    options = { disable_es_callbacks: true, user: u }.merge(options)
     ps = ProjectSource.new
-    project = options[:project] || create_project(team: options[:team])
-    source = options[:source] || create_source
-    ps.project_id = options[:project_id] || project.id
-    ps.source_id = options[:source_id] || source.id
+    options[:project] = create_project(team: options[:team]) unless options.has_key?(:project)
+    options[:source] = create_source unless options.has_key?(:source)
+    options.each do |key, value|
+      ps.send("#{key}=", value) if ps.respond_to?("#{key}=")
+    end
     ps.save!
     ps.reload
   end
@@ -362,14 +398,14 @@ module SampleData
   end
 
   def create_valid_media(options = {})
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item"}}')
     create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
   end
 
   def create_valid_account(options = {})
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     options[:data] ||= {}
     data = { url: url, provider: 'twitter', picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile' }.merge(options[:data])

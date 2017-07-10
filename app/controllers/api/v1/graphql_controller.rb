@@ -44,7 +44,7 @@ module Api
       end
 
       def set_current_user
-        User.current = current_api_user
+        User.current = current_api_user if ApiKey.current.nil?
       end
 
       def load_context_team

@@ -11,7 +11,7 @@ class ElasticSearchWorkerTest < ActiveSupport::TestCase
     ElasticSearchWorker.drain
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)

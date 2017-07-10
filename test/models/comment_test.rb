@@ -177,9 +177,11 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     create_team_user team: t, user: u2, role: 'contributor'
+    pm = create_project_media project: p
+    u2 = User.find(u2.id)
 
     with_current_user_and_team(u2, t) do
-      c = create_comment annotator: nil, annotated: create_source
+      c = create_comment annotator: nil, annotated: pm
       assert_equal u2, c.annotator
     end
   end

@@ -11,8 +11,8 @@ class Ability
       global_admin_perms
     else
       extra_perms_for_all_users
-      unless @api_key.nil?
-        api_key_perms
+      if !@api_key.nil? && !@user.id
+        global_api_key_perms
       end
       if @user.id
         authenticated_perms
@@ -29,12 +29,23 @@ class Ability
       if @user.role? :owner
         owner_perms
       end
+      unless @api_key.nil?
+        api_key_perms
+      end
     end
   end
 
   private
 
   def api_key_perms
+    cannot :cud, Team
+    cannot :cud, User
+    cannot :cud, TeamUser
+    can :update, User, :id => @user.id
+    can :update, BotUser, :id => @user.id
+  end
+
+  def global_api_key_perms
     can :read, :all
   end
 
@@ -116,7 +127,12 @@ class Ability
 
   def contributor_perms
     can :update, User, :id => @user.id
-    can :create, [Media, Account, Source, Comment, Embed, Link, Claim, Dynamic]
+    can :create, [Media, Account, Source, Embed, Link, Claim]
+    %w(comment dynamic).each do |annotation_type|
+      can :create, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+        (obj.get_team & @user.cached_teams).any?
+      end
+    end
     can :update, [Media, Link, Claim], :user_id => @user.id
     can :update, [Media, Link, Claim] do |obj|
       obj.get_team.include? @context_team.id and (obj.user_id == @user.id)

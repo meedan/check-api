@@ -76,7 +76,8 @@ class GraphqlCrudOperations
         '!int' => !types.Int,
         'id'   => types.ID,
         '!id'  => !types.ID,
-        'bool' => types.Boolean
+        'bool' => types.Boolean,
+        'json' => JsonStringType
       }
 
       name "#{action.camelize}#{type.camelize}"
@@ -152,6 +153,61 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.field_published
+    proc do |_classname|
+      field :published do
+        type types.String
+
+        resolve ->(obj, _args, _ctx) {
+          obj.created_at.to_i.to_s
+        }
+      end
+    end
+  end
+
+  def self.field_annotations
+    proc do |_classname|
+      connection :annotations, -> { AnnotationType.connection_type } do
+        argument :annotation_type, !types.String
+
+        resolve ->(obj, args, _ctx) {
+          obj.get_annotations(args['annotation_type'].split(',').map(&:strip))
+        }
+      end
+    end
+  end
+
+  def self.field_annotations_count
+    proc do |_classname|
+      field :annotations_count do
+        type types.Int
+        argument :annotation_type, !types.String
+
+        resolve ->(obj, args, _ctx) {
+          obj.get_annotations(args['annotation_type'].split(',').map(&:strip)).count
+        }
+      end
+    end
+  end
+
+  def self.project_association
+    proc do |class_name, field_name, type|
+      field field_name do
+        type type
+        description 'Information about a project association, The argument should be given like this: "project_association_id,project_id,team_id"'
+        argument :ids, !types.String
+        resolve -> (_obj, args, ctx) do
+          objid, pid, tid = args['ids'].split(',').map(&:to_i)
+          tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
+          project = Project.where(id: pid, team_id: tid).last
+          pid = project.nil? ? 0 : project.id
+          objid = class_name.belonged_to_project(objid, pid) || 0
+          GraphqlCrudOperations.load_if_can(class_name, objid, ctx)
+        end
+      end
+    end
+  end
+
   def self.define_annotation_fields
     [:annotation_type, :updated_at, :created_at,
      :annotated_id, :annotated_type, :content, :dbid ]
@@ -190,7 +246,7 @@ class GraphqlCrudOperations
       end
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
-      
+
       instance_eval(&block) if block_given?
     end
   end
@@ -211,4 +267,10 @@ class GraphqlCrudOperations
     obj = klass.find_if_can(id, ctx[:ability])
     obj
   end
+end
+
+JsonStringType = GraphQL::ScalarType.define do
+  name "JsonStringType"
+  coerce_input -> (val) { JSON.parse(val) }
+  coerce_result -> (val) { val.as_json }
 end

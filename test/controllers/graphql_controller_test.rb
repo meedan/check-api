@@ -39,6 +39,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_kind_of String, data['version']
   end
 
+  test "should not access GraphQL if authenticated as a bot" do
+    authenticate_with_user(create_bot_user)
+    post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}'
+    assert_response 401
+  end
+
   test "should get node from global id" do
     authenticate_with_user
     id = Base64.encode64('About/1')
@@ -80,7 +86,7 @@ class GraphqlControllerTest < ActionController::TestCase
   # Test CRUD operations for each model
 
   test "should create account" do
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
       assert_graphql_create('account', { url: @url })
     end
@@ -88,6 +94,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read accounts" do
     assert_graphql_read('account', 'url')
+    assert_graphql_read('account', 'embed')
   end
 
   test "should update account" do
@@ -117,7 +124,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should create media" do
     p = create_project team: @team
     url = random_url
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_graphql_create('project_media', { project_id: p.id, url: url })
@@ -183,7 +190,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     p2 = create_project team: @team
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -211,7 +218,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read project media overridden" do
     authenticate_with_user
     p = create_project team: @team
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -252,16 +259,35 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source
     p = create_project team: @team
     assert_graphql_create('project_source', { source_id: s.id, project_id: p.id })
+    assert_graphql_create('project_source', { name: 'New source', project_id: p.id })
   end
 
   test "should read project sources" do
     assert_graphql_read('project_source', 'source_id')
+    authenticate_with_user
+    p = create_project team: @team
+    ps = create_project_source project: p, user: create_user
+    create_comment annotated: ps
+    create_tag annotated: ps
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, user{id}, team{id}, tags { edges { node { dbid } } },annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_source']
+    assert_not_empty data['published']
+    assert_not_empty data['user']['id']
+    assert_not_empty data['team']['id']
+    assert_equal 2, data['annotations']['edges'].size
+    assert_equal 2, data['annotations_count']
   end
 
-  test "should update project source" do
-    p1 = create_project team: @team
-    p2 = create_project team: @team
-    assert_graphql_update('project_source', :project_id, p1.id, p2.id)
+  test "should read project sources with team_id as argument" do
+    authenticate_with_token
+    p = create_project team: @team
+    ps = create_project_source project: p
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id},#{@team.id}\") { dbid } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal ps.id, JSON.parse(@response.body)['data']['project_source']['dbid']
   end
 
   test "should destroy project source" do
@@ -377,7 +403,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id' })
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id', 'project_sources' => 'source_id' })
   end
 
   test "should read object from media" do
@@ -465,7 +491,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     url = 'https://www.youtube.com/user/MeedanTube'
 
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
       query = 'mutation create { createAccount(input: { clientMutationId: "1", url: "' + url + '" }) { account { id } } }'
 
@@ -659,7 +685,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
     authenticate_with_user(u)
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -691,7 +717,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     p2 = create_project team: @team
     authenticate_with_user(u)
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -836,7 +862,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
     authenticate_with_user(u)
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)

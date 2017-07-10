@@ -74,10 +74,11 @@ module Api
         token = request.headers[header].to_s
         key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
         if key.nil?
-          user = User.where(token: token).last
+          user = User.where(token: token, type: nil).last
           User.current = user
           (token && user) ? sign_in(user, store: false) : (authenticate_api_user! if mandatory)
         else
+          User.current = key.bot_user
           ApiKey.current = key
         end
       end
