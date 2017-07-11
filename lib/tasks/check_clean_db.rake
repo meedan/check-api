@@ -36,5 +36,11 @@ namespace :check do
         p.save(:validate => false)
       end
     end
+    if ApiKey.where(access_token: 'devkey').last.nil?
+      a = ApiKey.create!
+      a.expire_at = a.expire_at.since(100.years)
+      a.access_token = 'devkey'
+      a.save!
+    end
   end
 end
