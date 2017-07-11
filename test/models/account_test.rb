@@ -7,7 +7,7 @@ class AccountTest < ActiveSupport::TestCase
     s = create_source
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
-      @account = create_account(url: @url, source: s)
+      @account = create_account(url: @url, source: s, user: create_user)
     end
   end
 
@@ -31,6 +31,16 @@ class AccountTest < ActiveSupport::TestCase
 
   test "should get embed" do
     assert_not_empty @account.embed
+  end
+
+  test "should set user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      a = create_account
+      assert_equal u, a.user
+    end
   end
 
   test "should have user" do
@@ -59,14 +69,16 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "should create version when account is updated" do
+    t = create_team
     u = create_user
-    create_team_user user: u
-    User.current = u
-    a = create_account
-    a.user = create_user
-    a.save!
-    assert_equal 2, a.versions.size
-    User.current = nil
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      a = create_account
+      a.team = t
+      a.save!
+      assert_equal 2, a.versions.size
+    end
+
   end
 
   test "should get user id from callback" do

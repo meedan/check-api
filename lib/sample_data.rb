@@ -224,7 +224,7 @@ module SampleData
     if options.has_key?(:user_id)
       account.user_id = options[:user_id]
     else
-      account.user = options[:user] || create_user
+      account.user = options[:user]
     end
     if options.has_key?(:team_id)
       account.team_id = options[:team_id]

@@ -6,7 +6,10 @@ class Account < ActiveRecord::Base
   belongs_to :source
   belongs_to :team
   has_many :medias
+
   has_annotations
+
+  before_validation :set_user, on: :create
 
   validates_presence_of :url
   validate :validate_pender_result, on: :create
@@ -45,6 +48,10 @@ class Account < ActiveRecord::Base
   end
 
   private
+
+  def set_user
+    self.user = User.current unless User.current.nil?
+  end
 
   def create_source
     if self.source.nil?
