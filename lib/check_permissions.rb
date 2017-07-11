@@ -95,6 +95,11 @@ module CheckPermissions
     unless self.skip_check_ability or User.current.nil?
       ability = Ability.new
       op = self.new_record? ? :create : :update
+      puts '========================================================================'
+      puts "Current team: #{Team.current.inspect}"
+      puts "Current user: #{User.current.inspect}"
+      puts "Current API key: #{ApiKey.current.inspect}"
+      puts '========================================================================'
       raise "No permission to #{op} #{self.class.name}" unless ability.can?(op, self)
     end
   end
