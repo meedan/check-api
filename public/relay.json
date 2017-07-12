@@ -11856,6 +11856,26 @@
               "defaultValue": null
             },
             {
+              "name": "add_auto_task",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "JsonStringType",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "remove_auto_task",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "contact",
               "description": null,
               "type": {

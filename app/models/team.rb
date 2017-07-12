@@ -115,6 +115,17 @@ class Team < ActiveRecord::Base
     self.send(:set_checklist, checklist)
   end
 
+  def add_auto_task=(task)
+    checklist = self.get_checklist || []
+    checklist << task.to_h
+    self.checklist = checklist
+  end
+
+  def remove_auto_task=(task_label)
+    checklist = self.get_checklist || []
+    self.checklist = checklist.reject{ |t| t['label'] == task_label || t[:label] == task_label }
+  end
+
   def search_id
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
   end

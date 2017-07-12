@@ -509,4 +509,17 @@ class TeamTest < ActiveSupport::TestCase
     Team.any_instance.unstub(:notify_embed_system)
   end
 
+  test "should add or remove item to or from checklist" do
+    t = create_team
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]' }]
+    t.set_checklist(value)
+    t.save!
+    assert_equal ['A task'], t.reload.get_checklist.collect{ |t| t[:label] }
+    t.add_auto_task = { label: 'Another task', type: 'free_text', description: '', projects: [], options: '[]' }
+    t.save!
+    assert_equal ['A task', 'Another task'], t.reload.get_checklist.collect{ |t| t[:label] }
+    t.remove_auto_task = 'A task'
+    t.save!
+    assert_equal ['Another task'], t.reload.get_checklist.collect{ |t| t[:label] }
+  end
 end

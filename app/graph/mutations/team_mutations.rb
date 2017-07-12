@@ -18,6 +18,8 @@ module TeamMutations
     set_slack_notifications_enabled: 'str',
     set_slack_webhook: 'str',
     set_slack_channel: 'str',
+    add_auto_task: 'json',
+    remove_auto_task: 'str', # label
     contact: 'str',
     id: '!id'
   }

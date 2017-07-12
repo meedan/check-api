@@ -1118,4 +1118,31 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal a.id, data['annotations']['edges'][0]['node']['dbid'].to_i
     assert_equal 'translated', data['field_value']
   end
+
+  test "should create media with custom field" do
+    authenticate_with_user
+    create_annotation_type_and_fields('Syrian Archive Data', { 'Id' => ['Id', false] })
+    p = create_project team: @team
+    fields = '{\"annotation_type\":\"syrian_archive_data\",\"set_fields\":\"{\\\"syrian_archive_data_id\\\":\\\"123456\\\"}\"}'
+    query = 'mutation create { createProjectMedia(input: { url: "", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal '123456', ProjectMedia.last.get_annotations('syrian_archive_data').last.load.get_field_value('syrian_archive_data_id')
+  end
+
+  test "should manage auto tasks of a team" do
+    u = create_user
+    t = create_team
+    t.set_checklist([{ label: 'A', type: 'free_text', description: '', projects: [], options: '[]' }])
+    t.save!
+    id = NodeIdentification.to_global_id('Team', t.id)
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    assert_equal ['A'], t.get_checklist.collect{ |t| t[:label] }
+    task = '{\"label\":\"B\",\"type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":\"[]\"}'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", remove_auto_task: "A", add_auto_task: "' + task + '" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal ['B'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }
+  end
 end
