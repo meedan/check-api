@@ -342,6 +342,7 @@ module SampleData
     source.slogan = options[:slogan] || random_string(20)
     source.user = options[:user]
     source.avatar = options[:avatar]
+    source.team = options[:team] if options.has_key?(:team)
     source.save!
 
     if options[:team]
