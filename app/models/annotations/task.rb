@@ -108,7 +108,7 @@ class Task < ActiveRecord::Base
 
   def first_response
     response = self.responses.first
-    response.get_fields.select{ |f| f.field_name =~ /^response_/ }.first.value unless response.nil?
+    response.get_fields.select{ |f| f.field_name =~ /^response_/ }.first.to_s unless response.nil?
   end
 
   def self.slug(label)

@@ -974,6 +974,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project title: 'Test Project', team: t
     pm = create_project_media media: c, user: u, project: p
     create_comment text: 'A comment', annotated: pm
+    create_comment text: 'A second comment', annotated: pm
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
     ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
