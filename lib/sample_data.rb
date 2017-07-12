@@ -224,7 +224,7 @@ module SampleData
     if options.has_key?(:user_id)
       account.user_id = options[:user_id]
     else
-      account.user = options[:user]
+      account.user = options[:user] || create_user
     end
     if options.has_key?(:team_id)
       account.team_id = options[:team_id]
@@ -342,6 +342,7 @@ module SampleData
     source.slogan = options[:slogan] || random_string(20)
     source.user = options[:user]
     source.avatar = options[:avatar]
+    source.team = options[:team] if options.has_key?(:team)
     source.save!
 
     if options[:team]

@@ -9,7 +9,7 @@ class Account < ActiveRecord::Base
 
   has_annotations
 
-  before_validation :set_user, on: :create
+  before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :url
   validate :validate_pender_result, on: :create
@@ -51,6 +51,10 @@ class Account < ActiveRecord::Base
 
   def set_user
     self.user = User.current unless User.current.nil?
+  end
+
+  def set_team
+    self.team = Team.current unless Team.current.nil?
   end
 
   def create_source

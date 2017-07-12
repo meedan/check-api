@@ -74,7 +74,7 @@ class AccountTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     with_current_user_and_team(u, t) do
       a = create_account
-      a.team = t
+      a.team = create_team
       a.save!
       assert_equal 2, a.versions.size
     end
