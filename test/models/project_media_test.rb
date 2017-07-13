@@ -893,7 +893,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get source URL for external link for oEmbed" do
     url = 'http://twitter.com/test/123456'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"profile"}}'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     pm = create_project_media media: l
@@ -928,7 +928,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get provider for oEmbed" do
     url = 'http://twitter.com/test/123456'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"profile"}}'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     pm = create_project_media media: l

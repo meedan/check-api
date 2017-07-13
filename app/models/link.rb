@@ -1,10 +1,11 @@
 class Link < Media
   include PenderData
-  
+
   validates :url, presence: true, on: :create
   validate :validate_pender_result, on: :create
+  validate :pender_result_is_a_media, on: :create
   validate :url_is_unique, on: :create
-  
+
   after_create :set_pender_result_as_annotation, :set_account
 
   def domain
@@ -55,6 +56,10 @@ class Link < Media
       end
       self.save!
     end
+  end
+
+  def pender_result_is_a_media
+    errors.add(:base, 'Sorry, this is not a media') if !self.pender_data.nil? && self.pender_data['type'] != 'item'
   end
 
   def url_is_unique
