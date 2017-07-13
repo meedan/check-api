@@ -1079,4 +1079,37 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert !pm.valid?
     assert pm.errors.messages.values.flatten.include?('This link is already being parsed, please try again in a few seconds.')
   end
+
+  test "should create project source" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    media_url = 'http://www.facebook.com/meedan/posts/123456'
+    media2_url = 'http://www.facebook.com/meedan/posts/456789'
+    author_url = 'http://facebook.com/123456'
+
+    data = { url: media_url, author_url: author_url, type: 'item' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+
+    data = { url: media2_url, author_url: author_url, type: 'item' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: media2_url } }).to_return(body: response)
+
+    data = { url: author_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+
+    with_current_user_and_team(u, t) do
+      assert_difference 'ProjectSource.count' do
+        create_project_media project: p, url: media_url
+      end
+      # should not duplicate ProjectSource for same account
+      assert_no_difference 'ProjectSource.count' do
+        create_project_media project: p, url: media2_url
+      end
+    end
+  end
 end
