@@ -49,9 +49,14 @@ module CheckElasticSearchModel
       mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch] if mapping_keys.nil?
       source_index = CheckElasticSearchModel.get_index_name
       target_index = "#{source_index}_reindex"
-      MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
-      sleep 1
-      MediaSearch.migrate_es_data(target_index, source_index, mapping_keys)
+      begin
+        MediaSearch.delete_index target_index
+        MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+        sleep 1
+        MediaSearch.migrate_es_data(target_index, source_index, mapping_keys)
+      rescue StandardError => e
+        Rails.logger.error "[ES MIGRATION] Could not start migation: #{e.message}"
+      end
   end
 
   private
