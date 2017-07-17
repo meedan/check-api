@@ -51,6 +51,11 @@ class MediaSearchTest < ActiveSupport::TestCase
     MediaSearch.index_name = source_index
     assert_equal 1, MediaSearch.length
     Rails.logger.unstub(:debug)
+
+    Rails.logger.stubs(:error).once
+    sleep 1
+    CheckElasticSearchModel.reindex_es_data
+    Rails.logger.unstub(:error)
   end
 
 end
