@@ -72,6 +72,7 @@ class Account < ActiveRecord::Base
   end
 
   def self.create_for_source(url, source = nil)
+    return if url.blank?
     a = Account.where(url: url).last
     if a.nil?
       a = Account.new
