@@ -1,8 +1,9 @@
 class Source < ActiveRecord::Base
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
-  has_many :accounts
   has_many :project_sources
-  has_many :projects , through: :project_sources
+  has_many :account_sources
+  has_many :projects, through: :project_sources
+  has_many :accounts, through: :account_sources
   belongs_to :user
   belongs_to :team
 
@@ -23,7 +24,9 @@ class Source < ActiveRecord::Base
   def medias
     #TODO: fix me - list valid project media ids
     m_ids = Media.where(account_id: self.account_ids).map(&:id)
-    ProjectMedia.where(media_id: m_ids)
+    conditions = { media_id: m_ids }
+    conditions['projects.team_id'] = Team.current.id unless Team.current.nil?
+    ProjectMedia.joins(:project).where(conditions)
   end
 
   def get_team
@@ -63,5 +66,4 @@ class Source < ActiveRecord::Base
   def set_team
     self.team = Team.current unless Team.current.nil?
   end
-
 end

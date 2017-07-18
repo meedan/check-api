@@ -11,6 +11,7 @@ class ProjectSource < ActiveRecord::Base
   include Versioned
 
   validates_presence_of :source_id, :project_id
+  validates :source_id, uniqueness: { scope: :project_id }
   before_validation :set_account, on: :create
 
   def get_team
@@ -37,9 +38,8 @@ class ProjectSource < ActiveRecord::Base
   private
 
   def set_account
-    unless self.url.blank?
-      self.create_account
-    end
+    account = Account.create_for_source(self.url, self.source) unless self.url.blank?
+    self.source ||= account.source
   end
 
   protected
@@ -47,17 +47,7 @@ class ProjectSource < ActiveRecord::Base
   def create_source
     s = Source.new
     s.name = self.name
-    s.save!
-    s
+    s.save
+    s.id.nil? ? nil : s
   end
-
-  def create_account
-    a = Account.new
-    a.url = self.url
-    a.source_id = self.source_id
-    a.user = User.current unless User.current.nil?
-    a.save!
-  end
-
-
 end

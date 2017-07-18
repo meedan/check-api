@@ -251,4 +251,29 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal 'http://keep.it/', a.url
     WebMock.allow_net_connect!
   end
+
+  test "should get existing account or create new one but associate with source" do
+    WebMock.disable_net_connect!
+    s = create_source
+    s2 = create_source
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    assert_difference 'Account.count' do
+      a = Account.create_for_source(url, s)
+      assert_equal s, a.source
+    end
+    assert_no_difference 'Account.count' do
+      a = Account.create_for_source(url, s2)
+      assert_equal s2, a.source
+    end
+    assert_no_difference 'Account.count' do
+      a = Account.create_for_source(url)
+      assert_kind_of Source, a.source
+    end
+    a = Account.last
+    s3 = Source.last
+    assert_equal [s.id, s2.id, s3.id].sort, a.sources.map(&:id).uniq.sort
+    WebMock.allow_net_connect!
+  end
 end

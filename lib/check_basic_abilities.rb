@@ -14,13 +14,13 @@ module CheckBasicAbilities
     # Permissions for registration and login
     can :create, Source, :user_id => @user.id
     can :update, User, :id => @user.id
-    can :create, Account, :user_id => @user.id
+    can [:create, :update], Account, :user_id => @user.id
     can :create, Embed, :annotated_id => @user.account_ids
   end
 
   # Extra permissions for all users
   def extra_perms_for_all_users
-    can :create, User
+    can :create, [User, AccountSource]
     can :create, PaperTrail::Version
     can :read, Team, :private => false
     can :read, Team, :private => true,  id: @user.cached_teams

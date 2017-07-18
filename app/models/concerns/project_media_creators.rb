@@ -124,11 +124,12 @@ module ProjectMediaCreators
 
   def create_project_source
     a = self.media.account
-    unless a.nil? or a.source_id.blank?
-      unless ProjectSource.where(project_id: self.project_id, source_id: a.source_id).exists?
+    unless a.nil?
+      source = Account.create_for_source(a.url).source
+      unless ProjectSource.where(project_id: self.project_id, source_id: source.id).exists?
         ps = ProjectSource.new
         ps.project_id = self.project_id
-        ps.source_id = a.source_id
+        ps.source_id = source.id
         ps.skip_check_ability = true
         ps.save!
       end

@@ -47,13 +47,7 @@ class Link < Media
 
   def set_account
     unless self.pender_data.nil?
-      account = Account.new
-      account.url = self.pender_data['author_url']
-      if account.save
-        self.account = account
-      else
-        self.account = Account.where(url: account.url).last
-      end
+      self.account = Account.create_for_source(self.pender_data['author_url'])
       self.save!
     end
   end
