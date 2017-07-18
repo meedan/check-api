@@ -105,6 +105,14 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should create source if url is set and name is blank" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    ps = create_project_source url: url, source: nil
+    assert_not_nil ps.reload.source
+  end
+
   test "should check if project source belonged to a previous project" do
     t = create_team
     u = create_user

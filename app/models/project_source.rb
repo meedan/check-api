@@ -54,9 +54,11 @@ class ProjectSource < ActiveRecord::Base
   def create_account
     a = Account.new
     a.url = self.url
-    a.source_id = self.source_id
+    a.source_id = self.source_id unless self.source_id.blank?
     a.user = User.current unless User.current.nil?
     a.save!
+    # Set source if name is blank
+    self.source_id = a.reload.source_id if self.source_id.blank?
   end
 
 
