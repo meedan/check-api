@@ -20,6 +20,11 @@ class MediaSearchTest < ActiveSupport::TestCase
   end
 
   test "should re-index data" do
+    # Test raising error for re-index
+    MediaSearch.stubs(:delete_index).raises(StandardError)
+    CheckElasticSearchModel.reindex_es_data
+    MediaSearch.unstub(:delete_index)
+
     Rails.logger.stubs(:debug).raises(StandardError)
     mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch]
     source_index = CheckElasticSearchModel.get_index_name
@@ -37,9 +42,8 @@ class MediaSearchTest < ActiveSupport::TestCase
     MediaSearch.index_name = source_index
     MediaSearch.create_index
 
-    Rails.logger.stubs(:error)
+    Rails.logger.stubs(:error).once
     sleep 1
-    CheckElasticSearchModel.reindex_es_data
     MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
     Rails.logger.unstub(:error)
 
