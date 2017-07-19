@@ -16,7 +16,11 @@
       var translations = {
         <% I18n.available_locales.map(&:to_s).each do |locale| %>
         <%= locale %>: {
-          disclaimer: "<%= I18n.t(:oembed_disclaimer, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
+          disclaimer_undetermined: "<%= I18n.t(:oembed_disclaimer_undetermined, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
+          disclaimer_in_progress: "<%= I18n.t(:oembed_disclaimer_in_progress, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
+          disclaimer_verified: "<%= I18n.t(:oembed_disclaimer_verified, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
+          disclaimer_false: "<%= I18n.t(:oembed_disclaimer_false, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
+          disclaimer_not_applicable: "<%= I18n.t(:oembed_disclaimer_not_applicable, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
           source_date: "<%= I18n.t(:oembed_source_date, locale: locale, provider: @project_media.provider, date: '<time class=\"timeago\" datetime=\"' + @project_media.published_at.iso8601(5) + '\">' + @project_media.published_at.to_s + '</time>').html_safe %>",
           credit: "<%= I18n.t(:oembed_credit, locale: locale, user: @project_media.author_username, role: I18n.t('role_' + @project_media.author_role, locale: locale), date: '<time class=\"timeago\" datetime=\"' + @project_media.created_at.iso8601(5) + '\">' + @project_media.created_at.to_s + '</time>').html_safe %>",
           notes_count: "<%= I18n.t(:oembed_notes_count, locale: locale, count: @project_media.comments_count) %>",
@@ -41,7 +45,7 @@
         <h1 id="oembed__title"><%= @project_media.title %></h1>
         <span id="oembed__status" class="l">status_<%= @project_media.last_status %></span>
       </div>
-      <p id="oembed__disclaimer"><span class="l">disclaimer</span></p>
+      <p id="oembed__disclaimer"><span class="l">disclaimer_<%= @project_media.last_status %></span></p>
 
       <div id="oembed__picture">
         <% unless @project_media.media.picture.blank? %>
@@ -74,9 +78,17 @@
             <span class="l" id="oembed__footer-credit">credit</span>
 
             <span id="oembed__footer-stats">
+              <% if @project_media.comments.any? %>
               <span class="l">notes_count</span> • 
+              <% end %>
+
+              <% if @project_media.completed_tasks.any? %>
               <span class="l">completed_tasks_count</span> • 
+              <% end %>
+
+              <% unless @project_media.project.team.private %>
               <span><a href="<%= @project_media.full_url %>" target="_blank"><%= @project_media.full_url %></a></span>
+              <% end %>
             </span>
             <br />
           </div>
@@ -84,7 +96,7 @@
         <br />
       </div> <!-- / #oembed__card -->
 
-      <% unless @hide_tasks.to_i == 1 %>
+      <% if @hide_tasks.to_i != 1 && @project_media.completed_tasks.any? %>
         <div id="oembed__verification-tasks">
           <h2><span class="l">verification_tasks</span></h2>
 
@@ -105,7 +117,7 @@
         </div> <!-- / #oembed__verification-tasks -->
       <% end %>
 
-      <% unless @hide_notes.to_i == 1 %>
+      <% if @hide_notes.to_i != 1 && @project_media.comments.any? %>
         <div id="oembed__notes">
           <h2><span class="l">notes</span></h2>
 
