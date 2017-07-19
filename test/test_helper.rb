@@ -268,7 +268,8 @@ class ActiveSupport::TestCase
     fields.each do |name, key|
       if name === 'medias' && obj.is_a?(Source)
         m = create_valid_media(account: create_valid_account(source: obj))
-        create_project_media media: m
+        p = create_project team: @team
+        create_project_media media: m, project: p
       elsif name === 'collaborators'
         obj.add_annotation create_comment(annotator: create_user)
       elsif name === 'annotations' || name === 'comments'

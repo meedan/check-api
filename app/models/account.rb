@@ -15,9 +15,9 @@ class Account < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :url
-  validates :url, uniqueness: true
   validate :validate_pender_result, on: :create
   validate :pender_result_is_a_profile, on: :create
+  validates :url, uniqueness: true
 
   after_create :set_pender_result_as_annotation, :create_source
 
@@ -78,8 +78,14 @@ class Account < ActiveRecord::Base
       a = Account.new
       a.source = source
       a.url = url
-      a.save!
-    else
+      if a.save
+        return a
+      else
+        a = Account.where(url: a.url).last
+      end
+    end
+    
+    unless a.nil?
       a.skip_check_ability = true
       a.pender_data = a.embed
       a.source = source

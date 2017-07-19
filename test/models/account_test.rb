@@ -64,7 +64,7 @@ class AccountTest < ActiveSupport::TestCase
     create_team_user user: u
     User.current = u
     a = create_account
-    assert_equal 1, a.versions.size
+    assert_equal 2, a.versions.size
     User.current = nil
   end
 
@@ -76,7 +76,7 @@ class AccountTest < ActiveSupport::TestCase
       a = create_account
       a.team = create_team
       a.save!
-      assert_equal 2, a.versions.size
+      assert_equal 3, a.versions.size
     end
 
   end
@@ -148,13 +148,12 @@ class AccountTest < ActiveSupport::TestCase
 
   test "should not create account with duplicated URL" do
     assert_no_difference 'Account.count' do
-      exception = assert_raises ActiveRecord::RecordInvalid do
+      assert_raises ActiveRecord::RecordInvalid do
         PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
           WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
           create_account(url: @url)
         end
       end
-      assert_equal "Validation failed: Account with this URL exists and has source id #{@account.source_id}", exception.message
     end
   end
 

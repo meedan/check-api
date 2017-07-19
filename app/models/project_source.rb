@@ -39,7 +39,7 @@ class ProjectSource < ActiveRecord::Base
 
   def set_account
     account = Account.create_for_source(self.url, self.source) unless self.url.blank?
-    self.source ||= account.source
+    self.source ||= account.source unless account.nil?
   end
 
   protected

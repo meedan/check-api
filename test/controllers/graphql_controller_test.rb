@@ -97,12 +97,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('account', 'embed')
   end
 
-  test "should update account" do
-    u1 = create_user
-    u2 = create_user
-    assert_graphql_update('account', :user_id, u1.id, u2.id)
-  end
-
   test "should create comment" do
     p = create_project team: @team
     pm = create_project_media project: p
@@ -384,7 +378,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from account" do
-    assert_graphql_read_object('account', { 'user' => 'name', 'source' => 'name' })
+    assert_graphql_read_object('account', { 'user' => 'name' })
   end
 
   test "should read object from project media" do
@@ -402,7 +396,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read collection from source" do
     User.delete_all
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
-     'annotations' => 'content','medias' => 'media_id', 'collaborators' => 'name',
+     'annotations' => 'content', 'medias' => 'media_id', 'collaborators' => 'name',
      'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
   end
 

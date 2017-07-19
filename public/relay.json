@@ -2662,34 +2662,6 @@
               "deprecationReason": null
             },
             {
-              "name": "source",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Source",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "source_id",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "translation_statuses",
               "description": null,
               "args": [
