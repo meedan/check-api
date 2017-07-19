@@ -72,7 +72,6 @@ class Account < ActiveRecord::Base
   end
 
   def self.create_for_source(url, source = nil)
-    return if url.blank?
     a = Account.where(url: url).last
     if a.nil?
       a = Account.new
@@ -81,7 +80,9 @@ class Account < ActiveRecord::Base
       if a.save
         return a
       else
-        a = Account.where(url: a.url).last
+        a2 = Account.where(url: a.url).last
+        return a if a2.nil?
+        a = a2
       end
     end
     

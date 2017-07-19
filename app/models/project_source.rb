@@ -38,8 +38,11 @@ class ProjectSource < ActiveRecord::Base
   private
 
   def set_account
-    account = Account.create_for_source(self.url, self.source) unless self.url.blank?
-    self.source ||= account.source unless account.nil?
+    account = self.url.blank? ? nil : Account.create_for_source(self.url, self.source)
+    unless account.nil?
+      errors.add(:base, account.errors.to_a.to_sentence(locale: I18n.locale)) unless account.errors.empty?
+      self.source ||= account.source
+    end
   end
 
   protected
