@@ -482,7 +482,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should get picture for Twitter links" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'
-    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'entities' => { 'media' => [{ 'media_url_https' => 'http://twitter.com/picture/123.png' }] } } }.to_json
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'picture' => 'http://twitter.com/picture/123.png' } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     assert_match /^http/, l.picture
@@ -491,7 +491,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should get picture for Facebook links" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://facebook.com/posts/123456'
-    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'photos' => ['http://facebook.com/images/123.png'] } }.to_json
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'picture' => 'http://facebook.com/images/123.png' } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     assert_match /^http/, l.picture
