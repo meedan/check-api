@@ -8,6 +8,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     sign_out('user')
     User.current = nil
     ProjectMedia.delete_all
+    create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
   end
 
   test "should not get oembed of absent media" do
@@ -45,7 +46,6 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should create annotation when embedded for the first time only" do
-    create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
     pm = create_project_media
     assert_equal 0, pm.get_annotations('embed_code').count
     get :oembed, id: pm.id
