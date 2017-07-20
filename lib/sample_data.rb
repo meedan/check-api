@@ -349,6 +349,15 @@ module SampleData
       create_project_source(project: create_project(team: options[:team], user: nil), source: source)
     end
 
+    file = nil
+    if options.has_key?(:file)
+      file = options[:file]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        source.file = f
+      end
+    end
     source.reload
   end
 
