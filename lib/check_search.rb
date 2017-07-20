@@ -74,9 +74,9 @@ class CheckSearch
     !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank?)
   end
 
-  def medias_build_search_query(assocated_type = 'ProjectMedia')
+  def medias_build_search_query(associated_type = 'ProjectMedia')
     conditions = []
-    conditions << {term: { annotated_type: assocated_type.downcase } }
+    conditions << {term: { annotated_type: associated_type.downcase } }
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
     unless @options["keyword"].blank?
       # add keyword conditions
