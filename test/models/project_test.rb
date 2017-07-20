@@ -379,11 +379,11 @@ class ProjectTest < ActiveSupport::TestCase
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
       pids = ProjectMedia.where(project_id: p.id).map(&:id).map(&:to_s)
       pids.concat  ProjectSource.where(project_id: p.id).map(&:id).map(&:to_s)
-      sleep 1
+      sleep 5
       results = MediaSearch.search(query: { match: { team_id: t.id } }).results
       assert_equal pids.sort, results.map(&:annotated_id).sort
       p.team_id = t2.id; p.save!
-      sleep 1
+      sleep 5
       results = MediaSearch.search(query: { match: { team_id: t.id } }).results
       assert_equal [], results.map(&:annotated_id)
       results = MediaSearch.search(query: { match: { team_id: t2.id } }).results

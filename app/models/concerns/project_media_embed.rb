@@ -91,7 +91,20 @@ module ProjectMediaEmbed
     }.to_json
   end
 
+  def mark_as_embedded
+    if self.get_annotations('embed_code').empty?
+      a = Dynamic.new
+      a.skip_check_ability = true
+      a.annotated = self
+      a.annotation_type = 'embed_code'
+      a.set_fields = { embed_code_copied: true }.to_json
+      a.save!
+    end
+  end
+
   def as_oembed(options = {})
+    self.mark_as_embedded
+
     {
       type: 'rich',
       version: '1.0',

@@ -97,12 +97,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('account', 'embed')
   end
 
-  test "should update account" do
-    u1 = create_user
-    u2 = create_user
-    assert_graphql_update('account', :user_id, u1.id, u2.id)
-  end
-
   test "should create comment" do
     p = create_project team: @team
     pm = create_project_media project: p
@@ -384,7 +378,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from account" do
-    assert_graphql_read_object('account', { 'user' => 'name', 'source' => 'name' })
+    assert_graphql_read_object('account', { 'user' => 'name' })
   end
 
   test "should read object from project media" do
@@ -402,7 +396,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read collection from source" do
     User.delete_all
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
-     'annotations' => 'content','medias' => 'media_id', 'collaborators' => 'name',
+     'annotations' => 'content', 'medias' => 'media_id', 'collaborators' => 'name',
      'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
   end
 
@@ -705,7 +699,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_equal [pm2.id], ids
     create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
-    sleep 15
+    sleep 20
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
     post :create, query: query
     assert_response :success
@@ -881,7 +875,7 @@ class GraphqlControllerTest < ActionController::TestCase
     f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
     f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
     a.save!
-    sleep 15
+    sleep 20
     query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success

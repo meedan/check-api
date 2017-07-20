@@ -3,6 +3,13 @@ require 'active_support/concern'
 module ProjectAssociation
   extend ActiveSupport::Concern
 
+  def check_search_team
+    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.project.team.slug } }.to_json)
+  end
+
+  def check_search_project
+    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.project.id }, 'projects' => [self.project.id] }.to_json)
+  end
 
   module ClassMethods
     def belonged_to_project(objid, pid)

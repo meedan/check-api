@@ -493,7 +493,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
-    assert_difference 'PaperTrail::Version.count', 3 do
+    assert_difference 'PaperTrail::Version.count', 4 do
       pm = create_project_media project: p, media: m, user: u
     end
     assert_equal 1, pm.versions.count
@@ -816,6 +816,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have oEmbed endpoint" do
+    create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'

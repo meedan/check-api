@@ -106,7 +106,7 @@ class MediaTest < ActiveSupport::TestCase
     User.current = u
     m = create_valid_media
     User.current = nil
-    assert_equal 2, m.versions.size
+    assert_equal 1, m.versions.size
   end
 
   test "should create version when media is updated" do
@@ -119,12 +119,12 @@ class MediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       m = create_valid_media
       create_project_media project: p, media: m
-      assert_equal 2, m.versions.size
+      assert_equal 1, m.versions.size
       m = m.reload
       m.user = u2
       m.save!
     end
-    assert_equal 3, m.reload.versions.size
+    assert_equal 2, m.reload.versions.size
   end
 
   test "should not update url when media is updated" do

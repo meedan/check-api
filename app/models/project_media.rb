@@ -189,14 +189,6 @@ class ProjectMedia < ActiveRecord::Base
     "#{self.project.url}/media/#{self.id}"
   end
 
-  def check_search_team
-    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.project.team.slug } }.to_json)
-  end
-
-  def check_search_project
-    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.project.id }, 'projects' => [self.project.id] }.to_json)
-  end
-
   def update_mt=(_update)
     mt = self.annotations.where(annotation_type: 'mt').last
     MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(User.current)) unless mt.nil?

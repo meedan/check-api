@@ -10,7 +10,6 @@ AccountType = GraphqlCrudOperations.define_default_type do
   field :data, types.String
   field :url, !types.String
   field :provider, types.String
-  field :source_id, types.Int
   field :user_id, types.Int
   field :permissions, types.String
   field :user do
@@ -18,13 +17,6 @@ AccountType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (account, _args, _ctx) {
       account.user
-    }
-  end
-  field :source do
-    type -> { SourceType }
-
-    resolve -> (account, _args, _ctx) {
-      account.source
     }
   end
 

@@ -40,6 +40,7 @@ html, body {
 #oembed__top {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .rtl #oembed__top {
@@ -72,7 +73,6 @@ html, body {
   color: #000;
   display: block;
   text-align: right;
-  flex: 1;
 }
 
 .rtl #oembed__status {
