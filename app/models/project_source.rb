@@ -1,6 +1,6 @@
 class ProjectSource < ActiveRecord::Base
 
-  attr_accessor :name, :url
+  attr_accessor :name, :url, :disable_es_callbacks
 
   belongs_to :project
   belongs_to :source
@@ -12,6 +12,8 @@ class ProjectSource < ActiveRecord::Base
 
   validates_presence_of :source_id, :project_id
   before_validation :set_account, on: :create
+
+  after_create :add_elasticsearch_data
 
   def get_team
     p = self.project
@@ -32,6 +34,20 @@ class ProjectSource < ActiveRecord::Base
 
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
+  end
+
+  def add_elasticsearch_data
+    return if self.disable_es_callbacks
+    p = self.project
+    s = self.source
+    ms = MediaSearch.new
+    ms.id = Base64.encode64("ProjectSource/#{self.id}")
+    ms.team_id = p.team.id
+    ms.project_id = p.id
+    ms.set_es_annotated(self)
+    ms.title = self.source.name
+    ms.description = self.source.description
+    ms.save!
   end
 
   private

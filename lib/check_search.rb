@@ -34,17 +34,12 @@ class CheckSearch
   def medias
     if should_hit_elasticsearch?
       query = medias_build_search_query
-      ids = medias_get_search_result(query).map(&:id)
+      ids = medias_get_search_result(query).map(&:annotated_id)
       items = ProjectMedia.where(id: ids).eager_load(:media)
-      ids_sort = items.sort_by{|x| ids.index x.id.to_s}
-      ids_sort.to_a
+      sort_es_items(items, ids)
     else
       results = ProjectMedia.eager_load(:media).joins(:project)
-      results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
-      results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
-      sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
-      sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
-      results.order(sort_field => sort_type)
+      sort_pg_results(results)
     end
   end
 
@@ -53,13 +48,15 @@ class CheckSearch
   end
 
   def sources
-    # TODO support ES
-    results = ProjectSource.eager_load(:source).joins(:project)
-    results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
-    results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
-    sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
-    sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
-    results.order(sort_field => sort_type)
+    if should_hit_elasticsearch?
+      query = medias_build_search_query('ProjectSource')
+      ids = medias_get_search_result(query).map(&:annotated_id)
+      items = ProjectSource.where(id: ids).eager_load(:source)
+      sort_es_items(items, ids)
+    else
+      results = ProjectSource.eager_load(:source).joins(:project)
+      sort_pg_results(results)
+    end
   end
 
   def project_sources
@@ -77,8 +74,9 @@ class CheckSearch
     !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank?)
   end
 
-  def medias_build_search_query
+  def medias_build_search_query(assocated_type = 'ProjectMedia')
     conditions = []
+    conditions << {term: { annotated_type: assocated_type.downcase } }
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
     unless @options["keyword"].blank?
       # add keyword conditions
@@ -108,6 +106,19 @@ class CheckSearch
   def medias_get_search_result(query)
     field = @options['sort'] == 'recent_activity' ? 'last_activity_at' : 'created_at'
     MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"].downcase }}, '_score'], size: 10000).results
+  end
+
+  def sort_pg_results(results)
+    results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
+    results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
+    sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
+    sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
+    results.order(sort_field => sort_type)
+  end
+
+  def sort_es_items(items, ids)
+    ids_sort = items.sort_by{|x| ids.index x.id.to_s}
+    ids_sort.to_a
   end
 
 end
