@@ -343,11 +343,6 @@ module SampleData
     source.user = options[:user]
     source.avatar = options[:avatar]
     source.team = options[:team] if options.has_key?(:team)
-    source.save!
-
-    if options[:team]
-      create_project_source(project: create_project(team: options[:team], user: nil), source: source)
-    end
 
     file = nil
     if options.has_key?(:file)
@@ -358,6 +353,13 @@ module SampleData
         source.file = f
       end
     end
+    
+    source.save!
+
+    if options[:team]
+      create_project_source(project: create_project(team: options[:team], user: nil), source: source)
+    end
+
     source.reload
   end
 
