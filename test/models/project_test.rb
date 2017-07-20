@@ -377,15 +377,17 @@ class ProjectTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
+      pids = ProjectMedia.where(project_id: p.id).map(&:id).map(&:to_s)
+      pids.concat  ProjectSource.where(project_id: p.id).map(&:id).map(&:to_s)
       sleep 1
       results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-      assert_equal [pm.id, pm2.id].map(&:to_s).sort, results.map(&:id).sort
+      assert_equal pids.sort, results.map(&:annotated_id).sort
       p.team_id = t2.id; p.save!
       sleep 1
       results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-      assert_equal [], results.map(&:id)
+      assert_equal [], results.map(&:annotated_id)
       results = MediaSearch.search(query: { match: { team_id: t2.id } }).results
-      assert_equal [pm.id, pm2.id].map(&:to_s).sort, results.map(&:id).sort
+      assert_equal pids.sort, results.map(&:annotated_id).sort
     end
   end
 

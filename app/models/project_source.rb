@@ -45,8 +45,8 @@ class ProjectSource < ActiveRecord::Base
     ms.team_id = p.team.id
     ms.project_id = p.id
     ms.set_es_annotated(self)
-    ms.title = self.source.name
-    ms.description = self.source.description
+    ms.title = s.name
+    ms.description = s.description
     ms.save!
   end
 
