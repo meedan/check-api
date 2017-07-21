@@ -6,7 +6,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('ProjectMedia')
   field :updated_at, types.String
-  field :created_at, types.String
   field :media_id, types.Int
   field :project_id, types.Int
   field :user_id, types.Int

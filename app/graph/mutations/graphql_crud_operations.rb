@@ -136,6 +136,12 @@ class GraphqlCrudOperations
         }
       end
 
+      field :created_at, types.String do
+        resolve -> (obj, _args, ctx) {
+          obj.created_at.to_i.to_s if obj.respond_to?(:created_at)
+        }
+      end
+
       instance_eval(&block)
     end
   end

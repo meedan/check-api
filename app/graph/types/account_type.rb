@@ -6,7 +6,6 @@ AccountType = GraphqlCrudOperations.define_default_type do
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('Account')
   field :updated_at, types.String
-  field :created_at, types.String
   field :data, types.String
   field :url, !types.String
   field :provider, types.String

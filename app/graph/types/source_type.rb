@@ -6,7 +6,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('Source')
   field :updated_at, types.String
-  field :created_at, types.String
   field :image, types.String
   field :description, !types.String
   field :name, !types.String

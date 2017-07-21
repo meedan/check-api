@@ -6,7 +6,6 @@ TeamUserType = GraphqlCrudOperations.define_default_type do
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('TeamUser')
   field :updated_at, types.String
-  field :created_at, types.String
   field :user_id, types.Int
   field :team_id, types.Int
   field :status, types.String
