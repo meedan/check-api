@@ -236,9 +236,7 @@ class GraphqlCrudOperations
         }
       end
 
-      GraphqlCrudOperations.define_annotation_fields.each do |name|
-        field name, types.String
-      end
+      GraphqlCrudOperations.define_annotation_fields.each { |name| field name, types.String }
 
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
@@ -246,21 +244,11 @@ class GraphqlCrudOperations
         }
       end
 
-      field :created_at, types.String do
-        resolve -> (annotation, _args, _ctx) {
-          annotation.created_at.to_i.to_s
-        }
-      end
+      field :created_at, types.String { resolve -> (annotation, _args, _ctx) { annotation.created_at.to_i.to_s } }
 
-      field :updated_at, types.String do
-        resolve -> (annotation, _args, _ctx) {
-          annotation.updated_at.to_i.to_s
-        }
-      end
+      field :updated_at, types.String { resolve -> (annotation, _args, _ctx) { annotation.updated_at.to_i.to_s } }
 
-      fields.each do |name, _field_type|
-        field name, types.String
-      end
+      fields.each { |name, _field_type| field name, types.String }
 
       connection :medias, -> { ProjectMediaType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
