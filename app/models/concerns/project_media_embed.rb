@@ -139,7 +139,7 @@ module ProjectMediaEmbed
         PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
         CcDeville.clear_cache_for_url(url)
         CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
-        CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + URI.encode(url))
+        CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + CGI.escape(url))
       end
     end
   end
