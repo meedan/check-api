@@ -222,4 +222,36 @@ class SourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should have image" do
+    c = nil
+    assert_difference 'Source.count' do
+      c = create_source file: 'rails.png'
+    end
+    assert_not_nil c.file
+  end
+
+  test "should not upload a file that is not an image" do
+    assert_no_difference 'Source.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source file: 'not-an-image.txt'
+      end
+    end
+  end
+
+  test "should not upload a big image" do
+    assert_no_difference 'Source.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source file: 'ruby-big.png'
+      end
+    end
+  end
+
+  test "should not upload a small image" do
+    assert_no_difference 'Source.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source file: 'ruby-small.png'
+      end
+    end
+  end
+
 end

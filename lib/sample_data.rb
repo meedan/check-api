@@ -343,6 +343,17 @@ module SampleData
     source.user = options[:user]
     source.avatar = options[:avatar]
     source.team = options[:team] if options.has_key?(:team)
+
+    file = nil
+    if options.has_key?(:file)
+      file = options[:file]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        source.file = f
+      end
+    end
+    
     source.save!
 
     if options[:team]

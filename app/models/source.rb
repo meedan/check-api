@@ -1,4 +1,6 @@
 class Source < ActiveRecord::Base
+  include HasImage
+
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :project_sources
   has_many :account_sources
@@ -55,6 +57,10 @@ class Source < ActiveRecord::Base
 
   def comments
     self.annotations('comment')
+  end
+
+  def file_mandatory?
+    false
   end
 
   private
