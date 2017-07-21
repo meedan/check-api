@@ -1004,7 +1004,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should clear caches when media is updated" do
+    create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
     pm = create_project_media
+    create_dynamic_annotation annotation_type: 'embed_code', annotated: pm
     u = create_user
     ProjectMedia.any_instance.unstub(:clear_caches)
     CcDeville.expects(:clear_cache_for_url).returns(nil).times(8)
