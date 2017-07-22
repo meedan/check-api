@@ -244,9 +244,9 @@ class GraphqlCrudOperations
         }
       end
 
-      field :created_at, types.String { resolve -> (annotation, _args, _ctx) { annotation.created_at.to_i.to_s } }
+      field :created_at, types.String do resolve -> (annotation, _args, _ctx) { annotation.created_at.to_i.to_s } end
 
-      field :updated_at, types.String { resolve -> (annotation, _args, _ctx) { annotation.updated_at.to_i.to_s } }
+      field :updated_at, types.String do resolve -> (annotation, _args, _ctx) { annotation.updated_at.to_i.to_s } end
 
       fields.each { |name, _field_type| field name, types.String }
 
