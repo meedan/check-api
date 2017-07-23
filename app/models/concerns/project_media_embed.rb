@@ -133,10 +133,13 @@ module ProjectMediaEmbed
   module ClassMethods
     def clear_caches(pmid)
       pm = ProjectMedia.find(pmid)
+      return if pm.get_annotations('embed_code').empty?
       ['', '?hide_tasks=1', '?hide_notes=1', '?hide_tasks=1&hide_notes=1'].each do |part|
         url = pm.full_url.to_s + part
         PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
         CcDeville.clear_cache_for_url(url)
+        CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
+        CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + CGI.escape(url))
       end
     end
   end

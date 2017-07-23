@@ -24,7 +24,7 @@ class GraphqlCrudOperations
     klass = type.camelize
 
     obj = klass.constantize.new
-    obj.file = ctx[:file] if (type == 'project_media' || type == 'comment') && !ctx[:file].blank?
+    obj.file = ctx[:file] if (type == 'project_media' || type == 'comment' || type == 'source') && !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
@@ -136,6 +136,18 @@ class GraphqlCrudOperations
         }
       end
 
+      field :created_at, types.String do
+        resolve -> (obj, _args, _ctx) {
+          obj.created_at.to_i.to_s if obj.respond_to?(:created_at)
+        }
+      end
+
+      field :updated_at, types.String do
+        resolve -> (obj, _args, _ctx) {
+          obj.updated_at.to_i.to_s if obj.respond_to?(:updated_at)
+        }
+      end
+
       instance_eval(&block)
     end
   end
@@ -209,8 +221,7 @@ class GraphqlCrudOperations
   end
 
   def self.define_annotation_fields
-    [:annotation_type, :updated_at, :created_at,
-     :annotated_id, :annotated_type, :content, :dbid ]
+    [:annotation_type, :annotated_id, :annotated_type, :content, :dbid]
   end
 
   def self.define_annotation_type(type, fields = {}, &block)
@@ -225,9 +236,7 @@ class GraphqlCrudOperations
         }
       end
 
-      GraphqlCrudOperations.define_annotation_fields.each do |name|
-        field name, types.String
-      end
+      GraphqlCrudOperations.define_annotation_fields.each { |name| field name, types.String }
 
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
@@ -235,9 +244,11 @@ class GraphqlCrudOperations
         }
       end
 
-      fields.each do |name, _field_type|
-        field name, types.String
-      end
+      field :created_at, types.String do resolve -> (annotation, _args, _ctx) { annotation.created_at.to_i.to_s } end
+
+      field :updated_at, types.String do resolve -> (annotation, _args, _ctx) { annotation.updated_at.to_i.to_s } end
+
+      fields.each { |name, _field_type| field name, types.String }
 
       connection :medias, -> { ProjectMediaType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
