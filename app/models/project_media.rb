@@ -7,6 +7,7 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaEmbed
   include Versioned
   include NotifyEmbedSystem
+  include CheckElasticSearch
 
   validates_presence_of :media_id, :project_id
 
@@ -21,8 +22,6 @@ class ProjectMedia < ActiveRecord::Base
                   targets: proc { |pm| [pm.project, pm.media] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
-
-  include CheckElasticSearch
 
   def report_type
     self.media.class.name.downcase
