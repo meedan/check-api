@@ -79,18 +79,7 @@ class CheckSearch
     conditions << {term: { annotated_type: associated_type.downcase } }
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
     unless @options["keyword"].blank?
-      # add keyword conditions
-      keyword_fields = %w(title description quote account.username account.title)
-      keyword_c = [{ query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
-
-      [['comment', 'text'], ['dynamic', 'indexable']].each do |pair|
-        keyword_c << { has_child: { type: "#{pair[0]}_search", query: { query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
-      end
-
-      if associated_type == 'ProjectSource'
-        keyword_c << { has_child: { type: "account_search", query: { query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
-      end
-
+      keyword_c = build_search_keyword_conditions(associated_type)
       conditions << {bool: {should: keyword_c}}
     end
     unless @options["tags"].blank?
@@ -105,6 +94,21 @@ class CheckSearch
     conditions << {terms: { project_id: @options["projects"] } } unless @options["projects"].blank?
     conditions << {terms: { status: @options["status"] } } unless @options["status"].blank?
     { bool: { must: conditions } }
+  end
+
+  def build_search_keyword_conditions(associated_type)
+    # add keyword conditions
+    keyword_fields = %w(title description quote account.username account.title)
+    keyword_c = [{ query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
+
+    [['comment', 'text'], ['dynamic', 'indexable']].each do |pair|
+      keyword_c << { has_child: { type: "#{pair[0]}_search", query: { query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
+    end
+
+    if associated_type == 'ProjectSource'
+      keyword_c << { has_child: { type: "account_search", query: { query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
+    end
+    keyword_c
   end
 
   def medias_get_search_result(query)
