@@ -1,5 +1,8 @@
 class Source < ActiveRecord::Base
+  attr_accessor :disable_es_callbacks
+
   include HasImage
+  include CheckElasticSearch
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :project_sources
@@ -14,6 +17,8 @@ class Source < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
+
+  after_update :update_elasticsearch_source
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -61,6 +66,16 @@ class Source < ActiveRecord::Base
 
   def file_mandatory?
     false
+  end
+
+  def update_elasticsearch_source
+    ps_ids = self.project_sources.map(&:id).to_a
+    unless ps_ids.blank?
+      parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") }
+      parents.each do |parent|
+        self.update_media_search(%w(title description), {'title' => self.name, 'description' => self.description}, parent)
+      end
+    end
   end
 
   private

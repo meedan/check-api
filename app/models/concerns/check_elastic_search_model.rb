@@ -71,7 +71,7 @@ module CheckElasticSearchModel
       index_name = self.index_name
       settings = []
       mappings = []
-      [MediaSearch, CommentSearch, TagSearch, DynamicSearch].each do |klass|
+      [MediaSearch, CommentSearch, TagSearch, DynamicSearch, AccountSearch].each do |klass|
         settings << klass.settings.to_hash
         mappings << klass.mappings.to_hash
       end

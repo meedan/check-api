@@ -27,7 +27,14 @@ module ProjectAssociation
   included do
     include ActiveModel::Validations
     include ActiveModel::Validations::Callbacks
+    include CheckElasticSearch
+
     before_validation :set_media_or_source, :set_user, on: :create
+    before_destroy :destroy_elasticsearch_media
+
+    def destroy_elasticsearch_media
+      destroy_elasticsearch_data(MediaSearch, 'parent')
+    end
 
     private
 

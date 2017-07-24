@@ -1,7 +1,8 @@
 class Account < ActiveRecord::Base
   include PenderData
+  include CheckElasticSearch
 
-  attr_accessor :source
+  attr_accessor :source, :disable_es_callbacks
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at]
   belongs_to :user
@@ -20,6 +21,7 @@ class Account < ActiveRecord::Base
   validates :url, uniqueness: true
 
   after_create :set_pender_result_as_annotation, :create_source
+  after_update :update_elasticsearch_account
 
   def provider
     self.data['provider']
@@ -51,7 +53,7 @@ class Account < ActiveRecord::Base
 
   def create_source
     source = self.source
-    
+
     if source.nil? && Team.current.present?
       self.source = self.sources.where(team_id: Team.current.id).last
       return unless self.source.nil?
@@ -85,7 +87,7 @@ class Account < ActiveRecord::Base
         a = a2
       end
     end
-    
+
     unless a.nil?
       a.skip_check_ability = true
       a.pender_data = a.embed
@@ -107,5 +109,15 @@ class Account < ActiveRecord::Base
 
   def pender_result_is_a_profile
     errors.add(:base, 'Sorry, this is not a profile') if !self.pender_data.nil? && self.pender_data['provider'] != 'page' && self.pender_data['type'] != 'profile'
+  end
+
+  def update_elasticsearch_account
+    ps_ids = ProjectSource.where(source_id: self.sources).map(&:id).to_a
+    unless ps_ids.blank?
+      parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") }
+      parents.each do |parent|
+        self.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+      end
+    end
   end
 end

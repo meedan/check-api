@@ -608,8 +608,8 @@ class CheckSearchTest < ActiveSupport::TestCase
     pm1 = create_project_media disable_es_callbacks: false
     pm2 = create_project_media disable_es_callbacks: false
     sleep 1
-    assert_equal [pm1.id, pm2.id], MediaSearch.all_sorted().map(&:id).map(&:to_i)
-    assert_equal [pm2.id, pm1.id], MediaSearch.all_sorted('desc').map(&:id).map(&:to_i)
+    assert_equal [pm1.id, pm2.id], MediaSearch.all_sorted().keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:id).map(&:to_i)
+    assert_equal [pm2.id, pm1.id], MediaSearch.all_sorted('desc').keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:id).map(&:to_i)
   end
 
   test "should not hit ES when there are no filters" do
@@ -753,5 +753,99 @@ class CheckSearchTest < ActiveSupport::TestCase
      assert_equal [pm.id], result.medias.map(&:id)
      result = CheckSearch.new({keyword: "بسم الله"}.to_json)
      assert_equal [pm.id], result.medias.map(&:id)
+  end
+
+  test "should search with keyword in project sources" do
+    t = create_team
+    p = create_project team: t
+    s = create_source name: 'search_source_title', slogan: 'search_source_desc'
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    sleep 1
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({keyword: "non_exist_title"}.to_json)
+    assert_empty result.sources
+    result = CheckSearch.new({keyword: "search_source_title"}.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+    # search in description
+    result = CheckSearch.new({keyword: "search_source_desc"}.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+    # add keyword to multiple sources
+    s2 = create_source name: 'search_source_title2', slogan: 'search_source_desc'
+    ps2 = create_project_source project: p, source: s2, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({keyword: "search_source_desc"}.to_json)
+    assert_equal [ps.id, ps2.id].sort, result.sources.map(&:id).sort
+  end
+
+  test "should search with tags in project sources" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p, name: 'source_a', disable_es_callbacks: false
+    ps2 = create_project_source project: p, name: 'source_b', disable_es_callbacks: false
+    create_tag tag: 'sports', annotated: ps, disable_es_callbacks: false
+    create_tag tag: 'sports', annotated: ps2, disable_es_callbacks: false
+    create_tag tag: 'news', annotated: ps, disable_es_callbacks: false
+    sleep 10
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({tags: ['non_exist_tag']}.to_json)
+    assert_empty result.sources
+    result = CheckSearch.new({tags: ['sports']}.to_json)
+    assert_equal [ps.id, ps2.id].sort, result.sources.map(&:id).sort
+    result = CheckSearch.new({tags: ['news']}.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+  end
+
+  test "should search keyword in comments in project sources" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p, name: 'source_a', disable_es_callbacks: false
+    create_comment text: 'add_comment', annotated: ps, disable_es_callbacks: false
+    sleep 10
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+  end
+
+  test "should search keyword in accounts in project sources" do
+    t = create_team
+    p = create_project team: t
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"username": "account_username", "url":"' + url + '","type":"profile"}}')
+    ps = create_project_source project: p, name: 'New source', url: url, disable_es_callbacks: false
+    sleep 10
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({keyword: 'account_username', projects: [p.id]}.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+  end
+
+  test "should sort results by recent activities in project sources" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'search_sort'}.to_json
+    ps1 = create_project_source project: p, name: 'search_sort', disable_es_callbacks: false
+    ps2 = create_project_source project: p, name: 'search_sort', disable_es_callbacks: false
+    ps3 = create_project_source project: p, name: 'search_sort', disable_es_callbacks: false
+    create_comment text: 'search_sort', annotated: ps1, disable_es_callbacks: false
+    sleep 10
+    # sort with keywords
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
+    assert_equal [ps3.id, ps2.id, ps1.id], result.sources.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json)
+    assert_equal [ps1.id, ps3.id, ps2.id], result.sources.map(&:id)
+    # sort with keywords and tags
+    create_tag tag: 'sorts', annotated: ps3, disable_es_callbacks: false
+    create_tag tag: 'sorts', annotated: ps2, disable_es_callbacks: false
+    sleep 10
+    result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    assert_equal [ps2.id, ps3.id], result.sources.map(&:id).sort
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
+    # sort with keywords and tags
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json)
+    assert_equal [ps3.id, ps2.id], result.sources.map(&:id)
   end
 end

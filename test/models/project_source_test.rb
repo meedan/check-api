@@ -1,6 +1,14 @@
 require_relative '../test_helper'
 
 class ProjectSourceTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+    MediaSearch.delete_index
+    MediaSearch.create_index
+    sleep 1
+  end
 
   test "should create project source" do
     assert_difference 'ProjectSource.count' do
@@ -126,6 +134,36 @@ class ProjectSourceTest < ActiveSupport::TestCase
       assert_equal p2, ps.project
       assert ProjectSource.belonged_to_project(ps.id, p.id)
     end
+  end
+
+  test "should destroy elasticseach project source" do
+    t = create_team
+    p = create_project team: t
+    s = create_source
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    sleep 1
+    assert_not_nil MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    ps.destroy
+    sleep 1
+    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+      result = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    end
+  end
+
+  test "should index project source" do
+    ps = create_project_source disable_es_callbacks: false
+    sleep 1
+    id = Base64.encode64("ProjectSource/#{ps.id}")
+    assert_not_nil MediaSearch.find(id)
+  end
+
+  test "should index related accounts" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    ps = create_project_source name: 'New source', url: url, disable_es_callbacks: false
+    sleep 1
+    assert_equal ps.source.accounts.map(&:id).sort, AccountSearch.all_sorted.map(&:id).map(&:to_i).sort
   end
 
 end

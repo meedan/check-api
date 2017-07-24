@@ -237,6 +237,17 @@ module SampleData
     account.reload
   end
 
+  def create_account_search(options = {})
+    a = AccountSearch.new
+    ps = options[:parent] || create_media_search
+    { id: random_number, title: random_string(50) }.merge(options).each do |key, value|
+      a.send("#{key}=", value) if a.respond_to?("#{key}=")
+    end
+    a.save!(parent: ps.id)
+    sleep 1
+    a
+  end
+
   def create_project(options = {})
     project = Project.new
     project.title = options[:title] || random_string
@@ -353,7 +364,7 @@ module SampleData
         source.file = f
       end
     end
-    
+
     source.save!
 
     if options[:team]
