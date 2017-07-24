@@ -49,16 +49,15 @@ module CheckElasticSearch
   end
 
   def get_parent_id
-    pm = self.id if self.class.name == 'ProjectMedia'
-    pm = Base64.encode64("ProjectSource/#{self.id}") if self.class.name == 'ProjectSource'
+    pm = get_es_parent_id(self.id, self.class.name)
     if pm.nil? and self.is_annotation?
-      if self.annotated_type == 'ProjectSource'
-        pm = Base64.encode64("ProjectSource/#{self.annotated_id}")
-      else
-        pm = self.annotated_id if self.annotated_type == 'ProjectMedia'
-      end
+      pm = get_es_parent_id(self.annotated_id, self.annotated_type)
     end
     pm
+  end
+
+  def get_es_parent_id(id, klass)
+    (klass == 'ProjectSource') ? Base64.encode64("ProjectSource/#{id}") : id
   end
 
   def get_elasticsearch_parent(parent)
