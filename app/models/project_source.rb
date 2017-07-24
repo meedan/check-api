@@ -14,7 +14,7 @@ class ProjectSource < ActiveRecord::Base
   validates :source_id, uniqueness: { scope: :project_id }
   before_validation :set_account, on: :create
 
-  after_create :add_elasticsearch_data
+  after_create :add_elasticsearch_data, :add_elasticsearch_account
 
   def get_team
     p = self.project
@@ -59,6 +59,14 @@ class ProjectSource < ActiveRecord::Base
       errors.add(:base, account.errors.to_a.to_sentence(locale: I18n.locale)) unless account.errors.empty?
       self.source ||= account.source
     end
+  end
+
+  def add_elasticsearch_account
+    parent = Base64.encode64("ProjectSource/#{self.id}")
+    accounts = self.source.accounts
+    accounts.each do |a|
+      a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+    end unless accounts.blank?
   end
 
   protected
