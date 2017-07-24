@@ -49,9 +49,10 @@ module CheckElasticSearch
   end
 
   def get_parent_id
-    pm = get_es_parent_id(self.id, self.class.name)
-    if pm.nil? and self.is_annotation?
+    if self.is_annotation?
       pm = get_es_parent_id(self.annotated_id, self.annotated_type)
+    else
+      pm = get_es_parent_id(self.id, self.class.name)
     end
     pm
   end
@@ -71,8 +72,13 @@ module CheckElasticSearch
 
   def destroy_elasticsearch_data(model, type = 'child')
     options = {}
-    options = {parent: self.annotated_id} if type == 'child'
-    obj = model.search(query: { match: { _id: self.id } }).last
+    if type == 'child'
+      options = {parent: get_parent_id}
+      id = self.id
+    else
+      id = get_parent_id
+    end
+    obj = model.search(query: { match: { _id: id } }).last
     obj.delete(options) unless obj.nil?
   end
 

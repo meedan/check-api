@@ -485,6 +485,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal ms.team_id.to_i, t2.id
   end
 
+  test "should destroy elasticseach project media" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    sleep 1
+    assert_not_nil MediaSearch.find(pm.id)
+    Sidekiq::Testing.inline! do
+      pm.destroy
+      sleep 1
+      assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+        result = MediaSearch.find(pm.id)
+      end
+    end
+  end
+
   test "should have versions" do
     m = create_valid_media
     t = create_team

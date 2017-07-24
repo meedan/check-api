@@ -87,6 +87,10 @@ class CheckSearch
         keyword_c << { has_child: { type: "#{pair[0]}_search", query: { query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
       end
 
+      if associated_type == 'ProjectSource'
+        keyword_c << { has_child: { type: "account_search", query: { query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
+      end
+
       conditions << {bool: {should: keyword_c}}
     end
     unless @options["tags"].blank?

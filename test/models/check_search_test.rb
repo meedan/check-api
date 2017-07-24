@@ -806,6 +806,19 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [ps.id], result.sources.map(&:id)
   end
 
+  test "should search keyword in accounts in project sources" do
+    t = create_team
+    p = create_project team: t
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"username": "account_username", "url":"' + url + '","type":"profile"}}')
+    ps = create_project_source project: p, name: 'New source', url: url, disable_es_callbacks: false
+    sleep 10
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({keyword: 'account_username', projects: [p.id]}.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+  end
+
   test "should sort results by recent activities in project sources" do
     t = create_team
     p = create_project team: t

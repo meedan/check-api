@@ -7,7 +7,6 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaEmbed
   include Versioned
   include NotifyEmbedSystem
-  include CheckElasticSearch
 
   validates_presence_of :media_id, :project_id
 
@@ -15,7 +14,6 @@ class ProjectMedia < ActiveRecord::Base
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :update_elasticsearch_data
-  before_destroy :destroy_elasticsearch_media
 
   notifies_pusher on: :save,
                   event: 'media_updated',
@@ -96,10 +94,6 @@ class ProjectMedia < ActiveRecord::Base
       options = {keys: keys, data: data, parent: self.id}
       ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
     end
-  end
-
-  def destroy_elasticsearch_media
-    destroy_elasticsearch_data(MediaSearch, 'parent')
   end
 
   def get_annotations(type = nil)

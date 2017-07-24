@@ -136,6 +136,20 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should destroy elasticseach project source" do
+    t = create_team
+    p = create_project team: t
+    s = create_source
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    sleep 1
+    assert_not_nil MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    ps.destroy
+    sleep 1
+    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+      result = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    end
+  end
+
   test "should index project source" do
     ps = create_project_source disable_es_callbacks: false
     sleep 1
