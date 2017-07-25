@@ -34,8 +34,9 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.update(_type, inputs, ctx, parents = [])
+  def self.update(type, inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
+    obj.file = ctx[:file] if type == 'source' && !ctx[:file].blank?
     obj = obj.load if obj.is_a?(Annotation)
 
     attrs = inputs.keys.inject({}) do |memo, key|
