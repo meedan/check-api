@@ -218,6 +218,7 @@ module SampleData
   end
 
   def create_account(options = {})
+    options = { disable_es_callbacks: true }.merge(options)
     return create_valid_account(options) unless options.has_key?(:url)
     account = Account.new
     account.url = options[:url]
@@ -354,7 +355,7 @@ module SampleData
     source.user = options[:user]
     source.avatar = options[:avatar]
     source.team = options[:team] if options.has_key?(:team)
-
+    source.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     file = nil
     if options.has_key?(:file)
       file = options[:file]
