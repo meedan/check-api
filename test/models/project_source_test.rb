@@ -169,7 +169,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
   test "should not create duplicated source" do
     url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}')
 
     t = create_team
     p = create_project team: t

@@ -73,7 +73,10 @@ class ProjectSource < ActiveRecord::Base
 
   def source_exists
     unless self.url.blank?
-      account = Account.where(url: self.url).last
+      a = Account.new
+      a.url = self.url
+      a.valid?
+      account = Account.where(url: a.url).last
       unless account.nil?
         if account.sources.joins(:project_sources).where('project_sources.project_id' => self.project_id).exists?
           errors.add(:base, I18n.t(:duplicate_source))
