@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :url, :quote, :file, :embed, :disable_es_callbacks, :previous_project_id, :set_annotation, :set_tasks_responses
+  attr_accessor :quote, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses
 
   include ProjectAssociation
   include ProjectMediaAssociations

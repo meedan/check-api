@@ -270,7 +270,7 @@ class SourceTest < ActiveSupport::TestCase
     ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
     assert_equal ms.title, s.name
     assert_equal ms.description, s.description
-    s.name = 'new_source'; s.slogan = 'new_desc'; s.save!
+    s.name = 'new_source'; s.slogan = 'new_desc'; s.disable_es_callbacks = false; s.save!
     s.reload
     sleep 1
     ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))

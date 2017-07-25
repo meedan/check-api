@@ -25,6 +25,8 @@ module ProjectAssociation
   end
 
   included do
+    attr_accessor :url, :disable_es_callbacks
+
     include ActiveModel::Validations
     include ActiveModel::Validations::Callbacks
     include CheckElasticSearch

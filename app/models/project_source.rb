@@ -1,6 +1,6 @@
 class ProjectSource < ActiveRecord::Base
 
-  attr_accessor :name, :url, :disable_es_callbacks
+  attr_accessor :name
 
   belongs_to :project
   belongs_to :source
@@ -62,6 +62,7 @@ class ProjectSource < ActiveRecord::Base
   end
 
   def add_elasticsearch_account
+    return if self.disable_es_callbacks
     parent = Base64.encode64("ProjectSource/#{self.id}")
     accounts = self.source.accounts
     accounts.each do |a|

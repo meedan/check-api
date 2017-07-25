@@ -69,6 +69,7 @@ class Source < ActiveRecord::Base
   end
 
   def update_elasticsearch_source
+    return if self.disable_es_callbacks
     ps_ids = self.project_sources.map(&:id).to_a
     unless ps_ids.blank?
       parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") }
