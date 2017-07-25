@@ -204,3 +204,4 @@ en:
     other: "%{count} resolved verification tasks"
   oembed_notes: Notes
   pender_conflict: This link is already being parsed, please try again in a few seconds.
+  duplicate_source: Source exists

@@ -166,4 +166,16 @@ class ProjectSourceTest < ActiveSupport::TestCase
     assert_equal ps.source.accounts.map(&:id).sort, AccountSearch.all_sorted.map(&:id).map(&:to_i).sort
   end
 
+  test "should not create duplicated source" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+
+    t = create_team
+    p = create_project team: t
+    create_project_source project: p, name: 'Test', url: url
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_source project: p, name: 'Test 2', url: url
+    end
+  end
 end

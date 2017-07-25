@@ -11,6 +11,7 @@ class ProjectSource < ActiveRecord::Base
   include Versioned
 
   validates_presence_of :source_id, :project_id
+  validate :source_exists
   validates :source_id, uniqueness: { scope: :project_id }
   before_validation :set_account, on: :create
 
@@ -68,6 +69,17 @@ class ProjectSource < ActiveRecord::Base
     accounts.each do |a|
       a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
     end unless accounts.blank?
+  end
+
+  def source_exists
+    unless self.url.blank?
+      account = Account.where(url: self.url).last
+      unless account.nil?
+        if account.sources.joins(:project_sources).where('project_sources.project_id' => self.project_id).exists?
+          errors.add(:base, I18n.t(:duplicate_source))
+        end
+      end
+    end
   end
 
   protected
