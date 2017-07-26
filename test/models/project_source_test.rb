@@ -136,6 +136,32 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get log" do
+    s = create_source
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    create_team_user user: u, team: t, role: 'owner'
+
+    with_current_user_and_team(u, t) do
+      ps = create_project_source project: p, source: s, user: u
+      c = create_comment annotated: ps
+      tg = create_tag annotated: ps
+      f = create_flag annotated: ps
+      s.name = 'update name'; s.skip_check_ability = true;s.save!;
+      ps.project_id = p2.id; ps.save!
+      assert_equal ["create_comment", "create_tag", "create_flag", "update_projectsource", "update_source"].sort, ps.get_versions_log.map(&:event_type).sort
+      assert_equal 5, ps.get_versions_log_count
+      c.destroy
+      assert_equal 4, ps.get_versions_log_count
+      tg.destroy
+      assert_equal 3, ps.get_versions_log_count
+      f.destroy
+      assert_equal 2, ps.get_versions_log_count
+    end
+  end
+
   test "should destroy elasticseach project source" do
     t = create_team
     p = create_project team: t

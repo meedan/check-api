@@ -266,7 +266,7 @@ class GraphqlControllerTest < ActionController::TestCase
     ps = create_project_source project: p, user: create_user
     create_comment annotated: ps
     create_tag annotated: ps
-    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, user{id}, team{id}, tags { edges { node { dbid } } },annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { log(first: 1000) { edges { node { event_type } } }, log_count, published, user{id}, team{id}, tags { edges { node { dbid } } },annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_source']
@@ -275,6 +275,8 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_not_empty data['team']['id']
     assert_equal 2, data['annotations']['edges'].size
     assert_equal 2, data['annotations_count']
+    assert_equal 2, data['log']['edges'].size
+    assert_equal 2, data['log_count']
   end
 
   test "should read project sources with team_id as argument" do

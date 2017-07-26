@@ -135,6 +135,9 @@ module PaperTrail
         ['ProjectMedia', self.item_id.to_i]
       when 'update_projectsource'
         ['ProjectSource', self.item_id.to_i]
+      when 'update_source'
+        ps =  self.item.project_sources.last
+        ['ProjectSource', ps.id]
       else
         [nil, nil]
       end
