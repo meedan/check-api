@@ -202,6 +202,28 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.field_log
+    proc do |_classname|
+      connection :log, -> { VersionType.connection_type } do
+        resolve ->(obj, _args, _ctx) {
+          obj.get_versions_log
+        }
+      end
+    end
+  end
+
+  def self.field_log_count
+    proc do |_classname|
+      field :log_count do
+        type types.Int
+
+        resolve ->(obj, _args, _ctx) {
+          obj.get_versions_log_count
+        }
+      end
+    end
+  end
+
   def self.project_association
     proc do |class_name, field_name, type|
       field field_name do

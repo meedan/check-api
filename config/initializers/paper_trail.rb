@@ -13,9 +13,9 @@ module PaperTrail
   module CheckExtensions
     def self.included(base)
       base.class_eval do
-        before_create :set_object_after, :set_user, :set_event_type, :set_project_media_id
-        after_create :increment_project_media_annotations_count
-        after_destroy :decrement_project_media_annotations_count
+        before_create :set_object_after, :set_user, :set_event_type, :set_project_association
+        after_create :increment_project_association_annotations_count
+        after_destroy :decrement_project_association_annotations_count
       end
     end
 
@@ -124,41 +124,51 @@ module PaperTrail
       self.event_type = self.event + '_' + self.item_type.downcase.gsub(/[^a-z]/, '')
     end
 
-    def get_project_media_id
+    def get_associated
       case self.event_type
       when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed'
-        self.get_project_media_id_from_annotation(self.item)
+        self.get_associated_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         annotation = self.item.annotation if self.item
-        self.get_project_media_id_from_annotation(annotation)
+        self.get_associated_from_annotation(annotation)
       when 'update_projectmedia'
-        self.item_id.to_i
+        ['ProjectMedia', self.item_id.to_i]
+      when 'update_projectsource'
+        ['ProjectSource', self.item_id.to_i]
       else
-        nil
+        [nil, nil]
       end
     end
 
-    def get_project_media_id_from_annotation(annotation)
-      (annotation && annotation.annotated_type == 'ProjectMedia') ? annotation.annotated_id.to_i : nil
+    def get_associated_from_annotation(annotation)
+      associated = [nil, nil]
+      if annotation && ['ProjectMedia', 'ProjectSource'].include?(annotation.annotated_type)
+        associated = [annotation.annotated_type, annotation.annotated_id.to_i]
+      end
+      associated
     end
 
-    def set_project_media_id
-      self.project_media_id = self.get_project_media_id
+    def set_project_association
+      associated = self.get_associated
+      self.associated_type = associated[0]
+      self.associated_id = associated[1]
+
     end
 
-    def increment_project_media_annotations_count
-      self.change_project_media_annotations_count(1)
+    def increment_project_association_annotations_count
+      self.change_project_association_annotations_count(1)
     end
 
-    def decrement_project_media_annotations_count
-      self.change_project_media_annotations_count(-1)
+    def decrement_project_association_annotations_count
+      self.change_project_association_annotations_count(-1)
     end
 
-    def change_project_media_annotations_count(value)
-      if !self.project_media_id.nil? && self.event_type != 'create_dynamicannotationfield'
-        pm = ProjectMedia.find(self.project_media_id)
-        count = pm.cached_annotations_count + value
-        pm.update_columns(cached_annotations_count: count)
+    def change_project_association_annotations_count(value)
+      if !self.associated_type.nil? && !self.associated_id.nil? && self.event_type != 'create_dynamicannotationfield'
+        associated = self.associated_type.singularize.camelize.constantize
+        pa = associated.find(self.associated_id)
+        count = pa.cached_annotations_count + value
+        pa.update_columns(cached_annotations_count: count)
       end
     end
 
