@@ -848,4 +848,30 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json)
     assert_equal [ps3.id, ps2.id], result.sources.map(&:id)
   end
+
+  test "should return empty medias or sources" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p, disable_es_callbacks: false
+    c = create_claim_media
+    pm = create_project_media project: p, media: c, disable_es_callbacks: false
+    sleep 10
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({}.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ show: ['medias'] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ show: ['sources'] }.to_json)
+    assert_equal 1, result.sources.count
+    assert_equal 0, result.medias.count
+    result = CheckSearch.new({ show: ['medias', 'sources'] }.to_json)
+    assert_equal 1, result.sources.count
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ show: [] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 0, result.medias.count
+    Team.unstub(:current)
+  end
 end
