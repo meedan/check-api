@@ -734,7 +734,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     p = create_project team: t
     ps = create_project_source project: p
     Team.stubs(:current).returns(t)
-    result = CheckSearch.new({}.to_json)
+    result = CheckSearch.new({ show: ['sources'] }.to_json)
     assert_includes result.project_sources.map(&:id), ps.id
   end
 
@@ -762,18 +762,18 @@ class CheckSearchTest < ActiveSupport::TestCase
     ps = create_project_source project: p, source: s, disable_es_callbacks: false
     sleep 1
     Team.stubs(:current).returns(t)
-    result = CheckSearch.new({keyword: "non_exist_title"}.to_json)
+    result = CheckSearch.new({keyword: "non_exist_title", show: ['sources'] }.to_json)
     assert_empty result.sources
-    result = CheckSearch.new({keyword: "search_source_title"}.to_json)
+    result = CheckSearch.new({keyword: "search_source_title", show: ['sources'] }.to_json)
     assert_equal [ps.id], result.sources.map(&:id)
     # search in description
-    result = CheckSearch.new({keyword: "search_source_desc"}.to_json)
+    result = CheckSearch.new({keyword: "search_source_desc", show: ['sources'] }.to_json)
     assert_equal [ps.id], result.sources.map(&:id)
     # add keyword to multiple sources
     s2 = create_source name: 'search_source_title2', slogan: 'search_source_desc'
     ps2 = create_project_source project: p, source: s2, disable_es_callbacks: false
     sleep 1
-    result = CheckSearch.new({keyword: "search_source_desc"}.to_json)
+    result = CheckSearch.new({keyword: "search_source_desc", show: ['sources'] }.to_json)
     assert_equal [ps.id, ps2.id].sort, result.sources.map(&:id).sort
   end
 
@@ -787,11 +787,11 @@ class CheckSearchTest < ActiveSupport::TestCase
     create_tag tag: 'news', annotated: ps, disable_es_callbacks: false
     sleep 10
     Team.stubs(:current).returns(t)
-    result = CheckSearch.new({tags: ['non_exist_tag']}.to_json)
+    result = CheckSearch.new({tags: ['non_exist_tag'], show: ['sources'] }.to_json)
     assert_empty result.sources
-    result = CheckSearch.new({tags: ['sports']}.to_json)
+    result = CheckSearch.new({tags: ['sports'], show: ['sources'] }.to_json)
     assert_equal [ps.id, ps2.id].sort, result.sources.map(&:id).sort
-    result = CheckSearch.new({tags: ['news']}.to_json)
+    result = CheckSearch.new({tags: ['news'], show: ['sources'] }.to_json)
     assert_equal [ps.id], result.sources.map(&:id)
   end
 
@@ -802,7 +802,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     create_comment text: 'add_comment', annotated: ps, disable_es_callbacks: false
     sleep 10
     Team.stubs(:current).returns(t)
-    result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json)
+    result = CheckSearch.new({keyword: 'add_comment', projects: [p.id], show: ['sources'] }.to_json)
     assert_equal [ps.id], result.sources.map(&:id)
   end
 
@@ -815,7 +815,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     ps = create_project_source project: p, name: 'New source', url: url, disable_es_callbacks: false
     sleep 10
     Team.stubs(:current).returns(t)
-    result = CheckSearch.new({keyword: 'account_username', projects: [p.id]}.to_json)
+    result = CheckSearch.new({keyword: 'account_username', projects: [p.id], show: ['sources'] }.to_json)
     assert_equal [ps.id], result.sources.map(&:id)
   end
 
@@ -830,22 +830,22 @@ class CheckSearchTest < ActiveSupport::TestCase
     sleep 10
     # sort with keywords
     Team.stubs(:current).returns(t)
-    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], show: ['sources'] }.to_json)
     assert_equal [ps3.id, ps2.id, ps1.id], result.sources.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ps1.id, ps3.id, ps2.id], result.sources.map(&:id)
     # sort with keywords and tags
     create_tag tag: 'sorts', annotated: ps3, disable_es_callbacks: false
     create_tag tag: 'sorts', annotated: ps2, disable_es_callbacks: false
     sleep 10
-    result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ps2.id, ps3.id], result.sources.map(&:id).sort
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
     # sort with keywords and tags
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], show: ['sources'] }.to_json)
     assert_equal [ps3.id, ps2.id], result.sources.map(&:id)
   end
 
