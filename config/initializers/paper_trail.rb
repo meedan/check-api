@@ -130,7 +130,7 @@ module PaperTrail
         self.get_associated_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         self.get_associated_from_dynamic_annotation
-      when 'update_projectmedia' || 'update_projectsource'
+      when 'update_projectmedia', 'update_projectsource'
         [self.item.class.name, self.item_id.to_i]
       when 'update_source'
         self.get_associated_from_source
