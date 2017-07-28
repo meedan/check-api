@@ -10,6 +10,7 @@ module Api
 
       def create
         query_string = params[:query]
+        params[:variables] = {} if params[:variables] == 'null'
         query_variables = ensure_hash(params[:variables]) || {}
         query_variables = {} if query_variables == 'null'
         debug = !!CONFIG['graphql_debug']
@@ -50,6 +51,7 @@ module Api
       def load_context_team
         slug = request.params['team']
         @context_team = Team.where(slug: slug).first unless slug.blank?
+        @context_team = Team.first if @context_team.nil?
         Team.current = @context_team
       end
 
