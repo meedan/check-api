@@ -10,6 +10,7 @@ class PaperTrailTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
+    u = User.find(u.id)
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u
@@ -38,6 +39,7 @@ class PaperTrailTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
+    u = User.find(u.id)
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u
@@ -95,6 +97,7 @@ class PaperTrailTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
+    u = User.find(u.id)
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u
@@ -109,6 +112,7 @@ class PaperTrailTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
+    u = User.find(u.id)
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u

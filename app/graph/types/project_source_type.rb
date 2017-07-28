@@ -5,11 +5,11 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('ProjectSource')
-  field :updated_at, types.String
-  field :created_at, types.String
   field :source_id, types.Int
   field :project_id, types.Int
   field :permissions, types.String
+  field :dbid, types.Int
+
   field :project do
     type -> { ProjectType }
 
@@ -25,6 +25,34 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
       project_source.source
     }
   end
+
+  field :user do
+    type -> { UserType }
+
+    resolve -> (project_source, _args, _ctx) {
+      project_source.user
+    }
+  end
+
+  field :team do
+    type -> { TeamType }
+
+    resolve ->(project_source, _args, _ctx) {
+      project_source.project.team
+    }
+  end
+
+  connection :tags, -> { TagType.connection_type } do
+    resolve ->(project_source, _args, _ctx) {
+      project_source.get_annotations('tag')
+    }
+  end
+
+  instance_exec :project_source, &GraphqlCrudOperations.field_published
+
+  instance_exec :project_source, &GraphqlCrudOperations.field_annotations
+
+  instance_exec :project_source, &GraphqlCrudOperations.field_annotations_count
 
 # End of fields
 end

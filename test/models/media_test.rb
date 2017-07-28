@@ -106,7 +106,7 @@ class MediaTest < ActiveSupport::TestCase
     User.current = u
     m = create_valid_media
     User.current = nil
-    assert_equal 2, m.versions.size
+    assert_equal 1, m.versions.size
   end
 
   test "should create version when media is updated" do
@@ -119,12 +119,12 @@ class MediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       m = create_valid_media
       create_project_media project: p, media: m
-      assert_equal 2, m.versions.size
+      assert_equal 1, m.versions.size
       m = m.reload
       m.user = u2
       m.save!
     end
-    assert_equal 3, m.reload.versions.size
+    assert_equal 2, m.reload.versions.size
   end
 
   test "should not update url when media is updated" do
@@ -166,7 +166,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should set URL from Pender" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -175,7 +175,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should not create media if Pender returns error" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"error","data":{"message":"Error"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -204,7 +204,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should assign to existing account" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     media_url = 'http://www.facebook.com/meedan/posts/123456'
     author_url = 'http://facebook.com/123456'
     author_normal_url = 'http://www.facebook.com/meedan'
@@ -233,7 +233,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should assign to newly created account" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     media_url = 'http://www.facebook.com/meedan/posts/123456'
     author_url = 'http://facebook.com/123456'
     author_normal_url = 'http://www.facebook.com/meedan'
@@ -259,14 +259,14 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal author_normal_url, m.reload.account.url
   end
 
-  test "should create media that is not an item" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+  test "should not create media that is not an item" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     data = { url: url, author_url: url, type: 'profile' }
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
 
-    assert_difference 'Media.count' do
+    assert_raises ActiveRecord::RecordInvalid do
       create_media(url: url)
     end
   end
@@ -277,7 +277,7 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     assert_no_difference 'Media.count' do
       exception = assert_raises ActiveRecord::RecordInvalid do
-        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
           WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
           create_media(url: m.url, account: a, user: u)
         end
@@ -323,7 +323,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should set pender result as annotation" do
     p = create_project
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -375,7 +375,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should create source for Flickr media" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://www.flickr.com/photos/bees/2341623661'
     profile_url = 'https://www.flickr.com/photos/bees/'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","title":"Flickr","description":"Flickr","author_url":"https://www.flickr.com/photos/bees/"}}'
@@ -450,7 +450,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should destroy related items" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -480,7 +480,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should get picture for Twitter links" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'entities' => { 'media' => [{ 'media_url_https' => 'http://twitter.com/picture/123.png' }] } } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -489,7 +489,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should get picture for Facebook links" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://facebook.com/posts/123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'photos' => ['http://facebook.com/images/123.png'] } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -498,7 +498,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should get picture for other links that are not Facebook or Twitter (for example, Instagram and YouTube)" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://youtube.com/watch?v=123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'picture' => 'http://youtube.com/images/123.png' } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -507,7 +507,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should get empty picture for links without picture" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'entities' => {} } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -516,7 +516,7 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should get text" do
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'description' => 'Foo' } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)

@@ -1,8 +1,9 @@
 class User < ActiveRecord::Base
+  self.inheritance_column = :type
   attr_accessor :url, :skip_confirmation_mail
 
   include ValidationsHelper
-  has_one :source
+  belongs_to :source
   has_many :team_users
   has_many :teams, through: :team_users
   has_many :projects
@@ -19,7 +20,8 @@ class User < ActiveRecord::Base
   validates :image, size: true
   validate :user_is_member_in_current_team
   validate :validate_duplicate_email, on: :create
-  validate :languages_format, unless: proc { |p| p.settings.nil? }
+  validate :languages_format, unless: proc { |u| u.settings.nil? }
+  validates :api_key_id, absence: true, if: proc { |u| u.type.nil? }
 
   serialize :omniauth_info
   serialize :cached_teams, Array
@@ -207,6 +209,7 @@ class User < ActiveRecord::Base
     source.avatar = self.profile_image
     source.slogan = self.name
     source.save!
+    self.update_columns(source_id: source.id)
 
     if !self.provider.blank? && !self.url.blank?
       begin

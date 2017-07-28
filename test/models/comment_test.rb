@@ -177,9 +177,11 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     create_team_user team: t, user: u2, role: 'contributor'
+    pm = create_project_media project: p
+    u2 = User.find(u2.id)
 
     with_current_user_and_team(u2, t) do
-      c = create_comment annotator: nil, annotated: create_source
+      c = create_comment annotator: nil, annotated: pm
       assert_equal u2, c.annotator
     end
   end
@@ -293,11 +295,17 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media
+    s = create_source
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
     c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
     sleep 1
     result = CommentSearch.find(c.id, parent: pm.id)
     assert_equal c.id.to_s, result.id
+    c2 = create_comment annotated: ps, text: 'test', disable_es_callbacks: false
+    sleep 1
+    result = CommentSearch.find(c2.id, parent: Base64.encode64("ProjectSource/#{ps.id}"))
+    assert_equal c2.id.to_s, result.id
   end
 
   test "should update elasticsearch comment" do
@@ -310,6 +318,30 @@ class CommentTest < ActiveSupport::TestCase
     sleep 1
     result = CommentSearch.find(c.id, parent: pm.id)
     assert_equal 'test-mod', result.text
+  end
+
+  test "should destroy elasticsearch comment" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    s = create_source
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
+    c2 = create_comment annotated: ps, text: 'test', disable_es_callbacks: false
+    sleep 1
+    result = CommentSearch.find(c.id, parent: pm.id)
+    assert_not_nil result
+    c.destroy
+    c2.destroy
+    sleep 1
+    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+      result = CommentSearch.find(c.id, parent: pm.id)
+    end
+    # destroy project source comment
+    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+      result = CommentSearch.find(c2.id, parent: Base64.encode64("ProjectSource/#{ps.id}"))
+    end
   end
 
   test "should protect attributes from mass assignment" do
@@ -449,5 +481,14 @@ class CommentTest < ActiveSupport::TestCase
     text = "Please check this report [http://localhost:3333/test/project/#{p.id}/media/#{pm.id}]"
     c = create_comment text: text, annotated: pm
     assert_includes c.entity_objects, pm
+  end
+
+  test "should get team for a source comment" do
+    t = create_team
+    s = create_source
+    s.team_id = t.id
+    s.save!
+    c = create_comment annotated: s
+    assert_equal [t.id], c.get_team
   end
 end

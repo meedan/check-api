@@ -18,7 +18,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with keyword" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -56,7 +56,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with keyword in account info" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     media_url = 'http://www.facebook.com/meedan/posts/123456'
     author_url = 'http://facebook.com/123456'
     author_normal_url = 'http://www.facebook.com/meedan'
@@ -100,7 +100,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with context" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -403,7 +403,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search annotations for multiple projects" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -476,7 +476,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with project and status" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -498,7 +498,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should include tag and status in recent activity sort" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -524,7 +524,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should include notes in recent activity sort" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -568,7 +568,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   # test "should search annotations with non exist media and project" do
   #   t = create_team
   #   p = create_project team: t
-  #   pender_url = CONFIG['pender_host'] + '/api/medias'
+  #   pender_url = CONFIG['pender_url_private'] + '/api/medias'
   #   url = 'http://test.com'
   #   response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
   #   WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -591,7 +591,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should sort by recent activity with project and status filters" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -601,15 +601,15 @@ class CheckSearchTest < ActiveSupport::TestCase
     sleep 1
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({projects: [p.id], status: ['in_progress'], sort: "recent_activity"}.to_json)
-    assert_equal 1, result.number_of_results
+    assert_equal 1, result.project_medias.count
   end
 
   test "should load all items sorted" do
     pm1 = create_project_media disable_es_callbacks: false
     pm2 = create_project_media disable_es_callbacks: false
     sleep 1
-    assert_equal [pm1.id, pm2.id], MediaSearch.all_sorted().map(&:id).map(&:to_i)
-    assert_equal [pm2.id, pm1.id], MediaSearch.all_sorted('desc').map(&:id).map(&:to_i)
+    assert_equal [pm1.id, pm2.id], MediaSearch.all_sorted().keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:id).map(&:to_i)
+    assert_equal [pm2.id, pm1.id], MediaSearch.all_sorted('desc').keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:id).map(&:to_i)
   end
 
   test "should not hit ES when there are no filters" do
@@ -629,20 +629,20 @@ class CheckSearchTest < ActiveSupport::TestCase
 
     Team.stubs(:current).returns(t1)
     assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
-    assert_equal 2, CheckSearch.new('{}').number_of_results
+    assert_equal 2, CheckSearch.new('{}').project_medias.count
     assert_equal [pm1a], CheckSearch.new({ projects: [p1a.id] }.to_json).medias
-    assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).number_of_results
+    assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).project_medias.count
     assert_equal [pm1a, pm1b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
-    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).number_of_results
+    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).project_medias.count
     Team.unstub(:current)
 
     Team.stubs(:current).returns(t2)
     assert_equal [pm2b, pm2a], CheckSearch.new('{}').medias
-    assert_equal 2, CheckSearch.new('{}').number_of_results
+    assert_equal 2, CheckSearch.new('{}').project_medias.count
     assert_equal [pm2a], CheckSearch.new({ projects: [p2a.id] }.to_json).medias
-    assert_equal 1, CheckSearch.new({ projects: [p2a.id] }.to_json).number_of_results
+    assert_equal 1, CheckSearch.new({ projects: [p2a.id] }.to_json).project_medias.count
     assert_equal [pm2a, pm2b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
-    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).number_of_results
+    assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).project_medias.count
     Team.unstub(:current)
   end
 
@@ -668,7 +668,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with diacritics PT" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "coração", "description":"vovô foi à são paulo"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -688,7 +688,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with diacritics FR" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "cañon", "description":"légion française"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -710,7 +710,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should search with diacritics AR" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"تْشِك"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -729,4 +729,149 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [pm.id], result.medias.map(&:id)
   end
 
+  test "should search in project sources" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({ show: ['sources'] }.to_json)
+    assert_includes result.project_sources.map(&:id), ps.id
+  end
+
+  test "should search AR - ticket 6066" do
+     t = create_team
+     p = create_project team: t
+     pender_url = CONFIG['pender_url_private'] + '/api/medias'
+     url = 'http://test.com'
+     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"بِسْمِ ٱللهِ ٱلرَّحْمٰنِ ٱلرَّحِيمِ"}}'
+     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+     m = create_media(account: create_valid_account, url: url)
+     pm = create_project_media project: p, media: m, disable_es_callbacks: false
+     sleep 1
+     Team.stubs(:current).returns(t)
+     result = CheckSearch.new({keyword: "بسم"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+     result = CheckSearch.new({keyword: "بسم الله"}.to_json)
+     assert_equal [pm.id], result.medias.map(&:id)
+  end
+
+  test "should search with keyword in project sources" do
+    t = create_team
+    p = create_project team: t
+    s = create_source name: 'search_source_title', slogan: 'search_source_desc'
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    sleep 1
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({keyword: "non_exist_title", show: ['sources'] }.to_json)
+    assert_empty result.sources
+    result = CheckSearch.new({keyword: "search_source_title", show: ['sources'] }.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+    # search in description
+    result = CheckSearch.new({keyword: "search_source_desc", show: ['sources'] }.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+    # add keyword to multiple sources
+    s2 = create_source name: 'search_source_title2', slogan: 'search_source_desc'
+    ps2 = create_project_source project: p, source: s2, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({keyword: "search_source_desc", show: ['sources'] }.to_json)
+    assert_equal [ps.id, ps2.id].sort, result.sources.map(&:id).sort
+  end
+
+  test "should search with tags in project sources" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p, name: 'source_a', disable_es_callbacks: false
+    ps2 = create_project_source project: p, name: 'source_b', disable_es_callbacks: false
+    create_tag tag: 'sports', annotated: ps, disable_es_callbacks: false
+    create_tag tag: 'sports', annotated: ps2, disable_es_callbacks: false
+    create_tag tag: 'news', annotated: ps, disable_es_callbacks: false
+    sleep 10
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({tags: ['non_exist_tag'], show: ['sources'] }.to_json)
+    assert_empty result.sources
+    result = CheckSearch.new({tags: ['sports'], show: ['sources'] }.to_json)
+    assert_equal [ps.id, ps2.id].sort, result.sources.map(&:id).sort
+    result = CheckSearch.new({tags: ['news'], show: ['sources'] }.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+  end
+
+  test "should search keyword in comments in project sources" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p, name: 'source_a', disable_es_callbacks: false
+    create_comment text: 'add_comment', annotated: ps, disable_es_callbacks: false
+    sleep 10
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({keyword: 'add_comment', projects: [p.id], show: ['sources'] }.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+  end
+
+  test "should search keyword in accounts in project sources" do
+    t = create_team
+    p = create_project team: t
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"username": "account_username", "url":"' + url + '","type":"profile"}}')
+    ps = create_project_source project: p, name: 'New source', url: url, disable_es_callbacks: false
+    sleep 10
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({keyword: 'account_username', projects: [p.id], show: ['sources'] }.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+  end
+
+  test "should sort results by recent activities in project sources" do
+    t = create_team
+    p = create_project team: t
+    info = {title: 'search_sort'}.to_json
+    ps1 = create_project_source project: p, name: 'search_sort', disable_es_callbacks: false
+    ps2 = create_project_source project: p, name: 'search_sort', disable_es_callbacks: false
+    ps3 = create_project_source project: p, name: 'search_sort', disable_es_callbacks: false
+    create_comment text: 'search_sort', annotated: ps1, disable_es_callbacks: false
+    sleep 10
+    # sort with keywords
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], show: ['sources'] }.to_json)
+    assert_equal [ps3.id, ps2.id, ps1.id], result.sources.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
+    assert_equal [ps1.id, ps3.id, ps2.id], result.sources.map(&:id)
+    # sort with keywords and tags
+    create_tag tag: 'sorts', annotated: ps3, disable_es_callbacks: false
+    create_tag tag: 'sorts', annotated: ps2, disable_es_callbacks: false
+    sleep 10
+    result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
+    assert_equal [ps2.id, ps3.id], result.sources.map(&:id).sort
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
+    assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
+    # sort with keywords and tags
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
+    assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], show: ['sources'] }.to_json)
+    assert_equal [ps3.id, ps2.id], result.sources.map(&:id)
+  end
+
+  test "should return empty medias or sources" do
+    t = create_team
+    p = create_project team: t
+    ps = create_project_source project: p, disable_es_callbacks: false
+    c = create_claim_media
+    pm = create_project_media project: p, media: c, disable_es_callbacks: false
+    sleep 10
+    Team.stubs(:current).returns(t)
+    result = CheckSearch.new({}.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ show: ['medias'] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ show: ['sources'] }.to_json)
+    assert_equal 1, result.sources.count
+    assert_equal 0, result.medias.count
+    result = CheckSearch.new({ show: ['medias', 'sources'] }.to_json)
+    assert_equal 1, result.sources.count
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ show: [] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 0, result.medias.count
+    Team.unstub(:current)
+  end
 end

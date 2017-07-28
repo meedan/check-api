@@ -38,15 +38,16 @@ class AdminAbility
     can :destroy, Project, :team_id => @teams
     can :export_project, Project, team_id: @teams
 
-    can :create, [Media, Account, Source, Comment, Embed, Link, Claim, Dynamic]
+    can :create, [Media, Comment, Embed, Link, Claim, Dynamic]
     can :update, [Media, Link, Claim], :user_id => @user.id
     can :update, [Media, Link, Claim], projects: { team: { id: @teams }}
     can [:update, :destroy], [Media, Link, Claim] do |obj|
       (obj.get_team & @teams).any?
     end
-    can :update, [Account, Source, Embed]
+    can :update, Embed
     can [:create, :update], [ProjectSource, ProjectMedia], project: { team: { id: @teams }}
     can :destroy, [ProjectMedia, ProjectSource], project: { team: { id: @teams }}
+    can [:create, :update, :destroy], [Source, Account], :team_id => @teams
     %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
       can [:create, :destroy], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         (obj.get_team & @teams).any?

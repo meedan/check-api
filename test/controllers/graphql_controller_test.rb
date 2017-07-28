@@ -39,6 +39,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_kind_of String, data['version']
   end
 
+  test "should not access GraphQL if authenticated as a bot" do
+    authenticate_with_user(create_bot_user)
+    post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}'
+    assert_response 401
+  end
+
   test "should get node from global id" do
     authenticate_with_user
     id = Base64.encode64('About/1')
@@ -80,7 +86,7 @@ class GraphqlControllerTest < ActionController::TestCase
   # Test CRUD operations for each model
 
   test "should create account" do
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
       assert_graphql_create('account', { url: @url })
     end
@@ -88,12 +94,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read accounts" do
     assert_graphql_read('account', 'url')
-  end
-
-  test "should update account" do
-    u1 = create_user
-    u2 = create_user
-    assert_graphql_update('account', :user_id, u1.id, u2.id)
+    assert_graphql_read('account', 'embed')
   end
 
   test "should create comment" do
@@ -117,7 +118,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should create media" do
     p = create_project team: @team
     url = random_url
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_graphql_create('project_media', { project_id: p.id, url: url })
@@ -136,9 +137,10 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     pm = create_project_media project: p
-    create_comment annotated: pm
+    u = create_user name: 'The Annotator'
+    create_comment annotated: pm, annotator: u
     create_tag annotated: pm
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, annotator { user { name } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
@@ -146,6 +148,8 @@ class GraphqlControllerTest < ActionController::TestCase
     assert JSON.parse(@response.body)['data']['project_media'].has_key?('language')
     assert JSON.parse(@response.body)['data']['project_media'].has_key?('language_code')
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['annotations']['edges'].size
+    users = JSON.parse(@response.body)['data']['project_media']['annotations']['edges'].collect{ |e| e['node']['annotator']['user']['name'] }
+    assert users.include?('The Annotator')
   end
 
   test "should read project medias with team_id as argument" do
@@ -183,7 +187,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     p2 = create_project team: @team
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -211,7 +215,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read project media overridden" do
     authenticate_with_user
     p = create_project team: @team
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -252,16 +256,35 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source
     p = create_project team: @team
     assert_graphql_create('project_source', { source_id: s.id, project_id: p.id })
+    assert_graphql_create('project_source', { name: 'New source', project_id: p.id })
   end
 
   test "should read project sources" do
     assert_graphql_read('project_source', 'source_id')
+    authenticate_with_user
+    p = create_project team: @team
+    ps = create_project_source project: p, user: create_user
+    create_comment annotated: ps
+    create_tag annotated: ps
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, user{id}, team{id}, tags { edges { node { dbid } } },annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_source']
+    assert_not_empty data['published']
+    assert_not_empty data['user']['id']
+    assert_not_empty data['team']['id']
+    assert_equal 2, data['annotations']['edges'].size
+    assert_equal 2, data['annotations_count']
   end
 
-  test "should update project source" do
-    p1 = create_project team: @team
-    p2 = create_project team: @team
-    assert_graphql_update('project_source', :project_id, p1.id, p2.id)
+  test "should read project sources with team_id as argument" do
+    authenticate_with_token
+    p = create_project team: @team
+    ps = create_project_source project: p
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id},#{@team.id}\") { dbid } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal ps.id, JSON.parse(@response.body)['data']['project_source']['dbid']
   end
 
   test "should destroy project source" do
@@ -300,7 +323,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read source" do
-    Source.delete_all
+    User.delete_all
     assert_graphql_read('source', 'image')
   end
 
@@ -355,7 +378,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from account" do
-    assert_graphql_read_object('account', { 'user' => 'name', 'source' => 'name' })
+    assert_graphql_read_object('account', { 'user' => 'name' })
   end
 
   test "should read object from project media" do
@@ -371,13 +394,14 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from source" do
+    User.delete_all
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
-     'annotations' => 'content','medias' => 'media_id', 'collaborators' => 'name',
+     'annotations' => 'content', 'medias' => 'media_id', 'collaborators' => 'name',
      'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id' })
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id', 'project_sources' => 'source_id' })
   end
 
   test "should read object from media" do
@@ -465,7 +489,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     url = 'https://www.youtube.com/user/MeedanTube'
 
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
       query = 'mutation create { createAccount(input: { clientMutationId: "1", url: "' + url + '" }) { account { id } } }'
 
@@ -587,7 +611,7 @@ class GraphqlControllerTest < ActionController::TestCase
       create_comment annotated: pm, annotator: u
       create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
     end
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"translation,comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, created_at, meta, object_changes_json, user { name }, annotation { id }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"translation,comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, projects(first: 2) { edges { node { title } } }, task { id } } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
     assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
@@ -659,7 +683,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
     authenticate_with_user(u)
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -675,7 +699,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_equal [pm2.id], ids
     create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
-    sleep 15
+    sleep 20
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
     post :create, query: query
     assert_response :success
@@ -691,7 +715,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     p2 = create_project team: @team
     authenticate_with_user(u)
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -836,7 +860,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
     authenticate_with_user(u)
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -851,7 +875,7 @@ class GraphqlControllerTest < ActionController::TestCase
     f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
     f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
     a.save!
-    sleep 15
+    sleep 20
     query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
@@ -907,11 +931,13 @@ class GraphqlControllerTest < ActionController::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response { content } } } } } }"
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response_value, first_response { content } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
-    fields = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['first_response']['content']
+    node = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']
+    fields = node['first_response']['content']
     assert_equal 'Test', JSON.parse(fields).select{ |f| f['field_type'] == 'text' }.first['value']
+    assert_equal 'Test', node['first_response_value'] 
   end
 
   test "should move report to other projects" do
@@ -1090,5 +1116,32 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal a.id, data['annotation']['dbid'].to_i
     assert_equal a.id, data['annotations']['edges'][0]['node']['dbid'].to_i
     assert_equal 'translated', data['field_value']
+  end
+
+  test "should create media with custom field" do
+    authenticate_with_user
+    create_annotation_type_and_fields('Syrian Archive Data', { 'Id' => ['Id', false] })
+    p = create_project team: @team
+    fields = '{\"annotation_type\":\"syrian_archive_data\",\"set_fields\":\"{\\\"syrian_archive_data_id\\\":\\\"123456\\\"}\"}'
+    query = 'mutation create { createProjectMedia(input: { url: "", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal '123456', ProjectMedia.last.get_annotations('syrian_archive_data').last.load.get_field_value('syrian_archive_data_id')
+  end
+
+  test "should manage auto tasks of a team" do
+    u = create_user
+    t = create_team
+    t.set_checklist([{ label: 'A', type: 'free_text', description: '', projects: [], options: '[]' }])
+    t.save!
+    id = NodeIdentification.to_global_id('Team', t.id)
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    assert_equal ['A'], t.get_checklist.collect{ |t| t[:label] }
+    task = '{\"label\":\"B\",\"type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":\"[]\"}'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", remove_auto_task: "A", add_auto_task: "' + task + '" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal ['B'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }
   end
 end

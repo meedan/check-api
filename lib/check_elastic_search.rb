@@ -49,14 +49,21 @@ module CheckElasticSearch
   end
 
   def get_parent_id
-    pm = self.id if self.class.name == 'ProjectMedia'
-    pm = self.annotated_id if pm.nil? and self.is_annotation?
+    if self.is_annotation?
+      pm = get_es_parent_id(self.annotated_id, self.annotated_type)
+    else
+      pm = get_es_parent_id(self.id, self.class.name)
+    end
     pm
+  end
+
+  def get_es_parent_id(id, klass)
+    (klass == 'ProjectSource') ? Base64.encode64("ProjectSource/#{id}") : id
   end
 
   def get_elasticsearch_parent(parent)
     sleep 1 if Rails.env == 'test'
-    MediaSearch.search(query: { match: { annotated_id: parent } }).last unless parent.nil?
+    MediaSearch.search(query: { match: { _id: parent } }).last unless parent.nil?
   end
 
   def get_elasticsearch_data(data)
@@ -65,8 +72,13 @@ module CheckElasticSearch
 
   def destroy_elasticsearch_data(model, type = 'child')
     options = {}
-    options = {parent: self.annotated_id} if type == 'child'
-    obj = model.search(query: { match: { _id: self.id } }).last
+    if type == 'child'
+      options = {parent: get_parent_id}
+      id = self.id
+    else
+      id = get_parent_id
+    end
+    obj = model.search(query: { match: { _id: id } }).last
     obj.delete(options) unless obj.nil?
   end
 

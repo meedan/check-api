@@ -11,7 +11,6 @@ VersionType = GraphqlCrudOperations.define_default_type do
   field :event, types.String
   field :event_type, types.String
   field :object_after, types.String
-  field :created_at, types.String
   field :meta, types.String
   field :object_changes_json, types.String
 

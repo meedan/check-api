@@ -12,7 +12,7 @@ module ProjectMediaEmbed
   end
 
   def embed_url
-    CONFIG['pender_host'] + '/api/medias.html?url=' + self.full_url.to_s
+    CONFIG['pender_url'] + '/api/medias.html?url=' + self.full_url.to_s
   end
 
   def author_name
@@ -91,7 +91,20 @@ module ProjectMediaEmbed
     }.to_json
   end
 
+  def mark_as_embedded
+    if self.get_annotations('embed_code').empty?
+      a = Dynamic.new
+      a.skip_check_ability = true
+      a.annotated = self
+      a.annotation_type = 'embed_code'
+      a.set_fields = { embed_code_copied: true }.to_json
+      a.save!
+    end
+  end
+
   def as_oembed(options = {})
+    self.mark_as_embedded
+
     {
       type: 'rich',
       version: '1.0',
@@ -114,16 +127,19 @@ module ProjectMediaEmbed
   end
 
   def clear_caches
-    ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id) if CONFIG['app_name'] == 'Check' && Rails.env.test?
+    ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id) if CONFIG['app_name'] == 'Check'
   end
   
   module ClassMethods
     def clear_caches(pmid)
       pm = ProjectMedia.find(pmid)
+      return if pm.get_annotations('embed_code').empty?
       ['', '?hide_tasks=1', '?hide_notes=1', '?hide_tasks=1&hide_notes=1'].each do |part|
         url = pm.full_url.to_s + part
-        PenderClient::Request.get_medias(CONFIG['pender_host'], { url: url, refresh: '1' }, CONFIG['pender_key'])
+        PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
         CcDeville.clear_cache_for_url(url)
+        CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
+        CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + CGI.escape(url))
       end
     end
   end

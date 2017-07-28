@@ -13,7 +13,7 @@ if (locales.indexOf(locale) === -1) {
 
 var strings = document.getElementsByClassName('l');
 for (var i = 0; i < strings.length; i++) {
-  strings[i].innerHTML = translations[locale][strings[i].innerHTML];
+  strings[i].innerHTML = translations[locale][strings[i].innerHTML] || '';
 }
 
 // Use jquery.timeago for relative timestamps

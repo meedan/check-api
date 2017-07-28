@@ -181,8 +181,10 @@ class Bot::ViberTest < ActiveSupport::TestCase
   test "should set translation status" do
     u = create_user
     t = create_team
+    p = create_project team: t
     create_team_user user: u, team: t, role: 'owner'
-    pm = create_project_media media: create_claim_media
+    u = User.find(u.id)
+    pm = create_project_media media: create_claim_media, project: p
     with_current_user_and_team(u, t) do
       assert_difference "Dynamic.where(annotation_type: 'translation_status').count" do
         create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'ready' }.to_json
@@ -193,8 +195,10 @@ class Bot::ViberTest < ActiveSupport::TestCase
   test "should not set invalid translation status" do
     u = create_user
     t = create_team
+    p = create_project team: t
     create_team_user user: u, team: t, role: 'owner'
-    pm = create_project_media media: create_claim_media
+    u = User.find(u.id)
+    pm = create_project_media media: create_claim_media, project: p
     with_current_user_and_team(u, t) do
       assert_no_difference "Dynamic.where(annotation_type: 'translation_status').count" do
         assert_raises ActiveRecord::RecordInvalid do

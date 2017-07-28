@@ -7,7 +7,8 @@ development: &default
   facebook_app_secret: test
   slack_app_id: 123456
   slack_app_secret: test
-  pender_host: http://localhost:3005
+  pender_url: http://localhost:3005
+  pender_url_private: http://localhost:3005
   pender_key: test
   elasticsearch_host: 127.0.0.1
   elasticsearch_port: 9200
@@ -51,10 +52,12 @@ development: &default
   cc_deville_host:
   cc_deville_token:
   cc_deville_httpauth:
+  google_analytics_code: # Format: 'UA-000000000-1' 
 
 test:
   <<: *default
-  pender_host: http://pender.test:13200
+  pender_url: http://pender.test:13200
+  pender_url_private: http://pender.test:13200
   pender_key: test
   alegre_host: http://alegre.test:13100
   alegre_token: test

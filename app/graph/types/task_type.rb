@@ -8,6 +8,15 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
     }
   end
 
+  field :first_response_value do
+    type types.String
+
+    resolve -> (task, _args, _ctx) {
+      obj = task.load
+      obj.nil? ? "" : obj.first_response
+    }
+  end
+
   field :jsonoptions do
     type types.String
 

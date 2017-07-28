@@ -5,8 +5,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('ProjectMedia')
-  field :updated_at, types.String
-  field :created_at, types.String
   field :media_id, types.Int
   field :project_id, types.Int
   field :user_id, types.Int
@@ -136,13 +134,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :published do
-    type types.String
-
-    resolve ->(project_media, _args, _ctx) {
-      project_media.created_at.to_i.to_s
-    }
-  end
+  instance_exec :project_media, &GraphqlCrudOperations.field_published
 
   field :language do
     type types.String
@@ -162,33 +154,20 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :annotation do
     type -> { AnnotationType }
-    argument :annotation_type, !types.String 
+    argument :annotation_type, !types.String
 
     resolve ->(project_media, args, _ctx) {
       project_media.get_dynamic_annotation(args['annotation_type'])
     }
   end
 
-  connection :annotations, -> { AnnotationType.connection_type } do
-    argument :annotation_type, !types.String
+  instance_exec :project_media, &GraphqlCrudOperations.field_annotations
 
-    resolve ->(project_media, args, _ctx) {
-      project_media.get_annotations(args['annotation_type'].split(',').map(&:strip))
-    }
-  end
-
-  field :annotations_count do
-    type types.Int
-    argument :annotation_type, !types.String
-
-    resolve ->(project_media, args, _ctx) {
-      project_media.get_annotations(args['annotation_type'].split(',').map(&:strip)).count
-    }
-  end
+  instance_exec :project_media, &GraphqlCrudOperations.field_annotations_count
 
   field :field_value do
     type types.String
-    argument :annotation_type_field_name, !types.String 
+    argument :annotation_type_field_name, !types.String
 
     resolve ->(project_media, args, _ctx) {
       annotation_type, field_name = args['annotation_type_field_name'].to_s.split(':')

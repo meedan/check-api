@@ -1,7 +1,7 @@
 class Task < ActiveRecord::Base
   include AnnotationBase
 
-  before_validation :set_initial_status, on: :create
+  before_validation :set_initial_status, :set_slug, on: :create
   after_create :send_slack_notification
   after_update :send_slack_notification
   after_destroy :destroy_responses
@@ -25,6 +25,8 @@ class Task < ActiveRecord::Base
     ["Unresolved", "Resolved", "Can't be resolved"]
   end
   validates :status, included: { values: self.task_statuses }, allow_blank: true
+
+  field :slug
 
   def slack_notification_message
     if self.versions.count > 1
@@ -106,7 +108,11 @@ class Task < ActiveRecord::Base
 
   def first_response
     response = self.responses.first
-    response.get_fields.select{ |f| f.field_name =~ /^response_/ }.first.value unless response.nil?
+    response.get_fields.select{ |f| f.field_name =~ /^response/ }.first.to_s unless response.nil?
+  end
+
+  def self.slug(label)
+    label.to_s.parameterize.tr('-', '_')
   end
 
   private
@@ -124,5 +130,9 @@ class Task < ActiveRecord::Base
       annotation.load.fields.delete_all
       annotation.delete
     end
+  end
+
+  def set_slug
+    self.slug = Task.slug(self.label)
   end
 end

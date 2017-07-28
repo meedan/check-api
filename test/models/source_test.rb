@@ -1,6 +1,15 @@
 require_relative '../test_helper'
 
 class SourceTest < ActiveSupport::TestCase
+  def setup
+    super
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+    MediaSearch.delete_index
+    MediaSearch.create_index
+    sleep 1
+  end
+
   test "should create source" do
     u = create_user
     assert_difference 'Source.count' do
@@ -23,14 +32,15 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should create version when source is updated" do
+    t = create_team
     u = create_user
-    create_team_user user: u, role: 'contributor'
-    User.current = u
-    s = create_source
-    s.slogan = 'test'
-    s.save!
-    assert_equal 2, s.versions.size
-    User.current = nil
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      s = create_source
+      s.slogan = 'test'
+      s.save!
+      assert_equal 2, s.versions.size
+    end
   end
 
   test "should have accounts" do
@@ -69,6 +79,18 @@ class SourceTest < ActiveSupport::TestCase
     u = create_user
     s = create_source user: u
     assert_equal u, s.user
+  end
+
+  test "should set user and team" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    with_current_user_and_team(u, t) do
+      s = create_source project_id: p.id
+      assert_equal u, s.user
+      assert_equal t, s.team
+    end
   end
 
   test "should have annotations" do
@@ -198,9 +220,6 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source
     s.project_sources << ps
     assert_equal [t.id], s.get_team
-    ps.project = nil
-    ps.save
-    assert_equal [], s.reload.get_team
   end
 
   test "should protect attributes from mass assignment" do
@@ -210,6 +229,67 @@ class SourceTest < ActiveSupport::TestCase
     assert_raise ActiveModel::ForbiddenAttributesError do
       Source.create(params)
     end
+  end
+
+  test "should have image" do
+    c = nil
+    assert_difference 'Source.count' do
+      c = create_source file: 'rails.png'
+    end
+    assert_not_nil c.file
+  end
+
+  test "should not upload a file that is not an image" do
+    assert_no_difference 'Source.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source file: 'not-an-image.txt'
+      end
+    end
+  end
+
+  test "should not upload a big image" do
+    assert_no_difference 'Source.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source file: 'ruby-big.png'
+      end
+    end
+  end
+
+  test "should not upload a small image" do
+    assert_no_difference 'Source.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source file: 'ruby-small.png'
+      end
+    end
+  end
+
+  test "should update es after source update" do
+    s = create_source name: 'source_a', slogan: 'desc_a'
+    ps = create_project_source project: create_project, source: s, disable_es_callbacks: false
+    sleep 1
+    ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    assert_equal ms.title, s.name
+    assert_equal ms.description, s.description
+    s.name = 'new_source'; s.slogan = 'new_desc'; s.disable_es_callbacks = false; s.save!
+    s.reload
+    sleep 1
+    ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    assert_equal ms.title, s.name
+    assert_equal ms.description, s.description
+    # test multiple project sources
+    ps2 = create_project_source project: create_project, source: s, disable_es_callbacks: false
+    sleep 1
+    ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps2.id}"))
+    assert_equal ms.title, s.name
+    assert_equal ms.description, s.description
+    # update source should update all related project_sources
+    s.name = 'source_b'; s.slogan = 'desc_b'; s.save!
+    s.reload
+    sleep 1
+    ms1 = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    ms2 = MediaSearch.find(Base64.encode64("ProjectSource/#{ps2.id}"))
+    assert_equal ms1.title, ms2.title, s.name
+    assert_equal ms1.description, ms2.description, s.description
   end
 
 end

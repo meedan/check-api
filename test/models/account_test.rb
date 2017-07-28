@@ -5,15 +5,15 @@ class AccountTest < ActiveSupport::TestCase
     super
     @url = 'https://www.youtube.com/user/MeedanTube'
     s = create_source
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
-      @account = create_account(url: @url, source: s)
+      @account = create_account(url: @url, source: s, user: create_user)
     end
   end
 
   test "should create account" do
     assert_difference 'Account.count' do
-      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
         create_valid_account
       end
@@ -27,6 +27,20 @@ class AccountTest < ActiveSupport::TestCase
 
   test "set pender data for account" do
     assert_not_empty @account.data
+  end
+
+  test "should get embed" do
+    assert_not_empty @account.embed
+  end
+
+  test "should set user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      a = create_account
+      assert_equal u, a.user
+    end
   end
 
   test "should have user" do
@@ -50,19 +64,21 @@ class AccountTest < ActiveSupport::TestCase
     create_team_user user: u
     User.current = u
     a = create_account
-    assert_equal 1, a.versions.size
+    assert_equal 2, a.versions.size
     User.current = nil
   end
 
   test "should create version when account is updated" do
+    t = create_team
     u = create_user
-    create_team_user user: u
-    User.current = u
-    a = create_account
-    a.user = create_user
-    a.save!
-    assert_equal 2, a.versions.size
-    User.current = nil
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      a = create_account
+      a.team = create_team
+      a.save!
+      assert_equal 3, a.versions.size
+    end
+
   end
 
   test "should get user id from callback" do
@@ -132,13 +148,12 @@ class AccountTest < ActiveSupport::TestCase
 
   test "should not create account with duplicated URL" do
     assert_no_difference 'Account.count' do
-      exception = assert_raises ActiveRecord::RecordInvalid do
-        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      assert_raises ActiveRecord::RecordInvalid do
+        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
           WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
           create_account(url: @url)
         end
       end
-      assert_equal "Validation failed: Account with this URL exists and has source id #{@account.source_id}", exception.message
     end
   end
 
@@ -227,12 +242,37 @@ class AccountTest < ActiveSupport::TestCase
   test "should skip Pender and save URL as is" do
     WebMock.disable_net_connect!
     url = 'http://keep.it'
-    pender_url = CONFIG['pender_host'] + '/api/medias'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}')
     a = create_account url: 'http://keep.it', skip_pender: true
     assert_equal 'http://keep.it', a.url
     a = create_account url: 'http://keep.it', skip_pender: false
     assert_equal 'http://keep.it/', a.url
+    WebMock.allow_net_connect!
+  end
+
+  test "should get existing account or create new one but associate with source" do
+    WebMock.disable_net_connect!
+    s = create_source
+    s2 = create_source
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    assert_difference 'Account.count' do
+      a = Account.create_for_source(url, s)
+      assert_equal s, a.source
+    end
+    assert_no_difference 'Account.count' do
+      a = Account.create_for_source(url, s2)
+      assert_equal s2, a.source
+    end
+    assert_no_difference 'Account.count' do
+      a = Account.create_for_source(url)
+      assert_kind_of Source, a.source
+    end
+    a = Account.last
+    s3 = Source.last
+    assert_equal [s.id, s2.id, s3.id].sort, a.sources.map(&:id).uniq.sort
     WebMock.allow_net_connect!
   end
 end

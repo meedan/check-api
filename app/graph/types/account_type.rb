@@ -5,12 +5,9 @@ AccountType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('Account')
-  field :updated_at, types.String
-  field :created_at, types.String
   field :data, types.String
   field :url, !types.String
   field :provider, types.String
-  field :source_id, types.Int
   field :user_id, types.Int
   field :permissions, types.String
   field :user do
@@ -20,17 +17,18 @@ AccountType = GraphqlCrudOperations.define_default_type do
       account.user
     }
   end
-  field :source do
-    type -> { SourceType }
-
-    resolve -> (account, _args, _ctx) {
-      account.source
-    }
-  end
 
   connection :medias, -> { MediaType.connection_type } do
     resolve ->(account, _args, _ctx) {
       account.medias
+    }
+  end
+
+  field :embed do
+    type JsonStringType
+
+    resolve ->(account, _args, _ctx) {
+      account.embed
     }
   end
 

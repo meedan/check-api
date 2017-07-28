@@ -4,6 +4,8 @@ class ApiKey < ActiveRecord::Base
 
   before_validation :generate_access_token, on: :create
   before_validation :calculate_expiration_date, on: :create
+
+  has_one :bot_user
   
   # Reimplement this method in your application
   def self.applications
@@ -30,6 +32,6 @@ class ApiKey < ActiveRecord::Base
   end
 
   def calculate_expiration_date
-    self.expire_at = Time.now.since(30.days)
+    self.expire_at ||= Time.now.since(30.days)
   end
 end

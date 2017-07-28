@@ -37,4 +37,11 @@ class ApiKeyTest < ActiveSupport::TestCase
       create_api_key application: 'invalid'
     end
   end
+
+  test "should have bot user" do
+    a = create_api_key
+    assert_nil a.bot_user
+    b = create_bot_user api_key_id: a.id
+    assert_equal b, a.reload.bot_user
+  end
 end

@@ -103,7 +103,9 @@ class UserTest < ActiveSupport::TestCase
     assert_difference 'Source.count' do
       u = create_user
     end
-    assert_equal u.source, Source.last
+    s = create_source user: u
+    u = u.reload
+    assert_equal u.source_id, u.source.id
   end
 
   test "should not create account if user has no url" do
@@ -120,7 +122,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should create account if user has provider and url" do
     assert_difference 'Account.count' do
-      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_host']) do
+      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
         create_user provider: 'youtube', url: 'https://www.youtube.com/user/MeedanTube'
       end
@@ -506,4 +508,18 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not have User type" do
+    u = create_user
+    assert_nil u.type
+  end
+
+  test "should not have API key" do
+    a = create_api_key
+    assert_raises ActiveRecord::RecordInvalid do
+      create_user api_key_id: a.id
+    end
+    assert_nothing_raised do
+      create_user api_key_id: nil
+    end
+  end
 end

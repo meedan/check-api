@@ -10,9 +10,11 @@ module CheckElasticSearchModel
 
     settings analysis: {
       char_filter: {
-        space_hashtags: {
+        space_hashtags_and_arabic: {
           type: 'mapping',
-          mappings: ['#=>|#']
+          mappings: [
+              "ٱ=>ا",
+              "#=>|#"              ]
         }
       },
       filter: {
@@ -24,7 +26,7 @@ module CheckElasticSearchModel
       analyzer: {
         check: {
           type: 'custom',
-          char_filter: 'space_hashtags',
+          char_filter: 'space_hashtags_and_arabic',
           tokenizer: 'whitespace',
           filter: ['lowercase', 'hashtag_as_alphanum', 'asciifolding','icu_normalizer','arabic_normalization']
         }
@@ -47,9 +49,14 @@ module CheckElasticSearchModel
       mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch] if mapping_keys.nil?
       source_index = CheckElasticSearchModel.get_index_name
       target_index = "#{source_index}_reindex"
-      MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
-      sleep 1
-      MediaSearch.migrate_es_data(target_index, source_index, mapping_keys)
+      begin
+        MediaSearch.delete_index target_index
+        MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+        sleep 1
+        MediaSearch.migrate_es_data(target_index, source_index, mapping_keys)
+      rescue StandardError => e
+        Rails.logger.error "[ES MIGRATION] Could not start migation: #{e.message}"
+      end
   end
 
   private
@@ -64,7 +71,7 @@ module CheckElasticSearchModel
       index_name = self.index_name
       settings = []
       mappings = []
-      [MediaSearch, CommentSearch, TagSearch, DynamicSearch].each do |klass|
+      [MediaSearch, CommentSearch, TagSearch, DynamicSearch, AccountSearch].each do |klass|
         settings << klass.settings.to_hash
         mappings << klass.mappings.to_hash
       end

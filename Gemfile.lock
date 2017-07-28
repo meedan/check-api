@@ -1,12 +1,4 @@
 GIT
-  remote: https://github.com/caiosba/graphiql-rails.git
-  revision: d03dd94f8d28bbae3d3b13e568ad48b1c79cff7c
-  ref: d03dd94
-  specs:
-    graphiql-rails (1.2.0)
-      rails
-
-GIT
   remote: https://github.com/iain/http_accept_language.git
   revision: 1d1837136eba5723132eebbd8c0176860c184e0c
   specs:
@@ -20,11 +12,25 @@ GIT
     alegre_client (0.0.9)
 
 GIT
+  remote: https://github.com/meedan/graphiql-rails.git
+  revision: 8db0eacf56006c11f46ded70bf3da47c7854cea5
+  ref: 8db0eac
+  specs:
+    graphiql-rails (1.4.2)
+      rails
+
+GIT
   remote: https://github.com/meedan/pender-client.git
   revision: 88df0561b64b96bb7f8887b518249850c90a1e14
   ref: 88df056
   specs:
     pender_client (0.0.2)
+
+GIT
+  remote: https://github.com/meedan/transifex-interface-ruby.git
+  revision: 5938caa04a4d02b7124164843db4438d24e8837f
+  specs:
+    transifex-interface-ruby (0.0.2)
 
 GIT
   remote: https://github.com/svenfuchs/rails-i18n.git
@@ -429,7 +435,6 @@ GEM
     thor (0.19.4)
     thread_safe (0.3.6)
     tilt (2.0.7)
-    transifex-interface-ruby (0.0.1)
     turbolinks (5.0.1)
       turbolinks-source (~> 5)
     turbolinks-source (5.0.0)
@@ -538,7 +543,7 @@ DEPENDENCIES
   sqlite3
   swagger-docs (= 0.1.9)
   thin
-  transifex-interface-ruby
+  transifex-interface-ruby!
   turbolinks
   twitter
   uglifier (>= 1.3.0)
@@ -546,4 +551,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.14.6
+   1.15.1

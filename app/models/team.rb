@@ -9,6 +9,7 @@ class Team < ActiveRecord::Base
   has_many :team_users, dependent: :destroy
   has_many :users, through: :team_users
   has_many :contacts, dependent: :destroy
+  has_many :sources, dependent: :destroy
 
   mount_uploader :logo, ImageUploader
 
@@ -112,6 +113,17 @@ class Team < ActiveRecord::Base
 
   def checklist=(checklist)
     self.send(:set_checklist, checklist)
+  end
+
+  def add_auto_task=(task)
+    checklist = self.get_checklist || []
+    checklist << task.to_h
+    self.checklist = checklist
+  end
+
+  def remove_auto_task=(task_label)
+    checklist = self.get_checklist || []
+    self.checklist = checklist.reject{ |t| t['label'] == task_label || t[:label] == task_label }
   end
 
   def search_id
