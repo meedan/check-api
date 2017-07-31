@@ -91,6 +91,7 @@ class Account < ActiveRecord::Base
       a.skip_check_ability = true
       a.pender_data = a.embed
       a.source = source
+      a.disable_account_source_creation = disable_account_source_creation
       a.create_source
     end
     a
