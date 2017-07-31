@@ -28,9 +28,14 @@ class AccountSourceTest < ActiveSupport::TestCase
     url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
-    assert_difference 'Account.count' do
+    assert_difference 'AccountSource.count' do
       as = create_account_source url: url, source: @s
       assert_equal as.account.url, url
+    end
+    # create account source for existing url
+    s2 = create_source
+    assert_difference 'AccountSource.count' do
+      as = create_account_source url: @a.url, source: s2
     end
   end
 

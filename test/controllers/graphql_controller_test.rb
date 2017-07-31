@@ -101,10 +101,10 @@ class GraphqlControllerTest < ActionController::TestCase
     a = create_valid_account
     s = create_source
     assert_graphql_create('account_source', { account_id: a.id, source_id: s.id })
-    # url = random_url
-    # pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    # WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
-    # assert_graphql_create('account_source', { source_id: s.id, url: url })
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    assert_graphql_create('account_source', { source_id: s.id, url: url })
   end
 
   test "should create comment" do

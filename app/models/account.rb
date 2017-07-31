@@ -2,7 +2,7 @@ class Account < ActiveRecord::Base
   include PenderData
   include CheckElasticSearch
 
-  attr_accessor :source, :disable_es_callbacks
+  attr_accessor :source, :disable_es_callbacks, :enable_account_source_creation
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at]
   belongs_to :user
@@ -67,16 +67,18 @@ class Account < ActiveRecord::Base
       source.slogan = data['description'].to_s
       source.save!
     end
-
-    self.sources << source
-    self.save!
+    if self.enable_account_source_creation
+      self.sources << source
+      self.save!
+    end
     self.source = source
   end
 
-  def self.create_for_source(url, source = nil)
+  def self.create_for_source(url, source = nil, enable_account_source_creation = true)
     a = Account.where(url: url).last
     if a.nil?
       a = Account.new
+      a.enable_account_source_creation = enable_account_source_creation
       a.source = source
       a.url = url
       if a.save
