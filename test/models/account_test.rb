@@ -280,9 +280,11 @@ class AccountTest < ActiveSupport::TestCase
     WebMock.disable_net_connect!
     url = 'http://example.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }
+    }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "author_picture": "http://provider/picture.png"}}')
     account = Account.create url: url, user: create_user
     assert_equal 'John Doe', account.source.name
+    assert_equal 'http://provider/picture.png', account.source.avatar
     WebMock.allow_net_connect!
   end
 

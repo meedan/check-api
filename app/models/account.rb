@@ -62,7 +62,7 @@ class Account < ActiveRecord::Base
     if source.nil?
       data = self.pender_data
       source = Source.new
-      source.avatar = data['picture']
+      source.avatar = data['author_picture']
       source.name = data['author_name'].blank? ? 'Untitled' : data['author_name']
       source.slogan = data['description'].to_s
       source.save!
