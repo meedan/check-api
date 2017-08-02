@@ -76,19 +76,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :log, -> { VersionType.connection_type } do
-    resolve ->(project_media, _args, _ctx) {
-      project_media.get_versions_log
-    }
-  end
+  instance_exec :project_media, &GraphqlCrudOperations.field_log
 
-  field :log_count do
-    type types.Int
-
-    resolve ->(project_media, _args, _ctx) {
-      project_media.get_versions_log_count
-    }
-  end
+  instance_exec :project_media, &GraphqlCrudOperations.field_log_count
 
   connection :tags, -> { TagType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
