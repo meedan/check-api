@@ -7,8 +7,10 @@ class CheckSearch
     @options['input'] = options.clone
     @options['team_id'] = Team.current.id unless Team.current.nil?
     # set sort options
-    @options['sort'] = @options['sort'] ||= 'recent_added'
-    @options['sort_type'] = @options['sort_type'] ||= 'desc'
+    @options['sort'] ||= 'recent_added'
+    @options['sort_type'] ||= 'desc'
+    # set show options
+    @options['show'] ||= ['medias']
   end
 
   def pusher_channel
@@ -32,6 +34,7 @@ class CheckSearch
   end
 
   def medias
+    return [] unless @options['show'].include?('medias')
     if should_hit_elasticsearch?
       query = medias_build_search_query
       ids = medias_get_search_result(query).map(&:annotated_id)
@@ -48,6 +51,7 @@ class CheckSearch
   end
 
   def sources
+    return [] unless @options['show'].include?('sources')
     if should_hit_elasticsearch?
       query = medias_build_search_query('ProjectSource')
       ids = medias_get_search_result(query).map(&:annotated_id)

@@ -100,14 +100,6 @@ class ProjectMedia < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
-  def get_versions_log
-    PaperTrail::Version.where(project_media_id: self.id).order('created_at ASC')
-  end
-
-  def get_versions_log_count
-    self.reload.cached_annotations_count
-  end
-
   def get_media_annotations(type = nil)
     self.media.annotations.where(annotation_type: type).last
   end
