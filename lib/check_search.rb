@@ -10,7 +10,7 @@ class CheckSearch
     @options['sort'] ||= 'recent_added'
     @options['sort_type'] ||= 'desc'
     # set show options
-    @options['show'] ||= ['medias']
+    @options['show'] = prepare_show_filter(@options['show'])
   end
 
   def pusher_channel
@@ -34,7 +34,7 @@ class CheckSearch
   end
 
   def medias
-    return [] unless @options['show'].include?('medias')
+    return [] if @options['show'] == ['source']
     if should_hit_elasticsearch?
       query = medias_build_search_query
       ids = medias_get_search_result(query).map(&:annotated_id)
@@ -51,7 +51,7 @@ class CheckSearch
   end
 
   def sources
-    return [] unless @options['show'].include?('sources')
+    return [] unless @options['show'].include?('source')
     if should_hit_elasticsearch?
       query = medias_build_search_query('ProjectSource')
       ids = medias_get_search_result(query).map(&:annotated_id)
@@ -75,7 +75,7 @@ class CheckSearch
   private
 
   def should_hit_elasticsearch?
-    !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank?)
+    !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank? && @options['show'].blank?)
   end
 
   def medias_build_search_query(associated_type = 'ProjectMedia')
@@ -96,6 +96,7 @@ class CheckSearch
       conditions << {has_child: { type: 'tag_search', query: { bool: {should: tags_c }}}}
     end
     conditions << {terms: { project_id: @options["projects"] } } unless @options["projects"].blank?
+    conditions << {terms: { associated_type: @options["show"] } } unless @options["show"].blank?
     conditions << {terms: { status: @options["status"] } } unless @options["status"].blank?
     { bool: { must: conditions } }
   end
@@ -131,6 +132,16 @@ class CheckSearch
   def sort_es_items(items, ids)
     ids_sort = items.sort_by{|x| ids.index x.id.to_s}
     ids_sort.to_a
+  end
+
+  def prepare_show_filter(show)
+    show ||= ['photos', 'links', 'quotes']
+    show.map(&:downcase)
+    show_mapping = {'photos' => 'uploadedimage', 'links' => 'link', 'quotes' => 'claim', 'sources' => 'source'}
+    show.each_with_index do |v, i|
+      show[i] = show_mapping[v] unless show_mapping[v].blank?
+    end
+    show
   end
 
 end

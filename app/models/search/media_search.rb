@@ -6,6 +6,7 @@ class MediaSearch
   attribute :project_id, String
   attribute :annotated_type, String
   attribute :annotated_id, String
+  attribute :associated_type, String
   attribute :status, String
   attribute :title, String, mapping: { analyzer: 'check' }
   attribute :description, String, mapping: { analyzer: 'check' }
