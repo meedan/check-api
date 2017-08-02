@@ -45,7 +45,7 @@ class Source < ActiveRecord::Base
 
   def image
     return CONFIG['checkdesk_base_url'] + self.file.url if !self.file.nil? && self.file.url != '/images/source.png'
-    self.avatar || (self.accounts.empty? ? '' : self.accounts.first.data['picture'].to_s)
+    self.avatar || (self.accounts.empty? ? CONFIG['checkdesk_base_url'] + '/images/source.png' : self.accounts.first.data['picture'].to_s)
   end
 
   def description

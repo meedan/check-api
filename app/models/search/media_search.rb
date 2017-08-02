@@ -25,5 +25,4 @@ class MediaSearch
     self.send("annotated_type=", obj.class.name)
     self.send("annotated_id=", obj.id)
   end
-
 end

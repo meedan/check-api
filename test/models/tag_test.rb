@@ -210,4 +210,12 @@ class TagTest < ActiveSupport::TestCase
     end
   end
 
+  test "should return project source" do
+    pm = create_project_media
+    ps = create_project_source
+    t1 = create_tag annotated: pm
+    t2 = create_tag annotated: ps
+    assert_nil t1.project_source
+    assert_equal ps, t2.project_source
+  end
 end
