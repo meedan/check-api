@@ -54,6 +54,7 @@ module CheckElasticSearchModel
         MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
         sleep 1
         MediaSearch.migrate_es_data(target_index, source_index, mapping_keys)
+        MediaSearch.index_name = source_index
       rescue StandardError => e
         Rails.logger.error "[ES MIGRATION] Could not start migation: #{e.message}"
       end

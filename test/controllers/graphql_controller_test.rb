@@ -97,6 +97,16 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('account', 'embed')
   end
 
+  test "should create account source" do
+    a = create_valid_account
+    s = create_source
+    assert_graphql_create('account_source', { account_id: a.id, source_id: s.id })
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    assert_graphql_create('account_source', { source_id: s.id, url: url })
+  end
+
   test "should create comment" do
     p = create_project team: @team
     pm = create_project_media project: p
@@ -946,7 +956,7 @@ class GraphqlControllerTest < ActionController::TestCase
     node = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']
     fields = node['first_response']['content']
     assert_equal 'Test', JSON.parse(fields).select{ |f| f['field_type'] == 'text' }.first['value']
-    assert_equal 'Test', node['first_response_value'] 
+    assert_equal 'Test', node['first_response_value']
   end
 
   test "should move report to other projects" do
