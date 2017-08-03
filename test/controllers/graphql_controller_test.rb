@@ -97,6 +97,16 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('account', 'embed')
   end
 
+  test "should create account source" do
+    a = create_valid_account
+    s = create_source
+    assert_graphql_create('account_source', { account_id: a.id, source_id: s.id })
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    assert_graphql_create('account_source', { source_id: s.id, url: url })
+  end
+
   test "should create comment" do
     p = create_project team: @team
     pm = create_project_media project: p
@@ -263,10 +273,15 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('project_source', 'source_id')
     authenticate_with_user
     p = create_project team: @team
-    ps = create_project_source project: p, user: create_user
+    p2 = create_project team: @team
+    u = create_user
+    ps = create_project_source project: p, user: u
+    ps2 = create_project_source project: p2, source: ps.source, user: u
     create_comment annotated: ps
     create_tag annotated: ps
-    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, user{id}, team{id}, tags { edges { node { dbid } } },annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
+    create_comment annotated: ps2
+    create_tag annotated: ps2
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { source { log(first: 1000) { edges { node { event_type } } }, log_count }, log(first: 1000) { edges { node { event_type } } }, log_count, published, user{id}, team{id}, tags { edges { node { dbid } } },annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_source']
@@ -275,6 +290,10 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_not_empty data['team']['id']
     assert_equal 2, data['annotations']['edges'].size
     assert_equal 2, data['annotations_count']
+    assert_equal 2, data['log']['edges'].size
+    assert_equal 2, data['log_count']
+    assert_equal 4, data['source']['log']['edges'].size
+    assert_equal 4, data['source']['log_count']
   end
 
   test "should read project sources with team_id as argument" do
@@ -937,7 +956,7 @@ class GraphqlControllerTest < ActionController::TestCase
     node = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']
     fields = node['first_response']['content']
     assert_equal 'Test', JSON.parse(fields).select{ |f| f['field_type'] == 'text' }.first['value']
-    assert_equal 'Test', node['first_response_value'] 
+    assert_equal 'Test', node['first_response_value']
   end
 
   test "should move report to other projects" do

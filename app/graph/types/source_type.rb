@@ -18,6 +18,12 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :account_sources, -> { AccountSourceType.connection_type } do
+    resolve ->(source, _args, _ctx) {
+      source.account_sources
+    }
+  end
+
   connection :project_sources, -> { ProjectSourceType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.project_sources
@@ -59,6 +65,10 @@ SourceType = GraphqlCrudOperations.define_default_type do
       source.tags
     }
   end
+
+  instance_exec :source, &GraphqlCrudOperations.field_log
+
+  instance_exec :source, &GraphqlCrudOperations.field_log_count
 
   instance_exec :source, &GraphqlCrudOperations.field_verification_statuses
 end

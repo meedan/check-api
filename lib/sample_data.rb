@@ -375,6 +375,15 @@ module SampleData
     source.reload
   end
 
+  def create_account_source(options = {})
+    as = AccountSource.new
+    options.each do |key, value|
+      as.send("#{key}=", value) if as.respond_to?("#{key}=")
+    end
+    as.save!
+    as.reload
+  end
+
   def create_project_source(options = {})
     u = options[:user] || create_user
     options = { disable_es_callbacks: true, user: u }.merge(options)

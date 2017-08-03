@@ -34,6 +34,14 @@ module ProjectAssociation
     before_validation :set_media_or_source, :set_user, on: :create
     before_destroy :destroy_elasticsearch_media
 
+    def get_versions_log
+      PaperTrail::Version.where(associated_type: self.class.name, associated_id: self.id).order('created_at ASC')
+    end
+
+    def get_versions_log_count
+      self.reload.cached_annotations_count
+    end
+
     def destroy_elasticsearch_media
       destroy_elasticsearch_data(MediaSearch, 'parent')
     end
