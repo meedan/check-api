@@ -97,6 +97,10 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('account', 'embed')
   end
 
+  test "should read account sources" do
+    assert_graphql_read('account_source', 'source_id')
+  end
+
   test "should create account source" do
     a = create_valid_account
     s = create_source
@@ -1162,5 +1166,15 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal ['B'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }
+  end
+
+  test "should read account sources from source" do
+    u = create_user
+    authenticate_with_user(u)
+    s = create_source user: u
+    create_account_source source_id: s.id
+    query = "query GetById { source(id: \"#{s.id}\") { account_sources { edges { node { source { id } } } } } }"
+    post :create, query: query
+    assert_response :success
   end
 end

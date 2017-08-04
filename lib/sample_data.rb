@@ -377,6 +377,8 @@ module SampleData
 
   def create_account_source(options = {})
     as = AccountSource.new
+    options[:source_id] = create_source.id unless options.has_key?(:source_id)
+    options[:account_id] = create_valid_account.id unless options.has_key?(:account_id)
     options.each do |key, value|
       as.send("#{key}=", value) if as.respond_to?("#{key}=")
     end
