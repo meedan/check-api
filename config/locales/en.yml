@@ -175,8 +175,11 @@ en:
   time:
     formats:
       oembed: "%B %d, %Y"
-  oembed_disclaimer: The accuracy of this media was verified by the %{team} team on
-    %{date}
+  oembed_disclaimer_undetermined: This media has not been reviewed by the %{team} team
+  oembed_disclaimer_in_progress: The accuracy of this media is in progress of being determined by the %{team} team on %{date}
+  oembed_disclaimer_verified: The accuracy of this media was verified by the %{team} team on %{date}
+  oembed_disclaimer_false: The accuracy of this media has been determined to be false by the %{team} team on %{date}
+  oembed_disclaimer_not_applicable: No conclusion could be reached about the accuracy of this media by the %{team} team on %{date}
   oembed_source_date: "%{date} on %{provider}"
   role_editor: editor
   role_owner: owner
@@ -201,3 +204,4 @@ en:
     other: "%{count} resolved verification tasks"
   oembed_notes: Notes
   pender_conflict: This link is already being parsed, please try again in a few seconds.
+  duplicate_source: Source exists
