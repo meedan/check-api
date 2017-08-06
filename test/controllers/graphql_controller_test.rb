@@ -1173,7 +1173,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     s = create_source user: u
     create_account_source source_id: s.id
-    query = "query GetById { source(id: \"#{s.id}\") { account_sources { edges { node { source { id } } } } } }"
+    query = "query GetById { source(id: \"#{s.id}\") { account_sources { edges { node { source { id }, account { id } } } } } }"
     post :create, query: query
     assert_response :success
   end
