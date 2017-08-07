@@ -35,7 +35,7 @@ class CheckSearch
 
   def medias
     return [] if @options['show'] == ['source']
-    if should_hit_elasticsearch?
+    if should_hit_elasticsearch?('medias')
       query = medias_build_search_query
       ids = medias_get_search_result(query).map(&:annotated_id)
       items = ProjectMedia.where(id: ids).eager_load(:media)
@@ -52,7 +52,7 @@ class CheckSearch
 
   def sources
     return [] unless @options['show'].include?('source')
-    if should_hit_elasticsearch?
+    if should_hit_elasticsearch?('sources')
       query = medias_build_search_query('ProjectSource')
       ids = medias_get_search_result(query).map(&:annotated_id)
       items = ProjectSource.where(id: ids).eager_load(:source)
@@ -74,34 +74,28 @@ class CheckSearch
 
   private
 
-  def should_hit_elasticsearch?
-    !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank? && @options['show'].blank?)
+  def should_hit_elasticsearch?(type)
+    !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank? && show_filter?(type))
+  end
+
+  def show_filter?(type)
+    # show filter should not include all media types to hit ES
+    show_options = type == 'medias' ? ['uploadedimage', 'link', 'claim'] : ['source']
+    (@options['show'].sort == show_options.sort && (@options['show'] - show_options).empty?)
   end
 
   def medias_build_search_query(associated_type = 'ProjectMedia')
     conditions = []
     conditions << {term: { annotated_type: associated_type.downcase } }
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
-    unless @options["keyword"].blank?
-      keyword_c = build_search_keyword_conditions(associated_type)
-      conditions << {bool: {should: keyword_c}}
-    end
-    unless @options["tags"].blank?
-      tags_c = []
-      tags = @options["tags"].collect{ |t| t.delete('#') }
-      tags.each do |tag|
-        tags_c << { match: { full_tag: { query: tag, operator: 'and' } } }
-      end
-      tags_c << { terms: { tag: tags } }
-      conditions << {has_child: { type: 'tag_search', query: { bool: {should: tags_c }}}}
-    end
-    conditions << {terms: { project_id: @options["projects"] } } unless @options["projects"].blank?
-    conditions << {terms: { associated_type: @options["show"] } } unless @options["show"].blank?
-    conditions << {terms: { status: @options["status"] } } unless @options["status"].blank?
+    conditions.concat build_search_keyword_conditions(associated_type)
+    conditions.concat build_search_tags_conditions
+    conditions.concat build_search_parent_conditions
     { bool: { must: conditions } }
   end
 
   def build_search_keyword_conditions(associated_type)
+    return [] if @options["keyword"].blank?
     # add keyword conditions
     keyword_fields = %w(title description quote account.username account.title)
     keyword_c = [{ query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
@@ -113,7 +107,27 @@ class CheckSearch
     if associated_type == 'ProjectSource'
       keyword_c << { has_child: { type: "account_search", query: { query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
     end
-    keyword_c
+    [{bool: {should: keyword_c}}]
+  end
+
+  def build_search_tags_conditions
+    return [] if @options["tags"].blank?
+    tags_c = []
+    tags = @options["tags"].collect{ |t| t.delete('#') }
+    tags.each do |tag|
+      tags_c << { match: { full_tag: { query: tag, operator: 'and' } } }
+    end
+    tags_c << { terms: { tag: tags } }
+    [{has_child: { type: 'tag_search', query: { bool: {should: tags_c }}}}]
+  end
+
+  def build_search_parent_conditions
+    parent_c = []
+    fields = {'project_id' => 'projects', 'associated_type' => 'show', 'status' => 'status'}
+    fields.each do |k, v|
+      parent_c << {terms: { "#{k}": @options[v] } } unless @options[v].blank?
+    end
+    parent_c
   end
 
   def medias_get_search_result(query)

@@ -617,6 +617,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     p1a = create_project team: t1
     p1b = create_project team: t1
     pm1a = create_project_media project: p1a
+    ps1a = create_project_source project: p1a
     sleep 1
     pm1b = create_project_media project: p1b
 
@@ -629,6 +630,8 @@ class CheckSearchTest < ActiveSupport::TestCase
 
     Team.stubs(:current).returns(t1)
     assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
+    assert_equal [], CheckSearch.new('{}').sources
+    assert_equal p1a.project_sources.sort, CheckSearch.new({ projects: [p1a.id], show: ['sources']}.to_json).sources.sort
     assert_equal 2, CheckSearch.new('{}').project_medias.count
     assert_equal [pm1a], CheckSearch.new({ projects: [p1a.id] }.to_json).medias
     assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).project_medias.count
