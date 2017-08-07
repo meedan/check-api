@@ -155,18 +155,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   instance_exec :project_media, &GraphqlCrudOperations.field_annotations_count
 
-  field :field_value do
-    type types.String
-    argument :annotation_type_field_name, !types.String
-
-    resolve ->(project_media, args, _ctx) {
-      annotation_type, field_name = args['annotation_type_field_name'].to_s.split(':')
-      if !annotation_type.blank? && !field_name.blank?
-        annotation = project_media.get_dynamic_annotation(annotation_type)
-        annotation.nil? ? nil : annotation.get_field_value(field_name)
-      end
-    }
-  end
+  instance_exec :project_media, &GraphqlCrudOperations.field_value
 
   instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
 
