@@ -11,5 +11,5 @@ module AccountSourceMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('account_source', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('account_source', create_fields, update_fields, ['source'])
 end
