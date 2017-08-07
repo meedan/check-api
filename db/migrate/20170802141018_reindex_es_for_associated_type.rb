@@ -6,8 +6,9 @@ class ReindexEsForAssociatedType < ActiveRecord::Migration
     medias = MediaSearch.search(query: { match: { annotated_type: 'projectmedia' } }, size: 10000)
     medias.each do |m|
       pm = ProjectMedia.where(id: m.id).last
-      ms.update associated_type: pm.media.type unless pm.nil?
+      m.update associated_type: pm.media.type unless pm.nil?
     end
+    sleep 2
     # set associated type for project source
     url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
     client = Elasticsearch::Client.new url: url
