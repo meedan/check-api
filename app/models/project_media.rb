@@ -74,6 +74,7 @@ class ProjectMedia < ActiveRecord::Base
     ms.id = self.id
     ms.team_id = p.team.id
     ms.project_id = p.id
+    ms.associated_type = self.media.type
     ms.set_es_annotated(self)
     ms.status = self.last_status unless CONFIG['app_name'] === 'Bridge'
     data = self.embed

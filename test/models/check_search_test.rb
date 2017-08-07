@@ -617,6 +617,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     p1a = create_project team: t1
     p1b = create_project team: t1
     pm1a = create_project_media project: p1a
+    ps1a = create_project_source project: p1a
     sleep 1
     pm1b = create_project_media project: p1b
 
@@ -629,6 +630,8 @@ class CheckSearchTest < ActiveSupport::TestCase
 
     Team.stubs(:current).returns(t1)
     assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
+    assert_equal [], CheckSearch.new('{}').sources
+    assert_equal p1a.project_sources.sort, CheckSearch.new({ projects: [p1a.id], show: ['sources']}.to_json).sources.sort
     assert_equal 2, CheckSearch.new('{}').project_medias.count
     assert_equal [pm1a], CheckSearch.new({ projects: [p1a.id] }.to_json).medias
     assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).project_medias.count
@@ -849,29 +852,50 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [ps3.id, ps2.id], result.sources.map(&:id)
   end
 
-  test "should return empty medias or sources" do
+  test "should filter by medias or sources" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
     t = create_team
     p = create_project team: t
-    ps = create_project_source project: p, disable_es_callbacks: false
+    s = create_source
+    create_project_source project: p, source: s, disable_es_callbacks: false
     c = create_claim_media
-    pm = create_project_media project: p, media: c, disable_es_callbacks: false
+    create_project_media project: p, media: c, disable_es_callbacks: false
+    m = create_valid_media
+    create_project_media project: p, media: m, disable_es_callbacks: false
+    i = create_uploaded_image
+    create_project_media project: p, media: i, disable_es_callbacks: false
     sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({}.to_json)
     assert_equal 0, result.sources.count
-    assert_equal 1, result.medias.count
-    result = CheckSearch.new({ show: ['medias'] }.to_json)
+    assert_equal 3, result.medias.count
+    result = CheckSearch.new({ show: ['links'] }.to_json)
     assert_equal 0, result.sources.count
     assert_equal 1, result.medias.count
+    result = CheckSearch.new({ show: ['quotes'] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ show: ['photos'] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ show: ['links', 'quotes'] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 2, result.medias.count
+    result = CheckSearch.new({ show: ['links', 'photos'] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 2, result.medias.count
+    result = CheckSearch.new({ show: ['quotes', 'photos'] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 2, result.medias.count
     result = CheckSearch.new({ show: ['sources'] }.to_json)
-    assert_equal 1, result.sources.count
+    assert_equal p.sources.count, result.sources.count
     assert_equal 0, result.medias.count
-    result = CheckSearch.new({ show: ['medias', 'sources'] }.to_json)
-    assert_equal 1, result.sources.count
-    assert_equal 1, result.medias.count
-    result = CheckSearch.new({ show: [] }.to_json)
-    assert_equal 0, result.sources.count
-    assert_equal 0, result.medias.count
+    result = CheckSearch.new({ show: ['sources', 'links', 'quotes', 'photos'] }.to_json)
+    assert_equal p.sources.count, result.sources.count
+    assert_equal 3, result.medias.count
     Team.unstub(:current)
   end
 end

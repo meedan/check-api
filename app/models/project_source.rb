@@ -46,6 +46,7 @@ class ProjectSource < ActiveRecord::Base
     ms.id = Base64.encode64("ProjectSource/#{self.id}")
     ms.team_id = p.team.id
     ms.project_id = p.id
+    ms.associated_type = self.source.class.name
     ms.set_es_annotated(self)
     ms.title = s.name
     ms.description = s.description
