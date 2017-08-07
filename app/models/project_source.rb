@@ -38,6 +38,10 @@ class ProjectSource < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
+  def get_dynamic_annotation(type)
+    Dynamic.where(annotation_type: type, annotated_type: 'ProjectSource', annotated_id: self.id).last
+  end
+
   def add_elasticsearch_data
     return if self.disable_es_callbacks
     p = self.project
