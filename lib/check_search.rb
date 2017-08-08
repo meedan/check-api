@@ -149,7 +149,12 @@ class CheckSearch
   end
 
   def prepare_show_filter(show)
-    show ||= ['photos', 'links', 'quotes']
+    m_types = ['photos', 'links', 'quotes']
+    show ||= m_types
+    if show.include?('medias')
+      show.delete('medias')
+      show += m_types
+    end
     show.map(&:downcase)
     show_mapping = {'photos' => 'uploadedimage', 'links' => 'link', 'quotes' => 'claim', 'sources' => 'source'}
     show.each_with_index do |v, i|
