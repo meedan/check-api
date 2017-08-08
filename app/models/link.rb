@@ -22,14 +22,7 @@ class Link < Media
     path = ''
     begin
       pender_data = self.get_saved_pender_data
-      path = case self.domain
-             when 'twitter.com'
-               pender_data['entities']['media'][0]['media_url_https'] || pender_data['entities']['media'][0]['media_url']
-             when 'facebook.com'
-               pender_data['photos'][0]
-             else
-               pender_data['picture']
-             end
+      path = pender_data['picture']
     rescue
     end
     path.to_s
