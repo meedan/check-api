@@ -896,6 +896,9 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({ show: ['sources', 'links', 'quotes', 'photos'] }.to_json)
     assert_equal p.sources.count, result.sources.count
     assert_equal 3, result.medias.count
+    result = CheckSearch.new({ show: ['sources', 'medias'] }.to_json)
+    assert_equal p.sources.count, result.sources.count
+    assert_equal 3, result.medias.count
     Team.unstub(:current)
   end
 end
