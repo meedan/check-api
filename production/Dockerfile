@@ -21,6 +21,8 @@ ENV DEPLOYUSER=checkdeploy \
 #
 # DEPENDENCIES
 #
+# nginx for check-api
+COPY production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
 
 # nodejs7 repo
 RUN curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
@@ -36,8 +38,6 @@ RUN apt-get update && apt-get install -y \
 # install stuff needed to take screenshots
 RUN npm install chrome-remote-interface minimist
 
-# nginx for check-api
-COPY production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
 # swap in DEPLOYUSER
 RUN sed -i "s/ddDEPLOYUSERdd/${DEPLOYUSER}/g" /etc/nginx/sites-available/${APP}
 RUN ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP}
