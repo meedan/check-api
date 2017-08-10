@@ -1,5 +1,9 @@
+require 'sample_data'
+
 class TestController < ApplicationController
   before_filter :check_environment
+
+  include SampleData
 
   def confirm_user
     user = User.where(email: params[:email]).last
@@ -17,6 +21,35 @@ class TestController < ApplicationController
       team.save!
     end
     render text: 'OK'
+  end
+
+  def new_user
+    u = create_user params
+    render_success 'user', u
+  end
+
+  def new_team
+    user = User.where(email: params[:email]).last
+    User.current = user
+    t = create_team params
+    User.current = nil
+    render_success 'team', t
+  end
+
+  def new_project
+    Team.current = Team.find(params[:team_id])
+    p = create_project params
+    Team.current = nil
+    render_success 'project', p
+  end
+
+  def new_session
+    user = User.where(email: params[:email]).last
+    User.current = user
+    request.env['devise.mapping'] = Devise.mappings[:api_user]
+    sign_in user
+    User.current = nil
+    render_success 'user', current_api_user
   end
 
   private
