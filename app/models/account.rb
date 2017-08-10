@@ -60,11 +60,8 @@ class Account < ActiveRecord::Base
     end
 
     if source.nil?
-      data = self.pender_data
       source = Source.new
-      source.avatar = data['author_picture']
-      source.name = data['author_name'].blank? ? 'Untitled' : data['author_name']
-      source.slogan = data['description'].to_s
+      source.update_from_pender_data(self.pender_data)
       source.save!
     end
     create_account_source(source)
