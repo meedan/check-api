@@ -17248,6 +17248,20 @@
               "deprecationReason": null
             },
             {
+              "name": "project_source",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "ProjectSource",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "source",
               "description": null,
               "args": [
@@ -17695,6 +17709,20 @@
               "deprecationReason": null
             },
             {
+              "name": "project_source",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "ProjectSource",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "source",
               "description": null,
               "args": [
@@ -17855,6 +17883,20 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "ProjectMedia",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "project_source",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "ProjectSource",
                 "ofType": null
               },
               "isDeprecated": false,

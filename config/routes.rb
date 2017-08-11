@@ -37,4 +37,8 @@ Rails.application.routes.draw do
 
   match '/test/confirm_user' => 'test#confirm_user', via: :get
   match '/test/make_team_public' => 'test#make_team_public', via: :get
+  match '/test/user' => 'test#new_user', via: :get
+  match '/test/team' => 'test#new_team', via: :get
+  match '/test/project' => 'test#new_project', via: :get
+  match '/test/session' => 'test#new_session', via: :get
 end

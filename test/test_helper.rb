@@ -71,7 +71,7 @@ class ActiveSupport::TestCase
 
   def setup
     Pusher::Client.any_instance.stubs(:trigger)
-    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
+    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     [Annotation, Team, TeamUser, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |klass| klass.delete_all }
     [ProjectMedia, Media, Account, Source, User, Annotation].each{ |m| m.destroy_all }
     # create index
