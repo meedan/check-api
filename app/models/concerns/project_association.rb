@@ -11,6 +11,10 @@ module ProjectAssociation
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.project.id }, 'projects' => [self.project.id] }.to_json)
   end
 
+  def as_json(_options = {})
+    super.merge({ full_url: self.full_url.to_s })
+  end
+
   module ClassMethods
     def belonged_to_project(objid, pid)
       obj = self.find_by_id objid

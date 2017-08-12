@@ -53,6 +53,10 @@ class ProjectSource < ActiveRecord::Base
     ms.save!
   end
 
+  def full_url
+    "#{self.project.url}/source/#{self.id}"
+  end
+
   private
 
   def set_account

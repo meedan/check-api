@@ -41,4 +41,7 @@ Rails.application.routes.draw do
   match '/test/team' => 'test#new_team', via: :get
   match '/test/project' => 'test#new_project', via: :get
   match '/test/session' => 'test#new_session', via: :get
+  match '/test/claim' => 'test#new_claim', via: :get
+  match '/test/link' => 'test#new_link', via: :get
+  match '/test/source' => 'test#new_source', via: :get
 end
