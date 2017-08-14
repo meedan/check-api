@@ -109,7 +109,8 @@ class User < ActiveRecord::Base
       team_ids: self.team_ids,
       permissions: self.permissions,
       profile_image: self.profile_image,
-      settings: self.settings
+      settings: self.settings,
+      source_id: self.source.id
     }
   end
 

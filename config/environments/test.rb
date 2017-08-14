@@ -41,6 +41,6 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 
   # http://guides.rubyonrails.org/configuring.html#configuring-middleware
-  config.allow_concurrency = false
+  config.allow_concurrency = true
 
 end
