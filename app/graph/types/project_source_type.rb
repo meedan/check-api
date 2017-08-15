@@ -58,5 +58,7 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
 
   instance_exec :project_source, &GraphqlCrudOperations.field_annotations_count
 
+  instance_exec :project_source, &GraphqlCrudOperations.field_value
+
 # End of fields
 end

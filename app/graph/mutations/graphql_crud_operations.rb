@@ -225,6 +225,23 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.field_value
+    proc do |_classname|
+      field :field_value do
+        type types.String
+        argument :annotation_type_field_name, !types.String
+
+        resolve ->(obj, args, _ctx) {
+          annotation_type, field_name = args['annotation_type_field_name'].to_s.split(':')
+          if !annotation_type.blank? && !field_name.blank?
+            annotation = obj.get_dynamic_annotation(annotation_type)
+            annotation.nil? ? nil : annotation.get_field_value(field_name)
+          end
+        }
+      end
+    end
+  end
+
   def self.project_association
     proc do |class_name, field_name, type|
       field field_name do

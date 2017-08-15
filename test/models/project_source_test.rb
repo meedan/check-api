@@ -55,6 +55,16 @@ class ProjectSourceTest < ActiveSupport::TestCase
     assert_equal [c1.id, c2.id].sort, s.reload.annotations.map(&:id).sort
   end
 
+  test "should get dynamic annotation by type" do
+    create_annotation_type annotation_type: 'foo'
+    create_annotation_type annotation_type: 'bar'
+    ps = create_project_source
+    d1 = create_dynamic_annotation annotation_type: 'foo', annotated: ps
+    d2 = create_dynamic_annotation annotation_type: 'bar', annotated: ps
+    assert_equal d1, ps.get_dynamic_annotation('foo')
+    assert_equal d2, ps.get_dynamic_annotation('bar')
+  end
+
   test "should get team" do
     t = create_team
     p = create_project team: t
