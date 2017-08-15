@@ -102,4 +102,72 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should create source if in test mode" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_source, email: u.email, team_id: t.id, project_id: p.id, name: 'Test'
+    assert_response :success
+  end
+
+  test "should not create source if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_source, email: u.email, team_id: t.id, project_id: p.id, name: 'Test'
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create claim if in test mode" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_claim, email: u.email, team_id: t.id, project_id: p.id, quote: 'Test'
+    assert_response :success
+  end
+
+  test "should not create claim if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_claim, email: u.email, team_id: t.id, project_id: p.id, quote: 'Test'
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create link if in test mode" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_link, email: u.email, team_id: t.id, project_id: p.id, url: url
+    assert_response :success
+  end
+
+  test "should not create link if not in test mode" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_link, email: u.email, team_id: t.id, project_id: p.id, url: url
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end

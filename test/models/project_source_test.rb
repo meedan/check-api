@@ -204,4 +204,9 @@ class ProjectSourceTest < ActiveSupport::TestCase
       create_project_source project: p, name: 'Test 2', url: url
     end
   end
+
+  test "should be formatted as json" do
+    ps = create_project_source
+    assert_not_nil ps.as_json
+  end
 end
