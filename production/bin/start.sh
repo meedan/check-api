@@ -24,6 +24,10 @@ for ENV in $( env | cut -d= -f1); do
     config_replace "$ENV" "${!ENV}" /etc/nginx/sites-available/${APP}
 done
 
+if [ "$RAILS_ENV" == "test" ]; then
+    # comment out the include
+    sed -i'.bak' -e 's|include /etc/nginx/sites-available/test_404.conf|# include /etc/nginx/sites-available/test_404.conf|g' /etc/nginx/sites-available/${APP}
+fi
 
 echo "setting permissions for ${LOGFILE}"
 touch ${LOGFILE}
