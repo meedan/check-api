@@ -78,3 +78,4 @@ gem 'alegre_client', git: 'https://github.com/meedan/alegre-client.git', ref: '3
 gem 'devise-i18n'
 gem 'ruby-cldr'
 gem 'twitter'
+gem 'request_store'

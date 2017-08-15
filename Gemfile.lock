@@ -530,6 +530,7 @@ DEPENDENCIES
   rails-i18n!
   rails_admin (~> 1.0)
   redis-namespace
+  request_store
   responders
   rest-client
   rubocop

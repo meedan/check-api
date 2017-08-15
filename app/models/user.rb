@@ -168,11 +168,11 @@ class User < ActiveRecord::Base
   end
 
   def self.current
-    Thread.current[:user]
+    RequestStore.store[:user]
   end
 
   def self.current=(user)
-    Thread.current[:user] = user
+    RequestStore.store[:user] = user
   end
 
   def set_password=(value)

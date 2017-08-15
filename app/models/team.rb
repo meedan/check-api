@@ -198,11 +198,11 @@ class Team < ActiveRecord::Base
   end
 
   def self.current
-    Thread.current[:team]
+    RequestStore.store[:team]
   end
 
   def self.current=(team)
-    Thread.current[:team] = team
+    RequestStore.store[:team] = team
   end
 
   def self.slug_from_url(url)
