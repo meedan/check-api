@@ -80,8 +80,8 @@ class CheckSearch
 
   def show_filter?(type)
     # show filter should not include all media types to hit ES
-    show_options = type == 'medias' ? ['uploadedimage', 'link', 'claim'] : ['source']
-    (@options['show'].sort == show_options.sort && (@options['show'] - show_options).empty?)
+    show_options = (type == 'medias') ? ['uploadedimage', 'link', 'claim'] : ['source']
+    (show_options - @options['show']).empty?
   end
 
   def medias_build_search_query(associated_type = 'ProjectMedia')
