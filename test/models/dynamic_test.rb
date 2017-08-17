@@ -246,4 +246,50 @@ class DynamicTest < ActiveSupport::TestCase
     Dynamic.any_instance.unstub(:notify_embed_system)
   end
 
+  test "should index and search by location" do
+    DynamicSearch.delete_index
+    DynamicSearch.create_index
+    att = 'task_response_geolocation'
+    at = create_annotation_type annotation_type: att, label: 'Task Response Geolocation'
+    geotype = create_field_type field_type: 'geojson', label: 'GeoJSON'
+    create_field_instance annotation_type_object: at, name: 'response_geolocation', field_type_object: geotype
+    pm = create_project_media disable_es_callbacks: false
+    geo = {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [-12.9015866, -38.560239]
+      },
+      properties: {
+        name: 'Salvador, BA, Brazil'
+      }
+    }.to_json
+
+    fields = { response_geolocation: geo }.to_json
+    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
+
+    search = {
+      query: {
+        bool: {
+          must: {
+            filtered: {
+              filter: {
+                geo_distance: {
+                  distance: '1000mi',
+                  location: {
+                    lat: -12.900,
+                    lon: -38.560
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    sleep 3 
+
+    assert_equal 1, DynamicSearch.search(search).results.size
+  end
 end
