@@ -93,4 +93,62 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     f1 = create_field field_name: 'language', value: 'fr'
     assert_equal 'French', f1.as_json[:formatted_value]
   end
+
+  test "should validate and format geojson field" do
+    create_geojson_field
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_field field_name: 'response_geolocation', value: '-10,20'
+    end
+
+    assert_raises ActiveRecord::RecordInvalid do
+      geojson = {
+        type: 'Feature',
+        geometry: {
+          coordinates: [-12.9015866, -38.560239]
+        },
+        properties: {
+          name: 'Salvador, BA, Brazil'
+        }
+      }.to_json
+      create_field field_name: 'response_geolocation', value: geojson
+    end
+
+    assert_nothing_raised do
+      geojson = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [-12.9015866, -38.560239]
+        },
+        properties: {
+          name: 'Salvador, BA, Brazil'
+        }
+      }.to_json
+      f = create_field field_name: 'response_geolocation', value: geojson
+      assert_equal 'Salvador, BA, Brazil (-12.9015866, -38.560239)', f.to_s
+    end
+
+    assert_nothing_raised do
+      geojson = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [0,0]
+        },
+        properties: {
+          name: 'Only Name'
+        }
+      }.to_json
+      f = create_field field_name: 'response_geolocation', value: geojson
+      assert_equal 'Only Name', f.to_s
+    end
+  end
+
+  protected
+
+  def create_geojson_field
+    geo = create_field_type field_type: 'geojson', label: 'GeoJSON'
+    create_field_instance name: 'response_geolocation', field_type_object: geo
+  end
 end
