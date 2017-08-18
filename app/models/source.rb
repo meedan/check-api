@@ -3,6 +3,7 @@ class Source < ActiveRecord::Base
 
   include HasImage
   include CheckElasticSearch
+  include CheckNotifications::Pusher
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :project_sources
@@ -19,6 +20,11 @@ class Source < ActiveRecord::Base
   validates_presence_of :name
 
   after_update :update_elasticsearch_source
+
+  notifies_pusher on: :update,
+                  event: 'source_updated',
+                  data: proc { |s| s.to_json }
+                  targets: proc { |s| [s, s.projects] }
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
