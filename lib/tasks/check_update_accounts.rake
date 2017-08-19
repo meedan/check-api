@@ -13,6 +13,7 @@ def parse_conditions(args, task_name)
     condition = {}
     arg.each do |pair|
       key, value = pair.split(':')
+      value = nil if value == 'nil'
       condition.merge!({ key => value })
     end
     @conditions << condition
