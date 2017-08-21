@@ -4,7 +4,7 @@ class UpdateProjectForProjectSource < ActiveRecord::Migration
       pm =  ps.source.medias.first
       if !pm.nil? && ps.project_id != pm.project_id
         ps.project_id = pm.project_id
-        ps.save!
+        ps.save
       end
     end
   end
