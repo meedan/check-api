@@ -463,6 +463,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should move related sources after move media to other projects" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    sources = pm.media.account.sources.map(&:id)
+    ps = ProjectSource.where(project_id: pm.project_id, source_id: sources).last
+    t2 = create_team
+    p2 = create_project team: t2
+    pm.project = p2; pm.save!
+    assert_equal ps.reload.project_id, p2.id
+  end
+
   test "should update es after move media to other projects" do
     t = create_team
     p = create_project team: t
