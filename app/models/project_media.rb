@@ -13,7 +13,7 @@ class ProjectMedia < ActiveRecord::Base
   validate :is_unique, on: :create
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
-  after_update :update_elasticsearch_data
+  after_update :move_media_sources
 
   notifies_pusher on: :save,
                   event: 'media_updated',
@@ -85,16 +85,6 @@ class ProjectMedia < ActiveRecord::Base
     end
     ms.account = self.set_es_account_data unless self.media.account.nil?
     ms.save!
-  end
-
-  def update_elasticsearch_data
-    return if self.disable_es_callbacks
-    if self.project_id_changed?
-      keys = %w(project_id team_id)
-      data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
-      options = {keys: keys, data: data, parent: self.id}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
-    end
   end
 
   def get_annotations(type = nil)
@@ -223,6 +213,16 @@ class ProjectMedia < ActiveRecord::Base
 
   def set_project_source
     self.create_project_source if self.media.type == 'Link'
+  end
+
+  def move_media_sources
+    if self.project_id_changed? && self.media.type == 'Link'
+      sources = self.media.account.sources.map(&:id)
+      ps = ProjectSource.where(project_id: self.project_id_was, source_id: sources).last
+      ps.project_id = self.project_id
+      ps.skip_check_ability = true
+      ps.save!
+    end
   end
 
   protected

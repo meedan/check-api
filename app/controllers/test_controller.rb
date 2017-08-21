@@ -52,6 +52,44 @@ class TestController < ApplicationController
     render_success 'user', current_api_user
   end
 
+  def new_claim
+    new_media 'claim'
+  end
+
+  def new_link
+    new_media 'link'
+  end
+
+  def new_source
+    Team.current = Team.find(params[:team_id])
+    user = User.where(email: params[:email]).last
+    User.current = user
+    ps = ProjectSource.new
+    ps.project_id = params[:project_id]
+    ps.name = params[:name]
+    ps.url = params[:url]
+    ps.save!
+    User.current = nil
+    Team.current = nil
+    render_success 'project_source', ps
+  end
+
+  protected
+
+  def new_media(type)
+    Team.current = Team.find(params[:team_id])
+    user = User.where(email: params[:email]).last
+    User.current = user
+    pm = ProjectMedia.new
+    pm.project_id = params[:project_id]
+    pm.quote = params[:quote] if type == 'claim'
+    pm.url = params[:url] if type == 'link'
+    pm.save!
+    User.current = nil
+    Team.current = nil
+    render_success 'project_media', pm
+  end
+
   private
 
   def check_environment

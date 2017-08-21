@@ -109,7 +109,8 @@ class User < ActiveRecord::Base
       team_ids: self.team_ids,
       permissions: self.permissions,
       profile_image: self.profile_image,
-      settings: self.settings
+      settings: self.settings,
+      source_id: self.source.id
     }
   end
 
@@ -167,11 +168,11 @@ class User < ActiveRecord::Base
   end
 
   def self.current
-    Thread.current[:user]
+    RequestStore.store[:user]
   end
 
   def self.current=(user)
-    Thread.current[:user] = user
+    RequestStore.store[:user] = user
   end
 
   def set_password=(value)

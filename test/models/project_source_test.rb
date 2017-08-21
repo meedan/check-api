@@ -204,4 +204,29 @@ class ProjectSourceTest < ActiveSupport::TestCase
       create_project_source project: p, name: 'Test 2', url: url
     end
   end
+
+  test "should be formatted as json" do
+    ps = create_project_source
+    assert_not_nil ps.as_json
+  end
+
+  test "should update es after move source to other projects" do
+    t = create_team
+    p = create_project team: t
+    s = create_source
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    sleep 1
+    id = Base64.encode64("ProjectSource/#{ps.id}")
+    ms = MediaSearch.find(id)
+    assert_equal ms.project_id.to_i, p.id
+    assert_equal ms.team_id.to_i, t.id
+    t2 = create_team
+    p2 = create_project team: t2
+    ps.project = p2; ps.save!
+    ElasticSearchWorker.drain
+    sleep 1
+    ms = MediaSearch.find(id)
+    assert_equal ms.project_id.to_i, p2.id
+    assert_equal ms.team_id.to_i, t2.id
+  end
 end

@@ -205,3 +205,4 @@ en:
   oembed_notes: Notes
   pender_conflict: This link is already being parsed, please try again in a few seconds.
   duplicate_source: Source exists
+  geolocation_invalid_value: "Location must contain a valid GeoJSON (http://geojson.org/)"

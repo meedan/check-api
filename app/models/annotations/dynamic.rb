@@ -104,7 +104,12 @@ class Dynamic < ActiveRecord::Base
   private
 
   def add_update_elasticsearch_dynamic_annotation
-    add_update_media_search_child('dynamic_search', ['indexable']) if self.fields.count > 0
+    method = "add_update_elasticsearch_dynamic_annotation_#{self.annotation_type}"
+    if self.respond_to?(method)
+      self.send(method)
+    elsif self.fields.count > 0
+      add_update_media_search_child('dynamic_search', ['indexable'])
+    end
   end
 
   def destroy_elasticsearch_dynamic_annotation
