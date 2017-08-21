@@ -220,6 +220,7 @@ class ProjectMedia < ActiveRecord::Base
       sources = self.media.account.sources.map(&:id)
       ps = ProjectSource.where(project_id: self.project_id_was, source_id: sources).last
       ps.project_id = self.project_id
+      ps.skip_check_ability = true
       ps.save!
     end
   end
