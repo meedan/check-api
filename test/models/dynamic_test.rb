@@ -292,4 +292,39 @@ class DynamicTest < ActiveSupport::TestCase
 
     assert_equal 1, DynamicSearch.search(search).results.size
   end
+
+  test "should index and search by datetime" do
+    DynamicSearch.delete_index
+    DynamicSearch.create_index
+    att = 'task_response_datetime'
+    at = create_annotation_type annotation_type: att, label: 'Task Response Date Time'
+    datetime = create_field_type field_type: 'datetime', label: 'Date Time'
+    create_field_instance annotation_type_object: at, name: 'response_datetime', field_type_object: datetime
+    pm = create_project_media disable_es_callbacks: false
+    fields = { response_datetime: '2017-08-21 14:13:42' }.to_json
+    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
+
+    search = {
+      query: {
+        bool: {
+          must: {
+            filtered: {
+              filter: {
+                range: {
+                  datetime: {
+                    lte: Time.parse('2017-08-22').to_i,
+                    gte: Time.parse('2017-08-20').to_i
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    sleep 5 
+
+    assert_equal 1, DynamicSearch.search(search).results.size
+  end
 end
