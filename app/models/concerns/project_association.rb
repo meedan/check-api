@@ -36,6 +36,7 @@ module ProjectAssociation
     include CheckElasticSearch
 
     before_validation :set_media_or_source, :set_user, on: :create
+    after_update :update_elasticsearch_data
     before_destroy :destroy_elasticsearch_media
 
     def get_versions_log
@@ -44,6 +45,17 @@ module ProjectAssociation
 
     def get_versions_log_count
       self.reload.cached_annotations_count
+    end
+
+    def update_elasticsearch_data
+      return if self.disable_es_callbacks
+      if self.project_id_changed?
+        parent = self.get_es_parent_id(self.id, self.class.name)
+        keys = %w(project_id team_id)
+        data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
+        options = {keys: keys, data: data, parent: parent}
+        ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
+      end
     end
 
     def destroy_elasticsearch_media
