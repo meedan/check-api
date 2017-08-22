@@ -43,7 +43,8 @@ class AdminAbility
     can [:read, :update, :destroy], [Media, Link, Claim], projects: { team: { id: @teams }}
     can :update, Embed, annotated: { project: { team: { id: @teams }}}
     can [:crud], [ProjectSource, ProjectMedia], project: { team: { id: @teams }}
-    can [:crud], [Source, Account], :team_id => @teams
+    can [:cud], [Source, Account], :team_id => @teams
+    can :read, [Account, Source], user_id: [@user.id, nil]
     %w(annotation comment flag status embed dynamic task).each do |annotation_type|
       can [:crud], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         (obj.get_team & @teams).any?
