@@ -24,10 +24,12 @@ class AdminAbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.can?(:create, Project)
+      assert ability.can?(:read, p)
       assert ability.can?(:update, p)
       assert ability.can?(:update, own_project)
       assert ability.can?(:destroy, p)
       assert ability.can?(:destroy, own_project)
+      assert ability.cannot?(:read, p2)
       assert ability.cannot?(:update, p2)
       assert ability.cannot?(:destroy, p2)
     end
@@ -65,6 +67,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.can?(:create, Team)
+      assert ability.can?(:read, t)
       assert ability.can?(:update, t)
       assert ability.can?(:destroy, t)
       assert ability.cannot?(:update, t2)
@@ -94,6 +97,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.can?(:create, Contact)
+      assert ability.can?(:read, c)
       assert ability.can?(:update, c)
       assert ability.can?(:destroy, c)
       assert ability.cannot?(:update, c1)
@@ -126,6 +130,43 @@ class AdminAbilityTest < ActiveSupport::TestCase
 
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
+    end
+  end
+
+  test "owner cannot see users not member of his teams" do
+    u_member = create_user
+    tu_member = create_team_user team: t, user: u_member, role: 'contributor', status: 'member'
+    u_requested = create_user
+    tu_requested = create_team_user team: t, user: u_requested, role: 'contributor', status: 'requested'
+    u_invited = create_user
+    tu_invited = create_team_user team: t, user: u_invited, role: 'contributor', status: 'invited'
+    u_banned = create_user
+    tu_banned = create_team_user team: t, user: u_banned, role: 'contributor', status: 'banned'
+    u_other_team = create_user
+    tu_other_team = create_team_user user: u_other_team, role: 'contributor', status: 'member'
+
+
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.can?(:read, u_member)
+      assert ability.can?(:update, u_member)
+      assert ability.can?(:destroy, u_member)
+
+      assert !ability.can?(:read, u_requested)
+      assert !ability.can?(:update, u_requested)
+      assert !ability.can?(:destroy, u_requested)
+
+      assert !ability.can?(:read, u_invited)
+      assert !ability.can?(:update, u_invited)
+      assert !ability.can?(:destroy, u_invited)
+
+      assert !ability.can?(:read, u_banned)
+      assert !ability.can?(:update, u_banned)
+      assert !ability.can?(:destroy, u_banned)
+
+      assert !ability.can?(:read, u_other_team)
+      assert !ability.can?(:update, u_other_team)
+      assert !ability.can?(:destroy, u_other_team)
     end
   end
 
