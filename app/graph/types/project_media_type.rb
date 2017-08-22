@@ -76,6 +76,14 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :project_source do
+    type -> { ProjectSourceType }
+
+    resolve ->(project_media, _args, _ctx) {
+      project_media.project_source
+    }
+  end
+
   instance_exec :project_media, &GraphqlCrudOperations.field_log
 
   instance_exec :project_media, &GraphqlCrudOperations.field_log_count

@@ -154,15 +154,18 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user name: 'The Annotator'
     create_comment annotated: pm, annotator: u
     create_tag annotated: pm
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, annotator { user { name } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, annotator { user { name } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
-    assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
-    assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
-    assert JSON.parse(@response.body)['data']['project_media'].has_key?('language')
-    assert JSON.parse(@response.body)['data']['project_media'].has_key?('language_code')
-    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['annotations']['edges'].size
-    users = JSON.parse(@response.body)['data']['project_media']['annotations']['edges'].collect{ |e| e['node']['annotator']['user']['name'] }
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_not_empty data['published']
+    assert_not_empty data['last_status_obj']['dbid']
+    assert_not_nil data['project_source']['dbid']
+    assert_not_nil data['project_source']['project_id']
+    assert data.has_key?('language')
+    assert data.has_key?('language_code')
+    assert_equal 2, data['annotations']['edges'].size
+    users = data['annotations']['edges'].collect{ |e| e['node']['annotator']['user']['name'] }
     assert users.include?('The Annotator')
   end
 
