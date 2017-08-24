@@ -2,13 +2,13 @@ class AdminAbility
   include CheckBasicAbilities
 
   def initialize(user = nil)
+    alias_action :create, :read, :update, :destroy, :to => :crud
     @user = User.current ||= user || User.new
     @teams = @user.teams_owned.map(&:id)
     # Define User abilities
     if @user.is_admin?
       global_admin_perms
     else
-      extra_perms_for_all_users
       if @user.id
         authenticated_perms
       end
@@ -24,39 +24,39 @@ class AdminAbility
     can :access, :rails_admin
     can :dashboard
 
-    can [:update, :destroy], User, :team_users => { :team_id => @teams, role: ['owner', 'editor', 'journalist', 'contributor'] }
+    can [:read, :update, :destroy], User, team_users: { team_id: @teams, status: 'member'  }
 
     can :create, Team
-    can [:update, :destroy], Team, :id => @teams
+    can [:read, :update, :destroy], Team, :id => @teams
     can :create, TeamUser, :team_id => @teams, role: ['owner', 'editor', 'journalist', 'contributor']
-    can :update, TeamUser, team_id: @teams
+    can [:read, :update], TeamUser, team_id: @teams
     can :destroy, TeamUser, user_id: @user.id
     cannot :update, TeamUser, team_id: @teams, user_id: @user.id
-    can [:create, :update, :destroy], Contact, :team_id => @teams
-    can [:create, :update], Project, :team_id => @teams
-    can :update, Project, :team_id => @teams, :user_id => @user.id
-    can :destroy, Project, :team_id => @teams
+    can [:crud], Contact, team_id: @teams
+    can [:create, :read, :update], Project, team_id: @teams
+    can :update, Project, team_id: @teams, user_id: @user.id
+    can :destroy, Project, team_id: @teams
     can :export_project, Project, team_id: @teams
 
     can :create, [Media, Comment, Embed, Link, Claim, Dynamic]
     can :update, [Media, Link, Claim], :user_id => @user.id
-    can :update, [Media, Link, Claim], projects: { team: { id: @teams }}
-    can [:update, :destroy], [Media, Link, Claim] do |obj|
-      (obj.get_team & @teams).any?
-    end
-    can :update, Embed
-    can [:create, :update], [ProjectSource, ProjectMedia], project: { team: { id: @teams }}
-    can :destroy, [ProjectMedia, ProjectSource], project: { team: { id: @teams }}
-    can [:create, :update, :destroy], [Source, Account], :team_id => @teams
-    %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
-      can [:create, :destroy], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        (obj.get_team & @teams).any?
-      end
-    end
+    can [:read, :update, :destroy], [Media, Link, Claim], projects: { team: { id: @teams }}
+    can [:crud], [ProjectSource, ProjectMedia], project: { team: { id: @teams }}
+    can [:crud], [Source, Account], :team_id => @teams
+    can :read, [Account, Source], user_id: [@user.id, nil]
     %w(annotation comment flag status embed dynamic task).each do |annotation_type|
-      can [:update], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        (obj.get_team & @teams).any?
+      can [:crud], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+        if obj.annotated.respond_to?(:projects)
+          (obj.annotated.projects.map(&:team_id) & @teams).any?
+        elsif obj.annotated.respond_to?(:project)
+          @teams.include?(obj.annotated.project.team_id)
+        else
+          (obj.get_team & @teams).any?
+        end
       end
+    end
+    can [:create, :read, :destroy], Tag, ['annotation_type = ?', 'tag'] do |obj|
+      (obj.get_team & @teams).any?
     end
     can [:destroy, :update], [Dynamic, Annotation, Task] do |obj|
       obj.annotator_id.to_i == @user.id
@@ -75,6 +75,7 @@ class AdminAbility
       changes = (after.to_a - before.to_a).to_h
       (obj.get_team & @teams).any? && changes.keys == ['status']
     end
+    can :create, PaperTrail::Version
     can :destroy, PaperTrail::Version do |obj|
       teams = []
       v_obj = obj.item_type.constantize.find(obj.item_id)
