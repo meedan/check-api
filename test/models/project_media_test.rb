@@ -463,13 +463,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get project source" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    assert_not_nil pm.project_source
+    c = create_claim_media
+    pm = create_project_media project: p, media: c
+    assert_nil pm.project_source
+  end
+
   test "should move related sources after move media to other projects" do
     t = create_team
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
-    sources = pm.media.account.sources.map(&:id)
-    ps = ProjectSource.where(project_id: pm.project_id, source_id: sources).last
+    ps = pm.project_source
     t2 = create_team
     p2 = create_project team: t2
     pm.project = p2; pm.save!

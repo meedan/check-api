@@ -36,6 +36,10 @@ DynamicAnnotation::Field.class_eval do
     value
   end
 
+  def field_formatter_type_datetime
+    I18n.l(DateTime.parse(self.value), format: :oembed)
+  end
+
   private
 
   def response_value(field_value)

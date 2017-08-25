@@ -11,4 +11,12 @@ DynamicAnnotation::Field.class_eval do
       errors.add(:base, errormsg)
     end
   end
+
+  def field_validator_type_datetime
+    begin
+      DateTime.parse(self.value)
+    rescue
+      errors.add(:base, I18n.t(:datetime_invalid_date))
+    end
+  end
 end

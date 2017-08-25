@@ -199,6 +199,10 @@ class ProjectMedia < ActiveRecord::Base
     URI.parse(URI.encode(url))
   end
 
+  def project_source
+    get_project_source(self.project_id)
+  end
+
   private
 
   def is_unique
@@ -216,13 +220,20 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def move_media_sources
-    if self.project_id_changed? && self.media.type == 'Link'
-      sources = self.media.account.sources.map(&:id)
-      ps = ProjectSource.where(project_id: self.project_id_was, source_id: sources).last
-      ps.project_id = self.project_id
-      ps.skip_check_ability = true
-      ps.save!
+    if self.project_id_changed?
+      ps = get_project_source(self.project_id_was)
+      unless ps.nil?
+        ps.project_id = self.project_id
+        ps.skip_check_ability = true
+        ps.save!
+      end
     end
+  end
+
+  def get_project_source(pid)
+    return unless self.media.type == 'Link'
+    sources = self.media.account.sources.map(&:id)
+    ProjectSource.where(project_id: pid, source_id: sources).first
   end
 
   protected

@@ -145,10 +145,31 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     end
   end
 
+  test "should format datetime field" do
+    create_datetime_field
+    f = create_field field_name: 'response_datetime', value: '2017-08-21 13:42:23 -0700'
+    assert_equal 'August 21, 2017', f.to_s
+  end
+
+  test "should validate datetime field" do
+    create_datetime_field
+    assert_nothing_raised do
+      create_field field_name: 'response_datetime', value: '2017-08-21 13:42:23 -0700'
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_field field_name: 'response_datetime', value: 'yesterday'
+    end
+  end
+
   protected
 
   def create_geojson_field
     geo = create_field_type field_type: 'geojson', label: 'GeoJSON'
     create_field_instance name: 'response_geolocation', field_type_object: geo
+  end
+
+  def create_datetime_field
+    dt = create_field_type field_type: 'datetime'
+    create_field_instance name: 'response_datetime', field_type_object: dt
   end
 end
