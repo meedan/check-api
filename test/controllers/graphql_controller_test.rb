@@ -288,17 +288,15 @@ class GraphqlControllerTest < ActionController::TestCase
     create_tag annotated: ps
     create_comment annotated: ps2
     create_tag annotated: ps2
-    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { source { log(first: 1000) { edges { node { event_type } } }, log_count }, log(first: 1000) { edges { node { event_type } } }, log_count, published, user{id}, team{id}, tags { edges { node { dbid } } },annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } }"
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { source { log(first: 1000) { edges { node { event_type } } }, log_count, published,tags { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } }, user{id}, team{id} } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_source']
-    assert_not_empty data['published']
     assert_not_empty data['user']['id']
     assert_not_empty data['team']['id']
-    assert_equal 2, data['annotations']['edges'].size
-    assert_equal 2, data['annotations_count']
-    assert_equal 2, data['log']['edges'].size
-    assert_equal 2, data['log_count']
+    assert_equal 4, data['source']['annotations']['edges'].size
+    assert_equal 4, data['source']['annotations_count']
+    assert_not_empty data['source']['published']
     assert_equal 4, data['source']['log']['edges'].size
     assert_equal 4, data['source']['log_count']
   end
@@ -422,8 +420,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read collection from source" do
     User.delete_all
     assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
-     'annotations' => 'content', 'medias' => 'media_id', 'collaborators' => 'name',
-     'tags'=> 'tag', 'comments' => 'text' }, 'DESC')
+      'medias' => 'media_id', 'collaborators' => 'name' }, 'DESC')
   end
 
   test "should read collection from project" do

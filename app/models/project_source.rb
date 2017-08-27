@@ -34,10 +34,6 @@ class ProjectSource < ActiveRecord::Base
     self.annotators
   end
 
-  def get_annotations(type = nil)
-    self.annotations.where(annotation_type: type)
-  end
-
   def add_elasticsearch_data
     return if self.disable_es_callbacks
     p = self.project

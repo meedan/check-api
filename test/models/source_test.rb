@@ -159,21 +159,21 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should get tags" do
+    t = create_team
+    t2 = create_team
+    p = create_project team: t
+    p2 = create_project team: t2
     s = create_source
-    t = create_tag
-    c = create_comment
-    s.add_annotation t
-    s.add_annotation c
-    assert_equal [t], s.tags
-  end
-
-  test "should get comments" do
-    s = create_source
-    t = create_tag
-    c = create_comment
-    s.add_annotation t
-    s.add_annotation c
-    assert_equal [c], s.comments
+    ps = create_project_source project: p, source: s
+    ps2 = create_project_source project: p2, source: s
+    tag = create_tag annotated: ps
+    tag2 = create_tag annotated: ps2
+    assert_equal [tag, tag2], s.get_annotations('tag')
+    Team.stubs(:current).returns(t)
+    assert_equal [tag], s.get_annotations('tag')
+    Team.stubs(:current).returns(t2)
+    assert_equal [tag2], s.get_annotations('tag')
+    Team.unstub(:current)
   end
 
   test "should get db id" do
