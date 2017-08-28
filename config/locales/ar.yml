@@ -160,10 +160,16 @@ ar:
   oembed_notes_count:
     zero: لا توجد ملحوظات
     one: ملحوظة واحدة
+    few: "%{count} ملحوظات"
+    two: "%{count} ملحوظات"
+    many: "%{count} ملحوظات"
     other: "%{count} ملحوظات"
   oembed_completed_tasks_count:
     zero: لا توجد مهام مكتملة
     one: مهمة واحدة مكتملة
+    two: "%{count} مهام منتهية"
+    few: "%{count} مهام منتهية"
+    many: "%{count} مهام منتهية"
     other: "%{count} مهام مكتملة"
   oembed_verification_tasks: مهام التحقق من المعلومات
   oembed_expand_all: توسيع الكل
@@ -171,6 +177,9 @@ ar:
   oembed_resolved_tasks_count:
     zero: لا توجد مهام تم إنجازها
     one: مهمة واحدة تم إنجازها
+    two: "%{count} مهام تم إنجازها"
+    few: "%{count} مهام تم إنجازها"
+    many: "%{count} مهام تم إنجازها"
     other: "%{count} مهام تم إنجازها"
   oembed_notes: ملحوظات
   pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع ثوانٍ.
