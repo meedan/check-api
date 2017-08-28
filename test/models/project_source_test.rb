@@ -16,21 +16,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get tags" do
-    s = create_project_source
-    t = create_tag annotated: s
-    c = create_comment annotated: s
-    assert_equal [t], s.tags
-  end
-
-  test "should get comments" do
-    s = create_project_source
-    t = create_tag annotated: s
-    c = create_comment annotated: s
-    assert_equal [c], s.comments
-  end
-
-   test "should get collaborators" do
+  test "should get collaborators" do
     u1 = create_user
     u2 = create_user
     u3 = create_user
