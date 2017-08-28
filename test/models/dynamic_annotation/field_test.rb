@@ -148,7 +148,7 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
   test "should format datetime field" do
     create_datetime_field
     f = create_field field_name: 'response_datetime', value: '2017-08-21 13:42:23 -0700'
-    assert_equal 'August 21, 2017', f.to_s
+    assert_equal 'August 21, 2017 at 13:42 -0700', f.to_s
   end
 
   test "should validate datetime field" do
