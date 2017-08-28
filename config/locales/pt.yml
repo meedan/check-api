@@ -140,6 +140,7 @@ pt:
   time:
     formats:
       oembed: "%d de %B de %Y"
+      task: "%d de %B de %Y às %H:%M %z"
   oembed_disclaimer: A veracidade desta mídia foi verificada pela equipe %{team} em %{date}
   oembed_source_date: "%{date} no %{provider}"
   role_editor: editor

@@ -140,6 +140,7 @@ fr:
   time:
     formats:
       oembed: "%B %d, %Y"
+      task: "%B %d, %Y - %H:%M %z"
   oembed_disclaimer: L'exactitude de ce média a été vérifiée par l'équipe %{team}le %{date}
   oembed_source_date: "%{date} via %{provider}"
   role_editor: rédacteur

@@ -144,6 +144,7 @@ ar:
   time:
     formats:
       oembed: "%B %d, %Y"
+      task: "%B %d, %Y - %H:%M %z"
   oembed_disclaimer: قام فريق %{team} بالتحقق من دقة هذا الميديا في %{date}
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر

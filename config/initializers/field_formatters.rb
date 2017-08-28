@@ -37,7 +37,7 @@ DynamicAnnotation::Field.class_eval do
   end
 
   def field_formatter_type_datetime
-    I18n.l(DateTime.parse(self.value), format: :oembed)
+    I18n.l(DateTime.parse(self.value), format: :task)
   end
 
   private
