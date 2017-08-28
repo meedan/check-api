@@ -144,8 +144,12 @@ ar:
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y - %H:%M %z"
-  oembed_disclaimer: قام فريق %{team} بالتحقق من دقة هذا الميديا في %{date}
+      task: "%B %d, %Y في %H:%M %z"
+  oembed_disclaimer_undetermined: لم يقم فريق %{team} بالتحقق من دقة هذا الميديا بعد
+  oembed_disclaimer_in_progress: بدأ فريق %{team} بالتحقق من دقة هذا الميديا في %{date}
+  oembed_disclaimer_verified: تحقق فريق %{team} من دقة هذا الميديا في %{date}
+  oembed_disclaimer_false: نفى فريق %{team} دقة هذا الميديا في %{date}
+  oembed_disclaimer_not_applicable: لم يتمكن فريق %{team} من التحقق من دقة هذا الميديا منذ %{date}
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر
   role_owner: مدير
@@ -156,26 +160,20 @@ ar:
   oembed_notes_count:
     zero: لا توجد ملحوظات
     one: ملحوظة واحدة
-    few: "%{count} ملحوظات"
-    two: "%{count} ملحوظات"
-    many: "%{count} ملحوظات"
     other: "%{count} ملحوظات"
   oembed_completed_tasks_count:
-    zero: لا توجد مهام منتهية
-    one: مهمة واحدة منتهية
-    two: "%{count} مهام منتهية"
-    few: "%{count} مهام منتهية"
-    many: "%{count} مهام منتهية"
-    other: "%{count} مهام منتهية"
+    zero: لا توجد مهام مكتملة
+    one: مهمة واحدة مكتملة
+    other: "%{count} مهام مكتملة"
   oembed_verification_tasks: مهام التحقق من المعلومات
   oembed_expand_all: توسيع الكل
   oembed_collapse_all: طيّ الكل
   oembed_resolved_tasks_count:
     zero: لا توجد مهام تم إنجازها
     one: مهمة واحدة تم إنجازها
-    two: "%{count} مهام تم إنجازها"
-    few: "%{count} مهام تم إنجازها"
-    many: "%{count} مهام تم إنجازها"
     other: "%{count} مهام تم إنجازها"
   oembed_notes: ملحوظات
   pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع ثوانٍ.
+  duplicate_source: المصدر موجود بالفعل
+  geolocation_invalid_value: صيغة الموقع لابد أن تطابق (/GeoJSON (http://geojson.org
+  datetime_invalid_date: من فضلك أدخل تاريخاً صحيحاً.
