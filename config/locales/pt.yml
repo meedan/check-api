@@ -141,7 +141,11 @@ pt:
     formats:
       oembed: "%d de %B de %Y"
       task: "%d de %B de %Y às %H:%M %z"
-  oembed_disclaimer: A veracidade desta mídia foi verificada pela equipe %{team} em %{date}
+  oembed_disclaimer_undetermined: Esta mídia ainda não foi revisada pela equipe %{team}
+  oembed_disclaimer_in_progress: A acurácia desta mídia está em andamento pela equipe %{team} em %{date}
+  oembed_disclaimer_verified: A acurácia desta mídia foi verificada pela equipe %{team} em %{date}
+  oembed_disclaimer_false: A acurácia desta mídia foi determinada como falsa pela equipe %{team} em %{date}
+  oembed_disclaimer_not_applicable: Nenhuma conclusão foi obtida sobre a acurácia desta mídia pela equipe %{team} em %{date}
   oembed_source_date: "%{date} no %{provider}"
   role_editor: editor
   role_owner: proprietário
@@ -166,3 +170,6 @@ pt:
     other: "%{count} tarefas de verificação concluídas"
   oembed_notes: Notas
   pender_conflict: Este link já está sendo processado, por favor tente novamente em alguns segundos.
+  duplicate_source: Fonte existe
+  geolocation_invalid_value: Localização deve conter um GeoJSON válido (http://geojson.org/)
+  datetime_invalid_date: Por favor forneça uma data válida
