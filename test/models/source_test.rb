@@ -324,4 +324,30 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal ms1.description, ms2.description, s.description
   end
 
+  test "should notify Pusher when source is updated" do
+    s = create_source
+    s = Source.find(s.id)
+    assert !s.sent_to_pusher
+    s.updated_at = Time.now
+    s.save!
+    assert s.sent_to_pusher
+  end
+
+  test "should update from Pender data" do
+    s = create_source name: 'Untitled'
+    s.update_from_pender_data({ 'author_name' => 'Test' })
+    assert_equal 'Test', s.name
+  end
+
+  test "should refresh source and accounts" do
+    a = create_valid_account
+    s = create_source
+    s.accounts << a
+    t1 = a.updated_at
+    sleep 2
+    s.refresh_accounts = 1
+    s.save!
+    t2 = a.reload.updated_at
+    assert t2 > t1
+  end
 end

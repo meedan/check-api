@@ -288,4 +288,26 @@ class AccountTest < ActiveSupport::TestCase
     WebMock.allow_net_connect!
   end
 
+  test "should have image" do
+    WebMock.disable_net_connect!
+    url = 'http://example.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }
+    }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "picture": "http://provider/picture.png"}}')
+    account = Account.create url: url, user: create_user
+    assert_equal 'http://provider/picture.png', account.image
+    WebMock.allow_net_connect!
+  end
+
+  test "should refresh account and sources" do
+    a = create_valid_account
+    s = create_source
+    s.accounts << a
+    t1 = s.updated_at
+    sleep 2
+    a.refresh_account = 1
+    a.save!
+    t2 = s.reload.updated_at
+    assert t2 > t1
+  end
 end
