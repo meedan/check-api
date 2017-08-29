@@ -300,7 +300,14 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "should refresh account and sources" do
-    a = create_valid_account
+    WebMock.disable_net_connect!
+    url = "http://twitter.com/example#{Time.now.to_i}"
+    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
+    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
+    WebMock.stub_request(:get, pender_url).to_return(ret)
+    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
+    a = create_account url: url
     s = create_source
     s.accounts << a
     t1 = s.updated_at
@@ -308,6 +315,7 @@ class AccountTest < ActiveSupport::TestCase
     a.refresh_account = 1
     a.save!
     t2 = s.reload.updated_at
+    WebMock.allow_net_connect!
     assert t2 > t1
   end
 end
