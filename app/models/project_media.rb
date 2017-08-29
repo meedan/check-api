@@ -231,7 +231,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_project_source(pid)
-    return unless self.media.type == 'Link'
+    return if self.media.type != 'Link' || self.media.account.blank?
     sources = self.media.account.sources.map(&:id)
     ProjectSource.where(project_id: pid, source_id: sources).first
   end
