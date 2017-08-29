@@ -96,8 +96,19 @@ class Source < ActiveRecord::Base
 
   def update_from_pender_data(data)
     self.name = (data['author_name'] or 'Untitled') if self.name.blank? or self.name === 'Untitled'
-    self.avatar = data['author_picture'] if self.avatar.blank?
+    self.avatar = data['author_picture'] unless data['author_picture'].blank?
     self.slogan = data['description'].to_s if self.slogan.blank?
+  end
+
+  def refresh_accounts=(refresh)
+    return if refresh.blank?
+    self.accounts.each do |a|
+      a.refresh_pender_data
+      a.save!
+    end
+    self.update_from_pender_data(self.accounts.first.data)
+    self.updated_at = Time.now
+    self.save!
   end
 
   private

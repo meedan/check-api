@@ -51,6 +51,10 @@ class Account < ActiveRecord::Base
     embed
   end
 
+  def image
+    self.embed['picture'] || ''
+  end
+
   def create_source
     source = self.source
 
@@ -66,6 +70,15 @@ class Account < ActiveRecord::Base
     end
     create_account_source(source)
     self.source = source
+  end
+
+  def refresh_account=(_refresh)
+    self.refresh_pender_data
+    self.sources.each do |s|
+      s.updated_at = Time.now
+      s.save!
+    end
+    self.updated_at = Time.now
   end
 
   def self.create_for_source(url, source = nil, disable_account_source_creation = false)

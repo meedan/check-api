@@ -57,16 +57,6 @@ class ProjectSource < ActiveRecord::Base
     "#{self.project.url}/source/#{self.id}"
   end
 
-  def refresh_accounts=(refresh)
-    return if refresh.blank?
-    self.source.accounts.each do |a|
-      a.refresh_pender_data
-      self.source.update_from_pender_data(a.pender_data)
-    end
-    self.updated_at = Time.now
-    self.source.save!
-  end
-
   private
 
   def set_account

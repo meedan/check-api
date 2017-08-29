@@ -9,7 +9,6 @@ module ProjectSourceMutations
   update_fields = {
     source_id: 'int',
     project_id: 'int',
-    refresh_accounts: 'int',
     id: '!id'
   }
 
