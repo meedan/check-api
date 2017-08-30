@@ -1154,4 +1154,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should not get project source" do
+    p = create_project
+    l = create_link
+    a = l.account
+    a.destroy
+    l = Link.find(l.id)
+    pm = create_project_media project: p, media: l
+    assert_nil pm.send(:get_project_source, p.id)
+  end
 end

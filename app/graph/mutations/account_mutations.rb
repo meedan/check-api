@@ -9,6 +9,7 @@ module AccountMutations
     url: 'str',
     source_id: 'int',
     user_id: 'int',
+    refresh_account: 'int',
     id: '!id'
   }
 

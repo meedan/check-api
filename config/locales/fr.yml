@@ -140,8 +140,12 @@ fr:
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y - %H:%M %z"
-  oembed_disclaimer: L'exactitude de ce média a été vérifiée par l'équipe %{team}le %{date}
+      task: "%B %d, %Y à %H:%M %z"
+  oembed_disclaimer_undetermined: Ce média n'a pas encore été vérifié par l'équipe %{team}.
+  oembed_disclaimer_in_progress: L'exactitude de ce média est en cours de vérification par l'équipe %{team}depuis le %{date}
+  oembed_disclaimer_verified: L'exactitude de ce média a été vérifiée par l'équipe %{team}le %{date}
+  oembed_disclaimer_false: L'exactitude de ce média a été démentie par l'équipe %{team}le %{date}
+  oembed_disclaimer_not_applicable: Aucune conclusion concernant ce média n'a été tirée par l'équipe %{team}depuis le %{date}
   oembed_source_date: "%{date} via %{provider}"
   role_editor: rédacteur
   role_owner: administrateur
@@ -166,3 +170,6 @@ fr:
     other: "%{count}tâches résolues"
   oembed_notes: Notes
   pender_conflict: Ce lien est déjà en cours de traitement, veuillez ressayer dans quelques secondes.
+  duplicate_source: La source existe déjà
+  geolocation_invalid_value: L'emplacement doit être représenté par une entrée GeoJSON valide (http://geojson.org/).
+  datetime_invalid_date: Veuillez saisir une date valide.
