@@ -112,7 +112,7 @@ class CheckSearch
     if associated_type == 'ProjectSource'
       keyword_c << { has_child: { type: "account_search", query: { query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
     end
-    [{bool: {should: keyword_c}}]
+    [{ bool: { should: keyword_c } }]
   end
 
   def build_search_tags_conditions
