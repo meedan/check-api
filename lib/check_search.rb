@@ -128,9 +128,19 @@ class CheckSearch
 
   def build_search_parent_conditions
     parent_c = []
-    fields = {'project_id' => 'projects', 'associated_type' => 'show', 'status' => 'status'}
+    
+    unless @options['show'].blank?
+      types_mapping = {
+        'medias' => ['link', 'claim', 'uploadedimage'],
+        'sources' => ['source']
+      }
+      types = @options['show'].collect{ |type| types_mapping[type] }.flatten
+      parent_c << { terms: { 'associated_type': types } } 
+    end
+
+    fields = { 'project_id' => 'projects', 'status' => 'status' }
     fields.each do |k, v|
-      parent_c << {terms: { "#{k}": @options[v] } } unless @options[v].blank?
+      parent_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
     end
     parent_c
   end
