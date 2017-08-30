@@ -872,30 +872,12 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({}.to_json)
     assert_equal 0, result.sources.count
     assert_equal 3, result.medias.count
-    result = CheckSearch.new({ show: ['links'] }.to_json)
+    result = CheckSearch.new({ show: ['medias'] }.to_json)
     assert_equal 0, result.sources.count
-    assert_equal 1, result.medias.count
-    result = CheckSearch.new({ show: ['quotes'] }.to_json)
-    assert_equal 0, result.sources.count
-    assert_equal 1, result.medias.count
-    result = CheckSearch.new({ show: ['photos'] }.to_json)
-    assert_equal 0, result.sources.count
-    assert_equal 1, result.medias.count
-    result = CheckSearch.new({ show: ['links', 'quotes'] }.to_json)
-    assert_equal 0, result.sources.count
-    assert_equal 2, result.medias.count
-    result = CheckSearch.new({ show: ['links', 'photos'] }.to_json)
-    assert_equal 0, result.sources.count
-    assert_equal 2, result.medias.count
-    result = CheckSearch.new({ show: ['quotes', 'photos'] }.to_json)
-    assert_equal 0, result.sources.count
-    assert_equal 2, result.medias.count
+    assert_equal 3, result.medias.count
     result = CheckSearch.new({ show: ['sources'] }.to_json)
     assert_equal p.sources.count, result.sources.count
     assert_equal 0, result.medias.count
-    result = CheckSearch.new({ show: ['sources', 'links', 'quotes', 'photos'] }.to_json)
-    assert_equal p.sources.count, result.sources.count
-    assert_equal 3, result.medias.count
     result = CheckSearch.new({ show: ['sources', 'medias'] }.to_json)
     assert_equal p.sources.count, result.sources.count
     assert_equal 3, result.medias.count
