@@ -10,7 +10,7 @@ class CheckSearch
     @options['sort'] ||= 'recent_added'
     @options['sort_type'] ||= 'desc'
     # set show options
-    @options['show'] = prepare_show_filter(@options['show'])
+    @options['show'] ||= ['medias']
   end
 
   def pusher_channel
@@ -34,16 +34,19 @@ class CheckSearch
   end
 
   def medias
-    return [] if @options['show'] == ['source']
-    if should_hit_elasticsearch?('medias')
+    return [] unless @options['show'].include?('medias')
+    return @medias if @medias
+    @medias = []
+    if should_hit_elasticsearch?
       query = medias_build_search_query
       ids = medias_get_search_result(query).map(&:annotated_id)
       items = ProjectMedia.where(id: ids).eager_load(:media)
-      sort_es_items(items, ids)
+      @medias = sort_es_items(items, ids)
     else
       results = ProjectMedia.eager_load(:media).joins(:project)
-      sort_pg_results(results)
+      @medias = sort_pg_results(results)
     end
+    @medias
   end
 
   def project_medias
@@ -51,16 +54,19 @@ class CheckSearch
   end
 
   def sources
-    return [] unless @options['show'].include?('source')
-    if should_hit_elasticsearch?('sources')
+    return [] unless @options['show'].include?('sources')
+    return @sources if @sources
+    @sources = []
+    if should_hit_elasticsearch?
       query = medias_build_search_query('ProjectSource')
       ids = medias_get_search_result(query).map(&:annotated_id)
       items = ProjectSource.where(id: ids).eager_load(:source)
-      sort_es_items(items, ids)
+      @sources = sort_es_items(items, ids)
     else
       results = ProjectSource.eager_load(:source).joins(:project)
-      sort_pg_results(results)
+      @sources = sort_pg_results(results)
     end
+    @sources
   end
 
   def project_sources
@@ -68,21 +74,20 @@ class CheckSearch
   end
 
   def number_of_results
-    # TODO cache `medias` and `sources` results?
     medias.count + sources.count
   end
 
   private
 
-  def should_hit_elasticsearch?(type)
-    !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank? && show_filter?(type))
+  def should_hit_elasticsearch?
+    !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank?)
   end
 
-  def show_filter?(type)
-    # show filter should not include all media types to hit ES
-    show_options = (type == 'medias') ? ['uploadedimage', 'link', 'claim'] : ['source']
-    (show_options - @options['show']).empty?
-  end
+  # def show_filter?(type)
+  #   # show filter should not include all media types to hit ES
+  #   show_options = (type == 'medias') ? ['uploadedimage', 'link', 'claim'] : ['source']
+  #   (show_options - @options['show']).empty?
+  # end
 
   def medias_build_search_query(associated_type = 'ProjectMedia')
     conditions = []
@@ -148,19 +153,18 @@ class CheckSearch
     ids_sort.to_a
   end
 
-  def prepare_show_filter(show)
-    m_types = ['photos', 'links', 'quotes']
-    show ||= m_types
-    if show.include?('medias')
-      show.delete('medias')
-      show += m_types
-    end
-    show.map(&:downcase)
-    show_mapping = {'photos' => 'uploadedimage', 'links' => 'link', 'quotes' => 'claim', 'sources' => 'source'}
-    show.each_with_index do |v, i|
-      show[i] = show_mapping[v] unless show_mapping[v].blank?
-    end
-    show
-  end
-
+  # def prepare_show_filter(show)
+  #   m_types = ['photos', 'links', 'quotes']
+  #   show ||= m_types
+  #   if show.include?('medias')
+  #     show.delete('medias')
+  #     show += m_types
+  #   end
+  #   show.map(&:downcase)
+  #   show_mapping = {'photos' => 'uploadedimage', 'links' => 'link', 'quotes' => 'claim', 'sources' => 'source'}
+  #   show.each_with_index do |v, i|
+  #     show[i] = show_mapping[v] unless show_mapping[v].blank?
+  #   end
+  #   show
+  # end
 end
