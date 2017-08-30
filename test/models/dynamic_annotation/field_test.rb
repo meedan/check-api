@@ -161,6 +161,16 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate datetime field with Arabic numbers" do
+    create_datetime_field
+    assert_nothing_raised do
+      create_field field_name: 'response_datetime', value: '2017-08-21 ١۲:١۲ -0700'
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_field field_name: 'response_datetime', value: '2017-08-21 ۵۵:۵۵ -0700'
+    end
+  end
+
   protected
 
   def create_geojson_field
