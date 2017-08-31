@@ -76,17 +76,17 @@ namespace :transifex do
 
   # Update or create the resource on Transifex
 
-  task upload: [:environment, :parse, :login] do
+  task upload: [:environment, :login] do
     project = Transifex::Project.new(TRANSIFEX_PROJECT_SLUG)
     resource = nil
 
     begin
       resource = project.resource('api')
       resource.fetch
-      resource.content.update(i18n_type: 'YML', content: File.join(Rails.root, 'config', 'locales', 'en.yml'))
+      resource.content.update(i18n_type: 'YML', content: File.read(File.join(Rails.root, 'config', 'locales', 'en.yml')))
     rescue Transifex::TransifexError => e
       if e.message == 'Not Found'
-        params = { slug: 'api', name: 'API', i18n_type: 'YML', content: File.join(Rails.root, 'config', 'locales', 'en.yml') }
+        params = { slug: 'api', name: 'API', i18n_type: 'YML', content: File.read(File.join(Rails.root, 'config', 'locales', 'en.yml')) }
         options = { trad_from_file: true }
         project.resources.create(params, options)
         resource = project.resource('api')

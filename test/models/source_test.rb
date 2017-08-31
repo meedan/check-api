@@ -324,4 +324,38 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal ms1.description, ms2.description, s.description
   end
 
+  test "should notify Pusher when source is updated" do
+    s = create_source
+    s = Source.find(s.id)
+    assert !s.sent_to_pusher
+    s.updated_at = Time.now
+    s.save!
+    assert s.sent_to_pusher
+  end
+
+  test "should update from Pender data" do
+    s = create_source name: 'Untitled'
+    s.update_from_pender_data({ 'author_name' => 'Test' })
+    assert_equal 'Test', s.name
+  end
+
+  test "should refresh source and accounts" do
+    WebMock.disable_net_connect!
+    url = "http://twitter.com/example#{Time.now.to_i}"
+    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
+    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
+    WebMock.stub_request(:get, pender_url).to_return(ret)
+    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
+    a = create_account url: url
+    s = create_source
+    s.accounts << a
+    t1 = a.updated_at
+    sleep 2
+    s.refresh_accounts = 1
+    s.save!
+    t2 = a.reload.updated_at
+    WebMock.allow_net_connect!
+    assert t2 > t1
+  end
 end
