@@ -22,20 +22,8 @@ class ProjectSource < ActiveRecord::Base
     p.nil? ? [] : [p.team_id]
   end
 
-  def tags
-    self.annotations('tag')
-  end
-
-  def comments
-    self.annotations('comment')
-  end
-
   def collaborators
     self.annotators
-  end
-
-  def get_annotations(type = nil)
-    self.annotations.where(annotation_type: type)
   end
 
   def add_elasticsearch_data

@@ -37,12 +37,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :annotations, -> { AnnotationType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.annotations
-    }
-  end
-
   connection :medias, -> { ProjectMediaType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.medias
@@ -55,21 +49,21 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :comments, -> { CommentType.connection_type } do
+  connection :tags, -> { TagType.connection_type } do
     resolve ->(source, _args, _ctx) {
-      source.comments
+      source.get_annotations('tag')
     }
   end
 
-  connection :tags, -> { TagType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.tags
-    }
-  end
+  instance_exec :source, &GraphqlCrudOperations.field_annotations
+
+  instance_exec :source, &GraphqlCrudOperations.field_annotations_count
 
   instance_exec :source, &GraphqlCrudOperations.field_log
 
   instance_exec :source, &GraphqlCrudOperations.field_log_count
 
   instance_exec :source, &GraphqlCrudOperations.field_verification_statuses
+
+  instance_exec :project_source, &GraphqlCrudOperations.field_published
 end

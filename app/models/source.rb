@@ -63,12 +63,12 @@ class Source < ActiveRecord::Base
     self.annotators
   end
 
-  def tags
-    self.annotations('tag')
-  end
-
-  def comments
-    self.annotations('comment')
+  def get_annotations(type = nil)
+    conditions = {}
+    conditions[:annotation_type] = type unless type.nil?
+    conditions[:annotated_type] = 'ProjectSource'
+    conditions[:annotated_id] = get_project_sources.map(&:id)
+    Annotation.where(conditions)
   end
 
   def file_mandatory?
@@ -87,11 +87,11 @@ class Source < ActiveRecord::Base
   end
 
   def get_versions_log
-    PaperTrail::Version.where(associated_type: 'ProjectSource', associated_id: self.project_sources).order('created_at ASC')
+    PaperTrail::Version.where(associated_type: 'ProjectSource', associated_id: get_project_sources).order('created_at ASC')
   end
 
   def get_versions_log_count
-    self.project_sources.sum(:cached_annotations_count)
+    get_project_sources.sum(:cached_annotations_count)
   end
 
   def update_from_pender_data(data)
@@ -119,5 +119,11 @@ class Source < ActiveRecord::Base
 
   def set_team
     self.team = Team.current unless Team.current.nil?
+  end
+
+  def get_project_sources
+    conditions = {}
+    conditions[:project_id] = Team.current.projects unless Team.current.nil?
+    self.project_sources.where(conditions)
   end
 end
