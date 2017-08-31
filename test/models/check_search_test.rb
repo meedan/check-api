@@ -145,6 +145,9 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
     result = CheckSearch.new({tags: ['news']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
+    # test search tags as keywords
+    result = CheckSearch.new({keyword: 'news'}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
   end
 
   test "should search with status" do
@@ -795,6 +798,9 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({tags: ['sports'], show: ['sources'] }.to_json)
     assert_equal [ps.id, ps2.id].sort, result.sources.map(&:id).sort
     result = CheckSearch.new({tags: ['news'], show: ['sources'] }.to_json)
+    assert_equal [ps.id], result.sources.map(&:id)
+    # test search tags as keywords
+    result = CheckSearch.new({keyword: 'news', show: ['sources'] }.to_json)
     assert_equal [ps.id], result.sources.map(&:id)
   end
 
