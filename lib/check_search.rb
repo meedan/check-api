@@ -109,6 +109,8 @@ class CheckSearch
       keyword_c << { has_child: { type: "#{pair[0]}_search", query: { query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
     end
 
+    keyword_c << search_tags_query([@options["keyword"]])
+
     if associated_type == 'ProjectSource'
       keyword_c << { has_child: { type: "account_search", query: { query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
     end
@@ -117,25 +119,30 @@ class CheckSearch
 
   def build_search_tags_conditions
     return [] if @options["tags"].blank?
+    tags_c = search_tags_query(@options["tags"])
+    [tags_c]
+  end
+
+  def search_tags_query(tags)
     tags_c = []
-    tags = @options["tags"].collect{ |t| t.delete('#') }
+    tags = tags.collect{ |t| t.delete('#') }
     tags.each do |tag|
       tags_c << { match: { full_tag: { query: tag, operator: 'and' } } }
     end
     tags_c << { terms: { tag: tags } }
-    [{has_child: { type: 'tag_search', query: { bool: {should: tags_c }}}}]
+    {has_child: { type: 'tag_search', query: { bool: {should: tags_c }}}}
   end
 
   def build_search_parent_conditions
     parent_c = []
-    
+
     unless @options['show'].blank?
       types_mapping = {
         'medias' => ['link', 'claim', 'uploadedimage'],
         'sources' => ['source']
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten
-      parent_c << { terms: { 'associated_type': types } } 
+      parent_c << { terms: { 'associated_type': types } }
     end
 
     fields = { 'project_id' => 'projects', 'status' => 'status' }
