@@ -339,6 +339,12 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal 'Test', s.name
   end
 
+  test "should not update from Pender data when author_name is blank" do
+    s = create_source name: 'Untitled'
+    s.update_from_pender_data({ 'author_name' => '' })
+    assert_equal 'Untitled', s.name
+  end
+
   test "should refresh source and accounts" do
     WebMock.disable_net_connect!
     url = "http://twitter.com/example#{Time.now.to_i}"
