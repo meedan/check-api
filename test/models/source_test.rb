@@ -168,7 +168,7 @@ class SourceTest < ActiveSupport::TestCase
     ps2 = create_project_source project: p2, source: s
     tag = create_tag annotated: ps
     tag2 = create_tag annotated: ps2
-    assert_equal [tag, tag2], s.get_annotations('tag')
+    assert_equal [tag, tag2].sort, s.get_annotations('tag').sort
     Team.stubs(:current).returns(t)
     assert_equal [tag], s.get_annotations('tag')
     Team.stubs(:current).returns(t2)
