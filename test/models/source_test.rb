@@ -168,7 +168,7 @@ class SourceTest < ActiveSupport::TestCase
     ps2 = create_project_source project: p2, source: s
     tag = create_tag annotated: ps
     tag2 = create_tag annotated: ps2
-    assert_equal [tag, tag2], s.get_annotations('tag')
+    assert_equal [tag, tag2].sort, s.get_annotations('tag').sort
     Team.stubs(:current).returns(t)
     assert_equal [tag], s.get_annotations('tag')
     Team.stubs(:current).returns(t2)
@@ -337,6 +337,12 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source name: 'Untitled'
     s.update_from_pender_data({ 'author_name' => 'Test' })
     assert_equal 'Test', s.name
+  end
+
+  test "should not update from Pender data when author_name is blank" do
+    s = create_source name: 'Untitled'
+    s.update_from_pender_data({ 'author_name' => '' })
+    assert_equal 'Untitled', s.name
   end
 
   test "should refresh source and accounts" do
