@@ -68,7 +68,7 @@ class Source < ActiveRecord::Base
     conditions[:annotation_type] = type unless type.nil?
     conditions[:annotated_type] = 'ProjectSource'
     conditions[:annotated_id] = get_project_sources.map(&:id)
-    Annotation.where(conditions)
+    self.annotations(type) + Annotation.where(conditions)
   end
 
   def file_mandatory?
