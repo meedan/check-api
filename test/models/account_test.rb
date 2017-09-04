@@ -330,4 +330,15 @@ class AccountTest < ActiveSupport::TestCase
     WebMock.allow_net_connect!
     assert t2 > t1
   end
+
+  test "should create source when account embed is nil" do
+    Account.any_instance.expects(:embed).returns(nil)
+
+    assert_no_difference 'Account.count' do
+      a = Account.create_for_source(@url)
+      assert_kind_of Source, a.source
+      assert a.source.valid?
+    end
+  end
+
 end

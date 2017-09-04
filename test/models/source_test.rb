@@ -364,4 +364,30 @@ class SourceTest < ActiveSupport::TestCase
     WebMock.allow_net_connect!
     assert t2 > t1
   end
+
+  test "should refresh source with account data" do
+    data = { author_name: 'Source author', author_picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
+    Account.any_instance.expects(:data).returns(data)
+
+    s = create_source name: 'Untitled', slogan: ''
+    a = create_valid_account(source: s)
+
+    s.refresh_accounts = 1
+    s.reload
+    assert_equal 'Source author', s.name
+    assert_equal 'picture.png', s.avatar
+    assert_equal 'Source slogan', s.slogan
+  end
+
+  test "should not refresh source if account data is nil" do
+    Account.any_instance.expects(:data).returns(nil)
+    s = create_source name: 'Untitled', slogan: 'Source slogan'
+    a = create_valid_account(source: s)
+
+    s.refresh_accounts = 1
+    s.reload
+    assert_equal 'Untitled', s.name
+    assert_equal 'Source slogan', s.slogan
+  end
+
 end

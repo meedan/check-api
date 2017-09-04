@@ -95,9 +95,11 @@ class Source < ActiveRecord::Base
   end
 
   def update_from_pender_data(data)
-    self.name = (data['author_name'].blank? ? 'Untitled' : data['author_name']) if self.name.blank? or self.name === 'Untitled'
-    self.avatar = data['author_picture'] unless data['author_picture'].blank?
-    self.slogan = data['description'].to_s if self.slogan.blank?
+    if self.name.blank? or self.name === 'Untitled'
+      self.name = (data.nil? || data['author_name'].blank?) ? 'Untitled' : data['author_name']
+    end
+    self.avatar = data['author_picture'] if data && !data['author_picture'].blank?
+    self.slogan = data['description'].to_s if data && self.slogan.blank?
   end
 
   def refresh_accounts=(refresh)
