@@ -2,6 +2,8 @@ require_relative '../test_helper'
 
 class AdminIntegrationTest < ActionDispatch::IntegrationTest
 
+  Rails.application.reload_routes!
+
   def setup
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
     @user = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', provider: ''
