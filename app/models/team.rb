@@ -29,6 +29,7 @@ class Team < ActiveRecord::Base
   validate :checklist_format
 
   after_create :add_user_to_team
+  after_update :archive_or_restore_projects_if_needed
 
   has_annotations
 
@@ -164,6 +165,11 @@ class Team < ActiveRecord::Base
     URI.parse(URI.encode([CONFIG['bridge_reader_url_private'], 'medias', 'notify', slug].join('/')))
   end
 
+  def self.archive_or_restore_projects_if_needed(archived, team_id)
+    Project.where({ team_id: team_id }).update_all({ archived: archived })
+    ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id }).update_all({ archived: archived })
+  end
+
   protected
 
   def custom_statuses_format(type)
@@ -225,5 +231,9 @@ class Team < ActiveRecord::Base
 
   def slug_is_not_reserved
     errors.add(:slug, I18n.t(:slug_is_reserved)) if RESERVED_SLUGS.include?(self.slug)
+  end
+
+  def archive_or_restore_projects_if_needed
+    Team.delay.archive_or_restore_projects_if_needed(self.archived, self.id) if self.archived_changed?
   end
 end

@@ -4,6 +4,7 @@ class ProjectTest < ActiveSupport::TestCase
   def setup
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
+    Sidekiq::Worker.clear_all
     super
     MediaSearch.delete_index
     MediaSearch.create_index
@@ -515,5 +516,69 @@ class ProjectTest < ActiveSupport::TestCase
     p.viber_token = 'test'
     p.save!
     assert_equal 'test', p.get_viber_token
+  end
+
+  test "should archive project medias when project is archived" do
+    Sidekiq::Testing.inline! do
+      p = create_project
+      pm1 = create_project_media
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      p.archived = true
+      p.save!
+      assert !pm1.reload.archived
+      assert pm2.reload.archived
+      assert pm3.reload.archived
+    end
+  end
+
+  test "should archive project medias in background when project is archived" do
+    p = create_project
+    pm = create_project_media project: p
+    n = Sidekiq::Extensions::DelayedClass.jobs.size
+    p = Project.find(p.id)
+    p.archived = true
+    p.save!
+    assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+  end
+
+  test "should not archive project medias in background if project is updated but archived flag does not change" do
+    p = create_project
+    pm = create_project_media project: p
+    n = Sidekiq::Extensions::DelayedClass.jobs.size
+    p = Project.find(p.id)
+    p.title = random_string
+    p.save!
+    assert_equal n, Sidekiq::Extensions::DelayedClass.jobs.size
+  end
+
+  test "should restore project medias when project is restored" do
+    Sidekiq::Testing.inline! do
+      p = create_project
+      pm1 = create_project_media
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      p.archived = true
+      p.save!
+      assert !pm1.reload.archived
+      assert pm2.reload.archived
+      assert pm3.reload.archived
+      p = Project.find(p.id)
+      p.archived = false
+      p.save!
+      assert !pm1.reload.archived
+      assert !pm2.reload.archived
+      assert !pm3.reload.archived
+    end
+  end
+
+  test "should not create project under archived team" do
+    t = create_team
+    t.archived = true
+    t.save!
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project team: t
+    end
   end
 end

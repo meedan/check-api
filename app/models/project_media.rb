@@ -11,6 +11,7 @@ class ProjectMedia < ActiveRecord::Base
   validates_presence_of :media_id, :project_id
 
   validate :is_unique, on: :create
+  validate :project_is_not_archived
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
@@ -234,6 +235,10 @@ class ProjectMedia < ActiveRecord::Base
     return if self.media.type != 'Link' || self.media.account.blank?
     sources = self.media.account.sources.map(&:id)
     ProjectSource.where(project_id: pid, source_id: sources).first
+  end
+
+  def project_is_not_archived
+    errors.add(:base, I18n.t(:error_project_archived, default: "Can't create media under trashed project")) if self.project.archived
   end
 
   protected

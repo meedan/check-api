@@ -522,4 +522,74 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     assert_equal ['Another task'], t.reload.get_checklist.collect{ |t| t[:label] }
   end
+
+  test "should archive projects and project medias when team is archived" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      p1 = create_project
+      p2 = create_project team: t
+      pm1 = create_project_media
+      pm2 = create_project_media project: p2
+      pm3 = create_project_media project: p2
+      t.archived = true
+      t.save!
+      assert !pm1.reload.archived
+      assert pm2.reload.archived
+      assert pm3.reload.archived
+      assert !p1.reload.archived
+      assert p2.reload.archived
+    end
+  end
+
+  test "should archive project and project medias in background when team is archived" do
+    Sidekiq::Testing.fake! do
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p
+      n = Sidekiq::Extensions::DelayedClass.jobs.size
+      t = Team.find(t.id)
+      t.archived = true
+      t.save!
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+    end
+  end
+
+  test "should not archive project and project medias in background if team is updated but archived flag does not change" do
+    Sidekiq::Testing.fake! do
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p
+      n = Sidekiq::Extensions::DelayedClass.jobs.size
+      t = Team.find(t.id)
+      t.name = random_string
+      t.save!
+      assert_equal n, Sidekiq::Extensions::DelayedClass.jobs.size
+    end
+  end
+
+  test "should restore project and project medias when team is restored" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      p1 = create_project team: t
+      p2 = create_project
+      pm1 = create_project_media
+      pm2 = create_project_media project: p1
+      pm3 = create_project_media project: p1
+      t.archived = true
+      t.save!
+      assert !pm1.reload.archived
+      assert pm2.reload.archived
+      assert pm3.reload.archived
+      assert p1.reload.archived
+      assert !p2.reload.archived
+      t = Team.find(t.id)
+      t.archived = false
+      t.save!
+      assert !pm1.reload.archived
+      assert !pm2.reload.archived
+      assert !pm3.reload.archived
+      assert !p1.reload.archived
+      assert !p2.reload.archived
+    end
+  end
 end

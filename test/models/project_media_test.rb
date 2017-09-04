@@ -1164,4 +1164,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: l
     assert_nil pm.send(:get_project_source, p.id)
   end
+
+  test "should not create project media under archived project" do
+    p = create_project
+    p.archived = true
+    p.save!
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media project: p
+    end
+  end
 end

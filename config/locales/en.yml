@@ -213,3 +213,5 @@ en:
   duplicate_source: Source exists
   geolocation_invalid_value: Location must contain a valid GeoJSON (http://geojson.org/)
   datetime_invalid_date: Please provide a valid date
+  error_team_archived: "Can't create project under trashed team"
+  error_project_archived: "Can't create media under trashed project"
