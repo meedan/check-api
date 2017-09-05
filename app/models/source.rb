@@ -18,6 +18,7 @@ class Source < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
+  validate :team_is_not_archived
 
   after_update :update_elasticsearch_source
 
@@ -125,5 +126,9 @@ class Source < ActiveRecord::Base
     conditions = {}
     conditions[:project_id] = Team.current.projects unless Team.current.nil?
     self.project_sources.where(conditions)
+  end
+
+  def team_is_not_archived
+    errors.add(:base, I18n.t(:error_team_archived_for_source, default: "Can't create source under trashed team")) if self.team && self.team.archived
   end
 end

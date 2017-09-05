@@ -364,4 +364,14 @@ class SourceTest < ActiveSupport::TestCase
     WebMock.allow_net_connect!
     assert t2 > t1
   end
+
+  test "should not create source under trashed team" do
+    t = create_team
+    t.archived = true
+    t.save!
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_source team: t
+    end
+  end
 end

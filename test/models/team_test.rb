@@ -523,11 +523,13 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal ['Another task'], t.reload.get_checklist.collect{ |t| t[:label] }
   end
 
-  test "should archive projects and project medias when team is archived" do
+  test "should archive sources, projects and project medias when team is archived" do
     Sidekiq::Testing.inline! do
       t = create_team
       p1 = create_project
       p2 = create_project team: t
+      s1 = create_source
+      s2 = create_source team: t
       pm1 = create_project_media
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
@@ -538,10 +540,12 @@ class TeamTest < ActiveSupport::TestCase
       assert pm3.reload.archived
       assert !p1.reload.archived
       assert p2.reload.archived
+      assert !s1.reload.archived
+      assert s2.reload.archived
     end
   end
 
-  test "should archive project and project medias in background when team is archived" do
+  test "should archive sources, project and project medias in background when team is archived" do
     Sidekiq::Testing.fake! do
       t = create_team
       p = create_project team: t
@@ -567,11 +571,13 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should restore project and project medias when team is restored" do
+  test "should restore sources, project and project medias when team is restored" do
     Sidekiq::Testing.inline! do
       t = create_team
       p1 = create_project team: t
       p2 = create_project
+      s1 = create_source team: t
+      s2 = create_source
       pm1 = create_project_media
       pm2 = create_project_media project: p1
       pm3 = create_project_media project: p1
@@ -590,6 +596,8 @@ class TeamTest < ActiveSupport::TestCase
       assert !pm3.reload.archived
       assert !p1.reload.archived
       assert !p2.reload.archived
+      assert !s1.reload.archived
+      assert !s2.reload.archived
     end
   end
 end

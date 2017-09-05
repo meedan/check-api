@@ -238,7 +238,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def project_is_not_archived
-    errors.add(:base, I18n.t(:error_project_archived, default: "Can't create media under trashed project")) if self.project.archived
+    errors.add(:base, I18n.t(:error_project_archived, default: "Can't create media under trashed project")) if self.project && self.project.archived
   end
 
   protected
