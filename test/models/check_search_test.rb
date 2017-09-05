@@ -136,6 +136,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
+    create_tag tag: 'newtag', annotated: pm2, disable_es_callbacks: false
     create_tag tag: 'news', annotated: pm, disable_es_callbacks: false
     sleep 10
     Team.stubs(:current).returns(t)
@@ -148,6 +149,11 @@ class CheckSearchTest < ActiveSupport::TestCase
     # test search tags as keywords
     result = CheckSearch.new({keyword: 'news'}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
+    result = CheckSearch.new({keyword: ' news '}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # search by multiple tags as keyword
+    result = CheckSearch.new({keyword: 'newtag news'}.to_json)
+    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
   end
 
   test "should search with status" do
