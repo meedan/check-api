@@ -215,4 +215,17 @@ class ProjectSourceTest < ActiveSupport::TestCase
     assert_equal ms.project_id.to_i, p2.id
     assert_equal ms.team_id.to_i, t2.id
   end
+
+  test "should create project source when account has empty data" do
+    account = create_account
+    account.annotations('embed').last.destroy
+
+    ps = ProjectSource.new user: create_user, project: create_project
+    ps.url = account.url
+
+    assert_difference 'ProjectSource.count' do
+      ps.save!
+    end
+  end
+
 end
