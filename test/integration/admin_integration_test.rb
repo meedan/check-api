@@ -1,6 +1,7 @@
 require_relative '../test_helper'
 
 class AdminIntegrationTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
 
   def setup
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
@@ -21,16 +22,14 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should access admin UI if admin" do
-    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
-
+    sign_in @user
     get '/admin'
     assert_redirected_to '/403.html'
+    sign_out @user
 
     @user.is_admin = true
     @user.save!
-
-    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
-
+    sign_in @user
     get '/admin'
     assert_response :success
   end
@@ -38,7 +37,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   test "should not access Admin UI if user has no role" do
     assert_nil @user.role
 
-    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+    sign_in @user
 
     get '/admin'
     assert_redirected_to '/403.html'
@@ -48,52 +47,53 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     test "should not access admin UI if team #{role}" do
       Team.stubs(:current).returns(nil)
       create_team_user user: @user, role: role
-      post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+      sign_in @user
       get '/admin'
       assert_redirected_to '/403.html'
+      sign_out @user
     end
   end
 
   test "should access admin UI if team owner" do
     Team.stubs(:current).returns(nil)
     create_team_user user: @user, role: 'owner'
-    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+    sign_in @user
 
     get '/admin'
     assert_response :success
   end
 
   test "should access new project page" do
-    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+    sign_in @admin_user
 
     get '/admin/project/new'
     assert_response :success
   end
 
-  test "should show link to send reset password email" do
-    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+  test "should show link to send reset password email to admin" do
+    sign_in @admin_user
 
     get "/admin/user/#{@admin_user.id}/"
 
     assert_select "a[href=?]", "#{request.base_url}/admin/user/#{@admin_user.id}/send_reset_password_email"
   end
 
-  test "should send reset password email and redirect" do
-    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+  test "should admin send reset password email and redirect" do
+    sign_in @admin_user
 
     get "/admin/user/#{@admin_user.id}/send_reset_password_email"
     assert_redirected_to '/admin/user'
   end
 
-  test "should access User page" do
-    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+  test "should admin access User page" do
+    sign_in @admin_user
 
     get "/admin/user/#{@user.id}/edit"
     assert_response :success
   end
 
   test "should access User page with setting with json error" do
-    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+    sign_in @admin_user
     @user.set_languages('invalid_json')
     @user.save(:validate => false)
     get "/admin/user/#{@user.id}/edit"
@@ -101,7 +101,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should edit and save User with yaml field" do
-    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+    sign_in @admin_user
 
     put "/admin/user/#{@user.id}/edit", user: { languages: "[{'id': 'en','title': 'English'}]" }
     assert_redirected_to '/admin/user'
@@ -109,7 +109,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should edit and save suggested tags on Team" do
-    post '/api/users/sign_in', api_user: { email: @admin_user.email, password: @admin_user.password }
+    sign_in @admin_user
 
     put "/admin/team/#{@team.id}/edit", team: { suggested_tags: "one tag, other tag" }
     assert_redirected_to '/admin/team'
@@ -120,7 +120,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     @user.is_admin = true
     @user.save!
 
-    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+    sign_in @user
 
     get "/admin/project/#{@project.id}/"
 
@@ -132,7 +132,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     @user.is_admin = true
     @user.save!
 
-    post '/api/users/sign_in', api_user: { email: @user.email, password: @user.password }
+    sign_in @user
 
     get "/admin/project/#{@project.id}/export_project"
     assert_equal "text/csv", @response.headers['Content-Type']
