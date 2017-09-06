@@ -228,4 +228,13 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should raise error when try to create project source with invalid url" do
+    ps = ProjectSource.new user: create_user, project: create_project
+    ps.url = 'http://invalid-url.ee'
+
+    assert_raise ActiveRecord::RecordInvalid do
+      ps.save
+    end
+  end
+
 end
