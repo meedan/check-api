@@ -334,7 +334,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should create source when account embed is nil" do
     Account.any_instance.stubs(:embed).returns(nil)
 
-    assert_no_difference 'Source.count' do
+    assert_difference 'Source.count' do
       a = Account.create_for_source(@url)
       assert_kind_of Source, a.source
       assert a.source.valid?

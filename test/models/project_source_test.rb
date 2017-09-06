@@ -229,6 +229,10 @@ class ProjectSourceTest < ActiveSupport::TestCase
   end
 
   test "should raise error when try to create project source with invalid url" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://invalid-url.ee'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }}).to_return(body: '{"type":"error","data":{"message":"The URL is not valid", "code":4}}')
+
     ps = ProjectSource.new user: create_user, project: create_project
     ps.url = 'http://invalid-url.ee'
 
