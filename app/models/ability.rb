@@ -66,7 +66,7 @@ class Ability
     end
     can :destroy, [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @context_team.id }}}
     can :destroy, Source, :team_id => @context_team.id
-    can :destroy, Account, source: { team: { team_users: { team_id: @context_team.id }}}
+    can :destroy, [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
@@ -95,7 +95,7 @@ class Ability
     can :update, Project, :team_id => @context_team.id
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Source, :team_id => @context_team.id
-    can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag dynamic task).each do |annotation_type|
       can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
@@ -145,6 +145,7 @@ class Ability
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}, source: { user_id: @user.id }
     can [:create, :update], Source, :team_id => @context_team.id, :user_id => @user.id
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
+    can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can :create, ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}
     can [:update, :destroy], ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}, media: { user_id: @user.id }
     can :update, Comment, ['annotation_type = ?', 'comment'] do |obj|

@@ -40,6 +40,11 @@ RootLevelType = GraphQL::ObjectType.define do
       Account.all
     }
   end
+  connection :account_sources, AccountSourceType.connection_type do
+    resolve ->(_object, _args, _ctx){
+      AccountSource.all
+    }
+  end
   connection :medias, MediaType.connection_type do
     resolve ->(_object, _args, _ctx){
       Media.all

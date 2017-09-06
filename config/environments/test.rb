@@ -5,12 +5,12 @@ Rails.application.configure do
   # test suite. You never need to work with it otherwise. Remember that
   # your test database is "scratch space" for the test suite and is wiped
   # and recreated between test runs. Don't rely on the data there!
-  config.cache_classes = true
+  config.cache_classes = false
 
   # Do not eager load code on boot. This avoids loading your whole application
   # just for the purpose of running a single test. If you are using a tool that
   # preloads Rails for running tests, you may have to set it to true.
-  config.eager_load = false
+  config.eager_load = true
 
   # Configure static file server for tests with Cache-Control for performance.
   config.serve_static_files   = true
@@ -41,6 +41,6 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 
   # http://guides.rubyonrails.org/configuring.html#configuring-middleware
-  config.allow_concurrency = false
+  config.allow_concurrency = true
 
 end

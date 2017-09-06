@@ -3,6 +3,7 @@ class Source < ActiveRecord::Base
 
   include HasImage
   include CheckElasticSearch
+  include CheckNotifications::Pusher
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :project_sources
@@ -19,6 +20,11 @@ class Source < ActiveRecord::Base
   validates_presence_of :name
 
   after_update :update_elasticsearch_source
+
+  notifies_pusher on: :update,
+                  event: 'source_updated',
+                  data: proc { |s| s.to_json },
+                  targets: proc { |s| [s] }
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -57,12 +63,12 @@ class Source < ActiveRecord::Base
     self.annotators
   end
 
-  def tags
-    self.annotations('tag')
-  end
-
-  def comments
-    self.annotations('comment')
+  def get_annotations(type = nil)
+    conditions = {}
+    conditions[:annotation_type] = type unless type.nil?
+    conditions[:annotated_type] = 'ProjectSource'
+    conditions[:annotated_id] = get_project_sources.map(&:id)
+    self.annotations(type) + Annotation.where(conditions)
   end
 
   def file_mandatory?
@@ -80,6 +86,40 @@ class Source < ActiveRecord::Base
     end
   end
 
+  def get_versions_log
+    PaperTrail::Version.where(associated_type: 'ProjectSource', associated_id: get_project_sources).order('created_at ASC')
+  end
+
+  def get_versions_log_count
+    get_project_sources.sum(:cached_annotations_count)
+  end
+
+  def update_from_pender_data(data)
+    self.update_name_from_data(data)
+    return if data.nil?
+    self.avatar = data['author_picture'] if !data['author_picture'].blank?
+    self.slogan = data['description'].to_s if self.slogan.blank?
+  end
+
+  def update_name_from_data(data)
+    if data.nil?
+      self.name = 'Untitled' if self.name.blank?
+    else
+      self.name = data['author_name'].blank? ? 'Untitled' : data['author_name'] if self.name.blank? or self.name === 'Untitled'
+    end
+  end
+
+  def refresh_accounts=(refresh)
+    return if refresh.blank?
+    self.accounts.each do |a|
+      a.refresh_pender_data
+      a.save!
+    end
+    self.update_from_pender_data(self.accounts.first.data)
+    self.updated_at = Time.now
+    self.save!
+  end
+
   private
 
   def set_user
@@ -88,5 +128,11 @@ class Source < ActiveRecord::Base
 
   def set_team
     self.team = Team.current unless Team.current.nil?
+  end
+
+  def get_project_sources
+    conditions = {}
+    conditions[:project_id] = Team.current.projects unless Team.current.nil?
+    self.project_sources.where(conditions)
   end
 end

@@ -36,4 +36,138 @@ class TestControllerTest < ActionController::TestCase
     assert t.reload.private
     Rails.unstub(:env)
   end
+
+  test "should create user if in test mode" do
+    assert_difference 'User.count' do
+      get :new_user, email: random_email
+    end
+    assert_response :success
+  end
+
+  test "should not create user if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    assert_no_difference 'User.count' do
+      get :new_user, email: random_email
+    end
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create team if in test mode" do
+    u = create_user
+    assert_difference 'Team.count' do
+      get :new_team, email: u.email
+    end
+    assert_response :success
+  end
+
+  test "should not create team if not in test mode" do
+    u = create_user
+    Rails.stubs(:env).returns('development')
+    assert_no_difference 'Team.count' do
+      get :new_team, email: u.email
+    end
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create project if in test mode" do
+    t = create_team
+    assert_difference 'Project.count' do
+      get :new_project, team_id: t.id
+    end
+    assert_response :success
+  end
+
+  test "should not create project if not in test mode" do
+    t = create_team
+    Rails.stubs(:env).returns('development')
+    assert_no_difference 'Project.count' do
+      get :new_project, team_id: t.id
+    end
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create session if in test mode" do
+    u = create_user
+    get :new_session, email: u.email
+    assert_response :success
+  end
+
+  test "should not create session if not in test mode" do
+    u = create_user
+    Rails.stubs(:env).returns('development')
+    get :new_session, email: u.email
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create source if in test mode" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_source, email: u.email, team_id: t.id, project_id: p.id, name: 'Test'
+    assert_response :success
+  end
+
+  test "should not create source if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_source, email: u.email, team_id: t.id, project_id: p.id, name: 'Test'
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create claim if in test mode" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_claim, email: u.email, team_id: t.id, project_id: p.id, quote: 'Test'
+    assert_response :success
+  end
+
+  test "should not create claim if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_claim, email: u.email, team_id: t.id, project_id: p.id, quote: 'Test'
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create link if in test mode" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_link, email: u.email, team_id: t.id, project_id: p.id, url: url
+    assert_response :success
+  end
+
+  test "should not create link if not in test mode" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    get :new_link, email: u.email, team_id: t.id, project_id: p.id, url: url
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end

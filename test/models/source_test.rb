@@ -159,21 +159,21 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should get tags" do
+    t = create_team
+    t2 = create_team
+    p = create_project team: t
+    p2 = create_project team: t2
     s = create_source
-    t = create_tag
-    c = create_comment
-    s.add_annotation t
-    s.add_annotation c
-    assert_equal [t], s.tags
-  end
-
-  test "should get comments" do
-    s = create_source
-    t = create_tag
-    c = create_comment
-    s.add_annotation t
-    s.add_annotation c
-    assert_equal [c], s.comments
+    ps = create_project_source project: p, source: s
+    ps2 = create_project_source project: p2, source: s
+    tag = create_tag annotated: ps
+    tag2 = create_tag annotated: ps2
+    assert_equal [tag, tag2].sort, s.get_annotations('tag').sort
+    Team.stubs(:current).returns(t)
+    assert_equal [tag], s.get_annotations('tag')
+    Team.stubs(:current).returns(t2)
+    assert_equal [tag2], s.get_annotations('tag')
+    Team.unstub(:current)
   end
 
   test "should get db id" do
@@ -263,6 +263,38 @@ class SourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get log" do
+    s = create_source
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    create_team_user user: u, team: t, role: 'owner'
+
+    with_current_user_and_team(u, t) do
+      ps = create_project_source project: p, source: s, user: u
+      ps2 = create_project_source project: p2, source: s, user: u
+      c = create_comment annotated: ps
+      tg = create_tag annotated: ps
+      f = create_flag annotated: ps
+      s.name = 'update name'; s.skip_check_ability = true;s.save!;
+      c2 = create_comment annotated: ps2
+      f2 = create_flag annotated: ps2
+      assert_equal ["create_comment", "create_tag", "create_flag", "update_source", "create_comment", "create_flag"].sort, s.get_versions_log.map(&:event_type).sort
+      assert_equal 6, s.get_versions_log_count
+      c.destroy
+      assert_equal 5, s.get_versions_log_count
+      tg.destroy
+      assert_equal 4, s.get_versions_log_count
+      f.destroy
+      assert_equal 3, s.get_versions_log_count
+      c2.destroy
+      assert_equal 2, s.get_versions_log_count
+      f2.destroy
+      assert_equal 1, s.get_versions_log_count
+    end
+  end
+
   test "should update es after source update" do
     s = create_source name: 'source_a', slogan: 'desc_a'
     ps = create_project_source project: create_project, source: s, disable_es_callbacks: false
@@ -290,6 +322,78 @@ class SourceTest < ActiveSupport::TestCase
     ms2 = MediaSearch.find(Base64.encode64("ProjectSource/#{ps2.id}"))
     assert_equal ms1.title, ms2.title, s.name
     assert_equal ms1.description, ms2.description, s.description
+  end
+
+  test "should notify Pusher when source is updated" do
+    s = create_source
+    s = Source.find(s.id)
+    assert !s.sent_to_pusher
+    s.updated_at = Time.now
+    s.save!
+    assert s.sent_to_pusher
+  end
+
+  test "should update from Pender data" do
+    s = create_source name: 'Untitled'
+    s.update_from_pender_data({ 'author_name' => 'Test' })
+    assert_equal 'Test', s.name
+  end
+
+  test "should not update from Pender data when author_name is blank" do
+    s = create_source name: 'Untitled'
+    s.update_from_pender_data({ 'author_name' => '' })
+    assert_equal 'Untitled', s.name
+  end
+
+  test "should refresh source and accounts" do
+    WebMock.disable_net_connect!
+    url = "http://twitter.com/example#{Time.now.to_i}"
+    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
+    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
+    WebMock.stub_request(:get, pender_url).to_return(ret)
+    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
+    a = create_account url: url
+    s = create_source
+    s.accounts << a
+    t1 = a.updated_at
+    sleep 2
+    s.refresh_accounts = 1
+    s.save!
+    t2 = a.reload.updated_at
+    WebMock.allow_net_connect!
+    assert t2 > t1
+  end
+
+  test "should refresh source with account data" do
+    data = { author_name: 'Source author', author_picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
+    Account.any_instance.stubs(:data).returns(data)
+    Account.any_instance.stubs(:refresh_pender_data)
+
+    s = create_source name: 'Untitled', slogan: ''
+    a = create_valid_account(source: s)
+
+    s.refresh_accounts = 1
+    s.reload
+    assert_equal 'Source author', s.name
+    assert_equal 'picture.png', s.avatar
+    assert_equal 'Source slogan', s.slogan
+    Account.any_instance.unstub(:data)
+    Account.any_instance.unstub(:refresh_pender_data)
+  end
+
+  test "should not refresh source if account data is nil" do
+    Account.any_instance.stubs(:data).returns(nil)
+    Account.any_instance.stubs(:refresh_pender_data)
+    s = create_source name: 'Untitled', slogan: 'Source slogan'
+    a = create_valid_account(source: s)
+
+    s.refresh_accounts = 1
+    s.reload
+    assert_equal 'Untitled', s.name
+    assert_equal 'Source slogan', s.slogan
+    Account.any_instance.unstub(:data)
+    Account.any_instance.unstub(:refresh_pender_data)
   end
 
 end

@@ -1,11 +1,6 @@
 # check-api
-
 FROM meedan/ruby
 MAINTAINER sysops@meedan.com
-
-#
-# SYSTEM CONFIG
-#
 
 ENV DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app \
@@ -28,25 +23,27 @@ RUN curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
 RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
 
-RUN apt-get update && apt-get install -y \
+# install stuff needed to take screenshots
+RUN npm install chrome-remote-interface minimist
+RUN apt-get update && apt-get install -y --no-install-recommends \
     imagemagick \
     nodejs \
     google-chrome-stable
 
-# install stuff needed to take screenshots
-RUN npm install chrome-remote-interface minimist
+#
+# SYSTEM CONFIG
+#
 
 # nginx for check-api
 COPY production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
-# swap in DEPLOYUSER
-RUN sed -i "s/ddDEPLOYUSERdd/${DEPLOYUSER}/g" /etc/nginx/sites-available/${APP}
-RUN ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP}
-RUN rm /etc/nginx/sites-enabled/default
+COPY production/config/nginx/test_404.conf /etc/nginx/sites-available/test_404.conf
+RUN sed -i "s/ddDEPLOYUSERdd/${DEPLOYUSER}/g" /etc/nginx/sites-available/${APP} \
+    && ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP} \
+    && rm /etc/nginx/sites-enabled/default
 
 #
 # USER CONFIG
 #
-
 RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 #
@@ -80,7 +77,6 @@ RUN chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR} \
     && chmod g+s ${DEPLOYDIR}/latest
 USER ${DEPLOYUSER}
 
-
 # link config files
 RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}/latest
 # link to uploads
@@ -94,7 +90,5 @@ RUN mv ./latest ./${APP}-$(date -I) && ln -s ./${APP}-$(date -I) ./current
 # expose, cmd
 
 USER root
-
 WORKDIR ${DEPLOYDIR}/current
-
 CMD ["/opt/bin/start.sh"]

@@ -10,6 +10,7 @@ module SourceMutations
     avatar: 'str',
     slogan: 'str',
     name: 'str',
+    refresh_accounts: 'int',
     user_id: 'int',
     id: '!id'
   }

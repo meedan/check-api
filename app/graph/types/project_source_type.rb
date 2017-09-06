@@ -42,17 +42,5 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :tags, -> { TagType.connection_type } do
-    resolve ->(project_source, _args, _ctx) {
-      project_source.get_annotations('tag')
-    }
-  end
-
-  instance_exec :project_source, &GraphqlCrudOperations.field_published
-
-  instance_exec :project_source, &GraphqlCrudOperations.field_annotations
-
-  instance_exec :project_source, &GraphqlCrudOperations.field_annotations_count
-
 # End of fields
 end

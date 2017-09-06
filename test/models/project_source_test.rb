@@ -16,21 +16,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get tags" do
-    s = create_project_source
-    t = create_tag annotated: s
-    c = create_comment annotated: s
-    assert_equal [t], s.tags
-  end
-
-  test "should get comments" do
-    s = create_project_source
-    t = create_tag annotated: s
-    c = create_comment annotated: s
-    assert_equal [c], s.comments
-  end
-
-   test "should get collaborators" do
+  test "should get collaborators" do
     u1 = create_user
     u2 = create_user
     u3 = create_user
@@ -136,6 +122,32 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get log" do
+    s = create_source
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    create_team_user user: u, team: t, role: 'owner'
+
+    with_current_user_and_team(u, t) do
+      ps = create_project_source project: p, source: s, user: u
+      c = create_comment annotated: ps
+      tg = create_tag annotated: ps
+      f = create_flag annotated: ps
+      s.name = 'update name'; s.skip_check_ability = true;s.save!;
+      ps.project_id = p2.id; ps.save!
+      assert_equal ["create_comment", "create_tag", "create_flag", "update_projectsource", "update_source"].sort, ps.get_versions_log.map(&:event_type).sort
+      assert_equal 5, ps.get_versions_log_count
+      c.destroy
+      assert_equal 4, ps.get_versions_log_count
+      tg.destroy
+      assert_equal 3, ps.get_versions_log_count
+      f.destroy
+      assert_equal 2, ps.get_versions_log_count
+    end
+  end
+
   test "should destroy elasticseach project source" do
     t = create_team
     p = create_project team: t
@@ -178,4 +190,55 @@ class ProjectSourceTest < ActiveSupport::TestCase
       create_project_source project: p, name: 'Test 2', url: url
     end
   end
+
+  test "should be formatted as json" do
+    ps = create_project_source
+    assert_not_nil ps.as_json
+  end
+
+  test "should update es after move source to other projects" do
+    t = create_team
+    p = create_project team: t
+    s = create_source
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    sleep 1
+    id = Base64.encode64("ProjectSource/#{ps.id}")
+    ms = MediaSearch.find(id)
+    assert_equal ms.project_id.to_i, p.id
+    assert_equal ms.team_id.to_i, t.id
+    t2 = create_team
+    p2 = create_project team: t2
+    ps.project = p2; ps.save!
+    ElasticSearchWorker.drain
+    sleep 1
+    ms = MediaSearch.find(id)
+    assert_equal ms.project_id.to_i, p2.id
+    assert_equal ms.team_id.to_i, t2.id
+  end
+
+  test "should create project source when account has empty data" do
+    account = create_account
+    account.annotations('embed').last.destroy
+
+    ps = ProjectSource.new user: create_user, project: create_project
+    ps.url = account.url
+
+    assert_difference 'ProjectSource.count' do
+      ps.save!
+    end
+  end
+
+  test "should raise error when try to create project source with invalid url" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://invalid-url.ee'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }}).to_return(body: '{"type":"error","data":{"message":"The URL is not valid", "code":4}}')
+
+    ps = ProjectSource.new user: create_user, project: create_project
+    ps.url = 'http://invalid-url.ee'
+
+    assert_raise ActiveRecord::RecordInvalid do
+      ps.save
+    end
+  end
+
 end

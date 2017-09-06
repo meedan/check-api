@@ -13,7 +13,7 @@ class ProjectMedia < ActiveRecord::Base
   validate :is_unique, on: :create
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
-  after_update :update_elasticsearch_data
+  after_update :move_media_sources
 
   notifies_pusher on: :save,
                   event: 'media_updated',
@@ -74,6 +74,7 @@ class ProjectMedia < ActiveRecord::Base
     ms.id = self.id
     ms.team_id = p.team.id
     ms.project_id = p.id
+    ms.associated_type = self.media.type
     ms.set_es_annotated(self)
     ms.status = self.last_status unless CONFIG['app_name'] === 'Bridge'
     data = self.embed
@@ -86,26 +87,8 @@ class ProjectMedia < ActiveRecord::Base
     ms.save!
   end
 
-  def update_elasticsearch_data
-    return if self.disable_es_callbacks
-    if self.project_id_changed?
-      keys = %w(project_id team_id)
-      data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
-      options = {keys: keys, data: data, parent: self.id}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
-    end
-  end
-
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
-  end
-
-  def get_versions_log
-    PaperTrail::Version.where(project_media_id: self.id).order('created_at ASC')
-  end
-
-  def get_versions_log_count
-    self.reload.cached_annotations_count
   end
 
   def get_media_annotations(type = nil)
@@ -216,6 +199,10 @@ class ProjectMedia < ActiveRecord::Base
     URI.parse(URI.encode(url))
   end
 
+  def project_source
+    get_project_source(self.project_id)
+  end
+
   private
 
   def is_unique
@@ -230,6 +217,23 @@ class ProjectMedia < ActiveRecord::Base
 
   def set_project_source
     self.create_project_source if self.media.type == 'Link'
+  end
+
+  def move_media_sources
+    if self.project_id_changed?
+      ps = get_project_source(self.project_id_was)
+      unless ps.nil?
+        ps.project_id = self.project_id
+        ps.skip_check_ability = true
+        ps.save!
+      end
+    end
+  end
+
+  def get_project_source(pid)
+    return if self.media.type != 'Link' || self.media.account.blank?
+    sources = self.media.account.sources.map(&:id)
+    ProjectSource.where(project_id: pid, source_id: sources).first
   end
 
   protected

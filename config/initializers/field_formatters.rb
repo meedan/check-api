@@ -26,6 +26,20 @@ DynamicAnnotation::Field.class_eval do
     self.value.titleize
   end
 
+  def field_formatter_type_geojson
+    geojson = JSON.parse(self.value)
+    value = geojson['properties']['name']
+    coordinates = geojson['geometry']['coordinates']
+    if coordinates[0].to_i != 0 || coordinates[1].to_i != 0
+      value += " (#{coordinates[0]}, #{coordinates[1]})"
+    end
+    value
+  end
+
+  def field_formatter_type_datetime
+    I18n.l(DateTime.parse(self.value), format: :task)
+  end
+
   private
 
   def response_value(field_value)

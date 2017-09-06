@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Redis
+redis-server &
+
 # Rake tasks
 if [ "$RAILS_ENV" == "test" ]
 then
@@ -15,7 +18,6 @@ LC_ALL=C google-chrome --headless --hide-scrollbars --remote-debugging-port=9333
 sleep 3
 
 # Sidekiq
-redis-server &
 bundle exec sidekiq -L log/sidekiq.log -d
 
 # Web server

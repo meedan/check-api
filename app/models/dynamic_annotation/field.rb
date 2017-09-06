@@ -8,15 +8,11 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   before_validation :set_annotation_type, :set_field_type
 
+  validate :field_format
+
   def to_s
-    [
-      "field_formatter_#{self.annotation.annotation_type}_#{self.field_name}",
-      "field_formatter_name_#{self.field_name}",
-      "field_formatter_type_#{self.field_instance.field_type}",
-    ].each do |name|
-      if self.respond_to?(name)
-        return self.send(name)
-      end
+    self.method_suggestions('formatter').each do |name|
+      return self.send(name) if self.respond_to?(name)
     end
     self.value
   end
@@ -28,7 +24,23 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   include Versioned
 
+  protected
+
+  def method_suggestions(prefix)
+    [
+      "field_#{prefix}_#{self.annotation.annotation_type}_#{self.field_name}",
+      "field_#{prefix}_name_#{self.field_name}",
+      "field_#{prefix}_type_#{self.field_instance.field_type}",
+    ]
+  end
+
   private
+
+  def field_format
+    self.method_suggestions('validator').each do |name|
+      self.send(name) if self.respond_to?(name)
+    end
+  end
 
   def set_annotation_type
     self.annotation_type ||= self.annotation.annotation_type

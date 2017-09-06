@@ -463,6 +463,29 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get project source" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    assert_not_nil pm.project_source
+    c = create_claim_media
+    pm = create_project_media project: p, media: c
+    assert_nil pm.project_source
+  end
+
+  test "should move related sources after move media to other projects" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    ps = pm.project_source
+    t2 = create_team
+    p2 = create_project team: t2
+    pm.project = p2; pm.save!
+    assert_equal ps.reload.project_id, p2.id
+  end
+
   test "should update es after move media to other projects" do
     t = create_team
     p = create_project team: t
@@ -1130,5 +1153,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
         create_project_media project: p, url: media2_url
       end
     end
+  end
+
+  test "should not get project source" do
+    p = create_project
+    l = create_link
+    a = l.account
+    a.destroy
+    l = Link.find(l.id)
+    pm = create_project_media project: p, media: l
+    assert_nil pm.send(:get_project_source, p.id)
   end
 end

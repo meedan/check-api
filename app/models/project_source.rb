@@ -22,20 +22,8 @@ class ProjectSource < ActiveRecord::Base
     p.nil? ? [] : [p.team_id]
   end
 
-  def tags
-    self.annotations('tag')
-  end
-
-  def comments
-    self.annotations('comment')
-  end
-
   def collaborators
     self.annotators
-  end
-
-  def get_annotations(type = nil)
-    self.annotations.where(annotation_type: type)
   end
 
   def add_elasticsearch_data
@@ -46,10 +34,15 @@ class ProjectSource < ActiveRecord::Base
     ms.id = Base64.encode64("ProjectSource/#{self.id}")
     ms.team_id = p.team.id
     ms.project_id = p.id
+    ms.associated_type = self.source.class.name
     ms.set_es_annotated(self)
     ms.title = s.name
     ms.description = s.description
     ms.save!
+  end
+
+  def full_url
+    "#{self.project.url}/source/#{self.id}"
   end
 
   private

@@ -10,6 +10,7 @@ AccountType = GraphqlCrudOperations.define_default_type do
   field :provider, types.String
   field :user_id, types.Int
   field :permissions, types.String
+  field :image, types.String
   field :user do
     type UserType
 
