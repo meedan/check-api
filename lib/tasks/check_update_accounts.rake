@@ -13,13 +13,14 @@ def parse_conditions(args, task_name)
     condition = {}
     arg.each do |pair|
       key, value = pair.split(':')
+      value = nil if value == 'nil'
       condition.merge!({ key => value })
     end
     @conditions << condition
   end
 end
 
-def select_accounts
+def select_embeds
   accounts = []
   Embed.where(annotation_type: 'embed', annotated_type: 'Account').find_each do |e|
     embed = JSON.parse(e.embed)
@@ -35,6 +36,15 @@ def select_accounts
     accounts << e.annotated if match || @conditions.empty?
   end
   puts "#{accounts.size} accounts matched the criteria: #{@conditions.inspect}"
+  accounts
+end
+
+def select_accounts
+  accounts = []
+  Account.all.find_each do |a|
+    accounts << a if a.annotations('embed').last.nil?
+  end
+  puts "#{accounts.size} accounts does not have embed"
   accounts
 end
 
@@ -67,23 +77,33 @@ end
 
 namespace :check do
 
-  # bundle exec rake check:update_accounts['provider:facebook&subtype:page','provider:instagram','provider:youtube&subtype:channel']
-  desc "update accounts that match some criteria"
-  task :update_accounts => :environment do |t, args|
+  # bundle exec rake check:update_accounts_through_embed['provider:facebook&subtype:page','provider:instagram','provider:youtube&subtype:channel']
+  desc "update accounts when embed match some criteria"
+  task :update_accounts_through_embed => :environment do |t, args|
     parse_conditions args.extras, t.name
+    select_embeds.each do |account|
+     update_account account
+    end
+    puts "#{@accounts} accounts were changed."
+  end
+
+  # bundle exec rake check:update_accounts_and_sources_through_embed['provider:facebook&subtype:page','provider:instagram','provider:youtube&subtype:channel']
+  desc "update accounts when embed match some criteria and sources related"
+  task :update_accounts_and_sources_through_embed => :environment do |t, args|
+    parse_conditions args.extras, t.name
+    select_embeds.each do |account|
+     update_account account, true
+    end
+    puts "#{@accounts} accounts were changed and #{@sources} sources were changed."
+  end
+
+  # bundle exec rake check:update_accounts_without_data
+  desc "update accounts without data"
+  task :update_accounts_without_data => :environment do |t, args|
     select_accounts.each do |account|
      update_account account
     end
     puts "#{@accounts} accounts were changed."
   end
 
-  # bundle exec rake check:update_accounts_and_sources['provider:facebook&subtype:page','provider:instagram','provider:youtube&subtype:channel']
-  desc "update accounts that match some criteria and sources related"
-  task :update_accounts_and_sources => :environment do |t, args|
-    parse_conditions args.extras, t.name
-    select_accounts.each do |account|
-     update_account account, true
-    end
-    puts "#{@accounts} accounts were changed and #{@sources} sources were changed."
-  end
 end

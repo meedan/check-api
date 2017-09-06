@@ -2,7 +2,7 @@ class Account < ActiveRecord::Base
   include PenderData
   include CheckElasticSearch
 
-  attr_accessor :source, :disable_es_callbacks
+  attr_accessor :source, :disable_es_callbacks, :disable_account_source_creation
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at]
   belongs_to :user
@@ -42,13 +42,18 @@ class Account < ActiveRecord::Base
 
   def data
     em = self.annotations('embed').last
-    JSON.parse(em.embed)
+    data = JSON.parse(em.embed) unless em.nil?
+    data || {}
   end
 
   def embed
     em = self.annotations('embed').last
     embed = JSON.parse(em.data['embed']) unless em.nil?
     embed
+  end
+
+  def image
+    self.embed['picture'] || ''
   end
 
   def create_source
@@ -60,30 +65,35 @@ class Account < ActiveRecord::Base
     end
 
     if source.nil?
-      data = self.pender_data
       source = Source.new
-      source.avatar = data['picture']
-      source.name = data['author_name'].blank? ? 'Untitled' : data['author_name']
-      source.slogan = data['description'].to_s
+      source.update_from_pender_data(self.pender_data)
       source.save!
     end
-
-    self.sources << source
-    self.save!
+    create_account_source(source)
     self.source = source
   end
 
-  def self.create_for_source(url, source = nil)
+  def refresh_account=(_refresh)
+    self.refresh_pender_data
+    self.sources.each do |s|
+      s.updated_at = Time.now
+      s.save!
+    end
+    self.updated_at = Time.now
+  end
+
+  def self.create_for_source(url, source = nil, disable_account_source_creation = false)
     a = Account.where(url: url).last
     if a.nil?
       a = Account.new
+      a.disable_account_source_creation = disable_account_source_creation
       a.source = source
       a.url = url
       if a.save
         return a
       else
         a2 = Account.where(url: a.url).last
-        return a if a2.nil?
+        return a.save! if a2.nil?
         a = a2
       end
     end
@@ -92,12 +102,19 @@ class Account < ActiveRecord::Base
       a.skip_check_ability = true
       a.pender_data = a.embed
       a.source = source
+      a.disable_account_source_creation = disable_account_source_creation
       a.create_source
     end
     a
   end
 
   private
+
+  def create_account_source(source)
+    return if self.disable_account_source_creation
+    self.sources << source
+    self.save!
+  end
 
   def set_user
     self.user = User.current unless User.current.nil?

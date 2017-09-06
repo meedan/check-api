@@ -280,10 +280,73 @@ class AccountTest < ActiveSupport::TestCase
     WebMock.disable_net_connect!
     url = 'http://example.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }
+    }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "author_picture": "http://provider/picture.png"}}')
     account = Account.create url: url, user: create_user
     assert_equal 'John Doe', account.source.name
+    assert_equal 'http://provider/picture.png', account.source.avatar
     WebMock.allow_net_connect!
+  end
+
+  test "should create source with 'Untitled' if author_name from Pender is blank" do
+    WebMock.disable_net_connect!
+    url = 'http://example.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }
+    }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":""}}')
+    account = Account.create url: url, user: create_user
+    assert !account.source.nil?
+    assert_equal 'Untitled', account.source.name
+    WebMock.allow_net_connect!
+  end
+
+  test "should have image" do
+    WebMock.disable_net_connect!
+    url = 'http://example.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }
+    }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "picture": "http://provider/picture.png"}}')
+    account = Account.create url: url, user: create_user
+    assert_equal 'http://provider/picture.png', account.image
+    WebMock.allow_net_connect!
+  end
+
+  test "should refresh account and sources" do
+    WebMock.disable_net_connect!
+    url = "http://twitter.com/example#{Time.now.to_i}"
+    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
+    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
+    WebMock.stub_request(:get, pender_url).to_return(ret)
+    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
+    a = create_account url: url
+    s = create_source
+    s.accounts << a
+    t1 = s.updated_at
+    sleep 2
+    a.refresh_account = 1
+    a.save!
+    t2 = s.reload.updated_at
+    WebMock.allow_net_connect!
+    assert t2 > t1
+  end
+
+  test "should create source when account embed is nil" do
+    Account.any_instance.stubs(:embed).returns(nil)
+
+    assert_difference 'Source.count' do
+      a = Account.create_for_source(@url)
+      assert_kind_of Source, a.source
+      assert a.source.valid?
+    end
+    Account.any_instance.unstub(:embed)
+  end
+
+  test "should return empty data if there is no embed annotation" do
+    account = create_account
+    account.annotations('embed').last.destroy
+    assert_kind_of Hash, account.data
+    assert_empty account.data
   end
 
 end

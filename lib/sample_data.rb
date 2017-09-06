@@ -375,6 +375,17 @@ module SampleData
     source.reload
   end
 
+  def create_account_source(options = {})
+    as = AccountSource.new
+    options[:source_id] = create_source.id if !options.has_key?(:source_id) && !options.has_key?(:source)
+    options[:account_id] = create_valid_account.id if !options.has_key?(:account_id) && !options.has_key?(:account) && !options.has_key?(:url)
+    options.each do |key, value|
+      as.send("#{key}=", value) if as.respond_to?("#{key}=")
+    end
+    as.save!
+    as.reload
+  end
+
   def create_project_source(options = {})
     u = options[:user] || create_user
     options = { disable_es_callbacks: true, user: u }.merge(options)
@@ -432,7 +443,7 @@ module SampleData
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     options[:data] ||= {}
-    data = { url: url, provider: 'twitter', picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile', author_name: 'Foo Bar' }.merge(options[:data])
+    data = { url: url, provider: 'twitter', author_picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile', author_name: 'Foo Bar' }.merge(options[:data])
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
     options.merge!({ url: url })
     create_account(options)
