@@ -54,7 +54,7 @@ module PaperTrail
 
     def apply_changes
       object = self.get_object
-      changes = JSON.parse(self.object_changes)
+      changes = self.object_changes ? JSON.parse(self.object_changes) : {}
 
       { 'is_annotation?' => 'data', Team => 'settings', DynamicAnnotation::Field => 'value' }.each do |condition, key|
         obj = self.item_class.new
@@ -126,7 +126,7 @@ module PaperTrail
 
     def get_associated
       case self.event_type
-      when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed'
+      when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed', 'destroy_comment'
         self.get_associated_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         self.get_associated_from_dynamic_annotation

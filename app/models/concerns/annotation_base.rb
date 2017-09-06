@@ -77,7 +77,7 @@ module AnnotationBase
     after_save :touch_annotated
     after_destroy :touch_annotated
 
-    has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities], if: proc { |_x| User.current.present? }
+    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities], if: proc { |_x| User.current.present? }
 
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array

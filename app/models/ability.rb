@@ -54,7 +54,7 @@ class Ability
     can :dashboard
 
     can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
-    can :destroy, Team, :id => @context_team.id
+    can [:update, :destroy], Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser, team_id: @context_team.id
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
@@ -77,27 +77,42 @@ class Ability
     end
     can :destroy, PaperTrail::Version do |obj|
       teams = []
-      v_obj = obj.item_type.constantize.find(obj.item_id)
-      teams = v_obj.get_team if v_obj.respond_to?(:get_team)
-      teams << v_obj.team_id if teams.blank? and v_obj.respond_to?(:team)
-      teams << v_obj.project.team_id if teams.blank? and v_obj.respond_to?(:project)
+      v_obj = begin
+                obj.item_type.constantize.find(obj.item_id)
+              rescue
+                nil
+              end
+      v_obj_parent = begin
+                       obj.associated_type.constantize.find(obj.associated_id)
+                     rescue
+                       nil
+                     end
+      if v_obj
+        teams = v_obj.get_team if v_obj.respond_to?(:get_team)
+        teams << v_obj.team_id if teams.blank? and v_obj.respond_to?(:team)
+        teams << v_obj.project.team_id if teams.blank? and v_obj.respond_to?(:project)
+      end
+      teams << v_obj_parent.project.team_id if v_obj_parent and v_obj_parent.respond_to?(:project)
       teams.include? @context_team.id
     end
   end
 
   def editor_perms
     can :update, User, :team_users => { :team_id => @context_team.id, role: ['editor'] }
-    can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor']
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Source, :team_id => @context_team.id
     can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag dynamic task).each do |annotation_type|
       can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+        obj.get_team.include? @context_team.id && obj.user_id == @user.id
+      end
+      can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
       end
     end
@@ -112,7 +127,7 @@ class Ability
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
     can :update, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id }}}
-    can :update, ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}
+    can :update, ProjectMedia, user_id: @user.id
     can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include? @context_team.id and (flag.flag.to_s == 'Mark as graphic')
     end
@@ -148,7 +163,7 @@ class Ability
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can :create, ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}
     can [:update, :destroy], ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}, media: { user_id: @user.id }
-    can :update, Comment, ['annotation_type = ?', 'comment'] do |obj|
+    can [:update, :destroy], Comment, ['annotation_type = ?', 'comment'] do |obj|
       obj.get_team.include? @context_team.id and (obj.annotator_id.to_i == @user.id)
     end
     can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|

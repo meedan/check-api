@@ -158,4 +158,19 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal pm.id, c.send(:annotated_id_callback, 1, mapping)
   end
 
+  test "should create version when annotation is destroyed" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, annotator: u
+    with_current_user_and_team(u, t) do
+      assert_difference 'PaperTrail::Version.count' do
+        c.destroy
+      end
+    end
+    v = PaperTrail::Version.last
+    assert_equal pm.id, v.associated_id
+  end
 end
