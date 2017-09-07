@@ -405,7 +405,7 @@ module SampleData
     options = { disable_es_callbacks: true, user: u }.merge(options)
     pm = ProjectMedia.new
     options[:project] = create_project unless options.has_key?(:project)
-    options[:media] = create_claim_media unless options.has_key?(:media)
+    options[:media] = create_valid_media unless options.has_key?(:media)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
