@@ -130,6 +130,7 @@ module ProjectMediaCreators
         ps = ProjectSource.new
         ps.project_id = self.project_id
         ps.source_id = source.id
+        ps.disable_es_callbacks = self.disable_es_callbacks
         ps.skip_check_ability = true
         ps.save!
       end

@@ -232,6 +232,7 @@ module SampleData
     elsif options.has_key?(:team)
       account.team = options[:team]
     end
+    account.disable_es_callbacks = options[:disable_es_callbacks]
     account.skip_pender = options[:skip_pender] if options.has_key?(:skip_pender)
     account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team])
     account.save!
