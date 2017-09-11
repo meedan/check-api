@@ -581,4 +581,28 @@ class ProjectTest < ActiveSupport::TestCase
       create_project team: t
     end
   end
+
+  test "should delete project medias in background when project is deleted" do
+    Sidekiq::Testing.fake! do
+      p = create_project
+      pm = create_project_media project: p
+      n = Sidekiq::Extensions::DelayedClass.jobs.size
+      p = Project.find(p.id)
+      p.destroy
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+    end
+  end
+
+  test "should delete project medias when project is deleted" do
+    Sidekiq::Testing.inline! do
+      p = create_project
+      pm1 = create_project_media
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      p.destroy!
+      assert_not_nil ProjectMedia.where(id: pm1.id).last
+      assert_nil ProjectMedia.where(id: pm2.id).last
+      assert_nil ProjectMedia.where(id: pm3.id).last
+    end
+  end
 end
