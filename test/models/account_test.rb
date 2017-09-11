@@ -330,4 +330,23 @@ class AccountTest < ActiveSupport::TestCase
     WebMock.allow_net_connect!
     assert t2 > t1
   end
+
+  test "should create source when account embed is nil" do
+    Account.any_instance.stubs(:embed).returns(nil)
+
+    assert_difference 'Source.count' do
+      a = Account.create_for_source(@url)
+      assert_kind_of Source, a.source
+      assert a.source.valid?
+    end
+    Account.any_instance.unstub(:embed)
+  end
+
+  test "should return empty data if there is no embed annotation" do
+    account = create_account
+    account.annotations('embed').last.destroy
+    assert_kind_of Hash, account.data
+    assert_empty account.data
+  end
+
 end

@@ -215,4 +215,30 @@ class ProjectSourceTest < ActiveSupport::TestCase
     assert_equal ms.project_id.to_i, p2.id
     assert_equal ms.team_id.to_i, t2.id
   end
+
+  test "should create project source when account has empty data" do
+    account = create_account
+    account.annotations('embed').last.destroy
+
+    ps = ProjectSource.new user: create_user, project: create_project
+    ps.url = account.url
+
+    assert_difference 'ProjectSource.count' do
+      ps.save!
+    end
+  end
+
+  test "should raise error when try to create project source with invalid url" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://invalid-url.ee'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }}).to_return(body: '{"type":"error","data":{"message":"The URL is not valid", "code":4}}')
+
+    ps = ProjectSource.new user: create_user, project: create_project
+    ps.url = 'http://invalid-url.ee'
+
+    assert_raise ActiveRecord::RecordInvalid do
+      ps.save
+    end
+  end
+
 end

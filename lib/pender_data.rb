@@ -18,6 +18,8 @@ module PenderData
     case code.to_i
     when 9
       I18n.t(:pender_conflict, default: 'This link is already being parsed, please try again in a few seconds.')
+    when 4
+      I18n.t(:pender_url_invalid, default: 'This link is invalid.')
     else
       I18n.t(:pender_could_not_parse, default: 'Could not parse this media')
     end

@@ -126,10 +126,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     assert_nothing_raised RuntimeError do
       with_current_user_and_team(u2, t) do
+        pm_own.disable_es_callbacks = true
         pm_own.destroy!
       end
 
       with_current_user_and_team(u, t) do
+        pm_own.disable_es_callbacks = true
         pm.destroy!
       end
     end
@@ -850,6 +852,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
     a = create_dynamic_annotation annotator: u2, annotated: pm, annotation_type: 'test', set_fields: { test: 'Test' }.to_json
     with_current_user_and_team(u, t) do
+      pm.disable_es_callbacks = true
       pm.destroy
     end
   end
@@ -1071,6 +1074,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should notify embed system when project media is destroyed" do
     pm = create_project_media project: @project
     ProjectMedia.any_instance.stubs(:notify_embed_system).with('destroyed', nil).once
+    pm.disable_es_callbacks = true
     pm.destroy
     ProjectMedia.any_instance.unstub(:notify_embed_system)
   end

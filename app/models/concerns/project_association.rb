@@ -59,6 +59,7 @@ module ProjectAssociation
     end
 
     def destroy_elasticsearch_media
+      return if self.disable_es_callbacks
       destroy_elasticsearch_data(MediaSearch, 'parent')
     end
 

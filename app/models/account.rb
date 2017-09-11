@@ -42,7 +42,8 @@ class Account < ActiveRecord::Base
 
   def data
     em = self.annotations('embed').last
-    JSON.parse(em.embed)
+    data = JSON.parse(em.embed) unless em.nil?
+    data || {}
   end
 
   def embed
@@ -92,7 +93,7 @@ class Account < ActiveRecord::Base
         return a
       else
         a2 = Account.where(url: a.url).last
-        return a if a2.nil?
+        return a.save! if a2.nil?
         a = a2
       end
     end

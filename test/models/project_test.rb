@@ -141,7 +141,7 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project
     p.project_sources << ps1
     p.project_sources << ps2
-    assert_equal [s1, s2], p.sources
+    assert_equal [s1, s2].sort, p.sources.sort
   end
 
   test "should have annotations" do
