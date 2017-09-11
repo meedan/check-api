@@ -113,7 +113,7 @@ module PaperTrail
     end
 
     def object_changes_json
-      changes = JSON.parse(self.object_changes)
+      changes = self.object_changes ? JSON.parse(self.object_changes) : {}
       if changes['data'] && changes['data'].is_a?(Array)
         changes['data'].collect!{ |d| d.is_a?(String) ? self.deserialize_change(d) : d }
       end
