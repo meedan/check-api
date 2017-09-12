@@ -66,7 +66,6 @@ module ActiveRecordExtensions
     bot = Bot::Slack.default
     bot.notify_slack(self) unless bot.nil?
   end
-
 end
 
 ActiveRecord::Base.send(:include, ActiveRecordExtensions)

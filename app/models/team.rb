@@ -2,6 +2,8 @@ class Team < ActiveRecord::Base
 
   include ValidationsHelper
   include NotifyEmbedSystem
+  include DestroyLater
+
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
 
   has_many :projects, dependent: :destroy
@@ -30,7 +32,6 @@ class Team < ActiveRecord::Base
 
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed
-  after_destroy :delete_projects_if_needed
 
   has_annotations
 
@@ -172,18 +173,6 @@ class Team < ActiveRecord::Base
     ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id }).update_all({ archived: archived })
   end
 
-  def self.delete_projects_if_needed(team_id)
-    TeamUser.where({ team_id: team_id }).delete_all
-    pids = Project.where({ team_id: team_id }).all.map(&:id)
-    ProjectMedia.where({ project_id: pids }).delete_all
-    ProjectSource.where({ project_id: pids }).delete_all
-    Project.where({ team_id: team_id }).delete_all
-    sids = Source.where({ team_id: team_id }).all.map(&:id)
-    AccountSource.where({ source_id: sids }).delete_all
-    ProjectSource.where({ source_id: sids }).delete_all
-    Source.where({ team_id: team_id }).delete_all
-  end
-
   protected
 
   def custom_statuses_format(type)
@@ -249,9 +238,5 @@ class Team < ActiveRecord::Base
 
   def archive_or_restore_projects_if_needed
     Team.delay.archive_or_restore_projects_if_needed(self.archived, self.id) if self.archived_changed?
-  end
-
-  def delete_projects_if_needed
-    Team.delay.delete_projects_if_needed(self.id)
   end
 end

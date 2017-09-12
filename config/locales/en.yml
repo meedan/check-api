@@ -216,3 +216,4 @@ en:
   error_team_archived: "Can't create project under trashed team"
   error_project_archived: "Can't create media under trashed project"
   error_team_archived_for_source: "Can't create source under trashed team"
+  permission_error: "Sorry, you are not allowed to do this"

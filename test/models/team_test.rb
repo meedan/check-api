@@ -604,11 +604,15 @@ class TeamTest < ActiveSupport::TestCase
   test "should delete sources, project and project medias in background when team is deleted" do
     Sidekiq::Testing.fake! do
       t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
       p = create_project team: t
       pm = create_project_media project: p
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
-      t.destroy
+      with_current_user_and_team(u, t) do
+       t.destroy_later
+      end
       assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
@@ -616,6 +620,8 @@ class TeamTest < ActiveSupport::TestCase
   test "should delete sources, projects and project medias when team is deleted" do
     Sidekiq::Testing.inline! do
       t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
       p1 = create_project
       p2 = create_project team: t
       s1 = create_source
@@ -623,7 +629,10 @@ class TeamTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
-      t.destroy!
+      c = create_comment annotated: pm2
+      with_current_user_and_team(u, t) do
+        t.destroy_later
+      end
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
       assert_nil ProjectMedia.where(id: pm3.id).last
@@ -631,6 +640,18 @@ class TeamTest < ActiveSupport::TestCase
       assert_nil Project.where(id: p2.id).last
       assert_not_nil Source.where(id: s1.id).last
       assert_nil Source.where(id: s2.id).last
+      assert_nil Comment.where(id: c.id).last
+    end
+  end
+
+  test "should not delete team later if doesn't have permission" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    with_current_user_and_team(u, t) do
+      assert_raises RuntimeError do
+        t.destroy_later
+      end
     end
   end
 end

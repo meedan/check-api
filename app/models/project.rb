@@ -1,10 +1,12 @@
 class Project < ActiveRecord::Base
 
   include ValidationsHelper
+  include DestroyLater
+
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
   belongs_to :team
-  has_many :project_sources
+  has_many :project_sources, dependent: :destroy
   has_many :sources , through: :project_sources
   has_many :project_medias, dependent: :destroy
   has_many :medias , through: :project_medias
@@ -16,7 +18,6 @@ class Project < ActiveRecord::Base
 
   after_create :send_slack_notification
   after_update :update_elasticsearch_data, :archive_or_restore_project_medias_if_needed
-  after_destroy :delete_medias_if_needed
 
   validates_presence_of :title
   validates :lead_image, size: true
@@ -151,11 +152,6 @@ class Project < ActiveRecord::Base
     ProjectMedia.where({ project_id: project_id }).update_all({ archived: archived })
   end
 
-  def self.delete_medias_if_needed(pid)
-    ProjectMedia.where({ project_id: pid }).delete_all
-    ProjectSource.where({ project_id: pid }).delete_all
-  end
-
   private
 
   def project_languages_format
@@ -189,9 +185,5 @@ class Project < ActiveRecord::Base
 
   def team_is_not_archived
     errors.add(:base, I18n.t(:error_team_archived, default: "Can't create project under trashed team")) if self.team && self.team.archived
-  end
-
-  def delete_medias_if_needed
-    Project.delay.delete_medias_if_needed(self.id)
   end
 end
