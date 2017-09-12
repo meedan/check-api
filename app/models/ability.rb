@@ -155,7 +155,7 @@ class Ability
       flag.get_team.include? @context_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
     end
     can :create, Tag, ['annotation_type = ?', 'tag'] do |obj|
-      (obj.get_team.include? @context_team.id and obj.annotated_type === 'ProjectMedia' and obj.annotated.user_id.to_i === @user.id) or obj.annotated_type === 'Source'
+      obj.get_team.include? @context_team.id and obj.annotated.user_id.to_i === @user.id
     end
     can :destroy, TeamUser, user_id: @user.id
     can :destroy, Tag, ['annotation_type = ?', 'tag'] do |obj|
