@@ -37,13 +37,15 @@ class CheckSearch
     return [] unless @options['show'].include?('medias')
     return @medias if @medias
     @medias = []
+    filters = {}
+    filters[:archived] = (@options['archived'].to_i == 1) if @options.has_key?('archived')
     if should_hit_elasticsearch?
       query = medias_build_search_query
       ids = medias_get_search_result(query).map(&:annotated_id)
-      items = ProjectMedia.where(id: ids).eager_load(:media)
+      items = ProjectMedia.where(filters.merge({ id: ids })).eager_load(:media)
       @medias = sort_es_items(items, ids)
     else
-      results = ProjectMedia.eager_load(:media).joins(:project)
+      results = ProjectMedia.where(filters).eager_load(:media).joins(:project)
       @medias = sort_pg_results(results)
     end
     @medias
