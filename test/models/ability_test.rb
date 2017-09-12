@@ -129,7 +129,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, own_media)
       assert ability.cannot?(:destroy, m)
       assert ability.cannot?(:destroy, own_media)
-      assert ability.can?(:update, pm)
+      assert ability.cannot?(:update, pm)
       assert ability.can?(:update, own_pm)
       assert ability.cannot?(:destroy, pm)
       assert ability.can?(:destroy, own_pm)
@@ -245,7 +245,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Team)
-      assert ability.can?(:update, t)
+      assert ability.cannot?(:update, t)
       assert ability.cannot?(:destroy, t)
       assert ability.cannot?(:update, t2)
       assert ability.cannot?(:destroy, t2)
@@ -554,7 +554,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, mc)
       assert ability.cannot?(:destroy, mc)
       assert ability.can?(:update, own_comment)
-      assert ability.cannot?(:destroy, own_comment)
+      assert ability.can?(:destroy, own_comment)
     end
   end
 
@@ -575,7 +575,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, mc)
       assert ability.cannot?(:destroy, mc)
       assert ability.can?(:update, own_comment)
-      assert ability.cannot?(:destroy, own_comment)
+      assert ability.can?(:destroy, own_comment)
     end
   end
 
@@ -591,8 +591,8 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Comment)
-      assert ability.can?(:update, mc)
-      assert ability.cannot?(:destroy, mc)
+      assert ability.cannot?(:update, mc)
+      assert ability.can?(:destroy, mc)
     end
   end
 
@@ -608,7 +608,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Comment)
-      assert ability.can?(:update, mc)
+      assert ability.cannot?(:update, mc)
       assert ability.can?(:destroy, mc)
     end
   end
@@ -988,7 +988,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, f)
-      assert ability.cannot?(:destroy, f)
+      assert ability.can?(:destroy, f)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:update, f)
       assert ability.cannot?(:destroy, f)
@@ -1191,8 +1191,8 @@ class AbilityTest < ActiveSupport::TestCase
     a3 = create_annotation annotated: create_project_media
     with_current_user_and_team(u, t) do
       a = Ability.new
-      assert a.cannot?(:destroy, a1)
-      assert a.cannot?(:destroy, a2)
+      assert a.can?(:destroy, a1)
+      assert a.can?(:destroy, a2)
       assert a.cannot?(:destroy, a3)
     end
   end
@@ -1231,7 +1231,7 @@ class AbilityTest < ActiveSupport::TestCase
     a4 = create_annotation
     with_current_user_and_team(u, t) do
       a = Ability.new
-      assert a.cannot?(:destroy, a1)
+      assert a.can?(:destroy, a1)
       assert a.cannot?(:destroy, a2)
       assert a.cannot?(:destroy, a3)
       assert a.cannot?(:destroy, a4)
@@ -1460,7 +1460,7 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.can?(:create, Dynamic)
       assert ability.can?(:update, da)
-      assert ability.cannot?(:destroy, da)
+      assert ability.can?(:destroy, da)
       assert ability.can?(:update, own_da)
       assert ability.can?(:destroy, own_da)
     end

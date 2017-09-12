@@ -46,9 +46,9 @@ class TeamTest < ActiveSupport::TestCase
     t.name = 'meedan'; t.save!
     t.reload
     assert_equal t.name, 'meedan'
-    # update team as editor
+    # update team as owner
     u2 = create_user
-    tu = create_team_user team: t, user: u2, role: 'editor'
+    tu = create_team_user team: t, user: u2, role: 'owner'
     with_current_user_and_team(u2, t) { t.name = 'meedan_mod'; t.save! }
     t.reload
     assert_equal t.name, 'meedan_mod'

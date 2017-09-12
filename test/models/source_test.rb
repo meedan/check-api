@@ -282,16 +282,16 @@ class SourceTest < ActiveSupport::TestCase
       f2 = create_flag annotated: ps2
       assert_equal ["create_comment", "create_tag", "create_flag", "update_source", "create_comment", "create_flag"].sort, s.get_versions_log.map(&:event_type).sort
       assert_equal 6, s.get_versions_log_count
-      c.destroy
-      assert_equal 5, s.get_versions_log_count
-      tg.destroy
-      assert_equal 4, s.get_versions_log_count
-      f.destroy
-      assert_equal 3, s.get_versions_log_count
-      c2.destroy
-      assert_equal 2, s.get_versions_log_count
-      f2.destroy
-      assert_equal 1, s.get_versions_log_count
+      c.destroy!
+      assert_equal 6, s.get_versions_log_count
+      tg.destroy!
+      assert_equal 6, s.get_versions_log_count
+      f.destroy!
+      assert_equal 6, s.get_versions_log_count
+      c2.destroy!
+      assert_equal 6, s.get_versions_log_count
+      f2.destroy!
+      assert_equal 6, s.get_versions_log_count
     end
   end
 

@@ -121,10 +121,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('comment', 'text')
   end
 
-  test "should update comment" do
-    assert_graphql_update('comment', 'text', 'foo', 'bar')
-  end
-
   test "should destroy comment" do
     assert_graphql_destroy('comment')
   end

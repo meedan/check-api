@@ -140,11 +140,11 @@ class ProjectSourceTest < ActiveSupport::TestCase
       assert_equal ["create_comment", "create_tag", "create_flag", "update_projectsource", "update_source"].sort, ps.get_versions_log.map(&:event_type).sort
       assert_equal 5, ps.get_versions_log_count
       c.destroy
-      assert_equal 4, ps.get_versions_log_count
+      assert_equal 5, ps.get_versions_log_count
       tg.destroy
-      assert_equal 3, ps.get_versions_log_count
+      assert_equal 5, ps.get_versions_log_count
       f.destroy
-      assert_equal 2, ps.get_versions_log_count
+      assert_equal 5, ps.get_versions_log_count
     end
   end
 
