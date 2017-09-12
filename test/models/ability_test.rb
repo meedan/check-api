@@ -1250,19 +1250,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should be able to tag source" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    s = create_source user: u
-    tg = create_tag tag: 'tag', annotator: u, annotated: s
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, tg)
-    end
-  end
-
   test "should owner destroy annotation versions" do
     u = create_user
     t = create_team

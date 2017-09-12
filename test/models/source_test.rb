@@ -181,6 +181,19 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal s.id, s.dbid
   end
 
+  test "journalist should edit any source" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'journalist'
+    with_current_user_and_team(u, t) do
+      s = create_source user: create_user
+      s.name = 'update source'
+      assert_nothing_raised RuntimeError do
+        s.save!
+      end
+    end
+  end
+
   test "should get permissions" do
     u = create_user
     t = create_team
