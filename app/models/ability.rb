@@ -93,9 +93,6 @@ class Ability
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
-    can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
-    can [:create, :update], Source, :team_id => @context_team.id
-    can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag dynamic task).each do |annotation_type|
       can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include? @context_team.id
@@ -113,6 +110,9 @@ class Ability
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
     can :update, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id }}}
     can :update, ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], Source, :team_id => @context_team.id
+    can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include? @context_team.id and (flag.flag.to_s == 'Mark as graphic')
     end
@@ -155,7 +155,7 @@ class Ability
       flag.get_team.include? @context_team.id and (['Spam', 'Graphic content'].include?flag.flag.to_s)
     end
     can :create, Tag, ['annotation_type = ?', 'tag'] do |obj|
-      (obj.get_team.include? @context_team.id and obj.annotated_type === 'ProjectMedia' and obj.annotated.user_id.to_i === @user.id) or obj.annotated_type === 'Source'
+      obj.get_team.include? @context_team.id and obj.annotated.user_id.to_i === @user.id
     end
     can :destroy, TeamUser, user_id: @user.id
     can :destroy, Tag, ['annotation_type = ?', 'tag'] do |obj|

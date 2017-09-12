@@ -1056,7 +1056,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:create, own_s)
       assert ability.can?(:update, own_as)
       assert ability.cannot?(:destroy, own_as)
-      assert ability.cannot?(:update, as)
+      assert ability.can?(:update, as)
       assert ability.cannot?(:destroy, as)
       assert ability.cannot?(:update, as2)
       assert ability.cannot?(:destroy, as2)
@@ -1247,19 +1247,6 @@ class AbilityTest < ActiveSupport::TestCase
       a = Ability.new
       assert a.can?(:destroy, tu1)
       assert a.cannot?(:destroy, tu2)
-    end
-  end
-
-  test "should be able to tag source" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    s = create_source user: u
-    tg = create_tag tag: 'tag', annotator: u, annotated: s
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, tg)
     end
   end
 

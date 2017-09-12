@@ -148,6 +148,20 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "contributor should add tag to own source" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user user: u, team: t, role: 'contributor'
+    with_current_user_and_team(u, t) do
+      s = create_source
+      ps = create_project_source project: p, source: s, user: u
+      assert_difference 'Tag.length' do
+        create_tag annotated: ps
+      end
+    end
+  end
+
   test "should destroy elasticseach project source" do
     t = create_team
     p = create_project team: t
