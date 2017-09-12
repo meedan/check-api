@@ -1056,7 +1056,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:create, own_s)
       assert ability.can?(:update, own_as)
       assert ability.cannot?(:destroy, own_as)
-      assert ability.cannot?(:update, as)
+      assert ability.can?(:update, as)
       assert ability.cannot?(:destroy, as)
       assert ability.cannot?(:update, as2)
       assert ability.cannot?(:destroy, as2)
