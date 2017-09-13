@@ -87,6 +87,8 @@ module AnnotationBase
     end
     validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
 
+    validate :annotated_is_not_archived
+
     private
 
     def start_serialized_fields
@@ -101,6 +103,13 @@ module AnnotationBase
         annotated.skip_notifications = true # the notification will be triggered by the annotation already
         annotated.updated_at = Time.now
         annotated.save!
+      end
+    end
+
+    def annotated_is_not_archived
+      annotated = self.annotated.reload
+      if annotated && annotated.respond_to?(:archived) && annotated.archived
+        errors.add(:base, I18n.t(:error_annotated_archived, default: "Sorry, this item is in the trash, you can't add a note to it"))
       end
     end
   end

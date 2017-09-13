@@ -217,3 +217,4 @@ en:
   error_project_archived: "Can't create media under trashed project"
   error_team_archived_for_source: "Can't create source under trashed team"
   permission_error: "Sorry, you are not allowed to do this"
+  error_annotated_archived: "Sorry, this item is in the trash, you can't add a note to it"

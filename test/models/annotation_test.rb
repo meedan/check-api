@@ -173,4 +173,16 @@ class AnnotationTest < ActiveSupport::TestCase
     v = PaperTrail::Version.last
     assert_equal pm.id, v.associated_id
   end
+
+  test "should not add note do archived item" do
+    pm = create_project_media archived: false
+    assert_nothing_raised do
+      create_comment annotated: pm
+    end
+    pm.archived = true
+    pm.save!
+    assert_raises ActiveRecord::RecordInvalid do
+      create_comment annotated: pm
+    end
+  end
 end

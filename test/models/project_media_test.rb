@@ -1178,4 +1178,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_project_media project: p
     end
   end
+
+  test "should archive" do
+    pm = create_project_media
+    assert !pm.archived
+    pm.archived = true
+    pm.save!
+    assert pm.reload.archived
+  end
 end

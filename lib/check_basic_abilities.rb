@@ -67,5 +67,4 @@ module CheckBasicAbilities
     cannot :manage, ApiKey
     cannot :manage, BotUser
   end
-
 end
