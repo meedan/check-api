@@ -129,6 +129,12 @@ RailsAdmin.config do |config|
     end
   end
 
+  def visible_only_for_admin
+    visible do
+      bindings[:view]._current_user.is_admin?
+    end
+  end
+
   config.model 'ApiKey' do
     list do
       field :access_token
@@ -293,8 +299,12 @@ RailsAdmin.config do |config|
       field :name
       field :description
       field :slug
-      field :private
-      field :archived
+      field :private do
+        visible_only_for_admin
+      end
+      field :archived do
+        visible_only_for_admin
+      end
     end
 
     show do
@@ -306,6 +316,7 @@ RailsAdmin.config do |config|
       end
       configure :get_keep_enabled do
         label 'Enable Keep archiving'
+        visible_only_for_admin
       end
       configure :get_slack_notifications_enabled do
         label 'Enable Slack notifications'
@@ -321,16 +332,52 @@ RailsAdmin.config do |config|
       end
       configure :get_suggested_tags do
         label 'Suggested tags'
+        visible_only_for_admin
+      end
+      configure :private do
+        visible_only_for_admin
+      end
+      configure :projects do
+        visible_only_for_admin
+      end
+      configure :accounts do
+        visible_only_for_admin
+      end
+      configure :team_users do
+        visible_only_for_admin
+      end
+      configure :users do
+        visible_only_for_admin
+      end
+      configure :sources do
+        visible_only_for_admin
+      end
+      configure :settings do
+        hide
       end
     end
 
     edit do
-      field :name
-      field :description
-      field :logo
-      field :slug
-      field :private
-      field :archived
+      field :name do
+        read_only true
+        help ''
+      end
+      field :description do
+        visible_only_for_admin
+      end
+      field :logo do
+        visible_only_for_admin
+      end
+      field :slug do
+        read_only true
+        help ''
+      end
+      field :private do
+        visible_only_for_admin
+      end
+      field :archived do
+        visible_only_for_admin
+      end
       field :media_verification_statuses, :yaml do
         label 'Media verification statuses'
         render_settings('text')
@@ -348,6 +395,7 @@ RailsAdmin.config do |config|
         hide do
           bindings[:object].new_record?
         end
+        visible_only_for_admin
       end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
@@ -379,6 +427,7 @@ RailsAdmin.config do |config|
         formatted_value { bindings[:object].get_suggested_tags }
         help "A list of common tags to be used with reports and sources in your team."
         render_settings('field')
+        visible_only_for_admin
       end
     end
 
