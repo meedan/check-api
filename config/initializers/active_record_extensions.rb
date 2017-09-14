@@ -60,6 +60,10 @@ module ActiveRecordExtensions
     @sent_to_slack = bool
   end
 
+  def is_archived?
+    self.respond_to?(:archived) && self.archived_was
+  end
+
   private
 
   def send_slack_notification

@@ -259,6 +259,10 @@ module AnnotationBase
     annotated.nil? ? nil : annotated.id
   end
 
+  def annotated_is_archived?
+    self.annotated.present? && self.annotated.reload.archived
+  end
+
   protected
 
   def load_polymorphic(name)

@@ -1931,6 +1931,20 @@
               "deprecationReason": null
             },
             {
+              "name": "archived",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "created_at",
               "description": null,
               "args": [
@@ -2580,6 +2594,16 @@
         {
           "kind": "SCALAR",
           "name": "Int",
+          "description": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "Boolean",
           "description": null,
           "fields": null,
           "inputFields": null,
@@ -4112,16 +4136,6 @@
           "interfaces": [
 
           ],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "SCALAR",
-          "name": "Boolean",
-          "description": null,
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },

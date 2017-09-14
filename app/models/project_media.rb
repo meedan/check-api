@@ -204,6 +204,14 @@ class ProjectMedia < ActiveRecord::Base
     get_project_source(self.project_id)
   end
 
+  def custom_permissions(ability = nil)
+    perms = {}
+    perms["embed ProjectMedia"] = !self.archived
+    ability ||= Ability.new
+    perms["restore ProjectMedia"] = ability.can?(:restore, self)
+    perms
+  end
+
   private
 
   def is_unique
