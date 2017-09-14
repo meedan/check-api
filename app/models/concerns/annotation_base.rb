@@ -107,7 +107,7 @@ module AnnotationBase
     end
 
     def annotated_is_not_archived
-      annotated = self.annotated.reload
+      annotated = self.annotated ? self.annotated.reload : nil
       if annotated && annotated.respond_to?(:archived) && annotated.archived
         errors.add(:base, I18n.t(:error_annotated_archived, default: "Sorry, this item is in the trash, you can't add a note to it"))
       end
@@ -260,7 +260,7 @@ module AnnotationBase
   end
 
   def annotated_is_archived?
-    self.annotated.present? && self.annotated.reload.archived
+    self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated.archived
   end
 
   protected

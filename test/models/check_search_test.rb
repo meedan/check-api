@@ -694,7 +694,9 @@ class CheckSearchTest < ActiveSupport::TestCase
 
   test "should filter by archived" do
     create_project_media
-    create_project_media archived: true
+    pm = create_project_media
+    pm.archived = true
+    pm.save!
     create_project_media
     result = CheckSearch.new({}.to_json)
     assert_equal 3, result.medias.count
