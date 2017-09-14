@@ -73,14 +73,6 @@ en:
         too_short:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
-      models:
-        user:
-          attributes:
-            email:
-              taken: 'Oops, minor problem: you already used that email address to
-                sign in with another method. We just sent you an email reminding you
-                how you logged in. Check your email and sign in with the method you
-                used before.'
   slug_format_validation_message: accepts only letters, numbers and hyphens
   slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`

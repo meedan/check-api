@@ -795,7 +795,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    assert_queries (5 * n + n * m + 16) do
+    assert_queries (5 * n + n * m + 17) do
       post :create, query: query, team: 'team'
     end
 
@@ -1047,7 +1047,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (10) do
+    assert_queries (11) do
       post :create, query: query, team: 'team'
     end
 

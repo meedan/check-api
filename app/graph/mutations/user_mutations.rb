@@ -10,6 +10,7 @@ module UserMutations
   }
 
   update_fields = {
+    email: 'str',
     profile_image: 'str',
     name: 'str',
     current_team_id: 'int',

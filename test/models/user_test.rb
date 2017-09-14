@@ -199,6 +199,22 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should update user mail" do
+    u = create_user
+    u2 = create_user
+    assert_nothing_raised do
+      u.email = 'test_01@local.com'; u.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      u.email = u2.email; u.save!
+    end
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      assert_raises ActiveRecord::RecordInvalid do
+        u.email = u2.email; u.save!
+      end
+    end
+  end
+
   test "should have projects" do
     p1 = create_project
     p2 = create_project
