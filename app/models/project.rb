@@ -184,6 +184,6 @@ class Project < ActiveRecord::Base
   end
 
   def team_is_not_archived
-    errors.add(:base, I18n.t(:error_team_archived, default: "Can't create project under trashed team")) if self.team && self.team.archived
+    parent_is_not_archived(self.team, I18n.t(:error_team_archived, default: "Can't create project under trashed team"))
   end
 end

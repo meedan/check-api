@@ -43,4 +43,8 @@ module ValidationsHelper
       end
     end
   end
+
+  def parent_is_not_archived(parent, message)
+    errors.add(:base, message) if parent && parent.archived
+  end
 end

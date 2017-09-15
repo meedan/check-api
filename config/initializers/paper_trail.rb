@@ -52,9 +52,13 @@ module PaperTrail
       self.object.nil? ? {} : JSON.parse(self.object)
     end
 
+    def get_object_changes
+      self.object_changes ? JSON.parse(self.object_changes) : {}
+    end
+
     def apply_changes
       object = self.get_object
-      changes = self.object_changes ? JSON.parse(self.object_changes) : {}
+      changes = self.get_object_changes
 
       { 'is_annotation?' => 'data', Team => 'settings', DynamicAnnotation::Field => 'value' }.each do |condition, key|
         obj = self.item_class.new

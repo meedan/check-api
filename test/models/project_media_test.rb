@@ -327,7 +327,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Task", "create Dynamic"].sort
+    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "embed ProjectMedia"].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner

@@ -7,6 +7,7 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaEmbed
   include Versioned
   include NotifyEmbedSystem
+  include ValidationsHelper
 
   validates_presence_of :media_id, :project_id
 
@@ -246,7 +247,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def project_is_not_archived
-    errors.add(:base, I18n.t(:error_project_archived, default: "Can't create media under trashed project")) if self.project && self.project.archived
+    parent_is_not_archived(self.project, I18n.t(:error_project_archived, default: "Can't create media under trashed project"))
   end
 
   protected

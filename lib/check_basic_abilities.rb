@@ -16,6 +16,12 @@ module CheckBasicAbilities
     can :update, User, :id => @user.id
     can [:create, :update], Account, :user_id => @user.id
     can :create, Embed, :annotated_id => @user.account_ids
+
+    can :restore, ProjectMedia do |obj|
+      tmp = obj.dup
+      tmp.archived = false
+      obj.archived_was && can?(:update, tmp)
+    end
   end
 
   # Extra permissions for all users
@@ -66,11 +72,5 @@ module CheckBasicAbilities
 
     cannot :manage, ApiKey
     cannot :manage, BotUser
-
-    can :restore, ProjectMedia do |obj|
-      tmp = obj.dup
-      tmp.archived = false
-      obj.archived_was && can?(:update, tmp)
-    end
   end
 end
