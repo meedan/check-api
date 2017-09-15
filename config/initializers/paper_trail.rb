@@ -40,8 +40,8 @@ module PaperTrail
     end
 
     def annotation
-      return Annotation.find(self.item.annotation_id) if self.item.respond_to?(:annotation_id)
-      Annotation.find(self.item_id) if self.item_class.new.is_annotation?
+      return Annotation.where(id: self.item.annotation_id).last if self.item.respond_to?(:annotation_id)
+      Annotation.where(id: self.item_id).last if self.item_class.new.is_annotation?
     end
 
     def user
