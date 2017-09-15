@@ -260,7 +260,7 @@ module AnnotationBase
   end
 
   def annotated_is_archived?
-    self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated.archived
+    self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
   end
 
   protected
