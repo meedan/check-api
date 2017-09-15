@@ -104,10 +104,6 @@ class Ability
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
-    can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
-    can [:create, :update], ProjectMedia, { project: { team: { team_users: { team_id: @context_team.id }}}, archived_was: false }
-    can [:create, :update], Source, :team_id => @context_team.id
-    can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag dynamic task).each do |annotation_type|
       can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include?(@context_team.id) && obj.user_id == @user.id && !obj.annotated_is_archived?
@@ -126,8 +122,11 @@ class Ability
     can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
-    can :update, [Media, Link, Claim], { projects: { team: { team_users: { team_id: @context_team.id }}} }
-    can :update, ProjectMedia, { user_id: @user.id, archived_was: false }
+    can :update, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id }}}
+    can :update, ProjectMedia, { project: { team: { team_users: { team_id: @context_team.id }}}, archived_was: false }
+    can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], Source, :team_id => @context_team.id
+    can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include?(@context_team.id) and (flag.flag.to_s == 'Mark as graphic') and !flag.annotated_is_archived?
     end
@@ -161,7 +160,7 @@ class Ability
     can [:create, :update], Source, :team_id => @context_team.id, :user_id => @user.id
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
-    can :create, ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}
+    can :create, ProjectMedia, { project: { team: { team_users: { team_id: @context_team.id }}}, archived_was: false }
     can [:update, :destroy], ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}, media: { user_id: @user.id }, archived_was: false
     can [:update, :destroy], Comment, ['annotation_type = ?', 'comment'] do |obj|
       obj.get_team.include?(@context_team.id) and (obj.annotator_id.to_i == @user.id) and !obj.annotated_is_archived?
@@ -170,7 +169,7 @@ class Ability
       flag.get_team.include?(@context_team.id) and (['Spam', 'Graphic content'].include?(flag.flag.to_s)) and !flag.annotated_is_archived?
     end
     can :create, Tag, ['annotation_type = ?', 'tag'] do |obj|
-      (obj.get_team.include?(@context_team.id) and obj.annotated_type === 'ProjectMedia' and obj.annotated.user_id.to_i === @user.id) or obj.annotated_type === 'Source' and !obj.annotated_is_archived?
+      obj.get_team.include?(@context_team.id) and (obj.annotated.user_id.to_i === @user.id) and !obj.annotated_is_archived?
     end
     can :destroy, TeamUser, user_id: @user.id
     can :destroy, Tag, ['annotation_type = ?', 'tag'] do |obj|
