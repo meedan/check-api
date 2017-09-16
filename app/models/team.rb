@@ -173,6 +173,21 @@ class Team < ActiveRecord::Base
     ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id }).update_all({ archived: archived })
   end
 
+  def self.empty_trash(team_id)
+    ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id, 'project_medias.archived' => true }).destroy_all
+  end
+
+  def empty_trash=(confirm)
+    if confirm
+      ability = Ability.new
+      if ability.can?(:update, self)
+        Team.delay.empty_trash(self.id)
+      else
+        raise I18n.t(:permission_error, "Sorry, you are not allowed to do this")
+      end
+    end
+  end
+
   protected
 
   def custom_statuses_format(type)

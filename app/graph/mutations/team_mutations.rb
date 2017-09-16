@@ -21,6 +21,7 @@ module TeamMutations
     add_auto_task: 'json',
     remove_auto_task: 'str', # label
     contact: 'str',
+    empty_trash: 'int',
     id: '!id'
   }
 
