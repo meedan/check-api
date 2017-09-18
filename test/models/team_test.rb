@@ -704,4 +704,24 @@ class TeamTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should get trash size" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      2.times { create_comment annotated: pm1 }
+      3.times { create_comment annotated: pm2 }
+    end
+    pm1.archived = true
+    pm1.save!
+    pm2.archived = true
+    pm2.save!
+    size = t.reload.trash_size
+    assert_equal 2, size[:project_media]
+    assert_equal 5, size[:annotation]
+  end
 end

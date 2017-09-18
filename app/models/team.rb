@@ -174,7 +174,7 @@ class Team < ActiveRecord::Base
   end
 
   def self.empty_trash(team_id)
-    ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id, 'project_medias.archived' => true }).destroy_all
+    Team.find(team_id).trash.destroy_all
   end
 
   def empty_trash=(confirm)
@@ -186,6 +186,17 @@ class Team < ActiveRecord::Base
         raise I18n.t(:permission_error, "Sorry, you are not allowed to do this")
       end
     end
+  end
+
+  def trash
+    ProjectMedia.joins(:project).where({ 'projects.team_id' => self.id, 'project_medias.archived' => true })
+  end
+
+  def trash_size
+    {
+      project_media: self.trash.count,
+      annotation: self.trash.sum(:cached_annotations_count)
+    }
   end
 
   protected
