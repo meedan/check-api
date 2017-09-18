@@ -654,4 +654,54 @@ class TeamTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should empty trash in background" do
+    Sidekiq::Testing.fake! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
+      n = Sidekiq::Extensions::DelayedClass.jobs.size
+      t = Team.find(t.id)
+      with_current_user_and_team(u, t) do
+       t.empty_trash = 1
+      end
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+    end
+  end
+
+  test "should empty trash if has permissions" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
+      p = create_project team: t
+      3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
+      2.times { create_project_media(project: p) }
+      with_current_user_and_team(u, t) do
+        assert_nothing_raised do
+          assert_difference 'ProjectMedia.count', -3 do
+            t.empty_trash = 1
+          end
+        end
+      end
+    end
+  end
+
+  test "should not empty trash if has no permissions" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'contributor'
+      p = create_project team: t
+      3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
+      2.times { create_project_media(project: p) }
+      with_current_user_and_team(u, t) do
+        assert_raises RuntimeError do
+          assert_no_difference 'ProjectMedia.count' do
+            t.empty_trash = 1
+          end
+        end
+      end
+    end
+  end
 end
