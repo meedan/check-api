@@ -25,5 +25,5 @@ module TeamMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields, ['check_search_team'])
 end

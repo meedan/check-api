@@ -4,7 +4,7 @@ module ProjectAssociation
   extend ActiveSupport::Concern
 
   def check_search_team
-    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.project.team.slug } }.to_json)
+    self.project.team.check_search_team
   end
 
   def check_search_project

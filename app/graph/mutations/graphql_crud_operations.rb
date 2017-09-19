@@ -17,6 +17,8 @@ class GraphqlCrudOperations
       end
     end
 
+    ret[:affectedIds] = obj.affected_ids if obj.respond_to?(:affected_ids)
+
     ret
   end
 
@@ -89,6 +91,8 @@ class GraphqlCrudOperations
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
+      
+      return_field(:affectedIds, types[types.ID]) if type.to_s == 'team'
 
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type

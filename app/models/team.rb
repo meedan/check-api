@@ -4,6 +4,8 @@ class Team < ActiveRecord::Base
   include NotifyEmbedSystem
   include DestroyLater
 
+  attr_accessor :affected_ids
+
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
 
   has_many :projects, dependent: :destroy
@@ -181,6 +183,7 @@ class Team < ActiveRecord::Base
     if confirm
       ability = Ability.new
       if ability.can?(:update, self)
+        self.affected_ids = self.trash.all.map(&:graphql_id)
         Team.delay.empty_trash(self.id)
       else
         raise I18n.t(:permission_error, "Sorry, you are not allowed to do this")
@@ -197,6 +200,10 @@ class Team < ActiveRecord::Base
       project_media: self.trash.count,
       annotation: self.trash.sum(:cached_annotations_count)
     }
+  end
+
+  def check_search_team
+    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end
 
   protected

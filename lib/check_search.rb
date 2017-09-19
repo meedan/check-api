@@ -21,6 +21,10 @@ class CheckSearch
     end
   end
 
+  def teams
+    []
+  end
+
   def id
     CheckSearch.id(@options['input'])
   end

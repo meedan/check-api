@@ -724,4 +724,14 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 2, size[:project_media]
     assert_equal 5, size[:annotation]
   end
+
+  test "should get search id" do
+    t = create_team
+    assert_kind_of CheckSearch, t.check_search_team 
+  end
+
+  test "should get GraphQL id" do
+    t = create_team
+    assert_kind_of String, t.graphql_id
+  end
 end

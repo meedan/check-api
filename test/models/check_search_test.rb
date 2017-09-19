@@ -705,4 +705,9 @@ class CheckSearchTest < ActiveSupport::TestCase
     result = CheckSearch.new({ archived: 0 }.to_json)
     assert_equal 2, result.medias.count
   end
+
+  test "should get teams" do
+    s = CheckSearch.new({}.to_json)
+    assert_equal [], s.teams
+  end
 end

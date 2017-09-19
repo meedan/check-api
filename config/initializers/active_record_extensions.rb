@@ -64,6 +64,10 @@ module ActiveRecordExtensions
     self.respond_to?(:archived) && self.archived_was
   end
 
+  def graphql_id
+    Base64.encode64("#{self.class.name}/#{self.id}")
+  end
+
   private
 
   def send_slack_notification
