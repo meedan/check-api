@@ -1186,4 +1186,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     assert pm.reload.archived
   end
+
+  test "should create annotation when is embedded for the first time" do
+    create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
+    pm = create_project_media
+    assert_difference 'PaperTrail::Version.count', 2 do
+      pm.as_oembed
+    end
+    assert_no_difference 'PaperTrail::Version.count' do
+      pm.as_oembed
+    end
+  end
 end

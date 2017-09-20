@@ -93,12 +93,15 @@ module ProjectMediaEmbed
 
   def mark_as_embedded
     if self.get_annotations('embed_code').empty?
+      user_current = User.current
+      User.current = User.new
       a = Dynamic.new
       a.skip_check_ability = true
       a.annotated = self
       a.annotation_type = 'embed_code'
       a.set_fields = { embed_code_copied: true }.to_json
       a.save!
+      User.current = user_current
     end
   end
 
