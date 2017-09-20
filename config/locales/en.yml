@@ -66,6 +66,7 @@ en:
         text: Comment
       user:
         reset_password_token: Reset password token
+        email: E-mail
     errors:
       messages:
         record_invalid: 'Validation failed: %{errors}'

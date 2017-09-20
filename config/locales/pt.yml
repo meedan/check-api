@@ -71,11 +71,6 @@ pt:
         too_short:
           one: é muito curto (mínimo de 1 caractere)
           other: É muito curto (mínimo de %{count} caracteres)
-      models:
-        user:
-          attributes:
-            email:
-              taken: 'Ops, pequeno problema: você já usou esse endereço de e-mail para fazer login com outro método. Acabamos de lhe enviar um e-mail que lembra como você fez o login. Verifique seu e-mail e faça login com o método usado anteriormente.'
   slug_format_validation_message: aceita apenas letras, números e hífens
   slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
