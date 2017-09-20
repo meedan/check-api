@@ -75,11 +75,6 @@ ar:
           few: قصير جداً (الحد الأدنى %{count} حروف)
           many: قصير جداً (الحد الأدنى %{count} حروف)
           other: قصير جداً (الحد الأدنى %{count} حروف)
-      models:
-        user:
-          attributes:
-            email:
-              taken: 'لقد حدثت مشكلة صغيرة: استخدمت هذا البريد الإلكتروني سابقاً لتسجيل الدخول بطريقة أخرى. أرسلنا لك تواً رسالة إلكترونية لنذكرك بطريقة التسجيل السابقة. من فضلك راجع بريدك الإلكتروني ثم سجل الدخول بنفس الطريقة السابقة.'
   slug_format_validation_message: 'يقبل الأحرف والأرقام و''-'' فقط '
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
