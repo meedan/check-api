@@ -212,6 +212,8 @@ GEM
     json (1.8.6)
     json-schema (2.5.0)
       addressable (~> 2.3)
+    jsonpath (0.8.7)
+      multi_json
     jwt (1.5.6)
     kaminari (0.17.0)
       actionpack (>= 3.0.0)
@@ -514,6 +516,7 @@ DEPENDENCIES
   i18n-generators
   jbuilder (~> 2.0)
   jquery-rails
+  jsonpath
   logstash-logger
   mini_magick
   mocha
@@ -558,4 +561,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.15.1
+   1.15.3

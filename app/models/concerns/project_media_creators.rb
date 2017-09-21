@@ -20,6 +20,8 @@ module ProjectMediaCreators
       t.skip_notifications = true
       t.save!
       created << t
+      # set auto-response
+      self.set_jsonld_response(t.label, task['mapping']) if task.has_key?('mapping')
     end
     self.respond_to_auto_tasks(created)
   end
@@ -102,6 +104,17 @@ module ProjectMediaCreators
       m = self.create_link
     end
     m
+  end
+
+  def set_jsonld_response(label, mapping)
+    jsonld = self.embed['raw']['json+ld'] if self.embed.has_key?('raw')
+    unless jsonld.nil?
+      require 'jsonpath'
+      jsonld = JSON.parse(jsonld)
+      response = JsonPath.new("$.mentions[?(@['@type'] == 'Place')]").on(jsonld)
+      self.set_tasks_responses ||= {}
+      self.set_tasks_responses[Task.slug(label)] = 'should set response value'
+    end
   end
 
   def respond_to_auto_tasks(tasks)
