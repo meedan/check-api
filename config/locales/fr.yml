@@ -64,6 +64,7 @@ fr:
         text: Le commentaire
       user:
         reset_password_token: Jeton de réinitialisation du mot de passe
+        email: Courriel
     errors:
       messages:
         record_invalid: 'La validation a échoué : %{errors}'
@@ -168,3 +169,8 @@ fr:
   duplicate_source: La source existe déjà
   geolocation_invalid_value: L'emplacement doit être représenté par une entrée GeoJSON valide (http://geojson.org/).
   datetime_invalid_date: Veuillez saisir une date valide.
+  error_team_archived: "Interdit de rajouter un projet à une équipe désactivée"
+  error_project_archived: "Interdit de rajouter un media à un projet désactivé"
+  error_team_archived_for_source: "Interdit de rajouter une source à un projet désactivé"
+  permission_error: "Désolé, vous n'êtes pas autorisé à effectuer cette opération"
+  error_annotated_archived: "Interdit de rajouter un commentaire à un élément à la corbeille"
