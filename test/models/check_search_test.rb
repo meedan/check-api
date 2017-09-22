@@ -699,7 +699,7 @@ class CheckSearchTest < ActiveSupport::TestCase
     pm.save!
     create_project_media
     result = CheckSearch.new({}.to_json)
-    assert_equal 3, result.medias.count
+    assert_equal 2, result.medias.count
     result = CheckSearch.new({ archived: 1 }.to_json)
     assert_equal 1, result.medias.count
     result = CheckSearch.new({ archived: 0 }.to_json)
