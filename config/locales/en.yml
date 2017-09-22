@@ -211,3 +211,6 @@ en:
   error_team_archived_for_source: "Can't create source under trashed team"
   permission_error: "Sorry, you are not allowed to do this"
   error_annotated_archived: "Sorry, this item is in the trash, you can't add a note to it"
+  only_super_admin_can_do_this: "Sorry, only super admins can make this change"
+  max_number_of_team_users_reached: "The maximum number of users for this team was reached"
+  max_number_of_projects_reached: "The maximum number of projects for this team was reached"

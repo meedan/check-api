@@ -291,6 +291,7 @@ module SampleData
     team.archived = options[:archived] || false
     team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
+    team.limits = { foo: 'bar' }
     team.save!
     team.reload
   end

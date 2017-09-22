@@ -42,12 +42,12 @@ module CheckSettings
   end
 
   def method_missing(method, *args, &block)
-    regexp = self.class.check_settings_fields.size > 1 ? "_(#{self.class.check_settings_fields.join('|')})_" : '(_)'
+    regexp = "(#{self.class.check_settings_fields.collect{ |f| "_#{f}_" }.join('|')}|_)"
     match = /^(reset|set|get)#{regexp}([^=]+)=?$/.match(method)
     if match.nil?
       super
     else
-      field = match[2] == '_' ? 'settings' : match[2]
+      field = match[2] == '_' ? 'settings' : match[2].gsub(/^_|_$/, '')
       value = self.send(field) || {}
       self.get_set_or_reset_setting_value(match, field, value, args)
     end
@@ -58,7 +58,7 @@ module CheckSettings
       value[match[3].to_sym] = args.first
       self.send("#{field}=", value)
     elsif match[1] === 'get'
-      value[match[3].to_sym] || value[match[3].to_s]
+      value[match[3].to_sym].nil? ? value[match[3].to_s] : value[match[3].to_sym]
     elsif match[1] === 'reset'
       value.delete(match[3].to_sym) unless value.blank?
       self.send("#{field}=", value)

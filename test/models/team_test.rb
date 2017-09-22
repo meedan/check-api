@@ -734,4 +734,36 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     assert_kind_of String, t.graphql_id
   end
+
+  test "should have limits" do
+    t = Team.new
+    t.name = random_string
+    t.slug = "slug-#{random_number}"
+    t.save!
+    assert_equal Team.plans[:free], t.reload.limits
+  end
+
+  test "should not change limits if not super admin" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert_raises ActiveRecord::RecordInvalid do
+        t.limits = { changed: true }
+        t.save!
+      end
+    end
+  end
+
+  test "should change limits if super admin" do
+    t = create_team
+    u = create_user is_admin: true
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        t.limits = { changed: true }
+        t.save!
+      end
+    end
+  end
 end
