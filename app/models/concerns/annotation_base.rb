@@ -77,7 +77,7 @@ module AnnotationBase
     after_save :touch_annotated
     after_destroy :touch_annotated
 
-    has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities], if: proc { |_x| User.current.present? }
+    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities], if: proc { |_x| User.current.present? }
 
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
@@ -86,6 +86,8 @@ module AnnotationBase
       ['ProjectSource', 'ProjectMedia', 'Source']
     end
     validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
+
+    validate :annotated_is_not_archived
 
     private
 
@@ -101,6 +103,13 @@ module AnnotationBase
         annotated.skip_notifications = true # the notification will be triggered by the annotation already
         annotated.updated_at = Time.now
         annotated.save!
+      end
+    end
+
+    def annotated_is_not_archived
+      annotated = self.annotated ? self.annotated.reload : nil
+      if annotated && annotated.respond_to?(:archived) && annotated.archived
+        errors.add(:base, I18n.t(:error_annotated_archived, default: "Sorry, this item is in the trash, you can't add a note to it"))
       end
     end
   end
@@ -248,6 +257,10 @@ module AnnotationBase
   def annotated_id_callback(value, mapping_ids = nil, type = ProjectMedia)
     annotated = type.where(id: mapping_ids[value]).last
     annotated.nil? ? nil : annotated.id
+  end
+
+  def annotated_is_archived?
+    self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
   end
 
   protected

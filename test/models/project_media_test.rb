@@ -107,7 +107,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal pm.project_id, p2.id
     end
     u2 = create_user
-    tu = create_team_user team: t, user: u2, role: 'journalist'
+    tu = create_team_user team: t, user: u2, role: 'editor'
     with_current_user_and_team(u2, t) do
       pm.save!
     end
@@ -327,7 +327,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Task", "create Dynamic"].sort
+    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "embed ProjectMedia"].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner
@@ -581,7 +581,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       info = { title: 'Foo' }.to_json; pm.embed = info; pm.save!
       info = { title: 'Bar' }.to_json; pm.embed = info; pm.save!
       pm.project_id = p2.id; pm.save!
-      t = create_task annotated: pm
+      t = create_task annotated: pm, annotator: u
       t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s, note: 'Test' }.to_json }.to_json; t.save!
       t = Task.find(t.id); t.label = 'Test?'; t.save!
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
@@ -590,11 +590,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 13, pm.get_versions_log_count
       c.destroy
-      assert_equal 12, pm.get_versions_log_count
+      assert_equal 13, pm.get_versions_log_count
       tg.destroy
-      assert_equal 11, pm.get_versions_log_count
+      assert_equal 13, pm.get_versions_log_count
       f.destroy
-      assert_equal 10, pm.get_versions_log_count
+      assert_equal 13, pm.get_versions_log_count
     end
   end
 
@@ -1167,5 +1167,34 @@ class ProjectMediaTest < ActiveSupport::TestCase
     l = Link.find(l.id)
     pm = create_project_media project: p, media: l
     assert_nil pm.send(:get_project_source, p.id)
+  end
+
+  test "should not create project media under archived project" do
+    p = create_project
+    p.archived = true
+    p.save!
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media project: p
+    end
+  end
+
+  test "should archive" do
+    pm = create_project_media
+    assert !pm.archived
+    pm.archived = true
+    pm.save!
+    assert pm.reload.archived
+  end
+
+  test "should create annotation when is embedded for the first time" do
+    create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
+    pm = create_project_media
+    assert_difference 'PaperTrail::Version.count', 2 do
+      pm.as_oembed
+    end
+    assert_no_difference 'PaperTrail::Version.count' do
+      pm.as_oembed
+    end
   end
 end

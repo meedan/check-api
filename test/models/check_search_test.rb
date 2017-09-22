@@ -691,4 +691,23 @@ class CheckSearchTest < ActiveSupport::TestCase
     assert_equal 3, result.medias.count
     Team.unstub(:current)
   end
+
+  test "should filter by archived" do
+    create_project_media
+    pm = create_project_media
+    pm.archived = true
+    pm.save!
+    create_project_media
+    result = CheckSearch.new({}.to_json)
+    assert_equal 2, result.medias.count
+    result = CheckSearch.new({ archived: 1 }.to_json)
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ archived: 0 }.to_json)
+    assert_equal 2, result.medias.count
+  end
+
+  test "should get teams" do
+    s = CheckSearch.new({}.to_json)
+    assert_equal [], s.teams
+  end
 end

@@ -64,6 +64,7 @@ ar:
         text: التعليق
       user:
         reset_password_token: رمز إعادة تعيين كلمة المرور
+        email: البريد الإلكتروني
     errors:
       messages:
         record_invalid: 'خطأ في صحة الإدخال: %{errors}'
@@ -75,11 +76,6 @@ ar:
           few: قصير جداً (الحد الأدنى %{count} حروف)
           many: قصير جداً (الحد الأدنى %{count} حروف)
           other: قصير جداً (الحد الأدنى %{count} حروف)
-      models:
-        user:
-          attributes:
-            email:
-              taken: 'لقد حدثت مشكلة صغيرة: استخدمت هذا البريد الإلكتروني سابقاً لتسجيل الدخول بطريقة أخرى. أرسلنا لك تواً رسالة إلكترونية لنذكرك بطريقة التسجيل السابقة. من فضلك راجع بريدك الإلكتروني ثم سجل الدخول بنفس الطريقة السابقة.'
   slug_format_validation_message: 'يقبل الأحرف والأرقام و''-'' فقط '
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
@@ -186,3 +182,8 @@ ar:
   duplicate_source: المصدر موجود بالفعل
   geolocation_invalid_value: صيغة الموقع لابد أن تطابق (/GeoJSON (http://geojson.org
   datetime_invalid_date: من فضلك أدخل تاريخاً صحيحاً.
+  error_team_archived: "ليس مسموح إضافة مشروع لفريق غير نشط"
+  error_project_archived: "ليس مسموح إضافة تقرير لمشروع غير نشط"
+  error_team_archived_for_source: "ليس مسموح إضافة مصدر لمشروع غير نشط"
+  permission_error: "عفواً ليس مسموح لك تنفيذ هذه العملية"
+  error_annotated_archived: "ليس مسموح إضافة تعليق لعنصر تم نقله لسلة المهملات"

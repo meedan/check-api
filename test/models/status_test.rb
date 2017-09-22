@@ -67,7 +67,7 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
-      st = create_status(status: 'undetermined', annotated: pm)
+      st = create_status(status: 'undetermined', annotated: pm, annotator: u)
     end
     assert_equal 1, st.versions.count
     v = st.versions.last
@@ -138,7 +138,7 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'editor'
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
-      st = create_status annotated: pm, annotator: nil, current_user: u, status: 'false'
+      st = create_status annotated: pm, annotator: nil, current_user: u, status: 'false', skip_check_ability: true 
       assert_equal u, st.annotator
     end
   end
@@ -172,6 +172,11 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when status is updated" do
+    if Bot::Slack.default.nil?
+      b = Bot::Slack.new
+      b.name = 'Slack Bot'
+      b.save!
+    end
     t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user

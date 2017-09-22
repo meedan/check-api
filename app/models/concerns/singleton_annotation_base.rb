@@ -10,7 +10,7 @@ module SingletonAnnotationBase
       Annotation.find(self.id).delete
     else
       widget.paper_trail.without_versioning do
-        widget.save!
+        widget.save
         self.versions.last.destroy
       end
     end
