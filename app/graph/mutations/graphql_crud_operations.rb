@@ -18,6 +18,7 @@ class GraphqlCrudOperations
     end
 
     ret[:affectedIds] = obj.affected_ids if obj.respond_to?(:affected_ids)
+    ret[:affectedId] = obj.graphql_id if obj.is_a?(ProjectMedia)
 
     ret
   end
@@ -93,6 +94,7 @@ class GraphqlCrudOperations
       return_field type.to_sym, klass
       
       return_field(:affectedIds, types[types.ID]) if type.to_s == 'team'
+      return_field(:affectedId, types.ID) if type.to_s == 'project_media'
 
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
