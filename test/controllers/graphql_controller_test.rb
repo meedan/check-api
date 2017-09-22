@@ -121,10 +121,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('comment', 'text')
   end
 
-  test "should update comment" do
-    assert_graphql_update('comment', 'text', 'foo', 'bar')
-  end
-
   test "should destroy comment" do
     assert_graphql_destroy('comment')
   end
@@ -779,8 +775,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should run few queries to get project data" do
-    n = 17 # Number of media items to be created
-    m = 3 # Number of annotations per media
+    n = 18 # Number of media items to be created
+    m = 5 # Number of annotations per media
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
@@ -795,7 +791,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    assert_queries (5 * n + n * m + 17) do
+    assert_queries (3*n + n*m + 17) do
       post :create, query: query, team: 'team'
     end
 

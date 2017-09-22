@@ -4,6 +4,7 @@ class Source < ActiveRecord::Base
   include HasImage
   include CheckElasticSearch
   include CheckNotifications::Pusher
+  include ValidationsHelper
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :project_sources
@@ -18,6 +19,7 @@ class Source < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
+  validate :team_is_not_archived
 
   after_update :update_elasticsearch_source
 
@@ -134,5 +136,9 @@ class Source < ActiveRecord::Base
     conditions = {}
     conditions[:project_id] = Team.current.projects unless Team.current.nil?
     self.project_sources.where(conditions)
+  end
+
+  def team_is_not_archived
+    parent_is_not_archived(self.team, I18n.t(:error_team_archived_for_source, default: "Can't create source under trashed team"))
   end
 end

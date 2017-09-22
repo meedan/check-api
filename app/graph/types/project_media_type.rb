@@ -12,6 +12,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :quote, types.String
   field :metadata, types.String
   field :dbid, types.Int
+  field :archived, types.Boolean
 
   field :domain do
     type types.String

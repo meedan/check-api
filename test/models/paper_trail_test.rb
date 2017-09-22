@@ -43,7 +43,7 @@ class PaperTrailTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u
-    c = create_comment annotated: pm, text: 'Foo'
+    c = create_comment annotated: pm, text: 'Foo', annotator: u
     c.text = 'Bar'
     c.save!
     User.current = nil
@@ -101,7 +101,7 @@ class PaperTrailTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u
-    c = create_comment annotated: pm, text: 'Foo'
+    c = create_comment annotated: pm, text: 'Foo', annotator: u
     c = Comment.last
     c.text = 'Bar'
     c.save!
@@ -116,7 +116,7 @@ class PaperTrailTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u
-    c = create_comment annotated: pm, text: 'Foo'
+    c = create_comment annotated: pm, text: 'Foo', annotator: u
     c = Comment.last
     c.text = 'Bar'
     c.save!

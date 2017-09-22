@@ -7,10 +7,12 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaEmbed
   include Versioned
   include NotifyEmbedSystem
+  include ValidationsHelper
 
   validates_presence_of :media_id, :project_id
 
   validate :is_unique, on: :create
+  validate :project_is_not_archived
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
@@ -203,6 +205,14 @@ class ProjectMedia < ActiveRecord::Base
     get_project_source(self.project_id)
   end
 
+  def custom_permissions(ability = nil)
+    perms = {}
+    perms["embed ProjectMedia"] = !self.archived
+    ability ||= Ability.new
+    perms["restore ProjectMedia"] = ability.can?(:restore, self)
+    perms
+  end
+
   private
 
   def is_unique
@@ -234,6 +244,10 @@ class ProjectMedia < ActiveRecord::Base
     return if self.media.type != 'Link' || self.media.account.blank?
     sources = self.media.account.sources.map(&:id)
     ProjectSource.where(project_id: pid, source_id: sources).first
+  end
+
+  def project_is_not_archived
+    parent_is_not_archived(self.project, I18n.t(:error_project_archived, default: "Can't create media under trashed project"))
   end
 
   protected

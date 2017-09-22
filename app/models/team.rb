@@ -2,6 +2,10 @@ class Team < ActiveRecord::Base
 
   include ValidationsHelper
   include NotifyEmbedSystem
+  include DestroyLater
+
+  attr_accessor :affected_ids
+
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
 
   has_many :projects, dependent: :destroy
@@ -29,6 +33,7 @@ class Team < ActiveRecord::Base
   validate :checklist_format
 
   after_create :add_user_to_team
+  after_update :archive_or_restore_projects_if_needed
 
   has_annotations
 
@@ -164,6 +169,43 @@ class Team < ActiveRecord::Base
     URI.parse(URI.encode([CONFIG['bridge_reader_url_private'], 'medias', 'notify', slug].join('/')))
   end
 
+  def self.archive_or_restore_projects_if_needed(archived, team_id)
+    Project.where({ team_id: team_id }).update_all({ archived: archived })
+    Source.where({ team_id: team_id }).update_all({ archived: archived })
+    ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id }).update_all({ archived: archived })
+  end
+
+  def self.empty_trash(team_id)
+    Team.find(team_id).trash.destroy_all
+  end
+
+  def empty_trash=(confirm)
+    if confirm
+      ability = Ability.new
+      if ability.can?(:update, self)
+        self.affected_ids = self.trash.all.map(&:graphql_id)
+        Team.delay.empty_trash(self.id)
+      else
+        raise I18n.t(:permission_error, "Sorry, you are not allowed to do this")
+      end
+    end
+  end
+
+  def trash
+    ProjectMedia.joins(:project).where({ 'projects.team_id' => self.id, 'project_medias.archived' => true })
+  end
+
+  def trash_size
+    {
+      project_media: self.trash.count,
+      annotation: self.trash.sum(:cached_annotations_count)
+    }
+  end
+
+  def check_search_team
+    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
+  end
+
   protected
 
   def custom_statuses_format(type)
@@ -225,5 +267,9 @@ class Team < ActiveRecord::Base
 
   def slug_is_not_reserved
     errors.add(:slug, I18n.t(:slug_is_reserved)) if RESERVED_SLUGS.include?(self.slug)
+  end
+
+  def archive_or_restore_projects_if_needed
+    Team.delay.archive_or_restore_projects_if_needed(self.archived, self.id) if self.archived_changed?
   end
 end

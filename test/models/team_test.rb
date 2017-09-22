@@ -46,9 +46,9 @@ class TeamTest < ActiveSupport::TestCase
     t.name = 'meedan'; t.save!
     t.reload
     assert_equal t.name, 'meedan'
-    # update team as editor
+    # update team as owner
     u2 = create_user
-    tu = create_team_user team: t, user: u2, role: 'editor'
+    tu = create_team_user team: t, user: u2, role: 'owner'
     with_current_user_and_team(u2, t) { t.name = 'meedan_mod'; t.save! }
     t.reload
     assert_equal t.name, 'meedan_mod'
@@ -521,5 +521,217 @@ class TeamTest < ActiveSupport::TestCase
     t.remove_auto_task = 'A task'
     t.save!
     assert_equal ['Another task'], t.reload.get_checklist.collect{ |t| t[:label] }
+  end
+
+  test "should archive sources, projects and project medias when team is archived" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      p1 = create_project
+      p2 = create_project team: t
+      s1 = create_source
+      s2 = create_source team: t
+      pm1 = create_project_media
+      pm2 = create_project_media project: p2
+      pm3 = create_project_media project: p2
+      t.archived = true
+      t.save!
+      assert !pm1.reload.archived
+      assert pm2.reload.archived
+      assert pm3.reload.archived
+      assert !p1.reload.archived
+      assert p2.reload.archived
+      assert !s1.reload.archived
+      assert s2.reload.archived
+    end
+  end
+
+  test "should archive sources, project and project medias in background when team is archived" do
+    Sidekiq::Testing.fake! do
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p
+      n = Sidekiq::Extensions::DelayedClass.jobs.size
+      t = Team.find(t.id)
+      t.archived = true
+      t.save!
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+    end
+  end
+
+  test "should not archive project and project medias in background if team is updated but archived flag does not change" do
+    Sidekiq::Testing.fake! do
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p
+      n = Sidekiq::Extensions::DelayedClass.jobs.size
+      t = Team.find(t.id)
+      t.name = random_string
+      t.save!
+      assert_equal n, Sidekiq::Extensions::DelayedClass.jobs.size
+    end
+  end
+
+  test "should restore sources, project and project medias when team is restored" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      p1 = create_project team: t
+      p2 = create_project
+      s1 = create_source team: t
+      s2 = create_source
+      pm1 = create_project_media
+      pm2 = create_project_media project: p1
+      pm3 = create_project_media project: p1
+      t.archived = true
+      t.save!
+      assert !pm1.reload.archived
+      assert pm2.reload.archived
+      assert pm3.reload.archived
+      assert p1.reload.archived
+      assert !p2.reload.archived
+      t = Team.find(t.id)
+      t.archived = false
+      t.save!
+      assert !pm1.reload.archived
+      assert !pm2.reload.archived
+      assert !pm3.reload.archived
+      assert !p1.reload.archived
+      assert !p2.reload.archived
+      assert !s1.reload.archived
+      assert !s2.reload.archived
+    end
+  end
+
+  test "should delete sources, project and project medias in background when team is deleted" do
+    Sidekiq::Testing.fake! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
+      p = create_project team: t
+      pm = create_project_media project: p
+      n = Sidekiq::Extensions::DelayedClass.jobs.size
+      t = Team.find(t.id)
+      with_current_user_and_team(u, t) do
+       t.destroy_later
+      end
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+    end
+  end
+
+  test "should delete sources, projects and project medias when team is deleted" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
+      p1 = create_project
+      p2 = create_project team: t
+      s1 = create_source
+      s2 = create_source team: t
+      pm1 = create_project_media
+      pm2 = create_project_media project: p2
+      pm3 = create_project_media project: p2
+      c = create_comment annotated: pm2
+      with_current_user_and_team(u, t) do
+        t.destroy_later
+      end
+      assert_not_nil ProjectMedia.where(id: pm1.id).last
+      assert_nil ProjectMedia.where(id: pm2.id).last
+      assert_nil ProjectMedia.where(id: pm3.id).last
+      assert_not_nil Project.where(id: p1.id).last
+      assert_nil Project.where(id: p2.id).last
+      assert_not_nil Source.where(id: s1.id).last
+      assert_nil Source.where(id: s2.id).last
+      assert_nil Comment.where(id: c.id).last
+    end
+  end
+
+  test "should not delete team later if doesn't have permission" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    with_current_user_and_team(u, t) do
+      assert_raises RuntimeError do
+        t.destroy_later
+      end
+    end
+  end
+
+  test "should empty trash in background" do
+    Sidekiq::Testing.fake! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
+      n = Sidekiq::Extensions::DelayedClass.jobs.size
+      t = Team.find(t.id)
+      with_current_user_and_team(u, t) do
+       t.empty_trash = 1
+      end
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+    end
+  end
+
+  test "should empty trash if has permissions" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
+      p = create_project team: t
+      3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
+      2.times { create_project_media(project: p) }
+      with_current_user_and_team(u, t) do
+        assert_nothing_raised do
+          assert_difference 'ProjectMedia.count', -3 do
+            t.empty_trash = 1
+          end
+        end
+      end
+    end
+  end
+
+  test "should not empty trash if has no permissions" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'contributor'
+      p = create_project team: t
+      3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
+      2.times { create_project_media(project: p) }
+      with_current_user_and_team(u, t) do
+        assert_raises RuntimeError do
+          assert_no_difference 'ProjectMedia.count' do
+            t.empty_trash = 1
+          end
+        end
+      end
+    end
+  end
+
+  test "should get trash size" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      2.times { create_comment annotated: pm1 }
+      3.times { create_comment annotated: pm2 }
+    end
+    pm1.archived = true
+    pm1.save!
+    pm2.archived = true
+    pm2.save!
+    size = t.reload.trash_size
+    assert_equal 2, size[:project_media]
+    assert_equal 5, size[:annotation]
+  end
+
+  test "should get search id" do
+    t = create_team
+    assert_kind_of CheckSearch, t.check_search_team 
+  end
+
+  test "should get GraphQL id" do
+    t = create_team
+    assert_kind_of String, t.graphql_id
   end
 end

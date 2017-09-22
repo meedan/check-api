@@ -295,16 +295,16 @@ class SourceTest < ActiveSupport::TestCase
       f2 = create_flag annotated: ps2
       assert_equal ["create_comment", "create_tag", "create_flag", "update_source", "create_comment", "create_flag"].sort, s.get_versions_log.map(&:event_type).sort
       assert_equal 6, s.get_versions_log_count
-      c.destroy
-      assert_equal 5, s.get_versions_log_count
-      tg.destroy
-      assert_equal 4, s.get_versions_log_count
-      f.destroy
-      assert_equal 3, s.get_versions_log_count
-      c2.destroy
-      assert_equal 2, s.get_versions_log_count
-      f2.destroy
-      assert_equal 1, s.get_versions_log_count
+      c.destroy!
+      assert_equal 6, s.get_versions_log_count
+      tg.destroy!
+      assert_equal 6, s.get_versions_log_count
+      f.destroy!
+      assert_equal 6, s.get_versions_log_count
+      c2.destroy!
+      assert_equal 6, s.get_versions_log_count
+      f2.destroy!
+      assert_equal 6, s.get_versions_log_count
     end
   end
 
@@ -378,6 +378,16 @@ class SourceTest < ActiveSupport::TestCase
     assert t2 > t1
   end
 
+  test "should not create source under trashed team" do
+    t = create_team
+    t.archived = true
+    t.save!
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_source team: t
+    end
+  end
+
   test "should refresh source with account data" do
     data = { author_name: 'Source author', author_picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
     Account.any_instance.stubs(:data).returns(data)
@@ -408,5 +418,4 @@ class SourceTest < ActiveSupport::TestCase
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)
   end
-
 end
