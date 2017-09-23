@@ -14,7 +14,7 @@ module CheckSettings
     
   module ClassMethods
     def check_settings_fields
-      @check_settings_fields
+      @check_settings_fields || []
     end
 
     def add_check_settings_field(field)

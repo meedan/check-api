@@ -766,4 +766,35 @@ class TeamTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should not set custom statuses if limited" do
+    t = create_team
+    t.set_limits_custom_statuses(false)
+    t.save!
+    t = Team.find(t.id)
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
+  test "should not save checklist if limited" do
+    t = create_team
+    t.set_limits_custom_tasks_list(false)
+    t.save!
+    t = Team.find(t.id)
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_checklist(value)
+      t.save!
+    end
+  end
 end

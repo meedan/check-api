@@ -20,6 +20,8 @@ module CheckLimits
 
     before_validation :set_default_plan, on: :create
     validate :only_super_admin_can_change_limits
+    validate :can_use_custom_statuses
+    validate :can_use_checklist
 
     private
 
@@ -29,6 +31,19 @@ module CheckLimits
 
     def only_super_admin_can_change_limits
       errors.add(:base, I18n.t(:only_super_admin_can_do_this)) if self.limits_changed? && User.current.present? && !User.current.is_admin?
+    end
+
+    def can_use_custom_statuses
+      if self.get_limits_custom_statuses == false && 
+         (!self.get_source_verification_statuses.blank? || !self.get_media_verification_statuses.blank?)
+        errors.add(:base, I18n.t(:cant_set_custom_statuses))
+      end
+    end
+
+    def can_use_checklist
+      if self.get_limits_custom_tasks_list == false && !self.get_checklist.blank?
+        errors.add(:base, I18n.t(:cant_set_checklist))
+      end
     end
   end
 
