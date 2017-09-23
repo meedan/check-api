@@ -40,7 +40,9 @@ module CheckLimits
     def notify_slack(model)
       p = self.get_project(model)
       t = self.get_team(model, p)
-      self.notify_slack_original(model) unless t.get_limits_slack_integration == false
+      unless t.nil?
+        self.notify_slack_original(model) unless t.get_limits_slack_integration == false
+      end
     end
   end
 
