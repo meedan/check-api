@@ -292,12 +292,7 @@ module SampleData
     team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
     team.save!
-    team = Team.find(team.id)
-    user = User.current
-    User.current = nil
-    team.limits = { foo: 'bar' }
-    team.save!
-    User.current = user
+    team.update_columns(limits: { foo: 'bar' })
     team.reload
   end
 
