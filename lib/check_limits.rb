@@ -1,5 +1,18 @@
 module CheckLimits
 
+  module Validators
+    def max_number_was_reached(collection, klass, message)
+      if self.team
+        limit = self.team.send("get_limits_max_number_of_#{collection}")
+        unless limit.nil?
+          if klass.where(team_id: self.team_id).count >= limit.to_i
+            errors.add(:base, message)
+          end
+        end
+      end
+    end
+  end
+
   # Team
 
   Team.class_eval do
@@ -65,18 +78,13 @@ module CheckLimits
 
   TeamUser.class_eval do
     validate :max_number_of_members, on: :create
+    
+    include ::CheckLimits::Validators
 
     private
 
     def max_number_of_members
-      if self.team
-        limit = self.team.get_limits_max_number_of_members
-        unless limit.nil?
-          if TeamUser.where(team_id: self.team_id).count >= limit.to_i
-            errors.add(:base, I18n.t(:max_number_of_team_users_reached))
-          end
-        end
-      end
+      max_number_was_reached(:members, TeamUser, I18n.t(:max_number_of_team_users_reached))
     end
   end
 
@@ -84,18 +92,13 @@ module CheckLimits
 
   Project.class_eval do
     validate :max_number_of_projects, on: :create
+    
+    include ::CheckLimits::Validators
 
     private
 
     def max_number_of_projects
-      if self.team
-        limit = self.team.get_limits_max_number_of_projects
-        unless limit.nil?
-          if Project.where(team_id: self.team_id).count >= limit.to_i
-            errors.add(:base, I18n.t(:max_number_of_projects_reached))
-          end
-        end
-      end
+      max_number_was_reached(:projects, Project, I18n.t(:max_number_of_projects_reached))
     end
   end
 
