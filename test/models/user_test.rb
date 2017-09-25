@@ -353,6 +353,21 @@ class UserTest < ActiveSupport::TestCase
     Account.any_instance.unstub(:save)
   end
 
+  test "should edit own profile" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        s = u.source
+        s.name = 'update name'
+        s.save!
+        assert_equal s.reload.name, 'update name'
+      end
+    end
+
+  end
+
   test "should get permissions" do
     u = create_user
     t = create_team
