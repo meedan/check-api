@@ -42,7 +42,7 @@ class CheckSearch
     return @medias if @medias
     @medias = []
     filters = {}
-    filters[:archived] = (@options['archived'].to_i == 1) if @options.has_key?('archived')
+    filters[:archived] = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
     if should_hit_elasticsearch?
       query = medias_build_search_query
       ids = medias_get_search_result(query).map(&:annotated_id)

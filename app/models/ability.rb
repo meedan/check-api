@@ -157,7 +157,9 @@ class Ability
     end
     can :update, Embed
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}, source: { user_id: @user.id }
-    can [:create, :update], Source, :team_id => @context_team.id, :user_id => @user.id
+    can [:create, :update], Source do |obj|
+      (obj.team_id == @context_team.id && obj.user_id == @user.id) || (obj.team_id.nil? && obj.id == @user.source_id)
+    end
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can :create, ProjectMedia, { project: { team: { team_users: { team_id: @context_team.id }}}, archived_was: false }

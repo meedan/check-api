@@ -64,9 +64,10 @@ pt:
         text: Comentário
       user:
         reset_password_token: Redefinir o token da senha
+        email: E-mail
     errors:
       messages:
-        record_invalid: 'Falhas na validação:% {errors}'
+        record_invalid: 'A validação falhou: %{errors}'
         improbable_phone: é um número inválido
         too_short:
           one: é muito curto (mínimo de 1 caractere)
@@ -168,3 +169,8 @@ pt:
   duplicate_source: Fonte existe
   geolocation_invalid_value: Localização deve conter um GeoJSON válido (http://geojson.org/)
   datetime_invalid_date: Por favor forneça uma data válida
+  error_team_archived: "Não é possível criar um projeto em um time que esteja na lixeira"
+  error_project_archived: "Não é possível criar media em um projeto que esteja na lixeira"
+  error_team_archived_for_source: "Não é possível criar fonte em um time que esteja na lixeira"
+  permission_error: "Desculpe, você não tem permissão para fazer esta operação"
+  error_annotated_archived: "Desculpe, este item está na lixeira, você não pode adicionar nota a ele"
