@@ -355,16 +355,30 @@ class UserTest < ActiveSupport::TestCase
 
   test "should edit own profile" do
     u = create_user
+    u2 = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'contributor'
     s = u.source
     assert_nil s.team
+    # should edit own profile
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         s.name = 'update name'
         s.save!
         assert_equal s.reload.name, 'update name'
       end
+    end
+    # other roles should not edit user profile
+    create_team_user user: u2, team: t, role: 'journalist'
+    js = u2.source
+    with_current_user_and_team(u2, t) do
+      assert_raise RuntimeError do
+        s.save!
+      end
+      # check that journliast has a permission to update his profile
+      js.name = 'update name'
+      js.save!
+      assert_equal js.reload.name, 'update name'
     end
 
   end
