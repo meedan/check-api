@@ -357,9 +357,10 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'contributor'
+    s = u.source
+    assert_nil s.team
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        s = u.source
         s.name = 'update name'
         s.save!
         assert_equal s.reload.name, 'update name'
