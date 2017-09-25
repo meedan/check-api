@@ -135,6 +135,12 @@ RailsAdmin.config do |config|
     end
   end
 
+  def visible_only_for_allowed_teams(setting)
+    visible do
+      bindings[:object].send("get_limits_#{setting}") != false
+    end
+  end
+
   config.model 'ApiKey' do
     list do
       field :access_token
@@ -382,11 +388,13 @@ RailsAdmin.config do |config|
         label 'Media verification statuses'
         render_settings('text')
         help "A list of custom verification statuses for reports that match your team's journalistic guidelines."
+        visible_only_for_allowed_teams 'custom_statuses'
       end
       field :source_verification_statuses, :yaml do
         label 'Source verification statuses'
         help "A list of custom verification statuses for sources that match your team's journalistic guidelines."
         render_settings('text')
+        visible_only_for_allowed_teams 'custom_statuses'
       end
       field :keep_enabled, :boolean do
         label 'Enable Keep archiving'
@@ -404,29 +412,40 @@ RailsAdmin.config do |config|
         hide do
           bindings[:object].new_record?
         end
+        visible_only_for_allowed_teams 'slack_integration'
       end
       field :slack_webhook do
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
         help "A <a href='https://my.slack.com/services/new/incoming-webhook/' target='_blank'>webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.".html_safe
         render_settings('field')
+        visible_only_for_allowed_teams 'slack_integration'
       end
       field :slack_channel do
         label 'Slack default #channel'
         formatted_value{ bindings[:object].get_slack_channel }
         help "The Slack channel to which Check should send notifications about events that occur in your team."
         render_settings('field')
+        visible_only_for_allowed_teams 'slack_integration'
       end
       field :checklist, :yaml do
         label 'Checklist'
         help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
         render_settings('text')
+        visible_only_for_allowed_teams 'custom_tasks_list'
       end
       field :suggested_tags do
         label 'Suggested tags'
         formatted_value { bindings[:object].get_suggested_tags }
         help "A list of common tags to be used with reports and sources in your team."
         render_settings('field')
+        visible_only_for_admin
+      end
+      field :limits, :yaml do
+        label 'Limits'
+        formatted_value { bindings[:object].limits.to_yaml }
+        help "Limit this team features"
+        render_settings('text')
         visible_only_for_admin
       end
     end
