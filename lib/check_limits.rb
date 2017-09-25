@@ -24,7 +24,8 @@ module CheckLimits
           custom_statuses: false,
           slack_integration: false,
           custom_tasks_list: false,
-          browser_extension: false
+          browser_extension: false,
+          keep_integration: false
         }
       }
     end
@@ -102,10 +103,16 @@ module CheckLimits
     end
   end
 
-  # ProjectMedia
+  # ProjectMedia & Keep
 
   ProjectMedia.class_eval do
     validate :can_submit_through_browser_extension, on: :create
+
+    alias_method :get_keep_token_original, :get_keep_token
+
+    def get_keep_token
+      self.get_keep_token_original unless self.project.team.get_limits_keep_integration == false
+    end
 
     private
 

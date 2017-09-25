@@ -404,6 +404,7 @@ RailsAdmin.config do |config|
           bindings[:object].new_record?
         end
         visible_only_for_admin
+        visible_only_for_allowed_teams 'keep_integration'
       end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
