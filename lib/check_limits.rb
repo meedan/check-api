@@ -98,4 +98,20 @@ module CheckLimits
       end
     end
   end
+
+  # ProjectMedia
+
+  ProjectMedia.class_eval do
+    validate :can_submit_through_browser_extension, on: :create
+
+    private
+
+    def can_submit_through_browser_extension
+      if !RequestStore[:request].nil? && 
+         RequestStore[:request].headers['X-Check-Client'] == 'browser-extension' && 
+         self.project && self.project.team && self.project.team.get_limits_browser_extension == false
+        errors.add(:base, I18n.t(:cant_create_media_under_this_team_using_extension))
+      end
+    end
+  end
 end

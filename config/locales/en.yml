@@ -216,3 +216,4 @@ en:
   max_number_of_projects_reached: "The maximum number of projects for this team was reached"
   cant_set_custom_statuses: "Sorry, you can't use the custom statuses feature"
   cant_set_checklist: "Sorry, you can't use the Checklist feature"
+  cant_create_media_under_this_team_using_extension: "Sorry, this team is not allowed to use the browser extension"
