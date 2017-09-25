@@ -5,6 +5,8 @@ class BotUser < User
   belongs_to :api_key
 
   devise
+  
+  check_settings
 
   def email_required?
     false

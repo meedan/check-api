@@ -334,7 +334,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should have settings" do
     u = create_user
-    assert_nil u.settings
+    assert_equal({}, u.settings)
     assert_nil u.setting(:foo)
     u.set_foo = 'bar'
     u.save!

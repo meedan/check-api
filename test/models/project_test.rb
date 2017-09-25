@@ -244,7 +244,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should have settings" do
     p = create_project
-    assert_nil p.settings
+    assert_equal({}, p.settings)
     assert_nil p.setting(:foo)
     p.set_foo = 'bar'
     p.save!

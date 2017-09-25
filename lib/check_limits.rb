@@ -18,7 +18,7 @@ module CheckLimits
 
     check_settings :limits
 
-    before_validation :set_default_plan, on: :create
+    before_create :set_default_plan
     validate :only_super_admin_can_change_limits
     validate :can_use_custom_statuses
     validate :can_use_checklist
