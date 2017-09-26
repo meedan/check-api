@@ -14141,6 +14141,16 @@
               "defaultValue": null
             },
             {
+              "name": "quote_attributions",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "set_annotation",
               "description": null,
               "type": {

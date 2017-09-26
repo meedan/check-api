@@ -13,7 +13,7 @@ class Claim < Media
   private
 
   def set_claim_attributions
-    quote_attributions = JSON.parse(self.quote_attributions)
+    quote_attributions = JSON.parse(self.quote_attributions) unless self.quote_attributions.nil?
     unless quote_attributions.blank?
       # create source
       s = create_claim_source(quote_attributions['name']) unless quote_attributions['name'].nil?

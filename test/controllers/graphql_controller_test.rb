@@ -133,7 +133,7 @@ class GraphqlControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_graphql_create('project_media', { project_id: p.id, url: url })
     # create claim report
-    assert_graphql_create('project_media', { project_id: p.id, quote: 'media quote' })
+    assert_graphql_create('project_media', { project_id: p.id, quote: 'media quote', quote_attributions: {name: 'source name'}.to_json })
   end
 
   test "should create project media" do
