@@ -79,6 +79,7 @@ module ProjectMediaCreators
   def create_claim
     m = Claim.new
     m.quote = self.quote
+    m.quote_attributions = self.quote_attributions
     m.save!
     m
   end
