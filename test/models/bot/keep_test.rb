@@ -11,7 +11,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     @bot = Bot::Keep.new
     WebMock.stub_request(:post, 'https://www.bravenewtech.org/api/').to_return(body: { package: '123456' }.to_json)
     WebMock.stub_request(:post, 'https://www.bravenewtech.org/api/status.php').to_return(body: { location: 'http://keep.org' }.to_json)
-    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
+    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
   end
 
   test "should exist" do
@@ -96,5 +96,19 @@ class Bot::KeepTest < ActiveSupport::TestCase
         pm = create_project_media project: p, media: l
       end
     end
+  end
+
+  test "should not send media to Keep if team is not allowed to" do
+    t = create_team
+    t.keep_enabled = 1
+    t.set_limits_keep_integration = false
+    t.save!
+    l = create_link
+    p = create_project team: t
+    pm = nil
+    stub_config('keep_token', '123456') do
+      pm = create_project_media project: p, media: l
+    end
+    assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 end
