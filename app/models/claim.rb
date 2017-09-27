@@ -16,8 +16,8 @@ class Claim < Media
     quote_attributions = JSON.parse(self.quote_attributions) unless self.quote_attributions.nil?
     unless quote_attributions.blank?
       # create source
-      s = create_claim_source(quote_attributions['name']) unless quote_attributions['name'].nil?
-      self.account = Account.create_for_source(quote_attributions['link'], s) unless quote_attributions['link'].nil?
+      s = create_claim_source(quote_attributions['name']) unless quote_attributions['name'].blank?
+      self.account = Account.create_for_source(quote_attributions['link'], s) unless quote_attributions['link'].blank?
     end
   end
 
