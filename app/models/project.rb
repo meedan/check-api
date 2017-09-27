@@ -32,7 +32,8 @@ class Project < ActiveRecord::Base
                   targets: proc { |p| [p.team] },
                   data: proc { |p| p.to_json }
 
-  include CheckSettings
+  check_settings
+
   include CheckCsvExport
 
   def user_id_callback(value, _mapping_ids = nil)

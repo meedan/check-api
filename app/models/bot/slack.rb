@@ -1,6 +1,6 @@
 class Bot::Slack < ActiveRecord::Base
 
-  include CheckSettings
+  check_settings
 
   def self.default
     Bot::Slack.where(name: 'Slack Bot').last

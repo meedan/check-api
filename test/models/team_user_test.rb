@@ -294,4 +294,18 @@ class TeamUserTest < ActiveSupport::TestCase
     tu.destroy
     assert_equal [], u.reload.cached_teams
   end
+
+  test "should not create team user if limit was reached" do
+    t = create_team
+    create_team_user team: t, user: create_user
+    t.set_limits_max_number_of_members = 5
+    t.save!
+    t = Team.find(t.id)
+    4.times do
+      create_team_user team: t, user: create_user
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_team_user team: t, user: create_user
+    end
+  end
 end

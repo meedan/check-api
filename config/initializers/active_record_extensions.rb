@@ -4,6 +4,7 @@ module ActiveRecordExtensions
   included do
     include CheckPermissions
     include CheckNotifications::Pusher
+    include CheckSettings
 
     attr_accessor :no_cache, :skip_check_ability, :skip_notifications
 
