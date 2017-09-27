@@ -4,7 +4,7 @@ class Claim < Media
 
   validates :quote, presence: true, on: :create
 
-  before_validation :set_claim_attributions, on: :create
+  after_create :set_claim_attributions
 
   def text
     self.quote
@@ -16,16 +16,30 @@ class Claim < Media
     quote_attributions = JSON.parse(self.quote_attributions) unless self.quote_attributions.nil?
     unless quote_attributions.blank?
       # create source
-      s = create_claim_source(quote_attributions['name']) unless quote_attributions['name'].blank?
-      self.account = Account.create_for_source(quote_attributions['link'], s) unless quote_attributions['link'].blank?
+      s = create_source(quote_attributions['name']) unless quote_attributions['name'].blank?
+      unless quote_attributions['link'].blank?
+        self.account = Account.create_for_source(quote_attributions['link'], s)
+        self.save!
+      end
+      create_claim_source(s) if self.account.nil?
+
     end
   end
 
-  def create_claim_source(name)
+  def create_source(name)
     s = Source.new
     s.name = name
     s.skip_check_ability = true
     s.save!
     s.reload
+  end
+
+  def create_claim_source(source)
+    return if source.nil?
+    cs = ClaimSource.new
+    cs.source_id = source.id
+    cs.media_id = self.id
+    cs.skip_check_ability = true
+    cs.save!
   end
 end

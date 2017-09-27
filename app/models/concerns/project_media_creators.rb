@@ -125,8 +125,12 @@ module ProjectMediaCreators
 
   def create_project_source
     a = self.media.account
-    unless a.nil?
-      source = Account.create_for_source(a.url).source
+    source = Account.create_for_source(a.url).source unless a.nil?
+    if source.nil?
+      cs = ClaimSource.where(media_id: self.media_id).last
+      source = cs.source unless cs.nil?
+    end
+    unless source.nil?
       unless ProjectSource.where(project_id: self.project_id, source_id: source.id).exists?
         ps = ProjectSource.new
         ps.project_id = self.project_id

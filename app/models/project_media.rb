@@ -241,8 +241,9 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_project_source(pid)
-    return if self.media.account.blank?
-    sources = self.media.account.sources.map(&:id)
+    sources = []
+    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
+    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
     ProjectSource.where(project_id: pid, source_id: sources).first
   end
 
