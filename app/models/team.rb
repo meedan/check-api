@@ -39,7 +39,7 @@ class Team < ActiveRecord::Base
 
   RESERVED_SLUGS = ['check']
 
-  include CheckSettings
+  check_settings
 
   def logo_callback(value, _mapping_ids = nil)
     image_callback(value)
