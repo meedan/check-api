@@ -11,6 +11,7 @@ class Comment < ActiveRecord::Base
 
   notifies_pusher on: :destroy,
                   event: 'media_updated',
+                  if: proc { |a| a.annotated_type === 'ProjectMedia' },
                   targets: proc { |a| [a.annotated.media] },
                   data: proc { |a| a.to_json }
 
