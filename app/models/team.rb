@@ -72,6 +72,13 @@ class Team < ActiveRecord::Base
     self.projects.order('id DESC')
   end
 
+  # FIXME Source should be using concern HasImage
+  # which automatically adds a member attribute `file`
+  # which is used by GraphqlCrudOperations
+  def file=(file)
+    self.logo = file
+  end
+
   def contact=(info)
     contact = self.contacts.first || Contact.new
     info = JSON.parse(info)
