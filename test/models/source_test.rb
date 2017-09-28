@@ -122,7 +122,7 @@ class SourceTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m
     assert_equal [pm], s.medias
     # get media for claim attributions
-    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name', link: ''}.to_json
+    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
     cs = ClaimSource.where(media_id: pm2.media_id).last
     assert_not_nil cs.source
     assert_equal [pm2], cs.source.medias

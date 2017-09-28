@@ -474,7 +474,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c = create_claim_media
     pm = create_project_media project: p, media: c
     assert_nil pm.project_source
-    pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name', link: ''}.to_json
+    pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
     assert_not_nil pm.project_source
   end
 
@@ -1166,21 +1166,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    author_url = 'http://facebook.com/123456'
-
-    data = { url: author_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
-
     with_current_user_and_team(u, t) do
-      pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name', link: author_url}.to_json
-      assert_equal pm.media.account.url, author_url
-      assert_not_nil pm.project_source
-      assert_equal pm.project_source.source.name, 'source name'
-      # should create ClaimSource if link attribution is empty
-      assert_difference 'ClaimSource.count' do
-        create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name', link: ''}.to_json
+      assert_difference 'ClaimSource.count', 2 do
+        pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
+        s = pm.project_source.source
+        assert_not_nil pm.project_source
+        assert_equal s.name, 'source name'
+        pm2 = create_project_media project: p, quote: 'Claim 2', quote_attributions: {name: 'source name'}.to_json
+        assert_equal pm2.project_source.source, s
       end
     end
   end
