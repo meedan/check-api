@@ -270,6 +270,12 @@ class CommentTest < ActiveSupport::TestCase
     assert c.sent_to_pusher
   end
 
+  test "should notify Pusher when annotation is destroyed" do
+    c = create_comment annotated: create_project_media
+    c.destroy
+    assert c.sent_to_pusher
+  end
+
   test "should have entities" do
     c = Comment.new
     assert_kind_of Array, c.entities
