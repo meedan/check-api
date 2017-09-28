@@ -19,7 +19,7 @@ class ProjectMedia < ActiveRecord::Base
 
   notifies_pusher on: :save,
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project, pm.media] },
+                  targets: proc { |pm| [pm.project, pm.media, pm.project.team] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 

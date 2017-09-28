@@ -16,6 +16,8 @@ class CheckSearch
   def pusher_channel
     if @options['parent'] && @options['parent']['type'] == 'project'
       Project.find(@options['parent']['id']).pusher_channel
+    elsif @options['parent'] && @options['parent']['type'] == 'team'
+      Team.where(slug: @options['parent']['slug']).last.pusher_channel
     else
       nil
     end
