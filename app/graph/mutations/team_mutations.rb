@@ -2,7 +2,6 @@ module TeamMutations
   create_fields = {
     archived: 'bool',
     private: 'bool',
-    logo: 'str',
     name: '!str',
     slug: '!str',
     description: 'str',
@@ -12,7 +11,6 @@ module TeamMutations
   update_fields = {
     archived: 'bool',
     private: 'bool',
-    logo: 'str',
     name: 'str',
     description: 'str',
     set_slack_notifications_enabled: 'str',
