@@ -149,6 +149,12 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should be equivalent to set file or logo" do
+    t = create_team
+    t.file = 'http://checkdesk.org/users/1/photo.png'
+    assert_equal 'http://checkdesk.org/users/1/photo.png', t.logo
+  end
+
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Team.count' do
       assert_raises ActiveRecord::RecordInvalid do
@@ -727,7 +733,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should get search id" do
     t = create_team
-    assert_kind_of CheckSearch, t.check_search_team 
+    assert_kind_of CheckSearch, t.check_search_team
   end
 
   test "should get GraphQL id" do
