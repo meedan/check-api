@@ -150,9 +150,12 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should be equivalent to set file or logo" do
-    t = create_team
-    t.file = 'http://checkdesk.org/users/1/photo.png'
-    assert_equal 'http://checkdesk.org/users/1/photo.png', t.logo
+    t = create_team logo: nil
+    assert_match /team\.png$/, t.logo.url
+    File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+      t.file = f
+    end
+    assert_match /rails\.png$/, t.logo.url
   end
 
   test "should not upload a logo that is not an image" do
