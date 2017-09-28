@@ -92,9 +92,9 @@ module CheckLimits
   # Project
 
   Project.class_eval do
-    validate :max_number_of_projects, on: :create
-    
     include ::CheckLimits::Validators
+    
+    validate :max_number_of_projects, on: :create
 
     private
 
