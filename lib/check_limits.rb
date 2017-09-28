@@ -78,13 +78,13 @@ module CheckLimits
   # TeamUser
 
   TeamUser.class_eval do
-    validate :max_number_of_members, on: :create
+    validate :team_is_full, on: :create
     
     include ::CheckLimits::Validators
 
     private
 
-    def max_number_of_members
+    def team_is_full
       max_number_was_reached(:members, TeamUser, I18n.t(:max_number_of_team_users_reached))
     end
   end
