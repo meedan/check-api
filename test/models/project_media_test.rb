@@ -474,6 +474,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c = create_claim_media
     pm = create_project_media project: p, media: c
     assert_nil pm.project_source
+    pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name', link: ''}.to_json
+    assert_not_nil pm.project_source
   end
 
   test "should move related sources after move media to other projects" do
@@ -1176,6 +1178,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal pm.media.account.url, author_url
       assert_not_nil pm.project_source
       assert_equal pm.project_source.source.name, 'source name'
+      # should create ClaimSource if link attribution is empty
+      assert_difference 'ClaimSource.count' do
+        create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name', link: ''}.to_json
+      end
     end
   end
 

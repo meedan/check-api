@@ -387,6 +387,17 @@ module SampleData
     as.reload
   end
 
+  def create_claim_source(options = {})
+    cs = ClaimSource.new
+    options[:source_id] = create_source.id if !options.has_key?(:source_id) && !options.has_key?(:source)
+    options[:media_id] = create_claim_media.id if !options.has_key?(:media_id) && !options.has_key?(:media)
+    options.each do |key, value|
+      cs.send("#{key}=", value) if cs.respond_to?("#{key}=")
+    end
+    cs.save!
+    cs.reload
+  end
+
   def create_project_source(options = {})
     u = options[:user] || create_user
     options = { disable_es_callbacks: true, user: u }.merge(options)
