@@ -78,14 +78,15 @@ en:
   slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
-  invalid_format_for_custom_verification_status: Custom verification statuses is invalid,
-    it should have the format as exemplified below the field
+  invalid_format_for_custom_verification_status: Custom verification statuses is invalid
   invalid_format_for_checklist: 'Checklist is invalid, it should have the format [
     { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'':
     [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'Languages is invalid, it should have the format [{''id'':
     ''en'',''title'': ''English''}]'
   invalid_media_item: Sorry, this is not a valid media item
+  invalid_default_status_for_custom_verification_status: The default status is invalid
+  invalid_id_or_label_for_custom_verification_status: The status id and label are mandatory
   already_exists: already exists
   mail_account_confirmation: "%{app_name} account confirmation"
   mail_request_to_join: "%{user} wants to join %{team} team on %{app_name}!"

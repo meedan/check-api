@@ -1,0 +1,18 @@
+<div id="<%= field.method_name.to_s %>_editor_holder"></div>
+
+<script>
+  var starting_value = <%== @object.send("get_#{field.method_name.to_s}").to_json %>;
+  var field_schema = "<%= @object.json_schema_url(field.method_name.to_s) %>";
+  var editor = new JSONEditor(document.getElementById("<%= field.method_name.to_s %>_editor_holder"),{
+    ajax: true,
+    theme: 'bootstrap2',
+    show_errors: 'interaction',
+    disable_properties: true,
+    disable_edit_json: true,
+    form_name_root: "team[<%= field.method_name.to_s %>]",
+    schema: {
+      "$ref": field_schema
+    },
+    startval: starting_value
+  });
+</script>

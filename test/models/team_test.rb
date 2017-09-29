@@ -343,13 +343,62 @@ class TeamTest < ActiveSupport::TestCase
       default: '1',
       statuses: [
         { id: '1', label: 'Custom Status 1' },
-        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' }
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' },
+        { id: '3', label: '', description: 'The meaning of that status' },
+        { id: '', label: 'Custom Status 4', description: 'The meaning of that status' }
       ]
     }
     assert_raises ActiveRecord::RecordInvalid do
       t.set_media_verification_statuses(value)
       t.save!
     end
+  end
+
+  test "should not save custom verification status if the default doesn't match any status id" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '10',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
+  test "should remove empty statuses before save custom verification statuses" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Valid status', description: 'The meaning of this status', style: 'red' },
+        { id: '', label: '', description: 'Status with empty id and label', style: 'blue' }
+      ]
+    }
+    assert_nothing_raised do
+      t.media_verification_statuses = value
+      t.save!
+    end
+    assert_equal 1, t.get_media_verification_statuses[:statuses].size
+  end
+
+  test "should not save custom verification statuses if default or statuses is empty" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '',
+      statuses: []
+    }
+    assert_nothing_raised do
+      t.media_verification_statuses = value
+      t.save!
+    end
+    assert t.get_media_verification_statuses.nil?
   end
 
   test "should not save custom verification status if it is not a hash" do
@@ -470,6 +519,23 @@ class TeamTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should remove empty task without label before save checklist" do
+    t = create_team
+    variations = [
+      [{ label: '' }],
+      [{ description: 'A task' }],
+      [{ type: 'free_text', description: '', projects: []}]
+    ]
+    variations.each do |value|
+      assert_nothing_raised do
+        t.checklist = value
+        t.save!
+      end
+      assert t.get_checklist.empty?
+    end
+  end
+
 
   test "should save valid slack_channel" do
     t = create_team

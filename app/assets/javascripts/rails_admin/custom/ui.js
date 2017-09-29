@@ -1,3 +1,5 @@
+//= require ./jsoneditor.min.js
+
 jQuery(function(){
   $(document).ready(function() {
     var logoutLink = $("a[href='/api/users/sign_out']")

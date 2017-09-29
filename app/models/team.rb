@@ -104,11 +104,17 @@ class Team < ActiveRecord::Base
   end
 
   def media_verification_statuses=(statuses)
-    self.send(:set_media_verification_statuses, statuses)
+    statuses = remove_empty_statuses(statuses)
+    unless statuses.keys.map(&:to_sym) == [:label]
+      self.send(:set_media_verification_statuses, statuses)
+    end
   end
 
   def source_verification_statuses=(statuses)
-    self.send(:set_source_verification_statuses, statuses)
+    statuses = remove_empty_statuses(statuses)
+    unless statuses.keys.map(&:to_sym) == [:label]
+      self.send(:set_source_verification_statuses, statuses)
+    end
   end
 
   def slack_notifications_enabled=(enabled)
@@ -124,6 +130,12 @@ class Team < ActiveRecord::Base
   end
 
   def checklist=(checklist)
+    checklist = checklist.values if checklist.respond_to?(:values)
+    checklist.each do |c|
+      c.with_indifferent_access
+      c[:projects] = c[:projects].values.map(&:to_i) if c[:projects] && c[:projects].respond_to?(:values)
+      checklist.delete(c) if c[:label].blank?
+    end
     self.send(:set_checklist, checklist)
   end
 
@@ -213,6 +225,10 @@ class Team < ActiveRecord::Base
     CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end
 
+  def json_schema_url(field)
+    filename = ['media_verification_statuses', 'source_verification_statuses'].include?(field) ? 'statuses' : field
+    URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json")
+  end
   protected
 
   def custom_statuses_format(type)
@@ -221,9 +237,20 @@ class Team < ActiveRecord::Base
       errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status))
     else
       statuses[:statuses].each do |status|
-        errors.add(:base, 'Custom verification statuses is invalid, it should have the format as exemplified below the field') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
+        errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status)) if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
+        errors.add(:base, I18n.t(:invalid_id_or_label_for_custom_verification_status)) if status[:id].blank? || status[:label].blank?
       end
+      errors.add(:base, I18n.t(:invalid_default_status_for_custom_verification_status)) if !statuses[:statuses].map { |s| s[:id] }.include? statuses[:default]
     end
+  end
+
+  def remove_empty_statuses(statuses)
+    statuses.with_indifferent_access
+    if statuses[:statuses]
+      statuses[:statuses] = statuses[:statuses].values if statuses[:statuses].respond_to?(:values)
+      statuses[:statuses].delete_if { |s| s[:id].blank? && s[:label].blank? }
+    end
+    statuses.delete_if { |k, v| v.blank? }
   end
 
   private

@@ -1,0 +1,62 @@
+{
+  "title": "Verification statuses",
+  "type": "object",
+  "properties": {
+    "label": {
+      "default": "Status",
+      "type": "string"
+    },
+    "default": {
+      "type": "string",
+      "description": "The default status"
+    },
+    "statuses": {
+      "type": "array",
+      "items": {
+        "title": "Status",
+        "headerTemplate": "{{i1}} - {{self.label}}",
+        "type": "object",
+        "properties": {
+          "id": {
+            "default": "",
+            "description": "The id that will be saved on database.",
+            "type": "string"
+          },
+          "label": {
+            "default": "",
+            "description": "Text displayed to users.",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "description": "Explanation of the status.",
+            "type": "string"
+          },
+          "style": {
+            "type": "object",
+            "properties": {
+              "backgroundColor": {
+                "default": "rgba(0, 0, 0, .38)",
+                "description": "Background color of media with this status.",
+                "type": "string",
+                "format": "color"
+              },
+              "borderColor": {
+                "default": "rgba(0, 0, 0, .38)",
+                "description": "Border color of media with this status.",
+                "type": "string",
+                "format": "color"
+              },
+              "color": {
+                "default": "rgba(0, 0, 0, .54)",
+                "description": "Font color of media with this status.",
+                "type": "string",
+                "format": "color"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
