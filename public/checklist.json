@@ -13,7 +13,7 @@
       },
       "type": {
         "default": "",
-        "description": ".",
+        "description": "Choose the type of answer.",
         "type": "string",
         "enum": ["free_text", "yes_no", "single_choice", "multiple_choice", "geolocation", "datetime"]
       },
@@ -21,6 +21,23 @@
         "default": "",
         "description": "Explanation of the task.",
         "type": "string"
+      },
+      "options": {
+        "default": [],
+        "description": "Single and multiple choice options.",
+        "type": "array",
+        "items": {
+          "title": "Option",
+          "headerTemplate": "{{i1}} - {{self.label}}",
+          "type": "object",
+          "properties": {
+            "label": {
+              "default": "",
+              "description": "",
+              "type": "string"
+            }
+          }
+        }
       },
       "projects": {
         "default": [],

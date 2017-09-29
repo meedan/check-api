@@ -134,6 +134,7 @@ class Team < ActiveRecord::Base
     checklist.each do |c|
       c.with_indifferent_access
       c[:projects] = c[:projects].values.map(&:to_i) if c[:projects] && c[:projects].respond_to?(:values)
+      c[:options] = c[:options].values if c[:options] && c[:options].respond_to?(:values)
       checklist.delete(c) if c[:label].blank?
     end
     self.send(:set_checklist, checklist)
