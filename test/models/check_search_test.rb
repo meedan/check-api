@@ -495,6 +495,9 @@ class CheckSearchTest < ActiveSupport::TestCase
     p = create_project
     cs = CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => p.id }, 'projects' => [p.id] }.to_json)
     assert_equal p.pusher_channel, cs.pusher_channel
+    t = create_team
+    cs = CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => t.slug } }.to_json)
+    assert_equal t.pusher_channel, cs.pusher_channel
     cs = CheckSearch.new('{}')
     assert_nil cs.pusher_channel
   end

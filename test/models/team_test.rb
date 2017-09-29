@@ -149,6 +149,15 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should be equivalent to set file or logo" do
+    t = create_team logo: nil
+    assert_match /team\.png$/, t.logo.url
+    File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+      t.file = f
+    end
+    assert_match /rails\.png$/, t.logo.url
+  end
+
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Team.count' do
       assert_raises ActiveRecord::RecordInvalid do
@@ -727,11 +736,74 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should get search id" do
     t = create_team
-    assert_kind_of CheckSearch, t.check_search_team 
+    assert_kind_of CheckSearch, t.check_search_team
   end
 
   test "should get GraphQL id" do
     t = create_team
     assert_kind_of String, t.graphql_id
+  end
+
+  test "should have limits" do
+    t = Team.new
+    t.name = random_string
+    t.slug = "slug-#{random_number}"
+    t.save!
+    assert_equal Team.plans[:free], t.reload.limits
+  end
+
+  test "should not change limits if not super admin" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert_raises ActiveRecord::RecordInvalid do
+        t.limits = { changed: true }
+        t.save!
+      end
+    end
+  end
+
+  test "should change limits if super admin" do
+    t = create_team
+    u = create_user is_admin: true
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        t.limits = { changed: true }
+        t.save!
+      end
+    end
+  end
+
+  test "should not set custom statuses if limited" do
+    t = create_team
+    t.set_limits_custom_statuses(false)
+    t.save!
+    t = Team.find(t.id)
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
+  test "should not save checklist if limited" do
+    t = create_team
+    t.set_limits_custom_tasks_list(false)
+    t.save!
+    t = Team.find(t.id)
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_checklist(value)
+      t.save!
+    end
   end
 end

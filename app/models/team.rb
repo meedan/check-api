@@ -39,7 +39,7 @@ class Team < ActiveRecord::Base
 
   RESERVED_SLUGS = ['check']
 
-  include CheckSettings
+  check_settings
 
   def logo_callback(value, _mapping_ids = nil)
     image_callback(value)
@@ -70,6 +70,13 @@ class Team < ActiveRecord::Base
 
   def recent_projects
     self.projects.order('id DESC')
+  end
+
+  # FIXME Source should be using concern HasImage
+  # which automatically adds a member attribute `file`
+  # which is used by GraphqlCrudOperations
+  def file=(file)
+    self.logo = file
   end
 
   def contact=(info)

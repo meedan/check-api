@@ -27,7 +27,7 @@ class GraphqlCrudOperations
     klass = type.camelize
 
     obj = klass.constantize.new
-    obj.file = ctx[:file] if (type == 'project_media' || type == 'comment' || type == 'source') && !ctx[:file].blank?
+    obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
@@ -37,9 +37,9 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.update(type, inputs, ctx, parents = [])
+  def self.update(_type, inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
-    obj.file = ctx[:file] if type == 'source' && !ctx[:file].blank?
+    obj.file = ctx[:file] if !ctx[:file].blank?
     obj = obj.load if obj.is_a?(Annotation)
 
     attrs = inputs.keys.inject({}) do |memo, key|
@@ -92,7 +92,7 @@ class GraphqlCrudOperations
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
-      
+
       return_field(:affectedIds, types[types.ID]) if type.to_s == 'team'
       return_field(:affectedId, types.ID) if type.to_s == 'project_media'
 

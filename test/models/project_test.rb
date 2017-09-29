@@ -244,7 +244,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should have settings" do
     p = create_project
-    assert_nil p.settings
+    assert_equal({}, p.settings)
     assert_nil p.setting(:foo)
     p.set_foo = 'bar'
     p.save!
@@ -631,6 +631,35 @@ class ProjectTest < ActiveSupport::TestCase
       assert_raises RuntimeError do
         p.destroy_later
       end
+    end
+  end
+
+  test "should not notify Slack when project is created if team is limited" do
+    t = create_team slug: 'test'
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    t.set_slack_channel = '#test'
+    t.set_limits_slack_integration = false
+    t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      p = create_project team: t
+      assert !p.sent_to_slack
+    end
+  end
+
+  test "should not create project if limit was reached" do
+    t = create_team
+    create_project team: t
+    t.set_limits_max_number_of_projects = 5
+    t.save!
+    t = Team.find(t.id)
+    4.times do
+      create_project team: t
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project team: t
     end
   end
 end

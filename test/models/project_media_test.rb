@@ -1197,4 +1197,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.as_oembed
     end
   end
+
+  test "should not create media through browser extension if team is not allowed to" do
+    t = create_team
+    t.set_limits_browser_extension = false
+    t.save!
+    p = create_project team: t
+    assert_raises ActiveRecord::RecordInvalid do
+      RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ headers: { 'X-Check-Client' => 'browser-extension' } }))
+      create_project_media project: p
+      RequestStore.unstub(:[])
+    end
+  end
 end
