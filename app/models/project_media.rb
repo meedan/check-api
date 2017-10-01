@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses
+  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -226,7 +226,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def set_project_source
-    self.create_project_source if self.media.type == 'Link'
+    self.create_project_source
   end
 
   def move_media_sources
@@ -241,8 +241,9 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_project_source(pid)
-    return if self.media.type != 'Link' || self.media.account.blank?
-    sources = self.media.account.sources.map(&:id)
+    sources = []
+    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
+    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
     ProjectSource.where(project_id: pid, source_id: sources).first
   end
 
