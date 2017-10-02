@@ -474,6 +474,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c = create_claim_media
     pm = create_project_media project: p, media: c
     assert_nil pm.project_source
+    pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
+    assert_not_nil pm.project_source
   end
 
   test "should move related sources after move media to other projects" do
@@ -1155,6 +1157,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
       # should not duplicate ProjectSource for same account
       assert_no_difference 'ProjectSource.count' do
         create_project_media project: p, url: media2_url
+      end
+    end
+  end
+
+  test "should set quote attributions" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert_difference 'ClaimSource.count', 2 do
+        pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
+        s = pm.project_source.source
+        assert_not_nil pm.project_source
+        assert_equal s.name, 'source name'
+        pm2 = create_project_media project: p, quote: 'Claim 2', quote_attributions: {name: 'source name'}.to_json
+        assert_equal pm2.project_source.source, s
       end
     end
   end

@@ -133,7 +133,7 @@ class GraphqlControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_graphql_create('project_media', { project_id: p.id, url: url })
     # create claim report
-    assert_graphql_create('project_media', { project_id: p.id, quote: 'media quote' })
+    assert_graphql_create('project_media', { project_id: p.id, quote: 'media quote', quote_attributions: {name: 'source name'}.to_json })
   end
 
   test "should create project media" do
@@ -428,7 +428,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from team" do
-    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name', 'contacts' =>  'location', 'projects' => 'title' })
+    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name', 'contacts' =>  'location', 'projects' => 'title', 'sources' => 'name' })
   end
 
   test "should read collection from account" do
@@ -1172,5 +1172,31 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query GetById { source(id: \"#{s.id}\") { account_sources { edges { node { source { id }, account { id } } } } } }"
     post :create, query: query
     assert_response :success
+  end
+
+  test "should get project information fast" do
+    n = rand(20) + 1  # Number of media items to be created
+    m = rand(20) + 1  # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    n.times do
+      pm = create_project_media project: p, user: create_user
+      s = create_source
+      create_project_source project: p, source: s
+      create_account_source source: s
+      m.times { create_comment annotated: pm, annotator: create_user }
+    end
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+
+    assert_queries (18 * n + 12) do
+      post :create, query: query, team: 'team'
+    end
+
+    assert_response :success
+    assert_equal n, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 end
