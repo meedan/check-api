@@ -131,11 +131,11 @@ class Team < ActiveRecord::Base
 
   def checklist=(checklist)
     checklist = checklist.values if checklist.respond_to?(:values)
-    checklist.each do |c|
-      c.with_indifferent_access
+    checklist.each_with_index do |c, index|
+      c = c.with_indifferent_access
       c[:projects] = c[:projects].values.map(&:to_i) if c[:projects] && c[:projects].respond_to?(:values)
       c[:options] = c[:options].values.to_json if c[:options] && c[:options].respond_to?(:values)
-      checklist.delete(c) if c[:label].blank?
+      checklist.delete_at(index) if c[:label].blank?
     end
     self.send(:set_checklist, checklist)
   end
@@ -247,7 +247,7 @@ class Team < ActiveRecord::Base
         errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status)) if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
         errors.add(:base, I18n.t(:invalid_id_or_label_for_custom_verification_status)) if status[:id].blank? || status[:label].blank?
       end
-      errors.add(:base, I18n.t(:invalid_default_status_for_custom_verification_status)) if !statuses[:statuses].map { |s| s[:id] }.include? statuses[:default]
+      errors.add(:base, I18n.t(:invalid_default_status_for_custom_verification_status)) if !statuses[:default].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[:default])
     end
   end
 

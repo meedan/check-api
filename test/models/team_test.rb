@@ -885,4 +885,19 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should return the json schema url" do
+    t = create_team
+    fields = {
+      'media_verification_statuses': 'statuses',
+      'source_verification_statuses': 'statuses',
+      'checklist': 'checklist',
+      'limits': 'limits'
+    }
+
+    fields.each do |field, filename|
+      assert_equal URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json"), t.json_schema_url(field.to_s)
+    end
+  end
+
 end
