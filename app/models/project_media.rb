@@ -17,7 +17,7 @@ class ProjectMedia < ActiveRecord::Base
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
 
-  notifies_pusher on: :save,
+  notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
                   targets: proc { |pm| [pm.project, pm.media, pm.project.team] },
                   if: proc { |pm| !pm.skip_notifications },
