@@ -21,7 +21,7 @@ module ProjectMediaCreators
       t.save!
       created << t
       # set auto-response
-      self.set_jsonld_response(t.label, task['mapping']) if task.has_key?('mapping')
+      self.set_jsonld_response(task) if task.has_key?('mapping')
     end
     self.respond_to_auto_tasks(created)
   end
@@ -107,15 +107,30 @@ module ProjectMediaCreators
     m
   end
 
-  def set_jsonld_response(label, mapping)
+  def set_jsonld_response(task)
+    mapping = task['mapping']
     jsonld = self.embed['raw']['json+ld'] if self.embed.has_key?('raw')
     unless jsonld.nil?
-      require 'jsonpath'
-      jsonld = JSON.parse(jsonld)
-      response = JsonPath.new("$.mentions[?(@['@type'] == 'Place')]").on(jsonld)
       self.set_tasks_responses ||= {}
-      self.set_tasks_responses[Task.slug(label)] = 'should set response value'
+      self.set_tasks_responses[Task.slug(task['label'])] = self.set_response_value(jsonld, task)
     end
+  end
+
+  def set_response_value(jsonld, task)
+    require 'jsonpath'
+    mapping = task['mapping']
+    self.mapping_suggestions(task, mapping['type']).each do |name|
+      return self.send(name, jsonld, mapping) if self.respond_to?(name)
+    end
+    mapping['prefix'] + JsonPath.new(mapping['match']).first(jsonld)
+  end
+
+  def mapping_suggestions(task, mapping_type)
+    [
+      "mapping_#{Task.slug(task['label'])}",
+      "mapping_#{task['type']}_#{mapping_type}",
+      "mapping_#{task['type']}",
+    ]
   end
 
   def respond_to_auto_tasks(tasks)
