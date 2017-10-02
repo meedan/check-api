@@ -418,7 +418,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should set verification statuses to settings" do
     t = create_team
-    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }] }
+    value = { label: 'Test', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access
     t.media_verification_statuses = value
     t.source_verification_statuses = value
     t.save

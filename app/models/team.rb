@@ -104,17 +104,11 @@ class Team < ActiveRecord::Base
   end
 
   def media_verification_statuses=(statuses)
-    statuses = remove_empty_statuses(statuses)
-    unless statuses.keys.map(&:to_sym) == [:label]
-      self.send(:set_media_verification_statuses, statuses)
-    end
+    set_verification_statuses('media', statuses)
   end
 
   def source_verification_statuses=(statuses)
-    statuses = remove_empty_statuses(statuses)
-    unless statuses.keys.map(&:to_sym) == [:label]
-      self.send(:set_source_verification_statuses, statuses)
-    end
+    set_verification_statuses('source', statuses)
   end
 
   def slack_notifications_enabled=(enabled)
@@ -130,11 +124,13 @@ class Team < ActiveRecord::Base
   end
 
   def checklist=(checklist)
-    checklist = checklist.values if checklist.respond_to?(:values)
+    checklist = get_values_from_entry(checklist)
     checklist.each_with_index do |c, index|
       c = c.with_indifferent_access
-      c[:projects] = c[:projects].values.map(&:to_i) if c[:projects] && c[:projects].respond_to?(:values)
-      c[:options] = c[:options].values.to_json if c[:options] && c[:options].respond_to?(:values)
+      options = get_values_from_entry(c[:options])
+      c[:options] = options.to_json if options && !options.kind_of?(String)
+      projects = get_values_from_entry(c[:projects])
+      c[:projects] = projects.map(&:to_i) if projects
       c[:label].blank? ?  checklist.delete_at(index) : checklist[index] = c
     end
     self.send(:set_checklist, checklist)
@@ -240,26 +236,20 @@ class Team < ActiveRecord::Base
   end
   protected
 
-  def custom_statuses_format(type)
-    statuses = self.send("get_#{type}_verification_statuses")
-    if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status))
-    else
-      statuses[:statuses].each do |status|
-        errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status)) if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
-        errors.add(:base, I18n.t(:invalid_id_or_label_for_custom_verification_status)) if status[:id].blank? || status[:label].blank?
-      end
-      errors.add(:base, I18n.t(:invalid_default_status_for_custom_verification_status)) if !statuses[:default].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[:default])
+  def set_verification_statuses(type, statuses)
+    statuses = statuses.with_indifferent_access
+    if statuses[:statuses]
+      statuses[:statuses] = get_values_from_entry(statuses[:statuses])
+      statuses[:statuses].delete_if { |s| s[:id].blank? && s[:label].blank? }
+    end
+    statuses.delete_if { |_k, v| v.blank? }
+    unless statuses.keys.map(&:to_sym) == [:label]
+      self.send("set_#{type}_verification_statuses", statuses)
     end
   end
 
-  def remove_empty_statuses(statuses)
-    statuses.with_indifferent_access
-    if statuses[:statuses]
-      statuses[:statuses] = statuses[:statuses].values if statuses[:statuses].respond_to?(:values)
-      statuses[:statuses].delete_if { |s| s[:id].blank? && s[:label].blank? }
-    end
-    statuses.delete_if { |k, v| v.blank? }
+  def get_values_from_entry(entry)
+    (entry && entry.respond_to?(:values)) ? entry.values : entry
   end
 
   private
