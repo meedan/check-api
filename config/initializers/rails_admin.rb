@@ -389,11 +389,6 @@ RailsAdmin.config do |config|
         help "A list of custom verification statuses for reports that match your team's journalistic guidelines."
         visible_only_for_allowed_teams 'custom_statuses'
       end
-      field :source_verification_statuses, :yaml do
-        partial "json_editor"
-        help "A list of custom verification statuses for sources that match your team's journalistic guidelines."
-        visible_only_for_allowed_teams 'custom_statuses'
-      end
       field :keep_enabled, :boolean do
         label 'Enable Keep archiving'
         formatted_value{ bindings[:object].get_keep_enabled }
