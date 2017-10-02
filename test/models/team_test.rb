@@ -536,6 +536,19 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should return checklist options as hash instead of json when call checklist" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+      options: "[{\"label\":\"option 1\"},{\"label\":\"option 2\"}]"
+    }]
+    t.checklist = value
+    t.save!
+    assert_equal "[{\"label\":\"option 1\"},{\"label\":\"option 2\"}]", t.get_checklist.first[:options]
+    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
+  end
 
   test "should save valid slack_channel" do
     t = create_team
