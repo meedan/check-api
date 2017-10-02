@@ -550,6 +550,16 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
   end
 
+  test "should support the json editor format on checklist" do
+    t = create_team
+    value =  [{ label: 'A task', type: 'single_choice', description: '', projects: [], options: {"0"=>{"label"=>"option 1"}, "1"=>{"label"=>"option 2"}}}]
+    assert_nothing_raised do
+      t.checklist = value
+      t.save!
+    end
+    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
+  end
+
   test "should save valid slack_channel" do
     t = create_team
     value =  "#slack_channel"

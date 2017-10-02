@@ -135,14 +135,16 @@ class Team < ActiveRecord::Base
       c = c.with_indifferent_access
       c[:projects] = c[:projects].values.map(&:to_i) if c[:projects] && c[:projects].respond_to?(:values)
       c[:options] = c[:options].values.to_json if c[:options] && c[:options].respond_to?(:values)
-      checklist.delete_at(index) if c[:label].blank?
+      c[:label].blank? ?  checklist.delete_at(index) : checklist[index] = c
     end
     self.send(:set_checklist, checklist)
   end
 
   def checklist
     tasks = self.get_checklist
-    tasks.map { |t| t[:options] = JSON.parse(t[:options]) if !tasks.empty? && t[:options] }
+    unless tasks.blank?
+      tasks.map { |t| t[:options] = JSON.parse(t[:options]) if t[:options] }
+    end
     tasks
   end
 
