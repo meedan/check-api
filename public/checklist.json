@@ -15,7 +15,7 @@
         "default": "",
         "description": "Choose the type of answer.",
         "type": "string",
-        "enum": ["free_text", "yes_no", "single_choice", "multiple_choice", "geolocation", "datetime"]
+        "enum": ["free_text", "single_choice", "multiple_choice", "geolocation", "datetime"]
       },
       "description": {
         "default": "",
