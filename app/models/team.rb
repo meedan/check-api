@@ -104,11 +104,11 @@ class Team < ActiveRecord::Base
   end
 
   def media_verification_statuses=(statuses)
-    self.send(:set_media_verification_statuses, statuses)
+    set_verification_statuses('media', statuses)
   end
 
   def source_verification_statuses=(statuses)
-    self.send(:set_source_verification_statuses, statuses)
+    set_verification_statuses('source', statuses)
   end
 
   def slack_notifications_enabled=(enabled)
@@ -124,7 +124,24 @@ class Team < ActiveRecord::Base
   end
 
   def checklist=(checklist)
+    checklist = get_values_from_entry(checklist)
+    checklist.each_with_index do |c, index|
+      c = c.with_indifferent_access
+      options = get_values_from_entry(c[:options])
+      c[:options] = options.to_json if options && !options.kind_of?(String)
+      projects = get_values_from_entry(c[:projects])
+      c[:projects] = projects.map(&:to_i) if projects
+      c[:label].blank? ?  checklist.delete_at(index) : checklist[index] = c
+    end
     self.send(:set_checklist, checklist)
+  end
+
+  def checklist
+    tasks = self.get_checklist
+    unless tasks.blank?
+      tasks.map { |t| t[:options] = JSON.parse(t[:options]) if t[:options] }
+    end
+    tasks
   end
 
   def add_auto_task=(task)
@@ -213,17 +230,26 @@ class Team < ActiveRecord::Base
     CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end
 
+  def json_schema_url(field)
+    filename = ['media_verification_statuses', 'source_verification_statuses'].include?(field) ? 'statuses' : field
+    URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json")
+  end
   protected
 
-  def custom_statuses_format(type)
-    statuses = self.send("get_#{type}_verification_statuses")
-    if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status))
-    else
-      statuses[:statuses].each do |status|
-        errors.add(:base, 'Custom verification statuses is invalid, it should have the format as exemplified below the field') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
-      end
+  def set_verification_statuses(type, statuses)
+    statuses = statuses.with_indifferent_access
+    if statuses[:statuses]
+      statuses[:statuses] = get_values_from_entry(statuses[:statuses])
+      statuses[:statuses].delete_if { |s| s[:id].blank? && s[:label].blank? }
     end
+    statuses.delete_if { |_k, v| v.blank? }
+    unless statuses.keys.map(&:to_sym) == [:label]
+      self.send("set_#{type}_verification_statuses", statuses)
+    end
+  end
+
+  def get_values_from_entry(entry)
+    (entry && entry.respond_to?(:values)) ? entry.values : entry
   end
 
   private

@@ -47,4 +47,21 @@ module ValidationsHelper
   def parent_is_not_archived(parent, message)
     errors.add(:base, message) if parent && parent.archived
   end
+
+  def custom_statuses_format(type)
+    statuses = self.send("get_#{type}_verification_statuses")
+    if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
+      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status))
+    else
+      validate_statuses(statuses)
+    end
+  end
+
+  def validate_statuses(statuses)
+    statuses[:statuses].each do |status|
+      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status)) if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
+      errors.add(:base, I18n.t(:invalid_id_or_label_for_custom_verification_status)) if status[:id].blank? || status[:label].blank?
+    end
+    errors.add(:base, I18n.t(:invalid_default_status_for_custom_verification_status)) if !statuses[:default].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[:default])
+  end
 end

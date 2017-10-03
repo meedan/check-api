@@ -385,15 +385,8 @@ RailsAdmin.config do |config|
         visible_only_for_admin
       end
       field :media_verification_statuses, :yaml do
-        label 'Media verification statuses'
-        render_settings('text')
+        partial "json_editor"
         help "A list of custom verification statuses for reports that match your team's journalistic guidelines."
-        visible_only_for_allowed_teams 'custom_statuses'
-      end
-      field :source_verification_statuses, :yaml do
-        label 'Source verification statuses'
-        help "A list of custom verification statuses for sources that match your team's journalistic guidelines."
-        render_settings('text')
         visible_only_for_allowed_teams 'custom_statuses'
       end
       field :keep_enabled, :boolean do
@@ -430,9 +423,8 @@ RailsAdmin.config do |config|
         visible_only_for_allowed_teams 'slack_integration'
       end
       field :checklist, :yaml do
-        label 'Checklist'
+        partial "json_editor"
         help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
-        render_settings('text')
         visible_only_for_allowed_teams 'custom_tasks_list'
       end
       field :suggested_tags do

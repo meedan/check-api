@@ -343,13 +343,62 @@ class TeamTest < ActiveSupport::TestCase
       default: '1',
       statuses: [
         { id: '1', label: 'Custom Status 1' },
-        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' }
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' },
+        { id: '3', label: '', description: 'The meaning of that status' },
+        { id: '', label: 'Custom Status 4', description: 'The meaning of that status' }
       ]
     }
     assert_raises ActiveRecord::RecordInvalid do
       t.set_media_verification_statuses(value)
       t.save!
     end
+  end
+
+  test "should not save custom verification status if the default doesn't match any status id" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '10',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
+  test "should remove empty statuses before save custom verification statuses" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Valid status', description: 'The meaning of this status', style: 'red' },
+        { id: '', label: '', description: 'Status with empty id and label', style: 'blue' }
+      ]
+    }
+    assert_nothing_raised do
+      t.media_verification_statuses = value
+      t.save!
+    end
+    assert_equal 1, t.get_media_verification_statuses[:statuses].size
+  end
+
+  test "should not save custom verification statuses if default or statuses is empty" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '',
+      statuses: []
+    }
+    assert_nothing_raised do
+      t.media_verification_statuses = value
+      t.save!
+    end
+    assert t.get_media_verification_statuses.nil?
   end
 
   test "should not save custom verification status if it is not a hash" do
@@ -369,7 +418,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should set verification statuses to settings" do
     t = create_team
-    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }] }
+    value = { label: 'Test', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access
     t.media_verification_statuses = value
     t.source_verification_statuses = value
     t.save
@@ -469,6 +518,46 @@ class TeamTest < ActiveSupport::TestCase
         t.save!
       end
     end
+  end
+
+  test "should remove empty task without label before save checklist" do
+    t = create_team
+    variations = [
+      [{ label: '' }],
+      [{ description: 'A task' }],
+      [{ type: 'free_text', description: '', projects: []}]
+    ]
+    variations.each do |value|
+      assert_nothing_raised do
+        t.checklist = value
+        t.save!
+      end
+      assert t.get_checklist.empty?
+    end
+  end
+
+  test "should return checklist options as hash instead of json when call checklist" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+      options: "[{\"label\":\"option 1\"},{\"label\":\"option 2\"}]"
+    }]
+    t.checklist = value
+    t.save!
+    assert_equal "[{\"label\":\"option 1\"},{\"label\":\"option 2\"}]", t.get_checklist.first[:options]
+    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
+  end
+
+  test "should support the json editor format on checklist" do
+    t = create_team
+    value =  [{ label: 'A task', type: 'single_choice', description: '', projects: [], options: {"0"=>{"label"=>"option 1"}, "1"=>{"label"=>"option 2"}}}]
+    assert_nothing_raised do
+      t.checklist = value
+      t.save!
+    end
+    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
   end
 
   test "should save valid slack_channel" do
@@ -806,4 +895,19 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should return the json schema url" do
+    t = create_team
+    fields = {
+      'media_verification_statuses': 'statuses',
+      'source_verification_statuses': 'statuses',
+      'checklist': 'checklist',
+      'limits': 'limits'
+    }
+
+    fields.each do |field, filename|
+      assert_equal URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json"), t.json_schema_url(field.to_s)
+    end
+  end
+
 end
