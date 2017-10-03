@@ -20,10 +20,13 @@ ProjectMediaCreators.class_eval do
   def mapping_datetime(jsonld, mapping)
     date = jsonld[mapping['match']]
     unless date.blank?
-      date = Time.zone.parse(date)
-      date = date.strftime("%Y-%m-%d %I:%M %z %Z")
+      begin
+        date = Time.zone.parse(date)
+        date = date.strftime("%Y-%m-%d %I:%M %z %Z")
+      rescue
+      end
     end
-    date
+    date.blank? ? mapping['prefix'] + date : ''
   end
 
   private
