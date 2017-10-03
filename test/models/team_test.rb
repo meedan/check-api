@@ -416,6 +416,26 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set background color and border color equal to color on verification statuses" do
+    t = create_team
+    value = {
+      label: 'Test',
+      statuses: [{
+        id: 'first',
+        label: 'Analyzing',
+        description: 'Testing',
+        style: {
+          color: "blue"
+        }}]
+    }.with_indifferent_access
+    t.media_verification_statuses = value
+    t.save
+    statuses = t.get_media_verification_statuses[:statuses].first
+    %w(color backgroundColor borderColor).each do |k|
+      assert_equal 'blue', statuses['style'][k]
+    end
+  end
+
   test "should set verification statuses to settings" do
     t = create_team
     value = { label: 'Test', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access
