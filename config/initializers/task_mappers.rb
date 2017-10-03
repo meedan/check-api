@@ -17,6 +17,15 @@ ProjectMediaCreators.class_eval do
     }.to_json
   end
 
+  def mapping_datetime(jsonld, mapping)
+    date = jsonld[mapping['match']]
+    unless date.blank?
+      date = Time.zone.parse(date)
+      date = date.strftime("%Y-%m-%d %I:%M %z %Z")
+    end
+    date
+  end
+
   private
 
   def mapping_value(jsonld, mapping)
