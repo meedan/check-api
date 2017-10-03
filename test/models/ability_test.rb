@@ -245,7 +245,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Team)
-      assert ability.cannot?(:update, t)
+      assert ability.can?(:update, t)
       assert ability.cannot?(:destroy, t)
       assert ability.cannot?(:update, t2)
       assert ability.cannot?(:destroy, t2)
@@ -1792,13 +1792,13 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "editor should not send to trash, edit or destroy team" do
+  test "editor should not send to trash or destroy team" do
     t = create_team
     u = create_user
     tu = create_team_user team: t, user: u, role: 'editor'
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.cannot?(:update, t)
+      assert ability.can?(:update, t)
       assert ability.cannot?(:destroy, t)
     end
   end

@@ -54,7 +54,7 @@ class Ability
     can :dashboard
 
     can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
-    can [:update, :destroy], Team, :id => @context_team.id
+    can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser, team_id: @context_team.id
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
@@ -99,6 +99,7 @@ class Ability
 
   def editor_perms
     can :update, User, :team_users => { :team_id => @context_team.id, role: ['editor'] }
+    can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor']
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
