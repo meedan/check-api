@@ -6,6 +6,7 @@ module ProjectMediaCreators
   private
 
   def create_auto_tasks
+    self.set_tasks_responses ||= {}
     tasks = self.project.nil? ? [] : self.project.auto_tasks
     created = []
     tasks.each do |task|
@@ -110,18 +111,19 @@ module ProjectMediaCreators
   def set_jsonld_response(task)
     jsonld = self.embed['raw']['json+ld'] if self.embed.has_key?('raw')
     unless jsonld.nil?
-      self.set_tasks_responses ||= {}
-      self.set_tasks_responses[Task.slug(task['label'])] = self.set_response_value(jsonld, task)
+      value = self.get_response_value(jsonld, task)
+      self.set_tasks_responses[Task.slug(task['label'])] = value unless value.blank?
     end
   end
 
-  def set_response_value(jsonld, task)
+  def get_response_value(jsonld, task)
     require 'jsonpath'
     mapping = task['mapping']
     self.mapping_suggestions(task, mapping['type']).each do |name|
       return self.send(name, jsonld, mapping) if self.respond_to?(name)
     end
-    mapping['prefix'] + JsonPath.new(mapping['match']).first(jsonld)
+    data = mapping_value(jsonld, mapping)
+    (!data.blank? && data.kind_of?(String)) ? mapping['prefix'] + data : ''
   end
 
   def mapping_suggestions(task, mapping_type)

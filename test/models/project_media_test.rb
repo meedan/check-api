@@ -1122,6 +1122,88 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Yesterday', t.first_response
   end
 
+  test "should auto-response for Krzana report" do
+    at = create_annotation_type annotation_type: 'task_response_geolocation', label: 'Task Response Geolocation'
+    geotype = create_field_type field_type: 'geojson', label: 'GeoJSON'
+    create_field_instance annotation_type_object: at, name: 'response_geolocation', field_type_object: geotype
+
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
+    fi2 = create_field_instance annotation_type_object: at, name: 'note_free_text', label: 'Note', field_type_object: ft1
+    fi3 = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft2
+
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    t.checklist = [ { "label" => "who?", "type" => "free_text", "description" => "",
+      "mapping" => { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "},
+      "projects" => [p.id] },
+      { "label" => "where?", "type" => "geolocation", "description" => "",
+      "mapping" => { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""},
+      "projects" => [p2.id] }
+    ]
+    t.save!
+
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    # test empty json+ld
+    url = 'http://test1.com'
+    raw = {"json+ld": {}}
+    response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pm = create_project_media project: p, url: url
+    t = Task.where(annotation_type: 'task', annotated_id: pm.id).last
+    assert_nil t.first_response
+
+    # test with non exist value
+    url1 = 'http://test11.com'
+    raw = { "json+ld": { "mentions": [ { "@type": "Person" } ] } }
+    response = {'type':'media','data': {'url': url1, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
+    pm1 = create_project_media project: p, url: url1
+    t = Task.where(annotation_type: 'task', annotated_id: pm1.id).last
+    assert_nil t.first_response
+
+    # test with empty value
+    url12 = 'http://test12.com'
+    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "" } ] } }
+    response = {'type':'media','data': {'url': url12, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url12 } }).to_return(body: response)
+    pm12 = create_project_media project: p, url: url12
+    t = Task.where(annotation_type: 'task', annotated_id: pm12.id).last
+    assert_nil t.first_response
+
+    # test with single selection
+    url2 = 'http://test2.com'
+    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" } ] } }
+    response = {'type':'media','data': {'url': url2, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
+    pm2 = create_project_media project: p, url: url2
+    t = Task.where(annotation_type: 'task', annotated_id: pm2.id).last
+    assert_equal "Suggested by Krzana: first_name", t.first_response
+
+    # test multiple selection (should get first one)
+    url3 = 'http://test3.com'
+    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" }, { "@type": "Person", "name": "last_name" } ] } }
+    response = {'type':'media','data': {'url': url3, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url3 } }).to_return(body: response)
+    pm3 = create_project_media project: p, url: url3
+    t = Task.where(annotation_type: 'task', annotated_id: pm3.id).last
+    assert_equal "Suggested by Krzana: first_name", t.first_response
+
+    # test geolocation mapping
+    url4 = 'http://test4.com'
+    raw = { "json+ld": {
+      "mentions": [ { "name": "Delimara Powerplant", "@type": "Place", "geo": { "latitude": 35.83020073454, "longitude": 14.55602645874 } } ]
+    } }
+    response = {'type':'media','data': {'url': url4, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url4 } }).to_return(body: response)
+    pm4 = create_project_media project: p2, url: url4
+    t = Task.where(annotation_type: 'task', annotated_id: pm4.id).last
+    # assert_not_nil t.first_response
+  end
+
   test "should expose conflict error from Pender" do
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
