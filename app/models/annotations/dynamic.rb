@@ -125,6 +125,7 @@ class Dynamic < ActiveRecord::Base
       @fields = []
       data = JSON.parse(self.set_fields)
       data.each do |field_name, value|
+        next unless DynamicAnnotation::FieldInstance.where(name: field_name).exists?
         f = DynamicAnnotation::Field.new
         f.skip_check_ability = true
         f.field_name = field_name

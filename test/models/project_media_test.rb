@@ -244,6 +244,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert pm.sent_to_pusher
   end
 
+  test "should notify Pusher when project media is destroyed" do
+    pm = create_project_media
+    pm.sent_to_pusher = false
+    pm.destroy!
+    assert pm.sent_to_pusher
+  end
+
   test "should notify Pusher in background" do
     Rails.stubs(:env).returns(:production)
     t = create_team

@@ -327,4 +327,13 @@ class DynamicTest < ActiveSupport::TestCase
 
     assert_equal 1, DynamicSearch.search(search).results.size
   end
+
+  test "should ignore fields that do not exist" do
+    at = create_annotation_type annotation_type: 'test'
+    ft = create_field_type
+    fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
+    a = create_dynamic_annotation annotation_type: 'test', set_fields: { test: 'Test', test2: 'Test 2' }.to_json
+    assert_kind_of DynamicAnnotation::Field, a.get_field('test')
+    assert_nil a.get_field('test2')
+  end
 end
