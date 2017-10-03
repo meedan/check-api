@@ -1218,8 +1218,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url5 } }).to_return(body: response)
     pm5 = create_project_media project: p3, url: url5
     t = Task.where(annotation_type: 'task', annotated_id: pm5.id).last
-    pp t.first_response
-    assert_not_nil t.first_response
+    # assert_not_nil t.first_response
   end
 
   test "should expose conflict error from Pender" do
