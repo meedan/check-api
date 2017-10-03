@@ -24,6 +24,7 @@ ProjectMediaCreators.class_eval do
         date = Time.zone.parse(date)
         date = date.strftime("%Y-%m-%d %I:%M %z %Z")
       rescue
+        date = ''
       end
     end
     date.blank? ? mapping['prefix'] + date : ''
