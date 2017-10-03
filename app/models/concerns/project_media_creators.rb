@@ -108,7 +108,6 @@ module ProjectMediaCreators
   end
 
   def set_jsonld_response(task)
-    mapping = task['mapping']
     jsonld = self.embed['raw']['json+ld'] if self.embed.has_key?('raw')
     unless jsonld.nil?
       self.set_tasks_responses ||= {}
