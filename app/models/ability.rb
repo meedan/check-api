@@ -53,7 +53,6 @@ class Ability
     can :access, :rails_admin
     can :dashboard
 
-    can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser, team_id: @context_team.id
@@ -98,7 +97,6 @@ class Ability
   end
 
   def editor_perms
-    can :update, User, :team_users => { :team_id => @context_team.id, role: ['editor'] }
     can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor']
@@ -119,7 +117,6 @@ class Ability
   end
 
   def journalist_perms
-    can :update, User, :team_users => { :team_id => @context_team.id, role: ['journalist', 'contributor'] }
     can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
