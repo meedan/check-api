@@ -37,8 +37,6 @@ class Team < ActiveRecord::Base
 
   has_annotations
 
-  RESERVED_SLUGS = ['check']
-
   check_settings
 
   def logo_callback(value, _mapping_ids = nil)
@@ -105,6 +103,14 @@ class Team < ActiveRecord::Base
 
   def media_verification_statuses=(statuses)
     set_verification_statuses('media', statuses)
+  end
+
+  def media_verification_statuses
+    statuses = self.get_media_verification_statuses
+    unless statuses.blank?
+      statuses['statuses'].each { |s| s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style'] }
+    end
+    statuses
   end
 
   def source_verification_statuses=(statuses)
@@ -295,18 +301,6 @@ class Team < ActiveRecord::Base
 
   def normalize_slug
     self.slug = self.slug.downcase unless self.slug.blank?
-  end
-
-  def custom_media_statuses_format
-    self.custom_statuses_format(:media)
-  end
-
-  def custom_source_statuses_format
-    self.custom_statuses_format(:source)
-  end
-
-  def slug_is_not_reserved
-    errors.add(:slug, I18n.t(:slug_is_reserved)) if RESERVED_SLUGS.include?(self.slug)
   end
 
   def archive_or_restore_projects_if_needed

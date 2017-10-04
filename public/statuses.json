@@ -37,7 +37,7 @@
             "properties": {
               "color": {
                 "default": "rgba(0, 0, 0, .54)",
-                "description": "Font color of media with this status.",
+                "description": "Status color.",
                 "type": "string",
                 "format": "color"
               }
