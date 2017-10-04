@@ -101,7 +101,7 @@ class Ability
     can :update, User, :team_users => { :team_id => @context_team.id, role: ['editor'] }
     can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
-    can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor']
+    can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor'], role_was: ['editor', 'journalist', 'contributor']
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
