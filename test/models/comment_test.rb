@@ -126,7 +126,7 @@ class CommentTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
-      c = create_comment(text: 'foo', annotated: pm)
+      c = create_comment(text: 'foo', annotated: pm, annotator: u)
       c = Comment.last
       c.text = 'bar'
       c.save!
@@ -209,7 +209,7 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
-  test "journalist should not destroy own notes" do
+  test "journalist should destroy own notes" do
     u = create_user
     t = create_team
     p = create_project user: create_user, team: t
@@ -217,7 +217,7 @@ class CommentTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     c = create_comment annotated: pm, annotator: u
     with_current_user_and_team(u, t) do
-      assert_raise RuntimeError do
+      assert_nothing_raised do
         c.destroy
       end
     end
@@ -267,6 +267,12 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should notify Pusher when annotation is created" do
     c = create_comment annotated: create_project_media
+    assert c.sent_to_pusher
+  end
+
+  test "should notify Pusher when annotation is destroyed" do
+    c = create_comment annotated: create_project_media
+    c.destroy
     assert c.sent_to_pusher
   end
 

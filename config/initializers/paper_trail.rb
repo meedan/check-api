@@ -40,8 +40,8 @@ module PaperTrail
     end
 
     def annotation
-      return Annotation.find(self.item.annotation_id) if self.item.respond_to?(:annotation_id)
-      Annotation.find(self.item_id) if self.item_class.new.is_annotation?
+      return Annotation.where(id: self.item.annotation_id).last if self.item.respond_to?(:annotation_id)
+      Annotation.where(id: self.item_id).last if self.item_class.new.is_annotation?
     end
 
     def user
@@ -52,9 +52,13 @@ module PaperTrail
       self.object.nil? ? {} : JSON.parse(self.object)
     end
 
+    def get_object_changes
+      self.object_changes ? JSON.parse(self.object_changes) : {}
+    end
+
     def apply_changes
       object = self.get_object
-      changes = JSON.parse(self.object_changes)
+      changes = self.get_object_changes
 
       { 'is_annotation?' => 'data', Team => 'settings', DynamicAnnotation::Field => 'value' }.each do |condition, key|
         obj = self.item_class.new
@@ -113,7 +117,7 @@ module PaperTrail
     end
 
     def object_changes_json
-      changes = JSON.parse(self.object_changes)
+      changes = self.object_changes ? JSON.parse(self.object_changes) : {}
       if changes['data'] && changes['data'].is_a?(Array)
         changes['data'].collect!{ |d| d.is_a?(String) ? self.deserialize_change(d) : d }
       end
@@ -126,7 +130,7 @@ module PaperTrail
 
     def get_associated
       case self.event_type
-      when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed'
+      when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed', 'destroy_comment', 'destroy_status', 'destroy_tag', 'destroy_task', 'destroy_flag', 'destroy_embed'
         self.get_associated_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         self.get_associated_from_dynamic_annotation

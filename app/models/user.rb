@@ -19,14 +19,15 @@ class User < ActiveRecord::Base
   mount_uploader :image, ImageUploader
   validates :image, size: true
   validate :user_is_member_in_current_team
-  validate :validate_duplicate_email, on: :create
+  validate :validate_duplicate_email
   validate :languages_format, unless: proc { |u| u.settings.nil? }
   validates :api_key_id, absence: true, if: proc { |u| u.type.nil? }
 
   serialize :omniauth_info
   serialize :cached_teams, Array
 
-  include CheckSettings
+  check_settings
+
   include DeviseAsync
 
   ROLES = %w[contributor journalist editor owner]
@@ -135,7 +136,7 @@ class User < ActiveRecord::Base
     team_users = TeamUser.where(user_id: self.id)
     teams = Hash.new
     team_users.each do |tu|
-      teams[tu.team.name] = tu.as_json
+      teams[tu.team.slug] = tu.as_json
     end
     teams.to_json
   end
@@ -266,9 +267,9 @@ class User < ActiveRecord::Base
   end
 
   def validate_duplicate_email
-    u = User.where(email: self.email).last unless self.email.blank?
+    u = User.where(email: self.email).where.not(id: self.id).last unless self.email.blank?
     unless u.nil?
-      RegistrationMailer.delay.duplicate_email_detection(self, u)
+      RegistrationMailer.delay.duplicate_email_detection(self, u) if self.new_record?
       return false
     end
   end

@@ -4,7 +4,7 @@ module ProjectAssociation
   extend ActiveSupport::Concern
 
   def check_search_team
-    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.project.team.slug } }.to_json)
+    self.project.team.check_search_team
   end
 
   def check_search_project
@@ -59,6 +59,7 @@ module ProjectAssociation
     end
 
     def destroy_elasticsearch_media
+      return if self.disable_es_callbacks
       destroy_elasticsearch_data(MediaSearch, 'parent')
     end
 

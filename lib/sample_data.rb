@@ -232,6 +232,7 @@ module SampleData
     elsif options.has_key?(:team)
       account.team = options[:team]
     end
+    account.disable_es_callbacks = options[:disable_es_callbacks]
     account.skip_pender = options[:skip_pender] if options.has_key?(:skip_pender)
     account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team])
     account.save!
@@ -291,6 +292,7 @@ module SampleData
     team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
     team.save!
+    team.update_columns(limits: { foo: 'bar' })
     team.reload
   end
 
@@ -384,6 +386,17 @@ module SampleData
     end
     as.save!
     as.reload
+  end
+
+  def create_claim_source(options = {})
+    cs = ClaimSource.new
+    options[:source_id] = create_source.id if !options.has_key?(:source_id) && !options.has_key?(:source)
+    options[:media_id] = create_claim_media.id if !options.has_key?(:media_id) && !options.has_key?(:media)
+    options.each do |key, value|
+      cs.send("#{key}=", value) if cs.respond_to?("#{key}=")
+    end
+    cs.save!
+    cs.reload
   end
 
   def create_project_source(options = {})

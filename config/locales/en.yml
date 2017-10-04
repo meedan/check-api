@@ -66,6 +66,7 @@ en:
         text: Comment
       user:
         reset_password_token: Reset password token
+        email: E-mail
     errors:
       messages:
         record_invalid: 'Validation failed: %{errors}'
@@ -73,26 +74,19 @@ en:
         too_short:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
-      models:
-        user:
-          attributes:
-            email:
-              taken: 'Oops, minor problem: you already used that email address to
-                sign in with another method. We just sent you an email reminding you
-                how you logged in. Check your email and sign in with the method you
-                used before.'
   slug_format_validation_message: accepts only letters, numbers and hyphens
   slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
-  invalid_format_for_custom_verification_status: Custom verification statuses is invalid,
-    it should have the format as exemplified below the field
+  invalid_format_for_custom_verification_status: Custom verification statuses is invalid
   invalid_format_for_checklist: 'Checklist is invalid, it should have the format [
     { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'':
     [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'Languages is invalid, it should have the format [{''id'':
     ''en'',''title'': ''English''}]'
   invalid_media_item: Sorry, this is not a valid media item
+  invalid_default_status_for_custom_verification_status: The default status is invalid
+  invalid_id_or_label_for_custom_verification_status: The status id and label are mandatory
   already_exists: already exists
   mail_account_confirmation: "%{app_name} account confirmation"
   mail_request_to_join: "%{user} wants to join %{team} team on %{app_name}!"
@@ -213,3 +207,14 @@ en:
   duplicate_source: Source exists
   geolocation_invalid_value: Location must contain a valid GeoJSON (http://geojson.org/)
   datetime_invalid_date: Please provide a valid date
+  error_team_archived: "Can't create project under trashed team"
+  error_project_archived: "Can't create media under trashed project"
+  error_team_archived_for_source: "Can't create source under trashed team"
+  permission_error: "Sorry, you are not allowed to do this"
+  error_annotated_archived: "Sorry, this item is in the trash, you can't add a note to it"
+  only_super_admin_can_do_this: "Sorry, only super admins can make this change"
+  max_number_of_team_users_reached: "The maximum number of users for this team was reached"
+  max_number_of_projects_reached: "The maximum number of projects for this team was reached"
+  cant_set_custom_statuses: "Sorry, you can't use the custom statuses feature"
+  cant_set_checklist: "Sorry, you can't use the Checklist feature"
+  cant_create_media_under_this_team_using_extension: "Sorry, this team is not allowed to use the browser extension"

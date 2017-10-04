@@ -2,7 +2,6 @@ module TeamMutations
   create_fields = {
     archived: 'bool',
     private: 'bool',
-    logo: 'str',
     name: '!str',
     slug: '!str',
     description: 'str',
@@ -12,7 +11,6 @@ module TeamMutations
   update_fields = {
     archived: 'bool',
     private: 'bool',
-    logo: 'str',
     name: 'str',
     description: 'str',
     set_slack_notifications_enabled: 'str',
@@ -21,8 +19,9 @@ module TeamMutations
     add_auto_task: 'json',
     remove_auto_task: 'str', # label
     contact: 'str',
+    empty_trash: 'int',
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields, ['check_search_team'])
 end

@@ -1,6 +1,6 @@
 class Bot::Slack < ActiveRecord::Base
 
-  include CheckSettings
+  check_settings
 
   def self.default
     Bot::Slack.where(name: 'Slack Bot').last
@@ -11,7 +11,7 @@ class Bot::Slack < ActiveRecord::Base
   end
 
   def should_notify_super_admin?(model)
-    should_notify_annotation?(model) && !self.skip_notifications && self.setting(:slack_notifications_enabled).to_i === 1
+    should_notify_annotation?(model) && !model.skip_notifications && self.setting(:slack_notifications_enabled).to_i === 1
   end
 
   def should_notify_annotation?(model)

@@ -1,0 +1,53 @@
+{
+  "title": "Tasks",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "title": "Task",
+    "headerTemplate": "{{i1}} - {{self.label}}",
+    "properties": {
+      "label": {
+        "default": "",
+        "description": "Text displayed to users.",
+        "type": "string"
+      },
+      "type": {
+        "default": "",
+        "description": "Choose the type of answer.",
+        "type": "string",
+        "enum": ["free_text", "single_choice", "multiple_choice", "geolocation", "datetime"]
+      },
+      "description": {
+        "default": "",
+        "description": "Explanation of the task.",
+        "type": "string"
+      },
+      "options": {
+        "default": [],
+        "description": "Single and multiple choice options.",
+        "type": "array",
+        "items": {
+          "title": "Option",
+          "headerTemplate": "{{i1}} - {{self.label}}",
+          "type": "object",
+          "properties": {
+            "label": {
+              "default": "",
+              "description": "",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "projects": {
+        "default": [],
+        "description": "Projects that will have this task created automatically.",
+        "type": "array",
+        "items": {
+          "title": "Project ID",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

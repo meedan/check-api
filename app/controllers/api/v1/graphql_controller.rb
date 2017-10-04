@@ -6,7 +6,7 @@ module Api
       skip_before_filter :authenticate_from_token!
 
       before_action :authenticate_graphql_user, only: [:create]
-      before_action :set_current_user, :load_context_team, :set_current_team, :load_ability
+      before_action :set_current_user, :load_context_team, :set_current_team, :load_ability, :store_request
 
       def create
         query_string = params[:query]
@@ -58,6 +58,10 @@ module Api
           current_api_user.current_team_id = @context_team.id
           current_api_user.save!
         end
+      end
+
+      def store_request
+        RequestStore[:request] = request
       end
     end
   end

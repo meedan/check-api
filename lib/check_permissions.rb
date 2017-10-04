@@ -35,8 +35,13 @@ module CheckPermissions
       perms["update #{klass}"] = ability.can?(:update, self)
       perms["destroy #{klass}"] = ability.can?(:destroy, self)
       perms = perms.merge self.set_create_permissions(klass.name, ability)
+      perms = perms.merge self.set_custom_permissions(ability)
     end
     perms.to_json
+  end
+
+  def set_custom_permissions(ability = nil)
+   self.respond_to?(:custom_permissions) ? self.custom_permissions(ability) : {}
   end
 
   def get_create_permissions
@@ -89,12 +94,17 @@ module CheckPermissions
     model
   end
 
+  def get_operation
+    return :create if self.new_record?
+    self.changes.to_json == '{"archived":[true,false]}' ? :restore : :update
+  end
+
   private
 
   def check_ability
     unless self.skip_check_ability or User.current.nil?
       ability = Ability.new
-      op = self.new_record? ? :create : :update
+      op = self.get_operation 
       raise "No permission to #{op} #{self.class.name}" unless ability.can?(op, self)
     end
   end

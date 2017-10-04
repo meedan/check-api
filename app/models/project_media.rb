@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses
+  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -7,17 +7,19 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaEmbed
   include Versioned
   include NotifyEmbedSystem
+  include ValidationsHelper
 
   validates_presence_of :media_id, :project_id
 
   validate :is_unique, on: :create
+  validate :project_is_not_archived
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
 
-  notifies_pusher on: :save,
+  notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project, pm.media] },
+                  targets: proc { |pm| [pm.project, pm.media, pm.project.team] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -203,6 +205,14 @@ class ProjectMedia < ActiveRecord::Base
     get_project_source(self.project_id)
   end
 
+  def custom_permissions(ability = nil)
+    perms = {}
+    perms["embed ProjectMedia"] = !self.archived
+    ability ||= Ability.new
+    perms["restore ProjectMedia"] = ability.can?(:restore, self)
+    perms
+  end
+
   private
 
   def is_unique
@@ -216,7 +226,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def set_project_source
-    self.create_project_source if self.media.type == 'Link'
+    self.create_project_source
   end
 
   def move_media_sources
@@ -231,9 +241,14 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_project_source(pid)
-    return if self.media.type != 'Link' || self.media.account.blank?
-    sources = self.media.account.sources.map(&:id)
+    sources = []
+    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
+    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
     ProjectSource.where(project_id: pid, source_id: sources).first
+  end
+
+  def project_is_not_archived
+    parent_is_not_archived(self.project, I18n.t(:error_project_archived, default: "Can't create media under trashed project"))
   end
 
   protected

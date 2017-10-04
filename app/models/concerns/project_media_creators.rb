@@ -6,6 +6,7 @@ module ProjectMediaCreators
   private
 
   def create_auto_tasks
+    self.set_tasks_responses ||= {}
     tasks = self.project.nil? ? [] : self.project.auto_tasks
     created = []
     tasks.each do |task|
@@ -20,6 +21,8 @@ module ProjectMediaCreators
       t.skip_notifications = true
       t.save!
       created << t
+      # set auto-response
+      self.set_jsonld_response(task) if task.has_key?('mapping')
     end
     self.respond_to_auto_tasks(created)
   end
@@ -79,6 +82,7 @@ module ProjectMediaCreators
   def create_claim
     m = Claim.new
     m.quote = self.quote
+    m.quote_attributions = self.quote_attributions
     m.save!
     m
   end
@@ -104,6 +108,32 @@ module ProjectMediaCreators
     m
   end
 
+  def set_jsonld_response(task)
+    jsonld = self.embed['raw']['json+ld'] if self.embed.has_key?('raw')
+    unless jsonld.nil?
+      value = self.get_response_value(jsonld, task)
+      self.set_tasks_responses[Task.slug(task['label'])] = value unless value.blank?
+    end
+  end
+
+  def get_response_value(jsonld, task)
+    require 'jsonpath'
+    mapping = task['mapping']
+    self.mapping_suggestions(task, mapping['type']).each do |name|
+      return self.send(name, jsonld, mapping) if self.respond_to?(name)
+    end
+    data = mapping_value(jsonld, mapping)
+    (!data.blank? && data.kind_of?(String)) ? mapping['prefix'] + data : ''
+  end
+
+  def mapping_suggestions(task, mapping_type)
+    [
+      "mapping_#{Task.slug(task['label'])}",
+      "mapping_#{task['type']}_#{mapping_type}",
+      "mapping_#{task['type']}",
+    ]
+  end
+
   def respond_to_auto_tasks(tasks)
     # set_tasks_responses = { task_slug (string) => response (string) }
     responses = self.set_tasks_responses.to_h
@@ -124,12 +154,17 @@ module ProjectMediaCreators
 
   def create_project_source
     a = self.media.account
-    unless a.nil?
-      source = Account.create_for_source(a.url).source
+    source = Account.create_for_source(a.url).source unless a.nil?
+    if source.nil?
+      cs = ClaimSource.where(media_id: self.media_id).last
+      source = cs.source unless cs.nil?
+    end
+    unless source.nil?
       unless ProjectSource.where(project_id: self.project_id, source_id: source.id).exists?
         ps = ProjectSource.new
         ps.project_id = self.project_id
         ps.source_id = source.id
+        ps.disable_es_callbacks = self.disable_es_callbacks
         ps.skip_check_ability = true
         ps.save!
       end

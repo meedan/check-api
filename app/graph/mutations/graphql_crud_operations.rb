@@ -17,6 +17,9 @@ class GraphqlCrudOperations
       end
     end
 
+    ret[:affectedIds] = obj.affected_ids if obj.respond_to?(:affected_ids)
+    ret[:affectedId] = obj.graphql_id if obj.is_a?(ProjectMedia)
+
     ret
   end
 
@@ -24,7 +27,7 @@ class GraphqlCrudOperations
     klass = type.camelize
 
     obj = klass.constantize.new
-    obj.file = ctx[:file] if (type == 'project_media' || type == 'comment' || type == 'source') && !ctx[:file].blank?
+    obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
@@ -34,9 +37,9 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.update(type, inputs, ctx, parents = [])
+  def self.update(_type, inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
-    obj.file = ctx[:file] if type == 'source' && !ctx[:file].blank?
+    obj.file = ctx[:file] if !ctx[:file].blank?
     obj = obj.load if obj.is_a?(Annotation)
 
     attrs = inputs.keys.inject({}) do |memo, key|
@@ -47,11 +50,11 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.destroy(inputs, _ctx, parents = [])
+  def self.destroy(inputs, ctx, parents = [])
     type, id = NodeIdentification.from_global_id(inputs[:id])
     obj = type.constantize.find(id)
     obj = obj.load if obj.respond_to?(:load)
-    obj.destroy
+    obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : obj.destroy
 
     ret = { deletedId: inputs[:id] }
 
@@ -89,6 +92,9 @@ class GraphqlCrudOperations
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
+
+      return_field(:affectedIds, types[types.ID]) if type.to_s == 'team'
+      return_field(:affectedId, types.ID) if type.to_s == 'project_media'
 
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
@@ -207,7 +213,7 @@ class GraphqlCrudOperations
     proc do |_classname|
       connection :log, -> { VersionType.connection_type } do
         resolve ->(obj, _args, _ctx) {
-          obj.get_versions_log
+          obj.get_versions_log.reverse
         }
       end
     end

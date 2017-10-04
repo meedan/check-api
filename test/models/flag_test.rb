@@ -43,11 +43,11 @@ class FlagTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
-    p = create_project team: t
-    pm = create_project_media project: p
+    p = create_project team: t, user: u
+    pm = create_project_media project: p, user: u
     f = nil
     with_current_user_and_team(u, t) do
-      f = create_flag(flag: 'Spam', annotated: pm)
+      f = create_flag(flag: 'Spam', annotated: pm, annotator: u)
       f = Flag.last
       f.flag = 'Graphic content'
       f.save

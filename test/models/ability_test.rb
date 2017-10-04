@@ -471,7 +471,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, u_test1)
       assert ability.cannot?(:update, u_test2)
       assert ability.cannot?(:destroy, u_test2)
-      assert ability.can?(:update, u_test3)
+      assert ability.cannot?(:update, u_test3)
       assert ability.cannot?(:destroy, u_test3)
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
@@ -497,9 +497,9 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, u)
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
-      assert ability.can?(:update, u_test2)
+      assert ability.cannot?(:update, u_test2)
       assert ability.cannot?(:destroy, u_test2)
-      assert ability.can?(:update, u_test3)
+      assert ability.cannot?(:update, u_test3)
       assert ability.cannot?(:destroy, u_test3)
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
@@ -518,19 +518,19 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, u)
-      assert ability.can?(:destroy, u)
-      assert ability.can?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:destroy, u)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       tu_test1.update_column(:role, 'journalist')
 
-      assert ability.can?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       tu_test1.update_column(:role, 'contributor')
 
-      assert ability.can?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
@@ -554,7 +554,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, mc)
       assert ability.cannot?(:destroy, mc)
       assert ability.can?(:update, own_comment)
-      assert ability.cannot?(:destroy, own_comment)
+      assert ability.can?(:destroy, own_comment)
     end
   end
 
@@ -575,7 +575,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, mc)
       assert ability.cannot?(:destroy, mc)
       assert ability.can?(:update, own_comment)
-      assert ability.cannot?(:destroy, own_comment)
+      assert ability.can?(:destroy, own_comment)
     end
   end
 
@@ -591,8 +591,8 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Comment)
-      assert ability.can?(:update, mc)
-      assert ability.cannot?(:destroy, mc)
+      assert ability.cannot?(:update, mc)
+      assert ability.can?(:destroy, mc)
     end
   end
 
@@ -608,7 +608,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Comment)
-      assert ability.can?(:update, mc)
+      assert ability.cannot?(:update, mc)
       assert ability.can?(:destroy, mc)
     end
   end
@@ -988,7 +988,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, f)
-      assert ability.cannot?(:destroy, f)
+      assert ability.can?(:destroy, f)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:update, f)
       assert ability.cannot?(:destroy, f)
@@ -1056,7 +1056,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:create, own_s)
       assert ability.can?(:update, own_as)
       assert ability.cannot?(:destroy, own_as)
-      assert ability.cannot?(:update, as)
+      assert ability.can?(:update, as)
       assert ability.cannot?(:destroy, as)
       assert ability.cannot?(:update, as2)
       assert ability.cannot?(:destroy, as2)
@@ -1191,8 +1191,8 @@ class AbilityTest < ActiveSupport::TestCase
     a3 = create_annotation annotated: create_project_media
     with_current_user_and_team(u, t) do
       a = Ability.new
-      assert a.cannot?(:destroy, a1)
-      assert a.cannot?(:destroy, a2)
+      assert a.can?(:destroy, a1)
+      assert a.can?(:destroy, a2)
       assert a.cannot?(:destroy, a3)
     end
   end
@@ -1231,7 +1231,7 @@ class AbilityTest < ActiveSupport::TestCase
     a4 = create_annotation
     with_current_user_and_team(u, t) do
       a = Ability.new
-      assert a.cannot?(:destroy, a1)
+      assert a.can?(:destroy, a1)
       assert a.cannot?(:destroy, a2)
       assert a.cannot?(:destroy, a3)
       assert a.cannot?(:destroy, a4)
@@ -1247,19 +1247,6 @@ class AbilityTest < ActiveSupport::TestCase
       a = Ability.new
       assert a.can?(:destroy, tu1)
       assert a.cannot?(:destroy, tu2)
-    end
-  end
-
-  test "should be able to tag source" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    s = create_source user: u
-    tg = create_tag tag: 'tag', annotator: u, annotated: s
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, tg)
     end
   end
 
@@ -1460,7 +1447,7 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.can?(:create, Dynamic)
       assert ability.can?(:update, da)
-      assert ability.cannot?(:destroy, da)
+      assert ability.can?(:destroy, da)
       assert ability.can?(:update, own_da)
       assert ability.can?(:destroy, own_da)
     end
@@ -1576,6 +1563,283 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.cannot?(:create, c2)
       assert ability.can?(:create, c)
+    end
+  end
+
+  test "contributor should not edit, send to trash or destroy report" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    pm = create_project_media project: p, user: u
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:update, pm)
+      assert ability.cannot?(:destroy, pm)
+    end
+  end
+
+  test "journalist should send to trash and edit own report but should not destroy" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t
+    pm = create_project_media project: p, user: u
+    pm2 = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, pm)
+      assert ability.cannot?(:destroy, pm)
+      assert ability.can?(:update, pm2)
+      assert ability.cannot?(:destroy, pm)
+    end
+  end
+
+  test "editor should send to trash and edit any report but should not destroy" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p, user: u
+    pm2 = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, pm)
+      assert ability.cannot?(:destroy, pm)
+      assert ability.can?(:update, pm2)
+      assert ability.cannot?(:destroy, pm)
+    end
+  end
+
+  test "owner should edit, send to trash and destroy any report" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p, user: u
+    pm2 = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, pm)
+      assert ability.can?(:destroy, pm)
+      assert ability.can?(:update, pm2)
+      assert ability.can?(:destroy, pm)
+    end
+  end
+
+  test "contributor should edit and destroy own annotation from trash but should not destroy respective log entry" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, annotator: u
+    c2 = create_comment annotated: pm
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, c)
+      assert ability.can?(:destroy, c)
+      assert ability.cannot?(:update, c2)
+      assert ability.cannot?(:destroy, c2)
+      c.destroy!
+      v = PaperTrail::Version.last
+      assert ability.cannot?(:destroy, v)
+    end
+  end
+
+  test "journalist should edit and destroy own annotation from trash but should not destroy respective log entry" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, annotator: u
+    c2 = create_comment annotated: pm
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, c)
+      assert ability.can?(:destroy, c)
+      assert ability.cannot?(:update, c2)
+      assert ability.cannot?(:destroy, c2)
+      c.destroy!
+      v = PaperTrail::Version.last
+      assert ability.cannot?(:destroy, v)
+    end
+  end
+
+  test "editor should edit own annotation and destroy any annotation from trash but should not destroy respective log entry" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, annotator: u
+    c2 = create_comment annotated: pm
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, c)
+      assert ability.can?(:destroy, c)
+      assert ability.cannot?(:update, c2)
+      assert ability.can?(:destroy, c2)
+      c.destroy!
+      v = PaperTrail::Version.last
+      assert ability.cannot?(:destroy, v)
+      c2.destroy!
+      v = PaperTrail::Version.last
+      assert ability.cannot?(:destroy, v)
+    end
+  end
+
+  test "owner should edit own annotation and destroy any annotation from trash and should destroy respective log entry" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, annotator: u
+    c2 = create_comment annotated: pm
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, c)
+      assert ability.can?(:destroy, c)
+      assert ability.cannot?(:update, c2)
+      assert ability.can?(:destroy, c2)
+      c.destroy!
+      v = PaperTrail::Version.last
+      assert ability.can?(:destroy, v)
+      c2.destroy!
+      v = PaperTrail::Version.last
+      assert ability.can?(:destroy, v)
+    end
+  end
+
+  test "contributor should not edit, send to trash or destroy project" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    p = create_project team: t, user: u
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:update, p)
+      assert ability.cannot?(:destroy, p)
+    end
+  end
+
+  test "journalist should edit and send to trash but not destroy own project" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    p = create_project team: t, user: u
+    p2 = create_project team: t
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, p)
+      assert ability.cannot?(:destroy, p)
+      assert ability.cannot?(:update, p2)
+      assert ability.cannot?(:destroy, p2)
+    end
+  end
+
+  test "editor should edit any project and send any project to trash but not destroy project" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t, user: u
+    p2 = create_project team: t
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, p)
+      assert ability.cannot?(:destroy, p)
+      assert ability.can?(:update, p2)
+      assert ability.cannot?(:destroy, p2)
+    end
+  end
+
+  test "owner should edit any project, destroy any project and send any project to trash" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t, user: u
+    p2 = create_project team: t
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, p)
+      assert ability.can?(:destroy, p)
+      assert ability.can?(:update, p2)
+      assert ability.can?(:destroy, p2)
+    end
+  end
+
+  test "contributor should not send to trash, edit or destroy team" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:update, t)
+      assert ability.cannot?(:destroy, t)
+    end
+  end
+
+  test "journalist should not send to trash, edit or destroy team" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'journalist'
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:update, t)
+      assert ability.cannot?(:destroy, t)
+    end
+  end
+
+  test "editor should not send to trash or destroy team" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'editor'
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, t)
+      assert ability.cannot?(:destroy, t)
+    end
+  end
+
+  test "owner should send to trash, edit or destroy own team" do
+    t = create_team
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    t2 = create_team
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, t)
+      assert ability.can?(:destroy, t)
+    end
+    with_current_user_and_team(u, t2) do
+      ability = Ability.new
+      assert ability.cannot?(:update, t2)
+      assert ability.cannot?(:destroy, t2)
+    end
+  end
+
+  test "editor should not downgrade owner role" do
+    t = create_team
+    u = create_user
+    u2 = create_user
+    u3 = create_user
+    tu1 = create_team_user team: t, user: u, role: 'editor'
+    tu2 = create_team_user team: t, user: u2, role: 'owner'
+    tu2 = TeamUser.find(tu2.id)
+    tu3 = create_team_user team: t, user: u3, role: 'contributor'
+    tu3 = TeamUser.find(tu3.id)
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        tu3.role = 'journalist'
+        tu3.save!
+      end
+
+      assert_raises RuntimeError do
+        tu2.role = 'editor'
+        tu2.save!
+      end
     end
   end
 end

@@ -121,6 +121,11 @@ class SourceTest < ActiveSupport::TestCase
     m = create_valid_media(account: create_valid_account(source: s))
     pm = create_project_media project: p, media: m
     assert_equal [pm], s.medias
+    # get media for claim attributions
+    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
+    cs = ClaimSource.where(media_id: pm2.media_id).last
+    assert_not_nil cs.source
+    assert_equal [pm2], cs.source.medias
   end
 
   test "should get collaborators" do
@@ -179,6 +184,19 @@ class SourceTest < ActiveSupport::TestCase
   test "should get db id" do
     s = create_source
     assert_equal s.id, s.dbid
+  end
+
+  test "journalist should edit any source" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'journalist'
+    with_current_user_and_team(u, t) do
+      s = create_source user: create_user
+      s.name = 'update source'
+      assert_nothing_raised RuntimeError do
+        s.save!
+      end
+    end
   end
 
   test "should get permissions" do
@@ -282,16 +300,16 @@ class SourceTest < ActiveSupport::TestCase
       f2 = create_flag annotated: ps2
       assert_equal ["create_comment", "create_tag", "create_flag", "update_source", "create_comment", "create_flag"].sort, s.get_versions_log.map(&:event_type).sort
       assert_equal 6, s.get_versions_log_count
-      c.destroy
-      assert_equal 5, s.get_versions_log_count
-      tg.destroy
-      assert_equal 4, s.get_versions_log_count
-      f.destroy
-      assert_equal 3, s.get_versions_log_count
-      c2.destroy
-      assert_equal 2, s.get_versions_log_count
-      f2.destroy
-      assert_equal 1, s.get_versions_log_count
+      c.destroy!
+      assert_equal 6, s.get_versions_log_count
+      tg.destroy!
+      assert_equal 6, s.get_versions_log_count
+      f.destroy!
+      assert_equal 6, s.get_versions_log_count
+      c2.destroy!
+      assert_equal 6, s.get_versions_log_count
+      f2.destroy!
+      assert_equal 6, s.get_versions_log_count
     end
   end
 
@@ -365,6 +383,16 @@ class SourceTest < ActiveSupport::TestCase
     assert t2 > t1
   end
 
+  test "should not create source under trashed team" do
+    t = create_team
+    t.archived = true
+    t.save!
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_source team: t
+    end
+  end
+
   test "should refresh source with account data" do
     data = { author_name: 'Source author', author_picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
     Account.any_instance.stubs(:data).returns(data)
@@ -395,5 +423,4 @@ class SourceTest < ActiveSupport::TestCase
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)
   end
-
 end

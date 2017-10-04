@@ -140,11 +140,25 @@ class ProjectSourceTest < ActiveSupport::TestCase
       assert_equal ["create_comment", "create_tag", "create_flag", "update_projectsource", "update_source"].sort, ps.get_versions_log.map(&:event_type).sort
       assert_equal 5, ps.get_versions_log_count
       c.destroy
-      assert_equal 4, ps.get_versions_log_count
+      assert_equal 5, ps.get_versions_log_count
       tg.destroy
-      assert_equal 3, ps.get_versions_log_count
+      assert_equal 5, ps.get_versions_log_count
       f.destroy
-      assert_equal 2, ps.get_versions_log_count
+      assert_equal 5, ps.get_versions_log_count
+    end
+  end
+
+  test "contributor should add tag to own source" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user user: u, team: t, role: 'contributor'
+    with_current_user_and_team(u, t) do
+      s = create_source
+      ps = create_project_source project: p, source: s, user: u
+      assert_difference 'Tag.length' do
+        create_tag annotated: ps
+      end
     end
   end
 

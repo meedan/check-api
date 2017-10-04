@@ -4,6 +4,7 @@ module ProjectMediaMutations
     project_id: '!int',
     url: 'str',
     quote: 'str',
+    quote_attributions: 'str',
     set_annotation: 'str',
     set_tasks_responses: 'json'
   }
@@ -15,6 +16,7 @@ module ProjectMediaMutations
     refresh_media: 'int',
     update_mt: 'int',
     update_keep: 'int',
+    archived: 'int',
     embed: 'str',
     id: '!id'
   }

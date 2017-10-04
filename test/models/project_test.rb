@@ -4,6 +4,7 @@ class ProjectTest < ActiveSupport::TestCase
   def setup
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
+    Sidekiq::Worker.clear_all
     super
     MediaSearch.delete_index
     MediaSearch.create_index
@@ -243,7 +244,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should have settings" do
     p = create_project
-    assert_nil p.settings
+    assert_equal({}, p.settings)
     assert_nil p.setting(:foo)
     p.set_foo = 'bar'
     p.save!
@@ -515,5 +516,150 @@ class ProjectTest < ActiveSupport::TestCase
     p.viber_token = 'test'
     p.save!
     assert_equal 'test', p.get_viber_token
+  end
+
+  test "should archive project medias when project is archived" do
+    Sidekiq::Testing.inline! do
+      p = create_project
+      pm1 = create_project_media
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      p.archived = true
+      p.save!
+      assert !pm1.reload.archived
+      assert pm2.reload.archived
+      assert pm3.reload.archived
+    end
+  end
+
+  test "should archive project medias in background when project is archived" do
+    p = create_project
+    pm = create_project_media project: p
+    n = Sidekiq::Extensions::DelayedClass.jobs.size
+    p = Project.find(p.id)
+    p.archived = true
+    p.save!
+    assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+  end
+
+  test "should not archive project medias in background if project is updated but archived flag does not change" do
+    p = create_project
+    pm = create_project_media project: p
+    n = Sidekiq::Extensions::DelayedClass.jobs.size
+    p = Project.find(p.id)
+    p.title = random_string
+    p.save!
+    assert_equal n, Sidekiq::Extensions::DelayedClass.jobs.size
+  end
+
+  test "should restore project medias when project is restored" do
+    Sidekiq::Testing.inline! do
+      p = create_project
+      pm1 = create_project_media
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      p.archived = true
+      p.save!
+      assert !pm1.reload.archived
+      assert pm2.reload.archived
+      assert pm3.reload.archived
+      p = Project.find(p.id)
+      p.archived = false
+      p.save!
+      assert !pm1.reload.archived
+      assert !pm2.reload.archived
+      assert !pm3.reload.archived
+    end
+  end
+
+  test "should not create project under archived team" do
+    t = create_team
+    t.archived = true
+    t.save!
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project team: t
+    end
+  end
+
+  test "should delete project medias in background when project is deleted" do
+    Sidekiq::Testing.fake! do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'owner'
+      p = create_project user: u, team: t
+      pm = create_project_media project: p
+      n = Sidekiq::Extensions::DelayedClass.jobs.size
+      p = Project.find(p.id)
+      with_current_user_and_team(u, t) do
+        p.destroy_later
+      end
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+    end
+  end
+
+  test "should delete project medias when project is deleted" do
+    Sidekiq::Testing.inline! do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'owner'
+      p = create_project user: u, team: t
+      pm1 = create_project_media
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      ps1 = create_project_source
+      ps2 = create_project_source project: p
+      c = create_comment annotated: pm3
+      with_current_user_and_team(u, t) do
+        p.destroy_later
+      end
+      assert_not_nil ProjectMedia.where(id: pm1.id).last
+      assert_nil ProjectMedia.where(id: pm2.id).last
+      assert_nil ProjectMedia.where(id: pm3.id).last
+      assert_nil Comment.where(id: c.id).last
+      assert_not_nil ProjectSource.where(id: ps1.id).last
+      assert_nil ProjectSource.where(id: ps2.id).last
+    end
+  end
+
+  test "should not delete project later if doesn't have permission" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    p = create_project team: t
+    with_current_user_and_team(u, t) do
+      assert_raises RuntimeError do
+        p.destroy_later
+      end
+    end
+  end
+
+  test "should not notify Slack when project is created if team is limited" do
+    t = create_team slug: 'test'
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    t.set_slack_channel = '#test'
+    t.set_limits_slack_integration = false
+    t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      p = create_project team: t
+      assert !p.sent_to_slack
+    end
+  end
+
+  test "should not create project if limit was reached" do
+    t = create_team
+    create_project team: t
+    t.set_limits_max_number_of_projects = 5
+    t.save!
+    t = Team.find(t.id)
+    4.times do
+      create_project team: t
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project team: t
+    end
   end
 end

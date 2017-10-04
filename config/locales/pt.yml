@@ -64,18 +64,14 @@ pt:
         text: Comentário
       user:
         reset_password_token: Redefinir o token da senha
+        email: E-mail
     errors:
       messages:
-        record_invalid: 'Falhas na validação:% {errors}'
+        record_invalid: 'A validação falhou: %{errors}'
         improbable_phone: é um número inválido
         too_short:
           one: é muito curto (mínimo de 1 caractere)
           other: É muito curto (mínimo de %{count} caracteres)
-      models:
-        user:
-          attributes:
-            email:
-              taken: 'Ops, pequeno problema: você já usou esse endereço de e-mail para fazer login com outro método. Acabamos de lhe enviar um e-mail que lembra como você fez o login. Verifique seu e-mail e faça login com o método usado anteriormente.'
   slug_format_validation_message: aceita apenas letras, números e hífens
   slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
@@ -173,3 +169,14 @@ pt:
   duplicate_source: Fonte existe
   geolocation_invalid_value: Localização deve conter um GeoJSON válido (http://geojson.org/)
   datetime_invalid_date: Por favor forneça uma data válida
+  error_team_archived: "Não é possível criar um projeto em um time que esteja na lixeira"
+  error_project_archived: "Não é possível criar media em um projeto que esteja na lixeira"
+  error_team_archived_for_source: "Não é possível criar fonte em um time que esteja na lixeira"
+  permission_error: "Desculpe, você não tem permissão para fazer esta operação"
+  error_annotated_archived: "Desculpe, este item está na lixeira, você não pode adicionar nota a ele"
+  only_super_admin_can_do_this: "Desculpe, apenas super admins podem efetuar esta alteração"
+  max_number_of_team_users_reached: "O número máximo de usuários para este time foi alcançado"
+  max_number_of_projects_reached: "O número máximo de projetos para este time foi alcançado"
+  cant_set_custom_statuses: "Desculpe, você não pode usar o recurso de status customizados"
+  cant_set_checklist: "Desculpe, você não pode usar o recurso de Checklist"
+  cant_create_media_under_this_team_using_extension: "Desculpe, este time não tem permissão para utilizar a extensão de navegador"

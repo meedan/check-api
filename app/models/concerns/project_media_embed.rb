@@ -93,12 +93,15 @@ module ProjectMediaEmbed
 
   def mark_as_embedded
     if self.get_annotations('embed_code').empty?
+      user_current = User.current
+      User.current = User.new
       a = Dynamic.new
       a.skip_check_ability = true
       a.annotated = self
       a.annotation_type = 'embed_code'
       a.set_fields = { embed_code_copied: true }.to_json
       a.save!
+      User.current = user_current
     end
   end
 
@@ -132,8 +135,8 @@ module ProjectMediaEmbed
   
   module ClassMethods
     def clear_caches(pmid)
-      pm = ProjectMedia.find(pmid)
-      return if pm.get_annotations('embed_code').empty?
+      pm = ProjectMedia.where(id: pmid).last
+      return if pm.nil? || pm.get_annotations('embed_code').empty?
       ['', '?hide_tasks=1', '?hide_notes=1', '?hide_tasks=1&hide_notes=1'].each do |part|
         url = pm.full_url.to_s + part
         PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])

@@ -30,7 +30,11 @@ class UserTest < ActiveSupport::TestCase
       end
     end
 
-    with_current_user_and_team(u, t) { u2.destroy }
+    with_current_user_and_team(u, t) do
+     assert_raise RuntimeError do
+        u2.destroy
+      end
+    end
   end
 
   test "non members should not read users in private team" do
@@ -199,6 +203,22 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should update user mail" do
+    u = create_user
+    u2 = create_user
+    assert_nothing_raised do
+      u.email = 'test_01@local.com'; u.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      u.email = u2.email; u.save!
+    end
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      assert_raises ActiveRecord::RecordInvalid do
+        u.email = u2.email; u.save!
+      end
+    end
+  end
+
   test "should have projects" do
     p1 = create_project
     p2 = create_project
@@ -294,7 +314,7 @@ class UserTest < ActiveSupport::TestCase
      create_team_user team: t1, user: u
      t2 = create_team
      create_team_user team: t2, user: u, status: 'requested'
-     assert_equal [t1.name, t2.name].sort, JSON.parse(u.user_teams).keys.sort
+     assert_equal [t1.slug, t2.slug].sort, JSON.parse(u.user_teams).keys.sort
   end
 
   test "should not crash if account is not created" do
@@ -318,7 +338,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should have settings" do
     u = create_user
-    assert_nil u.settings
+    assert_equal({}, u.settings)
     assert_nil u.setting(:foo)
     u.set_foo = 'bar'
     u.save!
@@ -335,6 +355,36 @@ class UserTest < ActiveSupport::TestCase
       create_user url: 'http://twitter.com/meedan', provider: 'twitter'
     end
     Account.any_instance.unstub(:save)
+  end
+
+  test "should edit own profile" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    s = u.source
+    assert_nil s.team
+    # should edit own profile
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        s.name = 'update name'
+        s.save!
+        assert_equal s.reload.name, 'update name'
+      end
+    end
+    # other roles should not edit user profile
+    create_team_user user: u2, team: t, role: 'journalist'
+    js = u2.source
+    with_current_user_and_team(u2, t) do
+      assert_raise RuntimeError do
+        s.save!
+      end
+      # check that journliast has a permission to update his profile
+      js.name = 'update name'
+      js.save!
+      assert_equal js.reload.name, 'update name'
+    end
+
   end
 
   test "should get permissions" do

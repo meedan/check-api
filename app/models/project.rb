@@ -1,10 +1,12 @@
 class Project < ActiveRecord::Base
 
   include ValidationsHelper
+  include DestroyLater
+
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
   belongs_to :team
-  has_many :project_sources
+  has_many :project_sources, dependent: :destroy
   has_many :sources , through: :project_sources
   has_many :project_medias, dependent: :destroy
   has_many :medias , through: :project_medias
@@ -15,12 +17,13 @@ class Project < ActiveRecord::Base
   before_validation :generate_token, on: :create
 
   after_create :send_slack_notification
-  after_update :update_elasticsearch_data
+  after_update :update_elasticsearch_data, :archive_or_restore_project_medias_if_needed
 
   validates_presence_of :title
   validates :lead_image, size: true
   validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
   validate :project_languages_format, unless: proc { |p| p.settings.nil? }
+  validate :team_is_not_archived
 
   has_annotations
 
@@ -29,7 +32,8 @@ class Project < ActiveRecord::Base
                   targets: proc { |p| [p.team] },
                   data: proc { |p| p.to_json }
 
-  include CheckSettings
+  check_settings
+
   include CheckCsvExport
 
   def user_id_callback(value, _mapping_ids = nil)
@@ -145,6 +149,10 @@ class Project < ActiveRecord::Base
     tasks
   end
 
+  def self.archive_or_restore_project_medias_if_needed(archived, project_id)
+    ProjectMedia.where({ project_id: project_id }).update_all({ archived: archived })
+  end
+
   private
 
   def project_languages_format
@@ -172,4 +180,11 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def archive_or_restore_project_medias_if_needed
+    Project.delay.archive_or_restore_project_medias_if_needed(self.archived, self.id) if self.archived_changed?
+  end
+
+  def team_is_not_archived
+    parent_is_not_archived(self.team, I18n.t(:error_team_archived, default: "Can't create project under trashed team"))
+  end
 end
