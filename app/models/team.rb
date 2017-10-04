@@ -241,6 +241,13 @@ class Team < ActiveRecord::Base
     if statuses[:statuses]
       statuses[:statuses] = get_values_from_entry(statuses[:statuses])
       statuses[:statuses].delete_if { |s| s[:id].blank? && s[:label].blank? }
+      statuses[:statuses].each do |status|
+        if status[:style] && status[:style].is_a?(Hash)
+          color = status[:style][:color]
+          status[:style][:backgroundColor] = color
+          status[:style][:borderColor] = color
+        end
+      end
     end
     statuses.delete_if { |_k, v| v.blank? }
     unless statuses.keys.map(&:to_sym) == [:label]
