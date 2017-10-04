@@ -30,7 +30,11 @@ class UserTest < ActiveSupport::TestCase
       end
     end
 
-    with_current_user_and_team(u, t) { u2.destroy }
+    with_current_user_and_team(u, t) do
+     assert_raise RuntimeError do
+        u2.destroy
+      end
+    end
   end
 
   test "non members should not read users in private team" do

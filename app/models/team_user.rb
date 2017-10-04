@@ -59,6 +59,7 @@ class TeamUser < ActiveRecord::Base
       teams -= [self.team_id]
     end
     user.cached_teams = teams.uniq
+    user.skip_check_ability = true
     user.save(validate: false)
   end
 
