@@ -436,6 +436,25 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not return backgroundColor and borderColor on AdminUI media custom statuses" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: { color: 'red', backgroundColor: 'red', borderColor: 'red'} },
+      ]
+    }
+    t.media_verification_statuses = value
+    t.save
+
+    status = t.get_media_verification_statuses[:statuses]
+    assert_equal ['backgroundColor', 'borderColor', 'color'], status.first[:style].keys.sort
+
+    status = t.media_verification_statuses[:statuses]
+    assert_equal ['color'], status.first[:style].keys.sort
+  end
+
   test "should set verification statuses to settings" do
     t = create_team
     value = { label: 'Test', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access

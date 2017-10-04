@@ -107,6 +107,16 @@ class Team < ActiveRecord::Base
     set_verification_statuses('media', statuses)
   end
 
+  def media_verification_statuses
+    statuses = self.get_media_verification_statuses
+    unless statuses.blank?
+      statuses['statuses'].each do |s|
+        s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style']
+      end
+    end
+    statuses
+  end
+
   def source_verification_statuses=(statuses)
     set_verification_statuses('source', statuses)
   end
