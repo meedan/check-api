@@ -27,7 +27,7 @@ ProjectMediaCreators.class_eval do
         date = ''
       end
     end
-    date.blank? ? mapping['prefix'] + date : ''
+    date
   end
 
   private
