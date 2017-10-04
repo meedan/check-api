@@ -453,6 +453,18 @@ class TeamTest < ActiveSupport::TestCase
 
     status = t.media_verification_statuses[:statuses]
     assert_equal ['color'], status.first[:style].keys.sort
+   end
+
+   test "should not save statuses if default is present and statuses is missing" do
+    t = create_team
+    value = {
+        label: 'Field label',
+        default: '1'
+    }
+    t.media_verification_statuses = value
+    t.save
+
+    assert Team.find(t.id).media_verification_statuses.nil?
   end
 
   test "should set verification statuses to settings" do

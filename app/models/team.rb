@@ -107,7 +107,7 @@ class Team < ActiveRecord::Base
 
   def media_verification_statuses
     statuses = self.get_media_verification_statuses
-    unless statuses.blank?
+    unless statuses.blank? || statuses['statuses'].blank?
       statuses['statuses'].each { |s| s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style'] }
     end
     statuses
@@ -265,7 +265,7 @@ class Team < ActiveRecord::Base
       end
     end
     statuses.delete_if { |_k, v| v.blank? }
-    unless statuses.keys.map(&:to_sym) == [:label]
+    unless statuses.keys.sort.map(&:to_sym) == [:default, :label]
       self.send("set_#{type}_verification_statuses", statuses)
     end
   end
