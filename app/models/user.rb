@@ -136,7 +136,7 @@ class User < ActiveRecord::Base
     team_users = TeamUser.where(user_id: self.id)
     teams = Hash.new
     team_users.each do |tu|
-      teams[tu.team.name] = tu.as_json
+      teams[tu.team.slug] = tu.as_json
     end
     teams.to_json
   end
