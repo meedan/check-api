@@ -525,12 +525,12 @@ class AbilityTest < ActiveSupport::TestCase
       tu_test1.update_column(:role, 'journalist')
 
       assert ability.cannot?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       tu_test1.update_column(:role, 'contributor')
 
-      assert ability.can?(:update, u_test1)
-      assert ability.ccannotan?(:destroy, u_test1)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
