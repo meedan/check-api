@@ -471,7 +471,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, u_test1)
       assert ability.cannot?(:update, u_test2)
       assert ability.cannot?(:destroy, u_test2)
-      assert ability.can?(:update, u_test3)
+      assert ability.cannot?(:update, u_test3)
       assert ability.cannot?(:destroy, u_test3)
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
@@ -497,9 +497,9 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, u)
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
-      assert ability.can?(:update, u_test2)
+      assert ability.cannot?(:update, u_test2)
       assert ability.cannot?(:destroy, u_test2)
-      assert ability.can?(:update, u_test3)
+      assert ability.cannot?(:update, u_test3)
       assert ability.cannot?(:destroy, u_test3)
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
@@ -518,19 +518,19 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, u)
-      assert ability.can?(:destroy, u)
-      assert ability.can?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:destroy, u)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       tu_test1.update_column(:role, 'journalist')
 
-      assert ability.can?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       tu_test1.update_column(:role, 'contributor')
 
-      assert ability.can?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
