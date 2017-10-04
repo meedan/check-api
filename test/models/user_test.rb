@@ -310,7 +310,7 @@ class UserTest < ActiveSupport::TestCase
      create_team_user team: t1, user: u
      t2 = create_team
      create_team_user team: t2, user: u, status: 'requested'
-     assert_equal [t1.name, t2.name].sort, JSON.parse(u.user_teams).keys.sort
+     assert_equal [t1.slug, t2.slug].sort, JSON.parse(u.user_teams).keys.sort
   end
 
   test "should not crash if account is not created" do
