@@ -953,4 +953,9 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     assert_kind_of String, t.public_team_id
   end
+
+  test "should have public team alias" do
+    t = create_team
+    assert_equal t, t.public_team
+  end
 end
