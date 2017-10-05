@@ -572,4 +572,11 @@ class UserTest < ActiveSupport::TestCase
       create_user api_key_id: nil
     end
   end
+
+  test "should have number of teams" do
+    u = create_user
+    create_team_user user: u
+    create_team_user user: u
+    assert_equal 2, u.reload.number_of_teams
+  end
 end

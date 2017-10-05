@@ -240,6 +240,11 @@ class Team < ActiveRecord::Base
     filename = ['media_verification_statuses', 'source_verification_statuses'].include?(field) ? 'statuses' : field
     URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json")
   end
+
+  def public_team_id
+    Base64.encode64("PublicTeam/#{self.id}")
+  end
+
   protected
 
   def set_verification_statuses(type, statuses)

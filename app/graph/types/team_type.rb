@@ -22,6 +22,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :search_id, types.String
   field :trash_size, JsonStringType
   field :limits, JsonStringType
+  field :public_team_id, types.String
 
   field :media_verification_statuses do
     type types.String
