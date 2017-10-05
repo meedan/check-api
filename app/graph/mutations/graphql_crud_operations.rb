@@ -12,7 +12,7 @@ class GraphqlCrudOperations
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless parent_name == 'public_team'
         ret[parent_name.to_sym] = parent
       end
     end

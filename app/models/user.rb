@@ -47,6 +47,10 @@ class User < ActiveRecord::Base
     role
   end
 
+  def number_of_teams
+    self.cached_teams.size
+  end
+
   def teams_owned
     self.teams.joins(:team_users).where({'team_users.role': 'owner', 'team_users.status': 'member'})
   end

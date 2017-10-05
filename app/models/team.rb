@@ -236,10 +236,19 @@ class Team < ActiveRecord::Base
     CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end
 
+  def public_team
+    self
+  end
+
   def json_schema_url(field)
     filename = ['media_verification_statuses', 'source_verification_statuses'].include?(field) ? 'statuses' : field
     URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json")
   end
+
+  def public_team_id
+    Base64.encode64("PublicTeam/#{self.id}")
+  end
+
   protected
 
   def set_verification_statuses(type, statuses)

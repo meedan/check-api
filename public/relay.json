@@ -3056,6 +3056,20 @@
               "deprecationReason": null
             },
             {
+              "name": "number_of_teams",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "permissions",
               "description": null,
               "args": [
@@ -5425,6 +5439,20 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "ProjectConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "public_team_id",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -12452,6 +12480,20 @@
               "deprecationReason": null
             },
             {
+              "name": "public_team",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "PublicTeam",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "team",
               "description": null,
               "args": [
@@ -12631,6 +12673,20 @@
                   "name": "String",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "public_team",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "PublicTeam",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -12866,6 +12922,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "public_team",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
