@@ -304,6 +304,7 @@ class ActiveSupport::TestCase
       edges.each do |edge|
         if edge['node'][name]['edges'].size > 0 && !equal
           equal = (obj.send(name).first.send(key) == edge['node'][name]['edges'][0]['node'][key])
+          equal = (obj.send(name).last.send(key) == edge['node'][name]['edges'][0]['node'][key]) unless equal
         end
       end
       assert equal
