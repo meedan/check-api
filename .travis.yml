@@ -2,18 +2,23 @@ language: ruby
 services:
 - postgresql
 before_install:
+- export PATH=/tmp/bundler/ruby/2.3.0/bin:$PATH
+- export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
 - openssl aes-256-cbc -K $encrypted_309dd1ea690c_key -iv $encrypted_309dd1ea690c_iv -in travis.zip.enc -out travis.zip -d
 - unzip travis.zip
 - sudo apt-get -qq update
 - sudo apt-get install wget openjdk-7-jre redis-server
 - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.4.1.deb && sudo dpkg -i --force-confnew elasticsearch-2.4.1.deb && sudo service elasticsearch restart
 - redis-server &
+cache:
+  directories:
+    - "/tmp/bundler"
 addons:
   postgresql: '9.4'
   code_climate:
     repo_token:
       secure: uR2UyB80Mzpnn6+uUheuVTLNgwgeA8xf55F78WN+70AgMi/dHCdSzrm1FB5uETxNqdobCYHRJkSKqoufd7hrHdILBTuXHrTSGdkEjM78rP3phk+wLhzbXsCVVy1SW66c3uXdZDAId0vE8U9eI9noWLytf29wmASQMcsOpooDLxBvFx4r0TeETmNxuEMkTVxJ0UraPljAlS6Lob/gxm5BXF+u3CUQL5Y2wNNlOoXRUuJMcODrQR03+IgKRDfwmA987F7/RCMWSfqAzMts2kWcbXzsySatmTOlJH1Wten+bMNbIbfrmP1kkI5EdNDLmTcVJAviwMfzG1BklmT8r6B8bKNhcCRWiNXbscheja2l5Q6jzOkLpSBqYGmOqlLZktoGKqwNu9J5ncUiscGMNAWnolZgjq2WreD/v5L58PJtTf5pd/lbmo2l9E8fCndIURQiuQOiHM0i0SlnygFHvrE2TUHY4JPsCIg/h4sAuAwtEFGjmAZuCPch3KbKx24Sc+xE5zJ5rx5841tlnPyFyBLMy3DxRywYkbFuVUZO8I4nKmvHucgMaRsPre9aP9Ne/9pN01A42y5eBC4PurNBtMNBw5hq+hLJvMhANzcmYMt0FS6k/NwVmOCfRXyNmc6QDWzbhzqIuoc2s7EowSnkGIZLly5Zmkhe2mSy38uFBXSlq1M=
-bundler_args: "--jobs 3 --retry 3 --without nothing"
+bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
 - sleep 15
 - 'echo "script.engine.groovy.inline.update: on" | sudo tee -a /etc/elasticsearch/elasticsearch.yml'
@@ -27,7 +32,7 @@ before_script:
 - RAILS_ENV=test bundle exec rake db:migrate
 script: bundle exec rake test:coverage
 rvm:
-- 2.3.1
+- 2.3.4
 notifications:
   slack:
     secure: dhqNhrJ0FVPnjtxa7R6k0s+1h/gMFNeK8zYJLZw+mK/FJ41K1u82Y8E6IDFbgNcKyAJ27ielvzGgWGSkDVltEnPR+ph15OMcy05TM9Pr2tWNusbDECOaEQgn4vGOq0shmiahE9tTOQpgc1TzhzIF9o1xgocah2PCLKiiH06kiiRlNZkaeQSJRFrXsPDDK8jIUtkLLUvFGQA6fq/lOh4tN6/N+K6+fo86wSxarkjv3d6h2flqvQqvqkbNpkv/UBC2Y1QACP+EX6uA0ySer8K5X6Q0Trrkjjacwvo5j74UVa+UYrBD+vr7Mgnr5aNFNId6M2nHd92ZiPM+6VDllCWsDLvJ2qFFy8cOO693EjrU7puaPp29+sptriIC71dk1oHSIEpPWwuaEZKzpwP4Swe322ne2th2VrjMhIye2Ru0519Lr2Dl4iTVV+hxoeVta3Nng23rUjrGoAbcw2FO1jmhANp8JWatv/V4PmlrS1/kYbiCfltWOMbKAD9f1EOTFnPCJsp3hPL238Ic+kvNJ8LM+ItNNR5cly+JPto6nSnMO8uhig9i78Mp2hVpnvrwhDLYntWEP2vcaNhP8oRys7X2iq5PRmsRwr9SyJReczd6i5gnvskXqKat6mNfPeGMBKSYof/1ve3Um0wEtwaYxvU5y/ZezFc3Kzzi6vt4P86j+mg=
