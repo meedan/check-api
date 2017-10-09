@@ -13,6 +13,7 @@ module CheckBasicAbilities
 
     # Permissions for registration and login
     can :create, Source, :user_id => @user.id
+    can :update, Source, :team_id => nil, :id => @user.source_id
     can :update, User, :id => @user.id
     can [:create, :update], Account, :user_id => @user.id
     can :create, Embed, :annotated_id => @user.account_ids
