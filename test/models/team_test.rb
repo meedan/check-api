@@ -356,17 +356,27 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should not save custom verification status if the default doesn't match any status id" do
     t = create_team
-    value = {
-      label: 'Field label',
-      default: '10',
-      statuses: [
-        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
-      ]
-    }
-    assert_raises ActiveRecord::RecordInvalid do
-      t.set_media_verification_statuses(value)
-      t.save!
+    variations = [
+      {
+        label: 'Field label',
+        default: '10',
+        statuses: [
+          { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
+          { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
+        ]
+      },
+      {
+        label: 'Field label',
+        default: '1',
+        statuses: []
+      }
+    ]
+
+    variations.each do |value|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.set_media_verification_statuses(value)
+        t.save!
+      end
     end
   end
 

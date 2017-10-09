@@ -107,8 +107,12 @@ class Team < ActiveRecord::Base
 
   def media_verification_statuses
     statuses = self.get_media_verification_statuses
-    unless statuses.blank? || statuses['statuses'].blank?
-      statuses['statuses'].each { |s| s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style'] }
+    unless statuses.blank?
+      if statuses['statuses'].nil?
+        statuses['statuses'] = []
+      else
+        statuses['statuses'].each { |s| s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style'] }
+      end
     end
     statuses
   end
@@ -253,25 +257,29 @@ class Team < ActiveRecord::Base
 
   def set_verification_statuses(type, statuses)
     statuses = statuses.with_indifferent_access
+    statuses[:statuses] = [] if statuses[:statuses].nil?
+
     if statuses[:statuses]
       statuses[:statuses] = get_values_from_entry(statuses[:statuses])
       statuses[:statuses].delete_if { |s| s[:id].blank? && s[:label].blank? }
-      statuses[:statuses].each do |status|
-        if status[:style] && status[:style].is_a?(Hash)
-          color = status[:style][:color]
-          status[:style][:backgroundColor] = color
-          status[:style][:borderColor] = color
-        end
-      end
+      statuses[:statuses].each  { |s| set_status_color(s) }
     end
     statuses.delete_if { |_k, v| v.blank? }
-    unless statuses.keys.sort.map(&:to_sym) == [:default, :label]
+    unless statuses.keys.map(&:to_sym) == [:label]
       self.send("set_#{type}_verification_statuses", statuses)
     end
   end
 
   def get_values_from_entry(entry)
     (entry && entry.respond_to?(:values)) ? entry.values : entry
+  end
+
+  def set_status_color(status)
+    if status[:style] && status[:style].is_a?(Hash)
+      color = status[:style][:color]
+      status[:style][:backgroundColor] = color
+      status[:style][:borderColor] = color
+    end
   end
 
   private
