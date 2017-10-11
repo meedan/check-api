@@ -31,7 +31,7 @@ before_script:
 - cp travis/database.yml config/database.yml
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3
 - cd scripts && ./setup-parallel-env.sh && cd -
-script: 'bundle exec rake "parallel:test[3]"'
+script: 'bundle exec rake parallel:coverage'
 rvm:
 - 2.3.4
 notifications:
