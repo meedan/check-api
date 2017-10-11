@@ -96,7 +96,7 @@ class ActiveSupport::TestCase
     User.current = nil
   end
 
-  def assert_queries(num = 1, &block)
+  def assert_queries(num = 1, operator = '=', &block)
     old = ActiveRecord::Base.connection.query_cache_enabled
     ActiveRecord::Base.connection.enable_query_cache!
     queries  = []
@@ -106,7 +106,12 @@ class ActiveSupport::TestCase
     ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &block)
   ensure
     ActiveRecord::Base.connection.disable_query_cache! unless old
-    assert_equal num, queries.size, "#{queries.size} instead of #{num} queries were executed.#{queries.size == 0 ? '' : "\nQueries:\n#{queries.join("\n")}"}"
+    msg = "#{queries.size} instead of #{num} queries were executed.#{queries.size == 0 ? '' : "\nQueries:\n#{queries.join("\n")}"}"
+    if operator == '='
+      assert_equal num, queries.size, msg
+    elsif operator == '<'
+      assert queries.size < num, msg
+    end
   end
 
   def authenticate_with_token(api_key = nil)

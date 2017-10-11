@@ -719,7 +719,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    assert_queries (3*n + n*m + 17) do
+    # Expected: 3*n + n*m + 17
+    assert_queries 170, '<' do
       post :create, query: query, team: 'team'
     end
 
