@@ -32,7 +32,7 @@ before_script:
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3
 - psql -c 'create database travis_ci_test;' -U postgres
 - RAILS_ENV=test bundle exec rake db:migrate
-- RAILS_ENV=test rake parallel:setup
+- RAILS_ENV=test bundle exec rake parallel:setup
 script: 'bundle exec rake "parallel:test[3]"'
 rvm:
 - 2.3.4
