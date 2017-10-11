@@ -505,12 +505,14 @@ class TeamTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     a = create_account team: t
     c = create_contact team: t
+    RequestStore.store[:disable_es_callbacks] = true
     t.destroy
     assert_equal 0, Project.where(team_id: id).count
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
     assert_equal 0, Contact.where(team_id: id).count
     assert_equal 0, ProjectMedia.where(project_id: p.id).count
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should have search id" do
@@ -767,9 +769,11 @@ class TeamTest < ActiveSupport::TestCase
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
       c = create_comment annotated: pm2
+      RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         t.destroy_later
       end
+      RequestStore.store[:disable_es_callbacks] = false
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
       assert_nil ProjectMedia.where(id: pm3.id).last
@@ -814,6 +818,7 @@ class TeamTest < ActiveSupport::TestCase
       p = create_project team: t
       3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
       2.times { create_project_media(project: p) }
+      RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         assert_nothing_raised do
           assert_difference 'ProjectMedia.count', -3 do
@@ -821,6 +826,7 @@ class TeamTest < ActiveSupport::TestCase
           end
         end
       end
+      RequestStore.store[:disable_es_callbacks] = false
     end
   end
 

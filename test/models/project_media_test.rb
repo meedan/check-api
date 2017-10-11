@@ -264,28 +264,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Rails.unstub(:env)
   end
 
-  test "should set initial status for media" do
-    u = create_user
-    t = create_team
-    p = create_project team: t
-    stub_config('app_name', 'Check') do
-      m = create_valid_media user: u
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
-      sleep 1
-      ms = MediaSearch.find(pm.id)
-      assert_equal Status.default_id(m, p), ms.status
-    end
-    stub_config('app_name', 'Bridge') do
-      m = create_valid_media user: u
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
-      sleep 1
-      ms = MediaSearch.find(pm.id)
-      assert_nil ms.status
-    end
-  end
-
   test "should update project media embed data" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
@@ -389,6 +367,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = ProjectMedia.new
     pm.project_id = create_project.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
+    pm.disable_es_callbacks = true
     pm.save!
     assert_equal 'rails.png', pm.embed['title']
   end
@@ -495,44 +474,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t2
     pm.project = p2; pm.save!
     assert_equal ps.reload.project_id, p2.id
-  end
-
-  test "should update es after move media to other projects" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    create_comment annotated: pm
-    create_tag annotated: pm
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.project_id.to_i, p.id
-    assert_equal ms.team_id.to_i, t.id
-    t2 = create_team
-    p2 = create_project team: t2
-    pm.project = p2; pm.save!
-    ElasticSearchWorker.drain
-    # confirm annotations log
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.project_id.to_i, p2.id
-    assert_equal ms.team_id.to_i, t2.id
-  end
-
-  test "should destroy elasticseach project media" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    sleep 1
-    assert_not_nil MediaSearch.find(pm.id)
-    Sidekiq::Testing.inline! do
-      pm.destroy
-      sleep 1
-      assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-        result = MediaSearch.find(pm.id)
-      end
-    end
   end
 
   test "should have versions" do
@@ -653,41 +594,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal '2', JSON.parse(em2.data['embed'])['foo']
     assert_equal 2, em2.refreshes_count
     assert_equal em1, em2
-  end
-
-  test "should update es after refresh Pender data" do
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"new_title"}}')
-    t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    m = create_media url: url
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.title, 'org_title'
-    ms2 = MediaSearch.find(pm2.id)
-    assert_equal ms2.title, 'org_title'
-    Sidekiq::Testing.inline! do
-      # Update title
-      pm2.reload; pm2.disable_es_callbacks = false
-      info = {title: 'override_title'}.to_json
-      pm2.embed= info
-      pm.reload; pm.disable_es_callbacks = false
-      pm.refresh_media = true
-      pm.save!
-      pm2.reload; pm2.disable_es_callbacks = false
-      pm2.refresh_media = true
-      pm2.save!
-    end
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.title, 'new_title'
-    ms2 = MediaSearch.find(pm2.id)
-    assert_equal ms2.title, 'override_title'
   end
 
   test "should get user id for migration" do
@@ -815,29 +721,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal d2, pm.get_dynamic_annotation('bar')
   end
 
-  test "should set es data for media account" do
-    t = create_team
-    p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    media_url = 'http://www.facebook.com/meedan/posts/123456'
-    author_url = 'http://facebook.com/123456'
-    author_normal_url = 'http://www.facebook.com/meedan'
-
-    data = { url: media_url, author_url: author_url, type: 'item' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
-
-    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
-
-    m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.account[0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar", "username"=>"username"}.sort
-  end
-
   test "should get report type" do
     c = create_claim_media
     l = create_link
@@ -860,10 +743,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ft = create_field_type
     fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
     a = create_dynamic_annotation annotator: u2, annotated: pm, annotation_type: 'test', set_fields: { test: 'Test' }.to_json
+    RequestStore.store[:disable_es_callbacks] = true
     with_current_user_and_team(u, t) do
       pm.disable_es_callbacks = true
       pm.destroy
     end
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should have oEmbed endpoint" do
@@ -1040,7 +925,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
     ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
 
-    expected = File.read(File.join(Rails.root, 'test', 'data', 'oembed.html')).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
+    expected = File.read(File.join(Rails.root, 'test', 'data', 'oembed.html')).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url'])
     actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
 
     assert_equal expected, actual

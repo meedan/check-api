@@ -27,7 +27,7 @@ class ProjectSource < ActiveRecord::Base
   end
 
   def add_elasticsearch_data
-    return if self.disable_es_callbacks
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks] 
     p = self.project
     s = self.source
     ms = MediaSearch.new
@@ -48,7 +48,7 @@ class ProjectSource < ActiveRecord::Base
   private
 
   def set_account
-    account = self.url.blank? ? nil : Account.create_for_source(self.url, self.source)
+    account = self.url.blank? ? nil : Account.create_for_source(self.url, self.source, false, self.disable_es_callbacks)
     unless account.nil?
       errors.add(:base, account.errors.to_a.to_sentence(locale: I18n.locale)) unless account.errors.empty?
       self.source ||= account.source

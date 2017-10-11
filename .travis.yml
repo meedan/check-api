@@ -13,6 +13,7 @@ before_install:
 cache:
   directories:
     - "/tmp/bundler"
+    - "tmp"
 addons:
   postgresql: '9.4'
   code_climate:
@@ -28,9 +29,11 @@ before_script:
 - cp travis/config.yml config/config.yml
 - cp config/initializers/secret_token.rb.example config/initializers/secret_token.rb
 - cp travis/database.yml config/database.yml
+- rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3
 - psql -c 'create database travis_ci_test;' -U postgres
 - RAILS_ENV=test bundle exec rake db:migrate
-script: bundle exec rake test:coverage
+- RAILS_ENV=test rake parallel:setup
+script: 'bundle exec rake "parallel:test[3]"'
 rvm:
 - 2.3.4
 notifications:

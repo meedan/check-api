@@ -6,6 +6,7 @@ require 'rails/test_help'
 require 'webmock/minitest'
 require 'mocha/test_unit'
 require 'sample_data'
+require 'parallel_tests/test/runtime_logger'
 
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
@@ -73,10 +74,7 @@ class ActiveSupport::TestCase
     Pusher::Client.any_instance.stubs(:trigger)
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |klass| klass.delete_all }
-    # create index
-    MediaSearch.delete_index
-    MediaSearch.create_index
-    Rails.cache.clear if File.exists?(File.join(Rails.root, 'tmp', 'cache'))
+    FileUtils.rm_rf(File.join(Rails.root, 'tmp', "cache<%= ENV['TEST_ENV_NUMBER'] %>", '*'))
     Rails.application.reload_routes!
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
@@ -282,8 +280,11 @@ class ActiveSupport::TestCase
       elsif name === 'tasks'
         create_task annotated: obj
       else
+        RequestStore.store[:disable_es_callbacks] = true
+        obj.disable_es_callbacks = true if obj.respond_to?(:disable_es_callbacks)
         obj.send(name).send('<<', [send("create_#{name.singularize}")])
         obj.save!
+        RequestStore.store[:disable_es_callbacks] = false
       end
       obj = obj.reload
       node += "#{name} { edges { node { #{key} } } }, "

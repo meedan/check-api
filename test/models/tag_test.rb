@@ -180,27 +180,6 @@ class TagTest < ActiveSupport::TestCase
     end
   end
 
-  test "should create elasticsearch tag" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
-    t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
-    sleep 1
-    result = TagSearch.find(t.id, parent: pm.id)
-    assert_equal t.id.to_s, result.id
-  end
-
-  test "should update elasticsearch tag" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
-    t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
-    t.tag = 'sports-news'; t.save!
-    sleep 1
-    result = TagSearch.find(t.id, parent: pm.id)
-    assert_equal 'sports-news', result.tag
-  end
-
   test "should protect attributes from mass assignment" do
     raw_params = { annotator: create_user, tag: 'my tag' }
     params = ActionController::Parameters.new(raw_params)

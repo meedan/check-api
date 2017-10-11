@@ -71,6 +71,7 @@ module CheckElasticSearch
   end
 
   def destroy_elasticsearch_data(model, type = 'child')
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = {}
     if type == 'child'
       options = {parent: get_parent_id}

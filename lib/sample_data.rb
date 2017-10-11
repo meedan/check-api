@@ -23,7 +23,8 @@ module SampleData
   end
 
   def random_machine_name
-    8.times.map { [*'a'..'z'].sample }.join
+    name = random_string(5) + '_' + random_string(5) + '_' + random_string(5)
+    name.downcase
   end
 
   def create_api_key(options = {})
@@ -293,6 +294,7 @@ module SampleData
     team.description = options[:description] || random_string
     team.save!
     team.update_columns(limits: { foo: 'bar' })
+    team.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     team.reload
   end
 
@@ -306,6 +308,8 @@ module SampleData
     m.quote = options[:quote] if options.has_key?(:quote)
     m.account_id = options.has_key?(:account_id) ? options[:account_id] : account.id
     m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
+    m.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
+
     if options.has_key?(:team)
       options[:project_id] = create_project(team: options[:team]).id
     end

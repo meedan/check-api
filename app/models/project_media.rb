@@ -41,7 +41,7 @@ class ProjectMedia < ActiveRecord::Base
     st.annotator = self.user
     st.status = Status.default_id(self.media, self.project)
     st.created_at = self.created_at
-    st.disable_es_callbacks = self.disable_es_callbacks
+    st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     st.skip_check_ability = true
     st.save!
   end
@@ -69,7 +69,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def add_elasticsearch_data
-    return if self.disable_es_callbacks
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     p = self.project
     m = self.media
     ms = MediaSearch.new
@@ -141,6 +141,7 @@ class ProjectMedia < ActiveRecord::Base
       em = self.get_annotations('embed').last
       em = em.load unless em.nil?
       em = initiate_embed_annotation(info) if em.nil?
+      em.disable_es_callbacks = Rails.env.to_s == 'test'
       self.override_embed_data(em, info)
     end
   end
@@ -235,6 +236,7 @@ class ProjectMedia < ActiveRecord::Base
       unless ps.nil?
         ps.project_id = self.project_id
         ps.skip_check_ability = true
+        ps.disable_es_callbacks = Rails.env.to_s == 'test'
         ps.save!
       end
     end

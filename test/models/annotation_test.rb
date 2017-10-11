@@ -27,6 +27,7 @@ class AnnotationTest < ActiveSupport::TestCase
     create_comment
     c = Annotation.all.last
     assert_equal c, c.load
+    c.disable_es_callbacks = true
     c.destroy
     assert_nil c.load
   end

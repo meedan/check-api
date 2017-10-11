@@ -3,6 +3,7 @@ class GraphqlCrudOperations
     attrs.each do |key, value|
       obj.send("#{key}=", value)
     end
+    obj.disable_es_callbacks = Rails.env.to_s == 'test'
     obj.save!
 
     name = obj.class_name.underscore
@@ -54,6 +55,7 @@ class GraphqlCrudOperations
     type, id = NodeIdentification.from_global_id(inputs[:id])
     obj = type.constantize.find(id)
     obj = obj.load if obj.respond_to?(:load)
+    obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : obj.destroy
 
     ret = { deletedId: inputs[:id] }

@@ -43,4 +43,5 @@ Rails.application.configure do
   # http://guides.rubyonrails.org/configuring.html#configuring-middleware
   config.allow_concurrency = true
 
+  config.cache_store = :file_store, "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
 end

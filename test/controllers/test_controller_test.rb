@@ -108,7 +108,9 @@ class TestControllerTest < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u
     p = create_project team: t
+    RequestStore.store[:disable_es_callbacks] = true
     get :new_source, email: u.email, team_id: t.id, project_id: p.id, name: 'Test'
+    RequestStore.store[:disable_es_callbacks] = false
     assert_response :success
   end
 
@@ -128,7 +130,9 @@ class TestControllerTest < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u
     p = create_project team: t
+    RequestStore.store[:disable_es_callbacks] = true
     get :new_claim, email: u.email, team_id: t.id, project_id: p.id, quote: 'Test'
+    RequestStore.store[:disable_es_callbacks] = false
     assert_response :success
   end
 
@@ -152,7 +156,9 @@ class TestControllerTest < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u
     p = create_project team: t
+    RequestStore.store[:disable_es_callbacks] = true
     get :new_link, email: u.email, team_id: t.id, project_id: p.id, url: url
+    RequestStore.store[:disable_es_callbacks] = false
     assert_response :success
   end
 

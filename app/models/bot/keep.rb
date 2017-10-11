@@ -13,6 +13,7 @@ class Bot::Keep
 
     annotation = Dynamic.find(annotation_id)
     annotation.set_fields = { keep_backup_response: data.to_json }.to_json
+    annotation.disable_es_callbacks = Rails.env.to_s == 'test'
     annotation.save!
 
     # If not finished (error or success), run again
@@ -36,6 +37,7 @@ class Bot::Keep
       ts.annotation_type = 'keep_backup'
       ts.annotated = self
       ts.set_fields = { keep_backup_response: '{}' }.to_json
+      ts.disable_es_callbacks = Rails.env.to_s == 'test'
       ts.save!
       ts
     end
@@ -44,6 +46,7 @@ class Bot::Keep
       user_current = User.current
       User.current = nil
       annotation = self.annotations.where(annotation_type: 'keep_backup').last.load
+      annotation.disable_es_callbacks = Rails.env.to_s == 'test'
       annotation.set_fields = { keep_backup_response: '{}' }.to_json
       annotation.save!
       User.current = user_current

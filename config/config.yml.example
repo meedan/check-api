@@ -13,6 +13,7 @@ development: &default
   elasticsearch_host: 127.0.0.1
   elasticsearch_port: 9200
   elasticsearch_log: false
+  elasticsearch_sync: false
   graphql_debug: true
   checkdesk_client: 'http://localhost:3333'
   allow_duplicated_urls: false
