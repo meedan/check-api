@@ -148,13 +148,7 @@ class Bot::Viber < ActiveRecord::Base
       self.get_field('translation_status_status').to_s if self.annotation_type == 'translation_status'
     end
 
-    def previous_translation_status
-      @previous_translation_status
-    end
-
-    def previous_translation_status=(status)
-      @previous_translation_status = status
-    end
+    attr_accessor :previous_translation_status
 
     def from_language(locale = 'en')
       if self.annotation_type == 'translation'

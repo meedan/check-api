@@ -130,11 +130,7 @@ class GraphqlCrudOperations
 
   def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [])
     update_fields = create_fields if update_fields.empty?
-    [
-      GraphqlCrudOperations.define_create(type, create_fields, parents),
-      GraphqlCrudOperations.define_update(type, update_fields, parents),
-      GraphqlCrudOperations.define_destroy(type, parents)
-    ]
+    [GraphqlCrudOperations.define_create(type, create_fields, parents), GraphqlCrudOperations.define_update(type, update_fields, parents), GraphqlCrudOperations.define_destroy(type, parents)]
   end
 
   def self.define_default_type(&block)
@@ -306,8 +302,7 @@ class GraphqlCrudOperations
   end
 
   def self.load_if_can(klass, id, ctx)
-    obj = klass.find_if_can(id, ctx[:ability])
-    obj
+    klass.find_if_can(id, ctx[:ability])
   end
 end
 

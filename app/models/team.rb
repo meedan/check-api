@@ -3,6 +3,7 @@ class Team < ActiveRecord::Base
   include ValidationsHelper
   include NotifyEmbedSystem
   include DestroyLater
+  include TeamValidations
 
   attr_accessor :affected_ids
 
@@ -18,19 +19,6 @@ class Team < ActiveRecord::Base
   mount_uploader :logo, ImageUploader
 
   before_validation :normalize_slug, on: :create
-
-  validates_presence_of :name
-  validates_presence_of :slug
-  validates_format_of :slug, with: /\A[[:alnum:]-]+\z/, message: I18n.t(:slug_format_validation_message), on: :create
-  validates :slug, length: { in: 4..63 }, on: :create
-  validates :slug, uniqueness: true, on: :create
-  validate :slug_is_not_reserved
-  validates :logo, size: true
-  validate :slack_webhook_format
-  validate :slack_channel_format
-  validate :custom_media_statuses_format, unless: proc { |p| p.settings.nil? || p.get_media_verification_statuses.nil? }
-  validate :custom_source_statuses_format, unless: proc { |p| p.settings.nil? || p.get_source_verification_statuses.nil? }
-  validate :checklist_format
 
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed
