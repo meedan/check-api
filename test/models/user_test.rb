@@ -361,9 +361,17 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     u2 = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'contributor'
     s = u.source
     assert_nil s.team
+    # should edit own profile even user has no team
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        s.name = 'update name'
+        s.save!
+        assert_equal s.reload.name, 'update name'
+      end
+    end
+    create_team_user user: u, team: t, role: 'contributor'
     # should edit own profile
     with_current_user_and_team(u, t) do
       assert_nothing_raised do

@@ -25,7 +25,10 @@ namespace :check do
     end
 
     User.find_each do |u|
-      u.update_columns(email: '', encrypted_password: '') unless u.email =~ /@meedan\./ || exceptions.include?(u.email)
+      unless u.email =~ /@meedan\./ || exceptions.include?(u.email)
+        u.update_columns(email: '', encrypted_password: '')
+        u.update_columns(uuid: "#{u.uuid}_uuid") if u.provider.blank?
+      end
     end
     Project.find_each do |p|
       if !p.settings.blank? && p.get_slack_notifications_enabled == "1"
