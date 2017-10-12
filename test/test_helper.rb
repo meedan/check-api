@@ -1,10 +1,3 @@
-ENV['RAILS_ENV'] ||= 'test'
-require File.expand_path('../../config/environment', __FILE__)
-require 'rails/test_help'
-require 'webmock/minitest'
-require 'mocha/test_unit'
-require 'sample_data'
-require 'parallel_tests/test/runtime_logger'
 require 'simplecov'
 
 SimpleCov.start 'rails' do
@@ -18,6 +11,14 @@ SimpleCov.start 'rails' do
   end
   coverage_dir 'coverage'
 end
+
+ENV['RAILS_ENV'] ||= 'test'
+require File.expand_path('../../config/environment', __FILE__)
+require 'rails/test_help'
+require 'webmock/minitest'
+require 'mocha/test_unit'
+require 'sample_data'
+require 'parallel_tests/test/runtime_logger'
 
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
