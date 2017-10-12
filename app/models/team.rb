@@ -137,7 +137,10 @@ class Team < ActiveRecord::Base
   def checklist
     tasks = self.get_checklist
     unless tasks.blank?
-      tasks.map { |t| t[:options] = JSON.parse(t[:options]) if t[:options] }
+      tasks.map do |t|
+        t[:options] = JSON.parse(t[:options]) if t[:options]
+        t[:projects] = [] if t[:projects].nil?
+      end
     end
     tasks
   end
