@@ -108,8 +108,8 @@ GEM
       mime-types (>= 1.16)
       mimemagic (>= 0.3.0)
     clamav-client (3.1.0)
-    codeclimate-test-reporter (0.6.0)
-      simplecov (>= 0.7.1, < 1.0.0)
+    codeclimate-test-reporter (1.0.8)
+      simplecov (<= 0.13)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     coffee-rails (4.1.1)
@@ -418,11 +418,11 @@ GEM
     sidekiq-limit_fetch (3.4.0)
       sidekiq (>= 4)
     simple_oauth (0.3.1)
-    simplecov (0.14.1)
+    simplecov (0.13.0)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.0)
+    simplecov-html (0.10.2)
     sinatra (1.4.8)
       rack (~> 1.5)
       rack-protection (~> 1.4)
@@ -497,7 +497,7 @@ DEPENDENCIES
   cancancan (~> 1.10)
   carrierwave (~> 0.9)
   clamav-client
-  codeclimate-test-reporter (= 0.6.0)
+  codeclimate-test-reporter (= 1.0.8)
   coffee-rails (~> 4.1.0)
   devise
   devise-i18n
@@ -552,7 +552,7 @@ DEPENDENCIES
   sdoc (~> 0.4.0)
   sidekiq
   sidekiq-limit_fetch
-  simplecov
+  simplecov (= 0.13.0)
   sinatra
   sqlite3
   swagger-docs (= 0.1.9)

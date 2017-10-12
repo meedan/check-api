@@ -8,7 +8,7 @@ namespace :test do
         !file.filename.match(/\/app\/controllers\/concerns\/[^\/]+_doc\.rb$/).nil? ||
         !file.filename.match(/\/lib\/sample_data\.rb$/).nil?
       end
-      coverage_dir 'public/coverage'
+      coverage_dir 'coverage'
     end
     Rake::Task['test'].execute
   end
