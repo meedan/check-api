@@ -48,7 +48,7 @@ module CheckLimits
     end
 
     def can_use_custom_statuses
-      if self.get_limits_custom_statuses == false && 
+      if self.get_limits_custom_statuses == false &&
          (!self.get_source_verification_statuses.blank? || !self.get_media_verification_statuses.blank?)
         errors.add(:base, I18n.t(:cant_set_custom_statuses))
       end
@@ -62,7 +62,7 @@ module CheckLimits
   end
 
   # Slack Bot
-  
+
   Bot::Slack.class_eval do
     alias_method :notify_slack_original, :notify_slack
 
@@ -70,7 +70,11 @@ module CheckLimits
       p = self.get_project(model)
       t = self.get_team(model, p)
       unless t.nil?
-        self.notify_slack_original(model) unless t.get_limits_slack_integration == false
+        if t.get_limits_slack_integration == false
+          self.notify_super_admin(model, t, p)
+        else
+          self.notify_slack_original(model)
+        end
       end
     end
   end
@@ -79,7 +83,7 @@ module CheckLimits
 
   TeamUser.class_eval do
     validate :team_is_full, on: :create
-    
+
     include ::CheckLimits::Validators
 
     private
@@ -93,7 +97,7 @@ module CheckLimits
 
   Project.class_eval do
     include ::CheckLimits::Validators
-    
+
     validate :max_number_of_projects, on: :create
 
     private
@@ -117,8 +121,8 @@ module CheckLimits
     private
 
     def can_submit_through_browser_extension
-      if !RequestStore[:request].nil? && 
-         RequestStore[:request].headers['X-Check-Client'] == 'browser-extension' && 
+      if !RequestStore[:request].nil? &&
+         RequestStore[:request].headers['X-Check-Client'] == 'browser-extension' &&
          self.project && self.project.team && self.project.team.get_limits_browser_extension == false
         errors.add(:base, I18n.t(:cant_create_media_under_this_team_using_extension))
       end
