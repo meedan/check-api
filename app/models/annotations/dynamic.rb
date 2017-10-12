@@ -34,7 +34,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def slack_answer_task_message
-    response, note, task = self.values(['response', 'note', 'task'], '-').values_at('response', 'note', 'task')
+    response, note, task = self.values(['response', 'note', 'task'], '').values_at('response', 'note', 'task')
     task = Task.find(task).label
 
     note = I18n.t(:slack_answer_task_note, {note: Bot::Slack.to_slack_quote(note)}) unless note.blank?
