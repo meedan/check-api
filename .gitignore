@@ -32,4 +32,5 @@ dump.rdb
 travis
 travis.zip
 tmp/parallel_runtime_test.log
-public/coverage
+public/coverage/*
+!public/coverage/.gitkeep
