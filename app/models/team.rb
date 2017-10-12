@@ -4,17 +4,9 @@ class Team < ActiveRecord::Base
   include NotifyEmbedSystem
   include DestroyLater
   include TeamValidations
+  include TeamAssociations
 
   attr_accessor :affected_ids
-
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
-
-  has_many :projects, dependent: :destroy
-  has_many :accounts, dependent: :destroy
-  has_many :team_users, dependent: :destroy
-  has_many :users, through: :team_users
-  has_many :contacts, dependent: :destroy
-  has_many :sources, dependent: :destroy
 
   mount_uploader :logo, ImageUploader
 
@@ -22,8 +14,6 @@ class Team < ActiveRecord::Base
 
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed
-
-  has_annotations
 
   check_settings
 
