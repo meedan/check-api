@@ -65,5 +65,4 @@ SourceType = GraphqlCrudOperations.define_default_type do
 
   instance_exec :source, &GraphqlCrudOperations.field_verification_statuses
 
-  instance_exec :project_source, &GraphqlCrudOperations.field_published
 end

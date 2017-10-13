@@ -281,7 +281,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_tag annotated: ps
     create_comment annotated: ps2
     create_tag annotated: ps2
-    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { source { log(first: 1000) { edges { node { event_type } } }, log_count, published,tags { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } }, user{id}, team{id} } }"
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, source { log(first: 1000) { edges { node { event_type } } }, log_count, tags { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } }, user{id}, team{id} } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_source']
@@ -289,7 +289,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_not_empty data['team']['id']
     assert_equal 4, data['source']['annotations']['edges'].size
     assert_equal 4, data['source']['annotations_count']
-    assert_not_empty data['source']['published']
+    assert_not_empty data['published']
     assert_equal 4, data['source']['log']['edges'].size
     assert_equal 4, data['source']['log_count']
   end
