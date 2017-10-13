@@ -170,7 +170,7 @@ en:
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y at %H:%M %z"
+      task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
   oembed_disclaimer_undetermined: This media has not been reviewed by the %{team}
     team
   oembed_disclaimer_in_progress: The accuracy of this media is in progress of being
