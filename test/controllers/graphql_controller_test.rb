@@ -1022,8 +1022,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should get project information fast" do
-    n = rand(20) + 1  # Number of media items to be created
-    m = rand(20) + 1  # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
+    n = 21 + rand(20)  # Number of media items to be created
+    m = 21 + rand(20)  # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
@@ -1039,11 +1039,12 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
-    assert_queries (19 * n + 12) do
+    # Make sure we only run queries for the 20 first items
+    assert_queries (19 * 20 + 12) do
       post :create, query: query, team: 'team'
     end
 
     assert_response :success
-    assert_equal n, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal 20, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 end
