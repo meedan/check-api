@@ -42,5 +42,7 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  instance_exec :project_source, &GraphqlCrudOperations.field_published
+
 # End of fields
 end
