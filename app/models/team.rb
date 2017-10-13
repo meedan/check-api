@@ -86,11 +86,8 @@ class Team < ActiveRecord::Base
   def media_verification_statuses
     statuses = self.get_media_verification_statuses
     unless statuses.blank?
-      if statuses['statuses'].nil?
-        statuses['statuses'] = []
-      else
-        statuses['statuses'].each { |s| s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style'] }
-      end
+      statuses['statuses'] = [] if statuses['statuses'].nil?
+      statuses['statuses'].each { |s| s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style'] }
     end
     statuses
   end

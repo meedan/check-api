@@ -465,6 +465,18 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal ['color'], status.first[:style].keys.sort
    end
 
+  test "should return statuses as array after set statuses without it" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1'
+    }
+    t.media_verification_statuses = value
+
+    assert_nil t.get_media_verification_statuses[:statuses]
+    assert_equal [], t.media_verification_statuses[:statuses]
+  end
+
    test "should not save statuses if default is present and statuses is missing" do
     t = create_team
     value = {
