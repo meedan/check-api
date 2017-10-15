@@ -12,7 +12,7 @@ class AccountSource < ActiveRecord::Base
 
   def set_account
     if self.account_id.blank? && !self.url.blank?
-      self.account =  Account.create_for_source(self.url, nil, true)
+      self.account =  Account.create_for_source(self.url, self.source, true)
     end
   end
 
