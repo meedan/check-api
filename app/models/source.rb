@@ -19,6 +19,7 @@ class Source < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
+  validate :uniqueness_per_team, on: :create
   validate :team_is_not_archived
 
   after_update :update_elasticsearch_source
@@ -137,6 +138,13 @@ class Source < ActiveRecord::Base
     conditions = {}
     conditions[:project_id] = Team.current.projects unless Team.current.nil?
     self.project_sources.where(conditions)
+  end
+
+  def uniqueness_per_team
+    unless self.team.nil? || self.name.blank?
+      s = Source.where(name: self.name, team_id: self.team_id).last
+      errors.add(:base, "This source already exists in this team and has id #{s.id}") unless s.nil?
+    end
   end
 
   def team_is_not_archived
