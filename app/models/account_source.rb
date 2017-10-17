@@ -8,11 +8,21 @@ class AccountSource < ActiveRecord::Base
 
   before_validation :set_account, on: :create
 
+  validate :is_unique_per_team, on: :create
+
   private
 
   def set_account
     if self.account_id.blank? && !self.url.blank?
       self.account =  Account.create_for_source(self.url, self.source, true)
+    end
+  end
+
+  def is_unique_per_team
+    sources = Source.where(team_id: Team.current.id).joins(:account_sources).where("account_sources.account_id = ?", self.account_id) unless Team.current.nil?
+    unless sources.blank?
+      ps = ProjectSource.where(source_id: sources.last.id).last
+      errors.add(:base, "Account with this URL exists and has source id #{ps.id} in project #{ps.project_id}") unless ps.nil?
     end
   end
 
