@@ -11,7 +11,6 @@ class ProjectMedia < ActiveRecord::Base
 
   validates_presence_of :media_id, :project_id
 
-  validate :is_unique, on: :create
   validate :project_is_not_archived
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source

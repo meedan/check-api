@@ -19,7 +19,7 @@ class Source < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
-  validate :uniqueness_per_team, on: :create
+  validate :is_unique_per_team, on: :create
   validate :team_is_not_archived
 
   after_update :update_elasticsearch_source
@@ -124,6 +124,16 @@ class Source < ActiveRecord::Base
     self.save!
   end
 
+  def self.create_source(name, team = Team.current)
+    s = Source.where(name: name, team_id: team.id).last unless team.nil?
+    return s unless s.nil?
+    s = Source.new
+    s.name = name
+    s.skip_check_ability = true
+    s.save!
+    s.reload
+  end
+
   private
 
   def set_user
@@ -140,7 +150,7 @@ class Source < ActiveRecord::Base
     self.project_sources.where(conditions)
   end
 
-  def uniqueness_per_team
+  def is_unique_per_team
     unless self.team.nil? || self.name.blank?
       s = Source.where(name: self.name, team_id: self.team_id).last
       errors.add(:base, "This source already exists in this team and has id #{s.id}") unless s.nil?

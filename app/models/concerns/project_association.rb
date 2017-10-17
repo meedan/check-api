@@ -36,6 +36,9 @@ module ProjectAssociation
     include CheckElasticSearch
 
     before_validation :set_media_or_source, :set_user, on: :create
+
+    validate :is_unique, on: :create
+
     after_update :update_elasticsearch_data
     before_destroy :destroy_elasticsearch_media
 
@@ -90,7 +93,7 @@ module ProjectAssociation
 
     def set_source
       unless self.name.blank?
-        s = self.create_source
+        s = Source.create_source(self.name)
         self.source_id = s.id unless s.nil?
       end
     end

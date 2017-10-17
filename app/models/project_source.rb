@@ -27,7 +27,7 @@ class ProjectSource < ActiveRecord::Base
   end
 
   def add_elasticsearch_data
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks] 
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     p = self.project
     s = self.source
     ms = MediaSearch.new
@@ -46,6 +46,11 @@ class ProjectSource < ActiveRecord::Base
   end
 
   private
+
+  def is_unique
+    ps = ProjectSource.where(project_id: self.project_id, source_id: self.source_id).last
+    errors.add(:base, "This source already exists in this project and has id #{ps.id}") unless ps.nil?
+  end
 
   def set_account
     account = self.url.blank? ? nil : Account.create_for_source(self.url, self.source, false, self.disable_es_callbacks)
@@ -78,12 +83,4 @@ class ProjectSource < ActiveRecord::Base
     end
   end
 
-  protected
-
-  def create_source
-    s = Source.new
-    s.name = self.name
-    s.save
-    s.id.nil? ? nil : s
-  end
 end
