@@ -149,6 +149,15 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should be equivalent to set file or logo" do
+    t = create_team logo: nil
+    assert_match /team\.png$/, t.logo.url
+    File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+      t.file = f
+    end
+    assert_match /rails\.png$/, t.logo.url
+  end
+
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Team.count' do
       assert_raises ActiveRecord::RecordInvalid do
@@ -334,13 +343,72 @@ class TeamTest < ActiveSupport::TestCase
       default: '1',
       statuses: [
         { id: '1', label: 'Custom Status 1' },
-        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' }
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' },
+        { id: '3', label: '', description: 'The meaning of that status' },
+        { id: '', label: 'Custom Status 4', description: 'The meaning of that status' }
       ]
     }
     assert_raises ActiveRecord::RecordInvalid do
       t.set_media_verification_statuses(value)
       t.save!
     end
+  end
+
+  test "should not save custom verification status if the default doesn't match any status id" do
+    t = create_team
+    variations = [
+      {
+        label: 'Field label',
+        default: '10',
+        statuses: [
+          { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
+          { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
+        ]
+      },
+      {
+        label: 'Field label',
+        default: '1',
+        statuses: []
+      }
+    ]
+
+    variations.each do |value|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.set_media_verification_statuses(value)
+        t.save!
+      end
+    end
+  end
+
+  test "should remove empty statuses before save custom verification statuses" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Valid status', description: 'The meaning of this status', style: 'red' },
+        { id: '', label: '', description: 'Status with empty id and label', style: 'blue' }
+      ]
+    }
+    assert_nothing_raised do
+      t.media_verification_statuses = value
+      t.save!
+    end
+    assert_equal 1, t.get_media_verification_statuses[:statuses].size
+  end
+
+  test "should not save custom verification statuses if default or statuses is empty" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '',
+      statuses: []
+    }
+    assert_nothing_raised do
+      t.media_verification_statuses = value
+      t.save!
+    end
+    assert t.get_media_verification_statuses.nil?
   end
 
   test "should not save custom verification status if it is not a hash" do
@@ -358,9 +426,72 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set background color and border color equal to color on verification statuses" do
+    t = create_team
+    value = {
+      label: 'Test',
+      statuses: [{
+        id: 'first',
+        label: 'Analyzing',
+        description: 'Testing',
+        style: {
+          color: "blue"
+        }}]
+    }.with_indifferent_access
+    t.media_verification_statuses = value
+    t.save
+    statuses = t.get_media_verification_statuses[:statuses].first
+    %w(color backgroundColor borderColor).each do |k|
+      assert_equal 'blue', statuses['style'][k]
+    end
+  end
+
+  test "should not return backgroundColor and borderColor on AdminUI media custom statuses" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: { color: 'red', backgroundColor: 'red', borderColor: 'red'} },
+      ]
+    }
+    t.media_verification_statuses = value
+    t.save
+
+    status = t.get_media_verification_statuses[:statuses]
+    assert_equal ['backgroundColor', 'borderColor', 'color'], status.first[:style].keys.sort
+
+    status = t.media_verification_statuses[:statuses]
+    assert_equal ['color'], status.first[:style].keys.sort
+   end
+
+  test "should return statuses as array after set statuses without it" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1'
+    }
+    t.media_verification_statuses = value
+
+    assert_nil t.get_media_verification_statuses[:statuses]
+    assert_equal [], t.media_verification_statuses[:statuses]
+  end
+
+   test "should not save statuses if default is present and statuses is missing" do
+    t = create_team
+    value = {
+        label: 'Field label',
+        default: '1'
+    }
+    t.media_verification_statuses = value
+    t.save
+
+    assert Team.find(t.id).media_verification_statuses.nil?
+  end
+
   test "should set verification statuses to settings" do
     t = create_team
-    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }] }
+    value = { label: 'Test', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access
     t.media_verification_statuses = value
     t.source_verification_statuses = value
     t.save
@@ -408,12 +539,14 @@ class TeamTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     a = create_account team: t
     c = create_contact team: t
+    RequestStore.store[:disable_es_callbacks] = true
     t.destroy
     assert_equal 0, Project.where(team_id: id).count
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
     assert_equal 0, Contact.where(team_id: id).count
     assert_equal 0, ProjectMedia.where(project_id: p.id).count
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should have search id" do
@@ -460,6 +593,59 @@ class TeamTest < ActiveSupport::TestCase
         t.save!
       end
     end
+  end
+
+  test "should remove empty task without label before save checklist" do
+    t = create_team
+    variations = [
+      [{ label: '' }],
+      [{ description: 'A task' }],
+      [{ type: 'free_text', description: '', projects: []}]
+    ]
+    variations.each do |value|
+      assert_nothing_raised do
+        t.checklist = value
+        t.save!
+      end
+      assert t.get_checklist.empty?
+    end
+  end
+
+  test "should return checklist options as hash instead of json when call checklist" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+      options: "[{\"label\":\"option 1\"},{\"label\":\"option 2\"}]"
+    }]
+    t.checklist = value
+    t.save!
+    assert_equal "[{\"label\":\"option 1\"},{\"label\":\"option 2\"}]", t.get_checklist.first[:options]
+    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
+  end
+
+  test "should support the json editor format on checklist" do
+    t = create_team
+    value =  [{ label: 'A task', type: 'single_choice', description: '', projects: [], options: {"0"=>{"label"=>"option 1"}, "1"=>{"label"=>"option 2"}}}]
+    assert_nothing_raised do
+      t.checklist = value
+      t.save!
+    end
+    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
+  end
+
+  test "should return checklist projects as array after submit task without it" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "free_text",
+      description: "It is a single choice task",
+    }]
+    t.checklist = value
+    t.save!
+    assert_nil t.get_checklist.first[:projects]
+    assert_equal [], t.checklist.first[:projects]
   end
 
   test "should save valid slack_channel" do
@@ -630,9 +816,11 @@ class TeamTest < ActiveSupport::TestCase
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
       c = create_comment annotated: pm2
+      RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         t.destroy_later
       end
+      RequestStore.store[:disable_es_callbacks] = false
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
       assert_nil ProjectMedia.where(id: pm3.id).last
@@ -677,6 +865,7 @@ class TeamTest < ActiveSupport::TestCase
       p = create_project team: t
       3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
       2.times { create_project_media(project: p) }
+      RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         assert_nothing_raised do
           assert_difference 'ProjectMedia.count', -3 do
@@ -684,6 +873,7 @@ class TeamTest < ActiveSupport::TestCase
           end
         end
       end
+      RequestStore.store[:disable_es_callbacks] = false
     end
   end
 
@@ -727,11 +917,98 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should get search id" do
     t = create_team
-    assert_kind_of CheckSearch, t.check_search_team 
+    assert_kind_of CheckSearch, t.check_search_team
   end
 
   test "should get GraphQL id" do
     t = create_team
     assert_kind_of String, t.graphql_id
+  end
+
+  test "should have limits" do
+    t = Team.new
+    t.name = random_string
+    t.slug = "slug-#{random_number}"
+    t.save!
+    assert_equal Team.plans[:free], t.reload.limits
+  end
+
+  test "should not change limits if not super admin" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert_raises ActiveRecord::RecordInvalid do
+        t.limits = { changed: true }
+        t.save!
+      end
+    end
+  end
+
+  test "should change limits if super admin" do
+    t = create_team
+    u = create_user is_admin: true
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        t.limits = { changed: true }
+        t.save!
+      end
+    end
+  end
+
+  test "should not set custom statuses if limited" do
+    t = create_team
+    t.set_limits_custom_statuses(false)
+    t.save!
+    t = Team.find(t.id)
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
+  test "should not save checklist if limited" do
+    t = create_team
+    t.set_limits_custom_tasks_list(false)
+    t.save!
+    t = Team.find(t.id)
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_checklist(value)
+      t.save!
+    end
+  end
+
+  test "should return the json schema url" do
+    t = create_team
+    fields = {
+      'media_verification_statuses': 'statuses',
+      'source_verification_statuses': 'statuses',
+      'checklist': 'checklist',
+      'limits': 'limits'
+    }
+
+    fields.each do |field, filename|
+      assert_equal URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json"), t.json_schema_url(field.to_s)
+    end
+  end
+
+  test "should have public team id" do
+    t = create_team
+    assert_kind_of String, t.public_team_id
+  end
+
+  test "should have public team alias" do
+    t = create_team
+    assert_equal t, t.public_team
   end
 end

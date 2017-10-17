@@ -3,43 +3,19 @@ class Team < ActiveRecord::Base
   include ValidationsHelper
   include NotifyEmbedSystem
   include DestroyLater
+  include TeamValidations
+  include TeamAssociations
 
   attr_accessor :affected_ids
-
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
-
-  has_many :projects, dependent: :destroy
-  has_many :accounts, dependent: :destroy
-  has_many :team_users, dependent: :destroy
-  has_many :users, through: :team_users
-  has_many :contacts, dependent: :destroy
-  has_many :sources, dependent: :destroy
 
   mount_uploader :logo, ImageUploader
 
   before_validation :normalize_slug, on: :create
 
-  validates_presence_of :name
-  validates_presence_of :slug
-  validates_format_of :slug, with: /\A[[:alnum:]-]+\z/, message: I18n.t(:slug_format_validation_message), on: :create
-  validates :slug, length: { in: 4..63 }, on: :create
-  validates :slug, uniqueness: true, on: :create
-  validate :slug_is_not_reserved
-  validates :logo, size: true
-  validate :slack_webhook_format
-  validate :slack_channel_format
-  validate :custom_media_statuses_format, unless: proc { |p| p.settings.nil? || p.get_media_verification_statuses.nil? }
-  validate :custom_source_statuses_format, unless: proc { |p| p.settings.nil? || p.get_source_verification_statuses.nil? }
-  validate :checklist_format
-
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed
 
-  has_annotations
-
-  RESERVED_SLUGS = ['check']
-
-  include CheckSettings
+  check_settings
 
   def logo_callback(value, _mapping_ids = nil)
     image_callback(value)
@@ -72,6 +48,13 @@ class Team < ActiveRecord::Base
     self.projects.order('id DESC')
   end
 
+  # FIXME Source should be using concern HasImage
+  # which automatically adds a member attribute `file`
+  # which is used by GraphqlCrudOperations
+  def file=(file)
+    self.logo = file
+  end
+
   def contact=(info)
     contact = self.contacts.first || Contact.new
     info = JSON.parse(info)
@@ -97,11 +80,20 @@ class Team < ActiveRecord::Base
   end
 
   def media_verification_statuses=(statuses)
-    self.send(:set_media_verification_statuses, statuses)
+    set_verification_statuses('media', statuses)
+  end
+
+  def media_verification_statuses
+    statuses = self.get_media_verification_statuses
+    unless statuses.blank?
+      statuses['statuses'] = [] if statuses['statuses'].nil?
+      statuses['statuses'].each { |s| s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style'] }
+    end
+    statuses
   end
 
   def source_verification_statuses=(statuses)
-    self.send(:set_source_verification_statuses, statuses)
+    set_verification_statuses('source', statuses)
   end
 
   def slack_notifications_enabled=(enabled)
@@ -117,7 +109,27 @@ class Team < ActiveRecord::Base
   end
 
   def checklist=(checklist)
+    checklist = get_values_from_entry(checklist)
+    checklist.each_with_index do |c, index|
+      c = c.with_indifferent_access
+      options = get_values_from_entry(c[:options])
+      c[:options] = options.to_json if options && !options.kind_of?(String)
+      projects = get_values_from_entry(c[:projects])
+      c[:projects] = projects.map(&:to_i) if projects
+      c[:label].blank? ?  checklist.delete_at(index) : checklist[index] = c
+    end
     self.send(:set_checklist, checklist)
+  end
+
+  def checklist
+    tasks = self.get_checklist
+    unless tasks.blank?
+      tasks.map do |t|
+        t[:options] = JSON.parse(t[:options]) if t[:options]
+        t[:projects] = [] if t[:projects].nil?
+      end
+    end
+    tasks
   end
 
   def add_auto_task=(task)
@@ -206,16 +218,45 @@ class Team < ActiveRecord::Base
     CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end
 
+  def public_team
+    self
+  end
+
+  def json_schema_url(field)
+    filename = ['media_verification_statuses', 'source_verification_statuses'].include?(field) ? 'statuses' : field
+    URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json")
+  end
+
+  def public_team_id
+    Base64.encode64("PublicTeam/#{self.id}")
+  end
+
   protected
 
-  def custom_statuses_format(type)
-    statuses = self.send("get_#{type}_verification_statuses")
-    if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status))
-    else
-      statuses[:statuses].each do |status|
-        errors.add(:base, 'Custom verification statuses is invalid, it should have the format as exemplified below the field') if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
-      end
+  def set_verification_statuses(type, statuses)
+    statuses = statuses.with_indifferent_access
+    statuses[:statuses] = [] if statuses[:statuses].nil?
+
+    if statuses[:statuses]
+      statuses[:statuses] = get_values_from_entry(statuses[:statuses])
+      statuses[:statuses].delete_if { |s| s[:id].blank? && s[:label].blank? }
+      statuses[:statuses].each  { |s| set_status_color(s) }
+    end
+    statuses.delete_if { |_k, v| v.blank? }
+    unless statuses.keys.map(&:to_sym) == [:label]
+      self.send("set_#{type}_verification_statuses", statuses)
+    end
+  end
+
+  def get_values_from_entry(entry)
+    (entry && entry.respond_to?(:values)) ? entry.values : entry
+  end
+
+  def set_status_color(status)
+    if status[:style] && status[:style].is_a?(Hash)
+      color = status[:style][:color]
+      status[:style][:backgroundColor] = color
+      status[:style][:borderColor] = color
     end
   end
 
@@ -255,18 +296,6 @@ class Team < ActiveRecord::Base
 
   def normalize_slug
     self.slug = self.slug.downcase unless self.slug.blank?
-  end
-
-  def custom_media_statuses_format
-    self.custom_statuses_format(:media)
-  end
-
-  def custom_source_statuses_format
-    self.custom_statuses_format(:source)
-  end
-
-  def slug_is_not_reserved
-    errors.add(:slug, I18n.t(:slug_is_reserved)) if RESERVED_SLUGS.include?(self.slug)
   end
 
   def archive_or_restore_projects_if_needed

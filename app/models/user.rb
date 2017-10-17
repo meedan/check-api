@@ -26,7 +26,8 @@ class User < ActiveRecord::Base
   serialize :omniauth_info
   serialize :cached_teams, Array
 
-  include CheckSettings
+  check_settings
+
   include DeviseAsync
 
   ROLES = %w[contributor journalist editor owner]
@@ -44,6 +45,10 @@ class User < ActiveRecord::Base
       end
     end
     role
+  end
+
+  def number_of_teams
+    self.cached_teams.size
   end
 
   def teams_owned
@@ -135,7 +140,7 @@ class User < ActiveRecord::Base
     team_users = TeamUser.where(user_id: self.id)
     teams = Hash.new
     team_users.each do |tu|
-      teams[tu.team.name] = tu.as_json
+      teams[tu.team.slug] = tu.as_json
     end
     teams.to_json
   end

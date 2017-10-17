@@ -99,6 +99,7 @@ module ProjectMediaEmbed
       a.skip_check_ability = true
       a.annotated = self
       a.annotation_type = 'embed_code'
+      a.disable_es_callbacks = Rails.env.to_s == 'test'
       a.set_fields = { embed_code_copied: true }.to_json
       a.save!
       User.current = user_current

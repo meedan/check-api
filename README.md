@@ -30,6 +30,12 @@ You can optionally use Puma, which allows you to restart the Rails server by doi
 * `RAILS_ENV=test bundle exec rake db:migrate`
 * `RAILS_ENV=test bundle exec rake test:coverage`
 
+### Running the tests in parallel
+
+* `bundle install --without nothing`
+* `./scripts/setup-parallel-env.sh`
+* `RAILS_ENV=test bundle exec rake "parallel:test[3]"` (replace `3` by the number of threads you want)
+
 ### Integration
 
 Other applications can communicate with this service (and test this communication) using the client library, which can be automatically generated. Other applications can also use functions exposed by this application in the client library. In order to do this, just add a tag `@expose` before the method definition, like this:

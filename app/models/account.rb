@@ -82,11 +82,12 @@ class Account < ActiveRecord::Base
     self.updated_at = Time.now
   end
 
-  def self.create_for_source(url, source = nil, disable_account_source_creation = false)
+  def self.create_for_source(url, source = nil, disable_account_source_creation = false, disable_es_callbacks = false)
     a = Account.where(url: url).last
     if a.nil?
       a = Account.new
       a.disable_account_source_creation = disable_account_source_creation
+      a.disable_es_callbacks = disable_es_callbacks
       a.source = source
       a.url = url
       if a.save
@@ -103,6 +104,7 @@ class Account < ActiveRecord::Base
       a.pender_data = a.embed
       a.source = source
       a.disable_account_source_creation = disable_account_source_creation
+      a.disable_es_callbacks = disable_es_callbacks
       a.create_source
     end
     a

@@ -69,6 +69,7 @@ class Bot::Alegre < ActiveRecord::Base
     annotation.annotated = target
     annotation.annotator = self
     annotation.annotation_type = 'language'
+    annotation.disable_es_callbacks = Rails.env.to_s == 'test'
     annotation.set_fields = { language: lang }.to_json
     annotation.skip_notifications = true
     annotation.save!
@@ -81,6 +82,7 @@ class Bot::Alegre < ActiveRecord::Base
       mt = mt.load
       User.current = author
       mt.set_fields = {'mt_translations': translations.to_json}.to_json
+      mt.disable_es_callbacks = Rails.env.to_s == 'test'
       mt.save!
       User.current = nil
       # Delete old versions

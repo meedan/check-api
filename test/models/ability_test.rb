@@ -245,7 +245,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Team)
-      assert ability.cannot?(:update, t)
+      assert ability.can?(:update, t)
       assert ability.cannot?(:destroy, t)
       assert ability.cannot?(:update, t2)
       assert ability.cannot?(:destroy, t2)
@@ -471,7 +471,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, u_test1)
       assert ability.cannot?(:update, u_test2)
       assert ability.cannot?(:destroy, u_test2)
-      assert ability.can?(:update, u_test3)
+      assert ability.cannot?(:update, u_test3)
       assert ability.cannot?(:destroy, u_test3)
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
@@ -497,9 +497,9 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, u)
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
-      assert ability.can?(:update, u_test2)
+      assert ability.cannot?(:update, u_test2)
       assert ability.cannot?(:destroy, u_test2)
-      assert ability.can?(:update, u_test3)
+      assert ability.cannot?(:update, u_test3)
       assert ability.cannot?(:destroy, u_test3)
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
@@ -518,19 +518,19 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, u)
-      assert ability.can?(:destroy, u)
-      assert ability.can?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:destroy, u)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       tu_test1.update_column(:role, 'journalist')
 
-      assert ability.can?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       tu_test1.update_column(:role, 'contributor')
 
-      assert ability.can?(:update, u_test1)
-      assert ability.can?(:destroy, u_test1)
+      assert ability.cannot?(:update, u_test1)
+      assert ability.cannot?(:destroy, u_test1)
 
       assert ability.cannot?(:update, u2_test)
       assert ability.cannot?(:destroy, u2_test)
@@ -1792,13 +1792,13 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "editor should not send to trash, edit or destroy team" do
+  test "editor should not send to trash or destroy team" do
     t = create_team
     u = create_user
     tu = create_team_user team: t, user: u, role: 'editor'
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.cannot?(:update, t)
+      assert ability.can?(:update, t)
       assert ability.cannot?(:destroy, t)
     end
   end
@@ -1817,6 +1817,29 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.cannot?(:update, t2)
       assert ability.cannot?(:destroy, t2)
+    end
+  end
+
+  test "editor should not downgrade owner role" do
+    t = create_team
+    u = create_user
+    u2 = create_user
+    u3 = create_user
+    tu1 = create_team_user team: t, user: u, role: 'editor'
+    tu2 = create_team_user team: t, user: u2, role: 'owner'
+    tu2 = TeamUser.find(tu2.id)
+    tu3 = create_team_user team: t, user: u3, role: 'contributor'
+    tu3 = TeamUser.find(tu3.id)
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        tu3.role = 'journalist'
+        tu3.save!
+      end
+
+      assert_raises RuntimeError do
+        tu2.role = 'editor'
+        tu2.save!
+      end
     end
   end
 end

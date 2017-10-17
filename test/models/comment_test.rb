@@ -129,6 +129,7 @@ class CommentTest < ActiveSupport::TestCase
       c = create_comment(text: 'foo', annotated: pm, annotator: u)
       c = Comment.last
       c.text = 'bar'
+      c.disable_es_callbacks = true
       c.save!
       assert_equal 2, c.versions.count
       v = PaperTrail::Version.last
@@ -270,6 +271,12 @@ class CommentTest < ActiveSupport::TestCase
     assert c.sent_to_pusher
   end
 
+  test "should notify Pusher when annotation is destroyed" do
+    c = create_comment annotated: create_project_media
+    c.destroy
+    assert c.sent_to_pusher
+  end
+
   test "should have entities" do
     c = Comment.new
     assert_kind_of Array, c.entities
@@ -284,64 +291,11 @@ class CommentTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p2
     p3 = create_project team: t2
     pm3 = create_project_media project: p3
-    text = "Please check reports http://localhost:3333/test/project/#{p1.id}/media/#{pm1.id} and http://localhost:3333/test/project/#{p2.id}/media/#{pm2.id} and http://localhost:3333/test2/project/1/media/#{pm3.id} because they are nice"
+    text = "Please check reports #{CONFIG['checkdesk_client']}/test/project/#{p1.id}/media/#{pm1.id} and #{CONFIG['checkdesk_client']}/test/project/#{p2.id}/media/#{pm2.id} and #{CONFIG['checkdesk_client']}/test2/project/1/media/#{pm3.id} because they are nice"
     c = create_comment text: text, annotated: pm1
     assert_includes c.entity_objects, pm1
     assert_includes c.entity_objects, pm2
     refute_includes c.entity_objects, pm3
-  end
-
-  test "should create elasticsearch comment" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    s = create_source
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
-    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
-    sleep 1
-    result = CommentSearch.find(c.id, parent: pm.id)
-    assert_equal c.id.to_s, result.id
-    c2 = create_comment annotated: ps, text: 'test', disable_es_callbacks: false
-    sleep 1
-    result = CommentSearch.find(c2.id, parent: Base64.encode64("ProjectSource/#{ps.id}"))
-    assert_equal c2.id.to_s, result.id
-  end
-
-  test "should update elasticsearch comment" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
-    c.text = 'test-mod'; c.save!
-    sleep 1
-    result = CommentSearch.find(c.id, parent: pm.id)
-    assert_equal 'test-mod', result.text
-  end
-
-  test "should destroy elasticsearch comment" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    s = create_source
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
-    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
-    c2 = create_comment annotated: ps, text: 'test', disable_es_callbacks: false
-    sleep 1
-    result = CommentSearch.find(c.id, parent: pm.id)
-    assert_not_nil result
-    c.destroy
-    c2.destroy
-    sleep 1
-    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-      result = CommentSearch.find(c.id, parent: pm.id)
-    end
-    # destroy project source comment
-    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-      result = CommentSearch.find(c2.id, parent: Base64.encode64("ProjectSource/#{ps.id}"))
-    end
   end
 
   test "should protect attributes from mass assignment" do
@@ -478,7 +432,7 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     p = create_project team: t
     pm = create_project_media project: p
-    text = "Please check this report [http://localhost:3333/test/project/#{p.id}/media/#{pm.id}]"
+    text = "Please check this report [#{CONFIG['checkdesk_client']}/test/project/#{p.id}/media/#{pm.id}]"
     c = create_comment text: text, annotated: pm
     assert_includes c.entity_objects, pm
   end

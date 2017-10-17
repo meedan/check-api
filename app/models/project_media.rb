@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses
+  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -17,9 +17,9 @@ class ProjectMedia < ActiveRecord::Base
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
 
-  notifies_pusher on: :save,
+  notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project, pm.media] },
+                  targets: proc { |pm| [pm.project, pm.media, pm.project.team] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -41,7 +41,7 @@ class ProjectMedia < ActiveRecord::Base
     st.annotator = self.user
     st.status = Status.default_id(self.media, self.project)
     st.created_at = self.created_at
-    st.disable_es_callbacks = self.disable_es_callbacks
+    st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     st.skip_check_ability = true
     st.save!
   end
@@ -69,7 +69,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def add_elasticsearch_data
-    return if self.disable_es_callbacks
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     p = self.project
     m = self.media
     ms = MediaSearch.new
@@ -141,6 +141,7 @@ class ProjectMedia < ActiveRecord::Base
       em = self.get_annotations('embed').last
       em = em.load unless em.nil?
       em = initiate_embed_annotation(info) if em.nil?
+      em.disable_es_callbacks = Rails.env.to_s == 'test'
       self.override_embed_data(em, info)
     end
   end
@@ -226,7 +227,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def set_project_source
-    self.create_project_source if self.media.type == 'Link'
+    self.create_project_source
   end
 
   def move_media_sources
@@ -235,14 +236,16 @@ class ProjectMedia < ActiveRecord::Base
       unless ps.nil?
         ps.project_id = self.project_id
         ps.skip_check_ability = true
+        ps.disable_es_callbacks = Rails.env.to_s == 'test'
         ps.save!
       end
     end
   end
 
   def get_project_source(pid)
-    return if self.media.type != 'Link' || self.media.account.blank?
-    sources = self.media.account.sources.map(&:id)
+    sources = []
+    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
+    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
     ProjectSource.where(project_id: pid, source_id: sources).first
   end
 

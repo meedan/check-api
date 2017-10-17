@@ -80,6 +80,7 @@ class Bot::Viber < ActiveRecord::Base
               end
 
         annotation = self.annotation.load
+        annotation.disable_es_callbacks = Rails.env.to_s == 'test'
         annotation.set_fields = { translation_status_approver: { name: User.current.name, url: url }.to_json }.to_json
         annotation.save!
       end
@@ -147,13 +148,7 @@ class Bot::Viber < ActiveRecord::Base
       self.get_field('translation_status_status').to_s if self.annotation_type == 'translation_status'
     end
 
-    def previous_translation_status
-      @previous_translation_status
-    end
-
-    def previous_translation_status=(status)
-      @previous_translation_status = status
-    end
+    attr_accessor :previous_translation_status
 
     def from_language(locale = 'en')
       if self.annotation_type == 'translation'
@@ -265,6 +260,7 @@ class Bot::Viber < ActiveRecord::Base
         ts = Dynamic.new
         ts.skip_check_ability = true
         ts.skip_notifications = true
+        ts.disable_es_callbacks = Rails.env.to_s == 'test'
         ts.annotation_type = 'translation_status'
         ts.annotated = self
         ts.set_fields = { translation_status_status: 'pending', translation_status_note: '', translation_status_approver: '{}' }.to_json

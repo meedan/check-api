@@ -86,6 +86,7 @@ class StatusTest < ActiveSupport::TestCase
       st = create_status(status: 'undetermined', annotated: pm)
       assert_equal 1, st.versions.count
       st = Status.where(annotation_type: 'status').last
+      st.disable_es_callbacks = true
       st.status = 'verified'
       st.save!
       assert_equal 2, st.versions.count
@@ -308,27 +309,6 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 'Bar', s.id_to_label('2')
   end
 
-  test "should create elasticsearch status" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media media: m, project: p, disable_es_callbacks: false
-    sleep 1
-    result = MediaSearch.find(pm.id)
-    assert_equal Status.default_id(pm.media, pm.project), result.status
-  end
-
-  test "should update elasticsearch status" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media media: m, project: p, disable_es_callbacks: false
-    st = create_status status: 'verified', annotated: pm, disable_es_callbacks: false
-    sleep 1
-    result = MediaSearch.find(pm.id)
-    assert_equal 'verified', result.status
-  end
-
   test "should revert destroy status" do
     u = create_user
     t = create_team
@@ -338,19 +318,28 @@ class StatusTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m
       s = Status.where(annotation_type: 'status', annotated_type: pm.class.to_s , annotated_id: pm.id).last
+      s.disable_es_callbacks = true
       s.status = 'false'; s.save!
+      s.disable_es_callbacks = true
       s.destroy
       assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+      s.disable_es_callbacks = true
       s.status = 'Not Applicable'; s.save!; s.reload
+      s.disable_es_callbacks = true
       s.status = 'false'; s.save!; s.reload
+      s.disable_es_callbacks = true
       s.status = 'verified'; s.save!
       assert_equal s.reload.status, 'verified'
+      s.disable_es_callbacks = true
       s.destroy
       assert_equal s.reload.status, 'false'
+      s.disable_es_callbacks = true
       s.destroy
       assert_equal s.reload.status, 'not_applicable'
+      s.disable_es_callbacks = true
       s.destroy
       assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
+      s.disable_es_callbacks = true
       s.destroy
       assert_nil Status.where(id: s.id).last
     end

@@ -3,6 +3,7 @@ class GraphqlCrudOperations
     attrs.each do |key, value|
       obj.send("#{key}=", value)
     end
+    obj.disable_es_callbacks = Rails.env.to_s == 'test'
     obj.save!
 
     name = obj.class_name.underscore
@@ -12,7 +13,7 @@ class GraphqlCrudOperations
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless parent_name == 'public_team'
         ret[parent_name.to_sym] = parent
       end
     end
@@ -27,7 +28,7 @@ class GraphqlCrudOperations
     klass = type.camelize
 
     obj = klass.constantize.new
-    obj.file = ctx[:file] if (type == 'project_media' || type == 'comment' || type == 'source') && !ctx[:file].blank?
+    obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == "clientMutationId"
@@ -37,9 +38,9 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.update(type, inputs, ctx, parents = [])
+  def self.update(_type, inputs, ctx, parents = [])
     obj = NodeIdentification.object_from_id(inputs[:id], ctx)
-    obj.file = ctx[:file] if type == 'source' && !ctx[:file].blank?
+    obj.file = ctx[:file] if !ctx[:file].blank?
     obj = obj.load if obj.is_a?(Annotation)
 
     attrs = inputs.keys.inject({}) do |memo, key|
@@ -54,6 +55,7 @@ class GraphqlCrudOperations
     type, id = NodeIdentification.from_global_id(inputs[:id])
     obj = type.constantize.find(id)
     obj = obj.load if obj.respond_to?(:load)
+    obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : obj.destroy
 
     ret = { deletedId: inputs[:id] }
@@ -92,7 +94,7 @@ class GraphqlCrudOperations
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
-      
+
       return_field(:affectedIds, types[types.ID]) if type.to_s == 'team'
       return_field(:affectedId, types.ID) if type.to_s == 'project_media'
 
@@ -128,11 +130,7 @@ class GraphqlCrudOperations
 
   def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [])
     update_fields = create_fields if update_fields.empty?
-    [
-      GraphqlCrudOperations.define_create(type, create_fields, parents),
-      GraphqlCrudOperations.define_update(type, update_fields, parents),
-      GraphqlCrudOperations.define_destroy(type, parents)
-    ]
+    [GraphqlCrudOperations.define_create(type, create_fields, parents), GraphqlCrudOperations.define_update(type, update_fields, parents), GraphqlCrudOperations.define_destroy(type, parents)]
   end
 
   def self.define_default_type(&block)
@@ -304,8 +302,7 @@ class GraphqlCrudOperations
   end
 
   def self.load_if_can(klass, id, ctx)
-    obj = klass.find_if_can(id, ctx[:ability])
-    obj
+    klass.find_if_can(id, ctx[:ability])
   end
 end
 

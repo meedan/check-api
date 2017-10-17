@@ -244,6 +244,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert pm.sent_to_pusher
   end
 
+  test "should notify Pusher when project media is destroyed" do
+    pm = create_project_media
+    pm.sent_to_pusher = false
+    pm.destroy!
+    assert pm.sent_to_pusher
+  end
+
   test "should notify Pusher in background" do
     Rails.stubs(:env).returns(:production)
     t = create_team
@@ -255,28 +262,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
-  end
-
-  test "should set initial status for media" do
-    u = create_user
-    t = create_team
-    p = create_project team: t
-    stub_config('app_name', 'Check') do
-      m = create_valid_media user: u
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
-      sleep 1
-      ms = MediaSearch.find(pm.id)
-      assert_equal Status.default_id(m, p), ms.status
-    end
-    stub_config('app_name', 'Bridge') do
-      m = create_valid_media user: u
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
-      sleep 1
-      ms = MediaSearch.find(pm.id)
-      assert_nil ms.status
-    end
   end
 
   test "should update project media embed data" do
@@ -382,6 +367,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = ProjectMedia.new
     pm.project_id = create_project.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
+    pm.disable_es_callbacks = true
     pm.save!
     assert_equal 'rails.png', pm.embed['title']
   end
@@ -474,6 +460,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c = create_claim_media
     pm = create_project_media project: p, media: c
     assert_nil pm.project_source
+    pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
+    assert_not_nil pm.project_source
   end
 
   test "should move related sources after move media to other projects" do
@@ -486,44 +474,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t2
     pm.project = p2; pm.save!
     assert_equal ps.reload.project_id, p2.id
-  end
-
-  test "should update es after move media to other projects" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    create_comment annotated: pm
-    create_tag annotated: pm
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.project_id.to_i, p.id
-    assert_equal ms.team_id.to_i, t.id
-    t2 = create_team
-    p2 = create_project team: t2
-    pm.project = p2; pm.save!
-    ElasticSearchWorker.drain
-    # confirm annotations log
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.project_id.to_i, p2.id
-    assert_equal ms.team_id.to_i, t2.id
-  end
-
-  test "should destroy elasticseach project media" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    sleep 1
-    assert_not_nil MediaSearch.find(pm.id)
-    Sidekiq::Testing.inline! do
-      pm.destroy
-      sleep 1
-      assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-        result = MediaSearch.find(pm.id)
-      end
-    end
   end
 
   test "should have versions" do
@@ -644,41 +594,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal '2', JSON.parse(em2.data['embed'])['foo']
     assert_equal 2, em2.refreshes_count
     assert_equal em1, em2
-  end
-
-  test "should update es after refresh Pender data" do
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"new_title"}}')
-    t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    m = create_media url: url
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.title, 'org_title'
-    ms2 = MediaSearch.find(pm2.id)
-    assert_equal ms2.title, 'org_title'
-    Sidekiq::Testing.inline! do
-      # Update title
-      pm2.reload; pm2.disable_es_callbacks = false
-      info = {title: 'override_title'}.to_json
-      pm2.embed= info
-      pm.reload; pm.disable_es_callbacks = false
-      pm.refresh_media = true
-      pm.save!
-      pm2.reload; pm2.disable_es_callbacks = false
-      pm2.refresh_media = true
-      pm2.save!
-    end
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.title, 'new_title'
-    ms2 = MediaSearch.find(pm2.id)
-    assert_equal ms2.title, 'override_title'
   end
 
   test "should get user id for migration" do
@@ -806,29 +721,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal d2, pm.get_dynamic_annotation('bar')
   end
 
-  test "should set es data for media account" do
-    t = create_team
-    p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    media_url = 'http://www.facebook.com/meedan/posts/123456'
-    author_url = 'http://facebook.com/123456'
-    author_normal_url = 'http://www.facebook.com/meedan'
-
-    data = { url: media_url, author_url: author_url, type: 'item' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
-
-    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
-
-    m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    sleep 1
-    ms = MediaSearch.find(pm.id)
-    assert_equal ms.account[0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar", "username"=>"username"}.sort
-  end
-
   test "should get report type" do
     c = create_claim_media
     l = create_link
@@ -851,10 +743,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ft = create_field_type
     fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
     a = create_dynamic_annotation annotator: u2, annotated: pm, annotation_type: 'test', set_fields: { test: 'Test' }.to_json
+    RequestStore.store[:disable_es_callbacks] = true
     with_current_user_and_team(u, t) do
       pm.disable_es_callbacks = true
       pm.destroy
     end
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should have oEmbed endpoint" do
@@ -1031,7 +925,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
     ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
 
-    expected = File.read(File.join(Rails.root, 'test', 'data', 'oembed.html')).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
+    expected = File.read(File.join(Rails.root, 'test', 'data', 'oembed.html')).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url'])
     actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
 
     assert_equal expected, actual
@@ -1113,6 +1007,105 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Yesterday', t.first_response
   end
 
+  test "should auto-response for Krzana report" do
+    at = create_annotation_type annotation_type: 'task_response_geolocation', label: 'Task Response Geolocation'
+    geotype = create_field_type field_type: 'geojson', label: 'GeoJSON'
+    create_field_instance annotation_type_object: at, name: 'response_geolocation', field_type_object: geotype
+
+    at = create_annotation_type annotation_type: 'task_response_datetime', label: 'Task Response Date Time'
+    datetime = create_field_type field_type: 'datetime', label: 'Date Time'
+    create_field_instance annotation_type_object: at, name: 'response_datetime', field_type_object: datetime
+
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
+    fi2 = create_field_instance annotation_type_object: at, name: 'note_free_text', label: 'Note', field_type_object: ft1
+    fi3 = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft2
+
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    t.checklist = [ { "label" => "who?", "type" => "free_text", "description" => "",
+      "mapping" => { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "},
+      "projects" => [p.id] },
+      { "label" => "where?", "type" => "geolocation", "description" => "",
+      "mapping" => { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""},
+      "projects" => [p2.id] },
+      { "label" => "when?", "type" => "datetime", "description" => "",
+      "mapping" => { "type" => "datetime", "match" => "dateCreated", "prefix" => ""},
+      "projects" => [p3.id] }
+    ]
+    t.save!
+
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    # test empty json+ld
+    url = 'http://test1.com'
+    raw = {"json+ld": {}}
+    response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pm = create_project_media project: p, url: url
+    t = Task.where(annotation_type: 'task', annotated_id: pm.id).last
+    assert_nil t.first_response
+
+    # test with non exist value
+    url1 = 'http://test11.com'
+    raw = { "json+ld": { "mentions": [ { "@type": "Person" } ] } }
+    response = {'type':'media','data': {'url': url1, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
+    pm1 = create_project_media project: p, url: url1
+    t = Task.where(annotation_type: 'task', annotated_id: pm1.id).last
+    assert_nil t.first_response
+
+    # test with empty value
+    url12 = 'http://test12.com'
+    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "" } ] } }
+    response = {'type':'media','data': {'url': url12, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url12 } }).to_return(body: response)
+    pm12 = create_project_media project: p, url: url12
+    t = Task.where(annotation_type: 'task', annotated_id: pm12.id).last
+    assert_nil t.first_response
+
+    # test with single selection
+    url2 = 'http://test2.com'
+    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" } ] } }
+    response = {'type':'media','data': {'url': url2, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
+    pm2 = create_project_media project: p, url: url2
+    t = Task.where(annotation_type: 'task', annotated_id: pm2.id).last
+    assert_equal "Suggested by Krzana: first_name", t.first_response
+
+    # test multiple selection (should get first one)
+    url3 = 'http://test3.com'
+    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" }, { "@type": "Person", "name": "last_name" } ] } }
+    response = {'type':'media','data': {'url': url3, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url3 } }).to_return(body: response)
+    pm3 = create_project_media project: p, url: url3
+    t = Task.where(annotation_type: 'task', annotated_id: pm3.id).last
+    assert_equal "Suggested by Krzana: first_name", t.first_response
+
+    # test geolocation mapping
+    url4 = 'http://test4.com'
+    raw = { "json+ld": {
+      "mentions": [ { "name": "Delimara Powerplant", "@type": "Place", "geo": { "latitude": 35.83020073454, "longitude": 14.55602645874 } } ]
+    } }
+    response = {'type':'media','data': {'url': url4, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url4 } }).to_return(body: response)
+    pm4 = create_project_media project: p2, url: url4
+    t = Task.where(annotation_type: 'task', annotated_id: pm4.id).last
+    # assert_not_nil t.first_response
+
+    # test datetime mapping
+    url5 = 'http://test5.com'
+    raw = { "json+ld": { "dateCreated": "2017-08-30T14:22:28+00:00" } }
+    response = {'type':'media','data': {'url': url5, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url5 } }).to_return(body: response)
+    pm5 = create_project_media project: p3, url: url5
+    t = Task.where(annotation_type: 'task', annotated_id: pm5.id).last
+    # assert_not_nil t.first_response
+  end
+
   test "should expose conflict error from Pender" do
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -1159,6 +1152,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set quote attributions" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert_difference 'ClaimSource.count', 2 do
+        pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
+        s = pm.project_source.source
+        assert_not_nil pm.project_source
+        assert_equal s.name, 'source name'
+        pm2 = create_project_media project: p, quote: 'Claim 2', quote_attributions: {name: 'source name'}.to_json
+        assert_equal pm2.project_source.source, s
+      end
+    end
+  end
+
   test "should not get project source" do
     p = create_project
     l = create_link
@@ -1195,6 +1205,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     assert_no_difference 'PaperTrail::Version.count' do
       pm.as_oembed
+    end
+  end
+
+  test "should not create media through browser extension if team is not allowed to" do
+    t = create_team
+    t.set_limits_browser_extension = false
+    t.save!
+    p = create_project team: t
+    assert_raises ActiveRecord::RecordInvalid do
+      RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ headers: { 'X-Check-Client' => 'browser-extension' } }))
+      create_project_media project: p
+      RequestStore.unstub(:[])
     end
   end
 end

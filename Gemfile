@@ -4,6 +4,7 @@ group :development, :test do
   gem 'byebug'
   gem 'rubocop'
   gem 'rails-graphql-generator'
+  gem 'parallel_tests'
 end
 
 group :development do
@@ -31,10 +32,10 @@ gem 'carrierwave', '~> 0.9'
 gem 'phony_rails'
 gem 'webmock'
 gem 'mocha'
-gem 'simplecov', require: false, group: :test
+gem 'simplecov', '0.13.0', require: false, group: :test
 gem 'railroady'
 gem 'airbrake', '4.3.3'
-gem 'codeclimate-test-reporter', '0.6.0', group: :test, require: nil
+gem 'codeclimate-test-reporter', '1.0.8', group: :test, require: nil
 gem 'awesome_print', require: false, group: :development
 gem 'gem-licenses'
 gem 'thin'
@@ -80,3 +81,4 @@ gem 'ruby-cldr'
 gem 'twitter'
 gem 'request_store'
 gem 'geojsonlint'
+gem 'jsonpath', '~> 0.8.8'

@@ -21,6 +21,8 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :pusher_channel, types.String
   field :search_id, types.String
   field :trash_size, JsonStringType
+  field :limits, JsonStringType
+  field :public_team_id, types.String
 
   field :media_verification_statuses do
     type types.String
@@ -59,6 +61,12 @@ TeamType = GraphqlCrudOperations.define_default_type do
   connection :projects, -> { ProjectType.connection_type } do
     resolve ->(team, _args, _ctx) {
       team.recent_projects
+    }
+  end
+
+  connection :sources, -> { SourceType.connection_type } do
+    resolve ->(team, _args, _ctx) {
+      team.sources
     }
   end
 end

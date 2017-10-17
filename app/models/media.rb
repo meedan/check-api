@@ -1,7 +1,7 @@
 class Media < ActiveRecord::Base
   self.inheritance_column = :type
 
-  attr_accessor :project_id, :project_object
+  attr_accessor :project_id, :project_object, :disable_es_callbacks
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at]
   belongs_to :account

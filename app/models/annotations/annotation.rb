@@ -14,7 +14,10 @@ class Annotation < ActiveRecord::Base
   end
 
   def destroy
-    self.load.destroy
+    dec = self.disable_es_callbacks
+    a = self.load
+    a.disable_es_callbacks = dec
+    a.destroy
   end
 
   private

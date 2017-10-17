@@ -22,7 +22,10 @@ module CheckNotifications
       end
 
       def notifies_pusher(options = {})
-        send("after_#{options[:on]}", :notify_pusher)
+        events = [options[:on]].flatten
+        events.each do |event|
+          send("after_#{event}", :notify_pusher)
+        end
 
         self.pusher_options = options
 

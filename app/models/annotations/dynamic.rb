@@ -34,7 +34,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def slack_answer_task_message
-    response, note, task = self.values(['response', 'note', 'task'], '-').values_at('response', 'note', 'task')
+    response, note, task = self.values(['response', 'note', 'task'], '').values_at('response', 'note', 'task')
     task = Task.find(task).label
 
     note = I18n.t(:slack_answer_task_note, {note: Bot::Slack.to_slack_quote(note)}) unless note.blank?
@@ -104,6 +104,7 @@ class Dynamic < ActiveRecord::Base
   private
 
   def add_update_elasticsearch_dynamic_annotation
+    return if self.disable_es_callbacks
     method = "add_update_elasticsearch_dynamic_annotation_#{self.annotation_type}"
     if self.respond_to?(method)
       self.send(method)
@@ -125,8 +126,10 @@ class Dynamic < ActiveRecord::Base
       @fields = []
       data = JSON.parse(self.set_fields)
       data.each do |field_name, value|
+        next unless DynamicAnnotation::FieldInstance.where(name: field_name).exists?
         f = DynamicAnnotation::Field.new
         f.skip_check_ability = true
+        f.disable_es_callbacks = self.disable_es_callbacks
         f.field_name = field_name
         f.value = value
         f.annotation_id = self.id

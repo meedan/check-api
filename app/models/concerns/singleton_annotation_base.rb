@@ -10,8 +10,11 @@ module SingletonAnnotationBase
       Annotation.find(self.id).delete
     else
       widget.paper_trail.without_versioning do
+        widget.disable_es_callbacks = Rails.env.to_s == 'test'
         widget.save
-        self.versions.last.destroy
+        v = self.versions.last
+        v.disable_es_callbacks = Rails.env.to_s == 'test'
+        v.destroy
       end
     end
   end

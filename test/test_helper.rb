@@ -1,11 +1,24 @@
+require 'simplecov'
+
+SimpleCov.start 'rails' do
+  nocov_token 'nocov'
+  merge_timeout 3600
+  command_name "Tests #{rand(100000)}"
+  add_filter do |file|
+    (!file.filename.match(/\/app\/controllers\/[^\/]+\.rb$/).nil? && file.filename.match(/application_controller\.rb$/).nil?) ||
+    !file.filename.match(/\/app\/controllers\/concerns\/[^\/]+_doc\.rb$/).nil? ||
+    !file.filename.match(/\/lib\/sample_data\.rb$/).nil?
+  end
+  coverage_dir 'coverage'
+end
+
 ENV['RAILS_ENV'] ||= 'test'
-require 'codeclimate-test-reporter'
-CodeClimate::TestReporter.start
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'webmock/minitest'
 require 'mocha/test_unit'
 require 'sample_data'
+require 'parallel_tests/test/runtime_logger'
 
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
@@ -73,10 +86,7 @@ class ActiveSupport::TestCase
     Pusher::Client.any_instance.stubs(:trigger)
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |klass| klass.delete_all }
-    # create index
-    MediaSearch.delete_index
-    MediaSearch.create_index
-    Rails.cache.clear if File.exists?(File.join(Rails.root, 'tmp', 'cache'))
+    FileUtils.rm_rf(File.join(Rails.root, 'tmp', "cache<%= ENV['TEST_ENV_NUMBER'] %>", '*'))
     Rails.application.reload_routes!
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
@@ -98,7 +108,7 @@ class ActiveSupport::TestCase
     User.current = nil
   end
 
-  def assert_queries(num = 1, &block)
+  def assert_queries(num = 1, operator = '=', &block)
     old = ActiveRecord::Base.connection.query_cache_enabled
     ActiveRecord::Base.connection.enable_query_cache!
     queries  = []
@@ -108,7 +118,12 @@ class ActiveSupport::TestCase
     ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &block)
   ensure
     ActiveRecord::Base.connection.disable_query_cache! unless old
-    assert_equal num, queries.size, "#{queries.size} instead of #{num} queries were executed.#{queries.size == 0 ? '' : "\nQueries:\n#{queries.join("\n")}"}"
+    msg = "#{queries.size} instead of #{num} queries were executed.#{queries.size == 0 ? '' : "\nQueries:\n#{queries.join("\n")}"}"
+    if operator == '='
+      assert_equal num, queries.size, msg
+    elsif operator == '<'
+      assert queries.size < num, msg
+    end
   end
 
   def authenticate_with_token(api_key = nil)
@@ -282,8 +297,11 @@ class ActiveSupport::TestCase
       elsif name === 'tasks'
         create_task annotated: obj
       else
+        RequestStore.store[:disable_es_callbacks] = true
+        obj.disable_es_callbacks = true if obj.respond_to?(:disable_es_callbacks)
         obj.send(name).send('<<', [send("create_#{name.singularize}")])
         obj.save!
+        RequestStore.store[:disable_es_callbacks] = false
       end
       obj = obj.reload
       node += "#{name} { edges { node { #{key} } } }, "
@@ -304,6 +322,7 @@ class ActiveSupport::TestCase
       edges.each do |edge|
         if edge['node'][name]['edges'].size > 0 && !equal
           equal = (obj.send(name).first.send(key) == edge['node'][name]['edges'][0]['node'][key])
+          equal = (obj.send(name).last.send(key) == edge['node'][name]['edges'][0]['node'][key]) unless equal
         end
       end
       assert equal

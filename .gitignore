@@ -3,7 +3,7 @@
 /db/*.sqlite3-journal
 db/schema.rb
 /log/*.log
-/tmp/cache
+/tmp/cache*
 /tmp/pids
 /tmp/sessions
 /tmp/sockets
@@ -31,3 +31,7 @@ dump.rdb
 /public/viber/*.jpg
 travis
 travis.zip
+tmp/parallel_runtime_test.log
+public/coverage/*
+!public/coverage/.gitkeep
+coverage/*

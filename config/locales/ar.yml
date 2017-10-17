@@ -82,7 +82,7 @@ ar:
   invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالات التحقق الخاصة - الصيغة المطلوبة موضحة أسفل الحقل
   invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة - الصيغة المطلوبة هي `[ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]`'
   invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
-  invalid_media_item: ' عذراً، هذا ليس تقرير مسموح بإدخاله'
+  invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
   already_exists: موجود بالفعل
   mail_account_confirmation: "تأكيد حساب %{app_name}"
   mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على %{app_name}"
@@ -112,7 +112,7 @@ ar:
   mail_view_welcome: مرحباً بك في %{app_name}
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
   mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
-  mail_view_rejected_to_join: عذراً، رُفض طلب انضمامك إلى فريق %{team}
+  mail_view_rejected_to_join: عذراً ، لقد رُفض طلب انضمامك إلى فريق %{team}
   mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
   mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
   pender_could_not_parse: تعذّر تحليل الميديا
@@ -120,7 +120,7 @@ ar:
   mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
   mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
   mail_duplicate_email_exists_email: البريد الإلكتروني
-  slack_restricted_join_to_members: عذراً، لا يمكنك الانضمام إلى فريق %{team_name} حيث أنه محصور على أعضاء فريق %{teams} على Slack.
+  slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى فريق %{team_name} حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
     actions:
       send_reset_password_email:
@@ -185,5 +185,11 @@ ar:
   error_team_archived: "ليس مسموح إضافة مشروع لفريق غير نشط"
   error_project_archived: "ليس مسموح إضافة تقرير لمشروع غير نشط"
   error_team_archived_for_source: "ليس مسموح إضافة مصدر لمشروع غير نشط"
-  permission_error: "عفواً ليس مسموح لك تنفيذ هذه العملية"
-  error_annotated_archived: "ليس مسموح إضافة تعليق لعنصر تم نقله لسلة المهملات"
+  permission_error: "عذراً ، ليس مسموح لك تنفيذ هذه العملية"
+  error_annotated_archived: "عذراً ، ليس مسموح إضافة تعليق لعنصر تم نقله لسلة المهملات"
+  only_super_admin_can_do_this: "عذراً ، هذه العملية متاحة للمسؤولين فقط"
+  max_number_of_team_users_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمستخدمين في هذا الفريق"
+  max_number_of_projects_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في هذا الفريق"
+  cant_set_custom_statuses: "عذراً ، حالات التحقق الخاصة غير متاحة لهذا الفريق"
+  cant_set_checklist: "عذراً ، قائمة التحقق من المعلومات غير متاحة لهذا الفريق"
+  cant_create_media_under_this_team_using_extension: "عذراً ، ملحق المستعرض غير متاح لهذا الفريق"

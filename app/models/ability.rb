@@ -53,8 +53,7 @@ class Ability
     can :access, :rails_admin
     can :dashboard
 
-    can [:update, :destroy], User, :team_users => { :team_id => @context_team.id, role: ['owner', 'editor', 'journalist', 'contributor'] }
-    can [:update, :destroy], Team, :id => @context_team.id
+    can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser, team_id: @context_team.id
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
@@ -98,9 +97,9 @@ class Ability
   end
 
   def editor_perms
-    can :update, User, :team_users => { :team_id => @context_team.id, role: ['editor'] }
+    can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
-    can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor']
+    can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor'], role_was: ['editor', 'journalist', 'contributor']
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
@@ -118,7 +117,6 @@ class Ability
   end
 
   def journalist_perms
-    can :update, User, :team_users => { :team_id => @context_team.id, role: ['journalist', 'contributor'] }
     can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
@@ -157,7 +155,9 @@ class Ability
     end
     can :update, Embed
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}, source: { user_id: @user.id }
-    can [:create, :update], Source, :team_id => @context_team.id, :user_id => @user.id
+    can [:create, :update], Source do |obj|
+      obj.team_id == @context_team.id && obj.user_id == @user.id
+    end
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can :create, ProjectMedia, { project: { team: { team_users: { team_id: @context_team.id }}}, archived_was: false }

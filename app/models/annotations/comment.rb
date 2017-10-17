@@ -9,6 +9,12 @@ class Comment < ActiveRecord::Base
   after_save :add_update_elasticsearch_comment, :send_slack_notification
   before_destroy :destroy_elasticsearch_comment
 
+  notifies_pusher on: :destroy,
+                  event: 'media_updated',
+                  if: proc { |a| a.annotated_type === 'ProjectMedia' },
+                  targets: proc { |a| [a.annotated.media] },
+                  data: proc { |a| a.to_json }
+
   def content
     { text: self.text }.to_json
   end

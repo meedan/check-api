@@ -6,9 +6,6 @@ class ProjectTest < ActiveSupport::TestCase
     Sidekiq::Testing.fake!
     Sidekiq::Worker.clear_all
     super
-    MediaSearch.delete_index
-    MediaSearch.create_index
-    sleep 1
   end
 
   test "should create project" do
@@ -111,9 +108,9 @@ class ProjectTest < ActiveSupport::TestCase
     m1 = create_valid_media
     m2 = create_valid_media
     p = create_project
-    p.medias << m1
-    p.medias << m2
-    assert_equal [m1, m2].sort, p.medias.sort
+    create_project_media project: p, media: m1
+    create_project_media project: p, media: m2
+    assert_equal [m1, m2].sort, p.reload.medias.sort
   end
 
   test "should get project medias count" do
@@ -244,7 +241,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should have settings" do
     p = create_project
-    assert_nil p.settings
+    assert_equal({}, p.settings)
     assert_nil p.setting(:foo)
     p.set_foo = 'bar'
     p.save!
@@ -347,49 +344,6 @@ class ProjectTest < ActiveSupport::TestCase
     t = create_team name: 'my-team'
     p = create_project team: t, title: 'my-project'
     assert_equal 'my-team - my-project', p.admin_label
-  end
-
-  test "should destroy related items" do
-    t = create_team
-    p = create_project team: t
-    id = p.id
-    p.title = 'Change title'; p.save!
-    Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, disable_es_callbacks: false
-      c = create_comment annotated: pm, disable_es_callbacks: false
-      sleep 1
-      assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
-      assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
-      p.destroy
-      assert_equal 0, ProjectMedia.where(project_id: id).count
-      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
-      assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
-      sleep 1
-      assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
-      assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
-    end
-  end
-
-  test "should update es after move project to other team" do
-    t = create_team
-    t2 = create_team
-    p = create_project team: t
-    m = create_valid_media
-    Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
-      pids = ProjectMedia.where(project_id: p.id).map(&:id).map(&:to_s)
-      pids.concat  ProjectSource.where(project_id: p.id).map(&:id).map(&:to_s)
-      sleep 5
-      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-      assert_equal pids.sort, results.map(&:annotated_id).sort
-      p.team_id = t2.id; p.save!
-      sleep 5
-      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-      assert_equal [], results.map(&:annotated_id)
-      results = MediaSearch.search(query: { match: { team_id: t2.id } }).results
-      assert_equal pids.sort, results.map(&:annotated_id).sort
-    end
   end
 
   test "should have a csv_filename without spaces" do
@@ -610,9 +564,11 @@ class ProjectTest < ActiveSupport::TestCase
       ps1 = create_project_source
       ps2 = create_project_source project: p
       c = create_comment annotated: pm3
+      RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         p.destroy_later
       end
+      RequestStore.store[:disable_es_callbacks] = false
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
       assert_nil ProjectMedia.where(id: pm3.id).last
@@ -631,6 +587,35 @@ class ProjectTest < ActiveSupport::TestCase
       assert_raises RuntimeError do
         p.destroy_later
       end
+    end
+  end
+
+  test "should not notify Slack when project is created if team is limited" do
+    t = create_team slug: 'test'
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    t.set_slack_channel = '#test'
+    t.set_limits_slack_integration = false
+    t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      p = create_project team: t
+      assert !p.sent_to_slack
+    end
+  end
+
+  test "should not create project if limit was reached" do
+    t = create_team
+    create_project team: t
+    t.set_limits_max_number_of_projects = 5
+    t.save!
+    t = Team.find(t.id)
+    4.times do
+      create_project team: t
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project team: t
     end
   end
 end

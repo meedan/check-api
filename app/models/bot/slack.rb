@@ -1,6 +1,6 @@
 class Bot::Slack < ActiveRecord::Base
 
-  include CheckSettings
+  check_settings
 
   def self.default
     Bot::Slack.where(name: 'Slack Bot').last
@@ -30,19 +30,21 @@ class Bot::Slack < ActiveRecord::Base
       message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
       self.send_slack_notification(model, webhook, channel, message)
     end
-    self.notify_super_admin(model, t, p) if self.should_notify_super_admin?(model)
+    self.notify_super_admin(model, t, p)
   end
 
   def notify_super_admin(model, team, project)
-    webhook = self.setting(:slack_webhook)
-    channel = self.setting(:slack_channel)
-    message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
-    unless message.blank?
-      prefix = team.name
-      prefix += ": #{project.title}" unless project.nil?
-      message  = "[#{prefix}] - #{message}"
+    if self.should_notify_super_admin?(model)
+      webhook = self.setting(:slack_webhook)
+      channel = self.setting(:slack_channel)
+      message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
+      unless message.blank?
+        prefix = team.name
+        prefix += ": #{project.title}" unless project.nil?
+        message  = "[#{prefix}] - #{message}"
+      end
+      self.send_slack_notification(model, webhook, channel, message)
     end
-    self.send_slack_notification(model, webhook, channel, message)
   end
 
   def send_slack_notification(model, webhook, channel, message)

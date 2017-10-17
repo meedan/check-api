@@ -1,18 +1,177 @@
 require_relative '../test_helper'
 
-class CheckSearchTest < ActiveSupport::TestCase
+class ElasticSearchTest < ActionController::TestCase
   def setup
     super
+    @controller = Api::V1::GraphqlController.new
+    @url = 'https://www.youtube.com/user/MeedanTube'
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    User.unstub(:current)
+    Team.unstub(:current)
+    User.current = nil
     MediaSearch.delete_index
     MediaSearch.create_index
-    sleep 1
+    Rails.stubs(:env).returns('development')
+    RequestStore.store[:disable_es_callbacks] = false
+    sleep 2
   end
 
   def teardown
     super
-    Team.unstub(:current)
+    Rails.unstub(:env)
+  end
+
+  test "should search media" do
+    u = create_user
+    p = create_project team: @team
+    m1 = create_valid_media
+    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
+    authenticate_with_user(u)
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url)
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    sleep 10
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm2.id], ids
+    create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
+    sleep 20
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm1.id, pm2.id], ids.sort
+  end
+
+  test "should search media with multiple projects" do
+    u = create_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    authenticate_with_user(u)
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm2 = create_project_media project: p2, media: m,  disable_es_callbacks:  false
+    sleep 10
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
+    post :create, query: query
+    assert_response :success
+    p_ids = []
+    m_ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      m_ids << id["node"]["dbid"]
+      p_ids << id["node"]["project_id"]
+    end
+    assert_equal [pm.id, pm2.id], m_ids.sort
+    assert_equal [p.id, p2.id], p_ids.sort
+    pm2.embed= {description: 'new_description'}.to_json
+    sleep 10
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, embed } } } } }'
+    post :create, query: query
+    assert_response :success
+    result = {}
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      result[id["node"]["project_id"]] = JSON.parse(id["node"]["embed"])
+    end
+    assert_equal 'new_description', result[p2.id]["description"]
+    assert_equal 'search_desc', result[p.id]["description"]
+  end
+
+  test "should search by dynamic annotation" do
+    u = create_user
+    p = create_project team: @team
+    m1 = create_valid_media
+    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
+    authenticate_with_user(u)
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url)
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text', description: 'Free text response that can added to a task'
+    ft = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
+    fi1 = create_field_instance name: 'response', label: 'Response', description: 'The response to a task', field_type_object: ft, optional: false, settings: {}
+    fi2 = create_field_instance name: 'note', label: 'Note', description: 'A note that explains a response to a task', field_type_object: ft, optional: true, settings: {}
+    a = create_dynamic_annotation annotation_type: 'task_response_free_text', annotated: pm1, disable_es_callbacks: false
+    f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
+    f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
+    a.save!
+    sleep 20
+    query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm1.id], ids
+    query = 'query Search { search(query: "{\"keyword\":\"dynamic note\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm1.id], ids
+  end
+
+  test "should read first response from task" do
+    u = create_user
+    p = create_project team: @team
+    create_team_user user: u, team: @team
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    authenticate_with_user(u)
+    t = create_task annotated: pm
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.save!
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response_value, first_response { content } } } } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    node = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']
+    fields = node['first_response']['content']
+    assert_equal 'Test', JSON.parse(fields).select{ |f| f['field_type'] == 'text' }.first['value']
+    assert_equal 'Test', node['first_response_value']
+  end
+
+  test "should move report to other projects" do
+    u = create_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    create_team_user user: u, team: @team, role: 'owner'
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    authenticate_with_user(u)
+    id = Base64.encode64("ProjectMedia/#{pm.id}")
+    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", project_id: #{p2.id} }) { project_media { project_id }, project { id } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
+    last_version = pm.versions.last
+    assert_equal [p.id, p2.id], JSON.parse(last_version.object_changes)['project_id']
+    assert_equal u.id.to_s, last_version.whodunnit
   end
 
   test "should search with keyword" do
@@ -263,20 +422,28 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should sort results asc and desc" do
     t = create_team
     p = create_project team: t
+    
     info = {title: 'search_sort'}.to_json
+    
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-    pm1.embed= info
+    pm1.embed = info
+    
     m2 = create_valid_media
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    pm2.embed= info
+    pm2.embed = info
+    
     m3 = create_valid_media
     pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
-    pm3.embed= info
+    pm3.embed = info
+    
     create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
+    sleep 2
     create_tag tag: 'sorts', annotated: pm1, disable_es_callbacks: false
+    sleep 2
     create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
-    sleep 10
+    sleep 6
+    
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json)
     assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
@@ -495,6 +662,9 @@ class CheckSearchTest < ActiveSupport::TestCase
     p = create_project
     cs = CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => p.id }, 'projects' => [p.id] }.to_json)
     assert_equal p.pusher_channel, cs.pusher_channel
+    t = create_team
+    cs = CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => t.slug } }.to_json)
+    assert_equal t.pusher_channel, cs.pusher_channel
     cs = CheckSearch.new('{}')
     assert_nil cs.pusher_channel
   end
@@ -709,5 +879,631 @@ class CheckSearchTest < ActiveSupport::TestCase
   test "should get teams" do
     s = CheckSearch.new({}.to_json)
     assert_equal [], s.teams
+  end
+
+  test "should create elasticsearch status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media media: m, project: p, disable_es_callbacks: false
+    sleep 1
+    result = MediaSearch.find(pm.id)
+    assert_equal Status.default_id(pm.media, pm.project), result.status
+  end
+
+  test "should update elasticsearch status" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media media: m, project: p, disable_es_callbacks: false
+    st = create_status status: 'verified', annotated: pm, disable_es_callbacks: false
+    sleep 1
+    result = MediaSearch.find(pm.id)
+    assert_equal 'verified', result.status
+  end
+
+  test "should update es after move project to other team" do
+    t = create_team
+    t2 = create_team
+    p = create_project team: t
+    m = create_valid_media
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
+      pids = ProjectMedia.where(project_id: p.id).map(&:id).map(&:to_s)
+      pids.concat  ProjectSource.where(project_id: p.id).map(&:id).map(&:to_s)
+      sleep 5
+      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
+      assert_equal pids.sort, results.map(&:annotated_id).sort
+      p.team_id = t2.id; p.save!
+      sleep 5
+      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
+      assert_equal [], results.map(&:annotated_id)
+      results = MediaSearch.search(query: { match: { team_id: t2.id } }).results
+      assert_equal pids.sort, results.map(&:annotated_id).sort
+    end
+  end
+
+  test "should set initial status for media" do
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    stub_config('app_name', 'Check') do
+      m = create_valid_media user: u
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_equal Status.default_id(m, p), ms.status
+    end
+    stub_config('app_name', 'Bridge') do
+      m = create_valid_media user: u
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_nil ms.status
+    end
+  end
+
+  test "should update es after move media to other projects" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    create_comment annotated: pm
+    create_tag annotated: pm
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.project_id.to_i, p.id
+    assert_equal ms.team_id.to_i, t.id
+    t2 = create_team
+    p2 = create_project team: t2
+    pm.project = p2; pm.save!
+    ElasticSearchWorker.drain
+    # confirm annotations log
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.project_id.to_i, p2.id
+    assert_equal ms.team_id.to_i, t2.id
+  end
+
+  test "should destroy elasticseach project media" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    sleep 1
+    assert_not_nil MediaSearch.find(pm.id)
+    Sidekiq::Testing.inline! do
+      pm.destroy
+      sleep 1
+      assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+        result = MediaSearch.find(pm.id)
+      end
+    end
+  end
+
+  test "should update es after refresh Pender data" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = random_url
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"new_title"}}')
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    m = create_media url: url
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.title, 'org_title'
+    ms2 = MediaSearch.find(pm2.id)
+    assert_equal ms2.title, 'org_title'
+    Sidekiq::Testing.inline! do
+      # Update title
+      pm2.reload; pm2.disable_es_callbacks = false
+      info = {title: 'override_title'}.to_json
+      pm2.embed= info
+      pm.reload; pm.disable_es_callbacks = false
+      pm.refresh_media = true
+      pm.save!
+      pm2.reload; pm2.disable_es_callbacks = false
+      pm2.refresh_media = true
+      pm2.save!
+    end
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.title, 'new_title'
+    ms2 = MediaSearch.find(pm2.id)
+    assert_equal ms2.title, 'override_title'
+  end
+
+  test "should set es data for media account" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    media_url = 'http://www.facebook.com/meedan/posts/123456'
+    author_url = 'http://facebook.com/123456'
+    author_normal_url = 'http://www.facebook.com/meedan'
+
+    data = { url: media_url, author_url: author_url, type: 'item' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+
+    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+
+    m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    sleep 1
+    ms = MediaSearch.find(pm.id)
+    assert_equal ms.account[0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar", "username"=>"username"}.sort
+  end
+
+  test "should update media search in background" do
+    Sidekiq::Testing.fake!
+    ElasticSearchWorker.drain
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    assert_equal 2, ElasticSearchWorker.jobs.size
+  end
+
+  test "should add comment search in background" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, disable_es_callbacks: false
+    ElasticSearchWorker.drain
+    assert_equal 0, ElasticSearchWorker.jobs.size
+    create_comment annotated: pm, disable_es_callbacks: false
+    assert_equal 1, ElasticSearchWorker.jobs.size
+  end
+
+  test "should add tag search in background" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    ElasticSearchWorker.drain
+    assert_equal 0, ElasticSearchWorker.jobs.size
+    create_tag annotated: pm, disable_es_callbacks: false
+    assert_equal 1, ElasticSearchWorker.jobs.size
+  end
+
+  test "should update title or description in background" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    ElasticSearchWorker.drain
+    assert_equal 0, ElasticSearchWorker.jobs.size
+    pm.embed= {title: 'title', description: 'description'}.to_json
+    assert_equal 1, ElasticSearchWorker.jobs.size
+  end
+
+  test "should update status in background" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    ElasticSearchWorker.drain
+    create_status annotated: pm, status: 'false', disable_es_callbacks: false
+    assert_equal 1, ElasticSearchWorker.jobs.size
+  end
+
+  test "should index and search by location" do
+    DynamicSearch.delete_index
+    DynamicSearch.create_index
+    att = 'task_response_geolocation'
+    at = create_annotation_type annotation_type: att, label: 'Task Response Geolocation'
+    geotype = create_field_type field_type: 'geojson', label: 'GeoJSON'
+    create_field_instance annotation_type_object: at, name: 'response_geolocation', field_type_object: geotype
+    pm = create_project_media disable_es_callbacks: false
+    geo = {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [-12.9015866, -38.560239]
+      },
+      properties: {
+        name: 'Salvador, BA, Brazil'
+      }
+    }.to_json
+
+    fields = { response_geolocation: geo }.to_json
+    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
+
+    search = {
+      query: {
+        bool: {
+          must: {
+            filtered: {
+              filter: {
+                geo_distance: {
+                  distance: '1000mi',
+                  location: {
+                    lat: -12.900,
+                    lon: -38.560
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    sleep 3 
+
+    assert_equal 1, DynamicSearch.search(search).results.size
+  end
+
+  test "should index and search by datetime" do
+    DynamicSearch.delete_index
+    DynamicSearch.create_index
+    att = 'task_response_datetime'
+    at = create_annotation_type annotation_type: att, label: 'Task Response Date Time'
+    datetime = create_field_type field_type: 'datetime', label: 'Date Time'
+    create_field_instance annotation_type_object: at, name: 'response_datetime', field_type_object: datetime
+    pm = create_project_media disable_es_callbacks: false
+    fields = { response_datetime: '2017-08-21 14:13:42' }.to_json
+    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
+
+    search = {
+      query: {
+        bool: {
+          must: {
+            filtered: {
+              filter: {
+                range: {
+                  datetime: {
+                    lte: Time.parse('2017-08-22').to_i,
+                    gte: Time.parse('2017-08-20').to_i
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    sleep 5 
+
+    assert_equal 1, DynamicSearch.search(search).results.size
+  end
+
+  test "should create account" do
+    assert_difference 'AccountSearch.length' do
+      create_account_search
+    end
+  end
+
+  test "should set type automatically for account" do
+    a = create_account_search
+    assert_equal 'accountsearch', a.annotation_type
+  end
+
+  test "should create media search" do
+    assert_difference 'MediaSearch.length' do
+      create_media_search
+    end
+  end
+
+  test "should set type automatically for media" do
+    m = create_media_search
+    assert_equal 'mediasearch', m.annotation_type
+  end
+
+  test "should re-index data" do
+    # Test raising error for re-index
+    MediaSearch.stubs(:delete_index).raises(StandardError)
+    CheckElasticSearchModel.reindex_es_data
+    MediaSearch.unstub(:delete_index)
+
+    Rails.logger.stubs(:debug).raises(StandardError)
+    mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch]
+    source_index = CheckElasticSearchModel.get_index_name
+    target_index = "#{source_index}_reindex"
+    MediaSearch.delete_index(target_index)
+    m = create_media_search
+    sleep 1
+    assert_equal 1, MediaSearch.length
+    # Test migrate data into target index
+    MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+    sleep 1
+    MediaSearch.index_name = target_index
+    assert_equal 1, MediaSearch.length
+    MediaSearch.delete_index
+    MediaSearch.index_name = source_index
+    MediaSearch.create_index
+
+    Rails.logger.stubs(:error).once
+    sleep 1
+    MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+    Rails.logger.unstub(:error)
+
+    MediaSearch.delete_index(target_index)
+    MediaSearch.index_name = source_index
+    MediaSearch.create_index
+    m = create_media_search
+    CheckElasticSearchModel.reindex_es_data
+    sleep 1
+    MediaSearch.index_name = source_index
+    assert_equal 1, MediaSearch.length
+    Rails.logger.unstub(:debug)
+  end
+
+  test "should create comment" do
+    assert_difference 'CommentSearch.length' do
+      create_comment_search(text: 'test')
+    end
+  end
+
+  test "should set type automatically for comment" do
+    t = create_comment_search
+    assert_equal 'commentsearch', t.annotation_type
+  end
+
+  test "should have text" do
+    assert_no_difference 'CommentSearch.length' do
+      assert_raise RuntimeError do
+        create_comment_search(text: nil)
+      end
+      assert_raise RuntimeError do
+        create_comment_search(text: '')
+      end
+    end
+  end
+
+  test "should create tag" do
+    assert_difference 'TagSearch.length' do
+      create_tag_search(tag: 'test')
+    end
+  end
+
+  test "should set type automatically for tag" do
+    t = create_tag_search
+    assert_equal 'tagsearch', t.annotation_type
+  end
+
+  test "should have tag" do
+    assert_no_difference 'TagSearch.length' do
+      assert_raise RuntimeError do
+        create_tag_search(tag: nil)
+      end
+      assert_raise RuntimeError do
+        create_tag_search(tag: '')
+      end
+    end
+  end
+
+  test "should update es after source update" do
+    s = create_source name: 'source_a', slogan: 'desc_a'
+    ps = create_project_source project: create_project, source: s, disable_es_callbacks: false
+    sleep 1
+    ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    assert_equal ms.title, s.name
+    assert_equal ms.description, s.description
+    s.name = 'new_source'; s.slogan = 'new_desc'; s.disable_es_callbacks = false; s.save!
+    s.reload
+    sleep 1
+    ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    assert_equal ms.title, s.name
+    assert_equal ms.description, s.description
+    # test multiple project sources
+    ps2 = create_project_source project: create_project, source: s, disable_es_callbacks: false
+    sleep 1
+    ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps2.id}"))
+    assert_equal ms.title, s.name
+    assert_equal ms.description, s.description
+    # update source should update all related project_sources
+    s.name = 'source_b'; s.slogan = 'desc_b'; s.save!
+    s.reload
+    sleep 1
+    ms1 = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    ms2 = MediaSearch.find(Base64.encode64("ProjectSource/#{ps2.id}"))
+    assert_equal ms1.title, ms2.title, s.name
+    assert_equal ms1.description, ms2.description, s.description
+  end
+
+  test "should destroy related items" do
+    t = create_team
+    p = create_project team: t
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    c = create_comment annotated: pm, disable_es_callbacks: false
+    sleep 1
+    assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+    assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    id = pm.id
+    m.destroy
+    assert_equal 0, ProjectMedia.where(media_id: id).count
+    assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+    sleep 1
+    assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+    assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+  end
+
+  test "should destroy elasticseach project source" do
+    t = create_team
+    p = create_project team: t
+    s = create_source
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    sleep 1
+    assert_not_nil MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    ps.destroy
+    sleep 1
+    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+      result = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    end
+  end
+
+  test "should index project source" do
+    ps = create_project_source disable_es_callbacks: false
+    sleep 1
+    id = Base64.encode64("ProjectSource/#{ps.id}")
+    assert_not_nil MediaSearch.find(id)
+  end
+
+  test "should index related accounts" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    ps = create_project_source name: 'New source', url: url, disable_es_callbacks: false
+    sleep 1
+    assert_equal ps.source.accounts.map(&:id).sort, AccountSearch.all_sorted.map(&:id).map(&:to_i).sort
+  end
+
+  test "should update es after move source to other projects" do
+    t = create_team
+    p = create_project team: t
+    s = create_source
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    sleep 1
+    id = Base64.encode64("ProjectSource/#{ps.id}")
+    ms = MediaSearch.find(id)
+    assert_equal ms.project_id.to_i, p.id
+    assert_equal ms.team_id.to_i, t.id
+    t2 = create_team
+    p2 = create_project team: t2
+    ps.project = p2; ps.save!
+    ElasticSearchWorker.drain
+    sleep 1
+    ms = MediaSearch.find(id)
+    assert_equal ms.project_id.to_i, p2.id
+    assert_equal ms.team_id.to_i, t2.id
+  end
+
+  test "should create elasticsearch comment" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    s = create_source
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
+    sleep 1
+    result = CommentSearch.find(c.id, parent: pm.id)
+    assert_equal c.id.to_s, result.id
+    c2 = create_comment annotated: ps, text: 'test', disable_es_callbacks: false
+    sleep 1
+    result = CommentSearch.find(c2.id, parent: Base64.encode64("ProjectSource/#{ps.id}"))
+    assert_equal c2.id.to_s, result.id
+  end
+
+  test "should update elasticsearch comment" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
+    c.text = 'test-mod'; c.save!
+    sleep 1
+    result = CommentSearch.find(c.id, parent: pm.id)
+    assert_equal 'test-mod', result.text
+  end
+
+  test "should destroy elasticsearch comment" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    s = create_source
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
+    c2 = create_comment annotated: ps, text: 'test', disable_es_callbacks: false
+    sleep 1
+    result = CommentSearch.find(c.id, parent: pm.id)
+    assert_not_nil result
+    c.destroy
+    c2.destroy
+    sleep 1
+    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+      result = CommentSearch.find(c.id, parent: pm.id)
+    end
+    # destroy project source comment
+    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+      result = CommentSearch.find(c2.id, parent: Base64.encode64("ProjectSource/#{ps.id}"))
+    end
+  end
+
+  test "should create elasticsearch tag" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, disable_es_callbacks: false
+    t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
+    sleep 1
+    result = TagSearch.find(t.id, parent: pm.id)
+    assert_equal t.id.to_s, result.id
+  end
+
+  test "should update elasticsearch tag" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, disable_es_callbacks: false
+    t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
+    t.tag = 'sports-news'; t.save!
+    sleep 1
+    result = TagSearch.find(t.id, parent: pm.id)
+    assert_equal 'sports-news', result.tag
+  end
+
+  test "should get translation status value" do
+    create_translation_status_stuff
+    stub_config('app_name', 'Bridge') do
+      pm = create_project_media disable_es_callbacks: false
+      Sidekiq::Testing.inline! do
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+        assert_equal 'pending', DynamicAnnotation::Field.last.status
+      end
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_equal 'pending', ms.status
+    end
+    stub_config('app_name', 'Check') do
+      m = create_valid_media
+      pm = create_project_media media: m, disable_es_callbacks: false
+      Sidekiq::Testing.inline! do
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+        assert_equal Status.default_id(m, p), pm.annotations('status').last.status
+      end
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_equal Status.default_id(m, p), ms.status
+    end
+  end
+
+  test "should destroy related items 2" do
+    t = create_team
+    p = create_project team: t
+    id = p.id
+    p.title = 'Change title'; p.save!
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p, disable_es_callbacks: false
+      c = create_comment annotated: pm, disable_es_callbacks: false
+      sleep 1
+      assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+      p.destroy
+      assert_equal 0, ProjectMedia.where(project_id: id).count
+      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+      assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
+      sleep 1
+      assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    end
   end
 end

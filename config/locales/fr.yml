@@ -108,7 +108,7 @@ fr:
   mail_view_welcome: Bienvenue sur %{app_name}
   mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Prière de confirmer votre courriel en cliquant ce lien :'
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
-  mail_view_rejected_to_join: Désolé, mais votre requête de vous joindre à %{team} a été rejetée.
+  mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} a été rejetée.
   mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur %{app_name} !"
   mail_view_process_request: 'Pour traiter cette requête, prière de vous connecter et de visiter:'
   pender_could_not_parse: Ce n'était pas possible d'analyser ce média
@@ -173,4 +173,10 @@ fr:
   error_project_archived: "Interdit de rajouter un media à un projet désactivé"
   error_team_archived_for_source: "Interdit de rajouter une source à un projet désactivé"
   permission_error: "Désolé, vous n'êtes pas autorisé à effectuer cette opération"
-  error_annotated_archived: "Interdit de rajouter un commentaire à un élément à la corbeille"
+  error_annotated_archived: "Désolé, il est interdit de rajouter un commentaire à un élément à la corbeille"
+  only_super_admin_can_do_this: "Désolé, seuls les super-admins peuvent effectuer cette opération"
+  max_number_of_team_users_reached: "Désolé, le nombre maximum de membres a été atteint pour cette équipe"
+  max_number_of_projects_reached: "Désolé, le nombre maximum de projets a été atteint pour cette équipe"
+  cant_set_custom_statuses: "Désolé, votre équipe n'est pas autorisée à utiliser la fonction de statuts personnalisés"
+  cant_set_checklist: "Désolé, votre équipe n'est pas autorisée à utiliser la fonction de liste de contrôle"
+  cant_create_media_under_this_team_using_extension: "Désolé, votre équipe n'est pas autorisée à utiliser l'extension de navigateur"

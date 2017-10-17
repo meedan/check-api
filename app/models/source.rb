@@ -39,6 +39,7 @@ class Source < ActiveRecord::Base
   def medias
     #TODO: fix me - list valid project media ids
     m_ids = Media.where(account_id: self.account_ids).map(&:id)
+    m_ids.concat ClaimSource.where(source_id: self.id).map(&:media_id)
     conditions = { media_id: m_ids }
     conditions['projects.team_id'] = Team.current.id unless Team.current.nil?
     ProjectMedia.joins(:project).where(conditions)

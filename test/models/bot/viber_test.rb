@@ -302,6 +302,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         d = Dynamic.find(d.id)
+        d.disable_es_callbacks = true
         d.set_fields = { translation_status_status: 'ready' }.to_json
         d.save!
       end
@@ -337,6 +338,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
       assert_nothing_raised do
         Sidekiq::Testing.inline! do
           d = Dynamic.find(d.id)
+          d.disable_es_callbacks = true
           d.set_fields = { translation_status_status: 'ready' }.to_json
           d.save!
         end
@@ -361,6 +363,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
       assert_nothing_raised do
         Sidekiq::Testing.inline! do
           d = Dynamic.find(d.id)
+          d.disable_es_callbacks = true
           d.set_fields = { translation_status_status: 'error' }.to_json
           d.save!
         end
@@ -385,30 +388,6 @@ class Bot::ViberTest < ActiveSupport::TestCase
         d.set_fields = { translation_status_status: 'error' }.to_json
         d.save!
       end
-    end
-  end
-
-  test "should get translation status value" do
-    stub_config('app_name', 'Bridge') do
-      pm = create_project_media disable_es_callbacks: false
-      Sidekiq::Testing.inline! do
-        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-        assert_equal 'pending', DynamicAnnotation::Field.last.status
-      end
-      sleep 1
-      ms = MediaSearch.find(pm.id)
-      assert_equal 'pending', ms.status
-    end
-    stub_config('app_name', 'Check') do
-      m = create_valid_media
-      pm = create_project_media media: m, disable_es_callbacks: false
-      Sidekiq::Testing.inline! do
-        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-        assert_equal Status.default_id(m, p), pm.annotations('status').last.status
-      end
-      sleep 1
-      ms = MediaSearch.find(pm.id)
-      assert_equal Status.default_id(m, p), ms.status
     end
   end
 

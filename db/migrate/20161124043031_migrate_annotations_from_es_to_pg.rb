@@ -20,9 +20,7 @@ class MigrateAnnotationsFromEsToPg < ActiveRecord::Migration
   end
 
   def change
-    puts   
-    unless CONFIG['elasticsearch_index'].blank?
-
+    if !CONFIG['elasticsearch_index'].blank? && Rails.env.to_s != 'test'
       uri = URI.parse("http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}/#{CONFIG['elasticsearch_index']}/_settings")
       request = Net::HTTP::Put.new(uri)
       request.body = JSON.dump({ "index" => { "max_result_window" => 20000 } })
@@ -53,6 +51,5 @@ class MigrateAnnotationsFromEsToPg < ActiveRecord::Migration
         end
       end
     end
-    puts
   end
 end

@@ -1,0 +1,50 @@
+{
+  "title": "Verification statuses",
+  "type": "object",
+  "properties": {
+    "label": {
+      "default": "Status",
+      "type": "string"
+    },
+    "default": {
+      "type": "string",
+      "description": "The default status"
+    },
+    "statuses": {
+      "type": "array",
+      "items": {
+        "title": "Status",
+        "headerTemplate": "{{i1}} - {{self.label}}",
+        "type": "object",
+        "properties": {
+          "id": {
+            "default": "",
+            "description": "The id that will be saved on database.",
+            "type": "string"
+          },
+          "label": {
+            "default": "",
+            "description": "Text displayed to users.",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "description": "Explanation of the status.",
+            "type": "string"
+          },
+          "style": {
+            "type": "object",
+            "properties": {
+              "color": {
+                "default": "rgba(0, 0, 0, .54)",
+                "description": "Status color.",
+                "type": "string",
+                "format": "color"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

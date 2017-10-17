@@ -5,6 +5,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :id, field: GraphQL::Relay::GlobalIdField.new('User')
+  field :dbid, types.Int
   field :email, types.String
   field :provider, types.String
   field :uuid, types.String
@@ -14,6 +15,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :current_team_id, types.Int
   field :permissions, types.String
   field :jsonsettings, types.String
+  field :number_of_teams, types.Int
 
   field :source do
     type SourceType

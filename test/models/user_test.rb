@@ -30,7 +30,11 @@ class UserTest < ActiveSupport::TestCase
       end
     end
 
-    with_current_user_and_team(u, t) { u2.destroy }
+    with_current_user_and_team(u, t) do
+     assert_raise RuntimeError do
+        u2.destroy
+      end
+    end
   end
 
   test "non members should not read users in private team" do
@@ -310,7 +314,7 @@ class UserTest < ActiveSupport::TestCase
      create_team_user team: t1, user: u
      t2 = create_team
      create_team_user team: t2, user: u, status: 'requested'
-     assert_equal [t1.name, t2.name].sort, JSON.parse(u.user_teams).keys.sort
+     assert_equal [t1.slug, t2.slug].sort, JSON.parse(u.user_teams).keys.sort
   end
 
   test "should not crash if account is not created" do
@@ -334,7 +338,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should have settings" do
     u = create_user
-    assert_nil u.settings
+    assert_equal({}, u.settings)
     assert_nil u.setting(:foo)
     u.set_foo = 'bar'
     u.save!
@@ -351,6 +355,44 @@ class UserTest < ActiveSupport::TestCase
       create_user url: 'http://twitter.com/meedan', provider: 'twitter'
     end
     Account.any_instance.unstub(:save)
+  end
+
+  test "should edit own profile" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    s = u.source
+    assert_nil s.team
+    # should edit own profile even user has no team
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        s.name = 'update name'
+        s.save!
+        assert_equal s.reload.name, 'update name'
+      end
+    end
+    create_team_user user: u, team: t, role: 'contributor'
+    # should edit own profile
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        s.name = 'update name'
+        s.save!
+        assert_equal s.reload.name, 'update name'
+      end
+    end
+    # other roles should not edit user profile
+    create_team_user user: u2, team: t, role: 'journalist'
+    js = u2.source
+    with_current_user_and_team(u2, t) do
+      assert_raise RuntimeError do
+        s.save!
+      end
+      # check that journliast has a permission to update his profile
+      js.name = 'update name'
+      js.save!
+      assert_equal js.reload.name, 'update name'
+    end
+
   end
 
   test "should get permissions" do
@@ -537,5 +579,12 @@ class UserTest < ActiveSupport::TestCase
     assert_nothing_raised do
       create_user api_key_id: nil
     end
+  end
+
+  test "should have number of teams" do
+    u = create_user
+    create_team_user user: u
+    create_team_user user: u
+    assert_equal 2, u.reload.number_of_teams
   end
 end
