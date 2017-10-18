@@ -215,11 +215,6 @@ class ProjectMedia < ActiveRecord::Base
 
   private
 
-  def is_unique
-    pm = ProjectMedia.where(project_id: self.project_id, media_id: self.media_id).last
-    errors.add(:base, "This media already exists in this project and has id #{pm.id}") unless pm.nil?
-  end
-
   def set_quote_embed
     self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
     self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?

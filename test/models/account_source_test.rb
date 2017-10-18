@@ -39,7 +39,7 @@ class AccountSourceTest < ActiveSupport::TestCase
     end
   end
 
-  test "should account unique per source" do
+  test "should create a unique account per source" do
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
@@ -56,6 +56,12 @@ class AccountSourceTest < ActiveSupport::TestCase
     end
     assert_raise ActiveRecord::RecordInvalid do
       create_project_source project: p, name: 'Test', url: url
+    end
+    t2 = create_team
+    p2 = create_project team: t2
+    Team.stubs(:current).returns(t2)
+    assert_difference 'AccountSource.count' do
+      create_project_source project: p2, name: s.name, url: url
     end
     Team.unstub(:current)
   end

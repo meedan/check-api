@@ -47,11 +47,6 @@ class ProjectSource < ActiveRecord::Base
 
   private
 
-  def is_unique
-    ps = ProjectSource.where(project_id: self.project_id, source_id: self.source_id).last
-    errors.add(:base, "This source already exists in this project and has id #{ps.id}") unless ps.nil?
-  end
-
   def set_account
     account = self.url.blank? ? nil : Account.create_for_source(self.url, self.source, false, self.disable_es_callbacks)
     unless account.nil?
