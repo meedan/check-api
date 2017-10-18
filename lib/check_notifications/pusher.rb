@@ -46,7 +46,7 @@ module CheckNotifications
         options = self.class.pusher_options
         return if options.has_key?(:if) && !options[:if].call(self)
 
-        event = options[:event]
+        event = options[:event].is_a?(String) ? options[:event] : options[:event].call(self)
         targets = options[:targets].call(self)
         data = options[:data].call(self)
 
