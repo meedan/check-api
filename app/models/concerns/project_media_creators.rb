@@ -125,7 +125,16 @@ module ProjectMediaCreators
       return self.send(name, jsonld, mapping) if self.respond_to?(name)
     end
     data = mapping_value(jsonld, mapping)
-    (!data.blank? && data.kind_of?(String)) ? mapping['prefix'] + data : ''
+    (!data.blank? && data.kind_of?(String)) ? mapping['prefix'].gsub(/\s+$/, '') + ' ' + data : ''
+  end
+
+  def mapping_value(jsonld, mapping)
+    begin
+      value = JsonPath.new(mapping['match']).first(jsonld)
+    rescue
+      value = nil
+    end
+    value
   end
 
   def mapping_suggestions(task, mapping_type)

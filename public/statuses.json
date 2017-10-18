@@ -1,16 +1,21 @@
 {
-  "title": "Verification statuses",
+  "title": "Custom statuses",
   "type": "object",
   "properties": {
     "label": {
+      "title": "Label",
+      "description": "The label of this status field, as displayed to users.",
       "default": "Status",
       "type": "string"
     },
     "default": {
+      "title": "Default value",
       "type": "string",
-      "description": "The default status"
+      "description": "The default value for this status field that is automatically assigned when a new report is created. It should match one of the identifiers in the list below."
     },
     "statuses": {
+      "title": "Statuses",
+      "description": "The list of available statuses.",
       "type": "array",
       "items": {
         "title": "Status",
@@ -18,26 +23,31 @@
         "type": "object",
         "properties": {
           "id": {
+            "title": "Identifier",
             "default": "",
-            "description": "The id that will be saved on database.",
+            "description": "The unique identifier for this status, as saved in the database.",
             "type": "string"
           },
           "label": {
+            "title": "Label",
             "default": "",
-            "description": "Text displayed to users.",
+            "description": "The status label, as displayed to users.",
             "type": "string"
           },
           "description": {
+            "title": "Description",
             "default": "",
-            "description": "Explanation of the status.",
+            "description": "An explanation of the meaning of this status, as displayed to users.",
             "type": "string"
           },
           "style": {
+            "title": "Styles",
+            "description": "The visual styles to be applied to the report when this status is active.",
             "type": "object",
             "properties": {
               "color": {
+                "title": "Color",
                 "default": "rgba(0, 0, 0, .54)",
-                "description": "Status color.",
                 "type": "string",
                 "format": "color"
               }

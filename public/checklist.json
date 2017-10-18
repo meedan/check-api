@@ -7,24 +7,34 @@
     "headerTemplate": "{{i1}} - {{self.label}}",
     "properties": {
       "label": {
+        "title": "Title",
         "default": "",
-        "description": "Text displayed to users.",
+        "description": "The task's title, usually a question or a directive.",
         "type": "string"
       },
       "type": {
-        "default": "",
-        "description": "Choose the type of answer.",
+        "title": "Type",
+        "default": "free_text",
+        "description": "The type of response needed for this task, among the given choices.",
         "type": "string",
-        "enum": ["free_text", "single_choice", "multiple_choice", "geolocation", "datetime"]
+        "enum": ["free_text", "single_choice", "multiple_choice", "geolocation", "datetime"],
+        "options": {
+          "enum_titles": ["Free text", "Single choice", "Multiple choice", "Geolocation", "Datetime"]
+        }
       },
       "description": {
+        "title": "Description",
         "default": "",
-        "description": "Explanation of the task.",
+        "description": "A more detailed explanation of the task.",
         "type": "string"
       },
       "options": {
+        "title": "Options",
+        "options": {
+          "collapsed": true
+        },
         "default": [],
-        "description": "Single and multiple choice options.",
+        "description": "For single and multiple choice tasks, specify the available values here.",
         "type": "array",
         "items": {
           "title": "Option",
@@ -32,6 +42,7 @@
           "type": "object",
           "properties": {
             "label": {
+              "title": "Label",
               "default": "",
               "description": "",
               "type": "string"
@@ -39,12 +50,49 @@
           }
         }
       },
+      "mapping": {
+        "title": "Mapping",
+        "options": {
+          "collapsed": true
+        },
+        "default": {},
+        "description": "To pre-populate a response with the contents of a given media's JSON-LD metadata, enter the mapping rule here.",
+        "type": "object",
+        "properties": {
+          "type": {
+            "title": "Data type",
+            "type": "string",
+            "default": "text",
+            "description": "The type of data that is expected in the matched JSON-LD entry, among the given choices.",
+            "enum": ["text", "geolocation", "datetime"],
+            "options": {
+              "enum_titles": ["Text", "Geolocation", "Datetime"]
+            }
+          },
+          "match": {
+            "title": "Matching rule",
+            "type": "string",
+            "description": "A JSONPath query that matches one or more entries in the JSON-LD document. You can use this sandbox: http://jsonpath.com to test your queries.",
+            "default": ""
+          },
+          "prefix": {
+            "title": "Prefix",
+            "type": "string",
+            "default": "",
+            "description": "A text prefix to add to each extracted value."
+          }
+        }
+      },
       "projects": {
+        "title": "Projects",
+        "options": {
+          "collapsed": true
+        },
         "default": [],
-        "description": "Projects that will have this task created automatically.",
+        "description": "The list of projects that will have this task created automatically for every new report. Leave blank to apply to all projects in the current team.",
         "type": "array",
         "items": {
-          "title": "Project ID",
+          "title": "Project identifier",
           "type": "integer"
         }
       }
