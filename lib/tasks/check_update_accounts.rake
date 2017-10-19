@@ -20,32 +20,49 @@ def parse_conditions(args, task_name)
   end
 end
 
+def match_conditions(data)
+  match = false
+  @conditions.each do |c|
+    c.each do |key, value|
+      match = data[key] == value
+      break unless match
+    end
+    break if match
+    match = false
+  end
+  match
+end
+
 def select_embeds
   accounts = []
   Embed.where(annotation_type: 'embed', annotated_type: 'Account').find_each do |e|
     embed = JSON.parse(e.embed)
-    match = false
-    @conditions.each do |c|
-      c.each do |key, value|
-        match = embed[key] == value
-        break unless match
-      end
-      break if match
-      match = false
+    if match_conditions(embed) || @conditions.empty?
+      accounts << e.annotated
     end
-    accounts << e.annotated if match || @conditions.empty?
   end
   puts "#{accounts.size} accounts matched the criteria: #{@conditions.inspect}"
   accounts
 end
 
-def select_accounts
+def select_accounts(condition)
   accounts = []
-  Account.all.find_each do |a|
-    accounts << a if a.annotations('embed').last.nil?
+  Account.find_each do |a|
+   data = a.data
+   if (match_conditions(data) || @conditions.empty?) && send(condition, data)
+      accounts << a
+    end
   end
-  puts "#{accounts.size} accounts does not have embed"
+  puts "#{accounts.size} accounts match the criteria"
   accounts
+end
+
+def without_data(data)
+  data.empty?
+end
+
+def with_errors_on_data(data)
+  !data['error'].nil?
 end
 
 def update_account(account, update_source = false)
@@ -66,10 +83,9 @@ def update_account(account, update_source = false)
 end
 
 def update_related_source(account)
+  data = account.data
   account.sources.each do |source|
-    source.name = account.data['author_name']
-    source.avatar = account.data['author_picture']
-    source.slogan = account.data['description'].to_s
+    source.update_from_pender_data(data)
     source.save!
     @sources += 1
   end
@@ -100,8 +116,20 @@ namespace :check do
   # bundle exec rake check:update_accounts_without_data
   desc "update accounts without data"
   task :update_accounts_without_data => :environment do |t, args|
-    select_accounts.each do |account|
+    parse_conditions args.extras, t.name
+    select_accounts('without_data').each do |account|
      update_account account
+    end
+    puts "#{@accounts} accounts were changed."
+  end
+
+  # bundle exec rake check:update_accounts_with_errors_on_data['provider:facebook&type:profile']
+  desc "update accounts with errors on data"
+  task :update_accounts_with_errors_on_data => :environment do |t, args|
+    parse_conditions args.extras, t.name
+    select_accounts('with_errors_on_data').each do |account|
+      update_account account
+      print '.'
     end
     puts "#{@accounts} accounts were changed."
   end
