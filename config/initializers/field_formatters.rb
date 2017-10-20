@@ -41,9 +41,8 @@ DynamicAnnotation::Field.class_eval do
     # http://rubular.com/r/wOfJTCSxlI
     # The format string is expect to have a [TZ] placeholder to receive the abbreviation
     abbr = ''
-    if match = /\s([[:alpha:]]+)\s?$/.match(self.value)
-      abbr = match[1]
-    end
+    match = /\s([[:alpha:]]+)\s?$/.match(self.value)
+    abbr = match[1] unless match.nil?
     I18n.l(DateTime.parse(self.value), format: :task).gsub('[TZ]', abbr)
   end
 

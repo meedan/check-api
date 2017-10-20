@@ -4,7 +4,6 @@ UserType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('User')
   field :dbid, types.Int
   field :email, types.String
   field :provider, types.String
@@ -20,7 +19,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :source do
     type SourceType
     resolve -> (user, _args, _ctx) do
-      user.source
+      RecordLoader.for(Source).load(user.source_id)
     end
   end
 

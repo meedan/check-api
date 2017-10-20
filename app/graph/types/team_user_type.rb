@@ -4,7 +4,6 @@ TeamUserType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('TeamUser')
   field :user_id, types.Int
   field :team_id, types.Int
   field :status, types.String

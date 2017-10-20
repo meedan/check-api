@@ -100,7 +100,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     m = create_valid_media user_id: u.id
     create_team_user team: t, user: u
-    pm = create_project_media project: p, media: m
+    pm = create_project_media project: p, media: m, user: u 
     with_current_user_and_team(u, t) do
       pm.project_id = p2.id; pm.save!
       pm.reload
@@ -1217,6 +1217,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
       RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ headers: { 'X-Check-Client' => 'browser-extension' } }))
       create_project_media project: p
       RequestStore.unstub(:[])
+    end
+  end
+
+  test "should not crash if mapping value is invalid" do
+    assert_nothing_raised do
+      pm = ProjectMedia.new
+      assert_nil pm.send(:mapping_value, 'foo', 'bar')
     end
   end
 end

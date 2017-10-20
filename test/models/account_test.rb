@@ -56,7 +56,7 @@ class AccountTest < ActiveSupport::TestCase
     m2 = create_valid_media
     @account.medias << m1
     @account.medias << m2
-    assert_equal [m1, m2], @account.medias
+    assert_equal [m1, m2], @account.medias.to_a
   end
 
   test "should create version when account is created" do

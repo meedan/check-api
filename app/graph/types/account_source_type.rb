@@ -4,7 +4,6 @@ AccountSourceType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('AccountSource')
   field :account_id, types.Int
   field :source_id, types.Int
 

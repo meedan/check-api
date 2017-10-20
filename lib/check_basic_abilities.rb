@@ -56,9 +56,20 @@ module CheckBasicAbilities
 
     can :read, [Account, ProjectSource], source: { user_id: [@user.id, nil] }
     can :read, Account, source: { projects: { team_id: @user.cached_teams }}
-    can :read, [ProjectMedia, ProjectSource], project: { team: { private: false } }
-    can :read, [ProjectMedia, ProjectSource], project: { team_id: @user.cached_teams }
+    can :read, ProjectSource, project: { team: { private: false } }
+    can :read, ProjectSource, project: { team_id: @user.cached_teams }
+    can :read, ProjectMedia do |obj|
+      obj.team ||= obj.project.team
+      !obj.team.private || @user.cached_teams.include?(obj.team.id)
+    end
 
+    annotation_perms_for_all_users
+
+    cannot :manage, ApiKey
+    cannot :manage, BotUser
+  end
+
+  def annotation_perms_for_all_users
     %w(comment flag status embed tag dynamic task annotation).each do |annotation_type|
       can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         team_ids = obj.get_team
@@ -70,8 +81,5 @@ module CheckBasicAbilities
         end
       end
     end
-
-    cannot :manage, ApiKey
-    cannot :manage, BotUser
   end
 end

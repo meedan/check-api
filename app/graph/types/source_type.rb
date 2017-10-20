@@ -4,7 +4,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('Source')
   field :image, types.String
   field :description, !types.String
   field :name, !types.String

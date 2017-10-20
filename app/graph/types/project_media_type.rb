@@ -4,7 +4,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('ProjectMedia')
   field :media_id, types.Int
   field :project_id, types.Int
   field :user_id, types.Int
@@ -14,12 +13,21 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int
   field :archived, types.Boolean
 
+  field :permissions, types.String do
+    resolve -> (project_media, _args, ctx) {
+      PermissionsLoader.for(ctx[:ability]).load(project_media.id).then do |pm|
+        pm.cached_permissions || pm.permissions
+      end
+    }
+  end
+
   field :domain do
     type types.String
 
     resolve -> (project_media, _args, _ctx) {
-      media = project_media.media
-      media.respond_to?(:domain) ? media.domain : ''
+      RecordLoader.for(Media).load(project_media.media_id).then do |media|
+        media.respond_to?(:domain) ? media.domain : ''
+      end
     }
   end
 
@@ -27,7 +35,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.media.pusher_channel
+      RecordLoader.for(Media).load(project_media.media_id).then do |media|
+        media.pusher_channel
+      end
     }
   end
 
@@ -43,13 +53,15 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type -> { ProjectType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.project
+      RecordLoader.for(Project).load(project_media.project_id)
     }
   end
 
   connection :projects, -> { ProjectType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
-      project_media.media.projects
+      RecordLoader.for(Media).load(project_media.media_id).then do |media|
+        media.projects
+      end
     }
   end
 
@@ -57,7 +69,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type -> { MediaType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.media
+      RecordLoader.for(Media).load(project_media.media_id)
     }
   end
 
@@ -65,7 +77,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type -> { UserType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.user
+      RecordLoader.for(User).load(project_media.user_id)
     }
   end
 
@@ -73,7 +85,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type -> { TeamType }
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.project.team
+      RecordLoader.for(Project).load(project_media.project_id).then do |project|
+        RecordLoader.for(Team).load(project.team_id)
+      end
     }
   end
 
@@ -179,5 +193,5 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
 
-# End of fields
+  # End of fields
 end
