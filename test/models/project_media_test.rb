@@ -946,8 +946,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_dynamic_annotation annotation_type: 'embed_code', annotated: pm
     u = create_user
     ProjectMedia.any_instance.unstub(:clear_caches)
-    CcDeville.expects(:clear_cache_for_url).returns(nil).times(24)
-    PenderClient::Request.expects(:get_medias).returns(nil).times(8)
+    CcDeville.expects(:clear_cache_for_url).returns(nil).times(48)
+    PenderClient::Request.expects(:get_medias).returns(nil).times(16)
 
     Sidekiq::Testing.inline! do
       create_comment annotated: pm, user: u
