@@ -27,10 +27,7 @@ class Project < ActiveRecord::Base
 
   has_annotations
 
-  notifies_pusher on: :create,
-                  event: 'project_created',
-                  targets: proc { |p| [p.team] },
-                  data: proc { |p| p.to_json }
+  notifies_pusher on: :create, event: 'project_created', targets: proc { |p| [p.team] }, data: proc { |p| p.to_json }
 
   check_settings
 
