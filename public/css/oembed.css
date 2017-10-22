@@ -136,7 +136,10 @@ html, body {
   font-size: 14px;
   line-height: 1.43;
   margin-right: 0;
-  margin-left: 20px;
+  margin-left: 0;
+  padding: 0 20px;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .rtl #oembed__content {
