@@ -850,6 +850,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t1.save!
     t2 = create_task annotated: pm
     assert_equal [t1], pm.completed_tasks
+    assert_equal [t2], pm.open_tasks
     assert_equal 1, pm.completed_tasks_count
   end
 

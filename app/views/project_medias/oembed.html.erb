@@ -96,22 +96,34 @@
         <br />
       </div> <!-- / #oembed__card -->
 
-      <% if @hide_tasks.to_i != 1 && @project_media.completed_tasks.any? %>
+      <% if (@hide_tasks.to_i != 1 && @project_media.completed_tasks.any?) || (@hide_open_tasks.to_i != 1 && @project_media.open_tasks.any?) %>
         <div id="oembed__verification-tasks">
           <h2><span class="l">verification_tasks</span></h2>
 
+          <% if @hide_tasks.to_i != 1 && @project_media.completed_tasks.any? %>
           <div id="oembed__tasks-info">
             <span class="l">resolved_tasks_count</span> • 
             <span class="l" id="oembed__tasks-expand-all">expand_all</span>
             <span class="l" id="oembed__tasks-collapse-all" style="display: none;">collapse_all</span>
           </div>
+          <% end %>
 
           <ul id="oembed__verification-tasks-list">
+            <% if @hide_tasks.to_i != 1 && @project_media.completed_tasks.any? %>
             <% @project_media.completed_tasks.each do |task| %>
               <li class="oembed__verification-task">
                 <span class="oembed__verification-task-question"><%= task.label %></span>
                 <span class="oembed__verification-task-answer oembed__collapsed-text oembed__collapsable-text"><%= task.first_response %></span>
               </li>
+            <% end %>
+            <% end %>
+
+            <% if @hide_open_tasks.to_i != 1 && @project_media.open_tasks.any? %>
+            <% @project_media.open_tasks.each do |task| %>
+              <li class="oembed__verification-task">
+                <span class="oembed__verification-task-question"><%= task.label %></span>
+              </li>
+            <% end %>
             <% end %>
           </ul>
         </div> <!-- / #oembed__verification-tasks -->
