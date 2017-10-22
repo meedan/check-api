@@ -10,12 +10,13 @@ module Api
 
       def create
         query_string = params[:query]
+        context = { ability: @ability, file: request.params[:file] }
+        context[:optics_agent] = request.env[:optics_agent].with_document(query_string) unless CONFIG['optics_api_key'].blank?
         query_variables = ensure_hash(params[:variables]) || {}
         query_variables = {} if query_variables == 'null'
-        debug = !!CONFIG['graphql_debug']
         begin
-          query = GraphQL::Query.new(RelayOnRailsSchema, query_string, variables: query_variables, debug: debug, context: { ability: @ability, file: request.params[:file] })
-          render json: query.result
+          result = RelayOnRailsSchema.execute(query_string, variables: query_variables, context: context)
+          render json: result
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError => e
           render json: { error: e.message }, status: 400
         rescue CheckPermissions::AccessDenied => e

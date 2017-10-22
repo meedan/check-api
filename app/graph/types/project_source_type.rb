@@ -4,7 +4,6 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('ProjectSource')
   field :source_id, types.Int
   field :project_id, types.Int
   field :permissions, types.String

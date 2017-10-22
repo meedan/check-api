@@ -21,7 +21,8 @@ engines:
     enabled: true
     config:
       languages:
-      - ruby
+        ruby:
+          mass_threshold: 19
   bundler-audit:
     enabled: true
 ratings:

@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses
+  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -25,6 +25,11 @@ class ProjectMedia < ActiveRecord::Base
 
   def report_type
     self.media.class.name.downcase
+  end
+
+  def related_to_team?(team)
+    (self.team ||= self.project.team) if self.project
+    self.team == team
   end
 
   def user_id_callback(value, _mapping_ids = nil)

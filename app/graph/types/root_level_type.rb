@@ -4,7 +4,7 @@ RootLevelType = GraphQL::ObjectType.define do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('RootLevel')
+  global_id_field :id
   connection :comments, CommentType.connection_type do
     resolve ->(_object, _args, _ctx){
       Comment.all_sorted

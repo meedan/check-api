@@ -4,7 +4,6 @@ ProjectType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('Project')
   field :avatar, types.String
   field :description, types.String
   field :title, !types.String

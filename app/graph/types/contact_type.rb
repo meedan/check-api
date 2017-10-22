@@ -4,7 +4,6 @@ ContactType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('Contact')
   field :location, types.String
   field :phone, types.String
   field :web, types.String
