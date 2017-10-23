@@ -8,10 +8,7 @@ class AccountSource < ActiveRecord::Base
 
   before_validation :set_account, on: :create
 
-  notifies_pusher on: :save,
-                  event: 'source_updated',
-                  targets: proc { |as| [as.source] },
-                  data: proc { |as| as.to_json }
+  notifies_pusher targets: proc { |as| [as.source] }, data: proc { |as| { id: as.id }.to_json }, on: :save, event: 'source_updated'
 
   private
 
