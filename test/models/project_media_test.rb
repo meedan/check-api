@@ -1227,4 +1227,34 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_nil pm.send(:mapping_value, 'foo', 'bar')
     end
   end
+
+  test "should not crash if another user tries to update media" do
+    u1 = create_user
+    u2 = create_user
+    t = create_team
+    p = create_project team: t
+    create_team_user team: t, user: u1, role: 'owner'
+    create_team_user team: t, user: u2, role: 'owner'
+    pm = nil
+    
+    with_current_user_and_team(u1, t) do
+      pm = create_project_media project: p, user: u1
+      pm = ProjectMedia.find(pm.id)
+      info = { title: 'Title' }.to_json
+      pm.embed = info
+      pm.save!
+    end
+    
+    with_current_user_and_team(u2, t) do
+      pm = ProjectMedia.find(pm.id)
+      info = { title: 'Title' }.to_json
+      pm.embed = info
+      pm.save!
+    end
+    
+    assert_nothing_raised do
+      embed = pm.get_annotations('embed').last.load
+      embed.title_is_overridden?
+    end
+  end
 end
