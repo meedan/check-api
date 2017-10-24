@@ -67,9 +67,9 @@ module AnnotationBase
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
-                    if: proc { |a| a.annotated_type === 'ProjectMedia' },
-                    event: 'media_updated',
-                    targets: proc { |a| [a.annotated.project, a.annotated.media] },
+                    if: proc { |a| a.annotated_type == 'ProjectMedia' || a.annotated_type == 'ProjectSource' || a.annotated_type == 'Source' },
+                    event: proc { |a| a.annotated_type == 'ProjectMedia' ? 'media_updated' : 'source_updated'},
+                    targets: proc { |a| a.annotated_type == 'ProjectMedia' ? [a.annotated.project, a.annotated.media] : (a.annotated_type == 'ProjectSource' ? [a.annotated.source] : [a.annotated]) },
                     data: proc { |a| a = Annotation.where(id: a.id).last; a.nil? ? a.to_json : a.load.to_json }
 
     before_validation :set_type_and_event, :set_annotator
@@ -102,6 +102,7 @@ module AnnotationBase
         annotated.skip_check_ability = true
         annotated.skip_notifications = true # the notification will be triggered by the annotation already
         annotated.updated_at = Time.now
+        annotated.disable_es_callbacks = (Rails.env.to_s == 'test')
         annotated.save!
       end
     end

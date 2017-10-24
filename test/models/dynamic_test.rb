@@ -86,12 +86,15 @@ class DynamicTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     Dynamic.delete_all
     DynamicAnnotation::Field.delete_all
+    t.disable_es_callbacks = true
     t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
 
     assert_equal 2, DynamicAnnotation::Field.count
     assert_equal 1, Dynamic.count
-    Dynamic.last.destroy
+    d = Dynamic.last
+    d.disable_es_callbacks = true
+    d.destroy
     assert_equal 0, Dynamic.count
     assert_equal 0, DynamicAnnotation::Field.count
   end
@@ -105,12 +108,15 @@ class DynamicTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     Dynamic.delete_all
     DynamicAnnotation::Field.delete_all
+    t.disable_es_callbacks = true
     t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
 
     assert_equal 2, DynamicAnnotation::Field.count
     assert_equal 1, Dynamic.count
-    Annotation.last.destroy
+    a = Annotation.last
+    a.disable_es_callbacks = true
+    a.destroy
     assert_equal 0, Dynamic.count
     assert_equal 0, DynamicAnnotation::Field.count
   end
@@ -187,6 +193,7 @@ class DynamicTest < ActiveSupport::TestCase
     d = create_dynamic_annotation annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
     d = Dynamic.find(d.id)
     d.set_fields = { translation_status_status: 'ready' }.to_json
+    d.disable_es_callbacks = true
     d.save!
     u = create_user
     t = create_team
@@ -203,6 +210,7 @@ class DynamicTest < ActiveSupport::TestCase
     assert_equal 'Pending', d.translation_status
     d = Dynamic.find(d.id)
     d.set_fields = { translation_status_status: 'translated' }.to_json
+    d.disable_es_callbacks = true
     d.save!
     assert_equal 'Pending', d.previous_translation_status
     assert_equal 'Translated', d.translation_status
@@ -244,88 +252,6 @@ class DynamicTest < ActiveSupport::TestCase
     Dynamic.any_instance.stubs(:notify_embed_system).with('destroyed', nil).once
     d.destroy
     Dynamic.any_instance.unstub(:notify_embed_system)
-  end
-
-  test "should index and search by location" do
-    DynamicSearch.delete_index
-    DynamicSearch.create_index
-    att = 'task_response_geolocation'
-    at = create_annotation_type annotation_type: att, label: 'Task Response Geolocation'
-    geotype = create_field_type field_type: 'geojson', label: 'GeoJSON'
-    create_field_instance annotation_type_object: at, name: 'response_geolocation', field_type_object: geotype
-    pm = create_project_media disable_es_callbacks: false
-    geo = {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [-12.9015866, -38.560239]
-      },
-      properties: {
-        name: 'Salvador, BA, Brazil'
-      }
-    }.to_json
-
-    fields = { response_geolocation: geo }.to_json
-    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
-
-    search = {
-      query: {
-        bool: {
-          must: {
-            filtered: {
-              filter: {
-                geo_distance: {
-                  distance: '1000mi',
-                  location: {
-                    lat: -12.900,
-                    lon: -38.560
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    sleep 3 
-
-    assert_equal 1, DynamicSearch.search(search).results.size
-  end
-
-  test "should index and search by datetime" do
-    DynamicSearch.delete_index
-    DynamicSearch.create_index
-    att = 'task_response_datetime'
-    at = create_annotation_type annotation_type: att, label: 'Task Response Date Time'
-    datetime = create_field_type field_type: 'datetime', label: 'Date Time'
-    create_field_instance annotation_type_object: at, name: 'response_datetime', field_type_object: datetime
-    pm = create_project_media disable_es_callbacks: false
-    fields = { response_datetime: '2017-08-21 14:13:42' }.to_json
-    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
-
-    search = {
-      query: {
-        bool: {
-          must: {
-            filtered: {
-              filter: {
-                range: {
-                  datetime: {
-                    lte: Time.parse('2017-08-22').to_i,
-                    gte: Time.parse('2017-08-20').to_i
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    sleep 5 
-
-    assert_equal 1, DynamicSearch.search(search).results.size
   end
 
   test "should ignore fields that do not exist" do

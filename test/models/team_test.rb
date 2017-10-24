@@ -56,6 +56,7 @@ class TeamTest < ActiveSupport::TestCase
       with_current_user_and_team(u2, t) { t.destroy }
     end
     Rails.cache.clear
+    u2 = User.find(u2.id)
     tu.role = 'journalist'; tu.save!
     assert_raise RuntimeError do
       with_current_user_and_team(u2, t) { t.save! }
@@ -356,17 +357,27 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should not save custom verification status if the default doesn't match any status id" do
     t = create_team
-    value = {
-      label: 'Field label',
-      default: '10',
-      statuses: [
-        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
-      ]
-    }
-    assert_raises ActiveRecord::RecordInvalid do
-      t.set_media_verification_statuses(value)
-      t.save!
+    variations = [
+      {
+        label: 'Field label',
+        default: '10',
+        statuses: [
+          { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
+          { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
+        ]
+      },
+      {
+        label: 'Field label',
+        default: '1',
+        statuses: []
+      }
+    ]
+
+    variations.each do |value|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.set_media_verification_statuses(value)
+        t.save!
+      end
     end
   end
 
@@ -453,6 +464,30 @@ class TeamTest < ActiveSupport::TestCase
 
     status = t.media_verification_statuses[:statuses]
     assert_equal ['color'], status.first[:style].keys.sort
+   end
+
+  test "should return statuses as array after set statuses without it" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1'
+    }
+    t.media_verification_statuses = value
+
+    assert_nil t.get_media_verification_statuses[:statuses]
+    assert_equal [], t.media_verification_statuses[:statuses]
+  end
+
+   test "should not save statuses if default is present and statuses is missing" do
+    t = create_team
+    value = {
+        label: 'Field label',
+        default: '1'
+    }
+    t.media_verification_statuses = value
+    t.save
+
+    assert Team.find(t.id).media_verification_statuses.nil?
   end
 
   test "should set verification statuses to settings" do
@@ -505,12 +540,14 @@ class TeamTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     a = create_account team: t
     c = create_contact team: t
+    RequestStore.store[:disable_es_callbacks] = true
     t.destroy
     assert_equal 0, Project.where(team_id: id).count
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
     assert_equal 0, Contact.where(team_id: id).count
     assert_equal 0, ProjectMedia.where(project_id: p.id).count
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should have search id" do
@@ -597,6 +634,19 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
     assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
+  end
+
+  test "should return checklist projects as array after submit task without it" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "free_text",
+      description: "It is a single choice task",
+    }]
+    t.checklist = value
+    t.save!
+    assert_nil t.get_checklist.first[:projects]
+    assert_equal [], t.checklist.first[:projects]
   end
 
   test "should save valid slack_channel" do
@@ -767,9 +817,11 @@ class TeamTest < ActiveSupport::TestCase
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
       c = create_comment annotated: pm2
+      RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         t.destroy_later
       end
+      RequestStore.store[:disable_es_callbacks] = false
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
       assert_nil ProjectMedia.where(id: pm3.id).last
@@ -814,6 +866,7 @@ class TeamTest < ActiveSupport::TestCase
       p = create_project team: t
       3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
       2.times { create_project_media(project: p) }
+      RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         assert_nothing_raised do
           assert_difference 'ProjectMedia.count', -3 do
@@ -821,6 +874,7 @@ class TeamTest < ActiveSupport::TestCase
           end
         end
       end
+      RequestStore.store[:disable_es_callbacks] = false
     end
   end
 

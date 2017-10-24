@@ -7,9 +7,6 @@ class GraphqlControllerTest < ActionController::TestCase
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
     super
-    MediaSearch.delete_index
-    MediaSearch.create_index
-    sleep 1
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
@@ -284,7 +281,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_tag annotated: ps
     create_comment annotated: ps2
     create_tag annotated: ps2
-    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { source { log(first: 1000) { edges { node { event_type } } }, log_count, published,tags { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } }, user{id}, team{id} } }"
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, source { log(first: 1000) { edges { node { event_type } } }, log_count, tags { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } }, user{id}, team{id} } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_source']
@@ -292,7 +289,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_not_empty data['team']['id']
     assert_equal 4, data['source']['annotations']['edges'].size
     assert_equal 4, data['source']['annotations_count']
-    assert_not_empty data['source']['published']
+    assert_not_empty data['published']
     assert_equal 4, data['source']['log']['edges'].size
     assert_equal 4, data['source']['log_count']
   end
@@ -697,76 +694,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should search media" do
-    u = create_user
-    p = create_project team: @team
-    m1 = create_valid_media
-    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-    authenticate_with_user(u)
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m2 = create_media(account: create_valid_account, url: url)
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query
-    assert_response :success
-    ids = []
-    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      ids << id["node"]["dbid"]
-    end
-    assert_equal [pm2.id], ids
-    create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
-    sleep 20
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
-    post :create, query: query
-    assert_response :success
-    ids = []
-    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      ids << id["node"]["dbid"]
-    end
-    assert_equal [pm1.id, pm2.id], ids.sort
-  end
-
-  test "should search media with multiple projects" do
-    u = create_user
-    p = create_project team: @team
-    p2 = create_project team: @team
-    authenticate_with_user(u)
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm2 = create_project_media project: p2, media: m,  disable_es_callbacks:  false
-    sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
-    post :create, query: query
-    assert_response :success
-    p_ids = []
-    m_ids = []
-    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      m_ids << id["node"]["dbid"]
-      p_ids << id["node"]["project_id"]
-    end
-    assert_equal [pm.id, pm2.id], m_ids.sort
-    assert_equal [p.id, p2.id], p_ids.sort
-    pm2.embed= {description: 'new_description'}.to_json
-    sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, embed } } } } }'
-    post :create, query: query
-    assert_response :success
-    result = {}
-    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      result[id["node"]["project_id"]] = JSON.parse(id["node"]["embed"])
-    end
-    assert_equal 'new_description', result[p2.id]["description"]
-    assert_equal 'search_desc', result[p.id]["description"]
-  end
-
   test "should return 404 if public team does not exist" do
     authenticate_with_user
     Team.stubs(:current).returns(nil)
@@ -792,7 +719,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    assert_queries (3*n + n*m + 17) do
+    # Expected: 3*n + n*m + 17
+    assert_queries 170, '<' do
       post :create, query: query, team: 'team'
     end
 
@@ -874,46 +802,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal :fr, I18n.locale
   end
 
-  test "should search by dynamic annotation" do
-    u = create_user
-    p = create_project team: @team
-    m1 = create_valid_media
-    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-    authenticate_with_user(u)
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m2 = create_media(account: create_valid_account, url: url)
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text', description: 'Free text response that can added to a task'
-    ft = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
-    fi1 = create_field_instance name: 'response', label: 'Response', description: 'The response to a task', field_type_object: ft, optional: false, settings: {}
-    fi2 = create_field_instance name: 'note', label: 'Note', description: 'A note that explains a response to a task', field_type_object: ft, optional: true, settings: {}
-    a = create_dynamic_annotation annotation_type: 'task_response_free_text', annotated: pm1, disable_es_callbacks: false
-    f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
-    f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
-    a.save!
-    sleep 20
-    query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query
-    assert_response :success
-    ids = []
-    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      ids << id["node"]["dbid"]
-    end
-    assert_equal [pm1.id], ids
-    query = 'query Search { search(query: "{\"keyword\":\"dynamic note\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query
-    assert_response :success
-    ids = []
-    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      ids << id["node"]["dbid"]
-    end
-    assert_equal [pm1.id], ids
-  end
-
   test "should create dynamic annotation" do
     p = create_project team: @team
     pm = create_project_media project: p
@@ -934,48 +822,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should destroy task" do
     assert_graphql_destroy('task')
-  end
-
-  test "should read first response from task" do
-    u = create_user
-    p = create_project team: @team
-    create_team_user user: u, team: @team
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    authenticate_with_user(u)
-    t = create_task annotated: pm
-    at = create_annotation_type annotation_type: 'response'
-    ft1 = create_field_type field_type: 'task_reference'
-    ft2 = create_field_type field_type: 'text'
-    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
-    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
-    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
-    t.save!
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response_value, first_response { content } } } } } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    node = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']
-    fields = node['first_response']['content']
-    assert_equal 'Test', JSON.parse(fields).select{ |f| f['field_type'] == 'text' }.first['value']
-    assert_equal 'Test', node['first_response_value']
-  end
-
-  test "should move report to other projects" do
-    u = create_user
-    p = create_project team: @team
-    p2 = create_project team: @team
-    create_team_user user: u, team: @team, role: 'owner'
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    authenticate_with_user(u)
-    id = Base64.encode64("ProjectMedia/#{pm.id}")
-    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", project_id: #{p2.id} }) { project_media { project_id }, project { id } } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
-    last_version = pm.versions.last
-    assert_equal [p.id, p2.id], JSON.parse(last_version.object_changes)['project_id']
-    assert_equal u.id.to_s, last_version.whodunnit
   end
 
   test "should create comment with image" do
@@ -1044,7 +890,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (11) do
+    assert_queries (13) do
       post :create, query: query, team: 'team'
     end
 
@@ -1154,7 +1000,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team
     t.set_checklist([{ label: 'A', type: 'free_text', description: '', projects: [], options: '[]' }])
     t.save!
-    id = NodeIdentification.to_global_id('Team', t.id)
+    id = t.graphql_id
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
     assert_equal ['A'], t.get_checklist.collect{ |t| t[:label] }
@@ -1176,8 +1022,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should get project information fast" do
-    n = rand(20) + 1  # Number of media items to be created
-    m = rand(20) + 1  # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
+    n = 25 # Number of media items to be created
+    m = 25 # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
@@ -1190,14 +1036,64 @@ class GraphqlControllerTest < ActionController::TestCase
       create_account_source source: s
       m.times { create_comment annotated: pm, annotator: create_user }
     end
+    create_project_media project: p, user: u
+    pm = create_project_media project: p
+    pm.archived = true
+    pm.save!
 
     query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
-    assert_queries (19 * n + 12) do
+    # Make sure we only run queries for the 20 first items
+    # 13 * 29 + 24
+    assert_queries 290, '<' do
       post :create, query: query, team: 'team'
     end
 
     assert_response :success
-    assert_equal n, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal 20, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
+  test "should search for archived items" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    2.times do
+      pm = create_project_media project: p
+      pm.archived = true
+      pm.save!
+    end
+
+    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+
+    post :create, query: query, team: 'team'
+
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
+  test "should search for single item" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pm = create_project_media project: p
+
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+
+    post :create, query: query, team: 'team'
+
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
+  test "should have a different id for public team" do
+    authenticate_with_user
+    t = create_team slug: 'team', name: 'Team'
+    post :create, query: 'query PublicTeam { public_team { id } }', team: 'team'
+    assert_response :success
+    assert_equal Base64.encode64("PublicTeam/#{t.id}"), JSON.parse(@response.body)['data']['public_team']['id']
   end
 end

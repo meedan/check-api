@@ -3,39 +3,17 @@ class Team < ActiveRecord::Base
   include ValidationsHelper
   include NotifyEmbedSystem
   include DestroyLater
+  include TeamValidations
+  include TeamAssociations
 
   attr_accessor :affected_ids
-
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
-
-  has_many :projects, dependent: :destroy
-  has_many :accounts, dependent: :destroy
-  has_many :team_users, dependent: :destroy
-  has_many :users, through: :team_users
-  has_many :contacts, dependent: :destroy
-  has_many :sources, dependent: :destroy
 
   mount_uploader :logo, ImageUploader
 
   before_validation :normalize_slug, on: :create
 
-  validates_presence_of :name
-  validates_presence_of :slug
-  validates_format_of :slug, with: /\A[[:alnum:]-]+\z/, message: I18n.t(:slug_format_validation_message), on: :create
-  validates :slug, length: { in: 4..63 }, on: :create
-  validates :slug, uniqueness: true, on: :create
-  validate :slug_is_not_reserved
-  validates :logo, size: true
-  validate :slack_webhook_format
-  validate :slack_channel_format
-  validate :custom_media_statuses_format, unless: proc { |p| p.settings.nil? || p.get_media_verification_statuses.nil? }
-  validate :custom_source_statuses_format, unless: proc { |p| p.settings.nil? || p.get_source_verification_statuses.nil? }
-  validate :checklist_format
-
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed
-
-  has_annotations
 
   check_settings
 
@@ -108,6 +86,7 @@ class Team < ActiveRecord::Base
   def media_verification_statuses
     statuses = self.get_media_verification_statuses
     unless statuses.blank?
+      statuses['statuses'] = [] if statuses['statuses'].nil?
       statuses['statuses'].each { |s| s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style'] }
     end
     statuses
@@ -145,7 +124,10 @@ class Team < ActiveRecord::Base
   def checklist
     tasks = self.get_checklist
     unless tasks.blank?
-      tasks.map { |t| t[:options] = JSON.parse(t[:options]) if t[:options] }
+      tasks.map do |t|
+        t[:options] = JSON.parse(t[:options]) if t[:options]
+        t[:projects] = [] if t[:projects].nil?
+      end
     end
     tasks
   end
@@ -253,16 +235,12 @@ class Team < ActiveRecord::Base
 
   def set_verification_statuses(type, statuses)
     statuses = statuses.with_indifferent_access
+    statuses[:statuses] = [] if statuses[:statuses].nil?
+
     if statuses[:statuses]
       statuses[:statuses] = get_values_from_entry(statuses[:statuses])
       statuses[:statuses].delete_if { |s| s[:id].blank? && s[:label].blank? }
-      statuses[:statuses].each do |status|
-        if status[:style] && status[:style].is_a?(Hash)
-          color = status[:style][:color]
-          status[:style][:backgroundColor] = color
-          status[:style][:borderColor] = color
-        end
-      end
+      statuses[:statuses].each  { |s| set_status_color(s) }
     end
     statuses.delete_if { |_k, v| v.blank? }
     unless statuses.keys.map(&:to_sym) == [:label]
@@ -272,6 +250,14 @@ class Team < ActiveRecord::Base
 
   def get_values_from_entry(entry)
     (entry && entry.respond_to?(:values)) ? entry.values : entry
+  end
+
+  def set_status_color(status)
+    if status[:style] && status[:style].is_a?(Hash)
+      color = status[:style][:color]
+      status[:style][:backgroundColor] = color
+      status[:style][:borderColor] = color
+    end
   end
 
   private

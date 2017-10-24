@@ -7,7 +7,7 @@ ChangePasswordMutation = GraphQL::Relay::Mutation.define do
 
   return_field :success, types.Boolean
 
-  resolve -> (inputs, _ctx) {
+  resolve -> (_root, inputs, _ctx) {
     user = User.reset_password_by_token(inputs)
     raise user.errors.to_a.to_sentence(locale: I18n.locale) if !user.errors.empty?
     { success: true }

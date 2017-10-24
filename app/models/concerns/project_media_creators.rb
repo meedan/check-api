@@ -36,6 +36,7 @@ module ProjectMediaCreators
       d.annotation_type = 'reverse_image'
       d.annotator = Bot::Bot.where(name: 'Check Bot').last
       d.annotated = self
+      d.disable_es_callbacks = Rails.env.to_s == 'test'
       d.set_fields = { reverse_image_path: picture }.to_json
       d.save!
     end
@@ -48,6 +49,7 @@ module ProjectMediaCreators
       response.annotated = self
       response.annotation_type = params['annotation_type']
       response.set_fields = params['set_fields']
+      response.disable_es_callbacks = Rails.env.to_s == 'test'
       response.save!
     end
   end
@@ -123,7 +125,16 @@ module ProjectMediaCreators
       return self.send(name, jsonld, mapping) if self.respond_to?(name)
     end
     data = mapping_value(jsonld, mapping)
-    (!data.blank? && data.kind_of?(String)) ? mapping['prefix'] + data : ''
+    (!data.blank? && data.kind_of?(String)) ? mapping['prefix'].gsub(/\s+$/, '') + ' ' + data : ''
+  end
+
+  def mapping_value(jsonld, mapping)
+    begin
+      value = JsonPath.new(mapping['match']).first(jsonld)
+    rescue
+      value = nil
+    end
+    value
   end
 
   def mapping_suggestions(task, mapping_type)
@@ -154,7 +165,7 @@ module ProjectMediaCreators
 
   def create_project_source
     a = self.media.account
-    source = Account.create_for_source(a.url).source unless a.nil?
+    source = Account.create_for_source(a.url, nil, false, self.disable_es_callbacks).source unless a.nil?
     if source.nil?
       cs = ClaimSource.where(media_id: self.media_id).last
       source = cs.source unless cs.nil?

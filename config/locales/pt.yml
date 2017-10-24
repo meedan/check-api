@@ -86,7 +86,7 @@ pt:
   rejected: Não aprovado
   mail_request_to_join_processed: Seu pedido para participar do time %{team} no %{app_name} foi %{status}
   mail_new_account: Nova conta para você no %{app_name}
-  slack_update_status: "*%{User}* alterou o status de verificação em %{url} em *%{project}* de _%{previous_status}_ para *%{current_status}*"
+  slack_update_status: "*%{user}* alterou o status de verificação em %{url} no *%{project}* de _%{previous_status}_ para *%{current_status}*"
   slack_save_embed: "*%{user}* alterou o título  do relato no *%{project}* de _%{from}_ para %{to}"
   slack_save_comment: "*%{user}* inseriu uma nota em %{url} em *%{project}*: %{comment}"
   slack_create_project: "*%{user}* criou um projeto: %{url}"

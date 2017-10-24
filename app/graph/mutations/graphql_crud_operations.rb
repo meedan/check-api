@@ -3,6 +3,7 @@ class GraphqlCrudOperations
     attrs.each do |key, value|
       obj.send("#{key}=", value)
     end
+    obj.disable_es_callbacks = Rails.env.to_s == 'test'
     obj.save!
 
     name = obj.class_name.underscore
@@ -38,7 +39,7 @@ class GraphqlCrudOperations
   end
 
   def self.update(_type, inputs, ctx, parents = [])
-    obj = NodeIdentification.object_from_id(inputs[:id], ctx)
+    obj = CheckGraphql.object_from_id(inputs[:id], ctx)
     obj.file = ctx[:file] if !ctx[:file].blank?
     obj = obj.load if obj.is_a?(Annotation)
 
@@ -51,9 +52,10 @@ class GraphqlCrudOperations
   end
 
   def self.destroy(inputs, ctx, parents = [])
-    type, id = NodeIdentification.from_global_id(inputs[:id])
+    type, id = CheckGraphql.decode_id(inputs[:id])
     obj = type.constantize.find(id)
     obj = obj.load if obj.respond_to?(:load)
+    obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : obj.destroy
 
     ret = { deletedId: inputs[:id] }
@@ -102,7 +104,7 @@ class GraphqlCrudOperations
         return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
-      resolve -> (inputs, ctx) {
+      resolve -> (_root, inputs, ctx) {
         GraphqlCrudOperations.send(action, type, inputs, ctx, parents)
       }
     end
@@ -120,7 +122,7 @@ class GraphqlCrudOperations
         return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
-      resolve -> (inputs, ctx) {
+      resolve -> (_root, inputs, ctx) {
         GraphqlCrudOperations.destroy(inputs, ctx, parents)
       }
     end
@@ -128,15 +130,13 @@ class GraphqlCrudOperations
 
   def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [])
     update_fields = create_fields if update_fields.empty?
-    [
-      GraphqlCrudOperations.define_create(type, create_fields, parents),
-      GraphqlCrudOperations.define_update(type, update_fields, parents),
-      GraphqlCrudOperations.define_destroy(type, parents)
-    ]
+    [GraphqlCrudOperations.define_create(type, create_fields, parents), GraphqlCrudOperations.define_update(type, update_fields, parents), GraphqlCrudOperations.define_destroy(type, parents)]
   end
 
   def self.define_default_type(&block)
     GraphQL::ObjectType.define do
+      global_id_field :id
+      
       field :permissions, types.String do
         resolve -> (obj, _args, ctx) {
           obj.permissions(ctx[:ability])
@@ -304,13 +304,12 @@ class GraphqlCrudOperations
   end
 
   def self.load_if_can(klass, id, ctx)
-    obj = klass.find_if_can(id, ctx[:ability])
-    obj
+    klass.find_if_can(id, ctx[:ability])
   end
 end
 
 JsonStringType = GraphQL::ScalarType.define do
   name "JsonStringType"
-  coerce_input -> (val) { JSON.parse(val) }
-  coerce_result -> (val) { val.as_json }
+  coerce_input -> (val, _ctx) { JSON.parse(val) }
+  coerce_result -> (val, _ctx) { val.as_json }
 end

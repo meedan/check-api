@@ -37,6 +37,7 @@ class ContactTest < ActiveSupport::TestCase
       end
     end
     Rails.cache.clear
+    u2 = User.find(u2.id)
     tu.role = 'journalist'; tu.save!
     assert_raise RuntimeError do
       with_current_user_and_team(u2, t) do

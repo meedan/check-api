@@ -30,15 +30,4 @@ ProjectMediaCreators.class_eval do
     date
   end
 
-  private
-
-  def mapping_value(jsonld, mapping)
-    begin
-      value = JsonPath.new(mapping['match']).first(jsonld)
-    rescue
-      value = nil
-    end
-    value
-  end
-
 end

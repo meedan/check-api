@@ -37,7 +37,13 @@ DynamicAnnotation::Field.class_eval do
   end
 
   def field_formatter_type_datetime
-    I18n.l(DateTime.parse(self.value), format: :task)
+    # Capture TZ abbreviation manually because DateTime does not parse it
+    # http://rubular.com/r/wOfJTCSxlI
+    # The format string is expect to have a [TZ] placeholder to receive the abbreviation
+    abbr = ''
+    match = /\s([[:alpha:]]+)\s?$/.match(self.value)
+    abbr = match[1] unless match.nil?
+    I18n.l(DateTime.parse(self.value), format: :task).gsub('[TZ]', abbr)
   end
 
   private

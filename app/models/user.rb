@@ -37,14 +37,13 @@ class User < ActiveRecord::Base
 
   def role(team = nil)
     context_team = team || Team.current || self.current_team
-    role = nil
-    unless context_team.nil?
-      role = Rails.cache.fetch("role_#{context_team.id}_#{self.id}", expires_in: 30.seconds, race_condition_ttl: 30.seconds) do
-        tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last
-        tu.nil? ? nil : tu.role.to_s
-      end
+    return nil if context_team.nil?
+    @roles ||= {}
+    if @roles[context_team.id].nil?
+      tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last
+      @roles[context_team.id] = tu.nil? ? nil : tu.role.to_s
     end
-    role
+    @roles[context_team.id]
   end
 
   def number_of_teams

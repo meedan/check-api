@@ -39,6 +39,7 @@ module CheckElasticSearchModel
 
   def save!(options = {})
     raise 'Sorry, this is not valid' unless self.save(options)
+    self.class.gateway.refresh_index! if CONFIG['elasticsearch_sync']
   end
 
   def self.get_index_name
@@ -46,18 +47,18 @@ module CheckElasticSearchModel
   end
 
   def self.reindex_es_data(mapping_keys = nil)
-      mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch] if mapping_keys.nil?
-      source_index = CheckElasticSearchModel.get_index_name
-      target_index = "#{source_index}_reindex"
-      begin
-        MediaSearch.delete_index target_index
-        MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
-        sleep 1
-        MediaSearch.migrate_es_data(target_index, source_index, mapping_keys)
-        MediaSearch.index_name = source_index
-      rescue StandardError => e
-        Rails.logger.error "[ES MIGRATION] Could not start migation: #{e.message}"
-      end
+    mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch] if mapping_keys.nil?
+    source_index = CheckElasticSearchModel.get_index_name
+    target_index = "#{source_index}_reindex"
+    begin
+      MediaSearch.delete_index target_index
+      MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+      sleep 1
+      MediaSearch.migrate_es_data(target_index, source_index, mapping_keys)
+      MediaSearch.index_name = source_index
+    rescue StandardError => e
+      Rails.logger.error "[ES MIGRATION] Could not start migation: #{e.message}"
+    end
   end
 
   private

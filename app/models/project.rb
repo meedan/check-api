@@ -27,10 +27,7 @@ class Project < ActiveRecord::Base
 
   has_annotations
 
-  notifies_pusher on: :create,
-                  event: 'project_created',
-                  targets: proc { |p| [p.team] },
-                  data: proc { |p| p.to_json }
+  notifies_pusher on: :create, event: 'project_created', targets: proc { |p| [p.team] }, data: proc { |p| p.to_json }
 
   check_settings
 
@@ -172,6 +169,7 @@ class Project < ActiveRecord::Base
   end
 
   def update_elasticsearch_data
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     if self.team_id_changed?
       keys = %w(team_id)
       data = {'team_id' => self.team_id}

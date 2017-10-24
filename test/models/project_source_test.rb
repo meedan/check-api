@@ -5,9 +5,6 @@ class ProjectSourceTest < ActiveSupport::TestCase
     super
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
-    MediaSearch.delete_index
-    MediaSearch.create_index
-    sleep 1
   end
 
   test "should create project source" do
@@ -162,36 +159,6 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
-  test "should destroy elasticseach project source" do
-    t = create_team
-    p = create_project team: t
-    s = create_source
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
-    sleep 1
-    assert_not_nil MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
-    ps.destroy
-    sleep 1
-    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-      result = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
-    end
-  end
-
-  test "should index project source" do
-    ps = create_project_source disable_es_callbacks: false
-    sleep 1
-    id = Base64.encode64("ProjectSource/#{ps.id}")
-    assert_not_nil MediaSearch.find(id)
-  end
-
-  test "should index related accounts" do
-    url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
-    ps = create_project_source name: 'New source', url: url, disable_es_callbacks: false
-    sleep 1
-    assert_equal ps.source.accounts.map(&:id).sort, AccountSearch.all_sorted.map(&:id).map(&:to_i).sort
-  end
-
   test "should not create duplicated source" do
     url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -210,31 +177,12 @@ class ProjectSourceTest < ActiveSupport::TestCase
     assert_not_nil ps.as_json
   end
 
-  test "should update es after move source to other projects" do
-    t = create_team
-    p = create_project team: t
-    s = create_source
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
-    sleep 1
-    id = Base64.encode64("ProjectSource/#{ps.id}")
-    ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p.id
-    assert_equal ms.team_id.to_i, t.id
-    t2 = create_team
-    p2 = create_project team: t2
-    ps.project = p2; ps.save!
-    ElasticSearchWorker.drain
-    sleep 1
-    ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p2.id
-    assert_equal ms.team_id.to_i, t2.id
-  end
-
   test "should create project source when account has empty data" do
     account = create_account
     account.annotations('embed').last.destroy
 
     ps = ProjectSource.new user: create_user, project: create_project
+    ps.disable_es_callbacks = true
     ps.url = account.url
 
     assert_difference 'ProjectSource.count' do

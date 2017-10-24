@@ -6,7 +6,7 @@ module ActiveRecordExtensions
     include CheckNotifications::Pusher
     include CheckSettings
 
-    attr_accessor :no_cache, :skip_check_ability, :skip_notifications
+    attr_accessor :no_cache, :skip_check_ability, :skip_notifications, :disable_es_callbacks
 
     before_save :check_ability
     before_destroy :check_destroy_ability, :destroy_annotations_and_versions
@@ -66,7 +66,7 @@ module ActiveRecordExtensions
   end
 
   def graphql_id
-    Base64.encode64("#{self.class.name}/#{self.id}")
+    Base64.encode64("#{self.class_name}/#{self.id}")
   end
 
   private

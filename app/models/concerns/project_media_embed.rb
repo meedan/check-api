@@ -41,7 +41,15 @@ module ProjectMediaEmbed
   end
   
   def completed_tasks
-    self.annotations.where(annotation_type: 'task').map(&:load).select{ |t| t.status == 'Resolved' }
+    self.all_tasks.select{ |t| t.status == 'Resolved' }
+  end
+
+  def open_tasks
+    self.all_tasks.select{ |t| t.status != 'Resolved' }
+  end
+
+  def all_tasks
+    self.annotations.where(annotation_type: 'task').map(&:load)
   end
 
   def completed_tasks_count
@@ -99,6 +107,7 @@ module ProjectMediaEmbed
       a.skip_check_ability = true
       a.annotated = self
       a.annotation_type = 'embed_code'
+      a.disable_es_callbacks = Rails.env.to_s == 'test'
       a.set_fields = { embed_code_copied: true }.to_json
       a.save!
       User.current = user_current
@@ -137,7 +146,7 @@ module ProjectMediaEmbed
     def clear_caches(pmid)
       pm = ProjectMedia.where(id: pmid).last
       return if pm.nil? || pm.get_annotations('embed_code').empty?
-      ['', '?hide_tasks=1', '?hide_notes=1', '?hide_tasks=1&hide_notes=1'].each do |part|
+      ['', '?hide_tasks=1', '?hide_notes=1', '?hide_tasks=1&hide_notes=1', '?hide_open_tasks=1', '?hide_open_tasks=1&hide_tasks=1', '?hide_open_tasks=1&hide_notes=1', '?hide_open_tasks=1&hide_tasks=1&hide_notes=1'].each do |part|
         url = pm.full_url.to_s + part
         PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
         CcDeville.clear_cache_for_url(url)

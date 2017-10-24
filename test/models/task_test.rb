@@ -89,6 +89,7 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal [], t.reload.responses
     create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    t.disable_es_callbacks = true
     t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
     assert_match /Test/, t.reload.responses.first.content.inspect
@@ -103,11 +104,13 @@ class TaskTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     Dynamic.delete_all
     DynamicAnnotation::Field.delete_all
+    t.disable_es_callbacks = true
     t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
 
     assert_equal 2, DynamicAnnotation::Field.count
     assert_equal 1, Dynamic.count
+    t.disable_es_callbacks = true
     t.destroy
     assert_equal 0, Dynamic.count
     assert_equal 0, DynamicAnnotation::Field.count
@@ -145,12 +148,14 @@ class TaskTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
+      tk.disable_es_callbacks = true
       tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo', note_task: 'Bar', task_reference: tk.id.to_s }.to_json }.to_json
       tk.save!
       assert tk.response.sent_to_slack
 
       d = Dynamic.find(tk.response.id)
       d.set_fields = { response_task: 'Bar', note_task: 'Foo' }.to_json
+      d.disable_es_callbacks = true
       d.save!
       assert d.sent_to_slack
     end
@@ -180,6 +185,7 @@ class TaskTest < ActiveSupport::TestCase
     t = create_task
     assert_nil t.first_response
    
+    t.disable_es_callbacks = true
     t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Test', task_reference: t.id.to_s }.to_json }.to_json
     t.save!
     

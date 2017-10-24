@@ -63,7 +63,10 @@ class Ability
     can :destroy, [Media, Link, Claim] do |obj|
       obj.get_team.include?(@context_team.id)
     end
-    can :destroy, [ProjectMedia, ProjectSource], project: { team: { team_users: { team_id: @context_team.id }}}
+    can :destroy, ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
+    can :destroy, ProjectMedia do |obj|
+      obj.related_to_team?(@context_team)
+    end
     can :destroy, Source, :team_id => @context_team.id
     can :destroy, [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
@@ -121,7 +124,9 @@ class Ability
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
     can :update, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id }}}
-    can :update, ProjectMedia, { project: { team: { team_users: { team_id: @context_team.id }}}, archived_was: false }
+    can :update, ProjectMedia do |obj|
+      obj.related_to_team?(@context_team) && obj.archived_was == false
+    end
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Source, :team_id => @context_team.id
     can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
@@ -156,12 +161,16 @@ class Ability
     can :update, Embed
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}, source: { user_id: @user.id }
     can [:create, :update], Source do |obj|
-      (obj.team_id == @context_team.id && obj.user_id == @user.id) || (obj.team_id.nil? && obj.id == @user.source_id)
+      obj.team_id == @context_team.id && obj.user_id == @user.id
     end
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
-    can :create, ProjectMedia, { project: { team: { team_users: { team_id: @context_team.id }}}, archived_was: false }
-    can [:update, :destroy], ProjectMedia, project: { team: { team_users: { team_id: @context_team.id }}}, media: { user_id: @user.id }, archived_was: false
+    can :create, ProjectMedia do |obj|
+      obj.related_to_team?(@context_team) && obj.archived_was == false
+    end
+    can [:update, :destroy], ProjectMedia do |obj|
+      obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
+    end
     can [:update, :destroy], Comment, ['annotation_type = ?', 'comment'] do |obj|
       obj.get_team.include?(@context_team.id) and (obj.annotator_id.to_i == @user.id) and !obj.annotated_is_archived?
     end
