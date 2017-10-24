@@ -83,11 +83,11 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: m
     own_media = create_valid_media user_id: u.id
-    own_pm = create_project_media project: p, media: own_media
+    own_pm = create_project_media project: p, media: own_media, user: u
     m2 = create_valid_media
     pm2 = create_project_media media: m2
     own_media = create_valid_media user_id: u.id
-    pm_own = create_project_media media: own_media
+    pm_own = create_project_media media: own_media, user: u
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Media)
@@ -118,10 +118,10 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: m
     own_media = create_valid_media user_id: u.id
-    own_pm = create_project_media project: p, media: own_media
+    own_pm = create_project_media project: p, media: own_media, user: u
     m2 = create_valid_media
     pm2 = create_project_media media: m2
-    pm_own = create_project_media media: own_media
+    pm_own = create_project_media media: own_media, user: u
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Media)
@@ -151,7 +151,7 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: m
     own_media = create_valid_media user_id: u.id
-    own_pm = create_project_media project: p, media: own_media
+    own_pm = create_project_media project: p, media: own_media, user: u
     m2 = create_valid_media
     pm2 = create_project_media media: m2
     with_current_user_and_team(u, t) do
@@ -640,6 +640,7 @@ class AbilityTest < ActiveSupport::TestCase
     end
 
     Rails.cache.clear
+    u = User.find(u.id)
     c.text = 'for testing';c.save!
     assert_equal c.text, 'for testing'
 
@@ -1571,7 +1572,7 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     tu = create_team_user team: t, user: u, role: 'contributor'
     p = create_project team: t
-    pm = create_project_media project: p, user: u
+    pm = create_project_media project: p
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.cannot?(:update, pm)
@@ -1584,7 +1585,7 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     tu = create_team_user team: t, user: u, role: 'journalist'
     p = create_project team: t
-    pm = create_project_media project: p, user: u
+    pm = create_project_media project: p
     pm2 = create_project_media project: p
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -1600,7 +1601,7 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     tu = create_team_user team: t, user: u, role: 'editor'
     p = create_project team: t
-    pm = create_project_media project: p, user: u
+    pm = create_project_media project: p
     pm2 = create_project_media project: p
     with_current_user_and_team(u, t) do
       ability = Ability.new

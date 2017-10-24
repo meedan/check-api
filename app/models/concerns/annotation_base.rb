@@ -67,9 +67,9 @@ module AnnotationBase
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
-                    if: proc { |a| a.annotated_type === 'ProjectMedia' },
-                    event: 'media_updated',
-                    targets: proc { |a| [a.annotated.project, a.annotated.media] },
+                    if: proc { |a| a.annotated_type == 'ProjectMedia' || a.annotated_type == 'ProjectSource' || a.annotated_type == 'Source' },
+                    event: proc { |a| a.annotated_type == 'ProjectMedia' ? 'media_updated' : 'source_updated'},
+                    targets: proc { |a| a.annotated_type == 'ProjectMedia' ? [a.annotated.project, a.annotated.media] : (a.annotated_type == 'ProjectSource' ? [a.annotated.source] : [a.annotated]) },
                     data: proc { |a| a = Annotation.where(id: a.id).last; a.nil? ? a.to_json : a.load.to_json }
 
     before_validation :set_type_and_event, :set_annotator

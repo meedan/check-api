@@ -24,10 +24,7 @@ class Source < ActiveRecord::Base
 
   after_update :update_elasticsearch_source
 
-  notifies_pusher on: :update,
-                  event: 'source_updated',
-                  data: proc { |s| s.to_json },
-                  targets: proc { |s| [s] }
+  notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)

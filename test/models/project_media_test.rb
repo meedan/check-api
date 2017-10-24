@@ -100,7 +100,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     m = create_valid_media user_id: u.id
     create_team_user team: t, user: u
-    pm = create_project_media project: p, media: m
+    pm = create_project_media project: p, media: m, user: u 
     with_current_user_and_team(u, t) do
       pm.project_id = p2.id; pm.save!
       pm.reload
@@ -258,7 +258,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 2, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 4, CheckNotifications::Pusher::Worker.jobs.size
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -850,6 +850,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t1.save!
     t2 = create_task annotated: pm
     assert_equal [t1], pm.completed_tasks
+    assert_equal [t2], pm.open_tasks
     assert_equal 1, pm.completed_tasks_count
   end
 
@@ -945,8 +946,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_dynamic_annotation annotation_type: 'embed_code', annotated: pm
     u = create_user
     ProjectMedia.any_instance.unstub(:clear_caches)
-    CcDeville.expects(:clear_cache_for_url).returns(nil).times(24)
-    PenderClient::Request.expects(:get_medias).returns(nil).times(8)
+    CcDeville.expects(:clear_cache_for_url).returns(nil).times(48)
+    PenderClient::Request.expects(:get_medias).returns(nil).times(16)
 
     Sidekiq::Testing.inline! do
       create_comment annotated: pm, user: u
@@ -1217,6 +1218,43 @@ class ProjectMediaTest < ActiveSupport::TestCase
       RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ headers: { 'X-Check-Client' => 'browser-extension' } }))
       create_project_media project: p
       RequestStore.unstub(:[])
+    end
+  end
+
+  test "should not crash if mapping value is invalid" do
+    assert_nothing_raised do
+      pm = ProjectMedia.new
+      assert_nil pm.send(:mapping_value, 'foo', 'bar')
+    end
+  end
+
+  test "should not crash if another user tries to update media" do
+    u1 = create_user
+    u2 = create_user
+    t = create_team
+    p = create_project team: t
+    create_team_user team: t, user: u1, role: 'owner'
+    create_team_user team: t, user: u2, role: 'owner'
+    pm = nil
+    
+    with_current_user_and_team(u1, t) do
+      pm = create_project_media project: p, user: u1
+      pm = ProjectMedia.find(pm.id)
+      info = { title: 'Title' }.to_json
+      pm.embed = info
+      pm.save!
+    end
+    
+    with_current_user_and_team(u2, t) do
+      pm = ProjectMedia.find(pm.id)
+      info = { title: 'Title' }.to_json
+      pm.embed = info
+      pm.save!
+    end
+    
+    assert_nothing_raised do
+      embed = pm.get_annotations('embed').last.load
+      embed.title_is_overridden?
     end
   end
 end

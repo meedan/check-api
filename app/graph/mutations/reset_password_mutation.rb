@@ -5,7 +5,7 @@ ResetPasswordMutation = GraphQL::Relay::Mutation.define do
 
   return_field :success, types.Boolean
 
-  resolve -> (inputs, _ctx) {
+  resolve -> (_root, inputs, _ctx) {
     user = User.where(email: inputs[:email]).last
     if user.nil?
       raise ActiveRecord::RecordNotFound, I18n.t(:email_not_found, default: 'E-mail not found') 

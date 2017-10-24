@@ -9,6 +9,8 @@ class AccountSource < ActiveRecord::Base
   before_validation :set_account, on: :create
 
   validate :is_unique_per_team, on: :create
+  
+  notifies_pusher targets: proc { |as| [as.source] }, data: proc { |as| { id: as.id }.to_json }, on: :save, event: 'source_updated'
 
   private
 

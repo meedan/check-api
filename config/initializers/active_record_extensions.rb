@@ -66,7 +66,7 @@ module ActiveRecordExtensions
   end
 
   def graphql_id
-    Base64.encode64("#{self.class.name}/#{self.id}")
+    Base64.encode64("#{self.class_name}/#{self.id}")
   end
 
   private

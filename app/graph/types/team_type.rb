@@ -4,7 +4,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :id, field: GraphQL::Relay::GlobalIdField.new('Team')
   field :archived, types.Boolean
   field :private, types.Boolean
   field :avatar, types.String

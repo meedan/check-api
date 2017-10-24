@@ -201,7 +201,7 @@ class ActiveSupport::TestCase
 
     klass = obj.class.to_s
     assert_equal from, obj.send(attr)
-    id = NodeIdentification.to_global_id(klass, obj.id)
+    id = obj.graphql_id
     input = '{ clientMutationId: "1", id: "' + id.to_s + '", ' + attr.to_s + ': ' + to.to_json + ' }'
     query = "mutation update { update#{klass}(input: #{input}) { #{type} { #{attr} } } }"
     post :create, query: query
@@ -215,7 +215,7 @@ class ActiveSupport::TestCase
     authenticate_with_user
     obj = type === 'team' ? @team : send("create_#{type}", { team: @team })
     klass = obj.class_name
-    id = NodeIdentification.to_global_id(klass, obj.id)
+    id = obj.graphql_id
     query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
     assert_difference "#{klass}.count", -1 do
       post :create, query: query
