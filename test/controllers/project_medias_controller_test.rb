@@ -48,9 +48,9 @@ class ProjectMediasControllerTest < ActionController::TestCase
   test "should create annotation when embedded for the first time only" do
     pm = create_project_media
     assert_equal 0, pm.get_annotations('embed_code').count
-    get :oembed, id: pm.id
+    get :oembed, id: pm.id, format: :json
     assert_equal 1, pm.reload.get_annotations('embed_code').count
-    get :oembed, id: pm.id
+    get :oembed, id: pm.id, format: :json
     assert_equal 1, pm.reload.get_annotations('embed_code').count
   end
 
