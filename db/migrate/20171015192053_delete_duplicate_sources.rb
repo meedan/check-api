@@ -1,5 +1,7 @@
 class DeleteDuplicateSources < ActiveRecord::Migration
   def change
-    Source.where.not(team_id: nil, id: ProjectSource.all.map(&:source_id)).destroy_all
+  	ids = ProjectSource.all.map(&:source_id)
+  	ids.concat User.all.map(&:source_id)
+  	Source.where.not(team_id: nil, id: ids).destroy_all
   end
 end

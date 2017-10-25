@@ -8,7 +8,7 @@ class Source < ActiveRecord::Base
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :project_sources
-  has_many :account_sources
+  has_many :account_sources, dependent: :destroy
   has_many :projects, through: :project_sources
   has_many :accounts, through: :account_sources
   belongs_to :user
