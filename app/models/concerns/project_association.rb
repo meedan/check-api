@@ -85,7 +85,7 @@ module ProjectAssociation
         obj_name = 'media'
         obj = ProjectMedia.where(project_id: self.project_id, media_id: self.media_id).last
       end
-      errors.add(:base, "This #{obj_name} already exists in this project and has id #{obj.id}") unless obj.nil?
+      errors.add(:base, "This #{obj_name} already exists in project #{obj.project_id} and has id #{obj.id}") unless obj.nil?
     end
 
     protected

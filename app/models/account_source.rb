@@ -24,7 +24,7 @@ class AccountSource < ActiveRecord::Base
     sources = Source.where(team_id: Team.current.id).joins(:account_sources).where("account_sources.account_id = ?", self.account_id) unless Team.current.nil?
     unless sources.blank?
       ps = ProjectSource.where(source_id: sources.last.id).last
-      errors.add(:base, "Account with this URL exists and has source id #{ps.id} in project #{ps.project_id}") unless ps.nil?
+      errors.add(:base, "This account already exists in project #{ps.project_id} and has id #{ps.id}") unless ps.nil?
     end
   end
 
