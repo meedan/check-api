@@ -233,10 +233,15 @@ class ProjectMedia < ActiveRecord::Base
     if self.project_id_changed?
       ps = get_project_source(self.project_id_was)
       unless ps.nil?
-        ps.project_id = self.project_id
-        ps.skip_check_ability = true
-        ps.disable_es_callbacks = Rails.env.to_s == 'test'
-        ps.save!
+        target_ps = ProjectSource.where(project_id: self.project_id, source_id: ps.source_id).last
+        if target_ps.nil?
+          ps.project_id = self.project_id
+          ps.skip_check_ability = true
+          ps.disable_es_callbacks = Rails.env.to_s == 'test'
+          ps.save!
+        else
+          ps.destroy
+        end
       end
     end
   end
