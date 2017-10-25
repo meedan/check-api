@@ -587,4 +587,23 @@ class UserTest < ActiveSupport::TestCase
     create_team_user user: u
     assert_equal 2, u.reload.number_of_teams
   end
+
+  test "should update account url when update Facebook id" do
+    WebMock.disable_net_connect!
+    url1 = 'https://www.facebook.com/1062518227129764'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: '{"type":"media","data":{"url":"' + url1 + '/","type":"profile"}}')
+
+    u = create_user provider: 'facebook', uuid: '1062518227129764', email: 'user@fb.com', url: url1
+    assert_equal '1062518227129764', u.reload.uuid
+    account = u.accounts.first
+    assert_equal url1, account.url
+
+    url2 = 'https://www.facebook.com/100001147915899'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: '{"type":"media","data":{"url":"' + url2 + '/","type":"profile"}}')
+    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '100001147915899', info: OpenStruct.new({ email: 'user@fb.com' }), url: url2}))
+    assert_equal '100001147915899', u.reload.uuid
+    assert_equal url2, account.reload.url
+    WebMock.allow_net_connect!
+  end
 end
