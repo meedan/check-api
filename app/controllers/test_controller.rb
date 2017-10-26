@@ -94,9 +94,6 @@ class TestController < ApplicationController
   end
 
   def media_status
-    #require 'sidekiq/testing'
-    #Sidekiq::Testing.inline!
-
     pm = ProjectMedia.find(params[:pm_id])
     s = pm.annotations.where(annotation_type: 'status').last.load
     s.status = params[:status]
@@ -105,9 +102,6 @@ class TestController < ApplicationController
   end
 
   def new_media_tag
-    #require 'sidekiq/testing'
-    #Sidekiq::Testing.inline!
-
     user = User.where(email: params[:email]).last
     pm = ProjectMedia.find(params[:pm_id])
     tag = create_tag tag: params[:tag], annotated: pm, annotator: user
