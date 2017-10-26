@@ -20,7 +20,6 @@ class TeamUserMailerTest < ActionMailer::TestCase
 
     assert_equal [CONFIG['default_mail']], email.from
     assert_equal ['owner1@mail.com', 'owner2@mail.com'].sort, email.to.sort
-    assert_match "/members", email.body.parts.first.to_s
   end
 
   test "should send request to join accepted email" do

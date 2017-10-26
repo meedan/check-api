@@ -8,13 +8,23 @@ class AccountSource < ActiveRecord::Base
 
   before_validation :set_account, on: :create
 
+  validate :is_unique_per_team, on: :create
+  
   notifies_pusher targets: proc { |as| [as.source] }, data: proc { |as| { id: as.id }.to_json }, on: :save, event: 'source_updated'
 
   private
 
   def set_account
     if self.account_id.blank? && !self.url.blank?
-      self.account =  Account.create_for_source(self.url, nil, true)
+      self.account =  Account.create_for_source(self.url, self.source, true)
+    end
+  end
+
+  def is_unique_per_team
+    sources = Source.where(team_id: Team.current.id).joins(:account_sources).where("account_sources.account_id = ?", self.account_id) unless Team.current.nil?
+    unless sources.blank?
+      ps = ProjectSource.where(source_id: sources.last.id).last
+      errors.add(:base, "This account already exists in project #{ps.project_id} and has id #{ps.id}") unless ps.nil?
     end
   end
 

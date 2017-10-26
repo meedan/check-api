@@ -19,6 +19,21 @@ class SourceTest < ActiveSupport::TestCase
     assert_not  source.save
   end
 
+  test "should be unique per team" do
+    t = create_team
+    s = create_source team: t
+    assert_nothing_raised do
+      create_source team: t
+      create_source team: create_team, name: s.name
+      create_source team: nil
+    end
+    assert_no_difference 'Source.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source team: t, name: s.name
+      end
+    end
+  end
+
   test "should create version when source is created" do
     u = create_user
     create_team_user user: u, role: 'contributor'
