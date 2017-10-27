@@ -23,7 +23,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   field :tasks_count, JsonStringType do
-    resolve -> (project_media, _args, ctx) {
+    resolve -> (project_media, _args, _ctx) {
       {
         all: project_media.all_tasks.size,
         open: project_media.open_tasks.size,
