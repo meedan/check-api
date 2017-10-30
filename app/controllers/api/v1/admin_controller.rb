@@ -1,4 +1,5 @@
-class Api::V1::AdminController < ApplicationController
+class Api::V1::AdminController < Api::V1::BaseApiController
+  before_filter :authenticate_from_token!, except: [:add_publisher_to_project]
 
   # GET /api/admin/project/add_publisher?token=:project-token
   def add_publisher_to_project
@@ -15,5 +16,12 @@ class Api::V1::AdminController < ApplicationController
     else
       render text: I18n.t(:invalid_token), status: 401
     end
+  end
+
+  # GET /api/admin/user/slack?uid=:uid
+  def slack_user
+    user = User.where(provider: 'slack', uuid: params[:uid].to_s).last
+    user = nil unless @key.bot_user.nil? # Allow global API keys only 
+    render_user user, 'slack_uid' 
   end
 end
