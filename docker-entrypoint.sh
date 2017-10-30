@@ -13,10 +13,6 @@ bundle exec rake db:migrate
 export SECRET_KEY_BASE=$(bundle exec rake secret)
 bundle exec rake lapis:api_keys:create_default
 
-# Google Chrome
-LC_ALL=C google-chrome --headless --hide-scrollbars --remote-debugging-port=9333 --disable-gpu --ignore-certificate-errors --no-sandbox &
-sleep 3
-
 # Sidekiq
 bundle exec sidekiq -L log/sidekiq.log -d
 
