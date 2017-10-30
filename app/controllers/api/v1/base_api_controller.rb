@@ -56,8 +56,8 @@ module Api
       def authenticate_from_token!
         header = CONFIG['authorization_header'] || 'X-Token'
         token = request.headers[header]
-        key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).exists?
-        (render_unauthorized and return false) unless key
+        @key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
+        (render_unauthorized and return false) if @key.nil?
       end
 
       # User token or session
