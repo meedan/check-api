@@ -366,8 +366,7 @@ class UserTest < ActiveSupport::TestCase
     # should edit own profile even user has no team
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        s.name = 'update name'
-        s.save!
+        s.name = 'update name'; s.save!
         assert_equal s.reload.name, 'update name'
       end
     end
@@ -375,10 +374,13 @@ class UserTest < ActiveSupport::TestCase
     # should edit own profile
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        s.name = 'update name'
-        s.save!
+        s.name = 'update name'; s.save!
         assert_equal s.reload.name, 'update name'
       end
+      # should remove accounts from own profile
+      a = create_account
+      as = create_account_source account: a, source: s
+      as.destroy
     end
     # other roles should not edit user profile
     create_team_user user: u2, team: t, role: 'journalist'
@@ -388,8 +390,7 @@ class UserTest < ActiveSupport::TestCase
         s.save!
       end
       # check that journliast has a permission to update his profile
-      js.name = 'update name'
-      js.save!
+      js.name = 'update name'; js.save!
       assert_equal js.reload.name, 'update name'
     end
 
