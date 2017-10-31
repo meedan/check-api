@@ -21,7 +21,7 @@ class Api::V1::AdminController < Api::V1::BaseApiController
   # GET /api/admin/user/slack?uid=:uid
   def slack_user
     user = User.where(provider: 'slack', uuid: params[:uid].to_s).last
-    user = { token: user.token }
+    user = { token: user.token } unless user.nil?
     user = nil unless @key.bot_user.nil? # Allow global API keys only 
     render_user user, 'slack_uid' 
   end
