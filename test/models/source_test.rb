@@ -21,15 +21,16 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should be unique per team" do
     t = create_team
-    s = create_source team: t
+    name = 'testing'
+    s = create_source team: t, name: name
     assert_nothing_raised do
       create_source team: t
-      create_source team: create_team, name: s.name
+      create_source team: create_team, name: name
       create_source team: nil
     end
     assert_no_difference 'Source.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_source team: t, name: s.name
+        create_source team: t, name: name.upcase
       end
     end
   end
