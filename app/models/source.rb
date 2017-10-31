@@ -122,13 +122,17 @@ class Source < ActiveRecord::Base
   end
 
   def self.create_source(name, team = Team.current)
-    s = Source.where(name: name, team_id: team.id).last unless team.nil?
+    s = Source.get_duplicate(name, team) unless team.nil?
     return s unless s.nil?
     s = Source.new
     s.name = name
     s.skip_check_ability = true
     s.save!
     s.reload
+  end
+
+  def self.get_duplicate(name, team)
+    Source.where('lower(name) = ? AND team_id = ?', name.downcase, team.id).last
   end
 
   private
@@ -149,7 +153,7 @@ class Source < ActiveRecord::Base
 
   def is_unique_per_team
     unless self.team.nil? || self.name.blank?
-      s = Source.where('lower(name) = ? AND team_id = ?', self.name.downcase, self.team_id).last
+      s = Source.get_duplicate(self.name, self.team)
       errors.add(:base, "This source already exists in this team and has id #{s.id}") unless s.nil?
     end
   end
