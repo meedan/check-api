@@ -37,7 +37,7 @@ class AdminControllerTest < ActionController::TestCase
     a = create_api_key
     authenticate_with_token(a)
     get :slack_user, uid: 'U123'
-    assert_equal u.id, JSON.parse(@response.body)['data']['dbid']
+    assert_equal u.token, JSON.parse(@response.body)['data']['token']
   end
 
   test "should not find Slack user by UID if UID doesn't exist" do
