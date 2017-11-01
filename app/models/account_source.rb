@@ -26,12 +26,16 @@ class AccountSource < ActiveRecord::Base
       as = AccountSource.where(source_id: self.source_id, account_id: self.account_id).last
       errors.add(:base, "This account already exists") unless as.nil?
     else
-      sources = AccountSource.where(source: Team.current.sources, account_id: self.account_id).map(&:source_id) unless Team.current.nil?
-      unless sources.blank?
-        ps = ProjectSource.where(source_id: sources).last
-        errors.add(:base, "This account already exists in project #{ps.project_id} and has id #{ps.id}") unless ps.nil?
-      end
+      ps = self.check_duplicate_accounts
+      errors.add(:base, "This account already exists in project #{ps.project_id} and has id #{ps.id}") unless ps.blank?
     end
+  end
+
+  protected
+
+  def check_duplicate_accounts
+    sources = AccountSource.where(source: Team.current.sources, account_id: self.account_id).map(&:source_id) unless Team.current.nil?
+    ProjectSource.where(source_id: sources).last unless sources.blank?
   end
 
 end
