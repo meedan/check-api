@@ -29,3 +29,20 @@
     display: none;
   }
 }
+
+* {
+  box-shadow: none !important;
+}
+
+.btn {
+  color: white !important;
+  border-radius: 2px !important;
+}
+
+.navbar.navbar-default {
+  background-color: $black-05;
+
+  a {
+    color: $black-87 !important;
+  }
+}
