@@ -64,6 +64,16 @@ class AccountSourceTest < ActiveSupport::TestCase
       create_project_source project: p2, name: s.name, url: url
     end
     Team.unstub(:current)
+    # test duplicate accounts for user profile
+    url = 'http://test2.com'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    s = u.source
+    assert_difference 'AccountSource.count' do
+      create_account_source source: s, url: url
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_account_source source: s, url: url
+    end
   end
 
 end
