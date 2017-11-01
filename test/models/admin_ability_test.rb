@@ -24,6 +24,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:create, Project)
+      assert ability.can?(:index, p)
       assert ability.cannot?(:read, p)
       assert ability.cannot?(:update, p)
       assert ability.cannot?(:update, own_project)
@@ -451,10 +452,12 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions for export project data" do
-    p = create_project team: t
-    with_current_user_and_team(u) do
-      ability = AdminAbility.new
-      assert ability.cannot?(:export_project, Project)
+    project = create_project team: @t
+    project2 = create_project
+    with_current_user_and_team(@u, @t) do
+      ability = Ability.new
+      assert ability.can?(:export_project, project)
+      assert ability.cannot?(:export_project, project2)
     end
   end
 
