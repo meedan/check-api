@@ -1,17 +1,20 @@
 .settings-example {
   padding: 0px;
   color: #737373;
+
   i {
     cursor: pointer;
   }
+
   pre {
     line-height: 1em;
     max-height: 100px;
-    border: 1px solid #CCC;
-    background-color: #EEE;
+    border: 1px solid #ccc;
+    background-color: #eee;
     margin-top: 5px;
     padding: 5px;
     resize: both;
+
     &.open {
       height: unset;
       max-height: none;
@@ -22,5 +25,7 @@
 #media_verification_statuses_editor_holder,
 #source_verification_statuses_editor_holder,
 #checklist_editor_holder {
-  & > div > h3 > span { display: none }
+  & > div > h3 > span {
+    display: none;
+  }
 }
