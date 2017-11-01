@@ -231,7 +231,9 @@ RailsAdmin.config do |config|
       field :title
       field :description
       field :team
-      field :archived
+      field :archived do
+        visible_only_for_admin
+      end
       field :settings do
         label 'Link to authorize Bridge to publish translations automatically'
         formatted_value do
@@ -244,6 +246,7 @@ RailsAdmin.config do |config|
             bindings[:view].link_to(p.capitalize, link)
           end.join(' | ').html_safe
         end
+        visible_only_for_admin
       end
     end
 
