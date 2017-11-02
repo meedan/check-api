@@ -1096,4 +1096,19 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal Base64.encode64("PublicTeam/#{t.id}"), JSON.parse(@response.body)['data']['public_team']['id']
   end
+
+  test "should search as anonymous user" do
+    t = create_team slug: 'team', private: false
+    p = create_project team: t
+    2.times do
+      pm = create_project_media project: p
+    end
+
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+
+    post :create, query: query, team: 'team'
+
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
 end
