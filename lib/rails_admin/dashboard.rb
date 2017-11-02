@@ -1,5 +1,3 @@
-require 'pry'
-
 module RailsAdmin
   module Config
     module Actions
