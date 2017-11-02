@@ -313,6 +313,14 @@ ol.breadcrumb,
 .well {
   padding-left: 0 !important;
 
+  .input-group {
+    display: flex !important;
+  }
+
+  .form-group {
+    margin-top: 0 !important;
+  }
+
   // The "Refresh" button
   .input-group-btn button.btn-primary {
     background-color: white !important;
