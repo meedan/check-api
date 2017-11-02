@@ -1,0 +1,16 @@
+$white: #fff;
+
+$firefly-20: #CFD3D5;
+$firefly-40: #9FA6AC;
+$firefly-60: #6F7A82;
+$firefly-80: #404D59;
+
+$gray-350: mix(#E0E0E0, #BDBDBD);
+
+@function theme-gray($brightness: 50%) { // 0% black, 100% white
+  @return hsl(205, 18%, $brightness);
+}
+
+$dark-gray-text: theme-gray(5%);
+$light-gray-text: theme-gray(55%);
+$black-54: rgba(0, 0, 0, .54);
