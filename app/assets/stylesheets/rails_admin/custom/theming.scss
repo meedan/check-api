@@ -90,6 +90,11 @@ li.dropdown > a.dropdown-toggle:focus {
   color: $black-54 !important;
 }
 
+// TODO: consider showing these subnavs, they are non-essential
+.nav-level-1 {
+  display: none !important;
+}
+
 // ============================================
 // Tabs
 .nav-tabs {
@@ -137,18 +142,103 @@ ol.breadcrumb,
 // ============================================
 // Tables
 //
-// Total count under a table
-.total-count {
-  color: $black-54 !important;
+
+#list {
+  margin-right: 64px !important;
 }
 
 // Fix alignment error
 .table {
-  & > tbody > tr > td {
-    vertical-align: middle !important;
+  text-align: right !important;
+
+  & > tbody > tr {
+    & td {
+      vertical-align: middle !important;
+      padding: 8px 0 !important;
+      font-size: 13px !important;
+
+      &:first-of-type {
+        padding-left: 8px !important;
+      }
+
+      a {
+        color: $black-54 !important;
+      }
+
+      &.other.right {
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+      }
+    }
+
+    &:hover td {
+      background-color: $highlight-blue !important;
+      cursor: default !important;
+
+      a {
+        color: $check-blue !important;
+      }
+    }
   }
 }
 
+// Disable striping
+.table-striped > tbody > tr:nth-child(odd) > td {
+  background-color: white;
+}
+
+// Lighter borders
+.table > thead > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > th,
+.table > tbody > tr > td,
+.table > tfoot > tr > th,
+.table > tfoot > tr > td {
+  border-bottom: 1px solid $black-05 !important;
+  padding-right: 8px !important;
+  padding-left: 16px !important;
+}
+
+// Header
+.table > thead {
+  tr {
+    border-bottom: 1px solid $black-16 !important;
+
+    th {
+      text-align: right !important;
+      height: 48px !important;
+      vertical-align: middle !important;
+      font-size: 12px !important;
+      font-weight: 400 !important;
+      color: $black-54 !important;
+
+      &.header:after {
+        margin-left: 8px !important;
+        margin-right: -16px !important;
+      }
+
+      &:first-of-type {
+        padding-left: 8px !important;
+      }
+
+      &[class*="headerSort"] {
+        color: $black-87 !important;
+        font-weight: 900 !important;
+        background-color: transparent !important;
+      }
+
+      &.other.right {
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+      }
+    }
+  }
+}
+
+// Total count under a table
+.total-count {
+  color: $black-54 !important;
+}
 // ============================================
 // Forms
 .form-group .form-control-static,
