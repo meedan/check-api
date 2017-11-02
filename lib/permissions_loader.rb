@@ -15,6 +15,16 @@ class PermissionsLoader < GraphQL::Batch::Loader
       return
     end
 
+    if User.current.nil?
+      first = objs.first
+      first.cached_permissions = first.permissions
+      objs.each do |obj|
+        obj.cached_permissions ||= first.cached_permissions
+        fulfill(obj.id, obj)
+      end
+      return
+    end
+
     archived = []
     owned = []
     other = []
