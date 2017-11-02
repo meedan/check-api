@@ -49,8 +49,4 @@ Rails.application.configure do
 
   config.allow_concurrency = true
 
-  # Automatically inject JavaScript needed for LiveReload
-  # https://mattbrictson.com/lightning-fast-sass-reloading-in-rails
-  config.middleware.insert_after(ActionDispatch::Static, Rack::LiveReload)
-
 end

@@ -28,19 +28,13 @@ You can optionally use Puma, which allows you to restart the Rails server by doi
 
 #### Themeing the sign in page
 
-The log in page is a separate static page. Edit `app/assets/sass/home.scss` and compile the CSS with node sass: From outside the container install node-sass: `npm install -g node-sass` then `node-sass --watch ./app/assets/sass/home.scss ./public/css/home.css`
-
-Then from outside the container run `guard` and start a browser with the livereload plugin installed.
+The log in page is a separate static page. Edit `app/assets/sass/home.scss` and compile the CSS with node sass. This is not currently supported in the docker container. From outside the container install node-sass: `npm install -g node-sass` then `node-sass --watch ./app/assets/sass/home.scss ./public/css/home.css`
 
 #### Themeing inside the app
 
 All pages except the sign in page use a customized Rails Admin Material UI theme. You can customize it by editing the Sass files in `app/stylesheets/rails_admin/custom/`. The Rails asset pipeline should parse them automatically. 
 
 You can force recompilation with: `rake assets:clean && rake assets:precompile`.
-
-You can use guard and livereload to inject styles as they are compiled, without waiting for the page to reload: run `guard` (from outside the Docker container) and start a browser with the livereload plugin installed.
-
-For more information about this setup, see [Lightning Fast Sass Reloading in Rails](https://mattbrictson.com/lightning-fast-sass-reloading-in-rails).
 
 #### Restarting while theming
 
