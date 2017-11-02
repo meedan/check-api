@@ -7,9 +7,6 @@ RailsAdmin::Config::Actions.register(RailsAdmin::Config::Fields::Types::Yaml)
 
 RailsAdmin.config do |config|
 
-  require Rails.root.join('lib/rails_admin', 'dashboard.rb')
-
-
   ### Popular gems integration
 
   config.parent_controller = 'ApplicationController'
@@ -34,8 +31,11 @@ RailsAdmin.config do |config|
   # config.show_gravatar true
 
   config.actions do
-    dashboard # mandatory
-    index     # mandatory
+    dashboard do
+      # https://github.com/sferik/rails_admin/wiki/Dashboard-action#disabling-record-count-bars
+      statistics false
+    end
+    index                         # mandatory
     new
     export
     bulk_delete
