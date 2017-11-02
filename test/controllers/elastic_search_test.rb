@@ -1506,4 +1506,15 @@ class ElasticSearchTest < ActionController::TestCase
       assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
     end
   end
+
+  test "should search with reserved characters" do
+    # The reserved characters are: + - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /
+    t = create_team
+    p = create_project team: t
+    m = create_claim_media quote: 'search quote'
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({keyword: "search / quote"}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+  end
 end

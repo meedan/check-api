@@ -176,4 +176,90 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should create team project and two users if in test mode" do
+    get :create_team_project_and_two_users
+    assert_response :success
+  end
+
+  test "should not create team project and two users if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    get :create_team_project_and_two_users
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should update suggested tags if in test mode" do
+    t = create_team
+    get :update_suggested_tags, team_id: t.id, tags: 'TAG'
+    assert_response :success
+  end
+
+  test "should not update suggested tags if not in test mode" do
+    t = create_team
+    Rails.stubs(:env).returns('development')
+    get :update_suggested_tags, team_id: t.id, tags: 'TAG'
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should set media status if in test mode" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p, current_user: u
+    get :media_status, pm_id: pm.id, status: 'false'
+    assert_response :success
+  end
+
+  test "should not set media status if not in test mode" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p, current_user: u
+    Rails.stubs(:env).returns('development')
+    get :media_status, pm_id: pm.id, status: 'false'
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should set media tag if in test mode" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p, current_user: u
+    get :new_media_tag, email:u.email, pm_id: pm.id, tag: 'TAG'
+    assert_response :success
+  end
+
+  test "should not set media tag if not in test mode" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p, current_user: u
+    Rails.stubs(:env).returns('development')
+    get :new_media_tag, email:u.email, pm_id: pm.id, tag: 'TAG'
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end

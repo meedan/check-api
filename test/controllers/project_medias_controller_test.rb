@@ -48,9 +48,33 @@ class ProjectMediasControllerTest < ActionController::TestCase
   test "should create annotation when embedded for the first time only" do
     pm = create_project_media
     assert_equal 0, pm.get_annotations('embed_code').count
-    get :oembed, id: pm.id
+    get :oembed, id: pm.id, format: :json
     assert_equal 1, pm.reload.get_annotations('embed_code').count
-    get :oembed, id: pm.id
+    get :oembed, id: pm.id, format: :json
     assert_equal 1, pm.reload.get_annotations('embed_code').count
+  end
+
+  test "should render as HTML" do
+    pm = create_project_media
+    get :oembed, id: pm.id, format: :html
+    assert_no_match /iframe/, @response.body
+  end
+
+  test "should render as JSON" do
+    pm = create_project_media
+    get :oembed, id: pm.id, format: :json
+    assert_match /iframe/, @response.body
+    assert_no_match /doctype/, @response.body
+    assert_response :success
+  end
+
+  test "should render whole HTML instead of iframe if request comes from Pender" do
+    pm = create_project_media
+    @request.headers['User-Agent'] = 'Mozilla/5.0 (compatible; Pender/0.1; +https://github.com/meedan/pender)'
+    get :oembed, id: pm.id, format: :json
+    assert_no_match /iframe/, @response.body
+    assert_match /doctype/, @response.body
+    assert_response :success
+    @request.headers['User-Agent'] = ''
   end
 end

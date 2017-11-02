@@ -27,7 +27,7 @@ class ProjectSource < ActiveRecord::Base
   end
 
   def add_elasticsearch_data
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks] 
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     p = self.project
     s = self.source
     ms = MediaSearch.new
@@ -78,12 +78,4 @@ class ProjectSource < ActiveRecord::Base
     end
   end
 
-  protected
-
-  def create_source
-    s = Source.new
-    s.name = self.name
-    s.save
-    s.id.nil? ? nil : s
-  end
 end

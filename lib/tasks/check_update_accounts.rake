@@ -91,6 +91,24 @@ def update_related_source(account)
   end
 end
 
+def update_account_embed_with_user_omniauth_data(account)
+  auth_info = account.user.omniauth_info if account.user
+  if auth_info
+    data = account.data
+    data['username'] = auth_info['info']['name'] if auth_info['info']['name']
+    data['title'] = auth_info['info']['name'] if auth_info['info']['name']
+    data['picture'] = auth_info['info']['image'] if auth_info['info']['image']
+    data['author_url'] = auth_info['url'] if auth_info['url']
+    data['author_picture'] = auth_info['info']['image'] if auth_info['info']['image']
+    data['author_name'] = auth_info['info']['name'] if auth_info['info']['name']
+
+    em = account.pender_embed
+    em.embed = data.to_json
+    em.save!
+    @accounts += 1
+  end
+end
+
 namespace :check do
 
   # bundle exec rake check:update_accounts_through_embed['provider:facebook&subtype:page','provider:instagram','provider:youtube&subtype:channel']
@@ -129,6 +147,17 @@ namespace :check do
     parse_conditions args.extras, t.name
     select_accounts('with_errors_on_data').each do |account|
       update_account account
+      print '.'
+    end
+    puts "#{@accounts} accounts were changed."
+  end
+
+  # bundle exec rake check:update_account_embed_with_user_omniauth_data['provider:facebook&type:profile']
+  desc "update account embed with the related user omniauth data"
+  task :update_account_embed_with_user_omniauth_data => :environment do |t, args|
+    parse_conditions args.extras, t.name
+    select_accounts('with_errors_on_data').each do |account|
+      update_account_embed_with_user_omniauth_data(account)
       print '.'
     end
     puts "#{@accounts} accounts were changed."

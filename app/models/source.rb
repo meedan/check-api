@@ -8,7 +8,7 @@ class Source < ActiveRecord::Base
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :project_sources
-  has_many :account_sources
+  has_many :account_sources, dependent: :destroy
   has_many :projects, through: :project_sources
   has_many :accounts, through: :account_sources
   belongs_to :user
@@ -19,6 +19,7 @@ class Source < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
+  validate :is_unique_per_team, on: :create
   validate :team_is_not_archived
 
   after_update :update_elasticsearch_source
@@ -120,6 +121,20 @@ class Source < ActiveRecord::Base
     self.save!
   end
 
+  def self.create_source(name, team = Team.current)
+    s = Source.get_duplicate(name, team) unless team.nil?
+    return s unless s.nil?
+    s = Source.new
+    s.name = name
+    s.skip_check_ability = true
+    s.save!
+    s.reload
+  end
+
+  def self.get_duplicate(name, team)
+    Source.where('lower(name) = ? AND team_id = ?', name.downcase, team.id).last
+  end
+
   private
 
   def set_user
@@ -134,6 +149,13 @@ class Source < ActiveRecord::Base
     conditions = {}
     conditions[:project_id] = Team.current.projects unless Team.current.nil?
     self.project_sources.where(conditions)
+  end
+
+  def is_unique_per_team
+    unless self.team.nil? || self.name.blank?
+      s = Source.get_duplicate(self.name, self.team)
+      errors.add(:base, "This source already exists in this team and has id #{s.id}") unless s.nil?
+    end
   end
 
   def team_is_not_archived

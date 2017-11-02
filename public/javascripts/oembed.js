@@ -93,6 +93,22 @@ var rtlLanguages = [
   'yi', /* 'ייִדיש', Yiddish */
 ];
 
+var htmlHeight = 0;
+var checkHTMLHeight = function() {
+  var height = document.getElementsByTagName('BODY')[0].offsetHeight;
+  if (height !== htmlHeight) {
+    htmlHeight = height;
+    // Let the parent document know about the height
+    // http://docs.embed.ly/v1.0/docs/provider-height-resizing
+    window.parent.postMessage(JSON.stringify({ 
+      src: window.location.toString(), 
+      context: 'iframe.resize', 
+      height: height
+    }), '*');
+  }
+  setTimeout(checkHTMLHeight, 500);
+};
+
 jQuery(document).ready(function() {
   if (rtlLanguages.indexOf(locale) > -1) {
     jQuery('body, html').addClass('rtl');
@@ -100,4 +116,5 @@ jQuery(document).ready(function() {
   }
   jQuery('html').attr('lang', locale);
   jQuery('#oembed__meta-content-language').attr('content', locale);
+  checkHTMLHeight();
 });

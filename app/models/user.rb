@@ -94,7 +94,16 @@ class User < ActiveRecord::Base
         fb_user.uuid = auth.uid
         fb_user.skip_check_ability = true
         fb_user.save!
+        fb_user.update_account(auth.url)
       end
+    end
+  end
+
+  def update_account(url)
+    account = self.accounts.first
+    if account && account.url != url
+      account.url = url
+      account.save
     end
   end
 
@@ -222,8 +231,7 @@ class User < ActiveRecord::Base
         account.user = self
         account.source = source
         account.url = self.url
-        account.save
-        account.update_columns(url: self.url)
+        account.update_columns(url: self.url) if account.save
       rescue Errno::ECONNREFUSED => e
         Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
       end

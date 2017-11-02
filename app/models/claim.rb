@@ -20,18 +20,8 @@ class Claim < Media
     end
   end
 
-  def create_source(name)
-    s = Source.new
-    s.name = name
-    s.skip_check_ability = true
-    s.save!
-    s.reload
-  end
-
   def create_claim_source(name)
-    team_id = Team.current.nil? ? nil : Team.current.id
-    source = Source.where(name: name, team_id: team_id).last
-    source = create_source(name) if source.nil?
+    source = Source.create_source(name)
     unless source.nil?
       cs = ClaimSource.new
       cs.source_id = source.id

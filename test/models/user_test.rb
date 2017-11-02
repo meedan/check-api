@@ -366,8 +366,7 @@ class UserTest < ActiveSupport::TestCase
     # should edit own profile even user has no team
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        s.name = 'update name'
-        s.save!
+        s.name = 'update name'; s.save!
         assert_equal s.reload.name, 'update name'
       end
     end
@@ -375,10 +374,13 @@ class UserTest < ActiveSupport::TestCase
     # should edit own profile
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        s.name = 'update name'
-        s.save!
+        s.name = 'update name'; s.save!
         assert_equal s.reload.name, 'update name'
       end
+      # should remove accounts from own profile
+      a = create_account
+      as = create_account_source account: a, source: s
+      as.destroy
     end
     # other roles should not edit user profile
     create_team_user user: u2, team: t, role: 'journalist'
@@ -388,8 +390,7 @@ class UserTest < ActiveSupport::TestCase
         s.save!
       end
       # check that journliast has a permission to update his profile
-      js.name = 'update name'
-      js.save!
+      js.name = 'update name'; js.save!
       assert_equal js.reload.name, 'update name'
     end
 
@@ -587,4 +588,38 @@ class UserTest < ActiveSupport::TestCase
     create_team_user user: u
     assert_equal 2, u.reload.number_of_teams
   end
+
+  test "should update account url when update Facebook id" do
+    WebMock.disable_net_connect!
+    url1 = 'https://www.facebook.com/1062518227129764'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: '{"type":"media","data":{"url":"' + url1 + '","type":"profile"}}')
+
+    u = create_user provider: 'facebook', uuid: '1062518227129764', email: 'user@fb.com', url: url1
+    assert_equal '1062518227129764', u.reload.uuid
+    account = u.accounts.first
+    assert_equal url1, account.url
+
+    url2 = 'https://www.facebook.com/100001147915899'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: '{"type":"media","data":{"url":"' + url2 + '/","type":"profile"}}')
+    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '100001147915899', info: OpenStruct.new({ email: 'user@fb.com' }), url: url2}))
+    assert_equal '100001147915899', u.reload.uuid
+    assert_equal url2, account.reload.url
+    WebMock.allow_net_connect!
+  end
+
+  test "should create user when account cannot be saved" do
+    url = 'https://www.facebook.com/1062518227129764'
+    credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
+    info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
+    auth = OpenStruct.new({ url: url, provider: 'facebook', uid: '1062518227129764', credentials: credentials, info: info})
+    Account.any_instance.stubs(:save).returns(false)
+    assert_difference 'User.count' do
+      User.from_omniauth(auth)
+    end
+    u = User.find_by_email 'user@fb.com'
+    assert u.accounts.empty?
+    Account.any_instance.unstub(:save)
+  end
+
 end

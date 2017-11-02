@@ -946,7 +946,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_dynamic_annotation annotation_type: 'embed_code', annotated: pm
     u = create_user
     ProjectMedia.any_instance.unstub(:clear_caches)
-    CcDeville.expects(:clear_cache_for_url).returns(nil).times(48)
+    CcDeville.expects(:clear_cache_for_url).returns(nil).times(52)
     PenderClient::Request.expects(:get_medias).returns(nil).times(16)
 
     Sidekiq::Testing.inline! do
@@ -1149,6 +1149,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
       # should not duplicate ProjectSource for same account
       assert_no_difference 'ProjectSource.count' do
         create_project_media project: p, url: media2_url
+      end
+    end
+    # test move media to project with same source
+    p2 = create_project team: t
+    p3 = create_project team: t
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p2, url: media_url
+      pm2 = create_project_media project: p3, url: media2_url
+      assert_nothing_raised do
+        pm.project = p3
+        pm.save!
       end
     end
   end

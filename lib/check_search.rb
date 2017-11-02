@@ -111,16 +111,16 @@ class CheckSearch
     return [] if @options["keyword"].blank?
     # add keyword conditions
     keyword_fields = %w(title description quote account.username account.title)
-    keyword_c = [{ query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
+    keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
 
     [['comment', 'text'], ['dynamic', 'indexable']].each do |pair|
-      keyword_c << { has_child: { type: "#{pair[0]}_search", query: { query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
+      keyword_c << { has_child: { type: "#{pair[0]}_search", query: { simple_query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
     end
 
     keyword_c << search_tags_query(@options["keyword"].split(' '))
 
     if associated_type == 'ProjectSource'
-      keyword_c << { has_child: { type: "account_search", query: { query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
+      keyword_c << { has_child: { type: "account_search", query: { simple_query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
     end
     [{ bool: { should: keyword_c } }]
   end
