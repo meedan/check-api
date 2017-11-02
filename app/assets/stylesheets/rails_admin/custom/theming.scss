@@ -45,6 +45,11 @@
 // Main top navbar
 .navbar.navbar-default {
   background-color: white !important;
+  font-size: 16px !important;
+
+  .navbar-right {
+    margin-right: 16px !important;
+  }
 
   a {
     color: $black-87 !important;
@@ -59,6 +64,20 @@
         color: $black-54 !important;
       }
     }
+  }
+
+  // For some reason nothing appears in this link
+  .edit_user_root_link a {
+    padding: 0 !important;
+  }
+
+  // Unset some styles on the log out button
+  .label-danger {
+    background-color: transparent !important;
+    color: $black-87 !important;
+    padding: 0 !important;
+    font-size: 100% !important;
+    font-weight: normal !important;
   }
 }
 
@@ -430,3 +449,40 @@ h4 {
     }
   }
 }
+
+.dashboard {
+  display: flex;
+  flex-wrap: wrap;
+
+  .dashboard-item {
+    display: block;
+    border-radius: 2px;
+    border: 1px solid $black-05;
+    padding: 16px;
+    width: 25%;
+    min-width: 200px;
+    margin: 8px 16px 8px 0;
+    text-align: center;
+
+    h3 {
+      font-weight: 400;
+      font-size: 56px;
+      margin: 8px 0 0 0;
+      color: $check-blue;
+    }
+
+    h4 {
+      font-weight: 400;
+      color: $black-16;
+      margin: 8px !important;
+      font-size: 16px;
+      text-transform: uppercase;
+    }
+
+    p {
+      color: $black-32;
+    }
+  }
+}
+
+
