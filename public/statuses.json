@@ -4,18 +4,18 @@
   "properties": {
     "label": {
       "title": "Label",
-      "description": "The label of this status field, as displayed to users.",
+      "description": "What will you call this label? For example, 'status' or 'stage' or 'label'.",
       "default": "Status",
       "type": "string"
     },
     "default": {
       "title": "Default value",
       "type": "string",
-      "description": "The default value for this status field that is automatically assigned when a new report is created. It should match one of the identifiers in the list below."
+      "description": "What's the default for newly added media? It should match an 'identifier' in the list below."
     },
     "statuses": {
       "title": "Statuses",
-      "description": "The list of available statuses.",
+      "description": "",
       "type": "array",
       "items": {
         "title": "Status",
@@ -41,12 +41,12 @@
             "type": "string"
           },
           "style": {
-            "title": "Styles",
-            "description": "The visual styles to be applied to the report when this status is active.",
+            "title": "color",
+            "description": "",
             "type": "object",
             "properties": {
               "color": {
-                "title": "Color",
+                "title": "Pick a color",
                 "default": "rgba(0, 0, 0, .54)",
                 "type": "string",
                 "format": "color"
