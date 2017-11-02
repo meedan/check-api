@@ -593,7 +593,7 @@ class UserTest < ActiveSupport::TestCase
     WebMock.disable_net_connect!
     url1 = 'https://www.facebook.com/1062518227129764'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: '{"type":"media","data":{"url":"' + url1 + '/","type":"profile"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: '{"type":"media","data":{"url":"' + url1 + '","type":"profile"}}')
 
     u = create_user provider: 'facebook', uuid: '1062518227129764', email: 'user@fb.com', url: url1
     assert_equal '1062518227129764', u.reload.uuid
@@ -607,4 +607,19 @@ class UserTest < ActiveSupport::TestCase
     assert_equal url2, account.reload.url
     WebMock.allow_net_connect!
   end
+
+  test "should create user when account cannot be saved" do
+    url = 'https://www.facebook.com/1062518227129764'
+    credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
+    info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
+    auth = OpenStruct.new({ url: url, provider: 'facebook', uid: '1062518227129764', credentials: credentials, info: info})
+    Account.any_instance.stubs(:save).returns(false)
+    assert_difference 'User.count' do
+      User.from_omniauth(auth)
+    end
+    u = User.find_by_email 'user@fb.com'
+    assert u.accounts.empty?
+    Account.any_instance.unstub(:save)
+  end
+
 end

@@ -231,8 +231,7 @@ class User < ActiveRecord::Base
         account.user = self
         account.source = source
         account.url = self.url
-        account.save
-        account.update_columns(url: self.url)
+        account.update_columns(url: self.url) if account.save
       rescue Errno::ECONNREFUSED => e
         Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
       end
