@@ -39,4 +39,41 @@ class AccountSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should create a unique account per source" do
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    Team.stubs(:current).returns(t)
+    s = create_source
+    ps = create_project_source project: p, source: s
+    a = create_account url: url, source: s
+    assert_raise ActiveRecord::RecordInvalid do
+      create_account_source source: s, url: url
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_project_source project: p, name: 'Test', url: url
+    end
+    t2 = create_team
+    p2 = create_project team: t2
+    Team.stubs(:current).returns(t2)
+    assert_difference 'AccountSource.count' do
+      create_project_source project: p2, name: s.name, url: url
+    end
+    Team.unstub(:current)
+    # test duplicate accounts for user profile
+    url = 'http://test2.com'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
+    s = u.source
+    assert_difference 'AccountSource.count' do
+      create_account_source source: s, url: url
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_account_source source: s, url: url
+    end
+  end
+
 end

@@ -5,13 +5,17 @@ module Api
       after_action :allow_iframe, only: :oembed
 
       def oembed
+        @options = params.merge({ from_pender: !request.headers['User-Agent'].to_s.match(/pender/i).nil? })
         media = ProjectMedia.where(id: params[:id]).last
         if CONFIG['app_name'] != 'Check'
           render_error('Not implemented', 'UNKNOWN', 501)
         elsif media.nil?
           render_error('Not found', 'ID_NOT_FOUND', 404)
         else
-          render json: media.as_oembed(params), status: 200
+          respond_to do |format|
+            format.json { render(json: media.as_oembed(@options), status: 200) }
+            format.html { render(html: media.html(@options), status: 200) }
+          end
         end
       end
 

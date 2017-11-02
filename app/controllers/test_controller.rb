@@ -28,11 +28,30 @@ class TestController < ApplicationController
     render_success 'user', u
   end
 
+  def create_team_project_and_two_users
+    t = create_team
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: t, user: u1, role: 'owner'
+    create_team_user team: t, user: u2, role: 'contributor'
+    pr = create_project team: t, current_user: u1
+    ret = {:team =>t, :user1 => u1, :user2 => u2, :project => pr}
+
+    render_success 'team_users', ret
+  end
+
   def new_team
     user = User.where(email: params[:email]).last
     User.current = user
     t = create_team params
     User.current = nil
+    render_success 'team', t
+  end
+
+  def update_suggested_tags
+    t = Team.find(params[:team_id])
+    t.suggested_tags=params[:tags]
+    t.save
     render_success 'team', t
   end
 
@@ -72,6 +91,22 @@ class TestController < ApplicationController
     User.current = nil
     Team.current = nil
     render_success 'project_source', ps
+  end
+
+  def media_status
+    pm = ProjectMedia.find(params[:pm_id])
+    s = pm.annotations.where(annotation_type: 'status').last.load
+    s.status = params[:status]
+    s.save!
+    render_success 'project_media', pm
+  end
+
+  def new_media_tag
+    user = User.where(email: params[:email]).last
+    pm = ProjectMedia.find(params[:pm_id])
+    tag = create_tag tag: params[:tag], annotated: pm, annotator: user
+    pm.save!
+    render_success 'project_media', pm
   end
 
   protected

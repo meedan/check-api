@@ -20,7 +20,8 @@ class AdminAbility
     can :dashboard
 
     can [:read, :update], Team, :id => @teams
-
+    can :index, Project, :team_id => @teams
+    can :export_project, Project, team_id: @teams
     can :create, PaperTrail::Version
   end
 

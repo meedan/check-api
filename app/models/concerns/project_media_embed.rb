@@ -7,8 +7,9 @@ module ProjectMediaEmbed
     after_update :clear_caches
   end
 
-  def oembed_url
-    CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed'
+  def oembed_url(format = '')
+    format = ".#{format}" unless format.blank?
+    CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed' + format
   end
 
   def embed_url
@@ -126,10 +127,16 @@ module ProjectMediaEmbed
       provider_name: CONFIG['app_name'] || '',
       provider_url: CONFIG['app_url'] || '',
       thumbnail_url: self.media.picture.to_s,
-      html: self.html(options),
+      html: self.oembed_html(options),
       width: options[:maxwidth] || 800,
       height: options[:maxheight] || 800
     }.with_indifferent_access
+  end
+
+  def oembed_html(options)
+    w = options[:maxwidth] || 800
+    h = options[:maxheight] || 800
+    options[:from_pender] ? self.html(options) : "<iframe src=\"#{self.oembed_url('html')}\" width=\"#{w}\" height=\"#{h}\" />"
   end
 
   def html(options = {})
@@ -145,7 +152,9 @@ module ProjectMediaEmbed
   module ClassMethods
     def clear_caches(pmid)
       pm = ProjectMedia.where(id: pmid).last
+
       return if pm.nil? || pm.get_annotations('embed_code').empty?
+
       ['', '?hide_tasks=1', '?hide_notes=1', '?hide_tasks=1&hide_notes=1', '?hide_open_tasks=1', '?hide_open_tasks=1&hide_tasks=1', '?hide_open_tasks=1&hide_notes=1', '?hide_open_tasks=1&hide_tasks=1&hide_notes=1'].each do |part|
         url = pm.full_url.to_s + part
         PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
@@ -153,6 +162,12 @@ module ProjectMediaEmbed
         CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
         CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + CGI.escape(url))
       end
+
+      # Twitter embed
+      url = pm.full_url.to_s
+      params = '&autoplay=1&auto_play=true'
+      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url + params)
+      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + CGI.escape(url) + params)
     end
   end
 end

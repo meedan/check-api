@@ -36,6 +36,9 @@ module ProjectAssociation
     include CheckElasticSearch
 
     before_validation :set_media_or_source, :set_user, on: :create
+
+    validate :is_unique, on: :create
+
     after_update :update_elasticsearch_data
     before_destroy :destroy_elasticsearch_media
 
@@ -74,6 +77,17 @@ module ProjectAssociation
       self.user = User.current unless User.current.nil?
     end
 
+    def is_unique
+      if self.class_name == 'ProjectSource'
+        obj_name = 'source'
+        obj = ProjectSource.where(project_id: self.project_id, source_id: self.source_id).last
+      else
+        obj_name = 'media'
+        obj = ProjectMedia.where(project_id: self.project_id, media_id: self.media_id).last
+      end
+      errors.add(:base, "This #{obj_name} already exists in project #{obj.project_id} and has id #{obj.id}") unless obj.nil?
+    end
+
     protected
 
     def set_media
@@ -90,7 +104,7 @@ module ProjectAssociation
 
     def set_source
       unless self.name.blank?
-        s = self.create_source
+        s = Source.create_source(self.name)
         self.source_id = s.id unless s.nil?
       end
     end

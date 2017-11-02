@@ -31,4 +31,36 @@ class AdminControllerTest < ActionController::TestCase
     assert_equal '123456', p.get_social_publishing['twitter']['token']
     assert_equal '654321', p.get_social_publishing['twitter']['secret']
   end
+
+  test "should find Slack user by UID" do
+    u = create_user provider: 'slack', uuid: 'U123'
+    a = create_api_key
+    authenticate_with_token(a)
+    get :slack_user, uid: 'U123'
+    assert_equal u.token, JSON.parse(@response.body)['data']['token']
+  end
+
+  test "should not find Slack user by UID if UID doesn't exist" do
+    u = create_user provider: 'slack', uuid: 'U123'
+    a = create_api_key
+    authenticate_with_token(a)
+    get :slack_user, uid: 'U124'
+    assert_nil JSON.parse(@response.body)['data']
+  end
+
+  test "should not find Slack user by UID if API key is not global" do
+    u = create_user provider: 'slack', uuid: 'U123'
+    a = create_api_key
+    create_bot_user api_key_id: a.id
+    authenticate_with_token(a)
+    get :slack_user, uid: 'U123'
+    assert_nil JSON.parse(@response.body)['data']
+  end
+
+  test "should not find Slack user by UID if API key is not provided" do
+    u = create_user provider: 'slack', uuid: 'U123'
+    a = create_api_key
+    get :slack_user, uid: 'U123'
+    assert_response 401
+  end
 end

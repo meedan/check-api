@@ -12,12 +12,23 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :metadata, types.String
   field :dbid, types.Int
   field :archived, types.Boolean
+  field :author_role, types.String
 
   field :permissions, types.String do
     resolve -> (project_media, _args, ctx) {
       PermissionsLoader.for(ctx[:ability]).load(project_media.id).then do |pm|
         pm.cached_permissions || pm.permissions
       end
+    }
+  end
+
+  field :tasks_count, JsonStringType do
+    resolve -> (project_media, _args, _ctx) {
+      {
+        all: project_media.all_tasks.size,
+        open: project_media.open_tasks.size,
+        completed: project_media.completed_tasks.size
+      }
     }
   end
 

@@ -11,7 +11,6 @@ class ProjectMedia < ActiveRecord::Base
 
   validates_presence_of :media_id, :project_id
 
-  validate :is_unique, on: :create
   validate :project_is_not_archived
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
@@ -221,11 +220,6 @@ class ProjectMedia < ActiveRecord::Base
 
   private
 
-  def is_unique
-    pm = ProjectMedia.where(project_id: self.project_id, media_id: self.media_id).last
-    errors.add(:base, "This media already exists in this project and has id #{pm.id}") unless pm.nil?
-  end
-
   def set_quote_embed
     self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
     self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
@@ -239,10 +233,15 @@ class ProjectMedia < ActiveRecord::Base
     if self.project_id_changed?
       ps = get_project_source(self.project_id_was)
       unless ps.nil?
-        ps.project_id = self.project_id
-        ps.skip_check_ability = true
-        ps.disable_es_callbacks = Rails.env.to_s == 'test'
-        ps.save!
+        target_ps = ProjectSource.where(project_id: self.project_id, source_id: ps.source_id).last
+        if target_ps.nil?
+          ps.project_id = self.project_id
+          ps.skip_check_ability = true
+          ps.disable_es_callbacks = Rails.env.to_s == 'test'
+          ps.save!
+        else
+          ps.destroy
+        end
       end
     end
   end
