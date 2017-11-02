@@ -42,6 +42,12 @@ You can use guard and livereload to inject styles as they are compiled, without 
 
 For more information about this setup, see [Lightning Fast Sass Reloading in Rails](https://mattbrictson.com/lightning-fast-sass-reloading-in-rails).
 
+#### Restarting while theming
+
+Changing configuration files requires a restart of the API. 
+
+From inside the container: `touch tmp/restart.txt`.
+
 ### Running the tests
 
 * `bundle install --without nothing`
