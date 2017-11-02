@@ -6,8 +6,9 @@
 // ============================================
 // Imports
 // The heavy roboto weight is missing in the theme
+// And a mono for good measure
 @import url('https://fonts.googleapis.com/css?family=Roboto:900');
-
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300');
 
 // ============================================
 // Shadows
@@ -18,8 +19,24 @@
 // ============================================
 // Buttons
 .btn {
-  color: white;
-  border-radius: 2px !important;
+  color: $black-54 !important;
+  border-radius: 0px !important;
+  border-width: 0px !important;
+  background-color: $black-05 !important;
+
+  i {
+    color: $black-54 !important;
+    margin-right: 4px !important;
+  }
+
+  &-primary {
+    background-color: $check-blue !important;
+    color: white !important;
+
+    i {
+      color: white !important;
+    }
+  }
 }
 
 // The buttons that appear when you click "Add filter"
@@ -86,6 +103,7 @@ ul.nav.nav-pills:last-of-type li.dropdown-header {
   margin-top: 16px !important;
 }
 
+// Dropdown
 li.dropdown > a.dropdown-toggle:focus {
   color: $black-54 !important;
 }
@@ -95,6 +113,9 @@ li.dropdown > a.dropdown-toggle:focus {
   display: none !important;
 }
 
+.filtering-select .btn.btn-info.dropdown-toggle {
+  background-color: transparent !important;
+}
 // ============================================
 // Tabs
 .nav-tabs {
@@ -263,10 +284,15 @@ ol.breadcrumb,
   margin-top: 16px !important;
 }
 
+.input[type="text"] {
+  background-color: $black-02;
+}
+
 // ============================================
 // Misc
 #team_logo {
-  margin-top: 16px !important;
+  margin-top: 12px !important;
+  display: flex;
 }
 
 // ============================================
@@ -302,16 +328,92 @@ h4 {
 // See: http://localhost:3000/admin/team/1/edit
 // (Enable custom statuses first)
 
-.control-group .control-label {
-  color: $black-87 !important;
+
+
+#media_verification_statuses_editor_holder,
+#source_verification_statuses_editor_holder,
+#checklist_editor_holder {
+  .control-group:focus {
+  }
+
+  // Ensure they use the material theme
+  // (Though they are missing a class)
+  input[type="text"] {
+    @extend .form-control;
+
+    &:focus {
+      border-bottom: 2px solid $check-blue;
+      background-image: none !important;
+    }
+  }
+
+  // Hide the main titles
+  h3 {
+    display: none;
+  }
+
+  .well {
+    padding-top: 0 !important;
+  }
+
+  .container-fluid {
+    padding-left: 0 !important;
+  }
+
+  .control-group .control-label {
+    color: $black-87 !important;
+  }
+
+  .media_verification_statuses_editor_holder .container-fluid {
+    margin-left: 0 !important;
+  }
+
+  [data-schemapath="root.statuses"] > .well > div > [data-schemapath^="root.statuses."] {
+    box-shadow: $box-shadow-1 !important;
+    margin: 16px 0 !important;
+    padding: 32px 16px !important;
+    border-radius: 2px;
+
+    .well {
+      margin: 0 !important;
+    }
+
+    .row-fluid .control-group {
+      display: flex !important;
+      align-items: flex-start;
+      justify-content: flex-start;
+
+      .control-label {
+        width: 100px;
+        margin-right: 16px;
+        padding-top: 0;
+      }
+    }
+
+
+    // The color input
+    [data-schemapath*="style.color"] input {
+      width: 50px !important;
+      height: 25px !important;
+    }
+  }
+
+  .btn-group button {
+    margin-right: 8px !important;
+
+    &.json-editor-btn-add {
+      background-color: $check-blue !important;
+      color: white !important;
+    }
+  }
 }
 
-.media_verification_statuses_editor_holder .container-fluid {
-  margin-left: 0 !important;
+#team_limits {
+  height: 280px !important;
 }
 
 .settings-example {
-  padding: 0px;
+  padding: 16px 0px 0px;
   color: #737373;
 
   i {
@@ -321,23 +423,17 @@ h4 {
   pre {
     line-height: 1em;
     max-height: 200px;
-    border: 1px solid #ccc;
-    background-color: #eee;
+    background-color: $black-75;
+    color: white;
     margin-top: 5px;
     padding: 5px;
     resize: both;
+    font-family: 'Roboto Mono', monospace !important;
+    line-height: 1.5;
 
     &.open {
       height: unset;
       max-height: none;
     }
-  }
-}
-
-#media_verification_statuses_editor_holder,
-#source_verification_statuses_editor_holder,
-#checklist_editor_holder {
-  & > div > h3 > span {
-    display: none;
   }
 }
