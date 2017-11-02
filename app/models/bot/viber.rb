@@ -1,5 +1,3 @@
-require 'chromeshot'
-
 class Bot::Viber < ActiveRecord::Base
   attr_accessor :token
 
