@@ -360,6 +360,7 @@ h4 {
   // (Though they are missing a class)
   input[type="text"] {
     @extend .form-control;
+    padding-left: 0 !important;
 
     &:focus {
       border-bottom: 2px solid $check-blue;
