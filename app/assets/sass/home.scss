@@ -1,3 +1,113 @@
-* {
-  border: 1px solid green !important;
+$font-stack-sans: "Roboto", -apple-system, BlinkMacSystemFont, "Corbel", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Verdana, "Verdana Ref", sans-serif;
+@import 'shared';
+@import 'buttons';
+@import 'login-email';
+
+.login-menu {
+  text-align: center;
+  position: relative;
+  padding: 45px 0 0 0;
+
+  p {
+    color: $black-54;
+  }
+
+  a {
+    color: $black-54;
+  }
+}
+
+.login-menu__icon {
+  margin-top: 50px;
+  height: 36px;
+}
+
+.login-menu__heading {
+  margin: 25px 0 20px 0;
+  font-size: 34px;
+  font-family: $font-stack-sans;
+  font-weight: 900;
+  letter-spacing: 0.035em;
+  color: $check-blue;
+  text-align: center;
+}
+
+.login-menu__content {
+  position: relative;
+  max-width: 500px;
+  margin: 4em auto;
+}
+
+.login-menu__options {
+  list-style-type: none;
+  padding: 0;
+  max-width: 245px;
+  margin: 0 auto 60px auto;
+}
+
+.login-menu__button {
+  @include button-medium;
+  width: 100%;
+}
+
+.login-menu__button {
+  transition: background-color 400ms ease;
+
+  &:hover {
+    transition: background-color 80ms ease;
+  }
+}
+
+.login-menu__button--twitter {
+  background-color: $twitter-blue;
+
+  &:hover {
+    background-color: darken(saturate($twitter-blue, 10%), 10%);
+  }
+}
+
+.login-menu__button--facebook {
+  background-color: $facebook-blue;
+
+  &:hover {
+    background-color: darken(saturate($facebook-blue, 10%), 10%);
+  }
+}
+
+.login-menu__button--google {
+  background-color: $google-red;
+
+  &:hover {
+    background-color: darken(saturate($google-red, 10%), 10%);
+  }
+}
+
+.login-menu__button--slack {
+  background-color: $slack-green;
+
+  &:hover {
+    background-color: darken(saturate($slack-green, 10%), 10%);
+  }
+}
+
+.login-email__link {
+  @include button-medium;
+  @extend .login-menu__button;
+  color: white !important;
+  background-color: $black-54;
+  text-align: center;
+  text-decoration: none;
+
+  &:hover {
+    background-color: $black-87;
+  }
+}
+
+p.other-method {
+  border-top: 1px solid $black-16;
+  padding: 32px 16px 16px;
+}
+
+.browser-support a {
+  color: #0a0d0f;
 }
