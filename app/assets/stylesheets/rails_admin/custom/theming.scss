@@ -1,3 +1,225 @@
+// =======================================================
+// Bootstrap Material UI Rails Admin theme customizations
+// We don't touch any of the bootstrap or other CSS upstream
+// Only add overrides here, with a lot of !important :|
+
+// ============================================
+// Imports
+// The heavy roboto weight is missing in the theme
+@import url('https://fonts.googleapis.com/css?family=Roboto:900');
+
+
+// ============================================
+// Shadows
+* {
+  box-shadow: none !important;
+}
+
+// ============================================
+// Buttons
+.btn {
+  color: white;
+  border-radius: 2px !important;
+}
+
+// The buttons that appear when you click "Add filter"
+#filters_box {
+  & > .form-search .form-label {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    height: 29px !important;
+  }
+}
+
+// ============================================
+// Main top navbar
+.navbar.navbar-default {
+  background-color: white !important;
+
+  a {
+    color: $black-87 !important;
+
+    // The logo
+    &.navbar-brand {
+      font-weight: 900 !important;
+      color: $check-blue !important;
+
+      small {
+        font-weight: 400;
+        color: $black-54 !important;
+      }
+    }
+  }
+}
+
+// ============================================
+// Sidebar
+//
+.sidebar-nav {
+  background-color: white !important;
+  border-right: 1px solid $black-05 !important;
+
+  & .nav-pills li {
+    & > a {
+      color: $black-54 !important;
+    }
+
+    &.active > a,
+    &.active > a:hover,
+    &.active > a:focus {
+      background-color: $highlight-blue !important;
+      color: $black-87 !important;
+      font-weight: 900;
+    }
+  }
+
+  & .nav-pills li.dropdown-header {
+    border-bottom: none !important;
+    font-size: 12px !important;
+    color: $black-54 !important;
+    font-weight: 400 !important;
+  }
+}
+
+ul.nav.nav-pills:last-of-type li.dropdown-header {
+  border-top: 1px solid $black-05 !important;
+  margin-top: 16px !important;
+}
+
+li.dropdown > a.dropdown-toggle:focus {
+  color: $black-54 !important;
+}
+
+// ============================================
+// Tabs
+.nav-tabs {
+  background-color: transparent !important;
+  border-bottom-color: $black-05 !important;
+
+  li a {
+    color: $black-87 !important;
+
+    &:hover {
+      color: $black-54 !important;
+    }
+
+    i[class*="icon"] {
+      color: $black-75 !important;
+      margin-right: 4px !important;
+    }
+  }
+
+  li.active {
+    border-bottom-color: $check-blue !important;
+    border-bottom-width: 2px !important;
+    background-color: transparent !important;
+
+    a {
+      color: $check-blue !important;
+
+      i[class*="icon"] {
+        color: $check-blue !important;
+      }
+    }
+  }
+}
+
+// ============================================
+// Hide unnecessary elements
+ol.breadcrumb,
+.page-header,
+#remove_filter,
+.well [href*="export"],
+#btn-menu-wrapper a[href="#"] {
+  display: none !important;
+}
+
+// ============================================
+// Tables
+//
+// Total count under a table
+.total-count {
+  color: $black-54 !important;
+}
+
+// Fix alignment error
+.table {
+  & > tbody > tr > td {
+    vertical-align: middle !important;
+  }
+}
+
+// ============================================
+// Forms
+.form-group .form-control-static,
+.help-block,
+.help-inline,
+ {
+  margin-left: 0 !important;
+  color: $black-54 !important;
+  padding-top: 8px !important;
+}
+
+.input-group-btn .btn.btn-info {
+  background-color: $black-16 !important;
+  padding: 8px 16px !important;
+
+  .caret {
+    color: $black-54 !important;
+  }
+}
+
+.form-group {
+  margin-top: 16px !important;
+}
+
+// ============================================
+// Misc
+#team_logo {
+  margin-top: 16px !important;
+}
+
+// ============================================
+// Wells
+// See http://localhost:3000/admin/team_user/1
+.well {
+  padding-left: 0 !important;
+
+  // The "Refresh" button
+  .input-group-btn button.btn-primary {
+    background-color: white !important;
+    color: $black-32 !important;
+    margin-bottom: 0 !important;
+
+    &:hover {
+      background-color: $black-05 !important;
+    }
+
+    i {
+      color: $black-32 !important;
+    }
+  }
+}
+
+// ============================================
+// Typography
+h4 {
+  margin: 32px 0 !important;
+}
+
+// ============================================
+// Custom statuses
+// See: http://localhost:3000/admin/team/1/edit
+// (Enable custom statuses first)
+
+.control-group .control-label {
+  color: $black-87 !important;
+}
+
+.media_verification_statuses_editor_holder .container-fluid {
+  margin-left: 0 !important;
+}
+
 .settings-example {
   padding: 0px;
   color: #737373;
@@ -8,7 +230,7 @@
 
   pre {
     line-height: 1em;
-    max-height: 100px;
+    max-height: 200px;
     border: 1px solid #ccc;
     background-color: #eee;
     margin-top: 5px;
@@ -27,21 +249,5 @@
 #checklist_editor_holder {
   & > div > h3 > span {
     display: none;
-  }
-}
-* {
-  box-shadow: none !important;
-}
-
-.btn {
-  color: white !important;
-  border-radius: 2px !important;
-}
-
-.navbar.navbar-default {
-  background-color: $black-05;
-
-  a {
-    color: $black-87 !important;
   }
 }
