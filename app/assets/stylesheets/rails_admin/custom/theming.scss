@@ -298,6 +298,12 @@ ol.breadcrumb,
 
 .input[type="text"] {
   background-color: $black-02;
+  padding-left: 0 !important;
+}
+
+// Some inputs don't have the right classes or type attribute
+input:not(textarea) {
+  padding-left: 0 !important;
 }
 
 // ============================================
@@ -360,7 +366,6 @@ h4 {
   // (Though they are missing a class)
   input[type="text"] {
     @extend .form-control;
-    padding-left: 0 !important;
 
     &:focus {
       border-bottom: 2px solid $check-blue;
