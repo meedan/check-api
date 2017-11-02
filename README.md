@@ -24,6 +24,14 @@ You can optionally use Puma, which allows you to restart the Rails server by doi
 
 * You can also start the application on Docker by running `rake lapis:docker:run` (it will run on port 3000 and your local hostname) - you first need to create an API key after entering the container (`lapis:docker:shell`) before using the web interface
 
+### Theming
+
+This app uses a customized Rails Admin Material UI theme. You can customize it by editing the Sass files in `app/stylesheets/rails_admin/custom/`.
+
+You can use guard and livereload to inject styles as they are compiled, without waiting for the page to reload: run `guard -P livereload` (from outside the Docker container).
+
+For more information about this setup, see [Lightning Fast Sass Reloading in Rails](https://mattbrictson.com/lightning-fast-sass-reloading-in-rails).
+
 ### Running the tests
 
 * `bundle install --without nothing`
