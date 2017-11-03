@@ -1,0 +1,33 @@
+$font-stack-sans: "Roboto", -apple-system, BlinkMacSystemFont, "Corbel", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Verdana, "Verdana Ref", sans-serif;
+$font-stack-sans-condensed: "Roboto Condensed", $font-stack-sans;
+$font-stack-serif: "Merriweather", Georgia, serif;
+
+@import 'colors';
+@import 'buttons';
+
+@mixin onboarding-heading {
+  margin: 25px 0 20px 0;
+  font-size: 34px;
+  font-family: $font-stack-sans-condensed;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
+  color: hsl(206, 98%, 62%);
+  text-align: center;
+}
+
+@mixin text-input {
+  order: 2;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(theme-gray(), 0.2);
+  transition: border-color 100ms ease;
+  font-size: 24px;
+  padding: 3px 0 6px; // padding: 7px 0;
+  &:focus {
+    outline: none;
+    border-color: theme-blue(62%);
+  }
+}
+
+@import 'reset-password'

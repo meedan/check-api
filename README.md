@@ -24,24 +24,6 @@ You can optionally use Puma, which allows you to restart the Rails server by doi
 
 * You can also start the application on Docker by running `rake lapis:docker:run` (it will run on port 3000 and your local hostname) - you first need to create an API key after entering the container (`lapis:docker:shell`) before using the web interface
 
-### Theming 
-
-#### Themeing the sign in page
-
-The log in page is a separate static page. Edit `app/assets/sass/home.scss` and compile the CSS with node sass. This is not currently supported in the docker container. From outside the container install node-sass: `npm install -g node-sass` then `node-sass --watch ./app/assets/sass/home.scss ./public/css/home.css`
-
-#### Themeing inside the app
-
-All pages except the sign in page use a customized Rails Admin Material UI theme. You can customize it by editing the Sass files in `app/stylesheets/rails_admin/custom/`. The Rails asset pipeline should parse them automatically. 
-
-You can force recompilation with: `rake assets:clean && rake assets:precompile`.
-
-#### Restarting while theming
-
-Changing configuration files requires a restart of the API. 
-
-From inside the container: `touch tmp/restart.txt`.
-
 ### Running the tests
 
 * `bundle install --without nothing`
