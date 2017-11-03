@@ -5,6 +5,10 @@ group :development, :test do
   gem 'rubocop'
   gem 'rails-graphql-generator'
   gem 'parallel_tests'
+  gem "guard", ">= 2.2.2", :require => false
+  gem "guard-livereload",  :require => false
+  gem "rack-livereload"
+  gem "rb-fsevent",        :require => false
 end
 
 group :development do
@@ -85,3 +89,4 @@ gem 'graphql-batch'
 gem 'optics-agent', '0.5.4'
 gem 'google-protobuf', '3.2.0'
 gem 'concurrent-ruby', require: 'concurrent'
+gem 'rails_admin_material'
