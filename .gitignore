@@ -35,5 +35,3 @@ tmp/parallel_runtime_test.log
 public/coverage/*
 !public/coverage/.gitkeep
 coverage/*
-.sass-cache/
-*.css.map

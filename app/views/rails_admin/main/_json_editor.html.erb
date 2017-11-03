@@ -6,7 +6,6 @@
   var field_schema = "<%= @object.json_schema_url(field_name) %>";
   var editor =  new JSONEditor(document.getElementById("<%= field_name %>_editor_holder"),{
     ajax: true,
-    disable_collapse: true,
     theme: 'bootstrap2',
     show_errors: 'interaction',
     disable_properties: true,

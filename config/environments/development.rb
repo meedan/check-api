@@ -48,5 +48,4 @@ Rails.application.configure do
   config.cache_store = :memory_store, { size: 64.megabytes }
 
   config.allow_concurrency = true
-
 end
