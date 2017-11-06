@@ -64,7 +64,7 @@ class User < ActiveRecord::Base
     user.name = auth.info.name
     user.uuid = auth.uid
     user.provider = auth.provider
-    user.profile_image = auth.info.image
+    user.profile_image = auth.info.image.gsub(/^http:/, 'https:')
     user.token = token
     user.url = auth.url
     user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
