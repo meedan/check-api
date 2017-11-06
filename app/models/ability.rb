@@ -70,7 +70,7 @@ class Ability
     end
     can :destroy, Source, :team_id => @context_team.id
     can :destroy, [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
-    %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
+    %w(annotation comment flag status tag embed dynamic task source_identity).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
       end
@@ -150,7 +150,7 @@ class Ability
 
   def contributor_perms
     can :update, User, :id => @user.id
-    can :create, [Media, Embed, Link, Claim]
+    can :create, [Media, Embed, Link, Claim, SourceIdentity]
     %w(comment dynamic).each do |annotation_type|
       can :create, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         ((obj.get_team & @user.cached_teams).any? || (obj.annotated.present? && obj.annotated.user_id.to_i == @user.id)) && !obj.annotated_is_archived?
@@ -160,7 +160,7 @@ class Ability
     can :update, [Media, Link, Claim] do |obj|
       obj.get_team.include?(@context_team.id) and (obj.user_id == @user.id)
     end
-    can :update, Embed
+    can :update, [Embed, SourceIdentity]
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}, source: { user_id: @user.id }
     can [:create, :update], TeamSource, team: { team_users: { team_id: @context_team.id }}, source: { user_id: @user.id }
     can [:create, :update], Source do |obj|

@@ -210,6 +210,32 @@ module SampleData
     em
   end
 
+  def create_source_identity(options = {})
+    user = options[:user] || create_user
+    options = { name: random_string(10), bio: random_string(50), annotator: user }.merge(options)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      options[:annotated] = create_team_source team: t
+    end
+    si = SourceIdentity.new
+    options.each do |key, value|
+      si.send("#{key}=", value) if si.respond_to?("#{key}=")
+    end
+
+    file = nil
+    if options.has_key?(:file)
+      file = options[:file]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        si.file = f
+      end
+    end
+
+    si.save!
+    si
+  end
+
   def create_annotation(options = {})
     if options.has_key?(:annotation_type) && options[:annotation_type].blank?
       Annotation.create!(options)
