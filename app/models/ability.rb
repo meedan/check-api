@@ -64,6 +64,7 @@ class Ability
       obj.get_team.include?(@context_team.id)
     end
     can :destroy, ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
+    can :destroy, TeamSource, team: { team_users: { team_id: @context_team.id }}
     can :destroy, ProjectMedia do |obj|
       obj.related_to_team?(@context_team)
     end
@@ -128,6 +129,7 @@ class Ability
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], TeamSource, team: { team_users: { team_id: @context_team.id }}
     can [:create, :update], Source, :team_id => @context_team.id
     can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
@@ -160,6 +162,7 @@ class Ability
     end
     can :update, Embed
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}, source: { user_id: @user.id }
+    can [:create, :update], TeamSource, team: { team_users: { team_id: @context_team.id }}, source: { user_id: @user.id }
     can [:create, :update], Source do |obj|
       obj.team_id == @context_team.id && obj.user_id == @user.id
     end

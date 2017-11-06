@@ -403,6 +403,18 @@ module SampleData
     cs.reload
   end
 
+  def create_team_source(options = {})
+    u = options[:user] || create_user
+    ts = TeamSource.new
+    options[:team] = create_team unless options.has_key?(:team)
+    options[:source] = create_source unless options.has_key?(:source)
+    options.each do |key, value|
+      ts.send("#{key}=", value) if ts.respond_to?("#{key}=")
+    end
+    ts.save!
+    ts.reload
+  end
+
   def create_project_source(options = {})
     u = options[:user] || create_user
     options = { disable_es_callbacks: true, user: u }.merge(options)

@@ -83,7 +83,7 @@ module AnnotationBase
     serialize :entities, Array
 
     def self.annotated_types
-      ['ProjectSource', 'ProjectMedia', 'Source']
+      ['TeamSource', 'ProjectSource', 'ProjectMedia', 'Source']
     end
     validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
 
