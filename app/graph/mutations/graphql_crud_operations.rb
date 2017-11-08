@@ -18,6 +18,12 @@ class GraphqlCrudOperations
       end
     end
 
+    ret.merge(GraphqlCrudOperations.define_conditional_returns(obj))
+  end
+
+  def self.define_conditional_returns(obj)
+    ret = {}
+    
     if obj.is_a?(Team) && User.current.present?
       ret["team_userEdge".to_sym] = GraphQL::Relay::Edge.between(obj.reload.team_user, User.current.reload)
       ret[:user] = User.current
@@ -80,16 +86,7 @@ class GraphqlCrudOperations
 
   def self.define_create_or_update(action, type, fields, parents = [])
     GraphQL::Relay::Mutation.define do
-      mapping = {
-        'str'  => types.String,
-        '!str' => !types.String,
-        'int'  => types.Int,
-        '!int' => !types.Int,
-        'id'   => types.ID,
-        '!id'  => !types.ID,
-        'bool' => types.Boolean,
-        'json' => JsonStringType
-      }
+      mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }
 
       name "#{action.camelize}#{type.camelize}"
 
