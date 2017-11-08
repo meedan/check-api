@@ -1111,4 +1111,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
+
+  test "should create team and return user and team_userEdge" do
+    authenticate_with_user
+    query = 'mutation create { createTeam(input: { clientMutationId: "1", name: "Test", slug: "' + random_string + '") { user { id }, team_userEdge } }'
+    post :create, query: query
+    assert_response :success
+  end
 end
