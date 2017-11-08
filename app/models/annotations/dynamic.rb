@@ -2,11 +2,12 @@ class Dynamic < ActiveRecord::Base
   include AnnotationBase
   include NotifyEmbedSystem
 
-  attr_accessor :set_fields
+  attr_accessor :set_fields, :set_attribution
 
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
 
+  before_validation :update_attribution
   after_save :add_update_elasticsearch_dynamic_annotation
   after_create :create_fields, :send_slack_notification
   after_update :update_fields, :send_slack_notification
@@ -162,5 +163,17 @@ class Dynamic < ActiveRecord::Base
 
   def set_annotator
     self.annotator = User.current if !User.current.nil? && (self.annotator.nil? || self.annotation_type_object.singleton)
+  end
+
+  def update_attribution
+    if self.annotation_type =~ /^task_response/
+      if self.set_attribution.blank?
+        user_ids = self.attribution.to_s.split(',')
+        user_ids << User.current.id unless User.current.nil?
+        self.attribution = user_ids.uniq.join(',')
+      else
+        self.attribution = self.set_attribution
+      end
+    end
   end
 end
