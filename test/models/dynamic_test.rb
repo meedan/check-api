@@ -262,4 +262,8 @@ class DynamicTest < ActiveSupport::TestCase
     assert_kind_of DynamicAnnotation::Field, a.get_field('test')
     assert_nil a.get_field('test2')
   end
+
+  test "should set attribution" do
+    test_task_response_attribution
+  end
 end

@@ -149,6 +149,64 @@ class ActiveSupport::TestCase
     sign_in user
   end
 
+  def test_task_response_attribution
+    u1 = create_user name: 'User 1'
+    u2 = create_user name: 'User 2'
+    u3 = create_user name: 'User 3'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u3, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
+    fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
+    tk = create_task annotated: pm
+    tk.disable_es_callbacks = true
+    tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Test', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.save!
+
+    a = Dynamic.where(annotation_type: 'task_response_free_text').last
+
+    assert_equal '', a.attribution
+
+    with_current_user_and_team(u1, t) do
+      a = Dynamic.find(a.id)
+      a.set_fields = { response_task: 'Test 1', task_reference: tk.id.to_s }.to_json
+      a.save!
+      assert_equal [u1.id].join(','), a.reload.attribution
+    end
+
+    with_current_user_and_team(u2, t) do
+      a = Dynamic.find(a.id)
+      a.set_fields = { response_task: 'Test 2', task_reference: tk.id.to_s }.to_json
+      a.save!
+      assert_equal [u1.id, u2.id].join(','), a.reload.attribution
+    end
+
+    with_current_user_and_team(u2, t) do
+      a = Dynamic.find(a.id)
+      a.set_attribution = u1.id.to_s
+      a.set_fields = { response_task: 'Test 3', task_reference: tk.id.to_s }.to_json
+      a.save!
+      assert_equal [u1.id].join(','), a.reload.attribution
+    end
+
+    with_current_user_and_team(u3, t) do
+      a = Dynamic.find(a.id)
+      a.set_fields = { response_task: 'Test 4', task_reference: tk.id.to_s }.to_json
+      a.save!
+      assert_equal [u1.id, u3.id].join(','), a.reload.attribution
+    end
+
+    [t, p, pm]
+  end
+
   # CRUD helpers for GraphQL types
 
   def assert_graphql_create(type, request_params = {}, response_fields = ['id'])
