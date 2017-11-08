@@ -1123,4 +1123,11 @@ class GraphqlControllerTest < ActionController::TestCase
     users = data['tasks']['edges'][0]['node']['first_response']['attribution']['edges'].collect{ |u| u['node']['name'] }
     assert_equal ['User 1', 'User 3'].sort, users.sort
   end
+
+  test "should create team and return user and team_userEdge" do
+    authenticate_with_user
+    query = 'mutation create { createTeam(input: { clientMutationId: "1", name: "Test", slug: "' + random_string + '") { user { id }, team_userEdge } }'
+    post :create, query: query
+    assert_response :success
+  end
 end
