@@ -1113,7 +1113,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read attribution" do
-    t, p, pm = test_task_response_attribution
+    t, p, pm = assert_task_response_attribution
     u = create_user is_admin: true
     authenticate_with_user(u)
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { attribution { edges { node { name } } } } } } } } }"

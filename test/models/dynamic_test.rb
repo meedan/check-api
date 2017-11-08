@@ -264,6 +264,6 @@ class DynamicTest < ActiveSupport::TestCase
   end
 
   test "should set attribution" do
-    test_task_response_attribution
+    assert_task_response_attribution
   end
 end

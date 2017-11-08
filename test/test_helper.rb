@@ -149,7 +149,7 @@ class ActiveSupport::TestCase
     sign_in user
   end
 
-  def test_task_response_attribution
+  def assert_task_response_attribution
     u1 = create_user name: 'User 1'
     u2 = create_user name: 'User 2'
     u3 = create_user name: 'User 3'
