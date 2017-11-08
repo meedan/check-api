@@ -18,6 +18,17 @@ class GraphqlCrudOperations
       end
     end
 
+    ret.merge(GraphqlCrudOperations.define_conditional_returns(obj))
+  end
+
+  def self.define_conditional_returns(obj)
+    ret = {}
+    
+    if obj.is_a?(Team) && User.current.present?
+      ret["team_userEdge".to_sym] = GraphQL::Relay::Edge.between(obj.reload.team_user, User.current.reload)
+      ret[:user] = User.current
+    end
+
     ret[:affectedIds] = obj.affected_ids if obj.respond_to?(:affected_ids)
     ret[:affectedId] = obj.graphql_id if obj.is_a?(ProjectMedia)
 
@@ -75,16 +86,7 @@ class GraphqlCrudOperations
 
   def self.define_create_or_update(action, type, fields, parents = [])
     GraphQL::Relay::Mutation.define do
-      mapping = {
-        'str'  => types.String,
-        '!str' => !types.String,
-        'int'  => types.Int,
-        '!int' => !types.Int,
-        'id'   => types.ID,
-        '!id'  => !types.ID,
-        'bool' => types.Boolean,
-        'json' => JsonStringType
-      }
+      mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }
 
       name "#{action.camelize}#{type.camelize}"
 
@@ -97,6 +99,11 @@ class GraphqlCrudOperations
 
       return_field(:affectedIds, types[types.ID]) if type.to_s == 'team'
       return_field(:affectedId, types.ID) if type.to_s == 'project_media'
+
+      if type.to_s == 'team'
+        return_field(:team_userEdge, TeamUserType.edge_type)
+        return_field(:user, UserType)
+      end
 
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
@@ -136,7 +143,7 @@ class GraphqlCrudOperations
   def self.define_default_type(&block)
     GraphQL::ObjectType.define do
       global_id_field :id
-      
+
       field :permissions, types.String do
         resolve -> (obj, _args, ctx) {
           obj.permissions(ctx[:ability])
