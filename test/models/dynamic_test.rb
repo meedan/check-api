@@ -266,4 +266,36 @@ class DynamicTest < ActiveSupport::TestCase
   test "should set attribution" do
     assert_task_response_attribution
   end
+
+  test "should not assign to attribution users that are not in the team" do
+    u1 = create_user
+    u2 = create_user
+    u3 = create_user
+    u4 = create_user
+    u5 = create_user is_admin: true
+    t = create_team
+    create_team_user team: t, user: u1
+    create_team_user team: t, user: u2
+    create_team_user team: t, user: u3, status: 'requested'
+    p = create_project team: t
+    pm = create_project_media project: p
+    at = create_annotation_type annotation_type: 'task_response_foo_bar'
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'task_response_foo_bar'
+    assert_nothing_raised do
+      d.set_attribution = [u1.id, u2.id].join(',')
+      d.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      d.set_attribution = [u1.id, u2.id, u3.id].join(',')
+      d.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      d.set_attribution = [u1.id, u2.id, u4.id].join(',')
+      d.save!
+    end
+    assert_nothing_raised do
+      d.set_attribution = [u1.id, u5.id].join(',')
+      d.save!
+    end
+  end
 end
