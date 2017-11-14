@@ -114,28 +114,79 @@ class Bot::Slack < ActiveRecord::Base
     t
   end
 
-  Comment.class_eval do
-    after_create :send_slack_message_in_thread
+  module SlackMessage
+    def self.included(base)
+      base.send :extend, ClassMethods
+    end
 
-    def self.send_slack_message_in_thread(cid)
-      comment = Comment.find(cid)
-      comment.annotated.get_annotations('slack_message').each do |annotation|
-        id = annotation.load.get_field_value('slack_message_id')
-        channel = annotation.load.get_field_value('slack_message_channel')
-        query = {
-          thread_ts: id,
-          channel: channel,
-          text: 'Comment by ' + comment.annotator.name + ': ' + comment.text, # Not localized yet because Check Slack Bot is only in English for now
-          token: CONFIG['slack_token']
-        }
-        Net::HTTP.get_response(URI('https://slack.com/api/chat.postMessage?' + URI.encode_www_form(query)))
+    module ClassMethods
+      def create_or_update_slack_message(options = {})
+        send("after_#{options[:on]}", "call_slack_api_#{options[:endpoint]}") 
+      end
+
+      def call_slack_api(id, endpoint)
+        obj = self.find(id)
+        obj.annotated.get_annotations('slack_message').each do |annotation|
+          id = annotation.load.get_field_value('slack_message_id')
+          channel = annotation.load.get_field_value('slack_message_channel')
+          attachments = annotation.load.get_field_value('slack_message_attachments')
+          query = obj.slack_message_parameters(id, channel, attachments)
+          Net::HTTP.get_response(URI("https://slack.com/api/chat.#{endpoint}?" + URI.encode_www_form(query.merge({ channel: channel, token: CONFIG['slack_token'] }))))
+        end
       end
     end
 
-    private
+    def call_slack_api_post_message
+      call_slack_api('postMessage')
+    end
 
-    def send_slack_message_in_thread
-      Comment.delay_for(1.second, retry: 0).send_slack_message_in_thread(self.id) unless CONFIG['slack_token'].blank?
+    def call_slack_api_update
+      call_slack_api('update')
+    end
+
+    def call_slack_api(endpoint)
+      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, endpoint) unless CONFIG['slack_token'].blank?
+    end
+  end
+
+  Comment.class_eval do
+    include ::Bot::Slack::SlackMessage
+
+    create_or_update_slack_message on: :create, endpoint: :post_message
+    
+    def slack_message_parameters(id, _channel, _attachments)
+      # Not localized yet because Check Slack Bot is only in English for now
+      { thread_ts: id, text: 'Comment by ' + self.annotator.name + ': ' + self.text }
+    end
+  end
+
+  Status.class_eval do
+    include ::Bot::Slack::SlackMessage
+    
+    create_or_update_slack_message on: :update, endpoint: :update
+
+    def slack_message_parameters(id, _channel, attachments)
+      pm = self.annotated
+
+      label = ''
+      I18n.with_locale(:en) do
+        statuses = pm.project.team.get_media_verification_statuses || Status.core_verification_statuses('media')
+        statuses = statuses.with_indifferent_access['statuses']
+        statuses.each { |status| label = status['label'] if status['id'] == pm.last_status }
+      end
+
+      json = JSON.parse(attachments)
+      json[0]['title'] = "#{label.upcase}: #{pm.title}"
+      json[0]['color'] = pm.last_status_color
+      json[0]['fields'][0]['value'] = pm.get_versions_log_count
+      json[0]['fields'][1]['value'] = "#{pm.completed_tasks_count}/#{pm.all_tasks.size}"
+      json[0]['fields'][3]['value'] = "<!date^#{pm.updated_at.to_i}^{date} {time}|#{pm.updated_at.to_i}>"
+      json[0]['fields'][4]['value'] = pm.project.title
+
+      tags = pm.get_annotations('tag').map(&:tag)
+      json[0]['fields'][5] = { title: 'Tags', value: tags.join(', '), short: true } if tags.size > 0
+      
+      { ts: id, attachments: json.to_json }
     end
   end
 end
