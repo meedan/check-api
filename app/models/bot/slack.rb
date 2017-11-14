@@ -145,7 +145,7 @@ class Bot::Slack < ActiveRecord::Base
     end
 
     def call_slack_api(endpoint)
-      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, endpoint) unless CONFIG['slack_token'].blank?
+      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, endpoint) if !CONFIG['slack_token'].blank? && self.client_mutation_id != 'from_slack'
     end
   end
 

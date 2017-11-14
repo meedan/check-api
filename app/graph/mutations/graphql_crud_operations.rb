@@ -1,7 +1,9 @@
 class GraphqlCrudOperations
   def self.safe_save(obj, attrs, parents = [])
     attrs.each do |key, value|
-      obj.send("#{key}=", value)
+      method = key == 'clientMutationId' ? 'client_mutation_id' : key
+      method = "#{method}="
+      obj.send(method, value) if obj.respond_to?(method)
     end
     obj.disable_es_callbacks = Rails.env.to_s == 'test'
     obj.save!
@@ -42,7 +44,7 @@ class GraphqlCrudOperations
     obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
-      memo[key] = inputs[key] unless key == "clientMutationId"
+      memo[key] = inputs[key]
       memo
     end
 
@@ -55,7 +57,7 @@ class GraphqlCrudOperations
     obj = obj.load if obj.is_a?(Annotation)
 
     attrs = inputs.keys.inject({}) do |memo, key|
-      memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
+      memo[key] = inputs[key] unless key == 'id'
       memo
     end
 
