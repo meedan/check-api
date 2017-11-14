@@ -55,6 +55,7 @@ development: &default
   cc_deville_httpauth:
   google_analytics_code: # Format: 'UA-000000000-1' 
   optics_api_key: '' # Get one at https://optics.apollodata.com
+  slack_token:
 
 test:
   <<: *default

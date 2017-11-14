@@ -114,4 +114,28 @@ class Bot::Slack < ActiveRecord::Base
     t
   end
 
+  Comment.class_eval do
+    after_create :send_slack_message_in_thread
+
+    def self.send_slack_message_in_thread(cid)
+      comment = Comment.find(cid)
+      comment.annotated.get_annotations('slack_message').each do |annotation|
+        id = annotation.load.get_field_value('slack_message_id')
+        channel = annotation.load.get_field_value('slack_message_channel')
+        query = {
+          thread_ts: id,
+          channel: channel,
+          text: 'Comment by ' + comment.annotator.name + ': ' + comment.text, # Not localized yet because Check Slack Bot is only in English for now
+          token: CONFIG['slack_token']
+        }
+        Net::HTTP.get_response(URI('https://slack.com/api/chat.postMessage?' + URI.encode_www_form(query)))
+      end
+    end
+
+    private
+
+    def send_slack_message_in_thread
+      Comment.delay_for(1.second, retry: 0).send_slack_message_in_thread(self.id) unless CONFIG['slack_token'].blank?
+    end
+  end
 end
