@@ -92,9 +92,7 @@ class GraphqlCrudOperations
 
       name "#{action.camelize}#{type.camelize}"
 
-      fields.each do |field_name, field_type|
-        input_field field_name, mapping[field_type]
-      end
+      fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
@@ -113,9 +111,7 @@ class GraphqlCrudOperations
         return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
-      resolve -> (_root, inputs, ctx) {
-        GraphqlCrudOperations.send(action, type, inputs, ctx, parents)
-      }
+      resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.send(action, type, inputs, ctx, parents) }
     end
   end
 
@@ -131,9 +127,7 @@ class GraphqlCrudOperations
         return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
-      resolve -> (_root, inputs, ctx) {
-        GraphqlCrudOperations.destroy(inputs, ctx, parents)
-      }
+      resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.destroy(inputs, ctx, parents) }
     end
   end
 
@@ -186,9 +180,7 @@ class GraphqlCrudOperations
       field :published do
         type types.String
 
-        resolve ->(obj, _args, _ctx) {
-          obj.created_at.to_i.to_s
-        }
+        resolve ->(obj, _args, _ctx) { obj.created_at.to_i.to_s }
       end
     end
   end
@@ -198,9 +190,7 @@ class GraphqlCrudOperations
       connection :annotations, -> { AnnotationType.connection_type } do
         argument :annotation_type, !types.String
 
-        resolve ->(obj, args, _ctx) {
-          obj.get_annotations(args['annotation_type'].split(',').map(&:strip))
-        }
+        resolve ->(obj, args, _ctx) { obj.get_annotations(args['annotation_type'].split(',').map(&:strip)) }
       end
     end
   end
