@@ -140,6 +140,23 @@ class Source < ActiveRecord::Base
     s
   end
 
+  def find_duplicate_sources
+    # This method for migration
+    d = Source.where.not(id: self.id).where('lower(name) =  ?', self.name.downcase).map(&:id)
+    d.concat AccountSource.where.not(source_id: self.id).where(account: self.accounts).map(&:source_id)
+    d.uniq
+  end
+
+  def create_source_identity
+    si = SourceIdentity.new
+    si.name = self.name
+    si.bio = self.slogan
+    # si.file = self.avatar
+    si.annotated = self
+    si.skip_check_ability = true
+    si.save!
+  end
+
   private
 
   def set_user
@@ -148,14 +165,6 @@ class Source < ActiveRecord::Base
 
   def set_team
     self.team = Team.current unless Team.current.nil?
-  end
-
-  def create_source_identity
-    si = SourceIdentity.new
-    si.name = self.name
-    si.bio = self.slogan
-    si.annotated = self
-    si.save!
   end
 
   def get_project_sources
