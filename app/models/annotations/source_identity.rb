@@ -6,7 +6,7 @@ class SourceIdentity < ActiveRecord::Base
   field :bio
 
   validates_presence_of :name
-  validate :source_is_unique
+  validate :source_is_unique, on: :create
   
   def content
     { 

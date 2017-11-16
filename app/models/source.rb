@@ -19,7 +19,7 @@ class Source < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
-  validates :name, uniqueness: { case_sensitive: false }
+  validates :name, uniqueness: { case_sensitive: false }, on: :create
   validate :team_is_not_archived
 
   after_create :create_source_identity
@@ -138,13 +138,6 @@ class Source < ActiveRecord::Base
     # Add team source
     TeamSource.find_or_create_by(team_id: Team.current.id, source_id: s.id) unless Team.current.nil?
     s
-  end
-
-  def find_duplicate_sources
-    # This method for migration
-    d = Source.where.not(id: self.id).where('lower(name) =  ?', self.name.downcase).map(&:id)
-    d.concat AccountSource.where.not(source_id: self.id).where(account: self.accounts).map(&:source_id)
-    d.uniq
   end
 
   def create_source_identity
