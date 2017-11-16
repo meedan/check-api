@@ -115,6 +115,15 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [u1, u2].sort, t.users.sort
   end
 
+  test "should have team_user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t
+    with_current_user_and_team(u, t) do
+      assert_equal tu, t.team_user
+    end
+  end
+
   test "should have team users" do
     t = create_team
     u1 = create_user

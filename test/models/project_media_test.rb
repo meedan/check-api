@@ -1268,4 +1268,40 @@ class ProjectMediaTest < ActiveSupport::TestCase
       embed.title_is_overridden?
     end
   end
+
+  test "should return custom status HTML and color for embed" do
+    t = create_team
+    value = {
+      label: 'Status',
+      default: 'stop',
+      statuses: [
+        { id: 'stop', label: 'Stopped', description: 'Not started yet', style: { backgroundColor: '#a00' } },
+        { id: 'done', label: 'Done!', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal '<span id="oembed__status">Stopped</span>', pm.last_status_html
+    assert_equal '#a00', pm.last_status_color
+    s = pm.annotations.where(annotation_type: 'status').last.load
+    s.status = 'done'
+    s.save!
+    assert_equal '<span id="oembed__status">Done!</span>', pm.last_status_html
+    assert_equal '#fc3', pm.last_status_color
+  end
+
+  test "should return core status HTML and color for embed" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal '<span id="oembed__status" class="l">status_undetermined</span>', pm.last_status_html
+    assert_equal '#518FFF', pm.last_status_color
+    s = pm.annotations.where(annotation_type: 'status').last.load
+    s.status = 'in_progress'
+    s.save!
+    assert_equal '<span id="oembed__status" class="l">status_in_progress</span>', pm.last_status_html
+    assert_equal '#ffbb5d', pm.last_status_color
+  end
 end
