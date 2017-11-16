@@ -1,7 +1,9 @@
 class GraphqlCrudOperations
   def self.safe_save(obj, attrs, parents = [])
     attrs.each do |key, value|
-      obj.send("#{key}=", value)
+      method = key == 'clientMutationId' ? 'client_mutation_id' : key
+      method = "#{method}="
+      obj.send(method, value) if obj.respond_to?(method)
     end
     obj.disable_es_callbacks = Rails.env.to_s == 'test'
     obj.save!
@@ -18,6 +20,17 @@ class GraphqlCrudOperations
       end
     end
 
+    ret.merge(GraphqlCrudOperations.define_conditional_returns(obj))
+  end
+
+  def self.define_conditional_returns(obj)
+    ret = {}
+    
+    if obj.is_a?(Team) && User.current.present?
+      ret["team_userEdge".to_sym] = GraphQL::Relay::Edge.between(obj.reload.team_user, User.current.reload)
+      ret[:user] = User.current
+    end
+
     ret[:affectedIds] = obj.affected_ids if obj.respond_to?(:affected_ids)
     ret[:affectedId] = obj.graphql_id if obj.is_a?(ProjectMedia)
 
@@ -31,7 +44,7 @@ class GraphqlCrudOperations
     obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
-      memo[key] = inputs[key] unless key == "clientMutationId"
+      memo[key] = inputs[key]
       memo
     end
 
@@ -44,7 +57,7 @@ class GraphqlCrudOperations
     obj = obj.load if obj.is_a?(Annotation)
 
     attrs = inputs.keys.inject({}) do |memo, key|
-      memo[key] = inputs[key] unless key == "clientMutationId" || key == 'id'
+      memo[key] = inputs[key] unless key == 'id'
       memo
     end
 
@@ -75,22 +88,11 @@ class GraphqlCrudOperations
 
   def self.define_create_or_update(action, type, fields, parents = [])
     GraphQL::Relay::Mutation.define do
-      mapping = {
-        'str'  => types.String,
-        '!str' => !types.String,
-        'int'  => types.Int,
-        '!int' => !types.Int,
-        'id'   => types.ID,
-        '!id'  => !types.ID,
-        'bool' => types.Boolean,
-        'json' => JsonStringType
-      }
+      mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }
 
       name "#{action.camelize}#{type.camelize}"
 
-      fields.each do |field_name, field_type|
-        input_field field_name, mapping[field_type]
-      end
+      fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
@@ -98,15 +100,18 @@ class GraphqlCrudOperations
       return_field(:affectedIds, types[types.ID]) if type.to_s == 'team'
       return_field(:affectedId, types.ID) if type.to_s == 'project_media'
 
+      if type.to_s == 'team'
+        return_field(:team_userEdge, TeamUserType.edge_type)
+        return_field(:user, UserType)
+      end
+
       parents.each do |parent|
         return_field "#{type}Edge".to_sym, klass.edge_type
         parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
         return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
-      resolve -> (_root, inputs, ctx) {
-        GraphqlCrudOperations.send(action, type, inputs, ctx, parents)
-      }
+      resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.send(action, type, inputs, ctx, parents) }
     end
   end
 
@@ -122,9 +127,7 @@ class GraphqlCrudOperations
         return_field parent.to_sym, "#{parentclass}Type".constantize
       end
 
-      resolve -> (_root, inputs, ctx) {
-        GraphqlCrudOperations.destroy(inputs, ctx, parents)
-      }
+      resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.destroy(inputs, ctx, parents) }
     end
   end
 
@@ -136,7 +139,7 @@ class GraphqlCrudOperations
   def self.define_default_type(&block)
     GraphQL::ObjectType.define do
       global_id_field :id
-      
+
       field :permissions, types.String do
         resolve -> (obj, _args, ctx) {
           obj.permissions(ctx[:ability])
@@ -177,9 +180,7 @@ class GraphqlCrudOperations
       field :published do
         type types.String
 
-        resolve ->(obj, _args, _ctx) {
-          obj.created_at.to_i.to_s
-        }
+        resolve ->(obj, _args, _ctx) { obj.created_at.to_i.to_s }
       end
     end
   end
@@ -189,9 +190,7 @@ class GraphqlCrudOperations
       connection :annotations, -> { AnnotationType.connection_type } do
         argument :annotation_type, !types.String
 
-        resolve ->(obj, args, _ctx) {
-          obj.get_annotations(args['annotation_type'].split(',').map(&:strip))
-        }
+        resolve ->(obj, args, _ctx) { obj.get_annotations(args['annotation_type'].split(',').map(&:strip)) }
       end
     end
   end

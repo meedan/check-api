@@ -2,11 +2,12 @@ class Dynamic < ActiveRecord::Base
   include AnnotationBase
   include NotifyEmbedSystem
 
-  attr_accessor :set_fields
+  attr_accessor :set_fields, :set_attribution
 
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
 
+  before_validation :update_attribution
   after_save :add_update_elasticsearch_dynamic_annotation
   after_create :create_fields, :send_slack_notification
   after_update :update_fields, :send_slack_notification
@@ -14,6 +15,7 @@ class Dynamic < ActiveRecord::Base
 
   validate :annotation_type_exists
   validate :mandatory_fields_are_set, on: :create
+  validate :attribution_contains_only_team_members
 
   def slack_notification_message
     if !self.set_fields.blank? && self.annotation_type =~ /^task_response/
@@ -162,5 +164,29 @@ class Dynamic < ActiveRecord::Base
 
   def set_annotator
     self.annotator = User.current if !User.current.nil? && (self.annotator.nil? || self.annotation_type_object.singleton)
+  end
+
+  def update_attribution
+    if self.annotation_type =~ /^task_response/
+      if self.set_attribution.blank?
+        user_ids = self.attribution.to_s.split(',')
+        user_ids << User.current.id unless User.current.nil?
+        self.attribution = user_ids.uniq.join(',')
+      else
+        self.attribution = self.set_attribution
+      end
+    end
+  end
+
+  def attribution_contains_only_team_members
+    unless self.set_attribution.blank?
+      team_id = self.annotated.project.team_id
+      members_ids = TeamUser.where(team_id: team_id, status: 'member').map(&:user_id).map(&:to_i)
+      invalid = []
+      self.set_attribution.split(',').each do |uid|
+        invalid << uid if !members_ids.include?(uid.to_i) && User.where(id: uid.to_i, is_admin: true).last.nil?
+      end
+      errors.add(:base, I18n.t(:error_invalid_attribution)) unless invalid.empty?
+    end
   end
 end
