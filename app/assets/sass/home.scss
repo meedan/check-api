@@ -1,40 +1,19 @@
 $font-stack-sans: "Roboto", -apple-system, BlinkMacSystemFont, "Corbel", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Verdana, "Verdana Ref", sans-serif;
-$font-stack-sans-condensed: "Roboto Condensed", $font-stack-sans;
-$font-stack-serif: "Merriweather", Georgia, serif;
-
-@import 'colors';
+@import 'shared';
 @import 'buttons';
 @import 'login-email';
-
-@mixin onboarding-heading {
-  margin: 25px 0 20px 0;
-  font-size: 34px;
-  font-family: $font-stack-sans-condensed;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.035em;
-  color: hsl(206, 98%, 62%);
-  text-align: center;
-}
-
-@mixin onboarding-blurb {
-  font-size: 17px;
-  color: $dark-gray-text;
-  font-family: $font-stack-serif;
-  margin-bottom: 30px;
-  line-height: 1.45;
-}
 
 .login-menu {
   text-align: center;
   position: relative;
   padding: 45px 0 0 0;
+
   p {
-    color: $firefly-60;
+    color: $black-54;
   }
 
   a {
-    color: $firefly-60;
+    color: $black-54;
   }
 }
 
@@ -44,18 +23,19 @@ $font-stack-serif: "Merriweather", Georgia, serif;
 }
 
 .login-menu__heading {
-  @include onboarding-heading;
+  margin: 25px 0 20px 0;
+  font-size: 34px;
+  font-family: $font-stack-sans;
+  font-weight: 900;
+  letter-spacing: 0.035em;
+  color: $check-blue;
+  text-align: center;
 }
 
 .login-menu__content {
   position: relative;
   max-width: 500px;
   margin: 4em auto;
-}
-
-.login-menu__blurb {
-  @include onboarding-blurb;
-  margin-bottom: 15px;
 }
 
 .login-menu__options {
@@ -72,41 +52,59 @@ $font-stack-serif: "Merriweather", Georgia, serif;
 
 .login-menu__button {
   transition: background-color 400ms ease;
-  &:hover { transition: background-color 80ms ease; }
+
+  &:hover {
+    transition: background-color 80ms ease;
+  }
 }
 
 .login-menu__button--twitter {
-  background-color: #0095FF;
-  &:hover { background-color: darken(saturate(#0095FF, 10%), 10%); }
+  background-color: $twitter-blue;
+
+  &:hover {
+    background-color: darken(saturate($twitter-blue, 10%), 10%);
+  }
 }
 
 .login-menu__button--facebook {
-  background-color: #3B5999;
-  &:hover { background-color: darken(saturate(#3B5999, 10%), 10%); }
+  background-color: $facebook-blue;
+
+  &:hover {
+    background-color: darken(saturate($facebook-blue, 10%), 10%);
+  }
 }
 
 .login-menu__button--google {
-  background-color: #DB4437;
-  &:hover { background-color: darken(saturate(#DB4437, 10%), 10%); }
+  background-color: $google-red;
+
+  &:hover {
+    background-color: darken(saturate($google-red, 10%), 10%);
+  }
 }
 
 .login-menu__button--slack {
-  background-color: #2AB27B;
-  &:hover { background-color: darken(saturate(#2AB27B, 10%), 10%); }
+  background-color: $slack-green;
+
+  &:hover {
+    background-color: darken(saturate($slack-green, 10%), 10%);
+  }
 }
 
 .login-email__link {
   @include button-medium;
   @extend .login-menu__button;
-  color: white!important;
-  background-color: $firefly-40;
+  color: white !important;
+  background-color: $black-54;
   text-align: center;
   text-decoration: none;
-  &:hover { background-color: $firefly-80; }
+
+  &:hover {
+    background-color: $black-87;
+  }
 }
 
 p.other-method {
-  border-top: 1px solid $firefly-20;
+  border-top: 1px solid $black-16;
   padding: 32px 16px 16px;
 }
 

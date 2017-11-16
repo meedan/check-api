@@ -148,6 +148,29 @@ module ProjectMediaEmbed
   def clear_caches
     ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id) if CONFIG['app_name'] == 'Check'
   end
+
+  def last_status_html
+    custom_statuses = self.project.team.get_media_verification_statuses
+    if custom_statuses.nil?
+      "<span id=\"oembed__status\" class=\"l\">status_#{self.last_status}</span>".html_safe
+    else
+      label = self.last_status.titleize
+      custom_statuses.with_indifferent_access['statuses'].each do |custom_status|
+        label = custom_status['label'] if custom_status['id'] == self.last_status
+      end
+      "<span id=\"oembed__status\">#{label}</span>".html_safe
+    end
+  end
+
+  def last_status_color
+    statuses = self.project.team.get_media_verification_statuses || Status.core_verification_statuses('media')
+    statuses = statuses.with_indifferent_access['statuses']
+    color = nil
+    statuses.each do |status|
+      color = status['style']['backgroundColor'] if status['id'] == self.last_status
+    end
+    color
+  end
   
   module ClassMethods
     def clear_caches(pmid)

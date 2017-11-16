@@ -108,6 +108,10 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_channel, channel)
   end
 
+  def team_user
+    self.team_users.where(user_id: User.current.id).last unless User.current.nil?
+  end
+
   def checklist=(checklist)
     checklist = get_values_from_entry(checklist)
     checklist.each_with_index do |c, index|

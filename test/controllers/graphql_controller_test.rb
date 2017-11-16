@@ -1111,4 +1111,23 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
+
+  test "should read attribution" do
+    t, p, pm = assert_task_response_attribution
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { attribution { edges { node { name } } } } } } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    users = data['tasks']['edges'][0]['node']['first_response']['attribution']['edges'].collect{ |u| u['node']['name'] }
+    assert_equal ['User 1', 'User 3'].sort, users.sort
+  end
+
+  test "should create team and return user and team_userEdge" do
+    authenticate_with_user
+    query = 'mutation create { createTeam(input: { clientMutationId: "1", name: "Test", slug: "' + random_string + '") { user { id }, team_userEdge } }'
+    post :create, query: query
+    assert_response :success
+  end
 end

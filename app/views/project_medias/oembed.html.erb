@@ -39,11 +39,10 @@
     </script>
   </head>
   <body>
-    <div id="oembed__container" class="oembed__status-<%= @project_media.last_status.to_s.gsub('_', '-') %>">
-
+    <div id="oembed__container" class="oembed__status-<%= @project_media.last_status.to_s.gsub('_', '-') %>" style="background-color: <%= @project_media.last_status_color %>;">
       <div id="oembed__top">
         <h1 id="oembed__title"><%= @project_media.title %></h1>
-        <span id="oembed__status" class="l">status_<%= @project_media.last_status %></span>
+        <%= @project_media.last_status_html %> 
       </div>
       <p id="oembed__disclaimer"><span class="l">disclaimer_<%= @project_media.last_status %></span></p>
 

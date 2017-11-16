@@ -6,4 +6,11 @@ AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { co
       annotation.annotated_type == 'ProjectMedia' ? annotation.annotated : nil
     }
   end
+
+  connection :attribution, -> { UserType.connection_type } do
+    resolve ->(annotation, _args, _ctx) {
+      ids = annotation.attribution.split(',').map(&:to_i)
+      User.where(id: ids)
+    }
+  end
 end
