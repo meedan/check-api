@@ -124,10 +124,12 @@ class Bot::Slack < ActiveRecord::Base
         send("after_#{options[:on]}", "call_slack_api_#{options[:endpoint]}") 
       end
 
-      def call_slack_api(id, endpoint)
+      def call_slack_api(id, mutation_id, endpoint)
         obj = self.find(id)
+        slack_message_id = mutation_id.to_s.match(/^fromSlackMessage:(.*)$/)
         obj.annotated.get_annotations('slack_message').each do |annotation|
           id = annotation.load.get_field_value('slack_message_id')
+          next if !slack_message_id.nil? && id == slack_message_id[1]
           channel = annotation.load.get_field_value('slack_message_channel')
           attachments = annotation.load.get_field_value('slack_message_attachments')
           query = obj.slack_message_parameters(id, channel, attachments)
@@ -145,7 +147,7 @@ class Bot::Slack < ActiveRecord::Base
     end
 
     def call_slack_api(endpoint)
-      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, endpoint) if !CONFIG['slack_token'].blank? && self.client_mutation_id != 'from_slack'
+      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless CONFIG['slack_token'].blank?
     end
   end
 
