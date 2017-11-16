@@ -60,7 +60,7 @@ class Account < ActiveRecord::Base
     source = self.source
 
     if source.nil? && Team.current.present?
-      self.source = self.sources.where(team_id: Team.current.id).last
+      self.source = self.sources.last
       return unless self.source.nil?
     end
 

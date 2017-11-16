@@ -19,8 +19,10 @@ class Source < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
-  validate :is_unique_per_team, on: :create
+  validates :name, uniqueness: { case_sensitive: false }
   validate :team_is_not_archived
+
+  after_create :create_source_identity
 
   after_update :update_elasticsearch_source
 
@@ -121,18 +123,21 @@ class Source < ActiveRecord::Base
     self.save!
   end
 
-  def self.create_source(name, team = Team.current)
-    s = Source.get_duplicate(name, team) unless team.nil?
-    return s unless s.nil?
-    s = Source.new
-    s.name = name
-    s.skip_check_ability = true
-    s.save!
-    s.reload
+  def self.get_duplicate_source(name)
+    si = Annotation.where(annotation_type: 'sourceidentity', annotated_type: 'Source').all.select {|a| a.name.downcase == name.downcase}
+    si.first.annotated unless si.blank?
   end
 
-  def self.get_duplicate(name, team)
-    Source.where('lower(name) = ? AND team_id = ?', name.downcase, team.id).last
+  def self.create_source(name)
+    s = self.get_duplicate_source(name)
+    if s.blank?
+      s = Source.new
+      s.name = name
+      s.save!
+    end
+    # Add team source
+    TeamSource.find_or_create_by(team_id: Team.current.id, source_id: s.id) unless Team.current.nil?
+    s
   end
 
   private
@@ -145,17 +150,18 @@ class Source < ActiveRecord::Base
     self.team = Team.current unless Team.current.nil?
   end
 
+  def create_source_identity
+    si = SourceIdentity.new
+    si.name = self.name
+    si.bio = self.slogan
+    si.annotated = self
+    si.save!
+  end
+
   def get_project_sources
     conditions = {}
     conditions[:project_id] = Team.current.projects unless Team.current.nil?
     self.project_sources.where(conditions)
-  end
-
-  def is_unique_per_team
-    unless self.team.nil? || self.name.blank?
-      s = Source.get_duplicate(self.name, self.team)
-      errors.add(:base, "This source already exists in this team and has id #{s.id}") unless s.nil?
-    end
   end
 
   def team_is_not_archived

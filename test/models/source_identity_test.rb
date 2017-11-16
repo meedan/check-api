@@ -19,6 +19,23 @@ class SourceIdentityTest < ActiveSupport::TestCase
     end
   end
 
+  test "should be unique" do
+    t = create_team
+    name = 'testing'
+    s = create_source team: t, name: name
+    assert_difference 'SourceIdentity.length' do
+      create_source_identity name: name, annotated: s
+    end
+    assert_no_difference 'SourceIdentity.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source_identity name: name, annotated: create_source
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source_identity name: name.upcase, annotated: create_source
+      end
+    end
+  end
+
   test "should create version when source identity is created" do
     u = create_user
     t = create_team
