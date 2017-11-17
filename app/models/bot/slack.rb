@@ -178,7 +178,7 @@ class Bot::Slack < ActiveRecord::Base
       end
 
       json = JSON.parse(attachments)
-      json[0]['title'] = "#{label.upcase}: #{pm.title}"
+      json[0]['title'] = "#{label.upcase}: #{pm.title.to_s.truncate(140)}"
       json[0]['color'] = pm.last_status_color
       json[0]['fields'][0]['value'] = pm.get_versions_log_count
       json[0]['fields'][1]['value'] = "#{pm.completed_tasks_count}/#{pm.all_tasks.size}"
