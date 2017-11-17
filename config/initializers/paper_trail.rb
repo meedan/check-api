@@ -134,7 +134,7 @@ module PaperTrail
         self.get_associated_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         self.get_associated_from_dynamic_annotation
-      when 'update_projectmedia', 'update_projectsource'
+      when 'update_projectmedia', 'update_teamsource'
         [self.item.class.name, self.item_id.to_i]
       when 'update_source'
         self.get_associated_from_source
@@ -145,7 +145,7 @@ module PaperTrail
 
     def get_associated_from_annotation(annotation)
       associated = [nil, nil]
-      if annotation && ['ProjectMedia', 'ProjectSource'].include?(annotation.annotated_type)
+      if annotation && ['ProjectMedia', 'TeamSource'].include?(annotation.annotated_type)
         associated = [annotation.annotated_type, annotation.annotated_id.to_i]
       end
       associated
@@ -158,8 +158,8 @@ module PaperTrail
 
     def get_associated_from_source
       s = self.item
-      ps = s.project_sources.last unless s.nil?
-      ps.nil? ? [nil, nil] : [ps.class.name, ps.id]
+      ts = s.get_team_source unless s.nil?
+      ts.nil? ? [nil, nil] : [ts.class.name, ts.id]
     end
 
     def set_project_association

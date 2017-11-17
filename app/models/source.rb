@@ -7,8 +7,10 @@ class Source < ActiveRecord::Base
   include ValidationsHelper
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
+  has_many :team_sources
   has_many :project_sources
   has_many :account_sources, dependent: :destroy
+  has_many :teams, through: :team_sources
   has_many :projects, through: :project_sources
   has_many :accounts, through: :account_sources
   belongs_to :user
@@ -67,11 +69,12 @@ class Source < ActiveRecord::Base
   end
 
   def get_annotations(type = nil)
+    ts = get_team_source
     conditions = {}
     conditions[:annotation_type] = type unless type.nil?
-    conditions[:annotated_type] = 'ProjectSource'
-    conditions[:annotated_id] = get_project_sources.map(&:id)
-    self.annotations(type) + Annotation.where(conditions)
+    conditions[:annotated_type] = 'TeamSource'
+    conditions[:annotated_id] = ts.id unless ts.nil?
+    Annotation.where(conditions)
   end
 
   def file_mandatory?
@@ -90,11 +93,12 @@ class Source < ActiveRecord::Base
   end
 
   def get_versions_log
-    PaperTrail::Version.where(associated_type: 'ProjectSource', associated_id: get_project_sources).order('created_at ASC')
+    PaperTrail::Version.where(associated_type: 'TeamSource', associated_id: get_team_source).order('created_at ASC')
   end
 
   def get_versions_log_count
-    get_project_sources.sum(:cached_annotations_count)
+    ts = get_team_source
+    ts.nil? ? 0 : ts.cached_annotations_count
   end
 
   def update_from_pender_data(data)
@@ -148,6 +152,10 @@ class Source < ActiveRecord::Base
     si.annotated = self
     si.skip_check_ability = true
     si.save!
+  end
+
+  def get_team_source
+    self.team_sources.where(team_id: Team.current.id).last unless Team.current.nil?
   end
 
   private
