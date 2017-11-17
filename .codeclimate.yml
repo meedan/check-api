@@ -68,3 +68,4 @@ exclude_patterns:
 - "cldr-data"
 - "data"
 - "**.js"
+- "public/viber/bigtext.js"
