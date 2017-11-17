@@ -407,4 +407,19 @@ class SourceTest < ActiveSupport::TestCase
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)
   end
+
+  test "should not edit same instance concurrently" do
+    s = create_source
+    assert_equal 0, s.lock_version
+    assert_nothing_raised do
+      s.name = 'Changed'
+      s.save!
+    end
+    assert_equal 1, s.reload.lock_version
+    assert_raises ActiveRecord::StaleObjectError do
+      s.lock_version = 0
+      s.name = 'Changed again'
+      s.save!
+    end
+  end
 end
