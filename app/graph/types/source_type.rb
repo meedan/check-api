@@ -18,6 +18,14 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :team_source do
+    type -> { TeamSourceType }
+
+    resolve -> (source, _args, _ctx) {
+      source.get_team_source
+    }
+  end
+
   connection :account_sources, -> { AccountSourceType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.account_sources
