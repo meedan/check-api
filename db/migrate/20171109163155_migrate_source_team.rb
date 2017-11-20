@@ -57,7 +57,7 @@ class MigrateSourceTeam < ActiveRecord::Migration
 
   def migrate_source_annotations(target, source)
   	# update source annotations
-  	Annotation.where.not(annotation_type: 'sourceidentity').where(annotated_type: 'Source', annotated_id: source.id).update_all(annotated_type: target.class.name, annotated_id: target.id)
+  	Annotation.where.not(annotation_type: 'source_identity').where(annotated_type: 'Source', annotated_id: source.id).update_all(annotated_type: target.class.name, annotated_id: target.id)
   	# update project source annotations
   	Annotation.where(annotated_type: 'ProjectSource', annotated_id: source.project_sources).update_all(annotated_type: target.class.name, annotated_id: target.id)
   	# update versions

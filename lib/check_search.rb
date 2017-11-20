@@ -68,10 +68,10 @@ class CheckSearch
     if should_hit_elasticsearch?
       query = medias_build_search_query('ProjectSource')
       ids = medias_get_search_result(query).map(&:annotated_id)
-      items = ProjectSource.where(id: ids).eager_load(:source)
+      items = TeamSource.where(id: ids).eager_load(:source)
       @sources = sort_es_items(items, ids)
     else
-      results = ProjectSource.eager_load(:source).joins(:project)
+      results = TeamSource.where(team_id: @options['team_id']).eager_load(:source)
       @sources = sort_pg_results(results)
     end
     @sources

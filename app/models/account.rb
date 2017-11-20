@@ -132,9 +132,9 @@ class Account < ActiveRecord::Base
 
   def update_elasticsearch_account
     return if self.disable_es_callbacks
-    ps_ids = ProjectSource.where(source_id: self.sources).map(&:id).to_a
-    unless ps_ids.blank?
-      parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") }
+    ts_ids = TeamSource.where(source_id: self.sources).map(&:id).to_a
+    unless ts_ids.blank?
+      parents = ts_ids.map{|id| Base64.encode64("TeamSource/#{id}") }
       parents.each do |parent|
         self.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
       end

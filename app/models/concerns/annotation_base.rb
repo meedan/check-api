@@ -282,7 +282,7 @@ module AnnotationBase
   private
 
   def set_type_and_event
-    self.annotation_type ||= self.class_name.parameterize
+    self.annotation_type ||= self.class_name.underscore.parameterize
     self.paper_trail_event = 'create' if self.versions.count === 0
   end
 

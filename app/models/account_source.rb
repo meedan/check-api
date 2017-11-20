@@ -1,5 +1,5 @@
 class AccountSource < ActiveRecord::Base
-  attr_accessor :url
+  attr_accessor :url, :disable_es_callbacks
 
   belongs_to :source
   belongs_to :account
@@ -9,6 +9,8 @@ class AccountSource < ActiveRecord::Base
   before_validation :set_account, on: :create
 
   validate :is_unique_per_team, on: :create
+
+  after_create :add_elasticsearch_account
   
   notifies_pusher targets: proc { |as| [as.source] }, data: proc { |as| { id: as.id }.to_json }, on: :save, event: 'source_updated'
 
@@ -29,6 +31,16 @@ class AccountSource < ActiveRecord::Base
       ps = self.check_duplicate_accounts
       errors.add(:base, "This account already exists in project #{ps.project_id} and has id #{ps.id}") unless ps.blank?
     end
+  end
+
+  def add_elasticsearch_account
+    return if self.disable_es_callbacks
+    ts = self.source.get_team_source
+    parent = Base64.encode64("TeamSource/#{ts.id}")
+    accounts = self.source.accounts
+    accounts.each do |a|
+      a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+    end unless accounts.blank?
   end
 
   protected

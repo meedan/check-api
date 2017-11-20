@@ -26,8 +26,6 @@ class Source < ActiveRecord::Base
 
   after_create :create_source_identity
 
-  after_update :update_elasticsearch_source
-
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
   def user_id_callback(value, _mapping_ids = nil)
@@ -55,12 +53,18 @@ class Source < ActiveRecord::Base
   end
 
   def image
-    return CONFIG['checkdesk_base_url'] + self.file.url if !self.file.nil? && self.file.url != '/images/source.png'
-    self.avatar || (self.accounts.empty? ? CONFIG['checkdesk_base_url'] + '/images/source.png' : self.accounts.first.data['picture'].to_s)
+    file = source_identity['file']
+    return CONFIG['checkdesk_base_url'] + file.url if !file.nil? && file.url != '/images/source.png'
+    file || (self.accounts.empty? ? CONFIG['checkdesk_base_url'] + '/images/source.png' : self.accounts.first.data['picture'].to_s)
+  end
+
+  def get_name
+    source_identity['name']
   end
 
   def description
-    return self.slogan if self.slogan != self.name && !self.slogan.nil?
+    slogan = source_identity['bio']
+    return slogan if slogan != source_identity['name'] && !slogan.nil?
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
@@ -79,17 +83,6 @@ class Source < ActiveRecord::Base
 
   def file_mandatory?
     false
-  end
-
-  def update_elasticsearch_source
-    return if self.disable_es_callbacks
-    ps_ids = self.project_sources.map(&:id).to_a
-    unless ps_ids.blank?
-      parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") }
-      parents.each do |parent|
-        self.update_media_search(%w(title description), {'title' => self.name, 'description' => self.description}, parent)
-      end
-    end
   end
 
   def get_versions_log
@@ -158,6 +151,32 @@ class Source < ActiveRecord::Base
     self.team_sources.where(team_id: Team.current.id).last unless Team.current.nil?
   end
 
+  def identity=(info)
+    info = info.blank? ? {} : JSON.parse(info)
+    unless info.blank?
+      si = get_source_identity_annotation('TeamSource')
+      ts = get_team_source
+      return if ts.nil?
+      if si.nil?
+        si = SourceIdentity.new
+        si.annotated = ts
+        si.annotator = User.current unless User.current.nil?
+      end
+      info.each{ |k, v| si.send("#{k}=", v) if si.respond_to?(k) and !v.blank? }
+      si.save!
+    end
+  end
+
+  def source_identity
+    data = {}
+    attributes = %W(name bio file)
+    si = get_source_identity_annotation
+    attributes.each{|k| ks = k.to_s; data[ks] = si.send(ks) } unless si.nil?
+    si = get_source_identity_annotation('TeamSource')
+    attributes.each{|k| ks = k.to_s; data[ks] = si.send(ks) unless si.send(ks).nil? } unless si.nil?
+    data
+  end
+
   private
 
   def set_user
@@ -172,6 +191,16 @@ class Source < ActiveRecord::Base
     conditions = {}
     conditions[:project_id] = Team.current.projects unless Team.current.nil?
     self.project_sources.where(conditions)
+  end
+
+  def get_source_identity_annotation(type = 'Source')
+    if type == 'Source'
+      si = self.annotations.where(annotation_type: 'source_identity').last
+    else
+      ts = get_team_source
+      si = ts.annotations.where(annotation_type: 'source_identity').last unless ts.nil?
+    end
+    si = si.load unless si.nil?
   end
 
   def team_is_not_archived

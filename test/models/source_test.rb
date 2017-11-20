@@ -405,4 +405,8 @@ class SourceTest < ActiveSupport::TestCase
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)
   end
+
+  test "should set/get source identity" do
+    # TODO: Sawy
+  end
 end
