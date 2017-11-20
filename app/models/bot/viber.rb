@@ -13,10 +13,8 @@ class Bot::Viber < ActiveRecord::Base
     html_path = File.join(Rails.root, 'public', 'viber', filename + '.html')
     File.atomic_write(html_path) { |file| file.write(content) }
 
-    url = CONFIG['checkdesk_base_url_private'] + '/viber/' + filename + '.html'
-    output = File.join(Rails.root, 'public', 'viber', filename + '.jpg')
     fetcher = Chromeshot::Screenshot.new debug_port: CONFIG['chrome_debug_port']
-    fetcher.take_screenshot!(url: url, output: output)
+    fetcher.take_screenshot!(url: CONFIG['checkdesk_base_url_private'] + '/viber/' + filename + '.html', output: File.join(Rails.root, 'public', 'viber', filename + '.jpg'))
 
     FileUtils.rm_f html_path
     filename
