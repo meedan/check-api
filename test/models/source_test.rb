@@ -421,5 +421,21 @@ class SourceTest < ActiveSupport::TestCase
       s.name = 'Changed again'
       s.save!
     end
+    assert_equal 1, s.reload.lock_version
+    assert_nothing_raised do
+      s.lock_version = 0
+      s.updated_at = Time.now + 1
+      s.save!
+    end
+  end
+
+  test "should create metadata annotation when source is created" do
+    assert_no_difference 'Dynamic.count' do
+      create_source
+    end
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    assert_difference 'Dynamic.count' do
+      create_source
+    end
   end
 end
