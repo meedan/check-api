@@ -85,7 +85,7 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal [], s.project_sources
     s.project_sources << ps1
     s.project_sources << ps2
-    assert_equal [p1, p2], s.projects
+    assert_equal [p1, p2].to_a.sort, s.projects.to_a.sort
   end
 
   test "should have user" do
