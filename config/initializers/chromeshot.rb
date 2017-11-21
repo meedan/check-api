@@ -1,6 +1,7 @@
 require 'chromeshot'
 
-unless Rails.env.test?
-  puts "Starting Chromeshot on port #{CONFIG['chrome_debug_port']}"
-  Chromeshot::Screenshot.setup_chromeshot(CONFIG['chrome_debug_port'])
+port = CONFIG['chrome_debug_port']
+unless system("lsof -i:#{port}", out: '/dev/null')
+  puts "Starting Chromeshot on port #{port}"
+  Chromeshot::Screenshot.setup_chromeshot(port)
 end
