@@ -23,6 +23,8 @@ module Api
           render json: { error: e.message }, status: 403
         rescue ActiveRecord::RecordNotFound => e
           render json: { error: e.message }, status: 404
+        rescue ActiveRecord::StaleObjectError => e
+          render json: { error: e.message }, status: 409
         end
       end
 
