@@ -1130,4 +1130,18 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response :success
   end
+
+  test "should return 409 on conflict" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    s = create_source user: u, team: t
+    s.name = 'Changed'
+    s.save!
+    assert_equal 1, s.reload.lock_version
+    authenticate_with_user(u)
+    query = 'mutation update { updateSource(input: { clientMutationId: "1", name: "Changed again", lock_version: 0, id: "' + s.reload.graphql_id + '"}) { source { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response 409
+  end
 end
