@@ -7,7 +7,7 @@ class Dynamic < ActiveRecord::Base
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
 
-  before_validation :update_attribution
+  before_validation :update_attribution, :update_timestamp
   after_save :add_update_elasticsearch_dynamic_annotation
   after_create :create_fields, :send_slack_notification
   after_update :update_fields, :send_slack_notification
@@ -164,6 +164,10 @@ class Dynamic < ActiveRecord::Base
 
   def set_annotator
     self.annotator = User.current if !User.current.nil? && (self.annotator.nil? || self.annotation_type_object.singleton)
+  end
+
+  def update_timestamp
+    self.updated_at = Time.now
   end
 
   def update_attribution

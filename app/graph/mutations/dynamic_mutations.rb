@@ -13,6 +13,7 @@ module DynamicMutations
     annotated_id: 'str',
     annotated_type: 'str',
     id: '!id',
+    lock_version: 'int',
     set_attribution: 'str'
   }
 
