@@ -1132,6 +1132,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should return 409 on conflict" do
+    Source.destroy_all
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
