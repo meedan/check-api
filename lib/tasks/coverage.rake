@@ -10,7 +10,6 @@ namespace :test do
       end
       coverage_dir 'coverage'
     end
-    system "LC_ALL=C google-chrome --headless --hide-scrollbars --remote-debugging-port=9333 --disable-gpu --no-sandbox --ignore-certificate-errors &"
     Rake::Task['test'].execute
   end
 end
