@@ -120,11 +120,6 @@ li.dropdown > a.dropdown-toggle:focus {
   color: $black-54 !important;
 }
 
-// TODO: consider showing these subnavs, they are non-essential
-.nav-level-1 {
-  display: none !important;
-}
-
 .filtering-select .btn.btn-info.dropdown-toggle {
   background-color: transparent !important;
 }
