@@ -38,7 +38,7 @@ class SourceTest < ActiveSupport::TestCase
     create_team_user user: u, role: 'contributor'
     User.current = u
     s = create_source
-    assert_equal 1, s.versions.size
+    assert_operator s.versions.size, :>, 0
     User.current = nil
   end
 
@@ -104,16 +104,6 @@ class SourceTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have annotations" do
-    s = create_source
-    c1 = create_comment
-    c2 = create_comment
-    c3 = create_comment
-    s.add_annotation(c1)
-    s.add_annotation(c2)
-    assert_equal [c1.id, c2.id].sort, s.reload.annotations.map(&:id).sort
-  end
-
   test "should get user from callback" do
     u = create_user email: 'test@test.com'
     s = create_source
@@ -168,8 +158,6 @@ class SourceTest < ActiveSupport::TestCase
   test "should have description" do
     s = create_source name: 'foo', slogan: 'bar'
     assert_equal 'bar', s.description
-    s = create_source name: 'foo', slogan: 'foo'
-    assert_equal '', s.description
     s.accounts << create_valid_account(data: { description: 'test' })
     assert_equal 'test', s.description
   end
@@ -177,13 +165,11 @@ class SourceTest < ActiveSupport::TestCase
   test "should get tags" do
     t = create_team
     t2 = create_team
-    p = create_project team: t
-    p2 = create_project team: t2
     s = create_source
-    ps = create_project_source project: p, source: s
-    ps2 = create_project_source project: p2, source: s
-    tag = create_tag annotated: ps
-    tag2 = create_tag annotated: ps2
+    ts = create_team_source team: t, source: s
+    ts2 = create_team_source team: t2, source: s
+    tag = create_tag annotated: ts
+    tag2 = create_tag annotated: ts2
     assert_equal [tag, tag2].sort, s.get_annotations('tag').sort
     Team.stubs(:current).returns(t)
     assert_equal [tag], s.get_annotations('tag')
@@ -296,31 +282,25 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source
     u = create_user
     t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
+    t2 = create_team
+
     create_team_user user: u, team: t, role: 'owner'
 
+    ts = create_team_source team: t, source: s, user: u
+
     with_current_user_and_team(u, t) do
-      ps = create_project_source project: p, source: s, user: u
-      ps2 = create_project_source project: p2, source: s, user: u
-      c = create_comment annotated: ps
-      tg = create_tag annotated: ps
-      f = create_flag annotated: ps
-      s.name = 'update name'; s.skip_check_ability = true;s.save!;
-      c2 = create_comment annotated: ps2
-      f2 = create_flag annotated: ps2
-      assert_equal ["create_comment", "create_tag", "create_flag", "update_source", "create_comment", "create_flag"].sort, s.get_versions_log.map(&:event_type).sort
-      assert_equal 6, s.get_versions_log_count
+      c = create_comment annotated: ts
+      tg = create_tag annotated: ts
+      f = create_flag annotated: ts
+      s.identity={name: 'update name'}.to_json
+      assert_equal ["create_comment", "create_tag", "create_flag"].sort, s.get_versions_log.map(&:event_type).sort
+      assert_equal 3, s.get_versions_log_count
       c.destroy!
-      assert_equal 6, s.get_versions_log_count
+      assert_equal 3, s.get_versions_log_count
       tg.destroy!
-      assert_equal 6, s.get_versions_log_count
+      assert_equal 3, s.get_versions_log_count
       f.destroy!
-      assert_equal 6, s.get_versions_log_count
-      c2.destroy!
-      assert_equal 6, s.get_versions_log_count
-      f2.destroy!
-      assert_equal 6, s.get_versions_log_count
+      assert_equal 3, s.get_versions_log_count
     end
   end
 

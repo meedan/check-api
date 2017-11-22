@@ -136,8 +136,6 @@ module PaperTrail
         self.get_associated_from_dynamic_annotation
       when 'update_projectmedia', 'update_teamsource'
         [self.item.class.name, self.item_id.to_i]
-      when 'update_source'
-        self.get_associated_from_source
       else
         [nil, nil]
       end
@@ -154,12 +152,6 @@ module PaperTrail
     def get_associated_from_dynamic_annotation
       annotation = self.item.annotation if self.item
       self.get_associated_from_annotation(annotation)
-    end
-
-    def get_associated_from_source
-      s = self.item
-      ts = s.get_team_source unless s.nil?
-      ts.nil? ? [nil, nil] : [ts.class.name, ts.id]
     end
 
     def set_project_association

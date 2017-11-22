@@ -24,6 +24,8 @@ class Source < ActiveRecord::Base
 
   validate :team_is_not_archived
 
+  validate :source_is_unique, on: :create
+
   after_create :create_source_identity
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
@@ -121,7 +123,7 @@ class Source < ActiveRecord::Base
   end
 
   def self.get_duplicate_source(name)
-    si = Annotation.where(annotation_type: 'sourceidentity', annotated_type: 'Source').all.select {|a| a.name.downcase == name.downcase}
+    si = Annotation.where(annotation_type: 'source_identity', annotated_type: 'Source').all.select {|a| a.name.downcase == name.downcase}
     si.first.annotated unless si.blank?
   end
 
@@ -201,6 +203,11 @@ class Source < ActiveRecord::Base
       si = ts.annotations.where(annotation_type: 'source_identity').last unless ts.nil?
     end
     si = si.load unless si.nil?
+  end
+
+  def source_is_unique
+    duplicate = self.name.nil? ? nil : Source.get_duplicate_source(self.name)
+    errors.add(:base, I18n.t(:duplicate_source)) unless duplicate.blank?
   end
 
   def team_is_not_archived
