@@ -123,7 +123,8 @@ class User < ActiveRecord::Base
       permissions: self.permissions,
       profile_image: self.profile_image,
       settings: self.settings,
-      source_id: self.source.id
+      source_id: self.source.id,
+      is_admin: self.is_admin
     }
   end
 
