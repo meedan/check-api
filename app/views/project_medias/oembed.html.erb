@@ -1,3 +1,4 @@
+<% @show_names = @project_media.project.team.get_hide_names_in_embeds.to_i == 0 %>
 <!doctype html>
 <html>
   <head>
@@ -53,17 +54,22 @@
       </div>
       
       <div id="oembed__card">
-        <div id="oembed__author-picture">
-          <% unless @source_author[:author_picture].blank? %>
-            <img src="<%= @source_author[:author_picture] %>" />
-          <% end %>
-        </div>
+
+        <% if @show_names %>
+          <div id="oembed__author-picture">
+            <% unless @source_author[:author_picture].blank? %>
+              <img src="<%= @source_author[:author_picture] %>" />
+            <% end %>
+          </div>
+        <% end %>
 
         <div id="oembed__content">
-          <div id="oembed__author-name"><%= @source_author[:author_name] %></div>
+          <% if @show_names %>
+            <div id="oembed__author-name"><%= @source_author[:author_name] %></div>
 
-          <% unless @source_author[:author_username].blank? %>
-            <div id="oembed__author-username">@<%= @source_author[:author_username] %></div>
+            <% unless @source_author[:author_username].blank? %>
+              <div id="oembed__author-username">@<%= @source_author[:author_username] %></div>
+            <% end %>
           <% end %>
 
           <div id="oembed__text"><%= @project_media.text %></div>
@@ -74,7 +80,11 @@
           </div>
 
           <div id="oembed__footer">
-            <span class="l" id="oembed__footer-credit">credit</span>
+            <% if @show_names %>
+              <span class="l" id="oembed__footer-credit">credit</span>
+            <% else %>
+              <span id="oembed__footer-credit"><time class="timeago" datetime="<%= @project_media.created_at.iso8601(5) %>"><%= @project_media.created_at.to_s %></time></span>
+            <% end %>
 
             <span id="oembed__footer-stats">
               <% if @project_media.comments.any? %>
