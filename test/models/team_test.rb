@@ -1029,4 +1029,14 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     assert t.get_hide_names_in_embeds
   end
+
+  test "should clear embed caches if team setting is changed" do
+    ProjectMedia.stubs(:clear_caches).times(3)
+    t = create_team
+    p = create_project team: t
+    3.times { create_project_media(project: p) }
+    t.hide_names_in_embeds = 1
+    t.save!
+    ProjectMedia.unstub(:clear_caches)
+  end
 end
