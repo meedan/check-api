@@ -36,11 +36,13 @@ class AccountSource < ActiveRecord::Base
   def add_elasticsearch_account
     return if self.disable_es_callbacks
     ts = self.source.get_team_source
-    parent = Base64.encode64("TeamSource/#{ts.id}")
-    accounts = self.source.accounts
-    accounts.each do |a|
-      a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
-    end unless accounts.blank?
+    unless ts.nil?
+      parent = Base64.encode64("TeamSource/#{ts.id}")
+      accounts = self.source.accounts
+      accounts.each do |a|
+        a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+      end unless accounts.blank?
+    end
   end
 
   protected

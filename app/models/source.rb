@@ -1,5 +1,7 @@
 class Source < ActiveRecord::Base
-  attr_accessor :disable_es_callbacks
+  self.inheritance_column = :type
+
+  attr_accessor :disable_es_callbacks, :name, :slogan, :avatar
 
   include HasImage
   include CheckElasticSearch
@@ -20,8 +22,6 @@ class Source < ActiveRecord::Base
 
   before_validation :set_user, :set_team, on: :create
 
-  validates_presence_of :name
-  validates :name, uniqueness: { case_sensitive: false }, on: :create
   validate :team_is_not_archived
 
   after_create :create_source_identity
