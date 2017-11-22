@@ -1021,4 +1021,12 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     assert_equal t, t.public_team
   end
+
+  test "should hide names in embeds" do
+    t = create_team
+    assert !t.get_hide_names_in_embeds
+    t.hide_names_in_embeds = 1
+    t.save!
+    assert t.get_hide_names_in_embeds
+  end
 end
