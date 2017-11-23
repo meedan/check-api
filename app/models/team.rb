@@ -294,7 +294,7 @@ class Team < ActiveRecord::Base
     end
   end
 
-  private
-
+  # private
+  #
   # Please add private methods to app/models/concerns/team_private.rb 
 end
