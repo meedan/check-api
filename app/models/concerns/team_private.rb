@@ -29,7 +29,7 @@ module TeamPrivate
 
   def clear_embeds_caches_if_needed
     changed = false
-    if self.changes && self.changes['settings']
+    if self.changes['settings']
       prevval = self.changes['settings'][0] || {}
       newval = self.changes['settings'][1] || {}
       changed = true if prevval['hide_names_in_embeds'] != newval['hide_names_in_embeds']
