@@ -1304,4 +1304,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal '<span id="oembed__status" class="l">status_in_progress</span>', pm.last_status_html
     assert_equal '#ffbb5d', pm.last_status_color
   end
+
+  test "should get description" do
+    c = create_claim_media quote: 'Test'
+    pm = create_project_media media: c
+    assert_equal 'Test', pm.reload.description
+    info = { description: 'Test 2' }.to_json
+    pm.embed = info
+    pm.save!
+    assert_equal 'Test 2', pm.reload.description
+  end
 end

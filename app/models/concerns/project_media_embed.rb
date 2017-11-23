@@ -92,7 +92,7 @@ module ProjectMediaEmbed
   def metadata
     {
       title: self.title.to_s,
-      description: self.text.to_s,
+      description: self.description.to_s,
       picture: self.media.picture.to_s,
       permalink: self.full_url.to_s,
       oembed_url: self.oembed_url,

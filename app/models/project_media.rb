@@ -72,6 +72,12 @@ class ProjectMedia < ActiveRecord::Base
     title
   end
 
+  def description
+    description = self.text
+    description = self.embed['description'] unless self.embed.blank? || self.embed['description'].blank?
+    description
+  end
+
   def add_elasticsearch_data
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     p = self.project
@@ -146,6 +152,7 @@ class ProjectMedia < ActiveRecord::Base
       em = em.load unless em.nil?
       em = initiate_embed_annotation(info) if em.nil?
       em.disable_es_callbacks = Rails.env.to_s == 'test'
+      em.client_mutation_id = self.client_mutation_id
       self.override_embed_data(em, info)
     end
   end
