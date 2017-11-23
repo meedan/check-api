@@ -32,7 +32,7 @@ module TeamPrivate
     if self.changes && self.changes['settings']
       prevval = self.changes['settings'][0] || {}
       newval = self.changes['settings'][1] || {}
-      changed = (prevval['hide_names_in_embeds'] != newval['hide_names_in_embeds']) ? true : false
+      changed = true if prevval['hide_names_in_embeds'] != newval['hide_names_in_embeds']
     end
     Team.delay.clear_embeds_caches_if_needed(self.id) if changed 
   end
