@@ -39,7 +39,7 @@ module CheckBasicAbilities
     # 3) @user is a member of at least one same team as the target user
     can :read, User, id: @user.id
     can :read, User, teams: { private: false }
-    can :read, User, team_users: { status: 'member', team_id: @user.cached_teams }
+    can :read, User, team_users: { status: ['member', 'requested'], team_id: @user.cached_teams }
 
     # A @user can read contact, project or team user if:
     # 1) team is private and @user is a member of that team
