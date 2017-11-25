@@ -129,6 +129,7 @@ class Bot::Slack < ActiveRecord::Base
 
       def call_slack_api(id, mutation_id, endpoint)
         obj = self.find(id)
+        return if obj.annotated.nil? || !obj.annotated.respond_to?(:get_annotations)
         slack_message_id = mutation_id.to_s.match(/^fromSlackMessage:(.*)$/)
         obj.annotated.get_annotations('slack_message').each do |annotation|
           id = annotation.load.get_field_value('slack_message_id')
