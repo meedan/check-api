@@ -33,7 +33,8 @@ class AccountSource < ActiveRecord::Base
           code: 'ERR_ACCOUNT_EXISTS',
           data: {
             project_id: ps.project_id,
-            project_source_id: ps.id
+            type: 'source',
+            id: ps.id
           }
         }
         raise error.to_json
