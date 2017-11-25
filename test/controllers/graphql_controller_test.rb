@@ -1165,7 +1165,8 @@ class GraphqlControllerTest < ActionController::TestCase
       assert_equal ['error', 'error_info'].sort, ret.keys.sort
       assert_equal 'ERR_ACCOUNT_EXISTS', ret['error_info']['code']
       assert_kind_of Integer, ret['error_info']['project_id']
-      assert_kind_of Integer, ret['error_info']['project_source_id']
+      assert_kind_of Integer, ret['error_info']['id']
+      assert_equal 'source', ret['error_info']['type']
     end
   end
 end
