@@ -1144,4 +1144,28 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response 409
   end
+  
+  test "should parse JSON exception" do
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'owner'
+      s = create_source user: u, team: t
+      authenticate_with_user(u)
+
+      query = 'mutation { createAccountSource(input: { clientMutationId: "1", source_id: ' + s.id.to_s + ', url: "' + @url + '"}) { source { id } } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+
+      post :create, query: query, team: t.slug
+      assert_response 400
+      ret = JSON.parse(@response.body)
+      assert_equal ['error', 'error_info'].sort, ret.keys.sort
+      assert_equal 'ERR_ACCOUNT_EXISTS', ret['error_info']['code']
+      assert_kind_of Integer, ret['error_info']['project_id']
+      assert_kind_of Integer, ret['error_info']['project_source_id']
+    end
+  end
 end

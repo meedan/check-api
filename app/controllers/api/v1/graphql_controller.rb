@@ -18,7 +18,7 @@ module Api
           result = RelayOnRailsSchema.execute(query_string, variables: query_variables, context: context)
           render json: result
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError => e
-          render json: { error: e.message }, status: 400
+          render json: parse_json_exception(e), status: 400
         rescue CheckPermissions::AccessDenied => e
           render json: { error: e.message }, status: 403
         rescue ActiveRecord::RecordNotFound => e
@@ -34,6 +34,22 @@ module Api
       def ensure_hash(variables_param)
         return {} if variables_param.blank?
         variables_param.kind_of?(Hash) ? variables_param : JSON.parse(variables_param)
+      end
+
+      def parse_json_exception(e)
+        json = nil
+        begin
+          error = JSON.parse(e.message)
+          json = {
+            error: error['message'],
+            error_info: {
+              code: error['code']
+            }.merge(error['data'])
+          }
+        rescue
+          json = { error: e.message }
+        end
+        json
       end
 
       private
