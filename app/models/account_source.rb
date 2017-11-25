@@ -30,7 +30,7 @@ class AccountSource < ActiveRecord::Base
       unless ps.blank?
         error = {
           message: I18n.t(:account_exists, project_id: ps.project_id, project_source_id: ps.id),
-          code: 'ERR_ACCOUNT_EXISTS',
+          code: 'ERR_OBJECT_EXISTS',
           data: {
             project_id: ps.project_id,
             type: 'source',
