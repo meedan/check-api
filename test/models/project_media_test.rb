@@ -379,7 +379,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_project_media project: p, media: m
     end
     assert_no_difference 'ProjectMedia.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      assert_raises RuntimeError do
         create_project_media project: p, media: m
       end
     end
