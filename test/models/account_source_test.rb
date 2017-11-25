@@ -51,10 +51,10 @@ class AccountSourceTest < ActiveSupport::TestCase
     s = create_source
     ps = create_project_source project: p, source: s
     a = create_account url: url, source: s
-    assert_raise ActiveRecord::RecordInvalid do
+    assert_raise RuntimeError do
       create_account_source source: s, url: url
     end
-    assert_raise ActiveRecord::RecordInvalid do
+    assert_raise RuntimeError do
       create_project_source project: p, name: 'Test', url: url
     end
     t2 = create_team
