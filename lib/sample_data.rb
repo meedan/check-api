@@ -385,8 +385,7 @@ module SampleData
     source.name = options[:name] || random_string
     source.slogan = options[:slogan] || random_string(20)
     source.user = options[:user]
-    source.avatar = options[:avatar]
-    source.team = options[:team] if options.has_key?(:team)
+    source.avatar = options[:avatar] 
     source.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     file = nil
     if options.has_key?(:file)
@@ -401,6 +400,7 @@ module SampleData
     source.save!
 
     if options[:team]
+      create_team_source team: options[:team], source: source
       create_project_source(project: create_project(team: options[:team], user: nil), source: source)
     end
 

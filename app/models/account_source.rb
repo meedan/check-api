@@ -23,13 +23,15 @@ class AccountSource < ActiveRecord::Base
   end
 
   def is_unique_per_team
-    if self.source_id && self.source.team.nil?
-      # Duplicate for user profile.
-      as = AccountSource.where(source_id: self.source_id, account_id: self.account_id).last
-      errors.add(:base, "This account already exists") unless as.nil?
-    else
-      ps = self.check_duplicate_accounts
-      errors.add(:base, "This account already exists in project #{ps.project_id} and has id #{ps.id}") unless ps.blank?
+    as = AccountSource.where(account_id: self.account_id).last
+    unless as.nil?
+      if self.source.type == 'Profile'
+        errors.add(:base, "This account already exists")
+      else
+        projects = Team.current.projects.map(&:id) unless Team.current.nil?
+        ps = ProjectSource.where(project_id: projects, source_id: as.source_id).last unless projects.blank?
+        errors.add(:base, "This account already exists in project #{ps.project_id} and has id #{ps.id}") unless ps.blank?
+      end
     end
   end
 
@@ -43,13 +45,6 @@ class AccountSource < ActiveRecord::Base
         a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
       end unless accounts.blank?
     end
-  end
-
-  protected
-
-  def check_duplicate_accounts
-    sources = AccountSource.where(source: Team.current.sources, account_id: self.account_id).map(&:source_id) unless Team.current.nil?
-    ProjectSource.where(source_id: sources).last unless sources.blank?
   end
 
 end

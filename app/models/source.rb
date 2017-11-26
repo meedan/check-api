@@ -20,13 +20,13 @@ class Source < ActiveRecord::Base
 
   has_annotations
 
-  before_validation :set_user, :set_team, on: :create
+  before_validation :set_user, on: :create
 
   validate :team_is_not_archived
 
   validate :source_is_unique, on: :create
 
-  after_create :create_source_identity
+  after_create :create_source_identity, :create_team_source
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
@@ -133,9 +133,10 @@ class Source < ActiveRecord::Base
       s = Source.new
       s.name = name
       s.save!
+    else
+      # Add team source
+      TeamSource.find_or_create_by(team_id: Team.current.id, source_id: s.id) unless Team.current.nil?
     end
-    # Add team source
-    TeamSource.find_or_create_by(team_id: Team.current.id, source_id: s.id) unless Team.current.nil?
     s
   end
 
@@ -185,10 +186,6 @@ class Source < ActiveRecord::Base
     self.user = User.current unless User.current.nil?
   end
 
-  def set_team
-    self.team = Team.current unless Team.current.nil?
-  end
-
   def get_project_sources
     conditions = {}
     conditions[:project_id] = Team.current.projects unless Team.current.nil?
@@ -212,5 +209,14 @@ class Source < ActiveRecord::Base
 
   def team_is_not_archived
     parent_is_not_archived(self.team, I18n.t(:error_team_archived_for_source, default: "Can't create source under trashed team"))
+  end
+
+  def create_team_source
+    unless Team.current.nil?
+      ts = TeamSource.new
+      ts.team_id = Team.current.id
+      ts.source_id = self.id
+      ts.save!
+    end
   end
 end

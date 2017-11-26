@@ -67,7 +67,12 @@ class Account < ActiveRecord::Base
     if source.nil?
       source = Source.new
       source.update_from_pender_data(self.pender_data)
-      source.save!
+      s = Source.get_duplicate_source(source.name)
+      if s.blank?
+        source.save!
+      else
+        source = s
+      end
     end
     create_account_source(source)
     self.source = source

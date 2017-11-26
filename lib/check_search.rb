@@ -66,7 +66,10 @@ class CheckSearch
     return @sources if @sources
     @sources = []
     if should_hit_elasticsearch?
-      query = medias_build_search_query('ProjectSource')
+      query = medias_build_search_query('TeamSource')
+      puts "Query ------------------"
+      pp query
+      pp MediaSearch.all.results
       ids = medias_get_search_result(query).map(&:annotated_id)
       items = TeamSource.where(id: ids).eager_load(:source)
       @sources = sort_es_items(items, ids)
@@ -119,7 +122,7 @@ class CheckSearch
 
     keyword_c << search_tags_query(@options["keyword"].split(' '))
 
-    if associated_type == 'ProjectSource'
+    if associated_type == 'TeamSource'
       keyword_c << { has_child: { type: "account_search", query: { simple_query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
     end
     [{ bool: { should: keyword_c } }]
