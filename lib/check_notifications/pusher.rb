@@ -53,6 +53,10 @@ module CheckNotifications
         [event, targets, data]
       end
 
+      def actor_session_id
+        RequestStore[:request].blank? ? '' : RequestStore[:request].headers['X-Check-Client'].to_s
+      end
+
       def notify_pusher
         event, targets, data = self.parse_pusher_options
 
@@ -62,9 +66,7 @@ module CheckNotifications
 
         return if channels.blank?
 
-        actor_session_id = RequestStore[:request].blank? ? '' : RequestStore[:request].headers['X-Check-Client'].to_s
-
-        Rails.env === 'test' ? self.request_pusher(channels, event, data, actor_session_id) : CheckNotifications::Pusher::Worker.perform_in(1.second, channels, event, data, actor_session_id)
+        Rails.env == 'test' ? self.request_pusher(channels, event, data, self.actor_session_id) : CheckNotifications::Pusher::Worker.perform_in(1.second, channels, event, data, self.actor_session_id)
       end
 
       def request_pusher(channels, event, data, actor_session_id)
