@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions
+  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -47,6 +47,7 @@ class ProjectMedia < ActiveRecord::Base
     st.created_at = self.created_at
     st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     st.skip_check_ability = true
+    st.skip_notifications = true
     st.save!
   end
 
@@ -276,6 +277,7 @@ class ProjectMedia < ActiveRecord::Base
 
   def override_embed_data(em, info)
     info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
+    em.skip_notifications = true if self.is_being_created
     em.save!
   end
 
