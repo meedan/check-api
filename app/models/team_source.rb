@@ -1,6 +1,8 @@
 class TeamSource < ActiveRecord::Base
   attr_accessor :disable_es_callbacks
 
+  include CheckElasticSearch
+
   belongs_to :team
   belongs_to :source
   belongs_to :user
@@ -13,6 +15,7 @@ class TeamSource < ActiveRecord::Base
   validates :source_id, uniqueness: { scope: :team_id }
 
   after_create :add_elasticsearch_data
+  before_destroy :destroy_elasticsearch_media
 
   def add_elasticsearch_data
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
@@ -26,6 +29,11 @@ class TeamSource < ActiveRecord::Base
     ms.title = s.get_name
     ms.description = s.description
     ms.save!
+  end
+
+  def destroy_elasticsearch_media
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    destroy_elasticsearch_data(MediaSearch, 'parent')
   end
 
   private

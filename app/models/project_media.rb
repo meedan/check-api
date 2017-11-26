@@ -14,7 +14,8 @@ class ProjectMedia < ActiveRecord::Base
   validate :project_is_not_archived
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
-  after_update :move_media_sources
+  after_update :move_media_sources, :update_elasticsearch_data
+  before_destroy :destroy_elasticsearch_media
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
@@ -216,6 +217,22 @@ class ProjectMedia < ActiveRecord::Base
     ability ||= Ability.new
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
     perms
+  end
+
+  def update_elasticsearch_data
+    return if self.disable_es_callbacks
+    if self.project_id_changed?
+      parent = self.get_es_parent_id(self.id, self.class.name)
+      keys = %w(project_id team_id)
+      data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
+      options = {keys: keys, data: data, parent: parent}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
+    end
+  end
+
+  def destroy_elasticsearch_media
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    destroy_elasticsearch_data(MediaSearch, 'parent')
   end
 
   private

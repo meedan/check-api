@@ -67,15 +67,12 @@ class CheckSearch
     @sources = []
     if should_hit_elasticsearch?
       query = medias_build_search_query('TeamSource')
-      puts "Query ------------------"
-      pp query
-      pp MediaSearch.all.results
       ids = medias_get_search_result(query).map(&:annotated_id)
       items = TeamSource.where(id: ids).eager_load(:source)
       @sources = sort_es_items(items, ids)
     else
       results = TeamSource.where(team_id: @options['team_id']).eager_load(:source)
-      @sources = sort_pg_results(results)
+      @sources = sort_pg_results(results, 'sources')
     end
     @sources
   end
@@ -106,7 +103,7 @@ class CheckSearch
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
     conditions.concat build_search_keyword_conditions(associated_type)
     conditions.concat build_search_tags_conditions
-    conditions.concat build_search_parent_conditions
+    conditions.concat build_search_parent_conditions(associated_type)
     { bool: { must: conditions } }
   end
 
@@ -144,7 +141,7 @@ class CheckSearch
     {has_child: { type: 'tag_search', query: { bool: {should: tags_c }}}}
   end
 
-  def build_search_parent_conditions
+  def build_search_parent_conditions(type)
     parent_c = []
 
     unless @options['show'].blank?
@@ -158,6 +155,7 @@ class CheckSearch
 
     fields = { 'project_id' => 'projects', 'status' => 'status' }
     fields.each do |k, v|
+      next if k == 'project_id' && type == 'TeamSource'
       parent_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
     end
     parent_c
@@ -168,9 +166,13 @@ class CheckSearch
     MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"].downcase }}, '_score'], size: 10000).results
   end
 
-  def sort_pg_results(results)
-    results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
-    results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
+  def sort_pg_results(results, type = 'medias')
+    if type == 'medias'
+      results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
+      results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
+    else
+      results = results.where('team_id' => @options['team_id']) unless @options['team_id'].blank?
+    end
     sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
     sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
     results.order(sort_field => sort_type)

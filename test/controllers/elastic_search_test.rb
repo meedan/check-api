@@ -615,7 +615,7 @@ class ElasticSearchTest < ActionController::TestCase
     p1a = create_project team: t1
     p1b = create_project team: t1
     pm1a = create_project_media project: p1a
-    ps1a = create_project_source project: p1a
+    ts = create_team_source team: t1
     sleep 1
     pm1b = create_project_media project: p1b
 
@@ -629,7 +629,7 @@ class ElasticSearchTest < ActionController::TestCase
     Team.stubs(:current).returns(t1)
     assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
     assert_equal [], CheckSearch.new('{}').sources
-    assert_equal p1a.project_sources.sort, CheckSearch.new({ projects: [p1a.id], show: ['medias', 'sources']}.to_json).sources.sort
+    assert_equal [ts], CheckSearch.new({ projects: [p1a.id], show: ['medias', 'sources']}.to_json).sources.sort
     assert_equal 2, CheckSearch.new('{}').project_medias.count
     assert_equal [pm1a], CheckSearch.new({ projects: [p1a.id] }.to_json).medias
     assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).project_medias.count
@@ -750,84 +750,89 @@ class ElasticSearchTest < ActionController::TestCase
      assert_equal [pm.id], result.medias.map(&:id)
   end
 
-  test "should search in project sources" do
+  test "should search in team sources" do
     t = create_team
     p = create_project team: t
     s = create_source name: 'search_source_title', slogan: 'search_source_desc'
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
-    ps2 = create_project_source project: p, name: 'search_source_title', disable_es_callbacks: false
-    create_tag tag: 'sports', annotated: ps, disable_es_callbacks: false
-    create_tag tag: 'sports', annotated: ps2, disable_es_callbacks: false
-    create_tag tag: 'news', annotated: ps, disable_es_callbacks: false
-    create_comment text: 'add_comment', annotated: ps, disable_es_callbacks: false
+    s2 = create_source name: 'search_source_title b'
+    ts = create_team_source team: t, source: s, disable_es_callbacks: false
+    ts2 = create_team_source team: t, source: s2, disable_es_callbacks: false
+    create_tag tag: 'sports', annotated: ts, disable_es_callbacks: false
+    create_tag tag: 'sports', annotated: ts2, disable_es_callbacks: false
+    create_tag tag: 'news', annotated: ts, disable_es_callbacks: false
+    create_comment text: 'add_comment', annotated: ts, disable_es_callbacks: false
     sleep 10
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({ show: ['sources'] }.to_json)
-    assert_equal [ps.id, ps2.id], result.project_sources.map(&:id).sort
+    assert_equal [ts.id, ts2.id], result.project_sources.map(&:id).sort
     # search with keyword
     result = CheckSearch.new({keyword: "non_exist_title", show: ['sources'] }.to_json)
     assert_empty result.sources
     result = CheckSearch.new({keyword: "search_source_title", show: ['sources'] }.to_json)
-    assert_equal [ps2.id, ps.id], result.sources.map(&:id)
+    assert_equal [ts2.id, ts.id], result.sources.map(&:id)
     # search in description
     result = CheckSearch.new({keyword: "search_source_desc", show: ['sources'] }.to_json)
-    assert_equal [ps.id], result.sources.map(&:id)
+    assert_equal [ts.id], result.sources.map(&:id)
     # search with tags
     result = CheckSearch.new({tags: ['non_exist_tag'], show: ['sources'] }.to_json)
     assert_empty result.sources
     result = CheckSearch.new({tags: ['sports'], show: ['sources'] }.to_json)
-    assert_equal [ps.id, ps2.id].sort, result.sources.map(&:id).sort
+    assert_equal [ts.id, ts2.id].sort, result.sources.map(&:id).sort
     result = CheckSearch.new({tags: ['news'], show: ['sources'] }.to_json)
-    assert_equal [ps.id], result.sources.map(&:id)
+    assert_equal [ts.id], result.sources.map(&:id)
     # search with tags as keywords
     result = CheckSearch.new({keyword: 'news', show: ['sources'] }.to_json)
-    assert_equal [ps.id], result.sources.map(&:id)
+    assert_equal [ts.id], result.sources.map(&:id)
     # search in comments
     result = CheckSearch.new({keyword: 'add_comment', projects: [p.id], show: ['sources'] }.to_json)
-    assert_equal [ps.id], result.sources.map(&:id)
+    assert_equal [ts.id], result.sources.map(&:id)
   end
 
-  test "should search keyword in accounts in project sources" do
+  test "should search keyword in accounts in team sources" do
     t = create_team
     p = create_project team: t
     url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"username": "account_username", "url":"' + url + '","type":"profile"}}')
+    Team.stubs(:current).returns(t)
     ps = create_project_source project: p, name: 'New source', url: url, disable_es_callbacks: false
     sleep 10
-    Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'account_username', projects: [p.id], show: ['sources'] }.to_json)
-    assert_equal [ps.id], result.sources.map(&:id)
+    ts = TeamSource.where(team_id: t.id, source_id: ps.source_id).last
+    assert_equal [ts.id], result.sources.map(&:id)
   end
 
-  test "should sort results by recent activities in project sources" do
+  test "should sort results by recent activities in team sources" do
     t = create_team
+    s1 = create_source name: 'search_sort a'
+    s2 = create_source name: 'search_sort b'
+    s3 = create_source name: 'search_sort c'
     p = create_project team: t
     info = {title: 'search_sort'}.to_json
-    ps1 = create_project_source project: p, name: 'search_sort', disable_es_callbacks: false
-    ps2 = create_project_source project: p, name: 'search_sort', disable_es_callbacks: false
-    ps3 = create_project_source project: p, name: 'search_sort', disable_es_callbacks: false
-    create_comment text: 'search_sort', annotated: ps1, disable_es_callbacks: false
+    ts1 = create_team_source team: t, source: s1, disable_es_callbacks: false
+    ts2 = create_team_source team: t, source: s2, disable_es_callbacks: false
+    ts3 = create_team_source team: t, source: s3, disable_es_callbacks: false
+    create_comment text: 'search_sort', annotated: ts1, disable_es_callbacks: false
     sleep 10
     # sort with keywords
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], show: ['sources'] }.to_json)
-    assert_equal [ps3.id, ps2.id, ps1.id], result.sources.map(&:id)
+    assert_equal [ts3.id, ts2.id, ts1.id], result.sources.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
-    assert_equal [ps1.id, ps3.id, ps2.id], result.sources.map(&:id)
+    assert_equal [ts1.id, ts3.id, ts2.id], result.sources.map(&:id)
     # sort with keywords and tags
-    create_tag tag: 'sorts', annotated: ps3, disable_es_callbacks: false
-    create_tag tag: 'sorts', annotated: ps2, disable_es_callbacks: false
+    create_tag tag: 'sorts', annotated: ts3, disable_es_callbacks: false
+    create_tag tag: 'sorts', annotated: ts2, disable_es_callbacks: false
     sleep 10
     result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
-    assert_equal [ps2.id, ps3.id], result.sources.map(&:id).sort
+    assert_equal [ts2.id, ts3.id], result.sources.map(&:id).sort
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
-    assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
+    assert_equal [ts2.id, ts3.id], result.sources.map(&:id)
     # sort with keywords and tags
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
-    assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
+    assert_equal [ts2.id, ts3.id], result.sources.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], show: ['sources'] }.to_json)
-    assert_equal [ps3.id, ps2.id], result.sources.map(&:id)
+    assert_equal [ts3.id, ts2.id], result.sources.map(&:id)
   end
 
   test "should filter by medias or sources" do
@@ -838,7 +843,7 @@ class ElasticSearchTest < ActionController::TestCase
     t = create_team
     p = create_project team: t
     s = create_source
-    create_project_source project: p, source: s, disable_es_callbacks: false
+    create_team_source team: t, source: s, disable_es_callbacks: false
     c = create_claim_media
     create_project_media project: p, media: c, disable_es_callbacks: false
     m = create_valid_media
@@ -902,7 +907,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal 'verified', result.status
   end
 
-  test "should update es after move project to other team" do
+  test "should update medias es after move project to other team" do
     t = create_team
     t2 = create_team
     p = create_project team: t
@@ -910,17 +915,16 @@ class ElasticSearchTest < ActionController::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
-      pids = ProjectMedia.where(project_id: p.id).map(&:id).map(&:to_s)
-      pids.concat  ProjectSource.where(project_id: p.id).map(&:id).map(&:to_s)
+      pids = ProjectMedia.where(project_id: p.id).map(&:id)
       sleep 5
-      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-      assert_equal pids.sort, results.map(&:annotated_id).sort
+      results = CheckSearch.new({team_id: t.id}.to_json)
+      assert_equal pids.sort, results.medias.map(&:id).sort
       p.team_id = t2.id; p.save!
       sleep 5
-      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-      assert_equal [], results.map(&:annotated_id)
-      results = MediaSearch.search(query: { match: { team_id: t2.id } }).results
-      assert_equal pids.sort, results.map(&:annotated_id).sort
+      results = CheckSearch.new({team_id: t.id}.to_json)
+      assert_equal [], results.medias.map(&:id)
+      results = CheckSearch.new({team_id: t2.id}.to_json)
+      assert_equal pids.sort, results.medias.map(&:id).sort
     end
   end
 
@@ -1053,7 +1057,7 @@ class ElasticSearchTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    assert_equal 2, ElasticSearchWorker.jobs.size
+    assert_equal 1, ElasticSearchWorker.jobs.size
   end
 
   test "should add comment search in background" do
@@ -1288,31 +1292,34 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should update es after source update" do
     s = create_source name: 'source_a', slogan: 'desc_a'
-    ps = create_project_source project: create_project, source: s, disable_es_callbacks: false
+    t = create_team
+    ts = create_team_source team: t, source: s, disable_es_callbacks: false
     sleep 1
-    ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+    ms = MediaSearch.find(Base64.encode64("TeamSource/#{ts.id}"))
     assert_equal ms.title, s.name
     assert_equal ms.description, s.description
-    s.name = 'new_source'; s.slogan = 'new_desc'; s.disable_es_callbacks = false; s.save!
-    s.reload
+    Team.stubs(:current).returns(t)
+    info = {name: 'new_source', bio: 'new_desc'}.to_json
+    s.identity=info
     sleep 1
-    ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
-    assert_equal ms.title, s.name
-    assert_equal ms.description, s.description
-    # test multiple project sources
-    ps2 = create_project_source project: create_project, source: s, disable_es_callbacks: false
+    ms = MediaSearch.find(Base64.encode64("TeamSource/#{ts.id}"))
+    assert_equal ms.title, 'new_source'
+    assert_equal ms.description, 'new_desc'
+    t2 = create_team
+    Team.stubs(:current).returns(t2)
+    ts2 = create_team_source team: t2, source: s, disable_es_callbacks: false
     sleep 1
-    ms = MediaSearch.find(Base64.encode64("ProjectSource/#{ps2.id}"))
-    assert_equal ms.title, s.name
-    assert_equal ms.description, s.description
-    # update source should update all related project_sources
-    s.name = 'source_b'; s.slogan = 'desc_b'; s.save!
-    s.reload
+    ms = MediaSearch.find(Base64.encode64("TeamSource/#{ts2.id}"))
+    assert_equal ms.title, 'source_a'
+    assert_equal ms.description, 'desc_a'
+    Team.stubs(:current).returns(t2)
+    info = {name: 'source_b', bio: 'desc_b'}.to_json
+    s.identity=info
     sleep 1
-    ms1 = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
-    ms2 = MediaSearch.find(Base64.encode64("ProjectSource/#{ps2.id}"))
-    assert_equal ms1.title, ms2.title, s.name
-    assert_equal ms1.description, ms2.description, s.description
+    ms1 = MediaSearch.find(Base64.encode64("TeamSource/#{ts.id}"))
+    ms2 = MediaSearch.find(Base64.encode64("TeamSource/#{ts2.id}"))
+    assert_equal ms2.title, 'source_b'
+    assert_equal ms2.description, 'desc_b'
   end
 
   test "should destroy related items" do
@@ -1337,28 +1344,29 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
   end
 
-  test "should destroy elasticseach project source" do
+  test "should destroy elasticseach team source" do
     t = create_team
-    p = create_project team: t
     s = create_source
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    ts = create_team_source team: t, source: s, disable_es_callbacks: false
     sleep 1
-    assert_not_nil MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
-    ps.destroy
+    assert_not_nil MediaSearch.find(Base64.encode64("TeamSource/#{ts.id}"))
+    ts.destroy
     sleep 1
     assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-      result = MediaSearch.find(Base64.encode64("ProjectSource/#{ps.id}"))
+      result = MediaSearch.find(Base64.encode64("TeamSource/#{ts.id}"))
     end
   end
 
-  test "should index project source" do
-    ps = create_project_source disable_es_callbacks: false
+  test "should index team source" do
+    ts = create_team_source disable_es_callbacks: false
     sleep 1
-    id = Base64.encode64("ProjectSource/#{ps.id}")
+    id = Base64.encode64("TeamSource/#{ts.id}")
     assert_not_nil MediaSearch.find(id)
   end
 
   test "should index related accounts" do
+    t = create_team
+    Team.stubs(:current).returns(t)
     url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
@@ -1367,25 +1375,25 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal ps.source.accounts.map(&:id).sort, AccountSearch.all_sorted.map(&:id).map(&:to_i).sort
   end
 
-  test "should update es after move source to other projects" do
-    t = create_team
-    p = create_project team: t
-    s = create_source
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
-    sleep 1
-    id = Base64.encode64("ProjectSource/#{ps.id}")
-    ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p.id
-    assert_equal ms.team_id.to_i, t.id
-    t2 = create_team
-    p2 = create_project team: t2
-    ps.project = p2; ps.save!
-    ElasticSearchWorker.drain
-    sleep 1
-    ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p2.id
-    assert_equal ms.team_id.to_i, t2.id
-  end
+  # test "should update es after move source to other projects" do
+  #   t = create_team
+  #   p = create_project team: t
+  #   s = create_source
+  #   ps = create_project_source project: p, source: s, disable_es_callbacks: false
+  #   sleep 1
+  #   id = Base64.encode64("ProjectSource/#{ps.id}")
+  #   ms = MediaSearch.find(id)
+  #   assert_equal ms.project_id.to_i, p.id
+  #   assert_equal ms.team_id.to_i, t.id
+  #   t2 = create_team
+  #   p2 = create_project team: t2
+  #   ps.project = p2; ps.save!
+  #   ElasticSearchWorker.drain
+  #   sleep 1
+  #   ms = MediaSearch.find(id)
+  #   assert_equal ms.project_id.to_i, p2.id
+  #   assert_equal ms.team_id.to_i, t2.id
+  # end
 
   test "should create elasticsearch comment" do
     t = create_team
@@ -1393,14 +1401,14 @@ class ElasticSearchTest < ActionController::TestCase
     m = create_valid_media
     s = create_source
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
+    ts = create_team_source team: t, source: s, disable_es_callbacks: false
     c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
     sleep 1
     result = CommentSearch.find(c.id, parent: pm.id)
     assert_equal c.id.to_s, result.id
-    c2 = create_comment annotated: ps, text: 'test', disable_es_callbacks: false
+    c2 = create_comment annotated: ts, text: 'test', disable_es_callbacks: false
     sleep 1
-    result = CommentSearch.find(c2.id, parent: Base64.encode64("ProjectSource/#{ps.id}"))
+    result = CommentSearch.find(c2.id, parent: Base64.encode64("TeamSource/#{ts.id}"))
     assert_equal c2.id.to_s, result.id
   end
 
