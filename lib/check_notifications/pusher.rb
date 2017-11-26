@@ -67,8 +67,8 @@ module CheckNotifications
         Rails.env === 'test' ? self.request_pusher(channels, event, data, actor_session_id) : CheckNotifications::Pusher::Worker.perform_in(1.second, channels, event, data, actor_session_id)
       end
 
-      def request_pusher(channels, event, data)
-        self.class.send_to_pusher(channels, event, data)
+      def request_pusher(channels, event, data, actor_session_id)
+        self.class.send_to_pusher(channels, event, data, actor_session_id)
         self.sent_to_pusher = true
       end
     end
