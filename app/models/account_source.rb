@@ -32,6 +32,18 @@ class AccountSource < ActiveRecord::Base
         projects = Team.current.projects.map(&:id) unless Team.current.nil?
         ps = ProjectSource.where(project_id: projects, source_id: as.source_id).last unless projects.blank?
         errors.add(:base, "This account already exists in project #{ps.project_id} and has id #{ps.id}") unless ps.blank?
+        unless ps.blank?
+          error = {
+            message: I18n.t(:account_exists, project_id: ps.project_id, project_source_id: ps.id),
+            code: 'ERR_OBJECT_EXISTS',
+            data: {
+              project_id: ps.project_id,
+              type: 'source',
+              id: ps.id
+            }
+          }
+          raise error.to_json
+        end
       end
     end
   end

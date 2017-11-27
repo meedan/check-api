@@ -13,4 +13,6 @@ AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { co
       User.where(id: ids)
     }
   end
+  
+  field :lock_version, types.Int
 end

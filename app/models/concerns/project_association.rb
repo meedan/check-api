@@ -66,7 +66,18 @@ module ProjectAssociation
         obj_name = 'media'
         obj = ProjectMedia.where(project_id: self.project_id, media_id: self.media_id).last
       end
-      errors.add(:base, "This #{obj_name} already exists in project #{obj.project_id} and has id #{obj.id}") unless obj.nil?
+      unless obj.nil?
+        error = {
+          message: I18n.t("#{obj_name}_exists", project_id: obj.project_id, id: obj.id),
+          code: 'ERR_OBJECT_EXISTS',
+          data: {
+            project_id: obj.project_id,
+            type: obj_name,
+            id: obj.id
+          }
+        }
+        raise error.to_json
+      end
     end
 
     protected

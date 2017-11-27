@@ -7,6 +7,7 @@ class Source < ActiveRecord::Base
   include CheckElasticSearch
   include CheckNotifications::Pusher
   include ValidationsHelper
+  include CustomLock
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :team_sources
@@ -23,9 +24,11 @@ class Source < ActiveRecord::Base
 
   validate :source_is_unique, on: :create
 
-  after_create :create_source_identity, :create_team_source
+  after_create :create_metadata, :create_source_identity, :create_team_source
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
+
+  custom_optimistic_locking include_attributes: [:name, :image, :description]
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -212,6 +215,23 @@ class Source < ActiveRecord::Base
       ts.team_id = Team.current.id
       ts.source_id = self.id
       ts.save!
+    end
+  end
+
+  def create_metadata
+    unless DynamicAnnotation::AnnotationType.where(annotation_type: 'metadata').last.nil?
+      user = User.current
+      User.current = nil
+      m = Dynamic.new
+      m.skip_check_ability = true
+      m.skip_notifications = true
+      m.disable_es_callbacks = Rails.env.to_s == 'test'
+      m.annotation_type = 'metadata'
+      m.annotated = self
+      m.annotator = user
+      m.set_fields = { metadata_value: {}.to_json }.to_json
+      m.save!
+      User.current = user
     end
   end
 end

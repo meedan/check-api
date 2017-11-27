@@ -83,7 +83,7 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal [], s.project_sources
     s.project_sources << ps1
     s.project_sources << ps2
-    assert_equal [p1, p2], s.projects
+    assert_equal [p1, p2].to_a.sort, s.projects.to_a.sort
   end
 
   test "should have user" do
@@ -379,5 +379,35 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should set/get source identity" do
     # TODO: Sawy
+  end
+  test "should not edit same instance concurrently" do
+    s = create_source
+    assert_equal 0, s.lock_version
+    assert_nothing_raised do
+      s.name = 'Changed'
+      s.save!
+    end
+    assert_equal 1, s.reload.lock_version
+    assert_raises ActiveRecord::StaleObjectError do
+      s.lock_version = 0
+      s.name = 'Changed again'
+      s.save!
+    end
+    assert_equal 1, s.reload.lock_version
+    assert_nothing_raised do
+      s.lock_version = 0
+      s.updated_at = Time.now + 1
+      s.save!
+    end
+  end
+
+  test "should create metadata annotation when source is created" do
+    assert_no_difference 'Dynamic.count' do
+      create_source
+    end
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    assert_difference 'Dynamic.count' do
+      create_source
+    end
   end
 end
