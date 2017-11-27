@@ -15,6 +15,8 @@ class ProjectSource < ActiveRecord::Base
   validates :source_id, uniqueness: { scope: :project_id }
   before_validation :set_account, on: :create
 
+  after_create :set_elasticsearch_project
+
   def get_team
     p = self.project
     p.nil? ? [] : [p.team_id]
@@ -26,6 +28,19 @@ class ProjectSource < ActiveRecord::Base
 
   def full_url
     "#{self.project.url}/source/#{self.id}"
+  end
+
+  def set_elasticsearch_project
+    return if self.disable_es_callbacks
+    ts = self.source.get_team_source
+    unless ts.nil?
+      parent = self.get_es_parent_id(ts.id, ts.class.name)
+      keys = %w(project_id)
+      ids = ProjectSource.where(source_id: self.source_id, project_id: ts.team.projects.map(&:id)).map(&:project_id)
+      data = {'project_id' => ids}
+      options = {keys: keys, data: data, parent: parent}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
+    end
   end
 
   private

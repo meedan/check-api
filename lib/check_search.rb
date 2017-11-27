@@ -155,7 +155,6 @@ class CheckSearch
 
     fields = { 'project_id' => 'projects', 'status' => 'status' }
     fields.each do |k, v|
-      next if k == 'project_id' && type == 'TeamSource'
       parent_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
     end
     parent_c
