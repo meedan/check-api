@@ -50,4 +50,15 @@ class TeamSourceTest < ActiveSupport::TestCase
     assert_equal [c1.id, c2.id].sort, ts.reload.annotations.map(&:id).sort
   end
 
+  test "should not create source under trashed team" do
+    t = create_team
+    t.archived = true
+    t.save!
+    s = create_source
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_team_source team: t, source: s
+    end
+  end
+
 end

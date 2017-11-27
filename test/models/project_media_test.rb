@@ -484,9 +484,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
-    assert_difference 'PaperTrail::Version.count', 4 do
-      pm = create_project_media project: p, media: m, user: u
-    end
+    pm = create_project_media project: p, media: m, user: u
     assert_equal 1, pm.versions.count
     User.current = nil
   end
@@ -1174,7 +1172,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
         s = pm.project_source.source
         assert_not_nil pm.project_source
-        assert_equal s.name, 'source name'
+        assert_equal s.get_name, 'source name'
         pm2 = create_project_media project: p, quote: 'Claim 2', quote_attributions: {name: 'source name'}.to_json
         assert_equal pm2.project_source.source, s
       end

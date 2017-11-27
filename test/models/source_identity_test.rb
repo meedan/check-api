@@ -3,35 +3,22 @@ require_relative '../test_helper'
 class SourceIdentityTest < ActiveSupport::TestCase
   
   test "should create source identity" do
+    ts = create_team_source
+    u = create_user
     assert_difference 'SourceIdentity.length' do
-      create_source_identity
-    end
+      create_source_identity annotated: ts, user: u
+    end 
   end
 
   test "should have name" do
+    ts = create_team_source
+    u = create_user
     assert_no_difference 'SourceIdentity.length' do
       assert_raise ActiveRecord::RecordInvalid do
-        create_source_identity(name: nil)
+        create_source_identity annotated: ts, user: u, name: nil
       end
       assert_raise ActiveRecord::RecordInvalid do
-        create_source_identity(name: '')
-      end
-    end
-  end
-
-  test "should be unique" do
-    t = create_team
-    name = 'testing'
-    s = create_source team: t, name: name
-    assert_difference 'SourceIdentity.length' do
-      create_source_identity name: name, annotated: s
-    end
-    assert_no_difference 'SourceIdentity.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_source_identity name: name, annotated: create_source
-      end
-      assert_raises ActiveRecord::RecordInvalid do
-        create_source_identity name: name.upcase, annotated: create_source
+        create_source_identity annotated: ts, user: u, name: ''
       end
     end
   end
@@ -81,7 +68,7 @@ class SourceIdentityTest < ActiveSupport::TestCase
 
   test "should have content" do
     si = create_source_identity
-    assert_equal ['name', 'bio'], JSON.parse(si.content).keys
+    assert_equal ['name', 'bio', 'avatar'], JSON.parse(si.content).keys
   end
 
   test "should have annotators" do
@@ -140,47 +127,38 @@ class SourceIdentityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have image" do
+  test "should have a valid image" do
     si = nil
+    ts = create_team_source
+    u = create_user
     assert_difference 'SourceIdentity.length' do
-      si = create_source_identity file: 'rails.png'
+      si = create_source_identity annotated: ts, user: u, file: 'rails.png'
     end
     assert_not_nil si.file
-  end
+    
+    # should have public path
+    assert_match /^http/, si.public_path
 
-  test "should not upload a file that is not an image" do
     assert_no_difference 'SourceIdentity.length' do
+      # should not upload a file that is not an image
       assert_raises ActiveRecord::RecordInvalid do
-        create_source_identity file: 'not-an-image.txt'
+        create_source_identity annotated: ts, user: u, file: 'not-an-image.txt'
       end
-    end
-  end
-
-  test "should not upload a big image" do
-    assert_no_difference 'SourceIdentity.length' do
+      # should not upload a big image
       assert_raises ActiveRecord::RecordInvalid do
-        create_source_identity file: 'ruby-big.png'
+         create_source_identity annotated: ts, user: u, file: 'ruby-big.png'
       end
-    end
-  end
-
-  test "should not upload a small image" do
-    assert_no_difference 'SourceIdentity.length' do
+      # should not upload a small image
       assert_raises ActiveRecord::RecordInvalid do
-        create_source_identity file: 'ruby-small.png'
+        create_source_identity annotated: ts, user: u, file: 'ruby-small.png'
       end
-    end
-  end
-
-  test "should have public path" do
-    t = create_source_identity file: 'rails.png'
-    assert_match /^http/, t.public_path
-  end
-
-  test "should not upload a heavy image" do
-    assert_no_difference 'SourceIdentity.length' do
+      # should not upload a heavy image
       assert_raises ActiveRecord::RecordInvalid do
-        create_source_identity file: 'rails-photo.jpg'
+        create_source_identity annotated: ts, user: u, file: 'rails-photo.jpg'
+      end
+      # should not upload corrupted file
+      assert_raises ActiveRecord::RecordInvalid do
+        create_source_identity annotated: ts, user: u, file: 'corrupted-image.png'
       end
     end
   end
@@ -189,14 +167,6 @@ class SourceIdentityTest < ActiveSupport::TestCase
     i = create_source_identity file: 'rails.png'
     assert_not_nil i.file.thumbnail
     assert_not_nil i.file.embed
-  end
-
-  test "should not upload corrupted file" do
-    assert_no_difference 'SourceIdentity.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_source_identity file: 'corrupted-image.png'
-      end
-    end
   end
 
   test "should have image data" do

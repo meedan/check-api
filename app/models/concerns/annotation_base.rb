@@ -117,13 +117,13 @@ module AnnotationBase
 
   module ClassMethods
     def all_sorted(order = 'asc', field = 'created_at')
-      type = self.name.parameterize
+      type = self.name.underscore.parameterize
       query = type === 'annotation' ? {} : { annotation_type: type }
       Annotation.where(query).order(field => order.to_sym).all
     end
 
     def length
-      type = self.name.parameterize
+      type = self.name.underscore.parameterize
       Annotation.where(annotation_type: type).count
     end
 

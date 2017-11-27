@@ -243,7 +243,8 @@ class ActiveSupport::TestCase
     post :create, query: query
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    assert_equal klass.count, edges.size
+    count = x1.is_annotation? ? klass.length : klass.count
+    assert_equal count, edges.size
     edges = edges.collect{ |e| e['node'][field].to_s }
     assert edges.include?(x1.send(field).to_s)
     assert edges.include?(x2.send(field).to_s)
@@ -275,10 +276,11 @@ class ActiveSupport::TestCase
     klass = obj.class_name
     id = obj.graphql_id
     query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
-    assert_difference "#{klass}.count", -1 do
+    # assert_difference "#{klass}.length", -1 do
       post :create, query: query
       yield if block_given?
-    end
+    # end
+    assert_nil klass.camelize.constantize.where(id: obj.id).last
     assert_response :success
     document_graphql_query('destroy', type, query, @response.body)
   end

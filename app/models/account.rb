@@ -32,7 +32,7 @@ class Account < ActiveRecord::Base
   end
 
   def source_id_callback(value, _mapping_ids = nil)
-    source = Source.where(name: value).last
+    source = Source.get_duplicate_source(value)
     source.nil? ? nil : source.id
   end
 

@@ -11,7 +11,8 @@ module TeamAssociations
     has_many :team_users, dependent: :destroy
     has_many :users, through: :team_users
     has_many :contacts, dependent: :destroy
-    has_many :sources, dependent: :destroy
+    has_many :team_sources, dependent: :destroy
+    has_many :sources, through: :team_sources
   
     has_annotations
   end

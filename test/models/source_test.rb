@@ -92,15 +92,16 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal u, s.user
   end
 
-  test "should set user and team" do
+  test "should set user and team source" do
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     with_current_user_and_team(u, t) do
-      s = create_source project_id: p.id
-      assert_equal u, s.user
-      assert_equal t, s.team
+      assert_difference 'TeamSource.count' do
+        s = create_source project_id: p.id
+        assert_equal u, s.user
+      end
     end
   end
 
@@ -343,16 +344,6 @@ class SourceTest < ActiveSupport::TestCase
     t2 = a.reload.updated_at
     WebMock.allow_net_connect!
     assert t2 > t1
-  end
-
-  test "should not create source under trashed team" do
-    t = create_team
-    t.archived = true
-    t.save!
-
-    assert_raises ActiveRecord::RecordInvalid do
-      create_source team: t
-    end
   end
 
   test "should refresh source with account data" do

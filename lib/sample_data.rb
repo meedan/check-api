@@ -212,7 +212,7 @@ module SampleData
 
   def create_source_identity(options = {})
     user = options[:user] || create_user
-    options = { name: random_string(10), bio: random_string(50), annotator: user }.merge(options)
+    options = { name: random_string(10), bio: random_string(50), annotator: user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       options[:annotated] = create_team_source team: t
@@ -231,7 +231,6 @@ module SampleData
         si.file = f
       end
     end
-
     si.save!
     si
   end
@@ -408,6 +407,7 @@ module SampleData
   end
 
   def create_account_source(options = {})
+    options = { disable_es_callbacks: true }.merge(options)
     as = AccountSource.new
     options[:source_id] = create_source.id if !options.has_key?(:source_id) && !options.has_key?(:source)
     options[:account_id] = create_valid_account.id if !options.has_key?(:account_id) && !options.has_key?(:account) && !options.has_key?(:url)

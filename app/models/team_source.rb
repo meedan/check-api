@@ -2,6 +2,7 @@ class TeamSource < ActiveRecord::Base
   attr_accessor :disable_es_callbacks
 
   include CheckElasticSearch
+  include ValidationsHelper
 
   belongs_to :team
   belongs_to :source
@@ -13,6 +14,7 @@ class TeamSource < ActiveRecord::Base
 
   validates_presence_of :team_id, :source_id
   validates :source_id, uniqueness: { scope: :team_id }
+  validate :team_is_not_archived
 
   after_create :add_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
@@ -40,6 +42,10 @@ class TeamSource < ActiveRecord::Base
 
   def set_user
   	self.user = User.current unless User.current.nil?
+  end
+
+  def team_is_not_archived
+    parent_is_not_archived(self.team, I18n.t(:error_team_archived_for_source, default: "Can't create source under trashed team"))
   end
 
 end

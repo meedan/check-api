@@ -16,13 +16,10 @@ class Source < ActiveRecord::Base
   has_many :projects, through: :project_sources
   has_many :accounts, through: :account_sources
   belongs_to :user
-  belongs_to :team
 
   has_annotations
 
   before_validation :set_user, on: :create
-
-  validate :team_is_not_archived
 
   validate :source_is_unique, on: :create
 
@@ -144,7 +141,7 @@ class Source < ActiveRecord::Base
     si = SourceIdentity.new
     si.name = self.name
     si.bio = self.slogan
-    # si.file = self.avatar
+    si.file = self.avatar
     si.annotated = self
     si.skip_check_ability = true
     si.save!
@@ -157,15 +154,17 @@ class Source < ActiveRecord::Base
   def identity=(info)
     info = info.blank? ? {} : JSON.parse(info)
     unless info.blank?
-      si = get_source_identity_annotation('TeamSource')
+      type = (self.type == 'Profile') ? 'Source' : 'TeamSource'
+      si = get_source_identity_annotation(type)
       ts = get_team_source
-      return if ts.nil?
+      return if ts.nil? && type == 'TeamSource'
       if si.nil?
         si = SourceIdentity.new
         si.annotated = ts
         si.annotator = User.current unless User.current.nil?
       end
       info.each{ |k, v| si.send("#{k}=", v) if si.respond_to?(k) and !v.blank? }
+      si.skip_check_ability = true
       si.save!
     end
   end
@@ -207,12 +206,8 @@ class Source < ActiveRecord::Base
     errors.add(:base, I18n.t(:duplicate_source)) unless duplicate.blank?
   end
 
-  def team_is_not_archived
-    parent_is_not_archived(self.team, I18n.t(:error_team_archived_for_source, default: "Can't create source under trashed team"))
-  end
-
   def create_team_source
-    unless Team.current.nil?
+    unless Team.current.nil? or self.type == 'Profile'
       ts = TeamSource.new
       ts.team_id = Team.current.id
       ts.source_id = self.id

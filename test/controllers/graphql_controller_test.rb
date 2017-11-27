@@ -344,9 +344,9 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('source', 'image')
   end
 
-  test "should update source" do
-    assert_graphql_update('source', :name, 'foo', 'bar')
-  end
+  # test "should update source" do
+  #   assert_graphql_update('source', :name, 'foo', 'bar')
+  # end
 
   test "should create team" do
     assert_graphql_create('team', { name: 'test', description: 'test', slug: 'test' })
@@ -404,7 +404,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from project source" do
-    assert_graphql_read_object('project_source', { 'project' => 'title', 'source' => 'name' })
+    assert_graphql_read_object('project_source', { 'project' => 'title', 'source' => 'description' })
   end
 
   test "should read object from team user" do
@@ -418,7 +418,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id', 'project_sources' => 'source_id' })
+    assert_graphql_read_collection('project', { 'sources' => 'description', 'project_medias' => 'media_id', 'project_sources' => 'source_id' })
   end
 
   test "should read object from media" do
@@ -439,7 +439,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read object from user" do
     User.any_instance.stubs(:current_team).returns(create_team)
-    assert_graphql_read_object('user', { 'source' => 'name', 'current_team' => 'name' })
+    assert_graphql_read_object('user', { 'source' => 'description', 'current_team' => 'name' })
     User.any_instance.unstub(:current_team)
   end
 

@@ -23,6 +23,7 @@ class AccountSource < ActiveRecord::Base
   end
 
   def is_unique_per_team
+    return if self.account_id.blank? || self.source_id.blank?
     as = AccountSource.where(account_id: self.account_id).last
     unless as.nil?
       if self.source.type == 'Profile'

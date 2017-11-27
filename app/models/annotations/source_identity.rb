@@ -12,8 +12,8 @@ class SourceIdentity < ActiveRecord::Base
   def content
     { 
       name: self.name,
-      bio: self.bio 
-      # avatar: self.file
+      bio: self.bio,
+      avatar: self.file
     }.to_json
   end
 
