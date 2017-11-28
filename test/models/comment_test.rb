@@ -445,4 +445,14 @@ class CommentTest < ActiveSupport::TestCase
     c = create_comment annotated: s
     assert_equal [t.id], c.get_team
   end
+
+  test "should notify Pusher when comment is created for source or media" do
+    pm = create_project_media
+    c = create_comment annotated: pm
+    assert c.sent_to_pusher
+
+    ps = create_project_source
+    c = create_comment annotated: ps
+    assert c.sent_to_pusher
+  end
 end
