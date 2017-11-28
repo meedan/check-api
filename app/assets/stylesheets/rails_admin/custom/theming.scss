@@ -389,6 +389,7 @@ h4 {
     margin-left: 0 !important;
   }
 
+  [data-schemapath="root"] > .well > div > [data-schemapath^="root."],
   [data-schemapath="root.statuses"] > .well > div > [data-schemapath^="root.statuses."] {
     box-shadow: $box-shadow-1 !important;
     margin: 16px 0 !important;
