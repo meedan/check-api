@@ -23,11 +23,15 @@ module CheckNotifications
 
       def notifies_pusher(options = {})
         events = [options[:on]].flatten
+
+        pusher_options = self.pusher_options || {}
+
         events.each do |event|
-          send("after_#{event}", :notify_pusher)
+          send("after_#{event}", ->(obj) { notify_pusher(event) })
+          pusher_options[event] = options
         end
 
-        self.pusher_options = options
+        self.pusher_options = pusher_options
 
         send :include, InstanceMethods
       end
@@ -42,8 +46,8 @@ module CheckNotifications
         @sent_to_pusher = bool
       end
 
-      def parse_pusher_options
-        options = self.class.pusher_options
+      def parse_pusher_options(action)
+        options = self.class.pusher_options[action]
         return if options.has_key?(:if) && !options[:if].call(self)
 
         event = options[:event].is_a?(String) ? options[:event] : options[:event].call(self)
@@ -57,8 +61,8 @@ module CheckNotifications
         RequestStore[:request].blank? ? '' : RequestStore[:request].headers['X-Check-Client'].to_s
       end
 
-      def notify_pusher
-        event, targets, data = self.parse_pusher_options
+      def notify_pusher(action)
+        event, targets, data = self.parse_pusher_options(action)
 
         return if event.blank? || targets.blank? || data.blank?
 
