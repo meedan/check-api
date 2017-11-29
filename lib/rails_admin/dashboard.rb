@@ -49,7 +49,7 @@ module RailsAdmin
         end
 
         register_instance_option :statistics? do
-          true
+          false
         end
       end
     end
