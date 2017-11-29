@@ -12,9 +12,8 @@ module CheckBasicAbilities
     can :create, TeamUser, :user_id => @user.id, status: ['member', 'requested']
 
     # Permissions for registration and login
-    can :create, Source, :user_id => @user.id
+    can :create, Profile, :user_id => @user.id
     can :update, Profile, :id => @user.source_id
-    # can :update, Source, :team_id => nil, :id => @user.source_id
     can :destroy, AccountSource, source: { type: 'Profile', id: @user.source_id}
     can :update, User, :id => @user.id
     can [:create, :update], Account, :user_id => @user.id

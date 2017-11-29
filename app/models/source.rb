@@ -7,7 +7,7 @@ class Source < ActiveRecord::Base
   include CheckElasticSearch
   include CheckNotifications::Pusher
   include ValidationsHelper
-  include CustomLock
+  # include CustomLock
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :team_sources
@@ -28,7 +28,7 @@ class Source < ActiveRecord::Base
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
-  custom_optimistic_locking include_attributes: [:name, :image, :description]
+  # custom_optimistic_locking include_attributes: [:name, :image, :description]
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -60,8 +60,12 @@ class Source < ActiveRecord::Base
     file || (self.accounts.empty? ? CONFIG['checkdesk_base_url'] + '/images/source.png' : self.accounts.first.data['picture'].to_s)
   end
 
-  def get_name
-    source_identity['name']
+  def name
+    @name || source_identity['name']
+  end
+
+  def name=(value)
+    @name = value
   end
 
   def description
@@ -167,7 +171,6 @@ class Source < ActiveRecord::Base
         si.annotator = User.current unless User.current.nil?
       end
       info.each{ |k, v| si.send("#{k}=", v) if si.respond_to?(k) and !v.blank? }
-      si.skip_check_ability = true
       si.save!
     end
   end

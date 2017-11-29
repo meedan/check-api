@@ -109,8 +109,7 @@ module SampleData
     options = { text: random_string(50), annotator: user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      p = create_project team: t
-      options[:annotated] = create_project_source project: p
+      options[:annotated] = create_team_source team: t
     end
     c = Comment.new
     options.each do |key, value|

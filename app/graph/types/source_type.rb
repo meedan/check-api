@@ -5,20 +5,13 @@ SourceType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :image, types.String
+  field :name, !types.String
   field :description, !types.String
   field :dbid, types.Int
   field :user_id, types.Int
   field :permissions, types.String
   field :pusher_channel, types.String
   field :lock_version, types.Int
-
-  field :name do
-    type !types.String
-
-    resolve -> (source, _args, _ctx) {
-      source.get_name
-    }
-  end
 
   connection :accounts, -> { AccountType.connection_type } do
     resolve ->(source, _args, _ctx) {

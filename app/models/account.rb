@@ -115,6 +115,17 @@ class Account < ActiveRecord::Base
     a
   end
 
+  def update_elasticsearch_account
+    return if self.disable_es_callbacks
+    ts_ids = TeamSource.where(source_id: self.sources).map(&:id).to_a
+    unless ts_ids.blank?
+      parents = ts_ids.map{|id| Base64.encode64("TeamSource/#{id}") }
+      parents.each do |parent|
+        self.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+      end
+    end
+  end
+
   private
 
   def create_account_source(source)
@@ -133,16 +144,5 @@ class Account < ActiveRecord::Base
 
   def pender_result_is_a_profile
     errors.add(:base, 'Sorry, this is not a profile') if !self.pender_data.nil? && self.pender_data['provider'] != 'page' && self.pender_data['type'] != 'profile'
-  end
-
-  def update_elasticsearch_account
-    return if self.disable_es_callbacks
-    ts_ids = TeamSource.where(source_id: self.sources).map(&:id).to_a
-    unless ts_ids.blank?
-      parents = ts_ids.map{|id| Base64.encode64("TeamSource/#{id}") }
-      parents.each do |parent|
-        self.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
-      end
-    end
   end
 end

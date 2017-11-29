@@ -9,6 +9,14 @@ TeamSourceType = GraphqlCrudOperations.define_default_type do
   field :permissions, types.String
   field :dbid, types.Int
 
+  field :project_id do
+    type types.Int
+
+    resolve -> (team_source, _args, _ctx) {
+      team_source.projects
+    }
+  end
+
   field :source do
     type -> { SourceType }
 
@@ -24,6 +32,16 @@ TeamSourceType = GraphqlCrudOperations.define_default_type do
       team_source.team
     }
   end
+
+  field :user do
+    type -> { UserType }
+
+    resolve -> (team_source, _args, _ctx) {
+      team_source.user
+    }
+  end
+
+  instance_exec :project_source, &GraphqlCrudOperations.field_published
 
 # End of fields
 end

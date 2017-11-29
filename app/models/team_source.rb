@@ -28,7 +28,7 @@ class TeamSource < ActiveRecord::Base
     # ms.project_id = p.id
     ms.associated_type = self.source.class.name
     ms.set_es_annotated(self)
-    ms.title = s.get_name
+    ms.title = s.name
     ms.description = s.description
     ms.save!
   end
@@ -36,6 +36,11 @@ class TeamSource < ActiveRecord::Base
   def destroy_elasticsearch_media
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     destroy_elasticsearch_data(MediaSearch, 'parent')
+  end
+
+  def projects
+    p = Project.where(id: self.team.projects).joins(:sources).where('sources.id': self.source_id).last
+    p.nil? ? 0 : p.id
   end
 
   private

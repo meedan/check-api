@@ -68,8 +68,8 @@ class Ability
     can :destroy, ProjectMedia do |obj|
       obj.related_to_team?(@context_team)
     end
-    can :destroy, Source#, :team_id => @context_team.id
-    can :destroy, [Account, AccountSource]#, source: { team: { team_users: { team_id: @context_team.id }}}
+    can :destroy, Account, team_id: @context_team.id
+    can :destroy, AccountSource, account: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag status tag embed dynamic task source_identity).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
@@ -129,9 +129,8 @@ class Ability
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
-    can [:create, :update], TeamSource, team: { team_users: { team_id: @context_team.id }}
-    can [:create, :update]#, Source, :team_id => @context_team.id
-    can [:create, :update]#, [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], [TeamSource, Account], team: { team_users: { team_id: @context_team.id }}
+    can [:create, :update], AccountSource, account: { team: { team_users: { team_id: @context_team.id }}}
     can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include?(@context_team.id) and (flag.flag.to_s == 'Mark as graphic') and !flag.annotated_is_archived?
     end
@@ -162,14 +161,9 @@ class Ability
     end
     can :update, [Embed, SourceIdentity]
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}, source: { user_id: @user.id }
-    can [:create, :update], TeamSource, team: { team_users: { team_id: @context_team.id }}, source: { user_id: @user.id }
-    can [:create, :update], Source
-    # can [:create, :update], Source do |obj|
-    #   obj.team_id == @context_team.id && obj.user_id == @user.id
-    # end
-    can [:create, :update], [Account, AccountSource]
-    # can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
-    # can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], [Account, TeamSource], team: { team_users: { team_id: @context_team.id }}
+    can :create, Source
+    can [:create, :update], AccountSource, account: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can :create, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end

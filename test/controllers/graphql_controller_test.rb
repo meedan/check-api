@@ -404,7 +404,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from project source" do
-    assert_graphql_read_object('project_source', { 'project' => 'title', 'source' => 'description' })
+    assert_graphql_read_object('project_source', { 'project' => 'title', 'source' => 'name' })
   end
 
   test "should read object from team user" do
@@ -439,7 +439,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read object from user" do
     User.any_instance.stubs(:current_team).returns(create_team)
-    assert_graphql_read_object('user', { 'source' => 'description', 'current_team' => 'name' })
+    assert_graphql_read_object('user', { 'source' => 'name', 'current_team' => 'name' })
     User.any_instance.unstub(:current_team)
   end
 

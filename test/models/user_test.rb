@@ -367,7 +367,7 @@ class UserTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         s.identity={name: 'update name'}.to_json
-        assert_equal s.reload.get_name, 'update name'
+        assert_equal s.reload.name, 'update name'
       end
     end
     create_team_user user: u, team: t, role: 'contributor'
@@ -375,7 +375,7 @@ class UserTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         s.identity={name: 'update name'}.to_json
-        assert_equal s.reload.get_name, 'update name'
+        assert_equal s.reload.name, 'update name'
       end
       # should remove accounts from own profile
       a = create_account(source: s)
@@ -391,7 +391,7 @@ class UserTest < ActiveSupport::TestCase
       end
       # check that journliast has a permission to update his profile
       js.identity={name: 'update name'}.to_json
-      assert_equal js.reload.get_name, 'update name'
+      assert_equal js.reload.name, 'update name'
     end
 
   end

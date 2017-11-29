@@ -20,10 +20,8 @@ class MigrateTeamSourceAnnotation < ActiveRecord::Migration
 	      end
 	    end
 	  end
-	  # Delete all ProjectSource parents
-	  results = MediaSearch.search(query: { term: { annotated_type: { value: 'projectsource' } } }, size: 10000)
-	  results.each do |ms|
-	  	ms.delete
+	  AccountSource.find_each do |as|
+	  	as.account.update_elasticsearch_account
 	  end
   end
 end
