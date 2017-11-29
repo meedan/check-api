@@ -19,7 +19,7 @@ class MigrateSourceTeam < ActiveRecord::Migration
   				AccountSource.where(source_id: ms.id).update_all(source_id: s.id)
   				ProjectSource.where(source_id: ms.id).update_all(source_id: s.id)
   				# destroy duplicate source
-  				ms.destroymigrate_source_annotations
+  				ms.destroy
   			end
   		end
   	end
@@ -47,7 +47,7 @@ class MigrateSourceTeam < ActiveRecord::Migration
     si = SourceIdentity.new
     si.name = source.read_attribute(:name)
     si.bio = source.read_attribute(:slogan)
-    # si.file = source.read_attribute(:avatar)
+    si.file = source.read_attribute(:avatar)
     si.annotated = annotated
     si.annotator = annotated.user
     si.skip_check_ability = true
