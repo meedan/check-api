@@ -15,7 +15,6 @@ GIT
   remote: https://github.com/meedan/chromeshot
   revision: 030b8d867a515cfda8757282c966fc2b4dd24b49
   ref: 030b8d8
-  branch: feature/6114_chromeshot_gem
   specs:
     chromeshot (0.0.0)
       mini_magick
