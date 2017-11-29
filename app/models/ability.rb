@@ -64,7 +64,7 @@ class Ability
       obj.get_team.include?(@context_team.id)
     end
     can :destroy, ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
-    can :destroy, TeamSource, team: { team_users: { team_id: @context_team.id }}
+    can :destroy, TeamSource, :team_id => @context_team.id
     can :destroy, ProjectMedia do |obj|
       obj.related_to_team?(@context_team)
     end

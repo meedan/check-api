@@ -834,10 +834,9 @@ class TeamTest < ActiveSupport::TestCase
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
       assert_nil ProjectMedia.where(id: pm3.id).last
+      assert_nil TeamSource.where(id: t.id).last
       assert_not_nil Project.where(id: p1.id).last
       assert_nil Project.where(id: p2.id).last
-      assert_not_nil Source.where(id: s1.id).last
-      assert_nil Source.where(id: s2.id).last
       assert_nil Comment.where(id: c.id).last
     end
   end

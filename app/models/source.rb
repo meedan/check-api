@@ -7,7 +7,6 @@ class Source < ActiveRecord::Base
   include CheckElasticSearch
   include CheckNotifications::Pusher
   include ValidationsHelper
-  # include CustomLock
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :team_sources
@@ -27,8 +26,6 @@ class Source < ActiveRecord::Base
   after_create :create_metadata, :create_source_identity, :create_team_source
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
-
-  # custom_optimistic_locking include_attributes: [:name, :image, :description]
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)

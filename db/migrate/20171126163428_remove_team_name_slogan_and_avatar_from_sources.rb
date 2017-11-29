@@ -4,5 +4,6 @@ class RemoveTeamNameSloganAndAvatarFromSources < ActiveRecord::Migration
   	remove_column :sources, :name
   	remove_column :sources, :slogan
   	remove_column :sources, :avatar
+  	remove_column :sources, :lock_version
   end
 end
