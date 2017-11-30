@@ -43,6 +43,14 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     assert_redirected_to '/403.html'
   end
 
+  test "should access admin UI dashboard if admin" do
+    @user.is_admin = true
+    @user.save!
+    sign_in @user
+    get '/admin/dashboard'
+    assert_response :success
+  end
+
   %w(contributor journalist editor).each do |role|
     test "should not access admin UI if team #{role}" do
       Team.stubs(:current).returns(nil)
