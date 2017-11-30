@@ -27,7 +27,7 @@ module CheckNotifications
         pusher_options = self.pusher_options || {}
 
         events.each do |event|
-          send("after_#{event}", ->(obj) { notify_pusher(event) })
+          send("after_#{event}", ->(_obj) { notify_pusher(event) })
           pusher_options[event] = options
         end
 
