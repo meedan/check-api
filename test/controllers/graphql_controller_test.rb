@@ -1130,4 +1130,43 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response :success
   end
+
+  test "should return 409 on conflict" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    s = create_source user: u, team: t
+    s.name = 'Changed'
+    s.save!
+    assert_equal 1, s.reload.lock_version
+    authenticate_with_user(u)
+    query = 'mutation update { updateSource(input: { clientMutationId: "1", name: "Changed again", lock_version: 0, id: "' + s.reload.graphql_id + '"}) { source { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response 409
+  end
+  
+  test "should parse JSON exception" do
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'owner'
+      s = create_source user: u, team: t
+      authenticate_with_user(u)
+
+      query = 'mutation { createAccountSource(input: { clientMutationId: "1", source_id: ' + s.id.to_s + ', url: "' + @url + '"}) { source { id } } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+
+      post :create, query: query, team: t.slug
+      assert_response 400
+      ret = JSON.parse(@response.body)
+      assert_equal ['error', 'error_info'].sort, ret.keys.sort
+      assert_equal 'ERR_OBJECT_EXISTS', ret['error_info']['code']
+      assert_kind_of Integer, ret['error_info']['project_id']
+      assert_kind_of Integer, ret['error_info']['id']
+      assert_equal 'source', ret['error_info']['type']
+    end
+  end
 end

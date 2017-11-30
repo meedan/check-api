@@ -13,8 +13,8 @@ module CheckNotifications
         @pusher_options
       end
 
-      def send_to_pusher(channels, event, data)
-        ::Pusher.trigger(channels, event, { message: data }) unless CONFIG['pusher_key'].blank?
+      def send_to_pusher(channels, event, data, actor_session_id)
+        ::Pusher.trigger(channels, event, { message: data, actor_session_id: actor_session_id }) unless CONFIG['pusher_key'].blank?
       end
 
       def pusher_options=(options)
@@ -23,11 +23,15 @@ module CheckNotifications
 
       def notifies_pusher(options = {})
         events = [options[:on]].flatten
+
+        pusher_options = self.pusher_options || {}
+
         events.each do |event|
-          send("after_#{event}", :notify_pusher)
+          send("after_#{event}", ->(_obj) { notify_pusher(event) })
+          pusher_options[event] = options
         end
 
-        self.pusher_options = options
+        self.pusher_options = pusher_options
 
         send :include, InstanceMethods
       end
@@ -42,8 +46,8 @@ module CheckNotifications
         @sent_to_pusher = bool
       end
 
-      def parse_pusher_options
-        options = self.class.pusher_options
+      def parse_pusher_options(action)
+        options = self.class.pusher_options[action]
         return if options.has_key?(:if) && !options[:if].call(self)
 
         event = options[:event].is_a?(String) ? options[:event] : options[:event].call(self)
@@ -53,8 +57,12 @@ module CheckNotifications
         [event, targets, data]
       end
 
-      def notify_pusher
-        event, targets, data = self.parse_pusher_options
+      def actor_session_id
+        RequestStore[:request].blank? ? '' : RequestStore[:request].headers['X-Check-Client'].to_s
+      end
+
+      def notify_pusher(action)
+        event, targets, data = self.parse_pusher_options(action)
 
         return if event.blank? || targets.blank? || data.blank?
 
@@ -62,11 +70,11 @@ module CheckNotifications
 
         return if channels.blank?
 
-        Rails.env === 'test' ? self.request_pusher(channels, event, data) : CheckNotifications::Pusher::Worker.perform_in(1.second, channels, event, data)
+        Rails.env == 'test' ? self.request_pusher(channels, event, data, self.actor_session_id) : CheckNotifications::Pusher::Worker.perform_in(1.second, channels, event, data, self.actor_session_id)
       end
 
-      def request_pusher(channels, event, data)
-        self.class.send_to_pusher(channels, event, data)
+      def request_pusher(channels, event, data, actor_session_id)
+        self.class.send_to_pusher(channels, event, data, actor_session_id)
         self.sent_to_pusher = true
       end
     end
@@ -75,8 +83,8 @@ module CheckNotifications
       include ::Sidekiq::Worker
       include CheckNotifications::Pusher::ClassMethods
 
-      def perform(channels, event, data)
-        send_to_pusher(channels, event, data)
+      def perform(channels, event, data, actor_session_id)
+        send_to_pusher(channels, event, data, actor_session_id)
       end
     end
   end

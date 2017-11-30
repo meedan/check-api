@@ -12,6 +12,12 @@
         "description": "The task's title, usually a question or a directive.",
         "type": "string"
       },
+      "description": {
+        "title": "Description",
+        "default": "",
+        "description": "A more detailed explanation of the task.",
+        "type": "string"
+      },
       "type": {
         "title": "Type",
         "default": "free_text",
@@ -22,17 +28,8 @@
           "enum_titles": ["Free text", "Single choice", "Multiple choice", "Geolocation", "Datetime"]
         }
       },
-      "description": {
-        "title": "Description",
-        "default": "",
-        "description": "A more detailed explanation of the task.",
-        "type": "string"
-      },
       "options": {
         "title": "Options",
-        "options": {
-          "collapsed": true
-        },
         "default": [],
         "description": "For single and multiple choice tasks, specify the available values here.",
         "type": "array",
@@ -52,9 +49,6 @@
       },
       "mapping": {
         "title": "Mapping",
-        "options": {
-          "collapsed": true
-        },
         "default": {},
         "description": "To pre-populate a response with the contents of a given media's JSON-LD metadata, enter the mapping rule here.",
         "type": "object",
@@ -85,9 +79,6 @@
       },
       "projects": {
         "title": "Projects",
-        "options": {
-          "collapsed": true
-        },
         "default": [],
         "description": "The list of projects that will have this task created automatically for every new report. Leave blank to apply to all projects in the current team.",
         "type": "array",

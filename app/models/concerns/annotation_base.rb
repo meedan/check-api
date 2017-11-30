@@ -62,12 +62,13 @@ module AnnotationBase
     include CheckPermissions
     include CheckNotifications::Pusher
     include CheckElasticSearch
+    include CustomLock
 
     attr_accessor :disable_es_callbacks
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
-                    if: proc { |a| a.annotated_type == 'ProjectMedia' || a.annotated_type == 'ProjectSource' || a.annotated_type == 'Source' },
+                    if: proc { |a| (a.annotated_type == 'ProjectMedia' || a.annotated_type == 'ProjectSource' || a.annotated_type == 'Source') && !a.skip_notifications },
                     event: proc { |a| a.annotated_type == 'ProjectMedia' ? 'media_updated' : 'source_updated'},
                     targets: proc { |a| a.annotated_type == 'ProjectMedia' ? [a.annotated.project, a.annotated.media] : (a.annotated_type == 'ProjectSource' ? [a.annotated.source] : [a.annotated]) },
                     data: proc { |a| a = Annotation.where(id: a.id).last; a.nil? ? a.to_json : a.load.to_json }
@@ -77,10 +78,12 @@ module AnnotationBase
     after_save :touch_annotated
     after_destroy :touch_annotated
 
-    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities], if: proc { |_x| User.current.present? }
+    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |_x| User.current.present? }
 
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
+
+    custom_optimistic_locking if: proc { |a| a.annotation_type == 'metadata' }
 
     def self.annotated_types
       ['ProjectSource', 'ProjectMedia', 'Source']

@@ -258,7 +258,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 4, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 3, CheckNotifications::Pusher::Worker.jobs.size
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -379,7 +379,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_project_media project: p, media: m
     end
     assert_no_difference 'ProjectMedia.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      assert_raises RuntimeError do
         create_project_media project: p, media: m
       end
     end
@@ -1303,5 +1303,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     s.save!
     assert_equal '<span id="oembed__status" class="l">status_in_progress</span>', pm.last_status_html
     assert_equal '#ffbb5d', pm.last_status_color
+  end
+
+  test "should get description" do
+    c = create_claim_media quote: 'Test'
+    pm = create_project_media media: c
+    assert_equal 'Test', pm.reload.description
+    info = { description: 'Test 2' }.to_json
+    pm.embed = info
+    pm.save!
+    assert_equal 'Test 2', pm.reload.description
   end
 end

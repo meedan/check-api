@@ -121,11 +121,15 @@ class Bot::Slack < ActiveRecord::Base
 
     module ClassMethods
       def create_or_update_slack_message(options = {})
-        send("after_#{options[:on]}", "call_slack_api_#{options[:endpoint]}") 
+        events = options[:on] || []
+        [events].flatten.each do |event|
+          send("after_#{event}", "call_slack_api_#{options[:endpoint]}")
+        end
       end
 
       def call_slack_api(id, mutation_id, endpoint)
         obj = self.find(id)
+        return if obj.annotated.nil? || !obj.annotated.respond_to?(:get_annotations)
         slack_message_id = mutation_id.to_s.match(/^fromSlackMessage:(.*)$/)
         obj.annotated.get_annotations('slack_message').each do |annotation|
           id = annotation.load.get_field_value('slack_message_id')
@@ -149,6 +153,37 @@ class Bot::Slack < ActiveRecord::Base
     def call_slack_api(endpoint)
       self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless CONFIG['slack_token'].blank?
     end
+
+    # The default behavior is to update an existing Slack message
+
+    def slack_message_parameters(id, _channel, attachments)
+      { ts: id, attachments: self.annotated.update_slack_message_attachments(attachments) }
+    end
+  end
+
+  ProjectMedia.class_eval do
+    def update_slack_message_attachments(attachments)
+      label = ''
+      I18n.with_locale(:en) do
+        statuses = self.project.team.get_media_verification_statuses || Status.core_verification_statuses('media')
+        statuses = statuses.with_indifferent_access['statuses']
+        statuses.each { |status| label = status['label'] if status['id'] == self.last_status }
+      end
+
+      json = JSON.parse(attachments)
+      json[0]['title'] = "#{label.upcase}: #{self.title.to_s.truncate(140)}"
+      json[0]['text'] = self.description.to_s.truncate(500)
+      json[0]['color'] = self.last_status_color
+      json[0]['fields'][0]['value'] = self.get_versions_log_count
+      json[0]['fields'][1]['value'] = "#{self.completed_tasks_count}/#{self.all_tasks.size}"
+      json[0]['fields'][3]['value'] = "<!date^#{self.updated_at.to_i}^{date} {time}|#{self.updated_at.to_i}>"
+      json[0]['fields'][4]['value'] = self.project.title
+
+      tags = self.get_annotations('tag').map(&:tag)
+      json[0]['fields'][5] = { title: 'Tags', value: tags.join(', '), short: true } if tags.size > 0
+
+      json.to_json
+    end
   end
 
   Comment.class_eval do
@@ -166,29 +201,11 @@ class Bot::Slack < ActiveRecord::Base
     include ::Bot::Slack::SlackMessage
     
     create_or_update_slack_message on: :update, endpoint: :update
+  end
 
-    def slack_message_parameters(id, _channel, attachments)
-      pm = self.annotated
-
-      label = ''
-      I18n.with_locale(:en) do
-        statuses = pm.project.team.get_media_verification_statuses || Status.core_verification_statuses('media')
-        statuses = statuses.with_indifferent_access['statuses']
-        statuses.each { |status| label = status['label'] if status['id'] == pm.last_status }
-      end
-
-      json = JSON.parse(attachments)
-      json[0]['title'] = "#{label.upcase}: #{pm.title}"
-      json[0]['color'] = pm.last_status_color
-      json[0]['fields'][0]['value'] = pm.get_versions_log_count
-      json[0]['fields'][1]['value'] = "#{pm.completed_tasks_count}/#{pm.all_tasks.size}"
-      json[0]['fields'][3]['value'] = "<!date^#{pm.updated_at.to_i}^{date} {time}|#{pm.updated_at.to_i}>"
-      json[0]['fields'][4]['value'] = pm.project.title
-
-      tags = pm.get_annotations('tag').map(&:tag)
-      json[0]['fields'][5] = { title: 'Tags', value: tags.join(', '), short: true } if tags.size > 0
-      
-      { ts: id, attachments: json.to_json }
-    end
+  Embed.class_eval do
+    include ::Bot::Slack::SlackMessage
+    
+    create_or_update_slack_message on: [:update, :create], endpoint: :update
   end
 end

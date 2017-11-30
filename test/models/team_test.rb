@@ -645,6 +645,19 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
   end
 
+  test "should return checklist options as array after submit task without it" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+    }]
+    t.checklist = value
+    t.save!
+    assert_nil t.get_checklist.first[:options]
+    assert_equal [], t.checklist.first[:options]
+  end
+
   test "should return checklist projects as array after submit task without it" do
     t = create_team
     value = [{
@@ -1020,5 +1033,23 @@ class TeamTest < ActiveSupport::TestCase
   test "should have public team alias" do
     t = create_team
     assert_equal t, t.public_team
+  end
+
+  test "should hide names in embeds" do
+    t = create_team
+    assert !t.get_hide_names_in_embeds
+    t.hide_names_in_embeds = 1
+    t.save!
+    assert t.get_hide_names_in_embeds
+  end
+
+  test "should clear embed caches if team setting is changed" do
+    ProjectMedia.stubs(:clear_caches).times(3)
+    t = create_team
+    p = create_project team: t
+    3.times { create_project_media(project: p) }
+    t.hide_names_in_embeds = 1
+    t.save!
+    ProjectMedia.unstub(:clear_caches)
   end
 end

@@ -5,6 +5,7 @@ class Source < ActiveRecord::Base
   include CheckElasticSearch
   include CheckNotifications::Pusher
   include ValidationsHelper
+  include CustomLock
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   has_many :project_sources
@@ -22,9 +23,12 @@ class Source < ActiveRecord::Base
   validate :is_unique_per_team, on: :create
   validate :team_is_not_archived
 
+  after_create :create_metadata
   after_update :update_elasticsearch_source
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
+
+  custom_optimistic_locking include_attributes: [:name, :image, :description]
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -103,10 +107,11 @@ class Source < ActiveRecord::Base
   end
 
   def update_name_from_data(data)
+    gname = self.name ||= "Untitled-#{Time.now.strftime('%Y%m%d%H%M%S%L')}"
     if data.nil?
-      self.name = 'Untitled' if self.name.blank?
+      self.name = gname if self.name.blank?
     else
-      self.name = data['author_name'].blank? ? 'Untitled' : data['author_name'] if self.name.blank? or self.name === 'Untitled'
+      self.name = data['author_name'].blank? ? gname : data['author_name'] if self.name.blank? or self.name.start_with?('Untitled-')
     end
   end
 
@@ -160,5 +165,22 @@ class Source < ActiveRecord::Base
 
   def team_is_not_archived
     parent_is_not_archived(self.team, I18n.t(:error_team_archived_for_source, default: "Can't create source under trashed team"))
+  end
+
+  def create_metadata
+    unless DynamicAnnotation::AnnotationType.where(annotation_type: 'metadata').last.nil?
+      user = User.current
+      User.current = nil
+      m = Dynamic.new
+      m.skip_check_ability = true
+      m.skip_notifications = true
+      m.disable_es_callbacks = Rails.env.to_s == 'test'
+      m.annotation_type = 'metadata'
+      m.annotated = self
+      m.annotator = user
+      m.set_fields = { metadata_value: {}.to_json }.to_json
+      m.save!
+      User.current = user
+    end
   end
 end

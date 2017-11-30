@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions
+  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -47,6 +47,7 @@ class ProjectMedia < ActiveRecord::Base
     st.created_at = self.created_at
     st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     st.skip_check_ability = true
+    st.skip_notifications = true
     st.save!
   end
 
@@ -70,6 +71,12 @@ class ProjectMedia < ActiveRecord::Base
     title = self.media.quote unless self.media.quote.blank?
     title = self.embed['title'] unless self.embed.blank? || self.embed['title'].blank?
     title
+  end
+
+  def description
+    description = self.text
+    description = self.embed['description'] unless self.embed.blank? || self.embed['description'].blank?
+    description
   end
 
   def add_elasticsearch_data
@@ -146,6 +153,7 @@ class ProjectMedia < ActiveRecord::Base
       em = em.load unless em.nil?
       em = initiate_embed_annotation(info) if em.nil?
       em.disable_es_callbacks = Rails.env.to_s == 'test'
+      em.client_mutation_id = self.client_mutation_id
       self.override_embed_data(em, info)
     end
   end
@@ -269,6 +277,7 @@ class ProjectMedia < ActiveRecord::Base
 
   def override_embed_data(em, info)
     info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
+    em.skip_notifications = true if self.is_being_created
     em.save!
   end
 
