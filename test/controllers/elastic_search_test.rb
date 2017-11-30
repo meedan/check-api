@@ -784,7 +784,7 @@ class ElasticSearchTest < ActionController::TestCase
     result = CheckSearch.new({keyword: 'news', show: ['sources'] }.to_json)
     assert_equal [ts.id], result.sources.map(&:id)
     # search in comments
-    result = CheckSearch.new({keyword: 'add_comment', projects: [p.id], show: ['sources'] }.to_json)
+    result = CheckSearch.new({keyword: 'add_comment', show: ['sources'] }.to_json)
     assert_equal [ts.id], result.sources.map(&:id)
   end
 
@@ -802,6 +802,10 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [ts.id], result.sources.map(&:id)
   end
 
+  test "should search by project in team source" do
+    # TODO: Sawy
+  end
+
   test "should sort results by recent activities in team sources" do
     t = create_team
     s1 = create_source name: 'search_sort a'
@@ -816,22 +820,22 @@ class ElasticSearchTest < ActionController::TestCase
     sleep 10
     # sort with keywords
     Team.stubs(:current).returns(t)
-    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], show: ['sources'] }.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', show: ['sources'] }.to_json)
     assert_equal [ts3.id, ts2.id, ts1.id], result.sources.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ts1.id, ts3.id, ts2.id], result.sources.map(&:id)
     # sort with keywords and tags
     create_tag tag: 'sorts', annotated: ts3, disable_es_callbacks: false
     create_tag tag: 'sorts', annotated: ts2, disable_es_callbacks: false
     sleep 10
-    result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
+    result = CheckSearch.new({tags: ["sorts"], sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ts2.id, ts3.id], result.sources.map(&:id).sort
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ts2.id, ts3.id], result.sources.map(&:id)
     # sort with keywords and tags
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ts2.id, ts3.id], result.sources.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], show: ['sources'] }.to_json)
+    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], show: ['sources'] }.to_json)
     assert_equal [ts3.id, ts2.id], result.sources.map(&:id)
   end
 
@@ -1296,11 +1300,11 @@ class ElasticSearchTest < ActionController::TestCase
     ts = create_team_source team: t, source: s, disable_es_callbacks: false
     sleep 1
     ms = MediaSearch.find(Base64.encode64("TeamSource/#{ts.id}"))
-    assert_equal ms.title, s.name
-    assert_equal ms.description, s.description
+    assert_equal ms.title, ts.name
+    assert_equal ms.description, ts.description
     Team.stubs(:current).returns(t)
     info = {name: 'new_source', bio: 'new_desc'}.to_json
-    s.identity=info
+    ts.identity=info
     sleep 1
     ms = MediaSearch.find(Base64.encode64("TeamSource/#{ts.id}"))
     assert_equal ms.title, 'new_source'
@@ -1314,7 +1318,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal ms.description, 'desc_a'
     Team.stubs(:current).returns(t2)
     info = {name: 'source_b', bio: 'desc_b'}.to_json
-    s.identity=info
+    ts2.identity=info
     sleep 1
     ms1 = MediaSearch.find(Base64.encode64("TeamSource/#{ts.id}"))
     ms2 = MediaSearch.find(Base64.encode64("TeamSource/#{ts2.id}"))

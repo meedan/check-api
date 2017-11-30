@@ -56,6 +56,7 @@ class TeamSource < ActiveRecord::Base
     info = info.blank? ? {} : JSON.parse(info)
     unless info.blank?
       si = get_annotations('source_identity').last
+      si = si.load unless si.nil?
       if si.nil?
         si = SourceIdentity.new
         si.annotated = self
@@ -119,6 +120,14 @@ class TeamSource < ActiveRecord::Base
     p.nil? ? 0 : p.id
   end
 
+  def get_annotations(type = nil)
+    self.annotations.where(annotation_type: type)
+  end
+
+  def get_source_annotations(type = nil)
+    self.source.annotations.where(annotation_type: type).last
+  end
+
   private
 
   def set_user
@@ -127,14 +136,6 @@ class TeamSource < ActiveRecord::Base
 
   def team_is_not_archived
     parent_is_not_archived(self.team, I18n.t(:error_team_archived_for_source, default: "Can't create source under trashed team"))
-  end
-
-  def get_annotations(type = nil)
-    self.annotations.where(annotation_type: type)
-  end
-
-  def get_source_annotations(type = nil)
-    self.source.annotations.where(annotation_type: type).last
   end
 
   def create_metadata

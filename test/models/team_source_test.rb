@@ -42,26 +42,15 @@ class TeamSourceTest < ActiveSupport::TestCase
   	end
   end
 
-  test "should create version when source is created" do
+  test "should create version when team source is created" do
     u = create_user
     create_team_user user: u, role: 'contributor'
     User.current = u
-    s = create_source
-    assert_operator s.versions.size, :>, 0
+    ts = create_team_source
+    assert_operator ts.versions.size, :>, 0
     User.current = nil
   end
 
-  test "should create version when source is updated" do
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    with_current_user_and_team(u, t) do
-      s = create_source
-      s.slogan = 'test'
-      s.save!
-      assert_equal 2, s.versions.size
-    end
-  end
 
   test "should have annotations" do
     ts = create_team_source
@@ -90,11 +79,11 @@ class TeamSourceTest < ActiveSupport::TestCase
     assert_equal 'test', ts.description
   end
 
-  test "should get image" do
-    url = 'http://checkdesk.org/users/1/photo.png'
-    u = create_user profile_image: url
-    assert_equal url, u.source.image
-  end
+  # test "should get image" do
+  #   url = 'http://checkdesk.org/users/1/photo.png'
+  #   u = create_user profile_image: url
+  #   assert_equal url, u.source.image
+  # end
 
   test "should get db id" do
     ts = create_team_source

@@ -97,6 +97,20 @@ class ProjectMedia < ActiveRecord::Base
     self.media.annotations.where(annotation_type: type).last
   end
 
+  def embed
+    em_pender = self.get_media_annotations('embed')
+    em_overriden = self.get_annotations('embed').last
+    if em_overriden.nil?
+      em = em_pender
+    else
+      em = em_overriden
+      em['data']['embed'] = em_pender['data']['embed'] unless em_pender.nil?
+    end
+    embed = JSON.parse(em.data['embed']) unless em.nil?
+    self.overridden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em.data[sk] unless em.data[sk].nil? } unless embed.nil?
+    embed
+  end
+
   def last_status
     last = self.get_annotations('status').first
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
@@ -119,6 +133,18 @@ class ProjectMedia < ActiveRecord::Base
 
   def overridden_embed_attributes
     %W(title description username)
+  end
+
+  def embed=(info)
+    info = info.blank? ? {} : JSON.parse(info)
+    unless info.blank?
+      em = self.get_annotations('embed').last
+      em = em.load unless em.nil?
+      em = initiate_embed_annotation(info) if em.nil?
+      em.disable_es_callbacks = Rails.env.to_s == 'test'
+      em.client_mutation_id = self.client_mutation_id
+      self.override_embed_data(em, info)
+    end
   end
 
   def project_was

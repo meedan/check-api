@@ -1172,7 +1172,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
         pm = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
         s = pm.project_source.source
         assert_not_nil pm.project_source
-        assert_equal s.name, 'source name'
+        ts = s.team_sources.last
+        assert_equal ts.name, 'source name'
         pm2 = create_project_media project: p, quote: 'Claim 2', quote_attributions: {name: 'source name'}.to_json
         assert_equal pm2.project_source.source, s
       end
