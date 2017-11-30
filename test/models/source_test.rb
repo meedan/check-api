@@ -336,15 +336,16 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should update from Pender data" do
-    s = create_source name: 'Untitled'
+    s = create_source name: 'Untitled-123'
     s.update_from_pender_data({ 'author_name' => 'Test' })
     assert_equal 'Test', s.name
   end
 
   test "should not update from Pender data when author_name is blank" do
-    s = create_source name: 'Untitled'
+    gname = 'Untitled-123'
+    s = create_source name: gname
     s.update_from_pender_data({ 'author_name' => '' })
-    assert_equal 'Untitled', s.name
+    assert_equal gname, s.name
   end
 
   test "should refresh source and accounts" do
@@ -382,7 +383,7 @@ class SourceTest < ActiveSupport::TestCase
     Account.any_instance.stubs(:data).returns(data)
     Account.any_instance.stubs(:refresh_pender_data)
 
-    s = create_source name: 'Untitled', slogan: ''
+    s = create_source name: 'Untitled-123', slogan: ''
     a = create_valid_account(source: s)
 
     s.refresh_accounts = 1
@@ -397,12 +398,12 @@ class SourceTest < ActiveSupport::TestCase
   test "should not refresh source if account data is nil" do
     Account.any_instance.stubs(:data).returns(nil)
     Account.any_instance.stubs(:refresh_pender_data)
-    s = create_source name: 'Untitled', slogan: 'Source slogan'
+    s = create_source name: 'Untitled-123', slogan: 'Source slogan'
     a = create_valid_account(source: s)
 
     s.refresh_accounts = 1
     s.reload
-    assert_equal 'Untitled', s.name
+    assert_equal 'Untitled-123', s.name
     assert_equal 'Source slogan', s.slogan
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)

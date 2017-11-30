@@ -288,7 +288,7 @@ class AccountTest < ActiveSupport::TestCase
     WebMock.allow_net_connect!
   end
 
-  test "should create source with 'Untitled' if author_name from Pender is blank" do
+  test "should create source with 'Untitled-xxx' if author_name from Pender is blank" do
     WebMock.disable_net_connect!
     url = 'http://example.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -296,7 +296,7 @@ class AccountTest < ActiveSupport::TestCase
     }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":""}}')
     account = Account.create url: url, user: create_user
     assert !account.source.nil?
-    assert_equal 'Untitled', account.source.name
+    assert_match /^Untitled-/, account.source.name
     WebMock.allow_net_connect!
   end
 
