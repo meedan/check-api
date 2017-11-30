@@ -187,15 +187,16 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should update from Pender data" do
-    s = create_source name: 'Untitled'
+    s = create_source name: 'Untitled-123'
     s.update_from_pender_data({ 'author_name' => 'Test' })
     assert_equal 'Test', s.name
   end
 
   test "should not update from Pender data when author_name is blank" do
-    s = create_source name: 'Untitled'
+    gname = 'Untitled-123'
+    s = create_source name: gname
     s.update_from_pender_data({ 'author_name' => '' })
-    assert_equal 'Untitled', s.name
+    assert_equal gname, s.name
   end
 
   # test "should not edit same instance concurrently" do

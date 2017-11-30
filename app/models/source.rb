@@ -44,10 +44,11 @@ class Source < ActiveRecord::Base
   end
 
   def update_name_from_data(data)
+    gname = self.name ||= "Untitled-#{Time.now.strftime('%Y%m%d%H%M%S%L')}"
     if data.nil?
-      self.name = 'Untitled' if self.name.blank?
+      self.name = gname if self.name.blank?
     else
-      self.name = data['author_name'].blank? ? 'Untitled' : data['author_name'] if self.name.blank? or self.name === 'Untitled'
+      self.name = data['author_name'].blank? ? gname : data['author_name'] if self.name.blank? or self.name.start_with?('Untitled-')
     end
   end
 

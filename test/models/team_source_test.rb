@@ -219,7 +219,7 @@ class TeamSourceTest < ActiveSupport::TestCase
     Account.any_instance.stubs(:data).returns(data)
     Account.any_instance.stubs(:refresh_pender_data)
 
-    s = create_source name: 'Untitled', slogan: ''
+    s = create_source name: 'Untitled-123', slogan: ''
     ts = create_team_source source: s
     a = create_valid_account(source: s)
 
@@ -235,13 +235,13 @@ class TeamSourceTest < ActiveSupport::TestCase
   test "should not refresh source if account data is nil" do
     Account.any_instance.stubs(:data).returns(nil)
     Account.any_instance.stubs(:refresh_pender_data)
-    s = create_source name: 'Untitled', slogan: 'Source slogan'
+    s = create_source name: 'Untitled-123', slogan: 'Source slogan'
     ts = create_team_source source: s
     a = create_valid_account(source: s)
 
     ts.refresh_accounts = 1
     ts.reload
-    assert_equal 'Untitled', ts.name
+    assert_equal 'Untitled-123', ts.name
     assert_equal 'Source slogan', ts.slogan
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)
