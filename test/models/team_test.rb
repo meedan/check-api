@@ -645,6 +645,19 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
   end
 
+  test "should return checklist options as array after submit task without it" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+    }]
+    t.checklist = value
+    t.save!
+    assert_nil t.get_checklist.first[:options]
+    assert_equal [], t.checklist.first[:options]
+  end
+
   test "should return checklist projects as array after submit task without it" do
     t = create_team
     value = [{
