@@ -38,6 +38,7 @@ class MigrateSourceTeam < ActiveRecord::Migration
   	# update annotations count
   	ts.cached_annotations_count = target.project_sources.sum(:cached_annotations_count)
   	ts.user = user if ts.user.nil? && !user.nil?
+    ts.archived = ts.team.archived
   	ts.save!
   	migrate_source_annotations(ts, target)
   	ts

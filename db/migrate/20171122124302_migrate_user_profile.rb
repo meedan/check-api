@@ -6,7 +6,7 @@ class MigrateUserProfile < ActiveRecord::Migration
   			si = SourceIdentity.new
   			si.name = u.read_attribute(:name)
   			si.bio = s.read_attribute(:slogan)
-  			si.file = source.read_attribute(:avatar)
+  			si.file = s.read_attribute(:avatar)
   			si.annotated = s
 		    si.annotator = u
 		    si.skip_check_ability = true

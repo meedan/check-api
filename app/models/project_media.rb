@@ -13,7 +13,7 @@ class ProjectMedia < ActiveRecord::Base
 
   validate :project_is_not_archived
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
+  after_create :set_quote_embed, :create_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :create_project_source
   after_update :move_media_sources, :update_elasticsearch_data
   before_destroy :destroy_elasticsearch_media
 
@@ -38,18 +38,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def project_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
-  end
-
-  def set_initial_media_status
-    st = Status.new
-    st.annotated = self
-    st.annotator = self.user
-    st.status = Status.default_id(self.media, self.project)
-    st.created_at = self.created_at
-    st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    st.skip_check_ability = true
-    st.skip_notifications = true
-    st.save!
   end
 
   def slack_notification_message
@@ -109,20 +97,6 @@ class ProjectMedia < ActiveRecord::Base
     self.media.annotations.where(annotation_type: type).last
   end
 
-  def embed
-    em_pender = self.get_media_annotations('embed')
-    em_overriden = self.get_annotations('embed').last
-    if em_overriden.nil?
-      em = em_pender
-    else
-      em = em_overriden
-      em['data']['embed'] = em_pender['data']['embed'] unless em_pender.nil?
-    end
-    embed = JSON.parse(em.data['embed']) unless em.nil?
-    self.overridden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em.data[sk] unless em.data[sk].nil? } unless embed.nil?
-    embed
-  end
-
   def last_status
     last = self.get_annotations('status').first
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
@@ -145,18 +119,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def overridden_embed_attributes
     %W(title description username)
-  end
-
-  def embed=(info)
-    info = info.blank? ? {} : JSON.parse(info)
-    unless info.blank?
-      em = self.get_annotations('embed').last
-      em = em.load unless em.nil?
-      em = initiate_embed_annotation(info) if em.nil?
-      em.disable_es_callbacks = Rails.env.to_s == 'test'
-      em.client_mutation_id = self.client_mutation_id
-      self.override_embed_data(em, info)
-    end
   end
 
   def project_was
@@ -248,10 +210,6 @@ class ProjectMedia < ActiveRecord::Base
   def set_quote_embed
     self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
     self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
-  end
-
-  def set_project_source
-    self.create_project_source
   end
 
   def move_media_sources

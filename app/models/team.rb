@@ -192,7 +192,7 @@ class Team < ActiveRecord::Base
 
   def self.archive_or_restore_projects_if_needed(archived, team_id)
     Project.where({ team_id: team_id }).update_all({ archived: archived })
-    Source.joins(:team_sources).where({ 'team_sources.team_id' => team_id }).update_all({ archived: archived })
+    TeamSource.where({ team_id: team_id }).update_all({ archived: archived })
     ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id }).update_all({ archived: archived })
   end
 

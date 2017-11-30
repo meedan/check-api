@@ -42,18 +42,6 @@ class SourceTest < ActiveSupport::TestCase
     User.current = nil
   end
 
-  test "should create version when source is updated" do
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    with_current_user_and_team(u, t) do
-      s = create_source
-      s.slogan = 'test'
-      s.save!
-      assert_equal 2, s.versions.size
-    end
-  end
-
   test "should have accounts" do
     a1 = create_valid_account
     a2 = create_valid_account
@@ -111,42 +99,6 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal u.id, s.user_id_callback('test@test.com')
   end
 
-  test "should get image" do
-    url = 'http://checkdesk.org/users/1/photo.png'
-    u = create_user profile_image: url
-    assert_equal url, u.source.image
-  end
-
-  test "should get medias" do
-    s = create_source
-    p = create_project
-    m = create_valid_media(account: create_valid_account(source: s))
-    pm = create_project_media project: p, media: m
-    assert_equal [pm], s.medias
-    # get media for claim attributions
-    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
-    cs = ClaimSource.where(media_id: pm2.media_id).last
-    assert_not_nil cs.source
-    assert_equal [pm2], cs.source.medias
-  end
-
-  test "should get collaborators" do
-    u1 = create_user
-    u2 = create_user
-    u3 = create_user
-    s1 = create_source
-    s2 = create_source
-    c1 = create_comment annotator: u1, annotated: s1
-    c2 = create_comment annotator: u1, annotated: s1
-    c3 = create_comment annotator: u1, annotated: s1
-    c4 = create_comment annotator: u2, annotated: s1
-    c5 = create_comment annotator: u2, annotated: s1
-    c6 = create_comment annotator: u3, annotated: s2
-    c7 = create_comment annotator: u3, annotated: s2
-    assert_equal [u1, u2].sort, s1.collaborators.sort
-    assert_equal [u3].sort, s2.collaborators.sort
-  end
-
   test "should get avatar from callback" do
     s = create_source
     assert_nil s.avatar_callback('')
@@ -156,45 +108,9 @@ class SourceTest < ActiveSupport::TestCase
     assert_nil s.avatar_callback(file)
   end
 
-  test "should have description" do
-    s = create_source name: 'foo', slogan: 'bar'
-    assert_equal 'bar', s.description
-    s.accounts << create_valid_account(data: { description: 'test' })
-    assert_equal 'test', s.description
-  end
-
-  test "should get tags" do
-    t = create_team
-    t2 = create_team
-    s = create_source
-    ts = create_team_source team: t, source: s
-    ts2 = create_team_source team: t2, source: s
-    tag = create_tag annotated: ts
-    tag2 = create_tag annotated: ts2
-    assert_equal [tag, tag2].sort, s.get_annotations('tag').sort
-    Team.stubs(:current).returns(t)
-    assert_equal [tag], s.get_annotations('tag')
-    Team.stubs(:current).returns(t2)
-    assert_equal [tag2], s.get_annotations('tag')
-    Team.unstub(:current)
-  end
-
   test "should get db id" do
     s = create_source
     assert_equal s.id, s.dbid
-  end
-
-  test "journalist should edit any source" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'journalist'
-    with_current_user_and_team(u, t) do
-      s = create_source user: create_user
-      s.name = 'update source'
-      assert_nothing_raised RuntimeError do
-        s.save!
-      end
-    end
   end
 
   test "should get permissions" do
@@ -227,15 +143,6 @@ class SourceTest < ActiveSupport::TestCase
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
-  end
-
-  test "should get team" do
-    t = create_team
-    p = create_project team: t
-    ps = create_project_source project: p
-    s = create_source
-    s.project_sources << ps
-    assert_equal [t.id], s.get_team
   end
 
   test "should protect attributes from mass assignment" do
@@ -279,41 +186,6 @@ class SourceTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get log" do
-    s = create_source
-    u = create_user
-    t = create_team
-    t2 = create_team
-
-    create_team_user user: u, team: t, role: 'owner'
-
-    ts = create_team_source team: t, source: s, user: u
-
-    with_current_user_and_team(u, t) do
-      c = create_comment annotated: ts
-      tg = create_tag annotated: ts
-      f = create_flag annotated: ts
-      s.identity={name: 'update name'}.to_json
-      assert_equal ["create_comment", "create_tag", "create_flag"].sort, s.get_versions_log.map(&:event_type).sort
-      assert_equal 3, s.get_versions_log_count
-      c.destroy!
-      assert_equal 3, s.get_versions_log_count
-      tg.destroy!
-      assert_equal 3, s.get_versions_log_count
-      f.destroy!
-      assert_equal 3, s.get_versions_log_count
-    end
-  end
-
-  test "should notify Pusher when source is updated" do
-    s = create_source
-    s = Source.find(s.id)
-    assert !s.sent_to_pusher
-    s.updated_at = Time.now
-    s.save!
-    assert s.sent_to_pusher
-  end
-
   test "should update from Pender data" do
     s = create_source name: 'Untitled'
     s.update_from_pender_data({ 'author_name' => 'Test' })
@@ -326,88 +198,24 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal 'Untitled', s.name
   end
 
-  test "should refresh source and accounts" do
-    WebMock.disable_net_connect!
-    url = "http://twitter.com/example#{Time.now.to_i}"
-    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
-    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
-    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
-    WebMock.stub_request(:get, pender_url).to_return(ret)
-    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
-    a = create_account url: url
-    s = create_source
-    s.accounts << a
-    t1 = a.updated_at
-    sleep 2
-    s.refresh_accounts = 1
-    s.save!
-    t2 = a.reload.updated_at
-    WebMock.allow_net_connect!
-    assert t2 > t1
-  end
-
-  test "should refresh source with account data" do
-    data = { author_name: 'Source author', author_picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
-    Account.any_instance.stubs(:data).returns(data)
-    Account.any_instance.stubs(:refresh_pender_data)
-
-    s = create_source name: 'Untitled', slogan: ''
-    a = create_valid_account(source: s)
-
-    s.refresh_accounts = 1
-    s.reload
-    assert_equal 'Source author', s.name
-    assert_equal 'picture.png', s.avatar
-    assert_equal 'Source slogan', s.slogan
-    Account.any_instance.unstub(:data)
-    Account.any_instance.unstub(:refresh_pender_data)
-  end
-
-  test "should not refresh source if account data is nil" do
-    Account.any_instance.stubs(:data).returns(nil)
-    Account.any_instance.stubs(:refresh_pender_data)
-    s = create_source name: 'Untitled', slogan: 'Source slogan'
-    a = create_valid_account(source: s)
-
-    s.refresh_accounts = 1
-    s.reload
-    assert_equal 'Untitled', s.name
-    assert_equal 'Source slogan', s.slogan
-    Account.any_instance.unstub(:data)
-    Account.any_instance.unstub(:refresh_pender_data)
-  end
-
-  test "should set/get source identity" do
-    # TODO: Sawy
-  end
-  test "should not edit same instance concurrently" do
-    s = create_source
-    assert_equal 0, s.lock_version
-    assert_nothing_raised do
-      s.name = 'Changed'
-      s.save!
-    end
-    assert_equal 1, s.reload.lock_version
-    assert_raises ActiveRecord::StaleObjectError do
-      s.lock_version = 0
-      s.name = 'Changed again'
-      s.save!
-    end
-    assert_equal 1, s.reload.lock_version
-    assert_nothing_raised do
-      s.lock_version = 0
-      s.updated_at = Time.now + 1
-      s.save!
-    end
-  end
-
-  test "should create metadata annotation when source is created" do
-    assert_no_difference 'Dynamic.count' do
-      create_source
-    end
-    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
-    assert_difference 'Dynamic.count' do
-      create_source
-    end
-  end
+  # test "should not edit same instance concurrently" do
+  #   s = create_source
+  #   assert_equal 0, s.lock_version
+  #   assert_nothing_raised do
+  #     s.name = 'Changed'
+  #     s.save!
+  #   end
+  #   assert_equal 1, s.reload.lock_version
+  #   assert_raises ActiveRecord::StaleObjectError do
+  #     s.lock_version = 0
+  #     s.name = 'Changed again'
+  #     s.save!
+  #   end
+  #   assert_equal 1, s.reload.lock_version
+  #   assert_nothing_raised do
+  #     s.lock_version = 0
+  #     s.updated_at = Time.now + 1
+  #     s.save!
+  #   end
+  # end
 end

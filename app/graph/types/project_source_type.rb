@@ -18,10 +18,10 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
   end
 
   field :source do
-    type -> { SourceType }
+    type -> { TeamSourceType }
 
     resolve -> (project_source, _args, _ctx) {
-      project_source.source
+      project_source.source.get_team_source
     }
   end
 
