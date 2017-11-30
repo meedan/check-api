@@ -41,6 +41,7 @@ class GraphqlCrudOperations
     klass = type.camelize
 
     obj = klass.constantize.new
+    obj.is_being_created = true if obj.respond_to?(:is_being_created)
     obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|

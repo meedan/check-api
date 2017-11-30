@@ -27,7 +27,18 @@ class AccountSource < ActiveRecord::Base
       errors.add(:base, "This account already exists") unless as.nil?
     else
       ps = self.check_duplicate_accounts
-      errors.add(:base, "This account already exists in project #{ps.project_id} and has id #{ps.id}") unless ps.blank?
+      unless ps.blank?
+        error = {
+          message: I18n.t(:account_exists, project_id: ps.project_id, project_source_id: ps.id),
+          code: 'ERR_OBJECT_EXISTS',
+          data: {
+            project_id: ps.project_id,
+            type: 'source',
+            id: ps.id
+          }
+        }
+        raise error.to_json
+      end
     end
   end
 

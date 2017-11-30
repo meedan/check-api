@@ -327,6 +327,9 @@ RailsAdmin.config do |config|
         label 'Enable Keep archiving'
         visible_only_for_admin
       end
+      configure :get_hide_names_in_embeds do
+        label 'Hide names in embeds'
+      end
       configure :get_slack_notifications_enabled do
         label 'Enable Slack notifications'
       end
@@ -401,6 +404,11 @@ RailsAdmin.config do |config|
         end
         visible_only_for_admin
         visible_only_for_allowed_teams 'keep_integration'
+      end
+      field :hide_names_in_embeds, :boolean do
+        label 'Hide names in embeds'
+        formatted_value{ bindings[:object].get_hide_names_in_embeds }
+        help ''
       end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'

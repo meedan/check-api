@@ -12,6 +12,7 @@ module SourceMutations
     name: 'str',
     refresh_accounts: 'int',
     user_id: 'int',
+    lock_version: 'int',
     id: '!id'
   }
 

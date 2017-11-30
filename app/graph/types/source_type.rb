@@ -11,6 +11,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
   field :user_id, types.Int
   field :permissions, types.String
   field :pusher_channel, types.String
+  field :lock_version, types.Int
 
   connection :accounts, -> { AccountType.connection_type } do
     resolve ->(source, _args, _ctx) {
