@@ -64,6 +64,8 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
     && cd ./latest \
     && bundle install  --jobs 20 --retry 5 --deployment --without test development
 
+RUN bundle exec rake assets:precompile
+
 USER root
 
 # deployment scripts
