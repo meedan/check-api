@@ -53,6 +53,8 @@ class Ability
     can :access, :rails_admin
     can :dashboard
 
+    can :destroy, :trash
+
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser, team_id: @context_team.id

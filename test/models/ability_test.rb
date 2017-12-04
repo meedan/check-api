@@ -268,6 +268,22 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "owner only can empty trash" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t , role: 'owner'
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:destroy, :trash)
+    end
+    u2 = create_user
+    create_team_user user: u2, team: t , role: 'editor'
+    with_current_user_and_team(u2, t) do
+      ability = Ability.new
+      assert ability.cannot?(:destroy, :trash)
+    end
+  end
+
   test "authenticated permissions for teamUser" do
     u = create_user
     tu = create_team_user user: u
