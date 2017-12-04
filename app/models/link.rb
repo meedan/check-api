@@ -9,7 +9,7 @@ class Link < Media
   after_create :set_pender_result_as_annotation, :set_account
 
   def domain
-    host = URI.parse(self.url).host unless self.url.nil?
+    host = URI.parse(URI.encode(self.url)).host unless self.url.nil?
     host.nil? ? nil : host.gsub(/^(www|m)\./, '')
   end
 
