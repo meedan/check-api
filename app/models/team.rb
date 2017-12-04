@@ -203,7 +203,7 @@ class Team < ActiveRecord::Base
   def empty_trash=(confirm)
     if confirm
       ability = Ability.new
-      if ability.can?(:update, self)
+      if ability.can?(:destroy, :trash)
         self.affected_ids = self.trash.all.map(&:graphql_id)
         Team.delay.empty_trash(self.id)
       else
