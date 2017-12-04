@@ -265,6 +265,13 @@ class Team < ActiveRecord::Base
     URI(url).path.split('/')[1]
   end
 
+  def custom_permissions(ability = nil)
+    perms = {}
+    ability ||= Ability.new
+    perms["empty Trash"] = ability.can?(:destroy, :trash)
+    perms
+  end
+
   protected
 
   def set_verification_statuses(type, statuses)
