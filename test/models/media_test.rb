@@ -507,4 +507,12 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'Bar', c.text
     assert_equal '', i.text
   end
+
+  test "should get domain from url with arabic chars" do
+    m = create_valid_media
+    m.stubs(:url).returns("http://www.youm7.com/story/2017/11/27/مستشفى-ألمانى-يعلن-نجاح-جراحة-بالعمود-الفقرى-للبابا-تواضروس/3529785")
+    assert_nothing_raised do
+      assert_equal 'youm7.com', m.domain
+    end
+  end
 end
