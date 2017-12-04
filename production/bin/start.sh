@@ -46,6 +46,8 @@ if [ -n "${PRIMARY}" ]; then
     /opt/bin/run_migration.sh
 fi
 
+bundle exec rake assets:precompile
+
 echo "tailing ${LOGFILE}"
 tail -f $LOGFILE &
 
