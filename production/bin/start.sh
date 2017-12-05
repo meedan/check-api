@@ -46,7 +46,8 @@ if [ -n "${PRIMARY}" ]; then
     /opt/bin/run_migration.sh
 fi
 
-bundle exec rake assets:precompile
+# compile assets in the background, particularly the admin interface
+su ${DEPLOYUSER} -c "nice bundle exec rake assets:precompile" &
 
 echo "tailing ${LOGFILE}"
 tail -f $LOGFILE &
