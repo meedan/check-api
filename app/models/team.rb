@@ -130,7 +130,7 @@ class Team < ActiveRecord::Base
     tasks = self.get_checklist
     unless tasks.blank?
       tasks.map do |t|
-        t[:options] = JSON.parse(t[:options]) if t[:options]
+        t[:options] = t[:options] ? JSON.parse(t[:options]) : []
         t[:projects] = [] if t[:projects].nil?
       end
     end
@@ -203,7 +203,7 @@ class Team < ActiveRecord::Base
   def empty_trash=(confirm)
     if confirm
       ability = Ability.new
-      if ability.can?(:update, self)
+      if ability.can?(:destroy, :trash)
         self.affected_ids = self.trash.all.map(&:graphql_id)
         Team.delay.empty_trash(self.id)
       else
@@ -263,6 +263,13 @@ class Team < ActiveRecord::Base
     # Use extract to solve cases that URL inside [] {} () ...
     url = URI.extract(url)[0]
     URI(url).path.split('/')[1]
+  end
+
+  def custom_permissions(ability = nil)
+    perms = {}
+    ability ||= Ability.new
+    perms["empty Trash"] = ability.can?(:destroy, :trash)
+    perms
   end
 
   protected

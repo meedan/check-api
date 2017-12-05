@@ -287,7 +287,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     team = create_team
-    perm_keys = ["read Team", "update Team", "destroy Team", "create Project", "create Account", "create TeamUser", "create User", "create Contact"].sort
+    perm_keys = ["read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
@@ -643,6 +643,19 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
     assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
+  end
+
+  test "should return checklist options as array after submit task without it" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+    }]
+    t.checklist = value
+    t.save!
+    assert_nil t.get_checklist.first[:options]
+    assert_equal [], t.checklist.first[:options]
   end
 
   test "should return checklist projects as array after submit task without it" do
