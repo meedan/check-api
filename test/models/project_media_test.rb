@@ -129,7 +129,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
         pm_own.disable_es_callbacks = true
         pm_own.destroy!
       end
-
+    end
+    assert_raise RuntimeError do
       with_current_user_and_team(u, t) do
         pm_own.disable_es_callbacks = true
         pm.destroy!
