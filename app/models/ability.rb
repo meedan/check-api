@@ -73,11 +73,11 @@ class Ability
     can :destroy, [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+        obj.get_team.include?(@context_team.id)
       end
     end
     can :destroy, DynamicAnnotation::Field do |obj|
-      obj.annotation.get_team.include?(@context_team.id) && !obj.annotation.annotated_is_archived?
+      obj.annotation.get_team.include?(@context_team.id)
     end
     can :destroy, PaperTrail::Version do |obj|
       teams = []
