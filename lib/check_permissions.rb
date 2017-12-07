@@ -99,20 +99,22 @@ module CheckPermissions
     self.changes.to_json == '{"archived":[true,false]}' ? :restore : :update
   end
 
+  def ability
+    RequestStore.store[:ability] == :admin ? AdminAbility.new : Ability.new
+  end
+
   private
 
   def check_ability
     unless self.skip_check_ability or User.current.nil?
-      ability = Ability.new
       op = self.get_operation 
-      raise "No permission to #{op} #{self.class.name}" unless ability.can?(op, self)
+      raise "No permission to #{op} #{self.class.name}" unless self.ability.can?(op, self)
     end
   end
 
   def check_destroy_ability
     unless self.skip_check_ability or User.current.nil?
-      ability = Ability.new
-      raise "No permission to delete #{self.class.name}" unless ability.can?(:destroy, self)
+      raise "No permission to delete #{self.class.name}" unless self.ability.can?(:destroy, self)
     end
   end
 end
