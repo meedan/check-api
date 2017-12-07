@@ -98,7 +98,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, pm)
       assert ability.can?(:update, own_pm)
       assert ability.cannot?(:destroy, pm)
-      assert ability.can?(:destroy, own_pm)
+      assert ability.cannot?(:destroy, own_pm)
       assert ability.cannot?(:update, m2)
       assert ability.can?(:update, own_media)
       assert ability.cannot?(:destroy, m2)
@@ -132,7 +132,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, pm)
       assert ability.can?(:update, own_pm)
       assert ability.cannot?(:destroy, pm)
-      assert ability.can?(:destroy, own_pm)
+      assert ability.cannot?(:destroy, own_pm)
       assert ability.cannot?(:update, m2)
       assert ability.can?(:update, own_media)
       assert ability.cannot?(:destroy, m2)
@@ -265,6 +265,22 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, t)
       assert ability.cannot?(:update, t2)
       assert ability.cannot?(:destroy, t2)
+    end
+  end
+
+  test "owner only can empty trash" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t , role: 'owner'
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:destroy, :trash)
+    end
+    u2 = create_user
+    create_team_user user: u2, team: t , role: 'editor'
+    with_current_user_and_team(u2, t) do
+      ability = Ability.new
+      assert ability.cannot?(:destroy, :trash)
     end
   end
 
@@ -1121,8 +1137,8 @@ class AbilityTest < ActiveSupport::TestCase
     a = create_account
 
     with_current_user_and_team(u, t) do
-      assert_equal ["read Team", "update Team", "destroy Team", "create Project", "create Account", "create TeamUser", "create User", "create Contact"], JSON.parse(t.permissions).keys
-      assert_equal ["read Project", "update Project", "destroy Project", "create ProjectSource", "create Source", "create Media", "create ProjectMedia", "create Claim", "create Link"], JSON.parse(p.permissions).keys
+      assert_equal ["read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact"].sort, JSON.parse(t.permissions).keys.sort
+      assert_equal ["read Project", "update Project", "destroy Project", "create ProjectSource", "create Source", "create Media", "create ProjectMedia", "create Claim", "create Link"].sort, JSON.parse(p.permissions).keys.sort
       assert_equal ["read Account", "update Account", "destroy Account", "create Media", "create Link", "create Claim"].sort, JSON.parse(a.permissions).keys.sort
     end
   end
