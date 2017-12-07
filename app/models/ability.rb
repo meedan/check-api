@@ -149,8 +149,10 @@ class Ability
     can :update, Status, ['annotation_type = ?', 'status'] do |obj|
       obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
     end
-    can :destroy, Comment, ['annotation_type = ?', 'comment'] do |obj|
-      obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+    %w(annotation comment).each do |annotation_type|
+      can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+        obj.annotation_type == 'comment' && obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+      end
     end
   end
 
