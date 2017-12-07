@@ -642,9 +642,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert_raise RuntimeError do
         c.save
       end
-      assert_nothing_raised RuntimeError do
-        c.destroy
-      end
     end
 
     tu.role = 'owner'; tu.save!
