@@ -737,8 +737,8 @@ class TeamTest < ActiveSupport::TestCase
       t = create_team
       p1 = create_project
       p2 = create_project team: t
-      s1 = create_source
-      s2 = create_source team: t
+      ts1 = create_team_source
+      ts2 = create_team_source team: t
       pm1 = create_project_media
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
@@ -749,8 +749,8 @@ class TeamTest < ActiveSupport::TestCase
       assert pm3.reload.archived
       assert !p1.reload.archived
       assert p2.reload.archived
-      assert !s1.reload.archived
-      assert s2.reload.archived
+      assert !ts1.reload.archived
+      assert ts2.reload.archived
     end
   end
 
@@ -785,8 +785,8 @@ class TeamTest < ActiveSupport::TestCase
       t = create_team
       p1 = create_project team: t
       p2 = create_project
-      s1 = create_source team: t
-      s2 = create_source
+      ts1 = create_team_source team: t
+      ts2 = create_team_source
       pm1 = create_project_media
       pm2 = create_project_media project: p1
       pm3 = create_project_media project: p1
@@ -805,8 +805,8 @@ class TeamTest < ActiveSupport::TestCase
       assert !pm3.reload.archived
       assert !p1.reload.archived
       assert !p2.reload.archived
-      assert !s1.reload.archived
-      assert !s2.reload.archived
+      assert !ts1.reload.archived
+      assert !ts2.reload.archived
     end
   end
 

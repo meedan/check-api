@@ -44,9 +44,11 @@ class TeamSourceTest < ActiveSupport::TestCase
 
   test "should create version when team source is created" do
     u = create_user
-    create_team_user user: u, role: 'contributor'
+    t = create_team
+    s = create_source
+    create_team_user team: t, user: u, role: 'contributor'
     User.current = u
-    ts = create_team_source
+    ts = create_team_source team: t, source: s
     assert_operator ts.versions.size, :>, 0
     User.current = nil
   end
@@ -130,12 +132,8 @@ class TeamSourceTest < ActiveSupport::TestCase
     ts2 = create_team_source team: t2, source: s
     tag = create_tag annotated: ts
     tag2 = create_tag annotated: ts2
-    assert_equal [tag, tag2].sort, ts.get_annotations('tag').sort
-    Team.stubs(:current).returns(t)
     assert_equal [tag], ts.get_annotations('tag')
-    Team.stubs(:current).returns(t2)
     assert_equal [tag2], ts.get_annotations('tag')
-    Team.unstub(:current)
   end
 
   test "should get log" do
@@ -152,7 +150,7 @@ class TeamSourceTest < ActiveSupport::TestCase
       c = create_comment annotated: ts
       tg = create_tag annotated: ts
       f = create_flag annotated: ts
-      # ts.identity={name: 'update name'}.to_json
+      ts.identity={name: 'update name'}.to_json
       assert_equal ["create_comment", "create_tag", "create_flag"].sort, ts.get_versions_log.map(&:event_type).sort
       assert_equal 3, ts.get_versions_log_count
       c.destroy!
@@ -172,12 +170,13 @@ class TeamSourceTest < ActiveSupport::TestCase
     ts.save!
     assert ts.sent_to_pusher
   end
-    test "should create metadata annotation when source is created" do
-    assert_no_difference 'Dynamic.count' do
+  
+  test "should create metadata annotation when team source is created" do
+    assert_no_difference 'Dynamic.length' do
       create_team_source
     end
     create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
-    assert_difference 'Dynamic.count' do
+    assert_difference 'Dynamic.length' do
       create_team_source
     end
   end
@@ -212,11 +211,12 @@ class TeamSourceTest < ActiveSupport::TestCase
     ts = create_team_source source: s
     a = create_valid_account(source: s)
 
+    ts.disable_es_callbacks = true
     ts.refresh_accounts = 1
     ts.reload
     assert_equal 'Source author', ts.name
-    assert_equal 'picture.png', ts.avatar
-    assert_equal 'Source slogan', ts.slogan
+    # assert_equal 'picture.png', ts.image
+    assert_equal 'Source slogan', ts.description
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)
   end
@@ -228,16 +228,26 @@ class TeamSourceTest < ActiveSupport::TestCase
     ts = create_team_source source: s
     a = create_valid_account(source: s)
 
+    ts.disable_es_callbacks = true
     ts.refresh_accounts = 1
     ts.reload
     assert_equal 'Untitled-123', ts.name
-    assert_equal 'Source slogan', ts.slogan
+    assert_equal 'Source slogan', ts.description
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)
   end
 
-  test "should set/get source identity" do
-    # TODO: Sawy
+  test "should update source identity" do
+    t = create_team
+    t2 = create_team
+    s = create_source name: 'source name', slogan: 'source slogan'
+    ts = create_team_source team: t, source: s
+    ts2 = create_team_source team: t2, source: s
+    ts.identity = {name: 'new name', bio: 'new bio'}.to_json
+    assert_equal ts2.name, 'source name'
+    assert_equal ts.name, 'new name'
+    assert_equal ts2.description, 'source slogane'
+    assert_equal ts.description, 'new bio'
   end
 
 end

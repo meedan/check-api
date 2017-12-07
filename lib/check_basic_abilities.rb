@@ -18,6 +18,7 @@ module CheckBasicAbilities
     can :update, User, :id => @user.id
     can [:create, :update], Account, :user_id => @user.id
     can :create, Embed, :annotated_id => @user.account_ids
+    can :update, SourceIdentity, :annotated_id => @user.source_id
 
     can :restore, ProjectMedia do |obj|
       tmp = obj.dup

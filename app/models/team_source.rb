@@ -1,9 +1,12 @@
 class TeamSource < ActiveRecord::Base
-  attr_accessor :disable_es_callbacks, :identity
+  attr_accessor :disable_es_callbacks
 
   include CheckElasticSearch
   include ValidationsHelper
+  include SourceUserIdentity
   include CheckNotifications::Pusher
+
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
 
   belongs_to :team
   belongs_to :source
@@ -52,31 +55,6 @@ class TeamSource < ActiveRecord::Base
     self.reload.cached_annotations_count
   end
 
-  def identity=(info)
-    info = info.blank? ? {} : JSON.parse(info)
-    unless info.blank?
-      si = get_annotations('source_identity').last
-      si = si.load unless si.nil?
-      if si.nil?
-        si = SourceIdentity.new
-        si.annotated = self
-        si.annotator = User.current unless User.current.nil?
-      end
-      info.each{ |k, v| si.send("#{k}=", v) if si.respond_to?(k) and !v.blank? }
-      si.save!
-    end
-  end
-
-  def identity
-    data = {}
-    attributes = %W(name bio file)
-    si = get_source_annotations('source_identity')
-    attributes.each{|k| ks = k.to_s; data[ks] = si.send(ks) } unless si.nil?
-    si = get_annotations('source_identity').last
-    attributes.each{|k| ks = k.to_s; data[ks] = si.send(ks) unless si.send(ks).nil? } unless si.nil?
-    data
-  end
-
   def medias
     #TODO: fix me - list valid project media ids
     m_ids = Media.where(account_id: self.source.account_ids).map(&:id)
@@ -91,9 +69,11 @@ class TeamSource < ActiveRecord::Base
     s = self.source
     s.accounts.each do |a|
       a.refresh_pender_data
+      a.disable_es_callbacks = self.disable_es_callbacks
       a.save!
     end
     s.update_from_pender_data(s.accounts.first.data)
+    s.create_source_identity
     s.updated_at = Time.now
     s.save!
   end
@@ -122,10 +102,6 @@ class TeamSource < ActiveRecord::Base
 
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
-  end
-
-  def get_source_annotations(type = nil)
-    self.source.annotations.where(annotation_type: type).last
   end
 
   private

@@ -63,9 +63,9 @@ TeamType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :sources, -> { SourceType.connection_type } do
+  connection :team_sources, -> { TeamSourceType.connection_type } do
     resolve ->(team, _args, _ctx) {
-      team.sources
+      team.team_sources
     }
   end
 end

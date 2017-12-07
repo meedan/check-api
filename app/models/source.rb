@@ -24,6 +24,7 @@ class Source < ActiveRecord::Base
 
   after_create :create_source_identity, :create_team_source
 
+
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
   end
@@ -71,12 +72,16 @@ class Source < ActiveRecord::Base
   end
 
   def create_source_identity
-    si = SourceIdentity.new
+    si = self.annotations.where(annotation_type: 'source_identity').last
+    si = si.load unless si.nil?
+    if si.nil?
+      si = SourceIdentity.new
+      si.annotated = self
+      si.skip_check_ability = true
+    end
     si.name = self.name
     si.bio = self.slogan
     si.file = self.avatar
-    si.annotated = self
-    si.skip_check_ability = true
     si.save!
   end
 

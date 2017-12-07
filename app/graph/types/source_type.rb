@@ -10,7 +10,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
   
   connection :accounts, -> { AccountType.connection_type } do
     resolve ->(source, _args, _ctx) {
-      source.source.accounts
+      source.accounts
     }
   end
 

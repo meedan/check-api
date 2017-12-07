@@ -398,7 +398,7 @@ module SampleData
     source.save!
 
     if options[:team]
-      create_team_source team: options[:team], source: source
+      # create_team_source team: options[:team], source: source
       create_project_source(project: create_project(team: options[:team], user: nil), source: source)
     end
 
