@@ -53,6 +53,8 @@ class Ability
     can :access, :rails_admin
     can :dashboard
 
+    can :destroy, :trash
+
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser, team_id: @context_team.id
@@ -71,11 +73,11 @@ class Ability
     can :destroy, [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment flag status tag embed dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+        obj.get_team.include?(@context_team.id)
       end
     end
     can :destroy, DynamicAnnotation::Field do |obj|
-      obj.annotation.get_team.include?(@context_team.id) && !obj.annotation.annotated_is_archived?
+      obj.annotation.get_team.include?(@context_team.id)
     end
     can :destroy, PaperTrail::Version do |obj|
       teams = []
@@ -106,6 +108,9 @@ class Ability
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
+    can :destroy, ProjectMedia do |obj|
+      obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
+    end
     %w(annotation comment flag dynamic task).each do |annotation_type|
       can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include?(@context_team.id) && obj.user_id == @user.id && !obj.annotated_is_archived?
@@ -168,7 +173,7 @@ class Ability
     can :create, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
-    can [:update, :destroy], ProjectMedia do |obj|
+    can :update, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
     end
     can [:update, :destroy], Comment, ['annotation_type = ?', 'comment'] do |obj|
