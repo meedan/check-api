@@ -149,6 +149,9 @@ class Ability
     can :update, Status, ['annotation_type = ?', 'status'] do |obj|
       obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
     end
+    can :destroy, Comment, ['annotation_type = ?', 'comment'] do |obj|
+      obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+    end
   end
 
   def contributor_perms
