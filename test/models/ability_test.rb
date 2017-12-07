@@ -589,7 +589,7 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.can?(:create, Comment)
       assert ability.cannot?(:update, mc)
-      assert ability.cannot?(:destroy, mc)
+      assert ability.can?(:destroy, mc)
       assert ability.can?(:update, own_comment)
       assert ability.can?(:destroy, own_comment)
     end
@@ -641,9 +641,6 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       assert_raise RuntimeError do
         c.save
-      end
-      assert_raise RuntimeError do
-        c.destroy
       end
     end
 
@@ -1228,8 +1225,8 @@ class AbilityTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       a = Ability.new
-      assert a.cannot?(:destroy, a1)
-      assert a.cannot?(:destroy, a2)
+      assert a.can?(:destroy, a1)
+      assert a.can?(:destroy, a2)
       assert a.cannot?(:destroy, a3)
     end
   end
@@ -1677,7 +1674,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, c)
       assert ability.can?(:destroy, c)
       assert ability.cannot?(:update, c2)
-      assert ability.cannot?(:destroy, c2)
+      assert ability.can?(:destroy, c2)
       c.destroy!
       v = PaperTrail::Version.last
       assert ability.cannot?(:destroy, v)
