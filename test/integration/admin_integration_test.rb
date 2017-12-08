@@ -159,11 +159,21 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   test "should edit a team as team owner" do
     sign_in @user
     team_2 = create_team
-    create_team_user team: @team, user: @user, role: 'owner'
     create_team_user team: team_2, user: @user, role: 'owner'
+    create_team_user team: @team, user: @user, role: 'owner'
     put "/admin/team/#{team_2.id}/edit", team: { hide_names_in_embeds: "1" }
     assert_redirected_to '/admin/team'
     assert_equal "1", team_2.reload.get_hide_names_in_embeds
+  end
+
+  test "should handle error on edition of a team" do
+    sign_in @user
+    team = create_team
+    create_team_user team: team, user: @user, role: 'owner'
+    Team.any_instance.stubs(:save).returns(false)
+    put "/admin/team/#{team.id}/edit", team: { hide_names_in_embeds: "1" }
+    assert_not_equal "1", team.reload.get_hide_names_in_embeds
+    Team.any_instance.unstub(:save)
   end
 
 end
