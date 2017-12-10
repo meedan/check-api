@@ -277,7 +277,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def override_embed_data(em, info)
-    info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
+    em.override_annotation(info)
     em.skip_notifications = true if self.is_being_created
     em.save!
   end

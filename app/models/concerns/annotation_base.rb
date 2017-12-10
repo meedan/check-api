@@ -269,6 +269,10 @@ module AnnotationBase
     self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
   end
 
+  def override_annotation(info)
+    info.each{ |k, v| self.send("#{k}=", v) if self.respond_to?(k) and !v.blank? }
+  end
+
   protected
 
   def load_polymorphic(name)

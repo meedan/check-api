@@ -29,8 +29,7 @@ class AccountSource < ActiveRecord::Base
       if self.source.type == 'Profile'
         errors.add(:base, "This account already exists")
       else
-        projects = Team.current.projects.map(&:id) unless Team.current.nil?
-        ps = ProjectSource.where(project_id: projects, source_id: as.source_id).last unless projects.blank?
+        ps = get_project_sources
         unless ps.blank?
           error = {
             message: I18n.t(:account_exists, project_id: ps.project_id, project_source_id: ps.id),
@@ -45,6 +44,11 @@ class AccountSource < ActiveRecord::Base
         end
       end
     end
+  end
+
+  def get_project_sources
+    projects = Team.current.projects.map(&:id) unless Team.current.nil?
+    ProjectSource.where(project_id: projects, source_id: as.source_id).last unless projects.blank?
   end
 
   def add_elasticsearch_account

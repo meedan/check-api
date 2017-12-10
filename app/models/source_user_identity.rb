@@ -6,15 +6,15 @@ module SourceUserIdentity
     attr_accessor :identity
 
     def identity=(info)
-	    info = info.blank? ? {} : JSON.parse(info)
-	    unless info.blank?
-	    	si = self.class.name == 'User' ? get_user_identity : get_team_source_identity
-	      info.each{ |k, v| si.send("#{k}=", v) if si.respond_to?(k) and !v.blank? }
-	      si.disable_es_callbacks = self.disable_es_callbacks
-	      si.save!
-	    end
-	  end
-
+    	info = info.blank? ? {} : JSON.parse(info)
+    	unless info.blank?
+    		si = self.class.name == 'User' ? get_user_identity : get_team_source_identity
+    		si.override_annotation(info)
+    		si.disable_es_callbacks = self.disable_es_callbacks
+    		si.save!
+    	end
+    end
+    
 	  def identity
 	    data = {}
 	    attributes = %W(name bio file)
@@ -23,7 +23,7 @@ module SourceUserIdentity
 	    if self.class.name == 'TeamSource'
 	    	si = get_annotations('source_identity').last
 	    	attributes.each{|k| ks = k.to_s; data[ks] = si.send(ks) unless si.send(ks).nil? } unless si.nil?
-	  	end
+	    end
 	    data
 	  end
 

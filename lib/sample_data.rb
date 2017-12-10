@@ -429,6 +429,7 @@ module SampleData
   end
 
   def create_team_source(options = {})
+    options = { disable_es_callbacks: true}.merge(options)
     u = options[:user] || create_user
     ts = TeamSource.new
     options[:team] = create_team unless options.has_key?(:team)
