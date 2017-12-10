@@ -133,7 +133,7 @@ class TeamSourceTest < ActiveSupport::TestCase
     tag = create_tag annotated: ts
     tag2 = create_tag annotated: ts2
     assert_equal [tag], ts.get_annotations('tag')
-    assert_equal [tag2], ts.get_annotations('tag')
+    assert_equal [tag2], ts2.get_annotations('tag')
   end
 
   test "should get log" do
@@ -150,6 +150,7 @@ class TeamSourceTest < ActiveSupport::TestCase
       c = create_comment annotated: ts
       tg = create_tag annotated: ts
       f = create_flag annotated: ts
+      ts.disable_es_callbacks = true
       ts.identity={name: 'update name'}.to_json
       assert_equal ["create_comment", "create_tag", "create_flag"].sort, ts.get_versions_log.map(&:event_type).sort
       assert_equal 3, ts.get_versions_log_count
@@ -225,9 +226,9 @@ class TeamSourceTest < ActiveSupport::TestCase
     Account.any_instance.stubs(:data).returns(nil)
     Account.any_instance.stubs(:refresh_pender_data)
     s = create_source name: 'Untitled-123', slogan: 'Source slogan'
+    si = s.annotations.where(annotation_type: 'source_identity').last
     ts = create_team_source source: s
     a = create_valid_account(source: s)
-
     ts.disable_es_callbacks = true
     ts.refresh_accounts = 1
     ts.reload
@@ -243,10 +244,11 @@ class TeamSourceTest < ActiveSupport::TestCase
     s = create_source name: 'source name', slogan: 'source slogan'
     ts = create_team_source team: t, source: s
     ts2 = create_team_source team: t2, source: s
+    ts.disable_es_callbacks = true
     ts.identity = {name: 'new name', bio: 'new bio'}.to_json
     assert_equal ts2.name, 'source name'
     assert_equal ts.name, 'new name'
-    assert_equal ts2.description, 'source slogane'
+    assert_equal ts2.description, 'source slogan'
     assert_equal ts.description, 'new bio'
   end
 

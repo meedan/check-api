@@ -38,6 +38,12 @@ class Source < ActiveRecord::Base
   end
 
   def update_from_pender_data(data)
+    # get source identity
+    si = self.annotations.where(annotation_type: 'source_identity').last
+    unless si.blank?
+      self.name = si.name
+      self.slogan = si.bio
+    end
     self.update_name_from_data(data)
     return if data.nil?
     self.avatar = data['author_picture'] if !data['author_picture'].blank?

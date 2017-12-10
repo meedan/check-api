@@ -43,12 +43,10 @@ class SourceIdentityTest < ActiveSupport::TestCase
     ts = create_team_source team: t
     with_current_user_and_team(u, t) do
       si = create_source_identity(name: 'foo', bio: 'foo', annotated: ts, annotator: u)
-      si = SourceIdentity.last
-      si.name = 'bar'; si.bio = 'bar'
-      si.disable_es_callbacks = true
-      si.save!
+      ts.disable_es_callbacks = true
+      ts.identity={name: 'bar', bio: 'bar'}.to_json
       assert_equal 2, si.versions.count
-      v = PaperTrail::Version.last
+      v = si.versions.last
       assert_equal 'update', v.event
       assert_equal({"data"=>[{"name"=>"foo", "bio"=> "foo"}, {"name"=>"bar", "bio" => "bar"}]}, v.changeset)
     end

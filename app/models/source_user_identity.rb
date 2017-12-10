@@ -10,6 +10,7 @@ module SourceUserIdentity
 	    unless info.blank?
 	    	si = self.class.name == 'User' ? get_user_identity : get_team_source_identity
 	      info.each{ |k, v| si.send("#{k}=", v) if si.respond_to?(k) and !v.blank? }
+	      si.disable_es_callbacks = self.disable_es_callbacks
 	      si.save!
 	    end
 	  end

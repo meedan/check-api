@@ -127,7 +127,9 @@ module AnnotationBase
 
     def length
       type = self.name.underscore.parameterize
-      Annotation.where(annotation_type: type).count
+      condition = {}
+      condition = {annotation_type: type} unless type == 'annotation'
+      Annotation.where(condition).count
     end
 
     def field(name, _type = String, _options = {})

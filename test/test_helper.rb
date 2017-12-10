@@ -295,6 +295,7 @@ class ActiveSupport::TestCase
       Annotation.delete_all
       x1 = create_comment(annotated: pm).reload
       x2 = create_comment(annotated: pm).reload
+      Annotation.where.not(annotation_type: 'comment').delete_all
     else
       x1 = send("create_#{type}").reload
       x2 = send("create_#{type}").reload

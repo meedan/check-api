@@ -177,8 +177,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should get team" do
     t = create_team
     s = create_source
-    p = create_project team: t
-    create_project_source source: s, project: p
+    create_team_source source: s, team: t
     a = create_valid_account source: s
     assert_equal [t.id], a.get_team
   end

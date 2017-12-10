@@ -37,7 +37,7 @@ class Account < ActiveRecord::Base
   end
 
   def get_team
-    self.sources.map(&:get_team).flatten.uniq
+    TeamSource.where(source_id: self.sources.map(&:id)).map(&:team_id).flatten.uniq
   end
 
   def data
