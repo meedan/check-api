@@ -1,14 +1,13 @@
 require Rails.root.join('lib', 'rails_admin', 'send_reset_password_email.rb')
 require Rails.root.join('lib', 'rails_admin', 'export_project.rb')
 require Rails.root.join('lib', 'rails_admin', 'yaml_field.rb')
+require Rails.root.join('lib', 'rails_admin', 'dashboard.rb')
+require Rails.root.join('lib', 'rails_admin', 'edit.rb')
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportProject)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Fields::Types::Yaml)
 
 RailsAdmin.config do |config|
-
-  require Rails.root.join('lib/rails_admin', 'dashboard.rb')
-
 
   ### Popular gems integration
 

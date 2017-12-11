@@ -5,6 +5,8 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
 
   def setup
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
+    @team = create_team
+    Team.stubs(:current).returns(@team)
     @user = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', provider: ''
     @user.confirm
     @admin_user = create_user login: 'admin_user', password: '12345678', password_confirmation: '12345678', email: 'admin@test.com', provider: ''
@@ -12,8 +14,12 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     @admin_user.is_admin = true
     @admin_user.save!
 
-    @project = create_project user: @user
-    @team = create_team
+    @project = create_project user: @user, team: @team
+  end
+
+  def teardown
+    super
+    Team.unstub(:current)
   end
 
   test "should redirect to root if not logged user access admin UI" do
@@ -59,6 +65,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
       get '/admin'
       assert_redirected_to '/403.html'
       sign_out @user
+      Team.unstub(:current)
     end
   end
 
@@ -69,6 +76,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
 
     get '/admin'
     assert_response :success
+    Team.unstub(:current)
   end
 
   test "should access new project page" do
@@ -146,6 +154,26 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     assert_equal "text/csv", @response.headers['Content-Type']
     assert_match(/attachment; filename=\"#{@project.team.slug}_#{@project.title.parameterize}_.*\.csv\"/, @response.headers['Content-Disposition'])
     assert_response :success
+  end
+
+  test "should edit a team as team owner" do
+    sign_in @user
+    team_2 = create_team
+    create_team_user team: team_2, user: @user, role: 'owner'
+    create_team_user team: @team, user: @user, role: 'owner'
+    put "/admin/team/#{team_2.id}/edit", team: { hide_names_in_embeds: "1" }
+    assert_redirected_to '/admin/team'
+    assert_equal "1", team_2.reload.get_hide_names_in_embeds
+  end
+
+  test "should handle error on edition of a team" do
+    sign_in @user
+    team = create_team
+    create_team_user team: team, user: @user, role: 'owner'
+    Team.any_instance.stubs(:save).returns(false)
+    put "/admin/team/#{team.id}/edit", team: { hide_names_in_embeds: "1" }
+    assert_not_equal "1", team.reload.get_hide_names_in_embeds
+    Team.any_instance.unstub(:save)
   end
 
 end
