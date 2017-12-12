@@ -176,4 +176,33 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     Team.any_instance.unstub(:save)
   end
 
+  test "should delete a project as team owner" do
+    sign_in @user
+    create_team_user team: @team, user: @user, role: 'owner'
+    team_2 = create_team
+    create_team_user team: team_2, user: @user, role: 'owner'
+    project_2 = create_project user: @user, team: team_2
+    get "/admin/project/#{project_2.id}/delete"
+    delete "/admin/project/#{project_2.id}/delete"
+
+    assert_redirected_to '/admin/project'
+    assert_raises ActiveRecord::RecordNotFound do
+      Project.find(project_2.id)
+    end
+  end
+
+  test "should handle error on deletion of a project" do
+    sign_in @user
+    team = create_team
+    create_team_user team: team, user: @user, role: 'owner'
+    project = create_project user: @user, team: team
+    Project.any_instance.stubs(:destroy).returns(false)
+    delete "/admin/project/#{project.id}/delete"
+    assert_nothing_raised do
+      Project.find(project.id)
+    end
+
+    Project.any_instance.unstub(:destroy)
+  end
+
 end

@@ -25,11 +25,11 @@ class AdminAbilityTest < ActiveSupport::TestCase
       ability = AdminAbility.new
       assert ability.cannot?(:create, Project)
       assert ability.can?(:index, p)
+      assert ability.can?(:destroy, p)
+      assert ability.can?(:destroy, own_project)
       assert ability.cannot?(:read, p)
       assert ability.cannot?(:update, p)
       assert ability.cannot?(:update, own_project)
-      assert ability.cannot?(:destroy, p)
-      assert ability.cannot?(:destroy, own_project)
       assert ability.cannot?(:read, p2)
       assert ability.cannot?(:update, p2)
       assert ability.cannot?(:destroy, p2)
