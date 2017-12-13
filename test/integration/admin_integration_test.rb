@@ -171,6 +171,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     team = create_team
     create_team_user team: team, user: @user, role: 'owner'
     Team.any_instance.stubs(:save).returns(false)
+    get "/admin/team/#{team.id}/edit"
     put "/admin/team/#{team.id}/edit", team: { hide_names_in_embeds: "1" }
     assert_not_equal "1", team.reload.get_hide_names_in_embeds
     Team.any_instance.unstub(:save)
