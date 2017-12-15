@@ -79,10 +79,13 @@ ar:
   slug_format_validation_message: 'يقبل الأحرف والأرقام و''-'' فقط '
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالات التحقق الخاصة - الصيغة المطلوبة موضحة أسفل الحقل
+  invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالات التحقق الخاصة
   invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة - الصيغة المطلوبة هي `[ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]`'
   invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
+  invalid_default_status_for_custom_verification_status: حالة التحقق الخاصة الإفتراضية غير صحيحة
+  invalid_id_or_label_for_custom_verification_status: مُعَرِّف حالة التحقق وعنوانها مطلوبان
+  invalid_statuses_format_for_custom_verification_status: 'حالات التحقق الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب'
   already_exists: موجود بالفعل
   mail_account_confirmation: "تأكيد حساب %{app_name}"
   mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على %{app_name}"
@@ -140,7 +143,7 @@ ar:
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y في %H:%M %z"
+      task: "%B %d, %Y في %H:%M [TZ] (%z GMT)"
   oembed_disclaimer_undetermined: لم يقم فريق %{team} بالتحقق من دقة هذا الميديا بعد
   oembed_disclaimer_in_progress: بدأ فريق %{team} بالتحقق من دقة هذا الميديا في %{date}
   oembed_disclaimer_verified: تحقق فريق %{team} من دقة هذا الميديا في %{date}
@@ -193,3 +196,11 @@ ar:
   cant_set_custom_statuses: "عذراً ، حالات التحقق الخاصة غير متاحة لهذا الفريق"
   cant_set_checklist: "عذراً ، قائمة التحقق من المعلومات غير متاحة لهذا الفريق"
   cant_create_media_under_this_team_using_extension: "عذراً ، ملحق المستعرض غير متاح لهذا الفريق"
+  error_invalid_attribution: "إسناد غير صحيح"
+  account_exists: هذا الحساب موجود بالفعل
+  media_exists: هذا الميديا موجود بالفعل
+  source_exists: هذا المصدر موجود بالفعل
+  devise:
+    mailer:
+      reset_password_instructions:
+        instruction: "طلب أحدهم رابطًا لتغيير كلمة السر الخاصة بك، ويُمكن عمل ذلك من خلال الرابط التالي. <strong>يرجى الملاحظة أن مدة صلاحية الرابط %{expire} ساعات.</strong>"
