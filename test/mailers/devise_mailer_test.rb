@@ -17,7 +17,7 @@ class DeviseMailerTest < ActionMailer::TestCase
   end
 
   test "should send reset password instructions" do
-    u = create_user name: 'Test User', provider: '', email: 'test@mail.com'
+    u = create_user name: 'Test User', provider: '', email: 'test@mail.com', reset_password_within: ActiveSupport::Duration.build(21600)
     email = DeviseMailer.reset_password_instructions(u, '12345')
 
     assert_emails 1 do
