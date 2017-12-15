@@ -223,4 +223,8 @@ en:
   account_exists: This account already exists in project %{project_id} and has id %{project_source_id}
   media_exists: This media already exists in project %{project_id} and has id %{id}
   source_exists: This source already exists in project %{project_id} and has id %{id}
-
+  devise:
+    mailer:
+      reset_password_instructions:
+        instruction: "Someone has requested a link to change your password, and you can do this
+          through the link below. <strong>Please note that this link expires in %{expire} hours.</strong>"
