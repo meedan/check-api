@@ -10,9 +10,6 @@ module Api
       before_filter :authenticate_from_token!, except: [:me, :options]
       before_action :set_paper_trail_whodunnit
 
-      # Verify payload for webhook methods
-      # before_filter :verify_payload!
-
       respond_to :json
 
       def version
