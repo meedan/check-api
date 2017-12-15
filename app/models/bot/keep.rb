@@ -26,6 +26,7 @@ class Bot::Keep
 
   ProjectMedia.class_eval do
     after_create :send_to_keep
+    after_create :create_pender_archive_annotation
 
     def get_keep_token
       self.project.team.get_keep_enabled.to_i == 1 ? CONFIG['keep_token'] : nil
@@ -51,6 +52,29 @@ class Bot::Keep
       annotation.save!
       User.current = user_current
       Bot::Keep.send_to_keep_in_background(self.media.url, self.get_keep_token, annotation.id)
+    end
+
+    def create_pender_archive_annotation
+      return if !self.media.is_a?(Link) || self.project.team.get_limits_keep_integration == false
+
+      a = Dynamic.new
+      a.skip_check_ability = true
+      a.skip_notifications = true
+      a.disable_es_callbacks = Rails.env.to_s == 'test'
+      a.annotation_type = 'pender_archive'
+      a.annotated = self
+      response = {}
+      data = nil
+      begin
+        data = JSON.parse(self.media.pender_embed.data['embed'])
+      rescue
+        data = self.media.pender_data
+      end
+      if !data.nil? && data['screenshot_taken'].to_i == 1
+        response = { screenshot_taken: 1, screenshot_url: data['screenshot'] }
+      end
+      a.set_fields = { pender_archive_response: response.to_json }.to_json
+      a.save!
     end
 
     private

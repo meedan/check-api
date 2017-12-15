@@ -163,6 +163,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def refresh_media=(_refresh)
+    self.create_pender_archive_annotation if self.annotations.where(annotation_type: 'pender_archive').last.nil?
     self.media.refresh_pender_data
     self.updated_at = Time.now
   end
