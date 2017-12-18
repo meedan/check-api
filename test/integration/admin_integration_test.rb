@@ -183,13 +183,20 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     team_2 = create_team
     create_team_user team: team_2, user: @user, role: 'owner'
     project_2 = create_project user: @user, team: team_2
+    m = create_valid_media
+    pm = create_project_media project: project_2, media: m
+    create_task annotator: @user, annotated: pm
+    create_comment annotated: pm
+    s = create_status status: 'verified', annotated: pm
     get "/admin/project/#{project_2.id}/delete"
+    RequestStore.store[:disable_es_callbacks] = true
     delete "/admin/project/#{project_2.id}/delete"
 
     assert_redirected_to '/admin/project'
     assert_raises ActiveRecord::RecordNotFound do
       Project.find(project_2.id)
     end
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should handle error on deletion of a project" do
