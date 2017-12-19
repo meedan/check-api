@@ -25,11 +25,11 @@ class AdminAbilityTest < ActiveSupport::TestCase
       ability = AdminAbility.new
       assert ability.cannot?(:create, Project)
       assert ability.can?(:index, p)
+      assert ability.can?(:destroy, p)
+      assert ability.can?(:destroy, own_project)
       assert ability.cannot?(:read, p)
       assert ability.cannot?(:update, p)
       assert ability.cannot?(:update, own_project)
-      assert ability.cannot?(:destroy, p)
-      assert ability.cannot?(:destroy, own_project)
       assert ability.cannot?(:read, p2)
       assert ability.cannot?(:update, p2)
       assert ability.cannot?(:destroy, p2)
@@ -51,12 +51,25 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, own_media)
       assert ability.cannot?(:destroy, m)
       assert ability.cannot?(:destroy, own_media)
-      assert ability.cannot?(:update, pm)
-      assert ability.cannot?(:update, own_pm)
-      assert ability.cannot?(:destroy, pm)
-      assert ability.cannot?(:destroy, own_pm)
       assert ability.cannot?(:update, m2)
       assert ability.cannot?(:destroy, m2)
+    end
+  end
+
+  test "owner permissions for project media" do
+    m = create_valid_media
+    p = create_project team: t
+    pm = create_project_media project: p, media: m
+    own_media = create_valid_media user_id: u.id
+    own_pm = create_project_media project: p, media: own_media
+    m2 = create_valid_media
+    pm2 = create_project_media media: m2
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.can?(:destroy, pm)
+      assert ability.can?(:destroy, own_pm)
+      assert ability.cannot?(:update, pm)
+      assert ability.cannot?(:update, own_pm)
       assert ability.cannot?(:update, pm2)
       assert ability.cannot?(:destroy, pm2)
     end
@@ -181,7 +194,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
       ability = AdminAbility.new
       assert ability.cannot?(:create, Comment)
       assert ability.cannot?(:update, mc)
-      assert ability.cannot?(:destroy, mc)
+      assert ability.can?(:destroy, mc)
     end
   end
 
@@ -208,7 +221,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:update, c)
-      assert ability.cannot?(:destroy, c)
+      assert ability.can?(:destroy, c)
     end
   end
 
@@ -237,7 +250,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:create, s)
-      assert ability.cannot?(:update, s)
+      assert ability.can?(:update, s)
       assert ability.cannot?(:destroy, s)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:create, s)
@@ -260,16 +273,16 @@ class AdminAbilityTest < ActiveSupport::TestCase
       ability = AdminAbility.new
       assert ability.cannot?(:create, em)
       assert ability.cannot?(:read, em)
-      assert ability.cannot?(:update, em)
+      assert ability.can?(:update, em)
       assert ability.cannot?(:destroy, em)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:destroy, em)
 
       assert ability.cannot?(:read, em_link)
-      assert ability.cannot?(:update, em_link)
+      assert ability.can?(:update, em_link)
       assert ability.cannot?(:destroy, em_link)
 
-      assert ability.cannot?(:update, em_account)
+      assert ability.can?(:update, em_account)
       assert ability.cannot?(:read, em_account)
       assert ability.cannot?(:destroy, em_account)
     end
@@ -284,10 +297,10 @@ class AdminAbilityTest < ActiveSupport::TestCase
       ability = AdminAbility.new
       assert ability.cannot?(:create, tg)
       assert ability.cannot?(:update, tg)
-      assert ability.cannot?(:destroy, tg)
+      assert ability.can?(:destroy, tg)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:create, tg)
-      assert ability.cannot?(:destroy, tg)
+      assert ability.can?(:destroy, tg)
     end
   end
 
@@ -371,9 +384,9 @@ class AdminAbilityTest < ActiveSupport::TestCase
     a3 = create_annotation annotated: create_project_media
     with_current_user_and_team(u) do
       a = AdminAbility.new
-      assert a.cannot?(:destroy, a1)
-      assert a.cannot?(:destroy, a2)
-      assert a.cannot?(:destroy, a3)
+      assert a.can?(:destroy, a1)
+      assert a.can?(:destroy, a2)
+      assert a.can?(:destroy, a3)
     end
   end
 
@@ -445,9 +458,9 @@ class AdminAbilityTest < ActiveSupport::TestCase
       ability = AdminAbility.new
       assert ability.cannot?(:create, Dynamic)
       assert ability.cannot?(:update, da)
-      assert ability.cannot?(:destroy, da)
+      assert ability.can?(:destroy, da)
       assert ability.cannot?(:update, own_da)
-      assert ability.cannot?(:destroy, own_da)
+      assert ability.can?(:destroy, own_da)
     end
   end
 
@@ -470,6 +483,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
       ability = AdminAbility.new
       assert ability.cannot?(:update, Task)
       assert ability.cannot?(:update, task)
+      assert ability.can?(:destroy, task)
     end
   end
 
@@ -480,6 +494,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
       ability = AdminAbility.new
       assert ability.cannot?(:update, DynamicAnnotation::Field)
       assert ability.cannot?(:update, dynamic_field)
+      assert ability.can?(:destroy, dynamic_field)
     end
   end
 
