@@ -1,8 +1,9 @@
 <% field_name = field.method_name.to_s %>
 <div id="<%= field_name %>_editor_holder"></div>
+<% value = @object.respond_to?(field_name) ? @object.send(field_name) : @object.send("get_#{field_name}") %>
 
 <script>
-  var starting_value = <%== @object.respond_to?(field_name) ? @object.send(field_name).to_json : @object.send("get_#{field_name}").to_json %>;
+  var starting_value = <%== value.to_json %>;
   var field_schema = "<%= @object.json_schema_url(field_name) %>";
   var editor =  new JSONEditor(document.getElementById("<%= field_name %>_editor_holder"),{
     ajax: true,
@@ -19,3 +20,7 @@
     startval: starting_value
   });
 </script>
+
+<% if field_name == 'checklist' && value.is_a?(Array) && !value.size.zero? %>
+  <a class="btn btn-default json-editor-btn-delete" href='<%= "/admin/team/#{@object.id}/delete_tasks"%>'>Delete All Tasks</a>
+<% end %>

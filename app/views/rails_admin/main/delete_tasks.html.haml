@@ -1,0 +1,17 @@
+%h4
+  = t("admin.actions.delete_tasks.are_you_sure_you_want_to_delete_the_tasks_from_team", model_name: @abstract_model.pretty_name.downcase)
+  &ldquo;
+  %strong>= @model_config.with(object: @object).object_label
+  \&rdquo;
+  %span>
+  = t("admin.actions.delete_tasks.all_the_following_tasks_will_be_deleted")
+
+%ul= render partial: "tasks_list", object: @object
+= form_for(@object, url: "/admin/team/#{@object.id}/delete_tasks", html: {method: "put"}) do
+  .form-actions
+    %button.btn.btn-danger{type: "submit", :'data-disable-with' => "admin.form.confirmation"}
+      %i.icon-white.icon-ok
+      = t("admin.form.confirmation")
+    %button.btn{type: "submit", name: "_continue", :'data-disable-with' => "admin.form.cancel"}
+      %i.icon-remove
+      = t("admin.form.cancel")
