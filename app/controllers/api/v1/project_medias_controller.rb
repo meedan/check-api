@@ -38,9 +38,10 @@ module Api
             ProjectMedia.where(media_id: @link.id).each do |pm|
               next if pm.project.team.get_limits_keep_integration == false
               
-              annotation = pm.annotations.where(annotation_type: 'pender_archive').last.load
+              annotation = pm.annotations.where(annotation_type: 'pender_archive').last
               
               unless annotation.nil?
+                annotation = annotation.load
                 annotation.skip_check_ability = true
                 annotation.disable_es_callbacks = Rails.env.to_s == 'test'
                 annotation.set_fields = { pender_archive_response: response.to_json }.to_json
