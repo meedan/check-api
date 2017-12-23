@@ -55,7 +55,7 @@ class Bot::Keep
     end
 
     def create_pender_archive_annotation
-      return if !self.media.is_a?(Link) || self.project.team.get_limits_keep_integration == false
+      return if !DynamicAnnotation::AnnotationType.where(annotation_type: 'pender_archive').exists? || !self.media.is_a?(Link) || self.project.team.get_limits_keep_integration == false
 
       a = Dynamic.new
       a.skip_check_ability = true
