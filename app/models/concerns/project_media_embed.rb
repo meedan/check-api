@@ -183,14 +183,12 @@ module ProjectMediaEmbed
         PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
         CcDeville.clear_cache_for_url(url)
         CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
-        CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + CGI.escape(url))
       end
 
       # Twitter embed
       url = pm.full_url.to_s
       params = '&autoplay=1&auto_play=true'
       CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url + params)
-      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + CGI.escape(url) + params)
     end
   end
 end
