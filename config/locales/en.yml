@@ -220,7 +220,11 @@ en:
   cant_set_checklist: "Sorry, you can't use the Checklist feature"
   cant_create_media_under_this_team_using_extension: "Sorry, this team is not allowed to use the browser extension"
   error_invalid_attribution: "Invalid attribution"
-  account_exists: This account already exists in project %{project_id} and has id %{project_source_id}
-  media_exists: This media already exists in project %{project_id} and has id %{id}
-  source_exists: This source already exists in project %{project_id} and has id %{id}
-
+  account_exists: This account already exists
+  media_exists: This media already exists
+  source_exists: This source already exists
+  devise:
+    mailer:
+      reset_password_instructions:
+        instruction: "Someone has requested a link to change your password, and you can do this
+          through the link below. <strong>Please note that this link expires in %{expire} hours.</strong>"

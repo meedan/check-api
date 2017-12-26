@@ -19144,6 +19144,20 @@
               "deprecationReason": null
             },
             {
+              "name": "expiry",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "success",
               "description": null,
               "args": [
