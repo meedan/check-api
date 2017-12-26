@@ -63,16 +63,13 @@ class Bot::Keep
       a.disable_es_callbacks = Rails.env.to_s == 'test'
       a.annotation_type = 'pender_archive'
       a.annotated = self
-      response = {}
       data = nil
       begin
         data = JSON.parse(self.media.pender_embed.data['embed'])
       rescue
         data = self.media.pender_data
       end
-      if !data.nil? && data['screenshot_taken'].to_i == 1
-        response = { screenshot_taken: 1, screenshot_url: data['screenshot'] }
-      end
+      response = (!data.nil? && data['screenshot_taken'].to_i == 1) ? { screenshot_taken: 1, screenshot_url: data['screenshot'] } : {}
       a.set_fields = { pender_archive_response: response.to_json }.to_json
       a.save!
     end
