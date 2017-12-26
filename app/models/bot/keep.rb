@@ -54,8 +54,12 @@ class Bot::Keep
       Bot::Keep.send_to_keep_in_background(self.media.url, self.get_keep_token, annotation.id)
     end
 
+    def should_skip_create_pender_archive_annotation?
+      !DynamicAnnotation::AnnotationType.where(annotation_type: 'pender_archive').exists? || !self.media.is_a?(Link) || self.project.team.get_limits_keep_integration == false
+    end
+
     def create_pender_archive_annotation
-      return if !DynamicAnnotation::AnnotationType.where(annotation_type: 'pender_archive').exists? || !self.media.is_a?(Link) || self.project.team.get_limits_keep_integration == false
+      return if self.should_skip_create_pender_archive_annotation?
 
       a = Dynamic.new
       a.skip_check_ability = true
