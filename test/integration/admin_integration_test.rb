@@ -171,9 +171,46 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     team = create_team
     create_team_user team: team, user: @user, role: 'owner'
     Team.any_instance.stubs(:save).returns(false)
+    get "/admin/team/#{team.id}/edit"
     put "/admin/team/#{team.id}/edit", team: { hide_names_in_embeds: "1" }
     assert_not_equal "1", team.reload.get_hide_names_in_embeds
     Team.any_instance.unstub(:save)
+  end
+
+  test "should delete a project as team owner" do
+    sign_in @user
+    create_team_user team: @team, user: @user, role: 'owner'
+    team_2 = create_team
+    create_team_user team: team_2, user: @user, role: 'owner'
+    project_2 = create_project user: @user, team: team_2
+    m = create_valid_media
+    pm = create_project_media project: project_2, media: m
+    create_task annotator: @user, annotated: pm
+    create_comment annotated: pm
+    s = create_status status: 'verified', annotated: pm
+    get "/admin/project/#{project_2.id}/delete"
+    RequestStore.store[:disable_es_callbacks] = true
+    delete "/admin/project/#{project_2.id}/delete"
+
+    assert_redirected_to '/admin/project'
+    assert_raises ActiveRecord::RecordNotFound do
+      Project.find(project_2.id)
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
+  test "should handle error on deletion of a project" do
+    sign_in @user
+    team = create_team
+    create_team_user team: team, user: @user, role: 'owner'
+    project = create_project user: @user, team: team
+    Project.any_instance.stubs(:destroy).returns(false)
+    delete "/admin/project/#{project.id}/delete"
+    assert_nothing_raised do
+      Project.find(project.id)
+    end
+
+    Project.any_instance.unstub(:destroy)
   end
 
 end
