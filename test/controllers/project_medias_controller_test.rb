@@ -77,4 +77,129 @@ class ProjectMediasControllerTest < ActionController::TestCase
     assert_response :success
     @request.headers['User-Agent'] = ''
   end
+
+  test "should save Pender response through webhook" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    assert_equal [], f.keys
+
+    payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    @request.headers['X-Signature'] = sig
+    @request.env['RAW_POST_DATA'] = payload
+    post :webhook
+    @request.env.delete('RAW_POST_DATA')
+    assert_response :success
+    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    assert_equal 'http://pender/screenshot.png', f['screenshot_url']
+  end
+
+  test "should not save Pender response through webhook if link does not exist" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    assert_equal [], f.keys
+
+    payload = { url: 'http://anothertest.com', screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    @request.headers['X-Signature'] = sig
+    @request.env['RAW_POST_DATA'] = payload
+    post :webhook
+    @request.env.delete('RAW_POST_DATA')
+    assert_response :success
+    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    assert_equal [], f.keys
+  end
+
+  test "should not save Pender response through webhook if screenshot_taken is not 1" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    assert_equal [], f.keys
+
+    payload = { url: url, screenshot_taken: 0, screenshot_url: 'http://pender/screenshot.png' }.to_json
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    @request.headers['X-Signature'] = sig
+    @request.env['RAW_POST_DATA'] = payload
+    post :webhook
+    @request.env.delete('RAW_POST_DATA')
+    assert_response :success
+    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    assert_equal ['error'], f.keys
+  end
+
+  test "should not save Pender response through webhook if there is no project media" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+
+    payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    @request.headers['X-Signature'] = sig
+    @request.env['RAW_POST_DATA'] = payload
+    post :webhook
+    @request.env.delete('RAW_POST_DATA')
+    assert_response :success
+  end
+
+  test "should not save Pender response through webhook if there is no annotation" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+    a = pm.get_annotations('pender_archive').last
+    a.destroy
+
+    payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    @request.headers['X-Signature'] = sig
+    @request.env['RAW_POST_DATA'] = payload
+    post :webhook
+    @request.env.delete('RAW_POST_DATA')
+    assert_response :success
+  end
+
+  test "should not save Pender response through webhook if team is not allowed" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    t = create_team
+    t.set_limits_keep_integration = false
+    t.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
+
+    payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    @request.headers['X-Signature'] = sig
+    @request.env['RAW_POST_DATA'] = payload
+    post :webhook
+    @request.env.delete('RAW_POST_DATA')
+    assert_response :success
+  end
 end

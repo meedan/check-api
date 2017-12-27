@@ -75,10 +75,13 @@ pt:
   slug_format_validation_message: aceita apenas letras, números e hífens
   slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
-  invalid_format_for_custom_verification_status: Status de verificação personalizado é inválido, ele deve ter o formato conforme exemplificado abaixo do campo
+  invalid_format_for_custom_verification_status: Status de verificação personalizado é inválido
   invalid_format_for_checklist: 'O Checklist é inválido, ele deve ter o formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'O campo "Languages" é inválido, ele deve ter o formato [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Desculpe, este não é um item de mídia válido
+  invalid_default_status_for_custom_verification_status: Status de verificação padrão é inválido
+  invalid_id_or_label_for_custom_verification_status: O id e o título de status são obrigatórios
+  invalid_statuses_format_for_custom_verification_status: Status de verificação personalizado deveriam ter válidos título, id, descrição e estilo
   already_exists: já existe
   mail_account_confirmation: "Confirmação da conta do %{app_name} "
   mail_request_to_join: "%{user} quer participar da equipe %{team} no %{app_name}!"
@@ -136,7 +139,7 @@ pt:
   time:
     formats:
       oembed: "%d de %B de %Y"
-      task: "%d de %B de %Y às %H:%M %z"
+      task: "%d de %B de %Y às %H:%M [TZ] (%z GMT)"
   oembed_disclaimer_undetermined: Esta mídia ainda não foi revisada pela equipe %{team}
   oembed_disclaimer_in_progress: A acurácia desta mídia está em andamento pela equipe %{team} em %{date}
   oembed_disclaimer_verified: A acurácia desta mídia foi verificada pela equipe %{team} em %{date}
@@ -144,7 +147,7 @@ pt:
   oembed_disclaimer_not_applicable: Nenhuma conclusão foi obtida sobre a acurácia desta mídia pela equipe %{team} em %{date}
   oembed_source_date: "%{date} no %{provider}"
   role_editor: editor
-  role_owner: proprietário
+  role_owner: dono
   role_contributor: colaborador
   role_journalist: jornalista
   role_none: membro
@@ -180,3 +183,11 @@ pt:
   cant_set_custom_statuses: "Desculpe, você não pode usar o recurso de status customizados"
   cant_set_checklist: "Desculpe, você não pode usar o recurso de Checklist"
   cant_create_media_under_this_team_using_extension: "Desculpe, este time não tem permissão para utilizar a extensão de navegador"
+  error_invalid_attribution: "Atribuição inválida"
+  account_exists: Conta já existe
+  media_exists: Média já existe
+  source_exists: Fonte já existe
+  devise:
+    mailer:
+      reset_password_instructions:
+        instruction: "Alguém fez o pedido para redefinir sua senha, e você pode fazer isso clicando no link abaixo. <strong>Observe que este link expira em %{expire} horas.</strong>"

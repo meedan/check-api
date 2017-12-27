@@ -1315,4 +1315,61 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     assert_equal 'Test 2', pm.reload.description
   end
+
+  test "should create pender_archive annotation when link is created" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l
+    end
+  end
+
+  test "should not create pender_archive annotation when media is created if media is not a link" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    c = create_claim_media
+    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: c
+    end
+  end
+
+  test "should not create pender_archive annotation when link is created if there is no annotation type" do
+    l = create_link
+    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l
+    end
+  end
+
+  test "should not create pender_archive annotation when link is created if team is not allowed" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    t = create_team
+    t.set_limits_keep_integration = false
+    t.save!
+    p = create_project team: t
+    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l, project: p
+    end
+  end
+
+  test "should create pender_archive annotation when link is created using information from pender_embed" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    Link.any_instance.stubs(:pender_embed).returns(OpenStruct.new({ data: { embed: { screenshot_taken: 1 }.to_json } }))
+    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l
+    end
+    Link.any_instance.unstub(:pender_embed)
+  end
+
+  test "should create pender_archive annotation when link is created using information from pender_data" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1 })
+    Link.any_instance.stubs(:pender_embed).raises(RuntimeError)
+    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l
+    end
+    Link.any_instance.unstub(:pender_data)
+    Link.any_instance.unstub(:pender_embed)
+  end
 end

@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created
+  attr_accessor :quote, :quote_attributions, :file, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -152,6 +152,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def refresh_media=(_refresh)
+    self.create_pender_archive_annotation if self.annotations.where(annotation_type: 'pender_archive').last.nil?
     self.media.refresh_pender_data
     self.updated_at = Time.now
   end

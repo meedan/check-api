@@ -14,12 +14,9 @@ module RailsAdmin
 
         register_instance_option :controller do
           proc do
+            RailsAdmin::MainController.class_eval { respond_to :html, :js }
             if request.get? # EDIT
-              respond_to do |format|
-                format.html { render @action.template_name }
-                format.js   { render @action.template_name, layout: false }
-              end
-
+              respond_with(@object)
             elsif request.put? # UPDATE
               RequestStore.store[:ability] = :admin
               sanitize_params_for!(request.xhr? ? :modal : :update)
