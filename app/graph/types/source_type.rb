@@ -14,4 +14,10 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :account_sources, -> { AccountSourceType.connection_type } do
+    resolve ->(source, _args, _ctx) {
+      source.account_sources
+    }
+  end
+
 end
