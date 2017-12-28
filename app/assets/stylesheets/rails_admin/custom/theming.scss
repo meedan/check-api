@@ -460,6 +460,23 @@ h4 {
   }
 }
 
+// Hide Delete tasks from teams list, menu and default button
+
+#list .team_row,
+ul.nav-tabs {
+  li.delete_tasks_member_link {
+    display: none;
+  }
+}
+
+#checklist_editor_holder {
+  & > [data-schemapath="root"] > .well > .btn-group button {
+    &.json-editor-btn-delete {
+      display: none;
+    }
+  }
+}
+
 .dashboard {
   display: flex;
   flex-wrap: wrap;
