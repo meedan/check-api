@@ -19,7 +19,7 @@ class AdminAbility
     can :access, :rails_admin
     can :dashboard
 
-    can [:read, :update], Team, id: @teams
+    can [:read, :update, :delete_tasks], Team, id: @teams
     can [:index, :destroy, :export_project], Project, team_id: @teams
     can :destroy, ProjectSource, project: { team_id: @teams }
     can :destroy, ProjectMedia do |obj|
