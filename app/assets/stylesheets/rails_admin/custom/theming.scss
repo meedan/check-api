@@ -471,7 +471,7 @@ ul.nav-tabs {
 
 #checklist_editor_holder {
   & > [data-schemapath="root"] > .well > .btn-group button {
-    &.json-editor-btn-delete {
+    &.json-editor-btn-delete:last-child:not(:first-child) {
       display: none;
     }
   }
