@@ -213,4 +213,31 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     Project.any_instance.unstub(:destroy)
   end
 
+  test "should delete tasks of a team" do
+    sign_in @user
+    team = create_team
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    team.set_checklist(value)
+    team.save!
+
+    assert !team.get_checklist.empty?
+    create_team_user team: team, user: @user, role: 'owner'
+    get "/admin/team/#{team.id}/delete_tasks"
+    put "/admin/team/#{team.id}/delete_tasks"
+    assert_equal [], Team.find(team.id).checklist
+  end
+
+  test "should handle error on deletion of a team tasks" do
+    sign_in @admin_user
+    team = create_team
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    team.set_checklist(value)
+    team.save!
+
+    Team.any_instance.stubs(:save).returns(false)
+    put "/admin/team/#{team.id}/delete_tasks"
+    assert !team.get_checklist.empty?
+    Team.any_instance.unstub(:save)
+  end
+
 end
