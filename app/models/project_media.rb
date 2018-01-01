@@ -104,42 +104,24 @@ class ProjectMedia < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
-  def get_media_annotations(type = nil)
-    self.media.annotations.where(annotation_type: type).last
-  end
-
   def embed
-    em_pender = self.get_media_annotations('embed')
-    em_overriden = self.get_annotations('embed').last
-    if em_overriden.nil?
-      em = em_pender
-    else
-      em = em_overriden
-      em['data']['embed'] = em_pender['data']['embed'] unless em_pender.nil?
+    data = {}
+    self.overridden_embed_attributes.each{|k| data[k] = ''}
+    if self.media.type == 'Link'
+      em = self.get_annotations('embed').last
+      unless em.nil?
+        em_media = self.media.get_annotations('embed').last
+        data.each do |k, _v|
+          data[k] = em['data'][k] if em['data'][k] != em_media['data'][k] and !em['data'][k].blank?
+        end
+      end
     end
-    embed = JSON.parse(em.data['embed']) unless em.nil?
-    self.overridden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em.data[sk] unless em.data[sk].nil? } unless embed.nil?
-    embed
+    data
   end
 
   def last_status
     last = self.get_annotations('status').first
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
-  end
-
-  def overridden
-    data = {}
-    self.overridden_embed_attributes.each{|k| data[k] = false}
-    if self.media.type == 'Link'
-      em = self.get_annotations('embed').last
-      unless em.nil?
-        em_media = self.get_media_annotations('embed')
-        data.each do |k, _v|
-          data[k] = true if em['data'][k] != em_media['data'][k] and !em['data'][k].blank?
-        end
-      end
-    end
-    data
   end
 
   def overridden_embed_attributes

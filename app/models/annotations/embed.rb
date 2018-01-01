@@ -46,7 +46,7 @@ class Embed < ActiveRecord::Base
     data = version.changeset['data'] || []
     # Get title from pender if Link has only one version
     if self.annotated.media.type == 'Link' and self.versions.size == 1
-      pender = self.annotated.get_media_annotations('embed')
+      pender = self.annotated.media.get_annotations('embed').last
       data[0]['title'] = pender['data']['title'] unless pender.nil?
     end
     data
