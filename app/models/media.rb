@@ -54,6 +54,16 @@ class Media < ActiveRecord::Base
     self.url
   end
 
+  def embed
+    em = self.get_annotations('embed').last
+    embed = JSON.parse(em.data['embed']) unless em.nil?
+    embed
+  end
+
+  def get_annotations(type = nil)
+    self.annotations.where(annotation_type: type)
+  end
+
   private
 
   def set_url_nil_if_empty

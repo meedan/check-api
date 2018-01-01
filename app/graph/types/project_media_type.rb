@@ -127,10 +127,10 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   field :embed do
-    type types.String
+    type JsonStringType
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.embed.to_json
+      project_media.embed
     }
   end
 
@@ -147,14 +147,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (project_media, _args, _ctx) {
       project_media.get_annotations('status').last
-    }
-  end
-
-  field :overridden do
-    type types.String
-
-    resolve ->(project_media, _args, _ctx) {
-      project_media.overridden.to_json
     }
   end
 
