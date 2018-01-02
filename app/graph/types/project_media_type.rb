@@ -150,6 +150,14 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :overridden do
+    type JsonStringType
+
+    resolve ->(project_media, _args, _ctx) {
+      project_media.overridden
+    }
+  end
+
   instance_exec :project_media, &GraphqlCrudOperations.field_published
 
   field :language do
