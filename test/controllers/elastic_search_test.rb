@@ -86,7 +86,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_response :success
     result = {}
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      result[id["node"]["project_id"]] = JSON.parse(id["node"]["embed"])
+      result[id["node"]["project_id"]] = id["node"]["embed"]
     end
     assert_equal 'new_description', result[p2.id]["description"]
     assert_equal 'search_desc', result[p.id]["description"]
@@ -202,6 +202,9 @@ class ElasticSearchTest < ActionController::TestCase
     pm.embed= {title: 'search_title_a'}.to_json
     sleep 1
     result = CheckSearch.new({keyword: "search_title_a"}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # search with original title
+    result = CheckSearch.new({keyword: "search_title"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     # search in description
     result = CheckSearch.new({keyword: "search_desc"}.to_json)
@@ -1016,7 +1019,7 @@ class ElasticSearchTest < ActionController::TestCase
     ms = MediaSearch.find(pm.id)
     assert_equal ms.title, 'new_title'
     ms2 = MediaSearch.find(pm2.id)
-    assert_equal ms2.title, 'override_title'
+    assert_equal ms2.title.sort, ["org_title", "override_title"].sort
   end
 
   test "should set es data for media account" do
