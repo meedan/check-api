@@ -1372,4 +1372,44 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Link.any_instance.unstub(:pender_data)
     Link.any_instance.unstub(:pender_embed)
   end
+
+  test "should get nummber of contributing users" do
+    pm = create_project_media
+    create_comment annotated: pm, annotator: create_user
+    create_comment annotated: pm, annotator: create_user
+    create_tag annotated: pm, annotator: create_user
+    create_task annotated: pm, annotator: create_user
+    assert_equal 5, pm.contributing_users_count
+  end
+
+  test "should get time to first and last status" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+
+    with_current_user_and_team(u, t) do
+      time = Time.now - 10.minutes
+      Time.stubs(:now).returns(time)
+
+      pm = create_project_media project: p, user: u
+      assert_equal '', pm.time_to_status(:first)
+      assert_equal '', pm.time_to_status(:last)
+
+      Time.stubs(:now).returns(time + 5.minutes)
+      s = pm.annotations.where(annotation_type: 'status').last.load
+      s.status = 'In Progress'; s.save!
+      assert_equal '', pm.time_to_status(:first)
+      assert_equal 5.minutes.to_i, pm.time_to_status(:last)
+
+      Time.stubs(:now).returns(time + 8.minutes)
+      s = pm.annotations.where(annotation_type: 'status').last.load
+      s.status = 'Verified'; s.save!
+
+      assert_equal 5.minutes.to_i, pm.time_to_status(:first)
+      assert_equal 8.minutes.to_i, pm.time_to_status(:last)
+      Time.unstub(:now)
+    end
+  end
+
 end
