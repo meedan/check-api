@@ -119,6 +119,7 @@ class Source < ActiveRecord::Base
     return if refresh.blank?
     self.accounts.each do |a|
       a.refresh_pender_data
+      a.skip_check_ability = true
       a.save!
     end
     self.update_from_pender_data(self.accounts.first.data)
