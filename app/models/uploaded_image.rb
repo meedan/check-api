@@ -8,4 +8,8 @@ class UploadedImage < Media
   def media_url
     self.public_path
   end
+
+  def media_type
+    'uploaded image'
+  end
 end
