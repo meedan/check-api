@@ -10,6 +10,10 @@ class Claim < Media
     self.quote
   end
 
+  def media_type
+    'quote'
+  end
+
   private
 
   def set_claim_attributions

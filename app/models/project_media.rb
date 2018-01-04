@@ -5,6 +5,7 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaAssociations
   include ProjectMediaCreators
   include ProjectMediaEmbed
+  include ProjectMediaExport
   include Versioned
   include NotifyEmbedSystem
   include ValidationsHelper
