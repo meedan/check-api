@@ -671,6 +671,19 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [], t.checklist.first[:projects]
   end
 
+  test "should remove all items from checklist" do
+    t = create_team
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    t.set_checklist(value)
+    t.save!
+
+    assert_nothing_raised do
+      t.set_checklist([])
+      t.save!
+    end
+    assert_equal [], t.checklist
+  end
+
   test "should save valid slack_channel" do
     t = create_team
     value =  "#slack_channel"

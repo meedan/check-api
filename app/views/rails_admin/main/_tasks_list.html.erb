@@ -1,0 +1,9 @@
+<ul>
+  <% @object.checklist.each do |task| -%>
+    <li>
+      Label: <%= task[:label] %><br/>
+      Description: <%= task[:description] %>
+    </li>
+  <% end %>
+</ul>
+

@@ -4,8 +4,10 @@ require Rails.root.join('lib', 'rails_admin', 'yaml_field.rb')
 require Rails.root.join('lib', 'rails_admin', 'dashboard.rb')
 require Rails.root.join('lib', 'rails_admin', 'edit.rb')
 require Rails.root.join('lib', 'rails_admin', 'delete.rb')
+require Rails.root.join('lib', 'rails_admin', 'delete_tasks.rb')
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportProject)
+RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::DeleteTasks)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Fields::Types::Yaml)
 
 RailsAdmin.config do |config|
@@ -45,6 +47,9 @@ RailsAdmin.config do |config|
     send_reset_password_email
     export_project do
       only ['Project']
+    end
+    delete_tasks do
+      only ['Team']
     end
 
     ## With an audit adapter, you can add:
