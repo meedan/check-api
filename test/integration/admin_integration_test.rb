@@ -79,6 +79,18 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     Team.unstub(:current)
   end
 
+  test "should access new team page only if admin" do
+    sign_in @user
+    get '/admin/team/new'
+    assert_redirected_to '/403.html'
+    sign_out @user
+
+    sign_in @admin_user
+
+    get '/admin/team/new'
+    assert_response :success
+  end
+
   test "should access new project page" do
     sign_in @admin_user
 

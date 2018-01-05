@@ -376,7 +376,9 @@ RailsAdmin.config do |config|
 
     edit do
       field :name do
-        read_only true
+        read_only do
+          !bindings[:view]._current_user.is_admin?
+        end
         help ''
       end
       field :description do
@@ -386,7 +388,9 @@ RailsAdmin.config do |config|
         visible_only_for_admin
       end
       field :slug do
-        read_only true
+        read_only do
+          !bindings[:view]._current_user.is_admin?
+        end
         help ''
       end
       field :private do
@@ -404,39 +408,42 @@ RailsAdmin.config do |config|
         label 'Enable Keep archiving'
         formatted_value{ bindings[:object].get_keep_enabled }
         help ''
+        visible_only_for_admin
+        visible_only_for_allowed_teams 'keep_integration'
         hide do
           bindings[:object].new_record?
         end
-        visible_only_for_admin
-        visible_only_for_allowed_teams 'keep_integration'
       end
       field :hide_names_in_embeds, :boolean do
         label 'Hide names in embeds'
         formatted_value{ bindings[:object].get_hide_names_in_embeds }
         help ''
+        hide do
+          bindings[:object].new_record?
+        end
       end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
         help ''
+        visible_only_for_allowed_teams 'slack_integration'
         hide do
           bindings[:object].new_record?
         end
-        visible_only_for_allowed_teams 'slack_integration'
       end
       field :slack_webhook do
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
         help "A <a href='https://my.slack.com/services/new/incoming-webhook/' target='_blank'>webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.".html_safe
-        render_settings('field')
         visible_only_for_allowed_teams 'slack_integration'
+        render_settings('field')
       end
       field :slack_channel do
         label 'Slack default #channel'
         formatted_value{ bindings[:object].get_slack_channel }
         help "The Slack channel to which Check should send notifications about events that occur in your team."
-        render_settings('field')
         visible_only_for_allowed_teams 'slack_integration'
+        render_settings('field')
       end
       field :checklist, :yaml do
         partial "json_editor"
@@ -447,15 +454,15 @@ RailsAdmin.config do |config|
         label 'Suggested tags'
         formatted_value { bindings[:object].get_suggested_tags }
         help "A list of common tags to be used with reports and sources in your team."
-        render_settings('field')
         visible_only_for_admin
+        render_settings('field')
       end
       field :limits, :yaml do
         label 'Limits'
         formatted_value { bindings[:object].limits.to_yaml }
         help "Limit this team features"
-        render_settings('text')
         visible_only_for_admin
+        render_settings('text')
       end
     end
 
