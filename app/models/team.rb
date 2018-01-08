@@ -132,6 +132,7 @@ class Team < ActiveRecord::Base
       tasks.map do |t|
         t[:options] = t[:options] ? JSON.parse(t[:options]) : []
         t[:projects] = [] if t[:projects].nil?
+        t[:mapping] = {"type"=>"text", "match"=>"", "prefix"=>""} if t[:mapping].nil? || t[:mapping].blank?
       end
     end
     tasks
