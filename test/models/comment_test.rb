@@ -32,7 +32,7 @@ class CommentTest < ActiveSupport::TestCase
     cu = create_user
     create_team_user team: t, user: cu, role: 'contributor'
     with_current_user_and_team(cu, t) do
-      assert_difference 'Comment.count' do
+      assert_difference 'Comment.length' do
         create_comment annotated: pm, annotator: cu
       end
     end
@@ -40,7 +40,7 @@ class CommentTest < ActiveSupport::TestCase
     ju = create_user
     create_team_user team: t, user: ju, role: 'journalist'
     with_current_user_and_team(ju, t) do
-      assert_difference 'Comment.count' do
+      assert_difference 'Comment.length' do
         create_comment annotated: pm, current_user: ju, annotator: ju
       end
     end
@@ -437,15 +437,6 @@ class CommentTest < ActiveSupport::TestCase
     assert_includes c.entity_objects, pm
   end
 
-  test "should get team for a source comment" do
-    t = create_team
-    s = create_source
-    s.team_id = t.id
-    s.save!
-    c = create_comment annotated: s
-    assert_equal [t.id], c.get_team
-  end
-
   test "should notify Pusher when comment is created for source or media" do
     pm = create_project_media
     c = create_comment annotated: pm
@@ -455,4 +446,5 @@ class CommentTest < ActiveSupport::TestCase
     c = create_comment annotated: ps
     assert c.sent_to_pusher
   end
+
 end

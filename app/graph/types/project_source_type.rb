@@ -25,6 +25,14 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :team_source do
+    type -> { TeamSourceType }
+
+    resolve -> (project_source, _args, _ctx) {
+      project_source.source.get_team_source
+    }
+  end
+
   field :user do
     type -> { UserType }
 

@@ -15,7 +15,7 @@ class ProjectSource < ActiveRecord::Base
   validates :source_id, uniqueness: { scope: :project_id }
   before_validation :set_account, on: :create
 
-  after_create :add_elasticsearch_data, :add_elasticsearch_account
+  after_create :set_elasticsearch_project
 
   def get_team
     p = self.project
@@ -26,23 +26,21 @@ class ProjectSource < ActiveRecord::Base
     self.annotators
   end
 
-  def add_elasticsearch_data
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    p = self.project
-    s = self.source
-    ms = MediaSearch.new
-    ms.id = Base64.encode64("ProjectSource/#{self.id}")
-    ms.team_id = p.team.id
-    ms.project_id = p.id
-    ms.associated_type = self.source.class.name
-    ms.set_es_annotated(self)
-    ms.title = s.name
-    ms.description = s.description
-    ms.save!
-  end
-
   def full_url
     "#{self.project.url}/source/#{self.id}"
+  end
+
+  def set_elasticsearch_project
+    return if self.disable_es_callbacks
+    ts = self.source.get_team_source
+    unless ts.nil?
+      parent = self.get_es_parent_id(ts.id, ts.class.name)
+      keys = %w(project_id)
+      ids = ProjectSource.where(source_id: self.source_id, project_id: ts.team.projects.map(&:id)).map(&:project_id)
+      data = {'project_id' => ids}
+      options = {keys: keys, data: data, parent: parent}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
+    end
   end
 
   private
@@ -53,15 +51,6 @@ class ProjectSource < ActiveRecord::Base
       errors.add(:base, account.errors.to_a.to_sentence(locale: I18n.locale)) unless account.errors.empty?
       self.source ||= account.source
     end
-  end
-
-  def add_elasticsearch_account
-    return if self.disable_es_callbacks
-    parent = Base64.encode64("ProjectSource/#{self.id}")
-    accounts = self.source.accounts
-    accounts.each do |a|
-      a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
-    end unless accounts.blank?
   end
 
   def source_exists

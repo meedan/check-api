@@ -8,5 +8,5 @@ CheckSearchType = GraphqlCrudOperations.define_default_type do
   field :pusher_channel, types.String
 
   connection :medias, ProjectMediaType.connection_type
-  connection :sources, ProjectSourceType.connection_type
+  connection :sources, TeamSourceType.connection_type
 end

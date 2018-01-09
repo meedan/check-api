@@ -14,8 +14,9 @@ class ProjectMedia < ActiveRecord::Base
 
   validate :project_is_not_archived
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
-  after_update :move_media_sources
+  after_create :set_quote_embed, :create_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :create_project_source
+  after_update :move_media_sources, :update_elasticsearch_data
+  before_destroy :destroy_elasticsearch_media
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
@@ -38,18 +39,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def project_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
-  end
-
-  def set_initial_media_status
-    st = Status.new
-    st.annotated = self
-    st.annotator = self.user
-    st.status = Status.default_id(self.media, self.project)
-    st.created_at = self.created_at
-    st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    st.skip_check_ability = true
-    st.skip_notifications = true
-    st.save!
   end
 
   def slack_notification_message
@@ -228,15 +217,27 @@ class ProjectMedia < ActiveRecord::Base
     perms
   end
 
+  def update_elasticsearch_data
+    return if self.disable_es_callbacks
+    if self.project_id_changed?
+      parent = self.get_es_parent_id(self.id, self.class.name)
+      keys = %w(project_id team_id)
+      data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
+      options = {keys: keys, data: data, parent: parent}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
+    end
+  end
+
+  def destroy_elasticsearch_media
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    destroy_elasticsearch_data(MediaSearch, 'parent')
+  end
+
   private
 
   def set_quote_embed
     self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
     self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
-  end
-
-  def set_project_source
-    self.create_project_source
   end
 
   def move_media_sources
@@ -278,7 +279,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def override_embed_data(em, info)
-    info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) and !v.blank? }
+    em.override_annotation(info)
     em.skip_notifications = true if self.is_being_created
     em.save!
   end

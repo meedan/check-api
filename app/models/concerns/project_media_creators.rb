@@ -5,6 +5,37 @@ module ProjectMediaCreators
 
   private
 
+  def create_initial_media_status
+    st = Status.new
+    st.annotated = self
+    st.annotator = self.user
+    st.status = Status.default_id(self.media, self.project)
+    st.created_at = self.created_at
+    st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    st.skip_check_ability = true
+    st.skip_notifications = true
+    st.save!
+  end
+
+  def create_project_source
+    a = self.media.account
+    source = Account.create_for_source(a.url, nil, false, self.disable_es_callbacks).source unless a.nil?
+    if source.nil?
+      cs = ClaimSource.where(media_id: self.media_id).last
+      source = cs.source unless cs.nil?
+    end
+    unless source.nil?
+      unless ProjectSource.where(project_id: self.project_id, source_id: source.id).exists?
+        ps = ProjectSource.new
+        ps.project_id = self.project_id
+        ps.source_id = source.id
+        ps.disable_es_callbacks = self.disable_es_callbacks
+        ps.skip_check_ability = true
+        ps.save!
+      end
+    end
+  end
+
   def create_auto_tasks
     self.set_tasks_responses ||= {}
     tasks = self.project.nil? ? [] : self.project.auto_tasks
@@ -160,25 +191,6 @@ module ProjectMediaCreators
         }
         task.response = { annotation_type: type, set_fields: fields.to_json }.to_json
         task.save!
-      end
-    end
-  end
-
-  def create_project_source
-    a = self.media.account
-    source = Account.create_for_source(a.url, nil, false, self.disable_es_callbacks).source unless a.nil?
-    if source.nil?
-      cs = ClaimSource.where(media_id: self.media_id).last
-      source = cs.source unless cs.nil?
-    end
-    unless source.nil?
-      unless ProjectSource.where(project_id: self.project_id, source_id: source.id).exists?
-        ps = ProjectSource.new
-        ps.project_id = self.project_id
-        ps.source_id = source.id
-        ps.disable_es_callbacks = self.disable_es_callbacks
-        ps.skip_check_ability = true
-        ps.save!
       end
     end
   end

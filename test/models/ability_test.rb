@@ -1052,22 +1052,22 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "journalist permissions for account source" do
+  test "journalist and editor permissions for account source" do
     u = create_user
     u2 = create_user
     t = create_team
     t2 = create_team
-    a = create_valid_account
-    own_s = create_source user: u, team: t
-    s = create_source user: u2, team: t
-    s2 = create_source user: u, team: t2
+    s = create_source
+    own_a = create_account user: u, team: t
+    a = create_account user: u2, team: t
+    a2 = create_account user: u, team: t2
     tu = create_team_user user: u , team: t, role: 'journalist'
     as = create_account_source source: s, account: a
-    own_as = create_account_source source: own_s, account: a
-    as2 = create_account_source source: s2, account: a
+    own_as = create_account_source source: s, account: own_a
+    as2 = create_account_source source: s, account: a2
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.can?(:create, own_s)
+      assert ability.can?(:create, own_a)
       assert ability.can?(:update, own_as)
       assert ability.cannot?(:destroy, own_as)
       assert ability.can?(:update, as)
@@ -1075,24 +1075,11 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, as2)
       assert ability.cannot?(:destroy, as2)
     end
-  end
-
-  test "editor permissions for account source" do
-    u = create_user
-    u2 = create_user
-    t = create_team
-    t2 = create_team
-    a = create_valid_account
-    own_s = create_source user: u, team: t
-    s = create_source user: u2, team: t
-    s2 = create_source user: u, team: t2
-    tu = create_team_user user: u , team: t, role: 'editor'
-    as = create_account_source source: s, account: a
-    own_as = create_account_source source: own_s, account: a
-    as2 = create_account_source source: s2, account: a
+    # editor role
+    tu.role = 'editor';tu.save!
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.can?(:create, own_s)
+      assert ability.can?(:create, own_a)
       assert ability.can?(:update, own_as)
       assert ability.cannot?(:destroy, own_as)
       assert ability.can?(:update, as)
@@ -1107,17 +1094,17 @@ class AbilityTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     t2 = create_team
-    a = create_valid_account
-    own_s = create_source user: u, team: t
-    s = create_source user: u2, team: t
-    s2 = create_source user: u, team: t2
+    s = create_source
+    own_a = create_account user: u, team: t
+    a = create_account user: u2, team: t
+    a2 = create_account user: u, team: t2
     tu = create_team_user user: u , team: t, role: 'owner'
     as = create_account_source source: s, account: a
-    own_as = create_account_source source: own_s, account: a
-    as2 = create_account_source source: s2, account: a
+    own_as = create_account_source source: s, account: own_a
+    as2 = create_account_source source: s, account: a2
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.can?(:create, own_s)
+      assert ability.can?(:create, own_a)
       assert ability.can?(:update, own_as)
       assert ability.can?(:destroy, own_as)
       assert ability.can?(:update, as)

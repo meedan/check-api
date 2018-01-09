@@ -86,7 +86,7 @@ module AnnotationBase
     custom_optimistic_locking if: proc { |a| a.annotation_type == 'metadata' }
 
     def self.annotated_types
-      ['ProjectSource', 'ProjectMedia', 'Source']
+      ['TeamSource', 'ProjectSource', 'ProjectMedia', 'Source', 'Profile']
     end
     validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
 
@@ -120,14 +120,16 @@ module AnnotationBase
 
   module ClassMethods
     def all_sorted(order = 'asc', field = 'created_at')
-      type = self.name.parameterize
+      type = self.name.underscore.parameterize
       query = type === 'annotation' ? {} : { annotation_type: type }
       Annotation.where(query).order(field => order.to_sym).all
     end
 
     def length
-      type = self.name.parameterize
-      Annotation.where(annotation_type: type).count
+      type = self.name.underscore.parameterize
+      condition = {}
+      condition = {annotation_type: type} unless type == 'annotation'
+      Annotation.where(condition).count
     end
 
     def field(name, _type = String, _options = {})
@@ -158,6 +160,10 @@ module AnnotationBase
 
   def project_source
     self.annotated if self.annotated_type == 'ProjectSource'
+  end
+
+  def team_source
+    self.annotated if self.annotated_type == 'TeamSource'
   end
 
   def project
@@ -267,6 +273,10 @@ module AnnotationBase
     self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
   end
 
+  def override_annotation(info)
+    info.each{ |k, v| self.send("#{k}=", v) if self.respond_to?(k) and !v.blank? }
+  end
+
   protected
 
   def load_polymorphic(name)
@@ -285,7 +295,7 @@ module AnnotationBase
   private
 
   def set_type_and_event
-    self.annotation_type ||= self.class_name.parameterize
+    self.annotation_type ||= self.class_name.underscore.parameterize
     self.paper_trail_event = 'create' if self.versions.count === 0
   end
 

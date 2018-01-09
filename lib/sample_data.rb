@@ -109,8 +109,7 @@ module SampleData
     options = { text: random_string(50), annotator: user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      p = create_project team: t
-      options[:annotated] = create_project_source project: p
+      options[:annotated] = create_team_source team: t
     end
     c = Comment.new
     options.each do |key, value|
@@ -208,6 +207,31 @@ module SampleData
     end
     em.save!
     em
+  end
+
+  def create_source_identity(options = {})
+    user = options[:user] || create_user
+    options = { name: random_string(10), bio: random_string(50), annotator: user, disable_es_callbacks: true }.merge(options)
+    unless options.has_key?(:annotated)
+      t = options[:team] || create_team
+      options[:annotated] = create_team_source team: t
+    end
+    si = SourceIdentity.new
+    options.each do |key, value|
+      si.send("#{key}=", value) if si.respond_to?("#{key}=")
+    end
+
+    file = nil
+    if options.has_key?(:file)
+      file = options[:file]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        si.file = f
+      end
+    end
+    si.save!
+    si
   end
 
   def create_annotation(options = {})
@@ -359,8 +383,7 @@ module SampleData
     source.name = options[:name] || random_string
     source.slogan = options[:slogan] || random_string(20)
     source.user = options[:user]
-    source.avatar = options[:avatar]
-    source.team = options[:team] if options.has_key?(:team)
+    source.avatar = options[:avatar] 
     source.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     file = nil
     if options.has_key?(:file)
@@ -375,6 +398,7 @@ module SampleData
     source.save!
 
     if options[:team]
+      # create_team_source team: options[:team], source: source
       create_project_source(project: create_project(team: options[:team], user: nil), source: source)
     end
 
@@ -382,6 +406,7 @@ module SampleData
   end
 
   def create_account_source(options = {})
+    options = { disable_es_callbacks: true }.merge(options)
     as = AccountSource.new
     options[:source_id] = create_source.id if !options.has_key?(:source_id) && !options.has_key?(:source)
     options[:account_id] = create_valid_account.id if !options.has_key?(:account_id) && !options.has_key?(:account) && !options.has_key?(:url)
@@ -401,6 +426,19 @@ module SampleData
     end
     cs.save!
     cs.reload
+  end
+
+  def create_team_source(options = {})
+    options = { disable_es_callbacks: true}.merge(options)
+    u = options[:user] || create_user
+    ts = TeamSource.new
+    options[:team] = create_team unless options.has_key?(:team)
+    options[:source] = create_source unless options.has_key?(:source)
+    options.each do |key, value|
+      ts.send("#{key}=", value) if ts.respond_to?("#{key}=")
+    end
+    ts.save!
+    ts.reload
   end
 
   def create_project_source(options = {})

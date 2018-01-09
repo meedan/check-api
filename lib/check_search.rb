@@ -66,13 +66,13 @@ class CheckSearch
     return @sources if @sources
     @sources = []
     if should_hit_elasticsearch?
-      query = medias_build_search_query('ProjectSource')
+      query = medias_build_search_query('TeamSource')
       ids = medias_get_search_result(query).map(&:annotated_id)
-      items = ProjectSource.where(id: ids).eager_load(:source)
+      items = TeamSource.where(id: ids).eager_load(:source)
       @sources = sort_es_items(items, ids)
     else
-      results = ProjectSource.eager_load(:source).joins(:project)
-      @sources = sort_pg_results(results)
+      results = TeamSource.where(team_id: @options['team_id']).eager_load(:source)
+      @sources = sort_pg_results(results, 'sources')
     end
     @sources
   end
@@ -119,7 +119,7 @@ class CheckSearch
 
     keyword_c << search_tags_query(@options["keyword"].split(' '))
 
-    if associated_type == 'ProjectSource'
+    if associated_type == 'TeamSource'
       keyword_c << { has_child: { type: "account_search", query: { simple_query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
     end
     [{ bool: { should: keyword_c } }]
@@ -165,12 +165,21 @@ class CheckSearch
     MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"].downcase }}, '_score'], size: 10000).results
   end
 
-  def sort_pg_results(results)
-    results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
-    results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
+  def sort_pg_results(results, type = 'medias')
+    results = pg_extra_filters(results, type)
     sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
     sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
     results.order(sort_field => sort_type)
+  end
+
+  def pg_extra_filters(results, type)
+    if type == 'medias'
+      results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
+      results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
+    else
+      results = results.where('team_id' => @options['team_id']) unless @options['team_id'].blank?
+    end
+    results
   end
 
   def sort_es_items(items, ids)

@@ -3,6 +3,8 @@ class User < ActiveRecord::Base
   attr_accessor :url, :skip_confirmation_mail
 
   include ValidationsHelper
+  include SourceUserIdentity
+
   belongs_to :source
   has_many :team_users
   has_many :teams, through: :team_users
@@ -13,7 +15,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
-  after_create :set_image, :create_source_and_account, :send_welcome_email
+  after_create :set_image, :create_profile_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
 
   mount_uploader :image, ImageUploader
@@ -217,20 +219,20 @@ class User < ActiveRecord::Base
 
   private
 
-  def create_source_and_account
-    source = Source.new
-    source.user = self
-    source.name = self.name
-    source.avatar = self.profile_image
-    source.slogan = self.name
-    source.save!
-    self.update_columns(source_id: source.id)
+  def create_profile_and_account
+    profile = Profile.new
+    profile.user = self
+    profile.name = self.name
+    profile.avatar = self.profile_image
+    profile.slogan = self.name
+    profile.save!
+    self.update_columns(source_id: profile.id)
 
     if !self.provider.blank? && !self.url.blank?
       begin
         account = Account.new
         account.user = self
-        account.source = source
+        account.source = profile
         account.url = self.url
         account.update_columns(url: self.url) if account.save
       rescue Errno::ECONNREFUSED => e

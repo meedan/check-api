@@ -12,12 +12,13 @@ module CheckBasicAbilities
     can :create, TeamUser, :user_id => @user.id, status: ['member', 'requested']
 
     # Permissions for registration and login
-    can :create, Source, :user_id => @user.id
-    can :update, Source, :team_id => nil, :id => @user.source_id
-    can :destroy, AccountSource, source: { team_id: nil, id: @user.source_id}
+    can :create, Profile, :user_id => @user.id
+    can :update, Profile, :id => @user.source_id
+    can :destroy, AccountSource, source: { type: 'Profile', id: @user.source_id}
     can :update, User, :id => @user.id
     can [:create, :update], Account, :user_id => @user.id
     can :create, Embed, :annotated_id => @user.account_ids
+    can :update, SourceIdentity, :annotated_id => @user.source_id
 
     can :restore, ProjectMedia do |obj|
       tmp = obj.dup
@@ -55,10 +56,12 @@ module CheckBasicAbilities
     can :read, [Source, Media, Link, Claim], projects: { team: { private: false }}
     can :read, [Source, Media, Link, Claim], projects: { team_id: @user.cached_teams }
 
-    can :read, [Account, ProjectSource], source: { user_id: [@user.id, nil] }
+    can :read, [Account, ProjectSource, TeamSource], source: { user_id: [@user.id, nil] }
     can :read, Account, source: { projects: { team_id: @user.cached_teams }}
     can :read, ProjectSource, project: { team: { private: false } }
     can :read, ProjectSource, project: { team_id: @user.cached_teams }
+    can :read, TeamSource, team: { private: false }
+    can :read, TeamSource, team_id: @user.cached_teams
     can :read, ProjectMedia do |obj|
       obj.team ||= obj.project.team
       !obj.team.private || @user.cached_teams.include?(obj.team.id)

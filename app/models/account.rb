@@ -32,12 +32,12 @@ class Account < ActiveRecord::Base
   end
 
   def source_id_callback(value, _mapping_ids = nil)
-    source = Source.where(name: value).last
+    source = Source.get_duplicate_source(value)
     source.nil? ? nil : source.id
   end
 
   def get_team
-    self.sources.map(&:get_team).flatten.uniq
+    TeamSource.where(source_id: self.sources.map(&:id)).map(&:team_id).flatten.uniq
   end
 
   def data
@@ -60,14 +60,19 @@ class Account < ActiveRecord::Base
     source = self.source
 
     if source.nil? && Team.current.present?
-      self.source = self.sources.where(team_id: Team.current.id).last
+      self.source = self.sources.last
       return unless self.source.nil?
     end
 
     if source.nil?
       source = Source.new
       source.update_from_pender_data(self.pender_data)
-      source.save!
+      s = Source.get_duplicate_source(source.name)
+      if s.blank?
+        source.save!
+      else
+        source = s
+      end
     end
     create_account_source(source)
     self.source = source
@@ -110,6 +115,17 @@ class Account < ActiveRecord::Base
     a
   end
 
+  def update_elasticsearch_account
+    return if self.disable_es_callbacks
+    ts_ids = TeamSource.where(source_id: self.sources).map(&:id).to_a
+    unless ts_ids.blank?
+      parents = ts_ids.map{|id| Base64.encode64("TeamSource/#{id}") }
+      parents.each do |parent|
+        self.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+      end
+    end
+  end
+
   private
 
   def create_account_source(source)
@@ -128,16 +144,5 @@ class Account < ActiveRecord::Base
 
   def pender_result_is_a_profile
     errors.add(:base, 'Sorry, this is not a profile') if !self.pender_data.nil? && self.pender_data['provider'] != 'page' && self.pender_data['type'] != 'profile'
-  end
-
-  def update_elasticsearch_account
-    return if self.disable_es_callbacks
-    ps_ids = ProjectSource.where(source_id: self.sources).map(&:id).to_a
-    unless ps_ids.blank?
-      parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") }
-      parents.each do |parent|
-        self.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
-      end
-    end
   end
 end

@@ -50,4 +50,10 @@ UserType = GraphqlCrudOperations.define_default_type do
       type.blank? ? user.annotations : user.annotations(type)
     }
   end
+
+  field :identity, JsonStringType do
+    resolve -> (user, _args, _ctx) {
+      user.identity
+    }
+  end
 end
