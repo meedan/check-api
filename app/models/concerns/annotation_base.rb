@@ -162,6 +162,10 @@ module AnnotationBase
     self.annotated if self.annotated_type == 'ProjectSource'
   end
 
+  def team_source
+    self.annotated if self.annotated_type == 'TeamSource'
+  end
+
   def project
     self.annotated if self.annotated_type == 'Project'
   end
