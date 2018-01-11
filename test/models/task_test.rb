@@ -197,4 +197,11 @@ class TaskTest < ActiveSupport::TestCase
     t = create_task label: 'Where did it happen?'
     assert_equal 'where_did_it_happen', t.slug
   end
+
+  test "should send Slack notification in background" do
+    Task.any_instance.stubs(:send_slack_notification).once
+    t = create_task
+    t.updated_at = Time.now
+    t.save!
+  end
 end
