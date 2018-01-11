@@ -6,7 +6,7 @@ before_install:
 - export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
 - openssl aes-256-cbc -K $encrypted_305bc6cf680a_key -iv $encrypted_305bc6cf680a_iv -in travis.zip.enc -out travis.zip -d
 - unzip travis.zip
-- sudo rm /etc/apt/sources.list.d/mongodb-3.2.list
+- sudo rm /etc/apt/sources.list.d/mongodb*
 - sudo apt-get -qq update
 - sudo apt-get install wget openjdk-7-jre redis-server
 - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.4.1.deb
