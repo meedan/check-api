@@ -3,7 +3,7 @@ class Task < ActiveRecord::Base
 
   before_validation :set_initial_status, :set_slug, on: :create
   after_create :send_slack_notification
-  after_update :send_slack_notification
+  after_update -> { send_slack_notification_in_background([:response]) }
   after_destroy :destroy_responses
 
   field :label
