@@ -22,4 +22,12 @@ MediaType = GraphqlCrudOperations.define_default_type do
       media.account
     }
   end
+
+  field :embed do
+    type JsonStringType
+
+    resolve ->(media, _args, _ctx) {
+      media.embed
+    }
+  end
 end
