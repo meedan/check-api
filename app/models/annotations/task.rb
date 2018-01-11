@@ -114,7 +114,8 @@ class Task < ActiveRecord::Base
 
   def self.send_slack_notification(tid, rid, uid)
     User.current = User.find(uid) if uid > 0
-    object = Task.find(tid)
+    object = Task.where(id: tid).last
+    return if object.nil?
     response = rid > 0 ? Dynamic.find(rid) : nil
     object.instance_variable_set(:@response, response)
     object.send_slack_notification
