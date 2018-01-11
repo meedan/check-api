@@ -66,14 +66,19 @@ class Account < ActiveRecord::Base
 
     if source.nil?
       data = self.pender_data
-      name = data['author_name'] unless data.nil?
-      source = Source.create_source(name) unless name.blank?
-      source = Source.new if source.nil?
+      source = get_source_obj(data)
       source.update_from_pender_data(data)
       source.save!
     end
     create_account_source(source)
     self.source = source
+  end
+
+  def get_source_obj(data)
+    name = data['author_name'] unless data.nil?
+    source = Source.create_source(name) unless name.blank?
+    source = Source.new if source.nil?
+    source
   end
 
   def refresh_account=(_refresh)
