@@ -69,34 +69,11 @@ module ActiveRecordExtensions
     Base64.encode64("#{self.class_name}/#{self.id}")
   end
   
-  module ClassMethods
-    def send_slack_notification(klass, id, uid, fields)
-      User.current = User.find(uid) if uid > 0
-      object = klass.constantize.find(id)
-      JSON.parse(fields).each do |key, value|
-        object.send("#{key}=", value)
-      end
-      object.send_slack_notification
-      User.current = nil
-    end
-  end
-
   protected
 
   def send_slack_notification
     bot = Bot::Slack.default
     bot.notify_slack(self) unless bot.nil?
-  end
-
-  private
-
-  def send_slack_notification_in_background(attributes = [])
-    uid = User.current ? User.current.id : 0
-    fields = {}
-    attributes.each do |attr|
-      fields[attr] = self.send(attr)
-    end
-    self.class.delay_for(1.second).send_slack_notification(self.class.name, self.id, fields.to_json, uid)
   end
 end
 
