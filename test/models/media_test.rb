@@ -515,4 +515,37 @@ class MediaTest < ActiveSupport::TestCase
       assert_equal 'youm7.com', m.domain
     end
   end
+
+  test "should get original published time" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    time = "2017-07-10T12:10:18+03:00"
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'description' => 'Foo', 'published_at' => time} }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    c = create_claim_media
+    i = create_uploaded_image
+    assert_equal Time.at(time.to_time.to_i), l.original_published_time
+    assert_equal '', c.original_published_time
+    assert_equal '', i.original_published_time
+  end
+
+  test "should get media type" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    time = "2017-07-10T12:10:18+03:00"
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'description' => 'Foo', 'provider' => 'twitter'} }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    c = create_claim_media
+    i = create_uploaded_image
+    f = create_uploaded_file
+    m = Media.new
+    assert_equal 'twitter', l.media_type
+    assert_equal 'quote', c.media_type
+    assert_equal 'uploaded image', i.media_type
+    assert_equal 'uploaded file', f.media_type
+    assert_equal '', m.media_type
+  end
+
 end
