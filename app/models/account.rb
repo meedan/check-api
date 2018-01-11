@@ -65,8 +65,11 @@ class Account < ActiveRecord::Base
     end
 
     if source.nil?
-      source = Source.new
-      source.update_from_pender_data(self.pender_data)
+      data = self.pender_data
+      name = data['author_name'] unless data.nil?
+      source = Source.create_source(name) unless name.blank?
+      source = Source.new if source.nil?
+      source.update_from_pender_data(data)
       source.save!
     end
     create_account_source(source)
