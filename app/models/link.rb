@@ -36,6 +36,15 @@ class Link < Media
     self.get_saved_pender_data['description'].to_s
   end
 
+  def original_published_time
+    published_time = self.pender_embed.data['published_at']
+    published_time.to_i.zero? ? '' : Time.at(published_time)
+  end
+
+  def media_type
+    self.get_saved_pender_data['provider']
+  end
+
   private
 
   def set_account

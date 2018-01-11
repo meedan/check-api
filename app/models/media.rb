@@ -64,6 +64,14 @@ class Media < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
+  def original_published_time
+    ''
+  end
+
+  def media_type
+    ''
+  end
+
   private
 
   def set_url_nil_if_empty

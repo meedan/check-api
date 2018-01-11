@@ -6,15 +6,20 @@ module CheckCsvExport
       report_title: pm.title,
       report_url: pm.full_url,
       report_date: pm.created_at,
-      media_content: pm.media.quote || pm.embed['description'],
+      media_content: pm.media_content,
       media_url: pm.media.media_url,
       report_status: self.get_project_media_status(pm),
       report_author: pm.user.name,
-      tags: pm.get_annotations('tag').to_enum.reverse_each.collect{ |t| t.data['full_tag'] }.reverse.join(', '),
+      time_delta_to_first_status: pm.time_to_status(:first),
+      time_delta_to_last_status: pm.time_to_status(:last),
+      time_original_media_publishing: pm.media.original_published_time,
+      type: pm.media.media_type,
+      contributing_users: pm.contributing_users_count,
+      tags: pm.tags_list,
       notes_count: pm.annotations.count,
       notes_ugc_count: pm.get_annotations('comment').count,
       tasks_count: pm.get_annotations('task').count,
-      tasks_resolved_count: pm.get_annotations('task').select{ |t| t.status === "Resolved" }.count
+      tasks_resolved_count: pm.tasks_resolved_count
     ].merge(
       self.export_project_media_annotations(pm)
     )}
