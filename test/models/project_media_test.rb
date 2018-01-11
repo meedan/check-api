@@ -259,7 +259,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 3, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 4, CheckNotifications::Pusher::Worker.jobs.size
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -485,7 +485,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
-    assert_difference 'PaperTrail::Version.count', 4 do
+    assert_difference 'PaperTrail::Version.count', 5 do
       pm = create_project_media project: p, media: m, user: u
     end
     assert_equal 1, pm.versions.count
