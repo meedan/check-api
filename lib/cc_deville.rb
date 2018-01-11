@@ -1,4 +1,6 @@
 class CcDeville
+  include ERB::Util
+
   def initialize(host, token, httpauth = nil)
     @host = host
     @token = token
@@ -13,7 +15,7 @@ class CcDeville
   end
 
   def clear_cache(url)
-    response = make_request('delete', 'purge', URI.encode(url))
+    response = make_request('delete', 'purge', url_encode(url))
     code = response.code.to_i
     Rails.logger.info "[cc-deville] Response for `DELETE /purge?url=#{url}` was #{code}"
     code

@@ -1,10 +1,11 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :embed, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created
+  attr_accessor :quote, :quote_attributions, :file, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created
 
   include ProjectAssociation
   include ProjectMediaAssociations
   include ProjectMediaCreators
   include ProjectMediaEmbed
+  include ProjectMediaExport
   include Versioned
   include NotifyEmbedSystem
   include ValidationsHelper
@@ -104,12 +105,8 @@ class ProjectMedia < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
-  def get_media_annotations(type = nil)
-    self.media.annotations.where(annotation_type: type).last
-  end
-
   def embed
-    em_pender = self.get_media_annotations('embed')
+    em_pender = self.media.get_annotations('embed').last
     em_overriden = self.get_annotations('embed').last
     if em_overriden.nil?
       em = em_pender
@@ -133,7 +130,7 @@ class ProjectMedia < ActiveRecord::Base
     if self.media.type == 'Link'
       em = self.get_annotations('embed').last
       unless em.nil?
-        em_media = self.get_media_annotations('embed')
+        em_media = self.media.get_annotations('embed').last
         data.each do |k, _v|
           data[k] = true if em['data'][k] != em_media['data'][k] and !em['data'][k].blank?
         end
@@ -163,6 +160,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def refresh_media=(_refresh)
+    self.create_pender_archive_annotation if self.annotations.where(annotation_type: 'pender_archive').last.nil?
     self.media.refresh_pender_data
     self.updated_at = Time.now
   end

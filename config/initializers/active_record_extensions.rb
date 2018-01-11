@@ -68,8 +68,8 @@ module ActiveRecordExtensions
   def graphql_id
     Base64.encode64("#{self.class_name}/#{self.id}")
   end
-
-  private
+  
+  protected
 
   def send_slack_notification
     bot = Bot::Slack.default

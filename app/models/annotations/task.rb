@@ -3,7 +3,7 @@ class Task < ActiveRecord::Base
 
   before_validation :set_initial_status, :set_slug, on: :create
   after_create :send_slack_notification
-  after_update :send_slack_notification
+  after_update :send_slack_notification_in_background
   after_destroy :destroy_responses
 
   field :label
@@ -112,6 +112,16 @@ class Task < ActiveRecord::Base
     response.get_fields.select{ |f| f.field_name =~ /^response/ }.first.to_s unless response.nil?
   end
 
+  def self.send_slack_notification(tid, rid, uid)
+    User.current = User.find(uid) if uid > 0
+    object = Task.where(id: tid).last
+    return if object.nil?
+    response = rid > 0 ? Dynamic.find(rid) : nil
+    object.instance_variable_set(:@response, response)
+    object.send_slack_notification
+    User.current = nil
+  end
+
   def self.slug(label)
     label.to_s.parameterize.tr('-', '_')
   end
@@ -135,5 +145,11 @@ class Task < ActiveRecord::Base
 
   def set_slug
     self.slug = Task.slug(self.label)
+  end
+
+  def send_slack_notification_in_background
+    uid = User.current ? User.current.id : 0
+    rid = self.response.nil? ? 0 : self.response.id
+    Task.delay_for(1.second).send_slack_notification(self.id, rid, uid)
   end
 end

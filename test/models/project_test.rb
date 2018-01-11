@@ -405,7 +405,7 @@ class ProjectTest < ActiveSupport::TestCase
     task = create_task annotator: create_user, annotated: pm
     tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
     exported_data = p.export_to_csv
-    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_question_1,task_user_1,task_date_1,task_answer_1,task_note_1,translation_text_1,translation_language_1,translation_note_1"
+    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,time_delta_to_first_status,time_delta_to_last_status,time_original_media_publishing,type,contributing_users,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_question_1,task_user_1,task_date_1,task_answer_1,task_note_1,translation_text_1,translation_language_1,translation_note_1"
     assert_match(header, exported_data)
   end
 

@@ -214,12 +214,14 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     embed = JSON.parse(@response.body)['data']['project_media']['embed']
-    assert_equal 'Title A', JSON.parse(embed)['title']
-    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { embed } }"
+    assert_equal 'Title A', embed['title']
+    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { embed, media { embed } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
-    embed = JSON.parse(@response.body)['data']['project_media']['embed']
-    assert_equal 'Title B', JSON.parse(embed)['title']
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_equal 'Title B', data['embed']['title']
+    # original embed
+    assert_equal 'test media', data['media']['embed']['title']
   end
 
   test "should read project media overridden" do
@@ -238,7 +240,6 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     overridden = JSON.parse(@response.body)['data']['project_media']['overridden']
-    overridden = JSON.parse(overridden)
     assert overridden['title']
     assert overridden['description']
     assert_not overridden['username']
