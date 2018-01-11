@@ -203,5 +203,6 @@ class TaskTest < ActiveSupport::TestCase
     t = create_task
     t.updated_at = Time.now
     t.save!
+    Task.any_instance.unstub(:send_slack_notification)
   end
 end
