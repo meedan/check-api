@@ -671,6 +671,32 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [], t.checklist.first[:projects]
   end
 
+  test "should return checklist mapping as hash after submit task without it" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "free_text",
+      description: "It is a free text task",
+    }]
+    t.checklist = value
+    t.save!
+    assert_nil t.get_checklist.first[:mapping]
+    assert_equal({"type" => "text", "match" => "", "prefix" => ""}, t.checklist.first[:mapping])
+  end
+
+  test "should remove all items from checklist" do
+    t = create_team
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    t.set_checklist(value)
+    t.save!
+
+    assert_nothing_raised do
+      t.set_checklist([])
+      t.save!
+    end
+    assert_equal [], t.checklist
+  end
+
   test "should save valid slack_channel" do
     t = create_team
     value =  "#slack_channel"

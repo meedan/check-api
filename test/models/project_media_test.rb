@@ -259,7 +259,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 3, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 4, CheckNotifications::Pusher::Worker.jobs.size
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -485,7 +485,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
-    assert_difference 'PaperTrail::Version.count', 4 do
+    assert_difference 'PaperTrail::Version.count', 5 do
       pm = create_project_media project: p, media: m, user: u
     end
     assert_equal 1, pm.versions.count
@@ -1315,4 +1315,101 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     assert_equal 'Test 2', pm.reload.description
   end
+
+  test "should create pender_archive annotation when link is created" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l
+    end
+  end
+
+  test "should not create pender_archive annotation when media is created if media is not a link" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    c = create_claim_media
+    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: c
+    end
+  end
+
+  test "should not create pender_archive annotation when link is created if there is no annotation type" do
+    l = create_link
+    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l
+    end
+  end
+
+  test "should not create pender_archive annotation when link is created if team is not allowed" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    t = create_team
+    t.set_limits_keep_integration = false
+    t.save!
+    p = create_project team: t
+    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l, project: p
+    end
+  end
+
+  test "should create pender_archive annotation when link is created using information from pender_embed" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    Link.any_instance.stubs(:pender_embed).returns(OpenStruct.new({ data: { embed: { screenshot_taken: 1 }.to_json } }))
+    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l
+    end
+    Link.any_instance.unstub(:pender_embed)
+  end
+
+  test "should create pender_archive annotation when link is created using information from pender_data" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1 })
+    Link.any_instance.stubs(:pender_embed).raises(RuntimeError)
+    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
+      create_project_media media: l
+    end
+    Link.any_instance.unstub(:pender_data)
+    Link.any_instance.unstub(:pender_embed)
+  end
+
+  test "should get nummber of contributing users" do
+    pm = create_project_media
+    create_comment annotated: pm, annotator: create_user
+    create_comment annotated: pm, annotator: create_user
+    create_tag annotated: pm, annotator: create_user
+    create_task annotated: pm, annotator: create_user
+    assert_equal 5, pm.contributing_users_count
+  end
+
+  test "should get time to first and last status" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+
+    with_current_user_and_team(u, t) do
+      time = Time.now - 10.minutes
+      Time.stubs(:now).returns(time)
+
+      pm = create_project_media project: p, user: u
+      assert_equal '', pm.time_to_status(:first)
+      assert_equal '', pm.time_to_status(:last)
+
+      Time.stubs(:now).returns(time + 5.minutes)
+      s = pm.annotations.where(annotation_type: 'status').last.load
+      s.status = 'In Progress'; s.save!
+      assert_equal '', pm.time_to_status(:first)
+      assert_equal 5.minutes.to_i, pm.time_to_status(:last)
+
+      Time.stubs(:now).returns(time + 8.minutes)
+      s = pm.annotations.where(annotation_type: 'status').last.load
+      s.status = 'Verified'; s.save!
+
+      assert_equal 5.minutes.to_i, pm.time_to_status(:first)
+      assert_equal 8.minutes.to_i, pm.time_to_status(:last)
+      Time.unstub(:now)
+    end
+  end
+
 end

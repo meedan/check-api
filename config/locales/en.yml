@@ -151,6 +151,10 @@ en:
         menu: Send reset password instructions
       export_project:
         menu: Export project data
+      delete_tasks:
+        done: deleted the tasks
+        are_you_sure_you_want_to_delete_the_tasks_from_team: Are you sure you want to delete all tasks in team
+        all_the_following_tasks_will_be_deleted: '? The following tasks will be removed:'
   reset_password_instructions: "%{app_name} reset password instructions"
   email_not_found: E-mail not found
   slack_channel_format_wrong: 'Slack channel is invalid, it should have the format
@@ -220,7 +224,11 @@ en:
   cant_set_checklist: "Sorry, you can't use the Checklist feature"
   cant_create_media_under_this_team_using_extension: "Sorry, this team is not allowed to use the browser extension"
   error_invalid_attribution: "Invalid attribution"
-  account_exists: This account already exists in project %{project_id} and has id %{project_source_id}
-  media_exists: This media already exists in project %{project_id} and has id %{id}
-  source_exists: This source already exists in project %{project_id} and has id %{id}
-
+  account_exists: This account already exists
+  media_exists: This media already exists
+  source_exists: This source already exists
+  devise:
+    mailer:
+      reset_password_instructions:
+        instruction: "Someone has requested a link to change your password, and you can do this
+          through the link below. <strong>Please note that this link expires in %{expire} hours.</strong>"

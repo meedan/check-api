@@ -75,10 +75,13 @@ fr:
   slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
   slack_webhook_format_wrong: 'Webhook Slack non valide : le format doit être `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`'
   slug_is_reserved: est réservé
-  invalid_format_for_custom_verification_status: 'Statuts de vérifications personnalisés non valides : le format correct est affiché au-dessous du champ de saisie'
+  invalid_format_for_custom_verification_status: Statuts de vérifications personnalisés non valides
   invalid_format_for_checklist: 'Le champ de liste de contrôle est non-valide. Il devrait se conformer au format [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'Le champ des langages est non-valide. Il doit conformer au format [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Désolé, ce média n'est pas valide
+  invalid_default_status_for_custom_verification_status: Statut de défaut non valide
+  invalid_id_or_label_for_custom_verification_status: L'identifiant et l'étiquette du statut sont requises
+  invalid_statuses_format_for_custom_verification_status: Statuts de vérifications personnalisés doivent contenir des valeurs valides pour `étiquette`, `identifiant`, `description` et `style`
   already_exists: existe déjà
   mail_account_confirmation: "Confirmation de votre compte %{app_name}"
   mail_request_to_join: "%{user} demande à se joindre à l'équipe %{team} sur %{app_name} !"
@@ -136,7 +139,7 @@ fr:
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y à %H:%M %z"
+      task: "%B %d, %Y à %H:%M [TZ] (%z GMT)"
   oembed_disclaimer_undetermined: Ce média n'a pas encore été vérifié par l'équipe %{team}.
   oembed_disclaimer_in_progress: L'exactitude de ce média est en cours de vérification par l'équipe %{team}depuis le %{date}
   oembed_disclaimer_verified: L'exactitude de ce média a été vérifiée par l'équipe %{team}le %{date}
@@ -180,3 +183,11 @@ fr:
   cant_set_custom_statuses: "Désolé, votre équipe n'est pas autorisée à utiliser la fonction de statuts personnalisés"
   cant_set_checklist: "Désolé, votre équipe n'est pas autorisée à utiliser la fonction de liste de contrôle"
   cant_create_media_under_this_team_using_extension: "Désolé, votre équipe n'est pas autorisée à utiliser l'extension de navigateur"
+  error_invalid_attribution: "Attribution non valide"
+  account_exists: Ce compte existe déjà
+  media_exists: Ce média existe déjà
+  source_exists: Cette source existe déjà
+  devise:
+    mailer:
+      reset_password_instructions:
+        instruction: "Quelqu'un a demandé un lien pour changer votre mot de passe : veuillez le trouver ci-dessous. <strong>Notez que ce lien expire dans %{expire} heures.</strong>"
