@@ -199,10 +199,19 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should send Slack notification in background" do
-    Task.any_instance.stubs(:send_slack_notification).once
-    t = create_task
-    t.updated_at = Time.now
-    t.save!
-    Task.any_instance.unstub(:send_slack_notification)
+    Bot::Slack.any_instance.stubs(:bot_send_slack_notification).returns(nil)
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tk = create_task annotator: u, annotated: pm
+      tk = Task.find(tk.id)
+      tk.data = { label: 'Foo', type: 'free_text' }.with_indifferent_access
+      tk.save!
+    end
+    Bot::Slack.any_instance.unstub(:bot_send_slack_notification)
   end
 end

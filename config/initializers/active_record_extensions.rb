@@ -69,8 +69,6 @@ module ActiveRecordExtensions
     Base64.encode64("#{self.class_name}/#{self.id}")
   end
   
-  protected
-
   def send_slack_notification
     bot = Bot::Slack.default
     bot.notify_slack(self) unless bot.nil?
