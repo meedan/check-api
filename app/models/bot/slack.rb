@@ -28,7 +28,7 @@ class Bot::Slack < ActiveRecord::Base
       channel = p.setting(:slack_channel) unless p.nil?
       channel ||= t.setting(:slack_channel)
       message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
-      self.send_slack_notification(model, webhook, channel, message)
+      self.bot_send_slack_notification(model, webhook, channel, message)
     end
     self.notify_super_admin(model, t, p)
   end
@@ -43,11 +43,11 @@ class Bot::Slack < ActiveRecord::Base
         prefix += ": #{project.title}" unless project.nil?
         message  = "[#{prefix}] - #{message}"
       end
-      self.send_slack_notification(model, webhook, channel, message)
+      self.bot_send_slack_notification(model, webhook, channel, message)
     end
   end
 
-  def send_slack_notification(model, webhook, channel, message)
+  def bot_send_slack_notification(model, webhook, channel, message)
     return if webhook.blank? || channel.blank? || message.blank?
 
       data = {
