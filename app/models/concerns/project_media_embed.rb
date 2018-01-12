@@ -9,7 +9,10 @@ module ProjectMediaEmbed
 
   def oembed_url(format = '')
     format = ".#{format}" unless format.blank?
-    CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed' + format
+    url = CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed' + format
+    request = RequestStore[:request]
+    url += '?' + request.query_string if request.present? && !request.query_string.blank?
+    url
   end
 
   def embed_url
