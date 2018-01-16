@@ -23,7 +23,7 @@ class Bot::Keep
 
   def self.set_response_based_on_pender_data(type, data)
     method = "set_#{type}_response_based_on_pender_data"
-    response = Bot::Keep.respond_to?(method) ? Bot::Keep.send(method, data) : (data || {})
+    Bot::Keep.respond_to?(method) ? Bot::Keep.send(method, data) : (data || {})
   end
 
   def self.set_pender_archive_response_based_on_pender_data(data)
