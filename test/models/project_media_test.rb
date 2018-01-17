@@ -764,6 +764,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have oEmbed URL" do
+    RequestStore[:request] = nil
     t = create_team private: false
     p = create_project team: t
     pm = create_project_media project: p
