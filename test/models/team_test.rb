@@ -715,12 +715,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should enable Keep" do
-    t = create_team
-    t.keep_enabled = 1
-    assert_equal 1, t.get_keep_enabled.to_i
-  end
-
   test "should be private by default" do
     Team.delete_all
     t = Team.new
