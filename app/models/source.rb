@@ -101,9 +101,9 @@ class Source < ActiveRecord::Base
 
   def update_from_pender_data(data)
     self.update_name_from_data(data)
-    return if data.nil?
-    self.avatar = data['author_picture'] if !data['author_picture'].blank?
-    self.slogan = data['description'].to_s if self.slogan.blank?
+    # return if data.nil?
+    # self.avatar = data['author_picture'] if !data['author_picture'].blank?
+    # self.slogan = data['description'].to_s if self.slogan.blank?
   end
 
   def update_name_from_data(data)
