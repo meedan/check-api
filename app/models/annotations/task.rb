@@ -112,10 +112,14 @@ class Task < ActiveRecord::Base
     response.get_fields.select{ |f| f.field_name =~ /^response/ }.first.to_s unless response.nil?
   end
 
-  def self.send_slack_notification(tid, rid, uid)
+  def self.send_slack_notification(tid, rid, uid, changes)
     User.current = User.find(uid) if uid > 0
     object = Task.where(id: tid).last
     return if object.nil?
+    changes = JSON.parse(changes)
+    changes.each do |attribute, change|
+      object.send :set_attribute_was, attribute, change[0]
+    end
     response = rid > 0 ? Dynamic.find(rid) : nil
     object.instance_variable_set(:@response, response)
     object.send_slack_notification
@@ -150,6 +154,6 @@ class Task < ActiveRecord::Base
   def send_slack_notification_in_background
     uid = User.current ? User.current.id : 0
     rid = self.response.nil? ? 0 : self.response.id
-    Task.delay_for(1.second).send_slack_notification(self.id, rid, uid)
+    Task.delay_for(1.second).send_slack_notification(self.id, rid, uid, self.changes.to_json)
   end
 end

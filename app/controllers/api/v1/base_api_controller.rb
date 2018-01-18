@@ -8,7 +8,7 @@ module Api
       before_filter :remove_empty_params_and_headers
       before_filter :set_custom_response_headers
       before_filter :authenticate_from_token!, except: [:me, :options]
-      before_action :set_paper_trail_whodunnit
+      before_action :set_paper_trail_whodunnit, :store_request
 
       respond_to :json
 
@@ -115,6 +115,10 @@ module Api
 
       def user_for_paper_trail
         current_api_user.id unless current_api_user.nil?
+      end
+
+      def store_request
+        RequestStore[:request] = request
       end
     end
   end
