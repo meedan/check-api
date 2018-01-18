@@ -400,6 +400,20 @@ RailsAdmin.config do |config|
         help "A list of custom verification statuses for reports that match your team's journalistic guidelines."
         visible_only_for_allowed_teams 'custom_statuses'
       end
+
+      Bot::Keep.archiver_annotation_types.each do |type|
+        field :"archive_#{type}_enabled", :boolean do
+          label "Enable #{Bot::Keep.annotation_type_to_archiver(type).titleize} archive"
+          formatted_value{ bindings[:object].send("get_archive_#{type}_enabled") }
+          help ''
+          visible_only_for_admin
+          visible_only_for_allowed_teams 'keep_integration'
+          hide do
+            bindings[:object].new_record?
+          end
+        end
+      end
+
       field :hide_names_in_embeds, :boolean do
         label 'Hide names in embeds'
         formatted_value{ bindings[:object].get_hide_names_in_embeds }

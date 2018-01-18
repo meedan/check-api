@@ -1072,4 +1072,22 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     ProjectMedia.unstub(:clear_caches)
   end
+
+  test "should enable or disable archivers" do
+    t = create_team
+    assert !t.get_archive_keep_backup_enabled
+    t.archive_keep_backup_enabled = true
+    t.save!
+    assert t.reload.get_archive_keep_backup_enabled
+
+    assert !t.get_archive_pender_archive_enabled
+    t.archive_pender_archive_enabled = true
+    t.save!
+    assert t.reload.get_archive_pender_archive_enabled
+
+    assert !t.get_archive_archive_is_enabled
+    t.archive_archive_is_enabled = true
+    t.save!
+    assert t.reload.get_archive_archive_is_enabled
+  end
 end
