@@ -199,7 +199,15 @@ class ProjectMediasControllerTest < ActionController::TestCase
 
   test "should persist parameters in embed iframe src" do
     pm = create_project_media
-    get :oembed, id: pm.id, format: :json, hide_notes: 1
-    assert_match /oembed\.html\?hide_notes=1/, @response.body
+    n = 0
+    body = ''
+    pattern = /oembed\.html\?hide_notes=1/
+    while body.match(pattern).nil? && n < 5
+      get :oembed, id: pm.id, format: :json, hide_notes: 1
+      sleep 1
+      body = @response.body
+      n += 1
+    end
+    assert_match pattern, body
   end
 end
