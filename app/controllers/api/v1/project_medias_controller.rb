@@ -35,7 +35,7 @@ module Api
             em.save!
 
             ProjectMedia.where(media_id: @link.id).each do |pm|
-              next if pm.project.team.get_limits_keep_integration == false
+              next if pm.project.team.get_limits_keep_integration == false || pm.project.team.send("get_archive_#{type}_enabled").to_i != 1 
               
               annotation = pm.annotations.where(annotation_type: type).last
               

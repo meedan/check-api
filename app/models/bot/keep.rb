@@ -35,7 +35,7 @@ class Bot::Keep
     after_create :create_all_archive_annotations
 
     def should_skip_create_archive_annotation?(type)
-      !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || self.project.team.get_limits_keep_integration == false
+      !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || self.project.team.get_limits_keep_integration == false || self.project.team.send("get_archive_#{type}_enabled").to_i != 1
     end
 
     def create_archive_annotation(type)
@@ -66,6 +66,14 @@ class Bot::Keep
     def create_all_archive_annotations
       Bot::Keep.archiver_annotation_types.each do |type|
         self.create_archive_annotation(type)
+      end
+    end
+  end
+
+  Team.class_eval do
+    Bot::Keep.archiver_annotation_types.each do |type|
+      define_method :"archive_#{type}_enabled=" do |enabled|
+        self.send("set_archive_#{type}_enabled", enabled)
       end
     end
   end
