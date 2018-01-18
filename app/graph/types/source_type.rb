@@ -55,6 +55,14 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :overridden do
+    type JsonStringType
+
+    resolve ->(source, _args, _ctx) {
+      source.overridden
+    }
+  end
+
   instance_exec :source, &GraphqlCrudOperations.field_annotations
 
   instance_exec :source, &GraphqlCrudOperations.field_annotations_count

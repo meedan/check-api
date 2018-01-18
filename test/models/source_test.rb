@@ -389,8 +389,10 @@ class SourceTest < ActiveSupport::TestCase
     s.refresh_accounts = 1
     s.reload
     assert_equal 'Source author', s.name
-    assert_equal 'picture.png', s.avatar
-    assert_equal 'Source slogan', s.slogan
+    assert_nil s.avatar
+    assert_empty s.slogan
+    # assert_equal 'picture.png', s.image
+    assert_equal 'Source slogan', s.description
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)
   end

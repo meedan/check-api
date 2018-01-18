@@ -134,8 +134,8 @@ class AccountTest < ActiveSupport::TestCase
     end
     s = a.reload.source
     assert_equal 'Foo Bar', s.name
-    assert_equal 'http://provider/picture.png', s.avatar
-    assert_equal 'Just a test', s.slogan
+    assert_equal 'http://provider/picture.png', s.image
+    assert_equal 'Just a test', s.description
   end
 
   test "should not create account that is not a profile" do
@@ -284,7 +284,7 @@ class AccountTest < ActiveSupport::TestCase
     }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "author_picture": "http://provider/picture.png"}}')
     account = Account.create url: url, user: create_user
     assert_equal 'John Doe', account.source.name
-    assert_equal 'http://provider/picture.png', account.source.avatar
+    assert_equal 'http://provider/picture.png', account.source.image
     WebMock.allow_net_connect!
   end
 
