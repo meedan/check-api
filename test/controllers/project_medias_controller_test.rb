@@ -85,7 +85,12 @@ class ProjectMediasControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
-    pm = create_project_media media: l
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
 
@@ -107,7 +112,12 @@ class ProjectMediasControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
-    pm = create_project_media media: l
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
 
@@ -146,7 +156,12 @@ class ProjectMediasControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
-    pm = create_project_media media: l
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
     a = pm.get_annotations('pender_archive').last
     a.destroy
 
@@ -167,6 +182,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team
+    t.archive_pender_archive_enabled = 1
     t.set_limits_keep_integration = false
     t.save!
     p = create_project team: t
