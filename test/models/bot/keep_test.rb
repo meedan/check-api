@@ -20,6 +20,9 @@ class Bot::KeepTest < ActiveSupport::TestCase
 
   test "should create Keep annotations" do
     t = create_team
+    t.archive_keep_backup_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
     l = create_link
     p = create_project team: t
     pm = create_project_media project: p, media: l
@@ -28,6 +31,9 @@ class Bot::KeepTest < ActiveSupport::TestCase
 
   test "should not create Keep annotations if media is not a link" do
     t = create_team
+    t.archive_keep_backup_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
     c = create_claim_media
     p = create_project team: t
     pm = create_project_media project: p, media: c
@@ -36,7 +42,19 @@ class Bot::KeepTest < ActiveSupport::TestCase
 
   test "should not create Keep annotations if team is not allowed to" do
     t = create_team
+    t.archive_keep_backup_enabled = 1
     t.set_limits_keep_integration = false
+    t.save!
+    l = create_link
+    p = create_project team: t
+    pm = create_project_media project: p, media: l
+    assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
+  end
+
+  test "should not create Keep annotations if archiver is not enabled" do
+    t = create_team
+    t.archive_keep_backup_enabled = 0
+    t.set_limits_keep_integration = true
     t.save!
     l = create_link
     p = create_project team: t

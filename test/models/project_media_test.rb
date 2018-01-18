@@ -1320,8 +1320,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should create pender_archive annotation when link is created" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      create_project_media media: l
+      create_project_media media: l, project: p
     end
   end
 
@@ -1365,10 +1370,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should create pender_archive annotation when link is created using information from pender_data" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
     Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1 })
     Link.any_instance.stubs(:pender_embed).raises(RuntimeError)
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      create_project_media media: l
+      create_project_media media: l, project: p
     end
     Link.any_instance.unstub(:pender_data)
     Link.any_instance.unstub(:pender_embed)
