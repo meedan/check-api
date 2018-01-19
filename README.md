@@ -106,6 +106,11 @@ You can also test your instance of ClamAV REST this way:
 
 The test uses a EICAR file (a test file which is recognized as a virus by scanners even though it's not really a virus).
 
+### Integrate with Pender archives
+
+* Add a migration that creates a new dynamic annotation for the archiver
+* Declare this new type at `app/models/bot/keep.rb`
+
 ### Localization
 
 Localization is powered by Transifex + I18n. In order to localize the application, you need to set the `transifex_user` and `transifex_password` configuration options on `config/config.yml`. Then, when you run `rake transifex:localize`, the following will happen automatically:
