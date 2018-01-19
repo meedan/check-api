@@ -18,97 +18,47 @@ class Bot::KeepTest < ActiveSupport::TestCase
     assert_kind_of Bot::Keep, @bot
   end
 
-  test "should send media to Keep" do
+  test "should create Keep annotations" do
     t = create_team
-    t.keep_enabled = 1
+    t.archive_keep_backup_enabled = 1
+    t.set_limits_keep_integration = true
     t.save!
     l = create_link
     p = create_project team: t
-    pm = nil
-    stub_config('keep_token', '123456') do
-      pm = create_project_media project: p, media: l
-    end
+    pm = create_project_media project: p, media: l
     assert_not_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 
-  test "should not send media to Keep if media is not a link" do
+  test "should not create Keep annotations if media is not a link" do
     t = create_team
-    t.keep_enabled = 1
+    t.archive_keep_backup_enabled = 1
+    t.set_limits_keep_integration = true
     t.save!
     c = create_claim_media
     p = create_project team: t
-    pm = nil
-    stub_config('keep_token', '123456') do
-      pm = create_project_media project: p, media: c
-    end
+    pm = create_project_media project: p, media: c
     assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 
-  test "should not send media to Keep if Keep is not enabled for team" do
+  test "should not create Keep annotations if team is not allowed to" do
     t = create_team
-    l = create_link
-    p = create_project team: t
-    pm = nil
-    stub_config('keep_token', '123456') do
-      pm = create_project_media project: p, media: l
-    end
-    assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
-  end
-
-  test "should not send media to Keep if there is no Keep key in the config" do
-    t = create_team
-    t.keep_enabled = 1
-    t.save!
-    l = create_link
-    p = create_project team: t
-    pm = nil
-    stub_config('keep_token', nil) do
-      pm = create_project_media project: p, media: l
-    end
-    assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
-  end
-
-  test "should re-send media to Keep" do
-    t = create_team
-    t.keep_enabled = 1
-    t.save!
-    l = create_link
-    p = create_project team: t
-    pm = nil
-    stub_config('keep_token', '123456') do
-      pm = create_project_media project: p, media: l
-    end
-    assert_nothing_raised do
-      pm.update_keep = 1
-    end
-  end
-
-  test "should sent to Keep and re-try" do
-    t = create_team
-    t.keep_enabled = 1
-    t.save!
-    l = create_link
-    p = create_project team: t
-    pm = nil
-    stub_config('keep_token', '123456') do
-      Sidekiq::Testing.inline! do
-        ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
-        pm = create_project_media project: p, media: l
-      end
-    end
-  end
-
-  test "should not send media to Keep if team is not allowed to" do
-    t = create_team
-    t.keep_enabled = 1
+    t.archive_keep_backup_enabled = 1
     t.set_limits_keep_integration = false
     t.save!
     l = create_link
     p = create_project team: t
-    pm = nil
-    stub_config('keep_token', '123456') do
-      pm = create_project_media project: p, media: l
-    end
+    pm = create_project_media project: p, media: l
+    assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
+  end
+
+  test "should not create Keep annotations if archiver is not enabled" do
+    t = create_team
+    t.archive_keep_backup_enabled = 0
+    t.set_limits_keep_integration = true
+    t.save!
+    l = create_link
+    p = create_project team: t
+    pm = create_project_media project: p, media: l
     assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 end
