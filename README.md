@@ -106,7 +106,7 @@ You can also test your instance of ClamAV REST this way:
 
 The test uses a EICAR file (a test file which is recognized as a virus by scanners even though it's not really a virus).
 
-### Integrate with Pender archives
+### Integration with Pender archives
 
 * Add a migration that creates a new dynamic annotation for the archiver
 * Declare this new type at `app/models/bot/keep.rb`
