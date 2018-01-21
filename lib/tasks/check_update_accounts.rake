@@ -1,6 +1,8 @@
 @accounts = 0
 @sources = 0
 @conditions = []
+@updated_accounts = []
+@failed_accounts = []
 
 #[{"provider"=>"facebook", "subtype"=>"page"},{"provider"=>"instagram"},{"provider"=>"youtube", "sybtype => channel"}]
 def parse_conditions(args, task_name)
@@ -65,7 +67,7 @@ def with_errors_on_data(data)
   !data['error'].nil?
 end
 
-def update_account(account, update_source = false)
+def update_pender_data(account)
   max_attempts = 3
   attempts = 0
   begin
@@ -74,11 +76,21 @@ def update_account(account, update_source = false)
     attempts += 1
     puts "Failed to update account #{account.url}, attempt #{attempts}/#{max_attempts}"
     retry if attempts < max_attempts
+    if attempts < max_attempts
+      retry
+    else
+      @failed_accounts << account.url
+    end
   end
-  if !account.pender_data.nil? && account.pender_data['error'].nil?
-    account.set_pender_result_as_annotation
+  account
+end
+
+def update_account(account, update_source = false)
+  a = update_pender_data(account)
+  if !a.pender_data.nil? && a.pender_data['error'].nil?
+    a.set_pender_result_as_annotation
     @accounts += 1
-    update_related_source(account) if update_source
+    update_related_source(a) if update_source
   end
 end
 
@@ -107,6 +119,56 @@ def update_account_embed_with_user_omniauth_data(account)
     em.save!
     @accounts += 1
   end
+end
+
+def update_account_url(account)
+  url = account.url
+  a = update_pender_data account
+  if !a.pender_data.nil? && a.pender_data['error'].nil?
+    update_account_url_and_relations(account, a.url) if a.url != url
+  else
+    @failed_accounts << url
+  end
+end
+
+def update_account_url_and_relations(account, new_url)
+  url = account.url
+  existing = Account.find_by_url(new_url)
+  if existing.nil?
+    account.update_columns(url: new_url)
+  else
+    Media.where(account_id: account.id).update_all(account_id: existing.id)
+    AccountSource.where(account_id: account.id).update_all(account_id: existing.id)
+    account.destroy
+  end
+  @updated_accounts << "#{url} => #{new_url}"
+end
+
+def log_to_file(filename, content, situation)
+  File.open(filename, "w+") do |f|
+    f.puts(content)
+  end
+  puts "The #{situation} accounts were saved on #{filename}"
+end
+
+def file_to_hashes(filename)
+  urls = IO.readlines(filename).map(&:chomp)
+  mapping = {}
+  urls.each do |m|
+    original, updated = m.split(' => ')
+    mapping[original] = updated
+  end
+  mapping
+end
+
+def print_output
+  puts "\n======================================================="
+  if !@failed_accounts.empty?
+    puts "#{@failed_accounts.size} failed accounts:"
+    puts @failed_accounts
+  end
+  log_to_file('updated-accounts.txt', @updated_accounts, 'Updated')
+  log_to_file('failed-accounts.txt', @failed_accounts, 'Failed')
 end
 
 namespace :check do
@@ -161,6 +223,38 @@ namespace :check do
       print '.'
     end
     puts "#{@accounts} accounts were changed."
+  end
+
+  # bundle exec rake check:update_all_accounts
+  desc "update all accounts where url returned by Pender is different"
+  task :update_all_accounts => :environment do |t|
+    Account.find_each do |account|
+      print '.'
+      begin
+        update_account_url(account)
+      rescue
+        @failed_accounts << account.url
+      end
+    end
+    print_output
+  end
+
+  # bundle exec rake check:update_accounts_from_file[filename]
+  # format of lines on file `<old url> => <new url>``
+  desc "update accounts listed on a file"
+  task :update_accounts_from_file => :environment do |t, args|
+    mapping = file_to_hashes(args.extras.first)
+    mapping.each do |original, updated|
+      account = Account.find_by_url(original)
+      next if account.nil?
+      begin
+        update_account_url_and_relations(account, updated)
+        print '.'
+      rescue
+        @failed_accounts << account.url
+      end
+    end
+    print_output
   end
 
 end

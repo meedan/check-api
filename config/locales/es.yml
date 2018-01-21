@@ -1,0 +1,179 @@
+es:
+  link: Enlace
+  claim: Reclamo
+  uploadedimage: Imagen
+  uploadefile: Archivo
+  blank: "(en blanco)"
+  statuses:
+    media:
+      undetermined:
+        label: Sin iniciar
+        description: 'Predeterminado por Check, no se ha iniciado ningún trabajo. '
+      not_applicable:
+        label: Poco concluyente
+        description: No se puede llegar a ninguna conclusión con la evidencia disponible
+      in_progress:
+        label: En progreso
+        description: El trabajo ha comenzado, pero aún no se ha llegado a ninguna conclusión
+      not_true:
+        label: 'Falso'
+        description: 'Conclusión: el informe es falso'
+      verified:
+        label: Verificado
+        description: 'Conclusión: el informe es verificado'
+    source:
+      undetermined:
+        label: Sin iniciar
+        description: 'Predeterminado por Check, no se ha iniciado ningún trabajo. '
+      credible:
+        label: Confiable
+        description: 'Conclusión: la fuente es confiable'
+      not_credible:
+        label: No confiable
+        description: 'Conclusión: la fuente no es confiable'
+      slightly_credible:
+        label: 'Poco confiable '
+        description: 'Conclusión: la fuente es poco confiable'
+      sockpuppet:
+        label: Farsante
+        description: 'Conclusión: la fuente es un farsante  '
+  errors:
+    messages:
+      extension_white_list_error: 'No puede tener tipo  %{extension}, tipos permitidos: %{allowed_types}'
+      invalid_size: debe ser entre %{min_width}x%{min_height} y %{max_width}x%{max_height} pixeles
+  activerecord:
+    models:
+      link: Enlace
+      claim: Reclamo
+      uploaded_image: Imagen
+      uploaded_file: Archivo
+    attributes:
+      tag:
+        data: Etiqueta
+      uploaded_file:
+        file: Archivo
+      uploaded_image:
+        file: Imagen
+      team:
+        slug: Slug
+      source:
+        name: Nombre
+      contact:
+        phone: Teléfono
+      comment:
+        text: Comentario
+      user:
+        reset_password_token: Restablecer token la contraseña
+        email: Correo electrónico
+    errors:
+      messages:
+        record_invalid: 'Error de validación: %{errors}'
+        improbable_phone: 'número inválido '
+  slug_format_validation_message: acepta solo letras, números y guiones
+  slack_webhook_format_wrong: Slack webhook inválido, debería tener este formato  `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slug_is_reserved: Está reservado
+  invalid_format_for_custom_verification_status: La personalización del estado de verificación es inválida.
+  invalid_format_for_checklist: 'La lista de tareas es inválida, debería tener este formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY''
+    }]'' } ]'
+  invalid_format_for_languages: 'El idioma es inválido, debería tener este formato  [{''id'': ''en'',''title'': ''English''}]'
+  invalid_media_item: 'Lo sentimos, este no es un elemento multimedia válido '
+  invalid_default_status_for_custom_verification_status: El estado predeterminado es inválido
+  invalid_id_or_label_for_custom_verification_status: El nombre de estado y la etiqueta son obligatorios
+  already_exists: ya existe
+  mail_account_confirmation: "%{app_name} confirmación de cuenta"
+  mail_request_to_join: "%{user} quiere unirse  %{team} equipo en %{app_name}!"
+  approved: '¡Aprobado! '
+  rejected: 'no aprobado '
+  mail_request_to_join_processed: Tu solicitud para unirte a  %{team} en %{app_name} fue %{status}
+  mail_new_account: Nueva cuenta para ti en  %{app_name}
+  slack_update_status: "*%{user}*cambió el estado de verificación de %{url}  en *%{project}* de _%{previous_status}_ a*%{current_status}*"
+  slack_save_embed: "*%{user}* Cambió el título del reporte en *%{project}* de _%{from}_ a %{to}"
+  slack_save_comment: "*%{user}*Añadió una nota a %{url} en *%{project}*: %{comment}"
+  slack_create_project: "*%{user}* crear proyecto: %{url}"
+  slack_create_team_user: "*%{user}* Unido al equipo %{url}"
+  slack_create_project_media: "*%{user}* añadió un nuevo %{type} a *%{project}*: %{url}"
+  slack_create_project_media_no_user: 'Un nuevo %{type} ha sido añadido a *%{project}*: %{url}'
+  slack_create_task: "*%{user}* tarea creada %{url} en *%{project}*%{create_note}"
+  slack_create_task_note: "con nota: %{note}"
+  slack_answer_task: |-
+    *%{user}* tarea resuelta %{url} en *%{project}*: %{response}
+    %{answer_note}
+  slack_answer_task_note: "*Nota:* %{note}"
+  slack_update_task_label: |-
+    *%{user}* tarea editada %{url} en *%{project}* de: %{from}
+    *a:* %{to}
+  slack_update_task_description: |-
+    *%{user}* nota de tarea editada a %{url} en *%{project}* de: %{from}
+    *a:* %{to}
+  mail_view_welcome: Bienvenido  y bienvenida a %{app_name}
+  mail_view_register: '¡Estás a un solo paso de usar %{app_name}! Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente enlace:'
+  mail_view_joined: ¡Tu solicitud para unirte a %{team} fue aprobada! ¡Puedes ir a %{url} y empezar a contribuir!
+  mail_view_rejected_to_join: Lo sentimos, pero tu solicitud para unirte a  %{team} fue rechazada.
+  mail_view_request_to_join: "%{user} (%{handle}) quiere unirse %{team} equipo en %{app_name}!"
+  mail_view_process_request: 'Para procesar esta solicitud, por favor inicia sesión y visita:'
+  pender_could_not_parse: No pudo analizar este medio
+  mail_duplicate_email_exists_email: correo electrónico
+  admin:
+    actions:
+      send_reset_password_email:
+        menu: Enviar instrucciones para restablecer la contraseña
+      export_project:
+        menu: Exportar datos del proyecto
+  reset_password_instructions: "%{app_name} restablecer las instrucciones de la contraseña"
+  email_not_found: 'Correo electrónico no encontrado '
+  slack_channel_format_wrong: 'Canal de Slack inválido, debería tener este formato #general '
+  translation_status_not_valid: Estado no válido
+  translation_status_permission_error: 'No estas autorizado para hacer este cambio de estado '
+  translation_request_id_exists: 'Ya existe una solicitud de traducción para este mensaje '
+  slack_update_translation_status: "*%{user}* cambió el estado de la traducción en *%{report}* de *%{from}* a *%{to}*"
+  invalid_token: Token inválido
+  viber_screenshot_footer: "%{target_language} traducción de %{source_language}: “%{source_text}”"
+  time:
+    formats:
+      oembed: "%B %d, %Y"
+      task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
+  oembed_disclaimer_not_applicable: No se pudo llegar a ninguna conclusión sobre la precisión de este medio por parte del equipo  %{team} equipo en %{date}
+  oembed_source_date: "%{date} en %{provider}"
+  role_editor: Editor
+  role_owner: Propietario
+  role_contributor: contribuidor
+  role_journalist: periodista
+  role_none: miembro
+  oembed_credit: Añadido por %{user} (%{role}) %{date}
+  oembed_notes_count:
+    zero: Sin notas
+    one: Una nota
+    other: "%{count} notas"
+  oembed_completed_tasks_count:
+    zero: Sin tareas completadas
+    one: Una tarea completada
+    other: "%{count} tareas completadas"
+  oembed_verification_tasks: Tareas de verificación
+  oembed_expand_all: Expandir todo
+  oembed_collapse_all: Contraer todo
+  oembed_resolved_tasks_count:
+    zero: Tareas de verificación no resueltas
+    one: Una tarea de verificación resuelta
+    other: "%{count} Tareas de verificación resueltas"
+  oembed_notes: Notas
+  pender_conflict: Este enlace ya está siendo analizado, intente de nuevo en unos segundos.
+  duplicate_source: Fuente existente
+  geolocation_invalid_value: 'La localización debe tener un GeoJSON válido (http://geojson.org/) '
+  datetime_invalid_date: 'Por favor proporciona una fecha válida '
+  error_team_archived: "No se puede crear un proyecto en un equipo eliminado"
+  error_project_archived: "No se puede crear un archivo multimedia en un proyecto eliminado"
+  error_team_archived_for_source: "No se puede crear una fuente en un equipo eliminado"
+  permission_error: "Lo sentimos, no estás autorizado para hacer esto"
+  error_annotated_archived: "Lo sentimos, este ítem está en la papelera, no puedes añadirle una nota"
+  only_super_admin_can_do_this: "lo sentimos, solo los super administradores pueden hacer este cambio"
+  max_number_of_team_users_reached: "Este equipo alcanzó el número máximo de usuarios"
+  max_number_of_projects_reached: "Este equipo alcanzó el número máximo de proyectos"
+  cant_create_media_under_this_team_using_extension: "lo sentimos, este equipo no tiene permitido usar la extensión del navegador"
+  error_invalid_attribution: "Atribución inválida"
+  account_exists: Esta cuenta ya existe
+  media_exists: Este archivo multimedia ya existe
+  source_exists: Esta fuente ya existe
+  devise:
+    mailer:
+      reset_password_instructions:
+        instruction: "Alguien ha solicitado un enlace para cambiar su contraseña, y puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"

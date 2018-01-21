@@ -46,7 +46,6 @@ development: &default
   bridge_reader_url_private: http://reader:3400
   bridge_reader_url: http://localhost:3400
   bridge_reader_token: mysecrettoken
-  keep_token:
   app_name: "Check"
   app_url: "http://checkmedia.org"
   support_email: "check@meedan.com"

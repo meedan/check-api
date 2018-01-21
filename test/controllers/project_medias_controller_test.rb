@@ -85,11 +85,16 @@ class ProjectMediasControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
-    pm = create_project_media media: l
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
 
-    payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
+    payload = { type: 'screenshot', url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
@@ -107,7 +112,12 @@ class ProjectMediasControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
-    pm = create_project_media media: l
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
 
@@ -120,28 +130,6 @@ class ProjectMediasControllerTest < ActionController::TestCase
     assert_response :success
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
-  end
-
-  test "should not save Pender response through webhook if screenshot_taken is not 1" do
-    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
-    url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    l = create_link url: url
-    pm = create_project_media media: l
-    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
-    assert_equal [], f.keys
-
-    payload = { url: url, screenshot_taken: 0, screenshot_url: 'http://pender/screenshot.png' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
-    @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :webhook
-    @request.env.delete('RAW_POST_DATA')
-    assert_response :success
-    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
-    assert_equal ['error'], f.keys
   end
 
   test "should not save Pender response through webhook if there is no project media" do
@@ -168,7 +156,12 @@ class ProjectMediasControllerTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
-    pm = create_project_media media: l
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
     a = pm.get_annotations('pender_archive').last
     a.destroy
 
@@ -189,6 +182,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team
+    t.archive_pender_archive_enabled = 1
     t.set_limits_keep_integration = false
     t.save!
     p = create_project team: t
@@ -205,7 +199,10 @@ class ProjectMediasControllerTest < ActionController::TestCase
 
   test "should persist parameters in embed iframe src" do
     pm = create_project_media
+    pattern = /oembed\.html\?hide_notes=1/
     get :oembed, id: pm.id, format: :json, hide_notes: 1
-    assert_match /oembed\.html\?hide_notes=1/, @response.body
+    RequestStore[:request] ||= OpenStruct.new({ query_string: '?hide_notes=1' })
+    body = @response.body
+    assert_match pattern, body
   end
 end

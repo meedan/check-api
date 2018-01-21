@@ -15,7 +15,6 @@ module ProjectMediaMutations
     previous_project_id: 'int',
     refresh_media: 'int',
     update_mt: 'int',
-    update_keep: 'int',
     archived: 'int',
     embed: 'str',
     id: '!id'

@@ -23,34 +23,39 @@ module Api
       def webhook
         if @payload['url'] 
           @link = Link.where(url: @payload['url']).last
+          type = Bot::Keep.archiver_to_annotation_type(@payload['type'])
           unless @link.nil?
-            response = { error: true }
-
-            if @payload['screenshot_taken'].to_i == 1
-              response = { screenshot_url: @payload['screenshot_url'], screenshot_taken: 1 }
-              em = @link.pender_embed
-              data = JSON.parse(em.data['embed'])
-              data['screenshot_taken'] = 1
-              em.embed = data.to_json
-              em.save!
-            end
+            response = Bot::Keep.set_response_based_on_pender_data(type, @payload) || { error: true }
+            em = @link.pender_embed
+            data = JSON.parse(em.data['embed'])
+            data['archives'] ||= {}
+            data['archives'][@payload['type']] = response
+            response.each { |key, value| data[key] = value }
+            em.embed = data.to_json
+            em.save!
 
             ProjectMedia.where(media_id: @link.id).each do |pm|
-              next if pm.project.team.get_limits_keep_integration == false
+              next if should_skip_project_media?(pm, type)
               
-              annotation = pm.annotations.where(annotation_type: 'pender_archive').last
+              annotation = pm.annotations.where(annotation_type: type).last
               
               unless annotation.nil?
                 annotation = annotation.load
                 annotation.skip_check_ability = true
                 annotation.disable_es_callbacks = Rails.env.to_s == 'test'
-                annotation.set_fields = { pender_archive_response: response.to_json }.to_json
+                annotation.set_fields = { "#{type}_response" => response.to_json }.to_json
                 annotation.save!
               end
             end
           end
         end
         render_success
+      end
+
+      protected
+
+      def should_skip_project_media?(pm, type)
+        pm.project.team.get_limits_keep_integration == false || pm.project.team.send("get_archive_#{type}_enabled").to_i != 1 
       end
 
       private

@@ -157,10 +157,6 @@ class Team < ActiveRecord::Base
     self.send(:set_suggested_tags, tags)
   end
 
-  def keep_enabled=(enabled)
-    self.send(:set_keep_enabled, enabled)
-  end
-
   def hide_names_in_embeds=(hide)
     self.send(:set_hide_names_in_embeds, hide)
   end
