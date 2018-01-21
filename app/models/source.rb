@@ -61,7 +61,7 @@ class Source < ActiveRecord::Base
   end
 
   def description
-    return self.slogan if self.slogan != self.name && !self.slogan.nil?
+    return self.slogan if self.slogan != self.name && !self.slogan.blank?
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
@@ -140,9 +140,13 @@ class Source < ActiveRecord::Base
   end
 
   def overridden
-    Rails.cache.fetch('source_overridden_cache') do
+    Rails.cache.fetch("source_overridden_cache_#{self.id}") do
       get_overridden 
     end
+  end
+
+  def cache_source_overridden
+    Rails.cache.write("source_overridden_cache_#{self.id}", get_overridden)
   end
 
   private
@@ -189,17 +193,17 @@ class Source < ActiveRecord::Base
     end
   end
 
-  def cache_source_overridden
-    Rails.cache.write('source_overridden_cache', get_overridden)
-  end
-
   def get_overridden
+    overridden = {"name" => true, "description" => true, "image" => true}
     a = self.accounts.first
-    name = a.data['author_name']
-    {
-      "name" => self.name == name ? a.id: true,
-      "description" => self.slogan.blank? ? a.id : true,
-      "image" => self.avatar.blank? ? a.id : true
-    }
+    unless a.nil?
+      name = a.data.nil? ? '' : a.data['author_name']
+      overridden = {
+        "name" => self.name == name ? a.id: true,
+        "description" => self.slogan.blank? ? a.id : true,
+        "image" => self.avatar.blank? ? a.id : true
+      }
+    end
+    overridden
   end
 end

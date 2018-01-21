@@ -379,7 +379,7 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should refresh source with account data" do
-    data = { author_name: 'Source author', author_picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
+    data = { author_name: 'Source author', picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
     Account.any_instance.stubs(:data).returns(data)
     Account.any_instance.stubs(:refresh_pender_data)
 
@@ -391,10 +391,44 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal 'Source author', s.name
     assert_nil s.avatar
     assert_empty s.slogan
-    # assert_equal 'picture.png', s.image
+    assert_equal 'picture.png', s.image
     assert_equal 'Source slogan', s.description
     Account.any_instance.unstub(:data)
     Account.any_instance.unstub(:refresh_pender_data)
+  end
+
+  test "should get overridden values" do
+    keys = %W(name description image)
+    # source with no account
+    s = create_source
+    overridden = s.overridden
+    keys.each {|k| assert overridden[k]}
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    author_url = 'http://facebook.com/123456'
+    data = { url: author_url, picture: 'http://fb/p.png', author_name: 'username', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+    # source with one account
+    a = create_account url: author_url, source: nil
+    s = a.sources.last
+    overridden = s.overridden
+    keys.each {|k| assert_equal overridden[k], a.id}
+    # source with multiple account
+    create_account_source source: s
+    overridden = s.reload.overridden
+    keys.each {|k| assert_equal overridden[k], a.id}
+    s.name = 'test'; s.save!
+    assert s.overridden['name']
+    assert_equal s.overridden['description'], a.id
+    s.slogan = 'update bio'; s.save;
+    assert s.overridden['name']
+    assert s.overridden['description']
+    s.slogan = 'update bio'; s.save;
+    assert s.overridden['name']
+    assert s.overridden['description']
+    s.file = 'rails.png'; s.save!
+    overridden = s.overridden
+    keys.each {|k| assert overridden[k]}
   end
 
   test "should not refresh source if account data is nil" do
