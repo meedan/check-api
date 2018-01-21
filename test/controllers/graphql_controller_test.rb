@@ -791,14 +791,14 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should get default if language is not supported" do
     authenticate_with_user
-    @request.headers['Accept-Language'] = 'es-LA'
+    @request.headers['Accept-Language'] = 'bn-BD'
     post :create, query: 'query Query { me { name } }'
     assert_equal :en, I18n.locale
   end
 
   test "should get closest language" do
     authenticate_with_user
-    @request.headers['Accept-Language'] = 'es-LA, fr-FR'
+    @request.headers['Accept-Language'] = 'bn-BD, fr-FR'
     post :create, query: 'query Query { me { name } }'
     assert_equal :fr, I18n.locale
   end
@@ -1145,7 +1145,7 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response 409
   end
-  
+
   test "should parse JSON exception" do
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]

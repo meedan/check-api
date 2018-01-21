@@ -715,12 +715,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should enable Keep" do
-    t = create_team
-    t.keep_enabled = 1
-    assert_equal 1, t.get_keep_enabled.to_i
-  end
-
   test "should be private by default" do
     Team.delete_all
     t = Team.new
@@ -1077,5 +1071,23 @@ class TeamTest < ActiveSupport::TestCase
     t.hide_names_in_embeds = 1
     t.save!
     ProjectMedia.unstub(:clear_caches)
+  end
+
+  test "should enable or disable archivers" do
+    t = create_team
+    assert !t.get_archive_keep_backup_enabled
+    t.archive_keep_backup_enabled = true
+    t.save!
+    assert t.reload.get_archive_keep_backup_enabled
+
+    assert !t.get_archive_pender_archive_enabled
+    t.archive_pender_archive_enabled = true
+    t.save!
+    assert t.reload.get_archive_pender_archive_enabled
+
+    assert !t.get_archive_archive_is_enabled
+    t.archive_archive_is_enabled = true
+    t.save!
+    assert t.reload.get_archive_archive_is_enabled
   end
 end
