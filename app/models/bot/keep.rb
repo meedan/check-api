@@ -41,13 +41,6 @@ class Bot::Keep
     def create_archive_annotation(type)
       return if self.should_skip_create_archive_annotation?(type)
 
-      a = Dynamic.new
-      a.skip_check_ability = true
-      a.skip_notifications = true
-      a.disable_es_callbacks = Rails.env.to_s == 'test'
-      a.annotation_type = type
-      a.annotated = self
-
       data = nil
       begin
         data = JSON.parse(self.media.pender_embed.data['embed'])
@@ -55,7 +48,16 @@ class Bot::Keep
         data = self.media.pender_data
       end
 
-      archives = data.has_key?('archives') ? data['archives'] : {}
+      return unless data.has_key?('archives')
+
+      a = Dynamic.new
+      a.skip_check_ability = true
+      a.skip_notifications = true
+      a.disable_es_callbacks = Rails.env.to_s == 'test'
+      a.annotation_type = type
+      a.annotated = self
+
+      archives = data['archives']
       response = Bot::Keep.set_response_based_on_pender_data(type, archives[Bot::Keep.annotation_type_to_archiver(type)])
       a.set_fields = { "#{type}_response" => response.to_json }.to_json
       a.save!
