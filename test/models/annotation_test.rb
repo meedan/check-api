@@ -186,4 +186,24 @@ class AnnotationTest < ActiveSupport::TestCase
       create_comment annotated: pm
     end
   end
+
+  test "should reset archive response" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
+    a = pm.get_annotations('pender_archive').last.load
+    f = a.get_field('pender_archive_response')
+    f.value = '{"foo":"bar"}'
+    f.save!
+    v = a.reload.get_field('pender_archive_response').reload.value
+    assert_not_equal "{}", v
+    pm.reset_archive_response(a)
+    v = a.reload.get_field('pender_archive_response').reload.value
+    assert_equal "{}", v
+  end
 end

@@ -82,7 +82,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team
@@ -109,7 +109,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team
@@ -136,7 +136,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
 
@@ -153,7 +153,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team
@@ -178,7 +178,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team

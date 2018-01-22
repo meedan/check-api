@@ -63,6 +63,14 @@ class Bot::Keep
       a.save!
     end
 
+    def reset_archive_response(annotation)
+      a = annotation.load || annotation
+      a.skip_check_ability = true
+      a.disable_es_callbacks = Rails.env.to_s == 'test'
+      a.set_fields = { "#{a.annotation_type}_response" => {}.to_json }.to_json
+      a.save!
+    end
+
     private
 
     def create_all_archive_annotations
