@@ -10,7 +10,7 @@ es:
         label: Sin iniciar
         description: 'Predeterminado por Check, no se ha iniciado ningún trabajo. '
       not_applicable:
-        label: Poco concluyente
+        label: Inconcluso
         description: No se puede llegar a ninguna conclusión con la evidencia disponible
       in_progress:
         label: En progreso
@@ -39,7 +39,7 @@ es:
         description: 'Conclusión: la fuente es un farsante  '
   errors:
     messages:
-      extension_white_list_error: 'No puede tener tipo  %{extension}, tipos permitidos: %{allowed_types}'
+      extension_white_list_error: 'no puede tener tipo  %{extension}, tipos permitidos: %{allowed_types}'
       invalid_size: debe ser entre %{min_width}x%{min_height} y %{max_width}x%{max_height} pixeles
   activerecord:
     models:
@@ -63,34 +63,37 @@ es:
       comment:
         text: Comentario
       user:
-        reset_password_token: Restablecer token la contraseña
+        reset_password_token: Restablecer token de la contraseña
         email: Correo electrónico
     errors:
       messages:
         record_invalid: 'Error de validación: %{errors}'
-        improbable_phone: 'número inválido '
+        improbable_phone: 'es un número inválido '
+        too_short:
+          one: es demasiado corta (es mínimo 1 caracter)
+          other: es demasiado corta (son mínimo %{count} caracteres)
   slug_format_validation_message: acepta solo letras, números y guiones
-  slack_webhook_format_wrong: Slack webhook inválido, debería tener este formato  `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: El Slack webhook es inválido, debería tener este formato  `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: Está reservado
   invalid_format_for_custom_verification_status: La personalización del estado de verificación es inválida.
-  invalid_format_for_checklist: 'La lista de tareas es inválida, debería tener este formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY''
-    }]'' } ]'
+  invalid_format_for_checklist: 'La lista de tareas es inválida, debería tener este formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'El idioma es inválido, debería tener este formato  [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: 'Lo sentimos, este no es un elemento multimedia válido '
   invalid_default_status_for_custom_verification_status: El estado predeterminado es inválido
   invalid_id_or_label_for_custom_verification_status: El nombre de estado y la etiqueta son obligatorios
+  invalid_statuses_format_for_custom_verification_status: La personalización de los estados de verificación debe tener `etiqueta`, ` identificación`, `descripción` y` estilo` válidos
   already_exists: ya existe
   mail_account_confirmation: "%{app_name} confirmación de cuenta"
-  mail_request_to_join: "%{user} quiere unirse  %{team} equipo en %{app_name}!"
-  approved: '¡Aprobado! '
+  mail_request_to_join: "%{user} quiere unirse al equipo de %{team} en %{app_name}!"
+  approved: '¡aprobado! '
   rejected: 'no aprobado '
   mail_request_to_join_processed: Tu solicitud para unirte a  %{team} en %{app_name} fue %{status}
   mail_new_account: Nueva cuenta para ti en  %{app_name}
-  slack_update_status: "*%{user}*cambió el estado de verificación de %{url}  en *%{project}* de _%{previous_status}_ a*%{current_status}*"
-  slack_save_embed: "*%{user}* Cambió el título del reporte en *%{project}* de _%{from}_ a %{to}"
-  slack_save_comment: "*%{user}*Añadió una nota a %{url} en *%{project}*: %{comment}"
-  slack_create_project: "*%{user}* crear proyecto: %{url}"
-  slack_create_team_user: "*%{user}* Unido al equipo %{url}"
+  slack_update_status: "*%{user}*cambió el estado de verificación de %{url}  en el *%{project}* de _%{previous_status}_ a*%{current_status}*"
+  slack_save_embed: "*%{user}* cambió el título del reporte en el *%{project}* de _%{from}_ a %{to}"
+  slack_save_comment: "*%{user}*añadió una nota a %{url} en el *%{project}*: %{comment}"
+  slack_create_project: "*%{user}* creó un proyecto: %{url}"
+  slack_create_team_user: "*%{user}* se ha unido al equipo %{url}"
   slack_create_project_media: "*%{user}* añadió un nuevo %{type} a *%{project}*: %{url}"
   slack_create_project_media_no_user: 'Un nuevo %{type} ha sido añadido a *%{project}*: %{url}'
   slack_create_task: "*%{user}* tarea creada %{url} en *%{project}*%{create_note}"
@@ -105,37 +108,50 @@ es:
   slack_update_task_description: |-
     *%{user}* nota de tarea editada a %{url} en *%{project}* de: %{from}
     *a:* %{to}
-  mail_view_welcome: Bienvenido  y bienvenida a %{app_name}
+  mail_view_welcome: Bienvenido a %{app_name}
   mail_view_register: '¡Estás a un solo paso de usar %{app_name}! Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente enlace:'
   mail_view_joined: ¡Tu solicitud para unirte a %{team} fue aprobada! ¡Puedes ir a %{url} y empezar a contribuir!
   mail_view_rejected_to_join: Lo sentimos, pero tu solicitud para unirte a  %{team} fue rechazada.
-  mail_view_request_to_join: "%{user} (%{handle}) quiere unirse %{team} equipo en %{app_name}!"
+  mail_view_request_to_join: "%{user} (%{handle}) quiere unirse al equipo de  %{team} en %{app_name}!"
   mail_view_process_request: 'Para procesar esta solicitud, por favor inicia sesión y visita:'
-  pender_could_not_parse: No pudo analizar este medio
+  pender_could_not_parse: No se pudo analizar este medio
+  mail_duplicate_email_exists: Tu método de inicio de sesión para %{app_name}
+  mail_duplicate_email_exists_body: "<p>Hola, este es solo un recordatorio amistoso para ayudarte a  iniciar sesión en %{app_name}. </p> <p> Lo que sucedió fue que intentaste ingresar a %{app_name} con una cuenta de %{user_provider} asociada a %{user_email}. Pero esta dirección de correo electrónico ya está asociada con esta cuenta de%{duplicate_provider} en %{app_name} .</p> <p> Lo qué debes hacer a continuación es: inicia sesión con %{duplicate_provider}. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente. Si necesita ayuda adicional, envía un correo electrónico a %{support_email} .</p> <p>- El equipo %{app_name}</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>Hola, esto es solo un recordatorio amistoso para ayudarte a iniciar sesión en %{app_name} .</p>  <p>Lo que sucedió fue que intentaste crear una nueva cuenta en %{app_name},  con un correo electrónico que está asociado a una cuenta que ya existe. </p><p>  Intenta iniciar sesión con tu correo electrónico y contraseña, en lugar de crear una nueva cuenta. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente. Si necesita ayuda adicional, envía un correo electrónico a %{support_email}. </p> <p>- el equipo %{app_name}</p>"
   mail_duplicate_email_exists_email: correo electrónico
+  slack_restricted_join_to_members: Lo sentimos, no puedes unirte a %{team_name} porque está restringido a los miembros de los equipos de Slack %{teams}.
   admin:
     actions:
       send_reset_password_email:
         menu: Enviar instrucciones para restablecer la contraseña
       export_project:
         menu: Exportar datos del proyecto
-  reset_password_instructions: "%{app_name} restablecer las instrucciones de la contraseña"
+      delete_tasks:
+        done: eliminó las tareas
+        are_you_sure_you_want_to_delete_the_tasks_from_team: ¿Seguro que quieres eliminar todas las tareas del equipo?
+        all_the_following_tasks_will_be_deleted: '? las siguientes tareas serán eliminadas:'
+  reset_password_instructions: "%{app_name} instrucciones para restablecer la contraseña"
   email_not_found: 'Correo electrónico no encontrado '
   slack_channel_format_wrong: 'Canal de Slack inválido, debería tener este formato #general '
   translation_status_not_valid: Estado no válido
   translation_status_permission_error: 'No estas autorizado para hacer este cambio de estado '
   translation_request_id_exists: 'Ya existe una solicitud de traducción para este mensaje '
   slack_update_translation_status: "*%{user}* cambió el estado de la traducción en *%{report}* de *%{from}* a *%{to}*"
+  auto_publisher_added_to_project: ¡Gracias! ahora todas las traducciones nuevas en el proyecto %{project} se publicarán automáticamente en esta cuenta de %{provider}. Si cambias de opinión, ponte en contacto con el administrador o simplemente revoca la autorización de Bridge de %{provider}.
   invalid_token: Token inválido
   viber_screenshot_footer: "%{target_language} traducción de %{source_language}: “%{source_text}”"
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
-  oembed_disclaimer_not_applicable: No se pudo llegar a ninguna conclusión sobre la precisión de este medio por parte del equipo  %{team} equipo en %{date}
+      task: "%B %d, %Y a las %H:%M [TZ] (%z GMT)"
+  oembed_disclaimer_undetermined: Este medio no ha sido revisado por el equipo de %{team}
+  oembed_disclaimer_in_progress: la veracidad de este medio está en proceso de ser determinada por el equipo de %{team} el %{date}
+  oembed_disclaimer_verified: la precisión de este medio fue verificada por el equipo %{team} el %{date}
+  oembed_disclaimer_false: el equipo de %{team} ha determinado que la veracidad de este medio es falsa, el %{date}
+  oembed_disclaimer_not_applicable: El equipo %{team} no pudo llegar a ninguna conclusión sobre la precisión de este medio el %{date}
   oembed_source_date: "%{date} en %{provider}"
-  role_editor: Editor
-  role_owner: Propietario
+  role_editor: editor
+  role_owner: propietario
   role_contributor: contribuidor
   role_journalist: periodista
   role_none: miembro
@@ -168,6 +184,8 @@ es:
   only_super_admin_can_do_this: "lo sentimos, solo los super administradores pueden hacer este cambio"
   max_number_of_team_users_reached: "Este equipo alcanzó el número máximo de usuarios"
   max_number_of_projects_reached: "Este equipo alcanzó el número máximo de proyectos"
+  cant_set_custom_statuses: "Lo sentimos, no puedes usar la función de personalizar estados"
+  cant_set_checklist: "lo sentimos, no puedes usar la función de Listas de verificación"
   cant_create_media_under_this_team_using_extension: "lo sentimos, este equipo no tiene permitido usar la extensión del navegador"
   error_invalid_attribution: "Atribución inválida"
   account_exists: Esta cuenta ya existe
@@ -176,4 +194,4 @@ es:
   devise:
     mailer:
       reset_password_instructions:
-        instruction: "Alguien ha solicitado un enlace para cambiar su contraseña, y puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"
+        instruction: "Alguien ha solicitado un enlace para cambiar tu contraseña, y tu puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"
