@@ -125,14 +125,13 @@ def update_account_url(account)
   url = account.url
   a = update_pender_data account
   if !a.pender_data.nil? && a.pender_data['error'].nil?
-    update_account_url_and_relations(account, a.url) if a.url != url
+    update_account_url_and_relations(account, url, a.url) if a.url != url
   else
     @failed_accounts << url
   end
 end
 
-def update_account_url_and_relations(account, new_url)
-  url = account.url
+def update_account_url_and_relations(account, old_url, new_url)
   existing = Account.find_by_url(new_url)
   if existing.nil?
     account.update_columns(url: new_url)
@@ -141,7 +140,7 @@ def update_account_url_and_relations(account, new_url)
     AccountSource.where(account_id: account.id).update_all(account_id: existing.id)
     account.destroy
   end
-  @updated_accounts << "#{url} => #{new_url}"
+  @updated_accounts << "#{old_url} => #{new_url}"
 end
 
 def log_to_file(filename, content, situation)
@@ -167,8 +166,9 @@ def print_output
     puts "#{@failed_accounts.size} failed accounts:"
     puts @failed_accounts
   end
-  log_to_file('updated-accounts.txt', @updated_accounts, 'Updated')
-  log_to_file('failed-accounts.txt', @failed_accounts, 'Failed')
+  time = Time.now.to_i
+  log_to_file("#{time}_updated-accounts.txt", @updated_accounts, 'Updated')
+  log_to_file("#{time}_failed-accounts.txt", @failed_accounts, 'Failed')
 end
 
 namespace :check do
@@ -248,7 +248,7 @@ namespace :check do
       account = Account.find_by_url(original)
       next if account.nil?
       begin
-        update_account_url_and_relations(account, updated)
+        update_account_url_and_relations(account, original, updated)
         print '.'
       rescue
         @failed_accounts << account.url
