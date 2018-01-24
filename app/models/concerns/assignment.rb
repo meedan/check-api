@@ -18,6 +18,10 @@ module Assignment
     end
   end
 
+  def set_nil_if_zero
+    self.assigned_to_id = nil if self.assigned_to_id == 0
+  end
+
   module ClassMethods
     def assigned_to_user(user)
       uid = user.is_a?(User) ? user.id : user
@@ -32,6 +36,7 @@ module Assignment
 
   included do
     belongs_to :assigned_to, class_name: 'User'
+    before_validation :set_nil_if_zero
     validate :assigned_to_user_from_the_same_team
   end
 end
