@@ -133,9 +133,7 @@ class AccountTest < ActiveSupport::TestCase
       a = create_account(source: nil, user_id: nil)
     end
     s = a.reload.source
-    assert_equal 'Foo Bar', s.name
-    assert_equal 'http://provider/picture.png', s.avatar
-    assert_equal 'Just a test', s.slogan
+    assert_not_nil s
   end
 
   test "should not create account that is not a profile" do
@@ -281,10 +279,10 @@ class AccountTest < ActiveSupport::TestCase
     url = 'http://example.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url }
-    }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "author_picture": "http://provider/picture.png"}}')
+    }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "picture": "http://provider/picture.png"}}')
     account = Account.create url: url, user: create_user
     assert_equal 'John Doe', account.source.name
-    assert_equal 'http://provider/picture.png', account.source.avatar
+    assert_equal 'http://provider/picture.png', account.source.image
     WebMock.allow_net_connect!
   end
 

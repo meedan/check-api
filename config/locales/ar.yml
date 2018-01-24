@@ -130,6 +130,10 @@ ar:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
       export_project:
         menu: تصدير معلومات المشروع
+      delete_tasks:
+        done: تم حذف المهام
+        are_you_sure_you_want_to_delete_the_tasks_from_team: هل أنت متأكد أنك تود حذف جميع المهام في هذا الفريق
+        all_the_following_tasks_will_be_deleted: '؟ سوف يتم حذف المهام الآتية :'
   reset_password_instructions: "تعليمات إعادة ضبط كلمة المرور لدى %{app_name}"
   email_not_found: هذا البريد الإلكتروني غير موجود
   slack_channel_format_wrong: 'صيغة قناة Slack غير صحيحة - الصيغة المطلوبة هي `#general`'

@@ -25,6 +25,7 @@ class Source < ActiveRecord::Base
 
   after_create :create_metadata
   after_update :update_elasticsearch_source
+  after_save :cache_source_overridden
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
@@ -60,7 +61,7 @@ class Source < ActiveRecord::Base
   end
 
   def description
-    return self.slogan if self.slogan != self.name && !self.slogan.nil?
+    return self.slogan if self.slogan != self.name && !self.slogan.blank?
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
@@ -101,9 +102,6 @@ class Source < ActiveRecord::Base
 
   def update_from_pender_data(data)
     self.update_name_from_data(data)
-    return if data.nil?
-    self.avatar = data['author_picture'] if !data['author_picture'].blank?
-    self.slogan = data['description'].to_s if self.slogan.blank?
   end
 
   def update_name_from_data(data)
@@ -139,6 +137,16 @@ class Source < ActiveRecord::Base
 
   def self.get_duplicate(name, team)
     Source.where('lower(name) = ? AND team_id = ?', name.downcase, team.id).last
+  end
+
+  def overridden
+    Rails.cache.fetch("source_overridden_cache_#{self.id}") do
+      get_overridden 
+    end
+  end
+
+  def cache_source_overridden
+    Rails.cache.write("source_overridden_cache_#{self.id}", get_overridden)
   end
 
   private
@@ -183,5 +191,19 @@ class Source < ActiveRecord::Base
       m.save!
       User.current = user
     end
+  end
+
+  def get_overridden
+    overridden = {"name" => true, "description" => true, "image" => true}
+    a = self.accounts.first
+    unless a.nil?
+      name = a.data.nil? ? '' : a.data['author_name']
+      overridden = {
+        "name" => self.name == name ? a.id: true,
+        "description" => self.slogan.blank? ? a.id : true,
+        "image" => self.avatar.blank? ? a.id : true
+      }
+    end
+    overridden
   end
 end
