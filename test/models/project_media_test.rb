@@ -1452,4 +1452,21 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should reject a status of verified if all required tasks are not resolved" do
+    create_annotation_type annotation_type: 'response'
+    pm = create_project_media
+    t1 = create_task annotated: pm
+    t2 = create_task annotated: pm, required: 1
+    t1.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t1.save!
+    s = pm.annotations.where(annotation_type: 'status').last.load
+    assert_raise ActiveRecord::RecordInvalid do
+      s.status = 'verified'; s.save!
+    end
+    t2.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t2.save!
+    s.status = 'verified'; s.save!
+    assert_equal s.reload.status, 'verified'
+  end
+
 end
