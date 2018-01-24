@@ -7,6 +7,8 @@ class Status < ActiveRecord::Base
 
   validate :status_is_valid
 
+  validate :can_resolve_status, on: :update, if: proc { |status| status.annotated_type == 'ProjectMedia' }
+
   after_update :send_slack_notification
 
   before_validation :store_previous_status, :normalize_status
@@ -23,6 +25,8 @@ class Status < ActiveRecord::Base
     {
       label: 'Status',
       default: 'undetermined',
+      completed: 'verified',
+      active: 'in_progress',
       statuses: statuses
     }
   end
@@ -53,6 +57,12 @@ class Status < ActiveRecord::Base
     return nil if annotated.nil?
     statuses = Status.possible_values(annotated, context)
     statuses[:default].blank? ? statuses[:statuses].first[:id] : statuses[:default]
+  end
+
+  def self.completed_id(annotated, context = nil)
+    return nil if annotated.nil?
+    statuses = Status.possible_values(annotated, context)
+    statuses[:completed]
   end
 
   def self.possible_values(annotated, context = nil)
@@ -102,5 +112,15 @@ class Status < ActiveRecord::Base
       context = self.context
     end
     return annotated, context
+  end
+
+  def can_resolve_status
+    annotated, context = get_annotated_and_context
+    completed = Status.completed_id(annotated, context)
+    if self.status == completed
+      required_tasks = self.annotated.required_tasks
+      unresolved = required_tasks.select{ |t| t.status != 'Resolved' }
+      errors.add(:base, 'You should resolve required tasks first') unless unresolved.blank?
+    end
   end
 end

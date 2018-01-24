@@ -28,6 +28,8 @@ class Task < ActiveRecord::Base
 
   field :slug
 
+  field :required, :boolean
+
   def slack_notification_message
     if self.versions.count > 1
       self.slack_message_on_update
