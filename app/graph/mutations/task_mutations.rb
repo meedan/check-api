@@ -12,6 +12,7 @@ module TaskMutations
     label: 'str',
     description: 'str',
     response: 'str',
+    assigned_to_id: 'int',
     id: '!id'
   }
 
