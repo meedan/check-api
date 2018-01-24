@@ -121,20 +121,26 @@ def update_account_embed_with_user_omniauth_data(account)
   end
 end
 
-def update_account_url_and_relations(account)
+def update_account_url(account)
   url = account.url
   a = update_pender_data account
-  if !a.pender_data.nil? && a.pender_data['error'].nil? && a.url != url
-    existing = Account.where(url: a.url).last
-    if existing.nil?
-      a.update_columns(url: a.url)
-    else
-      Media.where(account_id: a.id).update_all(account_id: existing.id)
-      AccountSource.where(account_id: a.id).update_all(account_id: existing.id)
-      a.destroy
-    end
-    @updated_accounts << "#{url} => #{a.url}"
+  if !a.pender_data.nil? && a.pender_data['error'].nil?
+    update_account_url_and_relations(account, url, a.url) if a.url != url
+  else
+    @failed_accounts << url
   end
+end
+
+def update_account_url_and_relations(account, old_url, new_url)
+  existing = Account.find_by_url(new_url)
+  if existing.nil?
+    account.update_columns(url: new_url)
+  else
+    Media.where(account_id: account.id).update_all(account_id: existing.id)
+    AccountSource.where(account_id: account.id).update_all(account_id: existing.id)
+    account.destroy
+  end
+  @updated_accounts << "#{old_url} => #{new_url}"
 end
 
 def log_to_file(filename, content, situation)
@@ -144,17 +150,25 @@ def log_to_file(filename, content, situation)
   puts "The #{situation} accounts were saved on #{filename}"
 end
 
-def read_accounts(filename)
-  IO.readlines(filename).map(&:chomp)
+def file_to_hashes(filename)
+  urls = IO.readlines(filename).map(&:chomp)
+  mapping = {}
+  urls.each do |m|
+    original, updated = m.split(' => ')
+    mapping[original] = updated
+  end
+  mapping
 end
 
 def print_output
+  puts "\n======================================================="
   if !@failed_accounts.empty?
     puts "#{@failed_accounts.size} failed accounts:"
     puts @failed_accounts
   end
-  log_to_file('updated-accounts.txt', @updated_accounts, 'Updated')
-  log_to_file('failed-accounts.txt', @failed_accounts, 'Failed')
+  time = Time.now.to_i
+  log_to_file("#{time}_updated-accounts.txt", @updated_accounts, 'Updated')
+  log_to_file("#{time}_failed-accounts.txt", @failed_accounts, 'Failed')
 end
 
 namespace :check do
@@ -216,18 +230,29 @@ namespace :check do
   task :update_all_accounts => :environment do |t|
     Account.find_each do |account|
       print '.'
-      update_account_url_and_relations(account)
+      begin
+        update_account_url(account)
+      rescue
+        @failed_accounts << account.url
+      end
     end
     print_output
   end
 
   # bundle exec rake check:update_accounts_from_file[filename]
+  # format of lines on file `<old url> => <new url>``
   desc "update accounts listed on a file"
   task :update_accounts_from_file => :environment do |t, args|
-    accounts = read_accounts(args.first)
-    Account.find_each do |account|
-      print '.'
-      update_account_url_and_relations(account)
+    mapping = file_to_hashes(args.extras.first)
+    mapping.each do |original, updated|
+      account = Account.find_by_url(original)
+      next if account.nil?
+      begin
+        update_account_url_and_relations(account, original, updated)
+        print '.'
+      rescue
+        @failed_accounts << account.url
+      end
     end
     print_output
   end
