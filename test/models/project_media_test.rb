@@ -485,7 +485,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
-    assert_difference 'PaperTrail::Version.count', 5 do
+    assert_difference 'PaperTrail::Version.count', 4 do
       pm = create_project_media project: p, media: m, user: u
     end
     assert_equal 1, pm.versions.count

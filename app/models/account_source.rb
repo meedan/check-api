@@ -9,6 +9,8 @@ class AccountSource < ActiveRecord::Base
   before_validation :set_account, on: :create
 
   validate :is_unique_per_team, on: :create
+
+  after_create :update_source_overridden_cache
   
   notifies_pusher targets: proc { |as| [as.source] }, data: proc { |as| { id: as.id }.to_json }, on: :save, event: 'source_updated'
 
@@ -40,6 +42,11 @@ class AccountSource < ActiveRecord::Base
         raise error.to_json
       end
     end
+  end
+
+  def update_source_overridden_cache
+    a = self.source.accounts.first
+    self.source.cache_source_overridden if !a.nil? && a.id == self.account_id
   end
 
   protected
