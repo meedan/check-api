@@ -272,4 +272,19 @@ class AnnotationTest < ActiveSupport::TestCase
     c2.assigned_to_id = u.id; c2.save!
     assert_equal [pm1, pm2].sort, Annotation.project_media_assigned_to_user(u).sort
   end
+
+  test "should set assignment to nil if zero" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t, status: 'member'
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm
+    c.assigned_to_id = u.id
+    c.save!
+    assert_equal u, c.reload.assigned_to
+    c.assigned_to_id = 0
+    c.save!
+    assert_nil c.reload.assigned_to
+  end
 end
