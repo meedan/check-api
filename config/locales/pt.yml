@@ -157,19 +157,16 @@ pt:
   role_none: membro
   oembed_credit: Adicionado por %{user} (%{role}) %{date}
   oembed_notes_count:
-    zero: Nenhuma nota
     one: Uma nota
-    other: "%{count} notas"
+    other: '%{count} notas'
   oembed_completed_tasks_count:
-    zero: Nenhuma tarefa concluída
-    one: Uma tarefa concluída
+    one: "Uma tarefa concluída"
     other: "%{count} tarefas concluídas"
   oembed_verification_tasks: Tarefas de verificação
   oembed_expand_all: Expandir tudo
   oembed_collapse_all: Recolher tudo
   oembed_resolved_tasks_count:
-    zero: Nenhuma tarefa de verificação concluída
-    one: Uma tarefa de verificação concluída
+    one: "Uma tarefa de verificação concluída"
     other: "%{count} tarefas de verificação concluídas"
   oembed_notes: Notas
   pender_conflict: Este link já está sendo processado, por favor tente novamente em alguns segundos.
