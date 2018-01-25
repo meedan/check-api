@@ -30,7 +30,7 @@ module Assignment
 
     def project_media_assigned_to_user(user)
       uid = user.is_a?(User) ? user.id : user
-      ProjectMedia.joins("INNER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id").where('a.assigned_to_id' => uid, 'a.annotation_type' => 'status').distinct
+      ProjectMedia.joins("INNER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id").where('a.assigned_to_id' => uid).distinct
     end
   end
 

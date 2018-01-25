@@ -270,7 +270,7 @@ class AnnotationTest < ActiveSupport::TestCase
     s4.assigned_to_id = u2.id; s4.save!
     c1.assigned_to_id = u.id; c1.save!
     c2.assigned_to_id = u.id; c2.save!
-    assert_equal [pm1, pm2].sort, Annotation.project_media_assigned_to_user(u).sort
+    assert_equal [pm1, pm2, pm3].sort, Annotation.project_media_assigned_to_user(u).sort
   end
 
   test "should set assignment to nil if zero" do
