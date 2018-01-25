@@ -101,7 +101,7 @@ ar:
   slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
   slack_create_project_media_no_user: 'أضيف %{type} جديد إلى مشروع *%{project}*: %{url}'
   slack_create_task: "أضاف *%{user}* المهمة %{url} في مشروع *%{project}*%{create_note}"
-  slack_create_task_note: "مع التعليق: %{note}"
+  slack_create_task_note: " مع التعليق: %{note}"
   slack_answer_task: |-
     أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
     %{answer_note}
