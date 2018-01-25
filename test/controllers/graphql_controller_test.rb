@@ -1170,4 +1170,37 @@ class GraphqlControllerTest < ActionController::TestCase
       assert_equal 'source', ret['error_info']['type']
     end
   end
+
+  test "should get project media assignments" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u, team: t, status: 'member'
+    create_team_user user: u2, team: t, status: 'member'
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    pm4 = create_project_media project: p
+    s1 = create_status status: 'verified', annotated: pm1
+    s2 = create_status status: 'verified', annotated: pm2
+    s3 = create_status status: 'verified', annotated: pm1
+    s4 = create_status status: 'verified', annotated: pm4
+    t1 = create_task annotated: pm1
+    t2 = create_task annotated: pm3
+    s1.assigned_to_id = u.id; s1.save!
+    s2.assigned_to_id = u.id; s2.save!
+    s3.assigned_to_id = u.id; s3.save!
+    s4.assigned_to_id = u2.id; s4.save!
+    t1.assigned_to_id = u.id; t1.save!
+    t2.assigned_to_id = u.id; t2.save!
+    authenticate_with_user(u)
+    post :create, query: "query GetById { user(id: \"#{u.id}\") { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }"
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['user']
+    assert_equal [pm3.id, pm2.id, pm1.id], data['assignments']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal [t2.id], data['assignments']['edges'][0]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
+    assert_equal [], data['assignments']['edges'][1]['node']['assignments']['edges']
+    assert_equal [t1.id], data['assignments']['edges'][2]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
+  end
 end

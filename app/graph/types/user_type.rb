@@ -50,4 +50,10 @@ UserType = GraphqlCrudOperations.define_default_type do
       type.blank? ? user.annotations : user.annotations(type)
     }
   end
+
+  connection :assignments, -> { ProjectMediaType.connection_type } do
+    resolve ->(user, args, _ctx) {
+      Annotation.project_media_assigned_to_user(user).order('id DESC')
+    }
+  end
 end
