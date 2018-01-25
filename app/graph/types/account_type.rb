@@ -5,6 +5,7 @@ AccountType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :data, types.String
+  field :dbid, types.Int
   field :url, !types.String
   field :provider, types.String
   field :user_id, types.Int
