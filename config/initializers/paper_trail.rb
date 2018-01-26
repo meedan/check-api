@@ -13,7 +13,7 @@ module PaperTrail
   module CheckExtensions
     def self.included(base)
       base.class_eval do
-        before_create :set_object_after, :set_user, :set_event_type, :set_project_association
+        before_create :set_object_after, :set_user, :set_event_type, :set_project_association, :set_meta
         after_create :increment_project_association_annotations_count
         after_destroy :decrement_project_association_annotations_count
       end
@@ -81,6 +81,11 @@ module PaperTrail
 
     def set_user
       self.whodunnit = User.current.id.to_s if self.whodunnit.nil? && User.current.present?
+    end
+
+    def set_meta
+      item = self.item
+      self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
     end
 
     def projects
