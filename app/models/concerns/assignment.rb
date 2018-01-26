@@ -7,6 +7,7 @@ module Assignment
   extend ActiveSupport::Concern
 
   def version_metadata(changes)
+    return if changes.blank?
     changes = JSON.parse(changes)
     from = changes['assigned_to_id'] ? User.where(id: changes['assigned_to_id'][0]).last : nil
     to = User.where(id: self.assigned_to_id).last
