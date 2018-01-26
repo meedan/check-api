@@ -287,4 +287,28 @@ class AnnotationTest < ActiveSupport::TestCase
     c.save!
     assert_nil c.reload.assigned_to
   end
+
+  test "should save metadata in annotation" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t, status: 'member', role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    u1 = create_user name: 'Foo'
+    u2 = create_user name: 'Bar'
+    create_team_user user: u1, team: t, status: 'member'
+    create_team_user user: u2, team: t, status: 'member'
+    tk = create_task annotated: pm, annotator: u
+    tk.assigned_to = u1
+    tk.save!
+    tk = Task.find(tk.id)
+    with_current_user_and_team(u, t) do
+      tk.assigned_to = u2
+      tk.save!
+    end
+    v = PaperTrail::Version.last
+    m = JSON.parse(v.meta)
+    assert_equal m['assigned_from_name'], 'Foo'
+    assert_equal m['assigned_to_name'], 'Bar'
+  end
 end
