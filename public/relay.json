@@ -3038,6 +3038,20 @@
               "deprecationReason": null
             },
             {
+              "name": "report_type",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "tags",
               "description": null,
               "args": [
