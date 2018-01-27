@@ -94,23 +94,21 @@ class Status < ActiveRecord::Base
         project: project
       )
     elsif self.assigned_to_id != self.previous_assignee
+      assignee = nil
+      action = ''
       if self.assigned_to_id.to_i > 0
         assignee = Bot::Slack.to_slack(User.find(self.assigned_to_id).name)
-        I18n.t(:slack_assign_report,
-          user: user,
-          url: url,
-          assignee: assignee,
-          project: project
-        )
+        action = 'assign'
       else
         assignee = Bot::Slack.to_slack(User.find(self.previous_assignee).name)
-        I18n.t(:slack_unassign_report,
-          user: user,
-          url: url,
-          assignee: assignee,
-          project: project
-        )
+        action = 'unassign'
       end
+      I18n.t("slack_#{action}_report".to_sym,
+        user: user,
+        url: url,
+        assignee: assignee,
+        project: project
+      )
     end
   end
 
