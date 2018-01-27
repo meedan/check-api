@@ -201,7 +201,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     pm = create_project_media
     pattern = /oembed\.html\?hide_notes=1/
     get :oembed, id: pm.id, format: :json, hide_notes: 1
-    RequestStore[:request] ||= OpenStruct.new({ query_string: '?hide_notes=1' })
+    RequestStore[:request] = OpenStruct.new({ query_string: '?hide_notes=1' })
     body = @response.body
     assert_match pattern, body
   end
