@@ -47,6 +47,7 @@ module Assignment
   def send_email_notification
     if self.assigned_to_id != self.previous_assignee
       author_id = User.current ? User.current.id : nil
+      return if author_id.nil?
       author = User.find(author_id)
       type = self.annotation_type
       AssignmentMailer.delay.notify("assign_#{type}", author, self.assigned_to.email, self.id) if self.assigned_to_id.to_i > 0
