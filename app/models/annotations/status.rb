@@ -7,9 +7,9 @@ class Status < ActiveRecord::Base
 
   validate :status_is_valid
 
-  after_update :send_slack_notification, :send_email_notification
+  after_update :send_slack_notification
 
-  before_validation :store_previous_status_and_assignee, :normalize_status
+  before_validation :store_previous_status, :normalize_status
 
   after_save :update_elasticsearch_status
 
@@ -27,11 +27,10 @@ class Status < ActiveRecord::Base
     }
   end
 
-  def store_previous_status_and_assignee
+  def store_previous_status
     self.previous_annotated_status = self.annotated.last_status if self.annotated.respond_to?(:last_status)
     annotated, context = get_annotated_and_context
     self.previous_annotated_status ||= Status.default_id(annotated, context)
-    self.previous_assignee = self.assigned_to_id_was
   end
 
   def previous_annotated_status
@@ -40,14 +39,6 @@ class Status < ActiveRecord::Base
 
   def previous_annotated_status=(status)
     @previous_annotated_status = status
-  end
-
-  def previous_assignee
-    @previous_assignee
-  end
-
-  def previous_assignee=(assignee)
-    @previous_assignee = assignee
   end
 
   def content
@@ -132,15 +123,5 @@ class Status < ActiveRecord::Base
       context = self.context
     end
     return annotated, context
-  end
-
-  def send_email_notification
-    if self.assigned_to_id != self.previous_assignee
-      author_id = User.current ? User.current.id : nil
-      author = User.find(author_id)
-      project_media = ProjectMedia.find(self.annotated.id)
-      AssignmentMailer.delay.notify(:assign_report, author, self.assigned_to.email, project_media) if self.assigned_to_id.to_i > 0
-      AssignmentMailer.delay.notify(:unassign_report, author, User.find(self.previous_assignee).email, project_media) if self.previous_assignee.to_i > 0
-    end
   end
 end
