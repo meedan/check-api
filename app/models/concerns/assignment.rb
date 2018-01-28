@@ -48,10 +48,9 @@ module Assignment
     if self.assigned_to_id != self.previous_assignee
       author_id = User.current ? User.current.id : nil
       author = User.find(author_id)
-      project_media = ProjectMedia.find(self.annotated.id)
       type = self.annotation_type
-      AssignmentMailer.delay.notify("assign_#{type}", author, self.assigned_to.email, project_media, self.id) if self.assigned_to_id.to_i > 0
-      AssignmentMailer.delay.notify("unassign_#{type}", author, User.find(self.previous_assignee).email, project_media, self.id) if self.previous_assignee.to_i > 0
+      AssignmentMailer.delay.notify("assign_#{type}", author, self.assigned_to.email, self.id) if self.assigned_to_id.to_i > 0
+      AssignmentMailer.delay.notify("unassign_#{type}", author, User.find(self.previous_assignee).email, self.id) if self.previous_assignee.to_i > 0
     end
   end
 
