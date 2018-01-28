@@ -7,7 +7,7 @@ class Status < ActiveRecord::Base
 
   validate :status_is_valid
 
-  after_update :send_slack_notification
+  after_update :send_slack_notification, :send_email_notification
 
   before_validation :store_previous_status_and_assignee, :normalize_status
 
@@ -132,5 +132,15 @@ class Status < ActiveRecord::Base
       context = self.context
     end
     return annotated, context
+  end
+
+  def send_email_notification
+    if self.assigned_to_id != self.previous_assignee
+      author_id = User.current ? User.current.id : nil
+      author = User.find(author_id)
+      project_media = ProjectMedia.find(self.annotated.id)
+      AssignmentMailer.delay.notify(:assign_report, author, self.assigned_to.email, project_media) if self.assigned_to_id.to_i > 0
+      AssignmentMailer.delay.notify(:unassign_report, author, User.find(self.previous_assignee).email, project_media) if self.previous_assignee.to_i > 0
+    end
   end
 end

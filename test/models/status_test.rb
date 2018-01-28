@@ -383,4 +383,34 @@ class StatusTest < ActiveSupport::TestCase
 
     User.current = nil
   end
+
+  test "should notify by e-mail when assignment changes" do
+    require 'sidekiq/testing'
+    Sidekiq::Testing.fake!
+
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    User.current = u
+    
+    u1 = create_user
+    create_team_user user: u1, team: t
+    u2 = create_user
+    create_team_user user: u2, team: t
+    s = create_status assigned_to_id: u1.id, annotated: pm, annotator: u, status: 'false'
+    s.assigned_to_id = u2.id
+    assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 2 do
+      s.save!
+    end
+
+    s = Status.find(s.id)
+    s.assigned_to_id = 0
+    assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
+      s.save!
+    end
+
+    User.current = nil
+  end
 end
