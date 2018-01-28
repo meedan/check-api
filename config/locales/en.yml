@@ -237,3 +237,8 @@ en:
   slack_unassign_report: "*%{user}* unassigned %{url} from *%{assignee}* in project *%{project}*"
   slack_assign_task: "*%{user}* assigned task %{url} in *%{project}* to *%{assignee}*"
   slack_unassign_task: "*%{user}* unassigned task %{url} in *%{project}* from *%{assignee}*"
+  mail_see_it: "You can see it at: "
+  mail_subject_assign_report: "A report was assigned to you"
+  mail_subject_unassign_report: "You were unassigned from a report"
+  mail_assign_report: "%{author} assigned report \"%{project_media}\" to you."
+  mail_unassign_report: "%{author} unassigned you from report \"%{project_media}\"."
