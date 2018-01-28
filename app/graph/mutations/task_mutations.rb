@@ -2,6 +2,7 @@ module TaskMutations
   create_fields = {
     label: '!str',
     type: '!str',
+    assigned_to_id: 'int',
     description: 'str',
     jsonoptions: 'str',
     annotated_id: 'str',
@@ -12,6 +13,7 @@ module TaskMutations
     label: 'str',
     description: 'str',
     response: 'str',
+    assigned_to_id: 'int',
     id: '!id'
   }
 
