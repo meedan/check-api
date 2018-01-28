@@ -53,10 +53,11 @@ class Task < ActiveRecord::Base
   end
 
   def slack_message_on_update
+    messages = []
+    
     if self.data_changed?
       data = self.data
       data_was = self.data_was
-      messages = []
 
       ['label', 'description'].each do |key|
         if data_was[key] != data[key]
@@ -67,9 +68,29 @@ class Task < ActiveRecord::Base
           messages << I18n.t("slack_update_task_#{key}".to_sym, params)
         end
       end
-
-      messages.join("\n")
     end
+    
+    messages << self.slack_message_for_assignment if self.assigned_to_id_changed?
+    
+    message = messages.join("\n")
+
+    message.blank? ? nil : message
+  end
+
+  def slack_message_for_assignment
+    action = ''
+    uid = nil
+    if self.assigned_to_id.to_i > 0
+      uid = self.assigned_to_id
+      action = 'assign'
+    else
+      uid = self.assigned_to_id_was
+      action = 'unassign'
+    end
+    params = self.slack_default_params.merge({
+      assignee: Bot::Slack.to_slack(User.find(uid).name)
+    })
+    I18n.t("slack_#{action}_task".to_sym, params)
   end
 
   def content

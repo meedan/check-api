@@ -199,10 +199,11 @@ class ProjectMediasControllerTest < ActionController::TestCase
 
   test "should persist parameters in embed iframe src" do
     pm = create_project_media
-    RequestStore[:request] ||= OpenStruct.new({ query_string: '?hide_notes=1' })
+    pattern = /oembed\.html\?hide_notes=1/
+    RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ query_string: 'hide_notes=1', headers: { 'X-Check-Client' => 'test' } }))
     get :oembed, id: pm.id, format: :json, hide_notes: 1
     body = @response.body
-    pattern = /oembed\.html\?hide_notes=1/
+    RequestStore.unstub(:[])
     assert_match pattern, body
   end
 end

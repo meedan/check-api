@@ -96,7 +96,7 @@ en:
   mail_request_to_join_processed: Your request to join %{team} on %{app_name} was
     %{status}
   mail_new_account: New account for you on %{app_name}
-  slack_update_status: "*%{user}* changed the verification status on %{url}  in *%{project}*
+  slack_update_status: "*%{user}* changed the verification status on %{url} in *%{project}*
     from _%{previous_status}_ to *%{current_status}*"
   slack_save_embed: "*%{user}* changed a report title in *%{project}* from _%{from}_
     to %{to}"
@@ -229,3 +229,17 @@ en:
       reset_password_instructions:
         instruction: "Someone has requested a link to change your password, and you can do this
           through the link below. <strong>Please note that this link expires in %{expire} hours.</strong>"
+  error_user_is_not_a_team_member: "Sorry, you can only assign to members of this team"
+  slack_assign_report: "*%{user}* assigned %{url} to *%{assignee}* in project *%{project}*"
+  slack_unassign_report: "*%{user}* unassigned %{url} from *%{assignee}* in project *%{project}*"
+  slack_assign_task: "*%{user}* assigned task %{url} in *%{project}* to *%{assignee}*"
+  slack_unassign_task: "*%{user}* unassigned task %{url} in *%{project}* from *%{assignee}*"
+  mail_see_it: "You can see it at: "
+  mail_subject_assign_status: "A report was assigned to you"
+  mail_subject_unassign_status: "You were unassigned from a report"
+  mail_assign_status: "%{author} assigned report \"%{project_media}\" to you."
+  mail_unassign_status: "%{author} unassigned you from report \"%{project_media}\"."
+  mail_subject_assign_task: "A task was assigned to you"
+  mail_subject_unassign_task: "You were unassigned from a task"
+  mail_assign_task: "%{author} assigned task \"%{task}\" to you."
+  mail_unassign_task: "%{author} unassigned you from task \"%{task}\"."
