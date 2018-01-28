@@ -16,6 +16,14 @@ module Assignment
     { assigned_from_name: from, assigned_to_name: to }.to_json if from != to
   end
 
+  def previous_assignee
+    @previous_assignee
+  end
+
+  def previous_assignee=(assignee)
+    @previous_assignee = assignee
+  end
+
   private
 
   def assigned_to_user_from_the_same_team
@@ -32,6 +40,21 @@ module Assignment
     self.assigned_to_id = nil if self.assigned_to_id == 0
   end
 
+  def store_previous_assignee
+    self.previous_assignee = self.assigned_to_id_was
+  end
+
+  def send_email_notification
+    if self.assigned_to_id != self.previous_assignee
+      author_id = User.current ? User.current.id : nil
+      author = User.find(author_id)
+      project_media = ProjectMedia.find(self.annotated.id)
+      type = self.annotation_type
+      AssignmentMailer.delay.notify("assign_#{type}", author, self.assigned_to.email, project_media, self.id) if self.assigned_to_id.to_i > 0
+      AssignmentMailer.delay.notify("unassign_#{type}", author, User.find(self.previous_assignee).email, project_media, self.id) if self.previous_assignee.to_i > 0
+    end
+  end
+
   module ClassMethods
     def assigned_to_user(user)
       uid = user.is_a?(User) ? user.id : user
@@ -46,7 +69,10 @@ module Assignment
 
   included do
     belongs_to :assigned_to, class_name: 'User'
-    before_validation :set_nil_if_zero
+    
+    before_validation :set_nil_if_zero, :store_previous_assignee
+    after_save :send_email_notification
+    
     validate :assigned_to_user_from_the_same_team
   end
 end
