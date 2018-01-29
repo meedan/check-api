@@ -59,6 +59,12 @@ class Status < ActiveRecord::Base
     statuses[:default].blank? ? statuses[:statuses].first[:id] : statuses[:default]
   end
 
+  def self.active_id(annotated, context = nil)
+    return nil if annotated.nil?
+    statuses = Status.possible_values(annotated, context)
+    statuses[:active]
+  end
+
   def self.completed_id(annotated, context = nil)
     return nil if annotated.nil?
     statuses = Status.possible_values(annotated, context)
@@ -115,10 +121,10 @@ class Status < ActiveRecord::Base
   end
 
   def can_resolve_status
-    annotated, context = get_annotated_and_context
-    completed = Status.completed_id(annotated, context)
+    annotated = self.annotated
+    completed = Status.completed_id(annotated.media, annotated.project)
     if self.status == completed
-      required_tasks = self.annotated.required_tasks
+      required_tasks = annotated.required_tasks
       unresolved = required_tasks.select{ |t| t.status != 'Resolved' }
       errors.add(:base, 'You should resolve required tasks first') unless unresolved.blank?
     end

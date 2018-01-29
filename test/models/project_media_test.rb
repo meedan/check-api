@@ -1469,4 +1469,31 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal s.reload.status, 'verified'
   end
 
+  test "should move pending item to in progress status" do
+    create_annotation_type annotation_type: 'response'
+    p = create_project
+    pm = create_project_media project: p
+    default = Status.default_id(pm.media, p)
+    active = Status.active_id(pm.media, p)
+    s = pm.annotations.where(annotation_type: 'status').last.load
+    t = create_task annotated: pm
+    assert_not_equal pm.last_status, active
+    # add comment
+    create_comment annotated: pm
+    assert_equal pm.last_status, active
+    s.status = default; s.save!
+    # add tag
+    create_tag annotated: pm
+    assert_equal pm.last_status, active
+    s.status = default; s.save!
+    # add response
+    t.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t.save!
+    assert_equal pm.last_status, active
+    # change status to verified and tests autmatic update
+    s.status = 'verified'; s.save!
+    create_comment annotated: pm
+    assert_equal pm.last_status, 'verified'
+  end
+
 end
