@@ -102,6 +102,7 @@ class Task < ActiveRecord::Base
     response.annotated = self.annotated
     response.annotation_type = params['annotation_type']
     response.disable_es_callbacks = Rails.env.to_s == 'test'
+    response.disable_update_status = Rails.env.to_s == 'test'
     response.set_fields = params['set_fields']
     response.save!
     @response = response
