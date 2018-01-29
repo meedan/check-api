@@ -75,6 +75,7 @@ module AnnotationBase
 
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
+    after_create :update_annotated_status, if: proc { |status| status.annotated_type == 'ProjectMedia' }
     after_save :touch_annotated
     after_destroy :touch_annotated
 
@@ -93,6 +94,22 @@ module AnnotationBase
     validate :annotated_is_not_archived
 
     private
+
+    def update_annotated_status
+      types = ['Comment', 'Dynamic', 'Tag', 'Flag']
+      if types.include?(self.class.name)
+        annotated = self.annotated
+        s = annotated.get_annotations('status').last
+        s = s.load unless s.nil?
+        if !s.nil? && s.status == Status.default_id(annotated.media, annotated.project)
+          active = Status.active_id(annotated.media, annotated.project)
+          unless active.nil?
+            s.status = active
+            s.save!
+          end
+        end
+      end
+    end
 
     def start_serialized_fields
       self.data ||= {}
