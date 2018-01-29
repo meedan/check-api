@@ -66,9 +66,13 @@ class Team < ActiveRecord::Base
     contact.save!
   end
 
-  def verification_statuses(type)
+  def verification_statuses(type, obj = nil)
     statuses = self.send("get_#{type}_verification_statuses") || Status.core_verification_statuses(type)
-    statuses.to_json
+    if !obj.nil? && type.to_s == 'media'
+      completed = Status.completed_id(obj.media, obj.project)
+      statuses['statuses'].each { |s| s['can_change'] = (s['id'] == completed) ? Status.can_resolved?(obj) : true}
+    end
+    statuses
   end
 
   def recipients(requestor)

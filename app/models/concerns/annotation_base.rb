@@ -96,8 +96,8 @@ module AnnotationBase
     private
 
     def update_annotated_status
-      types = ['Comment', 'Dynamic', 'Tag', 'Flag']
-      if types.include?(self.class.name)
+      types = ['Comment', 'Tag', 'Flag']
+      if types.include?(self.class.name) || self.annotation_type =~ /^task_response/
         annotated = self.annotated
         s = annotated.get_annotations('status').last
         s = s.load unless s.nil?

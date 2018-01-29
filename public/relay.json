@@ -3154,7 +3154,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -4591,7 +4591,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -8435,6 +8435,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "required",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -15095,16 +15109,6 @@
             },
             {
               "name": "update_mt",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "update_keep",
               "description": null,
               "type": {
                 "kind": "SCALAR",
