@@ -13,6 +13,16 @@
       "type": "string",
       "description": "What's the default for newly added media? It should match an 'identifier' in the list below."
     },
+    "active": {
+      "title": "Active value",
+      "type": "string",
+      "description": "What's the active status? It should match an 'identifier' in the list below."
+    },
+    "completed": {
+      "title": "Completed value",
+      "type": "string",
+      "description": "What's the completed status? It should match an 'identifier' in the list below."
+    },
     "statuses": {
       "title": "Statuses",
       "description": "",
