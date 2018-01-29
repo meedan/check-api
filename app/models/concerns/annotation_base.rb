@@ -64,7 +64,7 @@ module AnnotationBase
     include CheckElasticSearch
     include CustomLock
 
-    attr_accessor :disable_es_callbacks
+    attr_accessor :disable_es_callbacks, :disable_update_status
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
@@ -96,6 +96,7 @@ module AnnotationBase
     private
 
     def update_annotated_status
+      return if disable_update_status
       types = ['Comment', 'Tag', 'Flag']
       if types.include?(self.class.name) || self.annotation_type =~ /^task_response/
         annotated = self.annotated

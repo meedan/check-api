@@ -1479,11 +1479,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_task annotated: pm
     assert_not_equal pm.last_status, active
     # add comment
-    create_comment annotated: pm
+    create_comment annotated: pm, disable_update_status: false
     assert_equal pm.last_status, active
     s.status = default; s.save!
     # add tag
-    create_tag annotated: pm
+    create_tag annotated: pm, disable_update_status: false
     assert_equal pm.last_status, active
     s.status = default; s.save!
     # add response
@@ -1492,7 +1492,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal pm.last_status, active
     # change status to verified and tests autmatic update
     s.status = 'verified'; s.save!
-    create_comment annotated: pm
+    create_comment annotated: pm, disable_update_status: false
     assert_equal pm.last_status, 'verified'
   end
 
