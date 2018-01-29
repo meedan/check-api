@@ -37,11 +37,13 @@ class Task < ActiveRecord::Base
   end
 
   def slack_message_on_create
-    note = self.description.blank? ? '' : I18n.t(:slack_create_task_note, {note: Bot::Slack.to_slack_quote(self.description)})
+    note = self.description.blank? ? '' : I18n.t(:slack_create_task_note, { note: Bot::Slack.to_slack_quote(self.description) })
+    assignment = self.assigned_to_id.to_i > 0 ? I18n.t(:slack_create_task_assignment, { assignee: Bot::Slack.to_slack(User.find(self.assigned_to_id).name) }) : ''
     params = self.slack_default_params.merge({
-      create_note: note
+      create_note: note,
+      assignment: assignment
     })
-    I18n.t(:slack_create_task, params)
+    I18n.t(:slack_create_task_message, params)
   end
 
   def slack_default_params
