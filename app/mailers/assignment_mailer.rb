@@ -8,12 +8,12 @@ class AssignmentMailer < ApplicationMailer
 
     @project_media = project_media
     @info = {
-      author: author.name,
-      project_media: project_media.title
+      author: author.name
     }
     @info[:task] = annotation.load.label if annotation.annotation_type == 'task'
+    @media_title = project_media.title
 
     Rails.logger.info "Sending e-mail from event #{event} to #{recipient}"
-    mail(to: recipient, subject: I18n.t("mail_subject_#{event}").to_sym)
+    mail(to: recipient, subject: I18n.t("mail_subject_#{event}".to_sym, team: project_media.project.team.name, project: project_media.project.title))
   end
 end
