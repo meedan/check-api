@@ -107,6 +107,7 @@ module AnnotationBase
           active = Status.active_id(annotated.media, annotated.project)
           unless active.nil?
             s.status = active
+            s.skip_check_ability = true
             s.save!
           end
         end
