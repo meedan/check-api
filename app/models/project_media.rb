@@ -161,7 +161,8 @@ class ProjectMedia < ActiveRecord::Base
 
   def refresh_media=(_refresh)
     Bot::Keep.archiver_annotation_types.each do |type|
-      self.create_archive_annotation(type) if self.annotations.where(annotation_type: type).last.nil?
+      a = self.annotations.where(annotation_type: type).last
+      a.nil? ? self.create_archive_annotation(type) : self.reset_archive_response(a)
     end
     self.media.refresh_pender_data
     self.updated_at = Time.now

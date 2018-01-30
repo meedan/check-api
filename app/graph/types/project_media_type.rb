@@ -13,6 +13,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int
   field :archived, types.Boolean
   field :author_role, types.String
+  field :report_type, types.String
 
   field :permissions, types.String do
     resolve -> (project_media, _args, ctx) {
@@ -203,6 +204,15 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
+
+  connection :assignments, -> { AnnotationType.connection_type } do
+    argument :user_id, !types.Int
+    argument :annotation_type, !types.String
+
+    resolve ->(project_media, args, _ctx) {
+      Annotation.where(annotated_type: 'ProjectMedia', annotated_id: project_media.id, assigned_to_id: args['user_id'], annotation_type: args['annotation_type'])
+    }
+  end
 
   # End of fields
 end

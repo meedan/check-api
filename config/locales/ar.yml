@@ -101,7 +101,7 @@ ar:
   slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
   slack_create_project_media_no_user: 'أضيف %{type} جديد إلى مشروع *%{project}*: %{url}'
   slack_create_task: "أضاف *%{user}* المهمة %{url} في مشروع *%{project}*%{create_note}"
-  slack_create_task_note: "مع التعليق: %{note}"
+  slack_create_task_note: " مع التعليق: %{note}"
   slack_answer_task: |-
     أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
     %{answer_note}
@@ -163,27 +163,27 @@ ar:
   oembed_notes_count:
     zero: لا توجد ملحوظات
     one: ملحوظة واحدة
-    few: "%{count} ملحوظات"
-    two: "%{count} ملحوظات"
-    many: "%{count} ملحوظات"
-    other: "%{count} ملحوظات"
+    two: ملحوظتان
+    few: '%{count} ملحوظات'
+    many: '%{count} ملحوظة'
+    other: '%{count} ملحوظات '
   oembed_completed_tasks_count:
-    zero: لا توجد مهام مكتملة
-    one: مهمة واحدة مكتملة
-    two: "%{count} مهام منتهية"
-    few: "%{count} مهام منتهية"
-    many: "%{count} مهام منتهية"
+    zero: "لا توجد مهام مكتملة"
+    one: "مهمة مكتملة واحدة"
+    two: "مهمتان مكتملتان"
+    few: "%{count} مهام مكتملة"
+    many: "%{count} مهمة مكتملة"
     other: "%{count} مهام مكتملة"
   oembed_verification_tasks: مهام التحقق من المعلومات
   oembed_expand_all: توسيع الكل
   oembed_collapse_all: طيّ الكل
   oembed_resolved_tasks_count:
-    zero: لا توجد مهام تم إنجازها
-    one: مهمة واحدة تم إنجازها
-    two: "%{count} مهام تم إنجازها"
-    few: "%{count} مهام تم إنجازها"
-    many: "%{count} مهام تم إنجازها"
-    other: "%{count} مهام تم إنجازها"
+    zero: "لا توجد مهام تحقق مكتملة"
+    one: "مهمة تحقق واحدة مكتملة"
+    two: "مهمتان تحقق مكتملتان"
+    few: "%{count} مهام تحقق مكتملة"
+    many: "%{count} مهمة تحقق مكتملة"
+    other: "%{count}  مهام تحقق مكتملة"
   oembed_notes: ملحوظات
   pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع ثوانٍ.
   duplicate_source: المصدر موجود بالفعل

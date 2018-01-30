@@ -63,6 +63,7 @@ module AnnotationBase
     include CheckNotifications::Pusher
     include CheckElasticSearch
     include CustomLock
+    include Assignment
 
     attr_accessor :disable_es_callbacks, :disable_update_status
     self.table_name = 'annotations'

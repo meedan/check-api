@@ -95,13 +95,34 @@ class Status < ActiveRecord::Base
   end
 
   def slack_notification_message
-    I18n.t(:slack_update_status,
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
-      previous_status: Bot::Slack.to_slack(self.id_to_label(self.previous_annotated_status)),
-      current_status: Bot::Slack.to_slack(self.id_to_label(self.status)),
-      project: Bot::Slack.to_slack(self.annotated.project.title)
-    )
+    user = Bot::Slack.to_slack(User.current.name)
+    url = Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}")
+    project = Bot::Slack.to_slack(self.annotated.project.title)
+    if self.status != self.previous_annotated_status
+      I18n.t(:slack_update_status,
+        user: user,
+        url: url,
+        previous_status: Bot::Slack.to_slack(self.id_to_label(self.previous_annotated_status)),
+        current_status: Bot::Slack.to_slack(self.id_to_label(self.status)),
+        project: project
+      )
+    elsif self.assigned_to_id != self.previous_assignee
+      assignee = nil
+      action = ''
+      if self.assigned_to_id.to_i > 0
+        assignee = Bot::Slack.to_slack(User.find(self.assigned_to_id).name)
+        action = 'assign'
+      else
+        assignee = Bot::Slack.to_slack(User.find(self.previous_assignee).name)
+        action = 'unassign'
+      end
+      I18n.t("slack_#{action}_report".to_sym,
+        user: user,
+        url: url,
+        assignee: assignee,
+        project: project
+      )
+    end
   end
 
   private
