@@ -89,14 +89,15 @@ fr:
   rejected: rejetée
   mail_request_to_join_processed: Votre requête pour vous joindre à %{team} sur %{app_name} est %{status}
   mail_new_account: Votre nouveau compte sur %{app_name}
-  slack_update_status: "*%{user}* a modifié le statut de vérification pour %{url}  dans *%{project}* de _%{previous_status}_ à *%{current_status}*"
+  slack_update_status: "*%{user}* a modifié le statut de vérification pour *%{url}* dans *%{project}* de _%{previous_status}_ à *%{current_status}*"
   slack_save_embed: "*%{user}* a modifié le titre d'un rapport dans *%{project}* de _%{from}_ à %{to}"
   slack_save_comment: "*%{user}* a rajouté un commentaire sur %{url} dans *%{project}* : %{comment}"
   slack_create_project: "*%{user}* a créé un projet : %{url}"
   slack_create_team_user: "*%{user}* s'est joint à l'équipe %{url}"
   slack_create_project_media: "*%{user}* a rajouté un(e) nouveau(elle) %{type} dans *%{project}* : %{url}"
   slack_create_project_media_no_user: 'Un(e) nouveau(elle) %{type} a été rajouté(e) dans *%{project}* : %{url}'
-  slack_create_task: "*%{user}* a créé la tâche %{url} dans *%{project}*%{create_note}"
+  slack_create_task_message: "*%{user}* a créé la tâche %{url} dans *%{project}*%{assignment}%{create_note}"
+  slack_create_task_assignment: "affecté(e) à %{assignee}"
   slack_create_task_note: " avec note: %{note}"
   slack_answer_task: |-
     *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
@@ -160,14 +161,14 @@ fr:
     one: Une note
     other: '%{count} notes'
   oembed_completed_tasks_count:
-    one: "Une tâche complétée"
-    other: "%{count} tâches complétées"
+    one: Une tâche complétée
+    other: '%{count} tâches complétées'
   oembed_verification_tasks: Tâches de vérification
   oembed_expand_all: Développer tout
   oembed_collapse_all: Réduire tout
   oembed_resolved_tasks_count:
-    one: "Une tâche de vérification résolue"
-    other: "%{count} tâches de vérification résolues"
+    one: Une tâche de vérification résolue
+    other: '%{count} tâches de vérification résolues'
   oembed_notes: Notes
   pender_conflict: Ce lien est déjà en cours de traitement, veuillez ressayer dans quelques secondes.
   duplicate_source: La source existe déjà
@@ -192,3 +193,17 @@ fr:
     mailer:
       reset_password_instructions:
         instruction: "Quelqu'un a demandé un lien pour changer votre mot de passe : veuillez le trouver ci-dessous. <strong>Notez que ce lien expire dans %{expire} heures.</strong>"
+  error_user_is_not_a_team_member: "Désolé, vous ne pouvez affecter des tâches qu'à des membres de cette équipe"
+  slack_assign_report: "*%{user}* a affecté %{url} à *%{assignee}* dans *%{project}*"
+  slack_unassign_report: "*%{user}* a désaffecté %{url} de *%{assignee}* dans *%{project}*"
+  slack_assign_task: "*%{user}* a affecté la tâche %{url} dans *%{project}* à *%{assignee}*"
+  slack_unassign_task: "*%{user}* a désaffecté la tâche %{url} dans *%{project}* de *%{assignee}*"
+  mail_see_it: "Vous pouvez le/la visionner à :"
+  mail_subject_assign_status: "[%{team} - %{project}] Un média vous a été affecté"
+  mail_subject_unassign_status: "[%{team} - %{project}] Un média a été désaffecté"
+  mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été affectée"
+  mail_subject_unassign_task: "[%{team} - %{project}] Une tâche a été désaffectée"
+  mail_assign_status: "%{author} vous a affecté un média intitulé "
+  mail_unassign_status: "%{author} a désaffecté le média intitulé "
+  mail_assign_task: "%{author} vous a affecté la tâche \"%{task}\" dans le média intitulé "
+  mail_unassign_task: "%{author} a désaffecté la tâche \"%{task}\" dans le média intitulé "

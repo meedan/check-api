@@ -89,14 +89,15 @@ pt:
   rejected: Não aprovado
   mail_request_to_join_processed: Seu pedido para participar do time %{team} no %{app_name} foi %{status}
   mail_new_account: Nova conta para você no %{app_name}
-  slack_update_status: "*%{user}* alterou o status de verificação em %{url} no *%{project}* de _%{previous_status}_ para *%{current_status}*"
+  slack_update_status: "*%{user}* mudou o status da verificação à %{url} em *%{project}* de _%{previous_status}_ para *%{current_status}*"
   slack_save_embed: "*%{user}* alterou o título  do relato no *%{project}* de _%{from}_ para %{to}"
   slack_save_comment: "*%{user}* inseriu uma nota em %{url} em *%{project}*: %{comment}"
   slack_create_project: "*%{user}* criou um projeto: %{url}"
   slack_create_team_user: "*%{user}*  juntou-se à equipe %{url}"
   slack_create_project_media: "*%{user}* inseriu um novo %{type} ao *%{project}*: %{url}"
   slack_create_project_media_no_user: 'Um novo %{type} foi inserido ao *%{project}*: %{url}'
-  slack_create_task: "*%{user}* criou a tarefa %{url} em *%{project}*%{create_note}"
+  slack_create_task_message: "*%{user}* criou a tarefa %{url} em *%{project}*%{assignment}%{create_note}"
+  slack_create_task_assignment: "atribuído(a) a %{assignee}"
   slack_create_task_note: " com nota: %{note}"
   slack_answer_task: |-
     *%{user}* respondeu a tarefa %{url} em *%{project}*: %{response}
@@ -160,21 +161,21 @@ pt:
     one: Uma nota
     other: '%{count} notas'
   oembed_completed_tasks_count:
-    one: "Uma tarefa concluída"
-    other: "%{count} tarefas concluídas"
+    one: Uma tarefa concluída
+    other: '%{count} tarefas concluídas'
   oembed_verification_tasks: Tarefas de verificação
   oembed_expand_all: Expandir tudo
   oembed_collapse_all: Recolher tudo
   oembed_resolved_tasks_count:
-    one: "Uma tarefa de verificação concluída"
-    other: "%{count} tarefas de verificação concluídas"
+    one: Uma tarefa de verificação concluída
+    other: '%{count} tarefas de verificação concluídas'
   oembed_notes: Notas
   pender_conflict: Este link já está sendo processado, por favor tente novamente em alguns segundos.
   duplicate_source: Fonte existe
   geolocation_invalid_value: Localização deve conter um GeoJSON válido (http://geojson.org/)
   datetime_invalid_date: Por favor forneça uma data válida
   error_team_archived: "Não é possível criar um projeto em um time que esteja na lixeira"
-  error_project_archived: "Não é possível criar media em um projeto que esteja na lixeira"
+  error_project_archived: "Não é possível criar mídia em um projeto que esteja na lixeira"
   error_team_archived_for_source: "Não é possível criar fonte em um time que esteja na lixeira"
   permission_error: "Desculpe, você não tem permissão para fazer esta operação"
   error_annotated_archived: "Desculpe, este item está na lixeira, você não pode adicionar nota a ele"
@@ -186,9 +187,23 @@ pt:
   cant_create_media_under_this_team_using_extension: "Desculpe, este time não tem permissão para utilizar a extensão de navegador"
   error_invalid_attribution: "Atribuição inválida"
   account_exists: Conta já existe
-  media_exists: Média já existe
+  media_exists: Mídia já existe
   source_exists: Fonte já existe
   devise:
     mailer:
       reset_password_instructions:
         instruction: "Alguém fez o pedido para redefinir sua senha, e você pode fazer isso clicando no link abaixo. <strong>Observe que este link expira em %{expire} horas.</strong>"
+  error_user_is_not_a_team_member: "Desculpe, você pode somente atribuir tarefas a membros desta equipe"
+  slack_assign_report: "*%{user}* atribuiu %{url} a *%{assignee}* em *%{project}*"
+  slack_unassign_report: "*%{user}* removeu a atribuição %{url} de *%{assignee}* em *%{project}*"
+  slack_assign_task: "*%{user}* atribuiu a tarefa %{url} a *%{assignee}* em *%{project}*"
+  slack_unassign_task: "*%{user}* removeu a atribuição da tarefa %{url} de *%{assignee}* em *%{project}*"
+  mail_see_it: "Você pode o ver aqui: "
+  mail_subject_assign_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
+  mail_subject_unassign_status: "[%{team} - %{project}] A atribuição de uma mídia foi removada de você"
+  mail_subject_assign_task: "[%{team} - %{project}] Uma tarefa foi atribuída para você"
+  mail_subject_unassign_task: "[%{team} - %{project}] A atribuição de uma tarefa foi removada de você"
+  mail_assign_status: "%{author} atribuiu para você a mídia intitulada "
+  mail_unassign_status: "%{author} removeu a atribuição da mídia intitulada "
+  mail_assign_task: "%{author} atribuiu para você a tarefa \"%{task}\" que fica na mídia intitulada "
+  mail_unassign_task: "%{author} removeu a atribuição da tarefa \"%{task}\" que fica na mídia intitulada "
