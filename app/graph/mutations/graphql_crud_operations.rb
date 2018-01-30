@@ -259,11 +259,7 @@ class GraphqlCrudOperations
 
       interfaces [NodeIdentification.interface]
 
-      field :id, !types.ID do
-        resolve -> (annotation, _args, _ctx) {
-          annotation.relay_id(type)
-        }
-      end
+      field :id, !types.ID do resolve -> (annotation, _args, _ctx) { annotation.relay_id(type) } end
 
       GraphqlCrudOperations.define_annotation_fields.each { |name| field name, types.String }
 
@@ -286,6 +282,8 @@ class GraphqlCrudOperations
       end
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
+
+      field :assigned_to, UserType
 
       instance_eval(&block) if block_given?
     end

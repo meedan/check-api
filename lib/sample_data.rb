@@ -452,7 +452,7 @@ module SampleData
   def create_valid_media(options = {})
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item"}}')
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
     create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
   end
 

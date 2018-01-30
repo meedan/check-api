@@ -485,7 +485,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
-    assert_difference 'PaperTrail::Version.count', 5 do
+    assert_difference 'PaperTrail::Version.count', 4 do
       pm = create_project_media project: p, media: m, user: u
     end
     assert_equal 1, pm.versions.count
@@ -1389,7 +1389,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t.set_limits_keep_integration = true
     t.save!
     p = create_project team: t
-    Link.any_instance.stubs(:pender_embed).returns(OpenStruct.new({ data: { embed: { screenshot_taken: 1 }.to_json } }))
+    Link.any_instance.stubs(:pender_embed).returns(OpenStruct.new({ data: { embed: { screenshot_taken: 1, 'archives' => {} }.to_json } }))
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
       create_project_media media: l, project: p
     end
@@ -1404,7 +1404,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t.set_limits_keep_integration = true
     t.save!
     p = create_project team: t
-    Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1 })
+    Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1, 'archives' => {} })
     Link.any_instance.stubs(:pender_embed).raises(RuntimeError)
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
       create_project_media media: l, project: p

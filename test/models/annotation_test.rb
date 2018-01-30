@@ -186,4 +186,129 @@ class AnnotationTest < ActiveSupport::TestCase
       create_comment annotated: pm
     end
   end
+
+  test "should reset archive response" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_integration = true
+    t.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
+    a = pm.get_annotations('pender_archive').last.load
+    f = a.get_field('pender_archive_response')
+    f.value = '{"foo":"bar"}'
+    f.save!
+    v = a.reload.get_field('pender_archive_response').reload.value
+    assert_not_equal "{}", v
+    pm.reset_archive_response(a)
+    v = a.reload.get_field('pender_archive_response').reload.value
+    assert_equal "{}", v
+  end
+
+  test "should assign annotation to user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t, status: 'member'
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm
+    c.assigned_to_id = u.id
+    c.save!
+    assert_equal u, c.reload.assigned_to
+  end
+
+  test "should not assign annotation to user if user is not a member of the same team as the annotation" do
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm
+    c.assigned_to_id = u.id
+    assert_raises ActiveRecord::RecordInvalid do
+      c.save!
+    end
+    assert_nil c.reload.assigned_to
+  end
+
+  test "should get annotations assigned to user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t, status: 'member'
+    p = create_project team: t
+    pm = create_project_media project: p
+    c1 = create_comment annotated: pm
+    c2 = create_comment annotated: pm
+    c3 = create_comment annotated: pm
+    c1.assigned_to_id = u.id; c1.save!
+    c2.assigned_to_id = u.id; c2.save!
+    assert_equal [c1, c2].sort, Annotation.assigned_to_user(u).sort 
+    assert_equal [c1, c2].sort, Annotation.assigned_to_user(u.id).sort
+  end
+
+  test "should get project medias assigned to user" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u, team: t, status: 'member'
+    create_team_user user: u2, team: t, status: 'member'
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    pm4 = create_project_media project: p
+    s1 = create_status status: 'verified', annotated: pm1
+    s2 = create_status status: 'verified', annotated: pm2
+    s3 = create_status status: 'verified', annotated: pm1
+    s4 = create_status status: 'verified', annotated: pm4
+    c1 = create_comment annotated: pm1
+    c2 = create_comment annotated: pm3
+    s1.assigned_to_id = u.id; s1.save!
+    s2.assigned_to_id = u.id; s2.save!
+    s3.assigned_to_id = u.id; s3.save!
+    s4.assigned_to_id = u2.id; s4.save!
+    c1.assigned_to_id = u.id; c1.save!
+    c2.assigned_to_id = u.id; c2.save!
+    assert_equal [pm1, pm2, pm3].sort, Annotation.project_media_assigned_to_user(u).sort
+  end
+
+  test "should set assignment to nil if zero" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t, status: 'member'
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm
+    c.assigned_to_id = u.id
+    c.save!
+    assert_equal u, c.reload.assigned_to
+    c.assigned_to_id = 0
+    c.save!
+    assert_nil c.reload.assigned_to
+  end
+
+  test "should save metadata in annotation" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t, status: 'member', role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    u1 = create_user name: 'Foo'
+    u2 = create_user name: 'Bar'
+    create_team_user user: u1, team: t, status: 'member'
+    create_team_user user: u2, team: t, status: 'member'
+    tk = create_task annotated: pm, annotator: u
+    tk.assigned_to = u1
+    tk.save!
+    tk = Task.find(tk.id)
+    with_current_user_and_team(u, t) do
+      tk.assigned_to = u2
+      tk.save!
+    end
+    v = PaperTrail::Version.last
+    m = JSON.parse(v.meta)
+    assert_equal m['assigned_from_name'], 'Foo'
+    assert_equal m['assigned_to_name'], 'Bar'
+  end
 end

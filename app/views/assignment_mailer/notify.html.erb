@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p><%= I18n.t("mail_#{@event}".to_sym, @info) %></p>
+    <p><%= @media_title %></p>
+    <p><%= I18n.t(:mail_see_it) %> <%= @project_media.full_url %></p>
+  </body>
+</html>
