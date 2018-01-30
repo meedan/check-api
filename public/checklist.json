@@ -18,6 +18,12 @@
         "description": "A more detailed explanation of the task.",
         "type": "string"
       },
+      "required": {
+        "title": "Required",
+        "default": 0,
+        "type": "boolean",
+        "description": ""
+      },
       "type": {
         "title": "Type",
         "default": "free_text",
