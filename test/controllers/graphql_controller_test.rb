@@ -1046,7 +1046,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     # Make sure we only run queries for the 20 first items
     # 13 * 29 + 24
-    assert_queries 343, '<' do
+    assert_queries 344, '<' do
       post :create, query: query, team: 'team'
     end
 
