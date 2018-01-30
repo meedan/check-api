@@ -429,6 +429,10 @@ class SourceTest < ActiveSupport::TestCase
     s.file = 'rails.png'; s.save!
     overridden = s.overridden
     keys.each {|k| assert overridden[k]}
+    # re-test after clear overridden cache.
+    Rails.cache.delete("source_overridden_cache_#{s.id}")
+    overridden = s.overridden
+    keys.each {|k| assert overridden[k]}
   end
 
   test "should not refresh source if account data is nil" do
