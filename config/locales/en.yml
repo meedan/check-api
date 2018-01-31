@@ -244,3 +244,6 @@ en:
   mail_unassign_status: "%{author} unassigned a media item from you. It's titled:"
   mail_assign_task: "%{author} assigned a task \"%{task}\" to you. It's on the media item titled:"
   mail_unassign_task: "%{author} unassigned a task \"%{task}\" from you. It's on the media item titled:"
+  archive_keep_backup: "Video Vault"
+  archive_pender_archive: "Keep screenshots"
+  archive_archive_is: "Archive.is"

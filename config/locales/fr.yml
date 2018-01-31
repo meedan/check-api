@@ -207,3 +207,6 @@ fr:
   mail_unassign_status: "%{author} a désaffecté le média intitulé "
   mail_assign_task: "%{author} vous a affecté la tâche \"%{task}\" dans le média intitulé "
   mail_unassign_task: "%{author} a désaffecté la tâche \"%{task}\" dans le média intitulé "
+  archive_keep_backup: "Video Vault"
+  archive_pender_archive: "copies d'écran de Keep"
+  archive_archive_is: "Archive.is"

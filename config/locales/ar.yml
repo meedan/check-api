@@ -223,3 +223,6 @@ ar:
   mail_unassign_status: "ألغى(ت) %{author} توكيل ميديا : "
   mail_assign_task: "وكّل(ت) %{author} إليك مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_unassign_task: "ألغى(ت) %{author} توكيل مهمة \"%{task}\" التي تنتمي إلى ميديا : "
+  archive_keep_backup: "Video Vault"
+  archive_pender_archive: "لقطات الشاشة من Keep"
+  archive_archive_is: "Archive.is"
