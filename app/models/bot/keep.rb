@@ -30,7 +30,7 @@ class Bot::Keep
   def self.set_pender_archive_response_based_on_pender_data(data)
     (!data.nil? && data['screenshot_taken'].to_i == 1) ? { screenshot_taken: 1, screenshot_url: data['screenshot'] || data['screenshot_url'] } : {}
   end
-  
+
   ProjectMedia.class_eval do
     after_create :create_all_archive_annotations
 

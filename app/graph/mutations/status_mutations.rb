@@ -9,6 +9,7 @@ module StatusMutations
     status: 'str',
     annotated_id: 'str',
     annotated_type: 'str',
+    assigned_to_id: 'int',
     id: '!id'
   }
 
