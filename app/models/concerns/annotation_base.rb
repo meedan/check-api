@@ -100,17 +100,7 @@ module AnnotationBase
       return if disable_update_status
       types = ['Comment', 'Tag', 'Flag']
       if types.include?(self.class.name) || self.annotation_type =~ /^task_response/
-        annotated = self.annotated
-        s = annotated.get_annotations('status').last
-        s = s.load unless s.nil?
-        if !s.nil? && s.status == Status.default_id(annotated.media, annotated.project)
-          active = Status.active_id(annotated.media, annotated.project)
-          unless active.nil?
-            s.status = active
-            s.skip_check_ability = true
-            s.save!
-          end
-        end
+        self.annotated.move_media_to_active_status unless self.annotated.nil?
       end
     end
 
