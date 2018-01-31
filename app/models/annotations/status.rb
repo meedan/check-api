@@ -150,7 +150,7 @@ class Status < ActiveRecord::Base
   def can_verify_media
     annotated = self.annotated
     if self.status == Status.completed_id(annotated.media, annotated.project)
-      errors.add(:base, 'You should resolve required tasks first') unless Status.can_resolved?annotated
+      errors.add(:base, 'You should resolve required tasks first') unless Status.can_resolved?(annotated)
     end
   end
 end

@@ -40,16 +40,17 @@ class ProjectMedia < ActiveRecord::Base
     mapping_ids[value]
   end
 
-  def set_initial_media_status
-    st = Status.new
-    st.annotated = self
-    st.annotator = self.user
-    st.status = Status.default_id(self.media, self.project)
-    st.created_at = self.created_at
-    st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    st.skip_check_ability = true
-    st.skip_notifications = true
-    st.save!
+  def move_media_to_active_status
+    s = self.get_annotations('status').last
+    s = s.load unless s.nil?
+    if !s.nil? && s.status == Status.default_id(self.media, self.project)
+      active = Status.active_id(self.media, self.project)
+      unless active.nil?
+        s.status = active
+        s.skip_check_ability = true
+        s.save!
+      end
+    end
   end
 
   def slack_notification_message
@@ -78,27 +79,6 @@ class ProjectMedia < ActiveRecord::Base
     description = self.text
     description = self.embed['description'] unless self.embed.blank? || self.embed['description'].blank?
     description
-  end
-
-  def add_elasticsearch_data
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    p = self.project
-    m = self.media
-    ms = MediaSearch.new
-    ms.id = self.id
-    ms.team_id = p.team.id
-    ms.project_id = p.id
-    ms.associated_type = self.media.type
-    ms.set_es_annotated(self)
-    ms.status = self.last_status unless CONFIG['app_name'] === 'Bridge'
-    data = self.embed
-    unless data.nil?
-      ms.title = data['title']
-      ms.description = data['description']
-      ms.quote = m.quote
-    end
-    ms.account = self.set_es_account_data unless self.media.account.nil?
-    ms.save!
   end
 
   def get_annotations(type = nil)
@@ -232,10 +212,6 @@ class ProjectMedia < ActiveRecord::Base
   def set_quote_embed
     self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
     self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
-  end
-
-  def set_project_source
-    self.create_project_source
   end
 
   def move_media_sources
