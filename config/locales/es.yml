@@ -89,14 +89,12 @@ es:
   rejected: 'no aprobado '
   mail_request_to_join_processed: Tu solicitud para unirte a  %{team} en %{app_name} fue %{status}
   mail_new_account: Nueva cuenta para ti en  %{app_name}
-  slack_update_status: "*%{user}*cambió el estado de verificación de %{url}  en el *%{project}* de _%{previous_status}_ a*%{current_status}*"
   slack_save_embed: "*%{user}* cambió el título del reporte en el *%{project}* de _%{from}_ a %{to}"
   slack_save_comment: "*%{user}*añadió una nota a %{url} en el *%{project}*: %{comment}"
   slack_create_project: "*%{user}* creó un proyecto: %{url}"
   slack_create_team_user: "*%{user}* se ha unido al equipo %{url}"
   slack_create_project_media: "*%{user}* añadió un nuevo %{type} a *%{project}*: %{url}"
   slack_create_project_media_no_user: 'Un nuevo %{type} ha sido añadido a *%{project}*: %{url}'
-  slack_create_task: "*%{user}* tarea creada %{url} en *%{project}*%{create_note}"
   slack_create_task_note: " con nota: %{note}"
   slack_answer_task: |-
     *%{user}* tarea resuelta %{url} en *%{project}*: %{response}
@@ -160,14 +158,14 @@ es:
     one: Una nota
     other: '%{count} notas'
   oembed_completed_tasks_count:
-    one: "Una tarea completada"
-    other: "%{count} tareas completadas"
+    one: Una tarea completada
+    other: '%{count} tareas completadas'
   oembed_verification_tasks: Tareas de verificación
   oembed_expand_all: Expandir todo
   oembed_collapse_all: Contraer todo
   oembed_resolved_tasks_count:
-    one: "Una tarea de verificación completada"
-    other: "%{count} tareas de verificación completadas"
+    one: Una tarea de verificación completada
+    other: '%{count} tareas de verificación completadas'
   oembed_notes: Notas
   pender_conflict: Este enlace ya está siendo analizado, intente de nuevo en unos segundos.
   duplicate_source: Fuente existente
@@ -192,3 +190,6 @@ es:
     mailer:
       reset_password_instructions:
         instruction: "Alguien ha solicitado un enlace para cambiar tu contraseña, y tu puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"
+  archive_keep_backup: "Video Vault"
+  archive_pender_archive: "capturas de pantalla con Keep"
+  archive_archive_is: "Archive.is"
