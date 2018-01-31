@@ -190,3 +190,6 @@ es:
     mailer:
       reset_password_instructions:
         instruction: "Alguien ha solicitado un enlace para cambiar tu contraseña, y tu puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"
+  archive_keep_backup: "Video Vault"
+  archive_pender_archive: "capturas de pantalla con Keep"
+  archive_archive_is: "Archive.is"

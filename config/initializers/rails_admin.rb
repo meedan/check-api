@@ -403,7 +403,7 @@ RailsAdmin.config do |config|
 
       Bot::Keep.archiver_annotation_types.each do |type|
         field :"archive_#{type}_enabled", :boolean do
-          label "Enable #{Bot::Keep.annotation_type_to_archiver(type).titleize} archive"
+          label "Enable #{I18n.t(('archive_' + type).to_sym)}"
           formatted_value{ bindings[:object].send("get_archive_#{type}_enabled") }
           help ''
           visible_only_for_admin
@@ -434,7 +434,7 @@ RailsAdmin.config do |config|
       field :slack_webhook do
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
-        help "A <a href='https://my.slack.com/services/new/incoming-webhook/' target='_blank'>webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.".html_safe
+        help 'A <a href="https://my.slack.com/services/new/incoming-webhook/" target="_blank" rel="noopener noreferrer">webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.'.html_safe
         visible_only_for_allowed_teams 'slack_integration'
         render_settings('field')
       end
