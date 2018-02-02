@@ -1,6 +1,6 @@
 pt:
   link: Link
-  claim: Alegação
+  claim: Afirmação
   uploadedimage: Imagem
   uploadefile: Arquivo
   blank: "(vazio)"
@@ -44,7 +44,7 @@ pt:
   activerecord:
     models:
       link: Link
-      claim: Alegação
+      claim: Afirmação
       uploaded_image: Imagem
       uploaded_file: Arquivo
     attributes:
@@ -97,7 +97,7 @@ pt:
   slack_create_project_media: "*%{user}* inseriu um novo %{type} ao *%{project}*: %{url}"
   slack_create_project_media_no_user: 'Um novo %{type} foi inserido ao *%{project}*: %{url}'
   slack_create_task_message: "*%{user}* criou a tarefa %{url} em *%{project}*%{assignment}%{create_note}"
-  slack_create_task_assignment: "atribuído(a) a %{assignee}"
+  slack_create_task_assignment: " atribuído(a) a %{assignee}"
   slack_create_task_note: " com nota: %{note}"
   slack_answer_task: |-
     *%{user}* respondeu a tarefa %{url} em *%{project}*: %{response}
@@ -128,7 +128,7 @@ pt:
       export_project:
         menu: Exportar dados do projeto
       delete_tasks:
-        done: tarefas removadas
+        done: tarefas removidas
         are_you_sure_you_want_to_delete_the_tasks_from_team: Tem certeza que deseja apagar todas as tarefas nesta equipe
         all_the_following_tasks_will_be_deleted: '? As seguintes tarefas serão removidas:'
   reset_password_instructions: "Instruções para redefinir a senha do %{app_name}"
@@ -200,9 +200,9 @@ pt:
   slack_unassign_task: "*%{user}* removeu a atribuição da tarefa %{url} de *%{assignee}* em *%{project}*"
   mail_see_it: "Você pode o ver aqui: "
   mail_subject_assign_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
-  mail_subject_unassign_status: "[%{team} - %{project}] A atribuição de uma mídia foi removada de você"
+  mail_subject_unassign_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
   mail_subject_assign_task: "[%{team} - %{project}] Uma tarefa foi atribuída para você"
-  mail_subject_unassign_task: "[%{team} - %{project}] A atribuição de uma tarefa foi removada de você"
+  mail_subject_unassign_task: "[%{team} - %{project}] A atribuição de uma tarefa foi removida de você"
   mail_assign_status: "%{author} atribuiu para você a mídia intitulada "
   mail_unassign_status: "%{author} removeu a atribuição da mídia intitulada "
   mail_assign_task: "%{author} atribuiu para você a tarefa \"%{task}\" que fica na mídia intitulada "
