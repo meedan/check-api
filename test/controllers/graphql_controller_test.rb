@@ -282,7 +282,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_tag annotated: ps
     create_comment annotated: ps2
     create_tag annotated: ps2
-    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, source { log(first: 1000) { edges { node { event_type } } }, log_count, tags { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } }, user{id}, team{id} } }"
+    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, source { overridden, log(first: 1000) { edges { node { event_type } } }, log_count, tags { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } }, user{id}, team{id} } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_source']
