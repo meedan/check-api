@@ -1,6 +1,6 @@
 fr:
   link: lien
-  claim: témoignage
+  claim: Déclaration
   uploadedimage: image
   uploadefile: fichier
   blank: "(vide)"
@@ -44,7 +44,7 @@ fr:
   activerecord:
     models:
       link: Lien
-      claim: Témoignage
+      claim: Déclaration
       uploaded_image: Image
       uploaded_file: Fichier
     attributes:
@@ -97,7 +97,7 @@ fr:
   slack_create_project_media: "*%{user}* a rajouté un(e) nouveau(elle) %{type} dans *%{project}* : %{url}"
   slack_create_project_media_no_user: 'Un(e) nouveau(elle) %{type} a été rajouté(e) dans *%{project}* : %{url}'
   slack_create_task_message: "*%{user}* a créé la tâche %{url} dans *%{project}*%{assignment}%{create_note}"
-  slack_create_task_assignment: "affecté(e) à %{assignee}"
+  slack_create_task_assignment: " affecté(e) à %{assignee}"
   slack_create_task_note: " avec note: %{note}"
   slack_answer_task: |-
     *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
