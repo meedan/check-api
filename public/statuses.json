@@ -18,11 +18,6 @@
       "type": "string",
       "description": "What's the active status? It should match an 'identifier' in the list below."
     },
-    "completed": {
-      "title": "Completed value",
-      "type": "string",
-      "description": "What's the completed status? It should match an 'identifier' in the list below."
-    },
     "statuses": {
       "title": "Statuses",
       "description": "",
@@ -43,6 +38,12 @@
             "default": "",
             "description": "The status label, as displayed to users.",
             "type": "string"
+          },
+          "completed": {
+            "title": "Completed",
+            "default": 0,
+            "description": "The completed status, define if status is completed or not?.",
+            "type": "boolean"
           },
           "description": {
             "title": "Description",

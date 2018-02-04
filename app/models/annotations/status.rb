@@ -7,7 +7,7 @@ class Status < ActiveRecord::Base
 
   validate :status_is_valid
 
-  validate :can_verify_media, on: :update, if: proc { |status| status.annotated_type == 'ProjectMedia' }
+  validate :can_complete_media, on: :update, if: proc { |status| status.annotated_type == 'ProjectMedia' }
 
   after_update :send_slack_notification
 
@@ -65,21 +65,23 @@ class Status < ActiveRecord::Base
     statuses[:active]
   end
 
-  def self.completed_id(annotated, context = nil)
-    return nil if annotated.nil?
+  def self.completed_ids(annotated, context = nil)
+    return [] if annotated.nil?
+    completed = []
     statuses = Status.possible_values(annotated, context)
-    statuses[:completed]
+    statuses[:statuses].each {|s| completed << s[:id] if s[:completed] == "1"}
+    completed
   end
 
   def self.possible_values(annotated, context = nil)
-    type = annotated.class_name
+    type = (annotated.class_name == 'ProjectMedia') ? 'media' : annotated.class_name
     statuses = Status.core_verification_statuses(type)
     getter = "get_#{type.downcase}_verification_statuses"
     statuses = context.team.send(getter) if context && context.respond_to?(:team) && context.team && context.team.send(getter)
     statuses
   end
 
-  def self.can_resolved?(annotated)
+  def self.is_completed?(annotated)
     required_tasks = annotated.required_tasks
     unresolved = required_tasks.select{ |t| t.status != 'Resolved' }
     unresolved.blank?
@@ -147,10 +149,10 @@ class Status < ActiveRecord::Base
     return annotated, context
   end
 
-  def can_verify_media
+  def can_complete_media
     annotated = self.annotated
-    if self.status == Status.completed_id(annotated.media, annotated.project)
-      errors.add(:base, 'You should resolve required tasks first') unless Status.can_resolved?(annotated)
+    if Status.completed_ids(annotated.media, annotated.project).include?(self.status)
+      errors.add(:base, 'You should resolve required tasks first') unless Status.is_completed?(annotated)
     end
   end
 end
