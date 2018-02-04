@@ -73,9 +73,10 @@ module ValidationsHelper
 
   def validate_statuses(statuses)
     statuses[:statuses].each do |status|
-      errors.add(:base, I18n.t(:invalid_statuses_format_for_custom_verification_status)) if status.keys.map(&:to_sym).sort != [:description, :id, :label, :style]
+      errors.add(:base, I18n.t(:invalid_statuses_format_for_custom_verification_status)) if status.keys.map(&:to_sym).sort != [:completed, :description, :id, :label, :style]
       errors.add(:base, I18n.t(:invalid_id_or_label_for_custom_verification_status)) if status[:id].blank? || status[:label].blank?
     end
     errors.add(:base, I18n.t(:invalid_default_status_for_custom_verification_status)) if !statuses[:default].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[:default])
+    errors.add(:base, I18n.t(:invalid_active_status_for_custom_verification_status)) if !statuses[:active].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[:active])
   end
 end

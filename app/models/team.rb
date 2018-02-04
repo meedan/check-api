@@ -69,8 +69,9 @@ class Team < ActiveRecord::Base
   def verification_statuses(type, obj = nil)
     statuses = self.send("get_#{type}_verification_statuses") || Status.core_verification_statuses(type)
     if !obj.nil? && type.to_s == 'media'
-      completed = Status.completed_id(obj.media, obj.project)
-      statuses[:statuses].each { |s| s[:can_change] = (s[:id] == completed) ? Status.can_resolved?(obj) : true}
+      completed = Status.completed_ids(obj.media, obj.project)
+      is_completed = Status.is_completed?(obj)
+      statuses[:statuses].each { |s| s[:can_change] = completed.include?(s[:id]) ? is_completed : true }
     end
     statuses
   end
