@@ -1277,8 +1277,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       label: 'Status',
       default: 'stop',
       statuses: [
-        { id: 'stop', label: 'Stopped', description: 'Not started yet', style: { backgroundColor: '#a00' } },
-        { id: 'done', label: 'Done!', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
+        { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
+        { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
       ]
     }
     t.set_media_verification_statuses(value)
@@ -1450,6 +1450,53 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal 8.minutes.to_i, pm.time_to_status(:last)
       Time.unstub(:now)
     end
+  end
+
+  test "should reject a status of verified if all required tasks are not resolved" do
+    create_annotation_type annotation_type: 'response'
+    pm = create_project_media
+    t1 = create_task annotated: pm
+    t2 = create_task annotated: pm, required: 1
+    t1.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t1.save!
+    s = pm.annotations.where(annotation_type: 'status').last.load
+    assert_raise ActiveRecord::RecordInvalid do
+      s.status = 'verified'; s.save!
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      s.status = 'false'; s.save!
+    end
+    t2.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t2.save!
+    s.status = 'verified'; s.save!
+    assert_equal s.reload.status, 'verified'
+  end
+
+  test "should move pending item to in progress status" do
+    create_annotation_type annotation_type: 'response'
+    p = create_project
+    pm = create_project_media project: p
+    default = Status.default_id(pm.media, p)
+    active = Status.active_id(pm.media, p)
+    s = pm.annotations.where(annotation_type: 'status').last.load
+    t = create_task annotated: pm
+    assert_not_equal pm.last_status, active
+    # add comment
+    create_comment annotated: pm, disable_update_status: false
+    assert_equal pm.last_status, active
+    s.status = default; s.save!
+    # add tag
+    create_tag annotated: pm, disable_update_status: false
+    assert_equal pm.last_status, active
+    s.status = default; s.save!
+    # add response
+    t.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t.save!
+    assert_equal pm.last_status, active
+    # change status to verified and tests autmatic update
+    s.status = 'verified'; s.save!
+    create_comment annotated: pm, disable_update_status: false
+    assert_equal pm.last_status, 'verified'
   end
 
 end

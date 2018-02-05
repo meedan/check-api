@@ -25,4 +25,6 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
       obj.jsonoptions unless obj.nil?
     }
   end
+
+  field :required, types.Boolean
 end

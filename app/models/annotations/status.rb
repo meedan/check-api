@@ -7,6 +7,8 @@ class Status < ActiveRecord::Base
 
   validate :status_is_valid
 
+  validate :can_complete_media, on: :update, if: proc { |status| status.annotated_type == 'ProjectMedia' }
+
   after_update :send_slack_notification
 
   before_validation :store_previous_status, :normalize_status
@@ -23,6 +25,8 @@ class Status < ActiveRecord::Base
     {
       label: 'Status',
       default: 'undetermined',
+      completed: 'verified',
+      active: 'in_progress',
       statuses: statuses
     }
   end
@@ -55,12 +59,32 @@ class Status < ActiveRecord::Base
     statuses[:default].blank? ? statuses[:statuses].first[:id] : statuses[:default]
   end
 
+  def self.active_id(annotated, context = nil)
+    return nil if annotated.nil?
+    statuses = Status.possible_values(annotated, context)
+    statuses[:active]
+  end
+
+  def self.completed_ids(annotated, context = nil)
+    return [] if annotated.nil?
+    completed = []
+    statuses = Status.possible_values(annotated, context)
+    statuses[:statuses].each {|s| completed << s[:id] if s[:completed] == "1"}
+    completed
+  end
+
   def self.possible_values(annotated, context = nil)
-    type = annotated.class_name
+    type = (annotated.class_name == 'ProjectMedia') ? 'media' : annotated.class_name
     statuses = Status.core_verification_statuses(type)
     getter = "get_#{type.downcase}_verification_statuses"
     statuses = context.team.send(getter) if context && context.respond_to?(:team) && context.team && context.team.send(getter)
     statuses
+  end
+
+  def self.is_completed?(annotated)
+    required_tasks = annotated.required_tasks
+    unresolved = required_tasks.select{ |t| t.status != 'Resolved' }
+    unresolved.blank?
   end
 
   def id_to_label(id)
@@ -123,5 +147,12 @@ class Status < ActiveRecord::Base
       context = self.context
     end
     return annotated, context
+  end
+
+  def can_complete_media
+    annotated = self.annotated
+    if Status.completed_ids(annotated.media, annotated.project).include?(self.status)
+      errors.add(:base, 'You should resolve required tasks first') unless Status.is_completed?(annotated)
+    end
   end
 end

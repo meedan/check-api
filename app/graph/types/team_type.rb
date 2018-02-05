@@ -25,7 +25,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :public_team_id, types.String
 
   field :media_verification_statuses do
-    type types.String
+    type JsonStringType
 
     resolve -> (team, _args, _ctx) {
       team.verification_statuses(:media)
@@ -33,7 +33,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   end
 
   field :source_verification_statuses do
-    type types.String
+    type JsonStringType
 
     resolve -> (team, _args, _ctx) {
       team.verification_statuses(:source)

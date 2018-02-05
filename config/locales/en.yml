@@ -86,6 +86,7 @@ en:
     ''en'',''title'': ''English''}]'
   invalid_media_item: Sorry, this is not a valid media item
   invalid_default_status_for_custom_verification_status: The default status is invalid
+  invalid_active_status_for_custom_verification_status: The active status is invalid
   invalid_id_or_label_for_custom_verification_status: The status id and label are mandatory
   invalid_statuses_format_for_custom_verification_status: Custom verification statuses should have valid `label`, `id`, `description` and `style`
   already_exists: already exists

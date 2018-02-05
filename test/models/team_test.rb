@@ -320,8 +320,8 @@ class TeamTest < ActiveSupport::TestCase
       label: 'Field label',
       default: '1',
       statuses: [
-        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
+        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
       ]
     }
     assert_nothing_raised do
@@ -396,8 +396,8 @@ class TeamTest < ActiveSupport::TestCase
       label: 'Field label',
       default: '1',
       statuses: [
-        { id: '1', label: 'Valid status', description: 'The meaning of this status', style: 'red' },
-        { id: '', label: '', description: 'Status with empty id and label', style: 'blue' }
+        { id: '1', label: 'Valid status', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: '', label: '', completed: '', description: 'Status with empty id and label', style: 'blue' }
       ]
     }
     assert_nothing_raised do
@@ -411,6 +411,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     value = {
       label: 'Field label',
+      completed: '',
       default: '',
       statuses: []
     }
