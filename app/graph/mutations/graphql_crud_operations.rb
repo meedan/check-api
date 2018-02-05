@@ -166,11 +166,11 @@ class GraphqlCrudOperations
   def self.field_verification_statuses
     proc do |classname|
       field :verification_statuses do
-        type types.String
+        type JsonStringType
 
-        resolve ->(_obj, _args, _ctx) {
+        resolve ->(obj, _args, _ctx) {
           team = Team.current || Team.new
-          team.verification_statuses(classname)
+          team.verification_statuses(classname, obj)
         }
       end
     end

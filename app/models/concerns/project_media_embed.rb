@@ -43,6 +43,10 @@ module ProjectMediaEmbed
   def source_url
     self.media.is_a?(Link) ? self.media.url : self.full_url
   end
+
+  def required_tasks
+    self.all_tasks.select{ |t| t.required == 1 }
+  end
   
   def completed_tasks
     self.all_tasks.select{ |t| t.status == 'Resolved' }

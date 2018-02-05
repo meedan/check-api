@@ -3,7 +3,44 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
+  def set_initial_media_status
+    st = Status.new
+    st.annotated = self
+    st.annotator = self.user
+    st.status = Status.default_id(self.media, self.project)
+    st.created_at = self.created_at
+    st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    st.skip_check_ability = true
+    st.skip_notifications = true
+    st.save!
+  end
+
+  def add_elasticsearch_data
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    p = self.project
+    m = self.media
+    ms = MediaSearch.new
+    ms.id = self.id
+    ms.team_id = p.team.id
+    ms.project_id = p.id
+    ms.associated_type = self.media.type
+    ms.set_es_annotated(self)
+    ms.status = self.last_status unless CONFIG['app_name'] === 'Bridge'
+    data = self.embed
+    unless data.nil?
+      ms.title = data['title']
+      ms.description = data['description']
+      ms.quote = m.quote
+    end
+    ms.account = self.set_es_account_data unless self.media.account.nil?
+    ms.save!
+  end
+
   private
+
+  def set_project_source
+    self.create_project_source
+  end
 
   def create_auto_tasks
     self.set_tasks_responses ||= {}

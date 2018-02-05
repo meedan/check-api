@@ -213,7 +213,7 @@ class StatusTest < ActiveSupport::TestCase
       create_status annotated: pm, status: '1'
     end
 
-    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
+    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', completed: '', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
@@ -229,13 +229,13 @@ class StatusTest < ActiveSupport::TestCase
 
     assert_equal 'undetermined', Status.default_id(m.reload, p.reload)
 
-    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', description: 'Testing', style: 'foo' }] }
+    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', completed: '', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
     assert_equal '1', Status.default_id(m.reload, p.reload)
 
-    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }] }
+    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', completed: '', description: 'Testing', style: 'bar' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
@@ -295,8 +295,8 @@ class StatusTest < ActiveSupport::TestCase
       label: 'Field label',
       default: '1',
       statuses: [
-        { id: '1', label: 'Foo', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Bar', description: 'The meaning of that status', style: 'blue' }
+        { id: '1', label: 'Foo', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Bar', completed: '', description: 'The meaning of that status', style: 'blue' }
       ]
     }
     t.set_media_verification_statuses(value)
