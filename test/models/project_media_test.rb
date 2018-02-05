@@ -1277,8 +1277,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       label: 'Status',
       default: 'stop',
       statuses: [
-        { id: 'stop', label: 'Stopped', description: 'Not started yet', style: { backgroundColor: '#a00' } },
-        { id: 'done', label: 'Done!', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
+        { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
+        { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
       ]
     }
     t.set_media_verification_statuses(value)
@@ -1462,6 +1462,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     s = pm.annotations.where(annotation_type: 'status').last.load
     assert_raise ActiveRecord::RecordInvalid do
       s.status = 'verified'; s.save!
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      s.status = 'false'; s.save!
     end
     t2.response = { annotation_type: 'response', set_fields: {} }.to_json
     t2.save!
