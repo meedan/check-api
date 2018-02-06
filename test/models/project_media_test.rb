@@ -1456,7 +1456,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_annotation_type annotation_type: 'response'
     pm = create_project_media
     t1 = create_task annotated: pm
-    t2 = create_task annotated: pm, required: 1
+    t2 = create_task annotated: pm, required: true
     t1.response = { annotation_type: 'response', set_fields: {} }.to_json
     t1.save!
     s = pm.annotations.where(annotation_type: 'status').last.load
