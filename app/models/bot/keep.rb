@@ -2,9 +2,10 @@ class Bot::Keep
 
   def self.archiver_annotation_types
     [
-      'keep_backup', # VideoVault
+      'keep_backup',    # VideoVault
       'pender_archive', # Screenshot
-      'archive_is' # Archive.is
+      'archive_is',     # Archive.is
+      'archive_org'     # Archive.org
     ]
   end
 
