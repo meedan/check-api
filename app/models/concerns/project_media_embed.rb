@@ -45,7 +45,7 @@ module ProjectMediaEmbed
   end
 
   def required_tasks
-    self.all_tasks.select{ |t| t.required == 1 }
+    self.all_tasks.select{ |t| t.required == true }
   end
   
   def completed_tasks
