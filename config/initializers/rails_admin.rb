@@ -407,7 +407,6 @@ RailsAdmin.config do |config|
           label "Enable #{I18n.t(('archive_' + type).to_sym)}"
           formatted_value{ bindings[:object].send("get_archive_#{type}_enabled") }
           help ''
-          visible_only_for_admin
           visible_only_for_allowed_teams "keep_#{archiver}"
           hide do
             bindings[:object].new_record?
