@@ -80,6 +80,7 @@ pt:
   invalid_format_for_languages: 'O campo "Languages" é inválido, ele deve ter o formato [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Desculpe, este não é um item de mídia válido
   invalid_default_status_for_custom_verification_status: Status de verificação padrão é inválido
+  invalid_active_status_for_custom_verification_status: Status de verificação ativo é inválido
   invalid_id_or_label_for_custom_verification_status: O id e o título de status são obrigatórios
   invalid_statuses_format_for_custom_verification_status: Status de verificação personalizado deveriam ter válidos título, id, descrição e estilo
   already_exists: já existe
@@ -210,3 +211,4 @@ pt:
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de tela com Keep"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"
