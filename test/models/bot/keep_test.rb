@@ -21,7 +21,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
   test "should create Keep annotations" do
     t = create_team
     t.archive_keep_backup_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep_video_vault = true
     t.save!
     l = create_link
     p = create_project team: t
@@ -32,7 +32,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
   test "should not create Keep annotations if media is not a link" do
     t = create_team
     t.archive_keep_backup_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep_video_vault = true
     t.save!
     c = create_claim_media
     p = create_project team: t
@@ -43,7 +43,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
   test "should not create Keep annotations if team is not allowed to" do
     t = create_team
     t.archive_keep_backup_enabled = 1
-    t.set_limits_keep_screenshot = false
+    t.set_limits_keep_video_vault = false
     t.save!
     l = create_link
     p = create_project team: t
@@ -54,7 +54,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
   test "should not create Keep annotations if archiver is not enabled" do
     t = create_team
     t.archive_keep_backup_enabled = 0
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep_video_vault = true
     t.save!
     l = create_link
     p = create_project team: t
