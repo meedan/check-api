@@ -25,7 +25,6 @@ class Status < ActiveRecord::Base
     {
       label: 'Status',
       default: 'undetermined',
-      completed: 'verified',
       active: 'in_progress',
       statuses: statuses
     }
