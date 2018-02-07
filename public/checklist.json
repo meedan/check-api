@@ -20,7 +20,7 @@
       },
       "required": {
         "title": "Required",
-        "default": "false",
+        "default": false,
         "type": "boolean",
         "description": "Is this task required? If so, the status of the parent media cannot be closed until the task is resolved."
       },
