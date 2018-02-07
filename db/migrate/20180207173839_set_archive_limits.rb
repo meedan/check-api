@@ -19,7 +19,7 @@ class SetArchiveLimits < ActiveRecord::Migration
         })
       end
       t.limits = limits
-      t.save!
+      t.save(validate: false)
     end
   end
 end
