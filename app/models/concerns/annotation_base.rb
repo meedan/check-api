@@ -98,7 +98,7 @@ module AnnotationBase
 
     def update_annotated_status
       return if disable_update_status
-      types = ['Comment', 'Tag', 'Flag']
+      types = ['Task', 'Comment', 'Tag', 'Flag']
       if types.include?(self.class.name) || self.annotation_type =~ /^task_response/
         self.annotated.move_media_to_active_status unless self.annotated.nil?
       end
