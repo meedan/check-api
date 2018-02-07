@@ -22,10 +22,6 @@
         "title": "Required",
         "default": false,
         "type": "boolean",
-        "enum": [true, false],
-        "options": {
-          "enum_titles": [true, false]
-        },
         "description": "Is this task required? If so, the status of the parent media cannot be closed until the task is resolved."
       },
       "type": {
