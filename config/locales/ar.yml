@@ -84,6 +84,7 @@ ar:
   invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
   invalid_default_status_for_custom_verification_status: حالة التحقق الخاصة الإفتراضية غير صحيحة
+  invalid_active_status_for_custom_verification_status: حالة التحقق النشطة غير صحيحة
   invalid_id_or_label_for_custom_verification_status: مُعَرِّف حالة التحقق وعنوانها مطلوبان
   invalid_statuses_format_for_custom_verification_status: 'حالات التحقق الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب'
   already_exists: موجود بالفعل
@@ -226,3 +227,4 @@ ar:
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "لقطات الشاشة من Keep"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"
