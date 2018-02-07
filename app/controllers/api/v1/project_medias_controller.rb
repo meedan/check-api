@@ -55,7 +55,8 @@ module Api
       protected
 
       def should_skip_project_media?(pm, type)
-        pm.project.team.get_limits_keep_integration == false || pm.project.team.send("get_archive_#{type}_enabled").to_i != 1 
+        archiver = Bot::Keep.annotation_type_to_archiver(type)
+        pm.project.team.send("get_limits_keep_#{archiver}") == false || pm.project.team.send("get_archive_#{type}_enabled").to_i != 1 
       end
 
       private

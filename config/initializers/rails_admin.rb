@@ -402,12 +402,13 @@ RailsAdmin.config do |config|
       end
 
       Bot::Keep.archiver_annotation_types.each do |type|
+        archiver = Bot::Keep.annotation_type_to_archiver(type)
         field :"archive_#{type}_enabled", :boolean do
           label "Enable #{I18n.t(('archive_' + type).to_sym)}"
           formatted_value{ bindings[:object].send("get_archive_#{type}_enabled") }
           help ''
           visible_only_for_admin
-          visible_only_for_allowed_teams 'keep_integration'
+          visible_only_for_allowed_teams "keep_#{archiver}"
           hide do
             bindings[:object].new_record?
           end
