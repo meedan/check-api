@@ -80,6 +80,7 @@ es:
   invalid_format_for_languages: 'El idioma es inválido, debería tener este formato  [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: 'Lo sentimos, este no es un elemento multimedia válido '
   invalid_default_status_for_custom_verification_status: El estado predeterminado es inválido
+  invalid_active_status_for_custom_verification_status: El estado activo es inválido
   invalid_id_or_label_for_custom_verification_status: El nombre de estado y la etiqueta son obligatorios
   invalid_statuses_format_for_custom_verification_status: La personalización de los estados de verificación debe tener `etiqueta`, ` identificación`, `descripción` y` estilo` válidos
   already_exists: ya existe
@@ -210,3 +211,4 @@ es:
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de pantalla con Keep"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"

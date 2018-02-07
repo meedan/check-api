@@ -80,6 +80,7 @@ fr:
   invalid_format_for_languages: 'Le champ des langages est non-valide. Il doit conformer au format [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Désolé, ce média n'est pas valide
   invalid_default_status_for_custom_verification_status: Statut de défaut non valide
+  invalid_active_status_for_custom_verification_status: Statut actif non valide
   invalid_id_or_label_for_custom_verification_status: L'identifiant et l'étiquette du statut sont requises
   invalid_statuses_format_for_custom_verification_status: Statuts de vérifications personnalisés doivent contenir des valeurs valides pour `étiquette`, `identifiant`, `description` et `style`
   already_exists: existe déjà
@@ -210,3 +211,4 @@ fr:
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "copies d'écran de Keep"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"
