@@ -127,10 +127,10 @@ RailsAdmin.config do |config|
     end
   end
 
-  def render_settings(field_type)
+  def render_settings(field_type, only_admin = false)
     partial "form_settings_#{field_type}"
     hide do
-      bindings[:object].new_record?
+      bindings[:object].new_record? || (only_admin && !bindings[:view]._current_user.is_admin?)
     end
   end
 
@@ -140,9 +140,9 @@ RailsAdmin.config do |config|
     end
   end
 
-  def visible_only_for_allowed_teams(setting)
-    visible do
-      bindings[:object].send("get_limits_#{setting}") != false
+  def visible_only_for_allowed_teams(setting, hide_for_new = false)
+    hide do
+      bindings[:object].send("get_limits_#{setting}") == false || (hide_for_new && bindings[:object].new_record?)
     end
   end
 
@@ -402,15 +402,12 @@ RailsAdmin.config do |config|
       end
 
       Bot::Keep.archiver_annotation_types.each do |type|
+        archiver = Bot::Keep.annotation_type_to_archiver(type)
         field :"archive_#{type}_enabled", :boolean do
           label "Enable #{I18n.t(('archive_' + type).to_sym)}"
           formatted_value{ bindings[:object].send("get_archive_#{type}_enabled") }
           help ''
-          visible_only_for_admin
-          visible_only_for_allowed_teams 'keep_integration'
-          hide do
-            bindings[:object].new_record?
-          end
+          visible_only_for_allowed_teams "keep_#{archiver}", true
         end
       end
 
@@ -454,15 +451,13 @@ RailsAdmin.config do |config|
         label 'Suggested tags'
         formatted_value { bindings[:object].get_suggested_tags }
         help "A list of common tags to be used with reports and sources in your team."
-        visible_only_for_admin
-        render_settings('field')
+        render_settings('field', true)
       end
       field :limits, :yaml do
         label 'Limits'
         formatted_value { bindings[:object].limits.to_yaml }
         help "Limit this team features"
-        visible_only_for_admin
-        render_settings('text')
+        render_settings('text', true)
       end
     end
 

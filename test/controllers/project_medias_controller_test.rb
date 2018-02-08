@@ -87,7 +87,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     l = create_link url: url
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = true
+    t.set_limits_keep_screenshot = true
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
@@ -114,7 +114,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     l = create_link url: url
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = true
+    t.set_limits_keep_screenshot = true
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
@@ -158,7 +158,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     l = create_link url: url
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = true
+    t.set_limits_keep_screenshot = true
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
@@ -183,7 +183,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     l = create_link url: url
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = false
+    t.set_limits_keep_screenshot = false
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p

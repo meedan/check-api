@@ -1,6 +1,6 @@
 fr:
   link: lien
-  claim: témoignage
+  claim: Déclaration
   uploadedimage: image
   uploadefile: fichier
   blank: "(vide)"
@@ -44,7 +44,7 @@ fr:
   activerecord:
     models:
       link: Lien
-      claim: Témoignage
+      claim: Déclaration
       uploaded_image: Image
       uploaded_file: Fichier
     attributes:
@@ -75,13 +75,13 @@ fr:
   slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
   slack_webhook_format_wrong: 'Webhook Slack non valide : le format doit être `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`'
   slug_is_reserved: est réservé
-  invalid_format_for_custom_verification_status: Statuts de vérifications personnalisés non valides
   invalid_format_for_checklist: 'Le champ de liste de contrôle est non-valide. Il devrait se conformer au format [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'Le champ des langages est non-valide. Il doit conformer au format [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Désolé, ce média n'est pas valide
-  invalid_default_status_for_custom_verification_status: Statut de défaut non valide
+  invalid_default_status_for_custom_verification_status: Identifiant du statut de défaut non valide
+  invalid_active_status_for_custom_verification_status: Identifiant du statut actif non valide
   invalid_id_or_label_for_custom_verification_status: L'identifiant et l'étiquette du statut sont requises
-  invalid_statuses_format_for_custom_verification_status: Statuts de vérifications personnalisés doivent contenir des valeurs valides pour `étiquette`, `identifiant`, `description` et `style`
+  invalid_statuses_format_for_custom_verification_status: "Les statuts de vérifications personnalisés doivent contenir des valeurs valides pour : étiquette, identifiant, description, style et indicateur d'état final."
   already_exists: existe déjà
   mail_account_confirmation: "Confirmation de votre compte %{app_name}"
   mail_request_to_join: "%{user} demande à se joindre à l'équipe %{team} sur %{app_name} !"
@@ -97,7 +97,7 @@ fr:
   slack_create_project_media: "*%{user}* a rajouté un(e) nouveau(elle) %{type} dans *%{project}* : %{url}"
   slack_create_project_media_no_user: 'Un(e) nouveau(elle) %{type} a été rajouté(e) dans *%{project}* : %{url}'
   slack_create_task_message: "*%{user}* a créé la tâche %{url} dans *%{project}*%{assignment}%{create_note}"
-  slack_create_task_assignment: "affecté(e) à %{assignee}"
+  slack_create_task_assignment: " affecté(e) à %{assignee}"
   slack_create_task_note: " avec note: %{note}"
   slack_answer_task: |-
     *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
@@ -210,3 +210,4 @@ fr:
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "copies d'écran de Keep"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"
