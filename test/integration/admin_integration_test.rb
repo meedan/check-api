@@ -178,6 +178,17 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     assert_equal "1", team_2.reload.get_hide_names_in_embeds
   end
 
+  test "should not see limits fields on team page if not admin" do
+    sign_in @user
+    Team.stubs(:current).returns(nil)
+    tu = create_team_user user: @user, role: 'owner'
+
+    get "/admin/team/#{tu.team.id}/edit"
+    assert_response :success
+    assert_no_match(/team_limits_field/, @response.body)
+    assert_no_match(/team_suggested_tags/, @response.body)
+  end
+
   test "should handle error on edition of a team" do
     sign_in @user
     team = create_team
