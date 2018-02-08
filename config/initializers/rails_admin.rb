@@ -127,10 +127,10 @@ RailsAdmin.config do |config|
     end
   end
 
-  def render_settings(field_type)
+  def render_settings(field_type, only_admin = false)
     partial "form_settings_#{field_type}"
     hide do
-      bindings[:object].new_record?
+      bindings[:object].new_record? || (only_admin && !bindings[:view]._current_user.is_admin?)
     end
   end
 
@@ -451,15 +451,13 @@ RailsAdmin.config do |config|
         label 'Suggested tags'
         formatted_value { bindings[:object].get_suggested_tags }
         help "A list of common tags to be used with reports and sources in your team."
-        visible_only_for_admin
-        render_settings('field')
+        render_settings('field', true)
       end
       field :limits, :yaml do
         label 'Limits'
         formatted_value { bindings[:object].limits.to_yaml }
         help "Limit this team features"
-        visible_only_for_admin
-        render_settings('text')
+        render_settings('text', true)
       end
     end
 
