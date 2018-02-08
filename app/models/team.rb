@@ -6,6 +6,7 @@ class Team < ActiveRecord::Base
   include TeamValidations
   include TeamAssociations
   include TeamPrivate
+  include TeamDuplication
 
   attr_accessor :affected_ids
 

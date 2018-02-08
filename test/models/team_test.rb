@@ -1102,4 +1102,14 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     assert_equal 'pro', t.plan
   end
+
+  test "should duplicate a team" do
+    team = create_team name: 'Team A', archived: true, private: true
+    copy = Team.duplicate(team)
+
+    assert_equal "#{team.slug}-copy-1", copy.slug
+    %w(name archived private description).each do |att|
+      assert_equal team.send(att), copy.send(att)
+    end
+  end
 end
