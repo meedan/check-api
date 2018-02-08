@@ -3263,7 +3263,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -4781,7 +4781,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -6154,7 +6154,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -6341,7 +6341,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -8681,6 +8681,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "required",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -19102,6 +19116,16 @@
               "defaultValue": null
             },
             {
+              "name": "required",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "assigned_to_id",
               "description": null,
               "type": {
@@ -19275,6 +19299,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "required",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               },
               "defaultValue": null

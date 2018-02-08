@@ -13,6 +13,11 @@
       "type": "string",
       "description": "What's the default for newly added media? It should match an 'identifier' in the list below."
     },
+    "active": {
+      "title": "Active value",
+      "type": "string",
+      "description": "What's the active status? It should match an 'identifier' in the list below."
+    },
     "statuses": {
       "title": "Statuses",
       "description": "",
@@ -39,6 +44,12 @@
             "default": "",
             "description": "An explanation of the meaning of this status, as displayed to users.",
             "type": "string"
+          },
+          "completed": {
+            "title": "Final?",
+            "default": false,
+            "description": "Does this status mean that work has completed on the item? Note that even final statuses can be subsequently changed.",
+            "type": "boolean"
           },
           "style": {
             "title": "color",

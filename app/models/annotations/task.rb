@@ -28,6 +28,8 @@ class Task < ActiveRecord::Base
 
   field :slug
 
+  field :required, :boolean
+
   def slack_notification_message
     if self.versions.count > 1
       self.slack_message_on_update
@@ -56,13 +58,13 @@ class Task < ActiveRecord::Base
 
   def slack_message_on_update
     messages = []
-    
+
     if self.data_changed?
       data = self.data
       data_was = self.data_was
 
       ['label', 'description'].each do |key|
-        if data_was[key] != data[key]
+        if data_was[key].to_s != data[key].to_s
           params = self.slack_default_params.merge({
             from: Bot::Slack.to_slack_quote(data_was[key]),
             to: Bot::Slack.to_slack_quote(data[key])
@@ -71,9 +73,9 @@ class Task < ActiveRecord::Base
         end
       end
     end
-    
+
     messages << self.slack_message_for_assignment if self.assigned_to_id_changed?
-    
+
     message = messages.join("\n")
 
     message.blank? ? nil : message
@@ -123,6 +125,7 @@ class Task < ActiveRecord::Base
     response.annotated = self.annotated
     response.annotation_type = params['annotation_type']
     response.disable_es_callbacks = Rails.env.to_s == 'test'
+    response.disable_update_status = Rails.env.to_s == 'test'
     response.set_fields = params['set_fields']
     response.save!
     @response = response

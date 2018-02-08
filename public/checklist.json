@@ -18,6 +18,12 @@
         "description": "A more detailed explanation of the task.",
         "type": "string"
       },
+      "required": {
+        "title": "Required",
+        "default": false,
+        "type": "boolean",
+        "description": "Is this task required? If so, the status of the parent media cannot be closed until the task is resolved."
+      },
       "type": {
         "title": "Type",
         "default": "free_text",

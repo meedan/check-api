@@ -79,13 +79,13 @@ ar:
   slug_format_validation_message: 'يقبل الأحرف والأرقام و''-'' فقط '
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_custom_verification_status: صيغة غير صحيحة لحالات التحقق الخاصة
   invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة - الصيغة المطلوبة هي `[ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]`'
   invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
-  invalid_default_status_for_custom_verification_status: حالة التحقق الخاصة الإفتراضية غير صحيحة
+  invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الخاصة الإفتراضية غير صحيح
+  invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
   invalid_id_or_label_for_custom_verification_status: مُعَرِّف حالة التحقق وعنوانها مطلوبان
-  invalid_statuses_format_for_custom_verification_status: 'حالات التحقق الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب'
+  invalid_statuses_format_for_custom_verification_status: "حالات التحقق الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية."
   already_exists: موجود بالفعل
   mail_account_confirmation: "تأكيد حساب %{app_name}"
   mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على %{app_name}"
@@ -101,7 +101,7 @@ ar:
   slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
   slack_create_project_media_no_user: 'أضيف %{type} جديد إلى مشروع *%{project}*: %{url}'
   slack_create_task_message: "أضاف(ت) *%{user}* المهمة %{url} في مشروع *%{project}*%{assignment}%{create_note}"
-  slack_create_task_assignment: "موّكل إلى %{assignee}"
+  slack_create_task_assignment: " موّكل إلى %{assignee}"
   slack_create_task_note: " مع التعليق: %{note}"
   slack_answer_task: |-
     أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
@@ -226,3 +226,4 @@ ar:
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "لقطات الشاشة من Keep"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"
