@@ -140,9 +140,9 @@ RailsAdmin.config do |config|
     end
   end
 
-  def visible_only_for_allowed_teams(setting)
-    visible do
-      bindings[:object].send("get_limits_#{setting}") != false
+  def visible_only_for_allowed_teams(setting, hide_for_new = false)
+    hide do
+      bindings[:object].send("get_limits_#{setting}") == false || (hide_for_new && bindings[:object].new_record?)
     end
   end
 
@@ -407,10 +407,7 @@ RailsAdmin.config do |config|
           label "Enable #{I18n.t(('archive_' + type).to_sym)}"
           formatted_value{ bindings[:object].send("get_archive_#{type}_enabled") }
           help ''
-          visible_only_for_allowed_teams "keep_#{archiver}"
-          hide do
-            bindings[:object].new_record?
-          end
+          visible_only_for_allowed_teams "keep_#{archiver}", true
         end
       end
 
