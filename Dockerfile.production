@@ -31,38 +31,38 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     google-chrome-stable
 
 #
+# USER CONFIG
+#
+RUN useradd checkdeploy -s /bin/bash -m
+
+#
 # SYSTEM CONFIG
 #
 
 # nginx for check-api
-COPY production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
-COPY production/config/nginx/test_404.conf /etc/nginx/sites-available/test_404.conf
-RUN sed -i "s/ddDEPLOYUSERdd/${DEPLOYUSER}/g" /etc/nginx/sites-available/${APP} \
+COPY --chown=checkdeploy:www-data production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
+COPY --chown=checkdeploy:www-data production/config/nginx/test_404.conf /etc/nginx/sites-available/test_404.conf
+RUN sed -i "s/ddDEPLOYUSERdd/checkdeploy/g" /etc/nginx/sites-available/${APP} \
     && ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP} \
     && rm /etc/nginx/sites-enabled/default
-
-#
-# USER CONFIG
-#
-RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 #
 # code deployment
 #
 RUN mkdir -p ${DEPLOYDIR}/latest \
-    && chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR} \
+    && chown -R checkdeploy:www-data ${DEPLOYDIR} \
     && chmod -R 775 ${DEPLOYDIR} \
     && chmod g+s ${DEPLOYDIR}/latest
 
 WORKDIR ${DEPLOYDIR}
 
 # install the gems
-COPY ./Gemfile ./latest/Gemfile
-COPY ./Gemfile.lock ./latest/Gemfile.lock
-USER ${DEPLOYUSER}
+COPY --chown=checkdeploy:www-data ./Gemfile ./latest/Gemfile
+COPY --chown=checkdeploy:www-data ./Gemfile.lock ./latest/Gemfile.lock
+USER checkdeploy
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
     && cd ./latest \
-    && bundle install  --jobs 20 --retry 5 --deployment --without test development
+    && bundle install --jobs 20 --retry 5 --deployment --without test development
 
 USER root
 
@@ -71,11 +71,9 @@ COPY production/bin /opt/bin
 RUN chmod 755 /opt/bin/*
 
 # copy in the code
-COPY . ./latest
-RUN chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR} \
-    && chmod -R 775 ${DEPLOYDIR} \
-    && chmod g+s ${DEPLOYDIR}/latest
-USER ${DEPLOYUSER}
+COPY --chown=checkdeploy:www-data . ./latest
+RUN chmod -R 2775 ${DEPLOYDIR}
+USER checkdeploy
 
 # link config files
 RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}/latest
