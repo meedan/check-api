@@ -93,6 +93,8 @@ GEM
     airbrake (4.3.3)
       builder
       multi_json
+    apollo-tracing (1.4.0)
+      graphql (>= 1.6.0, < 2)
     arel (6.0.4)
     ast (2.3.0)
     awesome_print (1.7.0)
@@ -195,7 +197,6 @@ GEM
       tilt
     hashdiff (0.3.2)
     hashie (3.5.5)
-    hitimes (1.2.6)
     htmlentities (4.3.4)
     http (2.2.1)
       addressable (~> 2.3)
@@ -292,12 +293,6 @@ GEM
     omniauth-twitter (1.4.0)
       omniauth-oauth (~> 1.1)
       rack
-    optics-agent (0.5.4)
-      faraday (~> 0.11)
-      google-protobuf (~> 3.2)
-      graphql (~> 1.1)
-      hitimes (~> 1.2)
-      net-http-persistent (~> 2.0)
     orm_adapter (0.5.0)
     paper_trail (7.0.1)
       activerecord (>= 4.0, < 5.2)
@@ -511,6 +506,7 @@ PLATFORMS
 DEPENDENCIES
   airbrake (= 4.3.3)
   alegre_client!
+  apollo-tracing
   awesome_print
   bootstrap-sass (~> 3.2.0.0)
   byebug
@@ -551,7 +547,6 @@ DEPENDENCIES
   omniauth-facebook
   omniauth-slack
   omniauth-twitter
-  optics-agent (= 0.5.4)
   paper_trail
   parallel_tests
   pender_client!
