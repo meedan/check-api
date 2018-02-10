@@ -5,7 +5,7 @@ MAINTAINER Meedan <sysops@meedan.com>
 ENV RAILS_ENV development
 
 # install dependencies
-RUN apt-get update -qq && apt-get install -y libpq-dev imagemagick redis-server autoconf automake libtool libltdl-dev --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -y libpq-dev imagemagick redis-server --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # install stuff needed to take screenshots
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \

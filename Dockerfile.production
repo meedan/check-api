@@ -28,11 +28,7 @@ RUN npm install chrome-remote-interface minimist
 RUN apt-get update && apt-get install -y --no-install-recommends \
     imagemagick \
     nodejs \
-    google-chrome-stable \
-    autoconf \
-    automake \
-    libtool \
-    libltdl-dev 
+    google-chrome-stable
 
 #
 # SYSTEM CONFIG
