@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 group :development, :test do
   gem 'byebug'
-  gem 'rubocop'
+  gem 'rubocop', '0.49.0'
   gem 'rails-graphql-generator'
   gem 'parallel_tests'
 end
@@ -55,7 +55,7 @@ gem 'elasticsearch-persistence', '0.1.9', require: 'elasticsearch/persistence/mo
 gem 'paper_trail'
 gem 'graphiql-rails', git: 'https://github.com/meedan/graphiql-rails.git', ref: '8db0eac'
 gem 'graphql-formatter'
-gem 'nokogiri', '1.7.2'
+gem 'nokogiri', '1.8.1'
 gem 'mini_magick'
 gem 'puma'
 gem 'rack-cors', :require => 'rack/cors'
