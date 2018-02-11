@@ -1104,12 +1104,32 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should duplicate a team" do
-    team = create_team name: 'Team A', archived: true, private: true
-    copy = Team.duplicate(team)
+    team = create_team name: 'Team A'
 
+    project1 = create_project team: team
+    project2 = create_project team: team
+    value = [{
+      label: "Task one",
+      type: "free_text",
+      description: "It is a single choice task",
+      projects: [project1.id, project2.id]
+    }]
+    team.checklist = value; team.save!
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+
+    # team attributes
     assert_equal "#{team.slug}-copy-1", copy.slug
     %w(name archived private description).each do |att|
       assert_equal team.send(att), copy.send(att)
     end
+
+    # projects
+    assert_equal team.projects.map(&:title), copy.projects.map(&:title)
+
+    # change projects ids on checklist
+    assert_equal copy.projects.map(&:id), copy.get_checklist.first[:projects]
   end
 end
