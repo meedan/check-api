@@ -16,6 +16,13 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :jsonsettings, types.String
   field :number_of_teams, types.Int
 
+  field :confirmed do
+    type types.Boolean
+    resolve -> (user, _args, _ctx) do
+      user.confirmed?
+    end
+  end
+
   field :source do
     type SourceType
     resolve -> (user, _args, _ctx) do
