@@ -873,6 +873,14 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
+  test "should resend confirmation if email is found" do
+    u = create_user email: 'foo@bar.com', provider: ''
+    puts "Check user confirmation #{u.confirmed?}"
+    query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+  end
+
   test "should avoid n+1 queries problem" do
     n = 5 * (rand(10) + 1) # Number of media items to be created
     m = rand(10) + 1       # Number of annotations per media
