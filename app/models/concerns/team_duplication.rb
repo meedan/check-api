@@ -10,8 +10,10 @@ module TeamDuplication
       team = t.dup
       team.generate_slug
       team.copy_projects(t)
-      team.save
+      team.save!
+
       team.update_team_checklist
+      team.copy_team_users(t)
       team
     end
   end
@@ -44,6 +46,12 @@ module TeamDuplication
       task[:projects] = task[:projects].map { |p| self.project_mapping[p] ? self.project_mapping[p].id : p }
     end
     self.save
+  end
+
+  def copy_team_users(t)
+    t.team_users.each do |tu|
+      self.team_users << tu.dup
+    end
   end
 
 end
