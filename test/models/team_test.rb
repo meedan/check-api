@@ -1116,6 +1116,11 @@ class TeamTest < ActiveSupport::TestCase
     }]
     team.checklist = value; team.save!
 
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: team, user: u1, role: 'owner', status: 'member'
+    create_team_user team: team, user: u2, role: 'editor', status: 'invited'
+
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
@@ -1131,5 +1136,8 @@ class TeamTest < ActiveSupport::TestCase
 
     # change projects ids on checklist
     assert_equal copy.projects.map(&:id), copy.get_checklist.first[:projects]
+
+    # team users
+    assert_equal team.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }, copy.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }
   end
 end
