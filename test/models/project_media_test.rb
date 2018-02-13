@@ -1322,7 +1322,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     l = create_link
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = true
+    t.set_limits_keep_screenshot = true
     t.save!
     p = create_project team: t
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1335,7 +1335,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c = create_claim_media
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = true
+    t.set_limits_keep_screenshot = true
     t.save!
     p = create_project team: t
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1347,7 +1347,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     l = create_link
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = true
+    t.set_limits_keep_screenshot = true
     t.save!
     p = create_project team: t
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1360,7 +1360,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     l = create_link
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = false
+    t.set_limits_keep_screenshot = false
     t.save!
     p = create_project team: t
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1373,7 +1373,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     l = create_link
     t = create_team
     t.archive_pender_archive_enabled = 0
-    t.set_limits_keep_integration = true
+    t.set_limits_keep_screenshot = true
     t.save!
     p = create_project team: t
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1386,7 +1386,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     l = create_link
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = true
+    t.set_limits_keep_screenshot = true
     t.save!
     p = create_project team: t
     Link.any_instance.stubs(:pender_embed).returns(OpenStruct.new({ data: { embed: { screenshot_taken: 1, 'archives' => {} }.to_json } }))
@@ -1401,7 +1401,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     l = create_link
     t = create_team
     t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_integration = true
+    t.set_limits_keep_screenshot = true
     t.save!
     p = create_project team: t
     Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1, 'archives' => {} })

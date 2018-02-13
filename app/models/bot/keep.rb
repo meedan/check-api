@@ -2,9 +2,10 @@ class Bot::Keep
 
   def self.archiver_annotation_types
     [
-      'keep_backup', # VideoVault
+      'keep_backup',    # VideoVault
       'pender_archive', # Screenshot
-      'archive_is' # Archive.is
+      'archive_is',     # Archive.is
+      'archive_org'     # Archive.org
     ]
   end
 
@@ -35,7 +36,8 @@ class Bot::Keep
     after_create :create_all_archive_annotations
 
     def should_skip_create_archive_annotation?(type)
-      !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || self.project.team.get_limits_keep_integration == false || self.project.team.send("get_archive_#{type}_enabled").to_i != 1
+      archiver = Bot::Keep.annotation_type_to_archiver(type)
+      !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || self.project.team.send("get_limits_keep_#{archiver}") == false || self.project.team.send("get_archive_#{type}_enabled").to_i != 1
     end
 
     def create_archive_annotation(type)
