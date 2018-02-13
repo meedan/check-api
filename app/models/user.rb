@@ -209,6 +209,10 @@ class User < ActiveRecord::Base
     self.send(:set_languages, languages)
   end
 
+  def is_confirmed?
+    self.confirmation_required? ? self.confirmed? && self.unconfirmed_email.nil? : true
+  end
+
   protected
 
   def confirmation_required?
