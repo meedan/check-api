@@ -6,6 +6,7 @@ UserType = GraphqlCrudOperations.define_default_type do
 
   field :dbid, types.Int
   field :email, types.String
+  field :unconfirmed_email, types.String
   field :provider, types.String
   field :uuid, types.String
   field :profile_image, types.String
@@ -19,7 +20,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :confirmed do
     type types.Boolean
     resolve -> (user, _args, _ctx) do
-      user.confirmed?
+      user.is_confirmed?
     end
   end
 

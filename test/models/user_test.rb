@@ -463,6 +463,17 @@ class UserTest < ActiveSupport::TestCase
     assert u.send(:confirmation_required?)
   end
 
+  test "should require confirmation after update email" do
+    u = create_user provider: 'twitter'
+    assert u.is_confirmed?
+    u = create_user email: 'foo@bar.com', provider: ''
+    assert_not u.is_confirmed?
+    u.confirm
+    assert u.is_confirmed?
+    u.email = 'foo+test@bar.com';u.save!
+    assert_not u.is_confirmed?
+  end
+
   test "should set user password" do
     u = create_user password: '12345678', password_confirmation: '12345678'
     u.set_password = '87654321'
