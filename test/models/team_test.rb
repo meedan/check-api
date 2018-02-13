@@ -1124,9 +1124,14 @@ class TeamTest < ActiveSupport::TestCase
     create_team_user team: team, user: u1, role: 'owner', status: 'member'
     create_team_user team: team, user: u2, role: 'editor', status: 'invited'
 
+    create_contact team: team
+
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 2, Project.where(team_id: copy.id).count
+    assert_equal 2, TeamUser.where(team_id: copy.id).count
+    assert_equal 1, Contact.where(team_id: copy.id).count
 
     # team attributes
     assert_equal "#{team.slug}-copy-1", copy.slug
@@ -1142,5 +1147,9 @@ class TeamTest < ActiveSupport::TestCase
 
     # team users
     assert_equal team.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }, copy.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }
+
+    # contacts
+    assert_equal team.contacts.map(&:web), copy.contacts.map(&:web)
+
   end
 end

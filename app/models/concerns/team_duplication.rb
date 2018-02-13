@@ -11,6 +11,7 @@ module TeamDuplication
       team.generate_slug
       File.open(t.logo.path) { |f| team.logo = f }
       team.copy_projects(t)
+      team.copy_contacts(t)
       team.save!
 
       team.update_team_checklist
@@ -51,6 +52,12 @@ module TeamDuplication
   def copy_team_users(t)
     t.team_users.each do |tu|
       self.team_users << tu.dup
+    end
+  end
+
+  def copy_contacts(t)
+    t.contacts.each do |c|
+      self.contacts << c.dup
     end
   end
 
