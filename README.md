@@ -110,6 +110,8 @@ The test uses a EICAR file (a test file which is recognized as a virus by scanne
 
 * Add a migration that creates a new dynamic annotation for the archiver
 * Declare this new type at `app/models/bot/keep.rb`
+* Add the readable name of that archiver to `config/locales/en.yml`
+* Add the default limit value for that archiver to `lib/check_limits.rb` and `app/views/rails_admin/main/_limits.html.erb` (you may need to add a migration too)
 
 ### Localization
 
@@ -209,6 +211,11 @@ end
 
 * Run `rake db:migrate:checkdesk`.
 * Rake command will generate `mapping_ids.yml` to log Checkdesk => Check mapping and mark migrated model.
+
+### Apollo integration
+
+* Copy `config/apollo-engine-proxy.json.example` to `config/apollo-engine-proxy.json` and add you API key
+* Point the clients (e.g., `check-web`) to the proxy host and port
 
 ### Credits
 

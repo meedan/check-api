@@ -75,13 +75,13 @@ pt:
   slug_format_validation_message: aceita apenas letras, números e hífens
   slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
-  invalid_format_for_custom_verification_status: Status de verificação personalizado é inválido
   invalid_format_for_checklist: 'O Checklist é inválido, ele deve ter o formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'O campo "Languages" é inválido, ele deve ter o formato [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Desculpe, este não é um item de mídia válido
-  invalid_default_status_for_custom_verification_status: Status de verificação padrão é inválido
+  invalid_default_status_for_custom_verification_status: Identificador de status de verificação padrão é inválido
+  invalid_active_status_for_custom_verification_status: Identificador de status de verificação ativo é inválido
   invalid_id_or_label_for_custom_verification_status: O id e o título de status são obrigatórios
-  invalid_statuses_format_for_custom_verification_status: Status de verificação personalizado deveriam ter válidos título, id, descrição e estilo
+  invalid_statuses_format_for_custom_verification_status: "Os status de verificação personalizados devem ter válidos título, identificador, descrição, estilo e sinalizador de estado final."
   already_exists: já existe
   mail_account_confirmation: "Confirmação da conta do %{app_name} "
   mail_request_to_join: "%{user} quer participar da equipe %{team} no %{app_name}!"
@@ -210,3 +210,4 @@ pt:
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de tela com Keep"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"

@@ -65,7 +65,7 @@ module ValidationsHelper
   def custom_statuses_format(type)
     statuses = self.send("get_#{type}_verification_statuses")
     if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-      errors.add(:base, I18n.t(:invalid_format_for_custom_verification_status))
+      errors.add(:base, I18n.t(:invalid_statuses_format_for_custom_verification_status))
     else
       validate_statuses(statuses)
     end

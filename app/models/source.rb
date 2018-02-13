@@ -48,6 +48,14 @@ class Source < ActiveRecord::Base
     ProjectMedia.joins(:project).where(conditions)
   end
 
+  def medias_count
+    self.medias.count
+  end
+
+  def accounts_count
+    self.accounts.count
+  end
+
   def get_team
     teams = []
     projects = self.projects.map(&:id)

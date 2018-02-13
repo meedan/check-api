@@ -57,6 +57,7 @@ module ProjectMediaCreators
       t.annotated = self
       t.skip_check_ability = true
       t.skip_notifications = true
+      t.disable_update_status = true
       t.save!
       created << t
       # set auto-response

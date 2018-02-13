@@ -78,17 +78,16 @@ en:
   slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
-  invalid_format_for_custom_verification_status: Custom verification statuses is invalid
   invalid_format_for_checklist: 'Checklist is invalid, it should have the format [
     { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'':
     [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'Languages is invalid, it should have the format [{''id'':
     ''en'',''title'': ''English''}]'
   invalid_media_item: Sorry, this is not a valid media item
-  invalid_default_status_for_custom_verification_status: The default status is invalid
-  invalid_active_status_for_custom_verification_status: The active status is invalid
+  invalid_default_status_for_custom_verification_status: The default status id is invalid
+  invalid_active_status_for_custom_verification_status: The active status id is invalid
   invalid_id_or_label_for_custom_verification_status: The status id and label are mandatory
-  invalid_statuses_format_for_custom_verification_status: Custom verification statuses should have valid `label`, `id`, `description` and `style`
+  invalid_statuses_format_for_custom_verification_status: "Custom verification statuses should have valid entries for: label, id, description, style and final state flag"
   already_exists: already exists
   mail_account_confirmation: "%{app_name} account confirmation"
   mail_request_to_join: "%{user} wants to join %{team} team on %{app_name}!"
@@ -248,3 +247,4 @@ en:
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "Keep screenshots"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"

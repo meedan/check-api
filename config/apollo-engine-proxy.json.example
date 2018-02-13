@@ -1,0 +1,10 @@
+{
+  "apiKey": "",
+  "logging": { "level": "INFO" },
+  "origins": [{
+    "http": { "url": "http://localhost:3000/api/graphql" }
+  }],
+  "frontends": [{
+    "port": 3300, "endpoint": "/api/graphql"
+  }]
+}
