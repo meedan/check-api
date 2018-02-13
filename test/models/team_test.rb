@@ -1105,6 +1105,9 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should duplicate a team" do
     team = create_team name: 'Team A'
+    File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+      team.file = f
+    end
 
     project1 = create_project team: team
     project2 = create_project team: team

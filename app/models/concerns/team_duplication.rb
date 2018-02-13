@@ -9,6 +9,7 @@ module TeamDuplication
     def self.duplicate(t)
       team = t.dup
       team.generate_slug
+      File.open(t.logo.path) { |f| team.logo = f }
       team.copy_projects(t)
       team.save!
 
@@ -31,9 +32,8 @@ module TeamDuplication
     self.project_mapping = {}
     t.projects.each do |project|
       p = project.dup
-      File.open(project.lead_image.path) do |f|
-        p.lead_image = f
-      end
+      image = project.lead_image.path
+      File.open(image) { |f| p.lead_image = f } if image
       p.token = nil
       self.project_mapping[project.id] = p
       self.projects << p
@@ -43,7 +43,7 @@ module TeamDuplication
   def update_team_checklist
     return if self.get_checklist.blank?
     self.get_checklist.each do |task|
-      task[:projects] = task[:projects].map { |p| self.project_mapping[p] ? self.project_mapping[p].id : p }
+      task[:projects].map! { |p| self.project_mapping[p] ? self.project_mapping[p].id : p } if task[:projects]
     end
     self.save
   end
