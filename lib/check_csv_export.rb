@@ -1,4 +1,8 @@
 module CheckCsvExport
+  def self.included(base)
+    base.extend(ClassMethods)
+  end
+
   def export
     self.project_medias.collect{ |pm| Hash[
       project_id: pm.project_id,
@@ -57,7 +61,7 @@ module CheckCsvExport
   def export_to_csv
     hashes = self.export
     headers = hashes.inject([]) {|res, h| res | h.keys}
-    CSV.generate(headers: true) do |csv|
+    CSV.open(self.csv_filename, 'w+') do |csv|
       csv << headers
       hashes.each do |x|
         csv << headers.map {|header| x[header] || ""}
@@ -66,6 +70,29 @@ module CheckCsvExport
   end
 
   def csv_filename
-    [self.team.slug,self.title.parameterize,DateTime.now].join('_')
+    dir = File.join(Rails.root, 'public', 'project_export')
+    Dir.mkdir(dir) unless File.exists?(dir)
+    basename = [self.team.slug, self.title.parameterize, Time.now.to_i.to_s].join('_')
+    File.join(dir, basename + '_' + Digest::MD5.hexdigest(basename).reverse + '.csv')
+  end
+
+  def export_to_csv_in_background(user = nil)
+    email = user.nil? ? nil : user.email
+    self.class.delay_for(1.second).export_to_csv(self.class.name, self.id, email)
+  end
+
+  module ClassMethods
+    def export_to_csv(klass, id, email)
+      obj = klass.constantize.find(id)
+      obj.export_to_csv
+      AdminMailer.delay.send_download_link(obj, email) unless email.blank?
+      days = CONFIG['export_download_expiration_days'] || 7
+      klass.constantize.delay_for(days.to_i.seconds).remove_csv_file(obj.csv_filename)
+    end
+
+    def remove_csv_file(filepath)
+      Rails.logger.info "File #{filepath} was removed"
+      FileUtils.rm_f(filepath)
+    end
   end
 end
