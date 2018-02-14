@@ -87,7 +87,7 @@ module CheckCsvExport
       obj.export_to_csv
       AdminMailer.delay.send_download_link(obj, email) unless email.blank?
       days = CONFIG['export_download_expiration_days'] || 7
-      klass.constantize.delay_for(days.to_i.seconds).remove_csv_file(obj.csv_filename)
+      klass.constantize.delay_for(days.to_i.days).remove_csv_file(obj.csv_filename)
     end
 
     def remove_csv_file(filepath)
