@@ -345,7 +345,6 @@ RailsAdmin.config do |config|
       end
       configure :get_suggested_tags do
         label 'Suggested tags'
-        visible_only_for_admin
       end
       configure :private do
         visible_only_for_admin
