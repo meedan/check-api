@@ -75,6 +75,7 @@ module CheckCsvExport
     end
     buffer.rewind
     File.write(self.csv_filepath, buffer.read)
+    content
   end
 
   def csv_password
