@@ -71,7 +71,7 @@ module CheckCsvExport
 
   def csv_filename
     dir = File.join(Rails.root, 'public', 'project_export')
-    Dir.mkdir(dir) unless File.exists?(dir)
+    Dir.mkdir(dir) unless File.exist?(dir)
     basename = [self.team.slug, self.title.parameterize, Time.now.to_i.to_s].join('_')
     File.join(dir, basename + '_' + Digest::MD5.hexdigest(basename).reverse + '.csv')
   end
