@@ -415,6 +415,7 @@ GEM
       thor
       ya2yaml
     ruby-progressbar (1.9.0)
+    rubyzip (1.2.1)
     safe_yaml (1.0.4)
     sass (3.4.23)
     sass-rails (5.0.6)
@@ -569,6 +570,7 @@ DEPENDENCIES
   rest-client
   rubocop (= 0.49.0)
   ruby-cldr
+  rubyzip
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   sidekiq

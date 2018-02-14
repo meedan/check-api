@@ -250,9 +250,12 @@ en:
   archive_archive_org: "Archive.org"
   project_export_email_title: "Your project report is ready to be downloaded"
   project_export_download_mail: "Hello!
+   
 
+    You've requested a report for %{project} - here's a link to download it: %{link}
+  
     
-    You've requested a download of %{project} report - here's a link to download it: %{link}
+    The report will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
 
     
     Please note that this link will expire in %{days} days.

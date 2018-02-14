@@ -59,21 +59,42 @@ module CheckCsvExport
   end
 
   def export_to_csv
+    require 'zip'
     hashes = self.export
     headers = hashes.inject([]) {|res, h| res | h.keys}
-    CSV.open(self.csv_filename, 'w+') do |csv|
+    content = CSV.generate do |csv|
       csv << headers
       hashes.each do |x|
         csv << headers.map {|header| x[header] || ""}
       end
     end
+    self.csv_password = SecureRandom.hex
+    buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new(self.csv_password)) do |out|
+      out.put_next_entry(self.csv_filename)
+      out.write content
+    end
+    buffer.rewind
+    File.write(self.csv_filepath, buffer.read)
+  end
+
+  def csv_password
+    @csv_password
+  end
+
+  def csv_password=(password)
+    @csv_password = password
   end
 
   def csv_filename
+    basename = [self.team.slug, self.title.parameterize, Time.now.to_i.to_s].join('_')
+    basename = basename + '_' + Digest::MD5.hexdigest(basename).reverse + '.csv'
+    @basename ||= basename
+  end
+
+  def csv_filepath
     dir = File.join(Rails.root, 'public', 'project_export')
     Dir.mkdir(dir) unless File.exist?(dir)
-    basename = [self.team.slug, self.title.parameterize, Time.now.to_i.to_s].join('_')
-    File.join(dir, basename + '_' + Digest::MD5.hexdigest(basename).reverse + '.csv')
+    File.join(dir, self.csv_filename + '.zip')
   end
 
   def export_to_csv_in_background(user = nil)
@@ -85,9 +106,9 @@ module CheckCsvExport
     def export_to_csv(klass, id, email)
       obj = klass.constantize.find(id)
       obj.export_to_csv
-      AdminMailer.delay.send_download_link(obj, email) unless email.blank?
+      AdminMailer.delay.send_download_link(obj, email, obj.csv_password) unless email.blank?
       days = CONFIG['export_download_expiration_days'] || 7
-      klass.constantize.delay_for(days.to_i.days).remove_csv_file(obj.csv_filename)
+      klass.constantize.delay_for(days.to_i.days).remove_csv_file(obj.csv_filepath)
     end
 
     def remove_csv_file(filepath)
