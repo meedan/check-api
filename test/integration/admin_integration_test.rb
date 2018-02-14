@@ -163,8 +163,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     sign_in @user
 
     get "/admin/project/#{@project.id}/export_project"
-    assert_equal "text/csv", @response.headers['Content-Type']
-    assert_match(/attachment; filename=\"#{@project.team.slug}_#{@project.title.parameterize}_.*\.csv\"/, @response.headers['Content-Disposition'])
+    assert_equal "text/html; charset=utf-8", @response.headers['Content-Type']
     assert_response :success
   end
 
