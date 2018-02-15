@@ -1104,13 +1104,10 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should duplicate a team" do
-    team = create_team name: 'Team A'
-    File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
-      team.file = f
-    end
+    team = create_team name: 'Team A', logo: 'rails.png'
 
-    project1 = create_project team: team
-    project2 = create_project team: team
+    project1 = create_project team: team, title: 'Project 1'
+    project2 = create_project team: team, title: 'Project 2'
     value = [{
       label: "Task one",
       type: "free_text",
@@ -1126,12 +1123,24 @@ class TeamTest < ActiveSupport::TestCase
 
     create_contact team: team
 
+    source = create_source user: u1
+    source.team = team; source.save
+    create_project_source user: u1, team: team, project: project1, source: source
+
+    account = create_account user: u1, team: team, source: source
+    media = create_media account: account, user: u1, team: team
+    create_project_media user: u1, team: team, project: project1, media: media
+    account2 = create_account user: u1, team: team, source: source
+    media2 = create_media account: account2, user: u1, team: team
+    create_project_media user: u2, team: team, project: project1, media: media2
+
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 2, Project.where(team_id: copy.id).count
+    assert_equal 4, Project.where(team_id: copy.id).count
     assert_equal 2, TeamUser.where(team_id: copy.id).count
     assert_equal 1, Contact.where(team_id: copy.id).count
+    assert_equal 1, Source.where(team_id: copy.id).count
 
     # team attributes
     assert_equal "#{team.slug}-copy-1", copy.slug
@@ -1143,13 +1152,30 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal team.projects.map(&:title), copy.projects.map(&:title)
 
     # change projects ids on checklist
-    assert_equal copy.projects.map(&:id), copy.get_checklist.first[:projects]
+    copy_p1 = copy.projects.find_by_title('Project 1')
+    copy_p2 = copy.projects.find_by_title('Project 2')
+    assert_equal [copy_p1.id, copy_p2.id], copy.get_checklist.first[:projects]
 
     # team users
     assert_equal team.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }, copy.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }
 
     # contacts
     assert_equal team.contacts.map(&:web), copy.contacts.map(&:web)
+
+    # sources
+    assert_equal team.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }, copy.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }
+
+    # project sources update the source id
+    copy.projects.each do |project|
+      project.project_sources.each do |ps|
+      puts ps.inspect
+      puts Source.find(ps.source.id).inspect
+        assert copy.sources.include?(ps.source) if ps.source.team
+      end
+    end
+
+    # project medias
+    assert_equal project1.project_medias.map(&:media), copy_p1.project_medias.map(&:media)
 
   end
 end
