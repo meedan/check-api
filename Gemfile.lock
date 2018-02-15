@@ -129,6 +129,8 @@ GEM
     crass (1.0.3)
     daemons (1.2.4)
     debug_inspector (0.0.2)
+    deep_cloneable (2.3.1)
+      activerecord (>= 3.1.0, < 5.2.0)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     devise (4.2.1)
@@ -533,6 +535,7 @@ DEPENDENCIES
   codeclimate-test-reporter (= 1.0.8)
   coffee-rails (~> 4.1.0)
   concurrent-ruby
+  deep_cloneable (~> 2.3.0)
   devise
   devise-i18n
   elasticsearch (= 2.0.0)
