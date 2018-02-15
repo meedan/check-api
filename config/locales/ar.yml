@@ -227,3 +227,5 @@ ar:
   archive_pender_archive: "لقطات الشاشة من Keep"
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
+  project_export_email_title: "تقرير المشروع جاهز للتحميل"
+  project_export_download_mail: "مرحباً !\n\nلقد طلبت تقريراً عن المشروع %{project} - إليك الرابط لتحميله : %{link}\n\nسوف يتم تحميل التقرير على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"

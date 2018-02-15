@@ -211,3 +211,5 @@ fr:
   archive_pender_archive: "copies d'écran de Keep"
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
+  project_export_email_title: "Votre rapport de projet est prêt à télécharger"
+  project_export_download_mail: "Bonjour !\n\nVous avez demandé un rapport du projet %{project} - voici le lien pour le télécharger : %{link}\n\nLe rapport sera téléchargé sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"
