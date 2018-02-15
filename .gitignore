@@ -37,3 +37,5 @@ public/coverage/*
 coverage/*
 .sass-cache/
 *.css.map
+config/apollo-engine-proxy.json
+config/apollo-engine-proxy.json.local

@@ -11,7 +11,6 @@ module Api
       def create
         query_string = params[:query]
         context = { ability: @ability, file: request.params[:file] }
-        context[:optics_agent] = request.env[:optics_agent].with_document(query_string) unless CONFIG['optics_api_key'].blank?
         query_variables = ensure_hash(params[:variables]) || {}
         query_variables = {} if query_variables == 'null'
         begin
