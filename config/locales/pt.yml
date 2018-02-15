@@ -211,3 +211,5 @@ pt:
   archive_pender_archive: "capturas de tela com Keep"
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
+  project_export_email_title: "Seu relatório de projeto está pronto para baixar"
+  project_export_download_mail: "Olá!\n\nVocê solicitou um relatório para o projeto %{project} - aqui está um link para baixar-lo: %{link}\n\nO relatório será baixado como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"
