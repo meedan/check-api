@@ -7,7 +7,7 @@ class AdminMailer < ApplicationMailer
       Rails.logger.info "Sending e-mail to #{email} with download link #{link} related to project #{obj.title}"
       @project = obj.title
       @link = link
-      @days = CONFIG['export_download_expiration_days'].to_s
+      @days = CONFIG['export_download_expiration_days'] || 7
       @app = CONFIG['app_name']
       @password = password
       mail(to: email, subject: I18n.t(:project_export_email_title))
