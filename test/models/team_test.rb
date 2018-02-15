@@ -1129,13 +1129,19 @@ class TeamTest < ActiveSupport::TestCase
 
     account = create_account user: u1, team: team, source: source
     media = create_media account: account, user: u1, team: team
-    create_project_media user: u1, team: team, project: project1, media: media
+    pm1 = create_project_media user: u1, team: team, project: project1, media: media
     account2 = create_account user: u1, team: team, source: source
     media2 = create_media account: account2, user: u1, team: team
     create_project_media user: u2, team: team, project: project1, media: media2
 
+    create_comment annotated: pm1
+    create_tag annotated: pm1
+    create_flag annotated: pm1
+
     RequestStore.store[:disable_es_callbacks] = true
+    ProjectMedia.any_instance.stubs(:is_being_copied).returns(true)
     copy = Team.duplicate(team)
+    ProjectMedia.any_instance.unstub(:is_being_copied)
     RequestStore.store[:disable_es_callbacks] = false
     assert_equal 4, Project.where(team_id: copy.id).count
     assert_equal 2, TeamUser.where(team_id: copy.id).count
@@ -1168,14 +1174,13 @@ class TeamTest < ActiveSupport::TestCase
     # project sources update the source id
     copy.projects.each do |project|
       project.project_sources.each do |ps|
-      puts ps.inspect
-      puts Source.find(ps.source.id).inspect
         assert copy.sources.include?(ps.source) if ps.source.team
       end
     end
 
     # project medias
     assert_equal project1.project_medias.map(&:media), copy_p1.project_medias.map(&:media)
-
+    copy_pm1 = copy_p1.project_medias.first
+    assert_equal pm1.annotations.size, copy_pm1.annotations.size
   end
 end

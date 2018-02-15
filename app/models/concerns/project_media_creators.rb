@@ -4,6 +4,7 @@ module ProjectMediaCreators
   extend ActiveSupport::Concern
 
   def set_initial_media_status
+    return if self.is_being_copied
     st = Status.new
     st.annotated = self
     st.annotator = self.user
