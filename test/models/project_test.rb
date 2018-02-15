@@ -618,4 +618,13 @@ class ProjectTest < ActiveSupport::TestCase
       create_project team: t
     end
   end
+
+  test "should export project to CSV" do
+    Sidekiq::Testing.inline! do
+      p = create_project
+      assert_nothing_raised do
+        p.export_to_csv_in_background
+      end
+    end
+  end
 end
