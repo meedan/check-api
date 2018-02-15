@@ -87,7 +87,7 @@ module CheckCsvExport
   end
 
   def csv_filename
-    basename = [self.team.slug, self.title.parameterize, Time.now.to_i.to_s].join('_')
+    basename = [self.team.slug, self.title.parameterize, self.created_at.to_i.to_s].join('_')
     basename = basename + '_' + Digest::MD5.hexdigest(basename).reverse + '.csv'
     @basename ||= basename
   end
