@@ -1,7 +1,7 @@
 module CheckElasticSearch
 
   def update_media_search(keys, data = {}, parent = nil)
-    return if self.disable_es_callbacks
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = {keys: keys, data: data}
     options[:parent] = parent unless parent.nil?
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
@@ -18,7 +18,7 @@ module CheckElasticSearch
   end
 
   def add_update_media_search_child(child, keys, data = {}, parent = nil)
-    return if self.disable_es_callbacks
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = {keys: keys, data: data}
     options[:parent] = parent unless parent.nil?
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), child)
