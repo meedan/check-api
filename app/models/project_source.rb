@@ -10,7 +10,7 @@ class ProjectSource < ActiveRecord::Base
   include ProjectAssociation
   include Versioned
 
-  validates_presence_of :source_id, :project_id
+  validates_presence_of :source, :project
   validate :source_exists
   validates :source_id, uniqueness: { scope: :project_id }
   before_validation :set_account, on: :create
@@ -56,7 +56,7 @@ class ProjectSource < ActiveRecord::Base
   end
 
   def add_elasticsearch_account
-    return if self.disable_es_callbacks
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     parent = Base64.encode64("ProjectSource/#{self.id}")
     accounts = self.source.accounts
     accounts.each do |a|

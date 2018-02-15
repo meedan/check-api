@@ -10,7 +10,7 @@ class ProjectMedia < ActiveRecord::Base
   include NotifyEmbedSystem
   include ValidationsHelper
 
-  validates_presence_of :media_id, :project_id
+  validates_presence_of :media, :project
 
   validate :project_is_not_archived
 

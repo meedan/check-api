@@ -3,7 +3,7 @@ class TeamUser < ActiveRecord::Base
   belongs_to :team
   belongs_to :user
 
-  validates_presence_of :team_id, :user_id
+  validates_presence_of :team, :user
 
   validates :status, presence: true
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
