@@ -278,16 +278,17 @@ class Bot::Viber < ActiveRecord::Base
 
     def self.define_default_type(&block)
       GraphqlCrudOperations.define_default_type_original do
-        field :translation_statuses, types.String do
+        field :translation_statuses, JsonStringType do
           resolve -> (_obj, _args, _ctx) {
             fi = DynamicAnnotation::FieldInstance.where(name: 'translation_status_status').last
-            return '{}' if fi.nil?
+            return {} if fi.nil?
             statuses = []
             fi.settings[:statuses].each do |status|
               status[:label] = I18n.t("label_translation_status_#{status[:id]}".to_sym, default: status[:label])
+              status[:can_change] = true
               statuses << status
             end
-            { label: 'translation_status', default: 'pending', statuses: statuses }.to_json
+            { label: 'translation_status', default: 'pending', statuses: statuses }
           }
         end
 
