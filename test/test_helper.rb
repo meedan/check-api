@@ -124,7 +124,7 @@ class ActiveSupport::TestCase
     elsif operator == '<'
       assert queries.size < num, msg
     elsif operator == '<='
-      assert queries.size < num, msg
+      assert queries.size <= num, msg
     end
   end
 
