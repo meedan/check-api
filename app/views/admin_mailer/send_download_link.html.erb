@@ -4,6 +4,6 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-    <%= simple_format(I18n.t(:project_export_download_mail, project: @project, link: @link, days: @days, app: @app, password: @password)) %>
+    <%= simple_format(I18n.t("project_export_download_mail_#{@type}".to_sym, project: @project, link: @link, days: @days, app: @app, password: @password)) %>
   </body>
 </html>
