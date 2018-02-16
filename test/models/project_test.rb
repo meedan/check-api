@@ -654,4 +654,11 @@ class ProjectTest < ActiveSupport::TestCase
       assert_equal 2, p.export_images.values.reject{ |x| x.nil? }.size
     end
   end
+
+  test "should export images in background" do
+    p = create_project
+    n = Sidekiq::Extensions::DelayedClass.jobs.size
+    p.export_images_in_background
+    assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+  end
 end

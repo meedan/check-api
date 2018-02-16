@@ -262,4 +262,26 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     Team.any_instance.unstub(:save)
   end
 
+  test "should show link to export project images" do
+    @user.is_admin = true
+    @user.save!
+
+    sign_in @user
+
+    get "/admin/project/#{@project.id}/"
+
+    assert_select "a[href=?]",
+    "#{request.base_url}/admin/project/#{@project.id}/export_images"
+  end
+
+  test "should download exported images of a project" do
+    @user.is_admin = true
+    @user.save!
+
+    sign_in @user
+
+    get "/admin/project/#{@project.id}/export_images"
+    assert_equal "text/html; charset=utf-8", @response.headers['Content-Type']
+    assert_response :success
+  end
 end
