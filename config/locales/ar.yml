@@ -131,6 +131,8 @@ ar:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
       export_project:
         menu: تصدير معلومات المشروع
+      export_images:
+        menu: تصدير صور المشروع
       delete_tasks:
         done: تم حذف المهام
         are_you_sure_you_want_to_delete_the_tasks_from_team: هل أنت متأكد أنك تود حذف جميع المهام في هذا الفريق

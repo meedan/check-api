@@ -127,6 +127,8 @@ fr:
         menu: Envoyer les instructions pour réinitialiser le mot de passe
       export_project:
         menu: Exporter les données du projet
+      export_images:
+        menu: Exporter les images du projet
       delete_tasks:
         done: les tâches ont bien été effacées
         are_you_sure_you_want_to_delete_the_tasks_from_team: Voulez-vous vraiment effacer toutes les tâches de l'équipe

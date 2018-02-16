@@ -127,6 +127,8 @@ pt:
         menu: Enviar instruções para redefinir a senha
       export_project:
         menu: Exportar dados do projeto
+      export_images:
+        menu: Exportar imagens do projeto
       delete_tasks:
         done: tarefas removidas
         are_you_sure_you_want_to_delete_the_tasks_from_team: Tem certeza que deseja apagar todas as tarefas nesta equipe
