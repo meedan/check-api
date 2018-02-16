@@ -58,8 +58,7 @@ module CheckCsvExport
     )
   end
 
-  def export_to_csv
-    require 'zip'
+  def export_csv
     hashes = self.export
     headers = hashes.inject([]) {|res, h| res | h.keys}
     content = CSV.generate do |csv|
@@ -68,51 +67,88 @@ module CheckCsvExport
         csv << headers.map {|header| x[header] || ""}
       end
     end
-    self.csv_password = SecureRandom.hex
-    buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new(self.csv_password)) do |out|
-      out.put_next_entry(self.csv_filename)
-      out.write content
+    key = [self.team.slug, self.title.parameterize, Time.now.to_i.to_s].join('_') + '.csv'
+    { key => content }
+  end
+
+  def export_images
+    require 'open-uri'
+    output = {}
+    ProjectMedia.joins(:media).where('medias.type' => 'UploadedImage', 'project_id' => self.id).find_each do |pm|
+      path = pm.media.file.path
+      key = [self.team.slug, self.title.parameterize, pm.id].join('_') + File.extname(path)
+      output[key] = File.read(path)
+    end
+    ProjectMedia.joins(:media).where('medias.type' => 'Link', 'project_id' => self.id).find_each do |pm|
+      key = [self.team.slug, self.title.parameterize, pm.id, 'screenshot'].join('_') + '.png'
+      begin
+        screenshot_url = JSON.parse(pm.get_annotations('pender_archive').last.get_fields.select{ |f| f.field_name === 'pender_archive_response' }.last.value)['screenshot_url']
+        screenshot_url = screenshot_url.gsub(CONFIG['pender_url'], CONFIG['pender_url_private'])
+        output[key] = open(screenshot_url).read
+      rescue
+        screenshot_url = nil
+      end
+    end
+    output
+  end
+
+  def export_zip(type)
+    require 'zip'
+    contents = self.send("export_#{type}")
+    self.export_password = SecureRandom.hex
+    buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new(self.export_password)) do |out|
+      contents.each do |filename, content|
+        out.put_next_entry(filename)
+        out.write content
+      end
     end
     buffer.rewind
-    File.write(self.csv_filepath, buffer.read)
-    content
+    File.write(self.export_filepath(type), buffer.read)
   end
 
-  def csv_password
-    @csv_password
+  def export_password
+    @export_password
   end
 
-  def csv_password=(password)
-    @csv_password = password
+  def export_password=(password)
+    @export_password = password
   end
 
-  def csv_filename
-    basename = [self.team.slug, self.title.parameterize, self.created_at.to_i.to_s].join('_')
-    basename = basename + '_' + Digest::MD5.hexdigest(basename).reverse + '.csv'
+  def export_filename(type)
+    basename = [self.team.slug, self.title.parameterize, self.created_at.to_i.to_s, type].join('_')
+    basename = basename + '_' + Digest::MD5.hexdigest(basename).reverse
     @basename ||= basename
   end
 
-  def csv_filepath
+  def export_filepath(type)
     dir = File.join(Rails.root, 'public', 'project_export')
     Dir.mkdir(dir) unless File.exist?(dir)
-    File.join(dir, self.csv_filename + '.zip')
+    File.join(dir, self.export_filename(type) + '.zip')
   end
 
   def export_to_csv_in_background(user = nil)
+    self.export_project_in_background(:csv, user)
+  end
+
+  def export_images_in_background(user = nil)
+    self.export_project_in_background(:images, user)
+  end
+
+  def export_project_in_background(type, user = nil)
     email = user.nil? ? nil : user.email
-    self.class.delay_for(1.second).export_to_csv(self.class.name, self.id, email)
+    self.class.delay_for(1.second).export_project(type, self.class.name, self.id, email)
   end
 
   module ClassMethods
-    def export_to_csv(klass, id, email)
+    def export_project(type, klass, id, email)
       obj = klass.constantize.find(id)
-      obj.export_to_csv
-      AdminMailer.delay.send_download_link(obj, email, obj.csv_password) unless email.blank?
+      obj.export_zip(type)
+      AdminMailer.delay.send_download_link(type, obj, email, obj.export_password) unless email.blank?
       days = CONFIG['export_download_expiration_days'] || 7
-      klass.constantize.delay_for(days.to_i.days).remove_csv_file(obj.csv_filepath)
+      klass.constantize.delay_for(days.to_i.days).remove_export_file(obj.export_filepath(type))
     end
 
-    def remove_csv_file(filepath)
+    def remove_export_file(filepath)
       Rails.logger.info "File #{filepath} was removed"
       FileUtils.rm_f(filepath)
     end
