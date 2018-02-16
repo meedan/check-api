@@ -127,6 +127,8 @@ es:
         menu: Enviar instrucciones para restablecer la contraseña
       export_project:
         menu: Exportar datos del proyecto
+      export_images:
+        menu: Exportar imágenes del proyecto
       delete_tasks:
         done: eliminó las tareas
         are_you_sure_you_want_to_delete_the_tasks_from_team: ¿Seguro que quieres eliminar todas las tareas del equipo?
