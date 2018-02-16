@@ -960,7 +960,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     post :create, query: 'query { team { translation_statuses } }', team: t.slug
     assert_response :success
-    statuses = JSON.parse(JSON.parse(@response.body)['data']['team']['translation_statuses'])
+    statuses = JSON.parse(@response.body)['data']['team']['translation_statuses']
     assert_equal 'Pending', statuses['statuses'][0]['label']
   end
 
