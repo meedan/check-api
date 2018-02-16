@@ -1,4 +1,4 @@
-module CheckCsvExport
+module CheckExport
   def self.included(base)
     base.extend(ClassMethods)
   end
@@ -82,11 +82,10 @@ module CheckCsvExport
     ProjectMedia.joins(:media).where('medias.type' => 'Link', 'project_id' => self.id).find_each do |pm|
       key = [self.team.slug, self.title.parameterize, pm.id, 'screenshot'].join('_') + '.png'
       begin
-        screenshot_url = JSON.parse(pm.get_annotations('pender_archive').last.get_fields.select{ |f| f.field_name === 'pender_archive_response' }.last.value)['screenshot_url']
-        screenshot_url = screenshot_url.gsub(CONFIG['pender_url'], CONFIG['pender_url_private'])
+        screenshot_url = JSON.parse(pm.get_annotations('pender_archive').last.get_fields.select{ |f| f.field_name == 'pender_archive_response' }.last.value)['screenshot_url'].gsub(CONFIG['pender_url'], CONFIG['pender_url_private'])
         output[key] = open(screenshot_url).read
       rescue
-        screenshot_url = nil
+        output[key] = nil
       end
     end
     output
@@ -98,6 +97,7 @@ module CheckCsvExport
     self.export_password = SecureRandom.hex
     buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new(self.export_password)) do |out|
       contents.each do |filename, content|
+        next if content.nil?
         out.put_next_entry(filename)
         out.write content
       end

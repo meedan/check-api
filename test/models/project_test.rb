@@ -346,10 +346,10 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 'my-team - my-project', p.admin_label
   end
 
-  test "should have a csv_filename without spaces" do
+  test "should have a filename without spaces" do
     t = create_team name: 'Team t'
     p = create_project team: t, title: 'Project p'
-    assert_match(/team-t_project-p_.*/, p.csv_filename)
+    assert_match(/team-t_project-p_.*/, p.export_filename(:csv))
   end
 
   test "should export data" do
@@ -404,7 +404,7 @@ class ProjectTest < ActiveSupport::TestCase
     tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
     task = create_task annotator: create_user, annotated: pm
     tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
-    exported_data = p.export_to_csv
+    exported_data = p.export_csv.values.first
     header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,time_delta_to_first_status,time_delta_to_last_status,time_original_media_publishing,type,contributing_users,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_question_1,task_user_1,task_date_1,task_answer_1,task_note_1,translation_text_1,translation_language_1,translation_note_1"
     assert_match(header, exported_data)
   end
@@ -625,6 +625,33 @@ class ProjectTest < ActiveSupport::TestCase
       assert_nothing_raised do
         p.export_to_csv_in_background
       end
+    end
+  end
+
+  test "should export project images" do
+    stub_configs({ 'pender_url' => 'http://pender', 'pender_url_private' => 'http://pender-private' }) do
+      WebMock.stub_request(:get, 'http://pender-private/images/test.png').to_return(body: 'foo')
+      ft = create_field_type field_type: 'image_path', label: 'Image Path'
+      at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+      create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+      create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+      t = create_team
+      t.archive_pender_archive_enabled = 1
+      t.set_limits_keep_screenshot = true
+      t.save!
+      p = create_project team: t
+      c = create_claim_media
+      pm1 = create_project_media media: c, project: p
+      i = create_uploaded_image
+      pm2 = create_project_media media: i, project: p
+      l1 = create_link
+      pm3 = create_project_media media: l1, project: p
+      f = DynamicAnnotation::Field.last
+      f.value = { screenshot_url: 'http://pender/images/test.png' }.to_json
+      f.save!
+      l2 = create_link
+      pm4 = create_project_media media: l2, project: p
+      assert_equal 2, p.export_images.values.reject{ |x| x.nil? }.size
     end
   end
 end
