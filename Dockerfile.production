@@ -17,8 +17,8 @@ ENV DEPLOYUSER=checkdeploy \
 # DEPENDENCIES
 #
 
-# nodejs7 repo
-RUN curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+# imagemagick
+RUN apt-get update && apt-get install -y --no-install-recommends imagemagick
 
 #
 # SYSTEM CONFIG
