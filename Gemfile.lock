@@ -12,14 +12,6 @@ GIT
     alegre_client (0.0.9)
 
 GIT
-  remote: https://github.com/meedan/chromeshot
-  revision: 030b8d867a515cfda8757282c966fc2b4dd24b49
-  ref: 030b8d8
-  specs:
-    chromeshot (0.0.0)
-      mini_magick
-
-GIT
   remote: https://github.com/meedan/graphiql-rails.git
   revision: 8db0eacf56006c11f46ded70bf3da47c7854cea5
   ref: 8db0eac
@@ -514,7 +506,6 @@ DEPENDENCIES
   byebug
   cancancan (~> 1.10)
   carrierwave (~> 0.9)
-  chromeshot!
   clamav-client
   codeclimate-test-reporter (= 1.0.8)
   coffee-rails (~> 4.1.0)

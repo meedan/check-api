@@ -1,23 +1,10 @@
 class Bot::Viber < ActiveRecord::Base
   attr_accessor :token
+  
+  include ViberBotScreenshot
 
   def self.default
     Bot::Viber.where(name: 'Viber Bot').last
-  end
-
-  def text_to_image(m)
-    av = ActionView::Base.new(Rails.root.join('app', 'views'))
-    av.assign(m)
-    content = av.render(template: 'viber/screenshot.html.erb', layout: nil)
-    filename = 'screenshot-' + Digest::MD5.hexdigest(m.inspect)
-    html_path = File.join(Rails.root, 'public', 'viber', filename + '.html')
-    File.atomic_write(html_path) { |file| file.write(content) }
-
-    fetcher = Chromeshot::Screenshot.new debug_port: CONFIG['chrome_debug_port']
-    fetcher.take_screenshot!(url: CONFIG['checkdesk_base_url_private'] + '/viber/' + filename + '.html', output: File.join(Rails.root, 'public', 'viber', filename + '.jpg'))
-
-    FileUtils.rm_f html_path
-    filename
   end
 
   def send_message(body)
