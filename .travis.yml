@@ -13,16 +13,12 @@ before_install:
   && sudo dpkg -i --force-confnew elasticsearch-2.4.1.deb && sudo service elasticsearch
   restart
 - redis-server &
-- export NODE_PATH=$PWD/node_modules:$NODE_PATH
-- curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash - && sudo apt-get install -y nodejs && npm install chrome-remote-interface minimist
-- LC_ALL=C google-chrome --headless --hide-scrollbars --remote-debugging-port=9333 --disable-gpu --no-sandbox --ignore-certificate-errors &
 cache:
   directories:
   - "/tmp/bundler"
   - tmp
 addons:
   postgresql: '9.4'
-  chrome: stable
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
 - sleep 15
