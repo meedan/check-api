@@ -8,7 +8,7 @@ before_install:
 - unzip travis.zip
 - sudo rm /etc/apt/sources.list.d/mongodb*
 - sudo apt-get -qq update
-- sudo apt-get install wget openjdk-7-jre redis-server
+- sudo apt-get install wget openjdk-7-jre redis-server imagemagick
 - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.4.1.deb
   && sudo dpkg -i --force-confnew elasticsearch-2.4.1.deb && sudo service elasticsearch
   restart
