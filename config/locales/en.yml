@@ -38,6 +38,22 @@ en:
       sockpuppet:
         label: Sockpuppet
         description: 'Conclusion: the source is a sockpuppet'
+    translation:
+      pending:
+        label: Pending
+        description: Default, just added to Bridge, no work has started
+      in_progress:
+        label: In Progress
+        description: Work has begun, but no translation made yet
+      translated:
+        label: Translated
+        description: Translation is done, waiting for review
+      ready:
+        label: Ready
+        description: Translation has been reviewed and approved for publishing
+      error:
+        label: Error
+        description: Translation has been reviewed and an error was found
   errors:
     messages:
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
@@ -152,6 +168,8 @@ en:
         menu: Send reset password instructions
       export_project:
         menu: Export project data
+      export_images:
+        menu: Export project images
       delete_tasks:
         done: deleted the tasks
         are_you_sure_you_want_to_delete_the_tasks_from_team: Are you sure you want to delete all tasks in team
@@ -248,3 +266,37 @@ en:
   archive_pender_archive: "Keep screenshots"
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
+  project_export_email_title_csv: "Your project report is ready to be downloaded"
+  project_export_download_mail_csv: "Hello!
+
+
+    You've requested a report for %{project} - here's a link to download it: %{link}
+
+
+    The report will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
+
+
+    Please note that this link will expire in %{days} days.
+
+
+    Cheers,
+
+
+    %{app} team"
+  project_export_email_title_images: "Your project images are ready to be downloaded"
+  project_export_download_mail_images: "Hello!
+
+
+    You've requested a download of %{project} images - here's a link to download it: %{link}
+
+
+    The images will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
+
+
+    Please note that this link will expire in %{days} days.
+
+
+    Cheers,
+
+
+    %{app} team"

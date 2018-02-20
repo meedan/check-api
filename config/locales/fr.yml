@@ -37,6 +37,22 @@ fr:
       sockpuppet:
         label: Faux-nez
         description: 'Conclusion : la source est un faux-nez (anglais : sock puppet)'
+    translation:
+      pending:
+        label: En attente
+        description: 'Par défault : récemment ajouté, le travail n''a pas commencé'
+      in_progress:
+        label: En cours
+        description: Le travail a commencé, mais pas encore de traduction faite
+      translated:
+        label: Traduit
+        description: Traduction terminée, en attente de révision
+      ready:
+        label: Approuvé
+        description: Traduction revue et approuvée pour la publication
+      error:
+        label: Erreur
+        description: Traduction revue avec des erreurs signalées
   errors:
     messages:
       extension_white_list_error: 'est d''un type %{extension} qui est interdit, seuls sont acceptés %{allowed_types}'
@@ -127,6 +143,8 @@ fr:
         menu: Envoyer les instructions pour réinitialiser le mot de passe
       export_project:
         menu: Exporter les données du projet
+      export_images:
+        menu: Exporter les images du projet
       delete_tasks:
         done: les tâches ont bien été effacées
         are_you_sure_you_want_to_delete_the_tasks_from_team: Voulez-vous vraiment effacer toutes les tâches de l'équipe
@@ -211,3 +229,7 @@ fr:
   archive_pender_archive: "copies d'écran de Keep"
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
+  project_export_email_title_csv: "Votre rapport de projet est prêt à télécharger"
+  project_export_download_mail_csv: "Bonjour !\n\nVous avez demandé un rapport du projet %{project} - voici le lien pour le télécharger : %{link}\n\nLe rapport sera téléchargé sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"
+  project_export_email_title_images: "Les images de votre projet sont prêtes à télécharger"
+  project_export_download_mail_images: "Bonjour !\n\nVous avez demandé à télécharger les images du projet %{project} - voici le lien : %{link}\n\nLes images seront téléchargées sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"

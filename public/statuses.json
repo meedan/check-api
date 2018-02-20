@@ -4,14 +4,14 @@
   "properties": {
     "label": {
       "title": "Label",
-      "description": "What will you call this label? For example, 'status' or 'stage' or 'label'.",
+      "description": "What will you call this status? For example: 'Verification Status', 'Fact-Checking State'.",
       "default": "Status",
       "type": "string"
     },
     "default": {
       "title": "Default value",
       "type": "string",
-      "description": "What's the default for newly added media? It should match an 'identifier' in the list below."
+      "description": "What's the default status for newly added media? It should match an 'identifier' in the list below."
     },
     "active": {
       "title": "Active value",

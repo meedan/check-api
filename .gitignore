@@ -39,3 +39,4 @@ coverage/*
 *.css.map
 config/apollo-engine-proxy.json
 config/apollo-engine-proxy.json.local
+public/project_export
