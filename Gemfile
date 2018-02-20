@@ -12,7 +12,7 @@ group :development do
 end
 
 # Use pender from git
-gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '88df056'
+gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: 'e8eca00'
 
 gem 'logstash-logger'
 gem 'rails', '4.2.7.1'
@@ -74,7 +74,7 @@ gem 'transifex-interface-ruby', git: 'https://github.com/meedan/transifex-interf
 gem 'http_accept_language', git: 'https://github.com/iain/http_accept_language.git'
 gem 'i18n-generators'
 gem 'rails-i18n', git: 'https://github.com/svenfuchs/rails-i18n.git', branch: 'rails-4-x', ref: 'f8c83ec'
-gem 'alegre_client', git: 'https://github.com/meedan/alegre-client.git', ref: '31f8ab5'
+gem 'alegre_client', git: 'https://github.com/meedan/alegre-client.git', ref: 'd97ec6a'
 gem 'devise-i18n'
 gem 'ruby-cldr'
 gem 'twitter'
