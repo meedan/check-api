@@ -118,11 +118,13 @@ class ActiveSupport::TestCase
     ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &block)
   ensure
     ActiveRecord::Base.connection.disable_query_cache! unless old
-    msg = "#{queries.size} instead of #{num} queries were executed.#{queries.size == 0 ? '' : "\nQueries:\n#{queries.join("\n")}"}"
+    msg = "#{queries.size} expected to be #{operator} #{num}.#{queries.size == 0 ? '' : "\nQueries:\n#{queries.join("\n")}"}"
     if operator == '='
       assert_equal num, queries.size, msg
     elsif operator == '<'
       assert queries.size < num, msg
+    elsif operator == '<='
+      assert queries.size <= num, msg
     end
   end
 

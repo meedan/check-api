@@ -31,7 +31,7 @@ class Project < ActiveRecord::Base
 
   check_settings
 
-  include CheckCsvExport
+  include CheckExport
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)

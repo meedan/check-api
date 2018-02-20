@@ -967,7 +967,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     post :create, query: 'query { team { translation_statuses } }', team: t.slug
     assert_response :success
-    statuses = JSON.parse(JSON.parse(@response.body)['data']['team']['translation_statuses'])
+    statuses = JSON.parse(@response.body)['data']['team']['translation_statuses']
     assert_equal 'Pending', statuses['statuses'][0]['label']
   end
 
@@ -1053,7 +1053,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     # Make sure we only run queries for the 20 first items
     # 13 * 29 + 24
-    assert_queries 344, '<' do
+    assert_queries 344, '<=' do
       post :create, query: query, team: 'team'
     end
 

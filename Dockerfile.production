@@ -17,18 +17,8 @@ ENV DEPLOYUSER=checkdeploy \
 # DEPENDENCIES
 #
 
-# nodejs7 repo
-RUN curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
-# chrome repo
-RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
-
-# install stuff needed to take screenshots
-RUN npm install chrome-remote-interface minimist
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    imagemagick \
-    nodejs \
-    google-chrome-stable
+# imagemagick
+RUN apt-get update && apt-get install -y --no-install-recommends imagemagick
 
 #
 # SYSTEM CONFIG

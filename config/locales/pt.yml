@@ -37,6 +37,22 @@ pt:
       sockpuppet:
         label: Fake
         description: 'Conclusão: a fonte da informação é um fake'
+    translation:
+      pending:
+        label: Pendente
+        description: Padrão, recém adicionado ao Bridge, o trabalho ainda não foi iniciado
+      in_progress:
+        label: Em andamento
+        description: O trabalho começou, mas nenhuma tradução foi feita ainda
+      translated:
+        label: Traduzido
+        description: A tradução está feita, esperando por revisão
+      ready:
+        label: Pronto
+        description: A tradução foi revisada e aprovada para publicação
+      error:
+        label: Errado
+        description: A tradução foi revisada e erros foram encontrados
   errors:
     messages:
       extension_white_list_error: 'Não pode ter o tipo %{extension}, tipos permitidos: %{allowed_types}'
@@ -127,6 +143,8 @@ pt:
         menu: Enviar instruções para redefinir a senha
       export_project:
         menu: Exportar dados do projeto
+      export_images:
+        menu: Exportar imagens do projeto
       delete_tasks:
         done: tarefas removidas
         are_you_sure_you_want_to_delete_the_tasks_from_team: Tem certeza que deseja apagar todas as tarefas nesta equipe
@@ -211,3 +229,7 @@ pt:
   archive_pender_archive: "capturas de tela com Keep"
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
+  project_export_email_title_csv: "Seu relatório de projeto está pronto para baixar"
+  project_export_download_mail_csv: "Olá!\n\nVocê solicitou um relatório para o projeto %{project} - aqui está um link para baixar-lo: %{link}\n\nO relatório será baixado como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"
+  project_export_email_title_images: "Imagens do seu projeto estão prontas para baixar"
+  project_export_download_mail_images: "Olá!\n\nVocê solicitou um download de imagens do projeto %{project} - aqui está um link para baixar-las: %{link}\n\nAs imagens serão baixadas como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"

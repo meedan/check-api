@@ -510,9 +510,20 @@ class Bot::ViberTest < ActiveSupport::TestCase
   end
 
   test "should generate screenshot" do
-    Object.any_instance.stubs(:system).times(2)
-    @bot.text_to_image({ source_language: 'English', target_language: 'Portuguese', source_text: 'Test', target_text: 'Teste', language_code: 'en' })
-    Object.any_instance.unstub(:system)
+    m = { source_language: 'English', target_language: 'Portuguese', source_text: 'Test', target_text: 'Teste', language_code: 'en' }
+    filename = 'screenshot-' + Digest::MD5.hexdigest(m.inspect)
+    output = File.join(Rails.root, 'public', 'viber', filename + '.jpg')
+    url = CONFIG['checkdesk_base_url'] + '/viber/' + filename + '.html'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response1 = '{"type":"media","data":{"url":"' + url + '","type":"item","screenshot_taken":0,"screenshot":"http://ca.ios.ba/files/meedan/pender-viber-test.png"}}'
+    response2 = '{"type":"media","data":{"url":"' + url + '","type":"item","screenshot_taken":1,"screenshot":"http://ca.ios.ba/files/meedan/pender-viber-test.png"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return({ body: response1 }, { body: response2 })
+
+    assert !File.exist?(output)
+    @bot.text_to_image(m)
+    assert File.exist?(output)
+
+    FileUtils.rm_f output
   end
 
   test "should convert message to text" do
