@@ -37,6 +37,22 @@ ar:
       sockpuppet:
         label: هوية مزيفة
         description: 'النتيجة: هذا مصدر ذو هوية مزيفة على الانترنت'
+    translation:
+      pending:
+        label: مُعَلَّق
+        description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
+      in_progress:
+        label: جارٍ
+        description: بدأ العمل على العنصر ولم تتم الترجمة بعد
+      translated:
+        label: مُتَرجَم
+        description: تمت الترجمة ولم تبدأ المراجعة بعد
+      ready:
+        label: جاهز
+        description: تمت المراجعة والعنصر جاهز للنشر
+      error:
+        label: خاطئ
+        description: تمت المراجعة وهناك أخطاء يجب تصحيحها
   errors:
     messages:
       extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات المسموحة هي: %{allowed_types}'

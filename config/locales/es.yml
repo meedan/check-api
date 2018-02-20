@@ -37,6 +37,22 @@ es:
       sockpuppet:
         label: Farsante
         description: 'Conclusión: la fuente es un farsante  '
+    translation:
+      pending:
+        label: Pendiente
+        description: 'Predeterminado por Bridge, no se ha iniciado ningún trabajo. '
+      in_progress:
+        label: En progreso
+        description: El trabajo ha comenzado, pero aún no se realizó ninguna traducción
+      translated:
+        label: Traducido
+        description: La traducción está lista, esperando la revisión
+      ready:
+        label: Listo
+        description: La traducción fue revisada y aprobada para su publicación
+      error:
+        label: Incorrecto
+        description: La traducción fue revisada y se encontraron errores
   errors:
     messages:
       extension_white_list_error: 'no puede tener tipo  %{extension}, tipos permitidos: %{allowed_types}'
