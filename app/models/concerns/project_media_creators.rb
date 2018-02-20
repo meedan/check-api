@@ -44,6 +44,7 @@ module ProjectMediaCreators
   end
 
   def create_auto_tasks
+    return if self.is_being_copied
     self.set_tasks_responses ||= {}
     tasks = self.project.nil? ? [] : self.project.auto_tasks
     created = []

@@ -1134,6 +1134,9 @@ class TeamTest < ActiveSupport::TestCase
     media2 = create_media account: account2, user: u1, team: team
     create_project_media user: u2, team: team, project: project1, media: media2
 
+    team.add_auto_task = { label: 'Task 2', type: 'free_text', description: '', projects: [], options: '[]' }
+    team.save
+
     create_comment annotated: pm1
     create_tag annotated: pm1
     create_flag annotated: pm1
@@ -1181,6 +1184,8 @@ class TeamTest < ActiveSupport::TestCase
     # project medias
     assert_equal project1.project_medias.map(&:media), copy_p1.project_medias.map(&:media)
     copy_pm1 = copy_p1.project_medias.first
+
+    assert_equal pm1.get_annotations('task').size, copy_pm1.get_annotations('task').size
     assert_equal pm1.annotations.size, copy_pm1.annotations.size
   end
 end
