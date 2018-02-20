@@ -37,6 +37,22 @@ fr:
       sockpuppet:
         label: Faux-nez
         description: 'Conclusion : la source est un faux-nez (anglais : sock puppet)'
+    translation:
+      pending:
+        label: En attente
+        description: 'Par défault : récemment ajouté, le travail n''a pas commencé'
+      in_progress:
+        label: En cours
+        description: Le travail a commencé, mais pas encore de traduction faite
+      translated:
+        label: Traduit
+        description: Traduction terminée, en attente de révision
+      ready:
+        label: Approuvé
+        description: Traduction revue et approuvée pour la publication
+      error:
+        label: Erreur
+        description: Traduction revue avec des erreurs signalées
   errors:
     messages:
       extension_white_list_error: 'est d''un type %{extension} qui est interdit, seuls sont acceptés %{allowed_types}'

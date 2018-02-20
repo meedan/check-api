@@ -37,6 +37,22 @@ pt:
       sockpuppet:
         label: Fake
         description: 'Conclusão: a fonte da informação é um fake'
+    translation:
+      pending:
+        label: Pendente
+        description: Padrão, recém adicionado ao Bridge, o trabalho ainda não foi iniciado
+      in_progress:
+        label: Em andamento
+        description: O trabalho começou, mas nenhuma tradução foi feita ainda
+      translated:
+        label: Traduzido
+        description: A tradução está feita, esperando por revisão
+      ready:
+        label: Pronto
+        description: A tradução foi revisada e aprovada para publicação
+      error:
+        label: Errado
+        description: A tradução foi revisada e erros foram encontrados
   errors:
     messages:
       extension_white_list_error: 'Não pode ter o tipo %{extension}, tipos permitidos: %{allowed_types}'
