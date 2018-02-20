@@ -38,6 +38,22 @@ en:
       sockpuppet:
         label: Sockpuppet
         description: 'Conclusion: the source is a sockpuppet'
+    translation:
+      pending:
+        label: Pending
+        description: Default, just added to Bridge, no work has started
+      in_progress:
+        label: In Progress
+        description: Work has begun, but no translation made yet
+      translated:
+        label: Translated
+        description: Translation is done, waiting for review
+      ready:
+        label: Ready
+        description: Translation has been reviewed and approved for publishing
+      error:
+        label: Error
+        description: Translation has been reviewed and an error was found
   errors:
     messages:
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
