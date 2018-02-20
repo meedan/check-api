@@ -7,19 +7,19 @@ module TeamDuplication
     attr_accessor :project_mapping, :source_mapping, :project_source_mapping, :project_media_mapping
 
     def self.duplicate(t)
-      team = t.deep_clone include: [ { projects: [ :project_sources, :project_medias ] }, :team_users, :contacts, :sources ] do |original, copy|
+      team = t.deep_clone include: [ { projects: [ :project_sources, { project_medias: :versions } ] }, :team_users, :contacts, :sources ] do |original, copy|
         if copy.is_a? Team
-          copy.logo = original.logo
+          File.open(original.logo.path) { |f| copy.logo = f }
           copy.generate_slug
         end
         if copy.is_a? Project
-          copy.lead_image = original.lead_image
+          File.open(original.lead_image.path) { |f| copy.lead_image = f } if original.lead_image.path
           copy.token = nil
           @project_mapping ||= {}
           @project_mapping[original.id] = copy
         end
         if copy.is_a? Source
-          copy.file = original.file
+          File.open(original.file.path) { |f| copy.file = f } if original.file.path
           @source_mapping ||= {}
           @source_mapping[original.id] = copy
         end
@@ -74,22 +74,21 @@ module TeamDuplication
   end
 
   def copy_project_media_annotations(mapping)
-    copy_annotations(:project_media, mapping)
+    copy_annotations(ProjectMedia, mapping)
   end
 
   def copy_project_source_annotations(mapping)
-    copy_annotations(:project_source, mapping)
+    copy_annotations(ProjectSource, mapping)
   end
 
   def copy_source_annotations(mapping)
-    copy_annotations(:source, mapping)
+    copy_annotations(Source, mapping)
   end
 
   def copy_annotations(type, mapping)
     mapping.each_pair do |original, copy|
-      type.to_s.capitalize.camelize.constantize.find(original).annotations.find_each do |a|
-        next unless %w[comment dynamic embed flag geolocation status tag task].include?(a.annotation_type)
-        a = a.annotation_type.classify.constantize.find(a.id)
+      type.find(original).annotations.find_each do |a|
+        a = a.annotation_type_class.find(a.id)
         annotation = a.dup
         annotation.annotated = copy
         annotation.save

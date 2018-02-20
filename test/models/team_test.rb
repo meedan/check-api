@@ -1111,7 +1111,7 @@ class TeamTest < ActiveSupport::TestCase
     value = [{
       label: "Task one",
       type: "free_text",
-      description: "It is a single choice task",
+      description: "It is a single free text task",
       projects: [project1.id, project2.id]
     }]
     team.checklist = value; team.save!
@@ -1140,6 +1140,15 @@ class TeamTest < ActiveSupport::TestCase
     create_comment annotated: pm1
     create_tag annotated: pm1
     create_flag annotated: pm1
+
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+
+    task = create_task annotated: pm1, annotator: u1
+    task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
 
     RequestStore.store[:disable_es_callbacks] = true
     ProjectMedia.any_instance.stubs(:is_being_copied).returns(true)
