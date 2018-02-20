@@ -69,9 +69,9 @@ USER ${DEPLOYUSER}
 
 # link config files
 RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}/latest
-# link to uploads
-RUN mkdir -p ${DEPLOYDIR}/shared/files/uploads \
-    && ln -s ${DEPLOYDIR}/shared/files/uploads ${DEPLOYDIR}/latest/public/uploads
+# persist these directories
+RUN for d in uploads project_export; do mkdir -p ${DEPLOYDIR}/shared/files/${d} \
+    && ln -s ${DEPLOYDIR}/shared/files/${d} ${DEPLOYDIR}/latest/public/${d}; done
 
 RUN ln -s ./latest ./${APP}-$(date -I) && ln -s ./${APP}-$(date -I) ./current
 
