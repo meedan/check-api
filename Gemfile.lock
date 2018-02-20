@@ -6,10 +6,10 @@ GIT
 
 GIT
   remote: https://github.com/meedan/alegre-client.git
-  revision: 31f8ab5a36958f9e3338aa436cd2d9409d59fd72
-  ref: 31f8ab5
+  revision: d97ec6a675bf9edde72e36207a370148eecd5575
+  ref: d97ec6a
   specs:
-    alegre_client (0.0.9)
+    alegre_client (0.0.10)
 
 GIT
   remote: https://github.com/meedan/graphiql-rails.git
@@ -21,10 +21,10 @@ GIT
 
 GIT
   remote: https://github.com/meedan/pender-client.git
-  revision: 88df0561b64b96bb7f8887b518249850c90a1e14
-  ref: 88df056
+  revision: e8eca00fdc5706bda0510be679a921fecf4f6a4d
+  ref: e8eca00
   specs:
-    pender_client (0.0.2)
+    pender_client (0.0.3)
 
 GIT
   remote: https://github.com/meedan/transifex-interface-ruby.git
