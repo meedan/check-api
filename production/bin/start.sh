@@ -4,7 +4,6 @@
 # the Dockerfile CMD
 
 LOGFILE=${DEPLOYDIR}/current/log/${RAILS_ENV}.log
-UPLOADS=${DEPLOYDIR}/shared/files/uploads
 
 function config_replace() {
     # sed -i "s/ddRAILS_ENVdd/${RAILS_ENV}/g" /etc/nginx/sites-available/${APP}
@@ -34,10 +33,19 @@ touch ${LOGFILE}
 chown ${DEPLOYUSER}:www-data ${LOGFILE}
 chmod 775 ${LOGFILE}
 
-echo "setting permissions for ${UPLOADS}"
-chown -R ${DEPLOYUSER}:www-data ${UPLOADS}
-find ${UPLOADS} -type d -exec chmod 2777 {} \; # set the sticky bit on directories to preserve permissions
-find ${UPLOADS} -type f -exec chmod 0664 {} \; # files are 664
+echo PERSIST_DIRS $PERSIST_DIRS
+for d in ${PERSIST_DIRS}; do
+    d=${DEPLOYDIR}/shared/files/${d}
+    if [ ! -e "${d}" ]; then
+        echo "creating directory ${d}"
+        mkdir -p ${d}
+    fi
+
+    echo "setting permissions for ${d}"
+    chown -R ${DEPLOYUSER}:www-data ${d}
+    find ${d} -type d -exec chmod 2777 {} \; # set the sticky bit on directories to preserve permissions
+    find ${d} -type f -exec chmod 0664 {} \; # files are 664
+done
 
 
 # should only run migrations on ${PRIMARY} nodes, perhaps in an out-of-band process during major multi-node deployments
