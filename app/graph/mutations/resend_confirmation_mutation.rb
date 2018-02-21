@@ -8,7 +8,7 @@ ResendConfirmationMutation = GraphQL::Relay::Mutation.define do
   resolve -> (_root, inputs, _ctx) {
     user = User.where(id: inputs[:id]).last
     if user.nil?
-      raise ActiveRecord::RecordNotFound, I18n.t(:email_not_found, default: 'E-mail not found')
+      raise ActiveRecord::RecordNotFound
     else
       user.skip_check_ability = true
       user.send_confirmation_instructions
