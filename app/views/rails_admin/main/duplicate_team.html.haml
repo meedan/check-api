@@ -1,0 +1,16 @@
+%h4
+  = t("admin.actions.duplicate_team.are_you_sure_you_want_to_copy_team", model_name: @abstract_model.pretty_name.downcase)
+  &ldquo;
+  %strong>= @model_config.with(object: @object).object_label
+  \&rdquo;
+  %span>
+  = t("admin.actions.duplicate_team.all_the_related_data_will_be_copied")
+
+= form_for(@object, url: "/admin/team/#{@object.id}/duplicate_team", html: {method: "put"}) do
+  .form-actions
+    %button.btn.btn-danger{type: "submit", :'data-disable-with' => "admin.form.confirmation"}
+      %i.icon-white.icon-ok
+      = t("admin.form.confirmation")
+    %button.btn{type: "submit", name: "_continue", :'data-disable-with' => "admin.form.cancel"}
+      %i.icon-remove
+      = t("admin.form.cancel")
