@@ -34,7 +34,7 @@ chown ${DEPLOYUSER}:www-data ${LOGFILE}
 chmod 775 ${LOGFILE}
 
 echo PERSIST_DIRS $PERSIST_DIRS
-for d in "${PERSIST_DIRS}"; do
+for d in ${PERSIST_DIRS}; do
     d=${DEPLOYDIR}/shared/files/${d}
     if [ ! -e "${d}" ]; then
         echo "creating directory ${d}"
