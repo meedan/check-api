@@ -1191,7 +1191,7 @@ class TeamTest < ActiveSupport::TestCase
     end
 
     # project medias
-    assert_equal project1.project_medias.map(&:media), copy_p1.project_medias.map(&:media)
+    assert_equal project1.project_medias.map(&:media).sort, copy_p1.project_medias.map(&:media).sort
     copy_pm1 = copy_p1.project_medias.first
 
     assert_equal pm1.get_annotations('task').size, copy_pm1.get_annotations('task').size
