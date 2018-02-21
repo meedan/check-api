@@ -875,7 +875,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should resend confirmation if email is found" do
     u = create_user email: 'foo@bar.com', provider: ''
-    query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
+    query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: \"#{u.id}\" }) { success } }"
     post :create, query: query, team: @team.slug
     assert_response :success
   end
