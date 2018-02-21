@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
-  before_create :skip_confirmation
+  before_create :skip_confirmation_for_non_email_provider
   after_create :set_image, :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
 
@@ -285,7 +285,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def skip_confirmation
+  def skip_confirmation_for_non_email_provider
     self.skip_confirmation! if !self.provider.blank? && self.skip_confirmation_mail.nil?
   end
 
