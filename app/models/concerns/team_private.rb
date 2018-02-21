@@ -6,6 +6,7 @@ module TeamPrivate
   private
 
   def add_user_to_team
+    return if self.is_being_copied
     user = User.current
     unless user.nil?
       tu = TeamUser.new

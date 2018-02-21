@@ -32,6 +32,7 @@ module TeamDuplication
           @project_media_mapping[original.id] = copy
         end
       end
+      team.is_being_copied = true
       team.save!
 
       team.update_team_checklist(@project_mapping)

@@ -8,7 +8,7 @@ class Team < ActiveRecord::Base
   include TeamPrivate
   include TeamDuplication
 
-  attr_accessor :affected_ids
+  attr_accessor :affected_ids, :is_being_copied
 
   mount_uploader :logo, ImageUploader
 
