@@ -1151,9 +1151,7 @@ class TeamTest < ActiveSupport::TestCase
     task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
 
     RequestStore.store[:disable_es_callbacks] = true
-    ProjectMedia.any_instance.stubs(:is_being_copied).returns(true)
     copy = Team.duplicate(team)
-    ProjectMedia.any_instance.unstub(:is_being_copied)
     RequestStore.store[:disable_es_callbacks] = false
     assert_equal 4, Project.where(team_id: copy.id).count
     assert_equal 2, TeamUser.where(team_id: copy.id).count
