@@ -27,6 +27,7 @@ module TeamDuplication
           team
         end
       rescue StandardError => e
+        Airbrake.notify(e) if Airbrake.configuration.api_key
         Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message}"
         nil
       end
