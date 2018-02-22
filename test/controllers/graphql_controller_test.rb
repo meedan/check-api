@@ -873,11 +873,17 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
-  test "should resend confirmation if user found" do
+  test "should resend confirmation" do
     u = create_user provider: ''
+    # Query with valid id
     query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
     post :create, query: query, team: @team.slug
     assert_response :success
+    # Query with non existing ID
+    id = rand(6 ** 6)
+    query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{id} }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response 404
   end
 
   test "should avoid n+1 queries problem" do
