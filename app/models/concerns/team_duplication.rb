@@ -7,54 +7,59 @@ module TeamDuplication
     attr_accessor :project_mapping, :source_mapping, :project_source_mapping, :project_media_mapping
 
     def self.duplicate(t)
-      team = t.deep_clone include: [ { projects: [ :project_sources, { project_medias: :versions } ] }, :team_users, :contacts, :sources ] do |original, copy|
-        if copy.is_a? Team
-          File.open(original.logo.path) { |f| copy.logo = f }
-          copy.generate_slug
-        end
-        if copy.is_a? Project
-          File.open(original.lead_image.path) { |f| copy.lead_image = f } if original.lead_image.path
-          copy.token = nil
-          @project_mapping ||= {}
-          @project_mapping[original.id] = copy
-        end
-        if copy.is_a? Source
-          File.open(original.file.path) { |f| copy.file = f } if original.file.path
-          @source_mapping ||= {}
-          @source_mapping[original.id] = copy
-        end
-        if copy.is_a? ProjectSource
-          @project_source_mapping ||= {}
-          @project_source_mapping[original.id] = copy
-        end
-        if copy.is_a? ProjectMedia
-          @project_media_mapping ||= {}
-          @project_media_mapping[original.id] = copy
-        end
-      end
-      team.is_being_copied = true
-      team.save!
+      begin
+        ActiveRecord::Base.transaction do
+          team = t.deep_clone include: [ { projects: [ :project_sources, { project_medias: :versions } ] }, :team_users, :contacts, :sources ] do |original, copy|
+            if copy.is_a? Team
+              File.open(original.logo.path) { |f| copy.logo = f }
+              copy.generate_copy_slug
+            end
+            if copy.is_a? Project
+              File.open(original.lead_image.path) { |f| copy.lead_image = f } if original.lead_image.path
+              copy.token = nil
+              @project_mapping ||= {}
+              @project_mapping[original.id] = copy
+            end
+            if copy.is_a? Source
+              File.open(original.file.path) { |f| copy.file = f } if original.file.path
+              @source_mapping ||= {}
+              @source_mapping[original.id] = copy
+            end
+            if copy.is_a? ProjectSource
+              @project_source_mapping ||= {}
+              @project_source_mapping[original.id] = copy
+            end
+            if copy.is_a? ProjectMedia
+              @project_media_mapping ||= {}
+              @project_media_mapping[original.id] = copy
+            end
+          end
+          team.is_being_copied = true
+          team.save!
 
-      team.update_team_checklist(@project_mapping)
-      team.update_project_sources(@source_mapping)
-      team.copy_project_media_annotations(@project_media_mapping)
-      team.copy_project_source_annotations(@project_source_mapping)
-      team.copy_source_annotations(@source_mapping)
-      team
+          team.update_team_checklist(@project_mapping)
+          team.update_project_sources(@source_mapping)
+          team.copy_project_media_annotations(@project_media_mapping)
+          team.copy_project_source_annotations(@project_source_mapping)
+          team.copy_source_annotations(@source_mapping)
+          team
+        end
+      rescue StandardError => e
+        Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message}"
+        nil
+      end
     end
   end
 
-  def generate_slug
+  def generate_copy_slug
     i = 1
+    slug = ''
     loop do
       slug = self.slug + "-copy-#{i}"
-      if Team.find_by(slug: slug)
-        i += 1
-      else
-        self.slug = slug
-        break
-      end
+      break unless Team.find_by(slug: slug)
+      i += 1
     end
+    self.slug = slug
   end
 
   def update_team_checklist(project_mapping)
@@ -62,14 +67,15 @@ module TeamDuplication
     self.get_checklist.each do |task|
       task[:projects].map! { |p| project_mapping[p] ? project_mapping[p].id : p } if task[:projects]
     end
-    self.save
+    self.save!
   end
 
   def update_project_sources(source_mapping)
+    return if source_mapping.nil?
     self.projects.each do |project|
       project.project_sources.each do |ps|
         ps.source_id = source_mapping[ps.source_id] ? source_mapping[ps.source_id].id : ps.source_id
-        ps.save
+        ps.save!
       end
     end
   end
@@ -87,12 +93,13 @@ module TeamDuplication
   end
 
   def copy_annotations(type, mapping)
+    return if mapping.nil?
     mapping.each_pair do |original, copy|
       type.find(original).annotations.find_each do |a|
         a = a.annotation_type_class.find(a.id)
         annotation = a.dup
         annotation.annotated = copy
-        annotation.save
+        annotation.save!
       end
     end
   end

@@ -1197,4 +1197,18 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal pm1.get_annotations('task').size, copy_pm1.get_annotations('task').size
     assert_equal pm1.annotations.size, copy_pm1.annotations.size
   end
+
+  test "should not save team when some step on duplication raises error" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    project1 = create_project team: team, title: 'Project 1'
+    pm1 = create_project_media team: team, project: project1
+    create_comment annotated: pm1
+
+    RequestStore.store[:disable_es_callbacks] = true
+    Comment.any_instance.stubs(:save!).raises(RuntimeError)
+    assert_nil Team.duplicate(team)
+    assert !Team.exists?(:slug => 'team-a-copy-1')
+    Comment.any_instance.unstub(:save!)
+    RequestStore.store[:disable_es_callbacks] = false
+  end
 end
