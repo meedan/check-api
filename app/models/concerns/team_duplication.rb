@@ -41,7 +41,7 @@ module TeamDuplication
       break unless Team.find_by(slug: slug)
       i += 1
     end
-    self.slug = slug
+    slug
   end
 
   def update_team_checklist(project_mapping)
