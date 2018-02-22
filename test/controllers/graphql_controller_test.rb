@@ -873,9 +873,9 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
-  test "should resend confirmation if email is found" do
-    u = create_user email: 'foo@bar.com', provider: ''
-    query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: \"#{u.id}\" }) { success } }"
+  test "should resend confirmation if user found" do
+    u = create_user provider: ''
+    query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
     post :create, query: query, team: @team.slug
     assert_response :success
   end
@@ -1176,6 +1176,15 @@ class GraphqlControllerTest < ActionController::TestCase
       assert_kind_of Integer, ret['error_info']['id']
       assert_equal 'source', ret['error_info']['type']
     end
+  end
+
+  test "should get user confirmed" do
+    u = create_user
+    authenticate_with_user(u)
+    post :create, query: "query GetById { user(id: \"#{u.id}\") { confirmed  } }"
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['user']
+    assert data['confirmed']
   end
 
   test "should get project media assignments" do
