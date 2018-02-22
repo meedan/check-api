@@ -13,7 +13,7 @@ module RailsAdmin
           true
         end
         register_instance_option :http_methods do
-          [:get, :put]
+          [:get, :post]
         end
         register_instance_option :pjax? do
           false
@@ -23,20 +23,10 @@ module RailsAdmin
             RailsAdmin::MainController.class_eval { respond_to :html, :js }
             if request.get?
               respond_with(@object)
-            elsif request.put?
+            elsif request.post?
               RequestStore.store[:ability] = :admin
-              copy = Team.duplicate(@object)
-              if copy.valid?
-                respond_to do |format|
-                flash[:success] = t('admin.actions.duplicate_team.done')
-
-                  format.html { redirect_to_on_success }
-                end
-              else
-                handle_save_error
-              end
+              Team.delay_for(1.second).duplicate(@object)
             end
-
           end
         end
       end
