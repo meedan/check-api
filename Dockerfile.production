@@ -80,6 +80,9 @@ RUN ln -s ./latest ./${APP}-$(date -I) && ln -s ./${APP}-$(date -I) ./current
 # RUNTIME ELEMENTS
 # expose, cmd
 
+# expose apollo optics port
+EXPOSE 3001
+
 USER root
 WORKDIR ${DEPLOYDIR}/current
 CMD ["/opt/bin/start.sh"]
