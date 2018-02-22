@@ -21,7 +21,8 @@ module TeamPrivate
   end
 
   def normalize_slug
-    self.slug = self.slug.downcase unless self.slug.blank?
+    return if self.slug.blank?
+    self.slug =  self.is_being_copied ? self.generate_copy_slug : self.slug.downcase
   end
 
   def archive_or_restore_projects_if_needed

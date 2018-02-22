@@ -4,44 +4,26 @@ module TeamDuplication
   extend ActiveSupport::Concern
 
   included do
-    attr_accessor :project_mapping, :source_mapping, :project_source_mapping, :project_media_mapping
+    attr_accessor :mapping
 
     def self.duplicate(t)
+      @mapping = {}
       begin
         ActiveRecord::Base.transaction do
           team = t.deep_clone include: [ { projects: [ :project_sources, { project_medias: :versions } ] }, :team_users, :contacts, :sources ] do |original, copy|
-            if copy.is_a? Team
-              File.open(original.logo.path) { |f| copy.logo = f }
-              copy.generate_copy_slug
-            end
-            if copy.is_a? Project
-              File.open(original.lead_image.path) { |f| copy.lead_image = f } if original.lead_image.path
-              copy.token = nil
-              @project_mapping ||= {}
-              @project_mapping[original.id] = copy
-            end
-            if copy.is_a? Source
-              File.open(original.file.path) { |f| copy.file = f } if original.file.path
-              @source_mapping ||= {}
-              @source_mapping[original.id] = copy
-            end
-            if copy.is_a? ProjectSource
-              @project_source_mapping ||= {}
-              @project_source_mapping[original.id] = copy
-            end
-            if copy.is_a? ProjectMedia
-              @project_media_mapping ||= {}
-              @project_media_mapping[original.id] = copy
+            @mapping[original.class_name.to_sym] ||= {}
+            @mapping[original.class_name.to_sym][original.id] = copy
+            [:logo, :lead_image, :file].each do |image|
+              next unless original.respond_to?(image) && original.respond_to?("#{image}=") && original.send(image)
+              img_path = original.send(image).path
+              File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path
             end
           end
           team.is_being_copied = true
           team.save!
-
-          team.update_team_checklist(@project_mapping)
-          team.update_project_sources(@source_mapping)
-          team.copy_project_media_annotations(@project_media_mapping)
-          team.copy_project_source_annotations(@project_source_mapping)
-          team.copy_source_annotations(@source_mapping)
+          team.update_team_checklist(@mapping[:Project])
+          team.update_project_sources(@mapping[:Source])
+          team.copy_annotations(@mapping)
           team
         end
       rescue StandardError => e
@@ -80,26 +62,16 @@ module TeamDuplication
     end
   end
 
-  def copy_project_media_annotations(mapping)
-    copy_annotations(ProjectMedia, mapping)
-  end
-
-  def copy_project_source_annotations(mapping)
-    copy_annotations(ProjectSource, mapping)
-  end
-
-  def copy_source_annotations(mapping)
-    copy_annotations(Source, mapping)
-  end
-
-  def copy_annotations(type, mapping)
-    return if mapping.nil?
-    mapping.each_pair do |original, copy|
-      type.find(original).annotations.find_each do |a|
-        a = a.annotation_type_class.find(a.id)
-        annotation = a.dup
-        annotation.annotated = copy
-        annotation.save!
+  def copy_annotations(mapping)
+    [:ProjectMedia, :ProjectSource, :Source].each do |type|
+      next if mapping[type].blank?
+      mapping[type].each_pair do |original, copy|
+        type.to_s.constantize.find(original).annotations.find_each do |a|
+          a = a.annotation_type_class.find(a.id)
+          annotation = a.dup
+          annotation.annotated = copy
+          annotation.save!
+        end
       end
     end
   end
