@@ -12,6 +12,7 @@ before_install:
   restart
 - redis-server &
 - git clone -b 6678-bridge-tests https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
+- d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 cache:
   directories:
   - "/tmp/bundler"
@@ -28,7 +29,6 @@ before_script:
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 && mkdir -p tmp/cache tmp/cache1
   tmp/cache2 tmp/cache3
 - cd scripts && ./setup-parallel-env.sh && cd -
-- d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 script: bundle exec rake "parallel:test[3]"
 after_script:
 - bundle exec codeclimate-test-reporter
