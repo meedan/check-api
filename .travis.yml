@@ -12,7 +12,6 @@ before_install:
   restart
 - redis-server &
 - git clone -b 6678-bridge-tests https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
-- d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 cache:
   directories:
   - "/tmp/bundler"
@@ -26,6 +25,7 @@ before_script:
 - sudo /usr/share/elasticsearch/bin/plugin install analysis-icu
 - sudo service elasticsearch restart
 - sleep 15
+- d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 && mkdir -p tmp/cache tmp/cache1
   tmp/cache2 tmp/cache3
 - cd scripts && ./setup-parallel-env.sh && cd -
@@ -38,7 +38,8 @@ notifications:
   slack:
     secure: dhqNhrJ0FVPnjtxa7R6k0s+1h/gMFNeK8zYJLZw+mK/FJ41K1u82Y8E6IDFbgNcKyAJ27ielvzGgWGSkDVltEnPR+ph15OMcy05TM9Pr2tWNusbDECOaEQgn4vGOq0shmiahE9tTOQpgc1TzhzIF9o1xgocah2PCLKiiH06kiiRlNZkaeQSJRFrXsPDDK8jIUtkLLUvFGQA6fq/lOh4tN6/N+K6+fo86wSxarkjv3d6h2flqvQqvqkbNpkv/UBC2Y1QACP+EX6uA0ySer8K5X6Q0Trrkjjacwvo5j74UVa+UYrBD+vr7Mgnr5aNFNId6M2nHd92ZiPM+6VDllCWsDLvJ2qFFy8cOO693EjrU7puaPp29+sptriIC71dk1oHSIEpPWwuaEZKzpwP4Swe322ne2th2VrjMhIye2Ru0519Lr2Dl4iTVV+hxoeVta3Nng23rUjrGoAbcw2FO1jmhANp8JWatv/V4PmlrS1/kYbiCfltWOMbKAD9f1EOTFnPCJsp3hPL238Ic+kvNJ8LM+ItNNR5cly+JPto6nSnMO8uhig9i78Mp2hVpnvrwhDLYntWEP2vcaNhP8oRys7X2iq5PRmsRwr9SyJReczd6i5gnvskXqKat6mNfPeGMBKSYof/1ve3Um0wEtwaYxvU5y/ZezFc3Kzzi6vt4P86j+mg=
 env:
-  - APP=check
-  - APP=bridge
   global:
-    secure: NwJYV3kghSW2hReSDOnY0sG1oe7IDcix/pZprWHkfkpc+520355n71uj7gofQ2tOO7x2rg2+j9q1GVx9hbP0EsOCIl2u0csnA7lrfe9COp9cGdM7gMzSN6CvuwW9OME9eark37ACSHW1LD1TGB6OcjOkoQxTCM4E00Nj1zAYdT4gbhnBLnxW0FPpEqRB+0XN6ev53HdE5+KrwOIG/chYL/FdaTUdjfyikoduJp5pPjHt1Nd+LSoEt3WbYs8IJeSJIdzCYrD/gXHdjGF1f8v4PFCFyl1ashFtLPMuS+4DBZjR4grSbhpTBwoJAr6oRbWJNAkmaxC26s574U/7QgP6MFlJzhgKim2gvyGUmTSKgxZViyn1y7oend+vWE0281lHDMPqtO3fNel6HteFm/GoJ3lSvZPd8ddveJNacPZB6+K7KzvJWEoRy5eYdUjaejA6KiaSkblpqXoMWwDH+RjCde/HANxMhrECa9yCZlLKBdI5dPccyQwxKnebyZkU37VeWFc9fw2EUy9gmAunV5SH/Osz7b+IX+h3Mf8WxSvQutCUrD+1kspzkEVEXX41SawKD30OfMX9ZBZB9ueisyjB4kW0GzvCGlANMAQ4VDS4/FOmc+5IhcDN8i8PvzE5IGooETOtcwMWVZMrbA0/vq2Z44WQpS2Lq1NYGYhqAN947lk=
+    - secure: NwJYV3kghSW2hReSDOnY0sG1oe7IDcix/pZprWHkfkpc+520355n71uj7gofQ2tOO7x2rg2+j9q1GVx9hbP0EsOCIl2u0csnA7lrfe9COp9cGdM7gMzSN6CvuwW9OME9eark37ACSHW1LD1TGB6OcjOkoQxTCM4E00Nj1zAYdT4gbhnBLnxW0FPpEqRB+0XN6ev53HdE5+KrwOIG/chYL/FdaTUdjfyikoduJp5pPjHt1Nd+LSoEt3WbYs8IJeSJIdzCYrD/gXHdjGF1f8v4PFCFyl1ashFtLPMuS+4DBZjR4grSbhpTBwoJAr6oRbWJNAkmaxC26s574U/7QgP6MFlJzhgKim2gvyGUmTSKgxZViyn1y7oend+vWE0281lHDMPqtO3fNel6HteFm/GoJ3lSvZPd8ddveJNacPZB6+K7KzvJWEoRy5eYdUjaejA6KiaSkblpqXoMWwDH+RjCde/HANxMhrECa9yCZlLKBdI5dPccyQwxKnebyZkU37VeWFc9fw2EUy9gmAunV5SH/Osz7b+IX+h3Mf8WxSvQutCUrD+1kspzkEVEXX41SawKD30OfMX9ZBZB9ueisyjB4kW0GzvCGlANMAQ4VDS4/FOmc+5IhcDN8i8PvzE5IGooETOtcwMWVZMrbA0/vq2Z44WQpS2Lq1NYGYhqAN947lk=
+  matrix:
+    - APP=check
+    - APP=bridge
