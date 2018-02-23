@@ -873,6 +873,19 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
+  test "should resend confirmation" do
+    u = create_user provider: ''
+    # Query with valid id
+    query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    # Query with non existing ID
+    id = rand(6 ** 6)
+    query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{id} }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response 404
+  end
+
   test "should avoid n+1 queries problem" do
     n = 5 * (rand(10) + 1) # Number of media items to be created
     m = rand(10) + 1       # Number of annotations per media
@@ -1169,6 +1182,15 @@ class GraphqlControllerTest < ActionController::TestCase
       assert_kind_of Integer, ret['error_info']['id']
       assert_equal 'source', ret['error_info']['type']
     end
+  end
+
+  test "should get user confirmed" do
+    u = create_user
+    authenticate_with_user(u)
+    post :create, query: "query GetById { user(id: \"#{u.id}\") { confirmed  } }"
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['user']
+    assert data['confirmed']
   end
 
   test "should get project media assignments" do
