@@ -7,7 +7,7 @@ module RailsAdmin
       class DuplicateTeam < RailsAdmin::Config::Actions::Base
         RailsAdmin::Config::Actions.register(self)
         register_instance_option :link_icon do
-          'icon-retweet'
+          'icon-copy'
         end
         register_instance_option :member? do
           true
