@@ -22,7 +22,6 @@ module TeamDuplication
           team.is_being_copied = true
           team.save!
           team.update_team_checklist(@mapping[:Project])
-          team.update_project_sources(@mapping[:Source])
           team.copy_annotations(@mapping)
           team
         end
@@ -53,22 +52,12 @@ module TeamDuplication
     self.save!
   end
 
-  def update_project_sources(source_mapping)
-    return if source_mapping.nil?
-    self.projects.each do |project|
-      project.project_sources.each do |ps|
-        ps.source_id = source_mapping[ps.source_id] ? source_mapping[ps.source_id].id : ps.source_id
-        ps.save!
-      end
-    end
-  end
-
   def copy_annotations(mapping)
     [:ProjectMedia, :ProjectSource, :Source].each do |type|
       next if mapping[type].blank?
       mapping[type].each_pair do |original, copy|
         type.to_s.constantize.find(original).annotations.find_each do |a|
-          a = a.annotation_type_class.find(a.id)
+          a = a.load
           annotation = a.dup
           annotation.annotated = copy
           annotation.save!
