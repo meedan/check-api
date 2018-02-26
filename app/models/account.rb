@@ -16,8 +16,8 @@ class Account < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :url
-  validate :validate_pender_result, on: :create
-  validate :pender_result_is_a_profile, on: :create
+  validate :validate_pender_result
+  validate :pender_result_is_a_profile
   validates :url, uniqueness: true
 
   after_create :set_pender_result_as_annotation, :create_source
@@ -102,7 +102,7 @@ class Account < ActiveRecord::Base
         return a
       else
         a2 = Account.where(url: a.url).last
-        return a.save! if a2.nil?
+        return a.save! if a2.nil? && a.valid?
         a = a2
       end
     end
