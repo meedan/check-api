@@ -13,11 +13,7 @@ module TeamDuplication
           team = t.deep_clone include: [ { projects: [ :project_sources, { project_medias: :versions } ] }, :team_users, :contacts, :sources ] do |original, copy|
             @mapping[original.class_name.to_sym] ||= {}
             @mapping[original.class_name.to_sym][original.id] = copy
-            [:logo, :lead_image, :file].each do |image|
-              next unless original.respond_to?(image) && original.respond_to?("#{image}=") && original.send(image)
-              img_path = original.send(image).path
-              File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path
-            end
+            self.copy_image(original, copy)
           end
           team.is_being_copied = true
           team.save!
@@ -29,6 +25,14 @@ module TeamDuplication
         Airbrake.notify(e) if Airbrake.configuration.api_key
         Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message}"
         nil
+      end
+    end
+
+    def self.copy_image(original, copy)
+      [:logo, :lead_image, :file].each do |image|
+        next unless original.respond_to?(image) && original.respond_to?("#{image}=") && original.send(image)
+        img_path = original.send(image).path
+        File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path
       end
     end
   end
