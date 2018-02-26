@@ -1181,13 +1181,6 @@ class TeamTest < ActiveSupport::TestCase
     # sources
     assert_equal team.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }, copy.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }
 
-    # project sources update the source id
-    copy.projects.each do |project|
-      project.project_sources.each do |ps|
-        assert copy.sources.include?(ps.source) if ps.source.team
-      end
-    end
-
     # project medias
     assert_equal project1.project_medias.map(&:media).sort, copy_p1.project_medias.map(&:media).sort
     copy_pm1 = copy_p1.project_medias.first

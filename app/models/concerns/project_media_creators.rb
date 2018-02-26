@@ -40,6 +40,7 @@ module ProjectMediaCreators
   private
 
   def set_project_source
+    return if self.project.team.is_being_copied
     self.create_project_source
   end
 
@@ -69,6 +70,7 @@ module ProjectMediaCreators
   end
 
   def create_reverse_image_annotation
+    return if self.project.team.is_being_copied
     picture = self.media.picture
     unless picture.blank?
       d = Dynamic.new
