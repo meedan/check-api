@@ -87,19 +87,15 @@ class Embed < ActiveRecord::Base
       m = self.annotated
       a = m.account
       url = JSON.parse(self['data']['embed'])['author_url']
-      unless a.embed['author_url'] == url
-        if a.medias.count == 1
-          a.url = url
-          a.skip_check_ability = true
-          a.save!
-        else
-          s = a.sources.where(team_id: Team.current.id).last
-          a = Account.create_for_source(url, s)
-          unless a.nil?
-            m.account = a
-            m.skip_check_ability = true
-            m.save!
-          end
+      unless a.nil? || a.embed['author_url'] == url
+        s = a.sources.where(team_id: Team.current.id).last
+        s = nil if !s.nil? && s.name.start_with?('Untitled')
+        new_a = Account.create_for_source(url, s)
+        unless a.nil?
+          m.account = new_a
+          m.skip_check_ability = true
+          m.save!
+          a.destroy if a.medias.count == 0
         end
       end
     end
