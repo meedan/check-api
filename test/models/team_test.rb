@@ -1202,4 +1202,14 @@ class TeamTest < ActiveSupport::TestCase
     Comment.any_instance.unstub(:save!)
     RequestStore.store[:disable_es_callbacks] = false
   end
+
+  test "should generate slug for copy based on original" do
+    team1 = create_team slug: 'team-a'
+    team2 = create_team slug: 'team-a-copy-1'
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team1)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 'team-a-copy-2', copy.slug
+  end
+
 end
