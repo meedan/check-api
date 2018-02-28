@@ -146,6 +146,8 @@ class ProjectMedia < ActiveRecord::Base
     end
     self.media.refresh_pender_data
     self.updated_at = Time.now
+    # update account if we have a new author_url
+    update_media_account if self.media.type == 'Link'
   end
 
   def text
@@ -242,6 +244,30 @@ class ProjectMedia < ActiveRecord::Base
     parent_is_not_archived(self.project, I18n.t(:error_project_archived, default: "Can't create media under trashed project"))
   end
 
+  def update_media_account
+    a = self.media.account
+    embed = self.media.embed
+    unless a.nil? || a.embed['author_url'] == embed['author_url']
+      s = a.sources.where(team_id: Team.current.id).last
+      s = nil if !s.nil? && s.name.start_with?('Untitled')
+      new_a = Account.create_for_source(embed['author_url'], s)
+      set_media_account(new_a, s) unless new_a.nil?
+    end
+  end
+
+  def set_media_account(account, source)
+    m = self.media
+    a =  self.media.account
+    m.account = account
+    m.skip_check_ability = true
+    m.save!
+    a.destroy if a.medias.count == 0
+    # Add a project source if new source was created
+    self.create_project_source if source.nil?
+    # update es
+    self.update_media_search(['account'], {account: self.set_es_account_data}, self.id)
+  end
+
   protected
 
   def initiate_embed_annotation(info)
@@ -260,9 +286,7 @@ class ProjectMedia < ActiveRecord::Base
 
   def set_es_account_data
     data = {}
-    a = self.media.account
-    em = a.annotations('embed').last
-    embed = JSON.parse(em.data['embed']) unless em.nil?
+    embed = a.embed
     self.overridden_embed_attributes.each{ |k| sk = k.to_s; data[sk] = embed[sk] unless embed[sk].nil? } unless embed.nil?
     data["id"] = a.id unless data.blank?
     [data]
