@@ -22,6 +22,7 @@ class Account < ActiveRecord::Base
 
   after_create :set_pender_result_as_annotation, :create_source
   after_update :update_elasticsearch_account
+  before_destroy :destroy_elasticsearch_account
 
   def provider
     self.data['provider']
@@ -140,12 +141,22 @@ class Account < ActiveRecord::Base
 
   def update_elasticsearch_account
     return if self.disable_es_callbacks
+    parents = self.get_parents_for_es
+    parents.each do |parent|
+      self.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+    end unless parents.blank?
+  end
+
+  def destroy_elasticsearch_account
+    destroy_elasticsearch_data(AccountSearch, 'child')
+  end
+
+  protected
+
+  def get_parents_for_es
+    parents = []
     ps_ids = ProjectSource.where(source_id: self.sources).map(&:id).to_a
-    unless ps_ids.blank?
-      parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") }
-      parents.each do |parent|
-        self.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
-      end
-    end
+    parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") } unless ps_ids.blank?
+    parents
   end
 end

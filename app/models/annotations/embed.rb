@@ -9,7 +9,6 @@ class Embed < ActiveRecord::Base
   field :refreshes_count, Integer
 
   after_save :update_elasticsearch_embed, :send_slack_notification
-  after_update :update_media_account
 
   def content
     {
@@ -76,27 +75,6 @@ class Embed < ActiveRecord::Base
       self.annotated.project_medias.each do |pm|
         em = pm.get_annotations('embed').last
         self.update_media_search(keys, {}, pm.id) if em.nil?
-      end
-    end
-  end
-
-  private
-
-  def update_media_account
-    if self.annotated_type == 'Media' && self.annotated.type == 'Link'
-      m = self.annotated
-      a = m.account
-      url = JSON.parse(self['data']['embed'])['author_url']
-      unless a.nil? || a.embed['author_url'] == url
-        s = a.sources.where(team_id: Team.current.id).last
-        s = nil if !s.nil? && s.name.start_with?('Untitled')
-        new_a = Account.create_for_source(url, s)
-        unless a.nil?
-          m.account = new_a
-          m.skip_check_ability = true
-          m.save!
-          a.destroy if a.medias.count == 0
-        end
       end
     end
   end
