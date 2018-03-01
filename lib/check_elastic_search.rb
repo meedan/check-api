@@ -78,7 +78,7 @@ module CheckElasticSearch
     if type == 'child'
       options = {parent: parent_id}
       id = self.id
-      conditions >> { has_parent: { parent_type: "media_search", query: { term: { _id: parent_id } } } }
+      conditions << { has_parent: { parent_type: "media_search", query: { term: { _id: parent_id } } } }
     else
       id = parent_id
     end
