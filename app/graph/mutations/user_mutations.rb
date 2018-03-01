@@ -14,6 +14,7 @@ module UserMutations
     profile_image: 'str',
     name: 'str',
     current_team_id: 'int',
+    current_project_id: 'int',
     password: 'str',
     password_confirmation: 'str',
     id: '!id'

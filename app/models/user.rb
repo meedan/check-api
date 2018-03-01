@@ -119,6 +119,7 @@ class User < ActiveRecord::Base
       provider: self.provider,
       token: self.token,
       current_team: self.current_team,
+      current_project: self.current_project,
       teams: self.user_teams,
       team_ids: self.team_ids,
       permissions: self.permissions,
@@ -144,6 +145,10 @@ class User < ActiveRecord::Base
     else
       Team.where(id: self.current_team_id).last
     end
+  end
+
+  def current_project
+    Project.find(self.current_project_id) unless self.current_project_id.blank?
   end
 
   def user_teams
