@@ -9,11 +9,28 @@ def update_source_name(s)
 	s.save!
 end
 
+def parse_conditions(args)
+	condition = {}
+	return condition if args.blank?
+	args.each do |a|
+  	arg = a.split('&')
+  	arg.each do |pair|
+    	key, value = pair.split(':')
+    	condition.merge!({ key => value })
+  	end
+  end
+  condition
+end
+
 namespace :check do
+	# bundle exec rake check:fix_untitled_sources['id:1&name:sname']
+	# bundle exec rake check:fix_untitled_sources to fix sources with name == 'Untitled'
   desc "Fix untitled sources"
-  task fix_untitled_sources: :environment do
+  task fix_untitled_sources: :environment do |t, args|
+  	condition = parse_conditions args.extras
+  	condition = {'name' => 'Untitled'} if condition.blank?
   	sources = []
-  	Source.where(name: 'Untitled').find_each do |s|
+  	Source.where(condition).find_each do |s|
   		sources << s.id
   		medias = s.medias
   		if s.team.nil? || medias.count == 0

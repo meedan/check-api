@@ -261,10 +261,7 @@ class ProjectMedia < ActiveRecord::Base
     m.account = account
     m.skip_check_ability = true
     m.save!
-    if a.medias.count == 0
-      a.skip_check_ability = true
-      a.destroy
-    end
+    a.skip_check_ability = true
     a.destroy if a.medias.count == 0
     # Add a project source if new source was created
     self.create_project_source if source.nil?
