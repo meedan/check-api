@@ -16,6 +16,7 @@ class User < ActiveRecord::Base
   before_create :skip_confirmation_for_non_email_provider
   after_create :set_image, :create_source_and_account, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
+  after_update :set_blank_email_for_unconfirmed_user
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
@@ -131,7 +132,7 @@ class User < ActiveRecord::Base
   end
 
   def email_required?
-    self.provider.blank?
+    self.provider.blank? && self.new_record?
   end
 
   def password_required?
@@ -290,5 +291,9 @@ class User < ActiveRecord::Base
 
   def skip_confirmation_for_non_email_provider
     self.skip_confirmation! if !self.provider.blank? && self.skip_confirmation_mail.nil?
+  end
+
+  def set_blank_email_for_unconfirmed_user
+    self.update_columns(email: '') unless self.unconfirmed_email.blank?
   end
 end
