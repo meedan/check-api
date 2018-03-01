@@ -76,3 +76,44 @@ SOURCE_CORE_VERIFICATION_STATUSES:
     :style:
         :backgroundColor: "green"
         :color: "orange"
+MEDIA_CORE_TRANSLATION_STATUSES:
+  -
+    :description: "<%= I18n.t(:'statuses.translation.pending.description') %>"
+    :id: pending
+    :completed: false
+    :label: "<%= I18n.t(:'statuses.translation.pending.label') %>"
+    :style:
+        :backgroundColor: "#518fff"
+        :color: "#518fff"
+  -
+    :description: "<%= I18n.t(:'statuses.translation.in_progress.description') %>"
+    :id: in_progress
+    :completed: false
+    :label: "<%= I18n.t(:'statuses.translation.in_progress.label') %>"
+    :style:
+        :backgroundColor: "#ffbb5d"
+        :color: "#efac51"
+  -
+    :description: "<%= I18n.t(:'statuses.translation.translated.description') %>"
+    :id: translated
+    :completed: false
+    :label: "<%= I18n.t(:'statuses.translation.translated.label') %>"
+    :style:
+        :backgroundColor: "#f04747"
+        :color: "#f04747"
+  -
+    :description: "<%= I18n.t(:'statuses.translation.ready.description') %>"
+    :id: ready
+    :completed: true
+    :label: "<%= I18n.t(:'statuses.translation.ready.label') %>"
+    :style:
+        :backgroundColor: "#72d18d"
+        :color: "#5cae73"
+  -
+    :description: "<%= I18n.t(:'statuses.translation.error.description') %>"
+    :id: error
+    :completed: true
+    :label: "<%= I18n.t(:'statuses.translation.error.label') %>"
+    :style:
+        :backgroundColor: "#9e9e9e"
+        :color: "#9e9e9e"

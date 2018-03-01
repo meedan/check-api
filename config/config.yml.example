@@ -54,7 +54,7 @@ development: &default
   cc_deville_httpauth:
   google_analytics_code: # Format: 'UA-000000000-1' 
   slack_token: '' # Format: xoxp-123456
-  chrome_debug_port: 9333
+  export_download_expiration_days: 7
 
 test:
   <<: *default
