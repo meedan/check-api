@@ -1499,4 +1499,45 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal pm.last_status, 'verified'
   end
 
+  test "should update media account when change author_url" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://www.facebook.com/meedan/posts/123456'
+    author_url = 'http://facebook.com/123456'
+    author_normal_url = 'http://www.facebook.com/meedan'
+    author2_url = 'http://facebook.com/789123'
+    author2_normal_url = 'http://www.facebook.com/meedan2'
+
+    data = { url: url, author_url: author_url, type: 'item' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+
+    data = { url: url, author_url: author2_url, type: 'item' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+
+    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', title: 'Foo', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+
+    data = { url: author2_normal_url, provider: 'facebook', picture: 'http://fb/p.png', title: 'NewFoo', description: 'NewBar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author2_url } }).to_return(body: response)
+
+
+    m = create_media url: url, account: nil, account_id: nil
+    a = m.account
+    p = create_project team: t
+    pm = create_project_media media: m, project: p
+    sleep 1
+    pm = ProjectMedia.find(pm.id)
+    with_current_user_and_team(u, t) do
+      pm.refresh_media = true
+    end
+    assert_not_equal a, m.reload.account
+    assert_nil Account.where(id: a.id).last
+  end
+
 end

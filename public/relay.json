@@ -3193,7 +3193,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -3283,8 +3283,8 @@
         },
         {
           "kind": "SCALAR",
-          "name": "Int",
-          "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
+          "name": "JsonStringType",
+          "description": null,
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -3293,8 +3293,8 @@
         },
         {
           "kind": "SCALAR",
-          "name": "JsonStringType",
-          "description": null,
+          "name": "Int",
+          "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -3483,7 +3483,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -3677,6 +3677,20 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "ProjectMediaConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "confirmed",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -3990,6 +4004,20 @@
             },
             {
               "name": "translation_statuses",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "JsonStringType",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "unconfirmed_email",
               "description": null,
               "args": [
 
@@ -4767,7 +4795,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -5207,7 +5235,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -5490,7 +5518,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -5912,7 +5940,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -6489,7 +6517,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -6797,7 +6825,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -7160,7 +7188,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -8073,7 +8101,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -9385,7 +9413,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -10159,7 +10187,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -10384,7 +10412,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -11388,6 +11416,33 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "DestroyVersionPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "resendConfirmation",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "ResendConfirmationInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "ResendConfirmationPayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -15826,6 +15881,16 @@
               "defaultValue": null
             },
             {
+              "name": "current_project_id",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "password",
               "description": null,
               "type": {
@@ -19692,6 +19757,82 @@
                 "ofType": {
                   "kind": "SCALAR",
                   "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "ResendConfirmationPayload",
+          "description": "Autogenerated return type of ResendConfirmation",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "success",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "ResendConfirmationInput",
+          "description": "Autogenerated input type of ResendConfirmation",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
                   "ofType": null
                 }
               },

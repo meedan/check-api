@@ -1,5 +1,6 @@
 require Rails.root.join('lib', 'rails_admin', 'send_reset_password_email.rb')
 require Rails.root.join('lib', 'rails_admin', 'export_project.rb')
+require Rails.root.join('lib', 'rails_admin', 'export_images.rb')
 require Rails.root.join('lib', 'rails_admin', 'yaml_field.rb')
 require Rails.root.join('lib', 'rails_admin', 'dashboard.rb')
 require Rails.root.join('lib', 'rails_admin', 'edit.rb')
@@ -7,6 +8,7 @@ require Rails.root.join('lib', 'rails_admin', 'delete.rb')
 require Rails.root.join('lib', 'rails_admin', 'delete_tasks.rb')
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportProject)
+RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportImages)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::DeleteTasks)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Fields::Types::Yaml)
 
@@ -46,6 +48,9 @@ RailsAdmin.config do |config|
     delete
     send_reset_password_email
     export_project do
+      only ['Project']
+    end
+    export_images do
       only ['Project']
     end
     delete_tasks do

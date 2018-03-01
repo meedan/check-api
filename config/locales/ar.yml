@@ -37,6 +37,22 @@ ar:
       sockpuppet:
         label: هوية مزيفة
         description: 'النتيجة: هذا مصدر ذو هوية مزيفة على الانترنت'
+    translation:
+      pending:
+        label: مُعَلَّق
+        description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
+      in_progress:
+        label: جارٍ
+        description: بدأ العمل على العنصر ولم تتم الترجمة بعد
+      translated:
+        label: مُتَرجَم
+        description: تمت الترجمة ولم تبدأ المراجعة بعد
+      ready:
+        label: جاهز
+        description: تمت المراجعة والعنصر جاهز للنشر
+      error:
+        label: خاطئ
+        description: تمت المراجعة وهناك أخطاء يجب تصحيحها
   errors:
     messages:
       extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات المسموحة هي: %{allowed_types}'
@@ -131,6 +147,8 @@ ar:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
       export_project:
         menu: تصدير معلومات المشروع
+      export_images:
+        menu: تصدير صور المشروع
       delete_tasks:
         done: تم حذف المهام
         are_you_sure_you_want_to_delete_the_tasks_from_team: هل أنت متأكد أنك تود حذف جميع المهام في هذا الفريق
@@ -227,3 +245,7 @@ ar:
   archive_pender_archive: "لقطات الشاشة من Keep"
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
+  project_export_email_title_csv: "تقرير مشروعك جاهز للتحميل"
+  project_export_download_mail_csv: "مرحباً !\n\nلقد طلبت تقريراً عن المشروع %{project} - إليك الرابط لتحميله : %{link}\n\nسوف يتم تحميل التقرير على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
+  project_export_email_title_images: "صور مشروعك جاهزة للتحميل"
+  project_export_download_mail_images: "مرحباً !\n\nلقد طلبت تحميل صور المشروع %{project} - إليك الرابط لتحميلها : %{link}\n\nسوف يتم تحميل الصور على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
