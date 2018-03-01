@@ -143,7 +143,7 @@ class Account < ActiveRecord::Base
     return if self.disable_es_callbacks
     parents = self.get_parents_for_es
     parents.each do |parent|
-      self.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+      self.add_update_media_search_child('account_search', %w(title description username), {}, parent)
     end unless parents.blank?
   end
 
