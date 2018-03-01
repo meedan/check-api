@@ -155,8 +155,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_language
-    bot = Bot::Alegre.default
-    bot.get_language_from_alegre(self.text, self) unless bot.nil?
+    Bot::Alegre.default.get_language_from_alegre(self.text, self) unless Bot::Alegre.default.nil?
   end
 
   def full_url
@@ -250,7 +249,7 @@ class ProjectMedia < ActiveRecord::Base
     unless a.nil? || a.embed['author_url'] == embed['author_url']
       s = a.sources.where(team_id: Team.current.id).last
       s = nil if !s.nil? && s.name.start_with?('Untitled')
-      new_a = self.account_from_author_url(embed['author_url'], s)
+      new_a = self.send(:account_from_author_url, embed['author_url'], s)
       set_media_account(new_a, s) unless new_a.nil?
     end
   end
@@ -292,7 +291,8 @@ class ProjectMedia < ActiveRecord::Base
   def set_es_account_data
     data = {}
     a = self.media.account
-    self.overridden_embed_attributes.each{ |k| sk = k.to_s; data[sk] = a.embed[sk] unless a.embed[sk].nil? } unless a.embed.nil?
+    embed = a.embed
+    self.overridden_embed_attributes.each{ |k| sk = k.to_s; data[sk] = embed[sk] unless embed[sk].nil? } unless embed.nil?
     data["id"] = a.id unless data.blank?
     [data]
   end
