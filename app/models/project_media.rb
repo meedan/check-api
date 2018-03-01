@@ -292,8 +292,7 @@ class ProjectMedia < ActiveRecord::Base
   def set_es_account_data
     data = {}
     a = self.media.account
-    embed = a.embed
-    self.overridden_embed_attributes.each{ |k| sk = k.to_s; data[sk] = embed[sk] unless embed[sk].nil? } unless embed.nil?
+    self.overridden_embed_attributes.each{ |k| sk = k.to_s; data[sk] = a.embed[sk] unless a.embed[sk].nil? } unless a.embed.nil?
     data["id"] = a.id unless data.blank?
     [data]
   end
