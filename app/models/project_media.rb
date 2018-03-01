@@ -250,18 +250,18 @@ class ProjectMedia < ActiveRecord::Base
     unless a.nil? || a.embed['author_url'] == embed['author_url']
       s = a.sources.where(team_id: Team.current.id).last
       s = nil if !s.nil? && s.name.start_with?('Untitled')
-      new_a = begin
-                Account.create_for_source(embed['author_url'], s)
-              rescue
-                nil
-              end
+      new_a = self.account_from_author_url(embed['author_url'], s)
       set_media_account(new_a, s) unless new_a.nil?
     end
   end
 
+  def account_from_author_url(author_url, source)
+    begin Account.create_for_source(author_url, source) rescue nil end
+  end
+
   def set_media_account(account, source)
     m = self.media
-    a =  self.media.account
+    a = self.media.account
     m.account = account
     m.skip_check_ability = true
     m.save!
