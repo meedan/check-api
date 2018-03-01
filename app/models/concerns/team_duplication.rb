@@ -69,6 +69,10 @@ module TeamDuplication
     slug = ''
     loop do
       slug = self.slug + "-copy-#{i}"
+      if slug.length > 63
+        extra = slug.length - 63
+        slug.remove!(slug[11..10+extra])
+      end
       break unless Team.find_by(slug: slug)
       i += 1
     end

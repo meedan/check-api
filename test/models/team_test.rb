@@ -1212,4 +1212,12 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'team-a-copy-2', copy.slug
   end
 
+  test "should generate slug with 63 maximum chars" do
+    team = create_team slug: 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit-morbi-at'
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 'lorem-ipsumsit-amet-consectetur-adipiscing-elit-morbi-at-copy-1', copy.slug
+  end
+
 end
