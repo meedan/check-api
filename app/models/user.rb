@@ -154,9 +154,7 @@ class User < ActiveRecord::Base
   def user_teams
     team_users = TeamUser.where(user_id: self.id)
     teams = Hash.new
-    team_users.each do |tu|
-      teams[tu.team.slug] = tu.as_json
-    end
+    team_users.each{ |tu| teams[tu.team.slug] = tu.as_json }
     teams.to_json
   end
 
@@ -293,5 +291,4 @@ class User < ActiveRecord::Base
   def skip_confirmation_for_non_email_provider
     self.skip_confirmation! if !self.provider.blank? && self.skip_confirmation_mail.nil?
   end
-
 end
