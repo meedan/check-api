@@ -18,7 +18,7 @@ module TeamDuplication
           team.is_being_copied = true
           team.save!
           team.update_team_checklist(@mapping[:Project])
-          team.copy_annotations(@mapping)
+          self.copy_annotations(@mapping)
           team
         end
       rescue StandardError => e
@@ -35,6 +35,33 @@ module TeamDuplication
         File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path
       end
     end
+
+    def self.copy_annotations(mapping)
+      [:ProjectMedia, :ProjectSource, :Source].each do |type|
+        next if mapping[type].blank?
+        mapping[type].each_pair do |original, copy|
+          type.to_s.constantize.find(original).annotations.find_each do |a|
+            a = a.load
+            annotation = a.dup
+            annotation.annotated = copy
+            annotation.save!
+            mapping[a.class_name.to_sym] ||= {}
+            mapping[a.class_name.to_sym][a.id] = annotation.id
+            self.copy_annotation_fields(a, annotation, mapping[:Task])
+          end
+        end
+      end
+    end
+
+    def self.copy_annotation_fields(original, copy, task_mapping)
+      original.get_fields.each do |f|
+        field = f.dup
+        field.annotation_id = copy.id
+        field.value = task_mapping[f.value.to_i].to_s if field.field_type == "task_reference"
+        field.save!
+      end
+    end
+
   end
 
   def generate_copy_slug
@@ -54,20 +81,6 @@ module TeamDuplication
       task[:projects].map! { |p| project_mapping[p] ? project_mapping[p].id : p } if task[:projects]
     end
     self.save!
-  end
-
-  def copy_annotations(mapping)
-    [:ProjectMedia, :ProjectSource, :Source].each do |type|
-      next if mapping[type].blank?
-      mapping[type].each_pair do |original, copy|
-        type.to_s.constantize.find(original).annotations.find_each do |a|
-          a = a.load
-          annotation = a.dup
-          annotation.annotated = copy
-          annotation.save!
-        end
-      end
-    end
   end
 
 end
