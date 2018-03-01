@@ -259,7 +259,7 @@ GEM
     net-http-persistent (2.9.4)
     netrc (0.11.0)
     newrelic_rpm (4.1.0.333)
-    nokogiri (1.8.1)
+    nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     ntlm-http (0.1.1)
     oauth (0.5.1)
@@ -312,12 +312,12 @@ GEM
       multi_json (~> 1.0)
       pusher-signature (~> 0.1.8)
     pusher-signature (0.1.8)
-    rack (1.6.5)
+    rack (1.6.9)
     rack-cors (0.4.1)
     rack-pjax (1.0.0)
       nokogiri (~> 1.5)
       rack (>= 1.1)
-    rack-protection (1.5.3)
+    rack-protection (1.5.4)
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -536,7 +536,7 @@ DEPENDENCIES
   mini_magick
   mocha
   newrelic_rpm
-  nokogiri (= 1.8.1)
+  nokogiri (= 1.8.2)
   omniauth-facebook
   omniauth-slack
   omniauth-twitter
@@ -549,6 +549,7 @@ DEPENDENCIES
   puma
   pusher
   rack-cors
+  rack-protection (= 1.5.4)
   railroady
   rails (= 4.2.7.1)
   rails-graphql-generator
