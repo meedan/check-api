@@ -21,7 +21,7 @@ class Source < ActiveRecord::Base
 
   validates_presence_of :name
   validate :is_unique_per_team, on: :create
-  validate :team_is_not_archived
+  validate :team_is_not_archived, unless: proc { |s| s.is_being_copied? }
 
   after_create :create_metadata
   after_update :update_elasticsearch_source
@@ -155,6 +155,10 @@ class Source < ActiveRecord::Base
 
   def cache_source_overridden
     Rails.cache.write("source_overridden_cache_#{self.id}", get_overridden)
+  end
+
+  def is_being_copied?
+    self.team && self.team.is_being_copied
   end
 
   private

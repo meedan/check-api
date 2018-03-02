@@ -12,7 +12,7 @@ class ProjectMedia < ActiveRecord::Base
 
   validates_presence_of :media, :project
 
-  validate :project_is_not_archived
+  validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied? }
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
@@ -212,6 +212,10 @@ class ProjectMedia < ActiveRecord::Base
     ability ||= Ability.new
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
     perms
+  end
+
+  def is_being_copied?
+    self.project && self.project.team && self.project.team.is_being_copied
   end
 
   private
