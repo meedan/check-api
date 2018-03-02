@@ -40,6 +40,12 @@ module CheckLimits
     validate :can_use_custom_statuses
     validate :can_use_checklist
 
+    def plan
+      plan = 'pro'
+      plan = 'free' if self.get_limits_max_number_of_projects.to_i > 0
+      plan
+    end
+
     private
 
     def set_default_plan
