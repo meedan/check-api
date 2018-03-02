@@ -59,6 +59,7 @@ module TeamDuplication
             a = a.load
             annotation = a.dup
             annotation.annotated = copy
+            annotation.is_being_copied = true
             annotation.save!
             self.set_mapping(a, annotation)
             self.copy_annotation_fields(a, annotation, @mapping[:Task])
