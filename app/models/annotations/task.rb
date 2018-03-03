@@ -138,6 +138,10 @@ class Task < ActiveRecord::Base
     response.get_fields.select{ |f| f.field_name =~ /^response/ }.first.to_s unless response.nil?
   end
 
+  def task
+    Task.find(self.id)
+  end
+
   def self.send_slack_notification(tid, rid, uid, changes)
     User.current = User.find(uid) if uid > 0
     object = Task.where(id: tid).last
