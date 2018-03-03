@@ -108,9 +108,7 @@ class GraphqlCrudOperations
 
       return_field type.to_sym, klass
       return_field "#{type}Edge".to_sym, klass.edge_type
-      GraphqlCrudOperations.define_parent_returns(parents).each do |field_name, field_class|
-        return_field field_name, field_class
-      end
+      GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
 
       resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.send(action, type, inputs, ctx, parents) }
     end
@@ -124,9 +122,7 @@ class GraphqlCrudOperations
 
       return_field :deletedId, types.ID
 
-      GraphqlCrudOperations.define_parent_returns(parents).each do |field_name, field_class|
-        return_field field_name, field_class
-      end
+      GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
 
       resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.destroy(inputs, ctx, parents) }
     end
