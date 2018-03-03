@@ -108,9 +108,8 @@ class GraphqlCrudOperations
 
       return_field type.to_sym, klass
       return_field "#{type}Edge".to_sym, klass.edge_type
-      parents.each do |parent|
-        parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
-        return_field parent.to_sym, "#{parentclass}Type".constantize
+      GraphqlCrudOperations.define_parent_returns(parents).each do |field_name, field_class|
+        return_field field_name, field_class
       end
 
       resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.send(action, type, inputs, ctx, parents) }
@@ -124,13 +123,22 @@ class GraphqlCrudOperations
       input_field :id, !types.ID
 
       return_field :deletedId, types.ID
-      parents.each do |parent|
-        parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
-        return_field parent.to_sym, "#{parentclass}Type".constantize
+
+      GraphqlCrudOperations.define_parent_returns(parents).each do |field_name, field_class|
+        return_field field_name, field_class
       end
 
       resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.destroy(inputs, ctx, parents) }
     end
+  end
+
+  def self.define_parent_returns(parents = [])
+    fields = {}
+    parents.each do |parent|
+      parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
+      fields[parent.to_sym] = "#{parentclass}Type".constantize
+    end
+    fields
   end
 
   def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [])
