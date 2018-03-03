@@ -458,10 +458,9 @@ RailsAdmin.config do |config|
         render_settings('field', true)
       end
       field :limits, :yaml do
-        label 'Limits'
-        formatted_value { bindings[:object].limits.to_h.to_yaml }
-        help "Limit this team features"
-        render_settings('text', true)
+        partial "json_editor"
+        help "Select the features that are available to this team."
+        visible_only_for_admin
       end
     end
 
