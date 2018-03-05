@@ -44,12 +44,16 @@ class ProjectMedia < ActiveRecord::Base
     s = self.get_annotations('status').last
     s = s.load unless s.nil?
     if !s.nil? && s.status == Status.default_id(self.media, self.project)
-      active = Status.active_id(self.media, self.project)
-      unless active.nil?
-        s.status = active
-        s.skip_check_ability = true
-        s.save!
-      end
+      set_active_status(s)
+    end
+  end
+
+  def set_active_status(s)
+    active = Status.active_id(self.media, self.project)
+    unless active.nil?
+      s.status = active
+      s.skip_check_ability = true
+      s.save!
     end
   end
 
