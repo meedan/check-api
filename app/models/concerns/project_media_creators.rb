@@ -112,6 +112,11 @@ module ProjectMediaCreators
     end
   end
 
+  def set_quote_embed
+    self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
+    self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
+  end
+
   protected
 
   def create_image

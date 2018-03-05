@@ -43,13 +43,15 @@ class ProjectMedia < ActiveRecord::Base
   def move_media_to_active_status
     s = self.get_annotations('status').last
     s = s.load unless s.nil?
-    if !s.nil? && s.status == Status.default_id(self.media, self.project)
-      active = Status.active_id(self.media, self.project)
-      unless active.nil?
-        s.status = active
-        s.skip_check_ability = true
-        s.save!
-      end
+    set_active_status(s) if !s.nil? && s.status == Status.default_id(self.media, self.project)
+  end
+
+  def set_active_status(s)
+    active = Status.active_id(self.media, self.project)
+    unless active.nil?
+      s.status = active
+      s.skip_check_ability = true
+      s.save!
     end
   end
 
@@ -209,11 +211,6 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   private
-
-  def set_quote_embed
-    self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
-    self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
-  end
 
   def move_media_sources
     if self.project_id_changed?
