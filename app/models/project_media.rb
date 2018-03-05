@@ -212,11 +212,6 @@ class ProjectMedia < ActiveRecord::Base
 
   private
 
-  def set_quote_embed
-    self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
-    self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
-  end
-
   def move_media_sources
     if self.project_id_changed?
       ps = get_project_source(self.project_id_was)
