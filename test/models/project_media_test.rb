@@ -1472,6 +1472,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal s.reload.status, 'verified'
   end
 
+  test "should back status to active if required task added to resolved item" do
+    p = create_project
+    pm = create_project_media project: p
+    s = pm.annotations.where(annotation_type: 'status').last.load
+    s.status = 'verified'; s.save!
+    create_task annotated: pm
+    assert_equal 'verified', pm.last_status
+    create_task annotated: pm, required: true
+    assert_equal Status.active_id(pm.media, p), pm.last_status
+  end
+
   test "should move pending item to in progress status" do
     create_annotation_type annotation_type: 'response'
     p = create_project
