@@ -1091,4 +1091,15 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     assert t.reload.get_archive_archive_is_enabled
   end
+
+  test "should return team plan" do
+    t = create_team
+    t.set_limits_max_number_of_projects = 5
+    t.save!
+    assert_equal 'free', t.plan
+    t = create_team
+    t.limits = {}
+    t.save!
+    assert_equal 'pro', t.plan
+  end
 end
