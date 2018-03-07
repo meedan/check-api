@@ -85,8 +85,12 @@ RailsAdmin.config do |config|
       end
       field :annotator do
         pretty_value do
-          path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
-          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+          if bindings[:object].annotator
+            path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
+            bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+          else
+           ''
+          end
         end
       end
     end
@@ -459,7 +463,7 @@ RailsAdmin.config do |config|
       end
       field :limits, :yaml do
         label 'Limits'
-        formatted_value { bindings[:object].limits.to_yaml }
+        formatted_value { bindings[:object].limits.to_h.to_yaml }
         help "Limit this team features"
         render_settings('text', true)
       end

@@ -199,7 +199,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
     ps.url = 'http://invalid-url.ee'
 
     assert_raise ActiveRecord::RecordInvalid do
-      ps.save
+      ps.save!
     end
   end
 
