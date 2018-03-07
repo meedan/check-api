@@ -11,7 +11,7 @@ before_install:
   && sudo dpkg -i --force-confnew elasticsearch-2.4.1.deb && sudo service elasticsearch
   restart
 - redis-server &
-- git clone -b 6678-bridge-tests https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
+- git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 cache:
   directories:
   - "/tmp/bundler"
