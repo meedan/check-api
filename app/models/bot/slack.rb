@@ -79,7 +79,7 @@ class Bot::Slack < ActiveRecord::Base
       { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
         text = text.gsub(k,v)
       }
-      text.truncate(140)
+      text.nil? ? nil : text.truncate(140)
     end
 
     def to_slack_url(url, text)
