@@ -79,6 +79,7 @@ module TeamDuplication
     end
 
     def self.copy_versions(versions_mapping)
+      return if versions_mapping.blank?
       PaperTrail::Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
       versions_mapping.each_pair do |original, copy|
         log = PaperTrail::Version.find(original).dup
@@ -114,4 +115,8 @@ module TeamDuplication
     self.save!
   end
 
+  def reset_statuses(type)
+    errors.delete(:statuses)
+    self.send("reset_#{type}_verification_statuses")
+  end
 end
