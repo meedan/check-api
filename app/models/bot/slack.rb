@@ -50,14 +50,14 @@ class Bot::Slack < ActiveRecord::Base
   def bot_send_slack_notification(model, webhook, channel, message)
     return if webhook.blank? || channel.blank? || message.blank?
 
-      data = {
-        payload: {
-          channel: channel,
-          text: message.gsub('\\n', "\n")
-        }.to_json
-      }
+    data = {
+      payload: {
+        channel: channel,
+        text: message.gsub('\\n', "\n")
+      }.to_json
+    }
 
-      Rails.env === 'test' ? self.request_slack(model, webhook, data) : SlackNotificationWorker.perform_async(webhook, YAML::dump(data), YAML::dump(User.current))
+    Rails.env === 'test' ? self.request_slack(model, webhook, data) : SlackNotificationWorker.perform_async(webhook, YAML::dump(data), YAML::dump(User.current))
   end
 
   def request_slack(model, webhook, data)
@@ -75,11 +75,12 @@ class Bot::Slack < ActiveRecord::Base
   end
   class << self
     def to_slack(text)
+      return "" if text.blank?
       # https://api.slack.com/docs/message-formatting#how_to_escape_characters
       { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
         text = text.gsub(k,v)
       }
-      text.nil? ? nil : text.truncate(140)
+      text.truncate(140)
     end
 
     def to_slack_url(url, text)
