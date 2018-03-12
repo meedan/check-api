@@ -97,7 +97,7 @@ class Status < ActiveRecord::Base
 
   def slack_notification_message
     user = Bot::Slack.to_slack(User.current.name)
-    url = Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}")
+    url = Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title)
     project = Bot::Slack.to_slack(self.annotated.project.title)
     if self.status != self.previous_annotated_status
       I18n.t(:slack_update_status,

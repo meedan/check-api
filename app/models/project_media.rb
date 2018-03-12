@@ -61,12 +61,12 @@ class ProjectMedia < ActiveRecord::Base
       I18n.t(:slack_create_project_media,
         user: Bot::Slack.to_slack(User.current.name),
         type: I18n.t(type.to_sym),
-        url: Bot::Slack.to_slack_url(self.full_url, "*#{self.title}*"),
+        url: Bot::Slack.to_slack_url(self.full_url, self.title),
         project: Bot::Slack.to_slack(self.project.title)
       ) :
       I18n.t(:slack_create_project_media_no_user,
         type: I18n.t(type.to_sym),
-        url: Bot::Slack.to_slack_url(self.full_url, "*#{self.title}*"),
+        url: Bot::Slack.to_slack_url(self.full_url, self.title),
         project: Bot::Slack.to_slack(self.project.title)
       )
   end
