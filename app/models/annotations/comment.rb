@@ -22,7 +22,7 @@ class Comment < ActiveRecord::Base
   def slack_notification_message
     I18n.t(:slack_save_comment,
       user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
+      url: Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title),
       comment: Bot::Slack.to_slack_quote(self.text),
       project: Bot::Slack.to_slack(self.annotated.project.title)
     )

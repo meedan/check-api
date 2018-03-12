@@ -79,7 +79,7 @@ class Bot::Slack < ActiveRecord::Base
       { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
         text = text.gsub(k,v)
       }
-      text
+      text.truncate(140)
     end
 
     def to_slack_url(url, text)
@@ -190,7 +190,7 @@ class Bot::Slack < ActiveRecord::Base
     include ::Bot::Slack::SlackMessage
 
     create_or_update_slack_message on: :create, endpoint: :post_message
-    
+
     def slack_message_parameters(id, _channel, _attachments)
       # Not localized yet because Check Slack Bot is only in English for now
       { thread_ts: id, text: 'Comment by ' + self.annotator.name + ': ' + self.text }
@@ -199,13 +199,13 @@ class Bot::Slack < ActiveRecord::Base
 
   Status.class_eval do
     include ::Bot::Slack::SlackMessage
-    
+
     create_or_update_slack_message on: :update, endpoint: :update
   end
 
   Embed.class_eval do
     include ::Bot::Slack::SlackMessage
-    
+
     create_or_update_slack_message on: [:update, :create], endpoint: :update
   end
 end

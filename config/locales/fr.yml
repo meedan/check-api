@@ -116,15 +116,15 @@ fr:
   slack_create_task_assignment: " affecté(e) à %{assignee}"
   slack_create_task_note: " avec note: %{note}"
   slack_answer_task: |-
-    *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
-    %{answer_note}
+      *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
+      %{answer_note}
   slack_answer_task_note: "*Note:* %{note}"
   slack_update_task_label: |-
-    *%{user}* a modifié la tâche %{url} dans *%{project}* de : %{from}
-    *à :* %{to}
+      *%{user}* a modifié la tâche %{url} dans *%{project}* de : %{from}
+      *à :* %{to}
   slack_update_task_description: |-
-    *%{user}* a modifié la description de la tâche %{url} dans *%{project}* de : %{from}
-    *à :* %{to}
+      *%{user}* a modifié la description de la tâche %{url} dans *%{project}* de : %{from}
+      *à :* %{to}
   mail_view_welcome: Bienvenue sur %{app_name}
   mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Prière de confirmer votre courriel en cliquant ce lien :'
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.

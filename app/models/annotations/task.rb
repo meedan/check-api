@@ -51,7 +51,7 @@ class Task < ActiveRecord::Base
   def slack_default_params
     {
       user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.label}"),
+      url: Bot::Slack.to_slack_url(self.annotated_client_url, self.label),
       project: Bot::Slack.to_slack(self.annotated.project.title)
     }
   end

@@ -120,15 +120,15 @@ ar:
   slack_create_task_assignment: " موّكل إلى %{assignee}"
   slack_create_task_note: " مع التعليق: %{note}"
   slack_answer_task: |-
-    أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
-    %{answer_note}
+      أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
+      %{answer_note}
   slack_answer_task_note: "*التعليق:* %{note}"
   slack_update_task_label: |-
-    حرر *%{user}* المهمة %{url} في مشروع *%{project}* من %{from}
-    *إلى:* %{to}
+      حرر *%{user}* المهمة %{url} في مشروع *%{project}* من %{from}
+      *إلى:* %{to}
   slack_update_task_description: |-
-    حرر *%{user}* التعليق الإضافي للمهمة %{url} في مشروع *%{project}* من %{from}
-    *إلى:* %{to}
+      حرر *%{user}* التعليق الإضافي للمهمة %{url} في مشروع *%{project}* من %{from}
+      *إلى:* %{to}
   mail_view_welcome: مرحباً بك في %{app_name}
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
   mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
