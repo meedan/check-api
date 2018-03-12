@@ -65,19 +65,20 @@ module ValidationsHelper
   def custom_statuses_format(type)
     statuses = self.send("get_#{type}_verification_statuses")
     if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-      errors.add(:base, I18n.t(:invalid_statuses_format_for_custom_verification_status))
+      errors.add(:statuses, I18n.t(:invalid_statuses_format_for_custom_verification_status))
     else
       validate_statuses(statuses)
     end
+    reset_statuses(type) if self.is_being_copied && errors.has_key?(:statuses)
   end
 
   def validate_statuses(statuses)
     statuses[:statuses].each do |status|
-      errors.add(:base, I18n.t(:invalid_statuses_format_for_custom_verification_status)) if status.keys.map(&:to_sym).sort != [:completed, :description, :id, :label, :style]
-      errors.add(:base, I18n.t(:invalid_id_or_label_for_custom_verification_status)) if status[:id].blank? || status[:label].blank?
+      errors.add(:statuses, I18n.t(:invalid_statuses_format_for_custom_verification_status)) if status.keys.map(&:to_sym).sort != [:completed, :description, :id, :label, :style]
+      errors.add(:statuses, I18n.t(:invalid_id_or_label_for_custom_verification_status)) if status[:id].blank? || status[:label].blank?
     end
     [:default, :active].each do |status|
-      errors.add(:base, I18n.t(":invalid_#{status}_status_for_custom_verification_status")) if !statuses[status].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[status])
+      errors.add(:statuses, I18n.t(":invalid_#{status}_status_for_custom_verification_status")) if !statuses[status].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[status])
     end
   end
 end

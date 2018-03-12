@@ -1220,4 +1220,18 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'lorem-ipsumsit-amet-consectetur-adipiscing-elit-morbi-at-copy-1', copy.slug
   end
 
+  test "should not copy invalid statuses" do
+    team = create_team
+    value = { default: '1' }
+    team.set_media_verification_statuses(value);team.save(validate: false)
+    assert !team.valid?
+    assert !team.errors[:statuses].blank?
+    assert_equal value, team.get_media_verification_statuses(value)
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.errors[:statuses].blank?
+    assert copy.get_media_verification_statuses(value).nil?
+  end
+
 end
