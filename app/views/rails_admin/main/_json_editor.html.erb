@@ -3,9 +3,7 @@
 <% value = @object.respond_to?(field_name) ? @object.send(field_name) : @object.send("get_#{field_name}") %>
 
 <script>
-  var starting_value = <%== value.to_json %>;
-  var field_schema = "<%= @object.json_schema_url(field_name) %>";
-  var editor =  new JSONEditor(document.getElementById("<%= field_name %>_editor_holder"),{
+  var editor = new JSONEditor(document.getElementById("<%= field_name %>_editor_holder"), {
     ajax: true,
     required_by_default: true,
     disable_collapse: true,
@@ -13,12 +11,13 @@
     theme: 'bootstrap2',
     show_errors: 'interaction',
     disable_properties: true,
+    no_additional_properties: true,
     disable_edit_json: true,
     form_name_root: "team[<%= field.method_name.to_s %>]",
     schema: {
-      "$ref": field_schema
+      "$ref": "<%= @object.json_schema_url(field_name) %>"
     },
-    startval: starting_value
+    startval: <%== value.to_json %>
   });
 </script>
 

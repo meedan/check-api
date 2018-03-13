@@ -42,13 +42,6 @@
       "default": true,
       "type": "boolean"
     },
-    "keep_integration": {
-      "title": "Keep support",
-      "description": "If set to false, all other Keep settings below are ignored.",
-      "propertyOrder": 7,
-      "default": true,
-      "type": "boolean"
-    },
     "keep_screenshot": {
       "title": "Keep screenshots",
       "propertyOrder": 8,

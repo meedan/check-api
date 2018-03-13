@@ -4,7 +4,7 @@ module CheckLimits
     def max_number_was_reached(collection, klass, message)
       if self.team
         limit = self.team.send("get_limits_max_number_of_#{collection}")
-        unless limit.nil? or limit.to_i === 0
+        unless limit.to_i === 0
           if klass.where(team_id: self.team_id).count >= limit.to_i
             errors.add(:base, message)
           end
@@ -35,10 +35,15 @@ module CheckLimits
 
     check_settings :limits
 
+    before_validation :fix_json_editor_values
     before_create :set_default_plan
     validate :only_super_admin_can_change_limits
     validate :can_use_custom_statuses
     validate :can_use_checklist
+
+    def fix_json_editor_values
+      self.limits.update(self.limits) { |k,v| [true, false].include?(Team.plans[:free][k.to_sym]) ? !(v.to_i.zero?) : v.to_i }
+    end
 
     def plan
       plan = 'pro'
