@@ -399,7 +399,7 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user user: u1, team: t
     u2 = create_user
     create_team_user user: u2, team: t
-    s = create_status assigned_to_id: u1.id, annotated: pm, annotator: u, status: 'false'
+    s = create_status assigned_to_id: u1.id, annotated: pm, annotator: u, status: 'in_progress'
     s.assigned_to_id = u2.id
     assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 2 do
       s.save!
@@ -412,5 +412,27 @@ class StatusTest < ActiveSupport::TestCase
     end
 
     User.current = nil
+  end
+
+  test "should notify editor by e-mail for terminal status" do
+    require 'sidekiq/testing'
+    Sidekiq::Testing.fake!
+
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    s = pm.get_annotations('status').last
+    s = s.load
+    with_current_user_and_team(u, t) do
+      assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
+        s.status = 'verified'; s.save!
+      end
+      assert_no_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size' do
+        s.status = 'verified'; s.save!
+        s.status = 'in_progress'; s.save!
+      end
+    end
   end
 end
