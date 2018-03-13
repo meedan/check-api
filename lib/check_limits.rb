@@ -4,7 +4,7 @@ module CheckLimits
     def max_number_was_reached(collection, klass, message)
       if self.team
         limit = self.team.send("get_limits_max_number_of_#{collection}")
-        unless limit.nil?
+        unless limit.nil? or limit.to_i === 0
           if klass.where(team_id: self.team_id).count >= limit.to_i
             errors.add(:base, message)
           end

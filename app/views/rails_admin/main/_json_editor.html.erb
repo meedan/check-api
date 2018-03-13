@@ -7,6 +7,7 @@
   var field_schema = "<%= @object.json_schema_url(field_name) %>";
   var editor =  new JSONEditor(document.getElementById("<%= field_name %>_editor_holder"),{
     ajax: true,
+    required_by_default: true,
     disable_collapse: true,
     disable_array_reorder: true,
     theme: 'bootstrap2',
@@ -21,6 +22,6 @@
   });
 </script>
 
-<% if field_name == 'checklist' && value.is_a?(Array) && !value.size.zero? %>
+<% if field_name === 'checklist' && value.is_a?(Array) && !value.size.zero? %>
   <a class="btn btn-default json-editor-btn-delete" href='<%= "/admin/team/#{@object.id}/delete_tasks"%>'>Delete All Tasks</a>
 <% end %>
