@@ -75,7 +75,8 @@ class RegistrationsControllerTest < ActionController::TestCase
     assert_equal 'Bar', u.name
     assert_equal 'test', u.login
     assert_equal 'test', u.token
-    assert_equal 'bar@test.com', u.email
+    assert_empty u.email
+    assert_equal 'bar@test.com', u.unconfirmed_email
   end
 
   test "should not update account if not logged in" do

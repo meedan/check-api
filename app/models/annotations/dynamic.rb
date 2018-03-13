@@ -27,7 +27,7 @@ class Dynamic < ActiveRecord::Base
       if from != to
         I18n.t(:slack_update_translation_status,
           user: Bot::Slack.to_slack(User.current.name),
-          report: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}"),
+          report: Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title),
           from: from,
           to: to
         )
@@ -42,7 +42,7 @@ class Dynamic < ActiveRecord::Base
     note = I18n.t(:slack_answer_task_note, {note: Bot::Slack.to_slack_quote(note)}) unless note.blank?
     I18n.t(:slack_answer_task,
       user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{task}"),
+      url: Bot::Slack.to_slack_url(self.annotated_client_url, task),
       project: Bot::Slack.to_slack(self.annotated.project.title),
       response: Bot::Slack.to_slack_quote(response),
       answer_note: note

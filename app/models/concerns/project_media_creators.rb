@@ -57,6 +57,7 @@ module ProjectMediaCreators
       t.annotated = self
       t.skip_check_ability = true
       t.skip_notifications = true
+      t.disable_update_status = true
       t.save!
       created << t
       # set auto-response
@@ -109,6 +110,11 @@ module ProjectMediaCreators
         end
       end
     end
+  end
+
+  def set_quote_embed
+    self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
+    self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
   end
 
   protected

@@ -1,5 +1,6 @@
 require Rails.root.join('lib', 'rails_admin', 'send_reset_password_email.rb')
 require Rails.root.join('lib', 'rails_admin', 'export_project.rb')
+require Rails.root.join('lib', 'rails_admin', 'export_images.rb')
 require Rails.root.join('lib', 'rails_admin', 'yaml_field.rb')
 require Rails.root.join('lib', 'rails_admin', 'dashboard.rb')
 require Rails.root.join('lib', 'rails_admin', 'edit.rb')
@@ -7,6 +8,7 @@ require Rails.root.join('lib', 'rails_admin', 'delete.rb')
 require Rails.root.join('lib', 'rails_admin', 'delete_tasks.rb')
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportProject)
+RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportImages)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::DeleteTasks)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Fields::Types::Yaml)
 
@@ -48,6 +50,9 @@ RailsAdmin.config do |config|
     export_project do
       only ['Project']
     end
+    export_images do
+      only ['Project']
+    end
     delete_tasks do
       only ['Team']
     end
@@ -80,8 +85,12 @@ RailsAdmin.config do |config|
       end
       field :annotator do
         pretty_value do
-          path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
-          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+          if bindings[:object].annotator
+            path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
+            bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+          else
+           ''
+          end
         end
       end
     end
@@ -127,10 +136,10 @@ RailsAdmin.config do |config|
     end
   end
 
-  def render_settings(field_type)
+  def render_settings(field_type, only_admin = false)
     partial "form_settings_#{field_type}"
     hide do
-      bindings[:object].new_record?
+      bindings[:object].new_record? || (only_admin && !bindings[:view]._current_user.is_admin?)
     end
   end
 
@@ -140,9 +149,9 @@ RailsAdmin.config do |config|
     end
   end
 
-  def visible_only_for_allowed_teams(setting)
-    visible do
-      bindings[:object].send("get_limits_#{setting}") != false
+  def visible_only_for_allowed_teams(setting, hide_for_new = false)
+    hide do
+      bindings[:object].send("get_limits_#{setting}") == false || (hide_for_new && bindings[:object].new_record?)
     end
   end
 
@@ -345,7 +354,6 @@ RailsAdmin.config do |config|
       end
       configure :get_suggested_tags do
         label 'Suggested tags'
-        visible_only_for_admin
       end
       configure :private do
         visible_only_for_admin
@@ -407,11 +415,7 @@ RailsAdmin.config do |config|
           label "Enable #{I18n.t(('archive_' + type).to_sym)}"
           formatted_value{ bindings[:object].send("get_archive_#{type}_enabled") }
           help ''
-          visible_only_for_admin
-          visible_only_for_allowed_teams "keep_#{archiver}"
-          hide do
-            bindings[:object].new_record?
-          end
+          visible_only_for_allowed_teams "keep_#{archiver}", true
         end
       end
 
@@ -455,15 +459,13 @@ RailsAdmin.config do |config|
         label 'Suggested tags'
         formatted_value { bindings[:object].get_suggested_tags }
         help "A list of common tags to be used with reports and sources in your team."
-        visible_only_for_admin
-        render_settings('field')
+        render_settings('field', true)
       end
       field :limits, :yaml do
         label 'Limits'
-        formatted_value { bindings[:object].limits.to_yaml }
+        formatted_value { bindings[:object].limits.to_h.to_yaml }
         help "Limit this team features"
-        visible_only_for_admin
-        render_settings('text')
+        render_settings('text', true)
       end
     end
 

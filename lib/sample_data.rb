@@ -626,7 +626,8 @@ module SampleData
       options: ['10', '20', '30'],
       status: 'Unresolved',
       annotator: options[:user] || create_user,
-      disable_es_callbacks: true
+      disable_es_callbacks: true,
+      disable_update_status: true
     }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team

@@ -31,7 +31,7 @@ class Project < ActiveRecord::Base
 
   check_settings
 
-  include CheckCsvExport
+  include CheckExport
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -104,7 +104,7 @@ class Project < ActiveRecord::Base
   def slack_notification_message
     I18n.t(:slack_create_project,
       user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.url, "*#{self.title}*")
+      url: Bot::Slack.to_slack_url(self.url, self.title)
     )
   end
 

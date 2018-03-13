@@ -37,6 +37,22 @@ fr:
       sockpuppet:
         label: Faux-nez
         description: 'Conclusion : la source est un faux-nez (anglais : sock puppet)'
+    translation:
+      pending:
+        label: En attente
+        description: 'Par défault : récemment ajouté, le travail n''a pas commencé'
+      in_progress:
+        label: En cours
+        description: Le travail a commencé, mais pas encore de traduction faite
+      translated:
+        label: Traduit
+        description: Traduction terminée, en attente de révision
+      ready:
+        label: Approuvé
+        description: Traduction revue et approuvée pour la publication
+      error:
+        label: Erreur
+        description: Traduction revue avec des erreurs signalées
   errors:
     messages:
       extension_white_list_error: 'est d''un type %{extension} qui est interdit, seuls sont acceptés %{allowed_types}'
@@ -75,13 +91,13 @@ fr:
   slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
   slack_webhook_format_wrong: 'Webhook Slack non valide : le format doit être `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`'
   slug_is_reserved: est réservé
-  invalid_format_for_custom_verification_status: Statuts de vérifications personnalisés non valides
   invalid_format_for_checklist: 'Le champ de liste de contrôle est non-valide. Il devrait se conformer au format [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'Le champ des langages est non-valide. Il doit conformer au format [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Désolé, ce média n'est pas valide
-  invalid_default_status_for_custom_verification_status: Statut de défaut non valide
+  invalid_default_status_for_custom_verification_status: Identifiant du statut de défaut non valide
+  invalid_active_status_for_custom_verification_status: Identifiant du statut actif non valide
   invalid_id_or_label_for_custom_verification_status: L'identifiant et l'étiquette du statut sont requises
-  invalid_statuses_format_for_custom_verification_status: Statuts de vérifications personnalisés doivent contenir des valeurs valides pour `étiquette`, `identifiant`, `description` et `style`
+  invalid_statuses_format_for_custom_verification_status: "Les statuts de vérifications personnalisés doivent contenir des valeurs valides pour : étiquette, identifiant, description, style et indicateur d'état final."
   already_exists: existe déjà
   mail_account_confirmation: "Confirmation de votre compte %{app_name}"
   mail_request_to_join: "%{user} demande à se joindre à l'équipe %{team} sur %{app_name} !"
@@ -100,15 +116,15 @@ fr:
   slack_create_task_assignment: " affecté(e) à %{assignee}"
   slack_create_task_note: " avec note: %{note}"
   slack_answer_task: |-
-    *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
-    %{answer_note}
+      *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
+      %{answer_note}
   slack_answer_task_note: "*Note:* %{note}"
   slack_update_task_label: |-
-    *%{user}* a modifié la tâche %{url} dans *%{project}* de : %{from}
-    *à :* %{to}
+      *%{user}* a modifié la tâche %{url} dans *%{project}* de : %{from}
+      *à :* %{to}
   slack_update_task_description: |-
-    *%{user}* a modifié la description de la tâche %{url} dans *%{project}* de : %{from}
-    *à :* %{to}
+      *%{user}* a modifié la description de la tâche %{url} dans *%{project}* de : %{from}
+      *à :* %{to}
   mail_view_welcome: Bienvenue sur %{app_name}
   mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Prière de confirmer votre courriel en cliquant ce lien :'
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
@@ -127,6 +143,8 @@ fr:
         menu: Envoyer les instructions pour réinitialiser le mot de passe
       export_project:
         menu: Exporter les données du projet
+      export_images:
+        menu: Exporter les images du projet
       delete_tasks:
         done: les tâches ont bien été effacées
         are_you_sure_you_want_to_delete_the_tasks_from_team: Voulez-vous vraiment effacer toutes les tâches de l'équipe
@@ -158,17 +176,17 @@ fr:
   role_none: membre
   oembed_credit: Ajouté par %{user} (%{role}) %{date}
   oembed_notes_count:
-    one: Une note
-    other: '%{count} notes'
+    one: "Une note"
+    other: "%{count} notes"
   oembed_completed_tasks_count:
-    one: Une tâche complétée
-    other: '%{count} tâches complétées'
+    one: "Une tâche complétée"
+    other: "%{count} tâches complétées"
   oembed_verification_tasks: Tâches de vérification
   oembed_expand_all: Développer tout
   oembed_collapse_all: Réduire tout
   oembed_resolved_tasks_count:
-    one: Une tâche de vérification résolue
-    other: '%{count} tâches de vérification résolues'
+    one: "Une tâche de vérification résolue"
+    other: "%{count} tâches de vérification résolues"
   oembed_notes: Notes
   pender_conflict: Ce lien est déjà en cours de traitement, veuillez ressayer dans quelques secondes.
   duplicate_source: La source existe déjà
@@ -203,10 +221,17 @@ fr:
   mail_subject_unassign_status: "[%{team} - %{project}] Un média a été désaffecté"
   mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été affectée"
   mail_subject_unassign_task: "[%{team} - %{project}] Une tâche a été désaffectée"
+  mail_subject_update_status: "[%{team} - %{project}] Un média a été marqué comme %{status}"
   mail_assign_status: "%{author} vous a affecté un média intitulé "
   mail_unassign_status: "%{author} a désaffecté le média intitulé "
   mail_assign_task: "%{author} vous a affecté la tâche \"%{task}\" dans le média intitulé "
   mail_unassign_task: "%{author} a désaffecté la tâche \"%{task}\" dans le média intitulé "
+  mail_update_status: "%{author} a fixé le statut de \"%{title}\" à %{status}."
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "copies d'écran de Keep"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"
+  project_export_email_title_csv: "Votre rapport de projet est prêt à télécharger"
+  project_export_download_mail_csv: "Bonjour !\n\nVous avez demandé un rapport du projet %{project} - voici le lien pour le télécharger : %{link}\n\nLe rapport sera téléchargé sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"
+  project_export_email_title_images: "Les images de votre projet sont prêtes à télécharger"
+  project_export_download_mail_images: "Bonjour !\n\nVous avez demandé à télécharger les images du projet %{project} - voici le lien : %{link}\n\nLes images seront téléchargées sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"

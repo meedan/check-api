@@ -37,6 +37,22 @@ es:
       sockpuppet:
         label: Farsante
         description: 'Conclusión: la fuente es un farsante  '
+    translation:
+      pending:
+        label: Pendiente
+        description: 'Predeterminado por Bridge, no se ha iniciado ningún trabajo. '
+      in_progress:
+        label: En progreso
+        description: El trabajo ha comenzado, pero aún no se realizó ninguna traducción
+      translated:
+        label: Traducido
+        description: La traducción está lista, esperando la revisión
+      ready:
+        label: Listo
+        description: La traducción fue revisada y aprobada para su publicación
+      error:
+        label: Incorrecto
+        description: La traducción fue revisada y se encontraron errores
   errors:
     messages:
       extension_white_list_error: 'no puede tener tipo  %{extension}, tipos permitidos: %{allowed_types}'
@@ -75,13 +91,13 @@ es:
   slug_format_validation_message: acepta solo letras, números y guiones
   slack_webhook_format_wrong: El Slack webhook es inválido, debería tener este formato  `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: Está reservado
-  invalid_format_for_custom_verification_status: La personalización del estado de verificación es inválida.
   invalid_format_for_checklist: 'La lista de tareas es inválida, debería tener este formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'El idioma es inválido, debería tener este formato  [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: 'Lo sentimos, este no es un elemento multimedia válido '
-  invalid_default_status_for_custom_verification_status: El estado predeterminado es inválido
+  invalid_default_status_for_custom_verification_status: El identificador de estado predeterminado es inválido
+  invalid_active_status_for_custom_verification_status: El identificador de estado activo es inválido
   invalid_id_or_label_for_custom_verification_status: El nombre de estado y la etiqueta son obligatorios
-  invalid_statuses_format_for_custom_verification_status: La personalización de los estados de verificación debe tener `etiqueta`, ` identificación`, `descripción` y` estilo` válidos
+  invalid_statuses_format_for_custom_verification_status: "Los estados de verificación personalizados deben tener entradas válidas para: etiqueta, identificador, descripción, estilo y marca de estado final."
   already_exists: ya existe
   mail_account_confirmation: "%{app_name} confirmación de cuenta"
   mail_request_to_join: "%{user} quiere unirse al equipo de %{team} en %{app_name}!"
@@ -89,9 +105,9 @@ es:
   rejected: 'no aprobado '
   mail_request_to_join_processed: Tu solicitud para unirte a  %{team} en %{app_name} fue %{status}
   mail_new_account: Nueva cuenta para ti en  %{app_name}
-  slack_update_status: "*%{user}*cambió el estado de verificación de  %{url} en *%{project}* de _%{previous_status}_ a *%{current_status}*"
+  slack_update_status: "*%{user}* cambió el estado de verificación de  %{url} en *%{project}* de _%{previous_status}_ a *%{current_status}*"
   slack_save_embed: "*%{user}* cambió el título del reporte en el *%{project}* de _%{from}_ a %{to}"
-  slack_save_comment: "*%{user}*añadió una nota a %{url} en el *%{project}*: %{comment}"
+  slack_save_comment: "*%{user}* añadió una nota a %{url} en el *%{project}*: %{comment}"
   slack_create_project: "*%{user}* creó un proyecto: %{url}"
   slack_create_team_user: "*%{user}* se ha unido al equipo %{url}"
   slack_create_project_media: "*%{user}* añadió un nuevo %{type} a *%{project}*: %{url}"
@@ -100,15 +116,15 @@ es:
   slack_create_task_assignment: " asignado a %{assignee}"
   slack_create_task_note: " con nota: %{note}"
   slack_answer_task: |-
-    *%{user}* tarea resuelta %{url} en *%{project}*: %{response}
-    %{answer_note}
+      *%{user}* tarea resuelta %{url} en *%{project}*: %{response}
+      %{answer_note}
   slack_answer_task_note: "*Nota:* %{note}"
   slack_update_task_label: |-
-    *%{user}* tarea editada %{url} en *%{project}* de: %{from}
-    *a:* %{to}
+      *%{user}* tarea editada %{url} en *%{project}* de: %{from}
+      *a:* %{to}
   slack_update_task_description: |-
-    *%{user}* nota de tarea editada a %{url} en *%{project}* de: %{from}
-    *a:* %{to}
+      *%{user}* nota de tarea editada a %{url} en *%{project}* de: %{from}
+      *a:* %{to}
   mail_view_welcome: Bienvenido a %{app_name}
   mail_view_register: '¡Estás a un solo paso de usar %{app_name}! Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente enlace:'
   mail_view_joined: ¡Tu solicitud para unirte a %{team} fue aprobada! ¡Puedes ir a %{url} y empezar a contribuir!
@@ -127,6 +143,8 @@ es:
         menu: Enviar instrucciones para restablecer la contraseña
       export_project:
         menu: Exportar datos del proyecto
+      export_images:
+        menu: Exportar imágenes del proyecto
       delete_tasks:
         done: eliminó las tareas
         are_you_sure_you_want_to_delete_the_tasks_from_team: ¿Seguro que quieres eliminar todas las tareas del equipo?
@@ -158,17 +176,17 @@ es:
   role_none: miembro
   oembed_credit: Añadido por %{user} (%{role}) %{date}
   oembed_notes_count:
-    one: Una nota
-    other: '%{count} notas'
+    one: "Una nota"
+    other: "%{count} notas"
   oembed_completed_tasks_count:
-    one: Una tarea completada
-    other: '%{count} tareas completadas'
+    one: "Una tarea completada"
+    other: "%{count} tareas completadas"
   oembed_verification_tasks: Tareas de verificación
   oembed_expand_all: Expandir todo
   oembed_collapse_all: Contraer todo
   oembed_resolved_tasks_count:
-    one: Una tarea de verificación completada
-    other: '%{count} tareas de verificación completadas'
+    one: "Una tarea de verificación completada"
+    other: "%{count} tareas de verificación completadas"
   oembed_notes: Notas
   pender_conflict: Este enlace ya está siendo analizado, intente de nuevo en unos segundos.
   duplicate_source: Fuente existente
@@ -203,10 +221,17 @@ es:
   mail_subject_unassign_status: "[%{team} - %{project}] Se te ha desasignado un elemento multimedia"
   mail_subject_assign_task: "[%{team} - %{project}] Se te ha asignado una tarea"
   mail_subject_unassign_task: "[%{team} - %{project}] Se te ha desasignado una tarea"
+  mail_subject_update_status: "[%{team} - %{project}] Un elemento multimedia fue marcado como %{status}"
   mail_assign_status: "%{author} te asignó el medio: "
   mail_unassign_status: "%{author} te desasignó el medio: "
   mail_assign_task: "%{author} te asignó la tarea  \"%{task}\" del medio: "
   mail_unassign_task: "%{author} te desasignó la tarea \"%{task}\" del medio: "
+  mail_update_status: "%{author}estableció el estado de \"%{title}\" a %{status}"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de pantalla con Keep"
   archive_archive_is: "Archive.is"
+  archive_archive_org: "Archive.org"
+  project_export_email_title_csv: "Su informe de proyecto está listo para descargar"
+  project_export_download_mail_csv: "¡Hola!\n\nSolicitó un informe para el proyecto %{project} - aquí hay un enlace para descargarlo: %{link}\n\nEl informe se descargará como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}\n\nTenga en cuenta que este enlace expirará en %{days} días.\n\nSaludos,\n\nEquipo %{app}"
+  project_export_email_title_images: "Las imágenes de tu proyecto están listas para descargar"
+  project_export_download_mail_images: "¡Hola!\n\n\nSolicitó una descarga de las imágenes del proyecto %{project} - aquí hay un enlace para descargarlas: %{link}\n\nLas imágenes se descargarán como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}\n\nTenga en cuenta que este enlace expirará en %{days} días.\n\nSaludos,\n\nEquipo %{app}"

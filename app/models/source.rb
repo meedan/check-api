@@ -48,6 +48,14 @@ class Source < ActiveRecord::Base
     ProjectMedia.joins(:project).where(conditions)
   end
 
+  def medias_count
+    self.medias.count
+  end
+
+  def accounts_count
+    self.accounts.count
+  end
+
   def get_team
     teams = []
     projects = self.projects.map(&:id)
@@ -109,7 +117,7 @@ class Source < ActiveRecord::Base
     if data.nil?
       self.name = gname if self.name.blank?
     else
-      self.name = data['author_name'].blank? ? gname : data['author_name'] if self.name.blank? or self.name.start_with?('Untitled-')
+      self.name = data['author_name'].blank? ? gname : data['author_name'] if self.name.blank? or self.name.start_with?('Untitled')
     end
   end
 

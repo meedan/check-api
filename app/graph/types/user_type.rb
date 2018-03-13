@@ -6,6 +6,7 @@ UserType = GraphqlCrudOperations.define_default_type do
 
   field :dbid, types.Int
   field :email, types.String
+  field :unconfirmed_email, types.String
   field :provider, types.String
   field :uuid, types.String
   field :profile_image, types.String
@@ -15,6 +16,13 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :permissions, types.String
   field :jsonsettings, types.String
   field :number_of_teams, types.Int
+
+  field :confirmed do
+    type types.Boolean
+    resolve -> (user, _args, _ctx) do
+      user.is_confirmed?
+    end
+  end
 
   field :source do
     type SourceType

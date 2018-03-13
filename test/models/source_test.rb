@@ -479,4 +479,22 @@ class SourceTest < ActiveSupport::TestCase
       create_source
     end
   end
+
+  test "should get medias count" do
+    s = create_source
+    p = create_project
+    m = create_valid_media(account: create_valid_account(source: s))
+    pm = create_project_media project: p, media: m
+    assert_equal [pm], s.medias
+    # get media for claim attributions
+    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
+    cs = ClaimSource.where(media_id: pm2.media_id).last
+    assert_not_nil cs.source
+    assert_equal 1, cs.source.medias_count
+  end
+
+  test "should get accounts count" do
+    s = create_source
+    assert_equal s.accounts.count, s.accounts_count
+  end
 end
