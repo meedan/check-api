@@ -14,7 +14,7 @@ class TerminalStatusMailerTest < ActionMailer::TestCase
     pm = create_project_media project: p
     s = create_status annotated: pm, annotator: u, status: 'false'
 
-    email = TerminalStatusMailer.notify(s, u, s.status)
+    email = TerminalStatusMailer.notify(pm, u, s.status)
 
     assert_emails 1 do
       email.deliver_now
@@ -38,7 +38,7 @@ class TerminalStatusMailerTest < ActionMailer::TestCase
 
     create_bounce email: e1.email
     
-    email = TerminalStatusMailer.notify(s, u, s.status)
+    email = TerminalStatusMailer.notify(pm, u, s.status)
 
     assert_emails 1 do
       email.deliver_now

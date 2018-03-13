@@ -13,7 +13,7 @@ class Status < ActiveRecord::Base
 
   before_validation :store_previous_status, :normalize_status
 
-  after_save :update_elasticsearch_status, :send_email_notification
+  after_save :update_elasticsearch_status, :send_terminal_email_notification
 
   def self.core_verification_statuses(annotated_type)
     core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
@@ -162,7 +162,7 @@ class Status < ActiveRecord::Base
     end
   end
 
-  def send_email_notification
+  def send_terminal_email_notification
     if self.status != self.previous_annotated_status && self.is_terminal?
       TerminalStatusMailer.delay.notify(self.annotated, self.annotator, self.id_to_label(self.status))
     end
