@@ -176,17 +176,17 @@ fr:
   role_none: membre
   oembed_credit: Ajouté par %{user} (%{role}) %{date}
   oembed_notes_count:
-    one: Une note
-    other: '%{count} notes'
+    one: "Une note"
+    other: "%{count} notes"
   oembed_completed_tasks_count:
-    one: Une tâche complétée
-    other: '%{count} tâches complétées'
+    one: "Une tâche complétée"
+    other: "%{count} tâches complétées"
   oembed_verification_tasks: Tâches de vérification
   oembed_expand_all: Développer tout
   oembed_collapse_all: Réduire tout
   oembed_resolved_tasks_count:
-    one: Une tâche de vérification résolue
-    other: '%{count} tâches de vérification résolues'
+    one: "Une tâche de vérification résolue"
+    other: "%{count} tâches de vérification résolues"
   oembed_notes: Notes
   pender_conflict: Ce lien est déjà en cours de traitement, veuillez ressayer dans quelques secondes.
   duplicate_source: La source existe déjà
@@ -221,10 +221,12 @@ fr:
   mail_subject_unassign_status: "[%{team} - %{project}] Un média a été désaffecté"
   mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été affectée"
   mail_subject_unassign_task: "[%{team} - %{project}] Une tâche a été désaffectée"
+  mail_subject_update_status: "[%{team} - %{project}] Un média a été marqué comme %{status}"
   mail_assign_status: "%{author} vous a affecté un média intitulé "
   mail_unassign_status: "%{author} a désaffecté le média intitulé "
   mail_assign_task: "%{author} vous a affecté la tâche \"%{task}\" dans le média intitulé "
   mail_unassign_task: "%{author} a désaffecté la tâche \"%{task}\" dans le média intitulé "
+  mail_update_status: "%{author} a fixé le statut de \"%{title}\" à %{status}."
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "copies d'écran de Keep"
   archive_archive_is: "Archive.is"
