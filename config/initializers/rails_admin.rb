@@ -432,23 +432,18 @@ RailsAdmin.config do |config|
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
         help ''
         visible_only_for_allowed_teams 'slack_integration'
-        hide do
-          bindings[:object].new_record?
-        end
       end
       field :slack_webhook do
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
         help 'A <a href="https://my.slack.com/services/new/incoming-webhook/" target="_blank" rel="noopener noreferrer">webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.'.html_safe
         visible_only_for_allowed_teams 'slack_integration'
-        render_settings('field')
       end
       field :slack_channel do
         label 'Slack default #channel'
         formatted_value{ bindings[:object].get_slack_channel }
         help "The Slack channel to which Check should send notifications about events that occur in your team."
         visible_only_for_allowed_teams 'slack_integration'
-        render_settings('field')
       end
       field :checklist, :yaml do
         partial "json_editor"
