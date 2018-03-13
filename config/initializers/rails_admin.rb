@@ -85,8 +85,12 @@ RailsAdmin.config do |config|
       end
       field :annotator do
         pretty_value do
-          path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
-          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+          if bindings[:object].annotator
+            path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
+            bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+          else
+           ''
+          end
         end
       end
     end
