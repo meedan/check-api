@@ -17,8 +17,7 @@ module RailsAdmin
         end
         register_instance_option :controller do
           proc do
-            filename = @object.csv_filename + '.csv'
-            send_data @object.export_to_csv, type: 'text/csv', disposition: "attachment", filename: filename
+            @object.export_to_csv_in_background(current_api_user)
           end
         end
       end

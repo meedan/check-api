@@ -163,8 +163,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     sign_in @user
 
     get "/admin/project/#{@project.id}/export_project"
-    assert_equal "text/csv", @response.headers['Content-Type']
-    assert_match(/attachment; filename=\"#{@project.team.slug}_#{@project.title.parameterize}_.*\.csv\"/, @response.headers['Content-Disposition'])
+    assert_equal "text/html; charset=utf-8", @response.headers['Content-Type']
     assert_response :success
   end
 
@@ -176,6 +175,17 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     put "/admin/team/#{team_2.id}/edit", team: { hide_names_in_embeds: "1" }
     assert_redirected_to '/admin/team'
     assert_equal "1", team_2.reload.get_hide_names_in_embeds
+  end
+
+  test "should not see limits fields on team page if not admin" do
+    sign_in @user
+    Team.stubs(:current).returns(nil)
+    tu = create_team_user user: @user, role: 'owner'
+
+    get "/admin/team/#{tu.team.id}/edit"
+    assert_response :success
+    assert_no_match(/team_limits_field/, @response.body)
+    assert_no_match(/team_suggested_tags/, @response.body)
   end
 
   test "should handle error on edition of a team" do
@@ -252,4 +262,26 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     Team.any_instance.unstub(:save)
   end
 
+  test "should show link to export project images" do
+    @user.is_admin = true
+    @user.save!
+
+    sign_in @user
+
+    get "/admin/project/#{@project.id}/"
+
+    assert_select "a[href=?]",
+    "#{request.base_url}/admin/project/#{@project.id}/export_images"
+  end
+
+  test "should download exported images of a project" do
+    @user.is_admin = true
+    @user.save!
+
+    sign_in @user
+
+    get "/admin/project/#{@project.id}/export_images"
+    assert_equal "text/html; charset=utf-8", @response.headers['Content-Type']
+    assert_response :success
+  end
 end

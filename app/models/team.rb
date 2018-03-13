@@ -41,8 +41,8 @@ class Team < ActiveRecord::Base
     }
   end
 
-  def owners
-    self.users.where('team_users.role' => 'owner')
+  def owners(role)
+    self.users.where('team_users.role' => role)
   end
 
   def recent_projects
@@ -76,8 +76,8 @@ class Team < ActiveRecord::Base
     statuses
   end
 
-  def recipients(requestor)
-    owners = self.owners
+  def recipients(requestor, role='owner')
+    owners = self.owners(role)
     recipients = []
     if !owners.empty? && !owners.include?(requestor)
       recipients = owners.map(&:email).reject{ |m| m.blank? }

@@ -119,9 +119,6 @@ class Ability
         obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
       end
     end
-    can :create, Task, ['annotation_type = ?', 'task'] do |task|
-      task.get_team.include?(@context_team.id) && !task.annotated_is_archived?
-    end
   end
 
   def journalist_perms
@@ -153,6 +150,9 @@ class Ability
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.annotation_type == 'comment' && obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
       end
+    end
+    can :create, Task, ['annotation_type = ?', 'task'] do |task|
+      task.get_team.include?(@context_team.id) && !task.annotated_is_archived?
     end
   end
 

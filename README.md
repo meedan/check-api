@@ -212,6 +212,11 @@ end
 * Run `rake db:migrate:checkdesk`.
 * Rake command will generate `mapping_ids.yml` to log Checkdesk => Check mapping and mark migrated model.
 
+### Apollo integration
+
+* Copy `config/apollo-engine-proxy.json.example` to `config/apollo-engine-proxy.json` and add you API key
+* Point the clients (e.g., `check-web`) to the proxy host and port
+
 ### Credits
 
 Meedan (hello@meedan.com)

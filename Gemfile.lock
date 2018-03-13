@@ -6,18 +6,10 @@ GIT
 
 GIT
   remote: https://github.com/meedan/alegre-client.git
-  revision: 31f8ab5a36958f9e3338aa436cd2d9409d59fd72
-  ref: 31f8ab5
+  revision: d97ec6a675bf9edde72e36207a370148eecd5575
+  ref: d97ec6a
   specs:
-    alegre_client (0.0.9)
-
-GIT
-  remote: https://github.com/meedan/chromeshot
-  revision: 030b8d867a515cfda8757282c966fc2b4dd24b49
-  ref: 030b8d8
-  specs:
-    chromeshot (0.0.0)
-      mini_magick
+    alegre_client (0.0.10)
 
 GIT
   remote: https://github.com/meedan/graphiql-rails.git
@@ -29,10 +21,10 @@ GIT
 
 GIT
   remote: https://github.com/meedan/pender-client.git
-  revision: 88df0561b64b96bb7f8887b518249850c90a1e14
-  ref: 88df056
+  revision: e8eca00fdc5706bda0510be679a921fecf4f6a4d
+  ref: e8eca00
   specs:
-    pender_client (0.0.2)
+    pender_client (0.0.3)
 
 GIT
   remote: https://github.com/meedan/transifex-interface-ruby.git
@@ -93,8 +85,10 @@ GEM
     airbrake (4.3.3)
       builder
       multi_json
+    apollo-tracing (1.4.0)
+      graphql (>= 1.6.0, < 2)
     arel (6.0.4)
-    ast (2.3.0)
+    ast (2.4.0)
     awesome_print (1.7.0)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
@@ -195,7 +189,6 @@ GEM
       tilt
     hashdiff (0.3.2)
     hashie (3.5.5)
-    hitimes (1.2.6)
     htmlentities (4.3.4)
     http (2.2.1)
       addressable (~> 2.3)
@@ -253,7 +246,7 @@ GEM
     mime-types-data (3.2016.0521)
     mimemagic (0.3.2)
     mini_magick (4.7.0)
-    mini_portile2 (2.1.0)
+    mini_portile2 (2.3.0)
     minitest (5.10.1)
     mocha (1.2.1)
       metaclass (~> 0.0.1)
@@ -266,8 +259,8 @@ GEM
     net-http-persistent (2.9.4)
     netrc (0.11.0)
     newrelic_rpm (4.1.0.333)
-    nokogiri (1.7.2)
-      mini_portile2 (~> 2.1.0)
+    nokogiri (1.8.2)
+      mini_portile2 (~> 2.3.0)
     ntlm-http (0.1.1)
     oauth (0.5.1)
     oauth2 (1.3.1)
@@ -292,12 +285,6 @@ GEM
     omniauth-twitter (1.4.0)
       omniauth-oauth (~> 1.1)
       rack
-    optics-agent (0.5.4)
-      faraday (~> 0.11)
-      google-protobuf (~> 3.2)
-      graphql (~> 1.1)
-      hitimes (~> 1.2)
-      net-http-persistent (~> 2.0)
     orm_adapter (0.5.0)
     paper_trail (7.0.1)
       activerecord (>= 4.0, < 5.2)
@@ -305,8 +292,8 @@ GEM
     parallel (1.12.0)
     parallel_tests (2.17.0)
       parallel
-    parser (2.4.0.0)
-      ast (~> 2.2)
+    parser (2.4.0.2)
+      ast (~> 2.3)
     pg (0.20.0)
     pg_application_name (1.2.0)
       pg
@@ -325,12 +312,12 @@ GEM
       multi_json (~> 1.0)
       pusher-signature (~> 0.1.8)
     pusher-signature (0.1.8)
-    rack (1.6.5)
+    rack (1.6.9)
     rack-cors (0.4.1)
     rack-pjax (1.0.0)
       nokogiri (~> 1.5)
       rack (>= 1.1)
-    rack-protection (1.5.3)
+    rack-protection (1.5.4)
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -407,7 +394,8 @@ GEM
       rspec-mocks (~> 3.5.0)
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
-    rubocop (0.48.1)
+    rubocop (0.49.0)
+      parallel (~> 1.10)
       parser (>= 2.3.3.1, < 3.0)
       powerpack (~> 0.1)
       rainbow (>= 1.99.1, < 3.0)
@@ -418,7 +406,8 @@ GEM
       nokogiri
       thor
       ya2yaml
-    ruby-progressbar (1.8.1)
+    ruby-progressbar (1.9.0)
+    rubyzip (1.2.1)
     safe_yaml (1.0.4)
     sass (3.4.23)
     sass-rails (5.0.6)
@@ -485,7 +474,7 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.4)
-    unicode-display_width (1.2.1)
+    unicode-display_width (1.3.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -511,12 +500,12 @@ PLATFORMS
 DEPENDENCIES
   airbrake (= 4.3.3)
   alegre_client!
+  apollo-tracing
   awesome_print
   bootstrap-sass (~> 3.2.0.0)
   byebug
   cancancan (~> 1.10)
   carrierwave (~> 0.9)
-  chromeshot!
   clamav-client
   codeclimate-test-reporter (= 1.0.8)
   coffee-rails (~> 4.1.0)
@@ -547,11 +536,10 @@ DEPENDENCIES
   mini_magick
   mocha
   newrelic_rpm
-  nokogiri (= 1.7.2)
+  nokogiri (= 1.8.2)
   omniauth-facebook
   omniauth-slack
   omniauth-twitter
-  optics-agent (= 0.5.4)
   paper_trail
   parallel_tests
   pender_client!
@@ -561,6 +549,7 @@ DEPENDENCIES
   puma
   pusher
   rack-cors
+  rack-protection (= 1.5.4)
   railroady
   rails (= 4.2.7.1)
   rails-graphql-generator
@@ -571,8 +560,9 @@ DEPENDENCIES
   request_store
   responders
   rest-client
-  rubocop
+  rubocop (= 0.49.0)
   ruby-cldr
+  rubyzip
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   sidekiq

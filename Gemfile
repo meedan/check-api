@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 group :development, :test do
   gem 'byebug'
-  gem 'rubocop'
+  gem 'rubocop', '0.49.0'
   gem 'rails-graphql-generator'
   gem 'parallel_tests'
 end
@@ -12,7 +12,7 @@ group :development do
 end
 
 # Use pender from git
-gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '88df056'
+gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: 'e8eca00'
 
 gem 'logstash-logger'
 gem 'rails', '4.2.7.1'
@@ -55,7 +55,7 @@ gem 'elasticsearch-persistence', '0.1.9', require: 'elasticsearch/persistence/mo
 gem 'paper_trail'
 gem 'graphiql-rails', git: 'https://github.com/meedan/graphiql-rails.git', ref: '8db0eac'
 gem 'graphql-formatter'
-gem 'nokogiri', '1.7.2'
+gem 'nokogiri', '1.8.2'
 gem 'mini_magick'
 gem 'puma'
 gem 'rack-cors', :require => 'rack/cors'
@@ -74,7 +74,7 @@ gem 'transifex-interface-ruby', git: 'https://github.com/meedan/transifex-interf
 gem 'http_accept_language', git: 'https://github.com/iain/http_accept_language.git'
 gem 'i18n-generators'
 gem 'rails-i18n', git: 'https://github.com/svenfuchs/rails-i18n.git', branch: 'rails-4-x', ref: 'f8c83ec'
-gem 'alegre_client', git: 'https://github.com/meedan/alegre-client.git', ref: '31f8ab5'
+gem 'alegre_client', git: 'https://github.com/meedan/alegre-client.git', ref: 'd97ec6a'
 gem 'devise-i18n'
 gem 'ruby-cldr'
 gem 'twitter'
@@ -82,8 +82,9 @@ gem 'request_store'
 gem 'geojsonlint'
 gem 'jsonpath', '~> 0.8.8'
 gem 'graphql-batch'
-gem 'optics-agent', '0.5.4'
 gem 'google-protobuf', '3.2.0'
 gem 'concurrent-ruby', require: 'concurrent'
 gem 'rails_admin_material'
-gem 'chromeshot', git: 'https://github.com/meedan/chromeshot', ref: '030b8d8'
+gem 'apollo-tracing'
+gem 'rubyzip'
+gem 'rack-protection', '1.5.4'

@@ -55,6 +55,7 @@ html, body {
   color: #fff;
   margin: 0;
   margin-bottom: 16px;
+  margin-right: 48px;
   text-align: left;
   flex: 1;
 }
