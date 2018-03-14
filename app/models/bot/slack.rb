@@ -152,7 +152,7 @@ class Bot::Slack < ActiveRecord::Base
     end
 
     def call_slack_api(endpoint)
-      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint)
+      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.nil? 
     end
 
     # The default behavior is to update an existing Slack message

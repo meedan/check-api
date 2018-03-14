@@ -89,13 +89,14 @@ class Bot::SlackTest < ActiveSupport::TestCase
     WebMock.allow_net_connect!
   end
 
-  test "should not send message to Slack thread if there is no token" do
+  test "should not send message to Slack thread if there is no annotation type" do
     WebMock.disable_net_connect!
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
     2.times do
       create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: '[]', slack_message_channel: 'C0123Y' }.to_json
     end
+    DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.delete
     stub_config('slack_token', nil) do
       Sidekiq::Testing.inline! do
         create_comment annotated: pm
