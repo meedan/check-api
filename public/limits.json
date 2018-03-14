@@ -1,0 +1,70 @@
+{
+  "title": "Limits",
+  "type": "object",
+  "properties": {
+    "max_number_of_members": {
+      "title": "Maximum number of members",
+      "description": "Enter 0 for unlimited number of members.",
+      "propertyOrder": 1,
+      "default": 0,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "max_number_of_projects": {
+      "title": "Maximum number of projects",
+      "description": "Enter 0 for unlimited number of projects.",
+      "propertyOrder": 2,
+      "default": 0,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "custom_statuses": {
+      "title": "Custom statuses",
+      "propertyOrder": 3,
+      "default": true,
+      "type": "boolean"
+    },
+    "custom_tasks_list": {
+      "title": "Custom tasks",
+      "propertyOrder": 4,
+      "default": true,
+      "type": "boolean"
+    },
+    "slack_integration": {
+      "title": "Slack support",
+      "propertyOrder": 5,
+      "default": true,
+      "type": "boolean"
+    },
+    "browser_extension": {
+      "title": "Browser extension support",
+      "propertyOrder": 6,
+      "default": true,
+      "type": "boolean"
+    },
+    "keep_screenshot": {
+      "title": "Keep screenshots",
+      "propertyOrder": 8,
+      "default": true,
+      "type": "boolean"
+    },
+    "keep_archive_org": {
+      "title": "Keep Archive.org integration",
+      "propertyOrder": 9,
+      "default": true,
+      "type": "boolean"
+    },
+    "keep_archive_is": {
+      "title": "Keep Archive.is integration",
+      "propertyOrder": 10,
+      "default": true,
+      "type": "boolean"
+    },
+    "keep_video_vault": {
+      "title": "Keep Video Vault integration",
+      "propertyOrder": 11,
+      "default": true,
+      "type": "boolean"
+    }
+  }
+}
