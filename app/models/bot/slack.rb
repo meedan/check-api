@@ -138,7 +138,7 @@ class Bot::Slack < ActiveRecord::Base
           channel = annotation.load.get_field_value('slack_message_channel')
           attachments = annotation.load.get_field_value('slack_message_attachments')
           query = obj.slack_message_parameters(id, channel, attachments)
-          Net::HTTP.get_response(URI("https://slack.com/api/chat.#{endpoint}?" + URI.encode_www_form(query.merge({ channel: channel, token: CONFIG['slack_token'] }))))
+          Net::HTTP.get_response(URI("https://slack.com/api/chat.#{endpoint}?" + URI.encode_www_form(query.merge({ channel: channel, token: annotation.load.get_field_value('slack_message_token') }))))
         end
       end
     end
@@ -152,7 +152,7 @@ class Bot::Slack < ActiveRecord::Base
     end
 
     def call_slack_api(endpoint)
-      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless CONFIG['slack_token'].blank?
+      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint)
     end
 
     # The default behavior is to update an existing Slack message
