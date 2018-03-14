@@ -3,7 +3,7 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
     type AnnotationType
 
     resolve -> (task, _args, _ctx) {
-      obj = task.load
+      obj = task.load || task
       obj.nil? ? nil : obj.responses.first
     }
   end
@@ -12,7 +12,7 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
     type types.String
 
     resolve -> (task, _args, _ctx) {
-      obj = task.load
+      obj = task.load || task
       obj.nil? ? "" : obj.first_response
     }
   end
