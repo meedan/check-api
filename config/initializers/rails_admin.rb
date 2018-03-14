@@ -85,8 +85,12 @@ RailsAdmin.config do |config|
       end
       field :annotator do
         pretty_value do
-          path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
-          bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+          if bindings[:object].annotator
+            path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
+            bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
+          else
+           ''
+          end
         end
       end
     end
@@ -427,24 +431,21 @@ RailsAdmin.config do |config|
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
         help ''
-        visible_only_for_allowed_teams 'slack_integration'
-        hide do
-          bindings[:object].new_record?
-        end
+        visible_only_for_allowed_teams 'slack_integration', true
       end
       field :slack_webhook do
+        partial "form_settings_field"
         label 'Slack webhook'
         formatted_value{ bindings[:object].get_slack_webhook }
         help 'A <a href="https://my.slack.com/services/new/incoming-webhook/" target="_blank" rel="noopener noreferrer">webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.'.html_safe
-        visible_only_for_allowed_teams 'slack_integration'
-        render_settings('field')
+        visible_only_for_allowed_teams 'slack_integration', true
       end
       field :slack_channel do
+        partial "form_settings_field"
         label 'Slack default #channel'
         formatted_value{ bindings[:object].get_slack_channel }
         help "The Slack channel to which Check should send notifications about events that occur in your team."
-        visible_only_for_allowed_teams 'slack_integration'
-        render_settings('field')
+        visible_only_for_allowed_teams 'slack_integration', true
       end
       field :checklist, :yaml do
         partial "json_editor"
@@ -458,10 +459,9 @@ RailsAdmin.config do |config|
         render_settings('field', true)
       end
       field :limits, :yaml do
-        label 'Limits'
-        formatted_value { bindings[:object].limits.to_yaml }
-        help "Limit this team features"
-        render_settings('text', true)
+        partial "json_editor"
+        help "Select the features that are available to this team."
+        visible_only_for_admin
       end
     end
 

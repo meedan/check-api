@@ -243,4 +243,9 @@ class TaskTest < ActiveSupport::TestCase
 
     User.current = nil
   end
+
+  test "should load task" do
+    t = create_task
+    assert_equal t, t.task
+  end
 end
