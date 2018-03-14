@@ -19,7 +19,7 @@ ENV DEPLOYUSER=checkdeploy \
 #
 
 # imagemagick
-RUN apt-get update && apt-get install -y --no-install-recommends imagemagick
+# RUN apt-get update && apt-get install -y --no-install-recommends imagemagick
 
 #
 # SYSTEM CONFIG
