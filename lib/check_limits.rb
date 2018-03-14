@@ -42,6 +42,7 @@ module CheckLimits
     validate :can_use_checklist
 
     def fix_json_editor_values
+      return if !self.limits_changed?
       self.limits.update(self.limits) { |k,v| [true, false].include?(Team.plans[:free][k.to_sym]) ? !(v.to_i.zero?) : v.to_i }
     end
 
