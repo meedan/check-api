@@ -4,8 +4,8 @@
 
 set -e
 
-LOGFILE=${DEPLOYDIR}/current/log/${RAILS_ENV}.log
-UPLOADS=${DEPLOYDIR}/shared/files/uploads
+LOGFILE=${DEPLOYDIR}/log/${RAILS_ENV}.log
+UPLOADS=/app/shared/files/uploads
 
 echo "setting permissions for ${LOGFILE}"
 touch ${LOGFILE}
