@@ -49,7 +49,7 @@ class TeamUserMailerTest < ActionMailer::TestCase
 
     assert_equal [CONFIG['default_mail']], email.from
     assert_equal ['user@mail.com'], email.to
-    assert_match "rejected", email.body.parts.first.to_s
+    assert_match "not approved", email.body.parts.first.to_s
   end
 
   test "should not send request to join email if bounced" do
