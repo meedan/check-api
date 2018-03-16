@@ -132,7 +132,7 @@ ar:
   mail_view_welcome: مرحباً بك في %{app_name}
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
   mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
-  mail_view_rejected_to_join: عذراً ، لقد رُفض طلب انضمامك إلى فريق %{team}
+  mail_view_rejected_to_join: عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
   mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
   mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
   pender_could_not_parse: تعذّر تحليل الميديا

@@ -128,7 +128,7 @@ fr:
   mail_view_welcome: Bienvenue sur %{app_name}
   mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Prière de confirmer votre courriel en cliquant ce lien :'
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
-  mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} a été rejetée.
+  mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} n'a pas été approuvée.
   mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur %{app_name} !"
   mail_view_process_request: 'Pour traiter cette requête, prière de vous connecter et de visiter:'
   pender_could_not_parse: Ce n'était pas possible d'analyser ce média
