@@ -59,6 +59,9 @@ class Project < ActiveRecord::Base
       project[:team] = {
         id: Base64.encode64("Team/#{self.id}"),
         dbid: self.team_id,
+        avatar: self.team.avatar,
+        name: self.team.name,
+        slug: self.team.slug,
         projects: { edges: self.team.projects.collect{ |p| { node: p.as_json(without_team: true) } } }
       }
     end
