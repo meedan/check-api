@@ -109,6 +109,18 @@ class TestController < ApplicationController
     render_success 'project_media', pm
   end
 
+  def new_api_key
+    if params[:access_token]
+      a = ApiKey.where(access_token: params[:access_token]).last
+      unless a.nil?
+        render_success 'api_key', a
+        return true
+      end
+    end
+    a = create_api_key(params)
+    render_success 'api_key', a
+  end
+
   protected
 
   def new_media(type)
