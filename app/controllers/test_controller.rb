@@ -118,6 +118,10 @@ class TestController < ApplicationController
       end
     end
     a = create_api_key(params)
+    params.each do |key, value|
+      a.send("#{key}=", value) if a.respond_to?("#{key}=")
+    end
+    a.save!
     render_success 'api_key', a
   end
 
