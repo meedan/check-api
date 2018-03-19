@@ -13,7 +13,7 @@ class Status < ActiveRecord::Base
 
   before_validation :store_previous_status, :normalize_status
 
-  after_save :update_elasticsearch_status
+  after_save :update_elasticsearch_status, :send_terminal_email_notification
 
   def self.core_verification_statuses(annotated_type)
     core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
@@ -97,7 +97,7 @@ class Status < ActiveRecord::Base
 
   def slack_notification_message
     user = Bot::Slack.to_slack(User.current.name)
-    url = Bot::Slack.to_slack_url("#{self.annotated_client_url}", "#{self.annotated.title}")
+    url = Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title)
     project = Bot::Slack.to_slack(self.annotated.project.title)
     if self.status != self.previous_annotated_status
       I18n.t(:slack_update_status,
@@ -126,6 +126,14 @@ class Status < ActiveRecord::Base
     end
   end
 
+  def is_terminal?
+    terminal = false
+    if self.annotated_type == 'ProjectMedia'
+      terminal = Status.completed_ids(self.annotated.media, self.annotated.project).include?(self.status)
+    end
+    terminal
+  end
+
   private
 
   def status_is_valid
@@ -149,9 +157,14 @@ class Status < ActiveRecord::Base
   end
 
   def can_complete_media
-    annotated = self.annotated
-    if Status.completed_ids(annotated.media, annotated.project).include?(self.status)
-      errors.add(:base, 'You should resolve required tasks first') unless Status.is_completed?(annotated)
+    if self.is_terminal?
+      errors.add(:base, 'You should resolve required tasks first') unless Status.is_completed?(self.annotated)
+    end
+  end
+
+  def send_terminal_email_notification
+    if self.status != self.previous_annotated_status && self.is_terminal?
+      TerminalStatusMailer.delay.notify(self.annotated, self.annotator, self.id_to_label(self.status))
     end
   end
 end

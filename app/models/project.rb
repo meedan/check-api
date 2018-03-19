@@ -59,6 +59,9 @@ class Project < ActiveRecord::Base
       project[:team] = {
         id: Base64.encode64("Team/#{self.id}"),
         dbid: self.team_id,
+        avatar: self.team.avatar,
+        name: self.team.name,
+        slug: self.team.slug,
         projects: { edges: self.team.projects.collect{ |p| { node: p.as_json(without_team: true) } } }
       }
     end
@@ -104,7 +107,7 @@ class Project < ActiveRecord::Base
   def slack_notification_message
     I18n.t(:slack_create_project,
       user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.url, "*#{self.title}*")
+      url: Bot::Slack.to_slack_url(self.url, self.title)
     )
   end
 

@@ -3,7 +3,7 @@ FROM meedan/ruby
 MAINTAINER sysops@meedan.com
 
 ENV DEPLOYUSER=checkdeploy \
-    DEPLOYDIR=/app \
+    DEPLOYDIR=/app/current \
     RAILS_ENV=production \
     GITREPO=git@github.com:meedan/check-api.git \
     PRODUCT=check \
@@ -15,66 +15,58 @@ ENV DEPLOYUSER=checkdeploy \
     # MIN_INSTANCES and MAX_POOL_SIZE control the pool size of passenger
 
 #
-# DEPENDENCIES
+# USER CONFIG
 #
-
-# imagemagick
-RUN apt-get update && apt-get install -y --no-install-recommends imagemagick
+RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 #
 # SYSTEM CONFIG
 #
 
 # nginx for check-api
-COPY production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
-COPY production/config/nginx/test_404.conf /etc/nginx/sites-available/test_404.conf
-RUN sed -i "s/ddDEPLOYUSERdd/${DEPLOYUSER}/g" /etc/nginx/sites-available/${APP} \
+COPY --chown=checkdeploy:www-data production/config/nginx/app.conf /etc/nginx/sites-available/${APP}
+COPY --chown=checkdeploy:www-data production/config/nginx/test_404.conf /etc/nginx/sites-available/test_404.conf
+RUN sed -i "s/ddDEPLOYUSERdd/checkdeploy/g" /etc/nginx/sites-available/${APP} \
     && ln -s /etc/nginx/sites-available/${APP} /etc/nginx/sites-enabled/${APP} \
     && rm /etc/nginx/sites-enabled/default
 
-#
-# USER CONFIG
-#
-RUN useradd ${DEPLOYUSER} -s /bin/bash -m
+# CMD and helper scripts
+COPY --chown=root:root production/bin /opt/bin
 
 #
 # code deployment
 #
-RUN mkdir -p ${DEPLOYDIR}/latest \
+RUN mkdir -p ${DEPLOYDIR} \
     && chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR} \
     && chmod -R 775 ${DEPLOYDIR} \
-    && chmod g+s ${DEPLOYDIR}/latest
+    && chmod g+s ${DEPLOYDIR}
 
 WORKDIR ${DEPLOYDIR}
 
 # install the gems
-COPY ./Gemfile ./latest/Gemfile
-COPY ./Gemfile.lock ./latest/Gemfile.lock
 USER ${DEPLOYUSER}
+# COPY's `--chown` directive cannot utilize environmental variables
+# so we mimic `--chown=${DEPLOYUSER}:www-data`
+COPY --chown=checkdeploy:www-data ./Gemfile ${DEPLOYDIR}/Gemfile
+COPY --chown=checkdeploy:www-data ./Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
-    && cd ./latest \
     && bundle install  --jobs 20 --retry 5 --deployment --without test development
+
+# copy in the code
+# COPY's `--chown` directive cannot utilize environmental variables
+# so we mimic `--chown=${DEPLOYUSER}:www-data`
+COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 
 USER root
 
-# deployment scripts
-COPY production/bin /opt/bin
-RUN chmod 755 /opt/bin/*
-
-# copy in the code
-COPY . ./latest
-RUN chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR} \
-    && chmod -R 775 ${DEPLOYDIR} \
-    && chmod g+s ${DEPLOYDIR}/latest
-USER ${DEPLOYUSER}
-
 # link config files
-RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}/latest
+RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}
 # persist these directories
-RUN for d in ${PERSIST_DIRS}; do mkdir -p ${DEPLOYDIR}/shared/files/${d} \
-    && ln -s ${DEPLOYDIR}/shared/files/${d} ${DEPLOYDIR}/latest/public/${d}; done
+RUN for d in ${PERSIST_DIRS}; do mkdir -p /app/shared/files/${d} \
+    && ln -s /app/shared/files/${d} ${DEPLOYDIR}/public/${d}; done
 
-RUN ln -s ./latest ./${APP}-$(date -I) && ln -s ./${APP}-$(date -I) ./current
+RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
+
 
 #
 # RUNTIME ELEMENTS
@@ -83,6 +75,5 @@ RUN ln -s ./latest ./${APP}-$(date -I) && ln -s ./${APP}-$(date -I) ./current
 # expose apollo optics port
 EXPOSE 3001
 
-USER root
-WORKDIR ${DEPLOYDIR}/current
+WORKDIR ${DEPLOYDIR}
 CMD ["/opt/bin/start.sh"]

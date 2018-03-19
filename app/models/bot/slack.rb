@@ -50,14 +50,14 @@ class Bot::Slack < ActiveRecord::Base
   def bot_send_slack_notification(model, webhook, channel, message)
     return if webhook.blank? || channel.blank? || message.blank?
 
-      data = {
-        payload: {
-          channel: channel,
-          text: message.gsub('\\n', "\n")
-        }.to_json
-      }
+    data = {
+      payload: {
+        channel: channel,
+        text: message.gsub('\\n', "\n")
+      }.to_json
+    }
 
-      Rails.env === 'test' ? self.request_slack(model, webhook, data) : SlackNotificationWorker.perform_async(webhook, YAML::dump(data), YAML::dump(User.current))
+    Rails.env === 'test' ? self.request_slack(model, webhook, data) : SlackNotificationWorker.perform_async(webhook, YAML::dump(data), YAML::dump(User.current))
   end
 
   def request_slack(model, webhook, data)
@@ -75,11 +75,12 @@ class Bot::Slack < ActiveRecord::Base
   end
   class << self
     def to_slack(text)
+      return "" if text.blank?
       # https://api.slack.com/docs/message-formatting#how_to_escape_characters
       { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
         text = text.gsub(k,v)
       }
-      text
+      text.truncate(140)
     end
 
     def to_slack_url(url, text)
@@ -137,7 +138,7 @@ class Bot::Slack < ActiveRecord::Base
           channel = annotation.load.get_field_value('slack_message_channel')
           attachments = annotation.load.get_field_value('slack_message_attachments')
           query = obj.slack_message_parameters(id, channel, attachments)
-          Net::HTTP.get_response(URI("https://slack.com/api/chat.#{endpoint}?" + URI.encode_www_form(query.merge({ channel: channel, token: CONFIG['slack_token'] }))))
+          Net::HTTP.get_response(URI("https://slack.com/api/chat.#{endpoint}?" + URI.encode_www_form(query.merge({ channel: channel, token: annotation.load.get_field_value('slack_message_token') }))))
         end
       end
     end
@@ -151,7 +152,7 @@ class Bot::Slack < ActiveRecord::Base
     end
 
     def call_slack_api(endpoint)
-      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless CONFIG['slack_token'].blank?
+      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.nil? 
     end
 
     # The default behavior is to update an existing Slack message
@@ -175,9 +176,10 @@ class Bot::Slack < ActiveRecord::Base
       json[0]['text'] = self.description.to_s.truncate(500)
       json[0]['color'] = self.last_status_color
       json[0]['fields'][0]['value'] = self.get_versions_log_count
-      json[0]['fields'][1]['value'] = "#{self.completed_tasks_count}/#{self.all_tasks.size}"
-      json[0]['fields'][3]['value'] = "<!date^#{self.updated_at.to_i}^{date} {time}|#{self.updated_at.to_i}>"
-      json[0]['fields'][4]['value'] = self.project.title
+      json[0]['fields'][2]['value'] = "<!date^#{self.updated_at.to_i}^{date} {time}|#{self.updated_at.to_i}>"
+      json[0]['fields'][3]['value'] = self.project.title
+
+      json[0]['fields'][4] = { title: 'Tasks Completed', value: "#{self.completed_tasks_count}/#{self.all_tasks.size}", short: true } if self.all_tasks.size > 0
 
       tags = self.get_annotations('tag').map(&:tag)
       json[0]['fields'][5] = { title: 'Tags', value: tags.join(', '), short: true } if tags.size > 0
@@ -190,7 +192,7 @@ class Bot::Slack < ActiveRecord::Base
     include ::Bot::Slack::SlackMessage
 
     create_or_update_slack_message on: :create, endpoint: :post_message
-    
+
     def slack_message_parameters(id, _channel, _attachments)
       # Not localized yet because Check Slack Bot is only in English for now
       { thread_ts: id, text: 'Comment by ' + self.annotator.name + ': ' + self.text }
@@ -199,13 +201,13 @@ class Bot::Slack < ActiveRecord::Base
 
   Status.class_eval do
     include ::Bot::Slack::SlackMessage
-    
+
     create_or_update_slack_message on: :update, endpoint: :update
   end
 
   Embed.class_eval do
     include ::Bot::Slack::SlackMessage
-    
+
     create_or_update_slack_message on: [:update, :create], endpoint: :update
   end
 end
