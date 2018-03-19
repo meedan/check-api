@@ -120,19 +120,19 @@ ar:
   slack_create_task_assignment: " موّكل إلى %{assignee}"
   slack_create_task_note: " مع التعليق: %{note}"
   slack_answer_task: |-
-    أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
-    %{answer_note}
+      أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
+      %{answer_note}
   slack_answer_task_note: "*التعليق:* %{note}"
   slack_update_task_label: |-
-    حرر *%{user}* المهمة %{url} في مشروع *%{project}* من %{from}
-    *إلى:* %{to}
+      حرر *%{user}* المهمة %{url} في مشروع *%{project}* من %{from}
+      *إلى:* %{to}
   slack_update_task_description: |-
-    حرر *%{user}* التعليق الإضافي للمهمة %{url} في مشروع *%{project}* من %{from}
-    *إلى:* %{to}
+      حرر *%{user}* التعليق الإضافي للمهمة %{url} في مشروع *%{project}* من %{from}
+      *إلى:* %{to}
   mail_view_welcome: مرحباً بك في %{app_name}
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
   mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
-  mail_view_rejected_to_join: عذراً ، لقد رُفض طلب انضمامك إلى فريق %{team}
+  mail_view_rejected_to_join: عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
   mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
   mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
   pender_could_not_parse: تعذّر تحليل الميديا
@@ -180,29 +180,29 @@ ar:
   role_none: عضو
   oembed_credit: تمت الإضافة من %{user} (%{role}) في %{date}
   oembed_notes_count:
-    zero: لا توجد ملحوظات
-    one: ملحوظة واحدة
-    two: ملحوظتان
-    few: '%{count} ملحوظات'
-    many: '%{count} ملحوظة'
-    other: '%{count} ملحوظات '
+    zero: "لا توجد ملحوظات"
+    one: "ملحوظة واحدة"
+    two: "ملحوظتان"
+    few: "%{count} ملحوظات"
+    many: "%{count} ملحوظة"
+    other: "%{count} ملحوظات "
   oembed_completed_tasks_count:
-    zero: لا توجد مهام مكتملة
-    one: مهمة مكتملة واحدة
-    two: مهمتان مكتملتان
-    few: '%{count} مهام مكتملة'
-    many: '%{count} مهمة مكتملة'
-    other: '%{count} مهام مكتملة'
+    zero: "لا توجد مهام مكتملة"
+    one: "مهمة مكتملة واحدة"
+    two: "مهمتان مكتملتان"
+    few: "%{count} مهام مكتملة"
+    many: "%{count} مهمة مكتملة"
+    other: "%{count} مهام مكتملة"
   oembed_verification_tasks: مهام التحقق من المعلومات
   oembed_expand_all: توسيع الكل
   oembed_collapse_all: طيّ الكل
   oembed_resolved_tasks_count:
-    zero: لا توجد مهام تحقق مكتملة
-    one: مهمة تحقق واحدة مكتملة
-    two: مهمتان تحقق مكتملتان
-    few: '%{count} مهام تحقق مكتملة'
-    many: '%{count} مهمة تحقق مكتملة'
-    other: '%{count}  مهام تحقق مكتملة'
+    zero: "لا توجد مهام تحقق مكتملة"
+    one: "مهمة تحقق واحدة مكتملة"
+    two: "مهمتان تحقق مكتملتان"
+    few: "%{count} مهام تحقق مكتملة"
+    many: "%{count} مهمة تحقق مكتملة"
+    other: "%{count}  مهام تحقق مكتملة"
   oembed_notes: ملحوظات
   pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع ثوانٍ.
   duplicate_source: المصدر موجود بالفعل
@@ -237,10 +237,12 @@ ar:
   mail_subject_unassign_status: "[%{team} - %{project}] تم إلغاء توكيل ميديا"
   mail_subject_assign_task: "[%{team} - %{project}] تم توكيل مهمة إليك"
   mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء توكيل مهمة"
+  mail_subject_update_status: "[%{team} - %{project}] تم تغيير حالة ميديا إلى %{status}"
   mail_assign_status: "وكّل(ت) %{author} إليك ميديا : "
   mail_unassign_status: "ألغى(ت) %{author} توكيل ميديا : "
   mail_assign_task: "وكّل(ت) %{author} إليك مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_unassign_task: "ألغى(ت) %{author} توكيل مهمة \"%{task}\" التي تنتمي إلى ميديا : "
+  mail_update_status: "قام %{author} بتغيير حالة \"%{title}\" إلى %{status}."
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "لقطات الشاشة من Keep"
   archive_archive_is: "Archive.is"

@@ -105,9 +105,9 @@ es:
   rejected: 'no aprobado '
   mail_request_to_join_processed: Tu solicitud para unirte a  %{team} en %{app_name} fue %{status}
   mail_new_account: Nueva cuenta para ti en  %{app_name}
-  slack_update_status: "*%{user}*cambió el estado de verificación de  %{url} en *%{project}* de _%{previous_status}_ a *%{current_status}*"
+  slack_update_status: "*%{user}* cambió el estado de verificación de  %{url} en *%{project}* de _%{previous_status}_ a *%{current_status}*"
   slack_save_embed: "*%{user}* cambió el título del reporte en el *%{project}* de _%{from}_ a %{to}"
-  slack_save_comment: "*%{user}*añadió una nota a %{url} en el *%{project}*: %{comment}"
+  slack_save_comment: "*%{user}* añadió una nota a %{url} en el *%{project}*: %{comment}"
   slack_create_project: "*%{user}* creó un proyecto: %{url}"
   slack_create_team_user: "*%{user}* se ha unido al equipo %{url}"
   slack_create_project_media: "*%{user}* añadió un nuevo %{type} a *%{project}*: %{url}"
@@ -116,19 +116,19 @@ es:
   slack_create_task_assignment: " asignado a %{assignee}"
   slack_create_task_note: " con nota: %{note}"
   slack_answer_task: |-
-    *%{user}* tarea resuelta %{url} en *%{project}*: %{response}
-    %{answer_note}
+      *%{user}* tarea resuelta %{url} en *%{project}*: %{response}
+      %{answer_note}
   slack_answer_task_note: "*Nota:* %{note}"
   slack_update_task_label: |-
-    *%{user}* tarea editada %{url} en *%{project}* de: %{from}
-    *a:* %{to}
+      *%{user}* tarea editada %{url} en *%{project}* de: %{from}
+      *a:* %{to}
   slack_update_task_description: |-
-    *%{user}* nota de tarea editada a %{url} en *%{project}* de: %{from}
-    *a:* %{to}
+      *%{user}* nota de tarea editada a %{url} en *%{project}* de: %{from}
+      *a:* %{to}
   mail_view_welcome: Bienvenido a %{app_name}
   mail_view_register: '¡Estás a un solo paso de usar %{app_name}! Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente enlace:'
   mail_view_joined: ¡Tu solicitud para unirte a %{team} fue aprobada! ¡Puedes ir a %{url} y empezar a contribuir!
-  mail_view_rejected_to_join: Lo sentimos, pero tu solicitud para unirte a  %{team} fue rechazada.
+  mail_view_rejected_to_join: Lo sentimos, pero tu solicitud para unirte a  %{team} no fue aprobada.
   mail_view_request_to_join: "%{user} (%{handle}) quiere unirse al equipo de  %{team} en %{app_name}!"
   mail_view_process_request: 'Para procesar esta solicitud, por favor inicia sesión y visita:'
   pender_could_not_parse: No se pudo analizar este medio
@@ -176,17 +176,17 @@ es:
   role_none: miembro
   oembed_credit: Añadido por %{user} (%{role}) %{date}
   oembed_notes_count:
-    one: Una nota
-    other: '%{count} notas'
+    one: "Una nota"
+    other: "%{count} notas"
   oembed_completed_tasks_count:
-    one: Una tarea completada
-    other: '%{count} tareas completadas'
+    one: "Una tarea completada"
+    other: "%{count} tareas completadas"
   oembed_verification_tasks: Tareas de verificación
   oembed_expand_all: Expandir todo
   oembed_collapse_all: Contraer todo
   oembed_resolved_tasks_count:
-    one: Una tarea de verificación completada
-    other: '%{count} tareas de verificación completadas'
+    one: "Una tarea de verificación completada"
+    other: "%{count} tareas de verificación completadas"
   oembed_notes: Notas
   pender_conflict: Este enlace ya está siendo analizado, intente de nuevo en unos segundos.
   duplicate_source: Fuente existente
@@ -221,10 +221,12 @@ es:
   mail_subject_unassign_status: "[%{team} - %{project}] Se te ha desasignado un elemento multimedia"
   mail_subject_assign_task: "[%{team} - %{project}] Se te ha asignado una tarea"
   mail_subject_unassign_task: "[%{team} - %{project}] Se te ha desasignado una tarea"
+  mail_subject_update_status: "[%{team} - %{project}] Un elemento multimedia fue marcado como %{status}"
   mail_assign_status: "%{author} te asignó el medio: "
   mail_unassign_status: "%{author} te desasignó el medio: "
   mail_assign_task: "%{author} te asignó la tarea  \"%{task}\" del medio: "
   mail_unassign_task: "%{author} te desasignó la tarea \"%{task}\" del medio: "
+  mail_update_status: "%{author}estableció el estado de \"%{title}\" a %{status}"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de pantalla con Keep"
   archive_archive_is: "Archive.is"

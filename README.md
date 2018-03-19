@@ -214,7 +214,7 @@ end
 
 ### Apollo integration
 
-* Copy `config/apollo-engine-proxy.json.example` to `config/apollo-engine-proxy.json` and add you API key
+* Copy `config/apollo-engine-proxy.json.example` to `config/apollo-engine-proxy.json` and add your API key
 * Point the clients (e.g., `check-web`) to the proxy host and port
 
 ### Credits

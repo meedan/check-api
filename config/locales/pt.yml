@@ -116,19 +116,19 @@ pt:
   slack_create_task_assignment: " atribuído(a) a %{assignee}"
   slack_create_task_note: " com nota: %{note}"
   slack_answer_task: |-
-    *%{user}* respondeu a tarefa %{url} em *%{project}*: %{response}
-    %{answer_note}
+      *%{user}* respondeu a tarefa %{url} em *%{project}*: %{response}
+      %{answer_note}
   slack_answer_task_note: "*Nota:* %{note}"
   slack_update_task_label: |-
-    *%{user}* editou a tarefa %{url} em *%{project}* de: %{from}
-    *Para:* %{to}
+      *%{user}* editou a tarefa %{url} em *%{project}* de: %{from}
+      *Para:* %{to}
   slack_update_task_description: |-
-    *%{user}* editou a nota da tarefa em %{url} em *%{project}* de: %{from}
-    *Para:* %{to}
+      *%{user}* editou a nota da tarefa em %{url} em *%{project}* de: %{from}
+      *Para:* %{to}
   mail_view_welcome: Bem-vindo ao %{app_name}
   mail_view_register: 'Você está apenas a um passo de usar o %{app_name}! Por favor confirme o seu endereço de e-mail clicando no seguinte link:'
   mail_view_joined: Sua solicitação para participar de %{team} foi aprovada! Agora você pode ir para %{url} e começar a contribuir!
-  mail_view_rejected_to_join: Desculpe, mas sua solicitação para participar de %{team} foi rejeitada.
+  mail_view_rejected_to_join: Desculpe, mas sua solicitação para participar de %{team} não foi aprovada.
   mail_view_request_to_join: "%{user} (%{handle}) quer participar da equipe %{team} no %{app_name}!"
   mail_view_process_request: 'Para processar esta solicitação, por favor faça o login e visite:'
   pender_could_not_parse: Não foi possível analisar esta mídia
@@ -176,17 +176,17 @@ pt:
   role_none: membro
   oembed_credit: Adicionado por %{user} (%{role}) %{date}
   oembed_notes_count:
-    one: Uma nota
-    other: '%{count} notas'
+    one: "Uma nota"
+    other: "%{count} notas"
   oembed_completed_tasks_count:
-    one: Uma tarefa concluída
-    other: '%{count} tarefas concluídas'
+    one: "Uma tarefa concluída"
+    other: "%{count} tarefas concluídas"
   oembed_verification_tasks: Tarefas de verificação
   oembed_expand_all: Expandir tudo
   oembed_collapse_all: Recolher tudo
   oembed_resolved_tasks_count:
-    one: Uma tarefa de verificação concluída
-    other: '%{count} tarefas de verificação concluídas'
+    one: "Uma tarefa de verificação concluída"
+    other: "%{count} tarefas de verificação concluídas"
   oembed_notes: Notas
   pender_conflict: Este link já está sendo processado, por favor tente novamente em alguns segundos.
   duplicate_source: Fonte existe
@@ -221,10 +221,12 @@ pt:
   mail_subject_unassign_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
   mail_subject_assign_task: "[%{team} - %{project}] Uma tarefa foi atribuída para você"
   mail_subject_unassign_task: "[%{team} - %{project}] A atribuição de uma tarefa foi removida de você"
+  mail_subject_update_status: "[%{team} - %{project}] Uma mídia foi marcada como %{status}"
   mail_assign_status: "%{author} atribuiu para você a mídia intitulada "
   mail_unassign_status: "%{author} removeu a atribuição da mídia intitulada "
   mail_assign_task: "%{author} atribuiu para você a tarefa \"%{task}\" que fica na mídia intitulada "
   mail_unassign_task: "%{author} removeu a atribuição da tarefa \"%{task}\" que fica na mídia intitulada "
+  mail_update_status: "%{author}modificou o status de \"%{title}\" para %{status}"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de tela com Keep"
   archive_archive_is: "Archive.is"
