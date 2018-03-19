@@ -74,13 +74,13 @@ class Bot::Slack < ActiveRecord::Base
     http.request(request)
   end
   class << self
-    def to_slack(text)
+    def to_slack(text, truncate = true)
       return "" if text.blank?
       # https://api.slack.com/docs/message-formatting#how_to_escape_characters
       { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
         text = text.gsub(k,v)
       }
-      text.truncate(140)
+      truncate ? text.truncate(140) : text
     end
 
     def to_slack_url(url, text)
@@ -92,7 +92,7 @@ class Bot::Slack < ActiveRecord::Base
 
     def to_slack_quote(text)
       text = I18n.t(:blank) if text.blank?
-      text = self.to_slack(text)
+      text = self.to_slack(text, false)
       text.insert(0, "\n") unless text.start_with? "\n"
       text.gsub("\n", "\n>")
     end

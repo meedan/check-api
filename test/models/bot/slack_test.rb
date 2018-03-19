@@ -141,4 +141,9 @@ class Bot::SlackTest < ActiveSupport::TestCase
     assert_equal 3, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end
+
+  test "should truncate text" do
+    assert_equal 140, Bot::Slack.to_slack(random_string(200)).size
+    assert Bot::Slack.to_slack_quote(random_string(200)).size > 140
+  end
 end
