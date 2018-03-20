@@ -125,6 +125,16 @@ class TestController < ApplicationController
     render_success 'api_key', a
   end
 
+  def get
+    klass = params[:class].camelize
+    obj = klass.constantize.find(params[:id])
+    ret = {}
+    params[:fields].split(',').each do |field|
+      ret[field] = obj.send(field) if obj.respond_to?(field)
+    end
+    render_success params[:class], ret
+  end
+
   protected
 
   def new_media(type)
