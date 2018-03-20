@@ -25,7 +25,7 @@ module RailsAdmin
               respond_with(@object)
             elsif request.post?
               RequestStore.store[:ability] = :admin
-              Team.delay_for(1.second).duplicate(@object)
+              Team.delay_for(1.second).duplicate(@object, User.current)
             end
           end
         end

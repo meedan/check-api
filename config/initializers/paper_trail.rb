@@ -90,10 +90,22 @@ module PaperTrail
 
     def projects
       ret = []
-      if self.item_type == 'ProjectMedia' && self.event == 'update'
+      if (self.item_type == 'ProjectMedia' && self.event == 'update') || self.event_type == 'copy_projectmedia'
         changes = JSON.parse(self.object_changes)
         if changes['project_id']
           ret = changes['project_id'].collect{ |pid| Project.where(id: pid).last }
+          ret = [] if ret.include?(nil)
+        end
+      end
+      ret
+    end
+
+    def teams
+      ret = []
+      if self.event_type == 'copy_projectmedia'
+        changes = JSON.parse(self.object_changes)
+        if changes['team_id']
+          ret = changes['team_id'].collect{ |pid| Team.where(id: pid).last }
           ret = [] if ret.include?(nil)
         end
       end
@@ -139,7 +151,7 @@ module PaperTrail
         self.get_associated_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         self.get_associated_from_dynamic_annotation
-      when 'update_projectmedia', 'update_projectsource'
+      when 'update_projectmedia', 'update_projectsource', 'copy_projectmedia'
         [self.item.class.name, self.item_id.to_i]
       when 'update_source'
         self.get_associated_from_source

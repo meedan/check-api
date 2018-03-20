@@ -4,10 +4,11 @@ module TeamDuplication
   extend ActiveSupport::Concern
 
   included do
-    attr_accessor :mapping
+    attr_accessor :mapping, :original_team, :copy_team
 
-    def self.duplicate(t)
+    def self.duplicate(t, user)
       @mapping = {}
+      @original_team = t
       begin
         ActiveRecord::Base.transaction do
           team = t.deep_clone include: [ { projects: [ :project_sources, { project_medias: :versions } ] }, :team_users, :contacts, :sources ] do |original, copy|
@@ -17,9 +18,11 @@ module TeamDuplication
           end
           team.is_being_copied = true
           team.save!
+          @copy_team = team
           team.update_team_checklist(@mapping[:Project])
           self.copy_annotations
           self.copy_versions(@mapping[:"PaperTrail::Version"])
+          self.create_copy_version(@mapping[:ProjectMedia], user)
           team
         end
       rescue StandardError => e
@@ -90,6 +93,21 @@ module TeamDuplication
       PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
     end
 
+    def self.create_copy_version(pm_mapping, user)
+      return if pm_mapping.blank?
+      pm_mapping.each_pair do |original, copy|
+        v = PaperTrail::Version.new
+        v.item_id, v.item_type = copy.id, copy.class_name
+        v.associated_id, v.associated_type = copy.id, copy.class_name
+        v.event = 'copy'
+        changes = {}
+        changes['team_id'] = [@original_team.id, @copy_team.id]
+        changes['project_id'] = [ProjectMedia.find(original).project.id, copy.project.id]
+        v.whodunnit = user.id
+        v.object_changes = changes.to_json
+        v.save!
+      end
+    end
   end
 
   def generate_copy_slug
