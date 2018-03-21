@@ -14,7 +14,7 @@ class ApplicationMailer < ActionMailer::Base
     return unless opted_out_types.include?(options[:email_type])
 
     users = User.where(email: options[:to]).to_a
-    users.delete_if {|u| u.get_send_email_notifications == "0" }
+    users.delete_if {|u| u.get_send_email_notifications == false }
     options[:to] = users.blank? ? [] : users.map(&:email)
   end
 
