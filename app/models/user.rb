@@ -220,6 +220,10 @@ class User < ActiveRecord::Base
     self.confirmed? && self.unconfirmed_email.nil?
   end
 
+  def send_email_notifications=(enabled)
+    self.send(:set_send_email_notifications, enabled)
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/user_private.rb 
