@@ -541,9 +541,9 @@ RailsAdmin.config do |config|
           bindings[:view]._current_user.is_admin?
         end
       end
-      field :send_email_notifications, :boolean do
+      field :set_send_email_notifications, :boolean do
         label 'Send me email notifications'
-        formatted_value{ bindings[:object].get_send_email_notifications }
+        formatted_value{ bindings[:object].get_send_email_notifications ||= true}
         help ''
         hide do
           bindings[:object].new_record?
