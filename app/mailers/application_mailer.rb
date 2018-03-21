@@ -2,23 +2,34 @@ class ApplicationMailer < ActionMailer::Base
   default from: CONFIG['default_mail']
   layout 'mailer'
 
-  after_action :prevent_delivery
-
   private
 
-  def prevent_delivery
-    u = User.where(email: mail.to.first).last unless mail.to.blank? # TODO: Review this part for multiple emails
-    mail.perform_deliveries = false if !u.nil? && u.get_send_email_notifications == "0"
+  def mail(options={})
+    filter_to_if_user_opted_out(options)
+    return if options[:to].empty?
+    super(options)
+  end
+
+  def filter_to_if_user_opted_out(options)
+    return unless opted_out_types.include?options[:email_type]
+
+    users = User.where(email: options[:to]).to_a
+    users.delete_if {|u| u.get_send_email_notifications == "0" }
+    options[:to] = users.blank? ? [] : users.map(&:email)
   end
 
   protected
 
-  def send_email_to_recipients(recipients, subject)
+  def send_email_to_recipients(recipients, subject, type=nil)
     recipients = Bounce.remove_bounces(recipients)
     unless recipients.empty?
       Rails.logger.info "Sending e-mail to #{recipients}"
-      mail(to: recipients, subject: subject)
+      mail(to: recipients, email_type: type, subject: subject)
     end
+  end
+
+  def opted_out_types
+    %w(assignment terminal_status)
   end
   
 end
