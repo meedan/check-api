@@ -633,4 +633,11 @@ class UserTest < ActiveSupport::TestCase
     Account.any_instance.unstub(:save)
   end
 
+  test "should set send_email_notifications" do
+    u = create_user
+    u.send_email_notifications = true
+    u.save!
+    assert u.get_send_email_notifications
+  end
+
 end
