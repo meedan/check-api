@@ -508,6 +508,9 @@ RailsAdmin.config do |config|
     end
 
     show do
+      configure :get_send_email_notifications do
+        label 'Send me email notifications'
+      end
       configure :get_languages, :json do
         label 'Languages'
       end
@@ -536,6 +539,14 @@ RailsAdmin.config do |config|
       field :is_admin do
         visible do
           bindings[:view]._current_user.is_admin?
+        end
+      end
+      field :send_email_notifications, :boolean do
+        label 'Send me email notifications'
+        formatted_value{ bindings[:object].get_send_email_notifications }
+        help ''
+        hide do
+          bindings[:object].new_record?
         end
       end
       field :languages, :yaml do
