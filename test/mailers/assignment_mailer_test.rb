@@ -3,6 +3,7 @@ require_relative '../test_helper'
 class AssignmentMailerTest < ActionMailer::TestCase
   test "should notify about report assignment" do
     u = create_user
+    create_user email: 'user1@mail.com'
     t = create_task
 
     email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', t.id)
