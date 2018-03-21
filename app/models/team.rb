@@ -123,7 +123,7 @@ class Team < ActiveRecord::Base
     checklist.each_with_index do |c, index|
       c = c.with_indifferent_access
       options = get_values_from_entry(c[:options])
-      c[:options] = options.to_json if options && !options.kind_of?(String)
+      c[:options] = options if options
       projects = get_values_from_entry(c[:projects])
       c[:projects] = projects.map(&:to_i) if projects
       c[:label].blank? ?  checklist.delete_at(index) : checklist[index] = c
@@ -135,7 +135,7 @@ class Team < ActiveRecord::Base
     tasks = self.get_checklist
     unless tasks.blank?
       tasks.map do |t|
-        t[:options] = t[:options] ? JSON.parse(t[:options]) : []
+        t[:options] ||= []
         t[:projects] = [] if t[:projects].nil?
         t[:mapping] = {"type"=>"text", "match"=>"", "prefix"=>""} if t[:mapping].nil? || t[:mapping].blank?
       end
