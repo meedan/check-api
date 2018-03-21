@@ -16065,7 +16065,7 @@
               "defaultValue": null
             },
             {
-              "name": "set_send_email_notifications",
+              "name": "send_email_notifications",
               "description": null,
               "type": {
                 "kind": "SCALAR",
