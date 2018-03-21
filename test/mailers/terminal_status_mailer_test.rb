@@ -40,7 +40,7 @@ class TerminalStatusMailerTest < ActionMailer::TestCase
 
     create_bounce email: e1.email
 
-    e2.set_send_email_notifications = "1"; e2.save!
+    e2.set_send_email_notifications = "0"; e2.save!
     
     email = TerminalStatusMailer.notify(pm, u, s.status)
 
