@@ -18,7 +18,7 @@ class AssignmentMailerTest < ActionMailer::TestCase
    test "should not notify about report assignment if user disable notification" do
     u = create_user
     u2 = create_user email: 'user1@mail.com'
-    u2.set_send_email_notifications = "0"; u2.save!
+    u2.set_send_email_notifications = false; u2.save!
     t = create_task
 
     email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', t.id)
