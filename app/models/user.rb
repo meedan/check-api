@@ -221,6 +221,7 @@ class User < ActiveRecord::Base
   end
 
   def send_email_notifications=(enabled)
+    enabled = enabled == "1" ? true : false if enabled.class.name == "String"
     self.send(:set_send_email_notifications, enabled)
   end
 
