@@ -238,7 +238,7 @@ GEM
     logstash-event (1.2.02)
     logstash-logger (0.23.0)
       logstash-event (~> 1.2)
-    loofah (2.2.0)
+    loofah (2.2.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.0)
@@ -556,6 +556,7 @@ DEPENDENCIES
   jquery-rails
   jsonpath (~> 0.8.8)
   logstash-logger
+  loofah (= 2.2.1)
   mini_magick
   mocha
   newrelic_rpm
