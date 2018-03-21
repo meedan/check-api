@@ -10,7 +10,8 @@ class TerminalStatusMailer < ApplicationMailer
       title: annotated.title,
       status: status
     }
-		self.send_email_to_recipients(recipients, I18n.t(:mail_subject_update_status, team: team.name, project: annotated.project.title, status: status))
+    subject = I18n.t(:mail_subject_update_status, team: team.name, project: annotated.project.title, status: status)
+		self.send_email_to_recipients(recipients, subject, 'terminal_status')
 	end
 
 end
