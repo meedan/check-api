@@ -1134,7 +1134,7 @@ class TeamTest < ActiveSupport::TestCase
     media2 = create_media account: account2, user: u1, team: team
     create_project_media user: u2, team: team, project: project1, media: media2
 
-    team.add_auto_task = { label: 'Task 2', type: 'free_text', description: '', projects: [], options: '[]' }
+    team.add_auto_task = { label: 'Task 2', type: 'free_text', description: '', projects: [] }
     team.save
 
     create_comment annotated: pm1
