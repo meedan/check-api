@@ -640,4 +640,15 @@ class UserTest < ActiveSupport::TestCase
     assert u.get_send_email_notifications
   end
 
+  test "should destroy related items" do
+    u = create_user
+    t = create_team
+    t2 = create_team
+    id = u.id
+    create_team_user user: u, team: t
+    create_team_user user: u, team: t2
+    u.destroy
+    assert_equal 0, TeamUser.where(user_id: id).count
+  end
+
 end
