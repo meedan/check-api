@@ -509,7 +509,7 @@ RailsAdmin.config do |config|
 
     show do
       configure :get_send_email_notifications do
-        label 'Send me email notifications'
+        label 'Email notifications'
       end
       configure :get_languages, :json do
         label 'Languages'
@@ -542,7 +542,7 @@ RailsAdmin.config do |config|
         end
       end
       field :send_email_notifications, :boolean do
-        label 'Send me email notifications'
+        label 'Email notifications'
         formatted_value{ bindings[:object].get_send_email_notifications == false ? "0" : "1"}
         help ''
         hide do
