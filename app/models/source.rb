@@ -164,11 +164,11 @@ class Source < ActiveRecord::Base
   private
 
   def set_user
-    self.user = User.current unless User.current.nil?
+    self.user = User.current unless User.current.nil? || self.is_being_copied?
   end
 
   def set_team
-    self.team = Team.current unless Team.current.nil?
+    self.team = Team.current unless Team.current.nil? || self.is_being_copied?
   end
 
   def get_project_sources
