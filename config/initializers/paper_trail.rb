@@ -91,11 +91,7 @@ module PaperTrail
     def projects
       ret = []
       if (self.item_type == 'ProjectMedia' && self.event == 'update') || self.event_type == 'copy_projectmedia'
-        changes = JSON.parse(self.object_changes)
-        if changes['project_id']
-          ret = changes['project_id'].collect{ |pid| Project.where(id: pid).last }
-          ret = [] if ret.include?(nil)
-        end
+        ret = get_from_object_changes(:project)
       end
       ret
     end
@@ -103,11 +99,18 @@ module PaperTrail
     def teams
       ret = []
       if self.event_type == 'copy_projectmedia'
-        changes = JSON.parse(self.object_changes)
-        if changes['team_id']
-          ret = changes['team_id'].collect{ |pid| Team.where(id: pid).last }
-          ret = [] if ret.include?(nil)
-        end
+        ret = get_from_object_changes(:team)
+      end
+      ret
+    end
+
+    def get_from_object_changes(item)
+      ret = []
+      item = item.to_s
+      changes = self.get_object_changes
+      if changes["#{item}_id"]
+        ret = changes["#{item}_id"].collect{ |pid| item.classify.constantize.where(id: pid).last }
+        ret = [] if ret.include?(nil)
       end
       ret
     end

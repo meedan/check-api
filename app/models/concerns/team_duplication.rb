@@ -6,7 +6,7 @@ module TeamDuplication
   included do
     attr_accessor :mapping, :original_team, :copy_team
 
-    def self.duplicate(t, user)
+    def self.duplicate(t, user = nil)
       @mapping = {}
       @original_team = t
       begin
@@ -94,7 +94,7 @@ module TeamDuplication
     end
 
     def self.create_copy_version(pm_mapping, user)
-      return if pm_mapping.blank?
+      return if pm_mapping.blank? || user.nil?
       pm_mapping.each_pair do |original, copy|
         v = PaperTrail::Version.new
         v.item_id, v.item_type = copy.id, copy.class_name
