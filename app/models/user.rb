@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
   include UserPrivate
 
   belongs_to :source
-  has_many :team_users
+  has_many :team_users, dependent: :destroy
   has_many :teams, through: :team_users
   has_many :projects
   has_many :accounts

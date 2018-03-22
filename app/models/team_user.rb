@@ -52,6 +52,7 @@ class TeamUser < ActiveRecord::Base
 
   def update_user_cached_teams(action) # action: :add or :remove
     user = self.user
+    return if user.nil?
     teams = user.cached_teams.clone
     if action == :add
       teams << self.team_id
