@@ -17,6 +17,7 @@ module UserMutations
     current_project_id: 'int',
     password: 'str',
     password_confirmation: 'str',
+    send_email_notifications: 'bool',
     id: '!id'
   }
 

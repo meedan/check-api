@@ -3,7 +3,7 @@
 # start.sh
 # the Dockerfile CMD
 
-LOGFILE=${DEPLOYDIR}/current/log/${RAILS_ENV}.log
+LOGFILE=${DEPLOYDIR}/log/${RAILS_ENV}.log
 
 function config_replace() {
     # sed -i "s/ddRAILS_ENVdd/${RAILS_ENV}/g" /etc/nginx/sites-available/${APP}
@@ -35,7 +35,7 @@ chmod 775 ${LOGFILE}
 
 echo PERSIST_DIRS $PERSIST_DIRS
 for d in ${PERSIST_DIRS}; do
-    d=${DEPLOYDIR}/shared/files/${d}
+    d=/app/shared/files/${d}
     if [ ! -e "${d}" ]; then
         echo "creating directory ${d}"
         mkdir -p ${d}

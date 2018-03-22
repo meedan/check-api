@@ -140,7 +140,7 @@ en:
     your email address by clicking the following link:'
   mail_view_joined: Your request to join %{team} was approved! You can now go to %{url}
     and start contributing!
-  mail_view_rejected_to_join: Sorry, but your request to join %{team} was rejected.
+  mail_view_rejected_to_join: Sorry, but your request to join %{team} was not approved.
   mail_view_request_to_join: "%{user} (%{handle}) wants to join %{team} team on %{app_name}!"
   mail_view_process_request: 'To process this request, please login and visit:'
   pender_could_not_parse: Could not parse this media

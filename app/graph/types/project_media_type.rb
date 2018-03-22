@@ -147,7 +147,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type -> { StatusType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.get_annotations('status').last
+      project_media.last_status_obj
     }
   end
 
