@@ -109,6 +109,32 @@ class TestController < ApplicationController
     render_success 'project_media', pm
   end
 
+  def new_api_key
+    if params[:access_token]
+      a = ApiKey.where(access_token: params[:access_token]).last
+      unless a.nil?
+        render_success 'api_key', a
+        return true
+      end
+    end
+    a = create_api_key(params)
+    params.each do |key, value|
+      a.send("#{key}=", value) if a.respond_to?("#{key}=")
+    end
+    a.save!
+    render_success 'api_key', a
+  end
+
+  def get
+    klass = params[:class].camelize
+    obj = klass.constantize.find(params[:id])
+    ret = {}
+    params[:fields].split(',').each do |field|
+      ret[field] = obj.send(field) if obj.respond_to?(field)
+    end
+    render_success params[:class], ret
+  end
+
   protected
 
   def new_media(type)

@@ -262,4 +262,33 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should create test API key if in test mode" do
+    get :new_api_key
+    assert_response :success
+  end
+
+  test "should not create test API key if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    get :new_api_key
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should get object if in test mode" do
+    t = create_team slug: 'test', name: 'Test'
+    get :get, class: 'team', id: t.id, fields: 'slug,name'
+    assert_response :success
+    res = JSON.parse(@response.body)['data']
+    assert_equal 'test', res['slug']
+    assert_equal 'Test', res['name']
+  end
+
+  test "should not get object if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    t = create_team slug: 'test', name: 'Test'
+    get :get, class: 'team', id: t.id, fields: 'slug,name'
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end

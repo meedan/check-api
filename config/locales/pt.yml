@@ -128,7 +128,7 @@ pt:
   mail_view_welcome: Bem-vindo ao %{app_name}
   mail_view_register: 'Você está apenas a um passo de usar o %{app_name}! Por favor confirme o seu endereço de e-mail clicando no seguinte link:'
   mail_view_joined: Sua solicitação para participar de %{team} foi aprovada! Agora você pode ir para %{url} e começar a contribuir!
-  mail_view_rejected_to_join: Desculpe, mas sua solicitação para participar de %{team} foi rejeitada.
+  mail_view_rejected_to_join: Desculpe, mas sua solicitação para participar de %{team} não foi aprovada.
   mail_view_request_to_join: "%{user} (%{handle}) quer participar da equipe %{team} no %{app_name}!"
   mail_view_process_request: 'Para processar esta solicitação, por favor faça o login e visite:'
   pender_could_not_parse: Não foi possível analisar esta mídia

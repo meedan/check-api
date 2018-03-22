@@ -101,8 +101,12 @@ class ProjectMedia < ActiveRecord::Base
     embed
   end
 
+  def last_status_obj
+    self.get_annotations('status').first
+  end
+
   def last_status
-    last = self.get_annotations('status').first
+    last = self.last_status_obj
     last.nil? ? Status.default_id(self, self.project) : last.data[:status]
   end
 

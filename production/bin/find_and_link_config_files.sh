@@ -18,13 +18,13 @@ for F in $FILES; do
 	LDIR=$(dirname ${LF} | sed 's/${BASEDIR}//' );
 
 	# if the directory doesn't exist in `shared`, create it
-	if [ ! -e ${DEPLOYDIR}/shared/${LDIR} ]; then
-		echo "creating ${DEPLOYDIR}/shared/${LDIR}";
-		mkdir -p ${DEPLOYDIR}/shared/${LDIR}	
+	if [ ! -e /app/shared/${LDIR} ]; then
+		echo "creating /app/shared/${LDIR}";
+		mkdir -p /app/shared/${LDIR}
 	fi
 
 	# setup the link
 	rm -f ${LF};
-	echo "linking ${LF} <-- ${DEPLOYDIR}/shared/${LF}"; 
-	ln -s ${DEPLOYDIR}/shared/${LF} ${LF};
+	echo "linking ${LF} <-- /app/shared/${LF}"; 
+	ln -s /app/shared/${LF} ${LF};
 done

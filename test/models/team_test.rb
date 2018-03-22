@@ -581,7 +581,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should save valid checklist" do
     t = create_team
-    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
     assert_nothing_raised do
       t.set_checklist(value)
       t.save!
@@ -628,11 +628,11 @@ class TeamTest < ActiveSupport::TestCase
       label: "Task one",
       type: "single_choice",
       description: "It is a single choice task",
-      options: "[{\"label\":\"option 1\"},{\"label\":\"option 2\"}]"
+      options: [{ "label": "option 1" },{ "label": "option 2" }]
     }]
     t.checklist = value
     t.save!
-    assert_equal "[{\"label\":\"option 1\"},{\"label\":\"option 2\"}]", t.get_checklist.first[:options]
+    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.get_checklist.first[:options]
     assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
   end
 
@@ -687,7 +687,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should remove all items from checklist" do
     t = create_team
-    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
     t.set_checklist(value)
     t.save!
 
@@ -741,11 +741,11 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should add or remove item to or from checklist" do
     t = create_team
-    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]' }]
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: [] }]
     t.set_checklist(value)
     t.save!
     assert_equal ['A task'], t.reload.get_checklist.collect{ |t| t[:label] }
-    t.add_auto_task = { label: 'Another task', type: 'free_text', description: '', projects: [], options: '[]' }
+    t.add_auto_task = { label: 'Another task', type: 'free_text', description: '', projects: [], options: [] }
     t.save!
     assert_equal ['A task', 'Another task'], t.reload.get_checklist.collect{ |t| t[:label] }
     t.remove_auto_task = 'A task'
@@ -1025,7 +1025,7 @@ class TeamTest < ActiveSupport::TestCase
     t.set_limits_custom_tasks_list(false)
     t.save!
     t = Team.find(t.id)
-    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: '[]'}]
+    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
     assert_raises ActiveRecord::RecordInvalid do
       t.set_checklist(value)
       t.save!

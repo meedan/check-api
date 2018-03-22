@@ -30,7 +30,7 @@ module SampleData
   def create_api_key(options = {})
     a = ApiKey.new
     options.each do |key, value|
-      a.send("#{key}=", value)
+      a.send("#{key}=", value) if a.respond_to?("#{key}=")
     end
     a.save!
     a.reload

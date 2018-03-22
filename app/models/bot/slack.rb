@@ -74,13 +74,13 @@ class Bot::Slack < ActiveRecord::Base
     http.request(request)
   end
   class << self
-    def to_slack(text)
+    def to_slack(text, truncate = true)
       return "" if text.blank?
       # https://api.slack.com/docs/message-formatting#how_to_escape_characters
       { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
         text = text.gsub(k,v)
       }
-      text.truncate(140)
+      truncate ? text.truncate(140) : text
     end
 
     def to_slack_url(url, text)
@@ -92,7 +92,7 @@ class Bot::Slack < ActiveRecord::Base
 
     def to_slack_quote(text)
       text = I18n.t(:blank) if text.blank?
-      text = self.to_slack(text)
+      text = self.to_slack(text, false)
       text.insert(0, "\n") unless text.start_with? "\n"
       text.gsub("\n", "\n>")
     end
@@ -138,7 +138,7 @@ class Bot::Slack < ActiveRecord::Base
           channel = annotation.load.get_field_value('slack_message_channel')
           attachments = annotation.load.get_field_value('slack_message_attachments')
           query = obj.slack_message_parameters(id, channel, attachments)
-          Net::HTTP.get_response(URI("https://slack.com/api/chat.#{endpoint}?" + URI.encode_www_form(query.merge({ channel: channel, token: CONFIG['slack_token'] }))))
+          Net::HTTP.get_response(URI("https://slack.com/api/chat.#{endpoint}?" + URI.encode_www_form(query.merge({ channel: channel, token: annotation.load.get_field_value('slack_message_token') }))))
         end
       end
     end
@@ -152,7 +152,7 @@ class Bot::Slack < ActiveRecord::Base
     end
 
     def call_slack_api(endpoint)
-      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless CONFIG['slack_token'].blank?
+      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.nil? 
     end
 
     # The default behavior is to update an existing Slack message
@@ -176,9 +176,10 @@ class Bot::Slack < ActiveRecord::Base
       json[0]['text'] = self.description.to_s.truncate(500)
       json[0]['color'] = self.last_status_color
       json[0]['fields'][0]['value'] = self.get_versions_log_count
-      json[0]['fields'][1]['value'] = "#{self.completed_tasks_count}/#{self.all_tasks.size}"
-      json[0]['fields'][3]['value'] = "<!date^#{self.updated_at.to_i}^{date} {time}|#{self.updated_at.to_i}>"
-      json[0]['fields'][4]['value'] = self.project.title
+      json[0]['fields'][2]['value'] = "<!date^#{self.updated_at.to_i}^{date} {time}|#{self.updated_at.to_i}>"
+      json[0]['fields'][3]['value'] = self.project.title
+
+      json[0]['fields'][4] = { title: 'Tasks Completed', value: "#{self.completed_tasks_count}/#{self.all_tasks.size}", short: true } if self.all_tasks.size > 0
 
       tags = self.get_annotations('tag').map(&:tag)
       json[0]['fields'][5] = { title: 'Tags', value: tags.join(', '), short: true } if tags.size > 0
