@@ -1212,6 +1212,24 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'team-a-copy-2', copy.slug
   end
 
+  test "should copy versions on team duplication" do
+    t = create_team
+    u = create_user
+    u.is_admin = true;u.save
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      p1 = create_project team: t
+      pm = create_project_media user: u, team: t, project: p1
+      p2 = create_project team: t
+      pm.project_id = p2.id; pm.save!
+      RequestStore.store[:disable_es_callbacks] = true
+      copy = Team.duplicate(t, u)
+      assert copy.is_a?(Team)
+      RequestStore.store[:disable_es_callbacks] = false
+    end
+    User.current = nil
+  end
+
   test "should generate slug with 63 maximum chars" do
     team = create_team slug: 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit-morbi-at'
     RequestStore.store[:disable_es_callbacks] = true
