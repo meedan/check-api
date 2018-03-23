@@ -174,6 +174,13 @@ en:
         done: deleted the tasks
         are_you_sure_you_want_to_delete_the_tasks_from_team: Are you sure you want to delete all tasks in team
         all_the_following_tasks_will_be_deleted: '? The following tasks will be removed:'
+      duplicate_team:
+        menu: Duplicate team
+        done: copied
+        are_you_sure_you_want_to_copy_team: Are you sure you want to copy the team
+        all_the_related_data_will_be_copied: '? All the related data will also be copied.'
+        the_team_is_being_copied: The team is being copied
+        url_when_ready: 'When ready, the team copy will be available in: '
   reset_password_instructions: "%{app_name} reset password instructions"
   email_not_found: E-mail not found
   slack_channel_format_wrong: 'Slack channel is invalid, it should have the format

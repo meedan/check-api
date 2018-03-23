@@ -154,6 +154,7 @@ class Account < ActiveRecord::Base
   protected
 
   def get_parents_for_es
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     parents = []
     ps_ids = ProjectSource.where(source_id: self.sources).map(&:id).to_a
     parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") } unless ps_ids.blank?

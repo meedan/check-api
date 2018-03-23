@@ -6,6 +6,7 @@ module TeamPrivate
   private
 
   def add_user_to_team
+    return if self.is_being_copied
     user = User.current
     unless user.nil?
       tu = TeamUser.new
@@ -20,7 +21,8 @@ module TeamPrivate
   end
 
   def normalize_slug
-    self.slug = self.slug.downcase unless self.slug.blank?
+    return if self.slug.blank?
+    self.slug =  self.is_being_copied ? self.generate_copy_slug : self.slug.downcase
   end
 
   def archive_or_restore_projects_if_needed

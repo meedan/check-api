@@ -23,7 +23,7 @@ class Project < ActiveRecord::Base
   validates :lead_image, size: true
   validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
   validate :project_languages_format, unless: proc { |p| p.settings.nil? }
-  validate :team_is_not_archived
+  validate :team_is_not_archived, unless: proc { |p| p.is_being_copied? }
 
   has_annotations
 
@@ -129,6 +129,7 @@ class Project < ActiveRecord::Base
   end
 
   def generate_token
+    self.token = nil if self.team && self.team.is_being_copied
     self.token ||= SecureRandom.uuid
   end
 
@@ -151,6 +152,10 @@ class Project < ActiveRecord::Base
 
   def self.archive_or_restore_project_medias_if_needed(archived, project_id)
     ProjectMedia.where({ project_id: project_id }).update_all({ archived: archived })
+  end
+
+  def is_being_copied?
+    self.team && self.team.is_being_copied
   end
 
   private

@@ -441,8 +441,8 @@ module SampleData
     tu = TeamUser.new
     team = options[:team] || create_team
     user = options[:user] || create_user
-    tu.team_id = options[:team_id] || team.id
-    tu.user_id = options[:user_id] || user.id
+    tu.team = Team.find_by_id(options[:team_id]) || team
+    tu.user = User.find_by_id(options[:user_id]) || user
     tu.role = options[:role]
     tu.status = options[:status] || 'member'
     tu.save!
