@@ -23,16 +23,16 @@ class UserTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u2, t) do
       assert_raise RuntimeError do
-        u.save!
+        User.find(u.id).save!
       end
       assert_raise RuntimeError do
-        u.save!
+        User.find(u.id).save!
       end
     end
 
     with_current_user_and_team(u, t) do
      assert_raise RuntimeError do
-        u2.destroy
+        User.find(u2.id).destroy
       end
     end
   end
