@@ -1103,7 +1103,35 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'pro', t.plan
   end
 
-  test "should duplicate a team" do
+  test "should duplicate a team and copy team users and contacts" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: team, user: u1, role: 'owner', status: 'member'
+    create_team_user team: team, user: u2, role: 'editor', status: 'invited'
+    create_contact team: team
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 2, TeamUser.where(team_id: copy.id).count
+    assert_equal 1, Contact.where(team_id: copy.id).count
+
+    # team attributes
+    assert_equal "#{team.slug}-copy-1", copy.slug
+    %w(name archived private description).each do |att|
+      assert_equal team.send(att), copy.send(att)
+    end
+
+    # team users
+    assert_equal team.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }, copy.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }
+
+    # contacts
+    assert_equal team.contacts.map(&:web), copy.contacts.map(&:web)
+  end
+
+  test "should duplicate a team and copy projects and update checklist" do
     team = create_team name: 'Team A', logo: 'rails.png'
 
     project1 = create_project team: team, title: 'Project 1'
@@ -1116,53 +1144,13 @@ class TeamTest < ActiveSupport::TestCase
     }]
     team.checklist = value; team.save!
 
-    u1 = create_user
-    u2 = create_user
-    create_team_user team: team, user: u1, role: 'owner', status: 'member'
-    create_team_user team: team, user: u2, role: 'editor', status: 'invited'
-
-    create_contact team: team
-
-    source = create_source user: u1
-    source.team = team; source.save
-    create_project_source user: u1, team: team, project: project1, source: source
-
-    account = create_account user: u1, team: team, source: source
-    media = create_media account: account, user: u1, team: team
-    pm1 = create_project_media user: u1, team: team, project: project1, media: media
-    account2 = create_account user: u1, team: team, source: source
-    media2 = create_media account: account2, user: u1, team: team
-    create_project_media user: u2, team: team, project: project1, media: media2
-
     team.add_auto_task = { label: 'Task 2', type: 'free_text', description: '', projects: [] }
-    team.save
-
-    create_comment annotated: pm1
-    create_tag annotated: pm1
-    create_flag annotated: pm1
-
-    at = create_annotation_type annotation_type: 'response'
-    ft1 = create_field_type field_type: 'task_reference'
-    ft2 = create_field_type field_type: 'text'
-    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
-    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
-
-    task = create_task annotated: pm1, annotator: u1
-    task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
+    team.save!
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 4, Project.where(team_id: copy.id).count
-    assert_equal 2, TeamUser.where(team_id: copy.id).count
-    assert_equal 1, Contact.where(team_id: copy.id).count
-    assert_equal 1, Source.where(team_id: copy.id).count
-
-    # team attributes
-    assert_equal "#{team.slug}-copy-1", copy.slug
-    %w(name archived private description).each do |att|
-      assert_equal team.send(att), copy.send(att)
-    end
+    assert_equal 2, Project.where(team_id: copy.id).count
 
     # projects
     assert_equal team.projects.map(&:title), copy.projects.map(&:title)
@@ -1172,21 +1160,66 @@ class TeamTest < ActiveSupport::TestCase
     copy_p2 = copy.projects.find_by_title('Project 2')
     assert_equal [copy_p1.id, copy_p2.id], copy.get_checklist.first[:projects]
 
-    # team users
-    assert_equal team.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }, copy.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }
+    # tasks
+    assert_equal ['Task one', 'Task 2'], copy.get_checklist.map { |t| t[:label]}
+  end
 
-    # contacts
-    assert_equal team.contacts.map(&:web), copy.contacts.map(&:web)
+  test "should duplicate a team and copy sources and project medias" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    project = create_project team: team, title: 'Project'
+    u = create_user
+
+    source = create_source user: u
+    source.team = team; source.save
+    create_project_source user: u, team: team, project: project, source: source
+
+    account = create_account user: u, team: team, source: source
+    media = create_media account: account, user: u, team: team
+    pm1 = create_project_media user: u, team: team, project: project
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 1, Source.where(team_id: copy.id).count
+
+    copy_p = copy.projects.find_by_title('Project')
 
     # sources
     assert_equal team.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }, copy.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }
 
     # project medias
-    assert_equal project1.project_medias.map(&:media).sort, copy_p1.project_medias.map(&:media).sort
-    copy_pm1 = copy_p1.project_medias.first
+    assert_equal project.project_medias.map(&:media).sort, copy_p.project_medias.map(&:media).sort
+  end
 
-    assert_equal pm1.get_annotations('task').size, copy_pm1.get_annotations('task').size
-    assert_equal pm1.annotations.size, copy_pm1.annotations.size
+  test "should duplicate a team and annotations" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+
+    project = create_project team: team, title: 'Project'
+    u = create_user
+    pm = create_project_media user: u, team: team, project: project
+
+    create_comment annotated: pm
+    create_tag annotated: pm
+    create_flag annotated: pm
+
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+
+    task = create_task annotated: pm, annotator: u
+    task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+
+    copy_p = copy.projects.find_by_title('Project')
+    copy_pm = copy_p.project_medias.first
+
+    assert_equal ["comment", "flag", "response", "status", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
+    assert_equal pm.annotations.size, copy_pm.annotations.size
   end
 
   test "should not save team when some step on duplication raises error" do
