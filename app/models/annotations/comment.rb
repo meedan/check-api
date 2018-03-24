@@ -3,7 +3,7 @@ class Comment < ActiveRecord::Base
   include HasImage
 
   field :text
-  validates_presence_of :text, if: proc { |comment| comment.file.blank? }
+  validates_presence_of :text, if: proc { |comment| comment.file.blank? && !comment.is_being_copied }
 
   before_save :extract_check_entities
   after_save :add_update_elasticsearch_comment, :send_slack_notification
