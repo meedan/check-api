@@ -178,7 +178,7 @@ class Source < ActiveRecord::Base
   end
 
   def is_unique_per_team
-    unless self.team.nil? || self.name.blank?
+    unless self.team.nil? || self.name.blank? || self.is_being_copied
       s = Source.get_duplicate(self.name, self.team)
       errors.add(:base, "This source already exists in this team and has id #{s.id}") unless s.nil?
     end

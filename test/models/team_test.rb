@@ -1303,4 +1303,17 @@ class TeamTest < ActiveSupport::TestCase
     Bot::Slack.any_instance.unstub(:notify_slack)
   end
 
+  test "should duplicate team with duplicated source" do
+    team = create_team
+    user = create_user
+    source = create_source user: user, team: team
+    duplicated_source = source.dup
+    duplicated_source.save(validate: false)
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.valid?
+  end
+
 end
