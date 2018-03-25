@@ -1285,4 +1285,22 @@ class TeamTest < ActiveSupport::TestCase
     assert copy.get_media_verification_statuses(value).nil?
   end
 
+  test "should not notify slack if is being copied" do
+    team = create_team
+    user = create_user
+    create_team_user team: team, user: user, role: 'owner'
+    project = create_project team: team, title: 'Project'
+    pm = create_project_media project: project
+    source = create_source user: user
+    source.team = team; source.save
+
+    assert !Bot::Slack.default.nil?
+    Bot::Slack.any_instance.stubs(:notify_slack).never
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.valid?
+    Bot::Slack.any_instance.unstub(:notify_slack)
+  end
+
 end
