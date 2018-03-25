@@ -48,6 +48,10 @@ class TeamUser < ActiveRecord::Base
     )
   end
 
+  def is_being_copied
+    self.team && self.team.is_being_copied
+  end
+
   protected
 
   def update_user_cached_teams(action) # action: :add or :remove
@@ -67,10 +71,12 @@ class TeamUser < ActiveRecord::Base
   private
 
   def send_email_to_team_owners
+    return if self.is_being_copied
     TeamUserMailer.delay.request_to_join(self.team, self.user, CONFIG['checkdesk_client']) if self.status == 'requested'
   end
 
   def send_email_to_requestor
+    return if self.is_being_copied
     if self.status_was === 'requested' && ['member', 'banned'].include?(self.status)
       accepted = self.status === 'member'
       TeamUserMailer.delay.request_to_join_processed(self.team, self.user, accepted, CONFIG['checkdesk_client'])

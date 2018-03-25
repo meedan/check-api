@@ -66,6 +66,10 @@ module ProjectAssociation
       destroy_elasticsearch_data(MediaSearch, 'parent')
     end
 
+    def is_being_copied
+      self.project && self.project.is_being_copied
+    end
+
     private
 
     def set_media_or_source
