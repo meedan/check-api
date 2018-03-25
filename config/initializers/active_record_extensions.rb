@@ -70,6 +70,7 @@ module ActiveRecordExtensions
   end
   
   def send_slack_notification
+    return if self.respond_to?(:is_being_copied) && self.is_being_copied
     bot = Bot::Slack.default
     bot.notify_slack(self) unless bot.nil?
   end
