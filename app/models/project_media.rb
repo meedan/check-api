@@ -12,7 +12,7 @@ class ProjectMedia < ActiveRecord::Base
 
   validates_presence_of :media, :project
 
-  validate :project_is_not_archived, unless: proc { |pm| pm.project && pm.project.is_being_copied  }
+  validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
 
   after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
