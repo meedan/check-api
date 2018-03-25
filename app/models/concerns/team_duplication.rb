@@ -86,8 +86,10 @@ module TeamDuplication
       PaperTrail::Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
       versions_mapping.each_pair do |original, copy|
         log = PaperTrail::Version.find(original).dup
+        log.is_being_copied = true
         log.associated_id = copy.id
-        log.item_id = @mapping[log.item_type.to_sym][log.item_id.to_i].id.to_s
+        item = @mapping[log.item_type.to_sym][log.item_id.to_i]
+        log.item_id = item.id if item
         log.save!
       end
       PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
