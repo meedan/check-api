@@ -291,4 +291,34 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should create task if in test mode" do
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p, current_user: u
+    get :new_task, email: u.email, pm_id: pm.id
+    assert_response :success
+  end
+
+  test "should not create task if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p, current_user: u
+    get :new_task, email: u.email, pm_id: pm.id
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end
