@@ -21,7 +21,7 @@ class Source < ActiveRecord::Base
 
   validates_presence_of :name
   validate :is_unique_per_team, on: :create
-  validate :team_is_not_archived, unless: proc { |s| s.is_being_copied? }
+  validate :team_is_not_archived, unless: proc { |s| s.is_being_copied }
 
   after_create :create_metadata
   after_update :update_elasticsearch_source
@@ -157,18 +157,18 @@ class Source < ActiveRecord::Base
     Rails.cache.write("source_overridden_cache_#{self.id}", get_overridden)
   end
 
-  def is_being_copied?
+  def is_being_copied
     self.team && self.team.is_being_copied
   end
 
   private
 
   def set_user
-    self.user = User.current unless User.current.nil? || self.is_being_copied?
+    self.user = User.current unless User.current.nil? || self.is_being_copied
   end
 
   def set_team
-    self.team = Team.current unless Team.current.nil? || self.is_being_copied?
+    self.team = Team.current unless Team.current.nil? || self.is_being_copied
   end
 
   def get_project_sources
