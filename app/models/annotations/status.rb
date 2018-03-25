@@ -140,7 +140,8 @@ class Status < ActiveRecord::Base
     if !self.annotated_type.blank?
       annotated, context = get_annotated_and_context
       values = Status.possible_values(annotated, context)
-      errors.add(:base, 'Status not valid') unless values[:statuses].collect{ |s| s[:id] }.include?(self.status)
+      return if values[:statuses].collect{ |s| s[:id] }.include?(self.status)
+      self.is_being_copied ? self.status = Status.default_id(annotated, context) : errors.add(:status, 'Status not valid')
     end
   end
 
@@ -163,6 +164,7 @@ class Status < ActiveRecord::Base
   end
 
   def send_terminal_email_notification
+    return if self.is_being_copied
     if self.status != self.previous_annotated_status && self.is_terminal?
       TerminalStatusMailer.delay.notify(self.annotated, self.annotator, self.id_to_label(self.status))
     end

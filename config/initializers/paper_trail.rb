@@ -13,7 +13,8 @@ module PaperTrail
   module CheckExtensions
     def self.included(base)
       base.class_eval do
-        before_create :set_object_after, :set_user, :set_event_type, :set_project_association, :set_meta
+        attr_accessor :is_being_copied
+        before_create :set_object_after, :set_user, :set_event_type, :set_project_association, :set_meta, unless: proc { |pt| pt.is_being_copied }
         after_create :increment_project_association_annotations_count
         after_destroy :decrement_project_association_annotations_count
       end
