@@ -275,7 +275,6 @@ GEM
     net-http-digest_auth (1.4.1)
     net-http-persistent (2.9.4)
     netrc (0.11.0)
-    newrelic_rpm (4.1.0.333)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     ntlm-http (0.1.1)
@@ -562,7 +561,6 @@ DEPENDENCIES
   loofah (= 2.2.1)
   mini_magick
   mocha
-  newrelic_rpm
   nokogiri (= 1.8.2)
   omniauth-facebook
   omniauth-slack
