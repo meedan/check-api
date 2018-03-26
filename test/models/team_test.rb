@@ -1303,4 +1303,35 @@ class TeamTest < ActiveSupport::TestCase
     Bot::Slack.any_instance.unstub(:notify_slack)
   end
 
+  test "should duplicate team with duplicated source" do
+    team = create_team
+    user = create_user
+    source = create_source user: user, team: team
+    duplicated_source = source.dup
+    duplicated_source.save(validate: false)
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.valid?
+  end
+
+  test "should copy comment image" do
+    team = create_team name: 'Team A'
+
+    project = create_project team: team, title: 'Project'
+    u = create_user
+    pm = create_project_media user: u, team: team, project: project
+    c = create_comment annotated: pm, file: 'rails.png'
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+
+    copy_p = copy.projects.find_by_title('Project')
+    copy_pm = copy_p.project_medias.first
+    copy_comment = copy_pm.get_annotations('comment').first.load
+    assert File.exist?(copy_comment.file.path)
+  end
+
 end
