@@ -1303,4 +1303,14 @@ class TeamTest < ActiveSupport::TestCase
     Bot::Slack.any_instance.unstub(:notify_slack)
   end
 
+  test "should reset current team when team is deleted" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t
+    u.current_team_id = t.id
+    u.save!
+    assert_not_nil u.reload.current_team_id
+    t.destroy
+    assert_nil u.reload.current_team_id
+  end
 end
