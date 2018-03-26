@@ -38,4 +38,8 @@ module TeamPrivate
     end
     Team.delay.clear_embeds_caches_if_needed(self.id) if changed 
   end
+
+  def reset_current_team
+    User.where(current_team_id: self.id).each{ |user| user.update_columns(current_team_id: nil) }
+  end
 end
