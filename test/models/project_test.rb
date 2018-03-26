@@ -661,4 +661,14 @@ class ProjectTest < ActiveSupport::TestCase
     p.export_images_in_background
     assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
   end
+
+  test "should reset current project when project is deleted" do
+    p = create_project
+    u = create_user
+    u.current_project_id = p.id
+    u.save!
+    assert_not_nil u.reload.current_project_id
+    p.destroy
+    assert_nil u.reload.current_project_id
+  end
 end

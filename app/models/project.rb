@@ -18,6 +18,7 @@ class Project < ActiveRecord::Base
 
   after_create :send_slack_notification
   after_update :update_elasticsearch_data, :archive_or_restore_project_medias_if_needed
+  after_destroy :reset_current_project
 
   validates_presence_of :title
   validates :lead_image, size: true
@@ -192,5 +193,9 @@ class Project < ActiveRecord::Base
 
   def team_is_not_archived
     parent_is_not_archived(self.team, I18n.t(:error_team_archived, default: "Can't create project under trashed team"))
+  end
+
+  def reset_current_project
+    User.where(current_project_id: self.id).each{ |user| user.update_columns(current_project_id: nil) }
   end
 end
