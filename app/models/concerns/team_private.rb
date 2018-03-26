@@ -49,4 +49,8 @@ module TeamPrivate
       errors.add(:base, I18n.t(:cant_change_custom_statuses, statuses: statuses, urls: urls))
     end
   end
+
+  def reset_current_team
+    User.where(current_team_id: self.id).each{ |user| user.update_columns(current_team_id: nil) }
+  end
 end
