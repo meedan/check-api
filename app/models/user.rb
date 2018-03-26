@@ -10,6 +10,7 @@ class User < ActiveRecord::Base
   has_many :teams, through: :team_users
   has_many :projects
   has_many :accounts
+  belongs_to :account
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
