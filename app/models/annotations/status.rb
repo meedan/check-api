@@ -30,6 +30,12 @@ class Status < ActiveRecord::Base
     }
   end
 
+  def self.validate_custom_statuses(team_id, statuses)
+    keys = statuses['statuses'].collect{|s| s["id"]}
+    project_medias = ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id })
+    project_medias.collect{|pm| s = pm.last_status; {project_media: pm.id, url: pm.full_url, status: s} unless keys.include?s}.compact
+  end
+
   def store_previous_status
     self.previous_annotated_status = self.annotated.last_status if self.annotated.respond_to?(:last_status)
     annotated, context = get_annotated_and_context

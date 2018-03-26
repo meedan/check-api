@@ -38,4 +38,15 @@ module TeamPrivate
     end
     Team.delay.clear_embeds_caches_if_needed(self.id) if changed 
   end
+
+  def change_custom_media_statuses
+    media_statuses = self.get_media_verification_statuses
+    return if media_statuses.blank?
+    list = Status.validate_custom_statuses(self.id, media_statuses)
+    unless list.blank?
+      urls = list.collect{|l| l[:url]}
+      statuses = list.collect{|l| l[:status]}.uniq
+      errors.add(:base, I18n.t(:cant_change_custom_statuses, statuses: statuses, urls: urls))
+    end
+  end
 end
