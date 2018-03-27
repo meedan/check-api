@@ -431,6 +431,34 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not change custom statuses that are already used in reports" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    s = pm.get_annotations('status').last
+    pp s.load
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '', description: '', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '', description: '', style: 'blue' }
+      ]
+    }
+    t.set_limits_custom_statuses(true)
+    t.save!
+    t = Team.find(t.id)
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    assert_nothing_raised do
+      value[:statuses] << { id: 'undetermined', label: 'undetermined', completed: '', description: '', style: 'blue' }
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
   test "should not create team with 'check' slug" do
     assert_raises ActiveRecord::RecordInvalid do
       create_team slug: 'check'
