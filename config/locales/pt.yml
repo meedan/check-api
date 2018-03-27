@@ -147,8 +147,16 @@ pt:
         menu: Exportar imagens do projeto
       delete_tasks:
         done: tarefas removidas
-        are_you_sure_you_want_to_delete_the_tasks_from_team: Tem certeza que deseja apagar todas as tarefas nesta equipe
-        all_the_following_tasks_will_be_deleted: '? As seguintes tarefas serão removidas:'
+        are_you_sure_you_want_to_delete_the_tasks_from_team:
+          html: "Tem certeza que deseja apagar todas as tarefas na equipe <strong>%{team}</strong>? As seguintes tarefas serão removidas:"
+      duplicate_team:
+        menu: Duplicar equipe
+        done: copiada
+        are_you_sure_you_want_to_copy_team:
+          html: "Tem certeza que deseja duplicar a equipe <strong>%{team}</strong>? Todos os dados relacionados também serão copiados."
+        the_team_is_being_copied: A equipe está sendo copiada
+        url_when_ready:
+          html: "Quando estiver pronto, a cópia da equipe estará disponível em <strong>%{copy_url}</strong>"
   reset_password_instructions: "Instruções para redefinir a senha do %{app_name}"
   email_not_found: E-mail não encontrado
   slack_channel_format_wrong: 'O canal do Slack é inválido, ele deve ter o formato #general'

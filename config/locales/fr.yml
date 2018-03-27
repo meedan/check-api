@@ -147,8 +147,16 @@ fr:
         menu: Exporter les images du projet
       delete_tasks:
         done: les tâches ont bien été effacées
-        are_you_sure_you_want_to_delete_the_tasks_from_team: Voulez-vous vraiment effacer toutes les tâches de l'équipe
-        all_the_following_tasks_will_be_deleted: '? Les tâches suivantes seront effacées :'
+        are_you_sure_you_want_to_delete_the_tasks_from_team:
+          html: "Voulez-vous vraiment effacer toutes les tâches de l'équipe <strong>%{team}</strong> ? Les tâches suivantes seront éliminées :"
+      duplicate_team:
+        menu: Dupliquer l'équipe
+        done: copiée
+        are_you_sure_you_want_to_copy_team:
+          html: "Voulez-vous vraiment dupliquer l'équipe <strong>%{team}</strong> ? Toutes les données connexes seront également copiées."
+        the_team_is_being_copied: L'équipe est en cours de copie
+        url_when_ready:
+          html: "Une fois prête, la copie de l'équipe sera disponible à  <strong>%{copy_url}</strong>"
   reset_password_instructions: "Instructions pour réinitialiser le mot de passe sur %{app_name}"
   email_not_found: Courriel introuvable
   slack_channel_format_wrong: 'Canal Slack non valide : le format doit être `#general`'
