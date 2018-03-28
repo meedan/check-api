@@ -78,7 +78,7 @@ module ValidationsHelper
       errors.add(:statuses, I18n.t(:invalid_id_or_label_for_custom_verification_status)) if status[:id].blank? || status[:label].blank?
     end
     [:default, :active].each do |status|
-      errors.add(:statuses, I18n.t(":invalid_#{status}_status_for_custom_verification_status")) if !statuses[status].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[status])
+      errors.add(:statuses, I18n.t("invalid_#{status}_status_for_custom_verification_status".to_sym)) if !statuses[status].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[status])
     end
   end
 end

@@ -209,6 +209,7 @@ fr:
   max_number_of_team_users_reached: "Désolé, le nombre maximum de membres a été atteint pour cette équipe"
   max_number_of_projects_reached: "Désolé, le nombre maximum de projets a été atteint pour cette équipe"
   cant_set_custom_statuses: "Désolé, votre équipe n'est pas autorisée à utiliser la fonction de statuts personnalisés"
+  cant_change_custom_statuses: "Il est impossible de modifier les définitions de statut car certains statuts disparaîtraient. Ces identifiants de statut : %{statuses} sont en cours d'utilisation par les articles suivants : %{urls}"
   cant_set_checklist: "Désolé, votre équipe n'est pas autorisée à utiliser la fonction de liste de contrôle"
   cant_create_media_under_this_team_using_extension: "Désolé, votre équipe n'est pas autorisée à utiliser l'extension de navigateur"
   error_invalid_attribution: "Attribution non valide"
