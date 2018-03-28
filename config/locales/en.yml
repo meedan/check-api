@@ -100,10 +100,10 @@ en:
   invalid_format_for_languages: 'Languages is invalid, it should have the format [{''id'':
     ''en'',''title'': ''English''}]'
   invalid_media_item: Sorry, this is not a valid media item
-  invalid_default_status_for_custom_verification_status: The default status id is invalid
-  invalid_active_status_for_custom_verification_status: The active status id is invalid
-  invalid_id_or_label_for_custom_verification_status: The status id and label are mandatory
-  invalid_statuses_format_for_custom_verification_status: "Custom verification statuses should have valid entries for: label, id, description, style and final state flag"
+  invalid_default_status_for_custom_verification_status: The default status identifier is invalid
+  invalid_active_status_for_custom_verification_status: The active status identifier is invalid
+  invalid_id_or_label_for_custom_verification_status: The status identifier and label are mandatory
+  invalid_statuses_format_for_custom_verification_status: "Custom verification statuses should have valid entries for: label, identifier, description, style and final state flag"
   already_exists: already exists
   mail_account_confirmation: "%{app_name} account confirmation"
   mail_request_to_join: "%{user} wants to join %{team} team on %{app_name}!"
@@ -245,7 +245,7 @@ en:
   max_number_of_team_users_reached: "The maximum number of users for this team was reached"
   max_number_of_projects_reached: "The maximum number of projects for this team was reached"
   cant_set_custom_statuses: "Sorry, you can't use the custom statuses feature"
-  cant_change_custom_statuses: "You should incluce these statuses %{statuses} because the following media would lose their current status %{urls}"
+  cant_change_custom_statuses: "Can't modify the status definitions because some statuses would go missing. These status identifiers: %{statuses} are in use by the following items: %{urls}"
   cant_set_checklist: "Sorry, you can't use the Checklist feature"
   cant_create_media_under_this_team_using_extension: "Sorry, this team is not allowed to use the browser extension"
   error_invalid_attribution: "Invalid attribution"

@@ -96,7 +96,7 @@ es:
   invalid_media_item: 'Lo sentimos, este no es un elemento multimedia válido '
   invalid_default_status_for_custom_verification_status: El identificador de estado predeterminado es inválido
   invalid_active_status_for_custom_verification_status: El identificador de estado activo es inválido
-  invalid_id_or_label_for_custom_verification_status: El nombre de estado y la etiqueta son obligatorios
+  invalid_id_or_label_for_custom_verification_status: El identificador de estado y la etiqueta son obligatorios
   invalid_statuses_format_for_custom_verification_status: "Los estados de verificación personalizados deben tener entradas válidas para: etiqueta, identificador, descripción, estilo y marca de estado final."
   already_exists: ya existe
   mail_account_confirmation: "%{app_name} confirmación de cuenta"
@@ -209,6 +209,7 @@ es:
   max_number_of_team_users_reached: "Este equipo alcanzó el número máximo de usuarios"
   max_number_of_projects_reached: "Este equipo alcanzó el número máximo de proyectos"
   cant_set_custom_statuses: "Lo sentimos, no puedes usar la función de personalizar estados"
+  cant_change_custom_statuses: "No se pueden modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes elementos: %{urls}"
   cant_set_checklist: "lo sentimos, no puedes usar la función de Listas de verificación"
   cant_create_media_under_this_team_using_extension: "lo sentimos, este equipo no tiene permitido usar la extensión del navegador"
   error_invalid_attribution: "Atribución inválida"
