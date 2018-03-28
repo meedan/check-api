@@ -435,8 +435,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    s = pm.get_annotations('status').last
-    pp s.load
+    s = pm.get_annotations('status').last.load
     value = {
       label: 'Field label',
       default: '1',
@@ -453,7 +452,7 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
     assert_nothing_raised do
-      value[:statuses] << { id: 'undetermined', label: 'undetermined', completed: '', description: '', style: 'blue' }
+      value[:statuses] << { id: s.status, label: s.status, completed: '', description: '', style: 'blue' }
       t.set_media_verification_statuses(value)
       t.save!
     end
