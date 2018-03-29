@@ -23,16 +23,16 @@ class UserTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u2, t) do
       assert_raise RuntimeError do
-        u.save!
+        User.find(u.id).save!
       end
       assert_raise RuntimeError do
-        u.save!
+        User.find(u.id).save!
       end
     end
 
     with_current_user_and_team(u, t) do
      assert_raise RuntimeError do
-        u2.destroy
+        User.find(u2.id).destroy
       end
     end
   end
@@ -638,6 +638,17 @@ class UserTest < ActiveSupport::TestCase
     u.send_email_notifications = true
     u.save!
     assert u.get_send_email_notifications
+  end
+
+  test "should destroy related items" do
+    u = create_user
+    t = create_team
+    t2 = create_team
+    id = u.id
+    create_team_user user: u, team: t
+    create_team_user user: u, team: t2
+    u.destroy
+    assert_equal 0, TeamUser.where(user_id: id).count
   end
 
 end

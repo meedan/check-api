@@ -18,12 +18,13 @@ class Project < ActiveRecord::Base
 
   after_create :send_slack_notification
   after_update :update_elasticsearch_data, :archive_or_restore_project_medias_if_needed
+  after_destroy :reset_current_project
 
   validates_presence_of :title
   validates :lead_image, size: true
   validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
   validate :project_languages_format, unless: proc { |p| p.settings.nil? }
-  validate :team_is_not_archived
+  validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
 
   has_annotations
 
@@ -129,6 +130,7 @@ class Project < ActiveRecord::Base
   end
 
   def generate_token
+    self.token = nil if self.team && self.is_being_copied
     self.token ||= SecureRandom.uuid
   end
 
@@ -151,6 +153,10 @@ class Project < ActiveRecord::Base
 
   def self.archive_or_restore_project_medias_if_needed(archived, project_id)
     ProjectMedia.where({ project_id: project_id }).update_all({ archived: archived })
+  end
+
+  def is_being_copied
+    self.team && self.team.is_being_copied
   end
 
   private
@@ -187,5 +193,9 @@ class Project < ActiveRecord::Base
 
   def team_is_not_archived
     parent_is_not_archived(self.team, I18n.t(:error_team_archived, default: "Can't create project under trashed team"))
+  end
+
+  def reset_current_project
+    User.where(current_project_id: self.id).each{ |user| user.update_columns(current_project_id: nil) }
   end
 end

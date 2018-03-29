@@ -3,7 +3,7 @@ class TeamUser < ActiveRecord::Base
   belongs_to :team
   belongs_to :user
 
-  validates_presence_of :team_id, :user_id
+  validates_presence_of :team, :user
 
   validates :status, presence: true
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
@@ -48,10 +48,15 @@ class TeamUser < ActiveRecord::Base
     )
   end
 
+  def is_being_copied
+    self.team && self.team.is_being_copied
+  end
+
   protected
 
   def update_user_cached_teams(action) # action: :add or :remove
     user = self.user
+    return if user.nil?
     teams = user.cached_teams.clone
     if action == :add
       teams << self.team_id
@@ -66,10 +71,12 @@ class TeamUser < ActiveRecord::Base
   private
 
   def send_email_to_team_owners
+    return if self.is_being_copied
     TeamUserMailer.delay.request_to_join(self.team, self.user, CONFIG['checkdesk_client']) if self.status == 'requested'
   end
 
   def send_email_to_requestor
+    return if self.is_being_copied
     if self.status_was === 'requested' && ['member', 'banned'].include?(self.status)
       accepted = self.status === 'member'
       TeamUserMailer.delay.request_to_join_processed(self.team, self.user, accepted, CONFIG['checkdesk_client'])

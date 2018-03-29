@@ -431,6 +431,33 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not change custom statuses that are already used in reports" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    s = pm.get_annotations('status').last.load
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '', description: '', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '', description: '', style: 'blue' }
+      ]
+    }
+    t.set_limits_custom_statuses(true)
+    t.save!
+    t = Team.find(t.id)
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    assert_nothing_raised do
+      value[:statuses] << { id: s.status, label: s.status, completed: '', description: '', style: 'blue' }
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
   test "should not create team with 'check' slug" do
     assert_raises ActiveRecord::RecordInvalid do
       create_team slug: 'check'
@@ -1101,5 +1128,247 @@ class TeamTest < ActiveSupport::TestCase
     t.limits = {}
     t.save!
     assert_equal 'pro', t.plan
+  end
+
+  test "should duplicate a team and copy team users and contacts" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: team, user: u1, role: 'owner', status: 'member'
+    create_team_user team: team, user: u2, role: 'editor', status: 'invited'
+    create_contact team: team
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 2, TeamUser.where(team_id: copy.id).count
+    assert_equal 1, Contact.where(team_id: copy.id).count
+
+    # team attributes
+    assert_equal "#{team.slug}-copy-1", copy.slug
+    %w(name archived private description).each do |att|
+      assert_equal team.send(att), copy.send(att)
+    end
+
+    # team users
+    assert_equal team.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }, copy.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }
+
+    # contacts
+    assert_equal team.contacts.map(&:web), copy.contacts.map(&:web)
+  end
+
+  test "should duplicate a team and copy projects and update checklist" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+
+    project1 = create_project team: team, title: 'Project 1'
+    project2 = create_project team: team, title: 'Project 2'
+    value = [{
+      label: "Task one",
+      type: "free_text",
+      description: "It is a single free text task",
+      projects: [project1.id, project2.id]
+    }]
+    team.checklist = value; team.save!
+
+    team.add_auto_task = { label: 'Task 2', type: 'free_text', description: '', projects: [] }
+    team.save!
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 2, Project.where(team_id: copy.id).count
+
+    # projects
+    assert_equal team.projects.map(&:title), copy.projects.map(&:title)
+
+    # change projects ids on checklist
+    copy_p1 = copy.projects.find_by_title('Project 1')
+    copy_p2 = copy.projects.find_by_title('Project 2')
+    assert_equal [copy_p1.id, copy_p2.id], copy.get_checklist.first[:projects]
+
+    # tasks
+    assert_equal ['Task one', 'Task 2'], copy.get_checklist.map { |t| t[:label]}
+  end
+
+  test "should duplicate a team and copy sources and project medias" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    project = create_project team: team, title: 'Project'
+    u = create_user
+
+    source = create_source user: u
+    source.team = team; source.save
+    create_project_source user: u, team: team, project: project, source: source
+
+    account = create_account user: u, team: team, source: source
+    media = create_media account: account, user: u, team: team
+    pm1 = create_project_media user: u, team: team, project: project
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 1, Source.where(team_id: copy.id).count
+
+    copy_p = copy.projects.find_by_title('Project')
+
+    # sources
+    assert_equal team.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }, copy.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }
+
+    # project medias
+    assert_equal project.project_medias.map(&:media).sort, copy_p.project_medias.map(&:media).sort
+  end
+
+  test "should duplicate a team and annotations" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+
+    project = create_project team: team, title: 'Project'
+    u = create_user
+    pm = create_project_media user: u, team: team, project: project
+
+    create_comment annotated: pm
+    create_tag annotated: pm
+    create_flag annotated: pm
+
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+
+    task = create_task annotated: pm, annotator: u
+    task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+
+    copy_p = copy.projects.find_by_title('Project')
+    copy_pm = copy_p.project_medias.first
+
+    assert_equal ["comment", "flag", "response", "status", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
+    assert_equal pm.annotations.size, copy_pm.annotations.size
+  end
+
+  test "should not save team when some step on duplication raises error" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    project1 = create_project team: team, title: 'Project 1'
+    pm1 = create_project_media team: team, project: project1
+    create_comment annotated: pm1
+
+    RequestStore.store[:disable_es_callbacks] = true
+    Comment.any_instance.stubs(:save!).raises(RuntimeError)
+    assert_nil Team.duplicate(team)
+    assert !Team.exists?(:slug => 'team-a-copy-1')
+    Comment.any_instance.unstub(:save!)
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
+  test "should generate slug for copy based on original" do
+    team1 = create_team slug: 'team-a'
+    team2 = create_team slug: 'team-a-copy-1'
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team1)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 'team-a-copy-2', copy.slug
+  end
+
+  test "should copy versions on team duplication" do
+    t = create_team
+    u = create_user
+    u.is_admin = true;u.save
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      p1 = create_project team: t
+      pm = create_project_media user: u, team: t, project: p1
+      p2 = create_project team: t
+      pm.project_id = p2.id; pm.save!
+      RequestStore.store[:disable_es_callbacks] = true
+      copy = Team.duplicate(t, u)
+      assert copy.is_a?(Team)
+      RequestStore.store[:disable_es_callbacks] = false
+    end
+    User.current = nil
+  end
+
+  test "should generate slug with 63 maximum chars" do
+    team = create_team slug: 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit-morbi-at'
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 'lorem-ipsumsit-amet-consectetur-adipiscing-elit-morbi-at-copy-1', copy.slug
+  end
+
+  test "should not copy invalid statuses" do
+    team = create_team
+    value = { default: '1' }
+    team.set_media_verification_statuses(value);team.save(validate: false)
+    assert !team.valid?
+    assert !team.errors[:statuses].blank?
+    assert_equal value, team.get_media_verification_statuses(value)
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.errors[:statuses].blank?
+    assert copy.get_media_verification_statuses(value).nil?
+  end
+
+  test "should not notify slack if is being copied" do
+    team = create_team
+    user = create_user
+    create_team_user team: team, user: user, role: 'owner'
+    project = create_project team: team, title: 'Project'
+    pm = create_project_media project: project
+    source = create_source user: user
+    source.team = team; source.save
+
+    assert !Bot::Slack.default.nil?
+    Bot::Slack.any_instance.stubs(:notify_slack).never
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.valid?
+    Bot::Slack.any_instance.unstub(:notify_slack)
+  end
+
+  test "should duplicate team with duplicated source" do
+    team = create_team
+    user = create_user
+    source = create_source user: user, team: team
+    duplicated_source = source.dup
+    duplicated_source.save(validate: false)
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.valid?
+  end
+
+  test "should copy comment image" do
+    team = create_team name: 'Team A'
+
+    project = create_project team: team, title: 'Project'
+    u = create_user
+    pm = create_project_media user: u, team: team, project: project
+    c = create_comment annotated: pm, file: 'rails.png'
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+
+    copy_p = copy.projects.find_by_title('Project')
+    copy_pm = copy_p.project_medias.first
+    copy_comment = copy_pm.get_annotations('comment').first.load
+    assert File.exist?(copy_comment.file.path)
+  end
+
+  test "should reset current team when team is deleted" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t
+    u.current_team_id = t.id
+    u.save!
+    assert_not_nil u.reload.current_team_id
+    t.destroy
+    assert_nil u.reload.current_team_id
   end
 end
