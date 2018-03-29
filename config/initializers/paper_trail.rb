@@ -13,7 +13,8 @@ module PaperTrail
   module CheckExtensions
     def self.included(base)
       base.class_eval do
-        before_create :set_object_after, :set_user, :set_event_type, :set_project_association, :set_meta
+        attr_accessor :is_being_copied
+        before_create :set_object_after, :set_user, :set_event_type, :set_project_association, :set_meta, unless: proc { |pt| pt.is_being_copied }
         after_create :increment_project_association_annotations_count
         after_destroy :decrement_project_association_annotations_count
       end
@@ -90,12 +91,27 @@ module PaperTrail
 
     def projects
       ret = []
-      if self.item_type == 'ProjectMedia' && self.event == 'update'
-        changes = JSON.parse(self.object_changes)
-        if changes['project_id']
-          ret = changes['project_id'].collect{ |pid| Project.where(id: pid).last }
-          ret = [] if ret.include?(nil)
-        end
+      if (self.item_type == 'ProjectMedia' && self.event == 'update') || self.event_type == 'copy_projectmedia'
+        ret = get_from_object_changes(:project)
+      end
+      ret
+    end
+
+    def teams
+      ret = []
+      if self.event_type == 'copy_projectmedia'
+        ret = get_from_object_changes(:team)
+      end
+      ret
+    end
+
+    def get_from_object_changes(item)
+      ret = []
+      item = item.to_s
+      changes = self.get_object_changes
+      if changes["#{item}_id"]
+        ret = changes["#{item}_id"].collect{ |pid| item.classify.constantize.where(id: pid).last }
+        ret = [] if ret.include?(nil)
       end
       ret
     end
@@ -139,7 +155,7 @@ module PaperTrail
         self.get_associated_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         self.get_associated_from_dynamic_annotation
-      when 'update_projectmedia', 'update_projectsource'
+      when 'update_projectmedia', 'update_projectsource', 'copy_projectmedia'
         [self.item.class.name, self.item_id.to_i]
       when 'update_source'
         self.get_associated_from_source

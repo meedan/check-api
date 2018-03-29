@@ -65,7 +65,7 @@ module AnnotationBase
     include CustomLock
     include Assignment
 
-    attr_accessor :disable_es_callbacks, :disable_update_status
+    attr_accessor :disable_es_callbacks, :disable_update_status, :is_being_copied
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
@@ -76,8 +76,8 @@ module AnnotationBase
 
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
-    after_create :update_annotated_status, if: proc { |status| status.annotated_type == 'ProjectMedia' }
-    after_save :touch_annotated
+    after_create :update_annotated_status, if: proc { |status| status.annotated_type == 'ProjectMedia' && !status.is_being_copied }
+    after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
 
     has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |_x| User.current.present? }
@@ -92,7 +92,7 @@ module AnnotationBase
     end
     validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
 
-    validate :annotated_is_not_archived
+    validate :annotated_is_not_archived, unless: proc { |a| a.is_being_copied }
 
     private
 

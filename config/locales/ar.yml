@@ -98,7 +98,7 @@ ar:
   invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة - الصيغة المطلوبة هي `[ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]`'
   invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
-  invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الخاصة الإفتراضية غير صحيح
+  invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
   invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
   invalid_id_or_label_for_custom_verification_status: مُعَرِّف حالة التحقق وعنوانها مطلوبان
   invalid_statuses_format_for_custom_verification_status: "حالات التحقق الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية."
@@ -151,8 +151,16 @@ ar:
         menu: تصدير صور المشروع
       delete_tasks:
         done: تم حذف المهام
-        are_you_sure_you_want_to_delete_the_tasks_from_team: هل أنت متأكد أنك تود حذف جميع المهام في هذا الفريق
-        all_the_following_tasks_will_be_deleted: '؟ سوف يتم حذف المهام الآتية :'
+        are_you_sure_you_want_to_delete_the_tasks_from_team:
+          html: "هل أنت متأكد أنك تود حذف جميع المهام في الفريق <strong>%{team}</strong>؟ سوف يتم حذف المهام اﻵتية:"
+      duplicate_team:
+        menu: نسخ الفريق
+        done: تم النسخ
+        are_you_sure_you_want_to_copy_team:
+          html: "هل أنت متأكد أنك تود نسخ الفريق <strong>%{team}</strong>؟ سوف يتم أيضًا نسخ جميع البيانات المتصلة."
+        the_team_is_being_copied: يتم نسخ الفريق
+        url_when_ready:
+          html: "بمجرد أن تصبح جاهزة ، سوف تكون نسخة الفريق متاحة في <strong>%{copy_url}</strong>"
   reset_password_instructions: "تعليمات إعادة ضبط كلمة المرور لدى %{app_name}"
   email_not_found: هذا البريد الإلكتروني غير موجود
   slack_channel_format_wrong: 'صيغة قناة Slack غير صحيحة - الصيغة المطلوبة هي `#general`'
@@ -217,6 +225,7 @@ ar:
   max_number_of_team_users_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمستخدمين في هذا الفريق"
   max_number_of_projects_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في هذا الفريق"
   cant_set_custom_statuses: "عذراً ، حالات التحقق الخاصة غير متاحة لهذا الفريق"
+  cant_change_custom_statuses: "لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية : %{urls}"
   cant_set_checklist: "عذراً ، قائمة التحقق من المعلومات غير متاحة لهذا الفريق"
   cant_create_media_under_this_team_using_extension: "عذراً ، ملحق المستعرض غير متاح لهذا الفريق"
   error_invalid_attribution: "إسناد غير صحيح"

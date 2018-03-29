@@ -32,6 +32,7 @@ end
 
 Dynamic.class_eval do
   def add_update_elasticsearch_dynamic_annotation_task_response_geolocation
+    return if self.get_field(:response_geolocation).nil?
     location = {}
     geojson = JSON.parse(self.get_field_value(:response_geolocation))
     coordinates = geojson['geometry']['coordinates']

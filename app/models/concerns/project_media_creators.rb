@@ -4,6 +4,7 @@ module ProjectMediaCreators
   extend ActiveSupport::Concern
 
   def set_initial_media_status
+    return if self.project.team.is_being_copied
     st = Status.new
     st.annotated = self
     st.annotator = self.user
@@ -39,10 +40,12 @@ module ProjectMediaCreators
   private
 
   def set_project_source
+    return if self.project.team.is_being_copied
     self.create_project_source
   end
 
   def create_auto_tasks
+    return if self.project.team.is_being_copied
     self.set_tasks_responses ||= {}
     tasks = self.project.nil? ? [] : self.project.auto_tasks
     created = []
@@ -67,6 +70,7 @@ module ProjectMediaCreators
   end
 
   def create_reverse_image_annotation
+    return if self.project.team.is_being_copied
     picture = self.media.picture
     unless picture.blank?
       d = Dynamic.new

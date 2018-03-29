@@ -6,6 +6,7 @@ module TeamPrivate
   private
 
   def add_user_to_team
+    return if self.is_being_copied
     user = User.current
     unless user.nil?
       tu = TeamUser.new
@@ -20,7 +21,8 @@ module TeamPrivate
   end
 
   def normalize_slug
-    self.slug = self.slug.downcase unless self.slug.blank?
+    return if self.slug.blank?
+    self.slug =  self.is_being_copied ? self.generate_copy_slug : self.slug.downcase
   end
 
   def archive_or_restore_projects_if_needed
@@ -35,5 +37,20 @@ module TeamPrivate
       changed = true if prevval['hide_names_in_embeds'] != newval['hide_names_in_embeds']
     end
     Team.delay.clear_embeds_caches_if_needed(self.id) if changed 
+  end
+
+  def change_custom_media_statuses
+    media_statuses = self.get_media_verification_statuses
+    return if media_statuses.blank?
+    list = Status.validate_custom_statuses(self.id, media_statuses)
+    unless list.blank?
+      urls = list.collect{|l| l[:url]}
+      statuses = list.collect{|l| l[:status]}.uniq
+      errors.add(:base, I18n.t(:cant_change_custom_statuses, statuses: statuses, urls: urls))
+    end
+  end
+
+  def reset_current_team
+    User.where(current_team_id: self.id).each{ |user| user.update_columns(current_team_id: nil) }
   end
 end

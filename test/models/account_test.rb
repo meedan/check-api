@@ -184,7 +184,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should get permissions" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: u
+    create_team_user user: u, team: t
     a = create_valid_account
     perm_keys = ["read Account", "update Account", "destroy Account", "create Media", "create Claim", "create Link"].sort
 

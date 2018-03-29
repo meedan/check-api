@@ -6,8 +6,9 @@ class Team < ActiveRecord::Base
   include TeamValidations
   include TeamAssociations
   include TeamPrivate
+  include TeamDuplication
 
-  attr_accessor :affected_ids
+  attr_accessor :affected_ids, :is_being_copied
 
   mount_uploader :logo, ImageUploader
 
@@ -15,6 +16,7 @@ class Team < ActiveRecord::Base
 
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed, :clear_embeds_caches_if_needed
+  after_destroy :reset_current_team
 
   check_settings
 

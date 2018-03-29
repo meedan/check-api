@@ -94,9 +94,9 @@ pt:
   invalid_format_for_checklist: 'O Checklist é inválido, ele deve ter o formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'O campo "Languages" é inválido, ele deve ter o formato [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Desculpe, este não é um item de mídia válido
-  invalid_default_status_for_custom_verification_status: Identificador de status de verificação padrão é inválido
-  invalid_active_status_for_custom_verification_status: Identificador de status de verificação ativo é inválido
-  invalid_id_or_label_for_custom_verification_status: O id e o título de status são obrigatórios
+  invalid_default_status_for_custom_verification_status: Identificador de status padrão é inválido
+  invalid_active_status_for_custom_verification_status: Identificador de status ativo é inválido
+  invalid_id_or_label_for_custom_verification_status: O identificador e o título de status são obrigatórios
   invalid_statuses_format_for_custom_verification_status: "Os status de verificação personalizados devem ter válidos título, identificador, descrição, estilo e sinalizador de estado final."
   already_exists: já existe
   mail_account_confirmation: "Confirmação da conta do %{app_name} "
@@ -147,8 +147,16 @@ pt:
         menu: Exportar imagens do projeto
       delete_tasks:
         done: tarefas removidas
-        are_you_sure_you_want_to_delete_the_tasks_from_team: Tem certeza que deseja apagar todas as tarefas nesta equipe
-        all_the_following_tasks_will_be_deleted: '? As seguintes tarefas serão removidas:'
+        are_you_sure_you_want_to_delete_the_tasks_from_team:
+          html: "Tem certeza que deseja apagar todas as tarefas na equipe <strong>%{team}</strong>? As seguintes tarefas serão removidas:"
+      duplicate_team:
+        menu: Duplicar equipe
+        done: copiada
+        are_you_sure_you_want_to_copy_team:
+          html: "Tem certeza que deseja duplicar a equipe <strong>%{team}</strong>? Todos os dados relacionados também serão copiados."
+        the_team_is_being_copied: A equipe está sendo copiada
+        url_when_ready:
+          html: "Quando estiver pronto, a cópia da equipe estará disponível em <strong>%{copy_url}</strong>"
   reset_password_instructions: "Instruções para redefinir a senha do %{app_name}"
   email_not_found: E-mail não encontrado
   slack_channel_format_wrong: 'O canal do Slack é inválido, ele deve ter o formato #general'
@@ -201,6 +209,7 @@ pt:
   max_number_of_team_users_reached: "O número máximo de usuários para este time foi alcançado"
   max_number_of_projects_reached: "O número máximo de projetos para este time foi alcançado"
   cant_set_custom_statuses: "Desculpe, você não pode usar o recurso de status customizados"
+  cant_change_custom_statuses: "Não é possível modificar as definições de status porque alguns status desapareceriam. Esses identificadores de status: %{statuses} estão em uso pelos seguintes itens: %{urls}"
   cant_set_checklist: "Desculpe, você não pode usar o recurso de Checklist"
   cant_create_media_under_this_team_using_extension: "Desculpe, este time não tem permissão para utilizar a extensão de navegador"
   error_invalid_attribution: "Atribuição inválida"

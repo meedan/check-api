@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
   include UserPrivate
 
   belongs_to :source
-  has_many :team_users
+  has_many :team_users, dependent: :destroy
   has_many :teams, through: :team_users
   has_many :projects
   has_many :accounts
@@ -151,7 +151,7 @@ class User < ActiveRecord::Base
   end
 
   def current_project
-    Project.find(self.current_project_id) unless self.current_project_id.blank?
+    Project.where(id: self.current_project_id).last unless self.current_project_id.blank?
   end
 
   def user_teams

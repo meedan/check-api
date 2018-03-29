@@ -96,7 +96,7 @@ es:
   invalid_media_item: 'Lo sentimos, este no es un elemento multimedia válido '
   invalid_default_status_for_custom_verification_status: El identificador de estado predeterminado es inválido
   invalid_active_status_for_custom_verification_status: El identificador de estado activo es inválido
-  invalid_id_or_label_for_custom_verification_status: El nombre de estado y la etiqueta son obligatorios
+  invalid_id_or_label_for_custom_verification_status: El identificador de estado y la etiqueta son obligatorios
   invalid_statuses_format_for_custom_verification_status: "Los estados de verificación personalizados deben tener entradas válidas para: etiqueta, identificador, descripción, estilo y marca de estado final."
   already_exists: ya existe
   mail_account_confirmation: "%{app_name} confirmación de cuenta"
@@ -147,8 +147,16 @@ es:
         menu: Exportar imágenes del proyecto
       delete_tasks:
         done: eliminó las tareas
-        are_you_sure_you_want_to_delete_the_tasks_from_team: ¿Seguro que quieres eliminar todas las tareas del equipo?
-        all_the_following_tasks_will_be_deleted: '? las siguientes tareas serán eliminadas:'
+        are_you_sure_you_want_to_delete_the_tasks_from_team:
+          html: "¿Seguro que quieres eliminar todas las tareas del equipo <strong>%{team}</strong>? Las siguientes tareas se eliminarán:"
+      duplicate_team:
+        menu: Duplicar equipo
+        done: 'copiado '
+        are_you_sure_you_want_to_copy_team:
+          html: "¿Seguro que quieres copiar el equipo <strong>%{team}</strong>? Todos los datos relacionados también serán copiados."
+        the_team_is_being_copied: El equipo está siendo duplicado
+        url_when_ready:
+          html: "Cuando esté listo, la copia del equipo estará disponible en <strong>%{copy_url}</strong>"
   reset_password_instructions: "%{app_name} instrucciones para restablecer la contraseña"
   email_not_found: 'Correo electrónico no encontrado '
   slack_channel_format_wrong: 'Canal de Slack inválido, debería tener este formato #general '
@@ -201,6 +209,7 @@ es:
   max_number_of_team_users_reached: "Este equipo alcanzó el número máximo de usuarios"
   max_number_of_projects_reached: "Este equipo alcanzó el número máximo de proyectos"
   cant_set_custom_statuses: "Lo sentimos, no puedes usar la función de personalizar estados"
+  cant_change_custom_statuses: "No se pueden modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes elementos: %{urls}"
   cant_set_checklist: "lo sentimos, no puedes usar la función de Listas de verificación"
   cant_create_media_under_this_team_using_extension: "lo sentimos, este equipo no tiene permitido usar la extensión del navegador"
   error_invalid_attribution: "Atribución inválida"

@@ -109,6 +109,13 @@ class TestController < ApplicationController
     render_success 'project_media', pm
   end
 
+  def new_task
+    user = User.where(email: params[:email]).last
+    pm = ProjectMedia.find(params[:pm_id])
+    t = create_task({ annotated: pm, annotator: user }.merge(params))
+    render_success 'task', t
+  end
+
   def new_api_key
     if params[:access_token]
       a = ApiKey.where(access_token: params[:access_token]).last

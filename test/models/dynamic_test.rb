@@ -328,4 +328,15 @@ class DynamicTest < ActiveSupport::TestCase
       a.save!
     end
   end
+
+  test "should check if field response datetime exist before get field" do
+    u = create_user
+    pm = create_project_media
+
+    d = create_dynamic_annotation annotation_type: 'task_response_datetime', annotator: u, annotated: pm
+    assert d.get_field(:response_datetime).nil?
+    assert_nothing_raised do
+      d.send(:add_update_elasticsearch_dynamic_annotation_task_response_datetime)
+    end
+  end
 end

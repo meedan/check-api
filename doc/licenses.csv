@@ -71,7 +71,6 @@ Ruby Gem: multi_json,A common interface to multiple JSON libraries.,MIT,http://g
 Ruby Gem: multi_xml,A generic swappable back-end for XML parsing,MIT,https://github.com/sferik/multi_xml
 Ruby Gem: multipart-post,A multipart form post accessory for Net::HTTP.,MIT,https://github.com/nicksieger/multipart-post
 Ruby Gem: netrc,Library to read and write netrc files.,MIT,https://github.com/geemus/netrc
-Ruby Gem: newrelic_rpm,New Relic Ruby Agent,MIT,https://github.com/newrelic/rpm
 Ruby Gem: nokogiri,Nokogiri (鋸) is an HTML XML SAX and Reader parser,MIT,http://nokogiri.org
 Ruby Gem: nori,XML to Hash translator,MIT,https://github.com/savonrb/nori
 Ruby Gem: oauth,OAuth Core Ruby implementation,MIT,
@@ -153,7 +152,6 @@ Ruby Gem: socksify,Redirect all TCPSockets through a SOCKS5 proxy,the program or
 Ruby Gem: eventmachine,Ruby/EventMachine library,Ruby,http://rubyeventmachine.com
 Ruby Gem: httpclient,gives something like the functionality of libwww-perl (LWP) in Ruby,Ruby,https://github.com/nahi/httpclient
 Ruby Gem: macaddr,macaddr,Ruby,https://github.com/ahoward/macaddr
-Ruby Gem: newrelic_rpm,New Relic Ruby Agent,Ruby,https://github.com/newrelic/rpm
 Ruby Gem: rdoc,RDoc produces HTML and command-line documentation for Ruby projects,Ruby,http://docs.seattlerb.org/rdoc
 Ruby Gem: systemu,systemu,Ruby,https://github.com/ahoward/systemu
 Ruby Gem: thin,A thin and fast web server,Ruby,http://code.macournoyer.com/thin/
@@ -164,7 +162,6 @@ Ruby Gem: pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postg
 Ruby Gem: puma,Puma is a simple fast threaded and highly concurrent HTTP 1.1 server for Ruby/Rack applications,bsd-3-clause,http://puma.io
 Ruby Gem: domain_name,Domain Name manipulation library for Ruby,mpl-2.0,https://github.com/knu/ruby-domain_name
 Ruby Gem: logstash-event,Library that contains the classes required to create LogStash events,apache license (2.0),https://github.com/logstash/logstash
-Ruby Gem: newrelic_rpm,New Relic Ruby Agent,NewRelic,https://github.com/newrelic/rpm
 Ruby Gem: railroady,Ruby on Rails 3/4 model and controller UML class diagram generator.,GPLv2,http://github.com/preston/railroady
 Ruby Gem: thin,A thin and fast web server,GPLv2,http://code.macournoyer.com/thin/
 Ruby Gem: sidekiq,Simple efficient background processing for Ruby,LGPLv3,http://sidekiq.org
