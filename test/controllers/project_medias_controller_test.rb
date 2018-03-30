@@ -75,6 +75,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should render whole HTML instead of iframe if request comes from Pender" do
+    skip("Skipping test for Bridge") if CONFIG['app_name'] === 'Bridge'
     pm = create_project_media
     @request.headers['User-Agent'] = 'Mozilla/5.0 (compatible; Pender/0.1; +https://github.com/meedan/pender)'
     get :oembed, id: pm.id, format: :json
