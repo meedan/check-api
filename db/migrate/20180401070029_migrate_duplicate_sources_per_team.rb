@@ -1,7 +1,7 @@
 class MigrateDuplicateSourcesPerTeam < ActiveRecord::Migration
   def change
-  	Source.select(:name, :team_id).where.not(team_id: nil).group(['name', 'team_id']).having('count(*) > 1').each do |item|
-  		sources = Source.where(name: item['name'], team_id: item['team_id']).to_a
+  	Source.select('lower(name) as lname', :team_id).where.not(team_id: nil).group(['lname', 'team_id']).having('count(*) > 1').each do |item|
+  		sources = Source.where('lower(name) = ? AND team_id = ?', item['lname'], item['team_id']).to_a
   		s = sources.shift
   		ids = sources.map(&:id)
 			User.where(source_id: ids).update_all(source_id: s.id)
