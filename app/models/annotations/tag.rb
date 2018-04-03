@@ -8,8 +8,8 @@ class Tag < ActiveRecord::Base
   validates :data, uniqueness: { scope: [:annotated_type, :annotated_id], message: I18n.t(:already_exists) }, if: lambda { |t| t.id.blank? }
 
   before_validation :normalize_tag, :store_full_tag
-  after_save :add_update_elasticsearch_tag
-  before_destroy :destroy_elasticsearch_tag
+  after_commit :add_update_elasticsearch_tag, on: [:create, :update]
+  after_commit :destroy_elasticsearch_tag, on: :destroy
 
   def content
     { tag: self.tag }.to_json
@@ -30,7 +30,9 @@ class Tag < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_tag
-    destroy_elasticsearch_data(TagSearch)
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    options = {es_type: TagSearch, type: 'child'}
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'destroy')
   end
 
 end

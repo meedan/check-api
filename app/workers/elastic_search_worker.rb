@@ -15,6 +15,8 @@ class ElasticSearchWorker
       model.update_elasticsearch_team_bg
     elsif type == 'update_parent'
       model.update_media_search_bg(options)
+    elsif type == 'destroy'
+      model.destroy_elasticsearch_data(options)
     else
       model.add_update_media_search_child_bg(type, options)
     end

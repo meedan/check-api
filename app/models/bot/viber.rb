@@ -35,7 +35,7 @@ class Bot::Viber < ActiveRecord::Base
     validate :translation_request_id_is_unique, on: :create
 
     after_update :respond_to_user
-    after_save :update_elasticsearch_status
+    after_commit :update_elasticsearch_status, on: [:create, :update]
 
     attr_accessor :previous_status, :disable_es_callbacks
 

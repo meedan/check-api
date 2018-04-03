@@ -24,7 +24,7 @@ class Source < ActiveRecord::Base
   validate :team_is_not_archived, unless: proc { |s| s.is_being_copied }
 
   after_create :create_metadata
-  after_update :update_elasticsearch_source
+  after_commit :update_elasticsearch_source, on: :update
   after_save :cache_source_overridden
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }

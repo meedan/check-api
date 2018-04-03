@@ -16,8 +16,9 @@ class Project < ActiveRecord::Base
   before_validation :set_description_and_team_and_user, on: :create
   before_validation :generate_token, on: :create
 
-  after_create :send_slack_notification
-  after_update :update_elasticsearch_data, :archive_or_restore_project_medias_if_needed
+  after_commit :send_slack_notification, on: :create
+  after_commit :update_elasticsearch_data, on: :update
+  after_update :archive_or_restore_project_medias_if_needed
   after_destroy :reset_current_project
 
   validates_presence_of :title
