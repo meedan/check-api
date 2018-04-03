@@ -82,13 +82,17 @@ pt:
         reset_password_token: Redefinir o token da senha
         email: E-mail
     errors:
+      models:
+        team:
+          attributes:
+            slug:
+              slug_format: aceita apenas letras, números e hífens
       messages:
         record_invalid: 'A validação falhou: %{errors}'
         improbable_phone: é um número inválido
         too_short:
           one: é muito curto (mínimo de 1 caractere)
           other: É muito curto (mínimo de %{count} caracteres)
-  slug_format_validation_message: aceita apenas letras, números e hífens
   slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
   invalid_format_for_checklist: 'O Checklist é inválido, ele deve ter o formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'

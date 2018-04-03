@@ -400,7 +400,7 @@ RailsAdmin.config do |config|
         read_only do
           !bindings[:view]._current_user.is_admin?
         end
-        help ''
+        help "Accepts only letters, numbers and hyphens."
       end
       field :private do
         visible_only_for_admin
