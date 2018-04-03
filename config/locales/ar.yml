@@ -82,6 +82,11 @@ ar:
         reset_password_token: رمز إعادة تعيين كلمة المرور
         email: البريد الإلكتروني
     errors:
+      models:
+        team:
+          attributes:
+            slug:
+              slug_format: 'يقبل الأحرف والأرقام و''-'' فقط '
       messages:
         record_invalid: 'خطأ في صحة الإدخال: %{errors}'
         improbable_phone: غير صحيح
@@ -92,7 +97,6 @@ ar:
           few: قصير جداً (الحد الأدنى %{count} حروف)
           many: قصير جداً (الحد الأدنى %{count} حروف)
           other: قصير جداً (الحد الأدنى %{count} حروف)
-  slug_format_validation_message: 'يقبل الأحرف والأرقام و''-'' فقط '
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
   invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة - الصيغة المطلوبة هي `[ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]`'
