@@ -82,13 +82,17 @@ es:
         reset_password_token: Restablecer token de la contraseña
         email: Correo electrónico
     errors:
+      models:
+        team:
+          attributes:
+            slug:
+              slug_format: acepta solo letras, números y guiones
       messages:
         record_invalid: 'Error de validación: %{errors}'
         improbable_phone: 'es un número inválido '
         too_short:
           one: es demasiado corta (es mínimo 1 caracter)
           other: es demasiado corta (son mínimo %{count} caracteres)
-  slug_format_validation_message: acepta solo letras, números y guiones
   slack_webhook_format_wrong: El Slack webhook es inválido, debería tener este formato  `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: Está reservado
   invalid_format_for_checklist: 'La lista de tareas es inválida, debería tener este formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'

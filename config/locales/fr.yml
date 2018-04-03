@@ -82,13 +82,17 @@ fr:
         reset_password_token: Jeton de réinitialisation du mot de passe
         email: Courriel
     errors:
+      models:
+        team:
+          attributes:
+            slug:
+              slug_format: accepte uniquement les lettres, les chiffres et les tirets
       messages:
         record_invalid: 'La validation a échoué : %{errors}'
         improbable_phone: est un numéro non valide
         too_short:
           one: trop court (au moins 1 caractère)
           other: trop court (au moins %{count} caractères)
-  slug_format_validation_message: Accepte uniquement les lettres, les chiffres et les tirets
   slack_webhook_format_wrong: 'Webhook Slack non valide : le format doit être `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`'
   slug_is_reserved: est réservé
   invalid_format_for_checklist: 'Le champ de liste de contrôle est non-valide. Il devrait se conformer au format [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
