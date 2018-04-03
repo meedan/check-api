@@ -21,8 +21,8 @@ class Account < ActiveRecord::Base
   validates :url, uniqueness: true
 
   after_create :set_pender_result_as_annotation, :create_source
-  after_update :update_elasticsearch_account
-  before_destroy :destroy_elasticsearch_account
+  after_commit :update_elasticsearch_account, on: :update
+  after_commit :destroy_elasticsearch_account, on: :destroy
 
   def provider
     self.data['provider']
@@ -148,7 +148,9 @@ class Account < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_account
-    destroy_elasticsearch_data(AccountSearch, 'child')
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    options = {es_type: AccountSearch, type: 'child'}
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'destroy')
   end
 
   protected

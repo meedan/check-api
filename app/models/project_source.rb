@@ -15,7 +15,7 @@ class ProjectSource < ActiveRecord::Base
   validates :source_id, uniqueness: { scope: :project_id }
   before_validation :set_account, on: :create
 
-  after_create :add_elasticsearch_data, :add_elasticsearch_account
+  after_create :add_elasticsearch_account
 
   def get_team
     p = self.project
@@ -26,19 +26,12 @@ class ProjectSource < ActiveRecord::Base
     self.annotators
   end
 
-  def add_elasticsearch_data
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    p = self.project
+  def add_extra_elasticsearch_data(ms)
     s = self.source
-    ms = MediaSearch.new
     ms.id = Base64.encode64("ProjectSource/#{self.id}")
-    ms.team_id = p.team.id
-    ms.project_id = p.id
     ms.associated_type = self.source.class.name
-    ms.set_es_annotated(self)
     ms.title = s.name
     ms.description = s.description
-    ms.save!
   end
 
   def full_url
