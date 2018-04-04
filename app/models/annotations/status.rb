@@ -9,11 +9,13 @@ class Status < ActiveRecord::Base
 
   validate :can_complete_media, on: :update, if: proc { |status| status.annotated_type == 'ProjectMedia' }
 
-  after_commit :send_slack_notification, on: :update
-
   before_validation :store_previous_status, :normalize_status
 
-  after_commit :update_elasticsearch_status, :send_terminal_email_notification, on: [:create, :update]
+  after_save :send_terminal_email_notification
+
+  after_commit :send_slack_notification, on: :update
+
+  after_commit :update_elasticsearch_status, on: [:create, :update]
 
   def self.core_verification_statuses(annotated_type)
     core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
