@@ -1013,17 +1013,19 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should update media search in background" do
-    Sidekiq::Testing.fake!
-    ElasticSearchWorker.drain
-    t = create_team
-    p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    assert_equal 2, ElasticSearchWorker.jobs.size
+    stub_config('app_name', 'Check') do
+      Sidekiq::Testing.fake!
+      ElasticSearchWorker.drain
+      t = create_team
+      p = create_project team: t
+      pender_url = CONFIG['pender_url_private'] + '/api/medias'
+      url = 'http://test.com'
+      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      m = create_media(account: create_valid_account, url: url)
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      assert_equal 2, ElasticSearchWorker.jobs.size
+    end
   end
 
   test "should add comment search in background" do
@@ -1077,7 +1079,7 @@ class ElasticSearchTest < ActionController::TestCase
       pm = create_project_media project: p
       ElasticSearchWorker.drain
       d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-      assert_equal 1, ElasticSearchWorker.jobs.size
+      assert_equal 2, ElasticSearchWorker.jobs.size
     end
   end
 
