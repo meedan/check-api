@@ -1330,6 +1330,27 @@ class TeamTest < ActiveSupport::TestCase
     Bot::Slack.any_instance.unstub(:notify_slack)
   end
 
+  test "should not set active status if task is being copied" do
+    create_slack_bot
+    team = create_team
+    project = create_project team: team, title: 'Project'
+    pm = create_project_media project: project
+    task = create_task annotated: pm, required: true
+    create_annotation_type annotation_type: 'response'
+    task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
+    s = pm.get_annotations('status').last.load; s.status = 'verified'; s.save!
+
+    ProjectMedia.any_instance.stubs(:set_active_status).never
+    assert !Bot::Slack.default.nil?
+    Bot::Slack.any_instance.stubs(:notify_slack).never
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.valid?
+    ProjectMedia.any_instance.unstub(:set_active_status)
+    Bot::Slack.any_instance.unstub(:notify_slack)
+  end
+
   test "should duplicate team with duplicated source" do
     team = create_team
     user = create_user
