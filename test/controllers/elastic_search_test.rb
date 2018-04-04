@@ -906,10 +906,13 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should update es after move project to other team" do
+    u = create_user
     t = create_team
     t2 = create_team
+    u.is_admin = true; u.save!
     p = create_project team: t
     m = create_valid_media
+    User.stubs(:current).returns(u)
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
@@ -951,8 +954,12 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should update es after move media to other projects" do
     t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
+    p2 = create_project team: t
     m = create_valid_media
+    User.stubs(:current).returns(u)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     create_comment annotated: pm
     create_tag annotated: pm
@@ -960,15 +967,13 @@ class ElasticSearchTest < ActionController::TestCase
     ms = MediaSearch.find(pm.id)
     assert_equal ms.project_id.to_i, p.id
     assert_equal ms.team_id.to_i, t.id
-    t2 = create_team
-    p2 = create_project team: t2
     pm.project = p2; pm.save!
     ElasticSearchWorker.drain
     # confirm annotations log
     sleep 1
     ms = MediaSearch.find(pm.id)
     assert_equal ms.project_id.to_i, p2.id
-    assert_equal ms.team_id.to_i, t2.id
+    assert_equal ms.team_id.to_i, t.id
   end
 
   test "should destroy elasticseach project media" do
@@ -1045,9 +1050,8 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal ms.account[0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar", "username"=>"username"}.sort
   end
 
-  test "should update media search in background" do
+  test "should update or destroy media search in background" do
     Sidekiq::Testing.fake!
-    ElasticSearchWorker.drain
     t = create_team
     p = create_project team: t
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -1055,50 +1059,43 @@ class ElasticSearchTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
+    ElasticSearchWorker.drain
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    assert_equal 2, ElasticSearchWorker.jobs.size
+    # update title or description
+    ElasticSearchWorker.drain
+    pm.embed= {title: 'title', description: 'description'}.to_json
+    assert_equal 1, ElasticSearchWorker.jobs.size
+    # destroy media
+    ElasticSearchWorker.drain
+    pm.destroy
+    assert_equal 1, ElasticSearchWorker.jobs.size
   end
 
-  test "should add comment search in background" do
+  test "should add or destroy es for annotations in background" do
     Sidekiq::Testing.fake!
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p, disable_es_callbacks: false
     ElasticSearchWorker.drain
     assert_equal 0, ElasticSearchWorker.jobs.size
-    create_comment annotated: pm, disable_es_callbacks: false
+    # add comment
+    c = create_comment annotated: pm, disable_es_callbacks: false
     assert_equal 1, ElasticSearchWorker.jobs.size
-  end
-
-  test "should add tag search in background" do
-    Sidekiq::Testing.fake!
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    # add tag
     ElasticSearchWorker.drain
-    assert_equal 0, ElasticSearchWorker.jobs.size
-    create_tag annotated: pm, disable_es_callbacks: false
+    t = create_tag annotated: pm, disable_es_callbacks: false
     assert_equal 1, ElasticSearchWorker.jobs.size
-  end
-
-  test "should update title or description in background" do
-    Sidekiq::Testing.fake!
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    # update status
     ElasticSearchWorker.drain
-    assert_equal 0, ElasticSearchWorker.jobs.size
-    pm.embed= {title: 'title', description: 'description'}.to_json
+    s = create_status annotated: pm, status: 'false', disable_es_callbacks: false
     assert_equal 1, ElasticSearchWorker.jobs.size
-  end
-
-  test "should update status in background" do
-    Sidekiq::Testing.fake!
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    # destroy comment
     ElasticSearchWorker.drain
-    create_status annotated: pm, status: 'false', disable_es_callbacks: false
+    c.destroy
+    assert_equal 1, ElasticSearchWorker.jobs.size
+    # destroy tag
+    ElasticSearchWorker.drain
+    t.destroy
     assert_equal 1, ElasticSearchWorker.jobs.size
   end
 
@@ -1372,22 +1369,24 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should update es after move source to other projects" do
     t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
+    p2 = create_project team: t
     s = create_source
+    User.stubs(:current).returns(u)
     ps = create_project_source project: p, source: s, disable_es_callbacks: false
     sleep 1
     id = Base64.encode64("ProjectSource/#{ps.id}")
     ms = MediaSearch.find(id)
     assert_equal ms.project_id.to_i, p.id
     assert_equal ms.team_id.to_i, t.id
-    t2 = create_team
-    p2 = create_project team: t2
     ps.project = p2; ps.save!
     ElasticSearchWorker.drain
     sleep 1
     ms = MediaSearch.find(id)
     assert_equal ms.project_id.to_i, p2.id
-    assert_equal ms.team_id.to_i, t2.id
+    assert_equal ms.team_id.to_i, t.id
   end
 
   test "should create elasticsearch comment" do

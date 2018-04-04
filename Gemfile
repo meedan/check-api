@@ -89,3 +89,4 @@ gem 'rubyzip'
 gem 'rack-protection', '1.5.5'
 gem 'loofah', '2.2.1'
 gem 'deep_cloneable', '~> 2.3.0'
+gem 'test_after_commit', group: :test
