@@ -16,9 +16,10 @@ class User < ActiveRecord::Base
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
   before_create :skip_confirmation_for_non_email_provider
-  after_create :set_image, :create_source_and_account, :send_welcome_email
+  after_create :set_image, :create_source_and_account
   before_save :set_token, :set_login, :set_uuid
   after_update :set_blank_email_for_unconfirmed_user
+  after_create :send_welcome_email, on: :create
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
