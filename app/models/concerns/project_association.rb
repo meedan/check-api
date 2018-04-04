@@ -60,12 +60,20 @@ module ProjectAssociation
       ms.set_es_annotated(self)
       self.add_extra_elasticsearch_data(ms)
       ms.save!
+      if self.class.name == 'ProjectSource'
+        # index related account
+        parent = Base64.encode64("ProjectSource/#{self.id}")
+        accounts = self.source.accounts
+        accounts.each do |a|
+          a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+        end unless accounts.blank?
+      end
     end
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks
       v = self.versions.last
-      unless v.changeset['project_id'].blank?
+      unless v.nil? || v.changeset['project_id'].blank?
         parent = self.get_es_parent_id(self.id, self.class.name)
         keys = %w(project_id team_id)
         data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}

@@ -15,8 +15,6 @@ class ProjectSource < ActiveRecord::Base
   validates :source_id, uniqueness: { scope: :project_id }
   before_validation :set_account, on: :create
 
-  after_create :add_elasticsearch_account
-
   def get_team
     p = self.project
     p.nil? ? [] : [p.team_id]
