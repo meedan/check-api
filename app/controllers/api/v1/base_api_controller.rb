@@ -37,11 +37,11 @@ module Api
 
       def log
         begin
-          json = JSON.parse(params[:data]).merge({ request: request, source: 'client', user: User.current })
+          json = JSON.parse(params['data']).merge({ request: request, source: 'client', user: User.current })
           logger.info message: json, status: 200
           render_success and return
         rescue
-          render_error('Parameter :json is not a valid JSON', 'UNKNOWN') and return
+          render_error("Parameter data with value #{params['data'].inspect} is not a valid JSON", 'UNKNOWN') and return
         end
       end
 
