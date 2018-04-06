@@ -34,6 +34,16 @@ module Api
         end
       end
 
+      def log
+        begin
+          json = JSON.parse(params[:data]).merge({ request: request, source: 'client' })
+          logger.info message: json, status: 200
+          render_success and return
+        rescue
+          render_error('Parameter :json is not a valid JSON', 'UNKNOWN') and return
+        end
+      end
+
       # Needed for pre-flight check
       def options
         render text: ''

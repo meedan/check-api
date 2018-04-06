@@ -9,6 +9,7 @@ class BaseApiControllerTest < ActionController::TestCase
           match '/test' => 'test#test', via: [:get, :post]
           match '/notify' => 'test#notify', via: [:post]
           get 'version', to: 'base_api#version'
+          post 'log', to: 'base_api#log'
           scope '/me' do
             match '/' => 'base_api#me', via: [:get]
             match '/' => 'base_api#options', via: [:options]
@@ -159,5 +160,25 @@ class BaseApiControllerTest < ActionController::TestCase
     @request.session['check.error'] = nil
     get :me
     assert_response :success
+  end
+
+  test "should send logs" do
+    authenticate_with_token
+    @controller = Api::V1::BaseApiController.new
+    post :log, data: { foo: 'bar' }.to_json
+    assert_response :success
+  end
+
+  test "should not send logs if not logged in" do
+    @controller = Api::V1::BaseApiController.new
+    post :log, data: { foo: 'bar' }
+    assert_response 401
+  end
+
+  test "should not send logs if JSON is not provided" do
+    authenticate_with_token
+    @controller = Api::V1::BaseApiController.new
+    post :log, data: 'not a JSON'
+    assert_response 400
   end
 end
