@@ -23,6 +23,7 @@ Rails.application.routes.draw do
         match '/' => 'base_api#options', via: [:options]
       end
       get 'version', to: 'base_api#version'
+      post 'log', to: 'base_api#log'
       match '/me' => 'base_api#me', via: [:get]
       match '/graphql' => 'graphql#create', via: [:post]
       match '/search' => 'search#create', via: [:post]
