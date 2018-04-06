@@ -36,7 +36,7 @@ module Api
 
       def log
         begin
-          json = JSON.parse(params[:data]).merge({ request: request, source: 'client' })
+          json = JSON.parse(params[:data]).merge({ request: request, source: 'client', user: User.current })
           logger.info message: json, status: 200
           render_success and return
         rescue
