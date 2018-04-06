@@ -7,7 +7,8 @@ module Api
 
       before_filter :remove_empty_params_and_headers
       before_filter :set_custom_response_headers
-      before_filter :authenticate_from_token!, except: [:me, :options]
+      before_filter :authenticate_from_token!, except: [:me, :options, :log]
+      before_filter :authenticate_user!, only: [:log]
       before_action :set_paper_trail_whodunnit, :store_request
 
       respond_to :json
