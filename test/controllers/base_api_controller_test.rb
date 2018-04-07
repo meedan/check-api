@@ -165,20 +165,13 @@ class BaseApiControllerTest < ActionController::TestCase
   test "should send logs" do
     authenticate_with_token
     @controller = Api::V1::BaseApiController.new
-    post :log, data: { foo: 'bar' }.to_json
+    post :log, foo: 'bar'
     assert_response :success
   end
 
   test "should not send logs if not logged in" do
     @controller = Api::V1::BaseApiController.new
-    post :log, data: { foo: 'bar' }
+    post :log, foo: 'bar'
     assert_response 401
-  end
-
-  test "should not send logs if JSON is not provided" do
-    authenticate_with_token
-    @controller = Api::V1::BaseApiController.new
-    post :log, data: 'not a JSON'
-    assert_response 400
   end
 end

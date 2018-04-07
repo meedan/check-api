@@ -36,13 +36,9 @@ module Api
       end
 
       def log
-        begin
-          json = JSON.parse(params['data']).merge({ request: request, source: 'client', user: User.current })
-          logger.info message: json, status: 200
-          render_success and return
-        rescue
-          render_error("Parameter data with value #{params['data'].inspect} is not a valid JSON", 'UNKNOWN') and return
-        end
+        json = params.merge({ request: request, source: 'client', user: User.current })
+        logger.info message: json, status: 200
+        render_success and return
       end
 
       # Needed for pre-flight check
