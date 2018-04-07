@@ -163,8 +163,7 @@ class BaseApiControllerTest < ActionController::TestCase
   end
 
   test "should send logs" do
-    u = create_user name: 'Test User'
-    authenticate_with_user(u)
+    authenticate_with_user_token
     @controller = Api::V1::BaseApiController.new
     post :log, foo: 'bar'
     assert_response :success
