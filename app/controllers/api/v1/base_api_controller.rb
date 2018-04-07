@@ -36,9 +36,9 @@ module Api
       end
 
       def log
-        json = params.merge({ source: 'client', user: User.current })
-        Rails.logger.info message: json, status: 200
-        render_success
+        uid = User.current.nil? ? 0 : User.current.id
+        json = params.merge({ source: 'client', uid: uid })
+        render_success 'log', json
       end
 
       # Needed for pre-flight check
