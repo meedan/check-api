@@ -37,8 +37,8 @@ module Api
 
       def log
         json = params.merge({ request: request, source: 'client', user: User.current })
+        render_success
         logger.info message: json, status: 200
-        render_success and return
       end
 
       # Needed for pre-flight check
