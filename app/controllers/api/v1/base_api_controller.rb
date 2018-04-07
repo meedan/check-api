@@ -38,6 +38,7 @@ module Api
       def log
         uid = User.current.nil? ? 0 : User.current.id
         json = params.merge({ source: 'client', uid: uid })
+        Rails.logger.info(json)
         render_success 'log', json
       end
 
