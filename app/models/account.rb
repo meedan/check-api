@@ -148,9 +148,7 @@ class Account < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_account
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {es_type: AccountSearch, type: 'child'}
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'destroy')
+    destroy_es_items(AccountSearch)
   end
 
   protected

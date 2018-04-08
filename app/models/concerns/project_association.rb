@@ -83,9 +83,7 @@ module ProjectAssociation
     end
 
     def destroy_elasticsearch_media
-      return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      options = {es_type: MediaSearch, type: 'parent'}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'destroy')
+      destroy_es_items(MediaSearch, 'parent')
     end
 
     def is_being_copied

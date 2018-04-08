@@ -30,9 +30,7 @@ class Tag < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_tag
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {es_type: TagSearch, type: 'child'}
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'destroy')
+    destroy_es_items(TagSearch)
   end
 
 end
