@@ -508,7 +508,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 0, Sidekiq::Extensions::DelayedMailer.jobs.size
     u.password = '12345678'
     u.password_confirmation = '12345678'
-    # u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
+    u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
     u.save!
     u.send(:send_pending_notifications)
     assert_equal 1, Sidekiq::Extensions::DelayedMailer.jobs.size

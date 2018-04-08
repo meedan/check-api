@@ -116,9 +116,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_dynamic_annotation
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {es_type: DynamicSearch, type: 'child'}
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'destroy')
+    destroy_es_items(DynamicSearch)
   end
 
   def annotation_type_exists
