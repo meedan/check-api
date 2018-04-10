@@ -84,13 +84,17 @@ en:
         reset_password_token: Reset password token
         email: E-mail
     errors:
+      models:
+        team:
+          attributes:
+            slug:
+              slug_format: accepts only letters, numbers and hyphens
       messages:
         record_invalid: 'Validation failed: %{errors}'
         improbable_phone: is an invalid number
         too_short:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
-  slug_format_validation_message: accepts only letters, numbers and hyphens
   slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved

@@ -33,6 +33,7 @@ gem 'phony_rails'
 gem 'webmock'
 gem 'mocha'
 gem 'simplecov', '0.13.0', require: false, group: :test
+gem 'simplecov-console', require: false, group: :test
 gem 'railroady'
 gem 'airbrake', '4.3.3'
 gem 'codeclimate-test-reporter', '1.0.8', group: :test, require: nil
@@ -87,6 +88,7 @@ gem 'rails_admin_material'
 gem 'apollo-tracing'
 gem 'rubyzip'
 gem 'rack-protection', '1.5.5'
-gem 'loofah', '2.2.1'
+gem 'loofah', '2.2.2'
 gem 'deep_cloneable', '~> 2.3.0'
 gem 'test_after_commit', group: :test
+gem 'rails-html-sanitizer', '1.0.4'

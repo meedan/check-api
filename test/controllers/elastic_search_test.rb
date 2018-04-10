@@ -256,58 +256,60 @@ class ElasticSearchTest < ActionController::TestCase
     assert_empty result.medias
     result = CheckSearch.new({projects: [p.id]}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
-     # add a new context to existing media
-     p2 = create_project team: t
-     pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
-     sleep 1
-     result = CheckSearch.new({projects: [p.id]}.to_json)
-     assert_equal [pm.id].sort, result.medias.map(&:id).sort
-     # add a new media to same context
-     m2 = create_valid_media
-     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-     sleep 1
-     result = CheckSearch.new({projects: [p.id]}.to_json)
-     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-   end
-
-   test "should search with tags or status" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    # add a new context to existing media
+    p2 = create_project team: t
+    pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({projects: [p.id]}.to_json)
+    assert_equal [pm.id].sort, result.medias.map(&:id).sort
+    # add a new media to same context
     m2 = create_valid_media
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    create_status status: 'verified', annotated: pm, disable_es_callbacks: false
-    create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
-    create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
-    create_tag tag: 'newtag', annotated: pm2, disable_es_callbacks: false
-    create_tag tag: 'news', annotated: pm, disable_es_callbacks: false
-    sleep 5
-    Team.stubs(:current).returns(t)
-    # search by status
-    result = CheckSearch.new({status: ['false']}.to_json)
-    assert_empty result.medias
-    result = CheckSearch.new({status: ['verified']}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    create_status status: 'false', annotated: pm, disable_es_callbacks: false
     sleep 1
-    result = CheckSearch.new({status: ['verified']}.to_json)
-    assert_empty result.medias
-    # search by tags
-    result = CheckSearch.new({tags: ['non_exist_tag']}.to_json)
-    assert_empty result.medias
-    result = CheckSearch.new({tags: ['sports']}.to_json)
+    result = CheckSearch.new({projects: [p.id]}.to_json)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    result = CheckSearch.new({tags: ['news']}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # search tags as keywords
-    result = CheckSearch.new({keyword: 'news'}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: ' news '}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # search by multiple tags as keyword
-    result = CheckSearch.new({keyword: 'newtag news'}.to_json)
-    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+  end
+
+  test "should search with tags or status" do
+    stub_config('app_name', 'Check') do
+      t = create_team
+      p = create_project team: t
+      m = create_valid_media
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      m2 = create_valid_media
+      pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+      create_status status: 'verified', annotated: pm, disable_es_callbacks: false
+      create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
+      create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
+      create_tag tag: 'newtag', annotated: pm2, disable_es_callbacks: false
+      create_tag tag: 'news', annotated: pm, disable_es_callbacks: false
+      sleep 5
+      Team.stubs(:current).returns(t)
+      # search by status
+      result = CheckSearch.new({status: ['false']}.to_json)
+      assert_empty result.medias
+      result = CheckSearch.new({status: ['verified']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      create_status status: 'false', annotated: pm, disable_es_callbacks: false
+      sleep 1
+      result = CheckSearch.new({status: ['verified']}.to_json)
+      assert_empty result.medias
+      # search by tags
+      result = CheckSearch.new({tags: ['non_exist_tag']}.to_json)
+      assert_empty result.medias
+      result = CheckSearch.new({tags: ['sports']}.to_json)
+      assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+      result = CheckSearch.new({tags: ['news']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # search tags as keywords
+      result = CheckSearch.new({keyword: 'news'}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: ' news '}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # search by multiple tags as keyword
+      result = CheckSearch.new({keyword: 'newtag news'}.to_json)
+      assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+    end
   end
 
   test "should have unique id per params" do
@@ -321,50 +323,52 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should search with multiple filters" do
-    t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    info = {title: 'report_title'}.to_json
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm.embed= info
-    pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
-    pm2.embed= info
-    create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
-    create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
-    create_status status: 'verified', annotated: pm, disable_es_callbacks: false
-    sleep 1
-    # keyword & tags
-    Team.stubs(:current).returns(t)
-    result = CheckSearch.new({keyword: 'report_title', tags: ['sports']}.to_json)
-    assert_equal [pm2.id, pm.id], result.medias.map(&:id)
-    # keyword & context
-    result = CheckSearch.new({keyword: 'report_title', projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # keyword & status
-    result = CheckSearch.new({keyword: 'report_title', status: ['verified']}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # tags & context
-    result = CheckSearch.new({projects: [p.id], tags: ['sports']}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # status & context
-    result = CheckSearch.new({projects: [p.id], status: ['verified']}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # keyword & tags & context
-    result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # keyword & status & context
-    result = CheckSearch.new({keyword: 'report_title', status: ['verified'], projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # tags & context & status
-    result = CheckSearch.new({tags: ['sports'], status: ['verified'], projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # keyword & tags & status
-    result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], status: ['verified']}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # keyword & tags & context & status
-    result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], status: ['verified'], projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
+    stub_config('app_name', 'Check') do
+      t = create_team
+      p = create_project team: t
+      p2 = create_project team: t
+      info = {title: 'report_title'}.to_json
+      m = create_valid_media
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      pm.embed= info
+      pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
+      pm2.embed= info
+      create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
+      create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
+      create_status status: 'verified', annotated: pm, disable_es_callbacks: false
+      sleep 1
+      # keyword & tags
+      Team.stubs(:current).returns(t)
+      result = CheckSearch.new({keyword: 'report_title', tags: ['sports']}.to_json)
+      assert_equal [pm2.id, pm.id], result.medias.map(&:id)
+      # keyword & context
+      result = CheckSearch.new({keyword: 'report_title', projects: [p.id]}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # keyword & status
+      result = CheckSearch.new({keyword: 'report_title', status: ['verified']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # tags & context
+      result = CheckSearch.new({projects: [p.id], tags: ['sports']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # status & context
+      result = CheckSearch.new({projects: [p.id], status: ['verified']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # keyword & tags & context
+      result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], projects: [p.id]}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # keyword & status & context
+      result = CheckSearch.new({keyword: 'report_title', status: ['verified'], projects: [p.id]}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # tags & context & status
+      result = CheckSearch.new({tags: ['sports'], status: ['verified'], projects: [p.id]}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # keyword & tags & status
+      result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], status: ['verified']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # keyword & tags & context & status
+      result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], status: ['verified'], projects: [p.id]}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+    end
   end
 
   test "should search keyword in comments" do
@@ -380,73 +384,75 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should sort results by recent activities" do
-    t = create_team
-    p = create_project team: t
-    info = {title: 'search_sort'}.to_json
-    m1 = create_valid_media
-    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-    pm1.embed= info
-    m2 = create_valid_media
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    pm2.embed= info
-    m3 = create_valid_media
-    pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
-    pm3.embed= info
-    create_comment text: 'search_sort', annotated: pm1, disable_es_callbacks: false
-    sleep 10
-    # sort with keywords
-    Team.stubs(:current).returns(t)
-    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
-    assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json)
-    assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
-    # sort with keywords and tags
-    create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
-    create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
-    sleep 10
-    result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
-    assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
-    assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
-    create_status status: 'verified', annotated: pm3, disable_es_callbacks: false
-    create_status status: 'verified', annotated: pm2, disable_es_callbacks: false
-    create_status status: 'verified', annotated: pm1, disable_es_callbacks: false
-    create_status status: 'false', annotated: pm1, disable_es_callbacks: false
-    sleep 10
-    # sort with keywords, tags and status
-    result = CheckSearch.new({status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
-    assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
-    assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], status: ["verified"], projects: [p.id]}.to_json)
-    assert_equal [pm3.id, pm2.id], result.medias.map(&:id)
+    stub_config('app_name', 'Check') do
+      t = create_team
+      p = create_project team: t
+      info = {title: 'search_sort'}.to_json
+      m1 = create_valid_media
+      pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
+      pm1.embed= info
+      m2 = create_valid_media
+      pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+      pm2.embed= info
+      m3 = create_valid_media
+      pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
+      pm3.embed= info
+      create_comment text: 'search_sort', annotated: pm1, disable_es_callbacks: false
+      sleep 10
+      # sort with keywords
+      Team.stubs(:current).returns(t)
+      result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
+      assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json)
+      assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
+      # sort with keywords and tags
+      create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
+      create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
+      sleep 10
+      result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+      assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
+      result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
+      assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
+      create_status status: 'verified', annotated: pm3, disable_es_callbacks: false
+      create_status status: 'verified', annotated: pm2, disable_es_callbacks: false
+      create_status status: 'verified', annotated: pm1, disable_es_callbacks: false
+      create_status status: 'false', annotated: pm1, disable_es_callbacks: false
+      sleep 10
+      # sort with keywords, tags and status
+      result = CheckSearch.new({status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
+      assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
+      assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], status: ["verified"], projects: [p.id]}.to_json)
+      assert_equal [pm3.id, pm2.id], result.medias.map(&:id)
+    end
   end
 
   test "should sort results asc and desc" do
     t = create_team
     p = create_project team: t
-    
+
     info = {title: 'search_sort'}.to_json
-    
+
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
     pm1.embed = info
-    
+
     m2 = create_valid_media
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     pm2.embed = info
-    
+
     m3 = create_valid_media
     pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
     pm3.embed = info
-    
+
     create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
     sleep 2
     create_tag tag: 'sorts', annotated: pm1, disable_es_callbacks: false
     sleep 2
     create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
     sleep 6
-    
+
     Team.stubs(:current).returns(t)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json)
     assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
@@ -541,29 +547,31 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should include tag and status in recent activity sort" do
-    t = create_team
-    p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m1 = create_media(account: create_valid_account, url: url)
-    pm1  = create_project_media project: p, media: m1, disable_es_callbacks: false
-    url = 'http://test2.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m2 = create_media(account: create_valid_account, url: url)
-    pm2  = create_project_media project: p, media: m2, disable_es_callbacks: false
-    sleep 1
-    create_status annotated: pm1, status: 'in_progress', disable_es_callbacks: false
-    sleep 1
-    Team.stubs(:current).returns(t)
-    result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
-    assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
-    create_tag annotated: pm2, tag: 'in_progress', disable_es_callbacks: false
-    sleep 1
-    result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
-    assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
+    stub_config('app_name', 'Check') do
+      t = create_team
+      p = create_project team: t
+      pender_url = CONFIG['pender_url_private'] + '/api/medias'
+      url = 'http://test.com'
+      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      m1 = create_media(account: create_valid_account, url: url)
+      pm1  = create_project_media project: p, media: m1, disable_es_callbacks: false
+      url = 'http://test2.com'
+      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      m2 = create_media(account: create_valid_account, url: url)
+      pm2  = create_project_media project: p, media: m2, disable_es_callbacks: false
+      sleep 1
+      create_status annotated: pm1, status: 'in_progress', disable_es_callbacks: false
+      sleep 1
+      Team.stubs(:current).returns(t)
+      result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
+      assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
+      create_tag annotated: pm2, tag: 'in_progress', disable_es_callbacks: false
+      sleep 1
+      result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
+      assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
+    end
   end
 
   test "should include notes in recent activity sort" do
@@ -590,19 +598,21 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should sort by recent activity with project and status filters" do
-    t = create_team
-    p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    create_status status: 'in_progress', annotated: pm, disable_es_callbacks: false
-    sleep 1
-    Team.stubs(:current).returns(t)
-    result = CheckSearch.new({projects: [p.id], status: ['in_progress'], sort: "recent_activity"}.to_json)
-    assert_equal 1, result.project_medias.count
+    stub_config('app_name', 'Check') do
+      t = create_team
+      p = create_project team: t
+      pender_url = CONFIG['pender_url_private'] + '/api/medias'
+      url = 'http://test.com'
+      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      m = create_media(account: create_valid_account, url: url)
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      create_status status: 'in_progress', annotated: pm, disable_es_callbacks: false
+      sleep 1
+      Team.stubs(:current).returns(t)
+      result = CheckSearch.new({projects: [p.id], status: ['in_progress'], sort: "recent_activity"}.to_json)
+      assert_equal 1, result.project_medias.count
+    end
   end
 
   test "should load all items sorted" do
@@ -613,7 +623,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [pm2.id, pm1.id], MediaSearch.all_sorted('desc').keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:id).map(&:to_i)
   end
 
-  test "should not hit ES when there are no filters" do
+  test "should not hit elasticsearch when there are no filters" do
     t1 = create_team
     p1a = create_project team: t1
     p1b = create_project team: t1
@@ -650,7 +660,7 @@ class ElasticSearchTest < ActionController::TestCase
     Team.unstub(:current)
   end
 
-  test "should project_medias be an alias of medias" do
+  test "should ensure project_medias to be an alias of medias" do
     create_project_media
     cs = CheckSearch.new('{}')
     assert_equal cs.medias, cs.project_medias
@@ -672,7 +682,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_nil cs.pusher_channel
   end
 
-  test "should search with diacritics PT" do
+  test "should search with diacritics pt" do
     t = create_team
     p = create_project team: t
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -736,7 +746,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [pm.id], result.medias.map(&:id)
   end
 
-  test "should search AR - ticket 6066" do
+  test "should search arabic #6066" do
      t = create_team
      p = create_project team: t
      pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -884,28 +894,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [], s.teams
   end
 
-  test "should create elasticsearch status" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media media: m, project: p, disable_es_callbacks: false
-    sleep 1
-    result = MediaSearch.find(pm.id)
-    assert_equal Status.default_id(pm.media, pm.project), result.status
-  end
-
-  test "should update elasticsearch status" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media media: m, project: p, disable_es_callbacks: false
-    st = create_status status: 'verified', annotated: pm, disable_es_callbacks: false
-    sleep 1
-    result = MediaSearch.find(pm.id)
-    assert_equal 'verified', result.status
-  end
-
-  test "should update es after move project to other team" do
+  test "should update elasticsearch after move project to other team" do
     u = create_user
     t = create_team
     t2 = create_team
@@ -917,7 +906,7 @@ class ElasticSearchTest < ActionController::TestCase
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
       pids = ProjectMedia.where(project_id: p.id).map(&:id).map(&:to_s)
-      pids.concat  ProjectSource.where(project_id: p.id).map(&:id).map(&:to_s)
+      pids.concat ProjectSource.where(project_id: p.id).map(&:id).map(&:to_s)
       sleep 5
       results = MediaSearch.search(query: { match: { team_id: t.id } }).results
       assert_equal pids.sort, results.map(&:annotated_id).sort
@@ -930,29 +919,7 @@ class ElasticSearchTest < ActionController::TestCase
     end
   end
 
-  test "should set initial status for media" do
-    u = create_user
-    t = create_team
-    p = create_project team: t
-    stub_config('app_name', 'Check') do
-      m = create_valid_media user: u
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
-      sleep 1
-      ms = MediaSearch.find(pm.id)
-      assert_equal Status.default_id(m, p), ms.status
-    end
-    stub_config('app_name', 'Bridge') do
-      m = create_valid_media user: u
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      assert_equal Status.default_id(m, p), pm.annotations('status').last.status
-      sleep 1
-      ms = MediaSearch.find(pm.id)
-      assert_nil ms.status
-    end
-  end
-
-  test "should update es after move media to other projects" do
+  test "should update elasticsearch after move media to other projects" do
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -992,7 +959,7 @@ class ElasticSearchTest < ActionController::TestCase
     end
   end
 
-  test "should update es after refresh Pender data" do
+  test "should update elasticsearch after refresh pender data" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
@@ -1027,7 +994,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal ms2.title.sort, ["org_title", "override_title"].sort
   end
 
-  test "should set es data for media account" do
+  test "should set elasticsearch data for media account" do
     t = create_team
     p = create_project team: t
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -1085,10 +1052,6 @@ class ElasticSearchTest < ActionController::TestCase
     ElasticSearchWorker.drain
     t = create_tag annotated: pm, disable_es_callbacks: false
     assert_equal 1, ElasticSearchWorker.jobs.size
-    # update status
-    ElasticSearchWorker.drain
-    s = create_status annotated: pm, status: 'false', disable_es_callbacks: false
-    assert_equal 1, ElasticSearchWorker.jobs.size
     # destroy comment
     ElasticSearchWorker.drain
     c.destroy
@@ -1097,6 +1060,28 @@ class ElasticSearchTest < ActionController::TestCase
     ElasticSearchWorker.drain
     t.destroy
     assert_equal 1, ElasticSearchWorker.jobs.size
+  end
+
+  test "should update status in background" do
+    create_translation_status_stuff
+    stub_config('app_name', 'Check') do
+      Sidekiq::Testing.fake!
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p
+      ElasticSearchWorker.drain
+      create_status annotated: pm, status: 'false', disable_es_callbacks: false
+      assert_equal 1, ElasticSearchWorker.jobs.size
+    end
+    stub_config('app_name', 'Bridge') do
+      Sidekiq::Testing.fake!
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p
+      ElasticSearchWorker.drain
+      d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+      assert_equal 2, ElasticSearchWorker.jobs.size
+    end
   end
 
   test "should index and search by location" do
@@ -1141,7 +1126,7 @@ class ElasticSearchTest < ActionController::TestCase
       }
     }
 
-    sleep 3 
+    sleep 3
 
     assert_equal 1, DynamicSearch.search(search).results.size
   end
@@ -1176,7 +1161,7 @@ class ElasticSearchTest < ActionController::TestCase
       }
     }
 
-    sleep 5 
+    sleep 5
 
     assert_equal 1, DynamicSearch.search(search).results.size
   end
@@ -1203,7 +1188,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal 'mediasearch', m.annotation_type
   end
 
-  test "should re-index data" do
+  test "should reindex data" do
     # Test raising error for re-index
     MediaSearch.stubs(:delete_index).raises(StandardError)
     CheckElasticSearchModel.reindex_es_data
@@ -1286,7 +1271,7 @@ class ElasticSearchTest < ActionController::TestCase
     end
   end
 
-  test "should update es after source update" do
+  test "should update elasticsearch after source update" do
     s = create_source name: 'source_a', slogan: 'desc_a'
     ps = create_project_source project: create_project, source: s, disable_es_callbacks: false
     sleep 1
@@ -1388,7 +1373,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal ps.source.accounts.map(&:id).sort, AccountSearch.all_sorted.map(&:id).map(&:to_i).sort
   end
 
-  test "should update es after move source to other projects" do
+  test "should update elasticsearch after move source to other projects" do
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -1484,18 +1469,8 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal 'sports-news', result.tag
   end
 
-  test "should get translation status value" do
+  test "should create elasticsearch status" do
     create_translation_status_stuff
-    stub_config('app_name', 'Bridge') do
-      pm = create_project_media disable_es_callbacks: false
-      Sidekiq::Testing.inline! do
-        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-        assert_equal 'pending', DynamicAnnotation::Field.last.status
-      end
-      sleep 1
-      ms = MediaSearch.find(pm.id)
-      assert_equal 'pending', ms.status
-    end
     stub_config('app_name', 'Check') do
       m = create_valid_media
       pm = create_project_media media: m, disable_es_callbacks: false
@@ -1506,6 +1481,41 @@ class ElasticSearchTest < ActionController::TestCase
       sleep 1
       ms = MediaSearch.find(pm.id)
       assert_equal Status.default_id(m, p), ms.status
+    end
+    stub_config('app_name', 'Bridge') do
+      pm = create_project_media disable_es_callbacks: false
+      Sidekiq::Testing.inline! do
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+        assert_equal 'pending', DynamicAnnotation::Field.last.status
+      end
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_equal 'pending', ms.status
+    end
+  end
+
+  test "should update elasticsearch status" do
+    create_translation_status_stuff
+    stub_config('app_name', 'Check') do
+      pm = create_project_media disable_es_callbacks: false
+      st = create_status status: 'verified', annotated: pm, disable_es_callbacks: false
+      Sidekiq::Testing.inline! do
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'translated' }.to_json
+      end
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_equal 'verified', ms.status
+    end
+    stub_config('app_name', 'Bridge') do
+      pm = create_project_media disable_es_callbacks: false
+      Sidekiq::Testing.inline! do
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+        d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'translated' }.to_json
+      end
+      sleep 1
+      ms = MediaSearch.find(pm.id)
+      assert_equal 'translated', ms.status
     end
   end
 
