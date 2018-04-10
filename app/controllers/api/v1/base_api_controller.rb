@@ -7,7 +7,8 @@ module Api
 
       before_filter :remove_empty_params_and_headers
       before_filter :set_custom_response_headers
-      before_filter :authenticate_from_token!, except: [:me, :options]
+      before_filter :authenticate_from_token!, except: [:me, :options, :log]
+      before_filter :authenticate_user!, only: [:log]
       before_action :set_paper_trail_whodunnit, :store_request
 
       respond_to :json
@@ -32,6 +33,23 @@ module Api
         else
           render_user current_api_user, 'session'
         end
+      end
+
+      def log
+        team = ''
+        role = ''
+        user_name = ''
+        uid = 0
+        unless User.current.nil?
+          uid = User.current.id
+          user_name = User.current.name
+          team = Team.current || User.current.current_team
+          team = team.nil? ? '' : team.name
+          role = User.current.role
+        end
+        json = params.merge({ source: 'client', uid: uid, user_name: user_name, team: team, role: role, user_agent: request.user_agent })
+        Rails.logger.info(json)
+        render_success 'log', json
       end
 
       # Needed for pre-flight check

@@ -26,8 +26,8 @@ class ApplicationController < ActionController::Base
   def render_success(type = 'success', object = nil)
     json = { type: type }
     json[:data] = object unless object.nil?
-    render json: json, status: 200
     logger.info message: json, status: 200
+    render json: json, status: 200
   end
 
   def render_error(message, code, status = 400)
