@@ -70,12 +70,11 @@ module CheckElasticSearch
     (data.blank? and self.respond_to?(:data)) ? self.data : data
   end
 
-  def destroy_elasticsearch_data(model, type = 'child', parent_id = nil)
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+  def destroy_elasticsearch_data(data)
     options = {}
     conditions = []
-    parent_id ||= get_parent_id
-    if type == 'child'
+    parent_id = data[:parent]
+    if data[:type] == 'child'
       options = {parent: parent_id}
       id = self.id
       conditions << { has_parent: { parent_type: "media_search", query: { term: { _id: parent_id } } } }
@@ -83,7 +82,7 @@ module CheckElasticSearch
       id = parent_id
     end
     conditions << {term: { _id: id } } 
-    obj = model.search(query: { bool: { must: conditions } }).last
+    obj = data[:es_type].search(query: { bool: { must: conditions } }).last
     obj.delete(options) unless obj.nil?
   end
 end

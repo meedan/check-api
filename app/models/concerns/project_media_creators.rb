@@ -16,16 +16,10 @@ module ProjectMediaCreators
     st.save!
   end
 
-  def add_elasticsearch_data
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    p = self.project
+  def add_extra_elasticsearch_data(ms)
     m = self.media
-    ms = MediaSearch.new
     ms.id = self.id
-    ms.team_id = p.team.id
-    ms.project_id = p.id
     ms.associated_type = self.media.type
-    ms.set_es_annotated(self)
     ms.status = self.last_status unless CONFIG['app_name'] === 'Bridge'
     data = self.embed
     unless data.nil?
@@ -34,7 +28,6 @@ module ProjectMediaCreators
       ms.quote = m.quote
     end
     ms.account = self.set_es_account_data unless self.media.account.nil?
-    ms.save!
   end
 
   private

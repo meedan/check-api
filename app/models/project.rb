@@ -16,8 +16,9 @@ class Project < ActiveRecord::Base
   before_validation :set_description_and_team_and_user, on: :create
   before_validation :generate_token, on: :create
 
-  after_create :send_slack_notification
-  after_update :update_elasticsearch_data, :archive_or_restore_project_medias_if_needed
+  after_commit :send_slack_notification, on: :create
+  after_commit :update_elasticsearch_data, on: :update
+  after_update :archive_or_restore_project_medias_if_needed
   after_destroy :reset_current_project
 
   validates_presence_of :title
@@ -179,7 +180,8 @@ class Project < ActiveRecord::Base
 
   def update_elasticsearch_data
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    if self.team_id_changed?
+    v = self.versions.last
+    unless v.nil? || v.changeset['team_id'].blank?
       keys = %w(team_id)
       data = {'team_id' => self.team_id}
       options = {keys: keys, data: data}

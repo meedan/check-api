@@ -168,7 +168,7 @@ class UserTest < ActiveSupport::TestCase
   test "should send welcome email when user is created" do
     stub_config 'send_welcome_email_on_registration', true do
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
-        create_user provider: ''
+        create_user provider: '', skip_confirmation: true
       end
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
         create_user provider: 'twitter'
@@ -178,7 +178,7 @@ class UserTest < ActiveSupport::TestCase
 
     stub_config 'send_welcome_email_on_registration', false do
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
-        create_user provider: ''
+        create_user provider: '', skip_confirmation: true
         create_user provider: 'twitter'
         create_user provider: 'facebook'
       end
@@ -510,7 +510,6 @@ class UserTest < ActiveSupport::TestCase
     u.password_confirmation = '12345678'
     u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
     u.save!
-    u.send(:send_pending_notifications)
     assert_equal 1, Sidekiq::Extensions::DelayedMailer.jobs.size
     assert_equal 1, u.send(:pending_notifications).size
     u = User.last
