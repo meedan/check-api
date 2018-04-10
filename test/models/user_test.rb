@@ -650,4 +650,17 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 0, TeamUser.where(user_id: id).count
   end
 
+  test "should create account with omniauth data" do
+    omniauth_info = {"provider"=>"slack", "info"=> {"nickname"=>"daniela", "team"=>"meedan", "user"=>"daniela", "name"=>"daniela feitosa", "description"=>"", "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"}, "url"=>"https://meedan.slack.com/team/daniela"}
+    u = create_user provider: 'slack', omniauth_info: omniauth_info, url: omniauth_info['url']
+    account = u.account
+    assert account.created_on_registration?
+    assert_equal omniauth_info['url'], account.url
+    assert_equal omniauth_info['info']['nickname'], account.data['username']
+    assert_equal omniauth_info['info']['name'], account.data['author_name']
+    assert_equal omniauth_info['info']['description'], account.data['description']
+    assert_equal omniauth_info['info']['image'], account.data['picture']
+    assert_equal omniauth_info['url'], account.data['url']
+  end
+
 end

@@ -78,4 +78,24 @@ class Embed < ActiveRecord::Base
       end
     end
   end
+
+  def embed_for_registration_account(data)
+    unless data.nil?
+      embed = {}
+      embed['author_name'] = data.dig('info', 'name')
+      embed['author_picture'] = data.dig('info', 'image')
+      embed['author_url'] = data['url']
+      embed['description'] = data.dig('info', 'description')
+      embed['picture'] = data.dig('info', 'image')
+      embed['provider'] = data['provider']
+      embed['title'] = data.dig('info', 'name')
+      embed['url'] = data['url']
+      embed['username'] = data.dig('info', 'nickname') || data.dig('info', 'name')
+      embed['parsed_at'] = Time.now
+      embed['pender'] = false
+      self.embed = embed.to_json
+      self.save!
+    end
+  end
+
 end

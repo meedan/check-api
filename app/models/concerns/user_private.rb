@@ -16,11 +16,14 @@ module UserPrivate
 
     if !self.provider.blank? && !self.url.blank?
       begin
-        account = Account.new
+        account = Account.new(created_on_registration: true)
         account.user = self
         account.source = source
         account.url = self.url
-        account.update_columns(url: self.url) if account.save
+        if account.save
+          account.update_columns(url: self.url)
+          self.update_columns(account_id: account.id)
+        end
       rescue Errno::ECONNREFUSED => e
         Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
       end
