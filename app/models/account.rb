@@ -2,7 +2,7 @@ class Account < ActiveRecord::Base
   include PenderData
   include CheckElasticSearch
 
-  attr_accessor :source, :disable_es_callbacks, :disable_account_source_creation
+  attr_accessor :source, :disable_es_callbacks, :disable_account_source_creation, :created_on_registration
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at]
   belongs_to :user
@@ -16,11 +16,11 @@ class Account < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :url
-  validate :validate_pender_result, on: :create
-  validate :pender_result_is_a_profile, on: :create
+  validate :validate_pender_result, on: :create, unless: :created_on_registration?
+  validate :pender_result_is_a_profile, on: :create, unless: :created_on_registration?
   validates :url, uniqueness: true
 
-  after_create :set_pender_result_as_annotation, :create_source
+  after_create :set_embed_annotation, :create_source
   after_commit :update_elasticsearch_account, on: :update
   after_commit :destroy_elasticsearch_account, on: :destroy
 
@@ -83,7 +83,7 @@ class Account < ActiveRecord::Base
   end
 
   def refresh_account=(_refresh)
-    self.refresh_pender_data
+    self.refresh_embed_data
     self.sources.each do |s|
       s.updated_at = Time.now
       s.save!
@@ -119,6 +119,28 @@ class Account < ActiveRecord::Base
     a
   end
 
+  def created_on_registration?
+    self.created_on_registration || (self.data && self.data['pender'] == false)
+  end
+
+  def set_omniauth_info_as_annotation
+    em = self.annotations('embed').last
+    if em.nil?
+      em = Embed.new
+      em.annotated = self
+    end
+    em.embed_for_registration_account(self.user.omniauth_info)
+  end
+
+  def refresh_embed_data
+    if self.created_on_registration?
+      self.set_omniauth_info_as_annotation
+      self.update_columns(url: self.data['url']) if self.data['url']
+    else
+      self.refresh_pender_data
+    end
+  end
+
   private
 
   def create_account_source(source)
@@ -149,6 +171,10 @@ class Account < ActiveRecord::Base
 
   def destroy_elasticsearch_account
     destroy_es_items(AccountSearch)
+  end
+
+  def set_embed_annotation
+    self.created_on_registration ? set_omniauth_info_as_annotation : set_pender_result_as_annotation
   end
 
   protected
