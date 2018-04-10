@@ -46,15 +46,6 @@ class ProjectSource < ActiveRecord::Base
     end
   end
 
-  def add_elasticsearch_account
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    parent = Base64.encode64("ProjectSource/#{self.id}")
-    accounts = self.source.accounts
-    accounts.each do |a|
-      a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
-    end unless accounts.blank?
-  end
-
   def source_exists
     unless self.url.blank?
       a = Account.new
