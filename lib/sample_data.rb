@@ -95,6 +95,8 @@ module SampleData
       end
     end
 
+    u.skip_confirmation! if options.has_key?(:skip_confirmation) && options[:skip_confirmation] == true
+
     u.save!
 
     if options[:team]

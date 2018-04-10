@@ -1308,18 +1308,20 @@ class ElasticSearchTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    c = create_comment annotated: pm, disable_es_callbacks: false
-    sleep 1
-    assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
-    assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
-    id = pm.id
-    m.destroy
-    assert_equal 0, ProjectMedia.where(media_id: id).count
-    assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
-    sleep 1
-    assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
-    assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      c = create_comment annotated: pm, disable_es_callbacks: false
+      sleep 1
+      assert_equal 1, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 1, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+      id = pm.id
+      m.destroy
+      assert_equal 0, ProjectMedia.where(media_id: id).count
+      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+      sleep 1
+      assert_equal 0, MediaSearch.search(query: { match: { _id: pm.id } }).results.count
+      assert_equal 0, CommentSearch.search(query: { match: { _id: c.id } }).results.count
+    end
   end
   
   test "should destroy related items 2" do
