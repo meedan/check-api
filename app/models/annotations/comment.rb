@@ -6,8 +6,8 @@ class Comment < ActiveRecord::Base
   validates_presence_of :text, if: proc { |comment| comment.file.blank? }
 
   before_save :extract_check_entities
-  after_save :add_update_elasticsearch_comment, :send_slack_notification
-  before_destroy :destroy_elasticsearch_comment
+  after_commit :add_update_elasticsearch_comment, :send_slack_notification, on: [:create, :update]
+  after_commit :destroy_elasticsearch_comment, on: :destroy
 
   notifies_pusher on: :destroy,
                   event: 'media_updated',
@@ -69,6 +69,6 @@ class Comment < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_comment
-    destroy_elasticsearch_data(CommentSearch)
+    destroy_es_items(CommentSearch)
   end
 end

@@ -21,8 +21,8 @@ class Account < ActiveRecord::Base
   validates :url, uniqueness: true
 
   after_create :set_pender_result_as_annotation, :create_source
-  after_update :update_elasticsearch_account
-  before_destroy :destroy_elasticsearch_account
+  after_commit :update_elasticsearch_account, on: :update
+  after_commit :destroy_elasticsearch_account, on: :destroy
 
   def provider
     self.data['provider']
@@ -148,7 +148,7 @@ class Account < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_account
-    destroy_elasticsearch_data(AccountSearch, 'child')
+    destroy_es_items(AccountSearch)
   end
 
   protected

@@ -8,7 +8,7 @@ class Embed < ActiveRecord::Base
   field :published_at, Integer
   field :refreshes_count, Integer
 
-  after_save :update_elasticsearch_embed, :send_slack_notification
+  after_commit :update_elasticsearch_embed, :send_slack_notification, on: [:create, :update]
 
   def content
     {

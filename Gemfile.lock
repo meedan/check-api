@@ -477,6 +477,8 @@ GEM
       activesupport (>= 3, < 5)
       rails (>= 3, < 5)
     temple (0.8.0)
+    test_after_commit (1.1.0)
+      activerecord (>= 3.2)
     thin (1.7.0)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -604,6 +606,7 @@ DEPENDENCIES
   sinatra
   sqlite3
   swagger-docs (= 0.1.9)
+  test_after_commit
   thin
   transifex-interface-ruby!
   turbolinks
