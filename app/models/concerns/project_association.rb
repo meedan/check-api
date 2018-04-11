@@ -7,8 +7,13 @@ module ProjectAssociation
     self.project.team.check_search_team
   end
 
-  def check_search_project
-    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.project.id }, 'projects' => [self.project.id] }.to_json)
+  def check_search_project(project = nil)
+    project ||= self.project
+    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => project.id }, 'projects' => [project.id] }.to_json)
+  end
+
+  def check_search_project_was
+    self.check_search_project(self.project_was)
   end
 
   def as_json(_options = {})
