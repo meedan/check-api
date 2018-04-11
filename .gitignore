@@ -29,8 +29,6 @@ dump.rdb
 /public/viber/*.html
 /public/viber/*.png
 /public/viber/*.jpg
-travis
-travis.zip
 tmp/parallel_runtime_test.log
 public/coverage/*
 !public/coverage/.gitkeep
