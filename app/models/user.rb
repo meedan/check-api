@@ -110,8 +110,7 @@ class User < ActiveRecord::Base
     image = self.omniauth_info.dig('info', 'image') if self.omniauth_info
     source = self.source
     image ||= CONFIG['checkdesk_base_url'] + self.image.url
-    source.avatar = image.gsub(/^http:/, 'https:')
-    source.save
+    source.set_image(image.gsub(/^http:/, 'https:'))
   end
 
   def update_account(url)

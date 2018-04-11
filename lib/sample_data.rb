@@ -58,6 +58,7 @@ module SampleData
     end
 
     u.save!
+    u.source.set_image(options[:profile_image]) if options.has_key?(:profile_image) && u.source
 
     if options[:team]
       create_team_user team: options[:team], user: u
@@ -96,6 +97,7 @@ module SampleData
     u.skip_confirmation! if options.has_key?(:skip_confirmation) && options[:skip_confirmation] == true
 
     u.save!
+    u.source.set_image(options[:profile_image]) if options.has_key?(:profile_image) && u.source
 
     if options[:team]
       create_team_user team: options[:team], user: u
@@ -359,7 +361,7 @@ module SampleData
     source.name = options[:name] || random_string
     source.slogan = options[:slogan] || random_string(20)
     source.user = options[:user]
-    source.avatar = options.has_key?(:avatar) ? options[:avatar] : random_url
+    source.avatar = options[:avatar]
     source.team = options[:team] if options.has_key?(:team)
     source.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     file = nil
