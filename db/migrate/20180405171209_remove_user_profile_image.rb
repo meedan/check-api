@@ -4,9 +4,7 @@ class RemoveUserProfileImage < ActiveRecord::Migration
 
     User.where.not(provider: "").find_each do |u|
       source = u.source
-      if source.file.nil? || source.file.url == '/images/source.png'
-        u.set_source_image
-      end
+      u.set_source_image
     end
   end
 end
