@@ -10,13 +10,14 @@ class User < ActiveRecord::Base
   has_many :teams, through: :team_users
   has_many :projects
   has_many :accounts
+  belongs_to :account
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
   before_create :skip_confirmation_for_non_email_provider
-  after_create :set_image, :create_source_and_account
+  after_create :create_source_and_account, :set_source_image
   before_save :set_token, :set_login, :set_uuid
   after_update :set_blank_email_for_unconfirmed_user
   after_create :send_welcome_email
@@ -69,13 +70,13 @@ class User < ActiveRecord::Base
     user.name = auth.info.name
     user.uuid = auth.uid
     user.provider = auth.provider
-    user.profile_image = auth.info.image.gsub(/^http:/, 'https:')
     user.token = token
     user.url = auth.url
     user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
     user.omniauth_info = auth.as_json
     User.current = user
     user.save!
+    user.set_source_image
     user.reload
   end
 
@@ -102,6 +103,14 @@ class User < ActiveRecord::Base
         fb_user.update_account(auth.url)
       end
     end
+  end
+
+  def set_source_image
+    return if self.source.nil?
+    image = self.omniauth_info.dig('info', 'image') if self.omniauth_info
+    source = self.source
+    image ||= CONFIG['checkdesk_base_url'] + self.image.url
+    source.set_image(image.gsub(/^http:/, 'https:'))
   end
 
   def update_account(url)
@@ -224,6 +233,10 @@ class User < ActiveRecord::Base
   def send_email_notifications=(enabled)
     enabled = enabled == "1" ? true : false if enabled.class.name == "String"
     self.send(:set_send_email_notifications, enabled)
+  end
+
+  def profile_image
+    self.source.avatar
   end
 
   # private
