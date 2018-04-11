@@ -40,7 +40,6 @@ module SampleData
     u = BotUser.new
     u.name = options[:name] || random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
-    u.profile_image = options.has_key?(:profile_image) ? options[:profile_image] : random_url
     u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
     u.password = options[:password] || random_string
@@ -71,7 +70,6 @@ module SampleData
     u = User.new
     u.name = options[:name] || random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
-    u.profile_image = options.has_key?(:profile_image) ? options[:profile_image] : random_url
     u.uuid = options.has_key?(:uuid) ? options[:uuid] : random_string
     u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.token = options.has_key?(:token) ? options[:token] : random_string(50)
@@ -361,7 +359,7 @@ module SampleData
     source.name = options[:name] || random_string
     source.slogan = options[:slogan] || random_string(20)
     source.user = options[:user]
-    source.avatar = options[:avatar]
+    source.avatar = options.has_key?(:avatar) ? options[:avatar] : random_url
     source.team = options[:team] if options.has_key?(:team)
     source.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     file = nil
