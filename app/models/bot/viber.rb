@@ -1,6 +1,6 @@
 class Bot::Viber < ActiveRecord::Base
   attr_accessor :token
-  
+
   include ViberBotScreenshot
 
   def self.default
@@ -248,7 +248,7 @@ class Bot::Viber < ActiveRecord::Base
         ts = Dynamic.new
         ts.skip_check_ability = true
         ts.skip_notifications = true
-        ts.disable_es_callbacks = Rails.env.to_s == 'test'
+        ts.disable_es_callbacks = false
         ts.annotation_type = 'translation_status'
         ts.annotated = self
         ts.set_fields = { translation_status_status: 'pending', translation_status_note: '', translation_status_approver: '{}' }.to_json
