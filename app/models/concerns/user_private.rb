@@ -9,7 +9,6 @@ module UserPrivate
     source = Source.new
     source.user = self
     source.name = self.name
-    source.avatar = self.profile_image
     source.slogan = self.name
     source.save!
     self.update_columns(source_id: source.id)
@@ -50,13 +49,6 @@ module UserPrivate
 
   def send_welcome_email
     RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
-  end
-
-  def set_image
-    if self.profile_image.blank?
-      self.profile_image = CONFIG['checkdesk_base_url'] + User.find(self.id).image.url
-      self.save!
-    end
   end
 
   def user_is_member_in_current_team
