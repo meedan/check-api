@@ -109,7 +109,7 @@ class User < ActiveRecord::Base
     return if self.source.nil?
     image = self.omniauth_info.dig('info', 'image') if self.omniauth_info
     source = self.source
-    image ||= CONFIG['checkdesk_base_url'] + User.find(self.id).image.url
+    image ||= CONFIG['checkdesk_base_url'] + self.image.url
     source.avatar = image.gsub(/^http:/, 'https:')
     source.save
   end
