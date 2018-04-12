@@ -9,18 +9,20 @@ module UserPrivate
     source = Source.new
     source.user = self
     source.name = self.name
-    source.avatar = self.profile_image
     source.slogan = self.name
     source.save!
     self.update_columns(source_id: source.id)
 
     if !self.provider.blank? && !self.url.blank?
       begin
-        account = Account.new
+        account = Account.new(created_on_registration: true)
         account.user = self
         account.source = source
         account.url = self.url
-        account.update_columns(url: self.url) if account.save
+        if account.save
+          account.update_columns(url: self.url)
+          self.update_columns(account_id: account.id)
+        end
       rescue Errno::ECONNREFUSED => e
         Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
       end
@@ -47,13 +49,6 @@ module UserPrivate
 
   def send_welcome_email
     RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
-  end
-
-  def set_image
-    if self.profile_image.blank?
-      self.profile_image = CONFIG['checkdesk_base_url'] + User.find(self.id).image.url
-      self.save!
-    end
   end
 
   def user_is_member_in_current_team

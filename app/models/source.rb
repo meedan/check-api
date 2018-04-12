@@ -73,6 +73,10 @@ class Source < ActiveRecord::Base
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
+  def set_image(image)
+    self.update_columns(avatar: image)
+  end
+
   def collaborators
     self.annotators
   end
@@ -124,7 +128,7 @@ class Source < ActiveRecord::Base
   def refresh_accounts=(refresh)
     return if refresh.blank?
     self.accounts.each do |a|
-      a.refresh_pender_data
+      a.refresh_embed_data
       a.skip_check_ability = true
       a.save!
     end
