@@ -24,7 +24,7 @@ class Source < ActiveRecord::Base
   validate :team_is_not_archived, unless: proc { |s| s.is_being_copied }
 
   after_create :create_metadata
-  after_update :update_elasticsearch_source
+  after_commit :update_elasticsearch_source, on: :update
   after_save :cache_source_overridden
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
@@ -71,6 +71,10 @@ class Source < ActiveRecord::Base
   def description
     return self.slogan if self.slogan != self.name && !self.slogan.blank?
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
+  end
+
+  def set_image(image)
+    self.update_columns(avatar: image)
   end
 
   def collaborators
@@ -124,7 +128,7 @@ class Source < ActiveRecord::Base
   def refresh_accounts=(refresh)
     return if refresh.blank?
     self.accounts.each do |a|
-      a.refresh_pender_data
+      a.refresh_embed_data
       a.skip_check_ability = true
       a.save!
     end

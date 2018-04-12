@@ -1551,4 +1551,38 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_nil Account.where(id: a.id).last
   end
 
+  test "should create media when normalized URL exists" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    create_bot name: 'Check Bot'
+
+    url = 'https://www.facebook.com/Ma3komMona/videos/695409680623722'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+
+    url = 'https://www.facebook.com/Ma3komMona/videos/vb.268809099950451/695409680623722/?type=3&theater'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"https://www.facebook.com/Ma3komMona/videos/695409680623722","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    assert_difference 'ProjectMedia.count' do
+      pm = ProjectMedia.new
+      pm.url = url
+      pm.project = create_project
+      pm.save!
+    end
+  end
+
+  test "should get previous project search object" do
+    p1 = create_project
+    p2 = create_project
+    pm = create_project_media project: p1
+    pm.previous_project_id = p1.id
+    pm.project_id = p2.id
+    pm.save!
+    assert_kind_of CheckSearch, pm.check_search_project_was
+  end
 end

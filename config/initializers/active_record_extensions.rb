@@ -74,6 +74,13 @@ module ActiveRecordExtensions
     bot = Bot::Slack.default
     bot.notify_slack(self) unless bot.nil?
   end
+
+  def destroy_es_items(es_type, type='child')
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    options = {es_type: es_type, type: type}
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'destroy')
+  end
+
 end
 
 ActiveRecord::Base.send(:include, ActiveRecordExtensions)

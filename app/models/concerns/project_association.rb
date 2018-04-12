@@ -7,8 +7,13 @@ module ProjectAssociation
     self.project.team.check_search_team
   end
 
-  def check_search_project
-    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.project.id }, 'projects' => [self.project.id] }.to_json)
+  def check_search_project(project = nil)
+    project ||= self.project
+    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => project.id }, 'projects' => [project.id] }.to_json)
+  end
+
+  def check_search_project_was
+    self.check_search_project(self.project_was)
   end
 
   def as_json(_options = {})
@@ -39,8 +44,9 @@ module ProjectAssociation
 
     validate :is_unique, on: :create
 
-    after_update :update_elasticsearch_data
-    before_destroy :destroy_elasticsearch_media
+    after_commit :add_elasticsearch_data, on: :create
+    after_commit :update_elasticsearch_data, on: :update
+    after_commit :destroy_elasticsearch_media , on: :destroy
 
     def get_versions_log
       PaperTrail::Version.where(associated_type: self.class.name, associated_id: self.id).order('created_at ASC')
@@ -50,9 +56,29 @@ module ProjectAssociation
       self.reload.cached_annotations_count
     end
 
+    def add_elasticsearch_data
+      return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+      p = self.project
+      ms = MediaSearch.new
+      ms.team_id = p.team.id
+      ms.project_id = p.id
+      ms.set_es_annotated(self)
+      self.add_extra_elasticsearch_data(ms)
+      ms.save!
+      if self.class.name == 'ProjectSource'
+        # index related account
+        parent = Base64.encode64("ProjectSource/#{self.id}")
+        accounts = self.source.accounts
+        accounts.each do |a|
+          a.add_update_media_search_child('account_search', %w(ttile description username), {}, parent)
+        end unless accounts.blank?
+      end
+    end
+
     def update_elasticsearch_data
       return if self.disable_es_callbacks
-      if self.project_id_changed?
+      v = self.versions.last
+      unless v.nil? || v.changeset['project_id'].blank?
         parent = self.get_es_parent_id(self.id, self.class.name)
         keys = %w(project_id team_id)
         data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
@@ -62,8 +88,7 @@ module ProjectAssociation
     end
 
     def destroy_elasticsearch_media
-      return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      destroy_elasticsearch_data(MediaSearch, 'parent')
+      destroy_es_items(MediaSearch, 'parent')
     end
 
     def is_being_copied
