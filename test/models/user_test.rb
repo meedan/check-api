@@ -168,7 +168,7 @@ class UserTest < ActiveSupport::TestCase
   test "should send welcome email when user is created" do
     stub_config 'send_welcome_email_on_registration', true do
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
-        create_user provider: ''
+        create_user provider: '', skip_confirmation: true
       end
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
         create_user provider: 'twitter'
@@ -178,7 +178,7 @@ class UserTest < ActiveSupport::TestCase
 
     stub_config 'send_welcome_email_on_registration', false do
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
-        create_user provider: ''
+        create_user provider: '', skip_confirmation: true
         create_user provider: 'twitter'
         create_user provider: 'facebook'
       end
@@ -247,13 +247,13 @@ class UserTest < ActiveSupport::TestCase
   test "should not upload a small logo" do
     assert_no_difference 'Team.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_user image: 'ruby-small.png', profile_image: nil
+        create_user image: 'ruby-small.png'
       end
     end
   end
 
   test "should have a default uploaded image" do
-    u = create_user image: nil, profile_image: nil
+    u = create_user image: nil
     assert_match /user\.png$/, u.profile_image
   end
 
@@ -510,7 +510,6 @@ class UserTest < ActiveSupport::TestCase
     u.password_confirmation = '12345678'
     u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
     u.save!
-    u.send(:send_pending_notifications)
     assert_equal 1, Sidekiq::Extensions::DelayedMailer.jobs.size
     assert_equal 1, u.send(:pending_notifications).size
     u = User.last
@@ -650,5 +649,47 @@ class UserTest < ActiveSupport::TestCase
     u.destroy
     assert_equal 0, TeamUser.where(user_id: id).count
   end
+
+  test "should create account with omniauth data" do
+    omniauth_info = {"provider"=>"slack", "info"=> {"nickname"=>"daniela", "team"=>"meedan", "user"=>"daniela", "name"=>"daniela feitosa", "description"=>"", "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"}, "url"=>"https://meedan.slack.com/team/daniela"}
+    u = create_user provider: 'slack', omniauth_info: omniauth_info, url: omniauth_info['url']
+    account = u.account
+    assert account.created_on_registration?
+    assert_equal omniauth_info['url'], account.url
+    assert_equal omniauth_info['info']['nickname'], account.data['username']
+    assert_equal omniauth_info['info']['name'], account.data['author_name']
+    assert_equal omniauth_info['info']['description'], account.data['description']
+    assert_equal omniauth_info['info']['image'], account.data['picture']
+    assert_equal omniauth_info['url'], account.data['url']
+  end
+
+  test "should create source with image on omniauth data" do
+    omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
+
+    u = create_user provider: 'slack', omniauth_info: omniauth_info
+    source = u.source
+    assert_equal omniauth_info['info']['image'], source.avatar
+  end
+
+  test "should create source with default image" do
+    u = create_user
+    source = u.source
+    assert_match /images\/user.png/, source.avatar
+  end
+
+  test "should set source image when call user from omniauth" do
+    u = create_user provider: 'twitter', uuid: '12345'
+    assert_match /images\/user.png/, u.source.avatar
+
+    credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
+    info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
+    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info})
+    omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
+    User.any_instance.stubs(:omniauth_info).returns(omniauth_info)
+    User.from_omniauth(auth)
+    assert_equal omniauth_info['info']['image'], User.find(u.id).source.avatar
+    User.any_instance.unstub(:omniauth_info)
+  end
+
 
 end

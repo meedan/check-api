@@ -14,12 +14,12 @@ class ProjectMedia < ActiveRecord::Base
 
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
 
-  after_create :set_quote_embed, :set_initial_media_status, :add_elasticsearch_data, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
+  after_create :set_quote_embed, :set_initial_media_status, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project, pm.media, pm.project.team] },
+                  targets: proc { |pm| [pm.project, pm.project_was, pm.media, pm.project.team] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 

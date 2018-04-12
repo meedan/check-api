@@ -368,6 +368,30 @@ class SourceTest < ActiveSupport::TestCase
     assert t2 > t1
   end
 
+  test "should refresh source and user account with user omniauth_info" do
+    omniauth_info = {"info"=> {"name"=>"Daniela Feitosa" }, "url"=>"https://meedan.slack.com/team/daniela"}
+    u = create_user name: 'Daniela Feitosa', omniauth_info: omniauth_info, url: omniauth_info['url']
+    a = u.account
+    assert_equal 'https://meedan.slack.com/team/daniela', a.url
+    assert_equal 'Daniela Feitosa', a.data['author_name']
+
+    u.omniauth_info['info']['name'] = 'Daniela'
+    u.omniauth_info['url'] = 'http://example.com'
+    u.save
+
+    s = u.source
+    s.name = ''; s.save
+    t1 = a.updated_at
+    sleep 2
+    s.refresh_accounts = 1
+    s.save!
+    t2 = a.reload.updated_at
+    assert t2 > t1
+    assert_equal 'http://example.com', a.url
+    assert_equal 'Daniela', a.data['author_name']
+    assert_equal 'Daniela', s.name
+  end
+
   test "should not create source under trashed team" do
     t = create_team
     t.archived = true

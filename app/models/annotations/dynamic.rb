@@ -8,10 +8,10 @@ class Dynamic < ActiveRecord::Base
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
 
   before_validation :update_attribution, :update_timestamp
-  after_save :add_update_elasticsearch_dynamic_annotation
-  after_create :create_fields, :send_slack_notification
-  after_update :update_fields, :send_slack_notification
-  before_destroy :destroy_elasticsearch_dynamic_annotation
+  after_create :create_fields
+  after_update :update_fields
+  after_commit :add_update_elasticsearch_dynamic_annotation, :send_slack_notification, on: [:create, :update]
+  after_commit :destroy_elasticsearch_dynamic_annotation, on: :destroy
 
   validate :annotation_type_exists
   validate :mandatory_fields_are_set, on: :create
@@ -116,7 +116,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_dynamic_annotation
-    destroy_elasticsearch_data(DynamicSearch)
+    destroy_es_items(DynamicSearch)
   end
 
   def annotation_type_exists
