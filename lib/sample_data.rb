@@ -81,6 +81,7 @@ module SampleData
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
     u.omniauth_info = options[:omniauth_info]
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
+    u.is_active = options[:is_active] if options.has_key?(:is_active)
     u.type = options[:type] if options.has_key?(:type)
     u.api_key_id = options[:api_key_id]
 
