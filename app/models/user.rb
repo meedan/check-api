@@ -151,6 +151,10 @@ class User < ActiveRecord::Base
     super && self.provider.blank?
   end
 
+  def active_for_authentication?
+    super && self.is_active
+  end
+
   def current_team
     if self.current_team_id.blank?
       tu = TeamUser.where(user_id: self.id, status: 'member').last
