@@ -1575,4 +1575,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.save!
     end
   end
+
+  test "should get previous project search object" do
+    p1 = create_project
+    p2 = create_project
+    pm = create_project_media project: p1
+    pm.previous_project_id = p1.id
+    pm.project_id = p2.id
+    pm.save!
+    assert_kind_of CheckSearch, pm.check_search_project_was
+  end
 end

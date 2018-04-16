@@ -108,9 +108,11 @@ class User < ActiveRecord::Base
   def set_source_image
     return if self.source.nil?
     image = self.omniauth_info.dig('info', 'image') if self.omniauth_info
-    source = self.source
-    image ||= CONFIG['checkdesk_base_url'] + self.image.url
-    source.set_image(image.gsub(/^http:/, 'https:'))
+    if image.blank?
+      self.source.set_image(CONFIG['checkdesk_base_url'] + self.image.url)
+    else
+      self.source.set_image(image.gsub(/^http:/, 'https:'))
+    end
   end
 
   def update_account(url)
@@ -245,6 +247,6 @@ class User < ActiveRecord::Base
 
   # private
   #
-  # Please add private methods to app/models/concerns/user_private.rb 
+  # Please add private methods to app/models/concerns/user_private.rb
 
 end
