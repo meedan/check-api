@@ -64,7 +64,11 @@ module UserPrivate
   def validate_duplicate_email
     u = User.where(email: self.email).where.not(id: self.id).last unless self.email.blank?
     unless u.nil?
-      RegistrationMailer.delay.duplicate_email_detection(self, u) if self.new_record?
+      if u.is_active?
+        RegistrationMailer.delay.duplicate_email_detection(self, u) if self.new_record?
+      else
+        errors.add(:base, I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email']))
+      end
       return false
     end
   end

@@ -256,6 +256,7 @@ en:
   account_exists: This account already exists
   media_exists: This media already exists
   source_exists: This source already exists
+  banned_user: 'Sorry, your account has been banned from %{app_name}. Please contact %{support_email} if you think this is an error.'
   devise:
     mailer:
       reset_password_instructions:
