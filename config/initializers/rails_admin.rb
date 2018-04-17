@@ -510,6 +510,7 @@ RailsAdmin.config do |config|
           bindings[:view]._current_user.is_admin?
         end
       end
+      field :is_active
     end
 
     show do
@@ -542,6 +543,11 @@ RailsAdmin.config do |config|
       field :image
       field :current_team_id
       field :is_admin do
+        visible do
+          bindings[:view]._current_user.is_admin?
+        end
+      end
+      field :is_active do
         visible do
           bindings[:view]._current_user.is_admin?
         end
