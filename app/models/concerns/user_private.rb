@@ -67,7 +67,7 @@ module UserPrivate
       if u.is_active?
         RegistrationMailer.delay.duplicate_email_detection(self, u) if self.new_record?
       else
-        errors.add(:base, "message to let user know that's a banned account.")
+        errors.add(:base, I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email']))
       end
       return false
     end

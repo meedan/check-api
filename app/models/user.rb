@@ -153,8 +153,12 @@ class User < ActiveRecord::Base
     super && self.provider.blank?
   end
 
+  def inactive_message
+    self.is_active? ? super :  I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email'])
+  end
+
   def active_for_authentication?
-    super && self.is_active
+    super && self.is_active?
   end
 
   def current_team
