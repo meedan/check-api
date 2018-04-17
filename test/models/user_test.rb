@@ -203,6 +203,21 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not register with banned email" do
+    u = create_user is_active: false
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+    # should not send duplicate mail
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
   test "should update user mail" do
     u = create_user
     u2 = create_user
