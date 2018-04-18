@@ -58,7 +58,7 @@ module SampleData
     end
 
     u.save!
-    u.source.set_image(options[:profile_image]) if options.has_key?(:profile_image) && u.source
+    u.source.set_avatar(options[:profile_image]) if options.has_key?(:profile_image) && u.source
 
     if options[:team]
       create_team_user team: options[:team], user: u
@@ -98,7 +98,7 @@ module SampleData
     u.skip_confirmation! if options.has_key?(:skip_confirmation) && options[:skip_confirmation] == true
 
     u.save!
-    u.source.set_image(options[:profile_image]) if options.has_key?(:profile_image) && u.source
+    u.source.set_avatar(options[:profile_image]) if options.has_key?(:profile_image) && u.source
 
     if options[:team]
       create_team_user team: options[:team], user: u

@@ -107,12 +107,13 @@ class User < ActiveRecord::Base
 
   def set_source_image
     return if self.source.nil?
-    image = self.omniauth_info.dig('info', 'image') if self.omniauth_info
-    if image.blank?
-      self.source.set_image(CONFIG['checkdesk_base_url'] + self.image.url)
-    else
-      self.source.set_image(image.gsub(/^http:/, 'https:'))
+    if !self.image.nil? && self.image.url != '/images/user.png'
+      self.source.file = self.image
+      self.source.save
     end
+    image = self.omniauth_info.dig('info', 'image') if self.omniauth_info
+    avatar = image ? image.gsub(/^http:/, 'https:') : CONFIG['checkdesk_base_url'] + self.image.url
+    self.source.set_avatar(avatar)
   end
 
   def update_account(url)
