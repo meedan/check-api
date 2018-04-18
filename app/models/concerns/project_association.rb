@@ -42,7 +42,7 @@ module ProjectAssociation
 
     before_validation :set_media_or_source, :set_user, on: :create
 
-    validate :is_unique, on: :create
+    validate :is_unique, on: :create, unless: proc { |p| p.is_being_copied }
 
     after_commit :add_elasticsearch_data, on: :create
     after_commit :update_elasticsearch_data, on: :update
