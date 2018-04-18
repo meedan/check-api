@@ -148,7 +148,7 @@ class Source < ActiveRecord::Base
   end
 
   def self.get_duplicate(name, team)
-    Source.where('lower(name) = ? AND team_id = ?', name.downcase, team.id).last
+    Source.where('lower(name) = lower(?) AND team_id = ?', name, team.id).last
   end
 
   def overridden
