@@ -73,7 +73,7 @@ class Source < ActiveRecord::Base
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
-  def set_image(image)
+  def set_avatar(image)
     self.update_columns(avatar: image)
   end
 
