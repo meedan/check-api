@@ -8,6 +8,8 @@ class AccountSource < ActiveRecord::Base
 
   before_validation :set_account, on: :create
 
+  validates :account_id, uniqueness: { scope: :source_id }
+
   validate :is_unique_per_team, on: :create
 
   after_create :update_source_overridden_cache
