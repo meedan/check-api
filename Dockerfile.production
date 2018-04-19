@@ -72,5 +72,8 @@ RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
 # RUNTIME ELEMENTS
 # expose, cmd
 
+# expose apollo optics port
+EXPOSE 3001
+
 WORKDIR ${DEPLOYDIR}
 CMD ["/opt/bin/start.sh"]
