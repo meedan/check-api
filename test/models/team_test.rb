@@ -1382,6 +1382,38 @@ class TeamTest < ActiveSupport::TestCase
     assert File.exist?(copy_comment.file.path)
   end
 
+  test "should skip validation on team with duplicated project source and media" do
+    team = create_team
+    user = create_user
+    ps = create_project_source team: team, source: create_source
+    duplicated_ps = ps.dup
+    duplicated_ps.save(validate: false)
+    pm = create_project_media project: create_project(team: team)
+    duplicated_pm = pm.dup
+    duplicated_pm.save(validate: false)
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.valid?
+  end
+
+  test "should skip validation on team with big image" do
+    team = create_team
+    user = create_user
+    pm = create_project_media team: team, project: create_project(team: team)
+    c = create_comment annotated: pm
+    File.open(File.join(Rails.root, 'test', 'data', 'rails-photo.jpg')) do |f|
+      c.file = f
+    end
+    c.save(validate: false)
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.valid?
+  end
+
   test "should reset current team when team is deleted" do
     t = create_team
     u = create_user

@@ -706,5 +706,15 @@ class UserTest < ActiveSupport::TestCase
     User.any_instance.unstub(:omniauth_info)
   end
 
+  test "should set user image as source image" do
+    omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
+    stub_config 'checkdesk_base_url', 'http://check.url' do
+      u = create_user image: 'rails.png', omniauth_info: omniauth_info
+      source = u.source
+      assert_match /uploads\/source\/.*\/rails.png/, source.file.url
+      assert_equal omniauth_info['info']['image'], source.avatar
+      assert_match /uploads\/source\/.*\/rails.png/, source.image
+    end
+  end
 
 end
