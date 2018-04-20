@@ -9,10 +9,12 @@ class ProjectMedia < ActiveRecord::Base
   include Versioned
   include NotifyEmbedSystem
   include ValidationsHelper
+  include ProjectMediaPrivate
 
   validates_presence_of :media, :project
 
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
+  validates :media_id, uniqueness: { scope: :project_id }
 
   after_create :set_quote_embed, :set_initial_media_status, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
@@ -214,65 +216,6 @@ class ProjectMedia < ActiveRecord::Base
     perms
   end
 
-  private
-
-  def move_media_sources
-    if self.project_id_changed?
-      ps = get_project_source(self.project_id_was)
-      unless ps.nil?
-        target_ps = ProjectSource.where(project_id: self.project_id, source_id: ps.source_id).last
-        if target_ps.nil?
-          ps.project_id = self.project_id
-          ps.skip_check_ability = true
-          ps.disable_es_callbacks = Rails.env.to_s == 'test'
-          ps.save!
-        else
-          ps.destroy
-        end
-      end
-    end
-  end
-
-  def get_project_source(pid)
-    sources = []
-    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
-    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
-    ProjectSource.where(project_id: pid, source_id: sources).first
-  end
-
-  def project_is_not_archived
-    parent_is_not_archived(self.project, I18n.t(:error_project_archived, default: "Can't create media under trashed project"))
-  end
-
-  def update_media_account
-    a = self.media.account
-    embed = self.media.embed
-    unless a.nil? || a.embed['author_url'] == embed['author_url']
-      s = a.sources.where(team_id: Team.current.id).last
-      s = nil if !s.nil? && s.name.start_with?('Untitled')
-      new_a = self.send(:account_from_author_url, embed['author_url'], s)
-      set_media_account(new_a, s) unless new_a.nil?
-    end
-  end
-
-  def account_from_author_url(author_url, source)
-    begin Account.create_for_source(author_url, source) rescue nil end
-  end
-
-  def set_media_account(account, source)
-    m = self.media
-    a = self.media.account
-    m.account = account
-    m.skip_check_ability = true
-    m.save!
-    a.skip_check_ability = true
-    a.destroy if a.medias.count == 0
-    # Add a project source if new source was created
-    self.create_project_source if source.nil?
-    # update es
-    self.update_media_search(['account'], {account: self.set_es_account_data}, self.id)
-  end
-
   protected
 
   def initiate_embed_annotation(info)
@@ -297,4 +240,9 @@ class ProjectMedia < ActiveRecord::Base
     data["id"] = a.id unless data.blank?
     [data]
   end
+
+  # private
+  #
+  # Please add private methods to app/models/concerns/project_media_private.rb
+
 end
