@@ -13,8 +13,8 @@ GIT
 
 GIT
   remote: https://github.com/meedan/apollo-tracing-ruby.git
-  revision: d5b40df0b7544bbf378da0fa783ed0f551bdac8b
-  ref: d5b40df
+  revision: 216eb3a8bc5d19f4f8e1d8c28a03fbae273c2877
+  ref: 216eb3a
   specs:
     apollo-tracing (1.5.0)
       graphql (>= 1.7.0, < 2)
