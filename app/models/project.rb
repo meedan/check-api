@@ -131,7 +131,7 @@ class Project < ActiveRecord::Base
   end
 
   def generate_token
-    self.token = nil if self.team && self.is_being_copied
+    self.token = nil if self.is_being_copied
     self.token ||= SecureRandom.uuid
   end
 

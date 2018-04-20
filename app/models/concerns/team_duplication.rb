@@ -16,8 +16,9 @@ module TeamDuplication
             self.copy_image(original, copy)
             self.versions_log_mapping(original, copy)
           end
+          team.slug = team.generate_copy_slug
           team.is_being_copied = true
-          team.save!
+          team.save(validate: false)
           @copy_team = team
           team.update_team_checklist(@mapping[:Project])
           self.copy_annotations
@@ -64,7 +65,7 @@ module TeamDuplication
             annotation.annotated = copy
             annotation.is_being_copied = true
             Team.copy_image(a, annotation)
-            annotation.save!
+            annotation.save(validate: false)
             self.set_mapping(a, annotation)
             self.copy_annotation_fields(a, annotation, @mapping[:Task])
           end
@@ -77,7 +78,7 @@ module TeamDuplication
         field = f.dup
         field.annotation_id = copy.id
         field.value = task_mapping[f.value.to_i].id.to_s if field.field_type == "task_reference"
-        field.save!
+        field.save(validate: false)
         self.set_mapping(f, field)
       end
     end
@@ -91,7 +92,7 @@ module TeamDuplication
         log.associated_id = copy.id
         item = @mapping[log.item_type.to_sym][log.item_id.to_i]
         log.item_id = item.id if item
-        log.save!
+        log.save(validate: false)
       end
       PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
     end
@@ -108,7 +109,7 @@ module TeamDuplication
         changes['project_id'] = [ProjectMedia.find(original).project.id, copy.project.id]
         v.whodunnit = user.id
         v.object_changes = changes.to_json
-        v.save!
+        v.save(validate: false)
       end
     end
   end
@@ -133,7 +134,7 @@ module TeamDuplication
     self.get_checklist.each do |task|
       task[:projects].map! { |p| project_mapping[p] ? project_mapping[p].id : p } if task[:projects]
     end
-    self.save!
+    self.save(validate: false)
   end
 
   def reset_statuses(type)
