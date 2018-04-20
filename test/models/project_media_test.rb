@@ -1140,7 +1140,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: media2_url } }).to_return(body: response)
 
-    data = { url: author_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
+    data = { url: author_url, provider: 'facebook', picture: 'http://fb/p.png', author_name: 'UNIVERSITÄT', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
 
@@ -1151,6 +1151,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
       # should not duplicate ProjectSource for same account
       assert_no_difference 'ProjectSource.count' do
         create_project_media project: p, url: media2_url
+      end
+      assert_no_difference 'ProjectSource.count' do
+        create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'UNIVERSITÄT'}.to_json
       end
     end
     # test move media to project with same source
