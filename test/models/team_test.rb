@@ -1156,6 +1156,12 @@ class TeamTest < ActiveSupport::TestCase
 
     # contacts
     assert_equal team.contacts.map(&:web), copy.contacts.map(&:web)
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal 2, TeamUser.where(team_id: team.id).count
+    assert_equal 1, Contact.where(team_id: team.id).count
   end
 
   test "should duplicate a team and copy projects and update checklist" do
@@ -1189,33 +1195,49 @@ class TeamTest < ActiveSupport::TestCase
 
     # tasks
     assert_equal ['Task one', 'Task 2'], copy.get_checklist.map { |t| t[:label]}
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal 2, Project.where(team_id: team.id).count
   end
 
   test "should duplicate a team and copy sources and project medias" do
     team = create_team name: 'Team A', logo: 'rails.png'
-    project = create_project team: team, title: 'Project'
     u = create_user
-
+    project = create_project team: team, user: u
     source = create_source user: u
     source.team = team; source.save
+    account = create_account user: u, team: team, source: source
     create_project_source user: u, team: team, project: project, source: source
 
-    account = create_account user: u, team: team, source: source
-    media = create_media account: account, user: u, team: team
-    pm1 = create_project_media user: u, team: team, project: project
+    media = create_media account: account, user: u
+    pm1 = create_project_media user: u, team: team, project: project, media: media
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
     assert_equal 1, Source.where(team_id: copy.id).count
+    assert_equal 1, project.project_medias.count
+    assert_equal 2, project.project_sources.count
 
-    copy_p = copy.projects.find_by_title('Project')
+    copy_p = copy.projects.find_by_title(project.title)
 
     # sources
     assert_equal team.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }, copy.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }
 
+    # project sources
+    assert_not_equal project.project_sources.map(&:source).sort, copy_p.project_sources.map(&:source).sort
+
     # project medias
     assert_equal project.project_medias.map(&:media).sort, copy_p.project_medias.map(&:media).sort
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal 1, Source.where(team_id: team.id).count
+    assert_equal 1, project.project_medias.count
+    assert_equal 2, project.project_sources.count
   end
 
   test "should duplicate a team and annotations" do
@@ -1237,6 +1259,7 @@ class TeamTest < ActiveSupport::TestCase
 
     task = create_task annotated: pm, annotator: u
     task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
+    original_annotations_count = pm.annotations.size
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
@@ -1246,7 +1269,12 @@ class TeamTest < ActiveSupport::TestCase
     copy_pm = copy_p.project_medias.first
 
     assert_equal ["comment", "flag", "response", "status", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
-    assert_equal pm.annotations.size, copy_pm.annotations.size
+    assert_equal original_annotations_count, copy_pm.annotations.size
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal original_annotations_count, ProjectMedia.find(pm.id).annotations.size
   end
 
   test "should generate slug for copy based on original" do

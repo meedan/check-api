@@ -11,10 +11,11 @@ module TeamDuplication
       @original_team = t
       begin
         ActiveRecord::Base.transaction do
-          team = t.deep_clone include: [ { projects: [ :project_sources, { project_medias: :versions } ] }, :team_users, :contacts, :sources ] do |original, copy|
+          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: :versions } ] }, :team_users, :contacts ] do |original, copy|
             self.set_mapping(original, copy)
             self.copy_image(original, copy)
             self.versions_log_mapping(original, copy)
+            self.update_project_source(copy) if original.is_a? ProjectSource
           end
           team.slug = team.generate_copy_slug
           team.is_being_copied = true
@@ -111,6 +112,12 @@ module TeamDuplication
         v.object_changes = changes.to_json
         v.save(validate: false)
       end
+    end
+
+    def self.update_project_source(project_source)
+      return if @mapping[:Source].blank?
+      source_mapping = @mapping[:Source][project_source.source_id]
+      project_source.source = source_mapping if source_mapping
     end
   end
 
