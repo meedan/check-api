@@ -1249,20 +1249,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal pm.annotations.size, copy_pm.annotations.size
   end
 
-  test "should not save team when some step on duplication raises error" do
-    team = create_team name: 'Team A', logo: 'rails.png'
-    project1 = create_project team: team, title: 'Project 1'
-    pm1 = create_project_media team: team, project: project1
-    create_comment annotated: pm1
-
-    RequestStore.store[:disable_es_callbacks] = true
-    Comment.any_instance.stubs(:save!).raises(RuntimeError)
-    assert_nil Team.duplicate(team)
-    assert !Team.exists?(:slug => 'team-a-copy-1')
-    Comment.any_instance.unstub(:save!)
-    RequestStore.store[:disable_es_callbacks] = false
-  end
-
   test "should generate slug for copy based on original" do
     team1 = create_team slug: 'team-a'
     team2 = create_team slug: 'team-a-copy-1'
@@ -1309,10 +1295,11 @@ class TeamTest < ActiveSupport::TestCase
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
     assert copy.errors[:statuses].blank?
-    assert copy.get_media_verification_statuses(value).nil?
+    assert_equal team.get_media_verification_statuses(value), copy.get_media_verification_statuses(value)
   end
 
   test "should not notify slack if is being copied" do
+    create_slack_bot
     team = create_team
     user = create_user
     create_team_user team: team, user: user, role: 'owner'
@@ -1361,7 +1348,7 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
-    assert copy.valid?
+    assert Team.exists?(copy.id)
   end
 
   test "should copy comment image" do
@@ -1396,6 +1383,47 @@ class TeamTest < ActiveSupport::TestCase
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
     assert copy.valid?
+  end
+
+  test "should generate new token on duplication" do
+    team = create_team
+    project = create_project team: team
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    copy_p = copy.projects.find_by_title(project.title)
+    assert_not_equal project.token, copy_p.token
+  end
+
+  test "should duplicate a team when project is archived" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    project = create_project team: team
+
+    pm1 = create_project_media team: team, project: project
+    project.archived = true; project.save!
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+
+    copy_p = copy.projects.find_by_title(project.title)
+    assert_equal project.project_medias.map(&:media).sort, copy_p.project_medias.map(&:media).sort
+  end
+
+  test "should duplicate a team with sources and projects when team is archived" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    project = create_project team: team
+
+    source = create_source
+    source.team = team; source.save
+
+    team.archived = true; team.save!
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 1, Project.where(team_id: copy.id).count
+    assert_equal 1, Source.where(team_id: copy.id).count
   end
 
   test "should reset current team when team is deleted" do
