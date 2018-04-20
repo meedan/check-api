@@ -5,7 +5,7 @@ class AddMissingUniqueIndexes < ActiveRecord::Migration
     fix_duplicate(AccountSource, [:account_id, :source_id])
     fix_duplicate(ClaimSource, [:media_id, :source_id])
     fix_duplicate(ProjectMedia, [:project_id, :media_id])
-    # add uniqe indexes
+    # add unique indexes
   	add_index :project_sources, [:project_id, :source_id], unique: true
   	add_index :account_sources, [:account_id, :source_id], unique: true
   	add_index :claim_sources, [:media_id, :source_id], unique: true
