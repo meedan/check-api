@@ -12,14 +12,6 @@ GIT
     alegre_client (0.0.10)
 
 GIT
-  remote: https://github.com/meedan/apollo-tracing-ruby.git
-  revision: 216eb3a8bc5d19f4f8e1d8c28a03fbae273c2877
-  ref: 216eb3a
-  specs:
-    apollo-tracing (1.5.0)
-      graphql (>= 1.7.0, < 2)
-
-GIT
   remote: https://github.com/meedan/graphiql-rails.git
   revision: 8db0eacf56006c11f46ded70bf3da47c7854cea5
   ref: 8db0eac
@@ -94,6 +86,8 @@ GEM
       builder
       multi_json
     ansi (1.5.0)
+    apollo-tracing (1.4.0)
+      graphql (>= 1.6.0, < 2)
     arel (6.0.4)
     ast (2.4.0)
     awesome_print (1.7.0)
@@ -538,7 +532,7 @@ PLATFORMS
 DEPENDENCIES
   airbrake (= 4.3.3)
   alegre_client!
-  apollo-tracing!
+  apollo-tracing
   awesome_print
   bootstrap-sass (~> 3.2.0.0)
   byebug
