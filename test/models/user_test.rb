@@ -703,17 +703,29 @@ class UserTest < ActiveSupport::TestCase
     User.any_instance.stubs(:omniauth_info).returns(omniauth_info)
     User.from_omniauth(auth)
     assert_equal omniauth_info['info']['image'], User.find(u.id).source.avatar
+    assert_equal omniauth_info['info']['image'], User.find(u.id).source.image
     User.any_instance.unstub(:omniauth_info)
   end
 
-  test "should set user image as source image" do
+  test "should set user image as source image and return the uploaded image instead of omniauth" do
+    u = create_user image: 'rails.png', provider: 'twitter', uuid: '12345'
+    assert_match /rails.png/, u.image.url
+    assert_match /rails.png/, u.source.avatar
+    assert_match /rails.png/, u.source.image
+
+    credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
+    info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
+    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info})
     omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
     stub_config 'checkdesk_base_url', 'http://check.url' do
-      u = create_user image: 'rails.png', omniauth_info: omniauth_info
-      source = u.source
-      assert_match /uploads\/source\/.*\/rails.png/, source.file.url
-      assert_equal omniauth_info['info']['image'], source.avatar
-      assert_match /uploads\/source\/.*\/rails.png/, source.image
+      User.any_instance.stubs(:omniauth_info).returns(omniauth_info)
+      User.from_omniauth(auth)
+
+      assert_match /rails.png/, u.source.file.url
+      assert_equal omniauth_info['info']['image'], Source.find(u.source_id).avatar
+      assert_match /rails.png/, u.source.image
+
+      User.any_instance.unstub(:omniauth_info)
     end
   end
 
