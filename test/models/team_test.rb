@@ -1464,4 +1464,18 @@ class TeamTest < ActiveSupport::TestCase
     t.destroy
     assert_nil u.reload.current_team_id
   end
+
+  test "should notify Airbrake when duplication raises error" do
+    team = create_team
+    RequestStore.store[:disable_es_callbacks] = true
+    Airbrake.configuration.stubs(:api_key).returns('token')
+    Airbrake.stubs(:notify).once
+    Team.any_instance.stubs(:save).with(validate: false).raises(RuntimeError)
+
+    assert_nil Team.duplicate(team)
+    Airbrake.configuration.unstub(:api_key)
+    Airbrake.unstub(:notify)
+    Team.any_instance.unstub(:save)
+    RequestStore.store[:disable_es_callbacks] = false
+  end
 end

@@ -143,10 +143,4 @@ module TeamDuplication
     end
     self.save(validate: false)
   end
-
-  def reset_statuses(type)
-    return unless errors.has_key?(:statuses)
-    errors.delete(:statuses)
-    self.send("reset_#{type}_verification_statuses")
-  end
 end
