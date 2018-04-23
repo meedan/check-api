@@ -421,6 +421,24 @@ class SourceTest < ActiveSupport::TestCase
     Account.any_instance.unstub(:refresh_pender_data)
   end
 
+  test "should refresh source with account data except the image when is uploaded file" do
+    data = { author_name: 'Source author', picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
+    Account.any_instance.stubs(:data).returns(data)
+    Account.any_instance.stubs(:refresh_pender_data)
+
+    s = create_source file: 'rails.png'
+    assert_match /rails.png/, s.image
+    a = create_valid_account(source: s)
+
+    s.refresh_accounts = 1
+    s.reload
+    assert_equal 'picture.png', s.accounts.first.data['picture'].to_s
+    assert_match /rails.png/, s.image
+    Account.any_instance.unstub(:data)
+    Account.any_instance.unstub(:refresh_pender_data)
+  end
+
+
   test "should get overridden values" do
     keys = %W(name description image)
     # source with no account
