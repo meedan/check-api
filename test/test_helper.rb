@@ -19,6 +19,8 @@ require 'webmock/minitest'
 require 'mocha/test_unit'
 require 'sample_data'
 require 'parallel_tests/test/runtime_logger'
+require 'minitest/retry'
+Minitest::Retry.use!
 
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
