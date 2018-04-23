@@ -58,13 +58,8 @@ module ProjectAssociation
 
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      p = self.project
-      ms = MediaSearch.new
-      ms.team_id = p.team.id
-      ms.project_id = p.id
-      ms.set_es_annotated(self)
-      self.add_extra_elasticsearch_data(ms)
-      ms.save!
+      options = {parent: nil}
+      ElasticSearchWorker.set(:queue => :esqueue).perform_in(1.second, YAML::dump(self), YAML::dump(options), 'add_parent')
       if self.class.name == 'ProjectSource'
         # index related account
         parent = Base64.encode64("ProjectSource/#{self.id}")

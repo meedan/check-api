@@ -7,6 +7,16 @@ module CheckElasticSearch
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
   end
 
+  def add_media_search_bg(options)
+    p = self.project
+    ms = MediaSearch.new
+    ms.team_id = p.team.id
+    ms.project_id = p.id
+    ms.set_es_annotated(self)
+    self.add_extra_elasticsearch_data(ms)
+    ms.save!
+  end
+
   def update_media_search_bg(options)
     ms = get_elasticsearch_parent(options[:parent])
     unless ms.nil?
@@ -19,7 +29,9 @@ module CheckElasticSearch
 
   def add_update_media_search_child(child, keys, data = {}, parent = nil)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {keys: keys, data: data}
+    v = self.versions.last
+    version = v.nil? ? 0 : v.id
+    options = {keys: keys, data: data, version: version}
     options[:parent] = parent unless parent.nil?
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), child)
   end
@@ -34,9 +46,10 @@ module CheckElasticSearch
         model = child.new
         model.id = self.id
       end
-      store_elasticsearch_data(model, options[:keys], options[:data], {parent: ms.id})
+      child_options = {parent: ms.id, version: options[:version], retry_on_conflict: 0}
+      store_elasticsearch_data(model, options[:keys], options[:data], child_options)
       # Update last_activity_at on parent
-      ms.update last_activity_at: Time.now.utc
+      ms.update last_activity_at: Time.now.utc, version: options[:version], retry_on_conflict: 1
     end
   end
 
@@ -63,6 +76,7 @@ module CheckElasticSearch
 
   def get_elasticsearch_parent(parent)
     sleep 1 if Rails.env == 'test'
+    # TODO : create parent if not exists
     MediaSearch.search(query: { match: { _id: parent } }).last unless parent.nil?
   end
 

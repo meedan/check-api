@@ -1,8 +1,6 @@
 class ElasticSearchWorker
 
   include Sidekiq::Worker
-  require 'sidekiq-limit_fetch'
-  sidekiq_options queue: 'esqueue', :retry => false
 
   def perform(model, options, type)
     model = YAML::load(model)
@@ -12,6 +10,8 @@ class ElasticSearchWorker
       model.update_elasticsearch_team_bg
     when "update_parent"
       model.update_media_search_bg(options)
+    when "add_parent"
+      model.add_media_search_bg(options)
     when "destroy"
       model.destroy_elasticsearch_data(options)
     else
