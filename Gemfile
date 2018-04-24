@@ -43,7 +43,7 @@ gem 'thin'
 gem 'swagger-docs', '0.1.9'
 gem 'responders'
 gem 'htmlentities', require: false, group: :development
-gem 'graphql', '1.7.5'
+gem 'graphql', '1.8.0.pre10'
 gem 'devise'
 gem 'omniauth-twitter'
 gem 'omniauth-facebook'
