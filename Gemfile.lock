@@ -86,8 +86,8 @@ GEM
       builder
       multi_json
     ansi (1.5.0)
-    apollo-tracing (1.4.0)
-      graphql (>= 1.6.0, < 2)
+    apollo-tracing (1.5.0)
+      graphql (>= 1.7.0, < 2)
     arel (6.0.4)
     ast (2.4.0)
     awesome_print (1.7.0)
@@ -534,7 +534,7 @@ PLATFORMS
 DEPENDENCIES
   airbrake (= 4.3.3)
   alegre_client!
-  apollo-tracing
+  apollo-tracing (= 1.5.0)
   awesome_print
   bootstrap-sass (~> 3.2.0.0)
   byebug
