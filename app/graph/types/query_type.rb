@@ -82,8 +82,6 @@ QueryType = GraphQL::ObjectType.define do
     resolve -> (_obj, args, ctx) do
       pid = args['id'].to_i unless args['id'].blank?
       pid, tid = args['ids'].split(',').map(&:to_i) unless args['ids'].blank?
-      puts "Current team: #{Team.current.inspect}"
-      Rails.logger.info "Current team: #{Team.current.inspect}"
       tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
       project = Project.where(id: pid, team_id: tid).last
       id = project.nil? ? 0 : project.id
