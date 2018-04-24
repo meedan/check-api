@@ -184,7 +184,7 @@ GEM
     globalid (0.4.1)
       activesupport (>= 4.2.0)
     google-protobuf (3.2.0)
-    graphql (1.7.4)
+    graphql (1.8.0.pre10)
     graphql-batch (0.3.5)
       graphql (>= 0.8, < 2)
       promise.rb (~> 0.7.2)
@@ -558,7 +558,7 @@ DEPENDENCIES
   geojsonlint
   google-protobuf (= 3.2.0)
   graphiql-rails!
-  graphql (= 1.7.4)
+  graphql (= 1.8.0.pre10)
   graphql-batch
   graphql-formatter
   htmlentities
