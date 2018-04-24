@@ -66,7 +66,7 @@ module Api
       end
 
       def load_context_team
-        slug = request.params['team']
+        slug = request.params['team'] || request.headers['X-Check-Team']
         @context_team = Team.where(slug: slug).first unless slug.blank?
         Team.current = @context_team
       end
