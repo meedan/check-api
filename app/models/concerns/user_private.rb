@@ -68,6 +68,7 @@ module UserPrivate
         RegistrationMailer.delay.duplicate_email_detection(self, u) if self.new_record?
       else
         errors.add(:base, I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email']))
+        self.errors.messages.delete(:email)
       end
       return false
     end
