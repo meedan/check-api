@@ -1173,6 +1173,17 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "should update own source with or without team" do
+    u = create_user
+    s = u.source
+    with_current_user_and_team(u) do
+      ability = Ability.new
+      assert ability.can?(:update, s)
+      s.team = create_team;s.save;s.reload
+      assert ability.can?(:update, s)
+    end
+  end
+
   test "should owner destroy annotation from any project from his team" do
     u = create_user
     t = create_team
