@@ -107,10 +107,13 @@ class User < ActiveRecord::Base
 
   def set_source_image
     return if self.source.nil?
+    if !self.image.nil? && self.image.url != '/images/user.png'
+      self.source.file = self.image
+      self.source.save
+    end
     image = self.omniauth_info.dig('info', 'image') if self.omniauth_info
-    source = self.source
-    image ||= CONFIG['checkdesk_base_url'] + self.image.url
-    source.set_image(image.gsub(/^http:/, 'https:'))
+    avatar = image ? image.gsub(/^http:/, 'https:') : CONFIG['checkdesk_base_url'] + self.image.url
+    self.source.set_avatar(avatar)
   end
 
   def update_account(url)
@@ -149,6 +152,14 @@ class User < ActiveRecord::Base
 
   def password_required?
     super && self.provider.blank?
+  end
+
+  def inactive_message
+    self.is_active? ? super :  I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email'])
+  end
+
+  def active_for_authentication?
+    super && self.is_active?
   end
 
   def current_team
@@ -241,6 +252,6 @@ class User < ActiveRecord::Base
 
   # private
   #
-  # Please add private methods to app/models/concerns/user_private.rb 
+  # Please add private methods to app/models/concerns/user_private.rb
 
 end

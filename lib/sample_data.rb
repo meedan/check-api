@@ -58,7 +58,7 @@ module SampleData
     end
 
     u.save!
-    u.source.set_image(options[:profile_image]) if options.has_key?(:profile_image) && u.source
+    u.source.set_avatar(options[:profile_image]) if options.has_key?(:profile_image) && u.source
 
     if options[:team]
       create_team_user team: options[:team], user: u
@@ -81,6 +81,7 @@ module SampleData
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
     u.omniauth_info = options[:omniauth_info]
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
+    u.is_active = options[:is_active] if options.has_key?(:is_active)
     u.type = options[:type] if options.has_key?(:type)
     u.api_key_id = options[:api_key_id]
 
@@ -97,7 +98,7 @@ module SampleData
     u.skip_confirmation! if options.has_key?(:skip_confirmation) && options[:skip_confirmation] == true
 
     u.save!
-    u.source.set_image(options[:profile_image]) if options.has_key?(:profile_image) && u.source
+    u.source.set_avatar(options[:profile_image]) if options.has_key?(:profile_image) && u.source
 
     if options[:team]
       create_team_user team: options[:team], user: u

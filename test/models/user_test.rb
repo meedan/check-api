@@ -203,6 +203,21 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not register with banned email" do
+    u = create_user is_active: false
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+    # should not send duplicate mail
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
   test "should update user mail" do
     u = create_user
     u2 = create_user
@@ -688,8 +703,30 @@ class UserTest < ActiveSupport::TestCase
     User.any_instance.stubs(:omniauth_info).returns(omniauth_info)
     User.from_omniauth(auth)
     assert_equal omniauth_info['info']['image'], User.find(u.id).source.avatar
+    assert_equal omniauth_info['info']['image'], User.find(u.id).source.image
     User.any_instance.unstub(:omniauth_info)
   end
 
+  test "should set user image as source image and return the uploaded image instead of omniauth" do
+    u = create_user image: 'rails.png', provider: 'twitter', uuid: '12345'
+    assert_match /rails.png/, u.image.url
+    assert_match /rails.png/, u.source.avatar
+    assert_match /rails.png/, u.source.image
+
+    credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
+    info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
+    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info})
+    omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
+    stub_config 'checkdesk_base_url', 'http://check.url' do
+      User.any_instance.stubs(:omniauth_info).returns(omniauth_info)
+      User.from_omniauth(auth)
+
+      assert_match /rails.png/, u.source.file.url
+      assert_equal omniauth_info['info']['image'], Source.find(u.source_id).avatar
+      assert_match /rails.png/, u.source.image
+
+      User.any_instance.unstub(:omniauth_info)
+    end
+  end
 
 end
