@@ -1225,4 +1225,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal [], data['assignments']['edges'][1]['node']['assignments']['edges']
     assert_equal [t1.id], data['assignments']['edges'][2]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
   end
+
+  test "should not get private team by slug" do
+    authenticate_with_user
+    create_team slug: 'team', name: 'Team', private: true
+    post :create, query: 'query Team { team(slug: "team") { name } }'
+    assert_response 403
+    assert_equal "Sorry, you can't read this team", JSON.parse(@response.body)['errors'][0]['message']
+  end
 end
