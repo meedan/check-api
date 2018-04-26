@@ -15,7 +15,7 @@ class AssignmentMailerTest < ActionMailer::TestCase
     assert_equal ['user1@mail.com'], email.to
   end
 
-   test "should not notify about report assignment if user disable notification" do
+   test "should not notify about report assignment if user disable notification or banned" do
     u = create_user
     u2 = create_user email: 'user1@mail.com'
     u2.set_send_email_notifications = false; u2.save!
@@ -23,6 +23,13 @@ class AssignmentMailerTest < ActionMailer::TestCase
 
     email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', t.id)
 
+    assert_emails 0 do
+      email.deliver_now
+    end
+    
+    # test with banned user
+    u3 = create_user email: 'user3@mail.com', is_active: false
+    email = AssignmentMailer.notify(:assign_status, u, 'user3@mail.com', t.id)
     assert_emails 0 do
       email.deliver_now
     end

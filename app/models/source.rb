@@ -21,7 +21,7 @@ class Source < ActiveRecord::Base
 
   validates_presence_of :name
   validate :is_unique_per_team, on: :create
-  validate :team_is_not_archived, unless: proc { |s| s.is_being_copied }
+  validate :team_is_not_archived, unless: proc { |s| s.team && s.team.is_being_copied }
 
   after_create :create_metadata
   after_commit :update_elasticsearch_source, on: :update
@@ -73,7 +73,7 @@ class Source < ActiveRecord::Base
     self.accounts.empty? ? '' : self.accounts.first.data['description'].to_s
   end
 
-  def set_image(image)
+  def set_avatar(image)
     self.update_columns(avatar: image)
   end
 
@@ -148,7 +148,7 @@ class Source < ActiveRecord::Base
   end
 
   def self.get_duplicate(name, team)
-    Source.where('lower(name) = ? AND team_id = ?', name.downcase, team.id).last
+    Source.where('lower(name) = lower(?) AND team_id = ?', name, team.id).last
   end
 
   def overridden
@@ -161,18 +161,14 @@ class Source < ActiveRecord::Base
     Rails.cache.write("source_overridden_cache_#{self.id}", get_overridden)
   end
 
-  def is_being_copied
-    self.team && self.team.is_being_copied
-  end
-
   private
 
   def set_user
-    self.user = User.current unless User.current.nil? || self.is_being_copied
+    self.user = User.current unless User.current.nil?
   end
 
   def set_team
-    self.team = Team.current unless Team.current.nil? || self.is_being_copied
+    self.team = Team.current unless Team.current.nil?
   end
 
   def get_project_sources
@@ -182,7 +178,7 @@ class Source < ActiveRecord::Base
   end
 
   def is_unique_per_team
-    unless self.team.nil? || self.name.blank? || self.is_being_copied
+    unless self.team.nil? || self.name.blank?
       s = Source.get_duplicate(self.name, self.team)
       errors.add(:base, "This source already exists in this team and has id #{s.id}") unless s.nil?
     end

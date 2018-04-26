@@ -148,8 +148,7 @@ class Status < ActiveRecord::Base
     if !self.annotated_type.blank?
       annotated, context = get_annotated_and_context
       values = Status.possible_values(annotated, context)
-      return if values[:statuses].collect{ |s| s[:id] }.include?(self.status)
-      self.is_being_copied ? self.status = Status.default_id(annotated, context) : errors.add(:status, 'Status not valid')
+      errors.add(:base, 'Status not valid') unless values[:statuses].collect{ |s| s[:id] }.include?(self.status)
     end
   end
 
