@@ -1176,7 +1176,7 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, query: query, team: t.slug
       assert_response 400
       ret = JSON.parse(@response.body)
-      assert_equal ['error', 'error_info'].sort, ret.keys.sort
+      assert_includes ret.keys, 'error'
       assert_equal 'ERR_OBJECT_EXISTS', ret['error_info']['code']
       assert_kind_of Integer, ret['error_info']['project_id']
       assert_kind_of Integer, ret['error_info']['id']
