@@ -1233,4 +1233,27 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 403
     assert_equal "Sorry, you can't read this team", JSON.parse(@response.body)['errors'][0]['message']
   end
+
+  test "should start Apollo if not running" do
+    File.stubs(:exist?).returns(true)
+    File.stubs(:read).returns({ frontends: [{ port: 9999 }] }.to_json)
+    post :create, query: 'query Query { about { name, version } }'
+    File.unstub(:exist?)
+    File.unstub(:read)
+    assert_response 200
+    assert_equal true, assigns(:started_apollo)
+  end
+
+  test "should not start Apollo if already running" do
+    require 'socket'
+    apollo = TCPServer.new 9999
+    File.stubs(:exist?).returns(true)
+    File.stubs(:read).returns({ frontends: [{ port: 9999 }] }.to_json)
+    post :create, query: 'query Query { about { name, version } }'
+    File.unstub(:exist?)
+    File.unstub(:read)
+    apollo.close
+    assert_response 200
+    assert_equal false, assigns(:started_apollo)
+  end
 end

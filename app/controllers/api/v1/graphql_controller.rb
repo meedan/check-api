@@ -5,6 +5,7 @@ module Api
 
       skip_before_filter :authenticate_from_token!
 
+      before_action :start_apollo_if_needed, only: [:create]
       before_action :authenticate_graphql_user, only: [:create]
       before_action :set_current_user, :load_context_team, :set_current_team, :load_ability
 
@@ -83,6 +84,20 @@ module Api
         if !current_api_user.nil? && !@context_team.nil? && current_api_user.is_member_of?(@context_team) && current_api_user.current_team_id != @context_team.id
           current_api_user.current_team_id = @context_team.id
           current_api_user.save!
+        end
+      end
+
+      def start_apollo_if_needed
+        if File.exist?('config/apollo-engine-proxy.json')
+          port = JSON.parse(File.read('config/apollo-engine-proxy.json'))['frontends'][0]['port']
+          if system("lsof -i:#{port}", out: '/dev/null')
+            @started_apollo = false
+            Rails.logger.info "[Apollo] [#{Time.now}] Already running, nothing to do."
+          else
+            Rails.logger.info "[Apollo] [#{Time.now}] Not running, starting..."
+            ApolloTracing.start_proxy('config/apollo-engine-proxy.json')
+            @started_apollo = true
+          end
         end
       end
     end
