@@ -1176,7 +1176,7 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, query: query, team: t.slug
       assert_response 400
       ret = JSON.parse(@response.body)
-      assert_equal ['error', 'error_info'].sort, ret.keys.sort
+      assert_includes ret.keys, 'error'
       assert_equal 'ERR_OBJECT_EXISTS', ret['error_info']['code']
       assert_kind_of Integer, ret['error_info']['project_id']
       assert_kind_of Integer, ret['error_info']['id']
@@ -1224,5 +1224,13 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal [t2.id], data['assignments']['edges'][0]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
     assert_equal [], data['assignments']['edges'][1]['node']['assignments']['edges']
     assert_equal [t1.id], data['assignments']['edges'][2]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
+  end
+
+  test "should not get private team by slug" do
+    authenticate_with_user
+    create_team slug: 'team', name: 'Team', private: true
+    post :create, query: 'query Team { team(slug: "team") { name } }'
+    assert_response 403
+    assert_equal "Sorry, you can't read this team", JSON.parse(@response.body)['errors'][0]['message']
   end
 end
