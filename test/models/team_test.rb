@@ -1216,7 +1216,6 @@ class TeamTest < ActiveSupport::TestCase
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
     assert_equal 1, Source.where(team_id: copy.id).count
     assert_equal 1, project.project_medias.count
     assert_equal 2, project.project_sources.count
@@ -1238,6 +1237,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, Source.where(team_id: team.id).count
     assert_equal 1, project.project_medias.count
     assert_equal 2, project.project_sources.count
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should duplicate a team and annotations" do
@@ -1263,7 +1263,6 @@ class TeamTest < ActiveSupport::TestCase
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
 
     copy_p = copy.projects.find_by_title('Project')
     copy_pm = copy_p.project_medias.first
@@ -1275,6 +1274,7 @@ class TeamTest < ActiveSupport::TestCase
       copy.destroy
     end
     assert_equal original_annotations_count, ProjectMedia.find(pm.id).annotations.size
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should generate slug for copy based on original" do
@@ -1299,6 +1299,25 @@ class TeamTest < ActiveSupport::TestCase
       RequestStore.store[:disable_es_callbacks] = true
       copy = Team.duplicate(t, u)
       assert copy.is_a?(Team)
+      RequestStore.store[:disable_es_callbacks] = false
+    end
+    User.current = nil
+  end
+
+  test "should copy versions on team duplication and destroy it when embed has previous version" do
+    t = create_team
+    u = create_user
+    u.is_admin = true;u.save
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      p1 = create_project team: t
+      pm = create_project_media user: u, team: t, project: p1
+      e = create_embed annotated: pm, title: 'Foo', annotator: u
+      e.title = 'bar'; e.save!
+      RequestStore.store[:disable_es_callbacks] = true
+      copy = Team.duplicate(t, u)
+      assert copy.is_a?(Team)
+      assert copy.destroy!
       RequestStore.store[:disable_es_callbacks] = false
     end
     User.current = nil
