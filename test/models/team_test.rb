@@ -1310,13 +1310,23 @@ class TeamTest < ActiveSupport::TestCase
     u.is_admin = true;u.save
     create_team_user team: t, user: u, role: 'owner'
     with_current_user_and_team(u, t) do
-      p1 = create_project team: t
-      pm = create_project_media user: u, team: t, project: p1
-      e = create_embed annotated: pm, title: 'Foo', annotator: u
-      e.title = 'bar'; e.save!
+      p = create_project team: t
+      pm1 = create_project_media user: u, team: t, project: p
+      pm2 = create_project_media user: u, team: t, project: p
+      e = create_embed annotated: pm1, title: 'Foo', annotator: u
+      e.title = 'bar';e.annotated = pm2; e.save!
       RequestStore.store[:disable_es_callbacks] = true
       copy = Team.duplicate(t, u)
-      assert copy.is_a?(Team)
+
+      copy_pm1 = copy.projects.first.project_medias.first
+      copy_pm2 = copy.projects.first.project_medias.last
+      copy_e = copy_pm2.annotations('embed').last
+      v = copy_e.versions.last
+      assert_equal copy_e.id.to_s, v.item_id
+      assert_equal [copy_e.id, copy_pm2.id], [v.get_object['id'], v.get_object['annotated_id']]
+      assert_equal [copy_pm1.id, copy_pm2.id], v.get_object_changes['annotated_id']
+      obj_after = JSON.parse v.object_after
+      assert_equal [copy_e.id, copy_pm2.id], [obj_after['id'], obj_after['annotated_id']]
       assert copy.destroy!
       RequestStore.store[:disable_es_callbacks] = false
     end

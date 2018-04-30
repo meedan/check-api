@@ -92,25 +92,35 @@ module TeamDuplication
         log.is_being_copied = true
         log.associated_id = copy.id
         item = @mapping[log.item_type.to_sym][log.item_id.to_i]
-        if item
-          original_item = log.item_id
-          log.item_id = item.id
-          object = log.get_object
-          unless object.blank?
-            object['id'] = item.id if object['id']
-            object['annotated_id'] = item.annotated_id if object['annotated_id']
-            log.object = object.to_json
-          end
-          changes = log.get_object_changes
-          unless changes.blank?
-            changes['annotated_id'].map! {|a| a == original_item ? item.annotated_id : a } if changes['annotated_id']
-            log.object_changes = changes.to_json
-          end
-          log.set_object_after
-        end
+        self.update_version_fields(log, item) if item
         log.save(validate: false)
       end
       PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
+    end
+
+    def self.update_version_fields(log, item)
+      self.update_version_object(log, item)
+      self.update_version_object_changes(log)
+      log.item_id = item.id
+      log.set_object_after
+    end
+
+    def self.update_version_object(log, item)
+      object = log.get_object
+      return if object.blank?
+      object['id'] = item.id if object['id']
+      object['annotated_id'] = item.annotated_id if object['annotated_id']
+      log.object = object.to_json
+    end
+
+    def self.update_version_object_changes(log)
+      changes = log.get_object_changes
+      return if changes.blank? || changes['annotated_id'].blank?
+      changes['annotated_id'].map! do |a|
+        c = @mapping[log.associated_type.to_sym][a]
+        c ? c.id : a
+      end
+      log.object_changes = changes.to_json
     end
 
     def self.create_copy_version(pm_mapping, user)
