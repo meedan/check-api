@@ -14,5 +14,5 @@ module TeamUserMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team_user', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team_user', create_fields, update_fields, ['user'])
 end

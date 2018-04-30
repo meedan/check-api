@@ -69,7 +69,6 @@ module ValidationsHelper
     else
       validate_statuses(statuses)
     end
-    reset_statuses(type) if self.is_being_copied
   end
 
   def validate_statuses(statuses)

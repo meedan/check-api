@@ -19,11 +19,11 @@ module Api
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError => e
           render json: parse_json_exception(e), status: 400
         rescue CheckPermissions::AccessDenied => e
-          render json: { error: e.message }, status: 403
+          render json: format_error_message(e), status: 403
         rescue ActiveRecord::RecordNotFound => e
-          render json: { error: e.message }, status: 404
+          render json: format_error_message(e), status: 404
         rescue ActiveRecord::StaleObjectError => e
-          render json: { error: e.message }, status: 409
+          render json: format_error_message(e), status: 409
         end
       end
 
@@ -41,6 +41,7 @@ module Api
           error = JSON.parse(e.message)
           json = {
             error: error['message'],
+            errors: [{ message: error['message'] }],
             error_info: {
               code: error['code']
             }.merge(error['data'])
@@ -49,6 +50,13 @@ module Api
           json = { error: e.message }
         end
         json
+      end
+
+      def format_error_message(e)
+        {
+          error: e.message,
+          errors: [{ message: e.message }]
+        }
       end
 
       private
@@ -66,7 +74,7 @@ module Api
       end
 
       def load_context_team
-        slug = request.params['team']
+        slug = request.params['team'] || request.headers['X-Check-Team']
         @context_team = Team.where(slug: slug).first unless slug.blank?
         Team.current = @context_team
       end

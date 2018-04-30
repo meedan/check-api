@@ -76,7 +76,7 @@ QueryType = GraphQL::ObjectType.define do
     type ProjectType
     description 'Information about a project, given its id and its team id'
 
-    argument :id, types.ID
+    argument :id, types.String
     argument :ids, types.String
 
     resolve -> (_obj, args, ctx) do
