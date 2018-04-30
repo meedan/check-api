@@ -90,7 +90,7 @@ module Api
       def start_apollo_if_needed
         if File.exist?('config/apollo-engine-proxy.json')
           port = JSON.parse(File.read('config/apollo-engine-proxy.json'))['frontends'][0]['port']
-          if system("lsof -i:#{port}", out: '/dev/null')
+          if system('lsof', "-i:#{port}", out: '/dev/null')
             @started_apollo = false
             Rails.logger.info "[Apollo] [#{Time.now}] Already running, nothing to do."
           else
