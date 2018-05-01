@@ -1216,7 +1216,6 @@ class TeamTest < ActiveSupport::TestCase
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
     assert_equal 1, Source.where(team_id: copy.id).count
     assert_equal 1, project.project_medias.count
     assert_equal 2, project.project_sources.count
@@ -1238,6 +1237,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, Source.where(team_id: team.id).count
     assert_equal 1, project.project_medias.count
     assert_equal 2, project.project_sources.count
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should duplicate a team and annotations" do
@@ -1263,7 +1263,6 @@ class TeamTest < ActiveSupport::TestCase
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
 
     copy_p = copy.projects.find_by_title('Project')
     copy_pm = copy_p.project_medias.first
@@ -1275,6 +1274,7 @@ class TeamTest < ActiveSupport::TestCase
       copy.destroy
     end
     assert_equal original_annotations_count, ProjectMedia.find(pm.id).annotations.size
+    RequestStore.store[:disable_es_callbacks] = false
   end
 
   test "should generate slug for copy based on original" do
@@ -1299,6 +1299,35 @@ class TeamTest < ActiveSupport::TestCase
       RequestStore.store[:disable_es_callbacks] = true
       copy = Team.duplicate(t, u)
       assert copy.is_a?(Team)
+      RequestStore.store[:disable_es_callbacks] = false
+    end
+    User.current = nil
+  end
+
+  test "should copy versions on team duplication and destroy it when embed has previous version" do
+    t = create_team
+    u = create_user
+    u.is_admin = true;u.save
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      p = create_project team: t
+      pm1 = create_project_media user: u, team: t, project: p
+      pm2 = create_project_media user: u, team: t, project: p
+      e = create_embed annotated: pm1, title: 'Foo', annotator: u
+      e.title = 'bar';e.annotated = pm2; e.save!
+      RequestStore.store[:disable_es_callbacks] = true
+      copy = Team.duplicate(t, u)
+
+      copy_pm1 = copy.projects.first.project_medias.first
+      copy_pm2 = copy.projects.first.project_medias.last
+      copy_e = copy_pm2.annotations('embed').last
+      v = copy_e.versions.last
+      assert_equal copy_e.id.to_s, v.item_id
+      assert_equal [copy_e.id, copy_pm2.id], [v.get_object['id'], v.get_object['annotated_id']]
+      assert_equal [copy_pm1.id, copy_pm2.id], v.get_object_changes['annotated_id']
+      obj_after = JSON.parse v.object_after
+      assert_equal [copy_e.id, copy_pm2.id], [obj_after['id'], obj_after['annotated_id']]
+      assert copy.destroy!
       RequestStore.store[:disable_es_callbacks] = false
     end
     User.current = nil
