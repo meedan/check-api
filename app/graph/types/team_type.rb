@@ -12,6 +12,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :description, types.String
   field :dbid, types.Int
   field :members_count, types.Int
+  field :projects_count, types.Int
   field :permissions, types.String
   field :get_slack_notifications_enabled, types.String
   field :get_slack_webhook, types.String
