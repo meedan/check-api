@@ -1521,6 +1521,16 @@ class ElasticSearchTest < ActionController::TestCase
     end
   end
 
+  test "should create parent if not exists" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, disable_es_callbacks: false
+    sleep 1
+    result = MediaSearch.find(pm.id, parent: pm.id)
+    assert_not_nil result
+  end
+
   test "should search with reserved characters" do
     # The reserved characters are: + - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /
     t = create_team
