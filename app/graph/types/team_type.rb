@@ -50,7 +50,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
   connection :join_requests, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {
-      team.team_users.select{ |tu| tu.status === 'requested' }
+      team.team_users.where({ status: 'requested' })
     }
   end
 
