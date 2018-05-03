@@ -21,17 +21,40 @@ module CheckElasticSearch
     ms = get_elasticsearch_parent(options[:parent])
     unless ms.nil?
       data = get_elasticsearch_data(options[:data])
+      # add mising field on parent
+      data.merge!(add_missing_fileds(options))
       fields = {'last_activity_at' => Time.now.utc}
       options[:keys].each{|k| fields[k] = data[k] if ms.respond_to?("#{k}=") and !data[k].blank? }
       ms.update fields
     end
   end
 
+  def add_missing_fileds(options)
+    data = {}
+    parent = self.is_annotation? ? self.annotated : self
+    return data unless ['ProjectMedia', 'ProjectSource'].include?(parent.class.name)
+    unless options[:keys].include?('project_id')
+      options[:keys] += ['team_id', 'project_id']
+      data.merge!({project_id: parent.project_id, team_id: parent.project.team_id})
+    end
+    if parent.class.name == 'ProjectMedia'
+      unless options[:keys].include?('status')
+        options[:keys] << 'status'
+        data.merge!({status: parent.last_status})
+      end
+      unless options[:keys].include?('title')
+        options[:keys] += ['title', 'description']
+        data.merge!({title: parent.title, description: parent.description})
+      end
+    end
+    data
+  end
+
   def add_update_media_search_child(child, keys, data = {}, parent = nil)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    options = {keys: keys, data: data}
     v = self.versions.last
-    version = v.nil? ? 0 : v.id
-    options = {keys: keys, data: data, version: version}
+    options[:version] = v.id unless v.nil?
     options[:parent] = parent unless parent.nil?
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), child)
   end
@@ -46,10 +69,12 @@ module CheckElasticSearch
         model = child.new
         model.id = self.id
       end
-      child_options = {parent: ms.id, version: options[:version], retry_on_conflict: 0}
+      child_options = {parent: ms.id}
+      child_options.merge!({version: options[:version], version_type: :external}) if options.has_key?(:version)
       store_elasticsearch_data(model, options[:keys], options[:data], child_options)
       # Update last_activity_at on parent
-      ms.update last_activity_at: Time.now.utc, version: options[:version], retry_on_conflict: 1
+      # ms.update last_activity_at: Time.now.utc, version: options[:version], version_type: :external
+      ms.update last_activity_at: Time.now.utc
     end
   end
 
@@ -76,8 +101,16 @@ module CheckElasticSearch
 
   def get_elasticsearch_parent(parent)
     sleep 1 if Rails.env == 'test'
-    # TODO : create parent if not exists
-    MediaSearch.search(query: { match: { _id: parent } }).last unless parent.nil?
+    ms = nil
+    unless parent.nil?
+      ms = MediaSearch.search(query: { match: { _id: parent } }).last
+      if ms.nil? && self.class.name != 'Account'
+        p = self.is_annotation? ? self.annotated : self
+        ElasticSearchWorker.new.perform(YAML::dump(p), YAML::dump({parent: nil}), 'add_parent')
+        ms = MediaSearch.find(p.id)
+      end
+    end
+    ms
   end
 
   def get_elasticsearch_data(data)
