@@ -359,6 +359,8 @@ class ActiveSupport::TestCase
         obj.add_annotation(t)
       elsif name === 'tasks'
         create_task annotated: obj
+      elsif name === 'join_requests'
+        obj.team_users << create_team_user(team: obj, role: 'contributor', status: 'requested')
       else
         RequestStore.store[:disable_es_callbacks] = true
         obj.disable_es_callbacks = true if obj.respond_to?(:disable_es_callbacks)
@@ -381,6 +383,7 @@ class ActiveSupport::TestCase
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
 
     fields.each do |name, key|
+      next if !obj.respond_to?(name)
       equal = false
       edges.each do |edge|
         if edge['node'][name]['edges'].size > 0 && !equal
