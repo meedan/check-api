@@ -32,6 +32,10 @@ class Team < ActiveRecord::Base
     self.users.count
   end
 
+  def projects_count
+    self.projects.count
+  end
+
   def as_json(_options = {})
     {
       dbid: self.id,
@@ -307,5 +311,5 @@ class Team < ActiveRecord::Base
 
   # private
   #
-  # Please add private methods to app/models/concerns/team_private.rb 
+  # Please add private methods to app/models/concerns/team_private.rb
 end
