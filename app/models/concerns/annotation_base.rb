@@ -80,7 +80,7 @@ module AnnotationBase
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
 
-    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |_x| User.current.present? }
+    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| User.current.present? && !a.is_being_copied }
 
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array

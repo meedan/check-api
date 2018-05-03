@@ -85,6 +85,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
+    ApolloTracing.stubs(:start_proxy)
     Pusher::Client.any_instance.stubs(:trigger)
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |klass| klass.delete_all }
