@@ -25,7 +25,7 @@ class ElasticSearchWorker
     options = YAML::load(options)
     options[:keys] = [] unless options.has_key?(:keys)
     options[:data] = {} unless options.has_key?(:data)
-    options[:parent] = model.get_parent_id unless options.has_key?(:parent)
+    options[:parent] = model.get_parents_for_es unless options.has_key?(:parent)
     options
   end
 end

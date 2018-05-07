@@ -31,7 +31,7 @@ module CheckElasticSearch
 
   def add_missing_fileds(options)
     data = {}
-    parent = self.is_annotation? ? self.annotated : self
+    parent = options[:parent]
     return data unless ['ProjectMedia', 'ProjectSource'].include?(parent.class.name)
     unless options[:keys].include?('project_id')
       options[:keys] += ['team_id', 'project_id']
@@ -86,28 +86,23 @@ module CheckElasticSearch
     model.save!(options)
   end
 
-  def get_parent_id
-    if self.is_annotation?
-      pm = get_es_parent_id(self.annotated_id, self.annotated_type)
-    else
-      pm = get_es_parent_id(self.id, self.class.name)
-    end
-    pm
+  def get_parents_for_es
+    self.is_annotation? ? self.annotated : self
   end
 
-  def get_es_parent_id(id, klass)
-    (klass == 'ProjectSource') ? Base64.encode64("ProjectSource/#{id}") : id
+  def get_es_parent_id(parent)
+    (parent.class.name == 'ProjectSource') ? Base64.encode64("ProjectSource/#{parent.id}") : parent.id
   end
 
   def get_elasticsearch_parent(parent)
     sleep 1 if Rails.env == 'test'
     ms = nil
     unless parent.nil?
-      ms = MediaSearch.search(query: { match: { _id: parent } }).last
-      if ms.nil? && self.class.name != 'Account'
-        p = self.is_annotation? ? self.annotated : self
-        ElasticSearchWorker.new.perform(YAML::dump(p), YAML::dump({parent: nil}), 'add_parent')
-        ms = MediaSearch.find(p.id)
+      parent_id = get_es_parent_id(parent)
+      ms = MediaSearch.search(query: { match: { _id: parent_id } }).last
+      if ms.nil?
+        ElasticSearchWorker.new.perform(YAML::dump(parent), YAML::dump({parent: parent}), 'add_parent')
+        ms = MediaSearch.find(parent_id)
       end
     end
     ms
@@ -120,7 +115,7 @@ module CheckElasticSearch
   def destroy_elasticsearch_data(data)
     options = {}
     conditions = []
-    parent_id = data[:parent]
+    parent_id = get_es_parent_id(data[:parent])
     if data[:type] == 'child'
       options = {parent: parent_id}
       id = self.id
@@ -128,7 +123,7 @@ module CheckElasticSearch
     else
       id = parent_id
     end
-    conditions << {term: { _id: id } } 
+    conditions << {term: { _id: id } }
     obj = data[:es_type].search(query: { bool: { must: conditions } }).last
     obj.delete(options) unless obj.nil?
   end
