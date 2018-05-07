@@ -11,7 +11,7 @@ class ElasticSearchWorker
     when "update_parent"
       model.update_media_search_bg(options)
     when "add_parent"
-      model.add_media_search_bg(options)
+      model.add_media_search_bg
     when "destroy"
       model.destroy_elasticsearch_data(options)
     else

@@ -7,7 +7,7 @@ module CheckElasticSearch
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
   end
 
-  def add_media_search_bg(options)
+  def add_media_search_bg
     p = self.project
     ms = MediaSearch.new
     ms.team_id = p.team.id
