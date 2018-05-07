@@ -1527,7 +1527,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm = create_project_media project: p
     c = create_comment annotated: pm, disable_es_callbacks: false
     sleep 1
-    result = MediaSearch.find(pm.id, parent: pm.id)
+    result = MediaSearch.find(pm.id)
     assert_not_nil result
   end
 
