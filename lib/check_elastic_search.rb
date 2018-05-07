@@ -87,7 +87,8 @@ module CheckElasticSearch
   end
 
   def get_parents_for_es
-    self.is_annotation? ? self.annotated : self
+    parent = self.is_annotation? ? self.annotated : self
+    ['ProjectMedia', 'ProjectSource'].include?(parent.class.name) ? parent : nil
   end
 
   def get_es_parent_id(parent)
