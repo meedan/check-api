@@ -5,5 +5,3 @@
 :queues:
   - ["default", 1]
   - ["esqueue", 1]
-:limits:
-  esqueue: 1
