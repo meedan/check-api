@@ -1,7 +1,7 @@
 class ElasticSearchWorker
 
   include Sidekiq::Worker
-  sidekiq_options :retry => false
+  sidekiq_options :queue => :esqueue, :retry => false
 
   def perform(model, options, type)
     model = YAML::load(model)
