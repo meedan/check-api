@@ -59,7 +59,7 @@ module ProjectAssociation
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       options = {parent: self}
-      ElasticSearchWorker.set(:queue => :esqueue).perform_in(1.second, YAML::dump(self), YAML::dump(options), 'add_parent')
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'add_parent')
       if self.class.name == 'ProjectSource'
         # index related account
         accounts = self.source.accounts
