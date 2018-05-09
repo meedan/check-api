@@ -17,10 +17,10 @@ class User < ActiveRecord::Base
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
   before_create :skip_confirmation_for_non_email_provider
-  after_create :create_source_and_account, :set_source_image
+  after_create :create_source_and_account, :set_source_image, :send_welcome_email
   before_save :set_token, :set_login, :set_uuid
   after_update :set_blank_email_for_unconfirmed_user
-  after_create :send_welcome_email
+  before_destroy :can_destroy_user, prepend: true
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
