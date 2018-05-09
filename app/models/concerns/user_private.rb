@@ -82,4 +82,10 @@ module UserPrivate
     self.update_columns(email: '') unless self.unconfirmed_email.blank?
   end
 
+  def can_destroy_user
+    count = ProjectMedia.where(user_id: self.id).count
+    count += ProjectSource.where(user_id: self.id).count
+    return false if count > 0
+  end
+
 end
