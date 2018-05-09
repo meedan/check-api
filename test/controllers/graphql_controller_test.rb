@@ -1256,4 +1256,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 200
     assert_equal false, assigns(:started_apollo)
   end
+
+  test "should get team with arabic slug" do
+    authenticate_with_user
+    t = create_team slug: 'المصالحة', name: 'Arabic Team'
+    post :create, query: 'query Query { about { name, version } }', team: '%D8%A7%D9%84%D9%85%D8%B5%D8%A7%D9%84%D8%AD%D8%A9'
+    assert_response :success
+    assert_equal t, assigns(:context_team)
+  end
 end
