@@ -52,7 +52,7 @@ class Team < ActiveRecord::Base
   end
 
   def recent_projects
-    self.projects.order('id DESC')
+    self.projects.order('title ASC')
   end
 
   # FIXME Source should be using concern HasImage
