@@ -113,6 +113,34 @@ class AnnotationTest < ActiveSupport::TestCase
     end
   end
 
+  test "permissions for locked annotations" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'journalist'
+    create_team_user team: t, user: u2, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    s = pm.last_status_obj.load
+    c = create_comment annotated: pm, locked: true
+    s.locked = true; s.save!
+    with_current_user_and_team(u, t) do
+      assert_raise CheckPermissions::AccessDenied do
+        s.status = 'false'; s.save!
+      end
+      assert_raise CheckPermissions::AccessDenied do
+        c.text = 'update comment'; c.save!
+      end
+    end
+    with_current_user_and_team(u2, t) do
+      s.status = 'false'; s.save!
+      s.locked = false; s.save!
+    end
+    with_current_user_and_team(u, t) do
+      s.status = 'verified'; s.save!
+    end
+  end
+
   test "should get right number of annotations" do
     f = create_flag
     c = create_comment

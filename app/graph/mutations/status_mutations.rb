@@ -2,7 +2,8 @@ module StatusMutations
   create_fields = {
     status: '!str',
     annotated_id: 'str',
-    annotated_type: 'str'
+    annotated_type: 'str',
+    locked: 'bool'
   }
 
   update_fields = {
@@ -10,6 +11,7 @@ module StatusMutations
     annotated_id: 'str',
     annotated_type: 'str',
     assigned_to_id: 'int',
+    locked: 'bool',
     id: '!id'
   }
 
