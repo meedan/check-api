@@ -108,13 +108,13 @@ module CheckPermissions
   def check_ability
     unless self.skip_check_ability or User.current.nil?
       op = self.get_operation 
-      raise "No permission to #{op} #{self.class.name}" unless self.ability.can?(op, self)
+      raise AccessDenied, "No permission to #{op} #{self.class.name}" unless self.ability.can?(op, self)
     end
   end
 
   def check_destroy_ability
     unless self.skip_check_ability or User.current.nil?
-      raise "No permission to delete #{self.class.name}" unless self.ability.can?(:destroy, self)
+      raise AccessDenied, "No permission to delete #{self.class.name}" unless self.ability.can?(:destroy, self)
     end
   end
 end

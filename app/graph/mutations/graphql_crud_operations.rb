@@ -290,6 +290,8 @@ class GraphqlCrudOperations
 
       field :assigned_to, UserType
 
+      field :locked, types.Boolean
+
       instance_eval(&block) if block_given?
     end
   end

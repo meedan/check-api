@@ -3,7 +3,8 @@ module AnnotationMutations
     content: '!str',
     annotation_type: '!str',
     annotated_id: 'str',
-    annotated_type: 'str'
+    annotated_type: 'str',
+    locked: 'bool'
   }
 
   update_fields = {
@@ -12,6 +13,7 @@ module AnnotationMutations
     annotated_id: 'str',
     annotated_type: 'str',
     assigned_to_id: 'int',
+    locked: 'bool',
     id: '!id'
   }
 
