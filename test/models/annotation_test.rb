@@ -125,10 +125,10 @@ class AnnotationTest < ActiveSupport::TestCase
     c = create_comment annotated: pm, locked: true
     s.locked = true; s.save!
     with_current_user_and_team(u, t) do
-      assert_raise CheckPermissions::AccessDenied do
+      assert_raise RuntimeError do
         s.status = 'false'; s.save!
       end
-      assert_raise CheckPermissions::AccessDenied do
+      assert_raise RuntimeError do
         c.text = 'update comment'; c.save!
       end
     end
