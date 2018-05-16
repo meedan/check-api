@@ -1,8 +1,7 @@
 class GraphqlCrudOperations
   def self.safe_save(obj, attrs, parents = [])
     attrs.each do |key, value|
-      method = key == 'clientMutationId' ? 'client_mutation_id' : key
-      method = "#{method}="
+      method = key == 'clientMutationId' ? 'client_mutation_id=' : "#{key}="
       obj.send(method, value) if obj.respond_to?(method)
     end
     obj.disable_es_callbacks = Rails.env.to_s == 'test'
