@@ -111,4 +111,53 @@ class Bot::BridgeReaderTest < ActiveSupport::TestCase
     Team.any_instance.unstub(:notify_updated)
   end
 
+  test "should have a JSON payload" do
+    f = create_field
+    assert_nothing_raised do
+      JSON.parse(f.notify_embed_system_payload('foo', 'bar'))
+    end
+  end
+
+  test "should have a notification URI" do
+    f = create_field
+    assert_kind_of URI, f.notification_uri('foo')
+  end
+
+  test "should notify" do
+    f = create_field
+    @bot.send :notify_embed_system, f, 'foo', 'bar'
+  end
+
+  test "project media should have a JSON payload" do
+    pm = create_project_media
+    assert_nothing_raised do
+      JSON.parse(pm.notify_embed_system_payload('foo', 'bar'))
+    end
+  end
+
+  test "project media should have a notification URI" do
+    pm = create_project_media
+    assert_kind_of URI, pm.notification_uri('foo')
+  end
+
+  test "team should have a JSON payload" do
+    t = create_team
+    assert_nothing_raised do
+      JSON.parse(t.notify_embed_system_payload('foo', 'bar'))
+    end
+  end
+
+  test "team should have a notification URI" do
+    t = create_team
+    assert_kind_of URI, t.notification_uri('foo')
+  end
+
+  test "should notify embed system when team is updated" do
+    Bot::BridgeReader.any_instance.stubs(:notify_embed_system).once
+    t = create_team(slug: 'check-team')
+    t = Team.find(t.id)
+    t.name = 'Check Team'
+    t.save!
+    Bot::BridgeReader.any_instance.unstub(:notify_embed_system)
+  end
 end
