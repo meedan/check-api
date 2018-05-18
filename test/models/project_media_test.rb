@@ -960,38 +960,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     PenderClient::Request.unstub(:get_medias)
   end
 
-  test "should notify embed system when project media is updated" do
-    pm = create_project_media project: @project
-    pm.created_at = DateTime.now - 1.day
-    ProjectMedia.any_instance.stubs(:notify_embed_system).with('updated', { id: pm.id.to_s}).once
-    pm.save!
-    ProjectMedia.any_instance.unstub(:notify_embed_system)
-  end
-
-  test "should notify embed system when project media is destroyed" do
-    pm = create_project_media project: @project
-    ProjectMedia.any_instance.stubs(:notify_embed_system).with('destroyed', nil).once
-    pm.disable_es_callbacks = true
-    pm.destroy
-    ProjectMedia.any_instance.unstub(:notify_embed_system)
-  end
-
-  test "should notify embed system and receive a success response" do
-    pm = create_project_media project: @project
-    response = pm.send(:notify_embed_system, 'updated', pm.notify_embed_system_updated_object)
-    assert_equal '200', response.code
-  end
-
-  test "should not notify embed system if there are no configs" do
-    pm = create_project_media project: @project
-    pm.created_at = DateTime.now - 1.day
-    ProjectMedia.any_instance.stubs(:notify_embed_system).with('updated', { id: pm.id.to_s}).never
-    stub_config('bridge_reader_private_url', '') do
-      pm.save!
-    end
-    ProjectMedia.any_instance.unstub(:notify_embed_system)
-  end
-
   test "should respond to auto-tasks on creation" do
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
