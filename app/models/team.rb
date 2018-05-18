@@ -1,7 +1,6 @@
 class Team < ActiveRecord::Base
 
   include ValidationsHelper
-  include NotifyEmbedSystem
   include DestroyLater
   include TeamValidations
   include TeamAssociations
@@ -174,28 +173,6 @@ class Team < ActiveRecord::Base
 
   def notify_destroyed?
     false
-  end
-
-  def notify_created?
-    true
-  end
-  alias notify_updated? notify_created?
-
-  def notify_embed_system_created_object
-    { slug: self.slug }
-  end
-
-  def notify_embed_system_updated_object
-    self.as_json
-  end
-
-  def notify_embed_system_payload(event, object)
-    { project: object, condition: event, timestamp: Time.now.to_i, token: CONFIG['bridge_reader_token'] }.to_json
-  end
-
-  def notification_uri(event)
-    slug = (event == 'created') ? 'check-api' : self.slug
-    URI.parse(URI.encode([CONFIG['bridge_reader_url_private'], 'medias', 'notify', slug].join('/')))
   end
 
   def self.archive_or_restore_projects_if_needed(archived, team_id)
