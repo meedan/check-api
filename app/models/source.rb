@@ -95,12 +95,8 @@ class Source < ActiveRecord::Base
 
   def update_elasticsearch_source
     return if self.disable_es_callbacks
-    ps_ids = self.project_sources.map(&:id).to_a
-    unless ps_ids.blank?
-      parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") }
-      parents.each do |parent|
-        self.update_media_search(%w(title description), {'title' => self.name, 'description' => self.description}, parent)
-      end
+    self.project_sources.each do |parent|
+      self.update_media_search(%w(title description), {'title' => self.name, 'description' => self.description}, parent)
     end
   end
 

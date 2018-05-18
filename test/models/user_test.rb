@@ -729,4 +729,16 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not delete user if medias or sources associated to his profile" do
+    u = create_user
+    u2 = create_user
+    pm = create_project_media user: u
+    ps = create_project_source user: u
+    assert_not u.destroy
+    pm.user = u2; pm.save!
+    assert_not u.destroy
+    ps.user = u2; ps.save!
+    assert u.destroy
+  end
+
 end
