@@ -1,5 +1,5 @@
 class Bot::BridgeReader < ActiveRecord::Base
-require 'check_bridge_embed'
+  require 'check_bridge_embed'
 
   def self.default
     Bot::BridgeReader.where(name: 'Bridge Reader Bot').last
