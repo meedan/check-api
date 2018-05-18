@@ -935,7 +935,6 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal ms.project_id.to_i, p.id
     assert_equal ms.team_id.to_i, t.id
     pm.project = p2; pm.save!
-    ElasticSearchWorker.drain
     # confirm annotations log
     sleep 1
     ms = MediaSearch.find(pm.id)
@@ -1026,14 +1025,13 @@ class ElasticSearchTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    ElasticSearchWorker.drain
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     # update title or description
-    ElasticSearchWorker.drain
+    ElasticSearchWorker.clear
     pm.embed= {title: 'title', description: 'description'}.to_json
     assert_equal 1, ElasticSearchWorker.jobs.size
     # destroy media
-    ElasticSearchWorker.drain
+    ElasticSearchWorker.clear
     pm.destroy
     assert_equal 1, ElasticSearchWorker.jobs.size
   end
@@ -1043,21 +1041,20 @@ class ElasticSearchTest < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p, disable_es_callbacks: false
-    ElasticSearchWorker.drain
-    assert_equal 0, ElasticSearchWorker.jobs.size
     # add comment
+    ElasticSearchWorker.clear
     c = create_comment annotated: pm, disable_es_callbacks: false
     assert_equal 1, ElasticSearchWorker.jobs.size
     # add tag
-    ElasticSearchWorker.drain
+    ElasticSearchWorker.clear
     t = create_tag annotated: pm, disable_es_callbacks: false
     assert_equal 1, ElasticSearchWorker.jobs.size
     # destroy comment
-    ElasticSearchWorker.drain
+    ElasticSearchWorker.clear
     c.destroy
     assert_equal 1, ElasticSearchWorker.jobs.size
     # destroy tag
-    ElasticSearchWorker.drain
+    ElasticSearchWorker.clear
     t.destroy
     assert_equal 1, ElasticSearchWorker.jobs.size
   end
@@ -1069,7 +1066,7 @@ class ElasticSearchTest < ActionController::TestCase
       t = create_team
       p = create_project team: t
       pm = create_project_media project: p
-      ElasticSearchWorker.drain
+      ElasticSearchWorker.clear
       create_status annotated: pm, status: 'false', disable_es_callbacks: false
       assert_equal 1, ElasticSearchWorker.jobs.size
     end
@@ -1078,7 +1075,7 @@ class ElasticSearchTest < ActionController::TestCase
       t = create_team
       p = create_project team: t
       pm = create_project_media project: p
-      ElasticSearchWorker.drain
+      ElasticSearchWorker.clear
       d = create_dynamic_annotation disable_es_callbacks: false, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
       assert_equal 2, ElasticSearchWorker.jobs.size
     end
@@ -1390,7 +1387,6 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal ms.project_id.to_i, p.id
     assert_equal ms.team_id.to_i, t.id
     ps.project = p2; ps.save!
-    ElasticSearchWorker.drain
     sleep 1
     ms = MediaSearch.find(id)
     assert_equal ms.project_id.to_i, p2.id
@@ -1519,6 +1515,16 @@ class ElasticSearchTest < ActionController::TestCase
       ms = MediaSearch.find(pm.id)
       assert_equal 'translated', ms.status
     end
+  end
+
+  test "should create parent if not exists" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, disable_es_callbacks: false
+    sleep 1
+    result = MediaSearch.find(pm.id)
+    assert_not_nil result
   end
 
   test "should search with reserved characters" do
