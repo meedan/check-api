@@ -71,12 +71,12 @@ class Bot::BridgeReaderTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'translation'
     create_field_instance annotation_type_object: at, name: 'translation_text'
     d = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Translated' }.to_json
-    d.set_fields = { translation_text: 'Translated reviewed' }.to_json
     field = d.get_fields.select{ |f| f['field_name'] == 'translation_text' }.first
 
     DynamicAnnotation::Field.any_instance.stubs(:notify_updated).once
     Bot::BridgeReader.any_instance.stubs(:notify_embed_system).once
-    d.save!
+    field.value = 'Translated reviewed'
+    field.save!
     assert_equal({ id: pm.id.to_s }, field.notify_embed_system_updated_object)
     Bot::BridgeReader.any_instance.unstub(:notify_embed_system)
     DynamicAnnotation::Field.any_instance.unstub(:notify_updated)
@@ -86,11 +86,12 @@ class Bot::BridgeReaderTest < ActiveSupport::TestCase
     pm = create_project_media
     at = create_annotation_type annotation_type: 'translation'
     create_field_instance annotation_type_object: at, name: 'translation_text'
-    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
+    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Translated' }.to_json
+    field = d.get_fields.select{ |f| f['field_name'] == 'translation_text' }.first
 
     DynamicAnnotation::Field.any_instance.stubs(:notify_updated).once
     Bot::BridgeReader.any_instance.stubs(:notify_embed_system).once
-    d.destroy
+    field.destroy
     Bot::BridgeReader.any_instance.unstub(:notify_embed_system)
     DynamicAnnotation::Field.any_instance.unstub(:notify_updated)
   end
