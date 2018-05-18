@@ -119,6 +119,9 @@ class Ability
         obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
       end
     end
+    can :update, Status, ['annotation_type = ?', 'status'] do |obj|
+      obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+    end
   end
 
   def journalist_perms
@@ -144,11 +147,11 @@ class Ability
       end
     end
     can :update, Status, ['annotation_type = ?', 'status'] do |obj|
-      obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+      obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived? && !obj.locked?
     end
     %w(annotation comment).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        obj.annotation_type == 'comment' && obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+        obj.annotation_type == 'comment' && obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived? && !obj.locked?
       end
     end
     can :create, Task, ['annotation_type = ?', 'task'] do |task|
@@ -182,7 +185,7 @@ class Ability
       obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
     end
     can [:update, :destroy], Comment, ['annotation_type = ?', 'comment'] do |obj|
-      obj.get_team.include?(@context_team.id) and (obj.annotator_id.to_i == @user.id) and !obj.annotated_is_archived?
+      obj.get_team.include?(@context_team.id) and (obj.annotator_id.to_i == @user.id) and !obj.annotated_is_archived? && !obj.locked?
     end
     can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include?(@context_team.id) and (['Spam', 'Graphic content'].include?(flag.flag.to_s)) and !flag.annotated_is_archived?
@@ -195,13 +198,13 @@ class Ability
       obj.get_team.include?(@context_team.id) and !obj.annotated_is_archived?
     end
     can [:destroy, :update], [Dynamic, Annotation, Task] do |obj|
-      obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived?
+      obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived? and !obj.locked?
     end
     can [:create, :update, :destroy], DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?
     end
     can :update, [Dynamic, Annotation] do |obj|
-      obj.get_team.include?(@context_team.id) and !obj.annotated_is_archived?
+      obj.get_team.include?(@context_team.id) and !obj.annotated_is_archived? and !obj.locked?
     end
     can :update, DynamicAnnotation::Field do |obj|
       obj.annotation.get_team.include?(@context_team.id) and !obj.annotation.annotated_is_archived?
