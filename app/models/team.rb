@@ -171,10 +171,6 @@ class Team < ActiveRecord::Base
     self.send(:set_hide_names_in_embeds, hide)
   end
 
-  def notify_destroyed?
-    false
-  end
-
   def self.archive_or_restore_projects_if_needed(archived, team_id)
     Project.where({ team_id: team_id }).update_all({ archived: archived })
     Source.where({ team_id: team_id }).update_all({ archived: archived })
