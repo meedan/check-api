@@ -543,6 +543,13 @@ module SampleData
     bot.reload
   end
 
+  def create_bridge_reader_bot(options = {})
+    bot = Bot::BridgeReader.new
+    bot.name = options[:name] || 'Bridge Reader Bot'
+    bot.save!
+    bot.reload
+  end
+
   def create_bounce(options = {})
     b = Bounce.new
     b.email = options.has_key?(:email) ? options[:email] : random_email

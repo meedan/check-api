@@ -44,7 +44,7 @@ class Bot::Twitter < ActiveRecord::Base
     path = File.join(Dir::tmpdir, "#{Time.now.to_i}_#{rand(100000)}.png")
     # Try to get screenshot from Reader... if it doesn't work, use a default image
     begin
-      IO.copy_stream(open(url, { ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE }), path)
+      IO.copy_stream(open(url, { ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE, read_timeout: 60 }), path)
     rescue
       FileUtils.cp File.join(Rails.root, 'public', 'images', 'bridge.png'), path
     end
