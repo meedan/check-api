@@ -45,7 +45,7 @@ require 'check_bridge_embed'
     end
 
     def notify_updated
-      Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'updated', self.notify_embed_system_created_object)
+      Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'updated', self.notify_embed_system_updated_object)
     end
 
     def notify_destroyed
