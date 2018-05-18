@@ -28,9 +28,7 @@ class Bot::Twitter < ActiveRecord::Base
       end
 
       text = self.format_for_twitter(self.text)
-      image = self.get_screenshot_for_twitter
-      tweet = self.twitter_client.update_with_media(text, File.new(image))
-      FileUtils.rm(image)
+      tweet = self.twitter_client.update(text)
 
       tweet.url.to_s
     end
@@ -59,7 +57,7 @@ class Bot::Twitter < ActiveRecord::Base
 
   def format_for_twitter(text)
     url = self.embed_url
-    size = 140 - self.twitter_url_size * 2 # one URL for Bridge Reader and another one for the attached image
+    size = 280 - self.twitter_url_size
     text.truncate(size) + ' ' + url.to_s
   end
 end
