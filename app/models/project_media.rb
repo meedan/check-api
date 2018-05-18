@@ -184,15 +184,11 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def notify_updated?
-    true
+    false
   end
 
   def notify_created?
     false
-  end
-
-  def notify_embed_system_updated_object
-    { id: self.id.to_s }
   end
 
   def notify_embed_system_payload(event, object)
