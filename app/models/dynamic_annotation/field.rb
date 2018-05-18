@@ -1,6 +1,4 @@
 class DynamicAnnotation::Field < ActiveRecord::Base
-  include NotifyEmbedSystem
-
   belongs_to :annotation
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
   belongs_to :field_instance, class_name: 'DynamicAnnotation::FieldInstance', foreign_key: 'field_name', primary_key: 'name'
@@ -22,28 +20,6 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   def as_json(options = {})
     json = super(options)
     json.merge({ formatted_value: self.to_s })
-  end
-
-  def notify_destroyed?
-    self.field_name == 'translation_text'
-  end
-  alias notify_created? notify_destroyed?
-  alias notify_updated? notify_destroyed?
-
-  def notify_embed_system_created_object
-    { id: self.annotation.annotated_id.to_s }
-  end
-  alias notify_embed_system_updated_object notify_embed_system_created_object
-
-  def notify_embed_system_payload(event, object)
-    { translation: object, condition: event, timestamp: Time.now.to_i }.to_json
-  end
-
-  def notification_uri(_event)
-    annotated = self.annotation.annotated
-    project = annotated.project
-    url = project.nil? ? '' : [CONFIG['bridge_reader_url_private'], 'medias', 'notify', project.team.slug, project.id, annotated.id.to_s].join('/')
-    URI.parse(URI.encode(url))
   end
 
   include Versioned
