@@ -122,6 +122,9 @@ class Ability
     can :update, Status, ['annotation_type = ?', 'status'] do |obj|
       obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
     end
+    can :lock_annotation, ProjectMedia do |obj|
+      obj.related_to_team?(@context_team) && obj.archived_was == false
+    end
   end
 
   def journalist_perms
