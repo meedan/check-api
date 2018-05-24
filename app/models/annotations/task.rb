@@ -194,7 +194,7 @@ class Task < ActiveRecord::Base
       s = annotated.get_annotations('status').last
       if !s.nil?
         s = s.load
-        annotated.set_active_status(s) if !s.lockes? && Status.completed_ids(annotated.media, annotated.project).include?(s.status)
+        annotated.set_active_status(s) if !s.locked? && Status.completed_ids(annotated.media, annotated.project).include?(s.status)
       end
     end
   end
