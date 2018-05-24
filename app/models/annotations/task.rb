@@ -189,13 +189,14 @@ class Task < ActiveRecord::Base
 
   def back_status_to_active
     return if self.is_being_copied
-    if self.required == true && self.annotated_type == 'ProjectMedia'
-      annotated = self.annotated
-      s = annotated.get_annotations('status').last
-      if !s.nil?
-        s = s.load
-        annotated.set_active_status(s) if !s.locked? && Status.completed_ids(annotated.media, annotated.project).include?(s.status)
-      end
+    move_media_to_active_status(self.annotated) if self.required == true && self.annotated_type == 'ProjectMedia'
+  end
+
+  def move_media_to_active_status(annotated)
+    s = annotated.get_annotations('status').last
+    unless s.nil?
+      s = s.load
+      annotated.set_active_status(s) if !s.locked? && Status.completed_ids(annotated.media, annotated.project).include?(s.status)
     end
   end
 end
