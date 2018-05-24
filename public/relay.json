@@ -13648,7 +13648,7 @@
               "defaultValue": null
             },
             {
-              "name": "set_slack_notifications_enabled",
+              "name": "slack_notifications_enabled",
               "description": null,
               "type": {
                 "kind": "SCALAR",
@@ -13658,7 +13658,7 @@
               "defaultValue": null
             },
             {
-              "name": "set_slack_webhook",
+              "name": "slack_webhook",
               "description": null,
               "type": {
                 "kind": "SCALAR",
@@ -13668,7 +13668,7 @@
               "defaultValue": null
             },
             {
-              "name": "set_slack_channel",
+              "name": "slack_channel",
               "description": null,
               "type": {
                 "kind": "SCALAR",
