@@ -44,7 +44,7 @@ class ProjectMedia < ActiveRecord::Base
   def move_media_to_active_status
     s = self.get_annotations('status').last
     s = s.load unless s.nil?
-    set_active_status(s) if !s.nil? && s.status == Status.default_id(self.media, self.project)
+    set_active_status(s) if !s.nil? && !s.locked? && s.status == Status.default_id(self.media, self.project)
   end
 
   def set_active_status(s)

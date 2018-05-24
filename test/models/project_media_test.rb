@@ -1452,6 +1452,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'verified', pm.last_status
     create_task annotated: pm, required: true
     assert_equal Status.active_id(pm.media, p), pm.last_status
+    # test locked status
+    pm2 = create_project_media project: p
+    s = pm2.annotations.where(annotation_type: 'status').last.load
+    s.status = 'verified'; s.locked = true; s.save!
+    create_task annotated: pm2, required: true
+    assert_equal 'verified', pm2.last_status
   end
 
   test "should move pending item to in progress status" do
@@ -1463,6 +1469,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     s = pm.annotations.where(annotation_type: 'status').last.load
     t = create_task annotated: pm
     assert_not_equal pm.last_status, active
+    # test with locked status
+    s.locked = true; s.save!
+    create_comment annotated: pm, disable_update_status: false
+    assert_equal pm.last_status, default
+    s.locked = false; s.save!
     # add comment
     create_comment annotated: pm, disable_update_status: false
     assert_equal pm.last_status, active
