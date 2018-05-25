@@ -71,16 +71,6 @@ class Team < ActiveRecord::Base
     contact.save!
   end
 
-  def verification_statuses(type, obj = nil)
-    statuses = self.send("get_#{type}_verification_statuses") || Status.core_verification_statuses(type)
-    if !obj.nil? && type.to_s == 'media'
-      completed = Status.completed_ids(obj.media, obj.project)
-      is_completed = Status.is_completed?(obj)
-      statuses[:statuses].each { |s| s[:can_change] = completed.include?(s[:id]) ? is_completed : true }
-    end
-    statuses
-  end
-
   def recipients(requestor, role='owner')
     owners = self.owners(role)
     recipients = []
@@ -88,23 +78,6 @@ class Team < ActiveRecord::Base
       recipients = owners.map(&:email).reject{ |m| m.blank? }
     end
     recipients
-  end
-
-  def media_verification_statuses=(statuses)
-    set_verification_statuses('media', statuses)
-  end
-
-  def media_verification_statuses
-    statuses = self.get_media_verification_statuses
-    unless statuses.blank?
-      statuses['statuses'] = [] if statuses['statuses'].nil?
-      statuses['statuses'].each { |s| s['style'].delete_if {|key, _value| key.to_sym != :color } if s['style'] }
-    end
-    statuses
-  end
-
-  def source_verification_statuses=(statuses)
-    set_verification_statuses('source', statuses)
   end
 
   def slack_notifications_enabled=(enabled)
@@ -213,7 +186,7 @@ class Team < ActiveRecord::Base
   end
 
   def json_schema_url(field)
-    filename = ['media_verification_statuses', 'source_verification_statuses'].include?(field) ? 'statuses' : field
+    filename = field.match(/_statuses$/) ? 'statuses' : field
     URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json")
   end
 
@@ -255,31 +228,8 @@ class Team < ActiveRecord::Base
 
   protected
 
-  def set_verification_statuses(type, statuses)
-    statuses = statuses.with_indifferent_access
-    statuses[:statuses] = [] if statuses[:statuses].nil?
-
-    if statuses[:statuses]
-      statuses[:statuses] = get_values_from_entry(statuses[:statuses])
-      statuses[:statuses].delete_if { |s| s[:id].blank? && s[:label].blank? }
-      statuses[:statuses].each  { |s| set_status_color(s) }
-    end
-    statuses.delete_if { |_k, v| v.blank? }
-    unless statuses.keys.map(&:to_sym) == [:label]
-      self.send("set_#{type}_verification_statuses", statuses)
-    end
-  end
-
   def get_values_from_entry(entry)
     (entry && entry.respond_to?(:values)) ? entry.values : entry
-  end
-
-  def set_status_color(status)
-    if status[:style] && status[:style].is_a?(Hash)
-      color = status[:style][:color]
-      status[:style][:backgroundColor] = color
-      status[:style][:borderColor] = color
-    end
   end
 
   # private

@@ -19,6 +19,7 @@ require 'webmock/minitest'
 require 'mocha/test_unit'
 require 'sample_data'
 require 'parallel_tests/test/runtime_logger'
+require 'sidekiq/testing'
 require 'minitest/retry'
 Minitest::Retry.use!
 
@@ -99,6 +100,7 @@ class ActiveSupport::TestCase
     end
     ApiKey.current = User.current = Team.current = nil
     ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
+    Sidekiq::Worker.clear_all
   end
 
   # This will run after any test
@@ -409,12 +411,14 @@ class ActiveSupport::TestCase
     assert_equal value, data[field]
   end
 
-  def create_translation_status_stuff
-    [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
-    ft1 = create_field_type(field_type: 'select', label: 'Select')
-    ft2 = create_field_type(field_type: 'text', label: 'Text')
+  def create_translation_status_stuff(delete_existing = true)
+    if delete_existing
+      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+    end
+    ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
+    ft2 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
     at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
-    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
+    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', default_value: 'pending', field_type_object: ft1, optional: false
     create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
     create_field_instance annotation_type_object: at, name: 'translation_status_approver', label: 'Translation Status Approver', field_type_object: ft2, optional: true
   end

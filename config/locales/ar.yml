@@ -83,6 +83,10 @@ ar:
         email: البريد الإلكتروني
     errors:
       models:
+        tag:
+          attributes:
+            data:
+              already_exists: موجود بالفعل
         team:
           attributes:
             slug:
@@ -106,7 +110,6 @@ ar:
   invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
   invalid_id_or_label_for_custom_verification_status: مُعَرِّف حالة التحقق وعنوانها مطلوبان
   invalid_statuses_format_for_custom_verification_status: "حالات التحقق الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية."
-  already_exists: موجود بالفعل
   mail_account_confirmation: "تأكيد حساب %{app_name}"
   mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على %{app_name}"
   approved: تم الموافقة

@@ -153,11 +153,11 @@ module ProjectMediaEmbed
   end
 
   def clear_caches
-    ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id) if CONFIG['app_name'] == 'Check'
+    ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id)
   end
 
   def last_status_html
-    custom_statuses = self.project.team.get_media_verification_statuses
+    custom_statuses = self.project.team.get_media_statuses
     if custom_statuses.nil?
       "<span id=\"oembed__status\" class=\"l\">status_#{self.last_status}</span>".html_safe
     else
@@ -170,7 +170,7 @@ module ProjectMediaEmbed
   end
 
   def last_status_color
-    statuses = self.project.team.get_media_verification_statuses || Status.core_verification_statuses('media')
+    statuses = Workflow::Workflow.options(self, self.default_media_status_type)
     statuses = statuses.with_indifferent_access['statuses']
     color = nil
     statuses.each do |status|

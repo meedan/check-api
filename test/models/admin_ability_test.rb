@@ -251,10 +251,10 @@ class AdminAbilityTest < ActiveSupport::TestCase
       ability = AdminAbility.new
       assert ability.cannot?(:create, s)
       assert ability.can?(:update, s)
-      assert ability.cannot?(:destroy, s)
+      assert ability.can?(:destroy, s)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:create, s)
-      assert ability.cannot?(:destroy, s)
+      assert ability.can?(:destroy, s)
     end
   end
 
@@ -498,4 +498,12 @@ class AdminAbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "owner permissions to dynamic" do
+    s = create_status
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.can?(:destroy, s)
+      assert ability.can?(:update, s)
+    end
+  end
 end

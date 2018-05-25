@@ -8,7 +8,7 @@ namespace :check do
   		if t.get_limits_custom_statuses == true
   			media_statuses = t.get_media_verification_statuses
   			unless media_statuses.blank?
-  				list = Status.validate_custom_statuses(t.id, media_statuses)
+          list = Workflow::Workflow.validate_custom_statuses(t.id, media_statuses)
 					unless list.blank?
 			      urls = list.collect{|l| l[:url]}
 			      statuses = list.collect{|l| l[:status]}.uniq

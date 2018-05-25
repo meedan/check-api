@@ -8,9 +8,7 @@ module Api
       def oembed
         @options = params.merge({ from_pender: !request.headers['User-Agent'].to_s.match(/pender/i).nil? })
         media = ProjectMedia.where(id: params[:id]).last
-        if CONFIG['app_name'] != 'Check'
-          render_error('Not implemented', 'UNKNOWN', 501)
-        elsif media.nil?
+        if media.nil?
           render_error('Not found', 'ID_NOT_FOUND', 404)
         else
           respond_to do |format|

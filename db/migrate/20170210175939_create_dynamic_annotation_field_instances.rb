@@ -8,6 +8,7 @@ class CreateDynamicAnnotationFieldInstances < ActiveRecord::Migration
       t.text :description
       t.boolean :optional, default: true
       t.text :settings
+      t.string :default_value
 
       t.timestamps null: false
     end

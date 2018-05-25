@@ -439,10 +439,12 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not change custom statuses that are already used in reports" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    s = pm.get_annotations('status').last.load
+    s = pm.last_verification_status_obj
     value = {
       label: 'Field label',
       default: '1',
@@ -1260,7 +1262,7 @@ class TeamTest < ActiveSupport::TestCase
     copy_p = copy.projects.find_by_title('Project')
     copy_pm = copy_p.project_medias.first
 
-    assert_equal ["comment", "flag", "response", "status", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
+    assert_equal ["comment", "flag", "response", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
     assert_equal original_annotations_count, copy_pm.annotations.size
 
     assert_difference 'Team.count', -1 do
@@ -1368,6 +1370,8 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not set active status if task is being copied" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     create_slack_bot
     team = create_team
     project = create_project team: team, title: 'Project'
@@ -1375,7 +1379,7 @@ class TeamTest < ActiveSupport::TestCase
     task = create_task annotated: pm, required: true
     create_annotation_type annotation_type: 'response'
     task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
-    s = pm.get_annotations('status').last.load; s.status = 'verified'; s.save!
+    s = pm.get_annotations('verification_status').last.load; s.status = 'verified'; s.save!
 
     ProjectMedia.any_instance.stubs(:set_active_status).never
     assert !Bot::Slack.default.nil?

@@ -31,16 +31,16 @@ class AdminAbility
         !(obj.get_team && @teams).empty?
       end
     end
-    %w(embed status).each do |annotation_type|
-      can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        !(obj.get_team && @teams).empty?
-      end
+    can :update, Embed, ['annotation_type = ?', 'embed'] do |obj|
+      !(obj.get_team && @teams).empty?
     end
     can :destroy, DynamicAnnotation::Field do |obj|
       !(obj.annotation.get_team && @teams).empty?
     end
 
     can :create, PaperTrail::Version
+
+    Workflow::Workflow.workflows.each{ |w| instance_exec(&w.workflow_admin_permissions) if w.respond_to?(:workflow_admin_permissions) }
   end
 
 end

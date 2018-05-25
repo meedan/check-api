@@ -83,6 +83,10 @@ fr:
         email: Courriel
     errors:
       models:
+        tag:
+          attributes:
+            data:
+              already_exists: existe déjà
         team:
           attributes:
             slug:
@@ -102,7 +106,6 @@ fr:
   invalid_active_status_for_custom_verification_status: Identifiant du statut actif non valide
   invalid_id_or_label_for_custom_verification_status: L'identifiant et l'étiquette du statut sont requises
   invalid_statuses_format_for_custom_verification_status: "Les statuts de vérifications personnalisés doivent contenir des valeurs valides pour : étiquette, identifiant, description, style et indicateur d'état final."
-  already_exists: existe déjà
   mail_account_confirmation: "Confirmation de votre compte %{app_name}"
   mail_request_to_join: "%{user} demande à se joindre à l'équipe %{team} sur %{app_name} !"
   approved: acceptée !

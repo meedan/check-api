@@ -53,31 +53,4 @@ module ValidationsHelper
   def slug_is_not_reserved
     errors.add(:slug, I18n.t(:slug_is_reserved)) if RESERVED_TEAM_SLUGS.include?(self.slug)
   end
-
-  def custom_media_statuses_format
-    self.custom_statuses_format(:media)
-  end
-
-  def custom_source_statuses_format
-    self.custom_statuses_format(:source)
-  end
-
-  def custom_statuses_format(type)
-    statuses = self.send("get_#{type}_verification_statuses")
-    if !statuses.is_a?(Hash) || statuses[:label].blank? || !statuses[:statuses].is_a?(Array) || statuses[:statuses].size === 0
-      errors.add(:statuses, I18n.t(:invalid_statuses_format_for_custom_verification_status))
-    else
-      validate_statuses(statuses)
-    end
-  end
-
-  def validate_statuses(statuses)
-    statuses[:statuses].each do |status|
-      errors.add(:statuses, I18n.t(:invalid_statuses_format_for_custom_verification_status)) if status.keys.map(&:to_sym).sort != [:completed, :description, :id, :label, :style]
-      errors.add(:statuses, I18n.t(:invalid_id_or_label_for_custom_verification_status)) if status[:id].blank? || status[:label].blank?
-    end
-    [:default, :active].each do |status|
-      errors.add(:statuses, I18n.t("invalid_#{status}_status_for_custom_verification_status".to_sym)) if !statuses[status].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[status])
-    end
-  end
 end

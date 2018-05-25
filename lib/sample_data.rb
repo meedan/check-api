@@ -171,15 +171,28 @@ module SampleData
     t
   end
 
+  def create_verification_status_stuff(delete_existing = true)
+    if delete_existing
+      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+    end
+    ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
+    at = create_annotation_type annotation_type: 'verification_status', label: 'Verification Status'
+    create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft1, optional: false
+  end
+
+  # Verification status
   def create_status(options = {})
+    create_verification_status_stuff if User.current.nil?
     options = { status: 'credible', annotator: create_user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
       options[:annotated] = create_project_source project: p
     end
-    s = Status.new
-    options.each do |key, value|
+    s = Dynamic.new
+    s.annotation_type = 'verification_status'
+    s.set_fields = { verification_status_status: options[:status] }.to_json
+    options.except(:status).each do |key, value|
       s.send("#{key}=", value) if s.respond_to?("#{key}=")
     end
     s.annotated.reload if s.annotated
@@ -595,6 +608,7 @@ module SampleData
     fi.description = options[:description]
     fi.optional = options[:optional] if options.has_key?(:optional)
     fi.settings = options[:settings] if options.has_key?(:settings)
+    fi.default_value = options[:default_value] || ''
     fi.save!
     fi
   end

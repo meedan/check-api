@@ -144,10 +144,11 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   field :last_status_obj do
-    type -> { StatusType }
+    type -> { DynamicType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.last_status_obj.load
+      obj = project_media.last_status_obj
+      obj.is_a?(Dynamic) ? obj : obj.load
     }
   end
 
@@ -202,8 +203,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
       end
     }
   end
-
-  instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
 
   connection :assignments, -> { AnnotationType.connection_type } do
     argument :user_id, !types.Int

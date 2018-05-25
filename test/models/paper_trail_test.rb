@@ -59,6 +59,8 @@ class PaperTrailTest < ActiveSupport::TestCase
   end
 
   test "should get projects" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     v = create_version
     t = create_team
     p1 = create_project team: t
