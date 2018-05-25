@@ -48,7 +48,7 @@ module Api
             }.merge(error['data'])
           }
         rescue
-          json = { error: e.message }
+          json = format_error_message(e)
         end
         json
       end

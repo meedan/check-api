@@ -123,21 +123,25 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should update message on Slack thread when status is changed" do
+    create_translation_status_stuff(false)
+    create_verification_status_stuff(false)
     WebMock.disable_net_connect! 
+    RequestStore.store[:disable_es_callbacks] = true
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
     3.times do
       a = [{ fields: [{}, {}, {}, {}, {}, {}] }].to_json
-      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: a, slack_message_channel: 'C0123Y' }.to_json
+      d = create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: a, slack_message_channel: 'C0123Y' }.to_json
     end
     stub_config('slack_token', '123456') do
       Sidekiq::Testing.inline! do
-        s = pm.annotations.where(annotation_type: 'status').last.load
+        s = pm.annotations.where(annotation_type: pm.default_media_status_type).last.load
         s.status = 'in_progress'
         s.disable_es_callbacks = true
         s.save!
       end
     end
+    RequestStore.store[:disable_es_callbacks] = false
     assert_equal 3, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end

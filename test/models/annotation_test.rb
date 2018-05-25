@@ -121,9 +121,8 @@ class AnnotationTest < ActiveSupport::TestCase
     create_team_user team: t, user: u2, role: 'editor'
     p = create_project team: t
     pm = create_project_media project: p
-    s = pm.last_status_obj.load
+    s = create_status annotated: pm, locked: true, status: 'undetermined'
     c = create_comment annotated: pm, locked: true
-    s.locked = true; s.save!
     with_current_user_and_team(u, t) do
       assert_raise RuntimeError do
         s.status = 'false'; s.save!

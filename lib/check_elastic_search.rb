@@ -22,14 +22,14 @@ module CheckElasticSearch
     unless ms.nil?
       data = get_elasticsearch_data(options[:data])
       # add mising field on parent
-      data.merge!(add_missing_fileds(options))
+      data.merge!(add_missing_fields(options))
       fields = {'last_activity_at' => Time.now.utc}
       options[:keys].each{|k| fields[k] = data[k] if ms.respond_to?("#{k}=") and !data[k].blank? }
       ms.update fields
     end
   end
 
-  def add_missing_fileds(options)
+  def add_missing_fields(options)
     data = {}
     parent = options[:parent]
     return data unless ['ProjectMedia', 'ProjectSource'].include?(parent.class.name)

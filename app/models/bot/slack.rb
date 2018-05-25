@@ -124,12 +124,15 @@ class Bot::Slack < ActiveRecord::Base
       def create_or_update_slack_message(options = {})
         events = options[:on] || []
         [events].flatten.each do |event|
-          send("after_#{event}", "call_slack_api_#{options[:endpoint]}")
+          params = {}
+          params[:if] = options[:if] if options.has_key?(:if)
+          send("after_#{event}", "call_slack_api_#{options[:endpoint]}", params)
         end
       end
 
       def call_slack_api(id, mutation_id, endpoint)
         obj = self.find(id)
+        obj = obj.annotation.load if obj.is_a?(DynamicAnnotation::Field)
         return if obj.annotated.nil? || !obj.annotated.respond_to?(:get_annotations)
         slack_message_id = mutation_id.to_s.match(/^fromSlackMessage:(.*)$/)
         obj.annotated.get_annotations('slack_message').each do |annotation|
@@ -166,7 +169,7 @@ class Bot::Slack < ActiveRecord::Base
     def update_slack_message_attachments(attachments)
       label = ''
       I18n.with_locale(:en) do
-        statuses = self.project.team.get_media_verification_statuses || Status.core_verification_statuses('media')
+        statuses = Workflow::Workflow.options(self, self.default_media_status_type)
         statuses = statuses.with_indifferent_access['statuses']
         statuses.each { |status| label = status['label'] if status['id'] == self.last_status }
       end
@@ -199,10 +202,14 @@ class Bot::Slack < ActiveRecord::Base
     end
   end
 
-  Status.class_eval do
+  Dynamic.class_eval do
     include ::Bot::Slack::SlackMessage
+  end
 
-    create_or_update_slack_message on: :update, endpoint: :update
+  DynamicAnnotation::Field.class_eval do
+    include ::Bot::Slack::SlackMessage
+    
+    create_or_update_slack_message on: :update, endpoint: :update, if: proc { |f| f.annotation.annotation_type.match(/_status$/) }
   end
 
   Embed.class_eval do

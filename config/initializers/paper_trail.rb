@@ -151,7 +151,7 @@ module PaperTrail
 
     def get_associated
       case self.event_type
-      when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed', 'destroy_comment', 'destroy_status', 'destroy_tag', 'destroy_task', 'destroy_flag', 'destroy_embed'
+      when 'create_comment', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_dynamic', 'update_dynamic', 'create_embed', 'destroy_comment', 'destroy_tag', 'destroy_task', 'destroy_flag', 'destroy_embed'
         self.get_associated_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         self.get_associated_from_dynamic_annotation

@@ -14,6 +14,8 @@ module DynamicMutations
     annotated_type: 'str',
     id: '!id',
     lock_version: 'int',
+    assigned_to_id: 'int',
+    locked: 'bool',
     set_attribution: 'str'
   }
 

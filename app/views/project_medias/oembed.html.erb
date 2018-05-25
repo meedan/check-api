@@ -29,9 +29,11 @@
           resolved_tasks_count: "<%= I18n.t(:oembed_resolved_tasks_count, locale: locale, count: @project_media.completed_tasks_count) %>",
           expand_all: "<%= I18n.t(:oembed_expand_all, locale: locale) %>",
           collapse_all: "<%= I18n.t(:oembed_collapse_all, locale: locale) %>",
-          verification_tasks: "<%= I18n.t(:oembed_verification_tasks, locale: locale) %>",
+          tasks: "<%= I18n.t(:oembed_tasks, locale: locale) %>",
           notes: "<%= I18n.t(:oembed_notes, locale: locale) %>",
-          <% Status.core_verification_statuses('media')[:statuses].each do |status| %>
+          translations: "<%= I18n.t(:oembed_translations, locale: locale) %>",
+
+          <% Workflow::Workflow.core_options(@project_media, @project_media.default_media_status_type)[:statuses].each do |status| %>
             status_<%= status[:id] %>: "<%= I18n.t('statuses.media.' + status[:id].gsub(/^false$/, 'not_true') + '.label', locale: locale) %>",
           <% end %>
         },
@@ -105,9 +107,27 @@
         <br />
       </div> <!-- / #oembed__card -->
 
+      <% if @project_media.get_annotations('translation').any? %>
+        <div id="oembed__notes">
+          <h2><span class="l">translations</span></h2>
+
+          <ul id="oembed__notes-list">
+            <% 
+              @project_media.get_annotations('translation').each do |note|
+            %>
+              <li class="oembed__note">
+                <span class="oembed__collapsed-text oembed__collapsable-text">
+                  <b><%= note.load.get_field('translation_language').to_s %></b>: <%= note.load.get_field_value('translation_text') %>
+                </span> 
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
       <% if (@hide_tasks.to_i != 1 && @project_media.completed_tasks.any?) || (@hide_open_tasks.to_i != 1 && @project_media.open_tasks.any?) %>
         <div id="oembed__verification-tasks">
-          <h2><span class="l">verification_tasks</span></h2>
+          <h2><span class="l">tasks</span></h2>
 
           <% if @hide_tasks.to_i != 1 && @project_media.completed_tasks.any? %>
           <div id="oembed__tasks-info">

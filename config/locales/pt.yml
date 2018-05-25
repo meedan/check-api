@@ -83,6 +83,10 @@ pt:
         email: E-mail
     errors:
       models:
+        tag:
+          attributes:
+            data:
+              already_exists: já existe
         team:
           attributes:
             slug:
@@ -102,7 +106,6 @@ pt:
   invalid_active_status_for_custom_verification_status: Identificador de status ativo é inválido
   invalid_id_or_label_for_custom_verification_status: O identificador e o título de status são obrigatórios
   invalid_statuses_format_for_custom_verification_status: "Os status de verificação personalizados devem ter válidos título, identificador, descrição, estilo e sinalizador de estado final."
-  already_exists: já existe
   mail_account_confirmation: "Confirmação da conta do %{app_name} "
   mail_request_to_join: "%{user} quer participar da equipe %{team} no %{app_name}!"
   approved: Aprovado!

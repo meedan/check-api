@@ -69,7 +69,7 @@ RailsAdmin.config do |config|
 
   config.main_app_name = ['Check']
 
-  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Embed', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Status', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser']
+  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Embed', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser']
 
   config.navigation_static_links = {
     'API Explorer' => '/api',
@@ -215,27 +215,6 @@ RailsAdmin.config do |config|
     media_config
   end
 
-  config.model 'Status' do
-    annotation_config('status', [:status])
-    parent Annotation
-
-    edit do
-      field :status, :enum do
-        enum do
-          annotated, context = bindings[:object].get_annotated_and_context
-          Status.possible_values(annotated, context)[:statuses].collect { |s| s[:id]}
-        end
-      end
-    end
-
-    create do
-      field :status do
-        hide
-      end
-    end
-
-  end
-
   config.model 'Tag' do
     annotation_config('tag', [:tag, :full_tag])
     parent Annotation
@@ -336,11 +315,9 @@ RailsAdmin.config do |config|
     end
 
     show do
-      configure :get_media_verification_statuses, :json do
-        label 'Media verification statuses'
-      end
-      configure :get_source_verification_statuses, :json do
-        label 'Source verification statuses'
+      id = CONFIG['default_workflow']
+      configure "get_media_#{id.pluralize}", :json do
+        label "Media #{id.pluralize.gsub('_', ' ')}"
       end
       configure :get_hide_names_in_embeds do
         label 'Hide names in embeds'
@@ -408,9 +385,11 @@ RailsAdmin.config do |config|
       field :archived do
         visible_only_for_admin
       end
-      field :media_verification_statuses, :yaml do
+      
+      id = CONFIG['default_workflow']
+      field "media_#{id.pluralize}", :yaml do
         partial "json_editor"
-        help "A list of custom verification statuses for reports that match your team's journalistic guidelines."
+        help "A list of custom #{id.pluralize.gsub('_', ' ')} for reports that match your team's guidelines."
         visible_only_for_allowed_teams 'custom_statuses'
       end
 

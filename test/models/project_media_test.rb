@@ -313,7 +313,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Status", "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "embed ProjectMedia", "lock Annotation"].sort
+    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag", "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "embed ProjectMedia", "lock Annotation"].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner
@@ -335,17 +335,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
     User.unstub(:current)
     Team.unstub(:current)
-  end
-
-  test "should journalist edit own status" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    p = create_project team: t, user: create_user
-    pm = create_project_media project: p, user: u
-    with_current_user_and_team(u, t) do
-      assert JSON.parse(pm.permissions)['create Status']
-    end
   end
 
   test "should set user when project media is created" do
@@ -485,7 +474,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
-    assert_difference 'PaperTrail::Version.count', 4 do
+    assert_difference 'PaperTrail::Version.count', 3 do
       pm = create_project_media project: p, media: m, user: u
     end
     assert_equal 1, pm.versions.count
@@ -508,6 +497,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get log" do
+    create_verification_status_stuff
     m = create_valid_media
     u = create_user
     t = create_team
@@ -526,7 +516,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       c = create_comment annotated: pm
       tg = create_tag annotated: pm
       f = create_flag annotated: pm
-      s = pm.annotations.where(annotation_type: 'status').last.load
+      s = pm.annotations.where(annotation_type: 'verification_status').last.load
       s.status = 'In Progress'; s.save!
       e = create_embed annotated: pm, title: 'Test'
       info = { title: 'Foo' }.to_json; pm.embed = info; pm.save!
@@ -538,14 +528,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_comment", "create_tag", "create_flag", "update_status", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
-      assert_equal 13, pm.get_versions_log_count
+      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal 15, pm.get_versions_log_count
       c.destroy
-      assert_equal 13, pm.get_versions_log_count
+      assert_equal 15, pm.get_versions_log_count
       tg.destroy
-      assert_equal 13, pm.get_versions_log_count
+      assert_equal 15, pm.get_versions_log_count
       f.destroy
-      assert_equal 13, pm.get_versions_log_count
+      assert_equal 15, pm.get_versions_log_count
     end
   end
 
@@ -574,6 +564,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should refresh Pender data" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"1"}}')
@@ -585,7 +577,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_not_nil em1
     assert_equal '1', JSON.parse(em1.data['embed'])['foo']
     assert_equal 1, em1.refreshes_count
-    sleep 1
+    sleep 2
     pm = ProjectMedia.find(pm.id)
     pm.refresh_media = true
     pm.save!
@@ -881,6 +873,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get published time for oEmbed" do
+    create_translation_status_stuff
     url = 'http://twitter.com/test/123456'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
@@ -908,6 +901,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should render oEmbed HTML" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
+    Bot::Alegre.delete_all
     u = create_user login: 'test', name: 'Test', profile_image: 'http://profile.picture'
     c = create_claim_media quote: 'Test'
     t = create_team name: 'Test Team', slug: 'test-team'
@@ -928,7 +924,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
     ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
 
-    expected = File.read(File.join(Rails.root, 'test', 'data', 'oembed.html')).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url'])
+    expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url'])
     actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
 
     assert_equal expected, actual
@@ -1243,6 +1239,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should return custom status HTML and color for embed" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     t = create_team
     value = {
       label: 'Status',
@@ -1252,13 +1250,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
         { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
       ]
     }
-    t.set_media_verification_statuses(value)
+    pm = create_project_media
+    t.send "set_media_#{pm.default_media_status_type.pluralize}", value
     t.save!
     p = create_project team: t
     pm = create_project_media project: p
+    assert_equal 'stop', pm.last_status
     assert_equal '<span id="oembed__status">Stopped</span>', pm.last_status_html
     assert_equal '#a00', pm.last_status_color
-    s = pm.annotations.where(annotation_type: 'status').last.load
+    s = pm.last_status_obj
     s.status = 'done'
     s.save!
     assert_equal '<span id="oembed__status">Done!</span>', pm.last_status_html
@@ -1266,16 +1266,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should return core status HTML and color for embed" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    assert_equal '<span id="oembed__status" class="l">status_undetermined</span>', pm.last_status_html
-    assert_equal '#518FFF', pm.last_status_color
-    s = pm.annotations.where(annotation_type: 'status').last.load
+    assert_equal "<span id=\"oembed__status\" class=\"l\">status_#{pm.last_status}</span>", pm.last_status_html
+    assert_equal '#518FFF', pm.last_status_color.upcase
+    s = pm.last_status_obj
     s.status = 'in_progress'
     s.save!
     assert_equal '<span id="oembed__status" class="l">status_in_progress</span>', pm.last_status_html
-    assert_equal '#ffbb5d', pm.last_status_color
+    assert_equal '#FFBB5D', pm.last_status_color.upcase
   end
 
   test "should get description" do
@@ -1385,6 +1387,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get number of contributing users" do
+    create_verification_status_stuff
     pm = create_project_media
     create_comment annotated: pm, annotator: create_user
     create_comment annotated: pm, annotator: create_user
@@ -1394,6 +1397,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get time to first and last status" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
@@ -1408,14 +1413,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal '', pm.time_to_status(:last)
 
       Time.stubs(:now).returns(time + 5.minutes)
-      s = pm.annotations.where(annotation_type: 'status').last.load
+      s = pm.last_status_obj
       s.status = 'In Progress'; s.save!
       assert_equal '', pm.time_to_status(:first)
       assert_equal 5.minutes.to_i, pm.time_to_status(:last)
 
       Time.stubs(:now).returns(time + 8.minutes)
-      s = pm.annotations.where(annotation_type: 'status').last.load
-      s.status = 'Verified'; s.save!
+      s = pm.last_status_obj
+      s.status = ::Workflow::Workflow.core_options(pm, pm.default_media_status_type)[:default]
+      s.save!
 
       assert_equal 5.minutes.to_i, pm.time_to_status(:first)
       assert_equal 8.minutes.to_i, pm.time_to_status(:last)
@@ -1424,13 +1430,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should reject a status of verified if all required tasks are not resolved" do
+    create_verification_status_stuff
     create_annotation_type annotation_type: 'response'
     pm = create_project_media
     t1 = create_task annotated: pm
     t2 = create_task annotated: pm, required: true
     t1.response = { annotation_type: 'response', set_fields: {} }.to_json
     t1.save!
-    s = pm.annotations.where(annotation_type: 'status').last.load
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
     assert_raise ActiveRecord::RecordInvalid do
       s.status = 'verified'; s.save!
     end
@@ -1444,52 +1451,54 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should back status to active if required task added to resolved item" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     p = create_project
     pm = create_project_media project: p
-    s = pm.annotations.where(annotation_type: 'status').last.load
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'verified'; s.save!
+    
+    pm = ProjectMedia.find(pm.id)
+    assert_equal 'verified', pm.last_verification_status
+    
+    pm = ProjectMedia.find(pm.id)
     create_task annotated: pm
-    assert_equal 'verified', pm.last_status
+    assert_equal 'verified', pm.last_verification_status
+   
+    pm = ProjectMedia.find(pm.id)
     create_task annotated: pm, required: true
-    assert_equal Status.active_id(pm.media, p), pm.last_status
-    # test locked status
-    pm2 = create_project_media project: p
-    s = pm2.annotations.where(annotation_type: 'status').last.load
-    s.status = 'verified'; s.locked = true; s.save!
-    create_task annotated: pm2, required: true
-    assert_equal 'verified', pm2.last_status
+    assert_equal 'in_progress', pm.last_verification_status
   end
 
   test "should move pending item to in progress status" do
-    create_annotation_type annotation_type: 'response'
-    p = create_project
-    pm = create_project_media project: p
-    default = Status.default_id(pm.media, p)
-    active = Status.active_id(pm.media, p)
-    s = pm.annotations.where(annotation_type: 'status').last.load
-    t = create_task annotated: pm
-    assert_not_equal pm.last_status, active
-    # test with locked status
-    s.locked = true; s.save!
-    create_comment annotated: pm, disable_update_status: false
-    assert_equal pm.last_status, default
-    s.locked = false; s.save!
-    # add comment
-    create_comment annotated: pm, disable_update_status: false
-    assert_equal pm.last_status, active
-    s.status = default; s.save!
-    # add tag
-    create_tag annotated: pm, disable_update_status: false
-    assert_equal pm.last_status, active
-    s.status = default; s.save!
-    # add response
-    t.response = { annotation_type: 'response', set_fields: {} }.to_json
-    t.save!
-    assert_equal pm.last_status, active
-    # change status to verified and tests autmatic update
-    s.status = 'verified'; s.save!
-    create_comment annotated: pm, disable_update_status: false
-    assert_equal pm.last_status, 'verified'
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
+    stub_config('app_name', 'Check') do
+      create_annotation_type annotation_type: 'response'
+      p = create_project
+      pm = create_project_media project: p
+      default = 'undetermined'
+      active = 'in_progress'
+      s = pm.annotations.where(annotation_type: 'verification_status').last.load
+      t = create_task annotated: pm
+      assert_not_equal pm.last_status, active
+      # add comment
+      create_comment annotated: pm, disable_update_status: false
+      assert_equal pm.last_verification_status, active
+      s.status = default; s.save!
+      # add tag
+      create_tag annotated: pm, disable_update_status: false
+      assert_equal pm.last_verification_status, active
+      s.status = default; s.save!
+      # add response
+      t.response = { annotation_type: 'response', set_fields: {} }.to_json
+      t.save!
+      assert_equal pm.last_verification_status, active
+      # change status to verified and tests autmatic update
+      s.status = 'verified'; s.save!
+      create_comment annotated: pm, disable_update_status: false
+      assert_equal pm.last_verification_status, 'verified'
+    end
   end
 
   test "should update media account when change author_url" do
@@ -1566,5 +1575,70 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.project_id = p2.id
     pm.save!
     assert_kind_of CheckSearch, pm.check_search_project_was
+  end
+
+  test "should move media to active status" do
+    create_verification_status_stuff
+    stub_config('app_name', 'Check') do
+      pm = create_project_media
+      assert_equal 'undetermined', pm.last_verification_status
+      create_task annotated: pm, disable_update_status: false
+      assert_equal 'in_progress', pm.reload.last_verification_status
+    end
+  end
+
+  test "should not complete media if there are pending tasks" do
+    create_verification_status_stuff
+    pm = create_project_media
+    s = pm.last_verification_status_obj
+    create_task annotated: pm, required: true
+    assert_equal 'undetermined', s.reload.get_field('verification_status_status').status
+    assert_raises ActiveRecord::RecordInvalid do
+      s.status = 'verified'
+      s.save!
+    end
+  end
+
+  test "should get account from author URL" do
+    s = create_source
+    pm = create_project_media
+    assert_nothing_raised do
+      pm.send :account_from_author_url, @url, s
+    end
+  end
+
+  test "should not move media to active status if status is locked" do
+    create_verification_status_stuff
+    stub_config('app_name', 'Check') do
+      pm = create_project_media
+      assert_equal 'undetermined', pm.last_verification_status
+      s = pm.last_verification_status_obj
+      s.locked = true
+      s.save!
+      create_task annotated: pm, disable_update_status: false
+      assert_equal 'undetermined', pm.reload.last_verification_status
+    end
+  end
+
+  test "should not return to active status if required task added to resolved item but status is locked" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
+    p = create_project
+    pm = create_project_media project: p
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'verified'
+    s.locked = true
+    s.save!
+    
+    pm = ProjectMedia.find(pm.id)
+    assert_equal 'verified', pm.last_verification_status
+    
+    pm = ProjectMedia.find(pm.id)
+    create_task annotated: pm
+    assert_equal 'verified', pm.last_verification_status
+   
+    pm = ProjectMedia.find(pm.id)
+    create_task annotated: pm, required: true
+    assert_equal 'verified', pm.last_verification_status
   end
 end
