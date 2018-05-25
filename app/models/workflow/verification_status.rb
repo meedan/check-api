@@ -31,12 +31,11 @@ class Workflow::VerificationStatus < Workflow::Base
   end
 
   Task.class_eval do
-    after_create :back_status_to_active
+    after_create :back_status_to_active, unless: proc { |task| task.is_being_copied }
 
     private
 
     def back_status_to_active
-      return if self.is_being_copied
       if self.required == true && self.annotated_type == 'ProjectMedia'
         annotated = self.annotated
         vs = annotated.get_annotations('verification_status').last

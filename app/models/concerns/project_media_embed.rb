@@ -153,6 +153,7 @@ module ProjectMediaEmbed
   end
 
   def clear_caches
+    return if self.skip_clear_cache
     ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id)
   end
 
