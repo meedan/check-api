@@ -103,6 +103,7 @@ module AnnotationBase
       unless annotated.nil?
         annotated.skip_check_ability = true
         annotated.skip_notifications = true # the notification will be triggered by the annotation already
+        annotated.skip_clear_cache = annotation.skip_clear_cache
         annotated.updated_at = Time.now
         annotated.disable_es_callbacks = (Rails.env.to_s == 'test')
         annotated.save!

@@ -26,6 +26,7 @@ class ConvertStatusVersionsToVerificationStatusVersions < ActiveRecord::Migratio
 
         version.skip_notifications = true
         version.skip_check_ability = true
+        version.skip_clear_cache = true
         version.save!
 
         new_version = PaperTrail::Version.new
@@ -55,6 +56,7 @@ class ConvertStatusVersionsToVerificationStatusVersions < ActiveRecord::Migratio
         new_version.associated_type = version.associated_type
         new_version.skip_notifications = true
         new_version.skip_check_ability = true
+        new_version.skip_clear_cache = true
         new_version.save!
         new_version.update_attributes({ created_at: version.created_at })
 
@@ -87,6 +89,7 @@ class ConvertStatusVersionsToVerificationStatusVersions < ActiveRecord::Migratio
 
         version.skip_notifications = true
         version.skip_check_ability = true
+        version.skip_clear_cache = true
         version.save!
 
         if should_create_version
@@ -110,6 +113,7 @@ class ConvertStatusVersionsToVerificationStatusVersions < ActiveRecord::Migratio
           new_version.associated_type = version.associated_type
           new_version.skip_notifications = true
           new_version.skip_check_ability = true
+          new_version.skip_clear_cache = true
           new_version.save!
           new_version.update_attributes({ created_at: version.created_at })
         end
