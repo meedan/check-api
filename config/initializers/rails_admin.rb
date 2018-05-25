@@ -72,9 +72,11 @@ RailsAdmin.config do |config|
   config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Embed', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser']
 
   config.navigation_static_links = {
-    'API Explorer' => '/api',
+    'Web Client' => CONFIG['checkdesk_client'],
+    'Check API Explorer' => '/api',
     'GraphiQL' => '/graphiql',
-    'Web Client' => CONFIG['checkdesk_client']
+    'Sidekiq' => '/sidekiq',
+    'Pender API Explorer' => "#{CONFIG['pender_url']}/api"
   }
 
   config.navigation_static_label = 'External Tools'
@@ -385,7 +387,7 @@ RailsAdmin.config do |config|
       field :archived do
         visible_only_for_admin
       end
-      
+
       id = CONFIG['default_workflow']
       field "media_#{id.pluralize}", :yaml do
         partial "json_editor"
