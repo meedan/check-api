@@ -12,15 +12,27 @@ es:
       not_applicable:
         label: Inconcluso
         description: No se puede llegar a ninguna conclusión con la evidencia disponible
-      in_progress:
-        label: En progreso
-        description: El trabajo ha comenzado, pero aún no se ha llegado a ninguna conclusión
       not_true:
         label: 'Falso'
         description: 'Conclusión: el informe es falso'
       verified:
         label: Verificado
         description: 'Conclusión: el informe es verificado'
+      pending:
+        label: Pendiente
+        description: 'Predeterminado por Bridge, no se ha iniciado ningún trabajo. '
+      in_progress:
+        label: En progreso
+        description: El trabajo ha comenzado, pero aún no se realizó ninguna traducción
+      translated:
+        label: Traducido
+        description: La traducción está lista, esperando la revisión
+      ready:
+        label: Listo
+        description: La traducción fue revisada y aprobada para su publicación
+      error:
+        label: Incorrecto
+        description: La traducción fue revisada y se encontraron errores
     source:
       undetermined:
         label: Sin iniciar
@@ -112,7 +124,7 @@ es:
   rejected: 'no aprobado '
   mail_request_to_join_processed: Tu solicitud para unirte a  %{team} en %{app_name} fue %{status}
   mail_new_account: Nueva cuenta para ti en  %{app_name}
-  slack_update_status: "*%{user}* cambió el estado de verificación de  %{url} en *%{project}* de _%{previous_status}_ a *%{current_status}*"
+  slack_update_verification_status: "*%{user}* cambió el estado de verificación de  %{url} en *%{project}* de _%{from}_ a *%{to}*"
   slack_save_embed: "*%{user}* cambió el título del reporte en el *%{project}* de _%{from}_ a %{to}"
   slack_save_comment: "*%{user}* añadió una nota a %{url} en el *%{project}*: %{comment}"
   slack_create_project: "*%{user}* creó un proyecto: %{url}"
@@ -197,6 +209,8 @@ es:
     one: "Una tarea completada"
     other: "%{count} tareas completadas"
   oembed_verification_tasks: Tareas de verificación
+  oembed_tasks: Tareas
+  oembed_translations: Traducciones
   oembed_expand_all: Expandir todo
   oembed_collapse_all: Contraer todo
   oembed_resolved_tasks_count:
@@ -223,13 +237,16 @@ es:
   account_exists: Esta cuenta ya existe
   media_exists: Este archivo multimedia ya existe
   source_exists: Esta fuente ya existe
+  banned_user: 'Lo sentimos, su cuenta ha sido prohibida en %{app_name}. Por favor, póngase en contacto con %{support_email} si cree que se trata de un error.'
   devise:
     mailer:
       reset_password_instructions:
         instruction: "Alguien ha solicitado un enlace para cambiar tu contraseña, y tu puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"
   error_user_is_not_a_team_member: "Lo sentimos, solo puedes asignar a los miembros de este equipo"
-  slack_assign_report: "*%{user}* asignó %{url} a *%{assignee}* en *%{project}*"
-  slack_unassign_report: "*%{user}* desasignó %{url} de *%{assignee}* en *%{project}*"
+  slack_assign_verification_status: "*%{user}* asignó %{url} a *%{assignee}* en *%{project}*"
+  slack_unassign_verification_status: "*%{user}* desasignó %{url} de *%{assignee}* en *%{project}*"
+  slack_assign_translation_status: "*%{user}* asignó %{url} a *%{assignee}* en *%{project}*"
+  slack_unassign_translation_status: "*%{user}* desasignó %{url} de *%{assignee}* en *%{project}*"
   slack_assign_task: "*%{user}* tarea asignada %{url} en *%{project}* a *%{assignee}*"
   slack_unassign_task: "*%{user}* desasignó la tarea %{url} en *%{project}* de *%{assignee}*"
   mail_see_it: "Puedes verlo en:"
@@ -248,6 +265,8 @@ es:
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
   project_export_email_title_csv: "Su informe de proyecto está listo para descargar"
+  workflow_status_not_valid: "Lo sentimos, este estado no es válido "
+  workflow_status_permission_error: "Lo sentimos, no está permitido cambiar este estado"
   project_export_download_mail_csv: "¡Hola!\n\nSolicitó un informe para el proyecto %{project} - aquí hay un enlace para descargarlo: %{link}\n\nEl informe se descargará como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}\n\nTenga en cuenta que este enlace expirará en %{days} días.\n\nSaludos,\n\nEquipo %{app}"
   project_export_email_title_images: "Las imágenes de tu proyecto están listas para descargar"
   project_export_download_mail_images: "¡Hola!\n\n\nSolicitó una descarga de las imágenes del proyecto %{project} - aquí hay un enlace para descargarlas: %{link}\n\nLas imágenes se descargarán como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}\n\nTenga en cuenta que este enlace expirará en %{days} días.\n\nSaludos,\n\nEquipo %{app}"
