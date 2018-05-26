@@ -1641,4 +1641,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_task annotated: pm, required: true
     assert_equal 'verified', pm.last_verification_status
   end
+
+  test "should expose target languages" do
+    pm = create_project_media
+    assert_nothing_raised do
+      JSON.parse(pm.target_languages)
+    end
+  end
 end

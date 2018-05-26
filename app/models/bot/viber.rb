@@ -107,5 +107,9 @@ class Bot::Viber < ActiveRecord::Base
     def report_type
       self.get_annotations('translation_request').any? ? 'translation_request' : self.report_type_original
     end
+
+    def target_languages
+      CheckCldr.localized_languages.to_json
+    end
   end
 end
