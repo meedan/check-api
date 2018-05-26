@@ -3,8 +3,8 @@
 # You can remove the files by running: cd doc/ && make clean
 # Dependencies: GNU Make, Inkscape and PDF LateX, besides the API dependencies
 
-INKSCAPE = inkscape
-RAKE = bundle exec rake
+INKSCAPE = inkscape -b 'rgb(255, 255, 255)' 
+RAKE = bundle exec rake 
 BEXEC = bundle exec 
 
 all: controllers_brief.png controllers_complete.png models_brief.png models_complete.png api.txt licenses.csv api-docs.json api.md graphql.md
@@ -41,13 +41,13 @@ licenses.csv:
 	$(RAKE) lapis:licenses > licenses.csv
 
 api-docs.json:
-	cd .. && $(RAKE) swagger:docs && cd - && ln -s ../public/api-docs.json
+	tmp=`mktemp -d` && cd .. && mv public/*.json $$tmp && $(RAKE) swagger:docs && cd - && ln -s ../public/api-docs.json && mv $$tmp/*.json ../public/
 
-api.md:
+api.md: api-docs.json
 	cd .. && $(RAKE) swagger:docs:markdown && cd -
 
 graphql.md:
 	cd .. && $(RAKE) lapis:graphql:docs && cd -
 
 clean:
-	rm -f *.png *.svg *.txt *.csv *.json *.md
+	rm -f *.png *.svg *.txt *.csv *.json api.md graphql.md
