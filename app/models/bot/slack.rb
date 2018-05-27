@@ -132,6 +132,7 @@ class Bot::Slack < ActiveRecord::Base
 
       def call_slack_api(id, mutation_id, endpoint)
         obj = self.find(id)
+        obj = obj.load if obj.is_a?(Annotation)
         obj = obj.annotation.load if obj.is_a?(DynamicAnnotation::Field)
         return if obj.annotated.nil? || !obj.annotated.respond_to?(:get_annotations)
         slack_message_id = mutation_id.to_s.match(/^fromSlackMessage:(.*)$/)
@@ -191,19 +192,18 @@ class Bot::Slack < ActiveRecord::Base
     end
   end
 
-  [Comment, Dynamic].each do |klass|
-    klass.class_eval do
-      include ::Bot::Slack::SlackMessage
+  Annotation.class_eval do
+    include ::Bot::Slack::SlackMessage
 
-      create_or_update_slack_message on: :create, endpoint: :post_message, if: proc { |a| ['comment', 'translation'].include?(a.annotation_type) }
+    create_or_update_slack_message on: :create, endpoint: :post_message, if: proc { |a| ['comment', 'translation'].include?(a.annotation_type) }
 
-      def slack_message_parameters(id, _channel, _attachments)
-        # Not localized yet because Check Slack Bot is only in English for now
-        text = ''
-        text = ('Comment by ' + self.annotator.name + ': ' + self.text) if self.annotation_type == 'comment'
-        text = ('Translation to ' + self.get_field('translation_language').to_s + ' by ' + self.annotator.name + ': ' + self.get_field('translation_text').value) if self.annotation_type == 'translation'
-        { thread_ts: id, text: text }
-      end
+    def slack_message_parameters(id, _channel, _attachments)
+      a = self.load
+      # Not localized yet because Check Slack Bot is only in English for now
+      text = ''
+      text = ('Comment by ' + a.annotator.name + ': ' + a.text) if a.annotation_type == 'comment'
+      text = ('Translation to ' + a.get_field('translation_language').to_s + ' by ' + a.annotator.name + ': ' + a.get_field('translation_text').value) if a.annotation_type == 'translation'
+      { thread_ts: id, text: text }
     end
   end
 
