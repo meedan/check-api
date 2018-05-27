@@ -199,11 +199,10 @@ class Bot::Slack < ActiveRecord::Base
 
       def slack_message_parameters(id, _channel, _attachments)
         # Not localized yet because Check Slack Bot is only in English for now
-        text = {
-          comment: 'Comment by ' + self.annotator.name + ': ' + self.text,
-          translation: 'Translation to ' + self.get_field('translation_language').to_s + ' by ' + self.annotator.name + ': ' + self.get_field('translation_text').value
-        }
-        { thread_ts: id, text: text[self.annotation_type.to_sym] }
+        text = ''
+        text = ('Comment by ' + self.annotator.name + ': ' + self.text) if self.annotation_type == 'comment'
+        text = ('Translation to ' + self.get_field('translation_language').to_s + ' by ' + self.annotator.name + ': ' + self.get_field('translation_text').value) if self.annotation_type == 'translation'
+        { thread_ts: id, text: text }
       end
     end
   end
