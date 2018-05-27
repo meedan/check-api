@@ -206,9 +206,12 @@ class Bot::Slack < ActiveRecord::Base
     
     create_or_update_slack_message on: :create, endpoint: :post_message, if: proc { |a| a.annotation_type == 'translation' }
 
-    def slack_message_parameters(id, _channel, _attachments)
-      text = ('Translation to ' + self.get_field('translation_language').to_s + ' by ' + self.annotator.name + ': ' + self.get_field('translation_text').value) if self.annotation_type == 'translation'
-      { thread_ts: id, text: text }
+    def slack_message_parameters(id, _channel, attachments)
+      if self.annotation_type == 'translation'
+        { thread_ts: id, text: ('Translation to ' + self.get_field('translation_language').to_s + ' by ' + self.annotator.name + ': ' + self.get_field('translation_text').value) }
+      else
+        { ts: id, attachments: self.annotated.update_slack_message_attachments(attachments) }
+      end
     end
   end
 
