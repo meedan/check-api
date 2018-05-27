@@ -191,14 +191,20 @@ class Bot::Slack < ActiveRecord::Base
     end
   end
 
-  Comment.class_eval do
-    include ::Bot::Slack::SlackMessage
+  [Comment, Dynamic].each do |klass|
+    klass.class_eval do
+      include ::Bot::Slack::SlackMessage
 
-    create_or_update_slack_message on: :create, endpoint: :post_message
+      create_or_update_slack_message on: :create, endpoint: :post_message, if: proc { |a| ['comment', 'translation'].include?(a.annotation_type) }
 
-    def slack_message_parameters(id, _channel, _attachments)
-      # Not localized yet because Check Slack Bot is only in English for now
-      { thread_ts: id, text: 'Comment by ' + self.annotator.name + ': ' + self.text }
+      def slack_message_parameters(id, _channel, _attachments)
+        # Not localized yet because Check Slack Bot is only in English for now
+        text = {
+          comment: 'Comment by ' + self.annotator.name + ': ' + self.text,
+          translation: 'Translation to ' + self.get_field('translation_language').to_s + ' by ' + self.annotator.name + ': ' + self.get_field('translation_text').value
+        }
+        { thread_ts: id, text: text[self.annotation_type.to_sym] }
+      end
     end
   end
 
