@@ -62,7 +62,7 @@ module Workflow
           end
           [:default, :active].each do |status|
             errors.add(:statuses, I18n.t("blank_#{status}_status_for_custom_#{id}".to_sym)) if statuses[status].blank?
-            errors.add(:statuses, I18n.t("invalid_#{status}_status_for_custom_#{id}".to_sym)) if !statuses[status].blank? && !statuses[:statuses].map { |s| s[:id] }.include?(statuses[status])
+            errors.add(:statuses, I18n.t("invalid_#{status}_status_for_custom_#{id}".to_sym)) if !statuses[:statuses].map{ |s| s[:id] }.include?(statuses[status])
           end
         end
 
