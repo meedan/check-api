@@ -307,6 +307,10 @@ en:
   project_export_email_title_csv: "Your project report is ready to be downloaded"
   workflow_status_not_valid: "Sorry, this status is not valid"
   workflow_status_permission_error: "Sorry, you are not allowed to change this status"
+  blank_default_status_for_custom_translation_status: "Please provide a 'default' value for the custom translation statuses"
+  blank_active_status_for_custom_translation_status: "Please provide an 'active' value for the custom translation statuses"
+  blank_default_status_for_custom_verification_status: "Please provide a 'default' value for the custom verification statuses"
+  blank_active_status_for_custom_verification_status: "Please provide an 'active' value for the custom verification statuses"
   project_export_download_mail_csv: "Hello!
 
 
