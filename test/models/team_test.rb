@@ -325,6 +325,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     value = {
       label: 'Field label',
+      active: '2',
       default: '1',
       statuses: [
         { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
@@ -342,6 +343,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     value = {
       default: '1',
+      active: '2',
       statuses: [
         { id: '1', label: 'Custom Status 1', description: 'The meaning of this status' },
         { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' }
@@ -358,6 +360,7 @@ class TeamTest < ActiveSupport::TestCase
     value = {
       label: 'Field label',
       default: '1',
+      active: '2',
       statuses: [
         { id: '1', label: 'Custom Status 1' },
         { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' },
@@ -377,6 +380,7 @@ class TeamTest < ActiveSupport::TestCase
       {
         label: 'Field label',
         default: '10',
+        active: '2',
         statuses: [
           { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
           { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
@@ -385,6 +389,7 @@ class TeamTest < ActiveSupport::TestCase
       {
         label: 'Field label',
         default: '1',
+        active: '2',
         statuses: []
       }
     ]
@@ -402,6 +407,7 @@ class TeamTest < ActiveSupport::TestCase
     value = {
       label: 'Field label',
       default: '1',
+      active: '1',
       statuses: [
         { id: '1', label: 'Valid status', completed: '', description: 'The meaning of this status', style: 'red' },
         { id: '', label: '', completed: '', description: 'Status with empty id and label', style: 'blue' }
@@ -420,6 +426,7 @@ class TeamTest < ActiveSupport::TestCase
       label: 'Field label',
       completed: '',
       default: '',
+      active: '',
       statuses: []
     }
     assert_nothing_raised do
@@ -448,6 +455,7 @@ class TeamTest < ActiveSupport::TestCase
     value = {
       label: 'Field label',
       default: '1',
+      active: '2',
       statuses: [
         { id: '1', label: 'Custom Status 1', completed: '', description: '', style: 'red' },
         { id: '2', label: 'Custom Status 2', completed: '', description: '', style: 'blue' }
@@ -498,6 +506,7 @@ class TeamTest < ActiveSupport::TestCase
     value = {
       label: 'Field label',
       default: '1',
+      active: '1',
       statuses: [
         { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: { color: 'red', backgroundColor: 'red', borderColor: 'red'} },
       ]
@@ -516,7 +525,8 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     value = {
       label: 'Field label',
-      default: '1'
+      default: '1',
+      active: '1'
     }
     t.media_verification_statuses = value
 
@@ -528,7 +538,8 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     value = {
         label: 'Field label',
-        default: '1'
+        default: '1',
+        active: '1'
     }
     t.media_verification_statuses = value
     t.save
@@ -538,7 +549,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should set verification statuses to settings" do
     t = create_team
-    value = { label: 'Test', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access
+    value = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access
     t.media_verification_statuses = value
     t.source_verification_statuses = value
     t.save
@@ -1031,6 +1042,7 @@ class TeamTest < ActiveSupport::TestCase
     value = {
       label: 'Field label',
       default: '1',
+      active: '2',
       statuses: [
         { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
         { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
@@ -1338,7 +1350,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should not copy invalid statuses" do
     team = create_team
-    value = { default: '1' }
+    value = { default: '1', active: '1' }
     team.set_media_verification_statuses(value);team.save(validate: false)
     assert !team.valid?
     assert !team.errors[:statuses].blank?
@@ -1503,5 +1515,64 @@ class TeamTest < ActiveSupport::TestCase
     Airbrake.unstub(:notify)
     Team.any_instance.unstub(:save)
     RequestStore.store[:disable_es_callbacks] = false
+  end
+
+  test "should not save custom statuses if active and default values are not set" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_translation_statuses(value)
+      t.save!
+    end
+    value = {
+      label: 'Field label',
+      active: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_translation_statuses(value)
+      t.save!
+    end
+    value = {
+      label: 'Field label',
+      default: '1',
+      active: '2',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_nothing_raised do
+      t = Team.find(t.id)
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    assert_nothing_raised do
+      t = Team.find(t.id)
+      t.set_media_translation_statuses(value)
+      t.save!
+    end
   end
 end
