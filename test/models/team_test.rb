@@ -322,6 +322,8 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should have custom verification statuses" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     t = create_team
     value = {
       label: 'Field label',
@@ -336,6 +338,10 @@ class TeamTest < ActiveSupport::TestCase
       t.set_media_verification_statuses(value)
       t.save!
     end
+    p = create_project team: t
+    pm = create_project_media project: p
+    s = pm.last_verification_status_obj.get_field('verification_status_status')
+    assert_equal 'Custom Status 1', s.to_s 
     assert_equal 2, t.get_media_verification_statuses[:statuses].size
   end
 
