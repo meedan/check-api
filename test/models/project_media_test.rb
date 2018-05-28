@@ -1245,6 +1245,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     value = {
       label: 'Status',
       default: 'stop',
+      active: 'done',
       statuses: [
         { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
         { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
