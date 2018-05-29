@@ -65,6 +65,15 @@ class Workflow::VerificationStatus < Workflow::Base
         f.save!
       end
     end
+
+    alias_method :custom_permissions_original, :custom_permissions
+
+    def custom_permissions(ability = nil)
+      perms = self.custom_permissions_original
+      ability ||= Ability.new
+      perms["update Status"] = ability.can?(:update, Dynamic.new(annotation_type: 'verification_status', annotated: self))
+      perms
+    end
   end
 
   DynamicAnnotation::Field.class_eval do

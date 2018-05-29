@@ -1649,4 +1649,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
       JSON.parse(pm.target_languages)
     end
   end
+
+  test "should have status permission" do
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      permissions = JSON.parse(pm.permissions)
+      assert permissions.has_key?('update Status')
+    end
+  end
 end
