@@ -15,6 +15,14 @@ class Workflow::TranslationStatus < Workflow::Base
   def self.core_active_value
     'in_progress'
   end
+
+  def self.workflow_permissions_for_contributor
+    proc do
+      can [:update], Dynamic, ['annotation_type = ?', 'translation_status'] do |obj|
+        obj.annotation_type == 'translation_status'
+      end
+    end
+  end
    
   # Custom methods
 
