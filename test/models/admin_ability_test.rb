@@ -198,6 +198,23 @@ class AdminAbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "owner of other team permissions for comment" do
+    p = create_project team: t
+    pm = create_project_media project: p
+    mc = create_comment
+    pm.add_annotation mc
+
+    other_user = create_user
+    create_team_user user: other_user, team: create_team, role: 'owner'
+
+    with_current_user_and_team(other_user) do
+      ability = AdminAbility.new
+      assert ability.cannot?(:create, Comment)
+      assert ability.cannot?(:update, mc)
+      assert ability.cannot?(:destroy, mc)
+    end
+  end
+
   test "check annotation permissions" do
     # test the create/update/destroy operations
     tu.role = 'journalist'
@@ -241,6 +258,22 @@ class AdminAbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "owner of other team permissions for flag" do
+    p = create_project team: t
+    pm = create_project_media project: p
+    f = create_flag flag: 'Mark as graphic', annotator: u, annotated: pm
+
+    other_user = create_user
+    create_team_user user: other_user, team: create_team, role: 'owner'
+
+    with_current_user_and_team(other_user) do
+      ability = AdminAbility.new
+      assert ability.cannot?(:create, Flag)
+      assert ability.cannot?(:update, f)
+      assert ability.cannot?(:destroy, f)
+    end
+  end
+
   test "owner permissions for status" do
     p = create_project team: t
     m = create_valid_media
@@ -279,7 +312,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, em)
 
       assert ability.cannot?(:read, em_link)
-      assert ability.can?(:update, em_link)
+      assert ability.cannot?(:update, em_link)
       assert ability.cannot?(:destroy, em_link)
 
       assert ability.can?(:update, em_account)
@@ -300,7 +333,23 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, tg)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:create, tg)
-      assert ability.can?(:destroy, tg)
+      assert ability.cannot?(:destroy, tg)
+    end
+  end
+
+  test "owner of other team permissions for tag" do
+    p = create_project team: t
+    pm = create_project_media project: p
+    tg = create_tag tag: 'media_tag', annotated: pm
+
+    other_user = create_user
+    create_team_user user: other_user, team: create_team, role: 'owner'
+
+    with_current_user_and_team(other_user) do
+      ability = AdminAbility.new
+      assert ability.cannot?(:create, tg)
+      assert ability.cannot?(:update, tg)
+      assert ability.cannot?(:destroy, tg)
     end
   end
 
@@ -374,19 +423,19 @@ class AdminAbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not destroy annotation from any project from his team" do
+  test "should only destroy annotation from user teams" do
     p1 = create_project team: t
     p2 = create_project team: t
     pm1 = create_project_media project: p1
     pm2 = create_project_media project: p2
-    a1 = create_annotation annotated: pm1
-    a2 = create_annotation annotated: pm2
-    a3 = create_annotation annotated: create_project_media
+    a_from_team = create_annotation annotated: pm1
+    a2_from_team = create_annotation annotated: pm2
+    a_from_other_team = create_annotation annotated: create_project_media
     with_current_user_and_team(u) do
       a = AdminAbility.new
-      assert a.can?(:destroy, a1)
-      assert a.can?(:destroy, a2)
-      assert a.can?(:destroy, a3)
+      assert a.can?(:destroy, a_from_team)
+      assert a.can?(:destroy, a2_from_team)
+      assert a.cannot?(:destroy, a_from_other_team)
     end
   end
 
@@ -475,7 +524,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "owner permissions to task" do
-    task = create_task annotator: u
+    task = create_task annotator: u, team: t
     create_annotation_type annotation_type: 'response'
     task.response = { annotation_type: 'response', set_fields: {} }.to_json
     task.save!
@@ -487,14 +536,50 @@ class AdminAbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "owner of other team permissions for task" do
+    task = create_task annotator: u, team: t
+    create_annotation_type annotation_type: 'response'
+    task.response = { annotation_type: 'response', set_fields: {} }.to_json
+    task.save!
+
+    other_user = create_user
+    create_team_user user: other_user, team: create_team, role: 'owner'
+
+    with_current_user_and_team(other_user) do
+      ability = AdminAbility.new
+      assert ability.cannot?(:update, Task)
+      assert ability.cannot?(:update, task)
+      assert ability.cannot?(:destroy, task)
+    end
+  end
+
   test "owner permissions to dynamic annotation" do
-    task = create_task annotator: u
+    p = create_project team: t
+    pm = create_project_media project: p
+    task = create_task annotator: u, annotated: p, annotated: pm
     dynamic_field = create_field annotation_id: task.id
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:update, DynamicAnnotation::Field)
       assert ability.cannot?(:update, dynamic_field)
       assert ability.can?(:destroy, dynamic_field)
+    end
+  end
+
+  test "owner of other team permissions for dynamic annotation" do
+    p = create_project team: t
+    pm = create_project_media project: p
+    task = create_task annotator: u, annotated: p, annotated: pm
+    dynamic_field = create_field annotation_id: task.id
+
+    other_user = create_user
+    create_team_user user: other_user, team: create_team, role: 'owner'
+
+    with_current_user_and_team(other_user) do
+      ability = AdminAbility.new
+      assert ability.cannot?(:update, DynamicAnnotation::Field)
+      assert ability.cannot?(:update, dynamic_field)
+      assert ability.cannot?(:destroy, dynamic_field)
     end
   end
 
