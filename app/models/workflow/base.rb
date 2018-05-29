@@ -43,7 +43,7 @@ module Workflow
     def self.workflow_permissions_for_owner
       id = self.id
       proc do
-        can :destroy, Dynamic, ['annotation_type = ?', id] do |obj|
+        can [:destroy, :update], Dynamic, ['annotation_type = ?', id] do |obj|
           obj.get_team.include?(@context_team.id) && obj.annotation_type == id
         end
       end
