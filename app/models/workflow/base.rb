@@ -28,7 +28,6 @@ module Workflow
     end
 
     def self.workflow_permissions
-      id = self.id
       proc do
         if @user.role?(:owner)
           instance_exec(&::Workflow::VerificationStatus.workflow_permissions_for_owner)
