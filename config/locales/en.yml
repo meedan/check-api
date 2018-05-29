@@ -125,8 +125,14 @@ en:
   invalid_media_item: Sorry, this is not a valid media item
   invalid_default_status_for_custom_verification_status: The default status identifier is invalid
   invalid_active_status_for_custom_verification_status: The active status identifier is invalid
-  invalid_id_or_label_for_custom_verification_status: The status identifier and label are mandatory
+  invalid_label_for_custom_verification_status: The status label is mandatory
+  invalid_id_for_custom_verification_status: The status identifier is mandatory and must contain only lowercase letters, numbers, hyphens and underscores
   invalid_statuses_format_for_custom_verification_status: "Custom verification statuses should have valid entries for: label, identifier, description, style and final state flag"
+  invalid_default_status_for_custom_translation_status: The default status identifier is invalid
+  invalid_active_status_for_custom_translation_status: The active status identifier is invalid
+  invalid_label_for_custom_translation_status: The status label is mandatory
+  invalid_id_for_custom_translation_status: The status identifier is mandatory and must contain only lowercase letters, hyphens and underscores
+  invalid_statuses_format_for_custom_translation_status: "Custom translation statuses should have valid entries for: label, identifier, description, style and final state flag"
   mail_account_confirmation: "%{app_name} account confirmation"
   mail_request_to_join: "%{user} wants to join %{team} team on %{app_name}!"
   approved: approved!

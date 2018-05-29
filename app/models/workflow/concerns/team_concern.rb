@@ -58,12 +58,17 @@ module Workflow
         def validate_statuses(statuses, id)
           statuses[:statuses].each do |status|
             errors.add(:statuses, I18n.t("invalid_statuses_format_for_custom_#{id}")) if status.keys.map(&:to_sym).sort != [:completed, :description, :id, :label, :style]
-            errors.add(:statuses, I18n.t("invalid_id_or_label_for_custom_#{id}")) if status[:id].blank? || status[:label].blank?
+            errors.add(:statuses, I18n.t("invalid_label_for_custom_#{id}")) if status[:label].blank?
+            self.validate_status_id(status[:id], id)
           end
           [:default, :active].each do |status|
             errors.add(:statuses, I18n.t("blank_#{status}_status_for_custom_#{id}".to_sym)) if statuses[status].blank?
             errors.add(:statuses, I18n.t("invalid_#{status}_status_for_custom_#{id}".to_sym)) if !statuses[:statuses].map{ |s| s[:id] }.include?(statuses[status])
           end
+        end
+
+        def validate_status_id(status_id, id)
+          errors.add(:statuses, I18n.t("invalid_id_for_custom_#{id}")) if status_id.blank? || status_id.match(/^[a-z0-9_\-]+$/).nil?
         end
 
         def set_status_color(status)

@@ -1581,4 +1581,36 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should not save custom statuses with invalid identifiers" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: 'ok',
+      active: 'ok',
+      statuses: [
+        { id: 'ok', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: 'foo bar', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    value = {
+      label: 'Field label',
+      default: 'ok',
+      active: 'ok',
+      statuses: [
+        { id: 'ok', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: 'foo-bar', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_nothing_raised do
+      t = Team.find(t.id)
+      t.set_media_translation_statuses(value)
+      t.save!
+    end
+  end
 end
