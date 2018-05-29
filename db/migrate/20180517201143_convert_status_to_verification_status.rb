@@ -7,7 +7,6 @@ class ConvertStatusToVerificationStatus < ActiveRecord::Migration
 
       id = status.id
       value = status.data['status']
-      puts "#{i}) Migrating status with id #{id} and value #{value}"
       
       s = Dynamic.find(id)
       s.annotation_type = 'verification_status'

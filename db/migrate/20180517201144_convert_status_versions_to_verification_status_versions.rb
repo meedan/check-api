@@ -7,7 +7,6 @@ class ConvertStatusVersionsToVerificationStatusVersions < ActiveRecord::Migratio
       next if item.annotated.nil?
 
       i += 1
-      puts "#{i}) Migrating version with id #{version.id}"
 
       if version.event == 'create'
         version.item_type = 'Dynamic'

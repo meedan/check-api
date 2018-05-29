@@ -8,7 +8,6 @@ class SetObjectAfterForVerificationStatusVersions < ActiveRecord::Migration
         version.skip_check_ability = true
         version.skip_clear_cache = true
         version.update_attributes({ object_after: object_after })
-        puts "Saved version #{version.id}"
       end
     end
   end
