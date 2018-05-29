@@ -28,13 +28,14 @@ module Workflow
     end
 
     def self.workflow_permissions
+      klass = self
       proc do
         if @user.role?(:owner)
-          instance_exec(&::Workflow::VerificationStatus.workflow_permissions_for_owner)
+          instance_exec(&klass.workflow_permissions_for_owner)
         elsif @user.role?(:journalist)
-          instance_exec(&::Workflow::VerificationStatus.workflow_permissions_for_journalist)
+          instance_exec(&klass.workflow_permissions_for_journalist)
         elsif @user.role?(:contributor)
-          instance_exec(&::Workflow::VerificationStatus.workflow_permissions_for_contributor)
+          instance_exec(&klass.workflow_permissions_for_contributor)
         end
       end
     end
