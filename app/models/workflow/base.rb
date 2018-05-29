@@ -37,10 +37,6 @@ module Workflow
         elsif @user.role?(:contributor)
           instance_exec(&::Workflow::VerificationStatus.workflow_permissions_for_contributor)
         end
-        teams = @user.teams_owned.map(&:id)
-        can :update, Dynamic, ['annotation_type = ?', id] do |obj|
-          !(obj.get_team && teams).empty? && obj.annotation_type == id
-        end
       end
     end
 
