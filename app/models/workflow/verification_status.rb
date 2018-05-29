@@ -75,7 +75,7 @@ class Workflow::VerificationStatus < Workflow::Base
       if annotation.annotated_type == 'ProjectMedia'
         if annotation.annotated.is_completed?
           return if annotation.is_being_copied
-          TerminalStatusMailer.delay.notify(annotation.annotated, annotation.annotator, self.value.to_s)
+          TerminalStatusMailer.delay.notify(annotation.annotated, annotation.annotator, self.to_s)
         else
           errors.add(:base, I18n.t(:must_resolve_required_tasks_first))
           raise ActiveRecord::RecordInvalid.new(self)

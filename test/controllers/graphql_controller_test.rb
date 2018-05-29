@@ -890,7 +890,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (15) do
+    assert_queries (13) do
       post :create, query: query, team: 'team'
     end
 
@@ -1261,5 +1261,53 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response 400
     assert_match /Tag already exists/, @response.body
+  end
+
+  test "should not change status if contributor" do
+    create_verification_status_stuff
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: create_team, user: u, role: 'owner'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s = pm.last_verification_status_obj
+    s = Dynamic.find(s.id)
+    f = s.get_field('verification_status_status')
+    assert_equal 'undetermined', f.reload.value
+    authenticate_with_user(u)
+
+    id = Base64.encode64("Dynamic/#{s.id}")
+    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { id } } }'
+    post :create, query: query, team: t.slug
+    assert_match /No permission to update Dynamic/, @response.body
+    assert_equal 'undetermined', f.reload.value
+    assert_response 400
+  end
+
+  test "should not assign status if contributor" do
+    create_verification_status_stuff
+    u = create_user
+    u2 = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: u2, role: 'contributor'
+    create_team_user team: create_team, user: u, role: 'owner'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s = pm.last_verification_status_obj
+    s = Dynamic.find(s.id)
+    f = s.get_field('verification_status_status')
+    assert_equal 'undetermined', f.reload.value
+    authenticate_with_user(u)
+
+    id = Base64.encode64("Dynamic/#{s.id}")
+    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", assigned_to_id: ' + u2.id.to_s + ' }) { project_media { id } } }'
+    post :create, query: query, team: t.slug
+    assert_match /No permission to update Dynamic/, @response.body
+    assert_equal 'undetermined', f.reload.value
+    assert_response 400
   end
 end
