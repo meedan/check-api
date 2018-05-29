@@ -26,16 +26,17 @@ class AdminAbility
       (obj.team ||= obj.project.team) if obj.project
       @teams.include?(obj.team.id) if obj.team
     end
-    %w(comment dynamic flag tag task).each do |annotation_type|
+    %w(annotation comment flag tag dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        !(obj.get_team && @teams).empty?
+        !(obj.get_team & @teams).empty?
       end
     end
+
     can :update, Embed, ['annotation_type = ?', 'embed'] do |obj|
-      !(obj.get_team && @teams).empty?
+      !(obj.get_team & @teams).empty?
     end
     can :destroy, DynamicAnnotation::Field do |obj|
-      !(obj.annotation.get_team && @teams).empty?
+      !(obj.annotation.get_team & @teams).empty?
     end
 
     can :create, PaperTrail::Version
