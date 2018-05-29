@@ -74,10 +74,10 @@ module Workflow
       id = self.id
       proc do
         can :destroy, Dynamic do |obj|
-          !(obj.get_team && @teams).empty?
+          !(obj.get_team & @teams).empty?
         end
         can :update, Dynamic, ['annotation_type = ?', id] do |obj|
-          !(obj.get_team && @teams).empty? && obj.annotation_type == id
+          !(obj.get_team & @teams).empty? && obj.annotation_type == id
         end
       end
     end
