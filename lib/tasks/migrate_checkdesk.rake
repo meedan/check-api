@@ -55,6 +55,7 @@ namespace :db do
                 puts "#{model} with Checkdesk ID [#{ex_id}] already exists on Check with ID [#{existing.id}]"
                 next
               end
+              # Legacy Status implementation
               if data.class.name == 'Status'
                 # Load existing one
                 pm_id = mapping_ids[row["annotated_id"]]

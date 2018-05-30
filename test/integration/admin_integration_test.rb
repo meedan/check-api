@@ -200,6 +200,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should delete a project as team owner" do
+    create_verification_status_stuff
     sign_in @user
     create_team_user team: @team, user: @user, role: 'owner'
     team_2 = create_team

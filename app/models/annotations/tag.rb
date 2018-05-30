@@ -5,7 +5,7 @@ class Tag < ActiveRecord::Base
   field :full_tag, String, presence: true
 
   validates_presence_of :tag
-  validates :data, uniqueness: { scope: [:annotated_type, :annotated_id], message: I18n.t(:already_exists) }, if: lambda { |t| t.id.blank? }
+  validates :data, uniqueness: { scope: [:annotated_type, :annotated_id], message: :already_exists }, if: lambda { |t| t.id.blank? }
 
   before_validation :normalize_tag, :store_full_tag
   after_commit :add_update_elasticsearch_tag, on: [:create, :update]
@@ -32,5 +32,4 @@ class Tag < ActiveRecord::Base
   def destroy_elasticsearch_tag
     destroy_es_items(TagSearch)
   end
-
 end

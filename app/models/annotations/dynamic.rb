@@ -17,21 +17,15 @@ class Dynamic < ActiveRecord::Base
   validate :attribution_contains_only_team_members
 
   def slack_notification_message
-    if !self.set_fields.blank? && self.annotation_type =~ /^task_response/
-      self.slack_answer_task_message
-
-    elsif !self.set_fields.blank? && self.annotation_type == 'translation_status'
-      from, to = Bot::Slack.to_slack(self.previous_translation_status), Bot::Slack.to_slack(self.translation_status)
-
-      if from != to
-        I18n.t(:slack_update_translation_status,
-          user: Bot::Slack.to_slack(User.current.name),
-          report: Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title),
-          from: from,
-          to: to
-        )
-      end
+    annotation_type = self.annotation_type =~ /^task_response/ ? 'task_response' : self.annotation_type
+    method = "slack_notification_message_#{annotation_type}"
+    if (!self.set_fields.blank? || self.assigned_to_id != self.previous_assignee) && self.respond_to?(method)
+      self.send(method)
     end
+  end
+
+  def slack_notification_message_task_response
+    self.slack_answer_task_message
   end
 
   def slack_answer_task_message

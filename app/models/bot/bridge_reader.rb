@@ -12,9 +12,9 @@ class Bot::BridgeReader < ActiveRecord::Base
   protected
 
   def notify_embed_system(object, event, item)
-    return if self.disabled?
+    return if self.disabled? || object.skip_notifications
     url = object.notification_uri(event)
-    Check::BridgeEmbed.notify(object.notify_embed_system_payload(event,item), url)
+    Check::BridgeEmbed.notify(object.notify_embed_system_payload(event, item), url)
   end
 
   DynamicAnnotation::Field.class_eval do
@@ -53,13 +53,13 @@ class Bot::BridgeReader < ActiveRecord::Base
     end
 
     def should_notify?
-      self.field_name == 'translation_text'
+      self.field_name == 'translation_text' && !Bot::BridgeReader.default.nil? && !self.skip_notifications
     end
   end
 
   Team.class_eval do
-    after_create :notify_created
-    after_update :notify_updated
+    after_create :notify_created, if: :should_notify?
+    after_update :notify_updated, if: :should_notify?
 
     def notify_embed_system_created_object
       { slug: self.slug }
@@ -86,6 +86,10 @@ class Bot::BridgeReader < ActiveRecord::Base
 
     def notify_updated
       Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'updated', self.notify_embed_system_updated_object)
+    end
+
+    def should_notify?
+      !Bot::BridgeReader.default.nil? && !self.skip_notifications
     end
   end
 

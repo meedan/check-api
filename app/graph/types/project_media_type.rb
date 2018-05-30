@@ -14,6 +14,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :archived, types.Boolean
   field :author_role, types.String
   field :report_type, types.String
+  field :target_languages, types.String
 
   field :permissions, types.String do
     resolve -> (project_media, _args, ctx) {
@@ -144,10 +145,11 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   field :last_status_obj do
-    type -> { StatusType }
+    type -> { DynamicType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.last_status_obj
+      obj = project_media.last_status_obj
+      obj.is_a?(Dynamic) ? obj : obj.load
     }
   end
 
@@ -202,8 +204,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
       end
     }
   end
-
-  instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
 
   connection :assignments, -> { AnnotationType.connection_type } do
     argument :user_id, !types.Int

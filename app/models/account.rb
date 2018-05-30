@@ -162,15 +162,17 @@ class Account < ActiveRecord::Base
   end
 
   def update_elasticsearch_account
-    return if self.disable_es_callbacks
-    parents = self.get_parents_for_es
+    parents = self.get_parents
     parents.each do |parent|
       self.add_update_media_search_child('account_search', %w(title description username), {}, parent)
     end unless parents.blank?
   end
 
   def destroy_elasticsearch_account
-    destroy_es_items(AccountSearch)
+    parents = self.get_parents
+    parents.each do |parent|
+      destroy_es_items(AccountSearch, 'child', parent)
+    end
   end
 
   def set_embed_annotation
@@ -179,11 +181,8 @@ class Account < ActiveRecord::Base
 
   protected
 
-  def get_parents_for_es
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    parents = []
-    ps_ids = ProjectSource.where(source_id: self.sources).map(&:id).to_a
-    parents = ps_ids.map{|id| Base64.encode64("ProjectSource/#{id}") } unless ps_ids.blank?
-    parents
+  def get_parents
+    return [] if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    ProjectSource.where(source_id: self.sources)
   end
 end

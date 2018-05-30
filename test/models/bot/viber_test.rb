@@ -5,6 +5,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
   def setup
     super
     create_translation_status_stuff
+    create_verification_status_stuff(false)
     ft = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
     at = create_annotation_type annotation_type: 'translation_request', label: 'Translation Request'
     create_field_instance annotation_type_object: at, name: 'translation_request_raw_data', label: 'Translation Request Raw Data', field_type_object: ft, optional: false
@@ -13,6 +14,31 @@ class Bot::ViberTest < ActiveSupport::TestCase
     @bot = create_viber_bot
     @pm = create_project_media
     WebMock.stub_request(:post, 'https://chatapi.viber.com/pa/send_message')
+  end
+
+  test "should set translation status if has permission to change for target value and publish to Twitter and Facebook" do
+    Sidekiq::Testing.inline! do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'editor'
+      pm = create_project_media media: create_claim_media, user: u
+      d = pm.last_translation_status_obj
+      d.disable_es_callbacks = true
+      create_dynamic_annotation annotated: pm, annotation_type: 'translation_request', set_fields: { translation_request_raw_data: '', translation_request_type: 'viber' }.to_json
+      f = d.get_field('translation_status_status')
+      
+      with_current_user_and_team(u, t) do
+        f.value = 'ready'
+        assert_nil f.translation_published_to_social_media
+        f.save!
+      end
+
+      assert_equal 1, f.translation_published_to_social_media
+
+      approver = d.get_field('translation_status_approver')
+      assert_equal u.name, JSON.parse(approver.value)['name']
+      assert_nil JSON.parse(approver.value)['url']
+    end
   end
 
   test "should return default bot" do
@@ -129,6 +155,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
   end
 
   test "should not respond to user if there is no translation request" do
+    create_translation_status_stuff
     pm = create_project_media
     create_annotation_type annotation_type: 'translation'
     tr = DynamicAnnotation::AnnotationType.where(annotation_type: 'translation_request').last || create_annotation_type(annotation_type: 'translation_request')
@@ -288,34 +315,6 @@ class Bot::ViberTest < ActiveSupport::TestCase
     end
   end
 
-  test "should set translation status if has permission to change for target value and publish to Twitter and Facebook" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    pm = create_project_media media: create_claim_media
-    d = create_dynamic_annotation annotator: u, annotated: pm, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending', translation_status_approver: '{}' }.to_json
-    create_dynamic_annotation annotated: pm, annotation_type: 'translation_request', set_fields: { translation_request_raw_data: '', translation_request_type: 'viber' }.to_json
-
-    Bot::Twitter.any_instance.stubs(:send_to_twitter_in_background).once
-    Bot::Facebook.any_instance.stubs(:send_to_facebook_in_background).once
-
-    with_current_user_and_team(u, t) do
-      assert_nothing_raised do
-        d = Dynamic.find(d.id)
-        d.disable_es_callbacks = true
-        d.set_fields = { translation_status_status: 'ready' }.to_json
-        d.save!
-      end
-
-      approver = d.get_field('translation_status_approver')
-      assert_equal u.name, JSON.parse(approver.value)['name']
-      assert_nil JSON.parse(approver.value)['url']
-    end
-
-    Bot::Twitter.any_instance.unstub(:send_to_twitter_in_background)
-    Bot::Facebook.any_instance.unstub(:send_to_facebook_in_background)
-  end
-
   test "should create first translation status when translation request is created" do
     assert_difference "Dynamic.where(annotation_type: 'translation_status').count" do
       create_project_media
@@ -323,6 +322,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
   end
 
   test "should respond to user when translation status changes to ready" do
+    create_verification_status_stuff
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
@@ -349,6 +349,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
   end
 
   test "should respond to user when translation status changes to error" do
+    create_verification_status_stuff
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'editor'

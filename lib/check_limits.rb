@@ -63,10 +63,13 @@ module CheckLimits
     end
 
     def can_use_custom_statuses
-      if self.get_limits_custom_statuses == false &&
-         (!self.get_source_verification_statuses.blank? || !self.get_media_verification_statuses.blank?)
-        errors.add(:base, I18n.t(:cant_set_custom_statuses))
+      blank = true
+      ::Workflow::Workflow.workflow_ids.each do |id|
+        ['media', 'source'].each do |type|
+          blank = false unless self.send("get_#{type}_#{id.pluralize}").blank?
+        end
       end
+      errors.add(:base, I18n.t(:cant_set_custom_statuses)) if self.get_limits_custom_statuses == false && !blank
     end
 
     def can_use_checklist

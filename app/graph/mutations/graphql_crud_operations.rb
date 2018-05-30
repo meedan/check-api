@@ -1,8 +1,7 @@
 class GraphqlCrudOperations
   def self.safe_save(obj, attrs, parents = [])
     attrs.each do |key, value|
-      method = key == 'clientMutationId' ? 'client_mutation_id' : key
-      method = "#{method}="
+      method = key == 'clientMutationId' ? 'client_mutation_id=' : "#{key}="
       obj.send(method, value) if obj.respond_to?(method)
     end
     obj.disable_es_callbacks = Rails.env.to_s == 'test'
@@ -168,19 +167,6 @@ class GraphqlCrudOperations
     end
   end
 
-  def self.field_verification_statuses
-    proc do |classname|
-      field :verification_statuses do
-        type JsonStringType
-
-        resolve ->(obj, _args, _ctx) {
-          team = Team.current || Team.new
-          team.verification_statuses(classname, obj)
-        }
-      end
-    end
-  end
-
   def self.field_published
     proc do |_classname|
       field :published do
@@ -289,6 +275,8 @@ class GraphqlCrudOperations
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
 
       field :assigned_to, UserType
+
+      field :locked, types.Boolean
 
       instance_eval(&block) if block_given?
     end

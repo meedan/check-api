@@ -15,7 +15,7 @@ class ProjectMedia < ActiveRecord::Base
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :project_id }
 
-  after_create :set_quote_embed, :set_initial_media_status, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
+  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
   after_update :move_media_sources
 
   notifies_pusher on: [:save, :destroy],
@@ -39,21 +39,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def project_id_callback(value, mapping_ids = nil)
     mapping_ids[value]
-  end
-
-  def move_media_to_active_status
-    s = self.get_annotations('status').last
-    s = s.load unless s.nil?
-    set_active_status(s) if !s.nil? && s.status == Status.default_id(self.media, self.project)
-  end
-
-  def set_active_status(s)
-    active = Status.active_id(self.media, self.project)
-    unless active.nil?
-      s.status = active
-      s.skip_check_ability = true
-      s.save!
-    end
   end
 
   def slack_notification_message
@@ -100,15 +85,6 @@ class ProjectMedia < ActiveRecord::Base
     embed = JSON.parse(em.data['embed']) unless em.nil?
     self.overridden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em.data[sk] unless em.data[sk].nil? } unless embed.nil?
     embed
-  end
-
-  def last_status_obj
-    self.get_annotations('status').first
-  end
-
-  def last_status
-    last = self.last_status_obj
-    last.nil? ? Status.default_id(self, self.project) : last.data[:status]
   end
 
   def overridden
@@ -187,7 +163,14 @@ class ProjectMedia < ActiveRecord::Base
     perms["embed ProjectMedia"] = !self.archived
     ability ||= Ability.new
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
+    perms["lock Annotation"] = ability.can?(:lock_annotation, self)
     perms
+  end
+
+  def is_completed?
+    required_tasks = self.required_tasks
+    unresolved = required_tasks.select{ |t| t.status != 'Resolved' }
+    unresolved.blank?
   end
 
   protected
