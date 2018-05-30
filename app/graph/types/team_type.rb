@@ -26,25 +26,15 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :public_team_id, types.String
   field :plan, types.String
 
-  field :media_verification_statuses do
-    type JsonStringType
-
-    resolve -> (team, _args, _ctx) {
-      team.verification_statuses(:media)
-    }
-  end
-
-  field :source_verification_statuses do
-    type JsonStringType
-
-    resolve -> (team, _args, _ctx) {
-      team.verification_statuses(:source)
-    }
-  end
-
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {
       team.team_users
+    }
+  end
+
+  connection :join_requests, -> { TeamUserType.connection_type } do
+    resolve -> (team, _args, _ctx) {
+      team.team_users.where({ status: 'requested' })
     }
   end
 

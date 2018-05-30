@@ -88,7 +88,11 @@ class CheckSearch
   private
 
   def should_hit_elasticsearch?
-    !(@options['status'].blank? && @options['tags'].blank? && @options['keyword'].blank?)
+    status_blank = true
+    status_search_fields.each do |field|
+      status_blank = false unless @options[field].blank?
+    end
+    !(status_blank && @options['tags'].blank? && @options['keyword'].blank?)
   end
 
   # def show_filter?(type)
@@ -153,7 +157,10 @@ class CheckSearch
       parent_c << { terms: { 'associated_type': types } }
     end
 
-    fields = { 'project_id' => 'projects', 'status' => 'status' }
+    fields = { 'project_id' => 'projects' }
+    status_search_fields.each do |field|
+      fields[field] = field
+    end
     fields.each do |k, v|
       parent_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
     end

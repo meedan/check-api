@@ -74,7 +74,7 @@ class Embed < ActiveRecord::Base
     if self.annotated_type == 'Media' && self.annotated.type == 'Link'
       self.annotated.project_medias.each do |pm|
         em = pm.get_annotations('embed').last
-        self.update_media_search(keys, {}, pm.id) if em.nil?
+        self.update_media_search(keys, {}, pm) if em.nil?
       end
     end
   end

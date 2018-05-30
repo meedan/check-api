@@ -10,6 +10,8 @@ class GraphqlControllerTest < ActionController::TestCase
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
   end
 
   test "should access GraphQL query if not authenticated" do
@@ -427,7 +429,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read collection from team" do
-    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'users' => 'name', 'contacts' =>  'location', 'projects' => 'title', 'sources' => 'name' })
+    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'join_requests' => 'user_id', 'users' => 'name', 'contacts' =>  'location', 'projects' => 'title', 'sources' => 'name' })
   end
 
   test "should read collection from account" do
@@ -446,21 +448,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read collection from user" do
     assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role', 'annotations' => 'content' }, 'DESC')
-  end
-
-  test "should create status" do
-    s = create_source
-    p = create_project team: @team
-    ps = create_project_source project: p, source: s
-    assert_graphql_create('status', { status: 'credible', annotated_type: 'ProjectSource', annotated_id: ps.id.to_s })
-  end
-
-  test "should read statuses" do
-    assert_graphql_read('status', 'status')
-  end
-
-  test "should destroy status" do
-    assert_graphql_destroy('status')
   end
 
   test "should create tag" do
@@ -720,8 +707,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    # Expected: 3*n + n*m + 17
-    assert_queries 170, '<' do
+    assert_queries 350, '<' do
       post :create, query: query, team: 'team'
     end
 
@@ -968,8 +954,8 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should get translation statuses" do
+    create_translation_status_stuff
     t = create_team
-    create_field_instance name: 'translation_status_status', settings: { statuses: [{ id: 'pending', label: 'Pending' }] }
     authenticate_with_user
     post :create, query: 'query { team { translation_statuses } }', team: t.slug
     assert_response :success
@@ -982,7 +968,7 @@ class GraphqlControllerTest < ActionController::TestCase
     ft1 = create_field_type(field_type: 'select', label: 'Select')
     ft2 = create_field_type(field_type: 'text', label: 'Text')
     at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
-    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false, settings: { options_and_roles: { pending: 'contributor', in_progress: 'contributor', translated: 'contributor', ready: 'editor', error: 'editor' } }
+    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false
     create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
 
     authenticate_with_user
@@ -1255,5 +1241,73 @@ class GraphqlControllerTest < ActionController::TestCase
     apollo.close
     assert_response 200
     assert_equal false, assigns(:started_apollo)
+  end
+
+  test "should get team with arabic slug" do
+    authenticate_with_user
+    t = create_team slug: 'المصالحة', name: 'Arabic Team'
+    post :create, query: 'query Query { about { name, version } }', team: '%D8%A7%D9%84%D9%85%D8%B5%D8%A7%D9%84%D8%AD%D8%A9'
+    assert_response :success
+    assert_equal t, assigns(:context_team)
+  end
+
+  test "should not create duplicated tag" do
+    authenticate_with_user
+    p = create_project team: @team
+    pm = create_project_media project: p
+    query = 'mutation create { createTag(input: { clientMutationId: "1", tag: "egypt", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '"}) { tag { id } } }'
+    post :create, query: query
+    assert_response :success
+    post :create, query: query
+    assert_response 400
+    assert_match /Tag already exists/, @response.body
+  end
+
+  test "should not change status if contributor" do
+    create_verification_status_stuff
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: create_team, user: u, role: 'owner'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s = pm.last_verification_status_obj
+    s = Dynamic.find(s.id)
+    f = s.get_field('verification_status_status')
+    assert_equal 'undetermined', f.reload.value
+    authenticate_with_user(u)
+
+    id = Base64.encode64("Dynamic/#{s.id}")
+    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { id } } }'
+    post :create, query: query, team: t.slug
+    assert_match /No permission to update Dynamic/, @response.body
+    assert_equal 'undetermined', f.reload.value
+    assert_response 400
+  end
+
+  test "should not assign status if contributor" do
+    create_verification_status_stuff
+    u = create_user
+    u2 = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: u2, role: 'contributor'
+    create_team_user team: create_team, user: u, role: 'owner'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s = pm.last_verification_status_obj
+    s = Dynamic.find(s.id)
+    f = s.get_field('verification_status_status')
+    assert_equal 'undetermined', f.reload.value
+    authenticate_with_user(u)
+
+    id = Base64.encode64("Dynamic/#{s.id}")
+    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", assigned_to_id: ' + u2.id.to_s + ' }) { project_media { id } } }'
+    post :create, query: query, team: t.slug
+    assert_match /No permission to update Dynamic/, @response.body
+    assert_equal 'undetermined', f.reload.value
+    assert_response 400
   end
 end

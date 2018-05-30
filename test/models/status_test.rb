@@ -8,19 +8,20 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should create status" do
-    assert_difference 'Status.length' do
+    assert_difference 'Dynamic.count' do
       create_status
     end
   end
 
   test "should set type automatically" do
     st = create_status
-    assert_equal 'status', st.annotation_type
+    assert_equal 'verification_status', st.annotation_type
   end
 
   test "should have status" do
-    assert_no_difference 'Status.length' do
-      assert_raises ActiveRecord::RecordInvalid do
+    create_verification_status_stuff
+    assert_no_difference 'Dynamic.count' do
+      assert_raises NoMethodError do
         create_status(status: nil)
         create_status(status: '')
       end
@@ -28,19 +29,16 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
+    create_verification_status_stuff
     s1 = create_project_source
     assert_equal [], s1.annotations
     s2 = create_project_source
     assert_equal [], s2.annotations
 
-    t1a = create_status annotated: nil
-    assert_nil t1a.annotated
-    t1b = create_status annotated: nil
-    assert_nil t1b.annotated
-    t2a = create_status annotated: nil
-    assert_nil t2a.annotated
-    t2b = create_status annotated: nil
-    assert_nil t2b.annotated
+    t1a = create_status
+    t1b = create_status
+    t2a = create_status
+    t2b = create_status
 
     s1.add_annotation t1a
     t1b.annotated = s1
@@ -59,23 +57,9 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal [t2a.id, t2b.id].sort, s2.reload.annotations.map(&:id).sort
   end
 
-  test "should create version when status is created" do
-    st = nil
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-    p = create_project team: t
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      st = create_status(status: 'undetermined', annotated: pm, annotator: u)
-    end
-    assert_equal 1, st.versions.count
-    v = st.versions.last
-    assert_equal 'create', v.event
-    assert_equal({"data"=>[{}, {"status"=>"undetermined"}], "annotator_type"=>[nil, "User"], "annotator_id"=>[nil, st.annotator_id], "annotated_type"=>[nil, "ProjectMedia"], "annotated_id"=>[nil, st.annotated_id], "annotation_type"=>[nil, "status"]}, v.changeset)
-  end
-
   test "should create version when status is updated" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     st = nil
     u = create_user
     t = create_team
@@ -84,33 +68,28 @@ class StatusTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
       st = create_status(status: 'undetermined', annotated: pm)
-      assert_equal 1, st.versions.count
-      st = Status.where(annotation_type: 'status').last
+      assert_equal 1, st.get_field('verification_status_status').versions.count
+      st = Dynamic.where(annotation_type: 'verification_status').last
       st.disable_es_callbacks = true
       st.status = 'verified'
       st.save!
-      assert_equal 2, st.versions.count
+      assert_equal 2, st.get_field('verification_status_status').versions.count
     end
     v = PaperTrail::Version.last
     assert_equal 'update', v.event
-    assert_equal({"data"=>[{"status"=>"undetermined"}, {"status"=>"verified"}]}, v.changeset)
+    assert_equal({"value"=>["undetermined", "verified"]}, v.changeset)
   end
 
   test "should get columns as array" do
-    assert_kind_of Array, Status.columns
+    assert_kind_of Array, Dynamic.columns
   end
 
   test "should get columns as hash" do
-    assert_kind_of Hash, Status.columns_hash
+    assert_kind_of Hash, Dynamic.columns_hash
   end
 
   test "should not be abstract" do
-    assert_not Status.abstract_class?
-  end
-
-  test "should have content" do
-    st = create_status
-    assert_equal ['status'], JSON.parse(st.content).keys
+    assert_not Dynamic.abstract_class?
   end
 
   test "should have annotators" do
@@ -133,6 +112,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should set annotator if not set" do
+    create_verification_status_stuff
     u = create_user
     t = create_team
     p = create_project team: t
@@ -157,7 +137,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should not create status with invalid value" do
-    assert_no_difference 'Status.length' do
+    assert_no_difference 'Dynamic.count' do
       assert_raise ActiveRecord::RecordInvalid do
         create_status status: 'invalid'
       end
@@ -165,7 +145,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should not create status with invalid annotated type" do
-    assert_no_difference 'Status.length' do
+    assert_no_difference 'Dynamic.count' do
       assert_raises ActiveRecord::RecordInvalid do
         create_status(status: 'false', annotated: create_project)
       end
@@ -173,6 +153,8 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when status is updated" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     if Bot::Slack.default.nil?
       b = Bot::Slack.new
       b.name = 'Slack Bot'
@@ -188,6 +170,7 @@ class StatusTest < ActiveSupport::TestCase
       pm = create_project_media project: p, media: m
       s = create_status status: 'false', annotator: u, annotated: pm
       assert_not s.sent_to_slack
+      s = Dynamic.find(s.id)
       s.status = 'verified'; s.save!
       assert s.sent_to_slack
       # claim report
@@ -195,6 +178,7 @@ class StatusTest < ActiveSupport::TestCase
       pm = create_project_media project: p, media: m
       s = create_status status: 'false', annotator: u, annotated: pm
       assert_not s.sent_to_slack
+      s = Dynamic.find(s.id)
       s.status = 'verified'; s.save!
       assert s.sent_to_slack
     end
@@ -206,18 +190,18 @@ class StatusTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
 
-    assert_difference  'Status.length' do
+    assert_difference  'Dynamic.count' do
       create_status annotated: pm, status: 'in_progress'
     end
     assert_raises ActiveRecord::RecordInvalid do
       create_status annotated: pm, status: '1'
     end
 
-    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', completed: '', description: 'Testing', style: 'foo' }] }
+    value = { label: 'Test', default: '1', active: '1', statuses: [{ id: '1', label: 'Analyzing', completed: '', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
-    assert_difference 'Status.length' do
+    assert_difference 'Dynamic.count' do
       create_status annotated: pm, status: '1'
     end
   end
@@ -226,21 +210,22 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     m = create_valid_media
+    pm = create_project_media media: m, project: p
 
-    assert_equal 'undetermined', Status.default_id(m.reload, p.reload)
+    assert_equal 'undetermined', Workflow::Workflow.options(pm, 'verification_status')[:default]
 
-    value = { label: 'Test', default: '1', statuses: [{ id: '1', label: 'Analyzing', completed: '', description: 'Testing', style: 'foo' }] }
+    value = { label: 'Test', active: '1', default: '1', statuses: [{ id: '1', label: 'Analyzing', completed: '', description: 'Testing', style: 'foo' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
-    assert_equal '1', Status.default_id(m.reload, p.reload)
+    assert_equal '1', Workflow::Workflow.options(pm.reload, 'verification_status')[:default]
 
-    value = { label: 'Test', default: '', statuses: [{ id: 'first', label: 'Analyzing', completed: '', description: 'Testing', style: 'bar' }] }
+    value = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', completed: '', description: 'Testing', style: 'bar' }] }
     t.set_media_verification_statuses(value)
     t.save!
 
-    assert_equal 'first', Status.default_id(m.reload, p.reload)
-    assert_equal 'undetermined', Status.default_id(m.reload)
+    assert_equal 'first', Workflow::Workflow.options(pm.reload, 'verification_status')[:default]
+    assert_equal 'undetermined', Workflow::Workflow.options(create_project_media, 'verification_status')[:default]
   end
 
   test "journalist should change status of own report" do
@@ -252,11 +237,11 @@ class StatusTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m
     Team.stubs(:current).returns(t)
     # Ticket #5373
-    assert_difference 'Status.length' do
+    assert_difference 'Dynamic.count' do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     m.user = u; m.save!
-    assert_difference 'Status.length' do
+    assert_difference 'Dynamic.count' do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     Team.unstub(:current)
@@ -271,11 +256,11 @@ class StatusTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m
     Team.stubs(:current).returns(t)
     # Ticket #5373
-    assert_difference 'Status.length' do
+    assert_difference 'Dynamic.count' do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     p.user = u; p.save!
-    assert_difference 'Status.length' do
+    assert_difference 'Dynamic.count' do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     Team.unstub(:current)
@@ -283,66 +268,10 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should normalize status" do
     s = nil
-    assert_difference 'Status.length' do
+    assert_difference 'Dynamic.count' do
       s = create_status status: 'Not Credible', annotated: create_project_source
     end
     assert_equal 'not_credible', s.reload.status
-  end
-
-  test "should display status label" do
-    t = create_team
-    value = {
-      label: 'Field label',
-      default: '1',
-      statuses: [
-        { id: '1', label: 'Foo', completed: '', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Bar', completed: '', description: 'The meaning of that status', style: 'blue' }
-      ]
-    }
-    t.set_media_verification_statuses(value)
-    t.save!
-    m = create_valid_media
-    p = create_project team: t
-    pm = create_project_media project: p, media: m
-    s = create_status status: '1', annotated: pm
-    assert_equal 'Foo', s.id_to_label('1')
-    assert_equal 'Bar', s.id_to_label('2')
-  end
-
-  test "should revert destroy status" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-    p = create_project team: t
-    m = create_valid_media
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p, media: m
-      s = Status.where(annotation_type: 'status', annotated_type: pm.class.to_s , annotated_id: pm.id).last
-      s.disable_es_callbacks = true
-      s.status = 'false'; s.save!
-      s.disable_es_callbacks = true
-      s.destroy
-      assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
-      s.disable_es_callbacks = true
-      s.status = 'Not Applicable'; s.save!; s.reload
-      s.disable_es_callbacks = true
-      s.status = 'false'; s.save!; s.reload
-      s.disable_es_callbacks = true
-      s.status = 'verified'; s.save!
-      assert_equal s.reload.status, 'verified'
-      s.disable_es_callbacks = true
-      s.destroy
-      assert_equal s.reload.status, 'false'
-      s.disable_es_callbacks = true
-      s.destroy
-      assert_equal s.reload.status, 'not_applicable'
-      s.disable_es_callbacks = true
-      s.destroy
-      assert_equal s.reload.status, Status.default_id(m.reload, p.reload)
-      s.disable_es_callbacks = true
-      s.destroy
-      assert_nil Status.where(id: s.id).last
-    end
   end
 
   test "should protect attributes from mass assignment" do
@@ -350,11 +279,14 @@ class StatusTest < ActiveSupport::TestCase
     params = ActionController::Parameters.new(raw_params)
 
     assert_raise ActiveModel::ForbiddenAttributesError do
-      Status.create(params)
+      Dynamic.create(params)
     end
   end
 
   test "should define Slack message" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
+    
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
@@ -363,23 +295,25 @@ class StatusTest < ActiveSupport::TestCase
     User.current = u
     
     s = create_status status: 'false', annotated: pm, annotator: u
+    s = Dynamic.find(s.id)
     s.status = 'verified'
     s.save!
-    assert_match /verification status/, s.slack_notification_message
+    assert_match /verification.status/, s.slack_notification_message
 
     u1 = create_user
     create_team_user user: u1, team: t
     u2 = create_user
     create_team_user user: u2, team: t
     s = create_status assigned_to_id: u1.id, annotated: pm, annotator: u, status: 'false'
+    s = Dynamic.find(s.id)
     s.assigned_to_id = u2.id
     s.save!
-    assert_match /\sassigned\s/, s.slack_notification_message
+    assert_match /[^n]assign/, s.slack_notification_message
 
-    s = Status.find(s.id)
+    s = Dynamic.find(s.id)
     s.assigned_to_id = 0
     s.save!
-    assert_match /\sunassigned\s/, s.slack_notification_message
+    assert_match /unassign/, s.slack_notification_message
 
     User.current = nil
   end
@@ -388,6 +322,7 @@ class StatusTest < ActiveSupport::TestCase
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
 
+    create_verification_status_stuff
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
@@ -405,7 +340,7 @@ class StatusTest < ActiveSupport::TestCase
       s.save!
     end
 
-    s = Status.find(s.id)
+    s = Dynamic.find(s.id)
     s.assigned_to_id = 0
     assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
       s.save!
@@ -418,21 +353,23 @@ class StatusTest < ActiveSupport::TestCase
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
 
+    create_verification_status_stuff
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
     p = create_project team: t
     pm = create_project_media project: p
-    s = pm.get_annotations('status').last
+    s = pm.get_annotations('verification_status').last
     s = s.load
     with_current_user_and_team(u, t) do
-      assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
-        s.status = 'verified'; s.save!
-      end
-      assert_no_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size' do
-        s.status = 'verified'; s.save!
-        s.status = 'in_progress'; s.save!
-      end
+      Sidekiq::Worker.clear_all
+      n = Sidekiq::Extensions::DelayedMailer.jobs.size
+      s.status = 'verified'; s.save!
+      assert Sidekiq::Extensions::DelayedMailer.jobs.size > n
+      n = Sidekiq::Extensions::DelayedMailer.jobs.size
+      s.status = 'verified'; s.save!
+      s.status = 'in_progress'; s.save!
+      assert_equal n, Sidekiq::Extensions::DelayedMailer.jobs.size
     end
   end
 end

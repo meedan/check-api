@@ -13,9 +13,9 @@ module TeamMutations
     private: 'bool',
     name: 'str',
     description: 'str',
-    set_slack_notifications_enabled: 'str',
-    set_slack_webhook: 'str',
-    set_slack_channel: 'str',
+    slack_notifications_enabled: 'str',
+    slack_webhook: 'str',
+    slack_channel: 'str',
     add_auto_task: 'json',
     remove_auto_task: 'str', # label
     contact: 'str',

@@ -352,8 +352,9 @@ class ProjectTest < ActiveSupport::TestCase
     assert_match(/team-t_project-p_.*/, p.export_filename(:csv))
   end
 
-  test "should export data" do
-    stub_config('app_name', 'Check') do
+  test "should export data for Check" do
+    create_verification_status_stuff
+    stub_config('default_workflow', 'verification_status') do
       p = create_project
       pm = create_project_media project: p, media: create_valid_media
       c = create_comment annotated: pm, text: 'Note 1'
@@ -366,10 +367,12 @@ class ProjectTest < ActiveSupport::TestCase
       assert_equal 'sports', exported_data.first[:tags]
       assert_equal c.text, exported_data.first[:note_content_1]
       assert_equal task.label, exported_data.first[:task_question_1]
-      assert_equal 'undetermined', exported_data.first[:report_status]
     end
-    stub_config('app_name', 'Bridge') do
-      create_translation_status_stuff
+  end
+
+  test "should export data for Bridge" do
+    create_translation_status_stuff
+    stub_config('default_workflow', 'translation_status') do
       at = create_annotation_type annotation_type: 'translation'
       create_field_instance name: 'translation_text', annotation_type_object: at
       create_field_instance name: 'translation_language', annotation_type_object: at
@@ -394,6 +397,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should export data to CSV" do
     create_translation_status_stuff
+    create_verification_status_stuff(false)
     at = create_annotation_type annotation_type: 'translation'
     create_field_instance name: 'translation_text', annotation_type_object: at
     create_field_instance name: 'translation_language', annotation_type_object: at

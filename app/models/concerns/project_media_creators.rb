@@ -3,24 +3,10 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  def set_initial_media_status
-    return if self.project.team.is_being_copied
-    st = Status.new
-    st.annotated = self
-    st.annotator = self.user
-    st.status = Status.default_id(self.media, self.project)
-    st.created_at = self.created_at
-    st.disable_es_callbacks = self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    st.skip_check_ability = true
-    st.skip_notifications = true
-    st.save!
-  end
-
   def add_extra_elasticsearch_data(ms)
     m = self.media
     ms.id = self.id
     ms.associated_type = self.media.type
-    ms.status = self.last_status unless CONFIG['app_name'] === 'Bridge'
     data = self.embed
     unless data.nil?
       ms.title = data['title']
@@ -53,7 +39,7 @@ module ProjectMediaCreators
       t.annotated = self
       t.skip_check_ability = true
       t.skip_notifications = true
-      t.disable_update_status = true
+      t.disable_update_status = true if t.respond_to?(:disable_update_status)
       t.save!
       created << t
       # set auto-response

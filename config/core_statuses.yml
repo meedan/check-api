@@ -80,6 +80,7 @@ MEDIA_CORE_TRANSLATION_STATUSES:
   -
     :description: "<%= I18n.t(:'statuses.translation.pending.description') %>"
     :id: pending
+    :role: contributor
     :completed: false
     :label: "<%= I18n.t(:'statuses.translation.pending.label') %>"
     :style:
@@ -88,6 +89,7 @@ MEDIA_CORE_TRANSLATION_STATUSES:
   -
     :description: "<%= I18n.t(:'statuses.translation.in_progress.description') %>"
     :id: in_progress
+    :role: contributor
     :completed: false
     :label: "<%= I18n.t(:'statuses.translation.in_progress.label') %>"
     :style:
@@ -96,6 +98,7 @@ MEDIA_CORE_TRANSLATION_STATUSES:
   -
     :description: "<%= I18n.t(:'statuses.translation.translated.description') %>"
     :id: translated
+    :role: contributor
     :completed: false
     :label: "<%= I18n.t(:'statuses.translation.translated.label') %>"
     :style:
@@ -104,6 +107,7 @@ MEDIA_CORE_TRANSLATION_STATUSES:
   -
     :description: "<%= I18n.t(:'statuses.translation.ready.description') %>"
     :id: ready
+    :role: editor
     :completed: true
     :label: "<%= I18n.t(:'statuses.translation.ready.label') %>"
     :style:
@@ -112,6 +116,7 @@ MEDIA_CORE_TRANSLATION_STATUSES:
   -
     :description: "<%= I18n.t(:'statuses.translation.error.description') %>"
     :id: error
+    :role: editor
     :completed: true
     :label: "<%= I18n.t(:'statuses.translation.error.label') %>"
     :style:
