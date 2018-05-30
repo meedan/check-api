@@ -96,7 +96,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, m)
       assert ability.cannot?(:destroy, own_media)
       assert ability.cannot?(:update, pm)
-      assert ability.cannot?(:update, own_pm)
+      assert ability.can?(:update, own_pm)
       assert ability.cannot?(:destroy, pm)
       assert ability.cannot?(:destroy, own_pm)
       assert ability.cannot?(:update, m2)
