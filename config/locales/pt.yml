@@ -116,8 +116,14 @@ pt:
   invalid_media_item: Desculpe, este não é um item de mídia válido
   invalid_default_status_for_custom_verification_status: Identificador de status padrão é inválido
   invalid_active_status_for_custom_verification_status: Identificador de status ativo é inválido
-  invalid_id_or_label_for_custom_verification_status: O identificador e o título de status são obrigatórios
+  invalid_label_for_custom_verification_status: Título de status é obrigatório
+  invalid_id_for_custom_verification_status: Identificador de status é obrigatório e aceita apenas letras, números, hífens e underscores
   invalid_statuses_format_for_custom_verification_status: "Os status de verificação personalizados devem ter válidos título, identificador, descrição, estilo e sinalizador de estado final."
+  invalid_default_status_for_custom_translation_status: Identificador de status padrão é inválido
+  invalid_active_status_for_custom_translation_status: Identificador de status ativo é inválido
+  invalid_label_for_custom_translation_status: Título de status é obrigatório
+  invalid_id_for_custom_translation_status: Identificador de status é obrigatório e aceita apenas letras, números, hífens e underscores
+  invalid_statuses_format_for_custom_translation_status: "Os status de tradução personalizados devem ter válidos título, identificador, descrição, estilo e sinalizador de estado final."
   mail_account_confirmation: "Confirmação da conta do %{app_name} "
   mail_request_to_join: "%{user} quer participar da equipe %{team} no %{app_name}!"
   approved: Aprovado!
@@ -250,13 +256,17 @@ pt:
   slack_assign_task: "*%{user}* atribuiu a tarefa %{url} a *%{assignee}* em *%{project}*"
   slack_unassign_task: "*%{user}* removeu a atribuição da tarefa %{url} de *%{assignee}* em *%{project}*"
   mail_see_it: "Você pode o ver aqui: "
-  mail_subject_assign_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
-  mail_subject_unassign_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
+  mail_subject_assign_verification_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
+  mail_subject_unassign_verification_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
+  mail_subject_assign_translation_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
+  mail_subject_unassign_translation_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
   mail_subject_assign_task: "[%{team} - %{project}] Uma tarefa foi atribuída para você"
   mail_subject_unassign_task: "[%{team} - %{project}] A atribuição de uma tarefa foi removida de você"
   mail_subject_update_status: "[%{team} - %{project}] Uma mídia foi marcada como %{status}"
-  mail_assign_status: "%{author} atribuiu para você a mídia intitulada "
-  mail_unassign_status: "%{author} removeu a atribuição da mídia intitulada "
+  mail_assign_verification_status: "%{author} atribuiu para você a mídia intitulada "
+  mail_unassign_verification_status: "%{author} removeu a atribuição da mídia intitulada "
+  mail_assign_translation_status: "%{author} atribuiu para você a mídia intitulada "
+  mail_unassign_translation_status: "%{author} removeu a atribuição da mídia intitulada "
   mail_assign_task: "%{author} atribuiu para você a tarefa \"%{task}\" que fica na mídia intitulada "
   mail_unassign_task: "%{author} removeu a atribuição da tarefa \"%{task}\" que fica na mídia intitulada "
   mail_update_status: "%{author}modificou o status de \"%{title}\" para %{status}"
@@ -267,6 +277,10 @@ pt:
   project_export_email_title_csv: "Seu relatório de projeto está pronto para baixar"
   workflow_status_not_valid: "Desculpe, este status não é válido"
   workflow_status_permission_error: "Desculpe, você não tem permissão para mudar este status"
+  blank_default_status_for_custom_translation_status: "Por favor, forneça um valor padrão para os status de tradução personalizada"
+  blank_active_status_for_custom_translation_status: "Por favor, forneça um valor ativo para os status de tradução personalizada"
+  blank_default_status_for_custom_verification_status: "Por favor, forneça um valor padrão para os status de verificação personalizada"
+  blank_active_status_for_custom_verification_status: "Por favor, forneça um valor ativo para os status de verificação personalizada"
   project_export_download_mail_csv: "Olá!\n\nVocê solicitou um relatório para o projeto %{project} - aqui está um link para baixar-lo: %{link}\n\nO relatório será baixado como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"
   project_export_email_title_images: "Imagens do seu projeto estão prontas para baixar"
   project_export_download_mail_images: "Olá!\n\nVocê solicitou um download de imagens do projeto %{project} - aqui está um link para baixar-las: %{link}\n\nAs imagens serão baixadas como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"

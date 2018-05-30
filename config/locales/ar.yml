@@ -120,8 +120,14 @@ ar:
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
   invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
-  invalid_id_or_label_for_custom_verification_status: مُعَرِّف حالة التحقق وعنوانها مطلوبان
+  invalid_label_for_custom_verification_status: عنوان حالة التحقق مطلوب
+  invalid_id_for_custom_verification_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف والأرقام و'-' و '_' فقط
   invalid_statuses_format_for_custom_verification_status: "حالات التحقق الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية."
+  invalid_default_status_for_custom_translation_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
+  invalid_active_status_for_custom_translation_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
+  invalid_label_for_custom_translation_status: عنوان حالة التحقق مطلوب
+  invalid_id_for_custom_translation_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف والأرقام و'-' و '_' فقط
+  invalid_statuses_format_for_custom_translation_status: "حالات الترجمة الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية."
   mail_account_confirmation: "تأكيد حساب %{app_name}"
   mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على %{app_name}"
   approved: تم الموافقة
@@ -266,13 +272,17 @@ ar:
   slack_assign_task: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
   slack_unassign_task: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
   mail_see_it: "تستطيع أن تراه هنا : "
-  mail_subject_assign_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
-  mail_subject_unassign_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
+  mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
+  mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
+  mail_subject_assign_translation_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
+  mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
   mail_subject_assign_task: "[%{team} - %{project}] تم تكليف مهمة إليك"
   mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء تكليف مهمة"
   mail_subject_update_status: "[%{team} - %{project}] تم تغيير حالة ميديا إلى %{status}"
-  mail_assign_status: "كلَّفَ(ت) %{author} إليك ميديا : "
-  mail_unassign_status: "ألغى(ت) %{author} تكليف ميديا : "
+  mail_assign_verification_status: "كلَّفَ(ت) %{author} إليك ميديا : "
+  mail_unassign_verification_status: "ألغى(ت) %{author} تكليف ميديا : "
+  mail_assign_translation_status: "كلَّفَ(ت) %{author} إليك ميديا : "
+  mail_unassign_translation_status: "ألغى(ت) %{author} تكليف ميديا : "
   mail_assign_task: "كلَّفَ(ت) %{author} إليك مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_unassign_task: "ألغى(ت) %{author} تكليف مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_update_status: "قام %{author} بتغيير حالة \"%{title}\" إلى %{status}."
@@ -283,6 +293,10 @@ ar:
   project_export_email_title_csv: "تقرير مشروعك جاهز للتحميل"
   workflow_status_not_valid: " عذراً ، هذه الحالة غير صحيحة"
   workflow_status_permission_error: "عذراً ، ليس مسموح لك تغيير هذه الحالة"
+  blank_default_status_for_custom_translation_status: "من فضلك أضف قيمة إفتراضية لحالات الترجمة الخاصة"
+  blank_active_status_for_custom_translation_status: "من فضلك أضف قيمة نشطة لحالات الترجمة الخاصة"
+  blank_default_status_for_custom_verification_status: "من فضلك أضف قيمة إفتراضية لحالات التحقق الخاصة"
+  blank_active_status_for_custom_verification_status: "من فضلك أضف قيمة نشطة لحالات التحقق الخاصة"
   project_export_download_mail_csv: "مرحباً !\n\nلقد طلبت تقريراً عن المشروع %{project} - إليك الرابط لتحميله : %{link}\n\nسوف يتم تحميل التقرير على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
   project_export_email_title_images: "صور مشروعك جاهزة للتحميل"
   project_export_download_mail_images: "مرحباً !\n\nلقد طلبت تحميل صور المشروع %{project} - إليك الرابط لتحميلها : %{link}\n\nسوف يتم تحميل الصور على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
