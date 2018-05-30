@@ -171,9 +171,6 @@ class Ability
     can :create, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
-    can :update, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
-    end
     can [:update, :destroy], Comment, ['annotation_type = ?', 'comment'] do |obj|
       obj.get_team.include?(@context_team.id) and (obj.annotator_id.to_i == @user.id) and !obj.annotated_is_archived? && !obj.locked?
     end

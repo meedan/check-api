@@ -116,8 +116,14 @@ fr:
   invalid_media_item: Désolé, ce média n'est pas valide
   invalid_default_status_for_custom_verification_status: Identifiant du statut de défaut non valide
   invalid_active_status_for_custom_verification_status: Identifiant du statut actif non valide
-  invalid_id_or_label_for_custom_verification_status: L'identifiant et l'étiquette du statut sont requises
-  invalid_statuses_format_for_custom_verification_status: "Les statuts de vérifications personnalisés doivent contenir des valeurs valides pour : étiquette, identifiant, description, style et indicateur d'état final."
+  invalid_label_for_custom_verification_status: L'étiquette du statut est requise
+  invalid_id_for_custom_verification_status: L'identifiant de statut est requis et il accepte uniquement les lettres, les chiffres, les tirets et les underscores
+  invalid_statuses_format_for_custom_verification_status: "Les statuts de vérification personnalisés doivent contenir des valeurs valides pour : étiquette, identifiant, description, style et indicateur d'état final."
+  invalid_default_status_for_custom_translation_status: Identifiant du statut de défaut non valide
+  invalid_active_status_for_custom_translation_status: Identifiant du statut actif non valide
+  invalid_label_for_custom_translation_status: L'étiquette du statut est requise
+  invalid_id_for_custom_translation_status: L'identifiant de statut est requis et il accepte uniquement les lettres, les chiffres, les tirets et les underscores
+  invalid_statuses_format_for_custom_translation_status: "Les statuts de traduction personnalisés doivent contenir des valeurs valides pour : étiquette, identifiant, description, style et indicateur d'état final."
   mail_account_confirmation: "Confirmation de votre compte %{app_name}"
   mail_request_to_join: "%{user} demande à se joindre à l'équipe %{team} sur %{app_name} !"
   approved: acceptée !
@@ -250,13 +256,17 @@ fr:
   slack_assign_task: "*%{user}* a affecté la tâche %{url} dans *%{project}* à *%{assignee}*"
   slack_unassign_task: "*%{user}* a désaffecté la tâche %{url} dans *%{project}* de *%{assignee}*"
   mail_see_it: "Vous pouvez le/la visionner à :"
-  mail_subject_assign_status: "[%{team} - %{project}] Un média vous a été affecté"
-  mail_subject_unassign_status: "[%{team} - %{project}] Un média a été désaffecté"
+  mail_subject_assign_verification_status: "[%{team} - %{project}] Un média vous a été affecté"
+  mail_subject_unassign_verification_status: "[%{team} - %{project}] Un média a été désaffecté"
+  mail_subject_assign_translation_status: "[%{team} - %{project}] Un média vous a été affecté"
+  mail_subject_unassign_translation_status: "[%{team} - %{project}] Un média a été désaffecté"
   mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été affectée"
   mail_subject_unassign_task: "[%{team} - %{project}] Une tâche a été désaffectée"
   mail_subject_update_status: "[%{team} - %{project}] Un média a été marqué comme %{status}"
-  mail_assign_status: "%{author} vous a affecté un média intitulé "
-  mail_unassign_status: "%{author} a désaffecté le média intitulé "
+  mail_assign_verification_status: "%{author} vous a affecté un média intitulé "
+  mail_unassign_verification_status: "%{author} a désaffecté le média intitulé "
+  mail_assign_translation_status: "%{author} vous a affecté un média intitulé "
+  mail_unassign_translation_status: "%{author} a désaffecté le média intitulé "
   mail_assign_task: "%{author} vous a affecté la tâche \"%{task}\" dans le média intitulé "
   mail_unassign_task: "%{author} a désaffecté la tâche \"%{task}\" dans le média intitulé "
   mail_update_status: "%{author} a fixé le statut de \"%{title}\" à %{status}."
@@ -267,6 +277,10 @@ fr:
   project_export_email_title_csv: "Votre rapport de projet est prêt à télécharger"
   workflow_status_not_valid: "Désolé, ce statut n'est pas valide"
   workflow_status_permission_error: "Désolé, vous n'êtes pas autorisé à modifier ce statut"
+  blank_default_status_for_custom_translation_status: "Prière de fournir une valeur de défaut pour les statuts de traduction personnalisés"
+  blank_active_status_for_custom_translation_status: "Prière de fournir une valeur active pour les statuts de traduction personnalisés"
+  blank_default_status_for_custom_verification_status: "Prière de fournir une valeur de défaut pour les statuts de vérification personnalisés"
+  blank_active_status_for_custom_verification_status: "Prière de fournir une valeur active pour les statuts de vérification personnalisés"
   project_export_download_mail_csv: "Bonjour !\n\nVous avez demandé un rapport du projet %{project} - voici le lien pour le télécharger : %{link}\n\nLe rapport sera téléchargé sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"
   project_export_email_title_images: "Les images de votre projet sont prêtes à télécharger"
   project_export_download_mail_images: "Bonjour !\n\nVous avez demandé à télécharger les images du projet %{project} - voici le lien : %{link}\n\nLes images seront téléchargées sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"

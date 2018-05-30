@@ -99,7 +99,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     p2 = create_project team: t
     m = create_valid_media user_id: u.id
-    create_team_user team: t, user: u
+    create_team_user team: t, user: u, role: 'journalist'
     pm = create_project_media project: p, media: m, user: u 
     with_current_user_and_team(u, t) do
       pm.project_id = p2.id; pm.save!
@@ -484,7 +484,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should check if project media belonged to a previous project" do
     t = create_team
     u = create_user
-    create_team_user user: u, team: t
+    create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     p2 = create_project team: t
     with_current_user_and_team(u, t) do
