@@ -1660,4 +1660,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert permissions.has_key?('update Status')
     end
   end
+
+  test "should not crash if media does not have status" do
+    pm = create_project_media
+    Annotation.delete_all
+    assert_nothing_raised do
+      assert_nil pm.last_verification_status_obj
+      assert_nil pm.last_translation_status_obj
+    end
+  end
 end

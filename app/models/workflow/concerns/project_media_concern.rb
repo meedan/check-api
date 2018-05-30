@@ -22,7 +22,7 @@ module Workflow
 
         ::Workflow::Workflow.workflow_ids.each do |id|
           define_method "last_#{id}_obj" do
-            self.get_annotations(id).first.load
+            self.get_annotations(id).first&.load
           end
 
           define_method "last_#{id}" do
