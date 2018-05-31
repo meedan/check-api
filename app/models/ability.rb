@@ -124,7 +124,7 @@ class Ability
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
     can :update, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id }}}
-    can :update, ProjectMedia do |obj|
+    can [:update, :administer_content], ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
