@@ -164,6 +164,7 @@ class ProjectMedia < ActiveRecord::Base
     ability ||= Ability.new
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
     perms["lock Annotation"] = ability.can?(:lock_annotation, self)
+    perms["administer Content"] = ability.can?(:administer_content, self)
     perms
   end
 
