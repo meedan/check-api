@@ -174,6 +174,13 @@ class ProjectMedia < ActiveRecord::Base
     unresolved.blank?
   end
 
+  def is_finished
+    statuses = Workflow::Workflow.options(self, self.default_media_status_type)[:statuses]
+    status_value = JSON.parse(self.last_status_obj.content)[0]['value']
+    current_status = statuses.select { |st| st['id'] == status_value }
+    current_status[0]['completed'] != "1"
+  end
+
   protected
 
   def initiate_embed_annotation(info)
