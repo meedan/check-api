@@ -3,7 +3,7 @@ class TerminalStatusMailer < ApplicationMailer
 
 	def notify(annotated, author, status)
 		team = annotated.project.team
-		recipients = team.recipients(author, 'editor')
+		recipients = team.recipients(author, ['editor', 'owner'])
 		@project_media = annotated
 		@info = {
       author: author.name,
