@@ -24,11 +24,6 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal pm, r.target
   end
 
-  test "should serialize flags" do
-    r = create_relationship
-    assert_kind_of Array, r.flags
-  end
-
   test "should not save if source is missing" do
     assert_raises ActiveRecord::StatementInvalid do
       assert_no_difference 'Relationship.count' do
@@ -45,63 +40,36 @@ class RelationshipTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not save if type is missing" do
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'Relationship.count' do
-        create_relationship kind: nil
-      end
-    end
-  end
-
-  test "should have a valid kind" do
-    assert_difference 'Relationship.count' do
-      create_relationship kind: 'part_of'
-    end
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'Relationship.count' do
-        create_relationship kind: 'invalid'
-      end
-    end
-  end
-
-  test "should have valid flags" do
-    assert_difference 'Relationship.count', 4 do
-      create_relationship flags: ['commutative', 'transitive']
-      create_relationship flags: ['commutative']
-      create_relationship flags: ['transitive']
-      create_relationship flags: []
-    end
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'Relationship.count' do
-        create_relationship flags: ['foo', 'commutative', 'transitive']
-        create_relationship flags: ['bar']
-      end
-    end
-  end
-
-  test "should get related reports based on relationship flags" do
-    pm1 = create_project_media
-    pm2 = create_project_media
-    pm3 = create_project_media
-    pm4 = create_project_media
-    pm5 = create_project_media
-    pm6 = create_project_media
-    pm7 = create_project_media
-    create_relationship source_id: pm1.id, target_id: pm2.id, flags: ['transitive']
-    create_relationship source_id: pm1.id, target_id: pm6.id, flags: []
-    create_relationship source_id: pm2.id, target_id: pm3.id, flags: []
-    create_relationship source_id: pm6.id, target_id: pm7.id, flags: []
-    create_relationship source_id: pm4.id, target_id: pm1.id, flags: ['commutative']
-    create_relationship source_id: pm5.id, target_id: pm1.id, flags: []
-    assert_equal [pm2, pm3, pm4, pm6].map(&:id).sort, pm1.related_reports.map(&:id).sort
-  end
-
   test "should destroy relationships when project media is destroyed" do
     pm = create_project_media
     create_relationship source_id: pm.id
     create_relationship target_id: pm.id
     assert_difference 'Relationship.count', -2 do
       pm.destroy
+    end
+  end
+
+  test "should validate relationship type" do
+    assert_raises ActiveRecord::RecordInvalid do
+      assert_no_difference 'Relationship.count' do
+        create_relationship relationship_type: { foo: 'foo', bar: 'bar' }
+        create_relationship relationship_type: { source: 1, target: 2 }
+        create_relationship relationship_type: 'invalid'
+        create_relationship relationship_type: ['invalid']
+        create_relationship relationship_type: nil
+      end
+    end
+  end
+
+  test "should not have duplicate relationships" do
+    s = create_project_media
+    t = create_project_media
+    name = { source: 'duplicates', target: 'duplicate_of' }
+    create_relationship source_id: s.id, target_id: t.id, relationship_type: name
+    assert_raises ActiveRecord::StatementInvalid do
+      assert_no_difference 'Relationship.count' do
+        create_relationship source_id: s.id, target_id: t.id, relationship_type: name
+      end
     end
   end
 end
