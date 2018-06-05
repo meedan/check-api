@@ -1190,9 +1190,9 @@ class GraphqlControllerTest < ActionController::TestCase
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     pm4 = create_project_media project: p
-    s1 = create_status status: 'verified', annotated: pm1
-    s2 = create_status status: 'verified', annotated: pm2
-    s3 = create_status status: 'verified', annotated: pm1
+    s1 = create_status status: 'in_progress', annotated: pm1
+    s2 = create_status status: 'in_progress', annotated: pm2
+    s3 = create_status status: 'in_progress', annotated: pm3
     s4 = create_status status: 'verified', annotated: pm4
     t1 = create_task annotated: pm1
     t2 = create_task annotated: pm3
