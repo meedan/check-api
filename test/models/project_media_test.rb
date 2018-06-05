@@ -1671,4 +1671,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_nil pm.last_translation_status_obj
     end
   end
+
+  test "should have parent and children reports" do
+    s1 = create_project_media
+    s2 = create_project_media
+    t1 = create_project_media
+    t2 = create_project_media
+    create_project_media
+    create_relationship source_id: s1.id, target_id: t1.id
+    create_relationship source_id: s2.id, target_id: t2.id
+    assert_equal [t1], s1.targets
+    assert_equal [t2], s2.targets
+    assert_equal [s1], t1.sources
+    assert_equal [s2], t2.sources
+  end
 end

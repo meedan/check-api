@@ -689,4 +689,19 @@ module SampleData
       create_field_instance annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings
     end
   end
+
+  def create_relationship(options = {})
+    options = {
+      source_id: create_project_media.id,
+      target_id: create_project_media.id,
+      kind: 'contains',
+      flags: ['commutative', 'transitive']
+    }.merge(options)
+    r = Relationship.new
+    options.each do |key, value|
+      r.send("#{key}=", value) if r.respond_to?("#{key}=")
+    end
+    r.save!
+    r
+  end
 end
