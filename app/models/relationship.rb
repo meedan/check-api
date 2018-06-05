@@ -1,24 +1,19 @@
 class Relationship < ActiveRecord::Base
-  FLAGS = ['commutative', 'transitive']
-  KINDS = ['contains', 'part_of']
-
   belongs_to :source, class_name: 'ProjectMedia'
   belongs_to :target, class_name: 'ProjectMedia'
 
-  serialize :flags
+  serialize :relationship_type
 
-  validates :kind, inclusion: { in: KINDS }
-  validate :flags_are_valid
-
-  def has_flag?(flag)
-    self.flags.map(&:to_s).include?(flag.to_s)
-  end
+  validate :relationship_type_is_valid
 
   private
 
-  def flags_are_valid
-    unless self.flags.is_a?(Array) && (self.flags - FLAGS).empty?
-      errors.add(:flags)
+  def relationship_type_is_valid
+    begin
+      value = self.relationship_type.with_indifferent_access
+      raise('Relationship type is invalid') unless (value.keys == ['source', 'target'] && value['source'].is_a?(String) && value['target'].is_a?(String))
+    rescue
+      errors.add(:relationship_type)
     end
   end
 end

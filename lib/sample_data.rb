@@ -694,8 +694,7 @@ module SampleData
     options = {
       source_id: create_project_media.id,
       target_id: create_project_media.id,
-      kind: 'contains',
-      flags: ['commutative', 'transitive']
+      relationship_type: { source: 'parent', target: 'child' }
     }.merge(options)
     r = Relationship.new
     options.each do |key, value|

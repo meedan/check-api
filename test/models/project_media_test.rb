@@ -1672,7 +1672,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have parent and children reports" do
+  test "should have relationships and parent and children reports" do
     s1 = create_project_media
     s2 = create_project_media
     t1 = create_project_media
