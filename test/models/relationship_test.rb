@@ -72,4 +72,20 @@ class RelationshipTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should start with targets count zero" do
+    pm = create_project_media
+    assert_equal 0, pm.targets_count
+  end
+
+  test "should increment and decrement targets count when relationship is created or destroyed" do
+    pm = create_project_media
+    assert_equal 0, pm.targets_count
+    create_relationship source_id: pm.id
+    assert_equal 1, pm.reload.targets_count
+    r = create_relationship source_id: pm.id
+    assert_equal 2, pm.reload.targets_count
+    r.destroy
+    assert_equal 1, pm.reload.targets_count
+  end
 end

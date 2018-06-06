@@ -6,6 +6,9 @@ class Relationship < ActiveRecord::Base
 
   validate :relationship_type_is_valid
 
+  after_create :increment_targets_count
+  after_destroy :decrement_targets_count
+
   private
 
   def relationship_type_is_valid
@@ -15,5 +18,13 @@ class Relationship < ActiveRecord::Base
     rescue
       errors.add(:relationship_type)
     end
+  end
+
+  def increment_targets_count
+    self.source.update_column(:targets_count, self.source.targets_count + 1)
+  end
+
+  def decrement_targets_count
+    self.source.update_column(:targets_count, self.source.targets_count - 1)
   end
 end
