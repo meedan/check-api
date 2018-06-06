@@ -1507,4 +1507,31 @@ class ElasticSearchTest < ActionController::TestCase
     result = CheckSearch.new({keyword: "search / quote"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
   end
+
+  test "should search by custom status with hyphens" do
+    stub_config('app_name', 'Check') do
+      value = {
+        label: 'Status',
+        default: 'foo-bar',
+        active: 'foo-bar',
+        statuses: [
+          { id: 'foo-bar', label: 'Foo Bar', completed: '', description: '', style: 'blue' }
+        ]
+      }
+      t = create_team
+      t.set_media_verification_statuses(value)
+      t.save!
+      p = create_project team: t
+      m = create_valid_media
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      assert_equal 'foo-bar', pm.last_verification_status
+      sleep 5
+      result = CheckSearch.new({verification_status: ['foo']}.to_json)
+      assert_empty result.medias
+      result = CheckSearch.new({verification_status: ['bar']}.to_json)
+      assert_empty result.medias
+      result = CheckSearch.new({verification_status: ['foo-bar']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+    end
+  end
 end

@@ -47,7 +47,7 @@ module CheckElasticSearchModel
   end
 
   def self.reindex_es_data(mapping_keys = nil)
-    mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch] if mapping_keys.nil?
+    mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch, AccountSearch] if mapping_keys.nil?
     source_index = CheckElasticSearchModel.get_index_name
     target_index = "#{source_index}_reindex"
     begin
