@@ -1673,12 +1673,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should return whether in final state or not" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
+    create_translation_status_stuff(false)
     pm = create_project_media
     assert_equal false, pm.is_finished?
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
+    s = pm.last_status_obj
+    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
     s.save!
     assert_equal true, pm.is_finished?
   end
