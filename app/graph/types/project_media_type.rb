@@ -214,5 +214,17 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :relationships do
+    type -> { RelationshipsType }
+
+    resolve -> (project_media, _args, _ctx) do
+      OpenStruct.new({
+        id: project_media.id,
+        project_media_id: project_media.id,
+        targets_count: project_media.targets_count
+      })
+    end
+  end
+
   # End of fields
 end

@@ -9,6 +9,29 @@ class Relationship < ActiveRecord::Base
   after_create :increment_targets_count
   after_destroy :decrement_targets_count
 
+  def siblings
+    ProjectMedia
+    .joins(:target_relationships)
+    .where('relationships.source_id': self.source_id)
+    .where('relationships.relationship_type = ?', self.relationship_type.to_yaml)
+    .where.not('relationships.target_id': self.target_id)
+  end
+
+  def self.targets_grouped_by_type(project_media)
+    targets = {}
+    project_media.source_relationships.includes(:target).each do |relationship|
+      key = relationship.relationship_type.to_json
+      targets[key] ||= []
+      targets[key] << relationship.target
+    end
+    list = []
+    targets.each do |key, value|
+      id = [project_media.id, key].join(':')
+      list << { type: key, targets: value, id: id }.with_indifferent_access
+    end
+    list
+  end
+
   private
 
   def relationship_type_is_valid
