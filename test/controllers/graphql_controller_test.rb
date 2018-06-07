@@ -1374,4 +1374,18 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: "query Query { node(id: \"#{id}\") { id } }"
     assert_equal id2, JSON.parse(@response.body)['data']['node']['id']
   end
+
+  test "should create related report" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'contributor'
+    authenticate_with_user(u)
+    query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", clientMutationId: "1", project_id: ' + p.id.to_s + ', related_to_id: ' + pm.id.to_s + ' }) { project_media { id } } }'
+    assert_difference 'Relationship.count' do
+      post :create, query: query, team: t
+    end
+    assert_response :success
+  end
 end
