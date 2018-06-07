@@ -1,4 +1,6 @@
 class Relationship < ActiveRecord::Base
+  include CheckElasticSearch
+
   belongs_to :source, class_name: 'ProjectMedia'
   belongs_to :target, class_name: 'ProjectMedia'
 
@@ -7,8 +9,8 @@ class Relationship < ActiveRecord::Base
   validate :relationship_type_is_valid
 
   before_update { |relationship| raise ActiveRecord::ReadOnlyRecord }
-  after_create :increment_counters
-  after_destroy :decrement_counters
+  after_create :increment_counters, :index_source
+  after_destroy :decrement_counters, :unindex_source
 
   def siblings
     ProjectMedia
@@ -52,5 +54,13 @@ class Relationship < ActiveRecord::Base
   def decrement_counters
     self.source.update_column(:targets_count, self.source.targets_count - 1)
     self.target.update_column(:sources_count, self.target.sources_count - 1)
+  end
+
+  def index_source
+    self.update_media_search(['relationship_source_id'], { 'relationship_source_id' => self.source_id }, self.target)
+  end
+
+  def unindex_source
+    self.update_media_search(['relationship_source_id'], { 'relationship_source_id' => '0' }, self.target)
   end
 end
