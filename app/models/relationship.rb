@@ -35,6 +35,20 @@ class Relationship < ActiveRecord::Base
     list
   end
 
+  protected
+
+  def es_values
+    list = []
+    self.target.target_relationships.each do |relationship|
+      list << relationship.es_value
+    end
+    list
+  end
+
+  def es_value
+    Digest::MD5.hexdigest(self.relationship_type.to_json) + '_' + self.source_id.to_s
+  end
+
   private
 
   def relationship_type_is_valid
@@ -57,10 +71,12 @@ class Relationship < ActiveRecord::Base
   end
 
   def index_source
-    self.update_media_search(['relationship_source_id'], { 'relationship_source_id' => self.source_id }, self.target)
+    self.update_media_search(['relationship_sources'], { 'relationship_sources' => self.es_values }, self.target)
   end
 
   def unindex_source
-    self.update_media_search(['relationship_source_id'], { 'relationship_source_id' => '0' }, self.target)
+    value = self.es_values - [self.es_value]
+    value = ['-'] if value.empty?
+    self.update_media_search(['relationship_sources'], { 'relationship_sources' => value }, self.target)
   end
 end

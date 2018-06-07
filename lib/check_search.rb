@@ -39,6 +39,15 @@ class CheckSearch
     'CheckSearch'
   end
 
+  def get_ids_from_result(results)
+    relationship_type = @options['relationship_type']
+    results.collect do |result|
+      sources = result.relationship_sources || []
+      source = relationship_type.blank? ? sources.first : sources.select{ |x| x.split('_').first == Digest::MD5.hexdigest(relationship_type) }.first
+      (source.blank? || source == '-') ? result.annotated_id : source.split('_').last
+    end
+  end
+
   def medias
     return [] unless @options['show'].include?('medias')
     return @medias if @medias
@@ -48,7 +57,7 @@ class CheckSearch
     filters[:sources_count] = 0
     if should_hit_elasticsearch?
       query = medias_build_search_query
-      ids = medias_get_search_result(query).collect{ |x| x.relationship_source_id.to_i == 0 ? x.annotated_id : x.relationship_source_id }
+      ids = get_ids_from_result(medias_get_search_result(query))
       items = ProjectMedia.where(filters.merge({ id: ids })).eager_load(:media)
       @medias = sort_es_items(items, ids)
     else
