@@ -6,8 +6,9 @@ class Relationship < ActiveRecord::Base
 
   validate :relationship_type_is_valid
 
-  after_create :increment_targets_count
-  after_destroy :decrement_targets_count
+  before_update { |relationship| raise ActiveRecord::ReadOnlyRecord }
+  after_create :increment_counters
+  after_destroy :decrement_counters
 
   def siblings
     ProjectMedia
@@ -43,11 +44,13 @@ class Relationship < ActiveRecord::Base
     end
   end
 
-  def increment_targets_count
+  def increment_counters
     self.source.update_column(:targets_count, self.source.targets_count + 1)
+    self.target.update_column(:sources_count, self.target.sources_count + 1)
   end
 
-  def decrement_targets_count
+  def decrement_counters
     self.source.update_column(:targets_count, self.source.targets_count - 1)
+    self.target.update_column(:sources_count, self.target.sources_count - 1)
   end
 end

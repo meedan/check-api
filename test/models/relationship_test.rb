@@ -78,15 +78,28 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal 0, pm.targets_count
   end
 
-  test "should increment and decrement targets count when relationship is created or destroyed" do
-    pm = create_project_media
-    assert_equal 0, pm.targets_count
-    create_relationship source_id: pm.id
-    assert_equal 1, pm.reload.targets_count
-    r = create_relationship source_id: pm.id
-    assert_equal 2, pm.reload.targets_count
+  test "should increment and decrement counters when relationship is created or destroyed" do
+    s = create_project_media
+    t = create_project_media
+    assert_equal 0, s.targets_count
+    assert_equal 0, s.sources_count
+    assert_equal 0, t.targets_count
+    assert_equal 0, t.sources_count
+    create_relationship source_id: s.id, target_id: t.id, relationship_type: { source: 'foo', target: 'bar' }
+    assert_equal 1, s.reload.targets_count
+    assert_equal 0, s.reload.sources_count
+    assert_equal 1, t.reload.sources_count
+    assert_equal 0, t.reload.targets_count
+    r = create_relationship source_id: s.id, target_id: t.id
+    assert_equal 2, s.reload.targets_count
+    assert_equal 0, s.reload.sources_count
+    assert_equal 2, t.reload.sources_count
+    assert_equal 0, t.reload.targets_count
     r.destroy
-    assert_equal 1, pm.reload.targets_count
+    assert_equal 1, s.reload.targets_count
+    assert_equal 0, s.reload.sources_count
+    assert_equal 1, t.reload.sources_count
+    assert_equal 0, t.reload.targets_count
   end
 
   test "should return siblings" do
@@ -165,6 +178,14 @@ class RelationshipTest < ActiveSupport::TestCase
           create_project_media related_to_id: id
         end
       end
+    end
+  end
+
+  test "should not update relationship" do
+    r = create_relationship
+    r.relationship_type = { source: 'foo', target: 'bar' }
+    assert_raises ActiveRecord::ReadOnlyRecord do
+      r.save!
     end
   end
 end
