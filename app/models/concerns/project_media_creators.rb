@@ -209,4 +209,20 @@ module ProjectMediaCreators
       end
     end
   end
+
+  def create_relationship(type = { source: 'parent', target: 'child' })
+    unless self.related_to_id.nil?
+      related = ProjectMedia.where(id: self.related_to_id).last
+      if !related.nil? && related.project_id == self.project_id
+        r = Relationship.new
+        r.skip_check_ability = true
+        r.relationship_type = type
+        r.source_id = related.id
+        r.target_id = self.id
+        r.save!
+      else
+        raise 'Could not create related report'
+      end
+    end
+  end
 end

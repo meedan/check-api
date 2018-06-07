@@ -6,7 +6,8 @@ module ProjectMediaMutations
     quote: 'str',
     quote_attributions: 'str',
     set_annotation: 'str',
-    set_tasks_responses: 'json'
+    set_tasks_responses: 'json',
+    related_to_id: 'int'
   }
 
   update_fields = {

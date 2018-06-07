@@ -131,4 +131,40 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal [t1, t2].sort, targets[1]['targets'].sort
     assert_equal [t3, t4].sort, targets[2]['targets'].sort
   end
+
+  test "should create related report" do
+    p = create_project
+    pm = create_project_media project: p
+    assert_difference 'ProjectMedia.count' do
+      assert_difference 'Relationship.count' do
+        assert_nothing_raised do
+          create_project_media related_to_id: pm, project: p
+        end
+      end
+    end
+  end
+
+  test "should not create related report if project is not the same" do
+    pm = create_project_media
+    assert_no_difference 'ProjectMedia.count' do
+      assert_no_difference 'Relationship.count' do
+        assert_raises RuntimeError do
+          create_project_media related_to_id: pm
+        end
+      end
+    end
+  end
+
+  test "should not create related report if source report does not exist" do
+    pm = create_project_media
+    id = pm.id
+    pm.delete
+    assert_no_difference 'ProjectMedia.count' do
+      assert_no_difference 'Relationship.count' do
+        assert_raises RuntimeError do
+          create_project_media related_to_id: id
+        end
+      end
+    end
+  end
 end

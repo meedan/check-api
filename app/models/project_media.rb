@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created
+  attr_accessor :quote, :quote_attributions, :file, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created, :related_to_id
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -15,7 +15,7 @@ class ProjectMedia < ActiveRecord::Base
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :project_id }
 
-  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
+  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source, :create_relationship
   after_update :move_media_sources
 
   notifies_pusher on: [:save, :destroy],
