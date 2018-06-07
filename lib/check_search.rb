@@ -45,9 +45,10 @@ class CheckSearch
     @medias = []
     filters = {}
     filters[:archived] = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
+    filters[:sources_count] = 0
     if should_hit_elasticsearch?
       query = medias_build_search_query
-      ids = medias_get_search_result(query).map(&:annotated_id)
+      ids = medias_get_search_result(query).collect{ |x| x.relationship_source_id.to_i == 0 ? x.annotated_id : x.relationship_source_id }
       items = ProjectMedia.where(filters.merge({ id: ids })).eager_load(:media)
       @medias = sort_es_items(items, ids)
     else
