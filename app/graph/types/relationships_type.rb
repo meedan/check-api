@@ -7,7 +7,7 @@ RelationshipsType = GraphQL::ObjectType.define do
   field :targets_count, types.Int
 
   connection :sources, -> { RelationshipsSourceType.connection_type } do
-    resolve ->(obj, args, _ctx) {
+    resolve ->(obj, _args, _ctx) {
       project_media = ProjectMedia.find(obj.project_media_id)
       project_media.target_relationships.includes(:source).collect do |relationship|
         OpenStruct.new({
