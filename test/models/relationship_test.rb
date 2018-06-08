@@ -4,6 +4,7 @@ class RelationshipTest < ActiveSupport::TestCase
   def setup
     super
     Relationship.delete_all
+    Sidekiq::Testing.inline!
   end
 
   test "should create relationship" do
@@ -187,5 +188,36 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::ReadOnlyRecord do
       r.save!
     end
+  end
+
+  test "should archive or restore medias when source is archived or restored" do
+    s = create_project_media
+    t1 = create_project_media
+    t2 = create_project_media
+    create_relationship source_id: s.id, target_id: t1.id
+    create_relationship source_id: s.id, target_id: t2.id
+    assert !t1.reload.archived
+    assert !t2.reload.archived
+    s.archived = true
+    s.save!
+    assert t1.reload.archived
+    assert t2.reload.archived
+    s.archived = false
+    s.save!
+    assert !t1.reload.archived
+    assert !t2.reload.archived
+  end
+
+  test "should delete medias when source is deleted" do
+    s = create_project_media
+    t1 = create_project_media
+    t2 = create_project_media
+    create_relationship source_id: s.id, target_id: t1.id
+    create_relationship source_id: s.id, target_id: t2.id
+    assert_not_nil ProjectMedia.where(id: t1.id).last
+    assert_not_nil ProjectMedia.where(id: t2.id).last
+    s.destroy
+    assert_nil ProjectMedia.where(id: t1.id).last
+    assert_nil ProjectMedia.where(id: t2.id).last
   end
 end
