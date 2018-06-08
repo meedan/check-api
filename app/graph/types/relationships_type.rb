@@ -22,9 +22,12 @@ RelationshipsType = GraphQL::ObjectType.define do
   end
 
   connection :targets, -> { RelationshipsTargetType.connection_type } do
+    argument :filters, types.String
+    
     resolve ->(obj, args, _ctx) {
       project_media = ProjectMedia.find(obj.project_media_id)
-      Relationship.targets_grouped_by_type(project_media).collect{ |x| OpenStruct.new(x) }
+      filters = args['filters'].blank? ? nil : JSON.parse(args['filters'])
+      Relationship.targets_grouped_by_type(project_media, filters).collect{ |x| OpenStruct.new(x) }
     }
   end
 end
