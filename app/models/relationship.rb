@@ -8,7 +8,7 @@ class Relationship < ActiveRecord::Base
 
   validate :relationship_type_is_valid
 
-  before_update { |relationship| raise ActiveRecord::ReadOnlyRecord }
+  before_update { raise ActiveRecord::ReadOnlyRecord }
   after_create :increment_counters, :index_source
   after_destroy :decrement_counters, :unindex_source
 
