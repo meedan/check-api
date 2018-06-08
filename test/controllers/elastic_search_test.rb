@@ -1178,13 +1178,7 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should reindex data" do
-    # Test raising error for re-index
-    MediaSearch.stubs(:delete_index).raises(StandardError)
-    CheckElasticSearchModel.reindex_es_data
-    MediaSearch.unstub(:delete_index)
 
-    Rails.logger.stubs(:debug).raises(StandardError)
-    mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch]
     source_index = CheckElasticSearchModel.get_index_name
     target_index = "#{source_index}_reindex"
     MediaSearch.delete_index(target_index)
@@ -1192,18 +1186,13 @@ class ElasticSearchTest < ActionController::TestCase
     sleep 1
     assert_equal 1, MediaSearch.length
     # Test migrate data into target index
-    MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+    MediaSearch.migrate_es_data(source_index, target_index)
     sleep 1
     MediaSearch.index_name = target_index
     assert_equal 1, MediaSearch.length
     MediaSearch.delete_index
     MediaSearch.index_name = source_index
     MediaSearch.create_index
-
-    Rails.logger.stubs(:error).once
-    sleep 1
-    MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
-    Rails.logger.unstub(:error)
 
     MediaSearch.delete_index(target_index)
     MediaSearch.index_name = source_index
@@ -1213,7 +1202,6 @@ class ElasticSearchTest < ActionController::TestCase
     sleep 1
     MediaSearch.index_name = source_index
     assert_equal 1, MediaSearch.length
-    Rails.logger.unstub(:debug)
   end
 
   test "should create comment" do
