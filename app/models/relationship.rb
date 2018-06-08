@@ -20,12 +20,19 @@ class Relationship < ActiveRecord::Base
     .where.not('relationships.target_id': self.target_id)
   end
 
-  def self.targets_grouped_by_type(project_media)
+  def self.targets_grouped_by_type(project_media, filters = nil)
     targets = {}
+    ids = nil
+    unless filters.nil?
+      filters['projects'] ||= [project_media.project_id.to_s]
+      search = CheckSearch.new(filters.to_json)
+      query = search.medias_build_search_query
+      ids = search.medias_get_search_result(query).map(&:annotated_id).map(&:to_i)
+    end
     project_media.source_relationships.includes(:target).each do |relationship|
       key = relationship.relationship_type.to_json
       targets[key] ||= []
-      targets[key] << relationship.target
+      targets[key] << relationship.target if ids.nil? || ids.include?(relationship.target_id)
     end
     list = []
     targets.each do |key, value|
