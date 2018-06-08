@@ -46,14 +46,21 @@ class Relationship < ActiveRecord::Base
 
   def es_values
     list = []
-    self.target.target_relationships.each do |relationship|
-      list << relationship.es_value
+    unless self.target.nil?
+      self.target.target_relationships.each do |relationship|
+        list << relationship.es_value
+      end
     end
     list
   end
 
   def es_value
     Digest::MD5.hexdigest(self.relationship_type.to_json) + '_' + self.source_id.to_s
+  end
+
+  def update_counters(value)
+    self.source.update_column(:targets_count, self.source.targets_count + value) unless self.source.nil?
+    self.target.update_column(:sources_count, self.target.sources_count + value) unless self.target.nil?
   end
 
   private
@@ -68,13 +75,11 @@ class Relationship < ActiveRecord::Base
   end
 
   def increment_counters
-    self.source.update_column(:targets_count, self.source.targets_count + 1)
-    self.target.update_column(:sources_count, self.target.sources_count + 1)
+    self.update_counters(1)
   end
 
   def decrement_counters
-    self.source.update_column(:targets_count, self.source.targets_count - 1)
-    self.target.update_column(:sources_count, self.target.sources_count - 1)
+    self.update_counters(-1)
   end
 
   def index_source

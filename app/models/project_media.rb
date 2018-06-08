@@ -16,7 +16,8 @@ class ProjectMedia < ActiveRecord::Base
   validates :media_id, uniqueness: { scope: :project_id }
 
   after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source, :create_relationship
-  after_update :move_media_sources
+  after_update :move_media_sources, :archive_or_restore_related_medias_if_needed
+  after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
@@ -172,6 +173,19 @@ class ProjectMedia < ActiveRecord::Base
     required_tasks = self.required_tasks
     unresolved = required_tasks.select{ |t| t.status != 'Resolved' }
     unresolved.blank?
+  end
+
+  def self.archive_or_restore_related_medias(archived, project_media_id)
+    ids = Relationship.where(source_id: project_media_id).map(&:target_id)
+    ProjectMedia.where(id: ids).update_all(archived: archived)
+  end
+
+  def self.destroy_related_medias(project_media_id)
+    relationships = Relationship.where(source_id: project_media_id)
+    targets = relationships.map(&:target)
+    relationships.destroy_all
+    targets.map(&:destroy)
+    Relationship.where(target_id: project_media_id).destroy_all
   end
 
   protected
