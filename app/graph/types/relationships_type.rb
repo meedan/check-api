@@ -6,6 +6,7 @@ RelationshipsType = GraphQL::ObjectType.define do
 
   field :target_id, types.String
   field :targets_count, types.Int
+  field :sources_count, types.Int
 
   connection :sources, -> { RelationshipsSourceType.connection_type } do
     resolve ->(obj, _args, _ctx) {
