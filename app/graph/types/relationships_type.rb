@@ -3,7 +3,8 @@ RelationshipsType = GraphQL::ObjectType.define do
   description 'The sources and targets relationships of the project media'
   interfaces [NodeIdentification.interface]
   global_id_field :id
-  
+
+  field :target_id, types.String
   field :targets_count, types.Int
 
   connection :sources, -> { RelationshipsSourceType.connection_type } do

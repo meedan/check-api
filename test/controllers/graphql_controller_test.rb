@@ -1362,7 +1362,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 1, targets[2]['targets']['edges'].size
 
     assert_equal Base64.encode64("Relationships/#{pm.id}"), data['id']
-    assert_equal Base64.encode64("RelationshipsTarget/#{pm.id}:#{{ source: 'duplicates', target: 'duplicate_of' }.to_json}"), targets[0]['id']
+    assert_equal Base64.encode64("RelationshipsTarget/#{pm.id}/#{{ source: 'duplicates', target: 'duplicate_of' }.to_json}"), targets[0]['id']
     assert_equal Base64.encode64("RelationshipsSource/#{r.id}"), sources[0]['id']
   end
 

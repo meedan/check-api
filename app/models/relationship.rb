@@ -36,10 +36,18 @@ class Relationship < ActiveRecord::Base
     end
     list = []
     targets.each do |key, value|
-      id = [project_media.id, key].join(':')
-      list << { type: key, targets: value, id: id }.with_indifferent_access
+      id = [project_media.id, key].join('/')
+      list << { type: key, targets: value.reverse, id: id }.with_indifferent_access
     end
     list
+  end
+
+  def self.default_type
+    { source: 'parent', target: 'child' }
+  end
+
+  def self.target_id(project_media, type = Relationship.default_type)
+    Base64.encode64("RelationshipsTarget/#{project_media.id}/#{type.to_json}")
   end
 
   protected

@@ -210,7 +210,7 @@ module ProjectMediaCreators
     end
   end
 
-  def create_relationship(type = { source: 'parent', target: 'child' })
+  def create_relationship(type = Relationship.default_type)
     unless self.related_to_id.nil?
       related = ProjectMedia.where(id: self.related_to_id).last
       if !related.nil? && related.project_id == self.project_id
