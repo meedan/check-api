@@ -222,7 +222,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
         id: project_media.id,
         target_id: Relationship.target_id(project_media),
         project_media_id: project_media.id,
-        targets_count: project_media.targets_count
+        targets_count: project_media.targets_count,
+        sources_count: project_media.sources_count
       })
     end
   end
