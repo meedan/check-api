@@ -220,6 +220,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     resolve -> (project_media, _args, _ctx) do
       OpenStruct.new({
         id: project_media.id,
+        target_id: Relationship.target_id(project_media),
         project_media_id: project_media.id,
         targets_count: project_media.targets_count
       })

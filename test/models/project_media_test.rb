@@ -1685,4 +1685,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal [s1], t1.sources
     assert_equal [s2], t2.sources
   end
+
+  test "should get relationship target" do
+    pm = create_project_media
+    assert_nil pm.relationships_target
+    pm.related_to_id = 1
+    assert_not_nil pm.relationships_target.id
+  end
 end

@@ -220,4 +220,12 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_nil ProjectMedia.where(id: t1.id).last
     assert_nil ProjectMedia.where(id: t2.id).last
   end
+
+  test "should have a default type" do
+    assert_not_nil Relationship.default_type
+  end
+
+  test "should get target id" do
+    assert_kind_of String, Relationship.target_id(create_project_media)
+  end
 end
