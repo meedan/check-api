@@ -1363,7 +1363,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     assert_equal Base64.encode64("Relationships/#{pm.id}"), data['id']
     assert_equal Base64.encode64("RelationshipsTarget/#{pm.id}/#{{ source: 'duplicates', target: 'duplicate_of' }.to_json}"), targets[0]['id']
-    assert_equal Base64.encode64("RelationshipsSource/#{r.id}"), sources[0]['id']
+    assert_equal Base64.encode64("RelationshipsSource/#{r.source_id}/#{{ source: 'parent', target: 'child' }.to_json}"), sources[0]['id']
   end
 
   test "should get relationship from global id" do

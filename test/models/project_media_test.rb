@@ -1692,4 +1692,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.related_to_id = 1
     assert_not_nil pm.relationships_target.id
   end
+
+  test "should get relationship source" do
+    pm = create_project_media
+    assert_nil pm.relationships_source
+    pm.related_to_id = 1
+    assert_not_nil pm.relationships_source.id
+  end
 end
