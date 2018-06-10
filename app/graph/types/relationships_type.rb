@@ -19,7 +19,7 @@ RelationshipsType = GraphQL::ObjectType.define do
           relationship_id: relationship.id,
           source: relationship.source,
           type: type,
-          siblings: relationship.siblings
+          siblings: relationship.siblings(true)
         })
       end
     }

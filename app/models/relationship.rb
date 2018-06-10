@@ -12,13 +12,13 @@ class Relationship < ActiveRecord::Base
   after_create :increment_counters, :index_source
   after_destroy :decrement_counters, :unindex_source
 
-  def siblings
-    ProjectMedia
+  def siblings(inclusive = false)
+    query = ProjectMedia
     .joins(:target_relationships)
     .where('relationships.source_id': self.source_id)
     .where('relationships.relationship_type = ?', self.relationship_type.to_yaml)
-    .where.not('relationships.target_id': self.target_id)
     .order('id DESC')
+    inclusive ? query : query.where.not('relationships.target_id': self.target_id)
   end
 
   def self.targets_grouped_by_type(project_media, filters = nil)

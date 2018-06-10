@@ -1388,4 +1388,26 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_response :success
   end
+
+  test "should return permissions of sibling report" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm1 = create_project_media project: p
+    create_relationship source_id: pm.id, target_id: pm1.id
+    pm1.archived = true
+    pm1.save!
+     
+    authenticate_with_user
+    
+    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") {permissions,relationships{sources{edges{node{siblings{edges{node{permissions}}},source{permissions}}}}}}}"
+    post :create, query: query, team: t.slug
+    
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+
+    assert_equal data['permissions'], data['relationships']['sources']['edges'][0]['node']['siblings']['edges'][0]['node']['permissions']
+    assert_not_equal data['relationships']['sources']['edges'][0]['node']['siblings']['edges'][0]['node']['permissions'], data['relationships']['sources']['edges'][0]['node']['source']['permissions']
+    assert_not_equal data['permissions'], data['relationships']['sources']['edges'][0]['node']['source']['permissions']
+  end
 end
