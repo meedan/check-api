@@ -1390,15 +1390,17 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should return permissions of sibling report" do
+    u = create_user
     t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
-    pm1 = create_project_media project: p
+    pm1 = create_project_media project: p, user: u
     create_relationship source_id: pm.id, target_id: pm1.id
     pm1.archived = true
     pm1.save!
      
-    authenticate_with_user
+    authenticate_with_user(u)
     
     query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") {permissions,relationships{sources{edges{node{siblings{edges{node{permissions}}},source{permissions}}}}}}}"
     post :create, query: query, team: t.slug
