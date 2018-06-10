@@ -18,6 +18,7 @@ class Relationship < ActiveRecord::Base
     .where('relationships.source_id': self.source_id)
     .where('relationships.relationship_type = ?', self.relationship_type.to_yaml)
     .where.not('relationships.target_id': self.target_id)
+    .order('id DESC')
   end
 
   def self.targets_grouped_by_type(project_media, filters = nil)
@@ -48,6 +49,10 @@ class Relationship < ActiveRecord::Base
 
   def self.target_id(project_media, type = Relationship.default_type)
     Base64.encode64("RelationshipsTarget/#{project_media.id}/#{type.to_json}")
+  end
+
+  def self.source_id(project_media, type = Relationship.default_type)
+    Base64.encode64("RelationshipsSource/#{project_media.id}/#{type.to_json}")
   end
 
   protected

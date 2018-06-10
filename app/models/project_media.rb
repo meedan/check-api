@@ -175,12 +175,20 @@ class ProjectMedia < ActiveRecord::Base
     unresolved.blank?
   end
 
-  def relationships_target
+  def relationships_object
     unless self.related_to_id.nil?
       type = Relationship.default_type.to_json
       id = [self.related_to_id, type].join('/')
       OpenStruct.new({ id: id, type: type })
     end
+  end
+
+  def relationships_source
+    self.relationships_object
+  end
+
+  def relationships_target
+    self.relationships_object
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id)

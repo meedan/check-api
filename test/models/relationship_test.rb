@@ -228,4 +228,8 @@ class RelationshipTest < ActiveSupport::TestCase
   test "should get target id" do
     assert_kind_of String, Relationship.target_id(create_project_media)
   end
+
+  test "should get source id" do
+    assert_kind_of String, Relationship.source_id(create_project_media)
+  end
 end
