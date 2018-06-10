@@ -1342,15 +1342,15 @@ class GraphqlControllerTest < ActionController::TestCase
     
     assert_equal s1.id, sources[0]['source']['dbid']
     assert_equal({ source: 'parent', target: 'child' }.to_json, sources[0]['type'])
-    assert_equal 1, sources[0]['siblings']['edges'].size
+    assert_equal 2, sources[0]['siblings']['edges'].size
     
     assert_equal s1.id, sources[1]['source']['dbid']
     assert_equal({ source: 'related', target: 'related' }.to_json, sources[1]['type'])
-    assert_equal 2, sources[1]['siblings']['edges'].size
+    assert_equal 3, sources[1]['siblings']['edges'].size
     
     assert_equal s2.id, sources[2]['source']['dbid']
     assert_equal({ source: 'duplicates', target: 'duplicate_of' }.to_json, sources[2]['type'])
-    assert_equal 3, sources[2]['siblings']['edges'].size
+    assert_equal 4, sources[2]['siblings']['edges'].size
 
     assert_equal({ source: 'duplicates', target: 'duplicate_of' }.to_json, targets[0]['type'])
     assert_equal 3, targets[0]['targets']['edges'].size
