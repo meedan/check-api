@@ -9,7 +9,7 @@ class Dynamic < ActiveRecord::Base
   before_validation :update_attribution, :update_timestamp
   after_create :create_fields
   after_update :update_fields
-  after_commit :add_update_elasticsearch_dynamic_annotation, :send_slack_notification, on: [:create, :update]
+  after_commit :add_update_elasticsearch_dynamic, :send_slack_notification, on: [:create, :update]
   after_commit :destroy_elasticsearch_dynamic_annotation, on: :destroy
 
   validate :annotation_type_exists
@@ -77,7 +77,7 @@ class Dynamic < ActiveRecord::Base
 
   private
 
-  def add_update_elasticsearch_dynamic_annotation
+  def add_update_elasticsearch_dynamic
     return if self.disable_es_callbacks
     method = "add_update_elasticsearch_dynamic_annotation_#{self.annotation_type}"
     if self.respond_to?(method)

@@ -1178,29 +1178,27 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should reindex data" do
-
     source_index = CheckElasticSearchModel.get_index_name
     target_index = "#{source_index}_reindex"
-    MediaSearch.delete_index(target_index)
+    MediaSearch.delete_index target_index
+    MediaSearch.create_index target_index
     m = create_media_search
-    sleep 1
-    assert_equal 1, MediaSearch.length
-    # Test migrate data into target index
+    url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
+    repository = Elasticsearch::Persistence::Repository.new url: url
+    repository.type = 'media_search'
+    repository.index = source_index
+    results = repository.search(query: { match_all: { } }, size: 10000)
+    assert_equal 1, results.size
+    repository.index = target_index
+    results = repository.search(query: { match_all: { } }, size: 10000)
+    assert_equal 0, results.size
     MediaSearch.migrate_es_data(source_index, target_index)
     sleep 1
-    MediaSearch.index_name = target_index
-    assert_equal 1, MediaSearch.length
-    MediaSearch.delete_index
-    MediaSearch.index_name = source_index
-    MediaSearch.create_index
-
-    MediaSearch.delete_index(target_index)
-    MediaSearch.index_name = source_index
-    MediaSearch.create_index
-    m = create_media_search
+    results = repository.search(query: { match_all: { } }, size: 10000)
+    assert_equal 1, results.size
+    # test re-index
     CheckElasticSearchModel.reindex_es_data
     sleep 1
-    MediaSearch.index_name = source_index
     assert_equal 1, MediaSearch.length
   end
 
