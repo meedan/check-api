@@ -14,11 +14,14 @@ namespace :check do
   	end
   	sleep 10
   	# Add ES for annotations (child items)
-  	Annotation.where(annotation_type: ['comment', 'tag']).find_each do |a|
+  	Annotation.find_each do |a|
   		a = a.load
-  		method = "add_update_elasticsearch_#{a.annotation_type}"
-  		a.send(method)
-  		print "."
+      klass = a.class.name.downcase
+      if ['comment', 'tag', 'dynamic'].include?(klass)
+    		method = "add_update_elasticsearch_#{klass}"
+    		a.send(method)
+    		print "."
+      end
   	end
   end
 end

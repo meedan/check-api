@@ -46,7 +46,7 @@ module CheckElasticSearchModel
     CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
   end
 
-  def self.reindex_es_data(mapping_keys = nil)
+  def self.reindex_es_data
     source_index = CheckElasticSearchModel.get_index_name
     target_index = "#{source_index}_reindex"
     # copy data to destination
