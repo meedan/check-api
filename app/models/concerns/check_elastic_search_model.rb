@@ -47,15 +47,13 @@ module CheckElasticSearchModel
   end
 
   def self.reindex_es_data(mapping_keys = nil)
-    url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
-    client = Elasticsearch::Client.new url: url
     source_index = CheckElasticSearchModel.get_index_name
     target_index = "#{source_index}_reindex"
     # copy data to destination
-    migrate_es_data(source_index, target_index)
-    sleep 2
+    MediaSearch.migrate_es_data(source_index, target_index)
+    sleep 20
     # copy data from destination to original source
-    migrate_es_data(target_index, source_index)
+    MediaSearch.migrate_es_data(target_index, source_index)
     MediaSearch.delete_index target_index
   end
 
@@ -87,6 +85,7 @@ module CheckElasticSearchModel
     end
 
     def migrate_es_data(source_index, target_index)
+      client = self.gateway.client
       MediaSearch.delete_index target_index
       MediaSearch.create_index target_index
       client.reindex body: { source: { index: source_index }, dest: { index: target_index } }
