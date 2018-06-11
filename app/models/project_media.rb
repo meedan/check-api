@@ -191,6 +191,10 @@ class ProjectMedia < ActiveRecord::Base
     self.relationships_object
   end
 
+  def related_to
+    ProjectMedia.where(id: self.related_to_id).last unless self.related_to_id.nil?
+  end
+
   def self.archive_or_restore_related_medias(archived, project_media_id)
     ids = Relationship.where(source_id: project_media_id).map(&:target_id)
     ProjectMedia.where(id: ids).update_all(archived: archived)

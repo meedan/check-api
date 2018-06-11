@@ -1699,4 +1699,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.related_to_id = 1
     assert_not_nil pm.relationships_source.id
   end
+
+  test "should return related" do
+    pm = create_project_media
+    pm2 = create_project_media
+    assert_nil pm.related_to
+    pm.related_to_id = pm2.id
+    assert_equal pm2, pm.related_to
+  end
 end
