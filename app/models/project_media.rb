@@ -15,7 +15,8 @@ class ProjectMedia < ActiveRecord::Base
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :project_id }
 
-  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source, :create_relationship
+  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
+  after_commit :create_relationship, on: :create
   after_update :move_media_sources, :archive_or_restore_related_medias_if_needed
   after_destroy :destroy_related_medias
 
@@ -193,6 +194,11 @@ class ProjectMedia < ActiveRecord::Base
 
   def related_to
     ProjectMedia.where(id: self.related_to_id).last unless self.related_to_id.nil?
+  end
+
+  def encode_with(coder)
+    extra = { related_to_id: self.related_to_id }
+    coder['attributes'] = attributes.merge(extra)
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id)

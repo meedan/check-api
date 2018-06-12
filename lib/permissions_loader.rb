@@ -21,7 +21,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
   end
 
   def clone_permissions(archived_owned, archived, owned, other)
-    archived_owned.each { |obj| obj.cached_permissions ||= archived.first.cached_permissions; fulfill(obj.id, obj) }
+    archived_owned.each { |obj| obj.cached_permissions ||= archived_owned.first.cached_permissions; fulfill(obj.id, obj) }
     owned.each { |obj| obj.cached_permissions ||= owned.first.cached_permissions; fulfill(obj.id, obj) }
     archived.each { |obj| obj.cached_permissions ||= archived.first.cached_permissions; fulfill(obj.id, obj) }
     other.each { |obj| obj.cached_permissions ||= other.first.cached_permissions; fulfill(obj.id, obj) } 
