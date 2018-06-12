@@ -24,7 +24,7 @@ class Relationship < ActiveRecord::Base
   def self.targets_grouped_by_type(project_media, filters = nil)
     targets = {}
     ids = nil
-    unless filters.nil?
+    unless filters.blank?
       filters['projects'] ||= [project_media.project_id.to_s]
       search = CheckSearch.new(filters.to_json)
       query = search.medias_build_search_query
