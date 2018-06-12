@@ -197,8 +197,12 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def encode_with(coder)
-    extra = { related_to_id: self.related_to_id }
-    coder['attributes'] = attributes.merge(extra)
+    extra = { 'related_to_id' => self.related_to_id }
+    coder['extra'] = extra
+    coder['raw_attributes'] = attributes_before_type_cast
+    coder['attributes'] = @attributes
+    coder['new_record'] = new_record?
+    coder['active_record_yaml_version'] = 0
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id)

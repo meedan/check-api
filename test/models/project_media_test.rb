@@ -1711,7 +1711,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should include extra attributes in serialized object" do
     pm = create_project_media
     pm.related_to_id = 1
-    obj = YAML::load(YAML::dump(pm))
-    assert_equal 1, obj.related_to_id
+    dump = YAML::dump(pm)
+    assert_match /related_to_id/, dump
   end
 end
