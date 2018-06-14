@@ -31,6 +31,10 @@ class PermissionsLoader < GraphQL::Batch::Loader
     other.each { |obj| obj.cached_permissions ||= other.first.cached_permissions; fulfill(obj.id, obj) } 
   end
 
+  def archived_and_owned?(obj)
+    obj.user_id == User.current.id && obj.archived_was
+  end
+
   def perform(ids)
     objs = ProjectMedia.where(id: ids).all
 
@@ -52,7 +56,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
     
     objs.each do |obj|
       obj.team = team
-      if obj.user_id == User.current.id && obj.archived_was
+      if archived_and_owned?(obj)
         archived_owned << obj
       elsif obj.user_id == User.current.id
         owned << obj
