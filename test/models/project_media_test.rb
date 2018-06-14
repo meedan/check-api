@@ -1682,4 +1682,47 @@ class ProjectMediaTest < ActiveSupport::TestCase
     s.save!
     assert_equal true, pm.is_finished?
   end
+
+  test "should have relationships and parent and children reports" do
+    s1 = create_project_media
+    s2 = create_project_media
+    t1 = create_project_media
+    t2 = create_project_media
+    create_project_media
+    create_relationship source_id: s1.id, target_id: t1.id
+    create_relationship source_id: s2.id, target_id: t2.id
+    assert_equal [t1], s1.targets
+    assert_equal [t2], s2.targets
+    assert_equal [s1], t1.sources
+    assert_equal [s2], t2.sources
+  end
+
+  test "should get relationship target" do
+    pm = create_project_media
+    assert_nil pm.relationships_target
+    pm.related_to_id = 1
+    assert_not_nil pm.relationships_target.id
+  end
+
+  test "should get relationship source" do
+    pm = create_project_media
+    assert_nil pm.relationships_source
+    pm.related_to_id = 1
+    assert_not_nil pm.relationships_source.id
+  end
+
+  test "should return related" do
+    pm = create_project_media
+    pm2 = create_project_media
+    assert_nil pm.related_to
+    pm.related_to_id = pm2.id
+    assert_equal pm2, pm.related_to
+  end
+
+  test "should include extra attributes in serialized object" do
+    pm = create_project_media
+    pm.related_to_id = 1
+    dump = YAML::dump(pm)
+    assert_match /related_to_id/, dump
+  end
 end

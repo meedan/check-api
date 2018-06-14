@@ -1520,4 +1520,62 @@ class ElasticSearchTest < ActionController::TestCase
       assert_equal [pm.id], result.medias.map(&:id)
     end
   end
+
+  test "should search in target reports and return parent instead" do
+    t = create_team
+    p = create_project team: t
+    sm = create_claim_media quote: 'source'
+    tm1 = create_claim_media quote: 'target 1'
+    tm2 = create_claim_media quote: 'target 2'
+    om = create_claim_media quote: 'unrelated target'
+    s = create_project_media project: p, media: sm, disable_es_callbacks: false
+    t1 = create_project_media project: p, media: tm1, disable_es_callbacks: false
+    t2 = create_project_media project: p, media: tm2, disable_es_callbacks: false
+    o = create_project_media project: p, media: om, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({ keyword: 'target' }.to_json)
+    assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
+    r1 = create_relationship source_id: s.id, target_id: t1.id
+    r2 = create_relationship source_id: s.id, target_id: t2.id
+    sleep 1
+    result = CheckSearch.new({ keyword: 'target' }.to_json)
+    assert_equal [s.id, o.id].sort, result.medias.map(&:id).sort
+    r1.destroy
+    r2.destroy
+    sleep 1
+    result = CheckSearch.new({ keyword: 'target' }.to_json)
+    assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
+  end
+
+  test "should filter target reports" do
+    t = create_team
+    p = create_project team: t
+    m = create_claim_media quote: 'test'
+    s = create_project_media project: p, disable_es_callbacks: false
+    
+    t1 = create_project_media project: p, media: m, disable_es_callbacks: false
+    create_relationship source_id: s.id, target_id: t1.id
+    
+    t2 = create_project_media project: p, disable_es_callbacks: false
+    create_relationship source_id: s.id, target_id: t2.id
+    
+    t3 = create_project_media project: p, disable_es_callbacks: false
+    create_relationship source_id: s.id, target_id: t3.id
+    vs = t3.last_verification_status_obj
+    vs.status = 'verified'
+    vs.save!
+
+    t4 = create_project_media project: p, disable_es_callbacks: false
+    create_relationship source_id: s.id, target_id: t4.id
+    ts = t4.last_translation_status_obj
+    ts.status = 'ready'
+    ts.save!
+
+    sleep 2
+    
+    assert_equal [t1, t2, t3, t4].sort, Relationship.targets_grouped_by_type(s).first['targets'].sort
+    assert_equal [t1].sort, Relationship.targets_grouped_by_type(s, { keyword: 'test' }).first['targets'].sort
+    assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { verification_status: ['verified'] }).first['targets'].sort
+    assert_equal [t4].sort, Relationship.targets_grouped_by_type(s, { translation_status: ['ready'] }).first['targets'].sort
+  end
 end

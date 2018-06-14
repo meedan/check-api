@@ -12,6 +12,8 @@ module CheckElasticSearch
     ms = MediaSearch.new
     ms.team_id = p.team.id
     ms.project_id = p.id
+    rtid = self.is_a?(ProjectMedia) ? (self.related_to_id || self.sources.first&.id) : nil
+    ms.relationship_sources = [Digest::MD5.hexdigest(Relationship.default_type.to_json) + '_' + rtid.to_s] unless rtid.blank?
     ms.set_es_annotated(self)
     self.add_extra_elasticsearch_data(ms)
     ms.save!
