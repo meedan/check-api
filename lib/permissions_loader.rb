@@ -21,6 +21,10 @@ class PermissionsLoader < GraphQL::Batch::Loader
   end
 
   def clone_permissions(archived_owned, archived, owned, other)
+    [archived_owned.first, owned.first, archived.first, other.first].each do |obj|
+      obj.cached_permissions = obj.permissions unless obj.nil?
+    end
+
     archived_owned.each { |obj| obj.cached_permissions ||= archived_owned.first.cached_permissions; fulfill(obj.id, obj) }
     owned.each { |obj| obj.cached_permissions ||= owned.first.cached_permissions; fulfill(obj.id, obj) }
     archived.each { |obj| obj.cached_permissions ||= archived.first.cached_permissions; fulfill(obj.id, obj) }
@@ -45,6 +49,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
     owned = []
     other = []
     team = objs.first.project.team
+    
     objs.each do |obj|
       obj.team = team
       if obj.user_id == User.current.id && obj.archived_was
@@ -56,9 +61,6 @@ class PermissionsLoader < GraphQL::Batch::Loader
       else
         other << obj
       end
-    end
-    [archived_owned.first, owned.first, archived.first, other.first].each do |obj|
-      obj.cached_permissions = obj.permissions unless obj.nil?
     end
 
     clone_permissions(archived_owned, archived, owned, other)
