@@ -682,11 +682,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should return 404 if public team does not exist" do
+  test "should return null if public team does not exist" do
     authenticate_with_user
     Team.stubs(:current).returns(nil)
     post :create, query: 'query PublicTeam { public_team { name } }', team: 'foo'
-    assert_response 404
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['public_team']
     Team.unstub(:current)
   end
 
@@ -1330,24 +1331,24 @@ class GraphqlControllerTest < ActionController::TestCase
     2.times { create_relationship(source_id: pm.id, relationship_type: { source: 'parent', target: 'child' }) }
     1.times { create_relationship(source_id: pm.id, relationship_type: { source: 'related', target: 'related' }) }
     authenticate_with_user
-    
+
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { relationships { id, targets_count, targets { edges { node { id, type, targets { edges { node { dbid } } } } } }, sources { edges { node { id, relationship_id, type, siblings { edges { node { dbid } } }, source { dbid } } } } } } }"
     post :create, query: query, team: t.slug
-    
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']['relationships']
     assert_equal 6, data['targets_count']
     sources = data['sources']['edges'].sort_by{ |x| x['node']['relationship_id'] }.collect{ |x| x['node'] }
     targets = data['targets']['edges'].sort_by{ |x| x['node']['type'] }.collect{ |x| x['node'] }
-    
+
     assert_equal s1.id, sources[0]['source']['dbid']
     assert_equal({ source: 'parent', target: 'child' }.to_json, sources[0]['type'])
     assert_equal 2, sources[0]['siblings']['edges'].size
-    
+
     assert_equal s1.id, sources[1]['source']['dbid']
     assert_equal({ source: 'related', target: 'related' }.to_json, sources[1]['type'])
     assert_equal 3, sources[1]['siblings']['edges'].size
-    
+
     assert_equal s2.id, sources[2]['source']['dbid']
     assert_equal({ source: 'duplicates', target: 'duplicate_of' }.to_json, sources[2]['type'])
     assert_equal 4, sources[2]['siblings']['edges'].size
@@ -1399,12 +1400,12 @@ class GraphqlControllerTest < ActionController::TestCase
     create_relationship source_id: pm.id, target_id: pm1.id
     pm1.archived = true
     pm1.save!
-     
+
     authenticate_with_user(u)
-    
+
     query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") {permissions,relationships{sources{edges{node{siblings{edges{node{permissions}}},source{permissions}}}}}}}"
     post :create, query: query, team: t.slug
-    
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
 
