@@ -64,7 +64,7 @@ QueryType = GraphQL::ObjectType.define do
     resolve -> (_obj, args, _ctx) do
       team = args['slug'].blank? ? Team.current : Team.where(slug: args['slug']).last
       id = team.blank? ? 0 : team.id
-      Team.find(id)
+      Team.where(id: id).last
     end
   end
 
