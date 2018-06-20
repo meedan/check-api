@@ -23,6 +23,17 @@ class Relationship < ActiveRecord::Base
     inclusive ? query : query.where.not('relationships.target_id': self.target_id)
   end
 
+  def version_metadata(_object_changes)
+    target = self.target
+    {
+      target: {
+        title: target.title,
+        type: target.report_type,
+        url: target.full_url
+      }
+    }.to_json
+  end
+
   def self.targets_grouped_by_type(project_media, filters = nil)
     targets = {}
     ids = nil
