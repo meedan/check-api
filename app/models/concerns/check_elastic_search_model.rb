@@ -63,12 +63,14 @@ module CheckElasticSearchModel
     end
       # copy data to destination
     MediaSearch.migrate_es_data(source_index, target_index)
+    sleep 10
     client.indices.update_aliases body: {
       actions: [
         { remove: { index: source_index, alias: index_alias } },
         { add:    { index: target_index, alias: index_alias } }
       ]
     }
+    sleep 1
     MediaSearch.delete_index source_index
   end
 
@@ -79,7 +81,7 @@ module CheckElasticSearchModel
   end
 
   module ClassMethods
-    def create_index(index_name = nil)
+    def create_index(index_name = nil, c_alias = true)
       index_name = "#{CheckElasticSearchModel.get_index_name}_#{Time.now.to_i}" if index_name.nil?
       client = self.gateway.client
       settings = []
@@ -91,7 +93,7 @@ module CheckElasticSearchModel
       settings = settings.reduce(:merge)
       mappings = mappings.reduce(:merge)
       client.indices.create index: index_name, body: { settings: settings.to_hash, mappings: mappings.to_hash }
-      client.indices.put_alias index: index_name, name: CheckElasticSearchModel.get_index_alias
+      client.indices.put_alias index: index_name, name: CheckElasticSearchModel.get_index_alias if c_alias
     end
 
     def delete_index(index_name = self.index_name)
@@ -108,7 +110,7 @@ module CheckElasticSearchModel
     def migrate_es_data(source_index, target_index)
       client = self.gateway.client
       MediaSearch.delete_index target_index
-      MediaSearch.create_index target_index
+      MediaSearch.create_index(target_index, false)
       client.reindex body: { source: { index: source_index }, dest: { index: target_index } }
     end
 
