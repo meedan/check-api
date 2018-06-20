@@ -12,6 +12,8 @@ class Relationship < ActiveRecord::Base
   after_create :increment_counters, :index_source
   after_destroy :decrement_counters, :unindex_source
 
+  has_paper_trail on: [:create], if: proc { |_x| User.current.present? }
+
   def siblings(inclusive = false)
     query = ProjectMedia
     .joins(:target_relationships)
