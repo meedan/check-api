@@ -159,7 +159,7 @@ module PaperTrail
         [self.item.class.name, self.item_id.to_i]
       when 'update_source'
         self.get_associated_from_source
-      when 'create_relationship'
+      when 'create_relationship', 'destroy_relationship'
         self.get_associated_from_relationship
       else
         [nil, nil]

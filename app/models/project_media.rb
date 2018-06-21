@@ -216,12 +216,24 @@ class ProjectMedia < ActiveRecord::Base
     ProjectMedia.where(id: ids).update_all(archived: archived)
   end
 
-  def self.destroy_related_medias(project_media_id)
+  def self.destroy_related_medias(project_media, user_id = nil)
+    project_media = YAML::load(project_media)
+    project_media_id = project_media.id
     relationships = Relationship.where(source_id: project_media_id)
     targets = relationships.map(&:target)
     relationships.destroy_all
     targets.map(&:destroy)
-    Relationship.where(target_id: project_media_id).destroy_all
+    Relationship.where(target_id: project_media_id).each do |r|
+      source = r.source
+      r.skip_check_ability = true
+      r.target = project_media
+      r.destroy
+      unless source.nil?
+        source.updated_at = Time.now
+        source.skip_check_ability = true
+        source.save!
+      end
+    end
   end
 
   protected

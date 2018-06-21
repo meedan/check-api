@@ -49,7 +49,7 @@ module ActiveRecordExtensions
   end
 
   def destroy_annotations_and_versions
-    self.versions.destroy_all if self.class_name.constantize.paper_trail.enabled?
+    self.versions.where.not(event_type: 'create_relationship').destroy_all if self.class_name.constantize.paper_trail.enabled?
     self.annotations.destroy_all if self.respond_to?(:annotations)
   end
 
