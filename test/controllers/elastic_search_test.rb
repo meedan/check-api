@@ -1178,10 +1178,16 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should reindex data" do
+    # Test raising error for re-index
+    MediaSearch.stubs(:migrate_es_data).raises(StandardError)
+    CheckElasticSearchModel.reindex_es_data
+    MediaSearch.unstub(:migrate_es_data)
+    Rails.logger.stubs(:debug).raises(StandardError)
+
     source_index = CheckElasticSearchModel.get_index_name
     target_index = "#{source_index}_reindex"
     MediaSearch.delete_index target_index
-    MediaSearch.create_index target_index
+    MediaSearch.create_index(target_index, false)
     m = create_media_search
     url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
     repository = Elasticsearch::Persistence::Repository.new url: url
