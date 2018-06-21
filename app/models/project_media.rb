@@ -223,11 +223,14 @@ class ProjectMedia < ActiveRecord::Base
     targets = relationships.map(&:target)
     relationships.destroy_all
     targets.map(&:destroy)
+    user = User.where(id: user_id).last
     Relationship.where(target_id: project_media_id).each do |r|
       source = r.source
       r.skip_check_ability = true
       r.target = project_media
+      User.current = user
       r.destroy
+      User.current = nil
       unless source.nil?
         source.updated_at = Time.now
         source.skip_check_ability = true
