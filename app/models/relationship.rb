@@ -23,7 +23,7 @@ class Relationship < ActiveRecord::Base
     inclusive ? query : query.where.not('relationships.target_id': self.target_id)
   end
 
-  def version_metadata(_object_changes)
+  def version_metadata(_object_changes = nil)
     target = self.target
     target.nil? ? nil : {
       target: {

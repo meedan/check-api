@@ -226,11 +226,16 @@ class ProjectMedia < ActiveRecord::Base
     user = User.where(id: user_id).last
     Relationship.where(target_id: project_media_id).each do |r|
       source = r.source
+      User.current = user
       r.skip_check_ability = true
       r.target = project_media
-      User.current = user
       r.destroy
       User.current = nil
+      v = r.versions.where(event_type: 'destroy_relationship').last
+      unless v.nil?
+        v.meta = r.version_metadata.to_json
+        v.save!
+      end
       unless source.nil?
         source.updated_at = Time.now
         source.skip_check_ability = true
