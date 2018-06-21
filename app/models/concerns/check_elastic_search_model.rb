@@ -43,35 +43,45 @@ module CheckElasticSearchModel
   end
 
   def self.get_index_name
+    client = MediaSearch.gateway.client
+    index_name = self.get_index_name_prefix
+    index_alias = self.get_index_alias
+    if client.indices.exists_alias? name: index_alias
+      alias_info = client.indices.get_alias name: index_alias
+      index_name = alias_info.keys.first
+    end
+    index_name
+  end
+
+  def self.get_index_name_prefix
     CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
   end
 
   def self.get_index_alias
-     self.get_index_name + '_alias'
+     self.get_index_name_prefix + '_alias'
   end
 
   def self.reindex_es_data
     client = MediaSearch.gateway.client
-    source_index = CheckElasticSearchModel.get_index_name
-    target_index = "#{source_index}_#{Time.now.to_i}"
+    source_index = self.get_index_name
+    target_index = "#{self.get_index_name_prefix}_#{Time.now.to_i}"
     index_alias = CheckElasticSearchModel.get_index_alias
-    if client.indices.exists_alias? name: index_alias
-      alias_info = client.indices.get_alias name: index_alias
-      source_index = alias_info.keys.first
-    else
-      client.indices.put_alias index: source_index, name: index_alias
-    end
+    client.indices.put_alias index: source_index, name: index_alias unless client.indices.exists_alias? name: index_alias
+    begin
       # copy data to destination
-    MediaSearch.migrate_es_data(source_index, target_index)
-    sleep 10
-    client.indices.update_aliases body: {
-      actions: [
-        { remove: { index: source_index, alias: index_alias } },
-        { add:    { index: target_index, alias: index_alias } }
-      ]
-    }
-    sleep 1
-    MediaSearch.delete_index source_index
+      MediaSearch.migrate_es_data(source_index, target_index)
+      sleep 10
+      client.indices.update_aliases body: {
+        actions: [
+          { remove: { index: source_index, alias: index_alias } },
+          { add:    { index: target_index, alias: index_alias } }
+        ]
+      }
+      sleep 1
+      MediaSearch.delete_index source_index
+    rescue StandardError => e
+      Rails.logger.error "[ES Re-Index] Could not start re-indeing : #{e.message}"
+    end
   end
 
   private
@@ -82,7 +92,7 @@ module CheckElasticSearchModel
 
   module ClassMethods
     def create_index(index_name = nil, c_alias = true)
-      index_name = "#{CheckElasticSearchModel.get_index_name}_#{Time.now.to_i}" if index_name.nil?
+      index_name = "#{CheckElasticSearchModel.get_index_name_prefix}_#{Time.now.to_i}" if index_name.nil?
       client = self.gateway.client
       settings = []
       mappings = []
