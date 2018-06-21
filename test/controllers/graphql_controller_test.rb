@@ -682,11 +682,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should return 404 if public team does not exist" do
+  test "should return null if public team does not exist" do
     authenticate_with_user
     Team.stubs(:current).returns(nil)
     post :create, query: 'query PublicTeam { public_team { name } }', team: 'foo'
-    assert_response 404
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['public_team']
     Team.unstub(:current)
   end
 
@@ -1190,9 +1191,9 @@ class GraphqlControllerTest < ActionController::TestCase
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     pm4 = create_project_media project: p
-    s1 = create_status status: 'verified', annotated: pm1
-    s2 = create_status status: 'verified', annotated: pm2
-    s3 = create_status status: 'verified', annotated: pm1
+    s1 = create_status status: 'in_progress', annotated: pm1
+    s2 = create_status status: 'in_progress', annotated: pm2
+    s3 = create_status status: 'in_progress', annotated: pm3
     s4 = create_status status: 'verified', annotated: pm4
     t1 = create_task annotated: pm1
     t2 = create_task annotated: pm3
@@ -1309,5 +1310,107 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_match /No permission to update Dynamic/, @response.body
     assert_equal 'undetermined', f.reload.value
     assert_response 400
+  end
+
+  test "should return relationship information" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    s1 = create_project_media
+    r = create_relationship source_id: s1.id, target_id: pm.id, relationship_type: { source: 'parent', target: 'child' }
+    create_relationship source_id: s1.id, relationship_type: { source: 'parent', target: 'child' }
+    create_relationship source_id: s1.id, target_id: pm.id, relationship_type: { source: 'related', target: 'related' }
+    create_relationship source_id: s1.id, relationship_type: { source: 'related', target: 'related' }
+    create_relationship source_id: s1.id, relationship_type: { source: 'related', target: 'related' }
+    s2 = create_project_media
+    create_relationship source_id: s2.id, target_id: pm.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
+    create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
+    create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
+    create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
+    3.times { create_relationship(source_id: pm.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }) }
+    2.times { create_relationship(source_id: pm.id, relationship_type: { source: 'parent', target: 'child' }) }
+    1.times { create_relationship(source_id: pm.id, relationship_type: { source: 'related', target: 'related' }) }
+    authenticate_with_user
+
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { relationships { id, targets_count, targets { edges { node { id, type, targets { edges { node { dbid } } } } } }, sources { edges { node { id, relationship_id, type, siblings { edges { node { dbid } } }, source { dbid } } } } } } }"
+    post :create, query: query, team: t.slug
+
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']['relationships']
+    assert_equal 6, data['targets_count']
+    sources = data['sources']['edges'].sort_by{ |x| x['node']['relationship_id'] }.collect{ |x| x['node'] }
+    targets = data['targets']['edges'].sort_by{ |x| x['node']['type'] }.collect{ |x| x['node'] }
+
+    assert_equal s1.id, sources[0]['source']['dbid']
+    assert_equal({ source: 'parent', target: 'child' }.to_json, sources[0]['type'])
+    assert_equal 2, sources[0]['siblings']['edges'].size
+
+    assert_equal s1.id, sources[1]['source']['dbid']
+    assert_equal({ source: 'related', target: 'related' }.to_json, sources[1]['type'])
+    assert_equal 3, sources[1]['siblings']['edges'].size
+
+    assert_equal s2.id, sources[2]['source']['dbid']
+    assert_equal({ source: 'duplicates', target: 'duplicate_of' }.to_json, sources[2]['type'])
+    assert_equal 4, sources[2]['siblings']['edges'].size
+
+    assert_equal({ source: 'duplicates', target: 'duplicate_of' }.to_json, targets[0]['type'])
+    assert_equal 3, targets[0]['targets']['edges'].size
+
+    assert_equal({ source: 'parent', target: 'child' }.to_json, targets[1]['type'])
+    assert_equal 2, targets[1]['targets']['edges'].size
+
+    assert_equal({ source: 'related', target: 'related' }.to_json, targets[2]['type'])
+    assert_equal 1, targets[2]['targets']['edges'].size
+
+    assert_equal Base64.encode64("Relationships/#{pm.id}"), data['id']
+    assert_equal Base64.encode64("RelationshipsTarget/#{pm.id}/#{{ source: 'duplicates', target: 'duplicate_of' }.to_json}"), targets[0]['id']
+    assert_equal Base64.encode64("RelationshipsSource/#{r.source_id}/#{{ source: 'parent', target: 'child' }.to_json}"), sources[0]['id']
+  end
+
+  test "should get relationship from global id" do
+    authenticate_with_user
+    pm = create_project_media
+    id = Base64.encode64("Relationships/#{pm.id}")
+    id2 = Base64.encode64("ProjectMedia/#{pm.id}")
+    post :create, query: "query Query { node(id: \"#{id}\") { id } }"
+    assert_equal id2, JSON.parse(@response.body)['data']['node']['id']
+  end
+
+  test "should create related report" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'contributor'
+    authenticate_with_user(u)
+    query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", clientMutationId: "1", project_id: ' + p.id.to_s + ', related_to_id: ' + pm.id.to_s + ' }) { project_media { id } } }'
+    assert_difference 'Relationship.count' do
+      post :create, query: query, team: t
+    end
+    assert_response :success
+  end
+
+  test "should return permissions of sibling report" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm1 = create_project_media project: p, user: u
+    create_relationship source_id: pm.id, target_id: pm1.id
+    pm1.archived = true
+    pm1.save!
+
+    authenticate_with_user(u)
+
+    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") {permissions,relationships{sources{edges{node{siblings{edges{node{permissions}}},source{permissions}}}}}}}"
+    post :create, query: query, team: t.slug
+
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+
+    assert_equal data['permissions'], data['relationships']['sources']['edges'][0]['node']['siblings']['edges'][0]['node']['permissions']
+    assert_not_equal data['relationships']['sources']['edges'][0]['node']['siblings']['edges'][0]['node']['permissions'], data['relationships']['sources']['edges'][0]['node']['source']['permissions']
+    assert_not_equal data['permissions'], data['relationships']['sources']['edges'][0]['node']['source']['permissions']
   end
 end

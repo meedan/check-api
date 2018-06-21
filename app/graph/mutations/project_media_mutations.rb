@@ -6,7 +6,8 @@ module ProjectMediaMutations
     quote: 'str',
     quote_attributions: 'str',
     set_annotation: 'str',
-    set_tasks_responses: 'json'
+    set_tasks_responses: 'json',
+    related_to_id: 'int'
   }
 
   update_fields = {
@@ -20,5 +21,5 @@ module ProjectMediaMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_media', create_fields, update_fields, ['project', 'project_was', 'check_search_team', 'check_search_project', 'check_search_project_was'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_media', create_fields, update_fields, ['project', 'project_was', 'check_search_team', 'check_search_project', 'check_search_project_was', 'relationships_target', 'relationships_source', 'related_to'])
 end

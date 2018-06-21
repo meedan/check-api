@@ -13,7 +13,7 @@ class ReindexEsForAssociatedType < ActiveRecord::Migration
     url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
     client = Elasticsearch::Client.new url: url
     options = {
-      index: CheckElasticSearchModel.get_index_name,
+      index: CheckElasticSearchModel.get_index_alias,
       type: 'media_search',
       body: {
         script: { inline: "ctx._source.associated_type=associated_type", lang: "groovy", params: { associated_type: 'source' } },

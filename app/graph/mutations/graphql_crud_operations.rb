@@ -14,7 +14,7 @@ class GraphqlCrudOperations
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless parent_name == 'public_team'
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team'].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -131,6 +131,7 @@ class GraphqlCrudOperations
     fields = {}
     parents.each do |parent|
       parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
+      parentclass = 'ProjectMedia' if parent == 'related_to'
       fields[parent.to_sym] = "#{parentclass}Type".constantize
     end
     fields

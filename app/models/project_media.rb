@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created
+  attr_accessor :quote, :quote_attributions, :file, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created, :related_to_id
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -16,7 +16,9 @@ class ProjectMedia < ActiveRecord::Base
   validates :media_id, uniqueness: { scope: :project_id }
 
   after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
-  after_update :move_media_sources
+  after_commit :create_relationship, on: :create
+  after_update :move_media_sources, :archive_or_restore_related_medias_if_needed
+  after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
@@ -172,6 +174,69 @@ class ProjectMedia < ActiveRecord::Base
     required_tasks = self.required_tasks
     unresolved = required_tasks.select{ |t| t.status != 'Resolved' }
     unresolved.blank?
+  end
+
+  def is_finished?
+    statuses = Workflow::Workflow.options(self, self.default_media_status_type)[:statuses]
+    current_status = statuses.select { |st| st['id'] == self.last_status }
+    current_status[0]['completed'].to_i == 1
+  end
+
+  def relationships_object
+    unless self.related_to_id.nil?
+      type = Relationship.default_type.to_json
+      id = [self.related_to_id, type].join('/')
+      OpenStruct.new({ id: id, type: type })
+    end
+  end
+
+  def relationships_source
+    self.relationships_object
+  end
+
+  def relationships_target
+    self.relationships_object
+  end
+
+  def related_to
+    ProjectMedia.where(id: self.related_to_id).last unless self.related_to_id.nil?
+  end
+
+  def encode_with(coder)
+    extra = { 'related_to_id' => self.related_to_id }
+    coder['extra'] = extra
+    coder['raw_attributes'] = attributes_before_type_cast
+    coder['attributes'] = @attributes
+    coder['new_record'] = new_record?
+    coder['active_record_yaml_version'] = 0
+  end
+
+  def self.archive_or_restore_related_medias(archived, project_media_id)
+    ids = Relationship.where(source_id: project_media_id).map(&:target_id)
+    ProjectMedia.where(id: ids).update_all(archived: archived)
+  end
+
+  def self.destroy_related_medias(project_media, user_id = nil)
+    project_media = YAML::load(project_media)
+    project_media_id = project_media.id
+    relationships = Relationship.where(source_id: project_media_id)
+    targets = relationships.map(&:target)
+    relationships.destroy_all
+    targets.map(&:destroy)
+    user = User.where(id: user_id).last
+    Relationship.where(target_id: project_media_id).each do |r|
+      source = r.source
+      r.skip_check_ability = true
+      r.target = project_media
+      User.current = user
+      r.destroy
+      User.current = nil
+      unless source.nil?
+        source.updated_at = Time.now
+        source.skip_check_ability = true
+        source.save!
+      end
+    end
   end
 
   protected

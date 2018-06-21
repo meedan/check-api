@@ -14,9 +14,7 @@ development: &default
   elasticsearch_port: 9200
   elasticsearch_log: false
   elasticsearch_sync: false
-  graphql_debug: true
   checkdesk_client: 'http://localhost:3333'
-  allow_duplicated_urls: false
   default_mail: root@localhost
   checkdesk_base_url: http://localhost:3000
   checkdesk_base_url_private: http://api:3000
@@ -52,7 +50,7 @@ development: &default
   cc_deville_host:
   cc_deville_token:
   cc_deville_httpauth:
-  google_analytics_code: # Format: 'UA-000000000-1' 
+  google_analytics_code: # Format: 'UA-000000000-1'
   export_download_expiration_days: 7
 
 test:
