@@ -12,6 +12,8 @@ class Relationship < ActiveRecord::Base
   after_create :increment_counters, :index_source
   after_destroy :decrement_counters, :unindex_source
 
+  has_paper_trail on: [:create], if: proc { |_x| User.current.present? }
+
   def siblings(inclusive = false)
     query = ProjectMedia
     .joins(:target_relationships)
@@ -19,6 +21,17 @@ class Relationship < ActiveRecord::Base
     .where('relationships.relationship_type = ?', self.relationship_type.to_yaml)
     .order('id DESC')
     inclusive ? query : query.where.not('relationships.target_id': self.target_id)
+  end
+
+  def version_metadata(_object_changes)
+    target = self.target
+    {
+      target: {
+        title: target.title,
+        type: target.report_type,
+        url: target.full_url
+      }
+    }.to_json
   end
 
   def self.targets_grouped_by_type(project_media, filters = nil)

@@ -232,4 +232,23 @@ class RelationshipTest < ActiveSupport::TestCase
   test "should get source id" do
     assert_kind_of String, Relationship.source_id(create_project_media)
   end
+
+  test "should have versions" do
+    u = create_user is_admin: true
+    t = create_team
+    r = create_relationship
+    assert_empty r.versions
+    so = create_project_media
+    n = so.cached_annotations_count
+    ta = create_project_media
+    with_current_user_and_team(u, t) do
+      r = create_relationship source_id: so.id, target_id: ta.id
+    end
+    assert_not_empty r.versions
+    v = r.versions.last
+    assert_equal so.id, v.associated_id
+    assert_equal 'ProjectMedia', v.associated_type
+    assert_equal n + 1, so.reload.cached_annotations_count
+    assert so.get_versions_log.map(&:event_type).include?('create_relationship')
+  end
 end
