@@ -20,6 +20,21 @@ class PermissionsLoader < GraphQL::Batch::Loader
     fulfill(only.id, only)
   end
 
+  def clone_permissions(archived_owned, archived, owned, other)
+    [archived_owned.first, owned.first, archived.first, other.first].each do |obj|
+      obj.cached_permissions = obj.permissions unless obj.nil?
+    end
+
+    archived_owned.each { |obj| obj.cached_permissions ||= archived_owned.first.cached_permissions; fulfill(obj.id, obj) }
+    owned.each { |obj| obj.cached_permissions ||= owned.first.cached_permissions; fulfill(obj.id, obj) }
+    archived.each { |obj| obj.cached_permissions ||= archived.first.cached_permissions; fulfill(obj.id, obj) }
+    other.each { |obj| obj.cached_permissions ||= other.first.cached_permissions; fulfill(obj.id, obj) } 
+  end
+
+  def archived_and_owned?(obj)
+    obj.user_id == User.current.id && obj.archived_was
+  end
+
   def perform(ids)
     objs = ProjectMedia.where(id: ids).all
 
@@ -34,12 +49,16 @@ class PermissionsLoader < GraphQL::Batch::Loader
     end
 
     archived = []
+    archived_owned = []
     owned = []
     other = []
     team = objs.first.project.team
+    
     objs.each do |obj|
       obj.team = team
-      if obj.user_id == User.current.id
+      if archived_and_owned?(obj)
+        archived_owned << obj
+      elsif obj.user_id == User.current.id
         owned << obj
       elsif obj.archived_was
         archived << obj
@@ -47,11 +66,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
         other << obj
       end
     end
-    [owned.first, archived.first, other.first].each do |obj|
-      obj.cached_permissions = obj.permissions unless obj.nil?
-    end
-    owned.each { |obj| obj.cached_permissions ||= owned.first.cached_permissions; fulfill(obj.id, obj) }
-    archived.each { |obj| obj.cached_permissions ||= archived.first.cached_permissions; fulfill(obj.id, obj) }
-    other.each { |obj| obj.cached_permissions ||= other.first.cached_permissions; fulfill(obj.id, obj) } 
+
+    clone_permissions(archived_owned, archived, owned, other)
   end
 end

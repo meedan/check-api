@@ -1613,4 +1613,15 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should  get owners based on user role" do
+    t = create_team
+    u = create_user
+    u2 = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u2, role: 'editor'
+    assert_equal [u.id], t.owners('owner').map(&:id)
+    assert_equal [u2.id], t.owners('editor').map(&:id)
+    assert_equal [u.id, u2.id].sort, t.owners(['owner', 'editor']).map(&:id).sort
+  end
 end

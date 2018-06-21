@@ -62,7 +62,8 @@ module ProjectAssociation
       ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'add_parent')
       if self.class.name == 'ProjectSource'
         # index related account
-        accounts = self.source.accounts
+        accounts = []
+        accounts = self.source.accounts unless self.source.nil?
         accounts.each do |a|
           a.add_update_media_search_child('account_search', %w(ttile description username), {}, self)
         end unless accounts.blank?

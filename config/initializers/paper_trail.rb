@@ -159,6 +159,8 @@ module PaperTrail
         [self.item.class.name, self.item_id.to_i]
       when 'update_source'
         self.get_associated_from_source
+      when 'create_relationship', 'destroy_relationship'
+        self.get_associated_from_relationship
       else
         [nil, nil]
       end
@@ -181,6 +183,11 @@ module PaperTrail
       s = self.item
       ps = s.project_sources.last unless s.nil?
       ps.nil? ? [nil, nil] : [ps.class.name, ps.id]
+    end
+
+    def get_associated_from_relationship
+      r = self.item
+      r.nil? ? [nil, nil] : ['ProjectMedia', r.source_id]
     end
 
     def set_project_association

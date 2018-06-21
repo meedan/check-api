@@ -1179,41 +1179,33 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should reindex data" do
     # Test raising error for re-index
-    MediaSearch.stubs(:delete_index).raises(StandardError)
+    MediaSearch.stubs(:migrate_es_data).raises(StandardError)
     CheckElasticSearchModel.reindex_es_data
-    MediaSearch.unstub(:delete_index)
-
+    MediaSearch.unstub(:migrate_es_data)
     Rails.logger.stubs(:debug).raises(StandardError)
-    mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch]
+
     source_index = CheckElasticSearchModel.get_index_name
     target_index = "#{source_index}_reindex"
-    MediaSearch.delete_index(target_index)
+    MediaSearch.delete_index target_index
+    MediaSearch.create_index(target_index, false)
     m = create_media_search
+    url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
+    repository = Elasticsearch::Persistence::Repository.new url: url
+    repository.type = 'media_search'
+    repository.index = source_index
+    results = repository.search(query: { match_all: { } }, size: 10000)
+    assert_equal 1, results.size
+    repository.index = target_index
+    results = repository.search(query: { match_all: { } }, size: 10000)
+    assert_equal 0, results.size
+    MediaSearch.migrate_es_data(source_index, target_index)
     sleep 1
-    assert_equal 1, MediaSearch.length
-    # Test migrate data into target index
-    MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
-    sleep 1
-    MediaSearch.index_name = target_index
-    assert_equal 1, MediaSearch.length
-    MediaSearch.delete_index
-    MediaSearch.index_name = source_index
-    MediaSearch.create_index
-
-    Rails.logger.stubs(:error).once
-    sleep 1
-    MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
-    Rails.logger.unstub(:error)
-
-    MediaSearch.delete_index(target_index)
-    MediaSearch.index_name = source_index
-    MediaSearch.create_index
-    m = create_media_search
+    results = repository.search(query: { match_all: { } }, size: 10000)
+    assert_equal 1, results.size
+    # test re-index
     CheckElasticSearchModel.reindex_es_data
     sleep 1
-    MediaSearch.index_name = source_index
     assert_equal 1, MediaSearch.length
-    Rails.logger.unstub(:debug)
   end
 
   test "should create comment" do
@@ -1506,5 +1498,90 @@ class ElasticSearchTest < ActionController::TestCase
     sleep 1
     result = CheckSearch.new({keyword: "search / quote"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
+  end
+
+  test "should search by custom status with hyphens" do
+    stub_config('app_name', 'Check') do
+      value = {
+        label: 'Status',
+        default: 'foo-bar',
+        active: 'foo-bar',
+        statuses: [
+          { id: 'foo-bar', label: 'Foo Bar', completed: '', description: '', style: 'blue' }
+        ]
+      }
+      t = create_team
+      t.set_media_verification_statuses(value)
+      t.save!
+      p = create_project team: t
+      m = create_valid_media
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      assert_equal 'foo-bar', pm.last_verification_status
+      sleep 5
+      result = CheckSearch.new({verification_status: ['foo']}.to_json)
+      assert_empty result.medias
+      result = CheckSearch.new({verification_status: ['bar']}.to_json)
+      assert_empty result.medias
+      result = CheckSearch.new({verification_status: ['foo-bar']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+    end
+  end
+
+  test "should search in target reports and return parent instead" do
+    t = create_team
+    p = create_project team: t
+    sm = create_claim_media quote: 'source'
+    tm1 = create_claim_media quote: 'target 1'
+    tm2 = create_claim_media quote: 'target 2'
+    om = create_claim_media quote: 'unrelated target'
+    s = create_project_media project: p, media: sm, disable_es_callbacks: false
+    t1 = create_project_media project: p, media: tm1, disable_es_callbacks: false
+    t2 = create_project_media project: p, media: tm2, disable_es_callbacks: false
+    o = create_project_media project: p, media: om, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({ keyword: 'target' }.to_json)
+    assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
+    r1 = create_relationship source_id: s.id, target_id: t1.id
+    r2 = create_relationship source_id: s.id, target_id: t2.id
+    sleep 1
+    result = CheckSearch.new({ keyword: 'target' }.to_json)
+    assert_equal [s.id, o.id].sort, result.medias.map(&:id).sort
+    r1.destroy
+    r2.destroy
+    sleep 1
+    result = CheckSearch.new({ keyword: 'target' }.to_json)
+    assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
+  end
+
+  test "should filter target reports" do
+    t = create_team
+    p = create_project team: t
+    m = create_claim_media quote: 'test'
+    s = create_project_media project: p, disable_es_callbacks: false
+    
+    t1 = create_project_media project: p, media: m, disable_es_callbacks: false
+    create_relationship source_id: s.id, target_id: t1.id
+    
+    t2 = create_project_media project: p, disable_es_callbacks: false
+    create_relationship source_id: s.id, target_id: t2.id
+    
+    t3 = create_project_media project: p, disable_es_callbacks: false
+    create_relationship source_id: s.id, target_id: t3.id
+    vs = t3.last_verification_status_obj
+    vs.status = 'verified'
+    vs.save!
+
+    t4 = create_project_media project: p, disable_es_callbacks: false
+    create_relationship source_id: s.id, target_id: t4.id
+    ts = t4.last_translation_status_obj
+    ts.status = 'ready'
+    ts.save!
+
+    sleep 2
+    
+    assert_equal [t1, t2, t3, t4].sort, Relationship.targets_grouped_by_type(s).first['targets'].sort
+    assert_equal [t1].sort, Relationship.targets_grouped_by_type(s, { keyword: 'test' }).first['targets'].sort
+    assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { verification_status: ['verified'] }).first['targets'].sort
+    assert_equal [t4].sort, Relationship.targets_grouped_by_type(s, { translation_status: ['ready'] }).first['targets'].sort
   end
 end

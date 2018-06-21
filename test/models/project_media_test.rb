@@ -100,7 +100,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     m = create_valid_media user_id: u.id
     create_team_user team: t, user: u
-    pm = create_project_media project: p, media: m, user: u 
+    pm = create_project_media project: p, media: m, user: u
     with_current_user_and_team(u, t) do
       pm.project_id = p2.id; pm.save!
       pm.reload
@@ -1218,7 +1218,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user team: t, user: u1, role: 'owner'
     create_team_user team: t, user: u2, role: 'owner'
     pm = nil
-    
+
     with_current_user_and_team(u1, t) do
       pm = create_project_media project: p, user: u1
       pm = ProjectMedia.find(pm.id)
@@ -1226,14 +1226,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.embed = info
       pm.save!
     end
-    
+
     with_current_user_and_team(u2, t) do
       pm = ProjectMedia.find(pm.id)
       info = { title: 'Title' }.to_json
       pm.embed = info
       pm.save!
     end
-    
+
     assert_nothing_raised do
       embed = pm.get_annotations('embed').last.load
       embed.title_is_overridden?
@@ -1460,14 +1460,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'verified'; s.save!
-    
+
     pm = ProjectMedia.find(pm.id)
     assert_equal 'verified', pm.last_verification_status
-    
+
     pm = ProjectMedia.find(pm.id)
     create_task annotated: pm
     assert_equal 'verified', pm.last_verification_status
-   
+
     pm = ProjectMedia.find(pm.id)
     create_task annotated: pm, required: true
     assert_equal 'in_progress', pm.last_verification_status
@@ -1632,14 +1632,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     s.status = 'verified'
     s.locked = true
     s.save!
-    
+
     pm = ProjectMedia.find(pm.id)
     assert_equal 'verified', pm.last_verification_status
-    
+
     pm = ProjectMedia.find(pm.id)
     create_task annotated: pm
     assert_equal 'verified', pm.last_verification_status
-   
+
     pm = ProjectMedia.find(pm.id)
     create_task annotated: pm, required: true
     assert_equal 'verified', pm.last_verification_status
@@ -1670,5 +1670,59 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_nil pm.last_verification_status_obj
       assert_nil pm.last_translation_status_obj
     end
+  end
+
+  test "should return whether in final state or not" do
+    create_verification_status_stuff
+    create_translation_status_stuff(false)
+    pm = create_project_media
+    assert_equal false, pm.is_finished?
+    s = pm.last_status_obj
+    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
+    s.save!
+    assert_equal true, pm.is_finished?
+  end
+
+  test "should have relationships and parent and children reports" do
+    s1 = create_project_media
+    s2 = create_project_media
+    t1 = create_project_media
+    t2 = create_project_media
+    create_project_media
+    create_relationship source_id: s1.id, target_id: t1.id
+    create_relationship source_id: s2.id, target_id: t2.id
+    assert_equal [t1], s1.targets
+    assert_equal [t2], s2.targets
+    assert_equal [s1], t1.sources
+    assert_equal [s2], t2.sources
+  end
+
+  test "should get relationship target" do
+    pm = create_project_media
+    assert_nil pm.relationships_target
+    pm.related_to_id = 1
+    assert_not_nil pm.relationships_target.id
+  end
+
+  test "should get relationship source" do
+    pm = create_project_media
+    assert_nil pm.relationships_source
+    pm.related_to_id = 1
+    assert_not_nil pm.relationships_source.id
+  end
+
+  test "should return related" do
+    pm = create_project_media
+    pm2 = create_project_media
+    assert_nil pm.related_to
+    pm.related_to_id = pm2.id
+    assert_equal pm2, pm.related_to
+  end
+
+  test "should include extra attributes in serialized object" do
+    pm = create_project_media
+    pm.related_to_id = 1
+    dump = YAML::dump(pm)
+    assert_match /related_to_id/, dump
   end
 end
