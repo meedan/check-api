@@ -65,12 +65,12 @@ module CheckElasticSearchModel
     client = MediaSearch.gateway.client
     source_index = self.get_index_name
     target_index = "#{self.get_index_name_prefix}_#{Time.now.to_i}"
-    index_alias = CheckElasticSearchModel.get_index_alias
+    index_alias = self.get_index_alias
     client.indices.put_alias index: source_index, name: index_alias unless client.indices.exists_alias? name: index_alias
     begin
       # copy data to destination
       MediaSearch.migrate_es_data(source_index, target_index)
-      sleep 10
+      sleep 20
       client.indices.update_aliases body: {
         actions: [
           { remove: { index: source_index, alias: index_alias } },
@@ -108,13 +108,7 @@ module CheckElasticSearchModel
 
     def delete_index(index_name = self.index_name)
       client = self.gateway.client
-      if client.indices.exists? index: index_name
-        client.indices.delete index: index_name
-      end
-      # index_alias = "#{self.index_name}"
-      # if client.indices.exists_alias? name: index_alias
-      #   client.indices.delete_alias index: '*', name: index_alias
-      # end
+      client.indices.delete index: index_name if client.indices.exists? index: index_name
     end
 
     def migrate_es_data(source_index, target_index)
