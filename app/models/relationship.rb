@@ -12,7 +12,7 @@ class Relationship < ActiveRecord::Base
   after_create :increment_counters, :index_source
   after_destroy :decrement_counters, :unindex_source
 
-  has_paper_trail on: [:create], if: proc { |_x| User.current.present? }
+  has_paper_trail on: [:create, :destroy], if: proc { |_x| User.current.present? }
 
   def siblings(inclusive = false)
     query = ProjectMedia
@@ -25,7 +25,7 @@ class Relationship < ActiveRecord::Base
 
   def version_metadata(_object_changes)
     target = self.target
-    {
+    target.nil? ? nil : {
       target: {
         title: target.title,
         type: target.report_type,

@@ -67,6 +67,7 @@ module ProjectMediaPrivate
   end
 
   def destroy_related_medias
-    ProjectMedia.delay.destroy_related_medias(self.id)
+    user_id = User.current.nil? ? nil : User.current.id
+    ProjectMedia.delay.destroy_related_medias(YAML.dump(self), user_id)
   end
 end
