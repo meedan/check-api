@@ -14,6 +14,12 @@ class Relationship < ActiveRecord::Base
 
   has_paper_trail on: [:create, :destroy], if: proc { |_x| User.current.present? }
 
+  notifies_pusher on: [:create, :destroy],
+                  event: 'relationship_change',
+                  targets: proc { |r| r.source.nil? ? [] : [r.source.media] },
+                  if: proc { |r| !r.skip_notifications },
+                  data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id }.to_json : r.to_json }
+
   def siblings(inclusive = false)
     query = ProjectMedia
     .joins(:target_relationships)
@@ -23,7 +29,7 @@ class Relationship < ActiveRecord::Base
     inclusive ? query : query.where.not('relationships.target_id': self.target_id)
   end
 
-  def version_metadata(_object_changes)
+  def version_metadata(_object_changes = nil)
     target = self.target
     target.nil? ? nil : {
       target: {
