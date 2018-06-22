@@ -1,8 +1,7 @@
 class GraphqlCrudOperations
   def self.safe_save(obj, attrs, parents = [])
     attrs.each do |key, value|
-      method = key == 'clientMutationId' ? 'client_mutation_id' : key
-      method = "#{method}="
+      method = key == 'clientMutationId' ? 'client_mutation_id=' : "#{key}="
       obj.send(method, value) if obj.respond_to?(method)
     end
     obj.disable_es_callbacks = Rails.env.to_s == 'test'
@@ -15,7 +14,7 @@ class GraphqlCrudOperations
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless parent_name == 'public_team'
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team'].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -132,6 +131,7 @@ class GraphqlCrudOperations
     fields = {}
     parents.each do |parent|
       parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
+      parentclass = 'ProjectMedia' if parent == 'related_to'
       fields[parent.to_sym] = "#{parentclass}Type".constantize
     end
     fields
@@ -165,19 +165,6 @@ class GraphqlCrudOperations
       end
 
       instance_eval(&block)
-    end
-  end
-
-  def self.field_verification_statuses
-    proc do |classname|
-      field :verification_statuses do
-        type JsonStringType
-
-        resolve ->(obj, _args, _ctx) {
-          team = Team.current || Team.new
-          team.verification_statuses(classname, obj)
-        }
-      end
     end
   end
 
@@ -289,6 +276,8 @@ class GraphqlCrudOperations
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
 
       field :assigned_to, UserType
+
+      field :locked, types.Boolean
 
       instance_eval(&block) if block_given?
     end

@@ -151,7 +151,7 @@ module PaperTrail
 
     def get_associated
       case self.event_type
-      when 'create_comment', 'update_status', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_embed', 'destroy_comment', 'destroy_status', 'destroy_tag', 'destroy_task', 'destroy_flag', 'destroy_embed'
+      when 'create_comment', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_dynamic', 'update_dynamic', 'create_embed', 'destroy_comment', 'destroy_tag', 'destroy_task', 'destroy_flag', 'destroy_embed'
         self.get_associated_from_annotation(self.item)
       when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
         self.get_associated_from_dynamic_annotation
@@ -159,6 +159,8 @@ module PaperTrail
         [self.item.class.name, self.item_id.to_i]
       when 'update_source'
         self.get_associated_from_source
+      when 'create_relationship', 'destroy_relationship'
+        self.get_associated_from_relationship
       else
         [nil, nil]
       end
@@ -181,6 +183,11 @@ module PaperTrail
       s = self.item
       ps = s.project_sources.last unless s.nil?
       ps.nil? ? [nil, nil] : [ps.class.name, ps.id]
+    end
+
+    def get_associated_from_relationship
+      r = self.item
+      r.nil? ? [nil, nil] : ['ProjectMedia', r.source_id]
     end
 
     def set_project_association

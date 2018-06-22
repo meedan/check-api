@@ -8,18 +8,18 @@ class ProjectMediasControllerTest < ActionController::TestCase
     sign_out('user')
     User.current = nil
     ProjectMedia.delete_all
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
   end
 
   test "should not get oembed of absent media" do
-    skip("Skipping test for Bridge") if CONFIG['app_name'] === 'Bridge'
     pm = create_project_media
     get :oembed, id: pm.id + 1
     assert_response 404
   end
 
   test "should get oembed of private media" do
-    skip("Skipping test for Bridge") if CONFIG['app_name'] === 'Bridge'
     t = create_team private: true
     p = create_project team: t
     pm = create_project_media project: p
@@ -28,7 +28,6 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should get oembed of existing media" do
-    skip("Skipping test for Bridge") if CONFIG['app_name'] === 'Bridge'
     pm = create_project_media
     get :oembed, id: pm.id
     assert_response :success
@@ -40,16 +39,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     assert !@response.headers.include?('X-Frame-Options')
   end
 
-  test "should not embed if app is not Check" do
-    stub_config('app_name', 'Bridge') do
-      pm = create_project_media
-      get :oembed, id: pm.id
-      assert_response 501
-    end
-  end
-
   test "should create annotation when embedded for the first time only" do
-    skip("Skipping test for Bridge") if CONFIG['app_name'] === 'Bridge'
     pm = create_project_media
     assert_equal 0, pm.get_annotations('embed_code').count
     get :oembed, id: pm.id, format: :json
@@ -59,14 +49,12 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should render as HTML" do
-    skip("Skipping test for Bridge") if CONFIG['app_name'] === 'Bridge'
     pm = create_project_media
     get :oembed, id: pm.id, format: :html
     assert_no_match /iframe/, @response.body
   end
 
   test "should render as JSON" do
-    skip("Skipping test for Bridge") if CONFIG['app_name'] === 'Bridge'
     pm = create_project_media
     get :oembed, id: pm.id, format: :json
     assert_match /iframe/, @response.body
@@ -75,7 +63,6 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should render whole HTML instead of iframe if request comes from Pender" do
-    skip("Skipping test for Bridge") if CONFIG['app_name'] === 'Bridge'
     pm = create_project_media
     @request.headers['User-Agent'] = 'Mozilla/5.0 (compatible; Pender/0.1; +https://github.com/meedan/pender)'
     get :oembed, id: pm.id, format: :json
@@ -205,7 +192,6 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should persist parameters in embed iframe src" do
-    skip("Skipping test for Bridge") if CONFIG['app_name'] === 'Bridge'
     pm = create_project_media
     pattern = /oembed\.html\?hide_notes=1/
     RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ query_string: 'hide_notes=1', headers: { 'X-Check-Client' => 'test' } }))

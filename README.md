@@ -113,6 +113,17 @@ The test uses a EICAR file (a test file which is recognized as a virus by scanne
 * Add the readable name of that archiver to `config/locales/en.yml`
 * Add the default limit value for that archiver to `lib/check_limits.rb` and `app/views/rails_admin/main/_limits.html.erb` (you may need to add a migration too)
 
+### Implement a new workflow
+
+**IMPORTANT: Your annotation type must match your workflow class name... for example, Workflow::YourStatus for your class name and your_status for the annotation type**
+
+* Add a class `Workflow::YourStatus` to `app/models/workflow/your_status.rb` that inherits from `Workflow::Base`
+* Add a migration to create that dynamic annotation type (type should be the same name as the class, e.g., `your_status`)
+* Add translations to `config/locales/*.yml`
+* Add core values to `config/core_statuses.yml`
+* Add the new class to the list `Workflow::Workflow.workflows`
+* Take a look at existing implementations under `app/models/workflow/*`
+
 ### Localization
 
 Localization is powered by Transifex + I18n. In order to localize the application, you need to set the `transifex_user` and `transifex_password` configuration options on `config/config.yml`. Then, when you run `rake transifex:localize`, the following will happen automatically:

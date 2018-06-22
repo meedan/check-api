@@ -30,9 +30,7 @@ module CheckExport
   end
 
   def get_project_media_status(pm)
-    CONFIG['app_name'] === 'Bridge' ?
-      pm.get_annotations('translation_status').last.load.get_field('translation_status_status').value :
-      pm.last_status
+    pm.get_project_media_status
   end
 
   def export_project_media_annotations(pm)

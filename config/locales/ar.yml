@@ -12,15 +12,27 @@ ar:
       not_applicable:
         label: غير محسوم
         description: لا يمكن استنتاج حالة التقرير باستخدام الدلائل المتاحة
-      in_progress:
-        label: جار التحقق من صحته
-        description: تم بدء العمل على التحقق من صحة التقرير، لكن لم يتم تحديد حالته بعد
       not_true:
         label: 'مزيف'
         description: 'النتيجة: التقرير مزيف'
       verified:
         label: صحيح
         description: 'النتيجة: تم التأكد من صحة التقرير'
+      pending:
+        label: مُعَلَّق
+        description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
+      in_progress:
+        label: جار التحقق من صحته
+        description: بدأ العمل على العنصر ولم تتم الترجمة بعد
+      translated:
+        label: مُتَرجَم
+        description: تمت الترجمة ولم تبدأ المراجعة بعد
+      ready:
+        label: جاهز
+        description: تمت المراجعة والعنصر جاهز للنشر
+      error:
+        label: خطأ
+        description: تمت المراجعة وهناك أخطاء يجب تصحيحها
     source:
       undetermined:
         label: لم يبدأ بعد
@@ -83,6 +95,10 @@ ar:
         email: البريد الإلكتروني
     errors:
       models:
+        tag:
+          attributes:
+            data:
+              already_exists: موجود بالفعل
         team:
           attributes:
             slug:
@@ -104,16 +120,21 @@ ar:
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
   invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
-  invalid_id_or_label_for_custom_verification_status: مُعَرِّف حالة التحقق وعنوانها مطلوبان
+  invalid_label_for_custom_verification_status: عنوان حالة التحقق مطلوب
+  invalid_id_for_custom_verification_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف والأرقام و'-' و '_' فقط
   invalid_statuses_format_for_custom_verification_status: "حالات التحقق الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية."
-  already_exists: موجود بالفعل
+  invalid_default_status_for_custom_translation_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
+  invalid_active_status_for_custom_translation_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
+  invalid_label_for_custom_translation_status: عنوان حالة التحقق مطلوب
+  invalid_id_for_custom_translation_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف والأرقام و'-' و '_' فقط
+  invalid_statuses_format_for_custom_translation_status: "حالات الترجمة الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية."
   mail_account_confirmation: "تأكيد حساب %{app_name}"
   mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على %{app_name}"
   approved: تم الموافقة
   rejected: لم يتم الموافقة
   mail_request_to_join_processed: '%{status} على طلب انضمامك إلى فريق %{team} على %{app_name}'
   mail_new_account: حساب جديد لك على %{app_name}
-  slack_update_status: "غير(ت) *%{user}* حالة التحقق على %{url} في *%{project}* من _%{previous_status}_ إلى *%{current_status}*"
+  slack_update_verification_status: "غير(ت) *%{user}* حالة التحقق على %{url} في *%{project}* من _%{from}_ إلى *%{to}*"
   slack_save_embed: "غير(ت) *%{user}* عنوان التقرير في  *%{project}* من _%{from}_ إلى %{to}"
   slack_save_comment: "أضاف *%{user}* تعليقاً على %{url} في %{project}*: %{comment}"
   slack_create_project: "أضاف %{user}*  مشروع: %{url}"
@@ -169,7 +190,7 @@ ar:
   email_not_found: هذا البريد الإلكتروني غير موجود
   slack_channel_format_wrong: 'صيغة قناة Slack غير صحيحة - الصيغة المطلوبة هي `#general`'
   translation_status_not_valid: الحالة غير صحيحة
-  translation_status_permission_error: عفواً ليس لديك الإذن ﻹحداث هذا التغيير
+  translation_status_permission_error: ليس لديك الإذن ﻹحداث هذا التغيير
   translation_request_id_exists: هناك طلب آخر لترجمة هذه الرسالة
   slack_update_translation_status: "غير(ت) *%{user}* حالة الترجمة على *%{report}* من *%{from}* إلى *%{to}*"
   auto_publisher_added_to_project: من الآن سوف يتم نشر كل ترجمة في %{project} إلى الحساب الذي أخترته على %{provider}. إن غيرت رأيك من فضلك تواصل مع فريق الدعم أو أحذف تطبيق Bridge من الحساب على %{provider}.
@@ -206,6 +227,8 @@ ar:
     many: "%{count} مهمة مكتملة"
     other: "%{count} مهام مكتملة"
   oembed_verification_tasks: مهام التحقق من المعلومات
+  oembed_tasks: المهام
+  oembed_translations: الترجمات
   oembed_expand_all: توسيع الكل
   oembed_collapse_all: طيّ الكل
   oembed_resolved_tasks_count:
@@ -236,23 +259,30 @@ ar:
   account_exists: هذا الحساب موجود بالفعل
   media_exists: هذا الميديا موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
+  banned_user: 'عذراً ، لقد تم حظرك من %{app_name}. يمكنك اﻹتصال على %{support_email} إن كنت تعتقد أن هناك خطأ ما.'
   devise:
     mailer:
       reset_password_instructions:
         instruction: "طلب أحدهم رابطًا لتغيير كلمة السر الخاصة بك، ويُمكن عمل ذلك من خلال الرابط التالي. <strong>يرجى الملاحظة أن مدة صلاحية الرابط %{expire} ساعات.</strong>"
   error_user_is_not_a_team_member: "عذراً ، لا يمكنك تكليف مهام لغير أعضاء هذا الفريق"
-  slack_assign_report: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
-  slack_unassign_report: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
+  slack_assign_verification_status: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
+  slack_unassign_verification_status: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
+  slack_assign_translation_status: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
+  slack_unassign_translation_status: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
   slack_assign_task: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
   slack_unassign_task: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
   mail_see_it: "تستطيع أن تراه هنا : "
-  mail_subject_assign_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
-  mail_subject_unassign_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
+  mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
+  mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
+  mail_subject_assign_translation_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
+  mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
   mail_subject_assign_task: "[%{team} - %{project}] تم تكليف مهمة إليك"
   mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء تكليف مهمة"
   mail_subject_update_status: "[%{team} - %{project}] تم تغيير حالة ميديا إلى %{status}"
-  mail_assign_status: "كلَّفَ(ت) %{author} إليك ميديا : "
-  mail_unassign_status: "ألغى(ت) %{author} تكليف ميديا : "
+  mail_assign_verification_status: "كلَّفَ(ت) %{author} إليك ميديا : "
+  mail_unassign_verification_status: "ألغى(ت) %{author} تكليف ميديا : "
+  mail_assign_translation_status: "كلَّفَ(ت) %{author} إليك ميديا : "
+  mail_unassign_translation_status: "ألغى(ت) %{author} تكليف ميديا : "
   mail_assign_task: "كلَّفَ(ت) %{author} إليك مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_unassign_task: "ألغى(ت) %{author} تكليف مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_update_status: "قام %{author} بتغيير حالة \"%{title}\" إلى %{status}."
@@ -261,6 +291,12 @@ ar:
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
   project_export_email_title_csv: "تقرير مشروعك جاهز للتحميل"
+  workflow_status_not_valid: " عذراً ، هذه الحالة غير صحيحة"
+  workflow_status_permission_error: "عذراً ، ليس مسموح لك تغيير هذه الحالة"
+  blank_default_status_for_custom_translation_status: "من فضلك أضف قيمة إفتراضية لحالات الترجمة الخاصة"
+  blank_active_status_for_custom_translation_status: "من فضلك أضف قيمة نشطة لحالات الترجمة الخاصة"
+  blank_default_status_for_custom_verification_status: "من فضلك أضف قيمة إفتراضية لحالات التحقق الخاصة"
+  blank_active_status_for_custom_verification_status: "من فضلك أضف قيمة نشطة لحالات التحقق الخاصة"
   project_export_download_mail_csv: "مرحباً !\n\nلقد طلبت تقريراً عن المشروع %{project} - إليك الرابط لتحميله : %{link}\n\nسوف يتم تحميل التقرير على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
   project_export_email_title_images: "صور مشروعك جاهزة للتحميل"
   project_export_download_mail_images: "مرحباً !\n\nلقد طلبت تحميل صور المشروع %{project} - إليك الرابط لتحميلها : %{link}\n\nسوف يتم تحميل الصور على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"

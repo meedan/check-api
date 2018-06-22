@@ -341,7 +341,7 @@ Take a look at [GraphiQL](https://check-api.checkmedia.org/graphiql) interface i
 _Query_
 ```
 query {
-  search(query: "{\"status\":[\"verified\"],\"projects\":[\"778\"]}") {
+  search(query: "{\"verification_status\":[\"verified\"],\"projects\":[\"778\"]}") {
     medias(first: 10000) {
       edges {
         node {

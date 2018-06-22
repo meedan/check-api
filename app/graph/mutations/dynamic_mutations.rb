@@ -1,21 +1,23 @@
 module DynamicMutations
-  create_fields = {
-    set_fields: '!str',
-    annotation_type: '!str',
+  fields = {
     annotated_id: 'str',
     annotated_type: 'str',
     set_attribution: 'str'
   }
 
-  update_fields = {
+  create_fields = fields.merge({
+    set_fields: '!str',
+    annotation_type: '!str'
+  })
+
+  update_fields = fields.merge({
     set_fields: 'str',
     annotation_type: 'str',
-    annotated_id: 'str',
-    annotated_type: 'str',
     id: '!id',
     lock_version: 'int',
-    set_attribution: 'str'
-  }
+    assigned_to_id: 'int',
+    locked: 'bool'
+  })
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('dynamic', create_fields, update_fields, ['project_media', 'project_source', 'source', 'project'])
 end

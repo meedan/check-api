@@ -48,11 +48,11 @@ module CheckPermissions
     {
       'Team' => [Project, Account, TeamUser, User, Contact],
       'Account' => [Media, Link, Claim],
-      'Media' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic, Task],
-      'Link' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic, Task],
-      'Claim' => [ProjectMedia, Comment, Flag, Status, Tag, Dynamic, Task],
+      'Media' => [ProjectMedia, Comment, Flag, Tag, Dynamic, Task],
+      'Link' => [ProjectMedia, Comment, Flag, Tag, Dynamic, Task],
+      'Claim' => [ProjectMedia, Comment, Flag, Tag, Dynamic, Task],
       'Project' => [ProjectSource, Source, Media, ProjectMedia, Claim, Link],
-      'ProjectMedia' => [Comment, Flag, Status, Tag, Dynamic, Task],
+      'ProjectMedia' => [Comment, Flag, Tag, Dynamic, Task],
       'Source' => [Account, ProjectSource, Project],
       'User' => [Source, TeamUser, Team, Project]
     }

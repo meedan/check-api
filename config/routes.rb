@@ -4,9 +4,7 @@ require 'sidekiq/web'
 Rails.application.routes.draw do
   mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
   mount GraphiQL::Rails::Engine, at: '/graphiql', graphql_path: '/api/graphql'
-  if Rails.env.production?
-    mount Sidekiq::Web => '/sidekiq'
-  end
+  mount Sidekiq::Web => '/sidekiq'
 
   # Later, remove from here...
   resources :sources
@@ -23,6 +21,7 @@ Rails.application.routes.draw do
         match '/' => 'base_api#options', via: [:options]
       end
       get 'version', to: 'base_api#version'
+      get 'ping', to: 'base_api#ping'
       post 'log', to: 'base_api#log'
       match '/me' => 'base_api#me', via: [:get]
       match '/graphql' => 'graphql#create', via: [:post]

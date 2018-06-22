@@ -204,6 +204,8 @@ class TestControllerTest < ActionController::TestCase
   end
 
   test "should set media status if in test mode" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
@@ -213,7 +215,7 @@ class TestControllerTest < ActionController::TestCase
     create_team_user team: t, user: u
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    get :media_status, pm_id: pm.id, status: 'false'
+    get :media_status, pm_id: pm.id, status: 'in_progress'
     assert_response :success
   end
 

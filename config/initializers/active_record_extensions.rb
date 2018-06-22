@@ -6,7 +6,7 @@ module ActiveRecordExtensions
     include CheckNotifications::Pusher
     include CheckSettings
 
-    attr_accessor :no_cache, :skip_check_ability, :skip_notifications, :disable_es_callbacks, :client_mutation_id
+    attr_accessor :no_cache, :skip_check_ability, :skip_notifications, :disable_es_callbacks, :client_mutation_id, :skip_clear_cache
 
     before_save :check_ability
     before_destroy :check_destroy_ability, :destroy_annotations_and_versions
@@ -49,7 +49,7 @@ module ActiveRecordExtensions
   end
 
   def destroy_annotations_and_versions
-    self.versions.destroy_all if self.class_name.constantize.paper_trail.enabled?
+    self.versions.where.not(event_type: 'create_relationship').destroy_all if self.class_name.constantize.paper_trail.enabled?
     self.annotations.destroy_all if self.respond_to?(:annotations)
   end
 

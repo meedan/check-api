@@ -65,7 +65,7 @@ module AnnotationBase
     include CustomLock
     include Assignment
 
-    attr_accessor :disable_es_callbacks, :disable_update_status, :is_being_copied
+    attr_accessor :disable_es_callbacks, :is_being_copied
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
@@ -76,7 +76,6 @@ module AnnotationBase
 
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
-    after_create :update_annotated_status, if: proc { |status| status.annotated_type == 'ProjectMedia' && !status.is_being_copied }
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
 
@@ -94,16 +93,6 @@ module AnnotationBase
 
     validate :annotated_is_not_archived, unless: proc { |a| a.is_being_copied }
 
-    private
-
-    def update_annotated_status
-      return if disable_update_status
-      types = ['Task', 'Comment', 'Tag', 'Flag']
-      if types.include?(self.class.name) || self.annotation_type =~ /^task_response/
-        self.annotated.move_media_to_active_status unless self.annotated.nil?
-      end
-    end
-
     def start_serialized_fields
       self.data ||= {}
       self.entities ||= []
@@ -114,6 +103,7 @@ module AnnotationBase
       unless annotated.nil?
         annotated.skip_check_ability = true
         annotated.skip_notifications = true # the notification will be triggered by the annotation already
+        annotated.skip_clear_cache = self.skip_clear_cache
         annotated.updated_at = Time.now
         annotated.disable_es_callbacks = (Rails.env.to_s == 'test')
         annotated.save!
@@ -283,7 +273,7 @@ module AnnotationBase
     type, id = self.send("#{name}_type"), self.send("#{name}_id")
     return nil if type.blank? || id.blank?
     Rails.cache.fetch("find_#{type.parameterize}_#{id}", expires_in: 30.seconds, race_condition_ttl: 30.seconds) do
-      type.constantize.find(id)
+      type.constantize.where(id: id).last
     end
   end
 

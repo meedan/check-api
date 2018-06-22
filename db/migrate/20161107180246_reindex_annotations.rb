@@ -10,7 +10,10 @@ class ReindexAnnotations < ActiveRecord::Migration
       Annotation.create_index
       n = 0
 
-      [Comment, Embed, Flag, Status, Tag].each do |klass|
+      classes = [Comment, Embed, Flag, Tag]
+      classes << Status unless defined?(Status).nil?
+
+      classes.each do |klass|
         puts "[ANNOTATIONS MIGRATION] Migrating #{klass.name.parameterize} to #{CONFIG['elasticsearch_index']}"
 
         # Load data from old index

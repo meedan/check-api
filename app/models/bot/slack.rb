@@ -124,12 +124,15 @@ class Bot::Slack < ActiveRecord::Base
       def create_or_update_slack_message(options = {})
         events = options[:on] || []
         [events].flatten.each do |event|
-          send("after_#{event}", "call_slack_api_#{options[:endpoint]}")
+          params = {}
+          params[:if] = options[:if] if options.has_key?(:if)
+          send("after_#{event}", "call_slack_api_#{options[:endpoint]}", params)
         end
       end
 
       def call_slack_api(id, mutation_id, endpoint)
         obj = self.find(id)
+        obj = obj.annotation.load if obj.is_a?(DynamicAnnotation::Field)
         return if obj.annotated.nil? || !obj.annotated.respond_to?(:get_annotations)
         slack_message_id = mutation_id.to_s.match(/^fromSlackMessage:(.*)$/)
         obj.annotated.get_annotations('slack_message').each do |annotation|
@@ -166,7 +169,7 @@ class Bot::Slack < ActiveRecord::Base
     def update_slack_message_attachments(attachments)
       label = ''
       I18n.with_locale(:en) do
-        statuses = self.project.team.get_media_verification_statuses || Status.core_verification_statuses('media')
+        statuses = Workflow::Workflow.options(self, self.default_media_status_type)
         statuses = statuses.with_indifferent_access['statuses']
         statuses.each { |status| label = status['label'] if status['id'] == self.last_status }
       end
@@ -194,15 +197,28 @@ class Bot::Slack < ActiveRecord::Base
     create_or_update_slack_message on: :create, endpoint: :post_message
 
     def slack_message_parameters(id, _channel, _attachments)
-      # Not localized yet because Check Slack Bot is only in English for now
-      { thread_ts: id, text: 'Comment by ' + self.annotator.name + ': ' + self.text }
+      { thread_ts: id, text: "Comment by #{self.annotator.name}: #{self.text}" }
     end
   end
 
-  Status.class_eval do
+  Dynamic.class_eval do
     include ::Bot::Slack::SlackMessage
+    
+    create_or_update_slack_message on: :create, endpoint: :post_message, if: proc { |a| a.annotation_type == 'translation' }
 
-    create_or_update_slack_message on: :update, endpoint: :update
+    def slack_message_parameters(id, _channel, attachments)
+      if self.annotation_type == 'translation'
+        { thread_ts: id, text: ('Translated to ' + self.get_field('translation_language').to_s + ' by ' + self.annotator.name + ': ' + self.get_field('translation_text').value) }
+      else
+        { ts: id, attachments: self.annotated.update_slack_message_attachments(attachments) }
+      end
+    end
+  end
+
+  DynamicAnnotation::Field.class_eval do
+    include ::Bot::Slack::SlackMessage
+    
+    create_or_update_slack_message on: :update, endpoint: :update, if: proc { |f| f.annotation.annotation_type.match(/_status$/) }
   end
 
   Embed.class_eval do

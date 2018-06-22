@@ -2,7 +2,7 @@ class Task < ActiveRecord::Base
   include AnnotationBase
 
   before_validation :set_initial_status, :set_slug, on: :create
-  after_create :send_slack_notification, :back_status_to_active
+  after_create :send_slack_notification
   after_update :send_slack_notification_in_background
   after_destroy :destroy_responses
 
@@ -125,7 +125,7 @@ class Task < ActiveRecord::Base
     response.annotated = self.annotated
     response.annotation_type = params['annotation_type']
     response.disable_es_callbacks = Rails.env.to_s == 'test'
-    response.disable_update_status = Rails.env.to_s == 'test'
+    response.disable_update_status = (Rails.env.to_s == 'test') && response.respond_to?(:disable_update_status)
     response.set_fields = params['set_fields']
     response.save!
     @response = response
@@ -185,17 +185,5 @@ class Task < ActiveRecord::Base
     uid = User.current ? User.current.id : 0
     rid = self.response.nil? ? 0 : self.response.id
     Task.delay_for(1.second).send_slack_notification(self.id, rid, uid, self.changes.to_json)
-  end
-
-  def back_status_to_active
-    return if self.is_being_copied
-    if self.required == true && self.annotated_type == 'ProjectMedia'
-      annotated = self.annotated
-      s = annotated.get_annotations('status').last
-      if !s.nil?
-        s = s.load
-        annotated.set_active_status(s) if Status.completed_ids(annotated.media, annotated.project).include?(s.status)
-      end
-    end
   end
 end

@@ -1,6 +1,6 @@
 class MigratePendingStatus < ActiveRecord::Migration
   def change
-    if CONFIG['app_name'] === 'Check'
+    if CONFIG['app_name'] === 'Check' && !defined?(Status).nil?
       url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
       client = Elasticsearch::Client.new url: url
       options = {

@@ -14,6 +14,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :archived, types.Boolean
   field :author_role, types.String
   field :report_type, types.String
+  field :target_languages, types.String
 
   field :permissions, types.String do
     resolve -> (project_media, _args, ctx) {
@@ -144,10 +145,11 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   field :last_status_obj do
-    type -> { StatusType }
+    type -> { DynamicType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.last_status_obj
+      obj = project_media.last_status_obj
+      obj.is_a?(Dynamic) ? obj : obj.load
     }
   end
 
@@ -203,8 +205,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  instance_exec :media, &GraphqlCrudOperations.field_verification_statuses
-
   connection :assignments, -> { AnnotationType.connection_type } do
     argument :user_id, !types.Int
     argument :annotation_type, !types.String
@@ -212,6 +212,21 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     resolve ->(project_media, args, _ctx) {
       Annotation.where(annotated_type: 'ProjectMedia', annotated_id: project_media.id, assigned_to_id: args['user_id'], annotation_type: args['annotation_type'])
     }
+  end
+
+  field :relationships do
+    type -> { RelationshipsType }
+
+    resolve -> (project_media, _args, _ctx) do
+      OpenStruct.new({
+        id: project_media.id,
+        target_id: Relationship.target_id(project_media),
+        source_id: Relationship.source_id(project_media),
+        project_media_id: project_media.id,
+        targets_count: project_media.targets_count,
+        sources_count: project_media.sources_count
+      })
+    end
   end
 
   # End of fields
