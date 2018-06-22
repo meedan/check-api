@@ -225,7 +225,6 @@ class ProjectMedia < ActiveRecord::Base
     targets.map(&:destroy)
     user = User.where(id: user_id).last
     Relationship.where(target_id: project_media_id).each do |r|
-      source = r.source
       User.current = user
       r.skip_check_ability = true
       r.target = project_media
