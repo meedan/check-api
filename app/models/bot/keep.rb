@@ -66,6 +66,7 @@ class Bot::Keep
     end
 
     def reset_archive_response(annotation)
+      return if self.should_skip_create_archive_annotation?(annotation.annotation_type)
       a = annotation.load || annotation
       a.skip_check_ability = true
       a.disable_es_callbacks = Rails.env.to_s == 'test'
@@ -87,6 +88,10 @@ class Bot::Keep
       define_method :"archive_#{type}_enabled=" do |enabled|
         self.send("set_archive_#{type}_enabled", enabled)
       end
+    end
+
+    def get_limits_keep_screenshot
+      false
     end
   end
 end
