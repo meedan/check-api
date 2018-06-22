@@ -241,14 +241,28 @@ class RelationshipTest < ActiveSupport::TestCase
     so = create_project_media
     n = so.cached_annotations_count
     ta = create_project_media
+    
     with_current_user_and_team(u, t) do
       r = create_relationship source_id: so.id, target_id: ta.id
     end
+    
     assert_not_empty r.versions
     v = r.versions.last
     assert_equal so.id, v.associated_id
     assert_equal 'ProjectMedia', v.associated_type
     assert_equal n + 1, so.reload.cached_annotations_count
     assert so.get_versions_log.map(&:event_type).include?('create_relationship')
+
+    with_current_user_and_team(u, t) do
+      ta.destroy
+    end
+    
+    v2 = PaperTrail::Version.where(event_type: 'destroy_relationship').last
+    assert_not_equal v, v2
+    assert_equal so.id, v2.associated_id
+    assert_equal 'ProjectMedia', v2.associated_type
+    assert_equal n + 2, so.reload.cached_annotations_count
+    assert so.get_versions_log.map(&:event_type).include?('destroy_relationship')
+    assert_not_nil v2.meta
   end
 end
