@@ -233,13 +233,8 @@ class ProjectMedia < ActiveRecord::Base
       User.current = nil
       v = r.versions.where(event_type: 'destroy_relationship').last
       unless v.nil?
-        v.meta = r.version_metadata.to_json
+        v.meta = r.version_metadata
         v.save!
-      end
-      unless source.nil?
-        source.updated_at = Time.now
-        source.skip_check_ability = true
-        source.save!
       end
     end
   end
