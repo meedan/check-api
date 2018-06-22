@@ -93,3 +93,4 @@ gem 'deep_cloneable', '~> 2.3.0'
 gem 'test_after_commit', group: :test
 gem 'rails-html-sanitizer', '1.0.4'
 gem 'minitest-retry'
+gem 'sprockets', '3.7.2'

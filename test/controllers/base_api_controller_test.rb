@@ -9,6 +9,7 @@ class BaseApiControllerTest < ActionController::TestCase
           match '/test' => 'test#test', via: [:get, :post]
           match '/notify' => 'test#notify', via: [:post]
           get 'version', to: 'base_api#version'
+          get 'ping', to: 'base_api#ping'
           post 'log', to: 'base_api#log'
           scope '/me' do
             match '/' => 'base_api#me', via: [:get]
@@ -173,5 +174,11 @@ class BaseApiControllerTest < ActionController::TestCase
     @controller = Api::V1::BaseApiController.new
     post :log, foo: 'bar'
     assert_response 401
+  end
+
+  test "should ping" do
+    @controller = Api::V1::BaseApiController.new
+    get :ping
+    assert_response :success
   end
 end

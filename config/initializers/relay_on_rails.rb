@@ -49,6 +49,8 @@ class CheckGraphql
     if type_name == 'About'
       name = Rails.application.class.parent_name
       obj = OpenStruct.new({ name: name, version: VERSION, id: 1, type: 'About' })
+    elsif ['Relationships', 'RelationshipsSource', 'RelationshipsTarget'].include?(type_name)
+      obj = ProjectMedia.find(id)
     elsif type_name == 'CheckSearch'
       obj = CheckSearch.new(id)
     else

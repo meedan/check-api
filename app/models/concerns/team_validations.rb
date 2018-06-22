@@ -13,9 +13,6 @@ module TeamValidations
     validates :logo, size: true
     validate :slack_webhook_format
     validate :slack_channel_format
-    validate :custom_media_statuses_format, unless: proc { |p| p.settings.nil? || p.get_media_verification_statuses.nil? }
-    validate :custom_source_statuses_format, unless: proc { |p| p.settings.nil? || p.get_source_verification_statuses.nil? }
     validate :checklist_format
-    validate :change_custom_media_statuses, if: proc {|t| t.get_limits_custom_statuses == true}
   end
 end

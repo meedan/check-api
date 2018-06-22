@@ -6,7 +6,7 @@ module CheckElasticSearchModel
     include ActiveModel::Validations::Callbacks
     include Elasticsearch::Persistence::Model
 
-    index_name CheckElasticSearchModel.get_index_name
+    index_name CheckElasticSearchModel.get_index_alias
 
     settings analysis: {
       char_filter: {
@@ -43,21 +43,44 @@ module CheckElasticSearchModel
   end
 
   def self.get_index_name
+    client = MediaSearch.gateway.client
+    index_name = self.get_index_name_prefix
+    index_alias = self.get_index_alias
+    if client.indices.exists_alias? name: index_alias
+      alias_info = client.indices.get_alias name: index_alias
+      index_name = alias_info.keys.first
+    end
+    index_name
+  end
+
+  def self.get_index_name_prefix
     CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
   end
 
-  def self.reindex_es_data(mapping_keys = nil)
-    mapping_keys = [MediaSearch, CommentSearch, TagSearch, DynamicSearch] if mapping_keys.nil?
-    source_index = CheckElasticSearchModel.get_index_name
-    target_index = "#{source_index}_reindex"
+  def self.get_index_alias
+     self.get_index_name_prefix + '_alias'
+  end
+
+  def self.reindex_es_data
+    client = MediaSearch.gateway.client
+    source_index = self.get_index_name
+    target_index = "#{self.get_index_name_prefix}_#{Time.now.to_i}"
+    index_alias = self.get_index_alias
+    client.indices.put_alias index: source_index, name: index_alias unless client.indices.exists_alias? name: index_alias
     begin
-      MediaSearch.delete_index target_index
-      MediaSearch.migrate_es_data(source_index, target_index, mapping_keys)
+      # copy data to destination
+      MediaSearch.migrate_es_data(source_index, target_index)
+      sleep 20
+      client.indices.update_aliases body: {
+        actions: [
+          { remove: { index: source_index, alias: index_alias } },
+          { add:    { index: target_index, alias: index_alias } }
+        ]
+      }
       sleep 1
-      MediaSearch.migrate_es_data(target_index, source_index, mapping_keys)
-      MediaSearch.index_name = source_index
+      MediaSearch.delete_index source_index
     rescue StandardError => e
-      Rails.logger.error "[ES MIGRATION] Could not start migation: #{e.message}"
+      Rails.logger.error "[ES Re-Index] Could not start re-indeing : #{e.message}"
     end
   end
 
@@ -68,9 +91,9 @@ module CheckElasticSearchModel
   end
 
   module ClassMethods
-    def create_index
+    def create_index(index_name = nil, c_alias = true)
+      index_name = "#{CheckElasticSearchModel.get_index_name_prefix}_#{Time.now.to_i}" if index_name.nil?
       client = self.gateway.client
-      index_name = self.index_name
       settings = []
       mappings = []
       [MediaSearch, CommentSearch, TagSearch, DynamicSearch, AccountSearch].each do |klass|
@@ -80,47 +103,19 @@ module CheckElasticSearchModel
       settings = settings.reduce(:merge)
       mappings = mappings.reduce(:merge)
       client.indices.create index: index_name, body: { settings: settings.to_hash, mappings: mappings.to_hash }
+      client.indices.put_alias index: index_name, name: CheckElasticSearchModel.get_index_alias if c_alias
     end
 
     def delete_index(index_name = self.index_name)
       client = self.gateway.client
-      if client.indices.exists? index: index_name
-        client.indices.delete index: index_name
-      end
+      client.indices.delete index: index_name if client.indices.exists? index: index_name
     end
 
-    def migrate_es_data(source_index, target_index, mapping_keys)
-      MediaSearch.index_name = target_index
-      MediaSearch.create_index
-      n = 0
-      mapping_keys.each do |klass|
-        Rails.logger.info "[ES MIGRATION] Migrating #{klass.name.parameterize} to #{target_index}"
-        # Load data from old index
-        url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
-        repository = Elasticsearch::Persistence::Repository.new url: url
-        repository.type = klass.name.underscore
-        repository.klass = klass
-        repository.index = source_index
-        results = repository.search(query: { match: { annotation_type: klass.name.parameterize } }, size: 10000)
-        # Save data into new index
-        klass.index_name = target_index
-        results.each_with_hit do |obj, hit|
-          n += 1
-          begin
-            options = {}
-            options = {parent: hit._parent} unless hit._parent.nil?
-            obj.id = hit._id
-            obj.save!(options)
-            Rails.logger.debug "[ES MIGRATION] Migrated #{klass.name} ##{n}"
-          rescue StandardError => e
-            Rails.logger.error "[ES MIGRATION] Could not migrate this item: #{obj.inspect}: #{e.message}"
-          end
-        end
-      end
-      Rails.logger.info "Migration is finished! #{n} items were migrated."
-      # Delete old index
-      MediaSearch.index_name = source_index
-      MediaSearch.delete_index
+    def migrate_es_data(source_index, target_index)
+      client = self.gateway.client
+      MediaSearch.delete_index target_index
+      MediaSearch.create_index(target_index, false)
+      client.reindex body: { source: { index: source_index }, dest: { index: target_index } }
     end
 
     def all_sorted(order = 'asc', field = 'created_at')

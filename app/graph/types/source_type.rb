@@ -72,7 +72,4 @@ SourceType = GraphqlCrudOperations.define_default_type do
   instance_exec :source, &GraphqlCrudOperations.field_log
 
   instance_exec :source, &GraphqlCrudOperations.field_log_count
-
-  instance_exec :source, &GraphqlCrudOperations.field_verification_statuses
-
 end

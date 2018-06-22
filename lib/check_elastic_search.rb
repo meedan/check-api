@@ -12,6 +12,8 @@ module CheckElasticSearch
     ms = MediaSearch.new
     ms.team_id = p.team.id
     ms.project_id = p.id
+    rtid = self.is_a?(ProjectMedia) ? (self.related_to_id || self.sources.first&.id) : nil
+    ms.relationship_sources = [Digest::MD5.hexdigest(Relationship.default_type.to_json) + '_' + rtid.to_s] unless rtid.blank?
     ms.set_es_annotated(self)
     self.add_extra_elasticsearch_data(ms)
     ms.save!
@@ -22,14 +24,14 @@ module CheckElasticSearch
     unless ms.nil?
       data = get_elasticsearch_data(options[:data])
       # add mising field on parent
-      data.merge!(add_missing_fileds(options))
+      data.merge!(add_missing_fields(options))
       fields = {'last_activity_at' => Time.now.utc}
       options[:keys].each{|k| fields[k] = data[k] if ms.respond_to?("#{k}=") and !data[k].blank? }
       ms.update fields
     end
   end
 
-  def add_missing_fileds(options)
+  def add_missing_fields(options)
     data = {}
     parent = options[:parent]
     return data unless ['ProjectMedia', 'ProjectSource'].include?(parent.class.name)

@@ -22,10 +22,6 @@ DynamicAnnotation::Field.class_eval do
     response
   end
 
-  def field_formatter_name_translation_status_status
-    self.value.titleize
-  end
-
   def field_formatter_type_geojson
     geojson = JSON.parse(self.value)
     value = geojson['properties']['name']

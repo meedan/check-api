@@ -62,4 +62,12 @@ module ProjectMediaPrivate
     self.update_media_search(['account'], {account: self.set_es_account_data}, self.id)
   end
 
+  def archive_or_restore_related_medias_if_needed
+    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.archived_changed?
+  end
+
+  def destroy_related_medias
+    user_id = User.current.nil? ? nil : User.current.id
+    ProjectMedia.delay.destroy_related_medias(YAML.dump(self), user_id)
+  end
 end

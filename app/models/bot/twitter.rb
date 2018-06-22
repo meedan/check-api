@@ -28,9 +28,7 @@ class Bot::Twitter < ActiveRecord::Base
       end
 
       text = self.format_for_twitter(self.text)
-      image = self.get_screenshot_for_twitter
-      tweet = self.twitter_client.update_with_media(text, File.new(image))
-      FileUtils.rm(image)
+      tweet = self.twitter_client.update(text)
 
       tweet.url.to_s
     end
@@ -38,18 +36,19 @@ class Bot::Twitter < ActiveRecord::Base
 
   protected
 
-  def get_screenshot_for_twitter
-    require 'open-uri'
-    url = self.embed_url(:private, :png)
-    path = File.join(Dir::tmpdir, "#{Time.now.to_i}_#{rand(100000)}.png")
-    # Try to get screenshot from Reader... if it doesn't work, use a default image
-    begin
-      IO.copy_stream(open(url, { ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE, read_timeout: 60 }), path)
-    rescue
-      FileUtils.cp File.join(Rails.root, 'public', 'images', 'bridge.png'), path
-    end
-    path
-  end
+  # Not sending any screenshot for now
+  # def get_screenshot_for_twitter
+  #   require 'open-uri'
+  #   url = self.embed_url(:private, :png)
+  #   path = File.join(Dir::tmpdir, "#{Time.now.to_i}_#{rand(100000)}.png")
+  #   # Try to get screenshot from Reader... if it doesn't work, use a default image
+  #   begin
+  #     IO.copy_stream(open(url, { ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE, read_timeout: 60 }), path)
+  #   rescue
+  #     FileUtils.cp File.join(Rails.root, 'public', 'images', 'bridge.png'), path
+  #   end
+  #   path
+  # end
 
   def twitter_url_size
     Rails.cache.fetch('twitter_short_url_length', expire_in: 24.hours) do
@@ -59,7 +58,7 @@ class Bot::Twitter < ActiveRecord::Base
 
   def format_for_twitter(text)
     url = self.embed_url
-    size = 140 - self.twitter_url_size * 2 # one URL for Bridge Reader and another one for the attached image
+    size = 280 - self.twitter_url_size
     text.truncate(size) + ' ' + url.to_s
   end
 end

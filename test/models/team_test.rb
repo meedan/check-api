@@ -322,9 +322,12 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should have custom verification statuses" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     t = create_team
     value = {
       label: 'Field label',
+      active: '2',
       default: '1',
       statuses: [
         { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
@@ -335,6 +338,10 @@ class TeamTest < ActiveSupport::TestCase
       t.set_media_verification_statuses(value)
       t.save!
     end
+    p = create_project team: t
+    pm = create_project_media project: p
+    s = pm.last_verification_status_obj.get_field('verification_status_status')
+    assert_equal 'Custom Status 1', s.to_s 
     assert_equal 2, t.get_media_verification_statuses[:statuses].size
   end
 
@@ -342,6 +349,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     value = {
       default: '1',
+      active: '2',
       statuses: [
         { id: '1', label: 'Custom Status 1', description: 'The meaning of this status' },
         { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' }
@@ -358,6 +366,7 @@ class TeamTest < ActiveSupport::TestCase
     value = {
       label: 'Field label',
       default: '1',
+      active: '2',
       statuses: [
         { id: '1', label: 'Custom Status 1' },
         { id: '2', label: 'Custom Status 2', description: 'The meaning of that status' },
@@ -377,6 +386,7 @@ class TeamTest < ActiveSupport::TestCase
       {
         label: 'Field label',
         default: '10',
+        active: '2',
         statuses: [
           { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
           { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
@@ -385,6 +395,7 @@ class TeamTest < ActiveSupport::TestCase
       {
         label: 'Field label',
         default: '1',
+        active: '2',
         statuses: []
       }
     ]
@@ -402,6 +413,7 @@ class TeamTest < ActiveSupport::TestCase
     value = {
       label: 'Field label',
       default: '1',
+      active: '1',
       statuses: [
         { id: '1', label: 'Valid status', completed: '', description: 'The meaning of this status', style: 'red' },
         { id: '', label: '', completed: '', description: 'Status with empty id and label', style: 'blue' }
@@ -420,6 +432,7 @@ class TeamTest < ActiveSupport::TestCase
       label: 'Field label',
       completed: '',
       default: '',
+      active: '',
       statuses: []
     }
     assert_nothing_raised do
@@ -439,13 +452,16 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not change custom statuses that are already used in reports" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    s = pm.get_annotations('status').last.load
+    s = pm.last_verification_status_obj
     value = {
       label: 'Field label',
       default: '1',
+      active: '2',
       statuses: [
         { id: '1', label: 'Custom Status 1', completed: '', description: '', style: 'red' },
         { id: '2', label: 'Custom Status 2', completed: '', description: '', style: 'blue' }
@@ -496,6 +512,7 @@ class TeamTest < ActiveSupport::TestCase
     value = {
       label: 'Field label',
       default: '1',
+      active: '1',
       statuses: [
         { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: { color: 'red', backgroundColor: 'red', borderColor: 'red'} },
       ]
@@ -514,7 +531,8 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     value = {
       label: 'Field label',
-      default: '1'
+      default: '1',
+      active: '1'
     }
     t.media_verification_statuses = value
 
@@ -526,7 +544,8 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     value = {
         label: 'Field label',
-        default: '1'
+        default: '1',
+        active: '1'
     }
     t.media_verification_statuses = value
     t.save
@@ -536,7 +555,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should set verification statuses to settings" do
     t = create_team
-    value = { label: 'Test', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access
+    value = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access
     t.media_verification_statuses = value
     t.source_verification_statuses = value
     t.save
@@ -1029,6 +1048,7 @@ class TeamTest < ActiveSupport::TestCase
     value = {
       label: 'Field label',
       default: '1',
+      active: '2',
       statuses: [
         { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
         { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
@@ -1260,7 +1280,7 @@ class TeamTest < ActiveSupport::TestCase
     copy_p = copy.projects.find_by_title('Project')
     copy_pm = copy_p.project_medias.first
 
-    assert_equal ["comment", "flag", "response", "status", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
+    assert_equal ["comment", "flag", "response", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
     assert_equal original_annotations_count, copy_pm.annotations.size
 
     assert_difference 'Team.count', -1 do
@@ -1336,7 +1356,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should not copy invalid statuses" do
     team = create_team
-    value = { default: '1' }
+    value = { default: '1', active: '1' }
     team.set_media_verification_statuses(value);team.save(validate: false)
     assert !team.valid?
     assert !team.errors[:statuses].blank?
@@ -1368,6 +1388,8 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not set active status if task is being copied" do
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
     create_slack_bot
     team = create_team
     project = create_project team: team, title: 'Project'
@@ -1375,7 +1397,7 @@ class TeamTest < ActiveSupport::TestCase
     task = create_task annotated: pm, required: true
     create_annotation_type annotation_type: 'response'
     task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
-    s = pm.get_annotations('status').last.load; s.status = 'verified'; s.save!
+    s = pm.get_annotations('verification_status').last.load; s.status = 'verified'; s.save!
 
     ProjectMedia.any_instance.stubs(:set_active_status).never
     assert !Bot::Slack.default.nil?
@@ -1499,5 +1521,107 @@ class TeamTest < ActiveSupport::TestCase
     Airbrake.unstub(:notify)
     Team.any_instance.unstub(:save)
     RequestStore.store[:disable_es_callbacks] = false
+  end
+
+  test "should not save custom statuses if active and default values are not set" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_translation_statuses(value)
+      t.save!
+    end
+    value = {
+      label: 'Field label',
+      active: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_translation_statuses(value)
+      t.save!
+    end
+    value = {
+      label: 'Field label',
+      default: '1',
+      active: '2',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_nothing_raised do
+      t = Team.find(t.id)
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    assert_nothing_raised do
+      t = Team.find(t.id)
+      t.set_media_translation_statuses(value)
+      t.save!
+    end
+  end
+
+  test "should not save custom statuses with invalid identifiers" do
+    t = create_team
+    value = {
+      label: 'Field label',
+      default: 'ok',
+      active: 'ok',
+      statuses: [
+        { id: 'ok', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: 'foo bar', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t = Team.find(t.id)
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    value = {
+      label: 'Field label',
+      default: 'ok',
+      active: 'ok',
+      statuses: [
+        { id: 'ok', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
+        { id: 'foo-bar', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    assert_nothing_raised do
+      t = Team.find(t.id)
+      t.set_media_translation_statuses(value)
+      t.save!
+    end
+  end
+
+  test "should  get owners based on user role" do
+    t = create_team
+    u = create_user
+    u2 = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u2, role: 'editor'
+    assert_equal [u.id], t.owners('owner').map(&:id)
+    assert_equal [u2.id], t.owners('editor').map(&:id)
+    assert_equal [u.id, u2.id].sort, t.owners(['owner', 'editor']).map(&:id).sort
   end
 end

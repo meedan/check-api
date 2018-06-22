@@ -7,7 +7,7 @@ class MediaSearch
   attribute :annotated_type, String
   attribute :annotated_id, String
   attribute :associated_type, String
-  attribute :status, String
+  attribute :relationship_sources, Array, mapping: { type: 'string' }
   attribute :title, String, mapping: { analyzer: 'check' }
   attribute :description, String, mapping: { analyzer: 'check' }
   attribute :quote, String, mapping: { analyzer: 'check' }

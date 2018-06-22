@@ -97,6 +97,8 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, own_media)
       assert ability.cannot?(:update, pm)
       assert ability.can?(:update, own_pm)
+      assert ability.cannot?(:administer_content, pm)
+      assert ability.cannot?(:administer_content, own_pm)
       assert ability.cannot?(:destroy, pm)
       assert ability.cannot?(:destroy, own_pm)
       assert ability.cannot?(:update, m2)
@@ -131,6 +133,8 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, own_media)
       assert ability.can?(:update, pm)
       assert ability.can?(:update, own_pm)
+      assert ability.can?(:administer_content, pm)
+      assert ability.can?(:administer_content, own_pm)
       assert ability.cannot?(:destroy, pm)
       assert ability.cannot?(:destroy, own_pm)
       assert ability.cannot?(:update, m2)
@@ -163,6 +167,8 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, own_media)
       assert ability.can?(:update, pm)
       assert ability.can?(:update, own_pm)
+      assert ability.can?(:administer_content, pm)
+      assert ability.can?(:administer_content, own_pm)
       assert ability.cannot?(:destroy, pm)
       assert ability.can?(:destroy, own_pm)
       assert ability.cannot?(:update, m2)
@@ -192,6 +198,8 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, own_media)
       assert ability.can?(:update, pm)
       assert ability.can?(:update, own_pm)
+      assert ability.can?(:administer_content, pm)
+      assert ability.can?(:administer_content, own_pm)
       assert ability.can?(:destroy, pm)
       assert ability.can?(:destroy, own_pm)
       assert ability.cannot?(:update, m2)
@@ -1276,6 +1284,7 @@ class AbilityTest < ActiveSupport::TestCase
   end
 
   test "should owner destroy annotation versions" do
+    create_verification_status_stuff
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
@@ -1865,6 +1874,54 @@ class AbilityTest < ActiveSupport::TestCase
         tu2.role = 'editor'
         tu2.save!
       end
+    end
+  end
+
+  test "journalist permissions for verification status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t, role: 'journalist'
+    p = create_project team: t, user: u
+    pm = create_project_media user: u, project: p
+    s = create_status annotated: pm, status: 'verified'
+    s2 = create_status annotated: pm, status: 'verified', locked: true
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, s)
+      assert ability.can?(:update, s)
+      assert ability.cannot?(:destroy, s)
+      assert ability.cannot?(:update, s2)
+      assert ability.cannot?(:destroy, s2)
+    end
+  end
+
+  test "contributor permissions for verification status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t, role: 'contributor'
+    p = create_project team: t, user: u
+    pm = create_project_media user: u, project: p
+    s = create_status annotated: pm, status: 'verified'
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:create, s)
+      assert ability.cannot?(:update, s)
+      assert ability.cannot?(:destroy, s)
+    end
+  end
+
+  test "editor permissions for verification status" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t, role: 'editor'
+    p = create_project team: t, user: u
+    pm = create_project_media user: u, project: p
+    s = create_status annotated: pm, status: 'verified', locked: true
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, s)
+      assert ability.can?(:update, s)
+      assert ability.cannot?(:destroy, s)
     end
   end
 end
