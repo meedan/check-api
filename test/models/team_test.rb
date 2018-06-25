@@ -341,7 +341,7 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     s = pm.last_verification_status_obj.get_field('verification_status_status')
-    assert_equal 'Custom Status 1', s.to_s 
+    assert_equal 'Custom Status 1', s.to_s
     assert_equal 2, t.get_media_verification_statuses[:statuses].size
   end
 
@@ -1614,7 +1614,7 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should  get owners based on user role" do
+  test "should get owners based on user role" do
     t = create_team
     u = create_user
     u2 = create_user
@@ -1623,5 +1623,18 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [u.id], t.owners('owner').map(&:id)
     assert_equal [u2.id], t.owners('editor').map(&:id)
     assert_equal [u.id, u2.id].sort, t.owners(['owner', 'editor']).map(&:id).sort
+  end
+
+  test "should get used tags" do
+    team = create_team
+    project = create_project team: team
+    u = create_user
+    pm1 = create_project_media user: u, team: team, project: project
+    create_tag annotated: pm1, tag: 'tag1'
+    create_tag annotated: pm1, tag: 'tag2'
+    pm2 = create_project_media user: u, team: team, project: project
+    create_tag annotated: pm2, tag: 'tag2'
+    create_tag annotated: pm2, tag: 'tag3'
+    assert_equal ['tag1', 'tag2', 'tag3'].sort, team.used_tags.sort
   end
 end
