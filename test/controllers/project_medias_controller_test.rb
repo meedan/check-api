@@ -73,6 +73,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should save Pender response through webhook" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -97,9 +98,11 @@ class ProjectMediasControllerTest < ActionController::TestCase
     assert_response :success
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal 'http://pender/screenshot.png', f['screenshot_url']
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should not save Pender response through webhook if link does not exist" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -124,6 +127,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     assert_response :success
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should not save Pender response through webhook if there is no project media" do
@@ -144,6 +148,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should not save Pender response through webhook if there is no annotation" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -166,6 +171,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     post :webhook
     @request.env.delete('RAW_POST_DATA')
     assert_response :success
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should not save Pender response through webhook if team is not allowed" do
