@@ -633,6 +633,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should export project images" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     stub_configs({ 'pender_url' => 'http://pender', 'pender_url_private' => 'http://pender-private' }) do
       WebMock.stub_request(:get, 'http://pender-private/images/test.png').to_return(body: 'foo')
       ft = create_field_type field_type: 'image_path', label: 'Image Path'
@@ -657,6 +658,7 @@ class ProjectTest < ActiveSupport::TestCase
       pm4 = create_project_media media: l2, project: p
       assert_equal 2, p.export_images.values.reject{ |x| x.nil? }.size
     end
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should export images in background" do
