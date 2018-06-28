@@ -49,7 +49,7 @@ module TeamDuplication
       [:logo, :lead_image, :file].each do |image|
         next unless original.respond_to?(image) && original.respond_to?("#{image}=") && original.send(image)
         img_path = original.send(image).path
-        File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path
+        File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path && File.exist?(img_path)
       end
     end
 
