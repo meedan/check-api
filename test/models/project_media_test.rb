@@ -1750,4 +1750,24 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert pm.should_skip_create_archive_annotation?('pender_archive')
   end
 
+  test "should destroy project media when associated_id on version is not valid" do
+    m = create_valid_media
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    pm = nil
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p, media: m, user: u
+      pm.archived = true;pm.save
+      assert_equal 2, pm.versions.count
+    end
+    version = pm.versions.last
+    version.update_attribute('associated_id', 100)
+
+    assert_nothing_raised do
+      pm.destroy
+    end
+  end
+
 end

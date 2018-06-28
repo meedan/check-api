@@ -94,7 +94,7 @@ class Bot::BridgeReader < ActiveRecord::Base
   end
 
   ProjectMedia.class_eval do
-    after_destroy :notify_destroyed
+    after_destroy :notify_destroyed, if: :should_notify?
 
     def notify_embed_system_payload(event, object)
       { translation: object, condition: event, timestamp: Time.now.to_i }.to_json
@@ -110,6 +110,11 @@ class Bot::BridgeReader < ActiveRecord::Base
     def notify_destroyed
       Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'destroyed', nil)
     end
+
+    def should_notify?
+      !Bot::BridgeReader.default.nil? && !self.skip_notifications
+    end
+
   end
 
 end
