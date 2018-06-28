@@ -216,6 +216,7 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should define Slack message" do
+    I18n.locale = :en
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
