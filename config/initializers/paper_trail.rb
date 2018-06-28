@@ -131,7 +131,7 @@ module PaperTrail
 
     def deserialize_change(d)
       ret = d
-      unless d.nil?
+      unless d.nil? || !d.is_a?(String)
         ret = YAML.load(d)
       end
       ret
