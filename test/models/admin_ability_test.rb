@@ -556,7 +556,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
   test "owner permissions to dynamic annotation" do
     p = create_project team: t
     pm = create_project_media project: p
-    task = create_task annotator: u, annotated: p, annotated: pm
+    task = create_task annotator: u, annotated: pm
     dynamic_field = create_field annotation_id: task.id
     with_current_user_and_team(u) do
       ability = AdminAbility.new
@@ -569,7 +569,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
   test "owner of other team permissions for dynamic annotation" do
     p = create_project team: t
     pm = create_project_media project: p
-    task = create_task annotator: u, annotated: p, annotated: pm
+    task = create_task annotator: u, annotated: pm
     dynamic_field = create_field annotation_id: task.id
 
     other_user = create_user
