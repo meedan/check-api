@@ -100,6 +100,7 @@ class ActiveSupport::TestCase
     end
     ApiKey.current = User.current = Team.current = nil
     ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
+    I18n.locale = :en
     Sidekiq::Worker.clear_all
   end
 
