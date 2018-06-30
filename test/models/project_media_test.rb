@@ -1294,6 +1294,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should create pender_archive annotation when link is created" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
@@ -1304,9 +1305,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
       create_project_media media: l, project: p
     end
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should not create pender_archive annotation when media is created if media is not a link" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     c = create_claim_media
     t = create_team
@@ -1317,9 +1320,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
       create_project_media media: c, project: p
     end
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should not create pender_archive annotation when link is created if there is no annotation type" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     l = create_link
     t = create_team
     t.archive_pender_archive_enabled = 1
@@ -1329,6 +1334,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
       create_project_media media: l, project: p
     end
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should not create pender_archive annotation when link is created if team is not allowed" do
@@ -1345,6 +1351,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not create pender_archive annotation when link is created if archiver is not enabled" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
@@ -1355,9 +1362,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
       create_project_media media: l, project: p
     end
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should create pender_archive annotation when link is created using information from pender_embed" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
@@ -1370,9 +1379,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_project_media media: l, project: p
     end
     Link.any_instance.unstub(:pender_embed)
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should create pender_archive annotation when link is created using information from pender_data" do
+    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
@@ -1387,6 +1398,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     Link.any_instance.unstub(:pender_data)
     Link.any_instance.unstub(:pender_embed)
+    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should get number of contributing users" do
@@ -1725,4 +1737,37 @@ class ProjectMediaTest < ActiveSupport::TestCase
     dump = YAML::dump(pm)
     assert_match /related_to_id/, dump
   end
+
+  test "should skip screenshot archiver" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    t = create_team
+    t.archive_pender_archive_enabled = 1
+    t.set_limits_keep_screenshot = true
+    t.save!
+    pm = create_project_media project: create_project(team: t), media: l
+
+    assert pm.should_skip_create_archive_annotation?('pender_archive')
+  end
+
+  test "should destroy project media when associated_id on version is not valid" do
+    m = create_valid_media
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    pm = nil
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p, media: m, user: u
+      pm.archived = true;pm.save
+      assert_equal 2, pm.versions.count
+    end
+    version = pm.versions.last
+    version.update_attribute('associated_id', 100)
+
+    assert_nothing_raised do
+      pm.destroy
+    end
+  end
+
 end

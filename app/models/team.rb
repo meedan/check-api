@@ -226,6 +226,14 @@ class Team < ActiveRecord::Base
     perms
   end
 
+  def used_tags
+    Tag.where(annotation_type: 'tag')
+       .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN projects p ON p.id = pm.project_id")
+       .where('p.team_id' => self.id)
+       .pluck('DISTINCT(data)')
+       .collect{ |t| t['tag'] }
+  end
+
   protected
 
   def get_values_from_entry(entry)
