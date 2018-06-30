@@ -9,10 +9,13 @@ module TeamDuplication
     def self.duplicate(t, user = nil)
       @mapping = {}
       @original_team = t
+      @cloned_versions = []
       begin
         ActiveRecord::Base.transaction do
-          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: :versions } ] }, :team_users, :contacts ] do |original, copy|
-            self.set_mapping(original, copy)
+          PaperTrail::Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
+          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: { versions: { if: lambda{|v| v.associated_id.blank? }}}}]}, :team_users, :contacts ] do |original, copy|
+            @cloned_versions << copy if original.is_a?(PaperTrail::Version)
+            self.set_mapping(original, copy) unless original.is_a?(PaperTrail::Version)
             self.copy_image(original, copy)
             self.versions_log_mapping(original, copy)
             self.update_project_source(copy) if original.is_a? ProjectSource
@@ -24,7 +27,9 @@ module TeamDuplication
           team.update_team_checklist(@mapping[:Project])
           self.copy_annotations
           self.copy_versions(@mapping[:"PaperTrail::Version"])
+          self.update_cloned_versions(@cloned_versions)
           self.create_copy_version(@mapping[:ProjectMedia], user)
+          PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
           team
         end
       rescue StandardError => e
@@ -44,7 +49,7 @@ module TeamDuplication
       [:logo, :lead_image, :file].each do |image|
         next unless original.respond_to?(image) && original.respond_to?("#{image}=") && original.send(image)
         img_path = original.send(image).path
-        File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path
+        File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path && File.exist?(img_path)
       end
     end
 
@@ -86,19 +91,18 @@ module TeamDuplication
 
     def self.copy_versions(versions_mapping)
       return if versions_mapping.blank?
-      PaperTrail::Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
       versions_mapping.each_pair do |original, copy|
         log = PaperTrail::Version.find(original).dup
         log.is_being_copied = true
-        log.associated_id = copy.id
+        log.associated_id = copy.id unless log.associated_id.blank?
         item = @mapping[log.item_type.to_sym][log.item_id.to_i]
-        self.update_version_fields(log, item) if item
+        self.update_version_fields(log, item)
         log.save(validate: false)
       end
-      PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
     end
 
     def self.update_version_fields(log, item)
+      return unless item
       self.update_version_object(log, item)
       self.update_version_object_changes(log)
       log.item_id = item.id
@@ -143,6 +147,13 @@ module TeamDuplication
       return if @mapping[:Source].blank?
       source_mapping = @mapping[:Source][project_source.source_id]
       project_source.source = source_mapping if source_mapping
+    end
+
+    def self.update_cloned_versions(versions)
+      versions.each do |version|
+        self.update_version_fields(version, version.item)
+        version.save(validate: false)
+      end
     end
   end
 

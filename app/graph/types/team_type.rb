@@ -25,6 +25,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :limits, JsonStringType
   field :public_team_id, types.String
   field :plan, types.String
+  field :used_tags, types.String.to_list_type
 
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {

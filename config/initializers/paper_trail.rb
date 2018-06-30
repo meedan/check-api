@@ -131,7 +131,7 @@ module PaperTrail
 
     def deserialize_change(d)
       ret = d
-      unless d.nil?
+      unless d.nil? || !d.is_a?(String)
         ret = YAML.load(d)
       end
       ret
@@ -208,9 +208,11 @@ module PaperTrail
     def change_project_association_annotations_count(value)
       if !self.associated_type.nil? && !self.associated_id.nil? && self.event_type != 'create_dynamicannotationfield'
         associated = self.associated_type.singularize.camelize.constantize
-        pa = associated.find(self.associated_id)
-        count = pa.cached_annotations_count + value
-        pa.update_columns(cached_annotations_count: count)
+        pa = associated.find_by(id: self.associated_id)
+        if pa
+          count = pa.cached_annotations_count + value
+          pa.update_columns(cached_annotations_count: count)
+        end
       end
     end
 
