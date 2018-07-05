@@ -13,7 +13,7 @@ module TeamDuplication
       begin
         ActiveRecord::Base.transaction do
           PaperTrail::Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
-          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: { versions: { if: lambda{|v| v.associated_id.blank? }}}}]}, :team_users, :contacts ] do |original, copy|
+          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: [ :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts ] do |original, copy|
             @cloned_versions << copy if original.is_a?(PaperTrail::Version)
             self.set_mapping(original, copy) unless original.is_a?(PaperTrail::Version)
             self.copy_image(original, copy)
@@ -28,6 +28,7 @@ module TeamDuplication
           self.copy_annotations
           self.copy_versions(@mapping[:"PaperTrail::Version"])
           self.update_cloned_versions(@cloned_versions)
+          self.update_relationships
           self.create_copy_version(@mapping[:ProjectMedia], user)
           PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
           team
@@ -95,7 +96,7 @@ module TeamDuplication
         log = PaperTrail::Version.find(original).dup
         log.is_being_copied = true
         log.associated_id = copy.id unless log.associated_id.blank?
-        item = @mapping[log.item_type.to_sym][log.item_id.to_i]
+        item = @mapping.dig(log.item_type.to_sym, log.item_id.to_i)
         self.update_version_fields(log, item)
         log.save(validate: false)
       end
@@ -155,6 +156,17 @@ module TeamDuplication
         version.save(validate: false)
       end
     end
+
+    def self.update_relationships
+      return if @mapping[:Relationship].blank?
+      @mapping[:Relationship].each_value do |copy|
+        [:source_id, :target_id].each do |r|
+          pm_mapping = @mapping.dig(:ProjectMedia, copy.send(r))
+          copy.update_column(r, pm_mapping.id) if pm_mapping
+        end
+      end
+    end
+
   end
 
   def generate_copy_slug
