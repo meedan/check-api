@@ -1661,4 +1661,27 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
   end
 
+  test "should duplicate a team and copy relationships" do
+    team = create_team
+    u = create_user
+    project = create_project team: team, user: u
+    RequestStore.store[:disable_es_callbacks] = true
+    pm1 = create_project_media user: u, team: team, project: project
+    pm2 = create_project_media user: u, team: team, project: project
+    create_relationship source_id: pm1.id, target_id: pm2.id
+
+    assert_equal 1, Relationship.count
+    assert_equal [1, 0, 0, 1], [pm1.source_relationships.count, pm1.target_relationships.count, pm2.source_relationships.count, pm2.target_relationships.count]
+
+    copy = Team.duplicate(team)
+
+    copy_p = copy.projects.find_by_title(project.title)
+    copy_pm1 = copy_p.project_medias.first
+    copy_pm2 = copy_p.project_medias.last
+
+    assert_equal 2, Relationship.count
+    assert_equal [1, 0, 0, 1], [copy_pm1.source_relationships.count, copy_pm1.target_relationships.count, copy_pm2.source_relationships.count, copy_pm2.target_relationships.count]
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
 end
