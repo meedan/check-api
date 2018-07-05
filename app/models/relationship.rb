@@ -12,7 +12,7 @@ class Relationship < ActiveRecord::Base
   after_create :increment_counters, :index_source
   after_destroy :decrement_counters, :unindex_source
 
-  has_paper_trail on: [:create, :destroy], if: proc { |_x| User.current.present? }
+  has_paper_trail on: [:create, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied }
 
   notifies_pusher on: [:create, :destroy],
                   event: 'relationship_change',
@@ -72,6 +72,10 @@ class Relationship < ActiveRecord::Base
 
   def self.source_id(project_media, type = Relationship.default_type)
     Base64.encode64("RelationshipsSource/#{project_media.id}/#{type.to_json}")
+  end
+
+  def is_being_copied
+    self.source && self.source.is_being_copied
   end
 
   protected
