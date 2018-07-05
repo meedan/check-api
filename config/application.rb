@@ -52,7 +52,7 @@ module Check
 
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins(/^(#{cfg['checkdesk_client']}|(moz|chrome)-extension:)/)
+        origins(/^(#{cfg['checkdesk_client']}|(moz|chrome)-extension:)|file:/)
         resource '*',
           headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Requested-With', 'Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers', 'Credentials', 'X-Check-Client', 'X-Check-Team'],
           methods: [:get, :post, :delete, :options]
