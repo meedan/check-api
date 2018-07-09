@@ -1,3 +1,5 @@
+require File.join(Rails.root, 'app', 'graph', 'mutations', 'dynamic_annotation_types')
+
 MutationType = GraphQL::ObjectType.define do
   name 'MutationType'
   field :createComment, field: CommentMutations::Create.field
@@ -69,4 +71,11 @@ MutationType = GraphQL::ObjectType.define do
   field :resetPassword, field: ResetPasswordMutation.field
   field :changePassword, field: ChangePasswordMutation.field
   field :resendConfirmation, field: ResendConfirmationMutation.field
+
+  DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
+    klass = type.camelize
+    field "createDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Create".constantize.field
+    field "updateDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Update".constantize.field
+    field "destroyDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Destroy".constantize.field
+  end
 end

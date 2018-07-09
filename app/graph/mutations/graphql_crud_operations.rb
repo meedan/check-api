@@ -47,6 +47,7 @@ class GraphqlCrudOperations
       memo[key] = inputs[key]
       memo
     end
+    attrs['annotation_type'] = type.gsub(/^dynamic_annotation_/, '') if type =~ /^dynamic_annotation_/
 
     self.safe_save(obj, attrs, parents)
   end
@@ -103,6 +104,11 @@ class GraphqlCrudOperations
       if type.to_s == 'team'
         return_field(:team_userEdge, TeamUserType.edge_type)
         return_field(:user, UserType)
+      end
+
+      if type =~ /^dynamic_annotation_/
+        return_field :dynamic, DynamicType
+        return_field :dynamicEdge, DynamicType.edge_type
       end
 
       return_field type.to_sym, klass
