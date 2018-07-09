@@ -26,9 +26,9 @@ module TeamDuplication
           @copy_team = team
           team.update_team_checklist(@mapping[:Project])
           self.copy_annotations
+          self.update_relationships
           self.copy_versions(@mapping[:"PaperTrail::Version"])
           self.update_cloned_versions(@cloned_versions)
-          self.update_relationships
           self.create_copy_version(@mapping[:ProjectMedia], user)
           PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
           team
@@ -106,6 +106,7 @@ module TeamDuplication
       return unless item
       self.update_version_object(log, item)
       self.update_version_object_changes(log)
+      self.update_version_meta(log, item)
       log.item_id = item.id
       log.set_object_after
     end
@@ -119,13 +120,27 @@ module TeamDuplication
     end
 
     def self.update_version_object_changes(log)
-      changes = log.get_object_changes
-      return if changes.blank? || changes['annotated_id'].blank?
-      changes['annotated_id'].map! do |a|
-        c = @mapping[log.associated_type.to_sym][a]
-        c ? c.id : a
+      changes = log.get_object_changes.with_indifferent_access
+      return if changes.blank?
+      associations = { annotated_id: 'associated_type', source_id: 'associated_type', target_id: 'associated_type', id: 'item_type' }
+      associations.each_pair do |field, method|
+        unless changes[field].blank?
+          changes[field].map! do |a|
+            c = @mapping.dig(log.send(method).to_sym, a)
+            c ? c.id : a
+          end
+        end
       end
       log.object_changes = changes.to_json
+    end
+
+    def self.update_version_meta(log, item)
+      return if log.meta.blank?
+      meta = JSON.parse(log.meta)
+      if meta.dig('target', 'url') && item.target
+        meta['target']['url'] = item.target.full_url
+      end
+      log.meta = meta.to_json
     end
 
     def self.create_copy_version(pm_mapping, user)

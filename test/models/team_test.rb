@@ -1661,26 +1661,37 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
   end
 
-  test "should duplicate a team and copy relationships" do
+  test "should duplicate a team and copy relationships and versions" do
     team = create_team
-    u = create_user
+    u = create_user is_admin: true
+    create_team_user team: team, user: u, role: 'owner'
     project = create_project team: team, user: u
     RequestStore.store[:disable_es_callbacks] = true
-    pm1 = create_project_media user: u, team: team, project: project
-    pm2 = create_project_media user: u, team: team, project: project
-    create_relationship source_id: pm1.id, target_id: pm2.id
+    with_current_user_and_team(u, team) do
+      pm1 = create_project_media user: u, team: team, project: project
+      pm2 = create_project_media user: u, team: team, project: project
+      create_relationship source_id: pm1.id, target_id: pm2.id
 
-    assert_equal 1, Relationship.count
-    assert_equal [1, 0, 0, 1], [pm1.source_relationships.count, pm1.target_relationships.count, pm2.source_relationships.count, pm2.target_relationships.count]
+      assert_equal 1, Relationship.count
+      assert_equal [1, 0, 0, 1], [pm1.source_relationships.count, pm1.target_relationships.count, pm2.source_relationships.count, pm2.target_relationships.count]
 
-    copy = Team.duplicate(team)
+      version =  pm1.get_versions_log.first
+      changes = version.get_object_changes
+      assert_equal [[nil, pm1.id], [nil, pm2.id], [nil, pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
+      assert_equal pm2.full_url, JSON.parse(version.meta)['target']['url']
 
-    copy_p = copy.projects.find_by_title(project.title)
-    copy_pm1 = copy_p.project_medias.first
-    copy_pm2 = copy_p.project_medias.last
+      copy = Team.duplicate(team)
+      copy_p = copy.projects.find_by_title(project.title)
+      copy_pm1 = copy_p.project_medias.where(media_id: pm1.media.id).first
+      copy_pm2 = copy_p.project_medias.where(media_id: pm2.media.id).first
 
-    assert_equal 2, Relationship.count
-    assert_equal [1, 0, 0, 1], [copy_pm1.source_relationships.count, copy_pm1.target_relationships.count, copy_pm2.source_relationships.count, copy_pm2.target_relationships.count]
+      assert_equal 2, Relationship.count
+      assert_equal [1, 0, 0, 1], [copy_pm1.source_relationships.count, copy_pm1.target_relationships.count, copy_pm2.source_relationships.count, copy_pm2.target_relationships.count]
+      version =  copy_pm1.reload.get_versions_log.first.reload
+      changes = version.get_object_changes
+      assert_equal [[nil, copy_pm1.id], [nil, copy_pm2.id], [nil, copy_pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
+      assert_equal copy_pm2.full_url, JSON.parse(version.meta)['target']['url']
+    end
     RequestStore.store[:disable_es_callbacks] = false
   end
 
