@@ -2,7 +2,6 @@ class TagSearch
   include CheckElasticSearchModel
 
   attribute :tag, String, presence: true, mapping: { fields: { raw: { type: "string", index: "not_analyzed" } } }
-  attribute :full_tag, String, presence: true, mapping: { index: 'not_analyzed' }
 
   validates_presence_of :tag
 

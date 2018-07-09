@@ -218,7 +218,7 @@ RailsAdmin.config do |config|
   end
 
   config.model 'Tag' do
-    annotation_config('tag', [:tag, :full_tag])
+    annotation_config('tag', [:tag])
     parent Annotation
   end
 
