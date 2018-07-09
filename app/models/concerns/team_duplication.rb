@@ -10,6 +10,7 @@ module TeamDuplication
       @mapping = {}
       @original_team = t
       @cloned_versions = []
+      team = nil
       begin
         ActiveRecord::Base.transaction do
           PaperTrail::Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
@@ -31,13 +32,12 @@ module TeamDuplication
           self.update_cloned_versions(@cloned_versions)
           self.create_copy_version(@mapping[:ProjectMedia], user)
           PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
-          team
         end
       rescue StandardError => e
         Airbrake.notify(e) if Airbrake.configuration.api_key
         Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
-        nil
       end
+      team
     end
 
     def self.set_mapping(object, copy)
