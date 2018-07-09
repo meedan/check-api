@@ -228,6 +228,17 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
       })
     end
   end
+  
+  DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
+    connection "dynamic_annotations_#{type}".to_sym, -> { DynamicType.connection_type } do
+      resolve ->(project_media, _args, _ctx) { project_media.get_annotations(type) }
+    end
+
+    field "dynamic_annotation_#{type}".to_sym do
+      type -> { DynamicType }
+      resolve -> (project_media, _args, _ctx) { project_media.get_dynamic_annotation(type) }
+    end
+  end
 
   # End of fields
 end
