@@ -3,7 +3,7 @@ namespace :lapis do
     task schema: :environment do
       path = File.join(Rails.root, 'public', 'relay.json')
       File.open(path, 'w+') do |f|
-        f.write(JSON.pretty_generate(RelayOnRailsSchema.execute(GraphQL::Introspection::INTROSPECTION_QUERY)))
+        f.write(JSON.generate(RelayOnRailsSchema.execute(GraphQL::Introspection::INTROSPECTION_QUERY)))
       end
       puts "Check your GraphQL/Relay schema at #{path}"
     end
