@@ -93,8 +93,7 @@ class Project < ActiveRecord::Base
   end
 
   def update_elasticsearch_team_bg
-    url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
-    client = Elasticsearch::Client.new url: url
+    client = MediaSearch.gateway.client
     options = {
       index: CheckElasticSearchModel.get_index_name,
       type: 'media_search',
