@@ -741,4 +741,12 @@ class UserTest < ActiveSupport::TestCase
     assert u.destroy
   end
 
+  test "should get profile image if user has no source" do
+    u = User.create! name: 'Dwight Knell', login: 'dwight', provider: '', password: '12345678', password_confirmation: '12345678', email: 'dwight@hackshackers.com', is_active: true
+    assert_not_nil u.source
+    u.update_columns(source_id: nil)
+    assert_nothing_raised do
+      u.reload.profile_image
+    end
+  end
 end
