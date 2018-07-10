@@ -34,10 +34,14 @@ module TeamDuplication
           team
         end
       rescue StandardError => e
-        Airbrake.notify(e) if Airbrake.configuration.api_key
-        Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
+        self.log_error(e, t)
         nil
       end
+    end
+
+    def self.log_error(e, t)
+      Airbrake.notify(e) if Airbrake.configuration.api_key
+      Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
     end
 
     def self.set_mapping(object, copy)
