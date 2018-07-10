@@ -25,7 +25,7 @@ class RemoveFullTagIndex < ActiveRecord::Migration
       else
         # re-save tag to update ES
         t.data = data
-        t.save!
+        t.save(validate: false)
         # fix versions (remove full_tag and strip tag value)
         v = t.versions.last
         object_after = JSON.parse(v.object_after)
