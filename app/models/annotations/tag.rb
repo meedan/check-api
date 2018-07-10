@@ -17,7 +17,7 @@ class Tag < ActiveRecord::Base
   private
 
   def normalize_tag
-    self.tag = self.tag.gsub(/^#/, '') unless self.tag.nil?
+    self.tag = self.tag.strip.gsub(/^#/, '') unless self.tag.nil?
   end
 
   def add_update_elasticsearch_tag
