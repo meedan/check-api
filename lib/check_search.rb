@@ -154,7 +154,7 @@ class CheckSearch
     tags_c = []
     tags = tags.collect{ |t| t.delete('#') }
     tags.each do |tag|
-      tags_c << { match: { full_tag: { query: tag, operator: 'and' } } }
+      tags_c << { match: { "tag.raw": { query: tag, operator: 'and' } } }
     end
     tags_c << { terms: { tag: tags } }
     {has_child: { type: 'tag_search', query: { bool: {should: tags_c }}}}
