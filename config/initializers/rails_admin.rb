@@ -162,6 +162,21 @@ RailsAdmin.config do |config|
     end
   end
 
+  def formatted_yaml(method_name)
+    formatted_value do
+      begin
+        value = bindings[:object].send(method_name)
+        value.present? ? JSON.pretty_generate(value) : nil
+      rescue JSON::GeneratorError
+        nil
+      end
+    end
+    hide do
+      bindings[:object].new_record?
+    end
+  end
+
+
   config.model 'ApiKey' do
     list do
       field :access_token
@@ -436,6 +451,13 @@ RailsAdmin.config do |config|
       field :checklist, :yaml do
         partial "json_editor"
         help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
+        visible_only_for_allowed_teams 'custom_tasks_list'
+      end
+      field :raw_checklist, :yaml do
+        label 'Raw Checklist'
+        formatted_yaml(:raw_checklist)
+        help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
+        render_settings('text', true)
         visible_only_for_allowed_teams 'custom_tasks_list'
       end
       field :suggested_tags do
