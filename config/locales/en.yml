@@ -275,7 +275,7 @@ en:
   max_number_of_team_users_reached: "The maximum number of users for this team was reached"
   max_number_of_projects_reached: "The maximum number of projects for this team was reached"
   cant_set_custom_statuses: "Sorry, you can't use the custom statuses feature"
-  cant_change_custom_statuses: "Can't modify the status definitions because some statuses would go missing. These status identifiers: %{statuses} are in use by the following items: %{urls}"
+  cant_change_custom_statuses: "Can't modify the status definitions because some statuses would go missing. These status identifiers: %{statuses} are in use by the following items: %{ids}"
   cant_set_checklist: "Sorry, you can't use the Checklist feature"
   cant_create_media_under_this_team_using_extension: "Sorry, this team is not allowed to use the browser extension"
   error_invalid_attribution: "Invalid attribution"

@@ -102,9 +102,9 @@ module Workflow
             next if media_statuses.blank?
             list = ::Workflow::Workflow.validate_custom_statuses(self.id, media_statuses, id)
             unless list.blank?
-              urls = list.collect{ |l| l[:url] }
+              ids = list.collect{ |l| l[:project_media] }
               statuses = list.collect{ |l| l[:status] }.uniq
-              errors.add(:base, I18n.t(:cant_change_custom_statuses, statuses: statuses, urls: urls))
+              errors.add(:base, I18n.t(:cant_change_custom_statuses, statuses: statuses, ids: ids))
             end
           end
         end
