@@ -603,4 +603,13 @@ RailsAdmin.config do |config|
       field :api_key
     end
   end
+
+  config.model 'ProjectMedia' do
+    list do
+      configure :project do
+        queryable true
+        searchable [:title, :id]
+      end
+    end
+  end
 end
