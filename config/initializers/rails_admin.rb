@@ -243,6 +243,7 @@ RailsAdmin.config do |config|
     end
 
     list do
+      field :id
       field :title
       field :description
       field :team
@@ -320,6 +321,7 @@ RailsAdmin.config do |config|
   config.model 'Team' do
 
     list do
+      field :id
       field :name
       field :description
       field :slug
