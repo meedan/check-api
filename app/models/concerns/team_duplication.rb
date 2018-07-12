@@ -75,6 +75,7 @@ module TeamDuplication
             annotation = a.dup
             annotation.annotated = copy
             annotation.is_being_copied = true
+            annotation.skip_notifications = true
             Team.copy_image(a, annotation)
             annotation.save(validate: false)
             self.set_mapping(a, annotation)

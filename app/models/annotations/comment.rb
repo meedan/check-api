@@ -5,13 +5,13 @@ class Comment < ActiveRecord::Base
   field :text
   validates_presence_of :text, if: proc { |comment| comment.file.blank? }
 
-  before_save :extract_check_entities
+  before_save :extract_check_entities, unless: proc { |p| p.is_being_copied }
   after_commit :add_update_elasticsearch_comment, :send_slack_notification, on: [:create, :update]
   after_commit :destroy_elasticsearch_comment, on: :destroy
 
   notifies_pusher on: :destroy,
                   event: 'media_updated',
-                  if: proc { |a| a.annotated_type === 'ProjectMedia' },
+                  if: proc { |a| a.annotated_type === 'ProjectMedia' && !a.is_being_copied },
                   targets: proc { |a| [a.annotated.media] },
                   data: proc { |a| a.to_json }
 
