@@ -751,6 +751,22 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [], t.checklist
   end
 
+  test "should alias raw_checklist to checklist" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+      options: [{ "label": "option 1" },{ "label": "option 2" }],
+      projects: [],
+      mapping: {"type"=>"text", "match"=>"", "prefix"=>""}
+    }]
+    t.raw_checklist = value
+    t.save!
+    assert_equal value, t.raw_checklist
+    assert_equal value, t.checklist
+  end
+
   test "should save valid slack_channel" do
     t = create_team
     value =  "#slack_channel"
