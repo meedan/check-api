@@ -25,7 +25,7 @@ module RailsAdmin
               skippable_fields = @object.skippable_fields(params[@abstract_model.param_key]) if @object.respond_to?(:skippable_fields, true)
               fields = params[@abstract_model.param_key]
               skippable_fields.each do |skip|
-                fields.reject! { |key, value| key == skip.to_s}
+                fields.reject! { |key, _value| key == skip.to_s}
               end
 
               @object.set_attributes(fields)
