@@ -120,6 +120,8 @@ class Team < ActiveRecord::Base
     end
     tasks
   end
+  alias :raw_checklist :checklist
+  alias :raw_checklist= :checklist=
 
   def add_auto_task=(task)
     checklist = self.get_checklist || []
