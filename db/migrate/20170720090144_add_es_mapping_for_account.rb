@@ -1,5 +1,6 @@
 class AddEsMappingForAccount < ActiveRecord::Migration
   def change
+    return
     return if Rails.env === 'test'
     client = MediaSearch.gateway.client
     index_name = CheckElasticSearchModel.get_index_name

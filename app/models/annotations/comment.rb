@@ -65,7 +65,7 @@ class Comment < ActiveRecord::Base
   end
 
   def add_update_elasticsearch_comment
-    add_update_media_search_child('comment_search', %w(text))
+    add_nested_obj('comments', %w(text))
   end
 
   def destroy_elasticsearch_comment

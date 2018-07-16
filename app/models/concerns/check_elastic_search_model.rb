@@ -33,7 +33,7 @@ module CheckElasticSearchModel
       }
     }
 
-    attribute :annotation_type, String
+    attribute :annotation_type, String, mapping: { type: 'text' }
     before_validation :set_type
   end
 
@@ -96,7 +96,7 @@ module CheckElasticSearchModel
       client = self.gateway.client
       settings = []
       mappings = []
-      [MediaSearch, CommentSearch, TagSearch, DynamicSearch, AccountSearch].each do |klass|
+      [MediaSearch].each do |klass|
         settings << klass.settings.to_hash
         mappings << klass.mappings.to_hash
       end

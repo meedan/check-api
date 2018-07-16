@@ -21,7 +21,7 @@ class Tag < ActiveRecord::Base
   end
 
   def add_update_elasticsearch_tag
-    add_update_media_search_child('tag_search', %w(tag))
+    add_nested_obj('tags', %w(tag))
   end
 
   def destroy_elasticsearch_tag

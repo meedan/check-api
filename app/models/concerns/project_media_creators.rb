@@ -5,7 +5,6 @@ module ProjectMediaCreators
 
   def add_extra_elasticsearch_data(ms)
     m = self.media
-    ms.id = self.id
     ms.associated_type = self.media.type
     data = self.embed
     unless data.nil?
