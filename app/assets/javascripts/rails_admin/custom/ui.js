@@ -11,9 +11,9 @@ jQuery(function(){
     $(".settings-example i").click(function() {
       $( this ).siblings("pre").toggleClass("open");
     });
-    $("#team_raw_checklist_field").click(function(e) {
+    $("#team_raw_checklist_field label").click(function(e) {
       e.preventDefault();
-      $( this ).find('.controls').toggle();
+      $( this ).siblings('.controls').toggle();
     });
   })
 })
