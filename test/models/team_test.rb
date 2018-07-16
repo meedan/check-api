@@ -1711,4 +1711,21 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
   end
 
+  test "should add `field` as skippable if the raw_`field` was changed" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+      options: [{ "label": "option 1" },{ "label": "option 2" }],
+      projects: [],
+      mapping: {"type"=>"text", "match"=>"", "prefix"=>""}
+    }]
+    t.set_checklist(value)
+    t.save!
+
+    edited_value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
+    params = { raw_checklist: edited_value, checklist: value }
+    assert_equal ['checklist'], t.send(:skippable_fields, params)
+  end
 end
