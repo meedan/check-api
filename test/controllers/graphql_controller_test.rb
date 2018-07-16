@@ -1036,17 +1036,19 @@ class GraphqlControllerTest < ActionController::TestCase
       create_project_source project: p, source: s
       create_account_source source: s
       m.times { create_comment annotated: pm, annotator: create_user }
+      pm.project_source
     end
     create_project_media project: p, user: u
     pm = create_project_media project: p
     pm.archived = true
     pm.save!
+    pm.project_source
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     # 13 * 29 + 24
-    assert_queries 344, '<=' do
+    assert_queries 274, '<=' do
       post :create, query: query, team: 'team'
     end
 
