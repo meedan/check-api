@@ -58,14 +58,15 @@ module ProjectAssociation
 
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      options = {parent: self}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'add_parent')
+      options = {obj: self}
+      # ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'add_parent')
+      ElasticSearchWorker.new.perform(YAML::dump(self), YAML::dump(options), 'add_parent')
       if self.class.name == 'ProjectSource'
         # index related account
         accounts = []
         accounts = self.source.accounts unless self.source.nil?
         accounts.each do |a|
-          a.add_update_media_search_child('account_search', %w(ttile description username), {}, self)
+          a.add_nested_obj('accounts', %w(ttile description username), {}, self)
         end unless accounts.blank?
       end
     end

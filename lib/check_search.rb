@@ -132,14 +132,14 @@ class CheckSearch
     keyword_fields = %w(title description quote account.username account.title)
     keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
 
-    [['comment', 'text'], ['dynamic', 'indexable']].each do |pair|
-      keyword_c << { has_child: { type: "#{pair[0]}_search", query: { simple_query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
+    [['comments', 'text'], ['dynamics', 'indexable']].each do |pair|
+      keyword_c << { nested: { path: "#{pair[0]}", query: { simple_query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
     end
 
     keyword_c << search_tags_query(@options["keyword"].split(' '))
 
     if associated_type == 'ProjectSource'
-      keyword_c << { has_child: { type: "account_search", query: { simple_query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
+      keyword_c << { nested: { path: "accounts", query: { simple_query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
     end
     [{ bool: { should: keyword_c } }]
   end
@@ -157,7 +157,7 @@ class CheckSearch
       tags_c << { match: { "tag.raw": { query: tag, operator: 'and' } } }
     end
     tags_c << { terms: { tag: tags } }
-    {has_child: { type: 'tag_search', query: { bool: {should: tags_c }}}}
+    { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
   end
 
   def build_search_parent_conditions

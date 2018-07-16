@@ -83,7 +83,7 @@ class Dynamic < ActiveRecord::Base
     if self.respond_to?(method)
       self.send(method)
     elsif self.fields.count > 0
-      add_update_media_search_child('dynamic_search', ['indexable'])
+      add_nested_obj('dynamics', ['indexable'])
     end
   end
 
