@@ -58,7 +58,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type -> { AccountType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.media.account
+      RecordLoader.for(Media).load(project_media.media_id).then do |media|
+        RecordLoader.for(Account).load(media.account_id)
+      end
     }
   end
 

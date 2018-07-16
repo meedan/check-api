@@ -1770,4 +1770,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should cache project source id" do
+    p = create_project
+    pm = create_project_media project: p
+    ps = pm.send :get_project_source, p.id
+    assert_not_nil ps
+    assert_queries 2, '>' do 
+      assert_equal ps, pm.reload.project_source
+    end
+    assert_queries 2, '=' do 
+      assert_equal ps, pm.reload.project_source
+    end
+    ps.delete
+    assert_nil pm.reload.project_source
+  end
 end
