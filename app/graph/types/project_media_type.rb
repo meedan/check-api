@@ -54,14 +54,36 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :account do
-    type -> { AccountType }
+  # field :account do
+  #   type -> { AccountType }
+  #
+  #   resolve -> (project_media, _args, _ctx) {
+  #     RecordLoader.for(Media).load(project_media.media_id).then do |media|
+  #       RecordLoader.for(Account).load(media.account_id)
+  #     end
+  #   }
+  # end
+  #
+  # field :team do
+  #   type -> { TeamType }
+  #
+  #   resolve ->(project_media, _args, _ctx) {
+  #     RecordLoader.for(Project).load(project_media.project_id).then do |project|
+  #       RecordLoader.for(Team).load(project.team_id)
+  #     end
+  #   }
+  # end
+  { media: :account, project: :team }.each do |key, value|
+    type = "#{value.to_s.capitalize}Type".constantize
+    field value do
+      type -> { type }
 
-    resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Media).load(project_media.media_id).then do |media|
-        RecordLoader.for(Account).load(media.account_id)
-      end
-    }
+      resolve -> (project_media, _args, _ctx) {
+        RecordLoader.for(key.to_s.capitalize.constantize).load(project_media.send("#{key}_id")).then do |obj|
+          RecordLoader.for(value.to_s.capitalize.constantize).load(obj.send("#{value}_id"))
+        end
+      }
+    end
   end
 
   field :project do
@@ -93,16 +115,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(User).load(project_media.user_id)
-    }
-  end
-
-  field :team do
-    type -> { TeamType }
-
-    resolve ->(project_media, _args, _ctx) {
-      RecordLoader.for(Project).load(project_media.project_id).then do |project|
-        RecordLoader.for(Team).load(project.team_id)
-      end
     }
   end
 
