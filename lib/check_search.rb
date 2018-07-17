@@ -165,8 +165,8 @@ class CheckSearch
 
     unless @options['show'].blank?
       types_mapping = {
-        'medias' => ['link', 'claim', 'uploadedimage'],
-        'sources' => ['source']
+        'medias' => ['Link', 'Claim', 'Uploadedimage'],
+        'sources' => ['Source']
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten
       parent_c << { terms: { 'associated_type': types } }

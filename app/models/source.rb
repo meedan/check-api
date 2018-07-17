@@ -96,7 +96,7 @@ class Source < ActiveRecord::Base
   def update_elasticsearch_source
     return if self.disable_es_callbacks
     self.project_sources.each do |parent|
-      self.update_media_search(%w(title description), {'title' => self.name, 'description' => self.description}, parent)
+      self.update_elasticsearch_doc(%w(title description), {'title' => self.name, 'description' => self.description}, parent)
     end
   end
 

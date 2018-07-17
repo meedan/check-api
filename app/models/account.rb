@@ -164,7 +164,7 @@ class Account < ActiveRecord::Base
   def update_elasticsearch_account
     parents = self.get_parents
     parents.each do |parent|
-      self.add_update_media_search_child('account_search', %w(title description username), {}, parent)
+      self.add_update_elasticsearch_doc_child('account_search', %w(title description username), {}, parent)
     end unless parents.blank?
   end
 
