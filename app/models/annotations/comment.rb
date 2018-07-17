@@ -69,6 +69,6 @@ class Comment < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_comment
-    destroy_es_items(CommentSearch)
+    destroy_es_items('comments')
   end
 end

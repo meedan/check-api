@@ -59,8 +59,7 @@ module ProjectAssociation
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       options = {obj: self}
-      # ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'add_parent')
-      ElasticSearchWorker.new.perform(YAML::dump(self), YAML::dump(options), 'add_parent')
+      ElasticSearchWorker.new.perform(YAML::dump(self), YAML::dump(options), 'create_doc')
       if self.class.name == 'ProjectSource'
         # index related account
         accounts = []
@@ -78,12 +77,12 @@ module ProjectAssociation
         keys = %w(project_id team_id)
         data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
         options = {keys: keys, data: data, parent: self}
-        ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
+        ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
       end
     end
 
     def destroy_elasticsearch_media
-      destroy_es_items(MediaSearch, 'parent')
+      destroy_es_items(MediaSearch, 'destroy_doc')
     end
 
     def is_being_copied

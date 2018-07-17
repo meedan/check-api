@@ -7,18 +7,18 @@ class ElasticSearchWorker
     model = YAML::load(model)
     options = set_options(model, options)
     case type
-    when "update_team"
-      model.update_elasticsearch_team_bg
-    when "update_parent"
-      model.update_media_search_bg(options)
-    when "add_parent"
-      model.add_media_search_bg
-    when "destroy"
-      model.destroy_elasticsearch_data(options)
-    when "update_parent_nested"
-      model.add_nested_obj_bg(options)
-    else
-      model.add_update_media_search_child_bg(type, options)
+    when "create_doc"
+      model.create_elasticsearch_doc_bg
+    when "update_doc"
+      model.update_elasticsearch_doc_bg(options)
+    when "update_doc_team"
+      model.update_elasticsearch_doc_team_bg
+    when "create_doc_nested"
+      model.create_nested_obj_bg(options)
+    when "destroy_doc"
+      model.destroy_elasticsearch_doc(options)
+    when "destroy_doc_nested"
+      model.destroy_elasticsearch_doc_nested(options)
     end
   end
 

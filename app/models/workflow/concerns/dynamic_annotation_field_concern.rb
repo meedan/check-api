@@ -23,7 +23,7 @@ module Workflow
         end
 
         def index_on_es
-          self.update_media_search([self.annotation_type], { self.annotation_type => self.value }, self.annotation.annotated)
+          self.update_elasticsearch_doc([self.annotation_type], { self.annotation_type => self.value }, self.annotation.annotated)
         end
 
         ::Workflow::Workflow.workflow_ids.each do |id|

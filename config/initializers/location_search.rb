@@ -50,6 +50,6 @@ Dynamic.class_eval do
       indexable: indexable
     }
 
-    add_update_media_search_child('dynamic_search', [:indexable, :location], data)
+    add_nested_obj('dynamics', [:indexable, :location], data)
   end
 end

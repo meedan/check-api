@@ -1,14 +1,6 @@
 module CheckElasticSearch
 
-  def update_media_search(keys, data = {}, parent = nil)
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {keys: keys, data: data}
-    options[:obj] = parent unless parent.nil?
-    # ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
-    ElasticSearchWorker.new.perform(YAML::dump(self), YAML::dump(options), 'update_parent')
-  end
-
-  def add_media_search_bg
+  def create_elasticsearch_doc_bg
     p = self.project
     ms = MediaSearch.new
     ms.id = Base64.encode64("#{self.class.name}/#{self.id}")
@@ -21,8 +13,16 @@ module CheckElasticSearch
     ms.save!
   end
 
-  def update_media_search_bg(options)
+  def update_elasticsearch_doc(keys, data = {}, obj = nil)
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    options = {keys: keys, data: data}
+    options[:obj] = obj unless obj.nil?
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
+  end
+
+  def update_elasticsearch_doc_bg(options)
     create_doc_if_not_exists(options)
+    sleep 1
     data = get_elasticsearch_data(options[:data])
     fields = {}
     options[:keys].each{|k| fields[k] = data[k] if !data[k].blank? }
@@ -31,36 +31,14 @@ module CheckElasticSearch
                   body: { doc: fields }
   end
 
-  # def add_missing_fields(options)
-  #   data = {}
-  #   parent = options[:parent]
-  #   return data unless ['ProjectMedia', 'ProjectSource'].include?(parent.class.name)
-  #   unless options[:keys].include?('project_id')
-  #     options[:keys] += ['team_id', 'project_id']
-  #     data.merge!({project_id: parent.project_id, team_id: parent.project.team_id})
-  #   end
-  #   if parent.class.name == 'ProjectMedia'
-  #     unless options[:keys].include?('status')
-  #       options[:keys] << 'status'
-  #       data.merge!({status: parent.last_status})
-  #     end
-  #     unless options[:keys].include?('title')
-  #       options[:keys] += ['title', 'description']
-  #       data.merge!({title: parent.title, description: parent.description})
-  #     end
-  #   end
-  #   data
-  # end
-
   def add_nested_obj(nested_key, keys, data = {}, obj = nil)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = {keys: keys, data: data, nested_key: nested_key}
     options[:obj] = obj unless obj.nil?
-    # ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent_nested')
-    ElasticSearchWorker.new.perform(YAML::dump(self), YAML::dump(options), 'update_parent_nested')
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_doc_nested')
   end
 
-  def add_nested_obj_bg(options)
+  def create_nested_obj_bg(options)
     return if options[:doc_id].blank?
     create_doc_if_not_exists(options)
     client = MediaSearch.gateway.client
@@ -85,20 +63,15 @@ module CheckElasticSearch
 
   def get_es_doc_id(obj = nil)
     obj = get_es_doc_obj if obj.nil?
-    ['ProjectMedia', 'ProjectSource'].include?(obj.class.name) ? get_es_parent_id(obj) : nil
-  end
-
-  def get_es_parent_id(parent)
-    Base64.encode64("#{parent.class.name}/#{parent.id}")
+    ['ProjectMedia', 'ProjectSource'].include?(obj.class.name) ? Base64.encode64("#{obj.class.name}/#{obj.id}") : nil
   end
 
   def create_doc_if_not_exists(options)
-    sleep 1 if Rails.env == 'test'
     doc_id = options[:doc_id]
     unless doc_id.nil?
       client = MediaSearch.gateway.client
       unless client.exists? index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: doc_id
-        ElasticSearchWorker.new.perform(YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'add_parent')
+        ElasticSearchWorker.new.perform(YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc')
       end
     end
   end
@@ -107,19 +80,16 @@ module CheckElasticSearch
     (data.blank? and self.respond_to?(:data)) ? self.data : data
   end
 
-  def destroy_elasticsearch_data(data)
-    options = {}
-    conditions = []
-    parent_id = get_es_parent_id(data[:parent])
-    if data[:type] == 'child'
-      options = { parent: parent_id }
-      id = self.id
-      conditions << { has_parent: { parent_type: "media_search", query: { term: { _id: parent_id } } } }
-    else
-      id = parent_id
-    end
-    conditions << {term: { _id: id } }
-    obj = data[:es_type].search(query: { bool: { must: conditions } }).last
-    obj.delete(options) unless obj.nil?
+  def destroy_elasticsearch_doc(data)
+    client = MediaSearch.gateway.client
+    client.delete index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id]
+  end
+
+  def destroy_elasticsearch_doc_nested(data)
+    nested_type = data[:es_type]
+    client = MediaSearch.gateway.client
+    script = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == #{self.id}){ctx._source.#{nested_type}.remove(i);}}"
+    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id],
+             body: { script: script }
   end
 end
