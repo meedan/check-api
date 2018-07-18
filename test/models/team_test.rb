@@ -751,6 +751,22 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [], t.checklist
   end
 
+  test "should alias raw_checklist to checklist" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+      options: [{ "label": "option 1" },{ "label": "option 2" }],
+      projects: [],
+      mapping: {"type"=>"text", "match"=>"", "prefix"=>""}
+    }]
+    t.raw_checklist = value
+    t.save!
+    assert_equal value, t.raw_checklist
+    assert_equal value, t.checklist
+  end
+
   test "should save valid slack_channel" do
     t = create_team
     value =  "#slack_channel"
@@ -1357,9 +1373,10 @@ class TeamTest < ActiveSupport::TestCase
   test "should not copy invalid statuses" do
     team = create_team
     value = { default: '1', active: '1' }
-    team.set_media_verification_statuses(value);team.save(validate: false)
+    team.set_media_verification_statuses(value)
     assert !team.valid?
     assert !team.errors[:statuses].blank?
+    team.save(validate: false)
     assert_equal value, team.get_media_verification_statuses(value)
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
@@ -1695,4 +1712,21 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
   end
 
+  test "should add `field` as skippable if the raw_`field` was changed" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+      options: [{ "label": "option 1" },{ "label": "option 2" }],
+      projects: [],
+      mapping: {"type"=>"text", "match"=>"", "prefix"=>""}
+    }]
+    t.set_checklist(value)
+    t.save!
+
+    edited_value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
+    params = { raw_checklist: edited_value, checklist: value }
+    assert_equal ['checklist'], t.send(:skippable_fields, params)
+  end
 end
