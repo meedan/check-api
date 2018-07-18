@@ -1373,9 +1373,10 @@ class TeamTest < ActiveSupport::TestCase
   test "should not copy invalid statuses" do
     team = create_team
     value = { default: '1', active: '1' }
-    team.set_media_verification_statuses(value);team.save(validate: false)
+    team.set_media_verification_statuses(value)
     assert !team.valid?
     assert !team.errors[:statuses].blank?
+    team.save(validate: false)
     assert_equal value, team.get_media_verification_statuses(value)
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
