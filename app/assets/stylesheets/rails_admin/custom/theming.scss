@@ -434,6 +434,18 @@ h4 {
   }
 }
 
+#team_raw_checklist_field {
+  label {
+    cursor: pointer;
+	}
+  .controls {
+    display: none;
+    textarea {
+      resize: vertical;
+    }
+  }
+}
+
 #team_limits {
   height: 280px !important;
 }
