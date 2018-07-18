@@ -10,6 +10,14 @@ module CheckElasticSearch
     ms.relationship_sources = [Digest::MD5.hexdigest(Relationship.default_type.to_json) + '_' + rtid.to_s] unless rtid.blank?
     ms.set_es_annotated(self)
     self.add_extra_elasticsearch_data(ms)
+    if self.class.name == 'ProjectSource'
+      # index related account
+      accounts = []
+      accounts = self.source.accounts unless self.source.nil?
+      accounts.each do |a|
+        ms.accounts << a.store_elasticsearch_data(%w(title description username), {})
+      end unless accounts.blank?
+    end
     ms.save!
   end
 
@@ -52,7 +60,7 @@ module CheckElasticSearch
     data = get_elasticsearch_data(data)
     values = { id: self.id }
     keys.each do |k|
-      values[k] = data[k] if self.respond_to?("#{k}=") and !data[k].blank?
+      values[k] = data[k] unless data[k].blank?
     end
     values
   end

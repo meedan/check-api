@@ -12,7 +12,7 @@ module ProjectMediaCreators
       ms.description = data['description']
       ms.quote = m.quote
     end
-    ms.account = self.set_es_account_data unless self.media.account.nil?
+    ms.accounts = self.set_es_account_data unless self.media.account.nil?
   end
 
   private
