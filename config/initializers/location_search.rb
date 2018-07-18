@@ -50,6 +50,6 @@ Dynamic.class_eval do
       indexable: indexable
     }
 
-    add_nested_obj('dynamics', [:indexable, :location], data)
+    add_update_nested_obj('create', 'dynamics', [:indexable, :location], data)
   end
 end

@@ -6,7 +6,9 @@ class Comment < ActiveRecord::Base
   validates_presence_of :text, if: proc { |comment| comment.file.blank? }
 
   before_save :extract_check_entities
-  after_commit :add_update_elasticsearch_comment, :send_slack_notification, on: [:create, :update]
+  after_commit :send_slack_notification, on: [:create, :update]
+  after_commit :add_elasticsearch_comment, on: :create
+  after_commit :update_elasticsearch_comment, on: :update
   after_commit :destroy_elasticsearch_comment, on: :destroy
 
   notifies_pusher on: :destroy,
@@ -64,8 +66,12 @@ class Comment < ActiveRecord::Base
     self.entities = ids
   end
 
-  def add_update_elasticsearch_comment
-    add_nested_obj('comments', %w(text))
+  def add_elasticsearch_comment
+    add_update_nested_obj('create', 'comments', %w(text))
+  end
+
+  def update_elasticsearch_comment
+    add_update_nested_obj('update', 'comments', %w(text))
   end
 
   def destroy_elasticsearch_comment

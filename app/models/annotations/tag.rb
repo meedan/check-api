@@ -7,7 +7,8 @@ class Tag < ActiveRecord::Base
   validates :data, uniqueness: { scope: [:annotated_type, :annotated_id], message: :already_exists }, if: lambda { |t| t.id.blank? }
 
   before_validation :normalize_tag
-  after_commit :add_update_elasticsearch_tag, on: [:create, :update]
+  after_commit :add_elasticsearch_tag, on: :create
+  after_commit :update_elasticsearch_tag, on: :update
   after_commit :destroy_elasticsearch_tag, on: :destroy
 
   def content
@@ -20,8 +21,12 @@ class Tag < ActiveRecord::Base
     self.tag = self.tag.strip.gsub(/^#/, '') unless self.tag.nil?
   end
 
-  def add_update_elasticsearch_tag
-    add_nested_obj('tags', %w(tag))
+  def add_elasticsearch_tag
+    add_update_nested_obj('create', 'tags', %w(tag))
+  end
+
+  def update_elasticsearch_tag
+    add_update_nested_obj('update', 'tags', %w(tag))
   end
 
   def destroy_elasticsearch_tag
