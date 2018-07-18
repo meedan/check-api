@@ -60,17 +60,10 @@ module ProjectAssociation
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       options = {obj: self}
       ElasticSearchWorker.new.perform(YAML::dump(self), YAML::dump(options), 'create_doc')
-      if self.class.name == 'ProjectSource'
-        # index related account
-        accounts = []
-        accounts = self.source.accounts unless self.source.nil?
-        accounts.each do |a|
-          a.add_nested_obj('accounts', %w(ttile description username), {}, self)
-        end unless accounts.blank?
-      end
     end
 
     def update_elasticsearch_data
+      # TODO: Update project_id when user move media only - now this one trigger when create annotation
       return if self.disable_es_callbacks
       v = self.versions.last
       unless v.nil? || v.changeset['project_id'].blank?
