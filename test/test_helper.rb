@@ -102,6 +102,7 @@ class ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
     I18n.locale = :en
     Sidekiq::Worker.clear_all
+    Rails.cache.clear
   end
 
   # This will run after any test
@@ -131,6 +132,10 @@ class ActiveSupport::TestCase
       assert queries.size < num, msg
     elsif operator == '<='
       assert queries.size <= num, msg
+    elsif operator == '>='
+      assert queries.size >= num, msg
+    elsif operator == '>'
+      assert queries.size > num, msg
     end
   end
 

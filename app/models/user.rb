@@ -247,7 +247,7 @@ class User < ActiveRecord::Base
   end
 
   def profile_image
-    self.source.avatar
+    self.source.nil? ? nil : self.source.avatar
   end
 
   # private

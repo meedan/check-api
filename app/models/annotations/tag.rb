@@ -2,12 +2,11 @@ class Tag < ActiveRecord::Base
   include AnnotationBase
 
   field :tag, String, presence: true
-  field :full_tag, String, presence: true
 
   validates_presence_of :tag
   validates :data, uniqueness: { scope: [:annotated_type, :annotated_id], message: :already_exists }, if: lambda { |t| t.id.blank? }
 
-  before_validation :normalize_tag, :store_full_tag
+  before_validation :normalize_tag
   after_commit :add_update_elasticsearch_tag, on: [:create, :update]
   after_commit :destroy_elasticsearch_tag, on: :destroy
 
@@ -18,15 +17,11 @@ class Tag < ActiveRecord::Base
   private
 
   def normalize_tag
-    self.tag = self.tag.gsub(/^#/, '') unless self.tag.nil?
-  end
-
-  def store_full_tag
-    self.full_tag = self.tag
+    self.tag = self.tag.strip.gsub(/^#/, '') unless self.tag.nil?
   end
 
   def add_update_elasticsearch_tag
-    add_update_media_search_child('tag_search', %w(tag full_tag))
+    add_update_media_search_child('tag_search', %w(tag))
   end
 
   def destroy_elasticsearch_tag
