@@ -9,7 +9,8 @@ class Dynamic < ActiveRecord::Base
   before_validation :update_attribution, :update_timestamp
   after_create :create_fields
   after_update :update_fields
-  after_commit :add_update_elasticsearch_dynamic, :send_slack_notification, on: [:create, :update]
+  after_commit :send_slack_notification, on: [:create, :update]
+  after_commit :add_update_elasticsearch_dynamic, :send_slack_notification, on: :create
   after_commit :destroy_elasticsearch_dynamic_annotation, on: :destroy
 
   validate :annotation_type_exists
@@ -83,7 +84,7 @@ class Dynamic < ActiveRecord::Base
     if self.respond_to?(method)
       self.send(method)
     elsif self.fields.count > 0
-      add_nested_obj('dynamics', ['indexable'])
+      add_update_nested_obj('create', 'dynamics', ['indexable'])
     end
   end
 

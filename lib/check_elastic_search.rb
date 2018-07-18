@@ -39,21 +39,26 @@ module CheckElasticSearch
                   body: { doc: fields }
   end
 
-  def add_nested_obj(nested_key, keys, data = {}, obj = nil)
+  def add_update_nested_obj(op, nested_key, keys, data = {}, obj = nil)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {keys: keys, data: data, nested_key: nested_key}
+    options = {op: op, keys: keys, data: data, nested_key: nested_key}
     options[:obj] = obj unless obj.nil?
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_doc_nested')
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_update_doc_nested')
   end
 
-  def create_nested_obj_bg(options)
+  def create_update_nested_obj_bg(options)
     return if options[:doc_id].blank?
     create_doc_if_not_exists(options)
     client = MediaSearch.gateway.client
-    source = "ctx._source.#{options[:nested_key]}.add(params.value)"
+    key = options[:nested_key]
+    if options[:op] == 'create'
+      source = "ctx._source.#{key}.add(params.value)"
+    else
+      source = "for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
+    end
     values = store_elasticsearch_data(options[:keys], options[:data])
     client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id],
-             body: { script: { source: source, params: { value: values } } }
+             body: { script: { source: source, params: { value: values, id: self.id } } }
   end
 
   def store_elasticsearch_data(keys, data)
