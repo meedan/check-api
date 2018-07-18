@@ -13,7 +13,7 @@ module TeamDuplication
       begin
         ActiveRecord::Base.transaction do
           PaperTrail::Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
-          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: { versions: { if: lambda{|v| v.associated_id.blank? }}}}]}, :team_users, :contacts ] do |original, copy|
+          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: [ :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts ] do |original, copy|
             @cloned_versions << copy if original.is_a?(PaperTrail::Version)
             self.set_mapping(original, copy) unless original.is_a?(PaperTrail::Version)
             self.copy_image(original, copy)
@@ -26,6 +26,7 @@ module TeamDuplication
           @copy_team = team
           team.update_team_checklist(@mapping[:Project])
           self.copy_annotations
+          self.update_relationships
           self.copy_versions(@mapping[:"PaperTrail::Version"])
           self.update_cloned_versions(@cloned_versions)
           self.create_copy_version(@mapping[:ProjectMedia], user)
@@ -33,10 +34,14 @@ module TeamDuplication
           team
         end
       rescue StandardError => e
-        Airbrake.notify(e) if Airbrake.configuration.api_key
-        Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
+        self.log_error(e, t)
         nil
       end
+    end
+
+    def self.log_error(e, t)
+      Airbrake.notify(e) if Airbrake.configuration.api_key
+      Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
     end
 
     def self.set_mapping(object, copy)
@@ -70,6 +75,7 @@ module TeamDuplication
             annotation = a.dup
             annotation.annotated = copy
             annotation.is_being_copied = true
+            annotation.skip_notifications = true
             Team.copy_image(a, annotation)
             annotation.save(validate: false)
             self.set_mapping(a, annotation)
@@ -95,7 +101,7 @@ module TeamDuplication
         log = PaperTrail::Version.find(original).dup
         log.is_being_copied = true
         log.associated_id = copy.id unless log.associated_id.blank?
-        item = @mapping[log.item_type.to_sym][log.item_id.to_i]
+        item = @mapping.dig(log.item_type.to_sym, log.item_id.to_i)
         self.update_version_fields(log, item)
         log.save(validate: false)
       end
@@ -105,6 +111,7 @@ module TeamDuplication
       return unless item
       self.update_version_object(log, item)
       self.update_version_object_changes(log)
+      self.update_version_meta(log, item)
       log.item_id = item.id
       log.set_object_after
     end
@@ -118,13 +125,27 @@ module TeamDuplication
     end
 
     def self.update_version_object_changes(log)
-      changes = log.get_object_changes
-      return if changes.blank? || changes['annotated_id'].blank?
-      changes['annotated_id'].map! do |a|
-        c = @mapping[log.associated_type.to_sym][a]
-        c ? c.id : a
+      changes = log.get_object_changes.with_indifferent_access
+      return if changes.blank?
+      associations = { annotated_id: 'associated_type', source_id: 'associated_type', target_id: 'associated_type', id: 'item_type' }
+      associations.each_pair do |field, method|
+        unless changes[field].blank?
+          changes[field].map! do |a|
+            c = @mapping.dig(log.send(method).to_sym, a)
+            c ? c.id : a
+          end
+        end
       end
       log.object_changes = changes.to_json
+    end
+
+    def self.update_version_meta(log, item)
+      return if log.meta.blank?
+      meta = JSON.parse(log.meta)
+      if meta.dig('target', 'url') && item.target
+        meta['target']['url'] = item.target.full_url
+      end
+      log.meta = meta.to_json
     end
 
     def self.create_copy_version(pm_mapping, user)
@@ -155,6 +176,17 @@ module TeamDuplication
         version.save(validate: false)
       end
     end
+
+    def self.update_relationships
+      return if @mapping[:Relationship].blank?
+      @mapping[:Relationship].each_value do |copy|
+        [:source_id, :target_id].each do |r|
+          pm_mapping = @mapping.dig(:ProjectMedia, copy.send(r))
+          copy.update_column(r, pm_mapping.id) if pm_mapping
+        end
+      end
+    end
+
   end
 
   def generate_copy_slug

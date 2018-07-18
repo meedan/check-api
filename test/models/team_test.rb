@@ -751,6 +751,22 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [], t.checklist
   end
 
+  test "should alias raw_checklist to checklist" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+      options: [{ "label": "option 1" },{ "label": "option 2" }],
+      projects: [],
+      mapping: {"type"=>"text", "match"=>"", "prefix"=>""}
+    }]
+    t.raw_checklist = value
+    t.save!
+    assert_equal value, t.raw_checklist
+    assert_equal value, t.checklist
+  end
+
   test "should save valid slack_channel" do
     t = create_team
     value =  "#slack_channel"
@@ -1357,9 +1373,10 @@ class TeamTest < ActiveSupport::TestCase
   test "should not copy invalid statuses" do
     team = create_team
     value = { default: '1', active: '1' }
-    team.set_media_verification_statuses(value);team.save(validate: false)
+    team.set_media_verification_statuses(value)
     assert !team.valid?
     assert !team.errors[:statuses].blank?
+    team.save(validate: false)
     assert_equal value, team.get_media_verification_statuses(value)
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
@@ -1661,4 +1678,55 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
   end
 
+  test "should duplicate a team and copy relationships and versions" do
+    team = create_team
+    u = create_user is_admin: true
+    create_team_user team: team, user: u, role: 'owner'
+    project = create_project team: team, user: u
+    RequestStore.store[:disable_es_callbacks] = true
+    with_current_user_and_team(u, team) do
+      pm1 = create_project_media user: u, team: team, project: project
+      pm2 = create_project_media user: u, team: team, project: project
+      create_relationship source_id: pm1.id, target_id: pm2.id
+
+      assert_equal 1, Relationship.count
+      assert_equal [1, 0, 0, 1], [pm1.source_relationships.count, pm1.target_relationships.count, pm2.source_relationships.count, pm2.target_relationships.count]
+
+      version =  pm1.get_versions_log.first
+      changes = version.get_object_changes
+      assert_equal [[nil, pm1.id], [nil, pm2.id], [nil, pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
+      assert_equal pm2.full_url, JSON.parse(version.meta)['target']['url']
+
+      copy = Team.duplicate(team)
+      copy_p = copy.projects.find_by_title(project.title)
+      copy_pm1 = copy_p.project_medias.where(media_id: pm1.media.id).first
+      copy_pm2 = copy_p.project_medias.where(media_id: pm2.media.id).first
+
+      assert_equal 2, Relationship.count
+      assert_equal [1, 0, 0, 1], [copy_pm1.source_relationships.count, copy_pm1.target_relationships.count, copy_pm2.source_relationships.count, copy_pm2.target_relationships.count]
+      version =  copy_pm1.reload.get_versions_log.first.reload
+      changes = version.get_object_changes
+      assert_equal [[nil, copy_pm1.id], [nil, copy_pm2.id], [nil, copy_pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
+      assert_equal copy_pm2.full_url, JSON.parse(version.meta)['target']['url']
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
+  test "should add `field` as skippable if the raw_`field` was changed" do
+    t = create_team
+    value = [{
+      label: "Task one",
+      type: "single_choice",
+      description: "It is a single choice task",
+      options: [{ "label": "option 1" },{ "label": "option 2" }],
+      projects: [],
+      mapping: {"type"=>"text", "match"=>"", "prefix"=>""}
+    }]
+    t.set_checklist(value)
+    t.save!
+
+    edited_value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
+    params = { raw_checklist: edited_value, checklist: value }
+    assert_equal ['checklist'], t.send(:skippable_fields, params)
+  end
 end

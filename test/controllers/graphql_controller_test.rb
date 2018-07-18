@@ -1036,17 +1036,19 @@ class GraphqlControllerTest < ActionController::TestCase
       create_project_source project: p, source: s
       create_account_source source: s
       m.times { create_comment annotated: pm, annotator: create_user }
+      pm.project_source
     end
     create_project_media project: p, user: u
     pm = create_project_media project: p
     pm.archived = true
     pm.save!
+    pm.project_source
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     # 13 * 29 + 24
-    assert_queries 344, '<=' do
+    assert_queries 274, '<=' do
       post :create, query: query, team: 'team'
     end
 
@@ -1412,5 +1414,42 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal data['permissions'], data['relationships']['sources']['edges'][0]['node']['siblings']['edges'][0]['node']['permissions']
     assert_not_equal data['relationships']['sources']['edges'][0]['node']['siblings']['edges'][0]['node']['permissions'], data['relationships']['sources']['edges'][0]['node']['source']['permissions']
     assert_not_equal data['permissions'], data['relationships']['sources']['edges'][0]['node']['source']['permissions']
+  end
+
+  test "should create dynamic annotation type" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+
+    query = 'mutation create { createDynamicAnnotationMetadata(input: { annotated_id: "' + pm.id.to_s + '", clientMutationId: "1", annotated_type: "ProjectMedia", set_fields: "{\"metadata_value\":\"test\"}" }) { dynamic { id, annotation_type } } }'
+
+    assert_difference 'Dynamic.count' do
+      post :create, query: query, team: t
+    end
+    assert_equal 'metadata', JSON.parse(@response.body)['data']['createDynamicAnnotationMetadata']['dynamic']['annotation_type']
+    assert_response :success
+  end
+
+  test "should read project media dynamic annotation fields" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'metadata'
+    
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation_metadata { dbid }, dynamic_annotations_metadata { edges { node { dbid } } } } }"
+    post :create, query: query, team: t.slug
+    
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_equal d.id.to_s, data['dynamic_annotation_metadata']['dbid']
+    assert_equal d.id.to_s, data['dynamic_annotations_metadata']['edges'][0]['node']['dbid']
   end
 end

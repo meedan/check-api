@@ -157,7 +157,17 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def project_source
-    get_project_source(self.project_id)
+    cache_key = "project_source_id_cache_for_project_media_#{self.id}"
+    psid = Rails.cache.fetch(cache_key) do
+      ps = get_project_source(self.project_id)
+      ps.nil? ? 0 : ps.id
+    end
+    ps = ProjectSource.where(id: psid).last
+    if ps.nil?
+      ps = get_project_source(self.project_id)
+      Rails.cache.write(cache_key, ps.id) unless ps.nil?
+    end
+    ps
   end
 
   def custom_permissions(ability = nil)

@@ -2,8 +2,8 @@ module Workflow
   module Concerns
     module TeamConcern
       Team.class_eval do
-        validate :change_custom_media_statuses, if: proc { |t| t.get_limits_custom_statuses == true }
-        validate :custom_statuses_format, unless: proc { |t| t.settings.nil? }
+        validate :change_custom_media_statuses, if: proc { |t| t.get_limits_custom_statuses == true && t.changes.dig('settings') }
+        validate :custom_statuses_format, unless: proc { |t| t.settings.nil? || !t.changes.dig('settings') }
 
         ::Workflow::Workflow.workflow_ids.each do |id|
           define_method id.pluralize do |type, obj = nil|
@@ -63,7 +63,7 @@ module Workflow
           end
           [:default, :active].each do |status|
             errors.add(:statuses, I18n.t("blank_#{status}_status_for_custom_#{id}".to_sym)) if statuses[status].blank?
-            errors.add(:statuses, I18n.t("invalid_#{status}_status_for_custom_#{id}".to_sym)) if !statuses[:statuses].map{ |s| s[:id] }.include?(statuses[status])
+            errors.add(:statuses, I18n.t("invalid_#{status}_status_for_custom_#{id}".to_sym)) if !statuses[:statuses].map{ |s| s[:id] }.include?(statuses[status]) && !statuses[status].blank?
           end
         end
 
@@ -102,9 +102,10 @@ module Workflow
             next if media_statuses.blank?
             list = ::Workflow::Workflow.validate_custom_statuses(self.id, media_statuses, id)
             unless list.blank?
-              urls = list.collect{ |l| l[:url] }
+              urls = list.collect{ |l| l[:url] }.sort
               statuses = list.collect{ |l| l[:status] }.uniq
-              errors.add(:base, I18n.t(:cant_change_custom_statuses, statuses: statuses, urls: urls))
+              others_amount = urls.size > 5 ? "(+ #{urls.size - 5})" : ''
+              errors.add(:base, I18n.t(:cant_change_custom_statuses, statuses: statuses, urls: urls.first(5).join(", "), others_amount: others_amount ))
             end
           end
         end

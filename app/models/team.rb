@@ -105,7 +105,7 @@ class Team < ActiveRecord::Base
       projects = get_values_from_entry(c[:projects])
       c[:projects] = projects.map(&:to_i) if projects
       c[:label].blank? ?  checklist.delete_at(index) : checklist[index] = c
-    end
+    end if checklist
     self.send(:set_checklist, checklist)
   end
 
@@ -120,6 +120,8 @@ class Team < ActiveRecord::Base
     end
     tasks
   end
+  alias :raw_checklist :checklist
+  alias :raw_checklist= :checklist=
 
   def add_auto_task=(task)
     checklist = self.get_checklist || []
