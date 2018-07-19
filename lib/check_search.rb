@@ -129,18 +129,17 @@ class CheckSearch
   def build_search_keyword_conditions(associated_type)
     return [] if @options["keyword"].blank?
     # add keyword conditions
-    keyword_fields = %w(title description quote account.username account.title)
+    keyword_fields = %w(title description quote)
     keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
 
     [['comments', 'text'], ['dynamics', 'indexable']].each do |pair|
-      keyword_c << { nested: { path: "#{pair[0]}", query: { simple_query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
+      keyword_c << { nested: { path: "#{pair[0]}", query: { simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }}}}
     end
 
     keyword_c << search_tags_query(@options["keyword"].split(' '))
 
-    if associated_type == 'ProjectSource'
-      keyword_c << { nested: { path: "accounts", query: { simple_query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
-    end
+    keyword_c << { nested: { path: "accounts", query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}}}
+
     [{ bool: { should: keyword_c } }]
   end
 
@@ -154,9 +153,9 @@ class CheckSearch
     tags_c = []
     tags = tags.collect{ |t| t.delete('#') }
     tags.each do |tag|
-      tags_c << { match: { "tag.raw": { query: tag, operator: 'and' } } }
+      tags_c << { match: { "tags.tag.raw": { query: tag, operator: 'and' } } }
     end
-    tags_c << { terms: { tag: tags } }
+    tags_c << { terms: { "tags.tag": tags } }
     { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
   end
 
