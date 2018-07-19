@@ -6,7 +6,8 @@ class Bot::BridgeReader < ActiveRecord::Base
   end
 
   def disabled?
-    CONFIG['bridge_reader_url_private'].blank? || CONFIG['bridge_reader_url'].blank? || CONFIG['bridge_reader_token'].blank?
+    true
+    # CONFIG['bridge_reader_url_private'].blank? || CONFIG['bridge_reader_url'].blank? || CONFIG['bridge_reader_token'].blank?
   end
 
   protected

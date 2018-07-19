@@ -9,6 +9,7 @@ namespace :check do
   	[ProjectMedia, ProjectSource].each do |type|
   		type.find_each do |obj|
   			obj.add_elasticsearch_data
+        # append nested objects
   			print '.'
   		end
   	end
