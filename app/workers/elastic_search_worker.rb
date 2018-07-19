@@ -6,19 +6,16 @@ class ElasticSearchWorker
   def perform(model, options, type)
     model = YAML::load(model)
     options = set_options(model, options)
-    case type
-    when "create_doc"
-      model.create_elasticsearch_doc_bg
-    when "update_doc"
-      model.update_elasticsearch_doc_bg(options)
-    when "update_doc_team"
-      model.update_elasticsearch_doc_team_bg
-    when "create_update_doc_nested"
-      model.create_update_nested_obj_bg(options)
-    when "destroy_doc"
-      model.destroy_elasticsearch_doc(options)
-    when "destroy_doc_nested"
-      model.destroy_elasticsearch_doc_nested(options)
+    ops = {
+      'create_doc' => 'create_elasticsearch_doc_bg',
+      'update_doc' => 'update_elasticsearch_doc_bg',
+      'update_doc_team' => 'update_elasticsearch_doc_team_bg',
+      'create_update_doc_nested' => 'create_update_nested_obj_bg',
+      'destroy_doc' => 'destroy_elasticsearch_doc',
+      'destroy_doc_nested' => 'destroy_elasticsearch_doc_nested',
+    }
+    unless ops[type].nil?
+      model.send(ops[type], options) if model.respond_to?(ops[type])
     end
   end
 

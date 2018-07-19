@@ -22,11 +22,11 @@ class Tag < ActiveRecord::Base
   end
 
   def add_elasticsearch_tag
-    add_update_nested_obj('create', 'tags', %w(tag))
+    add_update_nested_obj({op: 'create', nested_key: 'tags', keys: ['tag']})
   end
 
   def update_elasticsearch_tag
-    add_update_nested_obj('update', 'tags', %w(tag))
+    add_update_nested_obj({op: 'update', nested_key: 'tags', keys: ['tag']})
   end
 
   def destroy_elasticsearch_tag

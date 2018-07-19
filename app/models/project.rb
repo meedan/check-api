@@ -92,7 +92,7 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_elasticsearch_doc_team_bg
+  def update_elasticsearch_doc_team_bg(_options)
     client = MediaSearch.gateway.client
     options = {
       index: CheckElasticSearchModel.get_index_alias,
