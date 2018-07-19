@@ -767,6 +767,15 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal value, t.checklist
   end
 
+  test "should not save invalid raw_checklist" do
+    t = create_team
+    t.raw_checklist = 'value'
+    assert_raises ActiveRecord::RecordInvalid do
+      t.save!
+    end
+    assert_match /Checklist is invalid/, t.errors[:base].first
+  end
+
   test "should save valid slack_channel" do
     t = create_team
     value =  "#slack_channel"

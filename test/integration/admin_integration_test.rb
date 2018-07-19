@@ -300,4 +300,12 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     assert_template 'duplicate_team'
   end
 
+  test "should handle error when edit Team with invalid yaml field" do
+    sign_in @admin_user
+
+    invalid = "[ invalid { 'label': 'XXXX', 'type': 'free_text','description': 'YYYY', 'projects': [], 'options': [{ 'label': 'YYYY' }]]"
+    put "/admin/team/#{@team.id}/edit", team: { raw_checklist: invalid }
+    assert_template 'edit'
+    assert_nil @team.reload.get_checklist
+  end
 end
