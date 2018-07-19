@@ -164,7 +164,7 @@ class Account < ActiveRecord::Base
   def update_elasticsearch_account
     parents = self.get_parents
     parents.each do |parent|
-      self.add_update_nested_obj('update', 'accounts', %w(title description username), {}, parent)
+      self.add_update_nested_obj({op: 'update', nested_key: 'accounts', keys: %w(title description username), obj: parent})
     end unless parents.blank?
   end
 

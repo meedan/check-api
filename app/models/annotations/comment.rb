@@ -67,11 +67,11 @@ class Comment < ActiveRecord::Base
   end
 
   def add_elasticsearch_comment
-    add_update_nested_obj('create', 'comments', %w(text))
+    add_update_nested_obj({op: 'create', nested_key: 'comments', keys: ['text']})
   end
 
   def update_elasticsearch_comment
-    add_update_nested_obj('update', 'comments', %w(text))
+    add_update_nested_obj({op: 'update', nested_key: 'comments', keys: ['text']})
   end
 
   def destroy_elasticsearch_comment

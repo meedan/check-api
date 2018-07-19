@@ -1,6 +1,6 @@
 module CheckElasticSearch
 
-  def create_elasticsearch_doc_bg
+  def create_elasticsearch_doc_bg(_options)
     p = self.project
     ms = MediaSearch.new
     ms.id = Base64.encode64("#{self.class.name}/#{self.id}")
@@ -10,15 +10,18 @@ module CheckElasticSearch
     ms.relationship_sources = [Digest::MD5.hexdigest(Relationship.default_type.to_json) + '_' + rtid.to_s] unless rtid.blank?
     ms.set_es_annotated(self)
     self.add_extra_elasticsearch_data(ms)
-    if self.class.name == 'ProjectSource'
-      # index related account
-      accounts = []
-      accounts = self.source.accounts unless self.source.nil?
-      accounts.each do |a|
-        ms.accounts << a.store_elasticsearch_data(%w(title description username), {})
-      end unless accounts.blank?
-    end
+    ms.accounts = self.add_es_accounts if self.class.name == 'ProjectSource'
     ms.save!
+  end
+
+  def add_es_accounts
+    ms_accounts = []
+    accounts = []
+    accounts = self.source.accounts unless self.source.nil?
+    accounts.each do |a|
+      ms_accounts << a.store_elasticsearch_data(%w(title description username), {})
+    end
+    ms_accounts
   end
 
   def update_elasticsearch_doc(keys, data = {}, obj = nil)
@@ -39,10 +42,8 @@ module CheckElasticSearch
                   body: { doc: fields }
   end
 
-  def add_update_nested_obj(op, nested_key, keys, data = {}, obj = nil)
+  def add_update_nested_obj(options)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {op: op, keys: keys, data: data, nested_key: nested_key}
-    options[:obj] = obj unless obj.nil?
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_update_doc_nested')
   end
 

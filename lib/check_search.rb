@@ -99,7 +99,7 @@ class CheckSearch
     conditions = []
     conditions << {term: { annotated_type: associated_type.downcase } }
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
-    conditions.concat build_search_keyword_conditions(associated_type)
+    conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
     conditions.concat build_search_parent_conditions
     { bool: { must: conditions } }
@@ -126,7 +126,7 @@ class CheckSearch
   #   (show_options - @options['show']).empty?
   # end
 
-  def build_search_keyword_conditions(associated_type)
+  def build_search_keyword_conditions
     return [] if @options["keyword"].blank?
     # add keyword conditions
     keyword_fields = %w(title description quote)

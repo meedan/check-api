@@ -84,7 +84,7 @@ class Dynamic < ActiveRecord::Base
     if self.respond_to?(method)
       self.send(method)
     elsif self.fields.count > 0
-      add_update_nested_obj('create', 'dynamics', ['indexable'])
+      add_update_nested_obj({op: 'create', nested_key: 'dynamics', keys: ['indexable']})
     end
   end
 
