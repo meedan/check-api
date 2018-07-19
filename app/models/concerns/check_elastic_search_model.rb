@@ -106,7 +106,7 @@ module CheckElasticSearchModel
       client.indices.put_alias index: index_name, name: CheckElasticSearchModel.get_index_alias if c_alias
     end
 
-    def delete_index(index_name = self.index_name)
+    def delete_index(index_name = CheckElasticSearchModel.get_index_name)
       client = self.gateway.client
       client.indices.delete index: index_name if client.indices.exists? index: index_name
     end
