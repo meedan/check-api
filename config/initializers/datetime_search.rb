@@ -1,7 +1,3 @@
-DynamicSearch.class_eval do
-  attribute :datetime, Integer
-end
-
 Dynamic.class_eval do
   def add_update_elasticsearch_dynamic_annotation_task_response_datetime
     return if self.get_field(:response_datetime).nil?
