@@ -11,7 +11,6 @@ class MediaSearch
   attribute :title, String, mapping: { type: 'text', analyzer: 'check' }
   attribute :description, String, mapping: { type: 'text', analyzer: 'check' }
   attribute :quote, String, mapping: { type: 'text', analyzer: 'check' }
-  attribute :last_activity_at, Time, default: lambda { |_o, _a| Time.now.utc }
   attribute :accounts, Array, mapping: {
     type: 'nested',
     properties: {

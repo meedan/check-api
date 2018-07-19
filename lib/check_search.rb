@@ -106,7 +106,7 @@ class CheckSearch
   end
 
   def medias_get_search_result(query)
-    field = @options['sort'] == 'recent_activity' ? 'last_activity_at' : 'created_at'
+    field = @options['sort'] == 'recent_activity' ? 'updated_at' : 'created_at'
     MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"].downcase }}, '_score'], size: 10000).results
   end
 
