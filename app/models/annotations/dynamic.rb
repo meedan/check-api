@@ -89,7 +89,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_dynamic_annotation
-    destroy_es_items(DynamicSearch)
+    destroy_es_items('dynamics')
   end
 
   def annotation_type_exists

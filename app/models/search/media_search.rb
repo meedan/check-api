@@ -39,6 +39,8 @@ class MediaSearch
     type: 'nested',
     properties: {
       id: { type: 'integer'},
+      datetime: { type: 'integer' },
+      location: { type: 'geo_point' },
       indexable: { type: 'text', analyzer: 'check'}
     }
   }

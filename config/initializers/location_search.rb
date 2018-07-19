@@ -1,3 +1,4 @@
+
 class GeoPoint
 end
 
@@ -20,13 +21,6 @@ module Elasticsearch
         end
       end
     end
-  end
-end
-
-DynamicSearch.class_eval do
-  attribute :location, GeoPoint
-  mapping _parent: { type: 'media_search' } do
-    indexes :location, type: 'geo_point'
   end
 end
 
