@@ -1452,4 +1452,19 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal d.id.to_s, data['dynamic_annotation_metadata']['dbid']
     assert_equal d.id.to_s, data['dynamic_annotations_metadata']['edges'][0]['node']['dbid']
   end
+
+  test "should return nil on team_userEdge if user is admin and not a team member" do
+    u = create_user
+    u.is_admin = true; u.save
+    authenticate_with_user(u)
+    t = create_team name: 'foo'
+    User.current = u
+
+    assert_nil GraphqlCrudOperations.define_conditional_returns(t)[:team_userEdge]
+
+    tu = create_team_user user: u, team: t
+    assert_equal tu, GraphqlCrudOperations.define_conditional_returns(t)[:team_userEdge].node
+
+    User.current = nil
+  end
 end
