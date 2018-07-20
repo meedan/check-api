@@ -14,6 +14,9 @@ before_install:
 - sleep 30
 - sudo service elasticsearch status
 - 'echo "script.engine.groovy.inline.update: on" | sudo tee -a /etc/elasticsearch/elasticsearch.yml'
+- sudo service elasticsearch restart
+- sleep 30
+- sudo service elasticsearch status
 - sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
 - sudo service elasticsearch restart
 - sleep 30
