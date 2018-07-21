@@ -105,13 +105,13 @@ class Team < ActiveRecord::Base
       projects = get_values_from_entry(c[:projects])
       c[:projects] = projects.map(&:to_i) if projects
       c[:label].blank? ?  checklist.delete_at(index) : checklist[index] = c
-    end if checklist
+    end if checklist.is_a?(Array)
     self.send(:set_checklist, checklist)
   end
 
   def checklist
     tasks = self.get_checklist
-    unless tasks.blank?
+    if tasks.is_a?(Array)
       tasks.map do |t|
         t[:options] ||= []
         t[:projects] = [] if t[:projects].nil?

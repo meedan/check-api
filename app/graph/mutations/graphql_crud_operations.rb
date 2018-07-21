@@ -26,7 +26,8 @@ class GraphqlCrudOperations
     ret = {}
     
     if obj.is_a?(Team) && User.current.present?
-      ret["team_userEdge".to_sym] = GraphQL::Relay::Edge.between(obj.reload.team_user, User.current.reload)
+      team_user = obj.reload.team_user
+      ret["team_userEdge".to_sym] = GraphQL::Relay::Edge.between(team_user, User.current.reload) unless team_user.nil?
       ret[:user] = User.current
     end
 
