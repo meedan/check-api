@@ -30,6 +30,6 @@ class Tag < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_tag
-    destroy_es_items(TagSearch)
+    destroy_es_items('tags')
   end
 end

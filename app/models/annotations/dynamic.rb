@@ -10,7 +10,7 @@ class Dynamic < ActiveRecord::Base
   after_create :create_fields
   after_update :update_fields
   after_commit :send_slack_notification, on: [:create, :update]
-  after_commit :add_update_elasticsearch_dynamic, :send_slack_notification, on: :create
+  after_commit :add_update_elasticsearch_dynamic, on: :create
   after_commit :destroy_elasticsearch_dynamic_annotation, on: :destroy
 
   validate :annotation_type_exists

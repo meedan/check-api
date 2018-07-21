@@ -80,14 +80,14 @@ module CheckElasticSearch
     ['ProjectMedia', 'ProjectSource'].include?(obj.class.name) ? Base64.encode64("#{obj.class.name}/#{obj.id}") : nil
   end
 
+  def doc_exists?(doc_id)
+    client = MediaSearch.gateway.client
+    client.exists? index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: doc_id
+  end
+
   def create_doc_if_not_exists(options)
     doc_id = options[:doc_id]
-    unless doc_id.nil?
-      client = MediaSearch.gateway.client
-      unless client.exists? index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: doc_id
-        ElasticSearchWorker.new.perform(YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc')
-      end
-    end
+    ElasticSearchWorker.new.perform(YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
   end
 
   def get_elasticsearch_data(data)
@@ -95,15 +95,19 @@ module CheckElasticSearch
   end
 
   def destroy_elasticsearch_doc(data)
-    client = MediaSearch.gateway.client
-    client.delete index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id]
+    if doc_exists?(data[:doc_id])
+      client = MediaSearch.gateway.client
+      client.delete index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id]
+    end
   end
 
   def destroy_elasticsearch_doc_nested(data)
     nested_type = data[:es_type]
-    client = MediaSearch.gateway.client
-    script = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == #{self.id}){ctx._source.#{nested_type}.remove(i);}}"
-    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id],
-             body: { script: script }
+    if doc_exists?(data[:doc_id])
+      client = MediaSearch.gateway.client
+      script = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == #{self.id}){ctx._source.#{nested_type}.remove(i);}}"
+      client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id],
+               body: { script: script }
+    end
   end
 end
