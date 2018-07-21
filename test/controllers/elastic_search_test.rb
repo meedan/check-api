@@ -907,8 +907,8 @@ class ElasticSearchTest < ActionController::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
-      pids = ProjectMedia.where(project_id: p.id).map(&:id).map(&:to_s)
-      pids.concat ProjectSource.where(project_id: p.id).map(&:id).map(&:to_s)
+      pids = ProjectMedia.where(project_id: p.id).map(&:id)
+      pids.concat ProjectSource.where(project_id: p.id).map(&:id)
       sleep 5
       results = MediaSearch.search(query: { match: { team_id: t.id } }).results
       assert_equal pids.sort, results.map(&:annotated_id).sort
@@ -1076,8 +1076,6 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should index and search by location" do
-    DynamicSearch.delete_index
-    DynamicSearch.create_index
     att = 'task_response_geolocation'
     at = create_annotation_type annotation_type: att, label: 'Task Response Geolocation'
     geotype = create_field_type field_type: 'geojson', label: 'GeoJSON'
@@ -1119,12 +1117,10 @@ class ElasticSearchTest < ActionController::TestCase
 
     sleep 3
 
-    assert_equal 1, DynamicSearch.search(search).results.size
+    assert_equal 1, MediaSearch.search(search).results.size
   end
 
   test "should index and search by datetime" do
-    DynamicSearch.delete_index
-    DynamicSearch.create_index
     att = 'task_response_datetime'
     at = create_annotation_type annotation_type: att, label: 'Task Response Date Time'
     datetime = create_field_type field_type: 'datetime', label: 'Date Time'
@@ -1154,7 +1150,7 @@ class ElasticSearchTest < ActionController::TestCase
 
     sleep 5
 
-    assert_equal 1, DynamicSearch.search(search).results.size
+    assert_equal 1, MediaSearch.search(search).results.size
   end
 
   test "should create media search" do

@@ -98,7 +98,7 @@ class Project < ActiveRecord::Base
       index: CheckElasticSearchModel.get_index_alias,
       type: 'media_search',
       body: {
-        script: { inline: "ctx._source.team_id=team_id", lang: "groovy", params: { team_id: self.team_id } },
+        script: { source: "ctx._source.team_id = params.team_id", params: { team_id: self.team_id } },
         query: { term: { project_id: { value: self.id } } }
       }
     }

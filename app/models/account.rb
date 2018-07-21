@@ -171,7 +171,7 @@ class Account < ActiveRecord::Base
   def destroy_elasticsearch_account
     parents = self.get_parents
     parents.each do |parent|
-      destroy_es_items(AccountSearch, 'child', parent)
+      destroy_es_items('accounts', 'destroy_doc_nested', parent)
     end
   end
 
