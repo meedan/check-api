@@ -119,7 +119,7 @@ en:
   slug_is_reserved: is reserved
   invalid_format_for_checklist: 'Checklist is invalid, it should have the format [
     { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'':
-    [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
+    [], ''options'': [{ ''label'': ''YYYY'' }] } ]'
   invalid_format_for_languages: 'Languages is invalid, it should have the format [{''id'':
     ''en'',''title'': ''English''}]'
   invalid_media_item: Sorry, this is not a valid media item
