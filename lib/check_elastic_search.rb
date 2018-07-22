@@ -36,6 +36,7 @@ module CheckElasticSearch
     sleep 1
     data = get_elasticsearch_data(options[:data])
     fields = {}
+    fields['updated_at'] = Time.now.utc
     options[:keys].each{|k| fields[k] = data[k] if !data[k].blank? }
     client = MediaSearch.gateway.client
     client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id],
@@ -53,13 +54,13 @@ module CheckElasticSearch
     client = MediaSearch.gateway.client
     key = options[:nested_key]
     if options[:op] == 'create'
-      source = "ctx._source.#{key}.add(params.value)"
+      source = "ctx._source.updated_at=params.updated_at;ctx._source.#{key}.add(params.value)"
     else
-      source = "for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
+      source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
     end
     values = store_elasticsearch_data(options[:keys], options[:data])
     client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id],
-             body: { script: { source: source, params: { value: values, id: self.id } } }
+             body: { script: { source: source, params: { value: values, id: self.id, updated_at: Time.now.utc } } }
   end
 
   def store_elasticsearch_data(keys, data)
@@ -80,9 +81,9 @@ module CheckElasticSearch
     ['ProjectMedia', 'ProjectSource'].include?(obj.class.name) ? Base64.encode64("#{obj.class.name}/#{obj.id}") : nil
   end
 
-  def doc_exists?(doc_id)
+  def doc_exists?(id)
     client = MediaSearch.gateway.client
-    client.exists? index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: doc_id
+    client.exists? index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: id
   end
 
   def create_doc_if_not_exists(options)
@@ -105,9 +106,9 @@ module CheckElasticSearch
     nested_type = data[:es_type]
     if doc_exists?(data[:doc_id])
       client = MediaSearch.gateway.client
-      script = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == #{self.id}){ctx._source.#{nested_type}.remove(i);}}"
+      source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
       client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id],
-               body: { script: script }
+               body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
     end
   end
 end

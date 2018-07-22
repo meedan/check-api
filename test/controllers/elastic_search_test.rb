@@ -1098,16 +1098,12 @@ class ElasticSearchTest < ActionController::TestCase
     search = {
       query: {
         bool: {
-          must: {
-            filtered: {
-              filter: {
-                geo_distance: {
-                  distance: '1000mi',
-                  location: {
-                    lat: -12.900,
-                    lon: -38.560
-                  }
-                }
+          filter: {
+            geo_distance: {
+              distance: '1000mi',
+              location: {
+                lat: -12.900,
+                lon: -38.560
               }
             }
           }
@@ -1131,16 +1127,12 @@ class ElasticSearchTest < ActionController::TestCase
 
     search = {
       query: {
-        bool: {
-          must: {
-            filtered: {
-              filter: {
-                range: {
-                  datetime: {
-                    lte: Time.parse('2017-08-22').to_i,
-                    gte: Time.parse('2017-08-20').to_i
-                  }
-                }
+        bool: { 
+          filter: {
+            range: {
+              datetime: {
+                lte: Time.parse('2017-08-22').to_i,
+                gte: Time.parse('2017-08-20').to_i
               }
             }
           }

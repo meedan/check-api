@@ -125,8 +125,11 @@ module CheckElasticSearchModel
     end
 
     def length
+      client = MediaSearch.gateway.client
       type = self.name.parameterize
-      self.count({ query: { bool: { must: [{ match: { annotation_type: type } }] } } })
+      result = client.count index: CheckElasticSearchModel.get_index_alias, type: 'media_search',
+                      body: { query: { bool: { must: [{ match: { annotation_type: type } }] } } }
+      result['count']
     end
   end
 end

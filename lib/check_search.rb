@@ -101,7 +101,7 @@ class CheckSearch
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
-    conditions.concat build_search_parent_conditions
+    conditions.concat build_search_doc_conditions
     { bool: { must: conditions } }
   end
 
@@ -159,8 +159,8 @@ class CheckSearch
     { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
   end
 
-  def build_search_parent_conditions
-    parent_c = []
+  def build_search_doc_conditions
+    doc_c = []
 
     unless @options['show'].blank?
       types_mapping = {
@@ -168,7 +168,7 @@ class CheckSearch
         'sources' => ['Source']
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten
-      parent_c << { terms: { 'associated_type': types } }
+      doc_c << { terms: { 'associated_type': types } }
     end
 
     fields = { 'project_id' => 'projects' }
@@ -176,9 +176,9 @@ class CheckSearch
       fields[field] = field
     end
     fields.each do |k, v|
-      parent_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
+      doc_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
     end
-    parent_c
+    doc_c
   end
 
   def sort_pg_results(results)
@@ -190,7 +190,7 @@ class CheckSearch
   end
 
   def sort_es_items(items, ids)
-    ids_sort = items.sort_by{|x| ids.index x.id.to_s}
+    ids_sort = items.sort_by{|x| ids.index x.id}
     ids_sort.to_a
   end
 
