@@ -25,7 +25,7 @@ module Elasticsearch
 end
 
 Dynamic.class_eval do
-  def add_update_elasticsearch_dynamic_annotation_task_response_geolocation
+  def add_update_elasticsearch_dynamic_annotation_task_response_geolocation(op)
     return if self.get_field(:response_geolocation).nil?
     location = {}
     geojson = JSON.parse(self.get_field_value(:response_geolocation))
@@ -43,6 +43,6 @@ Dynamic.class_eval do
       location: location,
       indexable: indexable
     }
-    add_update_nested_obj({op: 'create', nested_key: 'dynamics', keys: [:location, :indexable], data: data})
+    add_update_nested_obj({op: op, nested_key: 'dynamics', keys: [:location, :indexable], data: data})
   end
 end

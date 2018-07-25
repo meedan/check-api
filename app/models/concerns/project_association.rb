@@ -59,7 +59,7 @@ module ProjectAssociation
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       options = {obj: self}
-      ElasticSearchWorker.new.perform(YAML::dump(self), YAML::dump(options), 'create_doc')
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_doc')
     end
 
     def update_elasticsearch_data
