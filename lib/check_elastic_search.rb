@@ -88,7 +88,7 @@ module CheckElasticSearch
 
   def create_doc_if_not_exists(options)
     doc_id = options[:doc_id]
-    ElasticSearchWorker.new.perform(YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
   end
 
   def get_elasticsearch_data(data)

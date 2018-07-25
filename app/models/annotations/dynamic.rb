@@ -10,7 +10,8 @@ class Dynamic < ActiveRecord::Base
   after_create :create_fields
   after_update :update_fields
   after_commit :send_slack_notification, on: [:create, :update]
-  after_commit :add_update_elasticsearch_dynamic, on: :create
+  after_commit :add_elasticsearch_dynamic, on: :create
+  after_commit :update_elasticsearch_dynamic, on: :update
   after_commit :destroy_elasticsearch_dynamic_annotation, on: :destroy
 
   validate :annotation_type_exists
@@ -76,15 +77,24 @@ class Dynamic < ActiveRecord::Base
     field.nil? ? nil : field.value
   end
 
+  def add_elasticsearch_dynamic
+    add_update_elasticsearch_dynamic('create')
+  end
+
   private
 
-  def add_update_elasticsearch_dynamic
-    return if self.disable_es_callbacks
+  def update_elasticsearch_dynamic
+    add_update_elasticsearch_dynamic('update')
+  end
+
+  def add_update_elasticsearch_dynamic(op)
+    skip_types = ['verification_status', 'translation_status']
+    return if self.disable_es_callbacks || skip_types.include?(self.annotation_type)
     method = "add_update_elasticsearch_dynamic_annotation_#{self.annotation_type}"
     if self.respond_to?(method)
-      self.send(method)
+      self.send(method, op)
     elsif self.fields.count > 0
-      add_update_nested_obj({op: 'create', nested_key: 'dynamics', keys: ['indexable']})
+      add_update_nested_obj({op: op, nested_key: 'dynamics', keys: ['indexable']})
     end
   end
 
