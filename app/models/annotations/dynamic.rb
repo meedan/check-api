@@ -77,11 +77,22 @@ class Dynamic < ActiveRecord::Base
     field.nil? ? nil : field.value
   end
 
-  def add_elasticsearch_dynamic
-    add_update_elasticsearch_dynamic('create')
+  def get_elasticsearch_options_dynamic
+    options = {}
+    method = "get_elasticsearch_options_dynamic_annotation_#{self.annotation_type}"
+    if self.respond_to?(method)
+      options = self.send(method)
+    elsif self.fields.count > 0
+      options = {keys: ['indexable'], data: {}}
+    end
+    options
   end
 
   private
+
+  def add_elasticsearch_dynamic
+    add_update_elasticsearch_dynamic('create')
+  end
 
   def update_elasticsearch_dynamic
     add_update_elasticsearch_dynamic('update')
@@ -90,12 +101,9 @@ class Dynamic < ActiveRecord::Base
   def add_update_elasticsearch_dynamic(op)
     skip_types = ['verification_status', 'translation_status']
     return if self.disable_es_callbacks || skip_types.include?(self.annotation_type)
-    method = "add_update_elasticsearch_dynamic_annotation_#{self.annotation_type}"
-    if self.respond_to?(method)
-      self.send(method, op)
-    elsif self.fields.count > 0
-      add_update_nested_obj({op: op, nested_key: 'dynamics', keys: ['indexable']})
-    end
+    options = get_elasticsearch_options_dynamic
+    options.merge!({op: op, nested_key: 'dynamics'})
+    add_update_nested_obj(options)
   end
 
   def destroy_elasticsearch_dynamic_annotation

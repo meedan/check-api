@@ -44,7 +44,7 @@ class CheckSearch
     results.collect do |result|
       sources = result.relationship_sources || []
       source = relationship_type.blank? ? sources.first : sources.select{ |x| x.split('_').first == Digest::MD5.hexdigest(relationship_type) }.first
-      (source.blank? || source == '-') ? result.annotated_id : source.split('_').last
+      (source.blank? || source == '-') ? result.annotated_id : source.split('_').last.to_i
     end
   end
 
