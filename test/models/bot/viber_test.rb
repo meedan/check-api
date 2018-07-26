@@ -516,8 +516,8 @@ class Bot::ViberTest < ActiveSupport::TestCase
     output = File.join(Rails.root, 'public', 'viber', filename + '.jpg')
     url = CONFIG['checkdesk_base_url'] + '/viber/' + filename + '.html'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response1 = '{"type":"media","data":{"url":"' + url + '","type":"item","screenshot_taken":0,"screenshot":"http://ca.ios.ba/files/meedan/pender-viber-test.png"}}'
-    response2 = '{"type":"media","data":{"url":"' + url + '","type":"item","screenshot_taken":1,"screenshot":"http://ca.ios.ba/files/meedan/pender-viber-test.png"}}'
+    response1 = '{"type":"media","data":{"url":"' + url + '","type":"item","screenshot_taken":0,"screenshot":"https://ca.ios.ba/files/meedan/pender-viber-test.png"}}'
+    response2 = '{"type":"media","data":{"url":"' + url + '","type":"item","screenshot_taken":1,"screenshot":"https://ca.ios.ba/files/meedan/pender-viber-test.png"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return({ body: response1 }, { body: response2 })
 
     assert !File.exist?(output)
