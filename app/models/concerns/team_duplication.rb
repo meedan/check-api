@@ -34,6 +34,7 @@ module TeamDuplication
           team
         end
       rescue StandardError => e
+        PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
         self.log_error(e, t)
         nil
       end
