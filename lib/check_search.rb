@@ -164,7 +164,7 @@ class CheckSearch
 
     unless @options['show'].blank?
       types_mapping = {
-        'medias' => ['Link', 'Claim', 'Uploadedimage'],
+        'medias' => ['Link', 'Claim', 'UploadedImage'],
         'sources' => ['Source']
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten

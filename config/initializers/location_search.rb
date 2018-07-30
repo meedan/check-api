@@ -33,9 +33,10 @@ Dynamic.class_eval do
     indexable = geojson['properties']['name']
 
     if coordinates[0] != 0 || coordinates[1] != 0
+      # re-compute long value before sending to Elasticsearch
       location = {
         lat: coordinates[0],
-        lon: coordinates[1]
+        lon: ((coordinates[1].to_f + 180) % 360) - 180
       }
     end
 
