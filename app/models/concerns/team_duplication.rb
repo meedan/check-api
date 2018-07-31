@@ -7,7 +7,6 @@ module TeamDuplication
     attr_accessor :mapping, :original_team, :copy_team
 
     def self.duplicate(t, user = nil)
-      @mapping = {}
       @original_team = t
       @cloned_versions = []
       begin
@@ -46,6 +45,7 @@ module TeamDuplication
     end
 
     def self.set_mapping(object, copy)
+      @mapping ||= {}
       key = object.class_name.to_sym
       @mapping[key] ||= {}
       @mapping[key][object.id] = copy
