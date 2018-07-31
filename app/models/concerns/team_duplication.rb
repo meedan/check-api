@@ -7,6 +7,7 @@ module TeamDuplication
     attr_accessor :mapping, :original_team, :copy_team
 
     def self.duplicate(t, user = nil)
+      @mapping = {}
       @original_team = t
       @cloned_versions = []
       begin
@@ -33,7 +34,6 @@ module TeamDuplication
           team
         end
       rescue StandardError => e
-        PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
         self.log_error(e, t)
         nil
       end
@@ -45,7 +45,6 @@ module TeamDuplication
     end
 
     def self.set_mapping(object, copy)
-      @mapping ||= {}
       key = object.class_name.to_sym
       @mapping[key] ||= {}
       @mapping[key][object.id] = copy
