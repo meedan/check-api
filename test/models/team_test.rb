@@ -1738,4 +1738,24 @@ class TeamTest < ActiveSupport::TestCase
     params = { raw_checklist: edited_value, checklist: value }
     assert_equal ['checklist'], t.send(:skippable_fields, params)
   end
+
+  test "should duplicate a team with more projects than its limits" do
+    t = create_team
+    t.update_columns(limits: {})
+    u = create_user is_admin: true
+    6.times do
+      p = create_project team: t
+      pm1 = create_project_media project: p
+      pm2 = create_project_media project: p
+      create_relationship source_id: pm1.id, target_id: pm2.id
+    end
+    t = Team.find(t.id)
+    RequestStore.store[:disable_es_callbacks] = true
+    t2 = Team.duplicate(t, u)
+    assert_not_nil t2
+    assert_equal 6, t2.projects.count
+    assert_equal 12, ProjectMedia.joins(:project).where('projects.team_id' => t2.id).count
+    assert_equal 6, Relationship.joins(source: :project, target: :project).where('projects.team_id' => t2.id).count
+    RequestStore.store[:disable_es_callbacks] = false
+  end
 end

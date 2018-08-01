@@ -55,7 +55,7 @@ module CheckLimits
     private
 
     def set_default_plan
-      self.limits = Team.plans[:free] if self.limits.blank?
+      self.limits = Team.plans[:free] if self.limits.blank? && !self.is_being_copied
     end
 
     def only_super_admin_can_change_limits
