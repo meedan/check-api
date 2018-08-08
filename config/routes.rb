@@ -6,6 +6,12 @@ Rails.application.routes.draw do
   mount GraphiQL::Rails::Engine, at: '/graphiql', graphql_path: '/api/graphql'
   mount Sidekiq::Web => '/sidekiq'
 
+  if CONFIG['pg_hero_enabled']
+    authenticate :api_user, -> (user) { user.is_admin } do
+      mount PgHero::Engine, at: 'pghero'
+    end
+  end
+
   # Later, remove from here...
   resources :sources
   resources :teams
