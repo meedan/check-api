@@ -319,6 +319,9 @@ GEM
       pg
       rails (>= 3.0.0)
       rspec-rails
+    pg_query (1.0.2)
+    pghero (2.1.1)
+      activerecord
     phony (2.15.42)
     phony_rails (0.14.5)
       activesupport (>= 3.0)
@@ -581,6 +584,8 @@ DEPENDENCIES
   pender_client!
   pg (~> 0.15)
   pg_application_name
+  pg_query (>= 0.9.0)
+  pghero
   phony_rails
   puma
   pusher
