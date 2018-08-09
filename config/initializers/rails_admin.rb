@@ -76,6 +76,7 @@ RailsAdmin.config do |config|
     'Check API Explorer' => '/api',
     'GraphiQL' => '/graphiql',
     'Sidekiq' => '/sidekiq',
+    'PG Hero' => '/pghero',
     'Pender API Explorer' => "#{CONFIG['pender_url']}/api"
   }
 
