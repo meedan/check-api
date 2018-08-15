@@ -130,7 +130,6 @@ module CheckElasticSearch
       client = MediaSearch.gateway.client
       client.delete index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id]
     rescue
-      # nothing to do.
     end
   end
 
@@ -142,7 +141,6 @@ module CheckElasticSearch
       client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id], retry_on_conflict: 3,
                body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
     rescue
-      # nothing to do.
     end
   end
 end
