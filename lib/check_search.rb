@@ -49,7 +49,7 @@ class CheckSearch
   end
 
   def medias
-    return [] unless @options['show'].include?('medias')
+    return [] unless @options['show'].include?('medias') && index_exists?
     return @medias if @medias
     @medias = []
     filters = {}
@@ -72,7 +72,7 @@ class CheckSearch
   end
 
   def sources
-    return [] unless @options['show'].include?('sources')
+    return [] unless @options['show'].include?('sources') && index_exists?
     return @sources if @sources
     @sources = []
     if should_hit_elasticsearch?
@@ -111,6 +111,11 @@ class CheckSearch
   end
 
   private
+
+  def index_exists?
+    client = MediaSearch.gateway.client
+    client.indices.exists? index: CheckElasticSearchModel.get_index_alias
+  end
 
   def should_hit_elasticsearch?
     status_blank = true

@@ -3,16 +3,28 @@ namespace :check do
 	# will create ES from PG
   desc "Create ES data from PG"
   task create_es_data_from_pg: :environment do
-  	MediaSearch.delete_index
-  	MediaSearch.create_index
-  	# Add ES doc
-  	[ProjectMedia, ProjectSource].each do |type|
-  		type.find_each do |obj|
-  			obj.add_elasticsearch_data
-  			print '.'
-  		end
-  	end
-  	sleep 20
+    failed = false
+    begin
+      MediaSearch.delete_index
+      MediaSearch.create_index
+      index_pg_data
+    rescue Exception => e
+      puts "You must delete the existing index or alias [#{CheckElasticSearchModel.get_index_alias}] before running the task."
+    end  	
+  end
+
+  def index_pg_data
+    # Add ES doc
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline! do
+      [ProjectMedia, ProjectSource].each do |type|
+        type.find_each do |obj|
+          obj.add_elasticsearch_data
+          print '.'
+        end
+      end
+    end
+    sleep 20
     # append nested objects
     failed_items = []
     [ProjectMedia, ProjectSource].each do |type|

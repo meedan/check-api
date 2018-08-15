@@ -109,6 +109,8 @@ module CheckElasticSearchModel
     def delete_index(index_name = CheckElasticSearchModel.get_index_name)
       client = self.gateway.client
       client.indices.delete index: index_name if client.indices.exists? index: index_name
+      index_alias = CheckElasticSearchModel.get_index_alias
+      client.indices.delete index: index_alias if client.indices.exists? index: index_alias
     end
 
     def migrate_es_data(source_index, target_index)
