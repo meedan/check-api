@@ -126,19 +126,23 @@ module CheckElasticSearch
   end
 
   def destroy_elasticsearch_doc(data)
-    if doc_exists?(data[:doc_id])
+    begin
       client = MediaSearch.gateway.client
       client.delete index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id]
+    rescue
+      # nothing to do.
     end
   end
 
   def destroy_elasticsearch_doc_nested(data)
     nested_type = data[:es_type]
-    if doc_exists?(data[:doc_id])
+    begin
       client = MediaSearch.gateway.client
       source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
       client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id], retry_on_conflict: 3,
                body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
+    rescue
+      # nothing to do.
     end
   end
 end

@@ -71,7 +71,9 @@ namespace :check do
         print '.'
       end
     end
-    puts "Failed to index #{failed_items.size} items"
-    pp failed_items
+    if failed_items.size > 0
+      puts "Failed to index #{failed_items.size} items"
+      pp failed_items
+    end
   end
 end
