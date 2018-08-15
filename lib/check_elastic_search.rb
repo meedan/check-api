@@ -46,31 +46,31 @@ module CheckElasticSearch
   end
 
   # Keep this method until verify search feature.
-  def add_missing_fields(options)
-    data = {}
-    obj = options[:obj]
-    return data unless ['ProjectMedia', 'ProjectSource'].include?(obj.class.name)
-    unless options[:keys].include?('project_id')
-      options[:keys] += ['team_id', 'project_id']
-      data.merge!({project_id: obj.project_id, team_id: obj.project.team_id})
-    end
-    if obj.class.name == 'ProjectMedia'
-      unless options[:keys].include?('verification_status')
-        options[:keys] << 'verification_status'
-        data.merge!({verification_status: obj.last_status})
-      end
-      unless options[:keys].include?('translation_status')
-        options[:keys] << 'translation_status'
-        ts = obj.annotations.where(annotation_type: "translation_status").last
-        data.merge!({translation_status: ts.load.status}) unless ts.nil?
-      end
-      unless options[:keys].include?('title')
-        options[:keys] += ['title', 'description']
-        data.merge!({title: obj.title, description: obj.description})
-      end
-    end
-    data
-  end
+  # def add_missing_fields(options)
+  #   data = {}
+  #   obj = options[:obj]
+  #   return data unless ['ProjectMedia', 'ProjectSource'].include?(obj.class.name)
+  #   unless options[:keys].include?('project_id')
+  #     options[:keys] += ['team_id', 'project_id']
+  #     data.merge!({project_id: obj.project_id, team_id: obj.project.team_id})
+  #   end
+  #   if obj.class.name == 'ProjectMedia'
+  #     unless options[:keys].include?('verification_status')
+  #       options[:keys] << 'verification_status'
+  #       data.merge!({verification_status: obj.last_status})
+  #     end
+  #     unless options[:keys].include?('translation_status')
+  #       options[:keys] << 'translation_status'
+  #       ts = obj.annotations.where(annotation_type: "translation_status").last
+  #       data.merge!({translation_status: ts.load.status}) unless ts.nil?
+  #     end
+  #     unless options[:keys].include?('title')
+  #       options[:keys] += ['title', 'description']
+  #       data.merge!({title: obj.title, description: obj.description})
+  #     end
+  #   end
+  #   data
+  # end
 
   def add_update_nested_obj(options)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
