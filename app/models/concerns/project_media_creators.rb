@@ -12,6 +12,9 @@ module ProjectMediaCreators
       ms.description = data['description']
       ms.quote = m.quote
     end
+    ms.verification_status = self.last_status
+    ts = self.annotations.where(annotation_type: "translation_status").last
+    ms.translation_status = ts.load.status unless ts.nil?
     ms.accounts = self.set_es_account_data unless self.media.account.nil?
   end
 
