@@ -164,14 +164,14 @@ class Account < ActiveRecord::Base
   def update_elasticsearch_account
     parents = self.get_parents
     parents.each do |parent|
-      self.add_update_media_search_child('account_search', %w(title description username), {}, parent)
+      self.add_update_nested_obj({op: 'update', nested_key: 'accounts', keys: %w(title description username), obj: parent})
     end unless parents.blank?
   end
 
   def destroy_elasticsearch_account
     parents = self.get_parents
     parents.each do |parent|
-      destroy_es_items(AccountSearch, 'child', parent)
+      destroy_es_items('accounts', 'destroy_doc_nested', parent)
     end
   end
 

@@ -26,10 +26,11 @@ class ProjectSource < ActiveRecord::Base
 
   def add_extra_elasticsearch_data(ms)
     s = self.source
-    ms.id = Base64.encode64("ProjectSource/#{self.id}")
-    ms.associated_type = self.source.class.name
-    ms.title = s.name
-    ms.description = s.description
+    unless s.nil?
+      ms.associated_type = s.class.name
+      ms.title = s.name
+      ms.description = s.description
+    end
   end
 
   def full_url

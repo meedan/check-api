@@ -17,7 +17,7 @@ class ReindexAccountInfo < ActiveRecord::Migration
         pm = []
         a.medias.each{|m| pm = pm + m.project_medias.map(&:id)}
         body = {
-          script: { inline: "ctx._source.account=account", lang: "groovy", params: { account: [data] } },
+          script: { source: "ctx._source.account = params.account", params: { account: [data] } },
           query: { terms: { _id: pm } }
         }
         client.update_by_query options.merge(body: body)
