@@ -134,17 +134,6 @@ module SampleData
     c
   end
 
-  def create_comment_search(options = {})
-    c = CommentSearch.new
-    pm = options[:parent] || create_media_search
-    { id: random_number, text: random_string(50) }.merge(options).each do |key, value|
-      c.send("#{key}=", value) if c.respond_to?("#{key}=")
-    end
-    c.save!(parent: pm.id)
-    sleep 1
-    c
-  end
-
   def create_tag(options = {})
     options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true, disable_update_status: true }.merge(options)
     unless options.has_key?(:annotated)
@@ -157,17 +146,6 @@ module SampleData
       t.send("#{key}=", value) if t.respond_to?("#{key}=")
     end
     t.save!
-    t
-  end
-
-  def create_tag_search(options = {})
-    t = TagSearch.new
-    pm = options[:parent] || create_media_search
-    { id: random_number, tag: random_string(50) }.merge(options).each do |key, value|
-      t.send("#{key}=", value)
-    end
-    t.save!(parent: pm.id)
-    sleep 1
     t
   end
 
@@ -254,17 +232,6 @@ module SampleData
     account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team])
     account.save!
     account.reload
-  end
-
-  def create_account_search(options = {})
-    a = AccountSearch.new
-    ps = options[:parent] || create_media_search
-    { id: random_number, title: random_string(50) }.merge(options).each do |key, value|
-      a.send("#{key}=", value) if a.respond_to?("#{key}=")
-    end
-    a.save!(parent: ps.id)
-    sleep 1
-    a
   end
 
   def create_project(options = {})
@@ -568,6 +535,10 @@ module SampleData
     b.email = options.has_key?(:email) ? options[:email] : random_email
     b.save!
     b.reload
+  end
+
+  def get_es_id(obj)
+    Base64.encode64("#{obj.class.name}/#{obj.id}")
   end
 
   def create_media_search(options = {})

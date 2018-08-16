@@ -92,13 +92,13 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_elasticsearch_team_bg
+  def update_elasticsearch_doc_team_bg(_options)
     client = MediaSearch.gateway.client
     options = {
-      index: CheckElasticSearchModel.get_index_name,
+      index: CheckElasticSearchModel.get_index_alias,
       type: 'media_search',
       body: {
-        script: { inline: "ctx._source.team_id=team_id", lang: "groovy", params: { team_id: self.team_id } },
+        script: { source: "ctx._source.team_id = params.team_id", params: { team_id: self.team_id } },
         query: { term: { project_id: { value: self.id } } }
       }
     }
@@ -184,7 +184,7 @@ class Project < ActiveRecord::Base
       keys = %w(team_id)
       data = {'team_id' => self.team_id}
       options = {keys: keys, data: data}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_team')
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc_team')
     end
   end
 
