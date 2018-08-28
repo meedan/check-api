@@ -130,7 +130,7 @@ module CheckElasticSearch
       client = MediaSearch.gateway.client
       client.delete index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id]
     rescue
-       Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"
+      Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"
     end
   end
 
