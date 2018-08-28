@@ -1,6 +1,8 @@
 class Task < ActiveRecord::Base
   include AnnotationBase
 
+  has_annotations
+
   before_validation :set_initial_status, :set_slug, on: :create
   after_create :send_slack_notification
   after_update :send_slack_notification_in_background
@@ -29,6 +31,8 @@ class Task < ActiveRecord::Base
   field :slug
 
   field :required, :boolean
+
+  field :log_count, Integer
 
   def slack_notification_message
     if self.versions.count > 1
@@ -142,6 +146,10 @@ class Task < ActiveRecord::Base
     Task.find(self.id)
   end
 
+  def log
+    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id)
+  end
+
   def self.send_slack_notification(tid, rid, uid, changes)
     User.current = User.find(uid) if uid > 0
     object = Task.where(id: tid).last
@@ -185,5 +193,32 @@ class Task < ActiveRecord::Base
     uid = User.current ? User.current.id : 0
     rid = self.response.nil? ? 0 : self.response.id
     Task.delay_for(1.second).send_slack_notification(self.id, rid, uid, self.changes.to_json)
+  end
+end
+
+Comment.class_eval do
+  after_create :increment_task_log_count
+  after_destroy :decrement_task_log_count
+
+  protected
+
+  def update_task_log_count(value)
+    return unless self.annotated_type == 'Task'
+    task = self.annotated.reload
+    task.log_count ||= 0
+    task.log_count += value
+    task.skip_notifications = true
+    task.skip_check_ability = true
+    task.save!
+  end
+
+  private
+
+  def increment_task_log_count
+    self.update_task_log_count(1)
+  end
+  
+  def decrement_task_log_count
+    self.update_task_log_count(-1)
   end
 end

@@ -87,7 +87,7 @@ module AnnotationBase
     custom_optimistic_locking if: proc { |a| a.annotation_type == 'metadata' }
 
     def self.annotated_types
-      ['ProjectSource', 'ProjectMedia', 'Source']
+      ['ProjectSource', 'ProjectMedia', 'Source', 'Task']
     end
     validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
 
@@ -164,6 +164,10 @@ module AnnotationBase
     self.annotated if self.annotated_type == 'Project'
   end
 
+  def task
+    self.annotated if self.annotated_type == 'Task'
+  end
+
   def annotated
     self.load_polymorphic('annotated')
   end
@@ -211,8 +215,9 @@ module AnnotationBase
   def get_team
     team = []
     obj = self.annotated
-    obj = self.annotated.project if self.annotated.respond_to?(:project)
-    if !obj.nil? and obj.respond_to?(:team)
+    obj = obj.annotated if obj.respond_to?(:annotated)
+    obj = obj.project if obj.respond_to?(:project)
+    if !obj.nil? && obj.respond_to?(:team)
       team = [obj.team.id] unless obj.team.nil?
     end
     team

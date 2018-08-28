@@ -248,4 +248,28 @@ class TaskTest < ActiveSupport::TestCase
     t = create_task
     assert_equal t, t.task
   end
+
+  test "should have cached log count" do
+    t = create_task
+    assert_nil t.log_count
+    c = create_comment annotated: t
+    assert_equal 1, t.reload.log_count
+    create_comment annotated: t
+    assert_equal 2, t.reload.log_count
+    c.destroy
+    assert_equal 1, t.reload.log_count
+  end
+
+  test "should have log" do
+    u = create_user is_admin: true
+    t = create_team
+    with_current_user_and_team(u, t) do
+      tk = create_task
+      assert_equal 0, tk.reload.log.count
+      create_comment annotated: tk
+      assert_equal 1, tk.reload.log.count
+      create_comment annotated: tk
+      assert_equal 2, tk.reload.log.count
+    end
+  end
 end
