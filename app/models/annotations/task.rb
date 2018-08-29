@@ -143,7 +143,7 @@ class Task < ActiveRecord::Base
   end
 
   def task
-    Task.find(self.id)
+    Task.where(id: self.id).last
   end
 
   def log
