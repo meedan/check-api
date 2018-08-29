@@ -271,7 +271,7 @@ GEM
       minitest (>= 5.0)
     mocha (1.2.1)
       metaclass (~> 0.0.1)
-    multi_json (1.13.1)
+    multi_json (1.12.2)
     multi_xml (0.6.0)
     multipart-post (2.0.0)
     naught (1.1.0)
@@ -575,6 +575,7 @@ DEPENDENCIES
   mini_magick
   minitest-retry
   mocha
+  multi_json (= 1.12.2)
   nokogiri (= 1.8.2)
   omniauth-facebook
   omniauth-slack
@@ -625,4 +626,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.16.1
+   1.16.3
