@@ -367,7 +367,7 @@ class AnnotationTest < ActiveSupport::TestCase
   test "should get project media for annotation" do
     pm = create_project_media
     t = create_task annotated: pm
-    c = create_comment annotated: t
-    assert_equal pm, c.project_media
+    t2 = create_task annotated: t
+    assert_equal pm, t2.project_media
   end
 end
