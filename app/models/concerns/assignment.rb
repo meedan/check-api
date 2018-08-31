@@ -12,8 +12,8 @@ module Assignment
     changes = JSON.parse(changes)
     from = changes['assigned_to_id'] ? User.where(id: changes['assigned_to_id'][0]).last : nil
     to = User.where(id: self.assigned_to_id).last
-    from = from.name unless from.nil?
-    to = to.name unless to.nil?
+    from = from&.name
+    to = to&.name
     { assigned_from_name: from, assigned_to_name: to }.to_json if from != to
   end
 
