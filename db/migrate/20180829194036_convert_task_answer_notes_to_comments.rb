@@ -28,7 +28,7 @@ class ConvertTaskAnswerNotesToComments < ActiveRecord::Migration
           end
         end
       end
-      answer_note.destroy!
+      answer_note.delete
     end
   end
 end
