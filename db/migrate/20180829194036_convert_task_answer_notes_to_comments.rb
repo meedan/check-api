@@ -15,6 +15,7 @@ class ConvertTaskAnswerNotesToComments < ActiveRecord::Migration
             unless task.nil?
               User.current = answer.annotator
               comment = Comment.new
+              comment.annotation_type = 'comment'
               comment.text = answer_note.value
               comment.annotated = task
               comment.annotator = answer.annotator
