@@ -358,7 +358,7 @@ class AnnotationTest < ActiveSupport::TestCase
       tk.assigned_to = u2
       tk.save!
     end
-    v = PaperTrail::Version.last
+    v = tk.versions.last
     m = JSON.parse(v.meta)
     assert_equal m['assigned_from_name'], 'Foo'
     assert_equal m['assigned_to_name'], 'Bar'
