@@ -7,7 +7,7 @@ class ConvertTaskAnswerNotesToComments < ActiveRecord::Migration
       i += 1
       puts "Migrating task answer #{i}/#{total}"
       answer = answer_note.annotation
-      if !answer_note.value.blank? && 
+      if !answer_note.value.blank?
         unless answer.nil?
           taskref = answer.get_fields.select{ |f| f.field_type == 'task_reference' }.last
           unless taskref.nil?
