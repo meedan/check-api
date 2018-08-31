@@ -7,7 +7,7 @@ module Assignment
   extend ActiveSupport::Concern
 
   def version_metadata(changes)
-    return RequestStore[:task_comment].to_json unless RequestStore[:task_comment].blank?
+    return RequestStore[:task_comment].to_json if !RequestStore[:task_comment].blank? && RequestStore[:task_comment].annotated == self
     return if changes.blank?
     changes = JSON.parse(changes)
     from = changes['assigned_to_id'] ? User.where(id: changes['assigned_to_id'][0]).last : nil
