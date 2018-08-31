@@ -7,7 +7,7 @@ class Bot::Slack < ActiveRecord::Base
   end
 
   def should_notify?(team, model)
-    team.present? && !model.skip_notifications && team.setting(:slack_notifications_enabled).to_i === 1
+    RequestStore.store[:skip_notifications].blank? && team.present? && !model.skip_notifications && team.setting(:slack_notifications_enabled).to_i === 1
   end
 
   def should_notify_super_admin?(model)

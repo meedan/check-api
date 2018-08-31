@@ -1,5 +1,6 @@
 class ConvertTaskAnswerNotesToComments < ActiveRecord::Migration
   def change
+    RequestStore.store[:skip_notifications] = true
     field_names = ['note_free_text', 'note_yes_no', 'note_single_choice', 'note_multiple_choice', 'note_datetime']
     total = DynamicAnnotation::Field.where(field_name: field_names).count
     i = 0
@@ -30,5 +31,6 @@ class ConvertTaskAnswerNotesToComments < ActiveRecord::Migration
       end
       answer_note.delete
     end
+    RequestStore.store[:skip_notifications] = false
   end
 end
