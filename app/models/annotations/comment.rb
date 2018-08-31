@@ -22,12 +22,22 @@ class Comment < ActiveRecord::Base
   end
 
   def slack_notification_message
-    I18n.t(:slack_save_comment,
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title),
-      comment: Bot::Slack.to_slack_quote(self.text),
-      project: Bot::Slack.to_slack(self.annotated.project.title)
-    )
+    if self.annotated_type == 'Task'
+      I18n.t(:slack_save_task_comment,
+        user: Bot::Slack.to_slack(User.current.name),
+        url: Bot::Slack.to_slack_url(self.annotated.annotated_client_url, self.annotated.annotated.title),
+        comment: Bot::Slack.to_slack_quote(self.text),
+        project: Bot::Slack.to_slack(self.annotated.annotated.project.title),
+        task: Bot::Slack.to_slack(self.annotated.label)
+      )
+    else
+      I18n.t(:slack_save_comment,
+        user: Bot::Slack.to_slack(User.current.name),
+        url: Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title),
+        comment: Bot::Slack.to_slack_quote(self.text),
+        project: Bot::Slack.to_slack(self.annotated.project.title)
+      )
+    end
   end
 
   def file_mandatory?

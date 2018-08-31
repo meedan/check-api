@@ -461,4 +461,12 @@ class CommentTest < ActiveSupport::TestCase
     c = create_comment annotated: t
     assert_equal t, c.task
   end
+
+  test "should have Slack message for task comment" do
+    t = create_task label: 'Foo'
+    c = create_comment annotated: t
+    User.current = create_user
+    assert_match /Foo/, c.slack_notification_message
+    User.current = nil
+  end
 end

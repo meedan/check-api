@@ -106,6 +106,7 @@ class Bot::Slack < ActiveRecord::Base
     if model.is_annotation? && model.annotated_type == 'ProjectMedia'
       p = model.annotated.project
     end
+    p = model.annotated.annotated.project if model.is_annotation? && model.annotated_type == 'Task'
     p
   end
 

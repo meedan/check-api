@@ -363,4 +363,11 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal m['assigned_from_name'], 'Foo'
     assert_equal m['assigned_to_name'], 'Bar'
   end
+
+  test "should get project media for annotation" do
+    pm = create_project_media
+    t = create_task annotated: pm
+    c = create_comment annotated: t
+    assert_equal pm, c.project_media
+  end
 end

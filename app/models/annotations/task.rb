@@ -147,7 +147,7 @@ class Task < ActiveRecord::Base
   end
 
   def log
-    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id)
+    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).order('id ASC')
   end
 
   def self.send_slack_notification(tid, rid, uid, changes)
@@ -204,12 +204,18 @@ Comment.class_eval do
 
   def update_task_log_count(value)
     return unless self.annotated_type == 'Task'
+    RequestStore[:task_comment] = self
     task = self.annotated.reload
     task.log_count ||= 0
     task.log_count += value
     task.skip_notifications = true
     task.skip_check_ability = true
     task.save!
+    parent = task.annotated
+    unless parent.nil?
+      count = parent.reload.cached_annotations_count + value
+      parent.update_columns(cached_annotations_count: count)
+    end
   end
 
   private
@@ -217,7 +223,7 @@ Comment.class_eval do
   def increment_task_log_count
     self.update_task_log_count(1)
   end
-  
+
   def decrement_task_log_count
     self.update_task_log_count(-1)
   end
