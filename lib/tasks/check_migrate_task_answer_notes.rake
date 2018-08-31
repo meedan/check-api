@@ -1,5 +1,8 @@
-class ConvertTaskAnswerNotesToComments < ActiveRecord::Migration
-  def change
+namespace :check do
+	# bundle exec rake check:migrate_task_answer_notes
+	# convert task answer notes to task comments
+  desc "Convert task answer notes to task comments"
+  task migrate_task_answer_notes: :environment do
     RequestStore.store[:skip_notifications] = true
     field_names = ['note_free_text', 'note_yes_no', 'note_single_choice', 'note_multiple_choice', 'note_datetime']
     total = DynamicAnnotation::Field.where(field_name: field_names).count
