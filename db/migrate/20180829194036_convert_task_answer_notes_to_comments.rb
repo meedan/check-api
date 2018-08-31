@@ -6,6 +6,7 @@ class ConvertTaskAnswerNotesToComments < ActiveRecord::Migration
     DynamicAnnotation::Field.where(field_name: field_names).find_each do |answer_note|
       i += 1
       puts "Migrating task answer #{i}/#{total}"
+      next if answer_note.value.blank?
       answer = answer_note.annotation
       unless answer.nil?
         taskref = answer.get_fields.select{ |f| f.field_type == 'task_reference' }.last
