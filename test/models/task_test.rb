@@ -272,4 +272,32 @@ class TaskTest < ActiveSupport::TestCase
       assert_equal 2, tk.reload.log.count
     end
   end
+
+  test "should update parent log count when comment is added to task" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    with_current_user_and_team(u, t) do
+      assert_equal 0, pm.reload.cached_annotations_count
+      create_comment annotated: tk
+      assert_equal 2, pm.reload.cached_annotations_count
+      c = create_comment annotated: tk
+      assert_equal 4, pm.reload.cached_annotations_count
+    end
+  end
+
+  test "should save comment in version" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tk = create_task annotated: pm
+      c = create_comment annotated: tk, text: 'Foo Bar'
+      meta = pm.reload.get_versions_log.where(event_type: 'update_task').last.meta
+      assert_equal 'Foo Bar', JSON.parse(meta)['data']['text']
+    end
+  end
 end

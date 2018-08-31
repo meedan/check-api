@@ -141,7 +141,6 @@ module AnnotationBase
         self.data[name.to_sym]
       end
     end
-
   end
 
   def versions(options = {})
@@ -153,7 +152,7 @@ module AnnotationBase
   end
 
   def project_media
-    self.annotated
+    self.annotated_type == 'ProjectMedia' ? self.annotated : (self.annotated.project_media if self.annotated.respond_to?(:project_media))
   end
 
   def project_source
