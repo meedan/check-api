@@ -208,7 +208,6 @@ Comment.class_eval do
     task = self.annotated.reload
     task.log_count ||= 0
     task.log_count += value
-    task.skip_notifications = true
     task.skip_check_ability = true
     task.save!
     parent = task.annotated
