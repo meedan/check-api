@@ -69,12 +69,12 @@ class Embed < ActiveRecord::Base
       keys.each do |k|
         data[k] = [media_embed[k], self.send(k)] if overridden[k]
       end
-      self.update_media_search(keys, data)
+      self.update_elasticsearch_doc(keys, data)
     end
     if self.annotated_type == 'Media' && self.annotated.type == 'Link'
       self.annotated.project_medias.each do |pm|
         em = pm.get_annotations('embed').last
-        self.update_media_search(keys, {}, pm) if em.nil?
+        self.update_elasticsearch_doc(keys, {}, pm) if em.nil?
       end
     end
   end

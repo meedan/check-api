@@ -9,7 +9,9 @@ class Dynamic < ActiveRecord::Base
   before_validation :update_attribution, :update_timestamp
   after_create :create_fields
   after_update :update_fields
-  after_commit :add_update_elasticsearch_dynamic, :send_slack_notification, on: [:create, :update]
+  after_commit :send_slack_notification, on: [:create, :update]
+  after_commit :add_elasticsearch_dynamic, on: :create
+  after_commit :update_elasticsearch_dynamic, on: :update
   after_commit :destroy_elasticsearch_dynamic_annotation, on: :destroy
 
   validate :annotation_type_exists
@@ -75,20 +77,37 @@ class Dynamic < ActiveRecord::Base
     field.nil? ? nil : field.value
   end
 
+  def get_elasticsearch_options_dynamic
+    options = {}
+    method = "get_elasticsearch_options_dynamic_annotation_#{self.annotation_type}"
+    if self.respond_to?(method)
+      options = self.send(method)
+    elsif self.fields.count > 0
+      options = {keys: ['indexable'], data: {}}
+    end
+    options
+  end
+
   private
 
-  def add_update_elasticsearch_dynamic
-    return if self.disable_es_callbacks
-    method = "add_update_elasticsearch_dynamic_annotation_#{self.annotation_type}"
-    if self.respond_to?(method)
-      self.send(method)
-    elsif self.fields.count > 0
-      add_update_media_search_child('dynamic_search', ['indexable'])
-    end
+  def add_elasticsearch_dynamic
+    add_update_elasticsearch_dynamic('create')
+  end
+
+  def update_elasticsearch_dynamic
+    add_update_elasticsearch_dynamic('update')
+  end
+
+  def add_update_elasticsearch_dynamic(op)
+    skip_types = ['verification_status', 'translation_status']
+    return if self.disable_es_callbacks || skip_types.include?(self.annotation_type)
+    options = get_elasticsearch_options_dynamic
+    options.merge!({op: op, nested_key: 'dynamics'})
+    add_update_nested_obj(options)
   end
 
   def destroy_elasticsearch_dynamic_annotation
-    destroy_es_items(DynamicSearch)
+    destroy_es_items('dynamics')
   end
 
   def annotation_type_exists

@@ -1004,6 +1004,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should get trash size" do
+    Sidekiq::Testing.inline!
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'

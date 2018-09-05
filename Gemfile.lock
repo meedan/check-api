@@ -145,10 +145,10 @@ GEM
     docile (1.1.5)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
-    elasticsearch (2.0.0)
-      elasticsearch-api (= 2.0.0)
-      elasticsearch-transport (= 2.0.0)
-    elasticsearch-api (2.0.0)
+    elasticsearch (6.1.0)
+      elasticsearch-api (= 6.1.0)
+      elasticsearch-transport (= 6.1.0)
+    elasticsearch-api (6.1.0)
       multi_json
     elasticsearch-model (0.1.9)
       activesupport (> 3)
@@ -161,7 +161,7 @@ GEM
       elasticsearch-model (>= 0.1)
       hashie
       virtus
-    elasticsearch-transport (2.0.0)
+    elasticsearch-transport (6.1.0)
       faraday
       multi_json
     equalizer (0.0.11)
@@ -550,11 +550,11 @@ DEPENDENCIES
   deep_cloneable (~> 2.3.0)
   devise
   devise-i18n
-  elasticsearch (= 2.0.0)
-  elasticsearch-api (= 2.0.0)
+  elasticsearch (~> 6.x)
+  elasticsearch-api (~> 6.x)
   elasticsearch-model (= 0.1.9)
   elasticsearch-persistence (= 0.1.9)
-  elasticsearch-transport (= 2.0.0)
+  elasticsearch-transport (~> 6.x)
   file_validators
   filesize
   gem-licenses
@@ -575,6 +575,7 @@ DEPENDENCIES
   mini_magick
   minitest-retry
   mocha
+  multi_json (= 1.12.2)
   nokogiri (= 1.8.2)
   omniauth-facebook
   omniauth-slack
@@ -625,4 +626,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.16.1
+   1.16.3

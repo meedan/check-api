@@ -1467,4 +1467,26 @@ class GraphqlControllerTest < ActionController::TestCase
 
     User.current = nil
   end
+
+  test "should get task by id" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    tk = create_task annotated: pm
+    c = nil
+    with_current_user_and_team(u, t) do
+      c = create_comment annotated: tk
+    end
+    
+    query = "query GetById { task(id: \"#{tk.id}\") { log_count, log { edges { node { annotation { dbid } } } } } }"
+    post :create, query: query, team: t.slug
+    
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['task']
+    assert_equal 1, data['log_count']
+    assert_equal c.id.to_s, data['log']['edges'][0]['node']['annotation']['dbid']
+  end
 end

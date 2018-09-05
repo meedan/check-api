@@ -59,7 +59,7 @@ module ProjectMediaPrivate
     # Add a project source if new source was created
     self.create_project_source if source.nil?
     # update es
-    self.update_media_search(['account'], {account: self.set_es_account_data}, self.id)
+    self.update_elasticsearch_doc(['account'], {account: self.set_es_account_data}, self.id)
   end
 
   def archive_or_restore_related_medias_if_needed

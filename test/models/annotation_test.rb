@@ -358,9 +358,16 @@ class AnnotationTest < ActiveSupport::TestCase
       tk.assigned_to = u2
       tk.save!
     end
-    v = PaperTrail::Version.last
+    v = tk.versions.last
     m = JSON.parse(v.meta)
     assert_equal m['assigned_from_name'], 'Foo'
     assert_equal m['assigned_to_name'], 'Bar'
+  end
+
+  test "should get project media for annotation" do
+    pm = create_project_media
+    t = create_task annotated: pm
+    t2 = create_task annotated: t
+    assert_equal pm, t2.project_media
   end
 end

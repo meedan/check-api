@@ -58,31 +58,24 @@ module ProjectAssociation
 
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      options = {parent: self}
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'add_parent')
-      if self.class.name == 'ProjectSource'
-        # index related account
-        accounts = []
-        accounts = self.source.accounts unless self.source.nil?
-        accounts.each do |a|
-          a.add_update_media_search_child('account_search', %w(ttile description username), {}, self)
-        end unless accounts.blank?
-      end
+      options = {obj: self}
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_doc')
     end
 
     def update_elasticsearch_data
+      # TODO: Update project_id when user move media only - now this one trigger when create annotation
       return if self.disable_es_callbacks
       v = self.versions.last
       unless v.nil? || v.changeset['project_id'].blank?
         keys = %w(project_id team_id)
         data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
         options = {keys: keys, data: data, parent: self}
-        ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
+        ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
       end
     end
 
     def destroy_elasticsearch_media
-      destroy_es_items(MediaSearch, 'parent')
+      destroy_es_items(MediaSearch, 'destroy_doc')
     end
 
     def is_being_copied

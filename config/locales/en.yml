@@ -321,6 +321,7 @@ en:
   blank_active_status_for_custom_translation_status: "Please provide an 'active' value for the custom translation statuses"
   blank_default_status_for_custom_verification_status: "Please provide a 'default' value for the custom verification statuses"
   blank_active_status_for_custom_verification_status: "Please provide an 'active' value for the custom verification statuses"
+  slack_save_task_comment: "*%{user}* added a note to task *%{task}* in %{url} in *%{project}*: %{comment}"
   project_export_download_mail_csv: "Hello!
 
 
