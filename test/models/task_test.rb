@@ -248,4 +248,56 @@ class TaskTest < ActiveSupport::TestCase
     t = create_task
     assert_equal t, t.task
   end
+
+  test "should have cached log count" do
+    t = create_task
+    assert_nil t.log_count
+    c = create_comment annotated: t
+    assert_equal 1, t.reload.log_count
+    create_comment annotated: t
+    assert_equal 2, t.reload.log_count
+    c.destroy
+    assert_equal 1, t.reload.log_count
+  end
+
+  test "should have log" do
+    u = create_user is_admin: true
+    t = create_team
+    with_current_user_and_team(u, t) do
+      tk = create_task
+      assert_equal 0, tk.reload.log.count
+      create_comment annotated: tk
+      assert_equal 1, tk.reload.log.count
+      create_comment annotated: tk
+      assert_equal 2, tk.reload.log.count
+    end
+  end
+
+  test "should update parent log count when comment is added to task" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    with_current_user_and_team(u, t) do
+      assert_equal 0, pm.reload.cached_annotations_count
+      create_comment annotated: tk
+      assert_equal 2, pm.reload.cached_annotations_count
+      c = create_comment annotated: tk
+      assert_equal 4, pm.reload.cached_annotations_count
+    end
+  end
+
+  test "should save comment in version" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tk = create_task annotated: pm
+      c = create_comment annotated: tk, text: 'Foo Bar'
+      meta = pm.reload.get_versions_log.where(event_type: 'update_task').last.meta
+      assert_equal 'Foo Bar', JSON.parse(meta)['data']['text']
+    end
+  end
 end

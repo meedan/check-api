@@ -141,7 +141,7 @@ class Ability
     end
     %w(annotation comment).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        obj.annotation_type == 'comment' && obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived? && !obj.locked?
+        obj.annotation_type == 'comment' && obj.user_id == @user.id && obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived? && !obj.locked?
       end
     end
     can :create, Task, ['annotation_type = ?', 'task'] do |task|

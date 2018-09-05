@@ -16,7 +16,7 @@ class ReindexEsForAssociatedType < ActiveRecord::Migration
       index: CheckElasticSearchModel.get_index_alias,
       type: 'media_search',
       body: {
-        script: { inline: "ctx._source.associated_type=associated_type", lang: "groovy", params: { associated_type: 'source' } },
+        script: { source: "ctx._source.associated_type = params.associated_type", params: { associated_type: 'source' } },
         query: { term: { annotated_type: { value: 'projectsource' } } }
       }
     }

@@ -1197,6 +1197,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t.save!
     p = create_project team: t
     assert_raises ActiveRecord::RecordInvalid do
+      RequestStore.stubs(:[]).with(:task_comment).returns(nil)
       RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ headers: { 'X-Check-Client' => 'browser-extension' } }))
       create_project_media project: p
       RequestStore.unstub(:[])

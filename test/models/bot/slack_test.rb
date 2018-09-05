@@ -197,4 +197,14 @@ class Bot::SlackTest < ActiveSupport::TestCase
     assert_equal 2, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end
+
+  test "should get project and team for task comment" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    c = create_comment annotated: tk
+    assert_equal p, Bot::Slack.new.send(:get_project, c)
+    assert_equal t, Bot::Slack.new.send(:get_team, c, p)
+  end
 end

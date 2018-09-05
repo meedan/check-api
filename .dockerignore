@@ -1,2 +1,6 @@
 .bundle
 vendor/
+tmp/
+dump.rdb
+coverage/
+public/uploads

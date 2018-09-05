@@ -119,12 +119,12 @@ class Relationship < ActiveRecord::Base
   end
 
   def index_source
-    self.update_media_search(['relationship_sources'], { 'relationship_sources' => self.es_values }, self.target)
+    self.update_elasticsearch_doc(['relationship_sources'], { 'relationship_sources' => self.es_values }, self.target)
   end
 
   def unindex_source
     value = self.es_values - [self.es_value]
     value = ['-'] if value.empty?
-    self.update_media_search(['relationship_sources'], { 'relationship_sources' => value }, self.target)
+    self.update_elasticsearch_doc(['relationship_sources'], { 'relationship_sources' => value }, self.target)
   end
 end

@@ -33,7 +33,7 @@ module CheckElasticSearchModel
       }
     }
 
-    attribute :annotation_type, String
+    attribute :annotation_type, String, mapping: { type: 'text' }
     before_validation :set_type
   end
 
@@ -96,7 +96,7 @@ module CheckElasticSearchModel
       client = self.gateway.client
       settings = []
       mappings = []
-      [MediaSearch, CommentSearch, TagSearch, DynamicSearch, AccountSearch].each do |klass|
+      [MediaSearch].each do |klass|
         settings << klass.settings.to_hash
         mappings << klass.mappings.to_hash
       end
@@ -106,7 +106,7 @@ module CheckElasticSearchModel
       client.indices.put_alias index: index_name, name: CheckElasticSearchModel.get_index_alias if c_alias
     end
 
-    def delete_index(index_name = self.index_name)
+    def delete_index(index_name = CheckElasticSearchModel.get_index_name)
       client = self.gateway.client
       client.indices.delete index: index_name if client.indices.exists? index: index_name
     end
@@ -125,8 +125,11 @@ module CheckElasticSearchModel
     end
 
     def length
+      client = MediaSearch.gateway.client
       type = self.name.parameterize
-      self.count({ query: { bool: { must: [{ match: { annotation_type: type } }] } } })
+      result = client.count index: CheckElasticSearchModel.get_index_alias, type: 'media_search',
+                      body: { query: { bool: { must: [{ match: { annotation_type: type } }] } } }
+      result['count']
     end
   end
 end

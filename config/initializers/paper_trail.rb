@@ -168,7 +168,7 @@ module PaperTrail
 
     def get_associated_from_annotation(annotation)
       associated = [nil, nil]
-      if annotation && ['ProjectMedia', 'ProjectSource'].include?(annotation.annotated_type)
+      if annotation && ['ProjectMedia', 'ProjectSource', 'Task'].include?(annotation.annotated_type)
         associated = [annotation.annotated_type, annotation.annotated_id.to_i]
       end
       associated
@@ -210,6 +210,7 @@ module PaperTrail
         associated = self.associated_type.singularize.camelize.constantize
         pa = associated.find_by(id: self.associated_id)
         if pa
+          return unless pa.respond_to?(:cached_annotations_count)
           count = pa.cached_annotations_count + value
           pa.update_columns(cached_annotations_count: count)
         end

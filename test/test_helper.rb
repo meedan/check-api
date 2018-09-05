@@ -103,6 +103,7 @@ class ActiveSupport::TestCase
     I18n.locale = :en
     Sidekiq::Worker.clear_all
     Rails.cache.clear
+    RequestStore.unstub(:[])
   end
 
   # This will run after any test
@@ -112,6 +113,7 @@ class ActiveSupport::TestCase
     WebMock.allow_net_connect!
     Time.unstub(:now)
     Rails.unstub(:env)
+    RequestStore.unstub(:[])
     User.current = nil
   end
 

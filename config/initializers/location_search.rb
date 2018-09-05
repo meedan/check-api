@@ -1,3 +1,4 @@
+
 class GeoPoint
 end
 
@@ -23,25 +24,19 @@ module Elasticsearch
   end
 end
 
-DynamicSearch.class_eval do
-  attribute :location, GeoPoint
-  mapping _parent: { type: 'media_search' } do
-    indexes :location, type: 'geo_point'
-  end
-end
-
 Dynamic.class_eval do
-  def add_update_elasticsearch_dynamic_annotation_task_response_geolocation
-    return if self.get_field(:response_geolocation).nil?
+  def get_elasticsearch_options_dynamic_annotation_task_response_geolocation
+    return {} if self.get_field(:response_geolocation).nil?
     location = {}
     geojson = JSON.parse(self.get_field_value(:response_geolocation))
     coordinates = geojson['geometry']['coordinates']
     indexable = geojson['properties']['name']
 
     if coordinates[0] != 0 || coordinates[1] != 0
+      # re-compute long value before sending to Elasticsearch
       location = {
         lat: coordinates[0],
-        lon: coordinates[1]
+        lon: ((coordinates[1].to_f + 180) % 360) - 180
       }
     end
 
@@ -49,7 +44,6 @@ Dynamic.class_eval do
       location: location,
       indexable: indexable
     }
-
-    add_update_media_search_child('dynamic_search', [:indexable, :location], data)
+    {keys: [:location, :indexable], data: data}
   end
 end

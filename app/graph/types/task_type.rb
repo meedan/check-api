@@ -25,6 +25,22 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
       obj.jsonoptions unless obj.nil?
     }
   end
-
+  
   field :required, types.Boolean
+
+  field :log_count do
+    type types.Int
+
+    resolve -> (task, _args, _ctx) {
+      obj = task.load || task
+      obj.nil? ? 0 : (obj.log_count || 0)
+    }
+  end
+
+  connection :log, -> { VersionType.connection_type } do
+    resolve ->(task, _args, _ctx) {
+      obj = task.load || task
+      obj.log unless obj.nil?
+    }
+  end
 end
