@@ -1,7 +1,5 @@
 class RemoveFullTagIndex < ActiveRecord::Migration
   def change
-  	CheckElasticSearchModel.reindex_es_data
-    sleep 5
     # Remove full_tag field and trim spaces
     Annotation.where(annotation_type: 'tag').find_each do |t|
       t = t.load
