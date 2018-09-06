@@ -64,7 +64,7 @@ class Embed < ActiveRecord::Base
     unless self.annotated.nil?
       keys = %w(title description)
       if self.annotated_type == 'ProjectMedia'
-        self.update_es_embed_pm_annotation
+        self.update_es_embed_pm_annotation(keys)
       elsif self.annotated_type == 'Media' && self.annotated.type == 'Link'
         self.annotated.project_medias.each do |pm|
           em = pm.get_annotations('embed').last
@@ -74,7 +74,7 @@ class Embed < ActiveRecord::Base
     end
   end
 
-  def update_es_embed_pm_annotation
+  def update_es_embed_pm_annotation(keys)
     data = {}
     media_embed = self.annotated.media.embed
     overridden = self.annotated.overridden
