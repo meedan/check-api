@@ -42,28 +42,10 @@
       "default": true,
       "type": "boolean"
     },
-    "keep_screenshot": {
-      "title": "Keep screenshots",
-      "propertyOrder": 8,
-      "default": true,
-      "type": "boolean"
-    },
-    "keep_archive_org": {
-      "title": "Keep Archive.org integration",
-      "propertyOrder": 9,
-      "default": true,
-      "type": "boolean"
-    },
-    "keep_archive_is": {
-      "title": "Keep Archive.is integration",
-      "propertyOrder": 10,
-      "default": true,
-      "type": "boolean"
-    },
-    "keep_video_vault": {
-      "title": "Keep Video Vault integration",
-      "propertyOrder": 11,
-      "default": true,
+    "keep": {
+      "title": "Keep Bot",
+      "propertyOrder": 7,
+      "default": false,
       "type": "boolean"
     }
   }

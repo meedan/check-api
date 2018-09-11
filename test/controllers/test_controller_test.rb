@@ -323,4 +323,9 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should create bot in test mode" do
+    get :new_bot
+    assert_response :success
+  end
 end

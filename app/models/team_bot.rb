@@ -1,0 +1,242 @@
+class TeamBot < ActiveRecord::Base
+  include HasImage
+
+  EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source']
+  annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'embed', 'flag', 'tag', 'task', 'geolocation']
+  annotation_types.each do |type|
+    EVENTS << "create_annotation_#{type}"
+    EVENTS << "update_annotation_#{type}"
+  end
+  Task.task_types.each do |type|
+    EVENTS << "create_annotation_task_#{type}"
+    EVENTS << "update_annotation_task_#{type}"
+  end
+  JSON_SCHEMA_PATH = File.join(Rails.root, 'public', 'events.json')
+  JSON_SCHEMA_TEMPLATE_PATH = File.join(Rails.root, 'public', 'events-template.json')
+  File.atomic_write(JSON_SCHEMA_PATH) { |file| file.write(File.read(JSON_SCHEMA_TEMPLATE_PATH).gsub('<%= TeamBot::EVENTS %>', EVENTS.to_json)) }
+
+  has_many :team_bot_installations, dependent: :destroy
+  has_many :teams, through: :team_bot_installations
+  belongs_to :bot_user, dependent: :destroy
+  has_one :api_key, through: :bot_user
+  belongs_to :team_author, class_name: 'Team'
+
+  # [ { event: 'event_name', graphql: 'graphql query fragment' }, ... ]
+  serialize :events
+
+  validates_presence_of :name, :team_author_id
+  validate :name_is_unique_for_this_team
+  validates_format_of :request_url, with: /\Ahttps?:\/\/[^\s]+\z/
+  validate :events_is_valid
+  validate :can_approve
+  validates_uniqueness_of :identifier
+
+  before_validation :set_identifier, on: :create
+  before_create :create_bot_user
+  after_create :associate_with_team
+  after_update :update_role_if_changed
+
+  scope :not_approved, -> { where approved: false }
+
+  def avatar
+    self.public_path
+  end
+
+  def json_schema_url(_field = nil)
+    URI.join(CONFIG['checkdesk_base_url'], '/events.json').to_s
+  end
+
+  def subscribed_to?(event)
+    return false if self.events.blank?
+    self.events.collect{ |ev| ev['event'] || ev[:event] }.map(&:to_s).include?(event.to_s)
+  end
+
+  def install_to!(team)
+    TeamBotInstallation.create! team_id: team.id, team_bot_id: self.id
+  end
+
+  def uninstall_from!(team)
+    installation = TeamBotInstallation.where(team_id: team.id, team_bot_id: self.id).last
+    installation.destroy! unless installation.nil?
+  end
+
+  def approve!
+    self.approved = true
+    self.save!
+  end
+
+  def graphql_result(fragment, object, team)
+    begin
+      klass = object.is_annotation? ? 'Annotation' : object.class.name
+      object = Annotation.find(object.id) if object.is_annotation?
+      current_user = User.current
+      current_team = Team.current
+      User.current = self.bot_user
+      Team.current = team
+      query = 'query { node(id: "' + object.graphql_id + '") { ...F0 } } fragment F0 on ' + klass + ' { ' + fragment + '}'
+      result = RelayOnRailsSchema.execute(query, variables: {}, context: {})
+      User.current = current_user
+      Team.current = current_team
+      JSON.parse(result.to_json)['data']['node']
+    rescue
+      { error: 'Could not get result for GraphQL query' }.with_indifferent_access
+    end
+  end
+
+  def call(data)
+    begin
+      uri = URI.parse(self.request_url)
+      headers = { 'Content-Type': 'text/json' }
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true if self.request_url =~ /^https:/
+      request = Net::HTTP::Post.new(uri.request_uri, headers)
+      request.body = data.to_json
+      http.request(request)
+    rescue SocketError
+      Rails.logger.info("Couldn't call bot #{self.id}")
+    end
+    
+    self.last_called_at = Time.now
+    self.skip_check_ability = true
+    self.save!
+  end
+
+  def notify_about_event(event, object, team)
+    graphql_query = nil
+    self.events.each do |ev|
+      if ev['event'] == event || ev[:event] == event
+        graphql_query = ev['graphql'] || ev[:graphql]
+      end
+    end
+    graphql_data = graphql_query.blank? ? nil : self.graphql_result(graphql_query, object, team)
+    
+    data = {
+      event: event,
+      team: team,
+      object: object,
+      time: Time.now,
+      data: graphql_data,
+      user_id: self.bot_user.id
+    }
+   
+    self.call(data)
+  end
+
+  def notify_about_annotation(annotation)
+    data = {
+      event: 'own_annotation_updated',
+      object: annotation,
+      time: annotation.updated_at,
+      data: { dbid: annotation.id }
+    }
+   
+    self.call(data)
+  end
+
+  def installed
+    !self.installation.nil?
+  end
+
+  def installations_count
+    self.team_bot_installations.count
+  end
+
+  def installation
+    current_team = User.current ? (Team.current || User.current.current_team) : nil
+    TeamBotInstallation.where(team_id: current_team.id, team_bot_id: self.id).last unless current_team.nil?
+  end
+
+  def self.notify_bots_in_background(event, team_id, object)
+    TeamBot.delay_for(1.second).notify_bots(event, team_id, object.class.to_s, object.id) unless object.skip_notifications
+  end
+
+  def self.notify_bots(event, team_id, object_class, object_id)
+    object = object_class.constantize.where(id: object_id).first
+    team = Team.where(id: team_id).last
+    return if object.nil? || team.nil?
+    team.team_bots.each do |team_bot|
+      team_bot.notify_about_event(event, object, team) if team_bot.subscribed_to?(event)
+    end
+  end
+
+  private
+
+  def events_is_valid
+    unless self.events.blank?
+      events = []
+      self.events.each do |ev|
+        ev = ev.last if ev.is_a?(Array)
+        event = ev['event'] || ev[:event]
+        graphql = ev['graphql'] || ev[:graphql]
+        events << { 'event' => event, 'graphql' => graphql }
+        errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid)) if !EVENTS.include?(event.to_s)
+      end
+      self.events = events
+    end
+  end
+
+  def create_bot_user
+    if self.bot_user_id.blank?
+      begin
+        # API key
+        api_key = ApiKey.new
+        api_key.skip_check_ability = true
+        api_key.save!
+        api_key.expire_at = api_key.expire_at.since(100.years)
+        api_key.save!
+        
+        # User
+        bot_user = BotUser.new
+        bot_user.name = self.name
+        bot_user.image = self.file
+        bot_user.api_key_id = api_key.id
+        bot_user.skip_check_ability = true
+        bot_user.save!
+
+        # Team user
+        team_user = TeamUser.new
+        team_user.role = self.role
+        team_user.status = 'member'
+        team_user.user_id = bot_user.id
+        team_user.team_id = self.team_author_id
+        team_user.skip_check_ability = true
+        team_user.save!
+      rescue
+        message = I18n.t(:could_not_save_related_bot_data)
+        errors.add(:base, message)
+        raise message
+      end
+
+      self.bot_user_id = bot_user.id
+    end
+  end
+
+  def name_is_unique_for_this_team
+    team = Team.where(id: self.team_author_id).last
+    errors.add(:base, I18n.t(:bot_name_exists_for_this_team)) if team.present? && team.team_bots.where(name: self.name).where.not(id: self.id).count > 0
+  end
+
+  def associate_with_team
+    params = { team_id: self.team_author_id, team_bot_id: self.id }
+    TeamBotInstallation.create!(params)
+  end
+
+  def can_approve
+    if User.current.present? && !User.current.is_admin? && self.approved == true && self.approved_was == false
+      errors.add(:base, I18n.t(:only_admins_can_approve_bots))
+    end
+  end
+
+  def set_identifier
+    if self.team_author.present? && !self.name.blank? && self.identifier.blank?
+      id = ['bot', self.team_author.slug, self.name.parameterize.underscore].join('_')
+      count = TeamBot.where(identifier: id).count
+      id += "_#{count}" if count > 0
+      self.identifier = id
+    end
+  end
+
+  def update_role_if_changed
+    TeamUser.where(user_id: self.bot_user_id).update_all(role: self.role) if self.role != self.role_was
+  end
+end

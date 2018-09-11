@@ -21,6 +21,9 @@ class AdminAbility
 
     can [:read, :update, :delete_tasks], Team, id: @teams
     can [:index, :destroy, :export_project], Project, team_id: @teams
+    can [:index, :read, :create, :update, :destroy], TeamBotInstallation, team_id: @teams
+    can [:index, :read, :create, :update, :destroy], TeamBot, team_author_id: @teams
+    can [:index, :install], TeamBot, approved: true
     can :destroy, ProjectSource, project: { team_id: @teams }
     can :destroy, ProjectMedia do |obj|
       (obj.team ||= obj.project.team) if obj.project

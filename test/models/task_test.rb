@@ -74,8 +74,9 @@ class TaskTest < ActiveSupport::TestCase
   test "should add response to task" do
     t = create_task
     assert_equal 'Unresolved', t.reload.status
-    create_annotation_type annotation_type: 'response'
-    t.response = { annotation_type: 'response', set_fields: {} }.to_json
+    at = create_annotation_type annotation_type: 'response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    t.response = { annotation_type: 'response', set_fields: { response_test: 'test' }.to_json }.to_json
     t.save!
     assert_equal 'Resolved', t.reload.status
   end
@@ -298,6 +299,75 @@ class TaskTest < ActiveSupport::TestCase
       c = create_comment annotated: tk, text: 'Foo Bar'
       meta = pm.reload.get_versions_log.where(event_type: 'update_task').last.meta
       assert_equal 'Foo Bar', JSON.parse(meta)['data']['text']
+    end
+  end
+
+  test "should not answer task if is a bot" do
+    text = create_field_type field_type: 'text', label: 'Text'
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
+    create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
+
+    e = assert_raises ActiveRecord::RecordInvalid do
+      User.current = create_bot_user(is_admin: true)
+      t = create_task
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
+      t.save!
+    end
+    assert_equal "Validation failed: Sorry, a bot can't answer a task directly... please send an answer suggestion instead", e.message
+
+    assert_nothing_raised do
+      User.current = create_user(is_admin: true)
+      t = create_task
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
+      t.save!
+    end
+
+    User.current = nil
+  end
+
+  test "should accept suggestion from bot" do
+    text = create_field_type field_type: 'text', label: 'Text'
+    json = create_field_type field_type: 'json', label: 'JSON'
+    task = create_field_type field_type: 'task_reference', label: 'Task Reference'
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
+    create_field_instance annotation_type_object: at, name: 'review_free_text', label: 'Review', field_type_object: json, optional: true
+    create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
+    create_field_instance annotation_type_object: at, name: 'suggestion_free_text', label: 'Suggestion', field_type_object: json, optional: true
+    create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: task, optional: false
+
+    tb = create_team_bot
+    t = create_task type: 'free_text'
+    assert_raises ActiveRecord::RecordInvalid do
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: 'invalid' }.to_json }.to_json
+    end
+    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
+    t.save!
+    assert_equal '', t.reload.first_response
+    
+    t = Task.where(id: t.id).last
+    t.accept_suggestion = 0
+    t.save!
+    assert_equal 'Test', t.reload.first_response
+
+    t = create_task type: 'free_text'
+    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
+    t.save!
+    assert_equal '', t.reload.first_response
+    
+    t = Task.where(id: t.id).last
+    t.reject_suggestion = 0
+    t.save!
+    assert_equal '', t.reload.first_response
+
+    u = create_user is_admin: true
+    with_current_user_and_team(u, create_team) do
+      t = create_task type: 'free_text'
+      assert_nil t.reload.suggestions_count
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
+      assert_equal 1, Task.find(t.id).suggestions_count
+      f = t.responses.first.get_fields.select{ |f| f.field_name =~ /suggestion/ }.last
+      assert_equal 'Task', f.versions.last.associated_type
+      assert_equal t.id, f.versions.last.associated_id
     end
   end
 end

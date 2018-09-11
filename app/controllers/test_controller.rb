@@ -142,6 +142,11 @@ class TestController < ApplicationController
     render_success params[:class], ret
   end
 
+  def new_bot
+    b = create_team_bot name: 'Testing Bot', approved: true
+    render_success 'bot', b
+  end
+
   protected
 
   def new_media(type)

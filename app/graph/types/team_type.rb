@@ -62,4 +62,16 @@ TeamType = GraphqlCrudOperations.define_default_type do
       team.sources
     }
   end
+
+  connection :team_bots, -> { TeamBotType.connection_type } do
+    resolve ->(team, _args, _ctx) {
+      team.team_bots
+    }
+  end
+
+  connection :team_bot_installations, -> { TeamBotInstallationType.connection_type } do
+    resolve ->(team, _args, _ctx) {
+      team.team_bot_installations
+    }
+  end
 end

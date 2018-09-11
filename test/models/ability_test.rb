@@ -615,7 +615,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Comment)
-      assert ability.cannot?(:update, mc)
+      assert ability.can?(:update, mc)
       assert ability.can?(:destroy, mc)
     end
   end
@@ -632,7 +632,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Comment)
-      assert ability.cannot?(:update, mc)
+      assert ability.can?(:update, mc)
       assert ability.can?(:destroy, mc)
     end
   end
@@ -1385,7 +1385,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, tk)
       tk = tk.reload
       tk.response = { annotation_type: 'response', set_fields: {} }.to_json
-      assert ability.can?(:update, tk)
+      assert ability.cannot?(:update, tk)
     end
   end
 
@@ -1713,7 +1713,7 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.can?(:update, c)
       assert ability.can?(:destroy, c)
-      assert ability.cannot?(:update, c2)
+      assert ability.can?(:update, c2)
       assert ability.can?(:destroy, c2)
       c.destroy!
       v = PaperTrail::Version.last
@@ -1736,7 +1736,7 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.can?(:update, c)
       assert ability.can?(:destroy, c)
-      assert ability.cannot?(:update, c2)
+      assert ability.can?(:update, c2)
       assert ability.can?(:destroy, c2)
       c.destroy!
       v = PaperTrail::Version.last
@@ -1922,6 +1922,107 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:create, s)
       assert ability.can?(:update, s)
       assert ability.cannot?(:destroy, s)
+    end
+  end
+
+  test "permissions for annotation type" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    at = create_annotation_type
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:create, DynamicAnnotation::AnnotationType)
+      assert ability.cannot?(:update, at)
+      assert ability.cannot?(:destroy, at)
+    end
+  end
+
+  test "permissions for team bot" do
+    t1 = create_team
+    t2 = create_team
+    u = create_user
+    create_team_user team: t1, user: u, role: 'owner'
+    tb1 = create_team_bot team_author_id: t1.id
+    tb2 = create_team_bot team_author_id: t2.id
+    with_current_user_and_team(u, t1) do
+      ability = Ability.new
+      assert ability.can?(:create, tb1)
+      assert ability.can?(:update, tb1)
+      assert ability.can?(:destroy, tb1)
+    end
+    with_current_user_and_team(u, t2) do
+      ability = Ability.new
+      assert ability.cannot?(:create, tb2)
+      assert ability.cannot?(:update, tb2)
+      assert ability.cannot?(:destroy, tb2)
+    end
+  end
+
+  test "permissions for team bot installation" do
+    t1 = create_team
+    t2 = create_team
+    u = create_user
+    create_team_user team: t1, user: u, role: 'owner'
+    tbi1 = create_team_bot_installation team_id: t1.id
+    tbi2 = create_team_bot_installation team_id: t2.id
+    with_current_user_and_team(u, t1) do
+      ability = Ability.new
+      assert ability.can?(:create, tbi1)
+      assert ability.can?(:update, tbi1)
+      assert ability.can?(:destroy, tbi1)
+    end
+    with_current_user_and_team(u, t2) do
+      ability = Ability.new
+      assert ability.cannot?(:create, tbi2)
+      assert ability.cannot?(:update, tbi2)
+      assert ability.cannot?(:destroy, tbi2)
+    end
+  end
+
+  test "read ability for bot user" do
+    t1 = create_team private: false
+    tu1 = create_team_bot bot_user_id: nil, team_author_id: t1.id
+    bu1 = tu1.bot_user
+
+    t2 = create_team private: true
+    tu2 = create_team_bot bot_user_id: nil, team_author_id: t2.id
+    bu2 = tu2.bot_user
+
+    t3 = create_team private: true
+    tu3 = create_team_bot bot_user_id: nil, team_author_id: t3.id
+    bu3 = tu3.bot_user
+
+    u = create_user
+    create_team_user user: u, team: t2
+
+    with_current_user_and_team(u, t1) do
+      ability = Ability.new
+      assert ability.can?(:read, bu1)
+    end
+    with_current_user_and_team(u, t2) do
+      ability = Ability.new
+      assert ability.can?(:read, bu2)
+    end
+    with_current_user_and_team(u, t3) do
+      ability = Ability.new
+      assert ability.cannot?(:read, bu3)
+    end
+  end
+
+  test "read ability for team bot" do
+    t = create_team
+    u = create_user
+    create_team_user team_id: t.id, user_id: u.id
+    tb1 = create_team_bot approved: false
+    tb2 = create_team_bot approved: true
+    tb3 = create_team_bot approved: false, team_author_id: t.id
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:read, tb1)
+      assert ability.can?(:read, tb2)
+      assert ability.can?(:read, tb3)
     end
   end
 end

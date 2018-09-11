@@ -17,6 +17,8 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :jsonsettings, types.String
   field :number_of_teams, types.Int
   field :get_send_email_notifications, types.Boolean
+  field :bot_events, types.String
+  field :is_bot, types.Boolean
 
   field :confirmed do
     type types.Boolean
@@ -36,6 +38,13 @@ UserType = GraphqlCrudOperations.define_default_type do
     type TeamType
     resolve -> (user, _args, _ctx) do
       user.current_team
+    end
+  end
+
+  field :bot do
+    type TeamBotType
+    resolve -> (user, _args, _ctx) do
+      user.team_bot if user.is_bot
     end
   end
 

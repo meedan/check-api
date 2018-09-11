@@ -94,6 +94,8 @@ class Ability
       teams << v_obj_parent.project.team_id if v_obj_parent and v_obj_parent.respond_to?(:project)
       teams.include?(@context_team.id)
     end
+    can [:create, :update, :destroy], TeamBot, team_author_id: @context_team.id
+    can [:create, :update, :destroy], TeamBotInstallation, team_id: @context_team.id
   end
 
   def editor_perms
@@ -107,10 +109,7 @@ class Ability
       obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
     end
     %w(annotation comment flag dynamic task).each do |annotation_type|
-      can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        obj.get_team.include?(@context_team.id) && obj.user_id == @user.id && !obj.annotated_is_archived?
-      end
-      can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+      can [:destroy, :update], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
       end
     end

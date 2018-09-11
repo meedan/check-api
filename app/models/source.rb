@@ -23,7 +23,8 @@ class Source < ActiveRecord::Base
   validate :is_unique_per_team, on: :create
   validate :team_is_not_archived, unless: proc { |s| s.team && s.team.is_being_copied }
 
-  after_create :create_metadata
+  after_create :create_metadata, :notify_team_bots_create
+  after_update :notify_team_bots_update
   after_commit :update_elasticsearch_source, on: :update
   after_save :cache_source_overridden
 
@@ -213,5 +214,17 @@ class Source < ActiveRecord::Base
       }
     end
     overridden
+  end
+
+  def notify_team_bots_create
+    self.send :notify_team_bots, 'create'
+  end
+
+  def notify_team_bots_update
+    self.send :notify_team_bots, 'update'
+  end
+
+  def notify_team_bots(event)
+    TeamBot.notify_bots_in_background("#{event}_source", self.team_id, self)
   end
 end

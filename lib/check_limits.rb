@@ -24,11 +24,7 @@ module CheckLimits
           custom_statuses: false,
           slack_integration: false,
           custom_tasks_list: false,
-          browser_extension: false,
-          keep_archive_is: false,
-          keep_screenshot: false,
-          keep_video_vault: false,
-          keep_archive_org: true
+          browser_extension: false
         }
       }
     end
@@ -125,7 +121,7 @@ module CheckLimits
     end
   end
 
-  # ProjectMedia & Keep
+  # ProjectMedia
 
   ProjectMedia.class_eval do
     validate :can_submit_through_browser_extension, on: :create
