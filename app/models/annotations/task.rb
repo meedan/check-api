@@ -172,7 +172,10 @@ class Task < ActiveRecord::Base
     # Save review information and copy suggestion to answer if accepted
     review = { user: User.current, timestamp: Time.now, accepted: accept }.to_json
     fields = { "review_#{self.type}" => review }
-    fields["response_#{self.type}"] = suggestion.to_s if accept
+    if accept
+      fields["response_#{self.type}"] = suggestion.to_s
+      self.status = 'Resolved'
+    end
     response.set_fields = fields.to_json
     response.updated_at = Time.now
     response.save!
@@ -183,8 +186,6 @@ class Task < ActiveRecord::Base
 
     # Update number of suggestions
     self.suggestions_count -= 1 if self.suggestions_count.to_i > 0
-
-    self.status = 'Resolved' if accept
   end
 
   def self.send_slack_notification(tid, rid, uid, changes)

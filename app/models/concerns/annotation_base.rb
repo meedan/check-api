@@ -247,12 +247,7 @@ module AnnotationBase
   end
 
   def image_data
-    if self.file.nil?
-      {}
-    else
-      obj = self.load
-      { embed: obj.embed_path, thumbnail: obj.thumbnail_path, original: obj.image_path }
-    end
+    self.file.nil? ? {} : { embed: self.load.embed_path, thumbnail: self.load.thumbnail_path, original: self.load.image_path }
   end
 
   def annotator_id_callback(value, _mapping_ids = nil)
