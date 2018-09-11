@@ -34,6 +34,7 @@ class Task < ActiveRecord::Base
 
   field :log_count, Integer
   field :suggestions_count, Integer
+  field :pending_suggestions_count, Integer
 
   def slack_notification_message
     if self.versions.count > 1
@@ -104,7 +105,7 @@ class Task < ActiveRecord::Base
 
   def content
     hash = {}
-    %w(label type description options status).each{ |key| hash[key] = self.send(key) }
+    %w(label type description options status suggestions_count pending_suggestions_count).each{ |key| hash[key] = self.send(key) }
     hash.to_json
   end
 
@@ -185,7 +186,7 @@ class Task < ActiveRecord::Base
     version.update_column(:meta, review) unless version.nil?
 
     # Update number of suggestions
-    self.suggestions_count -= 1 if self.suggestions_count.to_i > 0
+    self.pending_suggestions_count -= 1 if self.pending_suggestions_count.to_i > 0
   end
 
   def self.send_slack_notification(tid, rid, uid, changes)
@@ -277,6 +278,8 @@ PaperTrail::Version.class_eval do
       task = Task.find(self.associated_id)
       task.suggestions_count ||= 0
       task.suggestions_count += 1
+      task.pending_suggestions_count ||= 0
+      task.pending_suggestions_count += 1
       task.skip_notifications = true
       task.skip_check_ability = true
       task.save!
