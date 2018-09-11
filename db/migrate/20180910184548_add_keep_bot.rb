@@ -8,6 +8,9 @@ class AddKeepBot < ActiveRecord::Migration
     meedan_team.skip_check_ability = true
     meedan_team.save!
 
+    config = CONFIG['clamav_service_path']
+    CONFIG['clamav_service_path'] = nil
+
     tb = TeamBot.new
     tb.identifier = 'keep'
     tb.name = 'Keep'
@@ -24,6 +27,8 @@ class AddKeepBot < ActiveRecord::Migration
     tb.approved = true
     tb.limited = true
     tb.save!
+    
+    CONFIG['clamav_service_path'] = config
 
     Team.find_each do |team|
       unless team.limits.select{ |key, value| ['keep_screenshot', 'keep_archive_is', 'keep_video_vault'].include?(key.to_s) && value.to_i == 1 }.empty?
