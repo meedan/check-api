@@ -44,7 +44,6 @@ class Bot::Keep
 
   ProjectMedia.class_eval do
     def should_skip_create_archive_annotation?(type)
-      archiver = Bot::Keep.annotation_type_to_archiver(type)
       !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || self.project.team.get_limits_keep.to_i == 0
     end
 
