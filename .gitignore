@@ -39,3 +39,4 @@ config/apollo-engine-proxy.json
 config/apollo-engine-proxy.json.local
 config/apollo-engine-proxy.json.qa
 public/project_export
+public/events.json

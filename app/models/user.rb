@@ -250,6 +250,14 @@ class User < ActiveRecord::Base
     self.source.nil? ? nil : self.source.avatar
   end
 
+  def bot_events
+    ''
+  end
+
+  def is_bot
+    false
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/user_private.rb

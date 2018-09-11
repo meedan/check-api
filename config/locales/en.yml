@@ -321,7 +321,17 @@ en:
   blank_active_status_for_custom_translation_status: "Please provide an 'active' value for the custom translation statuses"
   blank_default_status_for_custom_verification_status: "Please provide a 'default' value for the custom verification statuses"
   blank_active_status_for_custom_verification_status: "Please provide an 'active' value for the custom verification statuses"
+  bot_name_exists_for_this_team: "There is already a bot with this name in this team"
+  bot_team_id_doesnt_exist: "Sorry, there is no team with this id"
+  bot_team_id_mandatory_to_create: "Sorry, you need to choose a team in order to create a bot"
+  bot_not_approved_for_installation: "Sorry, this bot was not approved so it can't be installed"
+  only_admins_can_approve_bots: "Sorry, only super admins can approve bots"
+  could_not_save_related_bot_data: "Sorry, could not create API key, bot user and add the bot user to the team"
+  bot_limited_team_not_pro: "Sorry, this bot is not available for your team"
   slack_save_task_comment: "*%{user}* added a note to task *%{task}* in %{url} in *%{project}*: %{comment}"
+  bot_cant_add_response_to_task: "Sorry, a bot can't answer a task directly... please send an answer suggestion instead"
+  bot_cant_add_review_to_task: "Sorry, a bot can't review a task"
+  task_suggestion_invalid_value: "A suggestion must be a JSON hash with a 'suggestion' (the actual value that is copied to the task answer when accepted) and a 'comment' (displayed to users)"
   project_export_download_mail_csv: "Hello!
 
 

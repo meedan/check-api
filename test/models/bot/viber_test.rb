@@ -322,7 +322,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
   end
 
   test "should respond to user when translation status changes to ready" do
-    create_verification_status_stuff
+    create_translation_status_stuff
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
@@ -349,7 +349,7 @@ class Bot::ViberTest < ActiveSupport::TestCase
   end
 
   test "should respond to user when translation status changes to error" do
-    create_verification_status_stuff
+    create_translation_status_stuff
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'editor'

@@ -593,4 +593,69 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, s)
     end
   end
+
+  test "owner permissions for team bot" do
+    tb1 = create_team_bot team_author_id: t.id
+    tb2 = create_team_bot
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.can?(:create, tb1)
+      assert ability.can?(:update, tb1)
+      assert ability.can?(:destroy, tb1)
+      assert ability.can?(:index, tb1)
+      assert ability.can?(:read, tb1)
+    end
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.cannot?(:create, tb2)
+      assert ability.cannot?(:update, tb2)
+      assert ability.cannot?(:destroy, tb2)
+      assert ability.cannot?(:index, tb2)
+      assert ability.cannot?(:read, tb2)
+    end
+  end
+
+  test "owner permissions for team bot installation" do
+    tb1 = create_team_bot_installation team_id: t.id
+    tb2 = create_team_bot_installation
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.can?(:create, tb1)
+      assert ability.can?(:update, tb1)
+      assert ability.can?(:destroy, tb1)
+      assert ability.can?(:index, tb1)
+      assert ability.can?(:read, tb1)
+    end
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.cannot?(:create, tb2)
+      assert ability.cannot?(:update, tb2)
+      assert ability.cannot?(:destroy, tb2)
+      assert ability.cannot?(:index, tb2)
+      assert ability.cannot?(:read, tb2)
+    end
+  end
+
+  test "permissions for approved bots" do
+    tb1 = create_team_bot approved: true
+    tb2 = create_team_bot approved: false
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.cannot?(:create, tb1)
+      assert ability.cannot?(:update, tb1)
+      assert ability.cannot?(:destroy, tb1)
+      assert ability.can?(:index, tb1)
+      assert ability.cannot?(:read, tb1)
+      assert ability.can?(:install, tb1)
+    end
+    with_current_user_and_team(u) do
+      ability = AdminAbility.new
+      assert ability.cannot?(:create, tb2)
+      assert ability.cannot?(:update, tb2)
+      assert ability.cannot?(:destroy, tb2)
+      assert ability.cannot?(:index, tb2)
+      assert ability.cannot?(:read, tb2)
+      assert ability.cannot?(:install, tb2)
+    end
+  end
 end

@@ -70,4 +70,16 @@ module ProjectMediaPrivate
     user_id = User.current.nil? ? nil : User.current.id
     ProjectMedia.delay.destroy_related_medias(YAML.dump(self), user_id)
   end
+
+  def notify_team_bots_create
+    self.send :notify_team_bots, 'create'
+  end
+
+  def notify_team_bots_update
+    self.send :notify_team_bots, 'update'
+  end
+
+  def notify_team_bots(event)
+    TeamBot.notify_bots_in_background("#{event}_project_media", self.project.team_id, self)
+  end
 end

@@ -73,7 +73,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should save Pender response through webhook" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
+    Team.any_instance.stubs(:get_limits_keep).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -81,11 +81,11 @@ class ProjectMediasControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
+    pm.create_all_archive_annotations
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
 
@@ -98,11 +98,11 @@ class ProjectMediasControllerTest < ActionController::TestCase
     assert_response :success
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal 'http://pender/screenshot.png', f['screenshot_url']
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
+    Team.any_instance.unstub(:get_limits_keep)
   end
 
   test "should not save Pender response through webhook if link does not exist" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
+    Team.any_instance.stubs(:get_limits_keep).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -110,11 +110,11 @@ class ProjectMediasControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
+    pm.create_all_archive_annotations
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
 
@@ -127,7 +127,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     assert_response :success
     f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
+    Team.any_instance.unstub(:get_limits_keep)
   end
 
   test "should not save Pender response through webhook if there is no project media" do
@@ -148,7 +148,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
   end
 
   test "should not save Pender response through webhook if there is no annotation" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
+    Team.any_instance.stubs(:get_limits_keep).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -156,11 +156,11 @@ class ProjectMediasControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
+    pm.create_all_archive_annotations
     a = pm.get_annotations('pender_archive').last
     a.destroy
 
@@ -171,7 +171,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     post :webhook
     @request.env.delete('RAW_POST_DATA')
     assert_response :success
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
+    Team.any_instance.unstub(:get_limits_keep)
   end
 
   test "should not save Pender response through webhook if team is not allowed" do
@@ -182,11 +182,11 @@ class ProjectMediasControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = false
+    t.set_limits_keep = false
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
+    pm.create_all_archive_annotations
 
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)

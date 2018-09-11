@@ -25,6 +25,15 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
       obj.jsonoptions unless obj.nil?
     }
   end
+
+  field :project_media do
+    type ProjectMediaType
+
+    resolve -> (task, _args, _ctx) {
+      obj = task.load || task
+      obj.annotated if !obj.nil? && obj.annotated_type == 'ProjectMedia'
+    }
+  end
   
   field :required, types.Boolean
 
@@ -36,6 +45,8 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
       obj.nil? ? 0 : (obj.log_count || 0)
     }
   end
+
+  field :suggestions_count, types.Int
 
   connection :log, -> { VersionType.connection_type } do
     resolve ->(task, _args, _ctx) {

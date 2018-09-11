@@ -674,4 +674,38 @@ module SampleData
     r.save!
     r
   end
+
+  def create_team_bot(options = {})
+    options = {
+      name: random_string,
+      description: random_string,
+      request_url: random_url,
+      team_author_id: create_team.id,
+      events: [{ event: 'create_project_media', graphql: nil }]
+    }.merge(options)
+    options[:bot_user_id] = create_bot_user.id unless options.has_key?(:bot_user_id)
+
+    tb = TeamBot.new
+    options.each do |key, value|
+      tb.send("#{key}=", value) if tb.respond_to?("#{key}=")
+    end
+
+    File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+      tb.file = f
+    end
+    
+    tb.save!
+    tb
+  end
+
+  def create_team_bot_installation(options = {})
+    options[:team_id] = create_team.id unless options.has_key?(:team_id)
+    options[:team_bot_id] = create_team_bot(approved: true).id unless options.has_key?(:team_bot_id)
+    tbi = TeamBotInstallation.new
+    options.each do |key, value|
+      tbi.send("#{key}=", value) if tbi.respond_to?("#{key}=")
+    end
+    tbi.save!
+    tbi.reload
+  end
 end

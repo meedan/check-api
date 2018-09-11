@@ -33,6 +33,7 @@ class Task < ActiveRecord::Base
   field :required, :boolean
 
   field :log_count, Integer
+  field :suggestions_count, Integer
 
   def slack_notification_message
     if self.versions.count > 1
@@ -125,16 +126,19 @@ class Task < ActiveRecord::Base
 
   def response=(json)
     params = JSON.parse(json)
-    response = Dynamic.new
+    response = self.responses.first
+    response = response.nil? ? Dynamic.new : response.load
     response.annotated = self.annotated
     response.annotation_type = params['annotation_type']
     response.disable_es_callbacks = Rails.env.to_s == 'test'
-    response.disable_update_status = (Rails.env.to_s == 'test') && response.respond_to?(:disable_update_status)
+    response.disable_update_status = (Rails.env.to_s == 'test' && response.respond_to?(:disable_update_status))
     response.set_fields = params['set_fields']
+    response.updated_at = Time.now
     response.save!
     @response = response
     self.record_timestamps = false
-    self.status = 'Resolved'
+    set_fields = begin JSON.parse(params['set_fields']) rescue params['set_fields'] end
+    self.status = 'Resolved' if set_fields.keys.select{ |k| k =~ /^response/ }.any?
   end
 
   def first_response
@@ -148,6 +152,39 @@ class Task < ActiveRecord::Base
 
   def log
     PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).order('id ASC')
+  end
+
+  def reject_suggestion=(version_id)
+    self.handle_suggestion(false, version_id)
+  end
+
+  def accept_suggestion=(version_id)
+    self.handle_suggestion(true, version_id)
+  end
+
+  def handle_suggestion(accept, version_id)
+    response = self.responses.first
+    return if response.nil?
+    response = response.load
+    suggestion = response.get_fields.select{ |f| f.field_name =~ /^suggestion/ }.first
+    return if suggestion.nil?
+    
+    # Save review information and copy suggestion to answer if accepted
+    review = { user: User.current, timestamp: Time.now, accepted: accept }.to_json
+    fields = { "review_#{self.type}" => review }
+    fields["response_#{self.type}"] = suggestion.to_s if accept
+    response.set_fields = fields.to_json
+    response.updated_at = Time.now
+    response.save!
+
+    # Save review information in version
+    version = PaperTrail::Version.where(id: version_id).last
+    version.update_column(:meta, review) unless version.nil?
+
+    # Update number of suggestions
+    self.suggestions_count -= 1 if self.suggestions_count.to_i > 0
+
+    self.status = 'Resolved' if accept
   end
 
   def self.send_slack_notification(tid, rid, uid, changes)
@@ -225,5 +262,23 @@ Comment.class_eval do
 
   def decrement_task_log_count
     self.update_task_log_count(-1)
+  end
+end
+
+PaperTrail::Version.class_eval do
+  after_create :increment_task_suggestions_count
+
+  private
+
+  def increment_task_suggestions_count
+    object = JSON.parse(self.object_after)
+    if object['field_name'] =~ /^suggestion_/ && self.associated_type == 'Task'
+      task = Task.find(self.associated_id)
+      task.suggestions_count ||= 0
+      task.suggestions_count += 1
+      task.skip_notifications = true
+      task.skip_check_ability = true
+      task.save!
+    end
   end
 end

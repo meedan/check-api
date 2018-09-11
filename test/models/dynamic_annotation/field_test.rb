@@ -171,6 +171,23 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate bot response" do
+    create_bot_response_field
+    assert_nothing_raised do
+      create_field(field_name: 'team_bot_response_formatted_data', value: { title: 'Foo', description: 'Bar' }.to_json)
+      create_field(field_name: 'team_bot_response_formatted_data', value: { title: 'Foo', description: 'Bar', image_url: 'http://image.url' }.to_json)
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_field(field_name: 'team_bot_response_formatted_data', value: { title: 'Foo' }.to_json)
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_field(field_name: 'team_bot_response_formatted_data', value: { description: 'Bar' }.to_json)
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_field(field_name: 'team_bot_response_formatted_data', value: 'Not a JSON')
+    end
+  end
+
   protected
 
   def create_geojson_field
@@ -181,5 +198,9 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
   def create_datetime_field
     dt = create_field_type field_type: 'datetime'
     create_field_instance name: 'response_datetime', field_type_object: dt
+  end
+
+  def create_bot_response_field
+    create_annotation_type_and_fields('Team Bot Response', { 'Raw Data' => ['JSON', true], 'Formatted Data' => ['Bot Response Format', false] })
   end
 end

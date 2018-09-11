@@ -33,7 +33,7 @@ module Api
             em.save!
 
             ProjectMedia.where(media_id: @link.id).each do |pm|
-              next if should_skip_project_media?(pm, type)
+              next if should_skip_project_media?(pm)
               
               annotation = pm.annotations.where(annotation_type: type).last
               
@@ -52,9 +52,8 @@ module Api
 
       protected
 
-      def should_skip_project_media?(pm, type)
-        archiver = Bot::Keep.annotation_type_to_archiver(type)
-        pm.project.team.send("get_limits_keep_#{archiver}") == false || pm.project.team.send("get_archive_#{type}_enabled").to_i != 1 
+      def should_skip_project_media?(pm)
+        pm.project.team.send('get_limits_keep') == false
       end
 
       private

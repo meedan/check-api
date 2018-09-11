@@ -54,7 +54,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get current user" do
     u = create_user name: 'Test User'
     authenticate_with_user(u)
-    post :create, query: 'query Query { me { name } }'
+    post :create, query: 'query Query { me { name, bot { id } } }'
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']
     assert_equal 'Test User', data['name']
@@ -1468,6 +1468,107 @@ class GraphqlControllerTest < ActionController::TestCase
     User.current = nil
   end
 
+  test "should get approved bots" do
+    TeamBot.delete_all
+    authenticate_with_user
+    tb1 = create_team_bot approved: true
+    tb2 = create_team_bot approved: false
+    query = "query read { root { team_bots_approved { edges { node { dbid } } } } }"
+    post :create, query: query
+    edges = JSON.parse(@response.body)['data']['root']['team_bots_approved']['edges']
+    assert_equal [tb1.id], edges.collect{ |e| e['node']['dbid'] }
+  end
+
+  test "should get bot by id" do
+    authenticate_with_user
+    tb = create_team_bot approved: true, name: 'My Bot'
+    query = "query read { team_bot(id: #{tb.id}) { name } }"
+    post :create, query: query
+    assert_response :success
+    name = JSON.parse(@response.body)['data']['team_bot']['name']
+    assert_equal 'My Bot', name
+  end
+
+  test "should get bots installed in a team" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+
+    tb1 = create_team_bot approved: false, name: 'Custom Bot', team_author_id: t.id
+    tb2 = create_team_bot approved: true, name: 'My Bot'
+    tb3 = create_team_bot approved: true, name: 'Other Bot'
+    create_team_bot_installation team_bot_id: tb2.id, team_id: t.id
+    
+    query = 'query read { team(slug: "test") { team_bots { edges { node { name, team_author { slug } } } } } }'
+    post :create, query: query
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['team_bots']['edges']
+    assert_equal ['Custom Bot', 'My Bot'], edges.collect{ |e| e['node']['name'] }.sort
+    assert edges[0]['node']['team_author']['slug'] == 'test' || edges[1]['node']['team_author']['slug'] == 'test'
+  end
+
+  test "should get bot installations in a team" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+
+    tb1 = create_team_bot approved: false, name: 'Custom Bot', team_author_id: t.id
+    tb2 = create_team_bot approved: true, name: 'My Bot'
+    tb3 = create_team_bot approved: true, name: 'Other Bot'
+    create_team_bot_installation team_bot_id: tb2.id, team_id: t.id
+    
+    query = 'query read { team(slug: "test") { team_bot_installations { edges { node { team { slug }, team_bot { name } } } } } }'
+    post :create, query: query
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['team_bot_installations']['edges']
+    assert_equal ['Custom Bot', 'My Bot'], edges.collect{ |e| e['node']['team_bot']['name'] }.sort
+    assert_equal ['test', 'test'], edges.collect{ |e| e['node']['team']['slug'] }
+  end
+
+  test "should install bot using mutation" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    tb = create_team_bot approved: true
+    
+    authenticate_with_user(u)
+
+    assert_equal [], t.team_bots
+
+    query = 'mutation create { createTeamBotInstallation(input: { clientMutationId: "1", team_bot_id: ' + tb.id.to_s + ', team_id: ' + t.id.to_s + ' }) { team { dbid }, team_bot { dbid } } }'
+    assert_difference 'TeamBotInstallation.count' do
+      post :create, query: query
+    end
+    data = JSON.parse(@response.body)['data']['createTeamBotInstallation']
+    
+    assert_equal [tb], t.reload.team_bots
+    assert_equal t.id, data['team']['dbid']
+    assert_equal tb.id, data['team_bot']['dbid']
+  end
+
+  test "should uninstall bot using mutation" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    tb = create_team_bot approved: true
+    tbi = create_team_bot_installation team_id: t.id, team_bot_id: tb.id
+    
+    authenticate_with_user(u)
+
+    assert_equal [tb], t.reload.team_bots
+
+    query = 'mutation delete { destroyTeamBotInstallation(input: { clientMutationId: "1", id: "' + tbi.graphql_id + '" }) { deletedId } }'
+    assert_difference 'TeamBotInstallation.count', -1 do
+      post :create, query: query
+    end
+    data = JSON.parse(@response.body)['data']['destroyTeamBotInstallation']
+    
+    assert_equal [], t.reload.team_bots
+    assert_equal tbi.graphql_id, data['deletedId']
+  end
+
   test "should get task by id" do
     t = create_team
     p = create_project team: t
@@ -1481,7 +1582,7 @@ class GraphqlControllerTest < ActionController::TestCase
       c = create_comment annotated: tk
     end
     
-    query = "query GetById { task(id: \"#{tk.id}\") { log_count, log { edges { node { annotation { dbid } } } } } }"
+    query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, log_count, log { edges { node { annotation { dbid } } } } } }"
     post :create, query: query, team: t.slug
     
     assert_response :success

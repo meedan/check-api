@@ -88,6 +88,16 @@ class Dynamic < ActiveRecord::Base
     options
   end
 
+  def create_field(name, value)
+    f = DynamicAnnotation::Field.new
+    f.skip_check_ability = true
+    f.disable_es_callbacks = self.disable_es_callbacks
+    f.field_name = name
+    f.value = value
+    f.annotation_id = self.id
+    f
+  end
+
   private
 
   def add_elasticsearch_dynamic
@@ -120,12 +130,7 @@ class Dynamic < ActiveRecord::Base
       data = JSON.parse(self.set_fields)
       data.each do |field_name, value|
         next unless DynamicAnnotation::FieldInstance.where(name: field_name).exists?
-        f = DynamicAnnotation::Field.new
-        f.skip_check_ability = true
-        f.disable_es_callbacks = self.disable_es_callbacks
-        f.field_name = field_name
-        f.value = value
-        f.annotation_id = self.id
+        f = create_field(field_name, value)
         f.save!
         @fields << f
       end
@@ -134,12 +139,12 @@ class Dynamic < ActiveRecord::Base
 
   def update_fields
     unless self.set_fields.blank?
+      fields = self.fields
       data = JSON.parse(self.set_fields)
-      self.fields.each do |f|
-        if data.has_key?(f.field_name)
-          f.value = data[f.field_name]
-          f.save!
-        end
+      data.each do |field, value|
+        f = fields.select{ |x| x.field_name == field }.last || create_field(field, nil)
+        f.value = value
+        f.save!
       end
     end
   end
