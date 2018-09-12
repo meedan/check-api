@@ -328,4 +328,13 @@ class TestControllerTest < ActionController::TestCase
     get :new_bot
     assert_response :success
   end
+
+  test "should not get user if e-mail parameter is not present" do
+    u = create_bot_user
+    t = create_team
+    p = create_project
+    get :new_claim, team_id: t.id, project_id: p.id, quote: 'Test'
+    assert_response :success
+    assert_nil User.current
+  end
 end

@@ -151,7 +151,7 @@ class TestController < ApplicationController
 
   def new_media(type)
     Team.current = Team.find(params[:team_id])
-    user = User.where(email: params[:email]).last
+    user = params[:email].blank? ? nil : User.where(email: params[:email]).last
     User.current = user
     pm = ProjectMedia.new
     pm.project_id = params[:project_id]
