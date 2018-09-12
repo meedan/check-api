@@ -108,7 +108,8 @@ module ProjectAssociation
           data: {
             project_id: obj.project_id,
             type: obj_name,
-            id: obj.id
+            id: obj.id,
+            url: obj.full_url
           }
         }
         raise error.to_json

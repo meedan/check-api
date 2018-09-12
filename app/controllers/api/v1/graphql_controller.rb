@@ -42,7 +42,10 @@ module Api
           error = JSON.parse(e.message)
           json = {
             error: error['message'],
-            errors: [{ message: error['message'] }],
+            errors: [{
+              message: error['message'],
+              data: { code: error['code'] }.merge(error['data'])
+            }],
             error_info: {
               code: error['code']
             }.merge(error['data'])
