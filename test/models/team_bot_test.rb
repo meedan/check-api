@@ -613,4 +613,33 @@ class TeamBotTest < ActiveSupport::TestCase
       create_team_bot identifier: 'test'
     end
   end
+
+  test "should have permissions" do
+    t1 = create_team
+    t2 = create_team
+    u = create_user
+    create_team_user team: t1, user: u, role: 'owner'
+    create_team_user team: t2, user: u, role: 'editor'
+    tb = nil
+    assert_nothing_raised do
+      with_current_user_and_team(u, t2) do
+        tb = TeamBot.new({
+          name: random_string,
+          description: random_string,
+          request_url: random_url,
+          team_author_id: t1.id,
+          events: [{ event: 'create_project_media', graphql: nil }]
+        });
+        File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+          tb.file = f
+        end
+        tb.save!
+        tb = TeamBot.find(tb.id)
+        tb.updated_at = Time.now
+        tb.save!
+        tb = TeamBot.find(tb.id)
+        tb.destroy!
+      end
+    end
+  end
 end

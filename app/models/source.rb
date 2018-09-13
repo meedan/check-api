@@ -14,6 +14,7 @@ class Source < ActiveRecord::Base
   has_many :accounts, through: :account_sources
   belongs_to :user
   belongs_to :team
+  has_one :bot_user
 
   has_annotations
 

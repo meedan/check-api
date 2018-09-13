@@ -35,6 +35,7 @@ class Ability
       Workflow::Workflow.workflows.each do |w|
         instance_exec(&w.workflow_permissions) if w.respond_to?(:workflow_permissions)
       end
+      bot_permissions
     end
   end
 
@@ -94,10 +95,6 @@ class Ability
       teams << v_obj_parent.project.team_id if v_obj_parent and v_obj_parent.respond_to?(:project)
       teams.include?(@context_team.id)
     end
-    can [:create, :update, :destroy], TeamBot do |obj|
-      !TeamUser.where(user_id: @user.id, team_id: obj.team_author_id.to_i, role: 'owner').last.nil?
-    end
-    can [:create, :update, :destroy], TeamBotInstallation, team_id: @context_team.id
   end
 
   def editor_perms
@@ -210,5 +207,26 @@ class Ability
       v_obj = obj.item_type.constantize.find(obj.item_id) if obj.item_type == 'ProjectMedia'
       !v_obj.nil? and v_obj.project.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
+  end
+
+  def bot_permissions
+    # Bots are usually out of a team context, so we need to check based on the attribute values
+    can [:create, :update, :destroy], TeamBot do |obj|
+      is_owner_of_bot_team(obj.team_author_id)
+    end
+    can [:create, :update, :destroy], TeamBotInstallation do |obj|
+      is_owner_of_bot_team(obj.team_id)
+    end
+    can :destroy, BotUser do |obj|
+      is_owner_of_bot_team(obj&.team_bot&.team_author_id)
+    end
+    can :destroy, [ApiKey, Source] do |obj|
+      is_owner_of_bot_team(obj&.bot_user&.team_bot&.team_author_id)
+    end
+  end
+
+  def is_owner_of_bot_team(team_id)
+    return false if team_id.blank?
+    !TeamUser.where(user_id: @user.id, team_id: team_id, role: 'owner').last.nil?
   end
 end
