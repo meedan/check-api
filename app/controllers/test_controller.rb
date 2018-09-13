@@ -147,6 +147,13 @@ class TestController < ApplicationController
     render_success 'bot', b
   end
 
+  def archive_project
+    p = Project.find(params[:project_id])
+    p.archived = true
+    p.save!
+    render_success 'project', p
+  end
+
   protected
 
   def new_media(type)
