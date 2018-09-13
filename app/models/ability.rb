@@ -94,7 +94,9 @@ class Ability
       teams << v_obj_parent.project.team_id if v_obj_parent and v_obj_parent.respond_to?(:project)
       teams.include?(@context_team.id)
     end
-    can [:create, :update, :destroy], TeamBot, team_author_id: @context_team.id
+    can [:create, :update, :destroy], TeamBot do |obj|
+      !TeamUser.where(user_id: @user.id, team_id: obj.team_author_id.to_i, role: 'owner').last.nil?
+    end
     can [:create, :update, :destroy], TeamBotInstallation, team_id: @context_team.id
   end
 
