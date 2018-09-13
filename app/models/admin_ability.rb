@@ -23,6 +23,8 @@ class AdminAbility
     can [:index, :destroy, :export_project], Project, team_id: @teams
     can [:index, :read, :create, :update, :destroy], TeamBotInstallation, team_id: @teams
     can [:index, :read, :create, :update, :destroy], TeamBot, team_author_id: @teams
+    can :destroy, BotUser, team_bot: { team_author_id: @teams }
+    can :destroy, [ApiKey, Source], bot_user: { team_bot: { team_author_id: @teams } }
     can [:index, :install], TeamBot, approved: true
     can :destroy, ProjectSource, project: { team_id: @teams }
     can :destroy, ProjectMedia do |obj|

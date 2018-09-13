@@ -604,6 +604,9 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, tb1)
       assert ability.can?(:index, tb1)
       assert ability.can?(:read, tb1)
+      assert ability.can?(:destroy, tb1.bot_user)
+      assert ability.can?(:destroy, tb1.bot_user.source)
+      assert ability.can?(:destroy, tb1.bot_user.api_key)
     end
     with_current_user_and_team(u) do
       ability = AdminAbility.new
@@ -612,6 +615,9 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, tb2)
       assert ability.cannot?(:index, tb2)
       assert ability.cannot?(:read, tb2)
+      assert ability.cannot?(:destroy, tb2.bot_user)
+      assert ability.cannot?(:destroy, tb2.bot_user.source)
+      assert ability.cannot?(:destroy, tb2.bot_user.api_key)
     end
   end
 
