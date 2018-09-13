@@ -61,4 +61,5 @@ Rails.application.routes.draw do
   match '/test/new_api_key' => 'test#new_api_key', via: :get
   match '/test/bot' => 'test#new_bot', via: :get
   match '/test/get' => 'test#get', via: :get
+  match '/test/archive_project' => 'test#archive_project', via: :get
 end
