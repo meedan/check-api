@@ -1,5 +1,8 @@
 class AddSettingsToTeamBotInstallation < ActiveRecord::Migration
   def change
+    config = CONFIG['clamav_service_path']
+    CONFIG['clamav_service_path'] = nil
+
     add_column :team_bots, :settings, :text
     add_column :team_bot_installations, :settings, :text
     
@@ -22,5 +25,7 @@ class AddSettingsToTeamBotInstallation < ActiveRecord::Migration
       installation.settings = settings
       installation.save!
     end
+    
+    CONFIG['clamav_service_path'] = config
   end
 end
