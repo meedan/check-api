@@ -1304,6 +1304,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1317,6 +1322,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     pm = create_project_media media: c, project: p
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1342,6 +1352,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = false
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1357,6 +1372,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1372,6 +1392,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1, 'archives' => {} })
     Link.any_instance.stubs(:pender_embed).raises(RuntimeError)
@@ -1726,6 +1751,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     l = create_link
     t = create_team
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     pm = create_project_media project: create_project(team: t), media: l
 
     assert pm.should_skip_create_archive_annotation?('pender_archive')

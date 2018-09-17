@@ -13,6 +13,11 @@ class BotsControllerTest < ActionController::TestCase
     @request.env['RAW_POST_DATA'] = { data: { dbid: pm.id }, user_id: create_user(is_admin: true).id }.to_json
     User.current = nil
     create_annotation_type_and_fields('Keep Backup', { 'Response' => ['JSON', false] })
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_keep_backup_enabled = true
+    tbi.save!
   end
 
   test "should call endpoint if call is from inside" do

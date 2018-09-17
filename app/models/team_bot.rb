@@ -24,6 +24,9 @@ class TeamBot < ActiveRecord::Base
   # [ { event: 'event_name', graphql: 'graphql query fragment' }, ... ]
   serialize :events
 
+  # [ { name: 'field_name', label: 'Field Name', type: 'string|boolean|number', default: 'Default Value' }, ... ]
+  serialize :settings
+
   validates_presence_of :name, :team_author_id
   validate :name_is_unique_for_this_team
   validates_format_of :request_url, with: /\Ahttps?:\/\/[^\s]+\z/
@@ -31,6 +34,7 @@ class TeamBot < ActiveRecord::Base
   validate :can_approve
   validates_uniqueness_of :identifier
 
+  before_validation :format_settings
   before_validation :set_identifier, on: :create
   before_create :create_bot_user
   after_create :associate_with_team
@@ -42,8 +46,8 @@ class TeamBot < ActiveRecord::Base
     self.public_path
   end
 
-  def json_schema_url(_field = nil)
-    URI.join(CONFIG['checkdesk_base_url'], '/events.json').to_s
+  def json_schema_url(field)
+    URI.join(CONFIG['checkdesk_base_url'], '/' + field + '.json').to_s
   end
 
   def subscribed_to?(event)
@@ -101,7 +105,7 @@ class TeamBot < ActiveRecord::Base
     self.save!
   end
 
-  def notify_about_event(event, object, team)
+  def notify_about_event(event, object, team, installation)
     graphql_query = nil
     self.events.each do |ev|
       if ev['event'] == event || ev[:event] == event
@@ -116,7 +120,8 @@ class TeamBot < ActiveRecord::Base
       object: object,
       time: Time.now,
       data: graphql_data,
-      user_id: self.bot_user.id
+      user_id: self.bot_user.id,
+      settings: installation.json_settings
     }
    
     self.call(data)
@@ -146,6 +151,24 @@ class TeamBot < ActiveRecord::Base
     TeamBotInstallation.where(team_id: current_team.id, team_bot_id: self.id).last unless current_team.nil?
   end
 
+  def settings_as_json_schema
+    return nil if self.settings.blank?
+    properties = {}
+    self.settings.each do |setting|
+      s = setting.with_indifferent_access
+      type = s[:type]
+      default = s[:default]
+      default = default.to_i if type == 'number'
+      default = (default == 'true' ? true : false) if type == 'boolean'
+      properties[s[:name]] = {
+        type: type,
+        title: s[:label],
+        default: default
+      }
+    end
+    { type: 'object', properties: properties }.to_json
+  end
+
   def self.notify_bots_in_background(event, team_id, object)
     TeamBot.delay_for(1.second).notify_bots(event, team_id, object.class.to_s, object.id) unless object.skip_notifications
   end
@@ -154,8 +177,9 @@ class TeamBot < ActiveRecord::Base
     object = object_class.constantize.where(id: object_id).first
     team = Team.where(id: team_id).last
     return if object.nil? || team.nil?
-    team.team_bots.each do |team_bot|
-      team_bot.notify_about_event(event, object, team) if team_bot.subscribed_to?(event)
+    team.team_bot_installations.each do |team_bot_installation|
+      team_bot = team_bot_installation.team_bot
+      team_bot.notify_about_event(event, object, team, team_bot_installation) if team_bot.subscribed_to?(event)
     end
   end
 
@@ -238,5 +262,21 @@ class TeamBot < ActiveRecord::Base
 
   def update_role_if_changed
     TeamUser.where(user_id: self.bot_user_id).update_all(role: self.role) if self.role != self.role_was
+  end
+
+  def format_settings
+    if self.respond_to?(:settings) && !self.settings.blank?
+      settings = []
+      self.settings.each do |s|
+        s = s.last if s.is_a?(Array)
+        s = s.with_indifferent_access
+        name = s['name']
+        label = s['label']
+        type = s['type']
+        default = s['default']
+        settings << { 'name' => name, 'label' => label, 'type' => type, 'default' => default }
+      end
+      self.settings = settings
+    end
   end
 end

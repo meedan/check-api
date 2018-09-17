@@ -220,6 +220,11 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
     pm.create_all_archive_annotations
@@ -240,6 +245,11 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
     pm.create_all_archive_annotations

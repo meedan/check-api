@@ -5,9 +5,20 @@ class TeamBotInstallation < ActiveRecord::Base
   validates :team_id, :team_bot_id, presence: true
   validate :can_be_installed_if_approved, on: :create
   validate :can_be_installed_if_limited, on: :create
+  validate :settings_follow_schema
 
   after_create :give_access_to_team
   after_destroy :remove_access_from_team
+  
+  check_settings
+
+  def json_settings=(json)
+    self.settings = JSON.parse(json)
+  end
+
+  def json_settings
+    self.settings.to_json
+  end
 
   private
 
@@ -44,5 +55,9 @@ class TeamBotInstallation < ActiveRecord::Base
         team_user.destroy!
       end
     end
+  end
+
+  def settings_follow_schema
+    errors.add(:settings, 'must follow the schema') if self.respond_to?(:settings) && self.team_bot.respond_to?(:settings) && !self.team_bot.settings.blank? && !self.settings.blank? && !JSON::Validator.validate(JSON.parse(self.team_bot.settings_as_json_schema), self.settings)
   end
 end
