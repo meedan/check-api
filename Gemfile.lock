@@ -569,6 +569,7 @@ DEPENDENCIES
   i18n-generators
   jbuilder (~> 2.0)
   jquery-rails
+  json-schema
   jsonpath (~> 0.8.8)
   logstash-logger
   loofah (= 2.2.2)

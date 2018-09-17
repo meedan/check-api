@@ -417,7 +417,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should get JSON schema path" do
     tb = create_team_bot
-    assert_match /^http/, tb.json_schema_url
+    assert_match /^http/, tb.json_schema_url('events')
   end
 
   test "should show error if can't create related bot user" do
@@ -640,6 +640,14 @@ class TeamBotTest < ActiveSupport::TestCase
         tb = TeamBot.find(tb.id)
         tb.destroy!
       end
+    end
+  end
+
+  test "should have settings" do
+    tb = create_team_bot settings: [{ name: 'foo', label: 'Foo', type: 'string', default: 'Bar' }]
+    assert_equal 4, tb.settings[0].keys.size
+    assert_nothing_raised do
+      JSON.parse(tb.settings_as_json_schema)
     end
   end
 end

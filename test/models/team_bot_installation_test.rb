@@ -123,4 +123,38 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should have settings" do
+    tb = create_team_bot_installation
+    assert_equal({}, tb.settings)
+    tb.set_foo = 'bar'
+    assert_equal 'bar', tb.get_foo
+    assert_equal({ 'foo': 'bar' }, tb.settings)
+    assert_kind_of String, tb.json_settings
+  end
+
+  test "should follow schema" do
+    schema = [{
+      name: 'foo',
+      label: 'Foo',
+      type: 'number',
+      default: 0
+    }]
+    tb = create_team_bot settings: schema, approved: true
+    assert_raises ActiveRecord::RecordInvalid do
+      create_team_bot_installation(team_bot_id: tb.id, settings: { foo: 'bar' })
+    end
+    assert_nothing_raised do
+      create_team_bot_installation(team_bot_id: tb.id, settings: { foo: 10 })
+      create_team_bot_installation(team_bot_id: tb.id, json_settings: '{"foo":10}')
+    end
+  end
+
+  test "should define settings as JSON" do
+    tbi = create_team_bot_installation
+    assert_nil tbi.get_foo
+    tbi.json_settings = '{"foo":"bar"}'
+    tbi.save!
+    assert_equal 'bar', tbi.reload.get_foo
+  end
 end

@@ -655,6 +655,10 @@ RailsAdmin.config do |config|
       field :approved do
         visible_only_for_admin
       end
+      field :settings, :yaml do
+        partial "json_editor"
+        help 'Settings'
+      end
       field :events, :yaml do
         partial "json_editor"
         help "Events this bot wants to subscribe to"

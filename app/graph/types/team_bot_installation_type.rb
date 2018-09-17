@@ -4,6 +4,8 @@ TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
+  field :json_settings, types.String
+
   field :team_bot do
     type -> { TeamBotType }
 
