@@ -1012,18 +1012,18 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal ['B'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }
   end
 
-  test "should manage media verification statuses" do
+  test "should manage admin ui settings" do
     u = create_user
     t = create_team
     id = t.graphql_id
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
     statuses = '{\"label\":\"Verification Status\",\"default\":\"1\",\"active\":\"2\",\"statuses\":[{\"id\":\"1\",\"label\":\"1\",\"description\":\"\",\"completed\":\"\",\"style\":{\"color\":\"#f71f40\",\"backgroundColor\":\"#f71f40\",\"borderColor\":\"#f71f40\"}},{\"id\":\"2\",\"label\":\"2\",\"description\":\"\",\"completed\":\"\",\"style\":{\"color\":\"#e3dc1c\",\"backgroundColor\":\"#e3dc1c\",\"borderColor\":\"#e3dc1c\"}},{\"id\":\"3\",\"label\":\"3\",\"description\":\"\",\"completed\":\"1\",\"style\":{\"color\":\"#000000\",\"backgroundColor\":\"#000000\",\"borderColor\":\"#000000\"}}]}'
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", media_verification_statuses: "' + statuses + '" }) { team { id } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", hide_names_in_embeds: "true", media_verification_statuses: "' + statuses + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    pp t.reload.media_verification_statuses
-    assert_equal ['B'], t.reload.media_verification_statuses.collect{ |t| t[:label] || t['label'] }
+    assert_equal "true", t.reload.get_hide_names_in_embeds
+    assert_equal ["1", "2", "3"], t.reload.media_verification_statuses['statuses'].collect{ |t| t[:id] }.sort
   end
 
   test "should read account sources from source" do
