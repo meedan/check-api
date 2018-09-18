@@ -148,8 +148,9 @@ en:
   slack_create_project: "*%{user}* created a project: %{url}"
   slack_create_team_user: "*%{user}* joined team %{url}"
   slack_create_project_media: "*%{user}* added a new %{type} to *%{project}*: %{url}"
-  slack_create_project_media_no_user: 'A new %{type} has been added to *%{project}*:
-    %{url}'
+  slack_create_related_media: "*%{user}* added a related %{type} to \"%{parent}\" in *%{project}*: %{url}"
+  slack_create_project_media_no_user: "A new %{type} has been added to *%{project}*: %{url}"
+  slack_create_related_media_no_user: "A %{type} related to \"%{parent}%\" has been added to *%{project}*: %{url}"
   slack_create_task_message: "*%{user}* created task %{url} in *%{project}*%{assignment}%{create_note}"
   slack_create_task_assignment: " assigned to %{assignee}"
   slack_create_task_note: " with note: %{note}"
