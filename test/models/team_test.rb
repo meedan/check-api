@@ -343,6 +343,11 @@ class TeamTest < ActiveSupport::TestCase
     s = pm.last_verification_status_obj.get_field('verification_status_status')
     assert_equal 'Custom Status 1', s.to_s
     assert_equal 2, t.get_media_verification_statuses[:statuses].size
+    # Set verification status via media_verification_statuses
+    assert_nothing_raised do
+      t.add_media_verification_statuses = value
+      t.save!
+    end
   end
 
   test "should not save invalid custom verification statuses" do
