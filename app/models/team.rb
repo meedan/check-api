@@ -92,12 +92,12 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_channel, channel)
   end
 
-  def hide_names_in_embeds=(enabled)
-    self.send(:set_hide_names_in_embeds, enabled)
+  def media_verification_statuses=(value)
+    self.send(:set_media_verification_statuses, value)
   end
 
-  def media_verification_statuses=(value)
-    self.send(:set_media_verification_statuses, JSON.parse(value))
+  def team_tasks=(tasks)
+    self.send(:set_checklist, tasks)
   end
 
   def team_user

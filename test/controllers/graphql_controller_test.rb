@@ -1018,12 +1018,19 @@ class GraphqlControllerTest < ActionController::TestCase
     id = t.graphql_id
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
+    # media verification status & hide_names_in_embeds
     statuses = '{\"label\":\"Verification Status\",\"default\":\"1\",\"active\":\"2\",\"statuses\":[{\"id\":\"1\",\"label\":\"1\",\"description\":\"\",\"completed\":\"\",\"style\":{\"color\":\"#f71f40\",\"backgroundColor\":\"#f71f40\",\"borderColor\":\"#f71f40\"}},{\"id\":\"2\",\"label\":\"2\",\"description\":\"\",\"completed\":\"\",\"style\":{\"color\":\"#e3dc1c\",\"backgroundColor\":\"#e3dc1c\",\"borderColor\":\"#e3dc1c\"}},{\"id\":\"3\",\"label\":\"3\",\"description\":\"\",\"completed\":\"1\",\"style\":{\"color\":\"#000000\",\"backgroundColor\":\"#000000\",\"borderColor\":\"#000000\"}}]}'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", hide_names_in_embeds: "true", media_verification_statuses: "' + statuses + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal "true", t.reload.get_hide_names_in_embeds
     assert_equal ["1", "2", "3"], t.reload.media_verification_statuses['statuses'].collect{ |t| t[:id] }.sort
+    # add team tasks
+    tasks = '[{\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", team_tasks: "' + tasks + '" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal ['A?', 'B?'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }.sort
   end
 
   test "should read account sources from source" do
