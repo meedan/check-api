@@ -44,18 +44,35 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def slack_notification_message
-    type = self.media.class.name.demodulize.downcase
+    type = self.media.class.name.demodulize.downcase.to_sym
+    parent = self.related_to
     User.current.present? ?
-      I18n.t(:slack_create_project_media,
-        user: Bot::Slack.to_slack(User.current.name),
-        type: I18n.t(type.to_sym),
-        url: Bot::Slack.to_slack_url(self.full_url, self.title),
-        project: Bot::Slack.to_slack(self.project.title)
-      ) :
-      I18n.t(:slack_create_project_media_no_user,
-        type: I18n.t(type.to_sym),
-        url: Bot::Slack.to_slack_url(self.full_url, self.title),
-        project: Bot::Slack.to_slack(self.project.title)
+      (parent.nil? ?
+        I18n.t(:slack_create_project_media,
+          user: Bot::Slack.to_slack(User.current.name),
+          type: I18n.t(type),
+          url: Bot::Slack.to_slack_url(self.full_url, self.title),
+          project: Bot::Slack.to_slack(self.project.title)
+        ) :
+        I18n.t(:slack_create_related_media,
+          user: Bot::Slack.to_slack(User.current.name),
+          type: I18n.t(type),
+          url: Bot::Slack.to_slack_url(self.full_url, self.title),
+          project: Bot::Slack.to_slack(self.project.title),
+          parent: Bot::Slack.to_slack(parent.title)
+        )
+      ) : (parent.nil? ?
+        I18n.t(:slack_create_project_media_no_user,
+          type: I18n.t(type),
+          url: Bot::Slack.to_slack_url(self.full_url, self.title),
+          project: Bot::Slack.to_slack(self.project.title)
+        ) :
+        I18n.t(:slack_create_related_media_no_user,
+          type: I18n.t(type),
+          url: Bot::Slack.to_slack_url(self.full_url, self.title),
+          project: Bot::Slack.to_slack(self.project.title),
+          parent: Bot::Slack.to_slack(parent.title)
+        )
       )
   end
 
