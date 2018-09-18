@@ -46,33 +46,26 @@ class ProjectMedia < ActiveRecord::Base
   def slack_notification_message
     type = self.media.class.name.demodulize.downcase.to_sym
     parent = self.related_to
+    common = { type: I18n.t(type), url: Bot::Slack.to_slack_url(self.full_url, self.title) }
     User.current.present? ?
       (parent.nil? ?
-        I18n.t(:slack_create_project_media,
+        I18n.t(:slack_create_project_media, common.merge({
           user: Bot::Slack.to_slack(User.current.name),
-          type: I18n.t(type),
-          url: Bot::Slack.to_slack_url(self.full_url, self.title),
           project: Bot::Slack.to_slack(self.project.title)
-        ) :
-        I18n.t(:slack_create_related_media,
+        })) :
+        I18n.t(:slack_create_related_media, common.merge({
           user: Bot::Slack.to_slack(User.current.name),
-          type: I18n.t(type),
-          url: Bot::Slack.to_slack_url(self.full_url, self.title),
           project: Bot::Slack.to_slack(self.project.title),
           parent: Bot::Slack.to_slack(parent.title)
-        )
+        }))
       ) : (parent.nil? ?
-        I18n.t(:slack_create_project_media_no_user,
-          type: I18n.t(type),
-          url: Bot::Slack.to_slack_url(self.full_url, self.title),
+        I18n.t(:slack_create_project_media_no_user, common.merge({
           project: Bot::Slack.to_slack(self.project.title)
-        ) :
-        I18n.t(:slack_create_related_media_no_user,
-          type: I18n.t(type),
-          url: Bot::Slack.to_slack_url(self.full_url, self.title),
+        })) :
+        I18n.t(:slack_create_related_media_no_user, common.merge({
           project: Bot::Slack.to_slack(self.project.title),
           parent: Bot::Slack.to_slack(parent.title)
-        )
+        }))
       )
   end
 
