@@ -72,7 +72,7 @@ class TeamBotInstallation < ActiveRecord::Base
         type = s[:type]
         default = s[:default]
         default = default.to_i if type == 'number'
-        default = (default == 'true' ? true : false) if type == 'boolean'
+        default = (default == 'true') if type == 'boolean'
         settings[s[:name]] = default
       end
       self.settings = settings
