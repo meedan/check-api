@@ -11,9 +11,9 @@ class AddSettingsToTeamBotInstallation < ActiveRecord::Migration
 
     bot = TeamBot.where(identifier: 'keep').last
     bot.settings = [
-      { "name" => "archive_archive_is_enabled",  "label"=>"Enable Archive.is",  "type"=>"boolean", "default"=>"false" },
-      { "name" => "archive_archive_org_enabled", "label"=>"Enable Archive.org", "type"=>"boolean", "default"=>"false" },
-      { "name" => "archive_keep_backup_enabled", "label"=>"Enable Video Vault", "type"=>"boolean", "default"=>"false" }
+      { "name" => "archive_archive_is_enabled",  "label" => "Enable Archive.is",  "type" => "boolean", "default" => "false" },
+      { "name" => "archive_archive_org_enabled", "label" => "Enable Archive.org", "type" => "boolean", "default" => "false" },
+      { "name" => "archive_keep_backup_enabled", "label" => "Enable Video Vault", "type" => "boolean", "default" => "false" }
     ]
     bot.save!
 

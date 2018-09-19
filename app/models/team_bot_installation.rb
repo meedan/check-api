@@ -2,6 +2,8 @@ class TeamBotInstallation < ActiveRecord::Base
   belongs_to :team
   belongs_to :team_bot
 
+  before_validation :apply_default_settings, on: :create
+
   validates :team_id, :team_bot_id, presence: true
   validate :can_be_installed_if_approved, on: :create
   validate :can_be_installed_if_limited, on: :create
@@ -59,5 +61,21 @@ class TeamBotInstallation < ActiveRecord::Base
 
   def settings_follow_schema
     errors.add(:settings, 'must follow the schema') if self.respond_to?(:settings) && self.team_bot.respond_to?(:settings) && !self.team_bot.settings.blank? && !self.settings.blank? && !JSON::Validator.validate(JSON.parse(self.team_bot.settings_as_json_schema), self.settings)
+  end
+
+  def apply_default_settings
+    team_bot = self.team_bot
+    if team_bot.respond_to?(:settings) && !team_bot.settings.blank? && self.settings.blank?
+      settings = {}
+      team_bot.settings.each do |setting|
+        s = setting.with_indifferent_access
+        type = s[:type]
+        default = s[:default]
+        default = default.to_i if type == 'number'
+        default = (default == 'true' ? true : false) if type == 'boolean'
+        settings[s[:name]] = default
+      end
+      self.settings = settings
+    end
   end
 end

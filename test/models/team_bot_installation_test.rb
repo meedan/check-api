@@ -157,4 +157,32 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     tbi.save!
     assert_equal 'bar', tbi.reload.get_foo
   end
+
+  test "should set default settings" do
+    tb = create_team_bot approved: true
+    tb.settings = [
+      { "name" => "archive_archive_is_enabled",  "label" => "Enable Archive.is",  "type" => "boolean", "default" => "true" },
+      { "name" => "archive_archive_org_enabled", "label" => "Enable Archive.org", "type" => "boolean", "default" => "true" },
+      { "name" => "archive_keep_backup_enabled", "label" => "Enable Video Vault", "type" => "boolean", "default" => "false" }
+    ]
+    tb.save!
+    tbi = create_team_bot_installation team_bot_id: tb.id
+    assert tbi.get_archive_archive_is_enabled
+    assert tbi.get_archive_archive_org_enabled
+    assert !tbi.get_archive_keep_backup_enabled
+  end
+
+  test "should not set default settings" do
+    tb = create_team_bot approved: true
+    tb.settings = [
+      { "name" => "archive_archive_is_enabled",  "label" => "Enable Archive.is",  "type" => "boolean", "default" => "true" },
+      { "name" => "archive_archive_org_enabled", "label" => "Enable Archive.org", "type" => "boolean", "default" => "true" },
+      { "name" => "archive_keep_backup_enabled", "label" => "Enable Video Vault", "type" => "boolean", "default" => "false" }
+    ]
+    tb.save!
+    tbi = create_team_bot_installation team_bot_id: tb.id, settings: { archive_archive_is_enabled: false }
+    assert !tbi.get_archive_archive_is_enabled
+    assert_nil tbi.get_archive_archive_org_enabled
+    assert_nil tbi.get_archive_keep_backup_enabled
+  end
 end
