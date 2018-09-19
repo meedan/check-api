@@ -92,7 +92,9 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_channel, channel)
   end
 
-  def media_verification_statuses=(value)
+  def add_media_verification_statuses=(value)
+    value.symbolize_keys!
+    value[:statuses].each{|status| status.symbolize_keys!}
     self.send(:set_media_verification_statuses, value)
   end
 
