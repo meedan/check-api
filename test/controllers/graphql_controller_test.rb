@@ -1024,7 +1024,7 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal "true", t.reload.get_hide_names_in_embeds
-    assert_equal ["1", "2", "3"], t.reload.media_verification_statuses['statuses'].collect{ |t| t[:id] }.sort
+    assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort
     # add team tasks
     tasks = '[{\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", team_tasks: "' + tasks + '" }) { team { id } } }'
