@@ -21,6 +21,7 @@ RelayOnRailsSchema = GraphQL::Schema.define do
 
   resolve_type -> (_type, object, _ctx) do
     klass = object.respond_to?(:type) ? object.type : object.class_name
+    klass = 'Task' if Task.task_types.include?(klass)
     "#{klass}Type".constantize
   end
 

@@ -20,45 +20,49 @@ class Bot::KeepTest < ActiveSupport::TestCase
 
   test "should create Keep annotations" do
     t = create_team
-    t.archive_keep_backup_enabled = 1
-    t.set_limits_keep_video_vault = true
+    t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_keep_backup_enabled = true
+    tbi.save!
     l = create_link
     p = create_project team: t
     pm = create_project_media project: p, media: l
+    pm.create_all_archive_annotations
     assert_not_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 
   test "should not create Keep annotations if media is not a link" do
     t = create_team
-    t.archive_keep_backup_enabled = 1
-    t.set_limits_keep_video_vault = true
+    t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_keep_backup_enabled = true
+    tbi.save!
     c = create_claim_media
     p = create_project team: t
     pm = create_project_media project: p, media: c
+    pm.create_all_archive_annotations
     assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 
   test "should not create Keep annotations if team is not allowed to" do
     t = create_team
-    t.archive_keep_backup_enabled = 1
-    t.set_limits_keep_video_vault = false
+    t.set_limits_keep = false
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_keep_backup_enabled = true
+    tbi.save!
     l = create_link
     p = create_project team: t
     pm = create_project_media project: p, media: l
-    assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
-  end
-
-  test "should not create Keep annotations if archiver is not enabled" do
-    t = create_team
-    t.archive_keep_backup_enabled = 0
-    t.set_limits_keep_video_vault = true
-    t.save!
-    l = create_link
-    p = create_project team: t
-    pm = create_project_media project: p, media: l
+    pm.create_all_archive_annotations
     assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 end

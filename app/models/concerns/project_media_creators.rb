@@ -5,7 +5,6 @@ module ProjectMediaCreators
 
   def add_extra_elasticsearch_data(ms)
     m = self.media
-    ms.id = self.id
     ms.associated_type = self.media.type
     data = self.embed
     unless data.nil?
@@ -13,7 +12,10 @@ module ProjectMediaCreators
       ms.description = data['description']
       ms.quote = m.quote
     end
-    ms.account = self.set_es_account_data unless self.media.account.nil?
+    ms.verification_status = self.last_status
+    ts = self.annotations.where(annotation_type: "translation_status").last
+    ms.translation_status = ts.load.status unless ts.nil?
+    ms.accounts = self.set_es_account_data unless self.media.account.nil?
   end
 
   private

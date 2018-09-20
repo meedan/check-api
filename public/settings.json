@@ -1,0 +1,39 @@
+{
+  "title": "Settings fields",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "title": "Field",
+    "headerTemplate": "{{i1}}. {{self.name}}",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "default": "field_name",
+        "description": "The name of this field, used to STORE in the system",
+        "type": "string"
+      },
+      "label": {
+        "title": "Label",
+        "default": "Field Name",
+        "description": "The name of this field, used to DISPLAY it to users",
+        "type": "string"
+      },
+      "type": {
+        "title": "Type",
+        "default": "string",
+        "description": "The type of this field",
+        "type": "string",
+        "enum": ["string", "number", "boolean"],
+        "options": {
+          "enum_titles": ["String", "Number", "Boolean"]
+        }
+      },
+      "default": {
+        "title": "Default value",
+        "default": "",
+        "description": "Default value for this field",
+        "type": "string"
+      }
+    }
+  }
+}

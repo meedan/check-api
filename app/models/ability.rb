@@ -35,6 +35,7 @@ class Ability
       Workflow::Workflow.workflows.each do |w|
         instance_exec(&w.workflow_permissions) if w.respond_to?(:workflow_permissions)
       end
+      bot_permissions
     end
   end
 
@@ -107,10 +108,7 @@ class Ability
       obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
     end
     %w(annotation comment flag dynamic task).each do |annotation_type|
-      can :update, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        obj.get_team.include?(@context_team.id) && obj.user_id == @user.id && !obj.annotated_is_archived?
-      end
-      can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+      can [:destroy, :update], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
       end
     end
@@ -141,7 +139,7 @@ class Ability
     end
     %w(annotation comment).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        obj.annotation_type == 'comment' && obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived? && !obj.locked?
+        obj.annotation_type == 'comment' && obj.user_id == @user.id && obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived? && !obj.locked?
       end
     end
     can :create, Task, ['annotation_type = ?', 'task'] do |task|
@@ -209,5 +207,26 @@ class Ability
       v_obj = obj.item_type.constantize.find(obj.item_id) if obj.item_type == 'ProjectMedia'
       !v_obj.nil? and v_obj.project.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
+  end
+
+  def bot_permissions
+    # Bots are usually out of a team context, so we need to check based on the attribute values
+    can [:create, :update, :destroy], TeamBot do |obj|
+      is_owner_of_bot_team(obj.team_author_id)
+    end
+    can [:create, :update, :destroy], TeamBotInstallation do |obj|
+      is_owner_of_bot_team(obj.team_id)
+    end
+    can :destroy, BotUser do |obj|
+      is_owner_of_bot_team(obj&.team_bot&.team_author_id)
+    end
+    can :destroy, [ApiKey, Source] do |obj|
+      is_owner_of_bot_team(obj&.bot_user&.team_bot&.team_author_id)
+    end
+  end
+
+  def is_owner_of_bot_team(team_id)
+    return false if team_id.blank?
+    !TeamUser.where(user_id: @user.id, team_id: team_id, role: 'owner').last.nil?
   end
 end

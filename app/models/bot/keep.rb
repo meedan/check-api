@@ -1,4 +1,14 @@
 class Bot::Keep
+  def self.run(body)
+    json = JSON.parse(body)
+    pm = ProjectMedia.where(id: json['data']['dbid']).last
+    user = User.where(id: json['user_id']).last
+    if pm.present? && user.present?
+      User.current = user
+      pm.create_all_archive_annotations
+      User.current = nil
+    end
+  end
 
   def self.archiver_annotation_types
     [
@@ -33,11 +43,12 @@ class Bot::Keep
   end
 
   ProjectMedia.class_eval do
-    after_create :create_all_archive_annotations
-
     def should_skip_create_archive_annotation?(type)
-      archiver = Bot::Keep.annotation_type_to_archiver(type)
-      !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || self.project.team.send("get_limits_keep_#{archiver}") == false || self.project.team.send("get_archive_#{type}_enabled").to_i != 1
+      team = self.project.team
+      bot = TeamBot.where(identifier: 'keep').last
+      installation = TeamBotInstallation.where(team_id: team.id, team_bot_id: bot.id).last
+      getter = "get_archive_#{type}_enabled"
+      !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || team.get_limits_keep.to_i == 0 || installation.nil? || !installation.send(getter)
     end
 
     def create_archive_annotation(type)
@@ -74,24 +85,10 @@ class Bot::Keep
       a.save!
     end
 
-    private
-
     def create_all_archive_annotations
       Bot::Keep.archiver_annotation_types.each do |type|
         self.create_archive_annotation(type)
       end
-    end
-  end
-
-  Team.class_eval do
-    Bot::Keep.archiver_annotation_types.each do |type|
-      define_method :"archive_#{type}_enabled=" do |enabled|
-        self.send("set_archive_#{type}_enabled", enabled)
-      end
-    end
-
-    def get_limits_keep_screenshot
-      false
     end
   end
 end

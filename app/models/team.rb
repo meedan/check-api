@@ -92,6 +92,16 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_channel, channel)
   end
 
+  def add_media_verification_statuses=(value)
+    value.symbolize_keys!
+    value[:statuses].each{|status| status.symbolize_keys!}
+    self.send(:set_media_verification_statuses, value)
+  end
+
+  def team_tasks=(tasks)
+    self.send(:set_checklist, tasks)
+  end
+
   def team_user
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end

@@ -44,12 +44,12 @@ class CheckSearch
     results.collect do |result|
       sources = result.relationship_sources || []
       source = relationship_type.blank? ? sources.first : sources.select{ |x| x.split('_').first == Digest::MD5.hexdigest(relationship_type) }.first
-      (source.blank? || source == '-') ? result.annotated_id : source.split('_').last
+      (source.blank? || source == '-') ? result.annotated_id : source.split('_').last.to_i
     end
   end
 
   def medias
-    return [] unless @options['show'].include?('medias')
+    return [] unless @options['show'].include?('medias') && index_exists?
     return @medias if @medias
     @medias = []
     filters = {}
@@ -72,7 +72,7 @@ class CheckSearch
   end
 
   def sources
-    return [] unless @options['show'].include?('sources')
+    return [] unless @options['show'].include?('sources') && index_exists?
     return @sources if @sources
     @sources = []
     if should_hit_elasticsearch?
@@ -99,18 +99,23 @@ class CheckSearch
     conditions = []
     conditions << {term: { annotated_type: associated_type.downcase } }
     conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
-    conditions.concat build_search_keyword_conditions(associated_type)
+    conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
-    conditions.concat build_search_parent_conditions
+    conditions.concat build_search_doc_conditions
     { bool: { must: conditions } }
   end
 
   def medias_get_search_result(query)
-    field = @options['sort'] == 'recent_activity' ? 'last_activity_at' : 'created_at'
+    field = @options['sort'] == 'recent_activity' ? 'updated_at' : 'created_at'
     MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"].downcase }}, '_score'], size: 10000).results
   end
 
   private
+
+  def index_exists?
+    client = MediaSearch.gateway.client
+    client.indices.exists? index: CheckElasticSearchModel.get_index_alias
+  end
 
   def should_hit_elasticsearch?
     status_blank = true
@@ -126,21 +131,20 @@ class CheckSearch
   #   (show_options - @options['show']).empty?
   # end
 
-  def build_search_keyword_conditions(associated_type)
+  def build_search_keyword_conditions
     return [] if @options["keyword"].blank?
     # add keyword conditions
-    keyword_fields = %w(title description quote account.username account.title)
+    keyword_fields = %w(title description quote)
     keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
 
-    [['comment', 'text'], ['dynamic', 'indexable']].each do |pair|
-      keyword_c << { has_child: { type: "#{pair[0]}_search", query: { simple_query_string: { query: @options["keyword"], fields: [pair[1]], default_operator: "AND" }}}}
+    [['comments', 'text'], ['dynamics', 'indexable']].each do |pair|
+      keyword_c << { nested: { path: "#{pair[0]}", query: { simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }}}}
     end
 
     keyword_c << search_tags_query(@options["keyword"].split(' '))
 
-    if associated_type == 'ProjectSource'
-      keyword_c << { has_child: { type: "account_search", query: { simple_query_string: { query: @options["keyword"], fields: %w(username title), default_operator: "AND" }}}}
-    end
+    keyword_c << { nested: { path: "accounts", query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}}}
+
     [{ bool: { should: keyword_c } }]
   end
 
@@ -154,22 +158,22 @@ class CheckSearch
     tags_c = []
     tags = tags.collect{ |t| t.delete('#') }
     tags.each do |tag|
-      tags_c << { match: { "tag.raw": { query: tag, operator: 'and' } } }
+      tags_c << { match: { "tags.tag.raw": { query: tag, operator: 'and' } } }
     end
-    tags_c << { terms: { tag: tags } }
-    {has_child: { type: 'tag_search', query: { bool: {should: tags_c }}}}
+    tags_c << { terms: { "tags.tag": tags } }
+    { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
   end
 
-  def build_search_parent_conditions
-    parent_c = []
+  def build_search_doc_conditions
+    doc_c = []
 
     unless @options['show'].blank?
       types_mapping = {
-        'medias' => ['link', 'claim', 'uploadedimage'],
-        'sources' => ['source']
+        'medias' => ['Link', 'Claim', 'UploadedImage'],
+        'sources' => ['Source']
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten
-      parent_c << { terms: { 'associated_type': types } }
+      doc_c << { terms: { 'associated_type': types } }
     end
 
     fields = { 'project_id' => 'projects' }
@@ -177,9 +181,9 @@ class CheckSearch
       fields[field] = field
     end
     fields.each do |k, v|
-      parent_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
+      doc_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
     end
-    parent_c
+    doc_c
   end
 
   def sort_pg_results(results)
@@ -191,7 +195,7 @@ class CheckSearch
   end
 
   def sort_es_items(items, ids)
-    ids_sort = items.sort_by{|x| ids.index x.id.to_s}
+    ids_sort = items.sort_by{|x| ids.index x.id}
     ids_sort.to_a
   end
 

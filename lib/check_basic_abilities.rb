@@ -32,14 +32,15 @@ module CheckBasicAbilities
     can :create, PaperTrail::Version
     can :read, Team, :private => false
     can :read, Team, :private => true,  id: @user.cached_teams
+    cannot :manage, BotUser
 
     # A @user can read a user if:
     # 1) @user is the same as target user
     # 2) target user is a member of at least one public team
     # 3) @user is a member of at least one same team as the target user
     can :read, User, id: @user.id
-    can :read, User, teams: { private: false }
-    can :read, User, team_users: { status: ['member', 'requested'], team_id: @user.cached_teams }
+    can :read, [User, BotUser], teams: { private: false }
+    can :read, [User, BotUser], team_users: { status: ['member', 'requested'], team_id: @user.cached_teams }
 
     # A @user can read contact, project or team user if:
     # 1) team is private and @user is a member of that team
@@ -64,10 +65,12 @@ module CheckBasicAbilities
       !obj.team.private || @user.cached_teams.include?(obj.team.id)
     end
 
+    can :read, TeamBot, approved: true
+    can :read, TeamBot, team_author_id: @user.cached_teams
+
     annotation_perms_for_all_users
 
     cannot :manage, ApiKey
-    cannot :manage, BotUser
   end
 
   def annotation_perms_for_all_users

@@ -1,0 +1,27 @@
+{
+  "title": "Events",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "title": "Subscription",
+    "headerTemplate": "{{i1}}. {{self.event}}",
+    "properties": {
+      "event": {
+        "title": "Event",
+        "default": "",
+        "description": "The type of event this bot is subscribing to",
+        "type": "string",
+        "enum": <%= TeamBot::EVENTS %>,
+        "options": {
+          "enum_titles": <%= TeamBot::EVENTS %>
+        }
+      },
+      "graphql": {
+        "title": "GraphQL Query Fragment",
+        "default": "id, dbid",
+        "description": "A GraphQL query fragment defining the data that should be sent to the bot when that event happens",
+        "type": "string"
+      }
+    }
+  }
+}

@@ -7,7 +7,7 @@ class MigratePendingStatus < ActiveRecord::Migration
         index: CheckElasticSearchModel.get_index_name,
         type: 'media_search',
         body: {
-          script: { inline: "ctx._source.status=status", lang: "groovy", params: { status: 'undetermined' } },
+          script: { source: "ctx._source.status = params.status", params: { status: 'undetermined' } },
           query: { term: { status: { value: 'pending' } } }
         }
       }

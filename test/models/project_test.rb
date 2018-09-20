@@ -633,7 +633,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should export project images" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
+    Team.any_instance.stubs(:get_limits_keep).returns(true)
     stub_configs({ 'pender_url' => 'http://pender', 'pender_url_private' => 'http://pender-private' }) do
       WebMock.stub_request(:get, 'http://pender-private/images/test.png').to_return(body: 'foo')
       ft = create_field_type field_type: 'image_path', label: 'Image Path'
@@ -641,24 +641,32 @@ class ProjectTest < ActiveSupport::TestCase
       create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
       create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
       t = create_team
-      t.archive_pender_archive_enabled = 1
-      t.set_limits_keep_screenshot = true
+      t.set_limits_keep = true
       t.save!
+      TeamBot.delete_all
+      tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+      tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+      tbi.set_archive_pender_archive_enabled = true
+      tbi.save!
       p = create_project team: t
       c = create_claim_media
       pm1 = create_project_media media: c, project: p
+      pm1.create_all_archive_annotations
       i = create_uploaded_image
       pm2 = create_project_media media: i, project: p
+      pm2.create_all_archive_annotations
       l1 = create_link
       pm3 = create_project_media media: l1, project: p
+      pm3.create_all_archive_annotations
       f = DynamicAnnotation::Field.last
       f.value = { screenshot_url: 'http://pender/images/test.png' }.to_json
       f.save!
       l2 = create_link
       pm4 = create_project_media media: l2, project: p
+      pm4.create_all_archive_annotations
       assert_equal 2, p.export_images.values.reject{ |x| x.nil? }.size
     end
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
+    Team.any_instance.unstub(:get_limits_keep)
   end
 
   test "should export images in background" do

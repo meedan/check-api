@@ -215,15 +215,19 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should reset archive response" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
+    pm.create_all_archive_annotations
     a = pm.get_annotations('pender_archive').last.load
     f = a.get_field('pender_archive_response')
     f.value = '{"foo":"bar"}'
@@ -233,27 +237,30 @@ class AnnotationTest < ActiveSupport::TestCase
     pm.reset_archive_response(a)
     v = a.reload.get_field('pender_archive_response').reload.value
     assert_equal "{}", v
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should skip reset archive response" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
+    pm.create_all_archive_annotations
     a = pm.get_annotations('pender_archive').last.load
     f = a.get_field('pender_archive_response')
     f.value = '{"foo":"bar"}'
     f.save!
+    t.set_limits_keep = false
+    t.save!
     v = a.reload.get_field('pender_archive_response').reload.value
-
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
-    assert !t.get_limits_keep_screenshot
+    pm = ProjectMedia.find(pm.id)
     pm.reset_archive_response(a)
     v = a.reload.get_field('pender_archive_response').reload.value
     assert_equal '{"foo":"bar"}', v
@@ -358,9 +365,16 @@ class AnnotationTest < ActiveSupport::TestCase
       tk.assigned_to = u2
       tk.save!
     end
-    v = PaperTrail::Version.last
+    v = tk.versions.last
     m = JSON.parse(v.meta)
     assert_equal m['assigned_from_name'], 'Foo'
     assert_equal m['assigned_to_name'], 'Bar'
+  end
+
+  test "should get project media for annotation" do
+    pm = create_project_media
+    t = create_task annotated: pm
+    t2 = create_task annotated: t
+    assert_equal pm, t2.project_media
   end
 end

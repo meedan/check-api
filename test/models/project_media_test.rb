@@ -4,6 +4,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   def setup
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
+    Bot::Alegre.delete_all
     super
   end
 
@@ -530,7 +531,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_task"].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 15, pm.get_versions_log_count
       c.destroy
       assert_equal 15, pm.get_versions_log_count
@@ -630,6 +631,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have empty mt annotation" do
+    create_alegre_bot
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
@@ -657,6 +659,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should update mt annotation" do
+    create_alegre_bot
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
@@ -837,12 +840,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get resolved tasks for oEmbed" do
-    create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'response'
+    create_field_instance annotation_type_object: at, name: 'response'
     pm = create_project_media
     assert_equal [], pm.completed_tasks
     assert_equal 0, pm.completed_tasks_count
     t1 = create_task annotated: pm
-    t1.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t1.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
     t1.save!
     t2 = create_task annotated: pm
     assert_equal [t1], pm.completed_tasks
@@ -1197,6 +1201,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t.save!
     p = create_project team: t
     assert_raises ActiveRecord::RecordInvalid do
+      RequestStore.stubs(:[]).with(:task_comment).returns(nil)
       RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ headers: { 'X-Check-Client' => 'browser-extension' } }))
       create_project_media project: p
       RequestStore.unstub(:[])
@@ -1293,112 +1298,114 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Test 2', pm.reload.description
   end
 
-  test "should create pender_archive annotation when link is created" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
+  test "should create pender_archive annotation for link" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
+    pm = create_project_media media: l, project: p
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      create_project_media media: l, project: p
+      pm.create_all_archive_annotations
     end
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
-  test "should not create pender_archive annotation when media is created if media is not a link" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
+  test "should not create pender_archive annotation when media is not a link" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     c = create_claim_media
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
+    pm = create_project_media media: c, project: p
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      create_project_media media: c, project: p
+      pm.create_all_archive_annotations
     end
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
-  test "should not create pender_archive annotation when link is created if there is no annotation type" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
+  test "should not create pender_archive annotation when there is no annotation type" do
     l = create_link
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
     p = create_project team: t
+    pm = create_project_media media: l, project: p
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      create_project_media media: l, project: p
+      pm.create_all_archive_annotations
     end
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
-  test "should not create pender_archive annotation when link is created if team is not allowed" do
+  test "should not create pender_archive annotation if team is not allowed" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = false
+    t.set_limits_keep = false
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
+    pm = create_project_media media: l, project: p
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      create_project_media media: l, project: p
+      pm.create_all_archive_annotations
     end
   end
 
-  test "should not create pender_archive annotation when link is created if archiver is not enabled" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
+  test "should create pender_archive annotation using information from pender_embed" do
+    Link.any_instance.stubs(:pender_embed).returns(OpenStruct.new({ data: { embed: { screenshot_taken: 1, 'archives' => {} }.to_json }.with_indifferent_access }))
+    Media.any_instance.stubs(:pender_embed).returns(OpenStruct.new({ data: { embed: { screenshot_taken: 1, 'archives' => {} }.to_json }.with_indifferent_access }))
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
-    t.archive_pender_archive_enabled = 0
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
-    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      create_project_media media: l, project: p
-    end
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
-  end
-
-  test "should create pender_archive annotation when link is created using information from pender_embed" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
-    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
-    l = create_link
-    t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
-    t.save!
-    p = create_project team: t
-    Link.any_instance.stubs(:pender_embed).returns(OpenStruct.new({ data: { embed: { screenshot_taken: 1, 'archives' => {} }.to_json } }))
+    pm = create_project_media media: l, project: p
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      create_project_media media: l, project: p
+      pm.create_all_archive_annotations
     end
     Link.any_instance.unstub(:pender_embed)
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
+    Media.any_instance.unstub(:pender_embed)
   end
 
-  test "should create pender_archive annotation when link is created using information from pender_data" do
-    Team.any_instance.stubs(:get_limits_keep_screenshot).returns(true)
+  test "should create pender_archive annotation using information from pender_data" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
+    t.set_limits_keep = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     p = create_project team: t
     Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1, 'archives' => {} })
     Link.any_instance.stubs(:pender_embed).raises(RuntimeError)
+    pm = create_project_media media: l, project: p
     assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      create_project_media media: l, project: p
+      pm.create_all_archive_annotations
     end
     Link.any_instance.unstub(:pender_data)
     Link.any_instance.unstub(:pender_embed)
-    Team.any_instance.unstub(:get_limits_keep_screenshot)
   end
 
   test "should get number of contributing users" do
@@ -1446,11 +1453,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should reject a status of verified if all required tasks are not resolved" do
     create_verification_status_stuff
-    create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'response'
+    create_field_instance annotation_type_object: at, name: 'response'
     pm = create_project_media
     t1 = create_task annotated: pm
     t2 = create_task annotated: pm, required: true
-    t1.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t1.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
     t1.save!
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     assert_raise ActiveRecord::RecordInvalid do
@@ -1459,7 +1467,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_raise ActiveRecord::RecordInvalid do
       s.status = 'false'; s.save!
     end
-    t2.response = { annotation_type: 'response', set_fields: {} }.to_json
+    t2.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
     t2.save!
     s.status = 'verified'; s.save!
     assert_equal s.reload.status, 'verified'
@@ -1742,9 +1750,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link
     t = create_team
-    t.archive_pender_archive_enabled = 1
-    t.set_limits_keep_screenshot = true
     t.save!
+    TeamBot.delete_all
+    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
     pm = create_project_media project: create_project(team: t), media: l
 
     assert pm.should_skip_create_archive_annotation?('pender_archive')

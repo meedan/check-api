@@ -265,4 +265,11 @@ class RelationshipTest < ActiveSupport::TestCase
     assert so.get_versions_log.map(&:event_type).include?('destroy_relationship')
     assert_not_nil v2.meta
   end
+
+  test "should not crash if can't delete from ElasticSearch" do
+    r = create_relationship
+    assert_nothing_raised do
+      r.destroy_elasticsearch_doc({})
+    end
+  end
 end

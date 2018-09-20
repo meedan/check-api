@@ -36,6 +36,7 @@ Rails.application.routes.draw do
       match '/admin/user/slack' => 'admin#slack_user', via: [:get]
       match '/project_medias/:id/oembed' => 'project_medias#oembed', via: [:get], defaults: { format: :json }
       match '/project_medias/webhook' => 'project_medias#webhook', via: [:post], defaults: { format: :json }
+      match '/bots/:name' => 'bots#index', via: [:post], defaults: { format: :json }
       devise_for :users, controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', omniauth_callbacks: 'api/v1/omniauth_callbacks', confirmations: 'api/v1/confirmations' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'
@@ -58,6 +59,7 @@ Rails.application.routes.draw do
   match '/test/new_media_tag' => 'test#new_media_tag', via: :get
   match '/test/new_task' => 'test#new_task', via: :get
   match '/test/new_api_key' => 'test#new_api_key', via: :get
+  match '/test/bot' => 'test#new_bot', via: :get
   match '/test/get' => 'test#get', via: :get
-
+  match '/test/archive_project' => 'test#archive_project', via: :get
 end

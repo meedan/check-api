@@ -1,6 +1,8 @@
 class Task < ActiveRecord::Base
   include AnnotationBase
 
+  has_annotations
+
   before_validation :set_initial_status, :set_slug, on: :create
   after_create :send_slack_notification
   after_update :send_slack_notification_in_background
@@ -29,6 +31,10 @@ class Task < ActiveRecord::Base
   field :slug
 
   field :required, :boolean
+
+  field :log_count, Integer
+  field :suggestions_count, Integer
+  field :pending_suggestions_count, Integer
 
   def slack_notification_message
     if self.versions.count > 1
@@ -99,7 +105,7 @@ class Task < ActiveRecord::Base
 
   def content
     hash = {}
-    %w(label type description options status).each{ |key| hash[key] = self.send(key) }
+    %w(label type description options status suggestions_count pending_suggestions_count).each{ |key| hash[key] = self.send(key) }
     hash.to_json
   end
 
@@ -121,16 +127,19 @@ class Task < ActiveRecord::Base
 
   def response=(json)
     params = JSON.parse(json)
-    response = Dynamic.new
+    response = self.responses.first
+    response = response.nil? ? Dynamic.new : response.load
     response.annotated = self.annotated
     response.annotation_type = params['annotation_type']
     response.disable_es_callbacks = Rails.env.to_s == 'test'
-    response.disable_update_status = (Rails.env.to_s == 'test') && response.respond_to?(:disable_update_status)
+    response.disable_update_status = (Rails.env.to_s == 'test' && response.respond_to?(:disable_update_status))
     response.set_fields = params['set_fields']
+    response.updated_at = Time.now
     response.save!
     @response = response
     self.record_timestamps = false
-    self.status = 'Resolved'
+    set_fields = begin JSON.parse(params['set_fields']) rescue params['set_fields'] end
+    self.status = 'Resolved' if set_fields.keys.select{ |k| k =~ /^response/ }.any?
   end
 
   def first_response
@@ -139,7 +148,45 @@ class Task < ActiveRecord::Base
   end
 
   def task
-    Task.find(self.id)
+    Task.where(id: self.id).last
+  end
+
+  def log
+    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).order('id ASC')
+  end
+
+  def reject_suggestion=(version_id)
+    self.handle_suggestion(false, version_id)
+  end
+
+  def accept_suggestion=(version_id)
+    self.handle_suggestion(true, version_id)
+  end
+
+  def handle_suggestion(accept, version_id)
+    response = self.responses.first
+    return if response.nil?
+    response = response.load
+    suggestion = response.get_fields.select{ |f| f.field_name =~ /^suggestion/ }.first
+    return if suggestion.nil?
+    
+    # Save review information and copy suggestion to answer if accepted
+    review = { user: User.current, timestamp: Time.now, accepted: accept }.to_json
+    fields = { "review_#{self.type}" => review }
+    if accept
+      fields["response_#{self.type}"] = suggestion.to_s
+      self.status = 'Resolved'
+    end
+    response.set_fields = fields.to_json
+    response.updated_at = Time.now
+    response.save!
+
+    # Save review information in version
+    version = PaperTrail::Version.where(id: version_id).last
+    version.update_column(:meta, review) unless version.nil?
+
+    # Update number of suggestions
+    self.pending_suggestions_count -= 1 if self.pending_suggestions_count.to_i > 0
   end
 
   def self.send_slack_notification(tid, rid, uid, changes)
@@ -185,5 +232,57 @@ class Task < ActiveRecord::Base
     uid = User.current ? User.current.id : 0
     rid = self.response.nil? ? 0 : self.response.id
     Task.delay_for(1.second).send_slack_notification(self.id, rid, uid, self.changes.to_json)
+  end
+end
+
+Comment.class_eval do
+  after_create :increment_task_log_count
+  after_destroy :decrement_task_log_count
+
+  protected
+
+  def update_task_log_count(value)
+    return unless self.annotated_type == 'Task'
+    RequestStore[:task_comment] = self
+    task = self.annotated.reload
+    task.log_count ||= 0
+    task.log_count += value
+    task.skip_check_ability = true
+    task.save!
+    parent = task.annotated
+    unless parent.nil?
+      count = parent.reload.cached_annotations_count + value
+      parent.update_columns(cached_annotations_count: count)
+    end
+  end
+
+  private
+
+  def increment_task_log_count
+    self.update_task_log_count(1)
+  end
+
+  def decrement_task_log_count
+    self.update_task_log_count(-1)
+  end
+end
+
+PaperTrail::Version.class_eval do
+  after_create :increment_task_suggestions_count
+
+  private
+
+  def increment_task_suggestions_count
+    object = JSON.parse(self.object_after)
+    if object['field_name'] =~ /^suggestion_/ && self.associated_type == 'Task'
+      task = Task.find(self.associated_id)
+      task.suggestions_count ||= 0
+      task.suggestions_count += 1
+      task.pending_suggestions_count ||= 0
+      task.pending_suggestions_count += 1
+      task.skip_notifications = true
+      task.skip_check_ability = true
+      task.save!
+    end
   end
 end
