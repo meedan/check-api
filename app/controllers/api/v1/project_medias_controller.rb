@@ -53,7 +53,7 @@ module Api
       protected
 
       def should_skip_project_media?(pm)
-        pm.project.team.send('get_limits_keep') == false
+        pm&.project&.team&.get_limits_keep == false
       end
 
       private

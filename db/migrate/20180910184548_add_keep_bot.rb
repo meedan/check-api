@@ -1,5 +1,7 @@
 class AddKeepBot < ActiveRecord::Migration
   def change
+    RequestStore.store[:skip_notifications] = true
+
     Team.reset_column_information
     User.reset_column_information
     meedan_team = Team.where(slug: 'meedan').last || Team.new(name: 'Meedan', slug: 'meedan')
@@ -45,5 +47,7 @@ class AddKeepBot < ActiveRecord::Migration
         tb.install_to!(team) if team.get_limits_keep
       end
     end
+    
+    RequestStore.store[:skip_notifications] = false
   end
 end
