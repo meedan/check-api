@@ -12,9 +12,7 @@ module AnnotationBase
           query = self.annotation_query
           query[:annotator_type] = 'User'
           annotators = []
-          Annotation.group(:annotator_id, :id).having(query).each do |result|
-            annotators << User.find(result.annotator_id)
-          end
+          Annotation.group(:annotator_id, :id).having(query).each{ |result| annotators << User.find(result.annotator_id) }
           annotators.uniq
         end
       end
@@ -23,8 +21,7 @@ module AnnotationBase
         define_method :annotation_relation do |type=nil|
           query = self.annotation_query(type)
           klass = (type.blank? || type.is_a?(Array)) ? Annotation : type.camelize.constantize
-          relation = klass.where(query)
-          relation.order('id DESC')
+          klass.where(query).order('id DESC')
         end
       end
 
@@ -76,6 +73,8 @@ module AnnotationBase
 
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
+    after_create :notify_team_bots_create
+    after_update :notify_team_bots_update, :notify_bot_author
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
 
@@ -87,7 +86,7 @@ module AnnotationBase
     custom_optimistic_locking if: proc { |a| a.annotation_type == 'metadata' }
 
     def self.annotated_types
-      ['ProjectSource', 'ProjectMedia', 'Source']
+      ['ProjectSource', 'ProjectMedia', 'Source', 'Task']
     end
     validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
 
@@ -101,8 +100,7 @@ module AnnotationBase
     def touch_annotated
       annotated = self.annotated
       unless annotated.nil?
-        annotated.skip_check_ability = true
-        annotated.skip_notifications = true # the notification will be triggered by the annotation already
+        annotated.skip_check_ability = annotated.skip_notifications = true # the notification will be triggered by the annotation already
         annotated.skip_clear_cache = self.skip_clear_cache
         annotated.updated_at = Time.now
         annotated.disable_es_callbacks = (Rails.env.to_s == 'test')
@@ -126,8 +124,7 @@ module AnnotationBase
     end
 
     def length
-      type = self.name.parameterize
-      Annotation.where(annotation_type: type).count
+      Annotation.where(annotation_type: self.name.parameterize).count
     end
 
     def field(name, _type = String, _options = {})
@@ -141,7 +138,6 @@ module AnnotationBase
         self.data[name.to_sym]
       end
     end
-
   end
 
   def versions(options = {})
@@ -153,7 +149,7 @@ module AnnotationBase
   end
 
   def project_media
-    self.annotated
+    self.annotated_type == 'ProjectMedia' ? self.annotated : (self.annotated.project_media if self.annotated.respond_to?(:project_media))
   end
 
   def project_source
@@ -162,6 +158,10 @@ module AnnotationBase
 
   def project
     self.annotated if self.annotated_type == 'Project'
+  end
+
+  def task
+    self.annotated if self.annotated_type == 'Task'
   end
 
   def annotated
@@ -211,8 +211,9 @@ module AnnotationBase
   def get_team
     team = []
     obj = self.annotated
-    obj = self.annotated.project if self.annotated.respond_to?(:project)
-    if !obj.nil? and obj.respond_to?(:team)
+    obj = obj.annotated if obj.respond_to?(:annotated)
+    obj = obj.project if obj.respond_to?(:project)
+    if !obj.nil? && obj.respond_to?(:team)
       team = [obj.team.id] unless obj.team.nil?
     end
     team
@@ -246,12 +247,7 @@ module AnnotationBase
   end
 
   def image_data
-    if self.file.nil?
-      {}
-    else
-      obj = self.load
-      { embed: obj.embed_path, thumbnail: obj.thumbnail_path, original: obj.image_path }
-    end
+    self.file.nil? ? {} : { embed: self.load.embed_path, thumbnail: self.load.thumbnail_path, original: self.load.image_path }
   end
 
   def annotator_id_callback(value, _mapping_ids = nil)
@@ -291,5 +287,27 @@ module AnnotationBase
 
   def set_annotator
     self.annotator = User.current if self.annotator.nil? && !User.current.nil?
+  end
+
+  def notify_team_bots_create
+    self.send :notify_team_bots, 'create'
+  end
+
+  def notify_team_bots_update
+    self.send :notify_team_bots, 'update'
+  end
+
+  def notify_team_bots(event)
+    team = self.get_team.first
+    TeamBot.notify_bots_in_background("#{event}_annotation_#{self.annotation_type}", team, self) unless team.blank?
+    task = Task.where(id: self.id).last if self.annotation_type == 'task'
+    TeamBot.notify_bots_in_background("#{event}_annotation_task_#{self.data['type']}", team, task) if !team.blank? && !task.nil?
+  end
+
+  def notify_bot_author
+    if self.annotator.is_a?(BotUser)
+      team_bot = self.annotator.team_bot
+      team_bot.notify_about_annotation(self) unless team_bot.nil?
+    end
   end
 end

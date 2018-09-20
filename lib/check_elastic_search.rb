@@ -1,133 +1,148 @@
 module CheckElasticSearch
 
-  def update_media_search(keys, data = {}, parent = nil)
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {keys: keys, data: data}
-    options[:parent] = parent unless parent.nil?
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_parent')
-  end
-
-  def add_media_search_bg
+  def create_elasticsearch_doc_bg(_options)
     p = self.project
     ms = MediaSearch.new
-    ms.team_id = p.team.id
-    ms.project_id = p.id
+    ms.id = Base64.encode64("#{self.class.name}/#{self.id}")
+    unless p.nil?
+      ms.team_id = p.team_id
+      ms.project_id = p.id
+    end
     rtid = self.is_a?(ProjectMedia) ? (self.related_to_id || self.sources.first&.id) : nil
     ms.relationship_sources = [Digest::MD5.hexdigest(Relationship.default_type.to_json) + '_' + rtid.to_s] unless rtid.blank?
     ms.set_es_annotated(self)
     self.add_extra_elasticsearch_data(ms)
+    ms.accounts = self.add_es_accounts if self.class.name == 'ProjectSource'
     ms.save!
   end
 
-  def update_media_search_bg(options)
-    ms = get_elasticsearch_parent(options[:parent])
-    unless ms.nil?
-      data = get_elasticsearch_data(options[:data])
-      # add mising field on parent
-      data.merge!(add_missing_fields(options))
-      fields = {'last_activity_at' => Time.now.utc}
-      options[:keys].each{|k| fields[k] = data[k] if ms.respond_to?("#{k}=") and !data[k].blank? }
-      ms.update fields
+  def add_es_accounts
+    ms_accounts = []
+    accounts = []
+    accounts = self.source.accounts unless self.source.nil?
+    accounts.each do |a|
+      ms_accounts << a.store_elasticsearch_data(%w(title description username), {})
     end
+    ms_accounts
   end
 
-  def add_missing_fields(options)
-    data = {}
-    parent = options[:parent]
-    return data unless ['ProjectMedia', 'ProjectSource'].include?(parent.class.name)
-    unless options[:keys].include?('project_id')
-      options[:keys] += ['team_id', 'project_id']
-      data.merge!({project_id: parent.project_id, team_id: parent.project.team_id})
-    end
-    if parent.class.name == 'ProjectMedia'
-      unless options[:keys].include?('status')
-        options[:keys] << 'status'
-        data.merge!({status: parent.last_status})
-      end
-      unless options[:keys].include?('title')
-        options[:keys] += ['title', 'description']
-        data.merge!({title: parent.title, description: parent.description})
-      end
-    end
-    data
-  end
-
-  def add_update_media_search_child(child, keys, data = {}, parent = nil)
+  def update_elasticsearch_doc(keys, data = {}, obj = nil)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = {keys: keys, data: data}
-    v = self.versions.last
-    options[:version] = v.id unless v.nil?
-    options[:parent] = parent unless parent.nil?
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), child)
+    options[:obj] = obj unless obj.nil?
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
   end
 
-  def add_update_media_search_child_bg(child, options)
-    # get parent
-    ms = get_elasticsearch_parent(options[:parent])
-    unless ms.nil?
-      child = child.singularize.camelize.constantize
-      model = child.search(query: { match: { _id: self.id } }).results.last
-      if model.nil?
-        model = child.new
-        model.id = self.id
-      end
-      child_options = {parent: ms.id}
-      child_options.merge!({version: options[:version], version_type: :external}) if options.has_key?(:version)
-      store_elasticsearch_data(model, options[:keys], options[:data], child_options)
-      # Update last_activity_at on parent
-      # ms.update last_activity_at: Time.now.utc, version: options[:version], version_type: :external
-      ms.update last_activity_at: Time.now.utc
+  def update_elasticsearch_doc_bg(options)
+    create_doc_if_not_exists(options)
+    sleep 1
+    data = get_elasticsearch_data(options[:data])
+    # data.merge!(add_missing_fields(options))
+    fields = {'updated_at' => Time.now.utc}
+    options[:keys].each{|k| fields[k] = data[k] if !data[k].blank? }
+    client = MediaSearch.gateway.client
+    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
+                  body: { doc: fields }
+  end
+
+  # Keep this method until verify search feature.
+  # def add_missing_fields(options)
+  #   data = {}
+  #   obj = options[:obj]
+  #   return data unless ['ProjectMedia', 'ProjectSource'].include?(obj.class.name)
+  #   unless options[:keys].include?('project_id')
+  #     options[:keys] += ['team_id', 'project_id']
+  #     data.merge!({project_id: obj.project_id, team_id: obj.project.team_id})
+  #   end
+  #   if obj.class.name == 'ProjectMedia'
+  #     unless options[:keys].include?('verification_status')
+  #       options[:keys] << 'verification_status'
+  #       data.merge!({verification_status: obj.last_status})
+  #     end
+  #     unless options[:keys].include?('translation_status')
+  #       options[:keys] << 'translation_status'
+  #       ts = obj.annotations.where(annotation_type: "translation_status").last
+  #       data.merge!({translation_status: ts.load.status}) unless ts.nil?
+  #     end
+  #     unless options[:keys].include?('title')
+  #       options[:keys] += ['title', 'description']
+  #       data.merge!({title: obj.title, description: obj.description})
+  #     end
+  #   end
+  #   data
+  # end
+
+  def add_update_nested_obj(options)
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_update_doc_nested')
+  end
+
+  def create_update_nested_obj_bg(options)
+    return if options[:doc_id].blank?
+    create_doc_if_not_exists(options)
+    client = MediaSearch.gateway.client
+    key = options[:nested_key]
+    if options[:op] == 'create'
+      source = "ctx._source.updated_at=params.updated_at;ctx._source.#{key}.add(params.value)"
+    else
+      source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
     end
+    values = store_elasticsearch_data(options[:keys], options[:data])
+    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
+             body: { script: { source: source, params: { value: values, id: self.id, updated_at: Time.now.utc } } }
   end
 
-  def store_elasticsearch_data(model, keys, data, options = {})
+  def store_elasticsearch_data(keys, data)
     data = get_elasticsearch_data(data)
+    values = { id: self.id }
     keys.each do |k|
-      model.send("#{k}=", data[k]) if model.respond_to?("#{k}=") and !data[k].blank?
+      values[k] = data[k] unless data[k].blank?
     end
-    model.save!(options)
+    values
   end
 
-  def get_parents_for_es
-    parent = self.is_annotation? ? self.annotated : self
-    ['ProjectMedia', 'ProjectSource'].include?(parent.class.name) ? parent : nil
+  def get_es_doc_obj
+    self.is_annotation? ? self.annotated : self
   end
 
-  def get_es_parent_id(parent)
-    (parent.class.name == 'ProjectSource') ? Base64.encode64("ProjectSource/#{parent.id}") : parent.id
+  def get_es_doc_id(obj = nil)
+    obj = get_es_doc_obj if obj.nil?
+    ['ProjectMedia', 'ProjectSource'].include?(obj.class.name) ? Base64.encode64("#{obj.class.name}/#{obj.id}") : nil
   end
 
-  def get_elasticsearch_parent(parent)
-    sleep 1 if Rails.env == 'test'
-    ms = nil
-    unless parent.nil?
-      parent_id = get_es_parent_id(parent)
-      ms = MediaSearch.search(query: { match: { _id: parent_id } }).last
-      if ms.nil?
-        ElasticSearchWorker.new.perform(YAML::dump(parent), YAML::dump({parent: parent}), 'add_parent')
-        ms = MediaSearch.find(parent_id)
-      end
-    end
-    ms
+  def doc_exists?(id)
+    sleep 1
+    client = MediaSearch.gateway.client
+    client.exists? index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: id
+  end
+
+  def create_doc_if_not_exists(options)
+    doc_id = options[:doc_id]
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
   end
 
   def get_elasticsearch_data(data)
     (data.blank? and self.respond_to?(:data)) ? self.data : data
   end
 
-  def destroy_elasticsearch_data(data)
-    options = {}
-    conditions = []
-    parent_id = get_es_parent_id(data[:parent])
-    if data[:type] == 'child'
-      options = {parent: parent_id}
-      id = self.id
-      conditions << { has_parent: { parent_type: "media_search", query: { term: { _id: parent_id } } } }
-    else
-      id = parent_id
+  def destroy_elasticsearch_doc(data)
+    begin
+      client = MediaSearch.gateway.client
+      client.delete index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id]
+    rescue
+      Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"
     end
-    conditions << {term: { _id: id } }
-    obj = data[:es_type].search(query: { bool: { must: conditions } }).last
-    obj.delete(options) unless obj.nil?
+  end
+
+  def destroy_elasticsearch_doc_nested(data)
+    nested_type = data[:es_type]
+    begin
+      client = MediaSearch.gateway.client
+      source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
+      client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id], retry_on_conflict: 3,
+               body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
+    rescue
+      Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"
+    end
   end
 end

@@ -43,4 +43,15 @@ class UserTest < ActiveSupport::TestCase
       create_bot_user api_key_id: a.id
     end
   end
+
+  test "should have bot events" do
+    bu = create_bot_user
+    create_team_bot bot_user_id: bu.id, events: [{ event: 'create_project_media', graphql: nil }, { event: 'update_project_media', graphql: nil }]
+    assert_equal 'create_project_media,update_project_media', bu.bot_events
+  end
+
+  test "should be a bot" do
+    bu = create_bot_user
+    assert bu.is_bot
+  end
 end

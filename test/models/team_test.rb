@@ -343,6 +343,11 @@ class TeamTest < ActiveSupport::TestCase
     s = pm.last_verification_status_obj.get_field('verification_status_status')
     assert_equal 'Custom Status 1', s.to_s
     assert_equal 2, t.get_media_verification_statuses[:statuses].size
+    # Set verification status via media_verification_statuses
+    assert_nothing_raised do
+      t.add_media_verification_statuses = value
+      t.save!
+    end
   end
 
   test "should not save invalid custom verification statuses" do
@@ -1004,6 +1009,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should get trash size" do
+    Sidekiq::Testing.inline!
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -1137,24 +1143,6 @@ class TeamTest < ActiveSupport::TestCase
     t.hide_names_in_embeds = 1
     t.save!
     ProjectMedia.unstub(:clear_caches)
-  end
-
-  test "should enable or disable archivers" do
-    t = create_team
-    assert !t.get_archive_keep_backup_enabled
-    t.archive_keep_backup_enabled = true
-    t.save!
-    assert t.reload.get_archive_keep_backup_enabled
-
-    assert !t.get_archive_pender_archive_enabled
-    t.archive_pender_archive_enabled = true
-    t.save!
-    assert t.reload.get_archive_pender_archive_enabled
-
-    assert !t.get_archive_archive_is_enabled
-    t.archive_archive_is_enabled = true
-    t.save!
-    assert t.reload.get_archive_archive_is_enabled
   end
 
   test "should return team plan" do
@@ -1737,6 +1725,20 @@ class TeamTest < ActiveSupport::TestCase
     edited_value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
     params = { raw_checklist: edited_value, checklist: value }
     assert_equal ['checklist'], t.send(:skippable_fields, params)
+  end
+
+  test "should be related to bots" do
+    t = create_team
+    tb1 = create_team_bot approved: true
+    tb2 = create_team_bot team_author_id: t.id
+    tbi = create_team_bot_installation team_id: t.id, team_bot_id: tb1.id
+    assert_equal 2, t.reload.team_bot_installations.count
+    assert_equal [tb1, tb2].sort, t.reload.team_bots.sort
+    assert_equal [tb2], t.team_bots_created
+    t.destroy
+    assert_nil TeamBotInstallation.where(id: tbi.id).last
+    assert_nil TeamBot.where(id: tb2.id).last
+    assert_not_nil TeamBot.where(id: tb1.id).last
   end
 
   test "should duplicate a team with more projects than its limits" do

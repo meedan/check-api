@@ -15,9 +15,9 @@ class ProjectMedia < ActiveRecord::Base
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :project_id }
 
-  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source
+  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create
   after_commit :create_relationship, on: :create
-  after_update :move_media_sources, :archive_or_restore_related_medias_if_needed
+  after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
@@ -44,18 +44,28 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def slack_notification_message
-    type = self.media.class.name.demodulize.downcase
+    type = self.media.class.name.demodulize.downcase.to_sym
+    parent = self.related_to
+    common = { type: I18n.t(type), url: Bot::Slack.to_slack_url(self.full_url, self.title) }
     User.current.present? ?
-      I18n.t(:slack_create_project_media,
-        user: Bot::Slack.to_slack(User.current.name),
-        type: I18n.t(type.to_sym),
-        url: Bot::Slack.to_slack_url(self.full_url, self.title),
-        project: Bot::Slack.to_slack(self.project.title)
-      ) :
-      I18n.t(:slack_create_project_media_no_user,
-        type: I18n.t(type.to_sym),
-        url: Bot::Slack.to_slack_url(self.full_url, self.title),
-        project: Bot::Slack.to_slack(self.project.title)
+      (parent.nil? ?
+        I18n.t(:slack_create_project_media, common.merge({
+          user: Bot::Slack.to_slack(User.current.name),
+          project: Bot::Slack.to_slack(self.project.title)
+        })) :
+        I18n.t(:slack_create_related_media, common.merge({
+          user: Bot::Slack.to_slack(User.current.name),
+          project: Bot::Slack.to_slack(self.project.title),
+          parent: Bot::Slack.to_slack(parent.title)
+        }))
+      ) : (parent.nil? ?
+        I18n.t(:slack_create_project_media_no_user, common.merge({
+          project: Bot::Slack.to_slack(self.project.title)
+        })) :
+        I18n.t(:slack_create_related_media_no_user, common.merge({
+          project: Bot::Slack.to_slack(self.project.title),
+          parent: Bot::Slack.to_slack(parent.title)
+        }))
       )
   end
 

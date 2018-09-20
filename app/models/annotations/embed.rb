@@ -61,22 +61,27 @@ class Embed < ActiveRecord::Base
   end
 
   def update_elasticsearch_embed
-    keys = %w(title description)
-    if self.annotated_type == 'ProjectMedia'
-      data = {}
-      media_embed = self.annotated.media.embed
-      overridden = self.annotated.overridden
-      keys.each do |k|
-        data[k] = [media_embed[k], self.send(k)] if overridden[k]
-      end
-      self.update_media_search(keys, data)
-    end
-    if self.annotated_type == 'Media' && self.annotated.type == 'Link'
-      self.annotated.project_medias.each do |pm|
-        em = pm.get_annotations('embed').last
-        self.update_media_search(keys, {}, pm) if em.nil?
+    unless self.annotated.nil?
+      keys = %w(title description)
+      if self.annotated_type == 'ProjectMedia'
+        self.update_es_embed_pm_annotation(keys)
+      elsif self.annotated_type == 'Media' && self.annotated.type == 'Link'
+        self.annotated.project_medias.each do |pm|
+          em = pm.get_annotations('embed').last
+          self.update_elasticsearch_doc(keys, {}, pm) if em.nil?
+        end
       end
     end
+  end
+
+  def update_es_embed_pm_annotation(keys)
+    data = {}
+    media_embed = self.annotated.media.embed
+    overridden = self.annotated.overridden
+    keys.each do |k|
+      data[k] = [media_embed[k], self.send(k)] if overridden[k]
+    end
+    self.update_elasticsearch_doc(keys, data)
   end
 
   def embed_for_registration_account(data)

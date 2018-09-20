@@ -13,7 +13,7 @@
     disable_properties: true,
     no_additional_properties: true,
     disable_edit_json: true,
-    form_name_root: "team[<%= field.method_name.to_s %>]",
+    form_name_root: "<%= @object.class.to_s.underscore %>[<%= field.method_name.to_s %>]",
     schema: {
       "$ref": "<%= @object.json_schema_url(field_name) %>"
     },

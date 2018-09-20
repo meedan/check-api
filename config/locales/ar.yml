@@ -63,7 +63,7 @@ ar:
         label: جاهز
         description: تمت المراجعة والعنصر جاهز للنشر
       error:
-        label: خاطئ
+        label: خطأ
         description: تمت المراجعة وهناك أخطاء يجب تصحيحها
   errors:
     messages:
@@ -104,7 +104,7 @@ ar:
             slug:
               slug_format: 'يقبل الأحرف والأرقام و''-'' فقط '
       messages:
-        record_invalid: 'خطأ في صحة الإدخال: %{errors}'
+        record_invalid: 'خطأ في صحة الإدخال : %{errors}'
         improbable_phone: غير صحيح
         too_short:
           zero: قصير جداً (الحد الأدنى %{count} حروف)
@@ -140,7 +140,9 @@ ar:
   slack_create_project: "أضاف %{user}*  مشروع: %{url}"
   slack_create_team_user: "إنضم *%{user}* لفريق %{url}"
   slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
-  slack_create_project_media_no_user: 'أضيف %{type} جديد إلى مشروع *%{project}*: %{url}'
+  slack_create_related_media: "أضاف *%{user}* %{type} متعلق ب\"%{parent}\" إلى مشروع *%{project}*: %{url}"
+  slack_create_project_media_no_user: "أضيف %{type} جديد إلى مشروع *%{project}*: %{url}"
+  slack_create_related_media_no_user: "تم إضافة %{type} متعلق ب\"%{parent}\" إلى مشروع *%{project}*: %{url}"
   slack_create_task_message: "أضاف(ت) *%{user}* المهمة %{url} في مشروع *%{project}*%{assignment}%{create_note}"
   slack_create_task_assignment: " مُكَلَّف إلى %{assignee}"
   slack_create_task_note: " مع التعليق: %{note}"
@@ -252,7 +254,7 @@ ar:
   max_number_of_team_users_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمستخدمين في هذا الفريق"
   max_number_of_projects_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في هذا الفريق"
   cant_set_custom_statuses: "عذراً ، حالات التحقق الخاصة غير متاحة لهذا الفريق"
-  cant_change_custom_statuses: "لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية : %{urls}"
+  cant_change_custom_statuses: "لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :\n %{others_amount} %{urls}"
   cant_set_checklist: "عذراً ، قائمة التحقق من المعلومات غير متاحة لهذا الفريق"
   cant_create_media_under_this_team_using_extension: "عذراً ، ملحق المستعرض غير متاح لهذا الفريق"
   error_invalid_attribution: "إسناد غير صحيح"
@@ -297,6 +299,17 @@ ar:
   blank_active_status_for_custom_translation_status: "من فضلك أضف قيمة نشطة لحالات الترجمة الخاصة"
   blank_default_status_for_custom_verification_status: "من فضلك أضف قيمة إفتراضية لحالات التحقق الخاصة"
   blank_active_status_for_custom_verification_status: "من فضلك أضف قيمة نشطة لحالات التحقق الخاصة"
+  bot_name_exists_for_this_team: "هناك بوت آخر بنفس الاسم في هذا الفريق"
+  bot_team_id_doesnt_exist: "عذراً ، لا يوجد فريق بهذا المُعَرِّف"
+  bot_team_id_mandatory_to_create: "عذراً ، يجب اختيار فريقاً لكي تضيف البوت"
+  bot_not_approved_for_installation: "عذراً ، لا يمكن تثبيت هذا البوت ﻷن لم يتم الموافقة عليه"
+  only_admins_can_approve_bots: "عذراً ، هذه العملية متاحة للمسؤولين فقط"
+  could_not_save_related_bot_data: "عذراً ، لم نستطع إضافة البوت لهذا الفريق"
+  bot_limited_team_not_pro: "عذراً ، البوت غير متاح لهذا الفريق"
+  slack_save_task_comment: "أضاف *%{user}* تعليقاً للمهمة *%{task}* في %{url} في %{project}*: %{comment}"
+  bot_cant_add_response_to_task: "عذراً ، البوت يمكنه فقط تقديم اقتراحاً لحل المهمة"
+  bot_cant_add_review_to_task: "عذراً ، البوت لا يمكنه مراجعة المهام"
+  task_suggestion_invalid_value: "عذراً ، صيغة الاقتراح غير صحيحة"
   project_export_download_mail_csv: "مرحباً !\n\nلقد طلبت تقريراً عن المشروع %{project} - إليك الرابط لتحميله : %{link}\n\nسوف يتم تحميل التقرير على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
   project_export_email_title_images: "صور مشروعك جاهزة للتحميل"
   project_export_download_mail_images: "مرحباً !\n\nلقد طلبت تحميل صور المشروع %{project} - إليك الرابط لتحميلها : %{link}\n\nسوف يتم تحميل الصور على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"

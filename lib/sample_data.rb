@@ -134,17 +134,6 @@ module SampleData
     c
   end
 
-  def create_comment_search(options = {})
-    c = CommentSearch.new
-    pm = options[:parent] || create_media_search
-    { id: random_number, text: random_string(50) }.merge(options).each do |key, value|
-      c.send("#{key}=", value) if c.respond_to?("#{key}=")
-    end
-    c.save!(parent: pm.id)
-    sleep 1
-    c
-  end
-
   def create_tag(options = {})
     options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true, disable_update_status: true }.merge(options)
     unless options.has_key?(:annotated)
@@ -157,17 +146,6 @@ module SampleData
       t.send("#{key}=", value) if t.respond_to?("#{key}=")
     end
     t.save!
-    t
-  end
-
-  def create_tag_search(options = {})
-    t = TagSearch.new
-    pm = options[:parent] || create_media_search
-    { id: random_number, tag: random_string(50) }.merge(options).each do |key, value|
-      t.send("#{key}=", value)
-    end
-    t.save!(parent: pm.id)
-    sleep 1
     t
   end
 
@@ -254,17 +232,6 @@ module SampleData
     account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team])
     account.save!
     account.reload
-  end
-
-  def create_account_search(options = {})
-    a = AccountSearch.new
-    ps = options[:parent] || create_media_search
-    { id: random_number, title: random_string(50) }.merge(options).each do |key, value|
-      a.send("#{key}=", value) if a.respond_to?("#{key}=")
-    end
-    a.save!(parent: ps.id)
-    sleep 1
-    a
   end
 
   def create_project(options = {})
@@ -570,6 +537,10 @@ module SampleData
     b.reload
   end
 
+  def get_es_id(obj)
+    Base64.encode64("#{obj.class.name}/#{obj.id}")
+  end
+
   def create_media_search(options = {})
     m = MediaSearch.new
     { annotated: create_valid_media, context: create_project }.merge(options).each do |key, value|
@@ -702,5 +673,39 @@ module SampleData
     end
     r.save!
     r
+  end
+
+  def create_team_bot(options = {})
+    options = {
+      name: random_string,
+      description: random_string,
+      request_url: random_url,
+      team_author_id: create_team.id,
+      events: [{ event: 'create_project_media', graphql: nil }]
+    }.merge(options)
+    options[:bot_user_id] = create_bot_user.id unless options.has_key?(:bot_user_id)
+
+    tb = TeamBot.new
+    options.each do |key, value|
+      tb.send("#{key}=", value) if tb.respond_to?("#{key}=")
+    end
+
+    File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+      tb.file = f
+    end
+    
+    tb.save!
+    tb
+  end
+
+  def create_team_bot_installation(options = {})
+    options[:team_id] = create_team.id unless options.has_key?(:team_id)
+    options[:team_bot_id] = create_team_bot(approved: true).id unless options.has_key?(:team_bot_id)
+    tbi = TeamBotInstallation.new
+    options.each do |key, value|
+      tbi.send("#{key}=", value) if tbi.respond_to?("#{key}=")
+    end
+    tbi.save!
+    tbi.reload
   end
 end

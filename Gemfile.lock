@@ -145,10 +145,10 @@ GEM
     docile (1.1.5)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
-    elasticsearch (2.0.0)
-      elasticsearch-api (= 2.0.0)
-      elasticsearch-transport (= 2.0.0)
-    elasticsearch-api (2.0.0)
+    elasticsearch (6.1.0)
+      elasticsearch-api (= 6.1.0)
+      elasticsearch-transport (= 6.1.0)
+    elasticsearch-api (6.1.0)
       multi_json
     elasticsearch-model (0.1.9)
       activesupport (> 3)
@@ -161,7 +161,7 @@ GEM
       elasticsearch-model (>= 0.1)
       hashie
       virtus
-    elasticsearch-transport (2.0.0)
+    elasticsearch-transport (6.1.0)
       faraday
       multi_json
     equalizer (0.0.11)
@@ -170,7 +170,7 @@ GEM
     execjs (2.7.0)
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
-    ffi (1.9.23)
+    ffi (1.9.24)
     file_validators (2.1.0)
       activemodel (>= 3.0)
       mime-types (>= 1.0)
@@ -279,7 +279,7 @@ GEM
     net-http-digest_auth (1.4.1)
     net-http-persistent (2.9.4)
     netrc (0.11.0)
-    nokogiri (1.8.2)
+    nokogiri (1.8.3)
       mini_portile2 (~> 2.3.0)
     ntlm-http (0.1.1)
     oauth (0.5.1)
@@ -433,7 +433,7 @@ GEM
       thor
       ya2yaml
     ruby-progressbar (1.9.0)
-    rubyzip (1.2.1)
+    rubyzip (1.2.2)
     safe_yaml (1.0.4)
     sass (3.5.5)
       sass-listen (~> 4.0.0)
@@ -550,11 +550,12 @@ DEPENDENCIES
   deep_cloneable (~> 2.3.0)
   devise
   devise-i18n
-  elasticsearch (= 2.0.0)
-  elasticsearch-api (= 2.0.0)
+  elasticsearch (~> 6.x)
+  elasticsearch-api (~> 6.x)
   elasticsearch-model (= 0.1.9)
   elasticsearch-persistence (= 0.1.9)
-  elasticsearch-transport (= 2.0.0)
+  elasticsearch-transport (~> 6.x)
+  ffi (= 1.9.24)
   file_validators
   filesize
   gem-licenses
@@ -569,13 +570,15 @@ DEPENDENCIES
   i18n-generators
   jbuilder (~> 2.0)
   jquery-rails
+  json-schema
   jsonpath (~> 0.8.8)
   logstash-logger
   loofah (= 2.2.2)
   mini_magick
   minitest-retry
   mocha
-  nokogiri (= 1.8.2)
+  multi_json (= 1.12.2)
+  nokogiri (= 1.8.3)
   omniauth-facebook
   omniauth-slack
   omniauth-twitter
@@ -604,7 +607,7 @@ DEPENDENCIES
   rest-client
   rubocop (= 0.49.0)
   ruby-cldr
-  rubyzip
+  rubyzip (= 1.2.2)
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   sidekiq
@@ -625,4 +628,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.16.1
+   1.16.3

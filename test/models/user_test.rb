@@ -749,4 +749,14 @@ class UserTest < ActiveSupport::TestCase
       u.reload.profile_image
     end
   end
+
+  test "should not have bot events" do
+    u = create_user
+    assert_equal '', u.bot_events
+  end
+
+  test "should not be a bot" do
+    u = create_user
+    assert !u.is_bot
+  end
 end

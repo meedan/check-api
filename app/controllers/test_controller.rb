@@ -142,11 +142,23 @@ class TestController < ApplicationController
     render_success params[:class], ret
   end
 
+  def new_bot
+    b = create_team_bot name: 'Testing Bot', approved: true
+    render_success 'bot', b
+  end
+
+  def archive_project
+    p = Project.find(params[:project_id])
+    p.archived = true
+    p.save!
+    render_success 'project', p
+  end
+
   protected
 
   def new_media(type)
     Team.current = Team.find(params[:team_id])
-    user = User.where(email: params[:email]).last
+    user = params[:email].blank? ? nil : User.where(email: params[:email]).last
     User.current = user
     pm = ProjectMedia.new
     pm.project_id = params[:project_id]

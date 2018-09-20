@@ -111,7 +111,7 @@ es:
           other: es demasiado corta (son mínimo %{count} caracteres)
   slack_webhook_format_wrong: El Slack webhook es inválido, debería tener este formato  `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: Está reservado
-  invalid_format_for_checklist: 'La lista de tareas es inválida, debería tener este formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
+  invalid_format_for_checklist: 'Checklist no es válido, debe tener el formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': [{ ''label'': ''YYYY'' }] } ]'
   invalid_format_for_languages: 'El idioma es inválido, debería tener este formato  [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: 'Lo sentimos, este no es un elemento multimedia válido '
   invalid_default_status_for_custom_verification_status: El identificador de estado predeterminado es inválido
@@ -136,7 +136,9 @@ es:
   slack_create_project: "*%{user}* creó un proyecto: %{url}"
   slack_create_team_user: "*%{user}* se ha unido al equipo %{url}"
   slack_create_project_media: "*%{user}* añadió un nuevo %{type} a *%{project}*: %{url}"
-  slack_create_project_media_no_user: 'Un nuevo %{type} ha sido añadido a *%{project}*: %{url}'
+  slack_create_related_media: "*%{user}* anãdió un %{type} relacionado con \"%{parent}\" en *%{project}*: %{url}"
+  slack_create_project_media_no_user: "Un nuevo %{type} ha sido añadido a *%{project}*: %{url}"
+  slack_create_related_media_no_user: "Un %{type} relacionado con \"%{parent}%\" ha sido añadido a *%{project}*: %{url}"
   slack_create_task_message: "*%{user}* tarea creada %{url} en *%{project}*%{assignment}%{create_note}"
   slack_create_task_assignment: " asignado a %{assignee}"
   slack_create_task_note: " con nota: %{note}"
@@ -236,7 +238,7 @@ es:
   max_number_of_team_users_reached: "Este equipo alcanzó el número máximo de usuarios"
   max_number_of_projects_reached: "Este equipo alcanzó el número máximo de proyectos"
   cant_set_custom_statuses: "Lo sentimos, no puedes usar la función de personalizar estados"
-  cant_change_custom_statuses: "No se pueden modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes elementos: %{urls}"
+  cant_change_custom_statuses: "No se pueden modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:\n %{urls} %{others_amount}"
   cant_set_checklist: "lo sentimos, no puedes usar la función de Listas de verificación"
   cant_create_media_under_this_team_using_extension: "lo sentimos, este equipo no tiene permitido usar la extensión del navegador"
   error_invalid_attribution: "Atribución inválida"
@@ -281,6 +283,17 @@ es:
   blank_active_status_for_custom_translation_status: "Por favor proporcione un valor activo para los estados de traducción personalizados"
   blank_default_status_for_custom_verification_status: "Por favor proporcione un valor predeterminado para los estados de verificación personalizados"
   blank_active_status_for_custom_verification_status: "Por favor proporcione un valor activo para los estados de verificación personalizados"
+  bot_name_exists_for_this_team: "Ya hay un bot con este nombre en este equipo"
+  bot_team_id_doesnt_exist: "Lo sentimos, pero no hay un equipo con este id"
+  bot_team_id_mandatory_to_create: "Lo sentimos, debes elegir un equipo para crear un bot"
+  bot_not_approved_for_installation: "Lo sentimos, este bot no fue aprobado y por eso no se puede instalarlo"
+  only_admins_can_approve_bots: "Lo sentimos, solo super admins pueden aprobar bots"
+  could_not_save_related_bot_data: "Lo sentimos, no fue posible añadir el bot al equipo"
+  bot_limited_team_not_pro: "Lo sentimos, este bot no está disponible para tu equipo"
+  slack_save_task_comment: "*%{user}* agregó una nota a la tarea *%{task}* en %{url} en *%{project}*: %{comment}"
+  bot_cant_add_response_to_task: "Lo sentimos, un bot no puede responder una tarea directamente... envíe una sugerencia de respuesta en su lugar"
+  bot_cant_add_review_to_task: "Lo sentimos, un bot no puede evaluar una sugerencia de respuesta"
+  task_suggestion_invalid_value: "Lo sentimos, el valor de la sugerencia no es válido"
   project_export_download_mail_csv: "¡Hola!\n\nSolicitó un informe para el proyecto %{project} - aquí hay un enlace para descargarlo: %{link}\n\nEl informe se descargará como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}\n\nTenga en cuenta que este enlace expirará en %{days} días.\n\nSaludos,\n\nEquipo %{app}"
   project_export_email_title_images: "Las imágenes de tu proyecto están listas para descargar"
   project_export_download_mail_images: "¡Hola!\n\n\nSolicitó una descarga de las imágenes del proyecto %{project} - aquí hay un enlace para descargarlas: %{link}\n\nLas imágenes se descargarán como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}\n\nTenga en cuenta que este enlace expirará en %{days} días.\n\nSaludos,\n\nEquipo %{app}"
