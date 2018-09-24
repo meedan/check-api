@@ -238,6 +238,10 @@ class Team < ActiveRecord::Base
     perms
   end
 
+  def permissions_info
+    YAML.load(ERB.new(File.read("#{Rails.root}/config/permission_info.yml")).result)
+  end
+
   def used_tags
     Tag.where(annotation_type: 'tag')
        .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN projects p ON p.id = pm.project_id")
