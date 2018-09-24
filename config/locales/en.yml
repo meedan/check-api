@@ -366,3 +366,54 @@ en:
 
 
     %{app} team"
+
+  permissions_info:
+    roles:
+      owner:
+        description: "Owners control the workspace."
+      editor:
+        description: "Editors manage the team and projects."
+      journalist:
+        description: "Journalists fact check information. They report to editors."
+      contributor:
+        description: "Contributors can add new information to fact check. They are often members of the public."
+    permissions:
+      sections:
+        project_management:
+          name: "Project management"
+          permissions:
+            create: "Create project"
+            edit: "Edit project"
+            delete: "Delete project"
+            add_item: "Add media item to project"
+        item_page_management:
+          name: "Item page management"
+          permissions:
+            edit: "Edit item"
+            move: "Move item"
+            change_status: "Change items's status"
+            lock_unlock_status: "Lock/unlock status"
+            add_remove_tag: "Add/remove tags"
+            send_to_trash: "Send item or source to trash"
+            empty_trash: "Empty trash"
+        task_management:
+          name: "Task management"
+          permissions:
+            create: "Create task"
+            edit: "Edit task"
+            delete: "Delete task"
+            add_response: "Add a response"
+            delete_repsonse: "Delete response"
+            assign_task: "Assign task or media item"
+        team_management:
+          name: "Team Management"
+          permissions:
+            delete: "Delete team"
+            edit: "Edit team information"
+            set_private: "Set team to private"
+            edit_status: "Edit teamwide status"
+            edit_tasks: "Create and edit teamwide task"
+            roles: "Edit team roles"
+            third_party: "Add third-party intergrations"
+            invite_owner: "Invite, approve, and remove team owners"
+            invite_members: "Invite, approve, and remove team members"
