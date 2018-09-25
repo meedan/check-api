@@ -1760,4 +1760,12 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 6, Relationship.joins(source: :project, target: :project).where('projects.team_id' => t2.id).count
     RequestStore.store[:disable_es_callbacks] = false
   end
+
+  test "should get suggested tags" do
+    t = create_team
+    create_tag_text text: 'foo', team_id: t.id, teamwide: true
+    create_tag_text text: 'bar', team_id: t.id, teamwide: true
+    create_tag_text text: 'test', team_id: t.id
+    assert_equal 'bar,foo', t.reload.get_suggested_tags
+  end
 end

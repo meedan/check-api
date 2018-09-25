@@ -2025,4 +2025,37 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:read, tb3)
     end
   end
+
+  test "permissions for tag text" do
+    t1 = create_team
+    t2 = create_team
+    u = create_user
+    create_team_user team: t1, user: u, role: 'owner'
+    ta1 = create_tag_text team_id: t1.id
+    ta2 = create_tag_text team_id: t2.id
+    with_current_user_and_team(u, t1) do
+      ability = Ability.new
+      assert ability.can?(:create, ta1)
+      assert ability.can?(:update, ta1)
+      assert ability.can?(:destroy, ta1)
+    end
+    with_current_user_and_team(u, t2) do
+      ability = Ability.new
+      assert ability.cannot?(:create, ta2)
+      assert ability.cannot?(:update, ta2)
+      assert ability.cannot?(:destroy, ta2)
+    end
+
+    ['contributor', 'journalist', 'editor'].each do |role|
+      u = create_user
+      create_team_user team: t1, user: u, role: role
+      ta1 = create_tag_text team_id: t1.id
+      with_current_user_and_team(u, t1) do
+        ability = Ability.new
+        assert ability.cannot?(:create, ta1)
+        assert ability.cannot?(:update, ta1)
+        assert ability.cannot?(:destroy, ta1)
+      end
+    end
+  end
 end
