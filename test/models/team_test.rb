@@ -319,6 +319,9 @@ class TeamTest < ActiveSupport::TestCase
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
+
+    # should get permissions info
+    assert_not_nil t.permissions_info
   end
 
   test "should have custom verification statuses" do

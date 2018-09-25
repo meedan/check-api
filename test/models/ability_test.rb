@@ -2,6 +2,11 @@ require_relative '../test_helper'
 
 class AbilityTest < ActiveSupport::TestCase
 
+  def teardown
+    super
+    puts('If permissions changed, please remember to update config/permissions_info.yml') unless passed?
+  end
+
   test "contributor permissions for project" do
     u = create_user
     t = create_team

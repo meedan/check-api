@@ -242,6 +242,10 @@ class Team < ActiveRecord::Base
     self.tag_texts.where(teamwide: false)
   end
 
+  def permissions_info
+    YAML.load(ERB.new(File.read("#{Rails.root}/config/permission_info.yml")).result)
+  end
+
   def used_tags
     self.custom_tags.map(&:text)   
   end
