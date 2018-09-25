@@ -53,7 +53,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
 
   connection :tags, -> { TagType.connection_type } do
     resolve ->(source, _args, _ctx) {
-      source.get_annotations('tag')
+      source.get_annotations('tag').map(&:load)
     }
   end
 

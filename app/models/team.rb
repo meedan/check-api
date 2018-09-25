@@ -148,10 +148,6 @@ class Team < ActiveRecord::Base
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
   end
 
-  def suggested_tags=(tags)
-    self.send(:set_suggested_tags, tags)
-  end
-
   def hide_names_in_embeds=(hide)
     self.send(:set_hide_names_in_embeds, hide)
   end
@@ -238,12 +234,20 @@ class Team < ActiveRecord::Base
     perms
   end
 
+  def teamwide_tags
+    self.tag_texts.where(teamwide: true)
+  end
+
+  def custom_tags
+    self.tag_texts.where(teamwide: false)
+  end
+
   def used_tags
-    Tag.where(annotation_type: 'tag')
-       .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN projects p ON p.id = pm.project_id")
-       .where('p.team_id' => self.id)
-       .pluck('DISTINCT(data)')
-       .collect{ |t| t['tag'] }
+    self.custom_tags.map(&:text)   
+  end
+
+  def get_suggested_tags
+    self.teamwide_tags.map(&:text).sort.join(',')
   end
 
   protected

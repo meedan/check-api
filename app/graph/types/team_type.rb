@@ -75,4 +75,16 @@ TeamType = GraphqlCrudOperations.define_default_type do
       team.team_bot_installations
     }
   end
+
+  connection :teamwide_tags, -> { TagTextType.connection_type } do
+    resolve ->(team, _args, _ctx) {
+      team.teamwide_tags
+    }
+  end
+
+  connection :custom_tags, -> { TagTextType.connection_type } do
+    resolve ->(team, _args, _ctx) {
+      team.custom_tags
+    }
+  end
 end

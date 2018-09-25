@@ -333,6 +333,7 @@ en:
   bot_cant_add_response_to_task: "Sorry, a bot can't answer a task directly... please send an answer suggestion instead"
   bot_cant_add_review_to_task: "Sorry, a bot can't review a task"
   task_suggestion_invalid_value: "A suggestion must be a JSON hash with a 'suggestion' (the actual value that is copied to the task answer when accepted) and a 'comment' (displayed to users)"
+  tag_text_id_not_found: "Sorry, could not find a tag text with the provided id"
   project_export_download_mail_csv: "Hello!
 
 

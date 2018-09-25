@@ -132,7 +132,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :tags, -> { TagType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
-      project_media.get_annotations('tag')
+      project_media.get_annotations('tag').map(&:load)
     }
   end
 
