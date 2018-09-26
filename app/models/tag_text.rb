@@ -17,7 +17,7 @@ class TagText < ActiveRecord::Base
     TagText.tags(self.id, self.team_id)
   end
 
-  def tags_count
+  def calculate_tags_count
     self.tags.count
   end
 

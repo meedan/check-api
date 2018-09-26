@@ -13,6 +13,7 @@ class Tag < ActiveRecord::Base
   after_commit :add_elasticsearch_tag, on: :create
   after_commit :update_elasticsearch_tag, on: :update
   after_commit :destroy_elasticsearch_tag, on: :destroy
+  after_commit :update_tags_count
   after_destroy :destroy_tag_text_if_empty_and_not_teamwide
 
   def content
@@ -66,6 +67,11 @@ class Tag < ActiveRecord::Base
 
   def destroy_tag_text_if_empty_and_not_teamwide
     tag_text = self.tag_text_object
-    tag_text.destroy! if !tag_text.nil? && !tag_text.teamwide && tag_text.tags_count == 0
+    tag_text.destroy! if !tag_text.nil? && !tag_text.teamwide && tag_text.calculate_tags_count == 0
+  end
+
+  def update_tags_count
+    tag_text = self.tag_text_object
+    tag_text.update_column(:tags_count, tag_text.calculate_tags_count) unless tag_text.nil?
   end
 end

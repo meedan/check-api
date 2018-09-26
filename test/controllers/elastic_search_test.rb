@@ -1528,4 +1528,26 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { verification_status: ['verified'] }).first['targets'].sort
     assert_equal [t4].sort, Relationship.targets_grouped_by_type(s, { translation_status: ['ready'] }).first['targets'].sort
   end
+
+  test "should search case-insensitive tags" do
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    m2 = create_valid_media
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    create_tag tag: 'test', annotated: pm, disable_es_callbacks: false
+    create_tag tag: 'Test', annotated: pm2, disable_es_callbacks: false
+    sleep 5
+    # search by tags
+    result = CheckSearch.new({tags: ['test']}.to_json)
+    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+    result = CheckSearch.new({tags: ['Test']}.to_json)
+    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+    # search by tags as keyword
+    result = CheckSearch.new({keyword: 'test'}.to_json)
+    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+    result = CheckSearch.new({keyword: 'Test'}.to_json)
+    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+  end
 end
