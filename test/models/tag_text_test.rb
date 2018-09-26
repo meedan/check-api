@@ -136,4 +136,19 @@ class TagTextTest < ActiveSupport::TestCase
     assert_equal 'bar', t2.reload.tag_text
     assert_equal 2, tt2.reload.tags_count
   end
+
+  test "should cache tags count" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    tt = create_tag_text team_id: t.id
+    assert_equal 0, tt.reload.tags_count
+    t = create_tag tag: tt.id, annotated: pm
+    assert_equal 1, tt.reload.tags_count
+    create_tag tag: tt.id, annotated: pm2
+    assert_equal 2, tt.reload.tags_count
+    t.destroy
+    assert_equal 1, tt.reload.tags_count
+  end
 end
