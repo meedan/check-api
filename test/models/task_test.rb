@@ -185,11 +185,11 @@ class TaskTest < ActiveSupport::TestCase
 
     t = create_task
     assert_nil t.first_response
-   
+
     t.disable_es_callbacks = true
     t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Test', task_reference: t.id.to_s }.to_json }.to_json
     t.save!
-    
+
     t = Task.find(t.id)
     assert_equal 'Test', t.first_response
   end
@@ -227,18 +227,18 @@ class TaskTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user user: u2, team: t
     tk = create_task assigned_to_id: u1.id, annotated: pm, annotator: u
-    
+
     User.current = u
-    
+
     tk.assigned_to_id = u2.id
     tk.save!
-    
+
     User.current = u
     assert_match /\sassigned\s/, tk.slack_message_for_assignment
 
     tk = Task.find(tk.id)
     tk.assigned_to_id = 0
-    
+
     User.current = u
     assert_match /\sunassigned\s/, tk.slack_message_for_assignment
 
@@ -313,7 +313,7 @@ class TaskTest < ActiveSupport::TestCase
       t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
       t.save!
     end
-    assert_equal "Validation failed: Sorry, a bot can't answer a task directly... please send an answer suggestion instead", e.message
+    assert_equal "Validation failed: #{I18n.t('bot_cant_add_response_to_task')}", e.message
 
     assert_nothing_raised do
       User.current = create_user(is_admin: true)
@@ -343,7 +343,7 @@ class TaskTest < ActiveSupport::TestCase
     t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
     t.save!
     assert_equal '', t.reload.first_response
-    
+
     t = Task.where(id: t.id).last
     t.accept_suggestion = 0
     t.save!
@@ -353,7 +353,7 @@ class TaskTest < ActiveSupport::TestCase
     t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
     t.save!
     assert_equal '', t.reload.first_response
-    
+
     t = Task.where(id: t.id).last
     t.reject_suggestion = 0
     t.save!
