@@ -88,4 +88,18 @@ module UserPrivate
     return false if count > 0
   end
 
+  def set_team_user
+    unless Team.current.nil?
+      tu = TeamUser.where(team_id: Team.current.id, user_id: self.id).last
+      if tu.nil?
+        tu = TeamUser.new
+        tu.user_id = self.id
+        tu.team_id = Team.current.id
+        tu.role = self.invitation_role
+        tu.status = 'invited'
+        tu.save!
+      end
+    end
+  end
+
 end
