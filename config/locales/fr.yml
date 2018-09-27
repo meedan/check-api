@@ -140,7 +140,7 @@ fr:
   slack_create_project_media_no_user: "Un(e) nouveau(elle) %{type} a été rajouté(e) dans *%{project}* : %{url}"
   slack_create_related_media_no_user: "Un(e) %{type} lié(e) à \"%{parent}\" a été rajouté(e) dans *%{project}* : %{url}"
   slack_create_task_message: "*%{user}* a créé la tâche %{url} dans *%{project}*%{assignment}%{create_note}"
-  slack_create_task_assignment: " affecté(e) à %{assignee}"
+  slack_create_task_assignment: " assignée à %{assignee}"
   slack_create_task_note: " avec note: %{note}"
   slack_answer_task: |-
       *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
@@ -173,9 +173,9 @@ fr:
       export_images:
         menu: Exporter les images du projet
       delete_tasks:
-        done: les tâches ont bien été effacées
+        done: les tâches ont bien été supprimées
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: "Voulez-vous vraiment effacer toutes les tâches de l'équipe <strong>%{team}</strong> ? Les tâches suivantes seront éliminées :"
+          html: "Êtes-vous sûr de vouloir supprimer toutes les tâches de l'équipe <strong>%{team}</strong> ? Les tâches suivantes seront éliminées :"
       duplicate_team:
         menu: Dupliquer l'équipe
         done: copiée
@@ -183,7 +183,7 @@ fr:
           html: "Voulez-vous vraiment dupliquer l'équipe <strong>%{team}</strong> ? Toutes les données connexes seront également copiées."
         the_team_is_being_copied: L'équipe est en cours de copie
         url_when_ready:
-          html: "Une fois prête, la copie de l'équipe sera disponible à  <strong>%{copy_url}</strong>"
+          html: "Une fois prête, la copie de l'équipe sera disponible à <strong>%{copy_url}</strong>"
   reset_password_instructions: "Instructions pour réinitialiser le mot de passe sur %{app_name}"
   email_not_found: Courriel introuvable
   slack_channel_format_wrong: 'Canal Slack non valide : le format doit être `#general`'
@@ -205,7 +205,7 @@ fr:
   oembed_disclaimer_not_applicable: Aucune conclusion concernant ce média n'a été tirée par l'équipe %{team}depuis le %{date}
   oembed_source_date: "%{date} via %{provider}"
   role_editor: rédacteur
-  role_owner: administrateur
+  role_owner: propriétaire
   role_contributor: contributeur
   role_journalist: journaliste
   role_none: membre
@@ -229,18 +229,18 @@ fr:
   duplicate_source: La source existe déjà
   geolocation_invalid_value: L'emplacement doit être représenté par une entrée GeoJSON valide (http://geojson.org/).
   datetime_invalid_date: Veuillez saisir une date valide.
-  error_team_archived: "Interdit de rajouter un projet à une équipe désactivée"
-  error_project_archived: "Interdit de rajouter un media à un projet désactivé"
-  error_team_archived_for_source: "Interdit de rajouter une source à un projet désactivé"
+  error_team_archived: "Interdit de rajouter un projet à une équipe à la corbeille"
+  error_project_archived: "Interdit de rajouter un media à un projet à la corbeille"
+  error_team_archived_for_source: "Interdit de rajouter une source à un projet à la corbeille"
   permission_error: "Désolé, vous n'êtes pas autorisé à effectuer cette opération"
-  error_annotated_archived: "Désolé, il est interdit de rajouter un commentaire à un élément à la corbeille"
-  only_super_admin_can_do_this: "Désolé, seuls les super-admins peuvent effectuer cette opération"
+  error_annotated_archived: "Interdit de rajouter un commentaire à un élément à la corbeille"
+  only_super_admin_can_do_this: "Désolé, seuls les aministrateurs système peuvent effectuer cette opération"
   max_number_of_team_users_reached: "Désolé, le nombre maximum de membres a été atteint pour cette équipe"
   max_number_of_projects_reached: "Désolé, le nombre maximum de projets a été atteint pour cette équipe"
-  cant_set_custom_statuses: "Désolé, votre équipe n'est pas autorisée à utiliser la fonction de statuts personnalisés"
+  cant_set_custom_statuses: "Désolé, la fonction de statuts personnalisés n'est pas disponible à cette équipe"
   cant_change_custom_statuses: "Il est impossible de modifier les définitions de statut car certains statuts disparaîtraient. Ces identifiants de statut : %{statuses} sont en cours d'utilisation par les articles suivants : \n%{urls} %{others_amount}"
-  cant_set_checklist: "Désolé, votre équipe n'est pas autorisée à utiliser la fonction de liste de contrôle"
-  cant_create_media_under_this_team_using_extension: "Désolé, votre équipe n'est pas autorisée à utiliser l'extension de navigateur"
+  cant_set_checklist: "Désolé, la fonction de tâches d'équipe n'est pas disponible à cette équipe"
+  cant_create_media_under_this_team_using_extension: "Désolé, la fonction d'extension de navigateur n'est pas disponible à cette équipe"
   error_invalid_attribution: "Attribution non valide"
   account_exists: Ce compte existe déjà
   media_exists: Ce média existe déjà
@@ -250,27 +250,27 @@ fr:
     mailer:
       reset_password_instructions:
         instruction: "Quelqu'un a demandé un lien pour changer votre mot de passe : veuillez le trouver ci-dessous. <strong>Notez que ce lien expire dans %{expire} heures.</strong>"
-  error_user_is_not_a_team_member: "Désolé, vous ne pouvez affecter des tâches qu'à des membres de cette équipe"
-  slack_assign_verification_status: "*%{user}* a affecté %{url} à *%{assignee}* dans *%{project}*"
-  slack_unassign_verification_status: "*%{user}* a désaffecté %{url} de *%{assignee}* dans *%{project}*"
-  slack_assign_translation_status: "*%{user}* a affecté %{url} à *%{assignee}* dans *%{project}*"
-  slack_unassign_translation_status: "*%{user}* a désaffecté %{url} de *%{assignee}* dans *%{project}*"
-  slack_assign_task: "*%{user}* a affecté la tâche %{url} dans *%{project}* à *%{assignee}*"
-  slack_unassign_task: "*%{user}* a désaffecté la tâche %{url} dans *%{project}* de *%{assignee}*"
+  error_user_is_not_a_team_member: "Désolé, vous ne pouvez assigner des tâches qu'à des membres de cette équipe"
+  slack_assign_verification_status: "*%{user}* a assigné %{url} à *%{assignee}* dans *%{project}*"
+  slack_unassign_verification_status: "*%{user}* a désassigné %{url} de *%{assignee}* dans *%{project}*"
+  slack_assign_translation_status: "*%{user}* a assigné %{url} à *%{assignee}* dans *%{project}*"
+  slack_unassign_translation_status: "*%{user}* a désassigné %{url} de *%{assignee}* dans *%{project}*"
+  slack_assign_task: "*%{user}* a assigné la tâche %{url} dans *%{project}* à *%{assignee}*"
+  slack_unassign_task: "*%{user}* a désassigné la tâche %{url} dans *%{project}* de *%{assignee}*"
   mail_see_it: "Vous pouvez le/la visionner à :"
-  mail_subject_assign_verification_status: "[%{team} - %{project}] Un média vous a été affecté"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] Un média a été désaffecté"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] Un média vous a été affecté"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] Un média a été désaffecté"
-  mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été affectée"
-  mail_subject_unassign_task: "[%{team} - %{project}] Une tâche a été désaffectée"
+  mail_subject_assign_verification_status: "[%{team} - %{project}] Un élément vous a été assigné"
+  mail_subject_unassign_verification_status: "[%{team} - %{project}] Un élément a été désassigné"
+  mail_subject_assign_translation_status: "[%{team} - %{project}] Un élément vous a été assigné"
+  mail_subject_unassign_translation_status: "[%{team} - %{project}] Un élément a été désassigné"
+  mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été assignée"
+  mail_subject_unassign_task: "[%{team} - %{project}] Une tâche a été désassignée"
   mail_subject_update_status: "[%{team} - %{project}] Un média a été marqué comme %{status}"
-  mail_assign_verification_status: "%{author} vous a affecté un média intitulé "
-  mail_unassign_verification_status: "%{author} a désaffecté le média intitulé "
-  mail_assign_translation_status: "%{author} vous a affecté un média intitulé "
-  mail_unassign_translation_status: "%{author} a désaffecté le média intitulé "
-  mail_assign_task: "%{author} vous a affecté la tâche \"%{task}\" dans le média intitulé "
-  mail_unassign_task: "%{author} a désaffecté la tâche \"%{task}\" dans le média intitulé "
+  mail_assign_verification_status: "%{author} vous a assigné un élément intitulé "
+  mail_unassign_verification_status: "%{author} a désassigné l'élément intitulé "
+  mail_assign_translation_status: "%{author} vous a assigné un élément intitulé "
+  mail_unassign_translation_status: "%{author} a désassigné l'élément intitulé "
+  mail_assign_task: "%{author} vous a assigné la tâche \"%{task}\" dans l'élément intitulé "
+  mail_unassign_task: "%{author} a désassigné la tâche \"%{task}\" dans l'élément intitulé "
   mail_update_status: "%{author} a fixé le statut de \"%{title}\" à %{status}."
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "copies d'écran de Keep"
@@ -283,17 +283,68 @@ fr:
   blank_active_status_for_custom_translation_status: "Prière de fournir une valeur active pour les statuts de traduction personnalisés"
   blank_default_status_for_custom_verification_status: "Prière de fournir une valeur de défaut pour les statuts de vérification personnalisés"
   blank_active_status_for_custom_verification_status: "Prière de fournir une valeur active pour les statuts de vérification personnalisés"
-  bot_name_exists_for_this_team: "Il existe déjà un bot ainsi nommé dans cette équipe."
-  bot_team_id_doesnt_exist: "Désolé, il n'existe pas d'équipe avec cet identifiant."
+  bot_name_exists_for_this_team: "Il existe déjà un bot ayant le nom choisi dans cette équipe"
+  bot_team_id_doesnt_exist: "Désolé, il n'existe pas d'équipe avec l'identifiant fourni"
   bot_team_id_mandatory_to_create: "Désolé, vous devez choisir une équipe afain de créer un bot."
   bot_not_approved_for_installation: "Désolé, ce bot ne peut pas être installé car il n'a pas encore été approuvé."
   only_admins_can_approve_bots: "Désolé, seuls les administrateurs système peuvent approuver les bots."
-  could_not_save_related_bot_data: "Désolé, il n'a pas été possible d'ajouter le bot à cette équipe."
-  bot_limited_team_not_pro: "Désolé, ce bot n'est pas disponible pour votre équipe."
+  could_not_save_related_bot_data: "Désolé, il n'a pas été possible d'ajouter le bot à cette équipe"
+  bot_limited_team_not_pro: "Désolé, ce bot n'est pas disponible à cette équipe"
   slack_save_task_comment: "*%{user}* a rajouté une note à la tâche *%{task}* pour %{url} dans *%{project}* : %{comment}"
-  bot_cant_add_response_to_task: "Désolé, un bot n'est pas autorisé à répondre directement à une tâche. Il faut plutôt soumettre une suggestion de réponse."
+  bot_cant_add_response_to_task: "Désolé, un bot n'est pas autorisé à répondre directement à une tâche. Il faut plutôt soumettre une suggestion de réponse"
   bot_cant_add_review_to_task: "Désolé, les bots ne sont pas autorisés à réviser les tâches."
   task_suggestion_invalid_value: "La suggestion de réponse n'est pas correctement formulée."
+  tag_text_id_not_found: "Désolé, il n'existe pas de tag avec l'identifiant fourni"
   project_export_download_mail_csv: "Bonjour !\n\nVous avez demandé un rapport du projet %{project} - voici le lien pour le télécharger : %{link}\n\nLe rapport sera téléchargé sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"
   project_export_email_title_images: "Les images de votre projet sont prêtes à télécharger"
   project_export_download_mail_images: "Bonjour !\n\nVous avez demandé à télécharger les images du projet %{project} - voici le lien : %{link}\n\nLes images seront téléchargées sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"
+  permissions_info:
+    roles:
+      owner:
+        description: "Les propriétaires gèrent l'espace de travail."
+      editor:
+        description: "Les éditeurs gèrent l'équipe et les projets."
+      journalist:
+        description: "Les journalistes vérifient l'information."
+      contributor:
+        description: "Les contributeurs peuvent rajouter de nouvelles informations à vérifier. Ce sont souvent des membres du public. "
+    permissions:
+      sections:
+        project_management:
+          name: "Gestion de projets"
+          permissions:
+            create: "Créer un projet"
+            edit: "Modifier un projet"
+            delete: "Supprimer un projet"
+            add_item: "Soumettre de nouveaux éléments à un projet "
+        item_page_management:
+          name: "Gestion d'éléments"
+          permissions:
+            edit: "Éditer un élément"
+            move: "Transférer un élément"
+            change_status: "Modifier le statut d'un élément"
+            lock_unlock_status: "Verouiller/déverouiller le statut"
+            add_remove_tag: "Rajouter/supprimer des tags"
+            send_to_trash: "Mettre des élements à la corbeille"
+            empty_trash: "Vider la corbeille"
+        task_management:
+          name: "Gestion de tâches"
+          permissions:
+            create: "Créer une tâche"
+            edit: "Modifier une tâche"
+            delete: "Supprimer une tâche"
+            add_response: "Répondre à une tâche"
+            delete_repsonse: "Supprimer une réponse"
+            assign_task: "Assigner une tâche ou un élément"
+        team_management:
+          name: "Gestion d'équipes"
+          permissions:
+            delete: "Supprimer une équipe"
+            edit: "Modifier les informations de l'équipe"
+            set_private: "Mettre l'équipe en privé"
+            edit_status: "Modifier les statuts de l'équipe"
+            edit_tasks: "Créer et modifier les tâches de l'équipe"
+            roles: "Modifier les roles des membres"
+            third_party: "Intégrer des services tiers"
+            invite_owner: "Inviter, approuver et supprimer les propriétaires de l'équipe"
+            invite_members: "Inviter, approuver et supprimer les membres de l'équipe "
