@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   self.inheritance_column = :type
-  attr_accessor :url, :skip_confirmation_mail
+  attr_accessor :url, :skip_confirmation_mail, :invitation_role
 
   include ValidationsHelper
   include UserPrivate
@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   has_many :accounts
   belongs_to :account
 
-  devise :database_authenticatable, :registerable,
+  devise :database_authenticatable, :registerable, :invitable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
@@ -21,6 +21,7 @@ class User < ActiveRecord::Base
   before_save :set_token, :set_login, :set_uuid
   after_update :set_blank_email_for_unconfirmed_user
   before_destroy :can_destroy_user, prepend: true
+  after_invitation_created :set_team_user
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
@@ -35,6 +36,9 @@ class User < ActiveRecord::Base
   check_settings
 
   include DeviseAsync
+
+  # has_many :invitations, :class_name => self.to_s, :as => :invited_by
+
 
   ROLES = %w[contributor journalist editor owner]
   def role?(base_role)
