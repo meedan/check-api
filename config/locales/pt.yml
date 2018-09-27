@@ -128,7 +128,7 @@ pt:
   mail_request_to_join: "%{user} quer participar da equipe %{team} no %{app_name}!"
   approved: Aprovado!
   rejected: Não aprovado
-  mail_request_to_join_processed: Seu pedido para participar do time %{team} no %{app_name} foi %{status}
+  mail_request_to_join_processed: Seu pedido para participar da equipe %{team} no %{app_name} foi %{status}
   mail_new_account: Nova conta para você no %{app_name}
   slack_update_verification_status: "*%{user}* mudou o status da verificação à %{url} em *%{project}* de _%{from}_ para *%{to}*"
   slack_save_embed: "*%{user}* alterou o título  do relato no *%{project}* de _%{from}_ para %{to}"
@@ -229,18 +229,18 @@ pt:
   duplicate_source: Fonte existe
   geolocation_invalid_value: Localização deve conter um GeoJSON válido (http://geojson.org/)
   datetime_invalid_date: Por favor forneça uma data válida
-  error_team_archived: "Não é possível criar um projeto em um time que esteja na lixeira"
-  error_project_archived: "Não é possível criar mídia em um projeto que esteja na lixeira"
-  error_team_archived_for_source: "Não é possível criar fonte em um time que esteja na lixeira"
+  error_team_archived: "Não é possível criar um projeto em uma equipe na lixeira"
+  error_project_archived: "Não é possível criar mídia em um projeto na lixeira"
+  error_team_archived_for_source: "Não é possível criar fonte em uma equipe na lixeira"
   permission_error: "Desculpe, você não tem permissão para fazer esta operação"
-  error_annotated_archived: "Desculpe, este item está na lixeira, você não pode adicionar nota a ele"
-  only_super_admin_can_do_this: "Desculpe, apenas super admins podem efetuar esta alteração"
-  max_number_of_team_users_reached: "O número máximo de usuários para este time foi alcançado"
-  max_number_of_projects_reached: "O número máximo de projetos para este time foi alcançado"
-  cant_set_custom_statuses: "Desculpe, você não pode usar o recurso de status customizados"
+  error_annotated_archived: "Não é possível adicionar uma nota a um item na lixeira"
+  only_super_admin_can_do_this: "Desculpe, apenas os administradores do sistema podem efetuar esta alteração"
+  max_number_of_team_users_reached: "Desculpe, o número máximo de usuários para esta equipe foi alcançado"
+  max_number_of_projects_reached: "Desculpe, o número máximo de projetos para esta equipe foi alcançado"
+  cant_set_custom_statuses: "Desculpe, o recurso de status personalizados não está disponível para esta equipe"
   cant_change_custom_statuses: "Não foi possível modificar as definições de estados porque alguns estados fariam falta. Estes identificadores de estado: %{statuses} estão em uso nos seguintes itens:\n %{urls} %{others_amount}"
-  cant_set_checklist: "Desculpe, você não pode usar o recurso de Checklist"
-  cant_create_media_under_this_team_using_extension: "Desculpe, este time não tem permissão para utilizar a extensão de navegador"
+  cant_set_checklist: "Desculpe, o recurso de tarefas da equipe não está disponível para esta equipe"
+  cant_create_media_under_this_team_using_extension: "Desculpe, o recurso de extensão do navegador não está disponível para esta equipe"
   error_invalid_attribution: "Atribuição inválida"
   account_exists: Conta já existe
   media_exists: Mídia já existe
@@ -283,17 +283,68 @@ pt:
   blank_active_status_for_custom_translation_status: "Por favor, forneça um valor ativo para os status de tradução personalizada"
   blank_default_status_for_custom_verification_status: "Por favor, forneça um valor padrão para os status de verificação personalizada"
   blank_active_status_for_custom_verification_status: "Por favor, forneça um valor ativo para os status de verificação personalizada"
-  bot_name_exists_for_this_team: "Já existe um bot com este nome neste time"
-  bot_team_id_doesnt_exist: "Desculpe, não existe um time com este id"
+  bot_name_exists_for_this_team: "Já existe um bot com o nome fornecido nesta equipe"
+  bot_team_id_doesnt_exist: "Desculpe, não há equipe com o identificador fornecido"
   bot_team_id_mandatory_to_create: "Lo sentimos, debes escoger un equipo para crear un bot"
   bot_not_approved_for_installation: "Desculpe, este bot não foi aprovado e por isso não pode ser instalado"
   only_admins_can_approve_bots: "Desculpe, apenas super admins podem aprovar bots"
-  could_not_save_related_bot_data: "Desculpe, não foi possível adicionar o bot ao time"
-  bot_limited_team_not_pro: "Desculpe, este bot não está disponível para seu time"
+  could_not_save_related_bot_data: "Desculpe, não foi possível adicionar o bot a esta equipe"
+  bot_limited_team_not_pro: "Desculpe, este bot não está disponível para esta equipe"
   slack_save_task_comment: "*%{user}* adicionou uma nota à tarefa *%{task}* em %{url} em *%{project}*: %{comment}"
-  bot_cant_add_response_to_task: "Desculpe, um bot não pode responder uma tarefa diretamente... por favor adicione uma sugestão de resposta"
+  bot_cant_add_response_to_task: "Desculpe, um bot não pode responder uma tarefa diretamente - por favor adicione uma sugestão de resposta"
   bot_cant_add_review_to_task: "Desculpe, um bot não pode avaliar uma sugestão de resposta"
   task_suggestion_invalid_value: "Desculpe, o valor da sugestão não é válido"
+  tag_text_id_not_found: "Desculpe, não há tag com o identificador fornecido"
   project_export_download_mail_csv: "Olá!\n\nVocê solicitou um relatório para o projeto %{project} - aqui está um link para baixar-lo: %{link}\n\nO relatório será baixado como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"
   project_export_email_title_images: "Imagens do seu projeto estão prontas para baixar"
   project_export_download_mail_images: "Olá!\n\nVocê solicitou um download de imagens do projeto %{project} - aqui está um link para baixar-las: %{link}\n\nAs imagens serão baixadas como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"
+  permissions_info:
+    roles:
+      owner:
+        description: "Donos controlam o ambiente."
+      editor:
+        description: "Editores gerenciam a equipe e os projetos."
+      journalist:
+        description: "Jornalistas verificam informações."
+      contributor:
+        description: "Colaboradores podem adicionar novas informações a serem checadas. Geralmente são membros do público."
+    permissions:
+      sections:
+        project_management:
+          name: "Gerenciamento de projeto"
+          permissions:
+            create: "Criar projeto"
+            edit: "Editar projeto"
+            delete: "Excluir projeto"
+            add_item: "Adicionar mídia a projeto"
+        item_page_management:
+          name: "Gerenciamento de item"
+          permissions:
+            edit: "Editar item"
+            move: "Mover item"
+            change_status: "Mudar status do item"
+            lock_unlock_status: "Bloquear/desbloquear status"
+            add_remove_tag: "Adicionar/excluir tags"
+            send_to_trash: "Enviar item ou fonte para a lixeira"
+            empty_trash: "Esvaziar lixeira"
+        task_management:
+          name: "Gerenciamento de tarefa"
+          permissions:
+            create: "Criar tarefa"
+            edit: "Editar tarefa"
+            delete: "Excluir tarefa"
+            add_response: "Adicionar resposta"
+            delete_repsonse: "Excluir resposta"
+            assign_task: "Atribuir tarefa ou mídia"
+        team_management:
+          name: "Gerenciamento de equipe"
+          permissions:
+            delete: "Excluir equipe"
+            edit: "Editar informações da equipe"
+            set_private: "Tornar equipe privada"
+            edit_status: "Editar os status da equipe"
+            edit_tasks: "Criar ou editar tarefas da equipe"
+            roles: "Editar papéis da equipe"
+            third_party: "Adicionar integrações externas"
+            invite_owner: "Convidar, aprovar e excluir donos da equipe"
+            invite_members: "Convidar, aprovar e excluir membros da equipe"

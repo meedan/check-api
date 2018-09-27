@@ -115,7 +115,7 @@ ar:
           other: قصير جداً (الحد الأدنى %{count} حروف)
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة - الصيغة المطلوبة هي `[ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]`'
+  invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة'
   invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
@@ -162,7 +162,7 @@ ar:
   mail_view_rejected_to_join: عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
   mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
   mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
-  pender_could_not_parse: تعذّر تحليل الميديا
+  pender_could_not_parse: عذراً ، لم نتمكن من تحليل الميديا
   mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
   mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
   mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
@@ -206,7 +206,7 @@ ar:
   oembed_disclaimer_in_progress: بدأ فريق %{team} بالتحقق من دقة هذا الميديا في %{date}
   oembed_disclaimer_verified: تحقق فريق %{team} من دقة هذا الميديا في %{date}
   oembed_disclaimer_false: نفى فريق %{team} دقة هذا الميديا في %{date}
-  oembed_disclaimer_not_applicable: لم يتمكن فريق %{team} من التحقق من دقة هذا الميديا منذ %{date}
+  oembed_disclaimer_not_applicable: لم يتمكن فريق %{team} من التحقق من هذا الميديا منذ %{date}
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر
   role_owner: مدير
@@ -245,18 +245,18 @@ ar:
   duplicate_source: المصدر موجود بالفعل
   geolocation_invalid_value: صيغة الموقع لابد أن تطابق (/GeoJSON (http://geojson.org
   datetime_invalid_date: من فضلك أدخل تاريخاً صحيحاً.
-  error_team_archived: "ليس مسموح إضافة مشروع لفريق غير نشط"
-  error_project_archived: "ليس مسموح إضافة تقرير لمشروع غير نشط"
-  error_team_archived_for_source: "ليس مسموح إضافة مصدر لمشروع غير نشط"
+  error_team_archived: "لا يمكن إضافة مشروع لفريق في سلة المهملات"
+  error_project_archived: "لا يمكن إضافة تقرير لمشروع في سلة المهملات"
+  error_team_archived_for_source: "لا يمكن إضافة مصدر لمشروع في سلة المهملات"
   permission_error: "عذراً ، ليس مسموح لك تنفيذ هذه العملية"
-  error_annotated_archived: "عذراً ، ليس مسموح إضافة تعليق لعنصر تم نقله لسلة المهملات"
-  only_super_admin_can_do_this: "عذراً ، هذه العملية متاحة للمسؤولين فقط"
+  error_annotated_archived: "لا يمكن إضافة تعليق لعنصر في سلة المهملات"
+  only_super_admin_can_do_this: "عذراً ، هذه العملية متاحة لمسؤولي النظام فقط"
   max_number_of_team_users_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمستخدمين في هذا الفريق"
   max_number_of_projects_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في هذا الفريق"
-  cant_set_custom_statuses: "عذراً ، حالات التحقق الخاصة غير متاحة لهذا الفريق"
+  cant_set_custom_statuses: "عذراً ، خاصية حالات التحقق المتخصصة غير متاحة لهذا الفريق"
   cant_change_custom_statuses: "لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :\n %{others_amount} %{urls}"
-  cant_set_checklist: "عذراً ، قائمة التحقق من المعلومات غير متاحة لهذا الفريق"
-  cant_create_media_under_this_team_using_extension: "عذراً ، ملحق المستعرض غير متاح لهذا الفريق"
+  cant_set_checklist: "عذراً ، خاصية مهام الفريق غير متاحة لهذا الفريق"
+  cant_create_media_under_this_team_using_extension: "عذراً ، خاصية ملحق المتصفح غير متاحة لهذا الفريق"
   error_invalid_attribution: "إسناد غير صحيح"
   account_exists: هذا الحساب موجود بالفعل
   media_exists: هذا الميديا موجود بالفعل
@@ -266,7 +266,7 @@ ar:
     mailer:
       reset_password_instructions:
         instruction: "طلب أحدهم رابطًا لتغيير كلمة السر الخاصة بك، ويُمكن عمل ذلك من خلال الرابط التالي. <strong>يرجى الملاحظة أن مدة صلاحية الرابط %{expire} ساعات.</strong>"
-  error_user_is_not_a_team_member: "عذراً ، لا يمكنك تكليف مهام لغير أعضاء هذا الفريق"
+  error_user_is_not_a_team_member: "عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق"
   slack_assign_verification_status: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
   slack_unassign_verification_status: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
   slack_assign_translation_status: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
@@ -304,12 +304,63 @@ ar:
   bot_team_id_mandatory_to_create: "عذراً ، يجب اختيار فريقاً لكي تضيف البوت"
   bot_not_approved_for_installation: "عذراً ، لا يمكن تثبيت هذا البوت ﻷن لم يتم الموافقة عليه"
   only_admins_can_approve_bots: "عذراً ، هذه العملية متاحة للمسؤولين فقط"
-  could_not_save_related_bot_data: "عذراً ، لم نستطع إضافة البوت لهذا الفريق"
+  could_not_save_related_bot_data: "عذراً ، لم نتمكن من إضافة البوت لهذا الفريق"
   bot_limited_team_not_pro: "عذراً ، البوت غير متاح لهذا الفريق"
   slack_save_task_comment: "أضاف *%{user}* تعليقاً للمهمة *%{task}* في %{url} في %{project}*: %{comment}"
   bot_cant_add_response_to_task: "عذراً ، البوت يمكنه فقط تقديم اقتراحاً لحل المهمة"
   bot_cant_add_review_to_task: "عذراً ، البوت لا يمكنه مراجعة المهام"
   task_suggestion_invalid_value: "عذراً ، صيغة الاقتراح غير صحيحة"
+  tag_text_id_not_found: "عذراً ، لا يوجد وسم بهذا المُعَرِّف"
   project_export_download_mail_csv: "مرحباً !\n\nلقد طلبت تقريراً عن المشروع %{project} - إليك الرابط لتحميله : %{link}\n\nسوف يتم تحميل التقرير على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
   project_export_email_title_images: "صور مشروعك جاهزة للتحميل"
   project_export_download_mail_images: "مرحباً !\n\nلقد طلبت تحميل صور المشروع %{project} - إليك الرابط لتحميلها : %{link}\n\nسوف يتم تحميل الصور على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
+  permissions_info:
+    roles:
+      owner:
+        description: "المديرون يديرون مساحة العمل."
+      editor:
+        description: "المحررون يديرون الفريق و المشاريع."
+      journalist:
+        description: "الصحفيون يتحققون من المعلومات."
+      contributor:
+        description: "المشاركون يضيفون عناصر جديدة للتحقق. هم في الغالب أعضاء من الجمهور."
+    permissions:
+      sections:
+        project_management:
+          name: "إدارة المشاريع"
+          permissions:
+            create: "إضافة المشاريع"
+            edit: "تحرير المشاريع"
+            delete: "حذف المشاريع"
+            add_item: "إضافة عناصر للمشاريع"
+        item_page_management:
+          name: "إدارة العناصر"
+          permissions:
+            edit: "تحرير العناصر"
+            move: "نقل العناصر"
+            change_status: "تغيير حالة العناصر"
+            lock_unlock_status: "تأمين وإلغاء تأمين حالة العناصر"
+            add_remove_tag: "إضافة وحذف الوسوم"
+            send_to_trash: "ارسال العناصر إلى سلة المهملات"
+            empty_trash: "إفراغ سلة المهملات"
+        task_management:
+          name: "إدارة المهام"
+          permissions:
+            create: "إضافة المهام"
+            edit: "تحرير المهام"
+            delete: "حذف المهام"
+            add_response: "إضافة اﻹجابات"
+            delete_repsonse: "حذف اﻹجابات"
+            assign_task: "تكليف المهام والعناصر"
+        team_management:
+          name: "إدارة الفريق"
+          permissions:
+            delete: "حذف الفريق"
+            edit: "تحرير معلومات الفريق"
+            set_private: "إخفاء أو إظهار الفريق"
+            edit_status: "تحرير حالات التحقق المتخصصة"
+            edit_tasks: "تحرير مهام الفريق المتخصصة"
+            roles: "إدارة أعضاء الفريق"
+            third_party: "تكامل التطبيقات الخارجية"
+            invite_owner: "دعوة مديري الفريق والموافقة عليهم وإزالتهم"
+            invite_members: "دعوة أعضاء الفريق والموافقة عليهم وإزالتهم"
