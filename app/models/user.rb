@@ -125,25 +125,16 @@ class User < ActiveRecord::Base
   end
 
   def as_json(_options = {})
-    {
+    user = {
       id: Base64.encode64("User/#{self.id}"),
       dbid: self.id,
-      name: self.name,
-      email: self.email,
-      login: self.login,
-      uuid: self.uuid,
-      provider: self.provider,
-      token: self.token,
-      current_team: self.current_team,
-      current_project: self.current_project,
       teams: self.user_teams,
-      team_ids: self.team_ids,
-      permissions: self.permissions,
-      profile_image: self.profile_image,
-      settings: self.settings,
-      source_id: self.source.id,
-      is_admin: self.is_admin
+      source_id: self.source.id
     }
+    [:name, :email, :login, :uuid, :provider, :token, :current_team, :current_project, :team_ids, :permissions, :profile_image, :settings, :is_admin, :accepted_terms, :last_accepted_terms_at].each do |field|
+      user[field] = self.send(field)
+    end
+    user
   end
 
   def email_required?
@@ -258,8 +249,40 @@ class User < ActiveRecord::Base
     false
   end
 
+  def accept_terms=(accept)
+    if accept
+      self.last_accepted_terms_at = Time.now
+      self.save!
+    end
+  end
+
+  def accepted_terms
+    self.last_accepted_terms_at.to_i >= User.terms_last_updated_at
+  end
+
+  def self.terms_last_updated_at_by_page(page)
+    mapping = {
+      tos: 'tos_url',
+      privacy_policy: 'privacy_policy_url'
+    }.with_indifferent_access
+    return 0 unless mapping.has_key?(page)
+    Time.parse(open(CONFIG[mapping[page]]).read.gsub(/\R+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
+  end
+
+  def self.terms_last_updated_at
+    require 'open-uri'
+    begin
+      tos = User.terms_last_updated_at_by_page(:tos)
+      pp = User.terms_last_updated_at_by_page(:privacy_policy)
+      tos > pp ? tos : pp
+    rescue
+      e = StandardError.new('Could not read the last time that terms of service or privacy policy were updated')
+      Airbrake.notify(e) if Airbrake.configuration.api_key
+      0
+    end
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/user_private.rb
-
 end
