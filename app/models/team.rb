@@ -99,6 +99,7 @@ class Team < ActiveRecord::Base
   end
 
   def team_tasks=(tasks)
+    tasks.map{|t| t.symbolize_keys!}
     self.send(:set_checklist, tasks)
   end
 
