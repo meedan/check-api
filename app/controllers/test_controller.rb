@@ -25,6 +25,7 @@ class TestController < ApplicationController
 
   def new_user
     u = create_user params
+    u.accept_terms = true
     render_success 'user', u
   end
 
