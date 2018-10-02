@@ -53,6 +53,8 @@ development: &default
   google_analytics_code: # Format: 'UA-000000000-1'
   export_download_expiration_days: 7
   pg_hero_enabled: true
+  tos_url: 'https://meedan.com/en/check/check_tos.html'
+  privacy_policy_url: 'https://meedan.com/en/check/check_privacy.html'
 
 test:
   <<: *default

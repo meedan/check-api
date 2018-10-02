@@ -25,6 +25,7 @@ class TestController < ApplicationController
 
   def new_user
     u = create_user params
+    u.accept_terms = true
     render_success 'user', u
   end
 
@@ -32,6 +33,8 @@ class TestController < ApplicationController
     t = create_team
     u1 = create_user
     u2 = create_user
+    u1.accept_terms = true
+    u2.accept_terms = true
     create_team_user team: t, user: u1, role: 'owner'
     create_team_user team: t, user: u2, role: 'contributor'
     pr = create_project team: t, current_user: u1
