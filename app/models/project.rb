@@ -144,7 +144,7 @@ class Project < ActiveRecord::Base
       self.team.get_checklist.each do |task|
         if task['projects'].blank? || task['projects'].empty? || task['projects'].include?(self.id)
           task['slug'] = Task.slug(task['label'])
-          tasks << task
+          tasks << task.with_indifferent_access
         end
       end
     end
