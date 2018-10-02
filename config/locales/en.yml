@@ -210,7 +210,7 @@ en:
           html: "Are you sure you want to copy the team <strong>%{team}</strong>? All the related data will also be copied."
         the_team_is_being_copied: The team is being copied
         url_when_ready:
-          html: "When ready, the team copy will be available in: <strong>%{copy_url}</strong>"
+          html: "When ready, the team copy will be available at <strong>%{copy_url}</strong>"
   reset_password_instructions: "%{app_name} reset password instructions"
   email_not_found: E-mail not found
   slack_channel_format_wrong: 'Slack channel is invalid, it should have the format
@@ -270,15 +270,15 @@ en:
   error_team_archived: "Can't create project under trashed team"
   error_project_archived: "Can't create media under trashed project"
   error_team_archived_for_source: "Can't create source under trashed team"
-  permission_error: "Sorry, you are not allowed to do this"
-  error_annotated_archived: "Sorry, this item is in the trash, you can't add a note to it"
-  only_super_admin_can_do_this: "Sorry, only super admins can make this change"
-  max_number_of_team_users_reached: "The maximum number of users for this team was reached"
-  max_number_of_projects_reached: "The maximum number of projects for this team was reached"
-  cant_set_custom_statuses: "Sorry, you can't use the custom statuses feature"
+  permission_error: "Sorry, you are not allowed to perform this operation"
+  error_annotated_archived: "Can't add a note to a trashed item"
+  only_super_admin_can_do_this: "Sorry, only system administrators can make this change"
+  max_number_of_team_users_reached: "Sorry, the maximum number of users for this team has been reached"
+  max_number_of_projects_reached: "Sorry, the maximum number of projects for this team has been reached"
+  cant_set_custom_statuses: "Sorry, the custom statuses feature is not available to this team"
   cant_change_custom_statuses: "Can't modify the status definitions because some statuses would go missing. These status identifiers: %{statuses} are in use by the following items:\n %{urls} %{others_amount}"
-  cant_set_checklist: "Sorry, you can't use the Checklist feature"
-  cant_create_media_under_this_team_using_extension: "Sorry, this team is not allowed to use the browser extension"
+  cant_set_checklist: "Sorry, the team tasks feature is not available to this team"
+  cant_create_media_under_this_team_using_extension: "Sorry, the browser extension feature is not available to this team"
   error_invalid_attribution: "Invalid attribution"
   account_exists: This account already exists
   media_exists: This media already exists
@@ -289,7 +289,7 @@ en:
       reset_password_instructions:
         instruction: "Someone has requested a link to change your password, and you can do this
           through the link below. <strong>Please note that this link expires in %{expire} hours.</strong>"
-  error_user_is_not_a_team_member: "Sorry, you can only assign to members of this team"
+  error_user_is_not_a_team_member: "Sorry, you can only assign tasks to members of this team"
   slack_assign_verification_status: "*%{user}* assigned %{url} to *%{assignee}* in project *%{project}*"
   slack_unassign_verification_status: "*%{user}* unassigned %{url} from *%{assignee}* in project *%{project}*"
   slack_assign_translation_status: "*%{user}* assigned %{url} to *%{assignee}* in project *%{project}*"
@@ -322,17 +322,18 @@ en:
   blank_active_status_for_custom_translation_status: "Please provide an 'active' value for the custom translation statuses"
   blank_default_status_for_custom_verification_status: "Please provide a 'default' value for the custom verification statuses"
   blank_active_status_for_custom_verification_status: "Please provide an 'active' value for the custom verification statuses"
-  bot_name_exists_for_this_team: "There is already a bot with this name in this team"
-  bot_team_id_doesnt_exist: "Sorry, there is no team with this id"
+  bot_name_exists_for_this_team: "There is already a bot with the provided name in this team"
+  bot_team_id_doesnt_exist: "Sorry, there is no team with the provided identifier"
   bot_team_id_mandatory_to_create: "Sorry, you need to choose a team in order to create a bot"
   bot_not_approved_for_installation: "Sorry, this bot was not approved so it can't be installed"
   only_admins_can_approve_bots: "Sorry, only super admins can approve bots"
-  could_not_save_related_bot_data: "Sorry, could not create API key, bot user and add the bot user to the team"
-  bot_limited_team_not_pro: "Sorry, this bot is not available for your team"
+  could_not_save_related_bot_data: "Sorry, could not add the bot to this team"
+  bot_limited_team_not_pro: "Sorry, this bot is not available to this team"
   slack_save_task_comment: "*%{user}* added a note to task *%{task}* in %{url} in *%{project}*: %{comment}"
-  bot_cant_add_response_to_task: "Sorry, a bot can't answer a task directly... please send an answer suggestion instead"
+  bot_cant_add_response_to_task: "Sorry, a bot can't answer a task directly - please send an answer suggestion instead"
   bot_cant_add_review_to_task: "Sorry, a bot can't review a task"
   task_suggestion_invalid_value: "A suggestion must be a JSON hash with a 'suggestion' (the actual value that is copied to the task answer when accepted) and a 'comment' (displayed to users)"
+  tag_text_id_not_found: "Sorry, there is no tag with the provided identifier"
   project_export_download_mail_csv: "Hello!
 
 
@@ -374,7 +375,7 @@ en:
       editor:
         description: "Editors manage the team and projects."
       journalist:
-        description: "Journalists fact check information. They report to editors."
+        description: "Journalists fact check information."
       contributor:
         description: "Contributors can add new information to fact check. They are often members of the public."
     permissions:
@@ -387,11 +388,11 @@ en:
             delete: "Delete project"
             add_item: "Add media item to project"
         item_page_management:
-          name: "Item page management"
+          name: "Item management"
           permissions:
             edit: "Edit item"
             move: "Move item"
-            change_status: "Change items's status"
+            change_status: "Change item status"
             lock_unlock_status: "Lock/unlock status"
             add_remove_tag: "Add/remove tags"
             send_to_trash: "Send item or source to trash"
@@ -406,14 +407,14 @@ en:
             delete_repsonse: "Delete response"
             assign_task: "Assign task or media item"
         team_management:
-          name: "Team Management"
+          name: "Team management"
           permissions:
             delete: "Delete team"
             edit: "Edit team information"
             set_private: "Set team to private"
-            edit_status: "Edit teamwide status"
-            edit_tasks: "Create and edit teamwide task"
+            edit_status: "Edit teamwide statuses"
+            edit_tasks: "Create and edit teamwide tasks"
             roles: "Edit team roles"
-            third_party: "Add third-party intergrations"
+            third_party: "Add third-party integrations"
             invite_owner: "Invite, approve, and remove team owners"
             invite_members: "Invite, approve, and remove team members"
