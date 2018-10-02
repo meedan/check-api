@@ -8,7 +8,7 @@ module ProjectMediaExport
   end
 
   def tags_list
-    self.get_annotations('tag').to_enum.reverse_each.collect{ |t| t.data['tag'] }.reverse.join(', ')
+    self.get_annotations('tag').to_enum.reverse_each.collect{ |t| t.load.tag_text }.reverse.join(', ')
   end
 
   def tasks_resolved_count

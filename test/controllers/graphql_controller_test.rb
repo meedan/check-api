@@ -1616,4 +1616,31 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 1, data['log_count']
     assert_equal c.id.to_s, data['log']['edges'][0]['node']['annotation']['dbid']
   end
+
+  test "should get team custom tags and teamwide tags" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    create_tag_text text: 'foo', team_id: t.id, teamwide: true
+    create_tag_text text: 'bar', team_id: t.id, teamwide: false
+    
+    query = "query GetById { team(id: \"#{t.id}\") { custom_tags { edges { node { text } } }, teamwide_tags { edges { node { text } } } } }"
+    post :create, query: query, team: t.slug
+    
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']
+    assert_equal 'foo', data['teamwide_tags']['edges'][0]['node']['text']
+    assert_equal 'bar', data['custom_tags']['edges'][0]['node']['text']
+  end
+
+  test "should get tag from version" do
+    create_version
+    query = 'query read { root { versions { edges { node { tag { dbid } } } } } }'
+    post :create, query: query
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['root']['versions']['edges'][0]['node']['tag']
+  end
 end

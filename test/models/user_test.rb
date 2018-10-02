@@ -759,4 +759,53 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     assert !u.is_bot
   end
+
+  test "should not accept terms by default" do
+    u = create_user
+    assert_nil u.last_accepted_terms_at
+  end
+
+  test "should return the last time that the terms were updated" do
+    assert User.terms_last_updated_at > 0
+  end
+
+  test "should return the last time that the terms of service were updated" do
+    assert User.terms_last_updated_at_by_page(:tos) > 0
+  end
+
+  test "should return the last time that the terms of privacy were updated" do
+    assert User.terms_last_updated_at_by_page(:privacy_policy) > 0
+  end
+
+  test "should return the last time that invalid terms were updated" do
+    assert_equal 0, User.terms_last_updated_at_by_page(:invalid)
+  end
+
+  test "should not crash but notify if could not get the last time that the terms were updated" do
+    stub_config('tos_url', 'invalid-tos-url') do
+      assert_nothing_raised do
+        assert_equal 0, User.terms_last_updated_at
+      end
+    end
+  end
+
+  test "should return if user accepted terms" do
+    u = create_user
+    assert !u.reload.accepted_terms
+    u.last_accepted_terms_at = Time.parse('2018-08-01')
+    u.save!
+    assert !u.reload.accepted_terms
+    u.last_accepted_terms_at = Time.now
+    u.save!
+    assert u.reload.accepted_terms
+  end
+
+  test "should accept terms" do
+    u = create_user
+    assert !u.reload.accepted_terms
+    u.accept_terms = false
+    assert !u.reload.accepted_terms
+    u.accept_terms = true
+    assert u.reload.accepted_terms
+  end
 end

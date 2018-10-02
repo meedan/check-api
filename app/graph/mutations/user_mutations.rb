@@ -18,6 +18,7 @@ module UserMutations
     password: 'str',
     password_confirmation: 'str',
     send_email_notifications: 'bool',
+    accept_terms: 'bool',
     id: '!id'
   }
 

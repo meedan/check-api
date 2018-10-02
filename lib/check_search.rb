@@ -156,7 +156,7 @@ class CheckSearch
 
   def search_tags_query(tags)
     tags_c = []
-    tags = tags.collect{ |t| t.delete('#') }
+    tags = tags.collect{ |t| t.delete('#').downcase }
     tags.each do |tag|
       tags_c << { match: { "tags.tag.raw": { query: tag, operator: 'and' } } }
     end
