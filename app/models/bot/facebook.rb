@@ -16,8 +16,6 @@ class Bot::Facebook < ActiveRecord::Base
 
   def send_to_facebook(translation)
     send_to_social_network 'facebook', translation do
-      auth = self.get_auth('facebook')
-      
       # Ask Bridge Reader to generate the screenshot for Facebook
       # Screenshots currently disabled
       # ---
@@ -32,6 +30,7 @@ class Bot::Facebook < ActiveRecord::Base
 
       # Auto-publishing is currently not working: https://developers.facebook.com/docs/graph-api/reference/v3.1/user/feed#publish
       # ---
+      # auth = self.get_auth('facebook')
       # uri = URI('https://graph.facebook.com/me/feed')
       # data = {
       #   message: self.text,

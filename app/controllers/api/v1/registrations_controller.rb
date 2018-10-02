@@ -13,6 +13,7 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
 
     begin
       User.current = resource
+      resource.last_accepted_terms_at = Time.now
       resource.save!
       sign_up(resource_name, resource)
       render_success 'user', resource
