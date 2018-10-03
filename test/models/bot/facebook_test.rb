@@ -42,8 +42,7 @@ class Bot::FacebookTest < ActiveSupport::TestCase
     p.save!
     pm = create_project_media project: p
     t = create_dynamic_annotation annotation_type: 'translation', set_fields: { 'translation_text' => 'Test' }.to_json, annotated: pm
-    WebMock.stub_request(:post, 'https://graph.facebook.com/me/feed').to_return(body: { id: '654321' }.to_json)
     Bot::Facebook.send_to_facebook(t.id)
-    assert_equal 'https://facebook.com/654321', JSON.parse(DynamicAnnotation::Field.where(field_name: 'translation_published').last.value)['facebook']
+    assert_match /facebook.com/, JSON.parse(DynamicAnnotation::Field.where(field_name: 'translation_published').last.value)['facebook']
   end
 end

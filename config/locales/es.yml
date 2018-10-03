@@ -182,8 +182,6 @@ es:
         are_you_sure_you_want_to_copy_team:
           html: "¿Seguro que quieres copiar el equipo <strong>%{team}</strong>? Todos los datos relacionados también serán copiados."
         the_team_is_being_copied: El equipo está siendo duplicado
-        url_when_ready:
-          html: "Cuando esté listo, la copia del equipo estará disponible en <strong>%{copy_url}</strong>"
   reset_password_instructions: "%{app_name} instrucciones para restablecer la contraseña"
   email_not_found: 'Correo electrónico no encontrado '
   slack_channel_format_wrong: 'Canal de Slack inválido, debería tener este formato #general '
@@ -229,18 +227,7 @@ es:
   duplicate_source: Fuente existente
   geolocation_invalid_value: 'La localización debe tener un GeoJSON válido (http://geojson.org/) '
   datetime_invalid_date: 'Por favor proporciona una fecha válida '
-  error_team_archived: "No se puede crear un proyecto en un equipo eliminado"
-  error_project_archived: "No se puede crear un archivo multimedia en un proyecto eliminado"
-  error_team_archived_for_source: "No se puede crear una fuente en un equipo eliminado"
-  permission_error: "Lo sentimos, no estás autorizado para hacer esto"
-  error_annotated_archived: "Lo sentimos, este ítem está en la papelera, no puedes añadirle una nota"
-  only_super_admin_can_do_this: "lo sentimos, solo los super administradores pueden hacer este cambio"
-  max_number_of_team_users_reached: "Este equipo alcanzó el número máximo de usuarios"
-  max_number_of_projects_reached: "Este equipo alcanzó el número máximo de proyectos"
-  cant_set_custom_statuses: "Lo sentimos, no puedes usar la función de personalizar estados"
   cant_change_custom_statuses: "No se pueden modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:\n %{urls} %{others_amount}"
-  cant_set_checklist: "lo sentimos, no puedes usar la función de Listas de verificación"
-  cant_create_media_under_this_team_using_extension: "lo sentimos, este equipo no tiene permitido usar la extensión del navegador"
   error_invalid_attribution: "Atribución inválida"
   account_exists: Esta cuenta ya existe
   media_exists: Este archivo multimedia ya existe
@@ -250,7 +237,6 @@ es:
     mailer:
       reset_password_instructions:
         instruction: "Alguien ha solicitado un enlace para cambiar tu contraseña, y tu puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"
-  error_user_is_not_a_team_member: "Lo sentimos, solo puedes asignar a los miembros de este equipo"
   slack_assign_verification_status: "*%{user}* asignó %{url} a *%{assignee}* en *%{project}*"
   slack_unassign_verification_status: "*%{user}* desasignó %{url} de *%{assignee}* en *%{project}*"
   slack_assign_translation_status: "*%{user}* asignó %{url} a *%{assignee}* en *%{project}*"
@@ -283,15 +269,10 @@ es:
   blank_active_status_for_custom_translation_status: "Por favor proporcione un valor activo para los estados de traducción personalizados"
   blank_default_status_for_custom_verification_status: "Por favor proporcione un valor predeterminado para los estados de verificación personalizados"
   blank_active_status_for_custom_verification_status: "Por favor proporcione un valor activo para los estados de verificación personalizados"
-  bot_name_exists_for_this_team: "Ya hay un bot con este nombre en este equipo"
-  bot_team_id_doesnt_exist: "Lo sentimos, pero no hay un equipo con este id"
   bot_team_id_mandatory_to_create: "Lo sentimos, debes elegir un equipo para crear un bot"
   bot_not_approved_for_installation: "Lo sentimos, este bot no fue aprobado y por eso no se puede instalarlo"
   only_admins_can_approve_bots: "Lo sentimos, solo super admins pueden aprobar bots"
-  could_not_save_related_bot_data: "Lo sentimos, no fue posible añadir el bot al equipo"
-  bot_limited_team_not_pro: "Lo sentimos, este bot no está disponible para tu equipo"
   slack_save_task_comment: "*%{user}* agregó una nota a la tarea *%{task}* en %{url} en *%{project}*: %{comment}"
-  bot_cant_add_response_to_task: "Lo sentimos, un bot no puede responder una tarea directamente... envíe una sugerencia de respuesta en su lugar"
   bot_cant_add_review_to_task: "Lo sentimos, un bot no puede evaluar una sugerencia de respuesta"
   task_suggestion_invalid_value: "Lo sentimos, el valor de la sugerencia no es válido"
   project_export_download_mail_csv: "¡Hola!\n\nSolicitó un informe para el proyecto %{project} - aquí hay un enlace para descargarlo: %{link}\n\nEl informe se descargará como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}\n\nTenga en cuenta que este enlace expirará en %{days} días.\n\nSaludos,\n\nEquipo %{app}"

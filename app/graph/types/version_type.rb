@@ -48,4 +48,12 @@ VersionType = GraphqlCrudOperations.define_default_type do
       version.task
     }
   end
+
+  field :tag do
+    type -> { TagType }
+
+    resolve ->(version, _args, _ctx) {
+      Tag.find(version.annotation.id) unless version.annotation.nil?
+    }
+  end
 end

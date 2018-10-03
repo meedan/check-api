@@ -358,9 +358,6 @@ RailsAdmin.config do |config|
       configure :get_checklist, :json do
         label 'Checklist'
       end
-      configure :get_suggested_tags do
-        label 'Suggested tags'
-      end
       configure :private do
         visible_only_for_admin
       end
@@ -456,12 +453,6 @@ RailsAdmin.config do |config|
         help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
         render_settings('text', true)
         visible_only_for_allowed_teams 'custom_tasks_list'
-      end
-      field :suggested_tags do
-        label 'Suggested tags'
-        formatted_value { bindings[:object].get_suggested_tags }
-        help "A list of common tags to be used with reports and sources in your team."
-        render_settings('field', true)
       end
       field :limits, :yaml do
         partial "json_editor"

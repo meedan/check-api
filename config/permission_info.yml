@@ -1,0 +1,283 @@
+---
+:roles:
+- :name: Owner
+  :description: "<%= I18n.t(:'permissions_info.roles.owner.description') %>"
+- :name: Editor
+  :description: "<%= I18n.t(:'permissions_info.roles.editor.description') %>"
+- :name: Journalist
+  :description: "<%= I18n.t(:'permissions_info.roles.journalist.description') %>"
+- :name: Contributor
+  :description: "<%= I18n.t(:'permissions_info.roles.contributor.description') %>"
+:permissions:
+-
+  :section: "<%= I18n.t(:'permissions_info.permissions.sections.project_management.name') %>"
+  :permissions:
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.project_management.permissions.create') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.project_management.permissions.edit') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'own'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.project_management.permissions.delete') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'no'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.project_management.permissions.add_item') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'yes'            
+-
+  :section: "<%= I18n.t(:'permissions_info.permissions.sections.item_page_management.name') %>"
+  :permissions:
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.item_page_management.permissions.edit') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'own'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.item_page_management.permissions.move') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'own'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.item_page_management.permissions.change_status') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.item_page_management.permissions.lock_unlock_status') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.item_page_management.permissions.add_remove_tag') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'own'  
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.item_page_management.permissions.send_to_trash') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'own'  
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.item_page_management.permissions.empty_trash') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'no'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'  
+-
+  :section: "<%= I18n.t(:'permissions_info.permissions.sections.task_management.name') %>"
+  :permissions:
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.task_management.permissions.create') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: <%= I18n.t(:'permissions_info.permissions.sections.task_management.permissions.edit') %>
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: <%= I18n.t(:'permissions_info.permissions.sections.task_management.permissions.delete') %>
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'no'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: <%= I18n.t(:'permissions_info.permissions.sections.task_management.permissions.add_response') %>
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'yes'
+  - :name: <%= I18n.t(:'permissions_info.permissions.sections.task_management.permissions.delete_repsonse') %>
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'own'
+    - :role: 'Contributor'
+      :permission: 'own'  
+  - :name: <%= I18n.t(:'permissions_info.permissions.sections.task_management.permissions.assign_task') %>
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'yes'
+    - :role: 'Contributor'
+      :permission: 'no'  
+-
+  :section: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.name') %>"
+  :permissions:
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.permissions.delete') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'no'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.permissions.edit') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.permissions.set_private') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'no'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.permissions.edit_status') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'no'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.permissions.edit_tasks') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'  
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.permissions.roles') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'  
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.permissions.third_party') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'no'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.permissions.invite_owner') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'no'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'  
+  - :name: "<%= I18n.t(:'permissions_info.permissions.sections.team_management.permissions.invite_members') %>"
+    :roles:
+    - :role: 'Owner'
+      :permission: 'yes'
+    - :role: 'Editor'
+      :permission: 'yes'
+    - :role: 'Journalist'
+      :permission: 'no'
+    - :role: 'Contributor'
+      :permission: 'no'  

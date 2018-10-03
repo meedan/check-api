@@ -365,8 +365,7 @@ class ActiveSupport::TestCase
           obj.is_a?(User) ? create_comment(annotator: obj, annotated: nil) : obj.add_annotation(c)
         end
       elsif name === 'tags'
-        t = create_tag annotated: nil
-        obj.add_annotation(t)
+        create_tag annotated: obj
       elsif name === 'tasks'
         create_task annotated: obj
       elsif name === 'join_requests'
