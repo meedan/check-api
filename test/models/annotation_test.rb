@@ -34,7 +34,7 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should get annotations by type" do
     c = create_comment annotated: nil
-    t = create_tag annotated: nil
+    t = create_tag
     s = create_project_source
     s.add_annotation c
     s.add_annotation t

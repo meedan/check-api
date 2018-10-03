@@ -136,14 +136,6 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     assert_equal [{"id" => "en", "title" => "English"}], @user.reload.get_languages
   end
 
-  test "should edit and save suggested tags on Team" do
-    sign_in @admin_user
-
-    put "/admin/team/#{@team.id}/edit", team: { suggested_tags: "one tag, other tag" }
-    assert_redirected_to '/admin/team'
-    assert_equal "one tag, other tag", @team.reload.get_suggested_tags
-  end
-
   test "should show link to export data of a project" do
     @user.is_admin = true
     @user.save!
@@ -185,7 +177,6 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     get "/admin/team/#{tu.team.id}/edit"
     assert_response :success
     assert_no_match(/team_limits_field/, @response.body)
-    assert_no_match(/team_suggested_tags/, @response.body)
   end
 
   test "should handle error on edition of a team" do

@@ -76,6 +76,10 @@ MutationType = GraphQL::ObjectType.define do
   field :updateTeamBotInstallation, field: TeamBotInstallationMutations::Update.field
   field :destroyTeamBotInstallation, field: TeamBotInstallationMutations::Destroy.field
 
+  field :createTagText, field: TagTextMutations::Create.field
+  field :updateTagText, field: TagTextMutations::Update.field
+  field :destroyTagText, field: TagTextMutations::Destroy.field
+
   DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
     klass = type.camelize
     field "createDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Create".constantize.field

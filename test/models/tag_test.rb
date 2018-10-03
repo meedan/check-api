@@ -5,6 +5,7 @@ class TagTest < ActiveSupport::TestCase
     super
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    TagText.delete_all
   end
 
   test "should create tag" do
@@ -43,14 +44,10 @@ class TagTest < ActiveSupport::TestCase
     s2 = create_project_source
     assert_equal [], s2.annotations
 
-    t1a = create_tag annotated: nil
-    assert_nil t1a.annotated
-    t1b = create_tag annotated: nil
-    assert_nil t1b.annotated
-    t2a = create_tag annotated: nil
-    assert_nil t2a.annotated
-    t2b = create_tag annotated: nil
-    assert_nil t2b.annotated
+    t1a = create_tag
+    t1b = create_tag
+    t2a = create_tag
+    t2b = create_tag
 
     s1.add_annotation t1a
     t1b.annotated = s1
@@ -96,8 +93,12 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should have content" do
-    t = create_tag
-    assert_equal ['tag'], JSON.parse(t.content).keys
+    tt = create_tag_text text: 'test'
+    t = create_tag tag: tt.id
+    content = JSON.parse(t.content)
+    assert_equal ['tag', 'tag_text_id'].sort, content.keys.sort
+    assert_equal tt.id, content['tag_text_id']
+    assert_equal 'test', content['tag']
   end
 
   test "should have annotators" do
@@ -196,5 +197,100 @@ class TagTest < ActiveSupport::TestCase
     t2 = create_tag annotated: ps
     assert_nil t1.project_source
     assert_equal ps, t2.project_source
+  end
+
+  test "should not get tag text reference if tag is already a number" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tt = create_tag_text text: 'test', team_id: t.id
+    ta = nil
+    assert_no_difference 'TagText.count' do
+      ta = create_tag(tag: tt.id, annotated: pm)
+    end
+    assert_equal 'test', ta.tag_text
+  end
+
+  test "should get tag text reference if tag is a string" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tt = create_tag_text text: 'test', team_id: t.id
+    ta = nil
+    assert_no_difference 'TagText.count' do
+      ta = create_tag(tag: 'test', annotated: pm)
+    end
+    assert_equal 'test', ta.tag_text
+  end
+
+  test "should create tag text reference if tag is a string" do
+    t = nil
+    assert_difference 'TagText.count' do
+      t = create_tag tag: 'test'
+    end
+    assert_equal 'test', t.tag_text
+  end
+
+  test "should exist only one tag text for duplicated tags of the same team" do
+    t = create_team
+    p = create_project team: t 
+    assert_difference 'TagText.count' do
+      5.times { create_tag(tag: 'test', annotated: create_project_media(project: p)) }
+    end
+  end
+
+  test "should validate that tag text exists" do
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tag tag: 0
+    end
+  end
+
+  test "should get tag text object" do
+    tt = create_tag_text
+    t = create_tag tag: tt.id
+    assert_equal tt, t.tag_text_object
+  end
+
+  test "should get tag text" do
+    tt = create_tag_text text: 'test'
+    t = create_tag tag: tt.id
+    assert_equal 'test', t.tag_text
+  end
+
+  test "should delete tag text if last tag is deleted" do
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    tt = create_tag_text team_id: t.id
+    t1 = create_tag tag: tt.id, annotated: pm1
+    t2 = create_tag tag: tt.id, annotated: pm2
+    assert_no_difference 'TagText.count' do
+      t1.destroy
+    end
+    assert_difference 'TagText.count', -1 do
+      t2.destroy
+    end
+  end
+
+  test "should not delete tag text if last tag is deleted but tag text is teamwide" do
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    tt = create_tag_text team_id: t.id, teamwide: true
+    t1 = create_tag tag: tt.id, annotated: pm1
+    t2 = create_tag tag: tt.id, annotated: pm2
+    assert_no_difference 'TagText.count' do
+      t1.destroy
+    end
+    assert_no_difference 'TagText.count' do
+      t2.destroy
+    end
+  end
+
+  test "should get team" do
+    t = create_tag
+    assert_kind_of Team, t.team
   end
 end

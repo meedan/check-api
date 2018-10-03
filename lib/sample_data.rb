@@ -708,4 +708,14 @@ module SampleData
     tbi.save!
     tbi.reload
   end
+
+  def create_tag_text(options = {})
+    tt = TagText.new
+    options = { text: random_string, team_id: create_team.id }.merge(options)
+    options.each do |key, value|
+      tt.send("#{key}=", value) if tt.respond_to?("#{key}=")
+    end
+    tt.save!
+    tt
+  end
 end
