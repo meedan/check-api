@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
   before_save :set_token, :set_login, :set_uuid
   after_update :set_blank_email_for_unconfirmed_user
   before_destroy :can_destroy_user, prepend: true
-  after_invitation_created :set_team_user
+  after_invitation_created :set_team_user_invitation
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
@@ -283,6 +283,36 @@ class User < ActiveRecord::Base
       e = StandardError.new('Could not read the last time that terms of service or privacy policy were updated')
       Airbrake.notify(e) if Airbrake.configuration.api_key
       0
+    end
+  end
+
+  def self.send_user_invitation(members, text=nil)
+    members.each do |role, emails|
+      emails.split(',').each do |email|
+        u = User.where(email: email).last
+        if u.nil?
+          User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role}, User.current)
+        else
+          u.invitation_role = role
+          u.set_team_user_invitation
+          # send invitation email 
+        end
+      end
+    end
+  end
+
+  def set_team_user_invitation
+    unless Team.current.nil?
+      tu = TeamUser.where(team_id: Team.current.id, user_id: self.id).last
+      if tu.nil?
+        tu = TeamUser.new
+        tu.user_id = self.id
+        tu.team_id = Team.current.id
+        tu.role = self.invitation_role
+        tu.status = 'invited'
+        tu.invited_by_id = User.current.id unless User.current.nil?
+        tu.save!
+      end
     end
   end
 

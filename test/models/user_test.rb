@@ -808,4 +808,48 @@ class UserTest < ActiveSupport::TestCase
     u.accept_terms = true
     assert u.reload.accepted_terms
   end
+
+  test "should invite users" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      members = {'contributor' => 'test1@local.com', 'journalist' => 'test2@local.com'}
+      assert_difference ['User.count', 'TeamUser.count'], 2 do
+        User.send_user_invitation(members)
+      end
+    end
+    u1 = User.where(email: 'test1@local.com').last
+    assert_equal u1.name, 'test1'
+    tu1 = TeamUser.where(team_id: t.id, user_id: u1.id).last
+    assert_equal tu1.role, 'contributor'
+    assert_equal tu1.status, 'invited'
+    assert_equal tu1.invited_by_id, u.id
+    u2 = User.where(email: 'test2@local.com').last
+    assert_equal u2.name, 'test2'
+    tu2 = TeamUser.where(team_id: t.id, user_id: u2.id).last
+    assert_equal tu2.role, 'journalist'
+    assert_equal tu2.status, 'invited'
+    assert_equal tu2.invited_by_id, u.id
+    # test invited multiple emails
+    with_current_user_and_team(u, t) do
+      members = {'journalist' => 'test3@local.com,test4@local.com'}
+      assert_difference ['User.count', 'TeamUser.count'], 2 do
+        User.send_user_invitation(members)
+      end
+    end
+    # invite existing user
+    t2 = create_team
+    create_team_user team: t2, user: u, role: 'owner'
+    with_current_user_and_team(u, t2) do
+      members = {'journalist' => 'test1@local.com'}
+      assert_no_difference 'User.count'do
+        assert_difference 'TeamUser.count' do
+          User.send_user_invitation(members)
+        end
+      end
+    end
+    assert_equal ['contributor', 'journalist'], u1.team_users.map(&:role).sort
+    # pp u1.team_users
+  end
 end
