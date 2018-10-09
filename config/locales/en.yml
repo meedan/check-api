@@ -142,9 +142,9 @@ en:
   mail_new_account: New account for you on %{app_name}
   slack:
     fields:
-      button: "View %{type} on %{app}"
+      view_button: "View %{type} on %{app}"
     messages:
-      task_create: "%{user} (%{role}) created a task on %{item}"
+      task_create: "%{user} (%{role} at %{team}) created a task on %{item}"
   slack_update_verification_status: "*%{user}* changed the verification status on %{url} in *%{project}*
     from _%{from}_ to *%{to}*"
   slack_save_embed: "*%{user}* changed a report title in *%{project}* from _%{from}_

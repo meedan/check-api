@@ -19,7 +19,6 @@ class Bot::Slack < ActiveRecord::Base
   end
 
   def notify_slack(model)
-    # Get team & project
     p = self.get_project(model)
     t = self.get_team(model, p)
 
@@ -27,8 +26,12 @@ class Bot::Slack < ActiveRecord::Base
       webhook = t.setting(:slack_webhook)
       channel = p.setting(:slack_channel) unless p.nil?
       channel ||= t.setting(:slack_channel)
-      message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
-      self.bot_send_slack_notification(model, webhook, channel, message)
+      attachment = model.slack_notification_message if model.respond_to?(:slack_notification_message)
+      attachment = {
+        fallback: attachment,
+        pretext: attachment
+      } if attachment.is_a? String
+      self.bot_send_slack_notification(model, webhook, channel, attachment)
     end
     self.notify_super_admin(model, t, p)
   end
@@ -37,27 +40,41 @@ class Bot::Slack < ActiveRecord::Base
     if self.should_notify_super_admin?(model)
       webhook = self.setting(:slack_webhook)
       channel = self.setting(:slack_channel)
-      message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
-      unless message.blank?
+      attachment = model.slack_notification_message if model.respond_to?(:slack_notification_message)
+      attachment = {
+        fallback: attachment,
+        pretext: attachment
+      } if attachment.is_a? String
+      unless attachment.dig(:pretext).blank?
         prefix = team.name
         prefix += ": #{project.title}" unless project.nil?
-        message  = "[#{prefix}] #{message}"
+        attachment.pretext = "[#{prefix}] #{attachment[:pretext]}"
       end
-      self.bot_send_slack_notification(model, webhook, channel, message)
+      self.bot_send_slack_notification(model, webhook, channel, attachment)
     end
   end
 
-  def bot_send_slack_notification(model, webhook, channel, message)
-    return if webhook.blank? || channel.blank? || message.blank?
+  def bot_send_slack_notification(model, webhook, channel, attachment)
+    return if webhook.blank? || channel.blank? || attachment.blank?
 
     data = {
       payload: {
         channel: channel,
-        text: message.gsub('\\n', "\n")
+        attachments: [self.prepare_attachment(attachment)]
       }.to_json
     }
 
     Rails.env === 'test' ? self.request_slack(model, webhook, data) : SlackNotificationWorker.perform_async(webhook, YAML::dump(data), YAML::dump(User.current))
+  end
+
+  def prepare_attachment(attachment)
+    {
+      fallback: attachment.dig(:fallback)&.gsub('\\n', "\n"),
+      pretext: attachment.dig(:pretext)&.gsub('\\n', "\n"),
+      text: attachment.dig(:text)&.gsub('\\n', "\n"),
+      footer: attachment.dig(:footer)&.gsub('\\n', "\n"),
+      fields: attachment.dig(:fields)&.map {|field| field.dig(:value).gsub('\\n', "\n") }
+    }.delete_if { |k, v| v.nil? }
   end
 
   def request_slack(model, webhook, data)
