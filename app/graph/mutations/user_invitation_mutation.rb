@@ -7,7 +7,7 @@ UserInvitationMutation = GraphQL::Relay::Mutation.define do
   return_field :success, types.Boolean
 
   resolve -> (_root, inputs, _ctx) {
-    User.send_user_invitation(inputs[:members], inputs[:invitation])
-    { success: true }
+    messages = User.send_user_invitation(inputs[:members], inputs[:invitation])
+    { success: true, messages: messages }
   }
 end
