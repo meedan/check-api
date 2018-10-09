@@ -308,6 +308,8 @@ class User < ActiveRecord::Base
   end
 
   def self.accept_team_invitation(token, slug)
+    user = User.find_by_invitation_token(token, true)
+    User.accept_invitation!(:invitation_token => token, :password => "dummypassword") unless user.nil?
     t = Team.where(slug: slug).last
     unless t.nil?
       invitation_token = Devise.token_generator.digest(self, :invitation_token, token)
@@ -322,7 +324,7 @@ class User < ActiveRecord::Base
   end
 
   def set_team_user_invitation
-    msg = ''
+    msg = {}
     unless Team.current.nil?
       tu = TeamUser.where(team_id: Team.current.id, user_id: self.id).last
       if tu.nil?
@@ -340,11 +342,19 @@ class User < ActiveRecord::Base
           # send invitation email
           self.send_invitation_mail(raw)
         end
+      elsif tu.status == 'invited'
+        tu.invitation_token = self.invitation_token; tu.save!
+        msg[self.email] = 'This email already invited to this team'
       else
-        msg[self.email] = 'This email is a team memeber'
+        msg[self.email] = 'This email already a team member'
       end
     end
     msg
+  end
+
+  def send_invitation_mail(token)
+    self.invited_by = User.current
+    DeviseMailer.delay.invitation_instructions(self, token, opts={})
   end
 
   # private

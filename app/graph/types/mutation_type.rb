@@ -72,6 +72,7 @@ MutationType = GraphQL::ObjectType.define do
   field :changePassword, field: ChangePasswordMutation.field
   field :resendConfirmation, field: ResendConfirmationMutation.field
   field :userInvitation, field: UserInvitationMutation.field
+  field :resendCancelInvitation, field: ResendCancelInvitationMutation.field
 
   field :createTeamBotInstallation, field: TeamBotInstallationMutations::Create.field
   field :updateTeamBotInstallation, field: TeamBotInstallationMutations::Update.field

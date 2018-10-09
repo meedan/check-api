@@ -20,7 +20,7 @@ class DeviseMailer < Devise::Mailer
     @client_host = CONFIG['checkdesk_client']
     @url = "#{CONFIG['checkdesk_client']}/#{Team.current.slug}"
     user = record.invited_by.nil? ? 'Someone' : record.invited_by.name
-    opts[:subject] = I18n.t(:'devise.mailer.invitation_instructions.subject', user: record.invited_by.name, team: Team.current.name)
+    opts[:subject] = I18n.t(:'devise.mailer.invitation_instructions.subject', user: user, team: Team.current.name)
     super
   end
 end
