@@ -1,0 +1,5 @@
+<%= t("devise.mailer.invitation_instructions.hello", email: @resource.email) %>
+
+<%= t("devise.mailer.invitation_instructions.someone_invited_you", url: @url) %>
+
+<%= strip_tags t("devise.mailer.invitation_instructions.ignore") %>

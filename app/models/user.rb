@@ -287,33 +287,64 @@ class User < ActiveRecord::Base
   end
 
   def self.send_user_invitation(members, text=nil)
+    msg = {}
     members.each do |role, emails|
       emails.split(',').each do |email|
         u = User.where(email: email).last
-        if u.nil?
-          User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role}, User.current)
-        else
-          u.invitation_role = role
-          u.set_team_user_invitation
-          # send invitation email 
+        begin
+          if u.nil?
+            User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role}, User.current)
+            msg[email] = 'success'
+          else
+            u.invitation_role = role
+            msg.merge!(u.set_team_user_invitation)
+          end
+        rescue StandardError => e
+          msg[email] = e.message
         end
+      end
+    end
+    msg
+  end
+
+  def self.accept_team_invitation(token, slug)
+    t = Team.where(slug: slug).last
+    unless t.nil?
+      invitation_token = Devise.token_generator.digest(self, :invitation_token, token)
+      tu = TeamUser.where(team_id: t.id, status: 'invited', invitation_token: invitation_token).last
+      unless tu.nil?
+        tu.invitation_accepted_at = Time.now.utc
+        tu.invitation_token = nil
+        tu.status = 'member'
+        tu.save!
       end
     end
   end
 
   def set_team_user_invitation
+    msg = ''
     unless Team.current.nil?
       tu = TeamUser.where(team_id: Team.current.id, user_id: self.id).last
       if tu.nil?
+        raw, enc = Devise.token_generator.generate(User, :invitation_token) if self.invitation_token.nil?
         tu = TeamUser.new
         tu.user_id = self.id
         tu.team_id = Team.current.id
         tu.role = self.invitation_role
         tu.status = 'invited'
-        tu.invited_by_id = User.current.id unless User.current.nil?
-        tu.save!
+        tu.invited_by_id = self.invited_by_id
+        tu.invited_by_id ||= User.current.id unless User.current.nil?
+        tu.invitation_token = self.invitation_token || enc
+        if tu.save!
+          msg[self.email] = 'success'
+          # send invitation email
+          self.send_invitation_mail(raw)
+        end
+      else
+        msg[self.email] = 'This email is a team memeber'
       end
     end
+    msg
   end
 
   # private
