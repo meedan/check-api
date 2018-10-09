@@ -41,7 +41,7 @@ class Bot::Slack < ActiveRecord::Base
       unless message.blank?
         prefix = team.name
         prefix += ": #{project.title}" unless project.nil?
-        message  = "[#{prefix}] - #{message}"
+        message  = "[#{prefix}] #{message}"
       end
       self.bot_send_slack_notification(model, webhook, channel, message)
     end
@@ -103,7 +103,7 @@ class Bot::Slack < ActiveRecord::Base
   def get_project(model)
     p = model if model.class.to_s == 'Project'
     p = model.project if model.respond_to?(:project)
-    if model.is_annotation? 
+    if model.is_annotation?
       p = model&.annotated&.project if model.annotated_type == 'ProjectMedia'
       p = model&.annotated&.annotated&.project if model.annotated_type == 'Task'
     end
@@ -156,7 +156,7 @@ class Bot::Slack < ActiveRecord::Base
     end
 
     def call_slack_api(endpoint)
-      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.nil? 
+      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.nil?
     end
 
     # The default behavior is to update an existing Slack message
@@ -204,7 +204,7 @@ class Bot::Slack < ActiveRecord::Base
 
   Dynamic.class_eval do
     include ::Bot::Slack::SlackMessage
-    
+
     create_or_update_slack_message on: :create, endpoint: :post_message, if: proc { |a| a.annotation_type == 'translation' }
 
     def slack_message_parameters(id, _channel, attachments)
@@ -218,7 +218,7 @@ class Bot::Slack < ActiveRecord::Base
 
   DynamicAnnotation::Field.class_eval do
     include ::Bot::Slack::SlackMessage
-    
+
     create_or_update_slack_message on: :update, endpoint: :update, if: proc { |f| f.annotation.annotation_type.match(/_status$/) }
   end
 
