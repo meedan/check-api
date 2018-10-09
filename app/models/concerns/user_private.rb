@@ -48,12 +48,7 @@ module UserPrivate
   end
 
   def send_welcome_email
-    RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration']
-  end
-
-  def send_invitation_mail(token)
-    self.invited_by = User.current
-    DeviseMailer.delay.invitation_instructions(self, token, opts={})
+    RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration'] && !self.invited_to_sign_up?
   end
 
   def user_is_member_in_current_team
