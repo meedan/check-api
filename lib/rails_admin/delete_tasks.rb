@@ -25,7 +25,6 @@ module RailsAdmin
               respond_with(@object)
             elsif request.put? # UPDATE
               RequestStore.store[:ability] = :admin
-              @object.set_checklist([])
               if @object.save
                 respond_to do |format|
                   format.html { redirect_to_on_success }

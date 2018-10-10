@@ -355,9 +355,6 @@ RailsAdmin.config do |config|
       configure :get_slack_channel do
         label 'Slack default #channel'
       end
-      configure :get_checklist, :json do
-        label 'Checklist'
-      end
       configure :private do
         visible_only_for_admin
       end
@@ -441,18 +438,6 @@ RailsAdmin.config do |config|
         formatted_value{ bindings[:object].get_slack_channel }
         help "The Slack channel to which Check should send notifications about events that occur in your team."
         visible_only_for_allowed_teams 'slack_integration', true
-      end
-      field :checklist, :yaml do
-        partial "json_editor"
-        help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
-        visible_only_for_allowed_teams 'custom_tasks_list'
-      end
-      field :raw_checklist, :yaml do
-        label 'Raw Checklist'
-        formatted_yaml(:raw_checklist)
-        help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
-        render_settings('text', true)
-        visible_only_for_allowed_teams 'custom_tasks_list'
       end
       field :limits, :yaml do
         partial "json_editor"

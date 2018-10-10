@@ -704,7 +704,7 @@ class TeamTest < ActiveSupport::TestCase
       t.checklist = value
       t.save!
     end
-    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
+    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.reload.checklist.first[:options]
   end
 
   test "should return checklist options as array after submit task without it" do
@@ -817,9 +817,11 @@ class TeamTest < ActiveSupport::TestCase
     t.set_checklist(value)
     t.save!
     assert_equal ['A task'], t.reload.get_checklist.collect{ |t| t[:label] }
+    t = Team.find(t.id)
     t.add_auto_task = { label: 'Another task', type: 'free_text', description: '', projects: [], options: [] }
     t.save!
     assert_equal ['A task', 'Another task'], t.reload.get_checklist.collect{ |t| t[:label] }
+    t = Team.find(t.id)
     t.remove_auto_task = 'A task'
     t.save!
     assert_equal ['Another task'], t.reload.get_checklist.collect{ |t| t[:label] }

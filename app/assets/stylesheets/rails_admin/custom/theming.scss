@@ -355,8 +355,7 @@ h4 {
 #source_verification_statuses_editor_holder,
 #media_translation_statuses_editor_holder,
 #source_translation_statuses_editor_holder,
-#limits_editor_holder,
-#checklist_editor_holder {
+#limits_editor_holder {
   .control-group:focus {
   }
 
@@ -434,18 +433,6 @@ h4 {
   }
 }
 
-#team_raw_checklist_field {
-  label {
-    cursor: pointer;
-	}
-  .controls {
-    display: none;
-    textarea {
-      resize: vertical;
-    }
-  }
-}
-
 #team_limits {
   height: 280px !important;
 }
@@ -482,14 +469,6 @@ h4 {
 ul.nav-tabs {
   li.delete_tasks_member_link {
     display: none;
-  }
-}
-
-#checklist_editor_holder {
-  & > [data-schemapath="root"] > .well > .btn-group button {
-    &.json-editor-btn-delete:last-child:not(:first-child) {
-      display: none;
-    }
   }
 }
 

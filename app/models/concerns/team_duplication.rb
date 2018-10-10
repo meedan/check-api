@@ -24,7 +24,6 @@ module TeamDuplication
           team.is_being_copied = true
           team.save(validate: false)
           @copy_team = team
-          team.update_team_checklist(@mapping[:Project])
           self.copy_annotations
           self.update_relationships
           self.copy_versions(@mapping[:"PaperTrail::Version"])
@@ -202,13 +201,5 @@ module TeamDuplication
       i += 1
     end
     slug
-  end
-
-  def update_team_checklist(project_mapping)
-    return if self.get_checklist.blank?
-    self.get_checklist.each do |task|
-      task[:projects].map! { |p| project_mapping[p] ? project_mapping[p].id : p } if task[:projects]
-    end
-    self.save(validate: false)
   end
 end
