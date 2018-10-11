@@ -173,6 +173,7 @@ class UserTest < ActiveSupport::TestCase
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
         create_user provider: 'twitter'
         create_user provider: 'facebook'
+        User.invite!(email: 'test@local.com', name: 'test')
       end
     end
 
@@ -809,6 +810,67 @@ class UserTest < ActiveSupport::TestCase
     assert u.reload.accepted_terms
   end
 
+  test "should invite and accept users with three cases" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    # case A (non existing user to one team)
+    with_current_user_and_team(u, t) do
+      members = {'contributor' => 'test1@local.com'}
+      output = User.send_user_invitation(members)
+      iu = User.where(email: 'test1@local.com').last
+      assert iu.is_invited?
+      assert_equal [iu.read_attribute(:raw_invitation_token)], iu.team_users.map(&:raw_invitation_token)
+    end
+    # case B (non existing user to multiple teams)
+    t2 = create_team
+    create_team_user team: t2, user: u, role: 'owner'
+    u1 = User.where(email: 'test1@local.com').last
+    with_current_user_and_team(u, t2) do
+      members = {'contributor' => 'test1@local.com'}
+      User.send_user_invitation(members)
+      u1.reload
+      assert u1.reload.is_invited?
+      token = u1.read_attribute(:raw_invitation_token)
+      assert_equal [token, token], u1.team_users.map(&:raw_invitation_token)
+    end
+    # case C (existing user to one or multiple team)
+    u3 = create_user email: 'test3@local.com'
+    with_current_user_and_team(u, t) do
+      assert_not u3.is_invited?
+      members = {'contributor' => 'test3@local.com'}
+      User.send_user_invitation(members)
+      u3.reload
+      assert_nil u3.read_attribute(:raw_invitation_token)
+      assert_not_nil u3.team_users.map(&:raw_invitation_token)
+      assert u3.is_invited?
+    end
+    with_current_user_and_team(u, t2) do
+      assert_not u3.is_invited?
+       members = {'contributor' => 'test3@local.com'}
+       User.send_user_invitation(members)
+       u3.reload
+       assert_nil u3.read_attribute(:raw_invitation_token)
+       assert_equal 2, u3.team_users.map(&:raw_invitation_token).uniq.size
+       assert u3.is_invited?
+    end
+    # Accept invitation for case A & Case B
+    u1_token = u1.reload.read_attribute(:raw_invitation_token)
+    User.accept_team_invitation(u1_token, t.slug)
+    assert_not u1.reload.is_invited?(t)
+    assert u1.is_invited?(t2)
+    User.accept_team_invitation(u1_token, t2.slug)
+    assert_not u1.is_invited?(t2)
+    # Accept invitation for case C
+    u3_token = u3.team_users.where(team_id: t.id).last.raw_invitation_token
+    User.accept_team_invitation(u3_token, t.slug)
+    assert_not u3.is_invited?(t)
+    assert u3.is_invited?(t2)
+    u3_token = u3.team_users.where(team_id: t2.id).last.raw_invitation_token
+    User.accept_team_invitation(u3_token, t2.slug)
+    assert_not u3.is_invited?(t2)
+  end
+
   test "should invite users" do
     t = create_team
     u = create_user
@@ -850,6 +912,41 @@ class UserTest < ActiveSupport::TestCase
       end
     end
     assert_equal ['contributor', 'journalist'], u1.team_users.map(&:role).sort
-    # pp u1.team_users
+  end
+
+  test "should cancel user invitation" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    u2 = create_user email: 'test2@local.com'
+    with_current_user_and_team(u, t) do
+      members = {'contributor' => 'test1@local.com, test2@local.com'}
+      User.send_user_invitation(members)
+    end
+    t2 = create_team
+    create_team_user team: t2, user: u, role: 'owner'
+    with_current_user_and_team(u, t2) do
+      members = {'contributor' => 'test1@local.com, test2@local.com'}
+      User.send_user_invitation(members)
+    end
+    user = User.where(email: 'test1@local.com').last
+    with_current_user_and_team(u, t) do
+      assert_difference 'TeamUser.count', -1 do
+        User.cancel_user_invitation(user)
+      end
+      assert_difference 'TeamUser.count', -1 do
+        User.cancel_user_invitation(u2)
+      end
+    end
+    with_current_user_and_team(u, t2) do
+      assert_difference ['TeamUser.count', 'User.count'], -1 do
+        User.cancel_user_invitation(user)
+      end
+      assert_difference 'TeamUser.count', -1 do
+        assert_no_difference 'User.count' do
+          User.cancel_user_invitation(u2)
+        end
+      end
+    end
   end
 end
