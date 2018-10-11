@@ -87,4 +87,19 @@ module UserPrivate
     count += ProjectSource.where(user_id: self.id).count
     return false if count > 0
   end
+
+  def create_team_user_invitation(options = {})
+    tu = TeamUser.new
+    tu.user_id = self.id
+    tu.team_id = Team.current.id
+    tu.role = self.invitation_role
+    tu.status = 'invited'
+    tu.invited_by_id = self.invited_by_id
+    tu.invited_by_id ||= User.current.id unless User.current.nil?
+    tu.invitation_token = self.invitation_token || options[:enc]
+    tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
+    tu.save!
+    tu
+  end
+
 end

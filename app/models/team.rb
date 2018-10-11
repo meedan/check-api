@@ -256,7 +256,7 @@ class Team < ActiveRecord::Base
   end
 
   def invited_mails
-    TeamUser.where(team_id: 1, status: 'invited').map(&:user).map(&:email) unless Team.current.nil?
+    TeamUser.where(team_id: Team.current.id, status: 'invited').map(&:user).map(&:email) unless Team.current.nil?
   end
 
   protected

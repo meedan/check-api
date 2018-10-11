@@ -291,6 +291,12 @@ en:
           through the link below. <strong>Please note that this link expires in %{expire} hours.</strong>"
       invitation_instructions:
         subject: "%{user} invited you to join %{team} team"
+        hello: "Hello %{name}"
+        someone_invited_you_default: "%{name} has invited you to %{team}."
+        someone_invited_you_custom: "%{name} has invited you to %{team}, saying:"
+        accept: 'You can accept this invitation through this link: %{url}'
+        ignore: "If you don't want to accept the invitation, please ignore this email."
+        app_team: "%{app} Team"
   error_user_is_not_a_team_member: "Sorry, you can only assign tasks to members of this team"
   slack_assign_verification_status: "*%{user}* assigned %{url} to *%{assignee}* in project *%{project}*"
   slack_unassign_verification_status: "*%{user}* unassigned %{url} from *%{assignee}* in project *%{project}*"

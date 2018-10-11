@@ -8,6 +8,6 @@ UserInvitationMutation = GraphQL::Relay::Mutation.define do
 
   resolve -> (_root, inputs, _ctx) {
     messages = User.send_user_invitation(inputs[:members], inputs[:invitation])
-    { success: true, messages: messages }
+    { success: messages }
   }
 end

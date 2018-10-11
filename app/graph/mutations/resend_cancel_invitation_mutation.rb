@@ -12,20 +12,15 @@ ResendCancelInvitationMutation = GraphQL::Relay::Mutation.define do
     if user.nil?
       raise ActiveRecord::RecordNotFound
     else
-      tu = user.team_users.where(team_id: Team.current.id).last
-      if action == 'cancel'
-        tu.destroy if tu.status == 'invited' && tu.invitation_token.nil?
-        user.destroy if user.invited_to_sign_up?
-      elsif action == 'resend'
-        if user.invited_to_sign_up?
-          user.invite!
-        else
-          raw, enc = Devise.token_generator.generate(User, :invitation_token)
-          tu.invitation_token = enc; tu.save!
-          user.send_invitation_mail(raw)
-        end
+      case inputs[:action]
+      when 'cancel'
+        User.cancel_user_invitation(user)
+      when 'resend'
+        tu = user.team_users.where(team_id: Team.current.id).last
+        user.send_invitation_mail(tu.raw_invitation_token)
       end
       { success: true }
     end
   }
 end
+
