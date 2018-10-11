@@ -4,7 +4,10 @@ en:
   claim: Claim
   uploadedimage: Image
   uploadefile: File
+  task: Task
   blank: "(blank)"
+  answer_yes: "Yes"
+  answer_no: "No"
   statuses:
     media:
       undetermined:
@@ -142,9 +145,11 @@ en:
   mail_new_account: New account for you on %{app_name}
   slack:
     fields:
+      assigned: "Assigned to"
+      required: "Required?"
       view_button: "View %{type} on %{app}"
     messages:
-      task_create: "%{user} (%{role} at %{team}) created a task on %{item}"
+      task_create: "%{user} (%{role} at %{team}) created a new task in %{project}"
   slack_update_verification_status: "*%{user}* changed the verification status on %{url} in *%{project}*
     from _%{from}_ to *%{to}*"
   slack_save_embed: "*%{user}* changed a report title in *%{project}* from _%{from}_

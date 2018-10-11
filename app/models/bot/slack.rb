@@ -68,13 +68,8 @@ class Bot::Slack < ActiveRecord::Base
   end
 
   def prepare_attachment(attachment)
-    {
-      fallback: attachment.dig(:fallback)&.gsub('\\n', "\n"),
-      pretext: attachment.dig(:pretext)&.gsub('\\n', "\n"),
-      text: attachment.dig(:text)&.gsub('\\n', "\n"),
-      footer: attachment.dig(:footer)&.gsub('\\n', "\n"),
-      fields: attachment.dig(:fields)&.map {|field| field.dig(:value).gsub('\\n', "\n") }
-    }.delete_if { |k, v| v.nil? }
+    attachment.dig(:fields)&.delete_if { |f| f[:value].blank? }
+    attachment
   end
 
   def request_slack(model, webhook, data)
@@ -97,12 +92,12 @@ class Bot::Slack < ActiveRecord::Base
       { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
         text = text.gsub(k,v)
       }
-      truncate ? text.truncate(140) : text
+      truncate ? text.truncate(280) : text
     end
 
-    def to_slack_url(url, text)
+    def to_slack_url(url, text, truncate = true)
       url.insert(0, "#{CONFIG['checkdesk_client']}/") unless url.start_with? "#{CONFIG['checkdesk_client']}/"
-      text = self.to_slack(text)
+      text = self.to_slack(text, truncate)
       text = text.tr("\n", ' ')
       "<#{url}|#{text}>"
     end

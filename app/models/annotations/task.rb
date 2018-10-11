@@ -45,20 +45,47 @@ class Task < ActiveRecord::Base
   end
 
   def slack_message_on_create
-    note = self.description.blank? ? '' : I18n.t(:slack_create_task_note, { note: Bot::Slack.to_slack_quote(self.description) })
-    assignment = self.assigned_to_id.to_i > 0 ? I18n.t(:slack_create_task_assignment, { assignee: Bot::Slack.to_slack(User.find(self.assigned_to_id).name) }) : ''
-    params = self.slack_default_params.merge({
-      create_note: note,
-      assignment: assignment
-    })
-    I18n.t(:slack_create_task_message, params)
+    params = self.slack_default_params
+    {
+      pretext: I18n.t(:'slack.messages.task_create', params),
+      title: params[:label],
+      title_link: params[:url],
+      author_name: params[:user],
+      text: params[:description],
+      fields: [
+        {
+          title: I18n.t(:'slack.fields.assigned'),
+          value: params[:assigned],
+          short: true
+        },
+        {
+          title: I18n.t(:'slack.fields.required'),
+          value: self.required ? I18n.t(:answer_yes) : nil,
+          short: true
+        }
+      ],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def slack_default_params
     {
       user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.annotated_client_url, self.label),
-      project: Bot::Slack.to_slack(self.annotated.project.title)
+      project: Bot::Slack.to_slack(self.annotated.project.title),
+      role: I18n.t('role_' + User.current.role(self.annotated.project.team).to_s),
+      team: Bot::Slack.to_slack(self.annotated.project.team.name),
+      item: Bot::Slack.to_slack(self.annotated.title),
+      label: Bot::Slack.to_slack(self.label),
+      description: Bot::Slack.to_slack(self.description),
+      button: I18n.t(:'slack.fields.view_button', { type: I18n.t(:task), app: CONFIG['app_name'] }),
+      assigned: self.assigned_to_id.to_i > 0 ? Bot::Slack.to_slack(User.find(self.assigned_to_id).name) : '',
+      url: self.annotated_client_url
     }
   end
 
@@ -169,7 +196,7 @@ class Task < ActiveRecord::Base
     response = response.load
     suggestion = response.get_fields.select{ |f| f.field_name =~ /^suggestion/ }.first
     return if suggestion.nil?
-    
+
     # Save review information and copy suggestion to answer if accepted
     review = { user: User.current, timestamp: Time.now, accepted: accept }.to_json
     fields = { "review_#{self.type}" => review }
