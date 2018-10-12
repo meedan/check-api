@@ -33,7 +33,6 @@ module TeamDuplication
           team
         end
       rescue StandardError => e
-        raise e
         self.log_error(e, t)
         nil
       end
