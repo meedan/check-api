@@ -26,22 +26,44 @@ class Dynamic < ActiveRecord::Base
     end
   end
 
-  def slack_notification_message_task_response
-    self.slack_answer_task_message
+  def slack_params
+    response, task = self.values(['response', 'task'], '').values_at('response', 'task')
+    params = super
+    params.deep_merge({
+      label: Bot::Slack.to_slack(Task.find(task).label),
+      response: Bot::Slack.to_slack(response),
+      button: I18n.t(:'slack.fields.view_button', { type: I18n.t(:task), app: CONFIG['app_name'] })
+    })
   end
 
-  def slack_answer_task_message
-    response, note, task = self.values(['response', 'note', 'task'], '').values_at('response', 'note', 'task')
-    task = Task.find(task).label
-
-    note = I18n.t(:slack_answer_task_note, {note: Bot::Slack.to_slack_quote(note)}) unless note.blank?
-    I18n.t(:slack_answer_task,
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.annotated_client_url, task),
-      project: Bot::Slack.to_slack(self.annotated.project.title),
-      response: Bot::Slack.to_slack_quote(response),
-      answer_note: note
-    )
+  def slack_notification_message_task_response
+    params = self.slack_params
+    {
+      pretext: I18n.t(:'slack.messages.task_answer', params),
+      title: params[:label],
+      title_link: params[:url],
+      author_name: params[:user],
+      text: params[:response],
+      fields: [
+        {
+          title: I18n.t(:'slack.fields.project'),
+          value: params[:project],
+          short: true
+        },
+        {
+          title: I18n.t(:'slack.fields.item'),
+          value: params[:item],
+          short: false
+        }
+      ],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def data

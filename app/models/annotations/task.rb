@@ -5,7 +5,7 @@ class Task < ActiveRecord::Base
 
   before_validation :set_initial_status, :set_slug, on: :create
   after_create :send_slack_notification
-  after_update :send_slack_notification_in_background
+  after_update :send_slack_notification
   after_destroy :destroy_responses
 
   field :label
@@ -36,18 +36,35 @@ class Task < ActiveRecord::Base
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
 
-  def slack_notification_message
-    if self.versions.count > 1
-      self.slack_message_on_update
-    else
-      self.slack_message_on_create
-    end
+  def slack_params
+    params = super
+    params.deep_merge({
+      label: Bot::Slack.to_slack(self.label),
+      description: Bot::Slack.to_slack(self.description),
+      assigned: self.assigned_to_id.to_i > 0 ? Bot::Slack.to_slack(User.find(self.assigned_to_id).name) : nil,
+      unassigned: nil
+    })
   end
 
-  def slack_message_on_create
-    params = self.slack_default_params
+  def slack_notification_message
+    params = self.slack_params
+    event = 'create'
+    if self.changed?
+      if self.assigned_to_id_changed?
+        if self.assigned_to_id.to_i > 0
+          event = 'assign'
+        else
+          event = 'unassign'
+          params = params.merge({
+            unassigned: Bot::Slack.to_slack(User.find(self.assigned_to_id_was).name)
+          })
+        end
+      else
+        event = 'edit'
+      end
+    end
     {
-      pretext: I18n.t(:'slack.messages.task_create', params),
+      pretext: I18n.t("slack.messages.task_#{event}".to_sym, params),
       title: params[:label],
       title_link: params[:url],
       author_name: params[:user],
@@ -59,9 +76,24 @@ class Task < ActiveRecord::Base
           short: true
         },
         {
+          title: I18n.t(:'slack.fields.unassigned'),
+          value: params[:unassigned],
+          short: true
+        },
+        {
           title: I18n.t(:'slack.fields.required'),
           value: self.required ? I18n.t(:answer_yes) : nil,
           short: true
+        },
+        {
+          title: I18n.t(:'slack.fields.project'),
+          value: params[:project],
+          short: true
+        },
+        {
+          title: I18n.t(:'slack.fields.item'),
+          value: params[:item],
+          short: false
         }
       ],
       actions: [
@@ -72,62 +104,6 @@ class Task < ActiveRecord::Base
         }
       ]
     }
-  end
-
-  def slack_default_params
-    {
-      user: Bot::Slack.to_slack(User.current.name),
-      project: Bot::Slack.to_slack(self.annotated.project.title),
-      role: I18n.t('role_' + User.current.role(self.annotated.project.team).to_s),
-      team: Bot::Slack.to_slack(self.annotated.project.team.name),
-      item: Bot::Slack.to_slack(self.annotated.title),
-      label: Bot::Slack.to_slack(self.label),
-      description: Bot::Slack.to_slack(self.description),
-      button: I18n.t(:'slack.fields.view_button', { type: I18n.t(:task), app: CONFIG['app_name'] }),
-      assigned: self.assigned_to_id.to_i > 0 ? Bot::Slack.to_slack(User.find(self.assigned_to_id).name) : '',
-      url: self.annotated_client_url
-    }
-  end
-
-  def slack_message_on_update
-    messages = []
-
-    if self.data_changed?
-      data = self.data
-      data_was = self.data_was
-
-      ['label', 'description'].each do |key|
-        if data_was[key].to_s != data[key].to_s
-          params = self.slack_default_params.merge({
-            from: Bot::Slack.to_slack_quote(data_was[key]),
-            to: Bot::Slack.to_slack_quote(data[key])
-          })
-          messages << I18n.t("slack_update_task_#{key}".to_sym, params)
-        end
-      end
-    end
-
-    messages << self.slack_message_for_assignment if self.assigned_to_id_changed?
-
-    message = messages.join("\n")
-
-    message.blank? ? nil : message
-  end
-
-  def slack_message_for_assignment
-    action = ''
-    uid = nil
-    if self.assigned_to_id.to_i > 0
-      uid = self.assigned_to_id
-      action = 'assign'
-    else
-      uid = self.assigned_to_id_was
-      action = 'unassign'
-    end
-    params = self.slack_default_params.merge({
-      assignee: Bot::Slack.to_slack(User.find(uid).name)
-    })
-    I18n.t("slack_#{action}_task".to_sym, params)
   end
 
   def content

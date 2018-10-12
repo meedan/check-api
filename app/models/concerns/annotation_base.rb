@@ -278,6 +278,18 @@ module AnnotationBase
     self.send("#{name}_id=", obj.id)
   end
 
+  def slack_params
+    {
+      user: Bot::Slack.to_slack(User.current.name),
+      project: Bot::Slack.to_slack(self.annotated.project.title),
+      role: I18n.t('role_' + User.current.role(self.annotated.project.team).to_s),
+      team: Bot::Slack.to_slack(self.annotated.project.team.name),
+      item: Bot::Slack.to_slack(self.annotated.title),
+      url: self.annotated_client_url,
+      button: I18n.t(:'slack.fields.view_button', { type: I18n.t(self.class_name.downcase.to_sym), app: CONFIG['app_name'] })
+    }
+  end
+
   private
 
   def set_type_and_event

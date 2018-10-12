@@ -3,7 +3,7 @@ en:
   link: Link
   claim: Claim
   uploadedimage: Image
-  uploadefile: File
+  uploadedfile: File
   task: Task
   blank: "(blank)"
   answer_yes: "Yes"
@@ -146,10 +146,18 @@ en:
   slack:
     fields:
       assigned: "Assigned to"
+      unassigned: "Unassigned from"
       required: "Required?"
+      item: "Item"
+      project: "Project"
       view_button: "View %{type} on %{app}"
     messages:
-      task_create: "%{user} (%{role} at %{team}) created a new task in %{project}"
+      task_create: "%{user} (%{role} at %{team}) created a task"
+      task_edit: "%{user} (%{role} at %{team}) edited a task"
+      task_assign: "%{user} (%{role} at %{team}) assigned a task"
+      task_unassign: "%{user} (%{role} at %{team}) unassigned a task"
+      task_answer: "%{user} (%{role} at %{team}) answered a task"
+      task_comment: "%{user} (%{role} at %{team}) added a note to a task"
   slack_update_verification_status: "*%{user}* changed the verification status on %{url} in *%{project}*
     from _%{from}_ to *%{to}*"
   slack_save_embed: "*%{user}* changed a report title in *%{project}* from _%{from}_
@@ -161,19 +169,6 @@ en:
   slack_create_related_media: "*%{user}* added a related %{type} to \"%{parent}\" in *%{project}*: %{url}"
   slack_create_project_media_no_user: "A new %{type} has been added to *%{project}*: %{url}"
   slack_create_related_media_no_user: "A %{type} related to \"%{parent}%\" has been added to *%{project}*: %{url}"
-  slack_create_task_message: "*%{user}* created task %{url} in *%{project}*%{assignment}%{create_note}"
-  slack_create_task_assignment: " assigned to %{assignee}"
-  slack_create_task_note: " with note: %{note}"
-  slack_answer_task: |-
-    *%{user}* answered task %{url} in *%{project}*: %{response}
-    %{answer_note}
-  slack_answer_task_note: "*Note:* %{note}"
-  slack_update_task_label: |-
-    *%{user}* edited task %{url} in *%{project}* from: %{from}
-    *To:* %{to}
-  slack_update_task_description: |-
-    *%{user}* edited task note at %{url} in *%{project}* from: %{from}
-    *To:* %{to}
   mail_view_welcome: Welcome to %{app_name}
   mail_view_register: 'You are only one step away from using %{app_name}! Please confirm
     your email address by clicking the following link:'
@@ -304,8 +299,6 @@ en:
   slack_unassign_verification_status: "*%{user}* unassigned %{url} from *%{assignee}* in project *%{project}*"
   slack_assign_translation_status: "*%{user}* assigned %{url} to *%{assignee}* in project *%{project}*"
   slack_unassign_translation_status: "*%{user}* unassigned %{url} from *%{assignee}* in project *%{project}*"
-  slack_assign_task: "*%{user}* assigned task %{url} in *%{project}* to *%{assignee}*"
-  slack_unassign_task: "*%{user}* unassigned task %{url} in *%{project}* from *%{assignee}*"
   mail_see_it: "You can see it at: "
   mail_subject_assign_verification_status: "[%{team} - %{project}] A media item was assigned to you"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] A media item was unassigned from you"
