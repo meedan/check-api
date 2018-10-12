@@ -107,7 +107,13 @@ class Team < ActiveRecord::Base
   end
 
   def remove_auto_task=(task_label)
-    TeamTask.where({ team_id: self.id, label: task_label }).destroy!
+    TeamTask.where({ team_id: self.id, label: task_label }).map(&:destroy!)
+  end
+
+  def team_tasks=(list)
+    list.each do |task|
+      self.add_auto_task = task
+    end
   end
 
   def search_id

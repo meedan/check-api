@@ -999,17 +999,16 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should manage auto tasks of a team" do
     u = create_user
     t = create_team
-    t.set_checklist([{ label: 'A', type: 'free_text', description: '', projects: [], options: '[]' }])
-    t.save!
+    create_team_task label: 'A', team_id: t.id
     id = t.graphql_id
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
-    assert_equal ['A'], t.get_checklist.collect{ |t| t[:label] }
-    task = '{\"label\":\"B\",\"type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":\"[]\"}'
+    assert_equal ['A'], t.team_tasks.map(&:label)
+    task = '{\"label\":\"B\",\"task_type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":[]}'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", remove_auto_task: "A", add_auto_task: "' + task + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal ['B'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }
+    assert_equal ['B'], t.reload.team_tasks.map(&:label)
   end
 
   test "should manage admin ui settings" do
@@ -1030,11 +1029,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", team_tasks: "' + tasks + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal ['A?', 'B?'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }.sort
-    # get checklist 
-    query = "query GetById { team(id: \"#{t.id}\") { checklist } }"
-    post :create, query: query, team: 'team'
-    assert_response :success
+    assert_equal ['A?', 'B?'], t.reload.team_tasks.map(&:label).sort
   end
 
   test "should read account sources from source" do

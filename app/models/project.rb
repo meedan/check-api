@@ -134,14 +134,10 @@ class Project < ActiveRecord::Base
     self.token ||= SecureRandom.uuid
   end
 
-  def has_auto_tasks?
-    self.team && TeamTask.where(team_id: self.team_id).count > 0
-  end
-
   def auto_tasks
     tasks = []
     self.team.team_tasks.each do |task|
-      tasks << task if task.project_ids.include?(self.id)
+      tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
     end
     tasks
   end

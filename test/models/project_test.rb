@@ -685,4 +685,13 @@ class ProjectTest < ActiveSupport::TestCase
     p.destroy
     assert_nil u.reload.current_project_id
   end
+
+  test "should return team tasks" do
+    t = create_team
+    p = create_project team: t
+    create_team_task team_id: t.id, project_ids: [p.id + 1]
+    assert p.reload.auto_tasks.empty?
+    tt = create_team_task team_id: t.id, project_ids: [p.id]
+    assert_equal [tt], p.reload.auto_tasks
+  end
 end

@@ -6,6 +6,7 @@ class CreateTeamTasks < ActiveRecord::Migration
       t.text :description
       t.text :options
       t.text :project_ids
+      t.text :mapping
       t.boolean :required, default: false
       t.integer :team_id, null: false
       t.timestamps null: false
