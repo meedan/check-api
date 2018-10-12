@@ -87,4 +87,10 @@ TeamType = GraphqlCrudOperations.define_default_type do
       team.custom_tags
     }
   end
+
+  connection :team_tasks, -> { TeamTaskType.connection_type } do
+    resolve ->(team, _args, _ctx) {
+      team.team_tasks
+    }
+  end
 end

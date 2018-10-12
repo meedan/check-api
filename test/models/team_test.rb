@@ -1538,4 +1538,22 @@ class TeamTest < ActiveSupport::TestCase
       t.destroy!
     end
   end
+
+  test "should duplicate a team and copy team tasks" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    create_team_task team_id: team.id, label: 'Foo'
+    create_team_task team_id: team.id, label: 'Bar'
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 2, TeamTask.where(team_id: copy.id).count
+
+    assert_equal team.team_tasks.map(&:label).sort, copy.team_tasks.map(&:label).sort
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal 2, TeamTask.where(team_id: team.id).count
+  end
 end

@@ -1026,7 +1026,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort
     # add team tasks
     tasks = '[{\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", team_tasks: "' + tasks + '" }) { team { id } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal ['A?', 'B?'], t.reload.team_tasks.map(&:label).sort
@@ -1637,5 +1637,22 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['root']['versions']['edges'][0]['node']['tag']
+  end
+
+  test "should get team tasks" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    create_team_task team_id: t.id, label: 'Foo'
+    
+    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, task_type, description, options, project_ids, required, team_id, team { slug } } } } } }"
+    post :create, query: query, team: t.slug
+    
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']
+    assert_equal 'Foo', data['team_tasks']['edges'][0]['node']['label']
   end
 end

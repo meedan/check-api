@@ -110,7 +110,7 @@ class Team < ActiveRecord::Base
     TeamTask.where({ team_id: self.id, label: task_label }).map(&:destroy!)
   end
 
-  def team_tasks=(list)
+  def set_team_tasks=(list)
     list.each do |task|
       self.add_auto_task = task
     end
