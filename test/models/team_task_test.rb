@@ -85,4 +85,20 @@ class TeamTaskTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should access JSON data" do
+    tt = create_team_task task_type: 'free_text'
+    assert_equal 'free_text', tt.as_json['type']
+    assert_equal 'free_text', tt.as_json[:type]
+  end
+
+  test "should get projects" do
+    tt = create_team_task project_ids: [1, 2]
+    assert_equal [1, 2], tt.projects
+  end
+
+  test "should get type" do
+    tt = create_team_task task_type: 'free_text'
+    assert_equal 'free_text', tt.type
+  end
 end

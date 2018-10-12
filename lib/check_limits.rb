@@ -76,7 +76,7 @@ module CheckLimits
     private
 
     def can_use_team_tasks
-      if self.team.get_limits_custom_tasks_list == false
+      if self.team && self.team.get_limits_custom_tasks_list == false
         errors.add(:base, I18n.t(:cant_create_team_task))
       end
     end
