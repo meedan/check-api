@@ -999,17 +999,16 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should manage auto tasks of a team" do
     u = create_user
     t = create_team
-    t.set_checklist([{ label: 'A', type: 'free_text', description: '', projects: [], options: '[]' }])
-    t.save!
+    create_team_task label: 'A', team_id: t.id
     id = t.graphql_id
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
-    assert_equal ['A'], t.get_checklist.collect{ |t| t[:label] }
-    task = '{\"label\":\"B\",\"type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":\"[]\"}'
+    assert_equal ['A'], t.team_tasks.map(&:label)
+    task = '{\"label\":\"B\",\"task_type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":[]}'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", remove_auto_task: "A", add_auto_task: "' + task + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal ['B'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }
+    assert_equal ['B'], t.reload.team_tasks.map(&:label)
   end
 
   test "should manage admin ui settings" do
@@ -1027,14 +1026,10 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort
     # add team tasks
     tasks = '[{\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", team_tasks: "' + tasks + '" }) { team { id } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal ['A?', 'B?'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }.sort
-    # get checklist 
-    query = "query GetById { team(id: \"#{t.id}\") { checklist } }"
-    post :create, query: query, team: 'team'
-    assert_response :success
+    assert_equal ['A?', 'B?'], t.reload.team_tasks.map(&:label).sort
   end
 
   test "should read account sources from source" do
@@ -1642,5 +1637,22 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['root']['versions']['edges'][0]['node']['tag']
+  end
+
+  test "should get team tasks" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    create_team_task team_id: t.id, label: 'Foo'
+    
+    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, task_type, description, options, project_ids, required, team_id, team { slug } } } } } }"
+    post :create, query: query, team: t.slug
+    
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']
+    assert_equal 'Foo', data['team_tasks']['edges'][0]['node']['label']
   end
 end

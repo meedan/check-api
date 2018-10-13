@@ -14,8 +14,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     ft = create_field_type field_type: 'task_reference', label: 'Task Reference'
     fi = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft
     t = create_team slug: 'test'
-    t.checklist = [ { 'label' => 'When?', 'type' => 'free_text', 'description' => '', 'projects' => [] } ]
-    t.save!
+    create_team_task team_id: t.id, label: 'When?'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
@@ -32,7 +31,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     ft = create_field_type field_type: 'task_reference', label: 'Task Reference'
     fi = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft
     t = create_team slug: 'test'
-    t.checklist = [ { 'label' => 'When?', 'type' => 'free_text', 'description' => '', 'projects' => [] } ]
+    create_team_task label: 'When?', team_id: t.id
     t.set_limits_slack_integration = false
     t.save!
     u = create_user

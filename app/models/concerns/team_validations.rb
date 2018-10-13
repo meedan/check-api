@@ -13,6 +13,5 @@ module TeamValidations
     validates :logo, size: true
     validate :slack_webhook_format
     validate :slack_channel_format
-    validate :checklist_format
   end
 end

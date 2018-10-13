@@ -420,8 +420,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p1 = create_project team: t
     p2 = create_project team: t
-    t.checklist = [ { 'label' => 'Can you see this automatic task?', 'type' => 'free_text', 'description' => 'This was created automatically', 'projects' => [] }, { 'label' => 'Can you see this automatic task for a project only?', 'type' => 'free_text', 'description' => 'This was created automatically', 'projects' => [p2.id] } ]
-    t.save!
+    create_team_task team_id: t.id
+    create_team_task team_id: t.id, project_ids: [p2.id]
     assert_difference 'Task.length', 1 do
       pm1 = create_project_media project: p1
     end
@@ -432,8 +432,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should contributor create auto tasks" do
     t = create_team
-    t.checklist = [ { 'label' => 'Can you see this automatic task?', 'type' => 'free_text', 'description' => 'This was created automatically', 'projects' => [] }]
-    t.save!
+    create_team_task team_id: t.id
     u = create_user
     p = create_project team: t
     tu = create_team_user team: t, user: u, role: 'contributor'
@@ -972,8 +971,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
     t = create_team
     p = create_project team: t
-    t.checklist = [ { 'label' => 'When?', 'type' => 'free_text', 'description' => '', 'projects' => [] } ]
-    t.save!
+    create_team_task team_id: t.id, label: 'When?'
     pm = create_project_media(project: p, set_tasks_responses: { 'when' => 'Yesterday' })
 
     t = Task.where(annotation_type: 'task').last
@@ -1000,17 +998,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     p2 = create_project team: t
     p3 = create_project team: t
-    t.checklist = [ { "label" => "who?", "type" => "free_text", "description" => "",
-      "mapping" => { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "},
-      "projects" => [p.id] },
-      { "label" => "where?", "type" => "geolocation", "description" => "",
-      "mapping" => { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""},
-      "projects" => [p2.id] },
-      { "label" => "when?", "type" => "datetime", "description" => "",
-      "mapping" => { "type" => "datetime", "match" => "dateCreated", "prefix" => ""},
-      "projects" => [p3.id] }
-    ]
-    t.save!
+    create_team_task team_id: t.id, label: 'who?', task_type: 'free_text', mapping: { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "}, project_ids: [p.id]
+    create_team_task team_id: t.id, label: 'where?', task_type: 'geolocation', mapping: { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""}, project_ids: [p2.id]
+    create_team_task team_id: t.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}, project_ids: [p3.id]
 
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     # test empty json+ld

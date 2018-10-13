@@ -718,4 +718,14 @@ module SampleData
     tt.save!
     tt
   end
+
+  def create_team_task(options = {})
+    tt = TeamTask.new
+    options = { label: random_string, team_id: create_team.id, task_type: 'free_text' }.merge(options)
+    options.each do |key, value|
+      tt.send("#{key}=", value) if tt.respond_to?("#{key}=")
+    end
+    tt.save!
+    tt
+  end
 end

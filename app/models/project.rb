@@ -134,19 +134,10 @@ class Project < ActiveRecord::Base
     self.token ||= SecureRandom.uuid
   end
 
-  def has_auto_tasks?
-    self.team && !self.team.get_checklist.blank?
-  end
-
   def auto_tasks
     tasks = []
-    if self.has_auto_tasks?
-      self.team.get_checklist.each do |task|
-        if task['projects'].blank? || task['projects'].empty? || task['projects'].include?(self.id)
-          task['slug'] = Task.slug(task['label'])
-          tasks << task.with_indifferent_access
-        end
-      end
+    self.team.team_tasks.each do |task|
+      tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
     end
     tasks
   end

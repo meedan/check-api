@@ -13,7 +13,7 @@ module TeamDuplication
       begin
         ActiveRecord::Base.transaction do
           PaperTrail::Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
-          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: [ :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts ] do |original, copy|
+          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: [ :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts, :team_tasks ] do |original, copy|
             @cloned_versions << copy if original.is_a?(PaperTrail::Version)
             self.set_mapping(original, copy) unless original.is_a?(PaperTrail::Version)
             self.copy_image(original, copy)
@@ -24,7 +24,6 @@ module TeamDuplication
           team.is_being_copied = true
           team.save(validate: false)
           @copy_team = team
-          team.update_team_checklist(@mapping[:Project])
           self.copy_annotations
           self.update_relationships
           self.copy_versions(@mapping[:"PaperTrail::Version"])
@@ -202,13 +201,5 @@ module TeamDuplication
       i += 1
     end
     slug
-  end
-
-  def update_team_checklist(project_mapping)
-    return if self.get_checklist.blank?
-    self.get_checklist.each do |task|
-      task[:projects].map! { |p| project_mapping[p] ? project_mapping[p].id : p } if task[:projects]
-    end
-    self.save(validate: false)
   end
 end

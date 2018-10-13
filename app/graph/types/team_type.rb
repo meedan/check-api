@@ -26,7 +26,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :public_team_id, types.String
   field :plan, types.String
   field :used_tags, types.String.to_list_type
-  field :checklist, JsonStringType
   field :permissions_info, JsonStringType
 
   connection :team_users, -> { TeamUserType.connection_type } do
@@ -86,6 +85,12 @@ TeamType = GraphqlCrudOperations.define_default_type do
   connection :custom_tags, -> { TagTextType.connection_type } do
     resolve ->(team, _args, _ctx) {
       team.custom_tags
+    }
+  end
+
+  connection :team_tasks, -> { TeamTaskType.connection_type } do
+    resolve ->(team, _args, _ctx) {
+      team.team_tasks
     }
   end
 end
