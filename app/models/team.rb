@@ -98,51 +98,22 @@ class Team < ActiveRecord::Base
     self.send(:set_media_verification_statuses, value)
   end
 
-  def team_tasks=(tasks)
-    tasks.map{|t| t.symbolize_keys!}
-    self.send(:set_checklist, tasks)
-  end
-
   def team_user
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
 
-  def checklist=(checklist)
-    checklist = get_values_from_entry(checklist)
-    checklist.each_with_index do |c, index|
-      c = c.with_indifferent_access
-      options = get_values_from_entry(c[:options])
-      c[:options] = options if options
-      projects = get_values_from_entry(c[:projects])
-      c[:projects] = projects.map(&:to_i) if projects
-      c[:label].blank? ?  checklist.delete_at(index) : checklist[index] = c
-    end if checklist.is_a?(Array)
-    self.send(:set_checklist, checklist)
-  end
-
-  def checklist
-    tasks = self.get_checklist
-    if tasks.is_a?(Array)
-      tasks.map do |t|
-        t[:options] ||= []
-        t[:projects] = [] if t[:projects].nil?
-        t[:mapping] = {"type"=>"text", "match"=>"", "prefix"=>""} if t[:mapping].nil? || t[:mapping].blank?
-      end
-    end
-    tasks
-  end
-  alias :raw_checklist :checklist
-  alias :raw_checklist= :checklist=
-
   def add_auto_task=(task)
-    checklist = self.get_checklist || []
-    checklist << task.to_h
-    self.checklist = checklist
+    TeamTask.create! task.merge({ team_id: self.id })
   end
 
   def remove_auto_task=(task_label)
-    checklist = self.get_checklist || []
-    self.checklist = checklist.reject{ |t| t['label'] == task_label || t[:label] == task_label }
+    TeamTask.where({ team_id: self.id, label: task_label }).map(&:destroy!)
+  end
+
+  def set_team_tasks=(list)
+    list.each do |task|
+      self.add_auto_task = task
+    end
   end
 
   def search_id

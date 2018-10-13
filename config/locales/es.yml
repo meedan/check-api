@@ -111,7 +111,6 @@ es:
           other: es demasiado corta (son mínimo %{count} caracteres)
   slack_webhook_format_wrong: El Slack webhook es inválido, debería tener este formato  `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: Está reservado
-  invalid_format_for_checklist: 'Checklist no es válido, debe tener el formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': [{ ''label'': ''YYYY'' }] } ]'
   invalid_format_for_languages: 'El idioma es inválido, debería tener este formato  [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: 'Lo sentimos, este no es un elemento multimedia válido '
   invalid_default_status_for_custom_verification_status: El identificador de estado predeterminado es inválido

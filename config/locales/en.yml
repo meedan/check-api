@@ -117,9 +117,6 @@ en:
   slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
-  invalid_format_for_checklist: 'Checklist is invalid, it should have the format [
-    { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'':
-    [], ''options'': [{ ''label'': ''YYYY'' }] } ]'
   invalid_format_for_languages: 'Languages is invalid, it should have the format [{''id'':
     ''en'',''title'': ''English''}]'
   invalid_media_item: Sorry, this is not a valid media item
@@ -277,7 +274,7 @@ en:
   max_number_of_projects_reached: "Sorry, the maximum number of projects for this team has been reached"
   cant_set_custom_statuses: "Sorry, the custom statuses feature is not available to this team"
   cant_change_custom_statuses: "Can't modify the status definitions because some statuses would go missing. These status identifiers: %{statuses} are in use by the following items:\n %{urls} %{others_amount}"
-  cant_set_checklist: "Sorry, the team tasks feature is not available to this team"
+  cant_create_team_task: "Sorry, your team does not have access to this feature"
   cant_create_media_under_this_team_using_extension: "Sorry, the browser extension feature is not available to this team"
   error_invalid_attribution: "Invalid attribution"
   account_exists: This account already exists

@@ -42,16 +42,4 @@ module TeamPrivate
   def reset_current_team
     User.where(current_team_id: self.id).each{ |user| user.update_columns(current_team_id: nil) }
   end
-
-  def skippable_fields(params)
-    fields = []
-    { 'raw_checklist': 'checklist' }.each_pair do |key, value|
-      if params[key] != self.send(value)
-        fields << value
-      else
-        fields << key
-      end
-    end
-    fields
-  end
 end

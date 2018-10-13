@@ -95,7 +95,7 @@ class Ability
       teams << v_obj_parent.project.team_id if v_obj_parent and v_obj_parent.respond_to?(:project)
       teams.include?(@context_team.id)
     end
-    can :manage, TagText, team_id: @context_team.id
+    can :manage, [TagText, TeamTask], team_id: @context_team.id
   end
 
   def editor_perms

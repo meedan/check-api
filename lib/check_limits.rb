@@ -35,7 +35,6 @@ module CheckLimits
     before_create :set_default_plan
     validate :only_super_admin_can_change_limits
     validate :can_use_custom_statuses
-    validate :can_use_checklist
 
     def fix_json_editor_values
       return if !self.limits_changed?
@@ -67,10 +66,18 @@ module CheckLimits
       end
       errors.add(:base, I18n.t(:cant_set_custom_statuses)) if self.get_limits_custom_statuses == false && !blank
     end
+  end
 
-    def can_use_checklist
-      if self.get_limits_custom_tasks_list == false && !self.get_checklist.blank?
-        errors.add(:base, I18n.t(:cant_set_checklist))
+  # Team Task
+  
+  TeamTask.class_eval do
+    validate :can_use_team_tasks
+
+    private
+
+    def can_use_team_tasks
+      if self.team && self.team.get_limits_custom_tasks_list == false
+        errors.add(:base, I18n.t(:cant_create_team_task))
       end
     end
   end

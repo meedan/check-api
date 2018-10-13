@@ -21,12 +21,7 @@ module RailsAdmin
               RequestStore.store[:ability] = :admin
               sanitize_params_for!(request.xhr? ? :modal : :update)
 
-              skippable_fields = []
-              skippable_fields = @object.skippable_fields(params[@abstract_model.param_key]) if @object.respond_to?(:skippable_fields, true)
               fields = params[@abstract_model.param_key]
-              skippable_fields.each do |skip|
-                fields.reject! { |key, _value| key == skip.to_s}
-              end
 
               @object.set_attributes(fields)
               @authorization_adapter && @authorization_adapter.attributes_for(:update, @abstract_model).each { |name, value| @object.send("#{name}=", value) }
