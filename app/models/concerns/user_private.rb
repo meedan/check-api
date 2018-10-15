@@ -87,22 +87,5 @@ module UserPrivate
     count += ProjectSource.where(user_id: self.id).count
     return false if count > 0
   end
-
-  def create_team_user_invitation(options = {})
-    tu = TeamUser.new
-    tu.user_id = self.id
-    tu.team_id = Team.current.id
-    tu.role = self.invitation_role
-    tu.status = 'invited'
-    tu.invited_by_id = self.invited_by_id
-    tu.invited_by_id ||= User.current.id unless User.current.nil?
-    tu.invitation_token = self.invitation_token || options[:enc]
-    tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
-    if tu.save!
-      # send invitation email
-      self.send_invitation_mail(tu)
-      update_columns(invitation_created_at: tu.created_at, invitation_sent_at: tu.created_at) if self.invited_to_sign_up?
-    end
-  end
-
+  
 end
