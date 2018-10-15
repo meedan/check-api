@@ -317,9 +317,7 @@ class User < ActiveRecord::Base
           raw, enc = Devise.token_generator.generate(User, :invitation_token)
           options = {:enc => enc, :raw => raw}
         end
-        invited_tu = create_team_user_invitation(options)
-        # send invitation email
-        self.send_invitation_mail(invited_tu.raw_invitation_token)
+        create_team_user_invitation(options)
         msg[self.email] = 'success'
       elsif tu.status == 'invited'
         msg[self.email] = 'This email already invited to this team'
@@ -330,25 +328,34 @@ class User < ActiveRecord::Base
     msg
   end
 
-  def self.accept_team_invitation(token, slug)
-    user = User.find_by_invitation_token(token, true)
-    User.accept_invitation!(:invitation_token => token, :password => "dummypassword") unless user.nil?
+  def self.accept_team_invitation(token, slug, options={})
+    # TODO: localize and review error messages copy.
     t = Team.where(slug: slug).last
-    unless t.nil?
+    if t.nil?
+      raise 'Team not exists.'
+    else
       invitation_token = Devise.token_generator.digest(self, :invitation_token, token)
       tu = TeamUser.where(team_id: t.id, status: 'invited', invitation_token: invitation_token).last
-      unless tu.nil?
+      if tu.nil?
+        raise "No invitation exists for team #{t.name}"
+      elsif tu.invitation_period_valid?
         tu.invitation_accepted_at = Time.now.utc
         tu.invitation_token = nil
         tu.status = 'member'
         tu.save!
+        # options should have password & username keys
+        user = User.find_by_invitation_token(token, true)
+        password = options[:password] || 'dummypassword'
+        User.accept_invitation!(:invitation_token => token, :password => password) unless user.nil?
+      else
+        raise 'Invitation token is invalid'
       end
     end
   end
 
   def send_invitation_mail(token)
     self.invited_by = User.current
-    DeviseMailer.delay.invitation_instructions(self, token, opts={})
+    DeviseMailer.delay.invitation_instructions(self, token, {invitation_text: self.invitation_text, invitation_team: Team.current})
   end
 
   def self.cancel_user_invitation(user)

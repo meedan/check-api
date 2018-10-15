@@ -817,7 +817,7 @@ class UserTest < ActiveSupport::TestCase
     # case A (non existing user to one team)
     with_current_user_and_team(u, t) do
       members = {'contributor' => 'test1@local.com'}
-      output = User.send_user_invitation(members)
+      User.send_user_invitation(members)
       iu = User.where(email: 'test1@local.com').last
       assert iu.is_invited?
       assert_equal [iu.read_attribute(:raw_invitation_token)], iu.team_users.map(&:raw_invitation_token)

@@ -25,4 +25,5 @@ Devise.setup do |config|
     manager.failure_app = CustomFailure
   end
   config.mailer = 'DeviseMailer'
+  config.invite_for = 1.day
 end

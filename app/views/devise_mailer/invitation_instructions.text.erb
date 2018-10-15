@@ -1,11 +1,12 @@
 <%= I18n.t(:"devise.mailer.invitation_instructions.hello", name: @resource.name) %>
 
-<p><%= I18n.t(:"devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}", name: @invited_by, team: @url) %></p>
+<p><%= raw I18n.t(:"devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}.html", name: @invited_by, team: link_to(@team.name, @url)) %></p>
 
 
 <% if @invited_text %>
 	 <%= @invited_text %>
 <% end %>
+
 
 <%= I18n.t(:"devise.mailer.invitation_instructions.accept") %>
 

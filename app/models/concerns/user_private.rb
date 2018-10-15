@@ -98,8 +98,11 @@ module UserPrivate
     tu.invited_by_id ||= User.current.id unless User.current.nil?
     tu.invitation_token = self.invitation_token || options[:enc]
     tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
-    tu.save!
-    tu
+    if tu.save!
+      # send invitation email
+      self.send_invitation_mail(tu.raw_invitation_token)
+      update_columns(invitation_created_at: tu.created_at, invitation_sent_at: tu.created_at) if self.invited_to_sign_up?
+    end
   end
 
 end
