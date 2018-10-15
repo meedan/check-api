@@ -111,7 +111,6 @@ pt:
           other: É muito curto (mínimo de %{count} caracteres)
   slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
-  invalid_format_for_checklist: 'O Checklist é inválido, ele deve ter o formato [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
   invalid_format_for_languages: 'O campo "Languages" é inválido, ele deve ter o formato [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Desculpe, este não é um item de mídia válido
   invalid_default_status_for_custom_verification_status: Identificador de status padrão é inválido
@@ -239,7 +238,6 @@ pt:
   max_number_of_projects_reached: "Desculpe, o número máximo de projetos para esta equipe foi alcançado"
   cant_set_custom_statuses: "Desculpe, o recurso de status personalizados não está disponível para esta equipe"
   cant_change_custom_statuses: "Não foi possível modificar as definições de estados porque alguns estados fariam falta. Estes identificadores de estado: %{statuses} estão em uso nos seguintes itens:\n %{urls} %{others_amount}"
-  cant_set_checklist: "Desculpe, o recurso de tarefas da equipe não está disponível para esta equipe"
   cant_create_media_under_this_team_using_extension: "Desculpe, o recurso de extensão do navegador não está disponível para esta equipe"
   error_invalid_attribution: "Atribuição inválida"
   account_exists: Conta já existe

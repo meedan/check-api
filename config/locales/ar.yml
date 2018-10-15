@@ -115,7 +115,6 @@ ar:
           other: قصير جداً (الحد الأدنى %{count} حروف)
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة'
   invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
@@ -255,7 +254,6 @@ ar:
   max_number_of_projects_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في هذا الفريق"
   cant_set_custom_statuses: "عذراً ، خاصية حالات التحقق المتخصصة غير متاحة لهذا الفريق"
   cant_change_custom_statuses: "لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :\n %{others_amount} %{urls}"
-  cant_set_checklist: "عذراً ، خاصية مهام الفريق غير متاحة لهذا الفريق"
   cant_create_media_under_this_team_using_extension: "عذراً ، خاصية ملحق المتصفح غير متاحة لهذا الفريق"
   error_invalid_attribution: "إسناد غير صحيح"
   account_exists: هذا الحساب موجود بالفعل
