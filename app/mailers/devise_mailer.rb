@@ -23,6 +23,7 @@ class DeviseMailer < Devise::Mailer
     @invited_by = record.invited_by.nil? ? 'Someone' : record.invited_by.name
     @invited_text = opts[:invitation_text]
     @invited_type = @invited_text.nil? ? 'default' : 'custom'
+    @due_at = opts[:due_at]
     opts[:subject] = I18n.t(:'devise.mailer.invitation_instructions.subject', user: @invited_by, team: @team.name)
     super
   end

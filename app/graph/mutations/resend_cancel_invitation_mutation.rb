@@ -17,7 +17,7 @@ ResendCancelInvitationMutation = GraphQL::Relay::Mutation.define do
         User.cancel_user_invitation(user)
       when 'resend'
         tu = user.team_users.where(team_id: Team.current.id).last
-        user.send_invitation_mail(tu.raw_invitation_token)
+        user.send_invitation_mail(tu)
       end
       { success: true }
     end
