@@ -291,7 +291,9 @@ class User < ActiveRecord::Base
         u = User.where(email: email).last
         begin
           if u.nil?
-            user = User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role, :invitation_text => text}, User.current)
+            user = User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role, :invitation_text => text}, User.current) do |iu|
+              iu.skip_invitation = true
+            end
             user.update_column(:raw_invitation_token, user.raw_invitation_token)
             msg[email] = 'success'
           else
