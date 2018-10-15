@@ -1,9 +1,10 @@
 class User < ActiveRecord::Base
   self.inheritance_column = :type
-  attr_accessor :url, :skip_confirmation_mail, :invitation_role, :invitation_text
+  attr_accessor :url, :skip_confirmation_mail
 
   include ValidationsHelper
   include UserPrivate
+  include UserInvitation
 
   belongs_to :source
   has_many :team_users, dependent: :destroy
@@ -12,7 +13,7 @@ class User < ActiveRecord::Base
   has_many :accounts
   belongs_to :account
 
-  devise :database_authenticatable, :registerable, :invitable,
+  devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
 
@@ -21,7 +22,6 @@ class User < ActiveRecord::Base
   before_save :set_token, :set_login, :set_uuid
   after_update :set_blank_email_for_unconfirmed_user
   before_destroy :can_destroy_user, prepend: true
-  after_invitation_created :create_team_user_invitation
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
@@ -281,105 +281,6 @@ class User < ActiveRecord::Base
       Airbrake.notify(e) if Airbrake.configuration.api_key
       0
     end
-  end
-
-  def self.send_user_invitation(members, text=nil)
-    msg = {}
-    members.each do |role, emails|
-      emails.split(',').each do |email|
-        email.strip!
-        u = User.where(email: email).last
-        begin
-          if u.nil?
-            user = User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role, :invitation_text => text}, User.current) do |iu|
-              iu.skip_invitation = true
-            end
-            puts "User invited ..#{user.raw_invitation_token}....."
-            pp user
-            user.update_column(:raw_invitation_token, user.raw_invitation_token)
-            msg[email] = 'success'
-          else
-            u.invitation_role = role
-            u.invitation_text = text
-            msg.merge!(u.invite_existing_user)
-          end
-        rescue StandardError => e
-          msg[email] = e.message
-        end
-      end
-    end
-    msg
-  end
-
-  def invite_existing_user
-    msg = {}
-    unless Team.current.nil?
-      tu = TeamUser.where(team_id: Team.current.id, user_id: self.id).last
-      if tu.nil?
-        options = {}
-        unless self.is_invited?
-          raw, enc = Devise.token_generator.generate(User, :invitation_token)
-          options = {:enc => enc, :raw => raw}
-        end
-        create_team_user_invitation(options)
-        msg[self.email] = 'success'
-      elsif tu.status == 'invited'
-        msg[self.email] = 'This email already invited to this team'
-      else
-        msg[self.email] = 'This email already a team member'
-      end
-    end
-    msg
-  end
-
-  def self.accept_team_invitation(token, slug, options={})
-    # TODO: localize and review error messages copy.
-    t = Team.where(slug: slug).last
-    if t.nil?
-      raise 'Team not exists.'
-    else
-      invitation_token = Devise.token_generator.digest(self, :invitation_token, token)
-      tu = TeamUser.where(team_id: t.id, status: 'invited', invitation_token: invitation_token).last
-      if tu.nil?
-        raise "No invitation exists for team #{t.name}"
-      elsif tu.invitation_period_valid?
-        tu.invitation_accepted_at = Time.now.utc
-        tu.invitation_token = nil
-        tu.status = 'member'
-        tu.save!
-        # options should have password & username keys
-        user = User.find_by_invitation_token(token, true)
-        password = options[:password] || 'dummypassword'
-        User.accept_invitation!(:invitation_token => token, :password => password) unless user.nil?
-      else
-        raise 'Invitation token is invalid'
-      end
-    end
-  end
-
-  def send_invitation_mail(tu)
-    token = tu.raw_invitation_token
-    self.invited_by = User.current
-    opts = {due_at: tu.invitation_due_at, invitation_text: self.invitation_text, invitation_team: Team.current}
-    DeviseMailer.delay.invitation_instructions(self, token, opts)
-  end
-
-  def self.cancel_user_invitation(user)
-    tu = user.team_users.where(team_id: Team.current.id).last
-    unless tu.nil?
-      tu.skip_check_ability = true
-      tu.destroy if tu.status == 'invited' && !tu.invitation_token.nil?
-    end
-    # Check if user invited to another team(s)
-    user.skip_check_ability = true
-    user.destroy if user.is_invited? && user.team_users.count == 0
-  end
-
-  def is_invited?(team=nil)
-    team = Team.current if team.nil?
-    return true if self.invited_to_sign_up?
-    tu = self.team_users.where(status: 'invited', team_id: team.id).where.not(invitation_token: nil).last
-    !tu.nil?
   end
 
   # private
