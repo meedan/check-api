@@ -294,6 +294,8 @@ class User < ActiveRecord::Base
             user = User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role, :invitation_text => text}, User.current) do |iu|
               iu.skip_invitation = true
             end
+            puts "User invited ..#{user.raw_invitation_token}....."
+            pp user
             user.update_column(:raw_invitation_token, user.raw_invitation_token)
             msg[email] = 'success'
           else
@@ -355,9 +357,11 @@ class User < ActiveRecord::Base
     end
   end
 
-  def send_invitation_mail(token)
+  def send_invitation_mail(tu)
+    token = tu.raw_invitation_token
     self.invited_by = User.current
-    DeviseMailer.delay.invitation_instructions(self, token, {invitation_text: self.invitation_text, invitation_team: Team.current})
+    opts = {due_at: tu.invitation_due_at, invitation_text: self.invitation_text, invitation_team: Team.current}
+    DeviseMailer.delay.invitation_instructions(self, token, opts)
   end
 
   def self.cancel_user_invitation(user)

@@ -100,7 +100,7 @@ module UserPrivate
     tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
     if tu.save!
       # send invitation email
-      self.send_invitation_mail(tu.raw_invitation_token)
+      self.send_invitation_mail(tu)
       update_columns(invitation_created_at: tu.created_at, invitation_sent_at: tu.created_at) if self.invited_to_sign_up?
     end
   end
