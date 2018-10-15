@@ -949,4 +949,23 @@ class UserTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should expire user invitation" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    u2 = create_user email: 'test1@local.com'
+    with_current_user_and_team(u, t) do
+      members = {'contributor' => 'test1@local.com'}
+      User.send_user_invitation(members)
+      user = User.where(email: 'test1@local.com').last
+      tu = user.team_users.last
+      old_date = "2018-10-11 14:45:03.095062"
+      tu.update_column(:created_at, old_date)
+      token = tu.raw_invitation_token
+      assert_raise RuntimeError do
+        User.accept_team_invitation(token, t.slug)
+      end
+    end
+  end
 end
