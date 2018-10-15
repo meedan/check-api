@@ -6,14 +6,14 @@
   <body>
 		<p><%= I18n.t(:"devise.mailer.invitation_instructions.hello", name: @resource.name) %></p>
 
-		<p><%= I18n.t(:"devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}", name: @invited_by, team: link_to("Sawy", @url)) %></p>
+		<p><%= raw I18n.t(:"devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}.html", name: @invited_by, team: link_to(@team.name, @url)) %></p>
 
 		<% if @invited_text %>
 			<p> <%= @invited_text %></p>
 		<% end %>
-		
+
 		<p>
-		<%= I18n.t(:"devise.mailer.invitation_instructions.accept", url: accept_invitation_url(@resource, :invitation_token => @token, :slug => 'sawy')) %>
+		<%= I18n.t(:"devise.mailer.invitation_instructions.accept", url: accept_invitation_url(@resource, :invitation_token => @token, :slug => @team.slug)) %>
 		</p>
 
 		<% if @resource.invitation_due_at %>

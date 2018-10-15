@@ -18,11 +18,12 @@ class DeviseMailer < Devise::Mailer
   def invitation_instructions(record, token, opts={})
     @host = CONFIG['checkdesk_base_url']
     @client_host = CONFIG['checkdesk_client']
-    @url = "#{CONFIG['checkdesk_client']}/#{Team.current.slug}"
+    @team = opts[:invitation_team]
+    @url = "#{CONFIG['checkdesk_client']}/#{@team.slug}"
     @invited_by = record.invited_by.nil? ? 'Someone' : record.invited_by.name
-    @invited_text = record.invitation_text
+    @invited_text = opts[:invitation_text]
     @invited_type = @invited_text.nil? ? 'default' : 'custom'
-    opts[:subject] = I18n.t(:'devise.mailer.invitation_instructions.subject', user: @invited_by, team: Team.current.name)
+    opts[:subject] = I18n.t(:'devise.mailer.invitation_instructions.subject', user: @invited_by, team: @team.name)
     super
   end
 end
