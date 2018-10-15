@@ -35,6 +35,7 @@ class Task < ActiveRecord::Base
   field :log_count, Integer
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
+  field :team_task_id, Integer
 
   def slack_notification_message
     if self.versions.count > 1

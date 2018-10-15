@@ -20,7 +20,3 @@
     startval: <%== value.to_json %>
   });
 </script>
-
-<% if field_name === 'checklist' && value.is_a?(Array) && !value.size.zero? %>
-  <a class="btn btn-default json-editor-btn-delete" href='<%= "/admin/team/#{@object.id}/delete_tasks"%>'>Delete All Tasks</a>
-<% end %>

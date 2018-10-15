@@ -626,164 +626,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_not_nil t.search_id
   end
 
-  test "should save checklist if it is blank or nil" do
-    t = create_team
-    variations = [
-      nil,
-      ''
-    ]
-    variations.each do |value|
-      assert_nothing_raised do
-        t.set_checklist(value)
-        t.save!
-      end
-    end
-  end
-
-  test "should save valid checklist" do
-    t = create_team
-    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
-    assert_nothing_raised do
-      t.set_checklist(value)
-      t.save!
-    end
-  end
-
-  test "should not save checklist if is not valid" do
-    t = create_team
-    variations = [
-      'invalid_checklist',
-      ['invalid_checklist'],
-      [{ label: 'A task' }],
-      [{ label: 'A task', type: 'free_text' }],
-      [{ description: 'A task' }],
-      [{ type: 'free_text', description: '', projects: []}]
-    ]
-    variations.each do |value|
-      assert_raises ActiveRecord::RecordInvalid do
-        t.set_checklist(value)
-        t.save!
-      end
-    end
-  end
-
-  test "should remove empty task without label before save checklist" do
-    t = create_team
-    variations = [
-      [{ label: '' }],
-      [{ description: 'A task' }],
-      [{ type: 'free_text', description: '', projects: []}]
-    ]
-    variations.each do |value|
-      assert_nothing_raised do
-        t.checklist = value
-        t.save!
-      end
-      assert t.get_checklist.empty?
-    end
-  end
-
-  test "should return checklist options as hash instead of json when call checklist" do
-    t = create_team
-    value = [{
-      label: "Task one",
-      type: "single_choice",
-      description: "It is a single choice task",
-      options: [{ "label": "option 1" },{ "label": "option 2" }]
-    }]
-    t.checklist = value
-    t.save!
-    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.get_checklist.first[:options]
-    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
-  end
-
-  test "should support the json editor format on checklist" do
-    t = create_team
-    value =  [{ label: 'A task', type: 'single_choice', description: '', projects: [], options: {"0"=>{"label"=>"option 1"}, "1"=>{"label"=>"option 2"}}}]
-    assert_nothing_raised do
-      t.checklist = value
-      t.save!
-    end
-    assert_equal [{"label"=>"option 1"}, {"label"=>"option 2"}], t.checklist.first[:options]
-  end
-
-  test "should return checklist options as array after submit task without it" do
-    t = create_team
-    value = [{
-      label: "Task one",
-      type: "single_choice",
-      description: "It is a single choice task",
-    }]
-    t.checklist = value
-    t.save!
-    assert_nil t.get_checklist.first[:options]
-    assert_equal [], t.checklist.first[:options]
-  end
-
-  test "should return checklist projects as array after submit task without it" do
-    t = create_team
-    value = [{
-      label: "Task one",
-      type: "free_text",
-      description: "It is a single choice task",
-    }]
-    t.checklist = value
-    t.save!
-    assert_nil t.get_checklist.first[:projects]
-    assert_equal [], t.checklist.first[:projects]
-  end
-
-  test "should return checklist mapping as hash after submit task without it" do
-    t = create_team
-    value = [{
-      label: "Task one",
-      type: "free_text",
-      description: "It is a free text task",
-    }]
-    t.checklist = value
-    t.save!
-    assert_nil t.get_checklist.first[:mapping]
-    assert_equal({"type" => "text", "match" => "", "prefix" => ""}, t.checklist.first[:mapping])
-  end
-
-  test "should remove all items from checklist" do
-    t = create_team
-    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
-    t.set_checklist(value)
-    t.save!
-
-    assert_nothing_raised do
-      t.set_checklist([])
-      t.save!
-    end
-    assert_equal [], t.checklist
-  end
-
-  test "should alias raw_checklist to checklist" do
-    t = create_team
-    value = [{
-      label: "Task one",
-      type: "single_choice",
-      description: "It is a single choice task",
-      options: [{ "label": "option 1" },{ "label": "option 2" }],
-      projects: [],
-      mapping: {"type"=>"text", "match"=>"", "prefix"=>""}
-    }]
-    t.raw_checklist = value
-    t.save!
-    assert_equal value, t.raw_checklist
-    assert_equal value, t.checklist
-  end
-
-  test "should not save invalid raw_checklist" do
-    t = create_team
-    t.raw_checklist = 'value'
-    assert_raises ActiveRecord::RecordInvalid do
-      t.save!
-    end
-    assert_match /Checklist is invalid/, t.errors[:base].first
-  end
-
   test "should save valid slack_channel" do
     t = create_team
     value =  "#slack_channel"
@@ -809,20 +651,6 @@ class TeamTest < ActiveSupport::TestCase
     t.slug = 'test'
     t.save!
     assert t.reload.private
-  end
-
-  test "should add or remove item to or from checklist" do
-    t = create_team
-    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: [] }]
-    t.set_checklist(value)
-    t.save!
-    assert_equal ['A task'], t.reload.get_checklist.collect{ |t| t[:label] }
-    t.add_auto_task = { label: 'Another task', type: 'free_text', description: '', projects: [], options: [] }
-    t.save!
-    assert_equal ['A task', 'Another task'], t.reload.get_checklist.collect{ |t| t[:label] }
-    t.remove_auto_task = 'A task'
-    t.save!
-    assert_equal ['Another task'], t.reload.get_checklist.collect{ |t| t[:label] }
   end
 
   test "should archive sources, projects and project medias when team is archived" do
@@ -1094,24 +922,11 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not save checklist if limited" do
-    t = create_team
-    t.set_limits_custom_tasks_list(false)
-    t.save!
-    t = Team.find(t.id)
-    value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
-    assert_raises ActiveRecord::RecordInvalid do
-      t.set_checklist(value)
-      t.save!
-    end
-  end
-
   test "should return the json schema url" do
     t = create_team
     fields = {
       'media_verification_statuses': 'statuses',
       'source_verification_statuses': 'statuses',
-      'checklist': 'checklist',
       'limits': 'limits'
     }
 
@@ -1191,44 +1006,6 @@ class TeamTest < ActiveSupport::TestCase
     end
     assert_equal 2, TeamUser.where(team_id: team.id).count
     assert_equal 1, Contact.where(team_id: team.id).count
-  end
-
-  test "should duplicate a team and copy projects and update checklist" do
-    team = create_team name: 'Team A', logo: 'rails.png'
-
-    project1 = create_project team: team, title: 'Project 1'
-    project2 = create_project team: team, title: 'Project 2'
-    value = [{
-      label: "Task one",
-      type: "free_text",
-      description: "It is a single free text task",
-      projects: [project1.id, project2.id]
-    }]
-    team.checklist = value; team.save!
-
-    team.add_auto_task = { label: 'Task 2', type: 'free_text', description: '', projects: [] }
-    team.save!
-
-    RequestStore.store[:disable_es_callbacks] = true
-    copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 2, Project.where(team_id: copy.id).count
-
-    # projects
-    assert_equal team.projects.map(&:title), copy.projects.map(&:title)
-
-    # change projects ids on checklist
-    copy_p1 = copy.projects.find_by_title('Project 1')
-    copy_p2 = copy.projects.find_by_title('Project 2')
-    assert_equal [copy_p1.id, copy_p2.id], copy.get_checklist.first[:projects]
-
-    # tasks
-    assert_equal ['Task one', 'Task 2'], copy.get_checklist.map { |t| t[:label]}
-
-    assert_difference 'Team.count', -1 do
-      copy.destroy
-    end
-    assert_equal 2, Project.where(team_id: team.id).count
   end
 
   test "should duplicate a team and copy sources and project medias" do
@@ -1712,24 +1489,6 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
   end
 
-  test "should add `field` as skippable if the raw_`field` was changed" do
-    t = create_team
-    value = [{
-      label: "Task one",
-      type: "single_choice",
-      description: "It is a single choice task",
-      options: [{ "label": "option 1" },{ "label": "option 2" }],
-      projects: [],
-      mapping: {"type"=>"text", "match"=>"", "prefix"=>""}
-    }]
-    t.set_checklist(value)
-    t.save!
-
-    edited_value =  [{ label: 'A task', type: 'free_text', description: '', projects: [], options: []}]
-    params = { raw_checklist: edited_value, checklist: value }
-    assert_equal ['checklist'], t.send(:skippable_fields, params)
-  end
-
   test "should be related to bots" do
     t = create_team
     tb1 = create_team_bot approved: true
@@ -1785,5 +1544,31 @@ class TeamTest < ActiveSupport::TestCase
     create_tag_text text: 'bar', team_id: t.id, teamwide: true
     create_tag_text text: 'test', team_id: t.id
     assert_equal 'bar,foo', t.reload.get_suggested_tags
+  end
+
+  test "should destroy team tasks when team is destroyed" do
+    t = create_team
+    2.times { create_team_task(team_id: t.id) }
+    assert_difference 'TeamTask.count', -2 do
+      t.destroy!
+    end
+  end
+
+  test "should duplicate a team and copy team tasks" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    create_team_task team_id: team.id, label: 'Foo'
+    create_team_task team_id: team.id, label: 'Bar'
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 2, TeamTask.where(team_id: copy.id).count
+
+    assert_equal team.team_tasks.map(&:label).sort, copy.team_tasks.map(&:label).sort
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal 2, TeamTask.where(team_id: team.id).count
   end
 end
