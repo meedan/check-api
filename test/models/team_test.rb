@@ -1526,15 +1526,14 @@ class TeamTest < ActiveSupport::TestCase
   test "should get invited mails" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    with_current_user_and_team(u, t) do
-      members = {'contributor' => 'test1@local.com', 'journalist' => 'test2@local.com'}
-      User.send_user_invitation(members)
-      assert_equal ['test1@local.com', 'test2@local.com'], t.invited_mails
-      u = User.where(email: 'test1@local.com').last
-      User.accept_team_invitation(u.raw_invitation_token, t.slug)
-      assert_equal ['test2@local.com'], t.invited_mails
-    end
+    Team.stubs(:current).returns(t)
+    members = {'contributor' => 'test1@local.com', 'journalist' => 'test2@local.com'}
+    User.send_user_invitation(members)
+    assert_equal ['test1@local.com', 'test2@local.com'], t.invited_mails
+    u = User.where(email: 'test1@local.com').last
+    User.accept_team_invitation(u.read_attribute(:raw_invitation_token), t.slug)
+    assert_equal ['test2@local.com'], t.invited_mails
+    Team.unstub(:current)
   end
 
   test "should get suggested tags" do

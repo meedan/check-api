@@ -47,24 +47,23 @@ module UserInvitation
 	        create_team_user_invitation(options)
 	        msg[self.email] = 'success'
 	      elsif tu.status == 'invited'
-	        msg[self.email] = 'This email already invited to this team'
+	        msg[self.email] = I18n.t(:"user_invitation.invited")
 	      else
-	        msg[self.email] = 'This email already a team member'
+	        msg[self.email] = I18n.t(:"user_invitation.member")
 	      end
 	    end
 	    msg
 	  end
 
 	  def self.accept_team_invitation(token, slug, options={})
-	    # TODO: localize and review error messages copy.
 	    t = Team.where(slug: slug).last
 	    if t.nil?
-	      raise 'Team not exists.'
+	      raise  I18n.t(:"user_invitation.team_found")
 	    else
 	      invitation_token = Devise.token_generator.digest(self, :invitation_token, token)
 	      tu = TeamUser.where(team_id: t.id, status: 'invited', invitation_token: invitation_token).last
 	      if tu.nil?
-	        raise "No invitation exists for team #{t.name}"
+	      	raise  I18n.t(:"user_invitation.no_invitation", { name: t.name } )
 	      elsif tu.invitation_period_valid?
 	        tu.invitation_accepted_at = Time.now.utc
 	        tu.invitation_token = nil
@@ -72,10 +71,10 @@ module UserInvitation
 	        tu.save!
 	        # options should have password & username keys
 	        user = User.find_by_invitation_token(token, true)
-	        password = options[:password] || 'dummypassword'
+	        password = options[:password] || Devise.friendly_token.first(8)
 	        User.accept_invitation!(:invitation_token => token, :password => password) unless user.nil?
 	      else
-	        raise 'Invitation token is invalid'
+	      	raise  I18n.t(:"user_invitation.invalid")
 	      end
 	    end
 	  end
@@ -98,7 +97,7 @@ module UserInvitation
 	    user.destroy if user.is_invited? && user.team_users.count == 0
 	  end
 
-	  def is_invited?(team=nil)
+	  def is_invited?(team = nil)
 	  	return false unless ActiveRecord::Base.connection.column_exists?(:users, :invitation_token)
 	  	team ||= Team.current
 	  	return true if self.invited_to_sign_up?
