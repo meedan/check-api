@@ -48,7 +48,7 @@ module UserPrivate
   end
 
   def send_welcome_email
-    RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration'] && !self.invited_to_sign_up?
+    RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration'] && !self.is_invited?
   end
 
   def user_is_member_in_current_team

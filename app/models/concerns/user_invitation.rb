@@ -14,7 +14,7 @@ module UserInvitation
 	      emails.split(',').each do |email|
 	        email.strip!
 	        u = User.where(email: email).last
-	        # begin
+	        begin
 	          if u.nil?
 	            user = User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role, :invitation_text => text}, User.current) do |iu|
 	              iu.skip_invitation = true
@@ -26,9 +26,9 @@ module UserInvitation
 	            u.invitation_text = text
 	            msg.merge!(u.invite_existing_user)
 	          end
-	        # rescue StandardError => e
-	        #   msg[email] = e.message
-	        # end
+	        rescue StandardError => e
+	          msg[email] = e.message
+	        end
 	      end
 	    end
 	    msg
@@ -99,16 +99,17 @@ module UserInvitation
 	  end
 
 	  def is_invited?(team=nil)
-	    team = Team.current if team.nil?
-	    return true if self.invited_to_sign_up?
-	    tu = self.team_users.where(status: 'invited', team_id: team.id).where.not(invitation_token: nil).last
-	    !tu.nil?
+	  	return false unless ActiveRecord::Base.connection.column_exists?(:users, :invitation_token)
+	  	team ||= Team.current
+	  	return true if self.invited_to_sign_up?
+	  	tu = self.team_users.where(status: 'invited', team_id: team.id).where.not(invitation_token: nil).last unless team.nil?
+	  	!tu.nil?
 	  end
 
   	private
 
   	def create_team_user_invitation(options = {})
-	    tu = TeamUser.new
+  		tu = TeamUser.new
 	    tu.user_id = self.id
 	    tu.team_id = Team.current.id
 	    tu.role = self.invitation_role
