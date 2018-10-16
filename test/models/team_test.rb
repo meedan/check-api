@@ -1532,7 +1532,6 @@ class TeamTest < ActiveSupport::TestCase
       User.send_user_invitation(members)
       assert_equal ['test1@local.com', 'test2@local.com'], t.invited_mails
       u = User.where(email: 'test1@local.com').last
-      u.invite!
       User.accept_team_invitation(u.raw_invitation_token, t.slug)
       assert_equal ['test2@local.com'], t.invited_mails
     end
