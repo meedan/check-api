@@ -364,7 +364,6 @@ en:
 
 
     %{app} team"
-
   permissions_info:
     roles:
       owner:
@@ -415,3 +414,15 @@ en:
             third_party: "Add third-party integrations"
             invite_owner: "Invite, approve, and remove team owners"
             invite_members: "Invite, approve, and remove team members"
+  team_import:
+    invalid_google_spreadsheet_url: 'The spreadsheet URL `%{spreadsheet_url}` is invalid, it should have the format `https://docs.google.com/spreadsheets/d/XXXXXXXXX/edit#gid=0`'
+    not_found_google_spreadsheet_url: 'The spreadsheet was not found'
+    cannot_authenticate_with_the_credentials: 'Cannot authenticate Google Drive with the credentials'
+    team_not_present: 'Sorry, the team is not defined'
+    invalid_project: 'Invalid project: `%{project}`'
+    invalid_user: 'Invalid user: `%{user}`'
+    blank_user: 'User is blank'
+    blank_annotator: 'Annotator is blank'
+    blank_project: 'Project is blank'
+    invalid_annotator: 'Invalid annotator: `%{user}`'
+    invalid_assignee: 'Invalid assignee: `%{user}`'
