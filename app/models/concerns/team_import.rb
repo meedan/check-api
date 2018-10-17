@@ -189,7 +189,7 @@ module TeamImport
       }.with_indifferent_access
       notes = { "has_the_video_been_verified_and_contextualized": [worksheet[row, 21],worksheet[row, 22]] }.with_indifferent_access
 
-      User.current = User.find pm.user
+      User.current = pm.user
       pm.send(:respond_to_auto_tasks, pm.annotations('task'))
 
       notes.each_pair do |slug, note|

@@ -158,7 +158,6 @@ class TeamImportTest < ActiveSupport::TestCase
 
     with_current_user_and_team(@user, @team) {
       result = @team.import_spreadsheet(@spreadsheet_id, @user.email)
-
       pm1 = Media.find_by_quote(data1[0]).project_medias.first
       assert_nil pm1.last_status_obj.assigned_to_id
       assert_match pm1.full_url, result[row_with_invalid_assignee].join(', ')
@@ -191,8 +190,8 @@ class TeamImportTest < ActiveSupport::TestCase
 
   def add_data_on_spreadsheet(data)
     row = @worksheet.num_rows + 1
-    (1..7).each do |column|
-      @worksheet[row, column] = data[column - 1]
+    (2..8).each do |column|
+      @worksheet[row, column] = data[column - 2]
     end
     @worksheet.save
     row
