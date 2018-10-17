@@ -234,13 +234,13 @@ class TaskTest < ActiveSupport::TestCase
     tk.save!
 
     User.current = u
-    assert_match /\sassigned\s/, tk.slack_message_for_assignment
+    assert_match I18n.t("slack.messages.task_assign".to_sym, tk.slack_params), tk.slack_notification_message.pretext
 
     tk = Task.find(tk.id)
     tk.assigned_to_id = 0
 
     User.current = u
-    assert_match /\sunassigned\s/, tk.slack_message_for_assignment
+    assert_match I18n.t("slack.messages.task_unassign".to_sym, tk.slack_params), tk.slack_notification_message.pretext
 
     User.current = nil
   end

@@ -48,7 +48,7 @@ class Bot::Slack < ActiveRecord::Base
       unless attachment.dig(:pretext).blank?
         prefix = team.name
         prefix += ": #{project.title}" unless project.nil?
-        attachment.pretext = "[#{prefix}] #{attachment[:pretext]}"
+        attachment[:pretext] = "[#{prefix}] #{attachment[:pretext]}"
       end
       self.send_notification(model, webhook, channel, attachment)
     end
