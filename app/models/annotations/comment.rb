@@ -21,23 +21,45 @@ class Comment < ActiveRecord::Base
     { text: self.text }.to_json
   end
 
+  def slack_params
+    params = super
+    params = params.deep_merge({
+      comment: Bot::Slack.to_slack(self.text, false),
+      button: I18n.t(:'slack.fields.view_button', {
+        type: I18n.t("activerecord.models.#{self.annotated.class_name.underscore}".to_sym), app: CONFIG['app_name']
+      })
+    })
+  end
+
   def slack_notification_message
-    if self.annotated_type == 'Task'
-      I18n.t(:slack_save_task_comment,
-        user: Bot::Slack.to_slack(User.current.name),
-        url: Bot::Slack.to_slack_url(self.annotated.annotated_client_url, self.annotated.annotated.title),
-        comment: Bot::Slack.to_slack_quote(self.text),
-        project: Bot::Slack.to_slack(self.annotated.annotated.project.title),
-        task: Bot::Slack.to_slack(self.annotated.label)
-      )
-    else
-      I18n.t(:slack_save_comment,
-        user: Bot::Slack.to_slack(User.current.name),
-        url: Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title),
-        comment: Bot::Slack.to_slack_quote(self.text),
-        project: Bot::Slack.to_slack(self.annotated.project.title)
-      )
-    end
+    params = self.slack_params
+    annotated_type = self.annotated_type === 'Task' ? 'task' : 'media'
+    {
+      pretext: I18n.t("slack.messages.#{annotated_type}_comment".to_sym, params),
+      title: params[:label],
+      title_link: params[:url],
+      author_name: params[:user],
+      text: params[:comment],
+      fields: [
+        {
+          title: I18n.t(:'slack.fields.project'),
+          value: params[:project],
+          short: true
+        },
+        {
+          title: I18n.t(:'slack.fields.item'),
+          value: params[:item],
+          short: false
+        }
+      ],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def file_mandatory?

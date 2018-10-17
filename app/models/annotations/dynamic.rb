@@ -21,7 +21,7 @@ class Dynamic < ActiveRecord::Base
   def slack_notification_message
     annotation_type = self.annotation_type =~ /^task_response/ ? 'task_response' : self.annotation_type
     method = "slack_notification_message_#{annotation_type}"
-    if (!self.set_fields.blank? || self.assigned_to_id != self.previous_assignee) && self.respond_to?(method)
+    if self.respond_to?(method)
       self.send(method)
     end
   end
@@ -32,7 +32,9 @@ class Dynamic < ActiveRecord::Base
     params.deep_merge({
       label: Bot::Slack.to_slack(Task.find(task).label),
       response: Bot::Slack.to_slack(response),
-      button: I18n.t(:'slack.fields.view_button', { type: I18n.t(:task), app: CONFIG['app_name'] })
+      button: I18n.t(:'slack.fields.view_button', {
+        type: I18n.t("activerecord.models.#{self.annotated.class_name.underscore}".to_sym), app: CONFIG['app_name']
+      })
     })
   end
 

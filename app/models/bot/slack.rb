@@ -31,7 +31,7 @@ class Bot::Slack < ActiveRecord::Base
         fallback: attachment,
         pretext: attachment
       } if attachment.is_a? String
-      self.bot_send_slack_notification(model, webhook, channel, attachment)
+      self.send_notification(model, webhook, channel, attachment)
     end
     self.notify_super_admin(model, t, p)
   end
@@ -50,11 +50,11 @@ class Bot::Slack < ActiveRecord::Base
         prefix += ": #{project.title}" unless project.nil?
         attachment.pretext = "[#{prefix}] #{attachment[:pretext]}"
       end
-      self.bot_send_slack_notification(model, webhook, channel, attachment)
+      self.send_notification(model, webhook, channel, attachment)
     end
   end
 
-  def bot_send_slack_notification(model, webhook, channel, attachment)
+  def send_notification(model, webhook, channel, attachment)
     return if webhook.blank? || channel.blank? || attachment.blank?
 
     data = {
@@ -73,18 +73,15 @@ class Bot::Slack < ActiveRecord::Base
   end
 
   def request_slack(model, webhook, data)
-    self.request(webhook, data)
-    model.sent_to_slack = true
-  end
-
-  def request(webhook, data)
     url = URI.parse(webhook)
     http = Net::HTTP.new(url.host, url.port)
     http.use_ssl = true
     request = Net::HTTP::Post.new(url.request_uri)
     request.set_form_data(data)
     http.request(request)
+    model.sent_to_slack = true unless model.nil?
   end
+
   class << self
     def to_slack(text, truncate = true)
       return "" if text.blank?

@@ -29,9 +29,7 @@ class Task < ActiveRecord::Base
   validates :status, included: { values: self.task_statuses }, allow_blank: true
 
   field :slug
-
   field :required, :boolean
-
   field :log_count, Integer
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
@@ -41,6 +39,8 @@ class Task < ActiveRecord::Base
     params.deep_merge({
       label: Bot::Slack.to_slack(self.label),
       description: Bot::Slack.to_slack(self.description),
+      required: self.required ? I18n.t(:answer_yes) : nil,
+      task_status: Bot::Slack.to_slack(self.status),
       assigned: self.assigned_to_id.to_i > 0 ? Bot::Slack.to_slack(User.find(self.assigned_to_id).name) : nil,
       unassigned: nil
     })
@@ -59,8 +59,10 @@ class Task < ActiveRecord::Base
             unassigned: Bot::Slack.to_slack(User.find(self.assigned_to_id_was).name)
           })
         end
-      else
+      elsif self.data_changed? and self.data.except("log_count") != self.data_was.except("log_count")
         event = 'edit'
+      else
+        return nil
       end
     end
     {
@@ -70,6 +72,11 @@ class Task < ActiveRecord::Base
       author_name: params[:user],
       text: params[:description],
       fields: [
+        {
+          title: I18n.t(:'slack.fields.task_status'),
+          value: params[:task_status],
+          short: true
+        },
         {
           title: I18n.t(:'slack.fields.assigned'),
           value: params[:assigned],
@@ -82,7 +89,7 @@ class Task < ActiveRecord::Base
         },
         {
           title: I18n.t(:'slack.fields.required'),
-          value: self.required ? I18n.t(:answer_yes) : nil,
+          value: params[:required],
           short: true
         },
         {

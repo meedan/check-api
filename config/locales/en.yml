@@ -4,7 +4,6 @@ en:
   claim: Claim
   uploadedimage: Image
   uploadedfile: File
-  task: Task
   blank: "(blank)"
   answer_yes: "Yes"
   answer_no: "No"
@@ -83,6 +82,9 @@ en:
       claim: Claim
       uploaded_image: Image
       uploaded_file: File
+      task: Task
+      comment: Note
+      project_media: Item
     attributes:
       tag:
         data: Tag
@@ -97,7 +99,7 @@ en:
       contact:
         phone: Phone
       comment:
-        text: Comment
+        text: Note
       user:
         reset_password_token: Reset password token
         email: E-mail
@@ -151,6 +153,7 @@ en:
       item: "Item"
       project: "Project"
       view_button: "View %{type} on %{app}"
+      task_status: "Status"
     messages:
       task_create: "%{user} (%{role} at %{team}) created a task"
       task_edit: "%{user} (%{role} at %{team}) edited a task"
@@ -158,6 +161,7 @@ en:
       task_unassign: "%{user} (%{role} at %{team}) unassigned a task"
       task_answer: "%{user} (%{role} at %{team}) answered a task"
       task_comment: "%{user} (%{role} at %{team}) added a note to a task"
+      media_comment: "%{user} (%{role} at %{team}) added a note to an item"
   slack_update_verification_status: "*%{user}* changed the verification status on %{url} in *%{project}*
     from _%{from}_ to *%{to}*"
   slack_save_embed: "*%{user}* changed a report title in *%{project}* from _%{from}_
