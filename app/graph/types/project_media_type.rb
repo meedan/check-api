@@ -224,7 +224,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     argument :annotation_type, !types.String
 
     resolve ->(project_media, args, _ctx) {
-      Annotation.where(annotated_type: 'ProjectMedia', annotated_id: project_media.id, assigned_to_id: args['user_id'], annotation_type: args['annotation_type'])
+      Annotation.joins(:assignments).where(annotated_type: 'ProjectMedia', annotated_id: project_media.id, user_id: args['user_id'], annotation_type: args['annotation_type'])
     }
   end
 

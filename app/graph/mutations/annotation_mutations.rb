@@ -12,7 +12,7 @@ module AnnotationMutations
     annotation_type: 'str',
     annotated_id: 'str',
     annotated_type: 'str',
-    assigned_to_id: 'int',
+    assigned_to_ids: 'str',
     locked: 'bool',
     id: '!id'
   }

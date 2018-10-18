@@ -60,7 +60,7 @@ module AnnotationBase
     include CheckNotifications::Pusher
     include CheckElasticSearch
     include CustomLock
-    include Assignment
+    include AssignmentConcern
 
     attr_accessor :disable_es_callbacks, :is_being_copied
     self.table_name = 'annotations'
@@ -257,6 +257,18 @@ module AnnotationBase
   def annotated_id_callback(value, mapping_ids = nil, type = ProjectMedia)
     annotated = type.where(id: mapping_ids[value]).last
     annotated.nil? ? nil : annotated.id
+  end
+
+  def to_s
+    self.annotated.title
+  end
+
+  def slack_default_params
+    {
+      user: Bot::Slack.to_slack(User.current.name),
+      url: Bot::Slack.to_slack_url(self.annotated_client_url, self.to_s),
+      project: Bot::Slack.to_slack(self.annotated.project.title)
+    }
   end
 
   def annotated_is_archived?
