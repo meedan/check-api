@@ -466,7 +466,7 @@ class CommentTest < ActiveSupport::TestCase
     t = create_task label: 'Foo'
     c = create_comment annotated: t
     User.current = create_user
-    assert_match /Foo/, c.slack_notification_message.title
+    assert_match /Foo/, c.slack_notification_message[:title]
     User.current = nil
   end
 end
