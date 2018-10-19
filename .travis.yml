@@ -28,7 +28,7 @@ addons:
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
 - cd scripts && ./setup-parallel-env.sh && cd -
-script: ruby -I"lib:test" test/models/task_test.rb -n /.*Slack.*/
+script: RAILS_ENV=test ruby -I"lib:test" test/models/task_test.rb -n /.*Slack.*/
 after_script:
 - bundle exec codeclimate-test-reporter
 rvm:
