@@ -28,7 +28,6 @@ class Bot::Slack < ActiveRecord::Base
       channel ||= t.setting(:slack_channel)
       attachment = model.slack_notification_message if model.respond_to?(:slack_notification_message)
       attachment = {
-        fallback: attachment,
         pretext: attachment
       } if attachment.is_a? String
       self.send_notification(model, webhook, channel, attachment)
@@ -42,7 +41,6 @@ class Bot::Slack < ActiveRecord::Base
       channel = self.setting(:slack_channel)
       attachment = model.slack_notification_message if model.respond_to?(:slack_notification_message)
       attachment = {
-        fallback: attachment,
         pretext: attachment
       } if attachment.is_a? String
       unless attachment.dig(:pretext).blank?
@@ -69,6 +67,8 @@ class Bot::Slack < ActiveRecord::Base
 
   def prepare_attachment(attachment)
     attachment.dig(:fields)&.delete_if { |f| f[:value].blank? }
+    # fallback is the text used in the browser notification message
+    attachment[:fallback] ||= attachment[:pretext]
     attachment
   end
 

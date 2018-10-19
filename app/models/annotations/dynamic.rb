@@ -40,11 +40,13 @@ class Dynamic < ActiveRecord::Base
 
   def slack_notification_message_task_response
     params = self.slack_params
+    event = self.versions.count > 1 ? 'answer_edit' : 'answer_create'
     {
-      pretext: I18n.t(:'slack.messages.task_answer', params),
+      pretext: I18n.t("slack.messages.task_#{event}".to_sym, params),
       title: params[:label],
       title_link: params[:url],
       author_name: params[:user],
+      author_icon: params[:user_image],
       text: params[:response],
       fields: [
         {

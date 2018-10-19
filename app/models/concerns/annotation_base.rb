@@ -280,10 +280,13 @@ module AnnotationBase
 
   def slack_params
     media = self.project_media
+    # TODO Why User.current and not self.author or whatever?
+    user = User.current
     {
-      user: Bot::Slack.to_slack(User.current.name),
+      user: Bot::Slack.to_slack(user.name),
+      user_image: user.profile_image,
       project: Bot::Slack.to_slack(media.project.title),
-      role: I18n.t('role_' + User.current.role(media.project.team).to_s),
+      role: I18n.t('role_' + user.role(media.project.team).to_s),
       team: Bot::Slack.to_slack(media.project.team.name),
       item: Bot::Slack.to_slack(media.title),
       url: media.full_url,

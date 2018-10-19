@@ -39,6 +39,7 @@ class Comment < ActiveRecord::Base
       title: params[:label],
       title_link: params[:url],
       author_name: params[:user],
+      author_icon: params[:user_image],
       text: params[:comment],
       fields: [
         {

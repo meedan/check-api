@@ -34,6 +34,8 @@ class Task < ActiveRecord::Base
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
 
+  SLACK_FIELDS_IGNORE = [ :log_count, :slug, :status ]
+
   def slack_params
     params = super
     params.deep_merge({
@@ -49,7 +51,7 @@ class Task < ActiveRecord::Base
   def slack_notification_message
     params = self.slack_params
     event = 'create'
-    if self.changed?
+    if self.changed? && self.versions.count > 1
       if self.assigned_to_id_changed?
         if self.assigned_to_id.to_i > 0
           event = 'assign'
@@ -59,7 +61,7 @@ class Task < ActiveRecord::Base
             unassigned: Bot::Slack.to_slack(User.find(self.assigned_to_id_was).name)
           })
         end
-      elsif self.data_changed? and self.data.except("log_count") != self.data_was.except("log_count")
+      elsif self.data_changed? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
         event = 'edit'
       else
         return nil
@@ -70,6 +72,7 @@ class Task < ActiveRecord::Base
       title: params[:label],
       title_link: params[:url],
       author_name: params[:user],
+      author_icon: params[:user_image],
       text: params[:description],
       fields: [
         {

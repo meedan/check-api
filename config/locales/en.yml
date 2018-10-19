@@ -159,7 +159,8 @@ en:
       task_edit: "%{user} (%{role} at %{team}) edited a task"
       task_assign: "%{user} (%{role} at %{team}) assigned a task"
       task_unassign: "%{user} (%{role} at %{team}) unassigned a task"
-      task_answer: "%{user} (%{role} at %{team}) answered a task"
+      task_answer_create: "%{user} (%{role} at %{team}) answered a task"
+      task_answer_edit: "%{user} (%{role} at %{team}) edited a task answer"
       task_comment: "%{user} (%{role} at %{team}) added a note to a task"
       media_comment: "%{user} (%{role} at %{team}) added a note to an item"
   slack_update_verification_status: "*%{user}* changed the verification status on %{url} in *%{project}*
