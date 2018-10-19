@@ -419,6 +419,8 @@ en:
     not_found_google_spreadsheet_url: 'The spreadsheet was not found'
     cannot_authenticate_with_the_credentials: 'Cannot authenticate Google Drive with the credentials'
     team_not_present: 'Sorry, the team is not defined'
+    user_not_present: 'Sorry, the user is not defined'
+    user_not_authorized: 'Sorry, you are not allowed to import spreadsheet to this team'
     invalid_project: 'Invalid project: `%{project}`'
     invalid_user: 'Invalid user: `%{user}`'
     blank_user: 'User is blank'
