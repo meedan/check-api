@@ -70,6 +70,15 @@ class TeamImportTest < ActiveSupport::TestCase
     }
   end
 
+  test "should rescue when any error raise when try to get spreadsheet" do
+    GoogleDrive::Session.stubs(:from_service_account_key).with(CONFIG['google_credentials_path']).returns(RuntimeError)
+    with_current_user_and_team(@user, @team) {
+      assert_raise RuntimeError do
+        Team.import_spreadsheet_in_background(@spreadsheet_url, @team.id, @user.id)
+      end
+    }
+  end
+
   test "should get id from the valid projects when import from spreadsheet" do
     projects = []
     projects << invalid_domain = "http://invalid-domain/#{@team.slug}/project/1"
@@ -125,6 +134,10 @@ class TeamImportTest < ActiveSupport::TestCase
 
   test "should show url when import from spreadsheet a duplicated media" do
     url = 'https://ca.ios.ba/'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+
     m = create_media url: url
     pm = create_project_media media: m, project: @p
     create_bot name: 'Check Bot'
