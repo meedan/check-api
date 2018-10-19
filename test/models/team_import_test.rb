@@ -77,6 +77,7 @@ class TeamImportTest < ActiveSupport::TestCase
         Team.import_spreadsheet_in_background(@spreadsheet_url, @team.id, @user.id)
       end
     }
+    GoogleDrive::Session.unstub(:from_service_account_key)
   end
 
   test "should get id from the valid projects when import from spreadsheet" do

@@ -92,7 +92,7 @@ module TeamImport
           @result[row] << pm.full_url
           add_note(pm, data[:note], data[:annotator], row)
           assign_to_user(pm, data[:assigned_to], row)
-          add_tags(pm, data[:tags], row)
+          add_tags(pm, data[:tags])
           add_tasks_answers(pm, worksheet, row)
         rescue StandardError => e
           @result[row] << e.message
@@ -168,7 +168,7 @@ module TeamImport
       end
     end
 
-    def add_tags(pm, tags, row)
+    def add_tags(pm, tags)
       return if tags.blank?
       tags = tags.split(',').map { |t| t.strip }
       tags.each do |tag|
