@@ -103,9 +103,6 @@ class Task < ActiveRecord::Base
   def new_or_existing_response
     user = User.current
     responses = self.responses
-    if !user.nil? && user.role?(:annotator)
-      responses = responses.select{ |r| r.annotator_id.to_i == user.id.to_i }
-    end
     response = responses.first
     response = response.nil? ? Dynamic.new : response.load
   end

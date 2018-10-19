@@ -216,35 +216,6 @@ class TaskTest < ActiveSupport::TestCase
     Bot::Slack.any_instance.unstub(:bot_send_slack_notification)
   end
 
-  test "should define Slack message" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-    p = create_project team: t
-    pm = create_project_media project: p
-    u1 = create_user
-    create_team_user user: u1, team: t
-    u2 = create_user
-    create_team_user user: u2, team: t
-    tk = create_task assigned_to_id: u1.id, annotated: pm, annotator: u
-
-    User.current = u
-
-    tk.assigned_to_id = u2.id
-    tk.save!
-
-    User.current = u
-    assert_match /\sassigned\s/, tk.slack_message_for_assignment
-
-    tk = Task.find(tk.id)
-    tk.assigned_to_id = 0
-
-    User.current = u
-    assert_match /\sunassigned\s/, tk.slack_message_for_assignment
-
-    User.current = nil
-  end
-
   test "should load task" do
     t = create_task
     assert_equal t, t.task

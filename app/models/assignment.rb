@@ -7,6 +7,8 @@ class Assignment < ActiveRecord::Base
   after_destroy :send_email_notification_on_destroy, :send_slack_notification
   
   validate :assigned_to_user_from_the_same_team
+    
+  has_paper_trail on: [:create, :destroy], if: proc { |_a| User.current.present? }
 
   def version_metadata(_changes)
     { user_name: self.user&.name }.to_json
@@ -20,6 +22,11 @@ class Assignment < ActiveRecord::Base
       assignee: Bot::Slack.to_slack(user.name)
     })
     I18n.t("slack_#{action}_#{annotation.annotation_type}".to_sym, params)
+  end
+
+  def get_team
+    annotation = self.annotation
+    annotation.nil? ? [] : annotation.get_team
   end
 
   protected

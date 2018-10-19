@@ -24,6 +24,14 @@ module AssignmentConcern
     end
   end
 
+  def users
+    User.joins(:assignments).where('assignments.annotation_id' => self.id)
+  end
+
+  def assign_user(id)
+    Assignment.create!(user_id: id, annotation_id: self.id)
+  end
+
   module ClassMethods
     def assigned_to_user(user)
       uid = user.is_a?(User) ? user.id : user
@@ -40,7 +48,6 @@ module AssignmentConcern
   end
 
   included do
-    has_many :assignments
-    has_many :users, through: :assignments
+    has_many :assignments, foreign_key: :annotation_id
   end
 end
