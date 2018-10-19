@@ -12,7 +12,8 @@ before_install:
   && shasum -a 512 -c elasticsearch-6.3.1.deb.sha512 && sudo dpkg -i --force-confnew elasticsearch-6.3.1.deb
 - sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
 - sudo service elasticsearch restart
-- wget -q --waitretry=1 --retry-connrefused -T 10 -O - http://127.0.0.1:9200- sudo service elasticsearch status
+- wget -q --waitretry=1 --retry-connrefused -T 10 -O - http://127.0.0.1:9200
+- sudo service elasticsearch status
 - redis-server &
 - git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
