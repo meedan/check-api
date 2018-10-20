@@ -5,7 +5,7 @@ require 'active_support/concern'
 module AssignmentConcern
   extend ActiveSupport::Concern
 
-  def version_metadata(changes)
+  def version_metadata(_changes)
     return RequestStore[:task_comment].to_json if !RequestStore[:task_comment].blank? && RequestStore[:task_comment].annotated == self
     nil
   end

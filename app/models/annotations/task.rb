@@ -101,10 +101,8 @@ class Task < ActiveRecord::Base
   end
 
   def new_or_existing_response
-    user = User.current
-    responses = self.responses
-    response = responses.first
-    response = response.nil? ? Dynamic.new : response.load
+    response = self.responses.first
+    response.nil? ? Dynamic.new : response.load
   end
 
   def must_resolve_task(params)

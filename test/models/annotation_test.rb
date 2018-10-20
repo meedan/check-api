@@ -394,4 +394,15 @@ class AnnotationTest < ActiveSupport::TestCase
       c.reload.destroy
     end
   end
+
+  test "should get assignment team" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm
+    c.assign_user(u.id)
+    assert_equal [t.id], c.assignments.last.get_team
+  end
 end

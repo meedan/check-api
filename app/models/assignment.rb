@@ -6,7 +6,7 @@ class Assignment < ActiveRecord::Base
   after_create :send_email_notification_on_create, :send_slack_notification
   after_destroy :send_email_notification_on_destroy, :send_slack_notification
   
-  validate :assigned_to_user_from_the_same_team
+  validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
     
   has_paper_trail on: [:create, :destroy], if: proc { |_a| User.current.present? }
 
@@ -45,7 +45,7 @@ class Assignment < ActiveRecord::Base
 
   def assigned_to_user_from_the_same_team
     annotation = self.annotation
-    if self.user.present? && annotation.present? && annotation.annotated.present? && annotation.annotated.respond_to?(:project)
+    if annotation.present? && annotation.annotated.present? && annotation.annotated.respond_to?(:project)
       team = annotation.annotated.project.team
       unless team.nil?
         member = TeamUser.where(team_id: team.id, user_id: self.user_id, status: 'member').last
