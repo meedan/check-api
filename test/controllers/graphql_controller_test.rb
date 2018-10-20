@@ -1663,7 +1663,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
 
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", user_id: \"#{u.id}\" }) { success } }"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\" }) { success } }"
     post :create, query: query, team: t.slug
     sleep 1
     assert_response :success
@@ -1680,7 +1680,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
 
     [' ', 'https://example.com'].each do |url|
-      query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", user_id: \"#{u.id}\", spreadsheet_url: \"#{url}\" }) { success } }"
+      query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{url}\" }) { success } }"
       post :create, query: query, team: t.slug
       sleep 1
       assert_response 400
@@ -1697,7 +1697,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/invalid_spreadsheet/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", user_id: \"#{u.id}\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
     post :create, query: query, team: t.slug
     assert_response 400
     response = JSON.parse(@response.body)
@@ -1712,7 +1712,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", user_id: \"#{u.id}\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal({"success" => true}, JSON.parse(@response.body)['data']['importSpreadsheet'])

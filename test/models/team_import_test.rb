@@ -7,6 +7,7 @@ class TeamImportTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline!
     super
     create_verification_status_stuff
+    create_translation_status_stuff(false)
     create_bot name: 'Check Bot'
     @team = create_team
     @user = create_user is_admin: true
@@ -19,7 +20,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   def teardown
-    @worksheet.delete_rows(2, 2)
+    [0, 1].each { |i| @worksheet.list[i].clear }
     @worksheet.save
   end
 
@@ -34,12 +35,14 @@ class TeamImportTest < ActiveSupport::TestCase
       https://docs.google.com/spreadsheets/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/
       https://docs.google.com/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/
     )
-    variations.each do |url|
-      assert_nil Team.spreadsheet_id(url)
-      assert_raise RuntimeError do
-        Team.import_spreadsheet_in_background(url)
+    with_current_user_and_team(@user, @team) {
+      variations.each do |url|
+        assert_nil Team.spreadsheet_id(url)
+        assert_raise RuntimeError do
+          Team.import_spreadsheet_in_background(url, @team.id, @user.id)
+        end
       end
-    end
+    }
   end
 
   test "handle error when failing authentication on Google Drive" do
@@ -53,7 +56,7 @@ class TeamImportTest < ActiveSupport::TestCase
     spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0'
     with_current_user_and_team(@user, @team) {
       assert_raise RuntimeError do
-        Team.import_spreadsheet_in_background(spreadsheet_url)
+        Team.import_spreadsheet_in_background(spreadsheet_url, @team.id, @user.id)
       end
     }
     CONFIG['google_credentials_path'] = credentials_path
@@ -61,9 +64,21 @@ class TeamImportTest < ActiveSupport::TestCase
 
   test "should raise error if spreadsheet id was not found" do
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxshfgvdgvjgfvjhgvjhgfvjhgdvjgvjhgdvj_Z9jo/edit#gid=0"
-    assert_raise RuntimeError do
-      Team.import_spreadsheet_in_background(spreadsheet_url)
-    end
+    with_current_user_and_team(@user, @team) {
+      assert_raise RuntimeError do
+        Team.import_spreadsheet_in_background(spreadsheet_url, @team.id, @user.id)
+      end
+    }
+  end
+
+  test "should rescue when any error raise when try to get spreadsheet" do
+    GoogleDrive::Session.stubs(:from_service_account_key).with(CONFIG['google_credentials_path']).returns(RuntimeError)
+    with_current_user_and_team(@user, @team) {
+      assert_raise RuntimeError do
+        Team.import_spreadsheet_in_background(@spreadsheet_url, @team.id, @user.id)
+      end
+    }
+    GoogleDrive::Session.unstub(:from_service_account_key)
   end
 
   test "should get id from the valid projects when import from spreadsheet" do
@@ -80,7 +95,7 @@ class TeamImportTest < ActiveSupport::TestCase
   test "should import from spreadsheet in background" do
     with_current_user_and_team(@user, @team) {
       assert_nothing_raised do
-        Team.import_spreadsheet_in_background(@spreadsheet_url, @user.id)
+        Team.import_spreadsheet_in_background(@spreadsheet_url, @team.id, @user.id)
       end
     }
   end
@@ -90,7 +105,7 @@ class TeamImportTest < ActiveSupport::TestCase
     row = add_data_on_spreadsheet(data)
 
     with_current_user_and_team(@user, @team) {
-      result = @team.import_spreadsheet(@spreadsheet_id, @user.email)
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
       assert_match(/User is blank/, result[row].join(', '))
     }
   end
@@ -102,7 +117,7 @@ class TeamImportTest < ActiveSupport::TestCase
     row2 = add_data_on_spreadsheet(data2)
 
     with_current_user_and_team(@user, @team) {
-      result = @team.import_spreadsheet(@spreadsheet_id, @user.email)
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
       assert_match(/Invalid user: .*Invalid project: .*Invalid project: /, result[row1].join(', '))
       assert_match(/Invalid user: .*Invalid project: /, result[row2].join(', '))
     }
@@ -114,13 +129,17 @@ class TeamImportTest < ActiveSupport::TestCase
     row = add_data_on_spreadsheet(data)
 
     with_current_user_and_team(@user, @team) {
-      result = @team.import_spreadsheet(@spreadsheet_id, @user.email)
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
       assert_match(/Project is blank/, result[row].join(', '))
     }
   end
 
   test "should show url when import from spreadsheet a duplicated media" do
     url = 'https://ca.ios.ba/'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+
     m = create_media url: url
     pm = create_project_media media: m, project: @p
     create_bot name: 'Check Bot'
@@ -129,7 +148,7 @@ class TeamImportTest < ActiveSupport::TestCase
     row = add_data_on_spreadsheet(data)
 
     with_current_user_and_team(@user, @team) {
-      result = @team.import_spreadsheet(@spreadsheet_id, @user.email)
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
       assert_equal pm.full_url, result[row].join(', ')
     }
   end
@@ -143,7 +162,7 @@ class TeamImportTest < ActiveSupport::TestCase
     row_with_valid_annotator = add_data_on_spreadsheet(data2)
 
     with_current_user_and_team(@user, @team) {
-      result = @team.import_spreadsheet(@spreadsheet_id, @user.email)
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
       assert_match('Invalid annotator', result[row_with_invalid_annotator].join(', '))
       assert_no_match('Invalid annotator', result[row_with_valid_annotator].join(', '))
     }
@@ -157,7 +176,7 @@ class TeamImportTest < ActiveSupport::TestCase
     row_with_valid_assignee = add_data_on_spreadsheet(data2)
 
     with_current_user_and_team(@user, @team) {
-      result = @team.import_spreadsheet(@spreadsheet_id, @user.email)
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
       pm1 = Media.find_by_quote(data1[0]).project_medias.first
       assert_nil pm1.last_status_obj.assigned_to_id
       assert_match pm1.full_url, result[row_with_invalid_assignee].join(', ')
@@ -169,29 +188,44 @@ class TeamImportTest < ActiveSupport::TestCase
     }
   end
 
-  test "should add tags" do
+  test "should not try to add duplicated tags" do
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
     data = ['A claim', user_url, @p.url, '', '', '', 'tag1, tag2']
     row = add_data_on_spreadsheet(data)
 
     with_current_user_and_team(@user, @team) {
-      result = @team.import_spreadsheet(@spreadsheet_id, @user.email)
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
 
       pm = Media.find_by_quote(data[0]).project_medias.first
       assert_equal pm.full_url, result[row].join(', ')
-      assert_equal ['tag1', 'tag2'], pm.get_annotations('tag').map(&:load).map(&:tag_text).sort
+      assert_equal ['tag1', 'tag2'], pm.annotations('tag').map(&:tag_text).sort
+
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+      assert_equal pm.full_url, result[row].join(', ')
+
     }
   end
 
-  test "should handle concurrency for different teams"
-  test "should handle concurrency for the same team"
+  test "should rescue when raise error on item creation" do
+    ProjectMedia.stubs(:create!).raises(RuntimeError.new('error'))
+
+    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    data = ['A claim', user_url, @p.url]
+    row = add_data_on_spreadsheet(data)
+
+    with_current_user_and_team(@user, @team) {
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+      assert_equal 'error', result[row].join(', ')
+    }
+    ProjectMedia.unstub(:create!)
+  end
 
   protected
 
   def add_data_on_spreadsheet(data)
     row = @worksheet.num_rows + 1
     (2..8).each do |column|
-      @worksheet[row, column] = data[column - 2]
+      @worksheet[row, column] = data[column - 2] || ''
     end
     @worksheet.save
     row
