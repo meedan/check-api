@@ -7,7 +7,7 @@ class TeamImportTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline!
     super
     create_verification_status_stuff
-    create_translation_status_stuff
+    create_translation_status_stuff(false)
     create_bot name: 'Check Bot'
     @team = create_team
     @user = create_user is_admin: true
