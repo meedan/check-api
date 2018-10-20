@@ -20,7 +20,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   def teardown
-    @worksheet.delete_rows(2, 2)
+    [0, 1].each { |i| @worksheet.list[i].clear }
     @worksheet.save
   end
 
