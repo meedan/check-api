@@ -304,7 +304,7 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user user: u1, team: t
     u2 = create_user
     create_team_user user: u2, team: t
-    s = create_status assigned_to_id: u1.id, annotated: pm, annotator: u, status: 'false'
+    s = create_status annotated: pm, annotator: u, status: 'false'
     s = Dynamic.find(s.id)
     s.assign_user(u2.id)
     a = s.assignments.last
