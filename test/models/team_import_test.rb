@@ -206,12 +206,26 @@ class TeamImportTest < ActiveSupport::TestCase
     }
   end
 
+  test "should rescue when raise error on item creation" do
+    ProjectMedia.stubs(:create!).raises(RuntimeError.new('error'))
+
+    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    data = ['A claim', user_url, @p.url]
+    row = add_data_on_spreadsheet(data)
+
+    with_current_user_and_team(@user, @team) {
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+      assert_equal 'error', result[row].join(', ')
+    }
+    ProjectMedia.unstub(:create!)
+  end
+
   protected
 
   def add_data_on_spreadsheet(data)
     row = @worksheet.num_rows + 1
     (2..8).each do |column|
-      @worksheet[row, column] = data[column - 2]
+      @worksheet[row, column] = data[column - 2] || ''
     end
     @worksheet.save
     row
