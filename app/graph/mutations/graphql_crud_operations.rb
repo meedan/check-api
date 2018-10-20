@@ -284,7 +284,7 @@ class GraphqlCrudOperations
 
       connection :assignments, -> { UserType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
-          annotation.assignments
+          annotation.users
         }
       end
 

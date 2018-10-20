@@ -13,7 +13,7 @@ module AssignmentConcern
   # We can't simply use assignments= from Active Record here because it doesn't call the callbacks
   def assigned_to_ids=(csids)
     new_ids = csids.to_s.split(',').map(&:to_i)
-    current_ids = self.assignments.map(&:user_id)
+    current_ids = self.reload.assignments.map(&:user_id)
     to_create = new_ids - current_ids
     to_delete = current_ids - new_ids
     to_delete.each do |id|
@@ -48,6 +48,6 @@ module AssignmentConcern
   end
 
   included do
-    has_many :assignments, foreign_key: :annotation_id
+    has_many :assignments, foreign_key: :annotation_id, dependent: :destroy
   end
 end

@@ -360,4 +360,38 @@ class AnnotationTest < ActiveSupport::TestCase
     t2 = create_task annotated: t
     assert_equal pm, t2.project_media
   end
+
+  test "should assign and unassign users" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm
+    u1 = create_user
+    u2 = create_user
+    u3 = create_user
+    u4 = create_user
+    [u1, u2, u3, u4].each{ |u| create_team_user(user: u, team: t) }
+    assert_difference 'Assignment.count', 2 do
+      c.assigned_to_ids = [u1.id, u2.id].join(',')
+    end
+    assert_equal [u1, u2].sort, c.users.sort
+    assert_no_difference 'Assignment.count' do
+      c.assigned_to_ids = [u3.id, u4.id].join(',')
+    end
+    assert_equal [u3, u4].sort, c.users.sort
+    assert_difference 'Assignment.count', -1 do
+      c.assigned_to_ids = [u3.id].join(',')
+    end
+    assert_equal [u3], c.users
+    assert_difference 'Assignment.count', 3 do
+      c.assigned_to_ids = [u1.id, u2.id, u3.id, u4.id].join(',')
+    end
+    assert_equal [u1, u2, u3, u4].sort, c.users.sort
+    assert_difference 'Assignment.count', -1 do
+      u1.destroy
+    end
+    assert_difference 'Assignment.count', -3 do
+      c.reload.destroy
+    end
+  end
 end

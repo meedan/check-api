@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
   has_many :projects
   has_many :accounts
   belongs_to :account
-  has_many :assignments
+  has_many :assignments, dependent: :destroy
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
