@@ -186,7 +186,7 @@ module PaperTrail
         return ['Task', task.id] unless task.nil?
       end
       annotation = self.item.annotation if self.item
-      self.get_associated_from_annotation(annotation)
+      self.get_associated_from_core_annotation(annotation)
     end
 
     def get_associated_from_source
@@ -201,7 +201,7 @@ module PaperTrail
     end
 
     def get_associated_from_assignment
-      self.get_associated_from_annotation(self.item.annotation)
+      self.get_associated_from_core_annotation(self.item.annotation)
     end
 
     def set_project_association
