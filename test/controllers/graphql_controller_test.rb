@@ -882,6 +882,12 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     # resend/cancel invitation
+    query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "notexist@local.com", action: "resend" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response 404
+    query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "resend" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response :success
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "cancel" }) { success } }'
     post :create, query: query, team: @team.slug
     assert_response :success

@@ -294,6 +294,7 @@ en:
         someone_invited_you_custom:
           html: "%{name} has invited you to %{team}, saying:"
         accept: 'You can accept this invitation through this link: %{url}'
+        accept_until: "This invitation will expire on %{due_date}."
         ignore: "If you don't want to accept the invitation, please ignore this email."
         app_team: "%{app} Team"
   user_invitation:
