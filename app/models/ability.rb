@@ -96,6 +96,7 @@ class Ability
       teams.include?(@context_team.id)
     end
     can :manage, [TagText, TeamTask], team_id: @context_team.id
+    can :import_spreadsheet, Team, :id => @context_team.id
   end
 
   def editor_perms
@@ -120,6 +121,7 @@ class Ability
     can :lock_annotation, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
+    can :import_spreadsheet, Team, :id => @context_team.id
   end
 
   def journalist_perms

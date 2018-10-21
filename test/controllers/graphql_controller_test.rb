@@ -1660,4 +1660,67 @@ class GraphqlControllerTest < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['team']
     assert_equal 'Foo', data['team_tasks']['edges'][0]['node']['label']
   end
+
+  test "should not import spreadsheet if URL is not present" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+
+    authenticate_with_user(u)
+
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\" }) { success } }"
+    post :create, query: query, team: t.slug
+    sleep 1
+    assert_response :success
+    response = JSON.parse(@response.body)
+    assert response.has_key?('errors')
+    assert_match /invalid value/, response['errors'].first['message']
+  end
+
+  test "should not import spreadsheet if URL is invalid" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+
+    authenticate_with_user(u)
+
+    [' ', 'https://example.com'].each do |url|
+      query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{url}\" }) { success } }"
+      post :create, query: query, team: t.slug
+      sleep 1
+      assert_response 400
+      response = JSON.parse(@response.body)
+      assert_includes response.keys, 'error'
+      assert_equal 'INVALID_VALUE', response['error_info']['code']
+    end
+  end
+
+  test "should not import spreadsheet if id not found" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+
+    authenticate_with_user(u)
+    spreadsheet_url = "https://docs.google.com/spreadsheets/d/invalid_spreadsheet/edit#gid=0"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
+    post :create, query: query, team: t.slug
+    assert_response 400
+    response = JSON.parse(@response.body)
+    assert_equal 'INVALID_VALUE', response['error_info']['code']
+    assert_match /File not found/, response['error_info']['error_message']
+  end
+
+  test "should import spreadsheet if spreadsheet is valid" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+
+    authenticate_with_user(u)
+    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal({"success" => true}, JSON.parse(@response.body)['data']['importSpreadsheet'])
+  end
+
 end

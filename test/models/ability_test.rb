@@ -2114,4 +2114,57 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
   end
+  
+  test "admin permissions for import spreadsheet" do
+    t = create_team
+    u = create_user
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert !ability.can?(:import, t)
+    end
+
+    u.is_admin = true
+    u.save
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:import, t)
+    end
+  end
+
+  test "team owner and editor can import spreadsheet" do
+    t1 = create_team
+    t2 = create_team
+    u1 = create_user
+    create_team_user team: t1, user: u1, role: 'owner'
+    create_team_user team: t2, user: u1, role: 'editor'
+    with_current_user_and_team(u1, t1) do
+      ability = Ability.new
+      assert ability.can?(:import_spreadsheet, t1)
+      assert ability.cannot?(:import_spreadsheet, t2)
+    end
+    with_current_user_and_team(u1, t2) do
+      ability = Ability.new
+      assert ability.cannot?(:import_spreadsheet, t1)
+      assert ability.can?(:import_spreadsheet, t2)
+    end
+  end
+
+  test "team contributor and journalist cannot import spreadsheet" do
+    t1 = create_team
+    t2 = create_team
+    u1 = create_user
+    create_team_user team: t1, user: u1, role: 'contributor'
+    create_team_user team: t2, user: u1, role: 'journalist'
+    with_current_user_and_team(u1, t1) do
+      ability = Ability.new
+      assert ability.cannot?(:import_spreadsheet, t1)
+      assert ability.cannot?(:import_spreadsheet, t2)
+    end
+    with_current_user_and_team(u1, t2) do
+      ability = Ability.new
+      assert ability.cannot?(:import_spreadsheet, t1)
+      assert ability.cannot?(:import_spreadsheet, t2)
+    end
+  end
 end
