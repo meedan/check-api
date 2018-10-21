@@ -104,10 +104,14 @@ class Bot::Slack < ActiveRecord::Base
     p = model if model.class.to_s == 'Project'
     p = model.project if model.respond_to?(:project)
     model = model.annotation if model.is_a?(Assignment)
-    if model.is_annotation? 
-      p = model&.annotated&.project if model.annotated_type == 'ProjectMedia'
-      p = model&.annotated&.annotated&.project if model.annotated_type == 'Task'
-    end
+    p = self.get_project_for_annotation(model) if model.is_annotation? 
+    p
+  end
+
+  def get_project_for_annotation(model)
+    p = nil
+    p = model&.annotated&.project if model.annotated_type == 'ProjectMedia'
+    p = model&.annotated&.annotated&.project if model.annotated_type == 'Task'
     p
   end
 

@@ -163,8 +163,6 @@ module PaperTrail
         self.get_associated_from_relationship
       when 'create_assignment', 'destroy_assignment'
         self.get_associated_from_assignment
-      else
-        [nil, nil]
       end
     end
 
@@ -201,7 +199,7 @@ module PaperTrail
     end
 
     def set_project_association
-      associated = self.get_associated
+      associated = self.get_associated || [nil, nil]
       self.associated_type = associated[0]
       self.associated_id = associated[1]
     end
