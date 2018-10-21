@@ -37,6 +37,10 @@ class Task < ActiveRecord::Base
   field :pending_suggestions_count, Integer
   field :team_task_id, Integer
 
+  def to_s
+    self.label
+  end
+
   def slack_notification_message
     if self.versions.count > 1
       self.slack_message_on_update
@@ -47,20 +51,8 @@ class Task < ActiveRecord::Base
 
   def slack_message_on_create
     note = self.description.blank? ? '' : I18n.t(:slack_create_task_note, { note: Bot::Slack.to_slack_quote(self.description) })
-    assignment = self.assigned_to_id.to_i > 0 ? I18n.t(:slack_create_task_assignment, { assignee: Bot::Slack.to_slack(User.find(self.assigned_to_id).name) }) : ''
-    params = self.slack_default_params.merge({
-      create_note: note,
-      assignment: assignment
-    })
+    params = self.slack_default_params.merge({ create_note: note })
     I18n.t(:slack_create_task_message, params)
-  end
-
-  def slack_default_params
-    {
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.annotated_client_url, self.label),
-      project: Bot::Slack.to_slack(self.annotated.project.title)
-    }
   end
 
   def slack_message_on_update
@@ -81,27 +73,9 @@ class Task < ActiveRecord::Base
       end
     end
 
-    messages << self.slack_message_for_assignment if self.assigned_to_id_changed?
-
     message = messages.join("\n")
 
     message.blank? ? nil : message
-  end
-
-  def slack_message_for_assignment
-    action = ''
-    uid = nil
-    if self.assigned_to_id.to_i > 0
-      uid = self.assigned_to_id
-      action = 'assign'
-    else
-      uid = self.assigned_to_id_was
-      action = 'unassign'
-    end
-    params = self.slack_default_params.merge({
-      assignee: Bot::Slack.to_slack(User.find(uid).name)
-    })
-    I18n.t("slack_#{action}_task".to_sym, params)
   end
 
   def content
@@ -126,10 +100,19 @@ class Task < ActiveRecord::Base
     @response
   end
 
+  def new_or_existing_response
+    response = self.responses.first
+    response.nil? ? Dynamic.new : response.load
+  end
+
+  def must_resolve_task(params)
+    set_fields = begin JSON.parse(params['set_fields']) rescue params['set_fields'] end
+    set_fields.keys.select{ |k| k =~ /^response/ }.any?
+  end
+
   def response=(json)
     params = JSON.parse(json)
-    response = self.responses.first
-    response = response.nil? ? Dynamic.new : response.load
+    response = self.new_or_existing_response
     response.annotated = self.annotated
     response.annotation_type = params['annotation_type']
     response.disable_es_callbacks = Rails.env.to_s == 'test'
@@ -139,8 +122,7 @@ class Task < ActiveRecord::Base
     response.save!
     @response = response
     self.record_timestamps = false
-    set_fields = begin JSON.parse(params['set_fields']) rescue params['set_fields'] end
-    self.status = 'Resolved' if set_fields.keys.select{ |k| k =~ /^response/ }.any?
+    self.status = 'Resolved' if self.must_resolve_task(params) 
   end
 
   def first_response

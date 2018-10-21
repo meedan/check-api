@@ -147,9 +147,12 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     pm = create_project_media project: p
     u = create_user name: 'The Annotator'
-    create_comment annotated: pm, annotator: u
-    create_tag annotated: pm
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, annotator { user { name } } } } } } }"
+    create_team_user user: u, team: @team
+    c = create_comment annotated: pm, annotator: u
+    c.assign_user(u.id)
+    tg = create_tag annotated: pm
+    tg.assign_user(u.id)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -161,6 +164,8 @@ class GraphqlControllerTest < ActionController::TestCase
     assert data.has_key?('language_code')
     assert_equal 2, data['annotations']['edges'].size
     users = data['annotations']['edges'].collect{ |e| e['node']['annotator']['user']['name'] }
+    assert users.include?('The Annotator')
+    users = data['annotations']['edges'].collect{ |e| e['node']['assignments']['edges'][0]['node']['name'] }
     assert users.include?('The Annotator')
   end
 
@@ -1220,12 +1225,12 @@ class GraphqlControllerTest < ActionController::TestCase
     s4 = create_status status: 'verified', annotated: pm4
     t1 = create_task annotated: pm1
     t2 = create_task annotated: pm3
-    s1.assigned_to_id = u.id; s1.save!
-    s2.assigned_to_id = u.id; s2.save!
-    s3.assigned_to_id = u.id; s3.save!
-    s4.assigned_to_id = u2.id; s4.save!
-    t1.assigned_to_id = u.id; t1.save!
-    t2.assigned_to_id = u.id; t2.save!
+    s1.assign_user(u.id)
+    s2.assign_user(u.id)
+    s3.assign_user(u.id)
+    s4.assign_user(u2.id)
+    t1.assign_user(u.id)
+    t2.assign_user(u.id)
     authenticate_with_user(u)
     post :create, query: "query GetById { user(id: \"#{u.id}\") { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }"
     assert_response :success
@@ -1328,7 +1333,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
 
     id = Base64.encode64("Dynamic/#{s.id}")
-    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", assigned_to_id: ' + u2.id.to_s + ' }) { project_media { id } } }'
+    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", assigned_to_ids: "' + u2.id.to_s + '" }) { project_media { id } } }'
     post :create, query: query, team: t.slug
     assert_match /No permission to update Dynamic/, @response.body
     assert_equal 'undetermined', f.reload.value
