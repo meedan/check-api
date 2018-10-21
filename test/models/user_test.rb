@@ -949,7 +949,7 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should expire user invitation" do
+  test "should not accept invalid invitation" do
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -957,15 +957,22 @@ class UserTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       members = {'contributor' => 'test1@local.com'}
       User.send_user_invitation(members)
-      user = User.where(email: 'test1@local.com').last
-      tu = user.team_users.last
-      old_date = "2018-10-11 14:45:03.095062"
-      tu.update_column(:created_at, old_date)
-      token = tu.raw_invitation_token
-      assert_raise RuntimeError do
-        User.accept_team_invitation(token, t.slug)
-      end
     end
+    user = User.where(email: 'test1@local.com').last
+    tu = user.team_users.last
+    token = tu.raw_invitation_token
+    invitation_date = tu.created_at
+    # Accept with invalid slug
+    result = User.accept_team_invitation(token, 'invalidslug')
+    assert_not_empty result.errors
+    # Accept with invalid tokem
+    result = User.accept_team_invitation('invalidtoken', t.slug)
+    assert_not_empty result.errors
+    # Accept with expired token
+    old_date = invitation_date - 2.day
+    tu.update_column(:created_at, old_date)
+    result = User.accept_team_invitation(token, t.slug)
+    assert_not_empty result.errors
   end
 
   test "should not send welcome email for invited user" do

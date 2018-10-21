@@ -56,14 +56,16 @@ module UserInvitation
 	  end
 
 	  def self.accept_team_invitation(token, slug, options={})
+	  	invitable = new
+	  	invitable.errors.add(:invitation_token, :invalid)
 	    t = Team.where(slug: slug).last
 	    if t.nil?
-	      raise  I18n.t(:"user_invitation.team_found")
+	    	invitable.errors.add(:team, I18n.t(:"user_invitation.team_found"))
 	    else
 	      invitation_token = Devise.token_generator.digest(self, :invitation_token, token)
 	      tu = TeamUser.where(team_id: t.id, status: 'invited', invitation_token: invitation_token).last
 	      if tu.nil?
-	      	raise  I18n.t(:"user_invitation.no_invitation", { name: t.name } )
+	      	invitable.errors.add(:invitation_token, I18n.t(:"user_invitation.no_invitation", { name: t.name }))
 	      elsif tu.invitation_period_valid?
 	        tu.invitation_accepted_at = Time.now.utc
 	        tu.invitation_token = nil
@@ -72,11 +74,14 @@ module UserInvitation
 	        # options should have password & username keys
 	        user = User.find_by_invitation_token(token, true)
 	        password = options[:password] || Devise.friendly_token.first(8)
-	        User.accept_invitation!(:invitation_token => token, :password => password) unless user.nil?
+	        invitable = User.accept_invitation!(:invitation_token => token, :password => password) unless user.nil?
+	        # Send welcome mail with generated password
+	        RegistrationMailer.delay.welcome_email(invitable) unless invitable.nil?
 	      else
-	      	raise  I18n.t(:"user_invitation.invalid")
+	      	invitable.errors.add(:invitation_token, I18n.t(:"user_invitation.invalid"))
 	      end
 	    end
+	    invitable
 	  end
 
 	  def send_invitation_mail(tu)
