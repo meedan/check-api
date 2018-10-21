@@ -373,18 +373,22 @@ class AnnotationTest < ActiveSupport::TestCase
     [u1, u2, u3, u4].each{ |u| create_team_user(user: u, team: t) }
     assert_difference 'Assignment.count', 2 do
       c.assigned_to_ids = [u1.id, u2.id].join(',')
+      c.save!
     end
     assert_equal [u1, u2].sort, c.users.sort
     assert_no_difference 'Assignment.count' do
       c.assigned_to_ids = [u3.id, u4.id].join(',')
+      c.save!
     end
     assert_equal [u3, u4].sort, c.users.sort
     assert_difference 'Assignment.count', -1 do
       c.assigned_to_ids = [u3.id].join(',')
+      c.save!
     end
     assert_equal [u3], c.users
     assert_difference 'Assignment.count', 3 do
       c.assigned_to_ids = [u1.id, u2.id, u3.id, u4.id].join(',')
+      c.save!
     end
     assert_equal [u1, u2, u3, u4].sort, c.users.sort
     assert_difference 'Assignment.count', -1 do
