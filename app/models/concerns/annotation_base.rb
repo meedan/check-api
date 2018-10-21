@@ -60,7 +60,8 @@ module AnnotationBase
     include CheckNotifications::Pusher
     include CheckElasticSearch
     include CustomLock
-    include Assignment
+    include AssignmentConcern
+    include AnnotationPrivate
 
     attr_accessor :disable_es_callbacks, :is_being_copied
     self.table_name = 'annotations'
@@ -259,6 +260,18 @@ module AnnotationBase
     annotated.nil? ? nil : annotated.id
   end
 
+  def to_s
+    self.annotated.title
+  end
+
+  def slack_default_params
+    {
+      user: Bot::Slack.to_slack(User.current.name),
+      url: Bot::Slack.to_slack_url(self.annotated_client_url, self.to_s),
+      project: Bot::Slack.to_slack(self.annotated.project.title)
+    }
+  end
+
   def annotated_is_archived?
     self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
   end
@@ -278,36 +291,7 @@ module AnnotationBase
     self.send("#{name}_id=", obj.id)
   end
 
-  private
-
-  def set_type_and_event
-    self.annotation_type ||= self.class_name.parameterize
-    self.paper_trail_event = 'create' if self.versions.count === 0
-  end
-
-  def set_annotator
-    self.annotator = User.current if self.annotator.nil? && !User.current.nil?
-  end
-
-  def notify_team_bots_create
-    self.send :notify_team_bots, 'create'
-  end
-
-  def notify_team_bots_update
-    self.send :notify_team_bots, 'update'
-  end
-
-  def notify_team_bots(event)
-    team = self.get_team.first
-    TeamBot.notify_bots_in_background("#{event}_annotation_#{self.annotation_type}", team, self) unless team.blank?
-    task = Task.where(id: self.id).last if self.annotation_type == 'task'
-    TeamBot.notify_bots_in_background("#{event}_annotation_task_#{self.data['type']}", team, task) if !team.blank? && !task.nil?
-  end
-
-  def notify_bot_author
-    if self.annotator.is_a?(BotUser)
-      team_bot = self.annotator.team_bot
-      team_bot.notify_about_annotation(self) unless team_bot.nil?
-    end
-  end
+  # private
+  #
+  # Please add private methods to app/models/concerns/annotation_private.rb
 end

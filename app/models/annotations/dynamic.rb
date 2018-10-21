@@ -21,7 +21,7 @@ class Dynamic < ActiveRecord::Base
   def slack_notification_message
     annotation_type = self.annotation_type =~ /^task_response/ ? 'task_response' : self.annotation_type
     method = "slack_notification_message_#{annotation_type}"
-    if (!self.set_fields.blank? || self.assigned_to_id != self.previous_assignee) && self.respond_to?(method)
+    if !self.set_fields.blank? && self.respond_to?(method)
       self.send(method)
     end
   end

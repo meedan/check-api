@@ -178,13 +178,13 @@ class TeamImportTest < ActiveSupport::TestCase
     with_current_user_and_team(@user, @team) {
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
       pm1 = Media.find_by_quote(data1[0]).project_medias.first
-      assert_nil pm1.last_status_obj.assigned_to_id
+      assert_equal 0, pm1.last_status_obj.assignments.size
       assert_match pm1.full_url, result[row_with_invalid_assignee].join(', ')
       assert_match /Invalid assignee/, result[row_with_invalid_assignee].join(', ')
 
       pm2 = Media.find_by_quote(data2[0]).project_medias.first
       assert_equal pm2.full_url, result[row_with_valid_assignee].join(', ')
-      assert_equal @user.id, pm2.last_status_obj.assigned_to_id
+      assert_equal [@user], pm2.last_status_obj.users
     }
   end
 
