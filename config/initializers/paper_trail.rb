@@ -161,6 +161,8 @@ module PaperTrail
         self.get_associated_from_source
       when 'create_relationship', 'destroy_relationship'
         self.get_associated_from_relationship
+      when 'create_assignment', 'destroy_assignment'
+        self.get_associated_from_assignment
       else
         [nil, nil]
       end
@@ -192,6 +194,10 @@ module PaperTrail
     def get_associated_from_relationship
       r = self.item
       r.nil? ? [nil, nil] : ['ProjectMedia', r.source_id]
+    end
+
+    def get_associated_from_assignment
+      self.get_associated_from_annotation(self.item.annotation)
     end
 
     def set_project_association

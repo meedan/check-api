@@ -11,7 +11,12 @@ class Assignment < ActiveRecord::Base
   has_paper_trail on: [:create, :destroy], if: proc { |_a| User.current.present? }
 
   def version_metadata(_changes)
-    { user_name: self.user&.name }.to_json
+    meta = { user_name: self.user&.name }
+    annotation = self.annotation.load || self.annotation
+    meta[:type] = annotation.annotation_type
+    meta[:type] = 'media' if meta[:type] =~ /status/
+    meta[:title] = annotation.to_s
+    meta.to_json
   end
 
   def slack_notification_message
