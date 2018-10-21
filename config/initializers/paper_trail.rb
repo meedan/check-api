@@ -151,10 +151,8 @@ module PaperTrail
 
     def get_associated
       case self.event_type
-      when 'create_comment', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_dynamic', 'update_dynamic', 'create_embed', 'destroy_comment', 'destroy_tag', 'destroy_task', 'destroy_flag', 'destroy_embed'
-        self.get_associated_from_annotation(self.item)
-      when 'create_dynamicannotationfield', 'update_dynamicannotationfield'
-        self.get_associated_from_dynamic_annotation
+      when 'create_comment', 'create_tag', 'create_task', 'create_flag', 'update_embed', 'update_task', 'create_dynamic', 'update_dynamic', 'create_embed', 'destroy_comment', 'destroy_tag', 'destroy_task', 'destroy_flag', 'destroy_embed', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
+        self.get_associated_from_annotation(self.event_type, self.item)
       when 'update_projectmedia', 'update_projectsource', 'copy_projectmedia'
         [self.item.class.name, self.item_id.to_i]
       when 'update_source'
@@ -166,7 +164,15 @@ module PaperTrail
       end
     end
 
-    def get_associated_from_annotation(annotation)
+    def get_associated_from_annotation(event_type, annotation)
+      if event_type =~ /dynamicannotationfield/
+        self.get_associated_from_dynamic_annotation
+      else
+        self.get_associated_from_core_annotation(annotation)
+      end
+    end
+
+    def get_associated_from_core_annotation(annotation)
       associated = [nil, nil]
       if annotation && ['ProjectMedia', 'ProjectSource', 'Task'].include?(annotation.annotated_type)
         associated = [annotation.annotated_type, annotation.annotated_id.to_i]
