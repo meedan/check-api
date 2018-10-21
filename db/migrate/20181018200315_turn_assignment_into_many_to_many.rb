@@ -19,7 +19,11 @@ class TurnAssignmentIntoManyToMany < ActiveRecord::Migration
       a.skip_check_ability = true
       a.skip_notifications = true
       a.skip_clear_cache = true
-      a.save!
+      begin
+        a.save!
+      rescue
+        puts "Skipping annotation with id #{annotation.id}"
+      end
     end
 
     remove_column :annotations, :assigned_to_id
