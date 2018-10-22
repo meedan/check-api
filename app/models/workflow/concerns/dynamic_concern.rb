@@ -34,22 +34,6 @@ module Workflow
                 from: from,
                 to: to
               )
-            elsif self.assigned_to_id != self.previous_assignee
-              assignee = nil
-              action = ''
-              if self.assigned_to_id.to_i > 0
-                assignee = Bot::Slack.to_slack(User.find(self.assigned_to_id).name)
-                action = 'assign'
-              else
-                assignee = Bot::Slack.to_slack(User.find(self.previous_assignee).name)
-                action = 'unassign'
-              end
-              I18n.t("slack_#{action}_#{id}".to_sym,
-                user: user,
-                url: url,
-                assignee: assignee,
-                project: project
-              )
             end
           end
         end

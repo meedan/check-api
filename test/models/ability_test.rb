@@ -2063,4 +2063,108 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "permissions for assignment" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u
+    pm = create_project_media project: p
+    c = create_comment annotated: pm
+    c.assign_user(u.id)
+    a = c.assignments.last
+
+    t2 = create_team
+    p2 = create_project team: t2
+    u2 = create_user
+    create_team_user team: t2, user: u2
+    pm2 = create_project_media project: p2
+    c2 = create_comment annotated: pm2
+    c2.assign_user(u2.id)
+    a2 = c2.assignments.last
+
+    # Owner and editor: can only assign/unassign annotations of same team
+    ['owner', 'editor'].each do |role|
+      u = create_user
+      create_team_user team_id: t.id, user_id: u.id, role: role
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:destroy, a)
+        assert ability.can?(:create, a)
+        assert ability.cannot?(:destroy, a2)
+        assert ability.cannot?(:create, a2)
+      end
+    end
+
+    # Journalist and contributor: can only assign/unassign own annotations
+    ['journalist', 'contributor'].each do |role|
+      u = create_user
+      create_team_user team_id: t.id, user_id: u.id, role: role
+      c3 = create_comment annotated: pm, annotator: u
+      c3.assign_user(u.id)
+      a3 = c3.assignments.last
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.cannot?(:destroy, a)
+        assert ability.cannot?(:create, a)
+        assert ability.cannot?(:destroy, a2)
+        assert ability.cannot?(:create, a2)
+        assert ability.can?(:destroy, a3)
+        assert ability.can?(:create, a3)
+      end
+    end
+  end
+  
+  test "admin permissions for import spreadsheet" do
+    t = create_team
+    u = create_user
+
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert !ability.can?(:import, t)
+    end
+
+    u.is_admin = true
+    u.save
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:import, t)
+    end
+  end
+
+  test "team owner and editor can import spreadsheet" do
+    t1 = create_team
+    t2 = create_team
+    u1 = create_user
+    create_team_user team: t1, user: u1, role: 'owner'
+    create_team_user team: t2, user: u1, role: 'editor'
+    with_current_user_and_team(u1, t1) do
+      ability = Ability.new
+      assert ability.can?(:import_spreadsheet, t1)
+      assert ability.cannot?(:import_spreadsheet, t2)
+    end
+    with_current_user_and_team(u1, t2) do
+      ability = Ability.new
+      assert ability.cannot?(:import_spreadsheet, t1)
+      assert ability.can?(:import_spreadsheet, t2)
+    end
+  end
+
+  test "team contributor and journalist cannot import spreadsheet" do
+    t1 = create_team
+    t2 = create_team
+    u1 = create_user
+    create_team_user team: t1, user: u1, role: 'contributor'
+    create_team_user team: t2, user: u1, role: 'journalist'
+    with_current_user_and_team(u1, t1) do
+      ability = Ability.new
+      assert ability.cannot?(:import_spreadsheet, t1)
+      assert ability.cannot?(:import_spreadsheet, t2)
+    end
+    with_current_user_and_team(u1, t2) do
+      ability = Ability.new
+      assert ability.cannot?(:import_spreadsheet, t1)
+      assert ability.cannot?(:import_spreadsheet, t2)
+    end
+  end
 end

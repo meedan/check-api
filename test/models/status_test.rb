@@ -304,16 +304,14 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user user: u1, team: t
     u2 = create_user
     create_team_user user: u2, team: t
-    s = create_status assigned_to_id: u1.id, annotated: pm, annotator: u, status: 'false'
+    s = create_status annotated: pm, annotator: u, status: 'false'
     s = Dynamic.find(s.id)
-    s.assigned_to_id = u2.id
-    s.save!
-    assert_match /[^n]assign/, s.slack_notification_message
+    s.assign_user(u2.id)
+    a = s.assignments.last
+    assert_match /[^n]assign/, a.slack_notification_message
 
-    s = Dynamic.find(s.id)
-    s.assigned_to_id = 0
-    s.save!
-    assert_match /unassign/, s.slack_notification_message
+    a.destroy!
+    assert_match /unassign/, a.slack_notification_message
 
     User.current = nil
   end
@@ -334,16 +332,13 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user user: u1, team: t
     u2 = create_user
     create_team_user user: u2, team: t
-    s = create_status assigned_to_id: u1.id, annotated: pm, annotator: u, status: 'in_progress'
-    s.assigned_to_id = u2.id
-    assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 2 do
-      s.save!
+    s = create_status annotated: pm, annotator: u, status: 'in_progress'
+    assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
+      s.assign_user(u2.id)
     end
 
-    s = Dynamic.find(s.id)
-    s.assigned_to_id = 0
     assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
-      s.save!
+      s.assignments.last.destroy!
     end
 
     User.current = nil

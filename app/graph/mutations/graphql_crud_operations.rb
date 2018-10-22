@@ -282,7 +282,11 @@ class GraphqlCrudOperations
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
 
-      field :assigned_to, UserType
+      connection :assignments, -> { UserType.connection_type } do
+        resolve ->(annotation, _args, _ctx) {
+          annotation.users
+        }
+      end
 
       field :locked, types.Boolean
 

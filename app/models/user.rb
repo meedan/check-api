@@ -11,6 +11,7 @@ class User < ActiveRecord::Base
   has_many :projects
   has_many :accounts
   belongs_to :account
+  has_many :assignments, dependent: :destroy
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
@@ -58,6 +59,10 @@ class User < ActiveRecord::Base
 
   def teams_owned
     self.teams.joins(:team_users).where({'team_users.role': 'owner', 'team_users.status': 'member'})
+  end
+
+  def assign_annotation(annotation)
+    Assignment.create! user_id: self.id, annotation_id: annotation.id
   end
 
   def self.from_omniauth(auth)

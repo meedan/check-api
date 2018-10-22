@@ -96,6 +96,7 @@ class Ability
       teams.include?(@context_team.id)
     end
     can :manage, [TagText, TeamTask], team_id: @context_team.id
+    can :import_spreadsheet, Team, :id => @context_team.id
   end
 
   def editor_perms
@@ -113,9 +114,14 @@ class Ability
         obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
       end
     end
+    can [:destroy, :create], Assignment do |obj|
+      obj = obj.annotation
+      obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+    end
     can :lock_annotation, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
+    can :import_spreadsheet, Team, :id => @context_team.id
   end
 
   def journalist_perms
@@ -187,6 +193,10 @@ class Ability
       obj.get_team.include?(@context_team.id) and !obj.annotated_is_archived?
     end
     can [:destroy, :update], [Dynamic, Annotation, Task] do |obj|
+      obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived? and !obj.locked?
+    end
+    can [:destroy, :create], Assignment do |obj|
+      obj = obj.annotation
       obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived? and !obj.locked?
     end
     can [:create, :update, :destroy], DynamicAnnotation::Field do |obj|

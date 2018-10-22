@@ -90,4 +90,6 @@ MutationType = GraphQL::ObjectType.define do
     field "updateDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Update".constantize.field
     field "destroyDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Destroy".constantize.field
   end
+
+  field :importSpreadsheet, field: ImportSpreadsheetMutation.field
 end
