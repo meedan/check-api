@@ -13,7 +13,8 @@
 		<% end %>
 
 		<p>
-		<%= I18n.t(:"devise.mailer.invitation_instructions.accept", url: 'TODO: ACCEPT INVITATION URL') %>
+		<%= I18n.t(:"devise.mailer.invitation_instructions.accept", url: accept_invitation_url(@resource, :invitation_token => @token, :slug => @team.slug)) %>
+
 		</p>
 
 		<% if @due_at %>
