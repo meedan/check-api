@@ -67,16 +67,7 @@ module UserInvitation
 	      if tu.nil?
 	      	invitable.errors.add(:invitation_token, I18n.t(:"user_invitation.no_invitation", { name: t.name }))
 	      elsif tu.invitation_period_valid?
-	        tu.invitation_accepted_at = Time.now.utc
-	        tu.invitation_token = nil
-	        tu.status = 'member'
-	        tu.save!
-	        # options should have password & username keys
-	        user = User.find_by_invitation_token(token, true)
-	        password = options[:password] || Devise.friendly_token.first(8)
-	        invitable = User.accept_invitation!(:invitation_token => token, :password => password) unless user.nil?
-	        # Send welcome mail with generated password
-	        RegistrationMailer.delay.welcome_email(invitable) unless invitable.nil?
+	      	self.accept_team_user_invitation(tu, token, options)
 	      else
 	      	invitable.errors.add(:invitation_token, I18n.t(:"user_invitation.invalid"))
 	      end
@@ -124,5 +115,22 @@ module UserInvitation
 	    tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
 	    tu.save!
   	end
+
+  	def self.accept_team_user_invitation(tu, token, options)
+	  	tu.invitation_accepted_at = Time.now.utc
+	    tu.invitation_token = nil
+	    tu.raw_invitation_token = nil
+      tu.status = 'member'
+      tu.save!
+      # options should have password & username keys
+      user = User.find_by_invitation_token(token, true)
+      password = options[:password] || Devise.friendly_token.first(8)
+      unless user.nil?
+      	invitable = User.accept_invitation!(:invitation_token => token, :password => password)
+      	# Send welcome mail with generated password
+      	invitable.password = password
+      	RegistrationMailer.delay.welcome_email(invitable) unless invitable.nil?
+      end
+	  end
   end
 end
