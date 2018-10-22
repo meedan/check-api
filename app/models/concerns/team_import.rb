@@ -163,7 +163,7 @@ module TeamImport
       user_id = get_user(assigned_to, row, 'assignee')
       if user_id
         status = pm.last_status_obj
-        status.assigned_to_id = user_id
+        status.assigned_to_ids = user_id
         status.save!
       end
     end
