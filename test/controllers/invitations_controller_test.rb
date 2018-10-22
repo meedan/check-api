@@ -16,11 +16,27 @@ class InvitationsControllerTest < ActionController::TestCase
       members = {'contributor' => u1.email}
       User.send_user_invitation(members)
     end
-    token = u1.read_attribute(:raw_invitation_token)
-      u1.reload.invitation_token
+    tu =  u1.team_users.last
+    token = tu.raw_invitation_token
     get :edit, invitation_token: token, slug: t.slug
-    # assert_redirected_to "#{CONFIG['checkdesk_client']}/#{t.slug}"
-    assert_nil u1.reload.invitation_token
+    assert_nil tu.reload.invitation_token
+  end
+
+  test "should not accept invalid invitation" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    u1 = create_user email: 'test1@local.com'
+    with_current_user_and_team(u, t) do
+      members = {'contributor' => u1.email}
+      User.send_user_invitation(members)
+    end
+    tu =  u1.team_users.last
+    token = tu.raw_invitation_token
+    get :edit, invitation_token: 'invalid-token', slug: t.slug
+    assert_not_nil tu.reload.invitation_token
+    get :edit, invitation_token: token, slug: 'invalid-slug'
+    assert_not_nil tu.reload.invitation_token
   end
 
 end

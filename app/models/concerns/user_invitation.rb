@@ -57,7 +57,6 @@ module UserInvitation
 
 	  def self.accept_team_invitation(token, slug, options={})
 	  	invitable = new
-	  	invitable.errors.add(:invitation_token, :invalid)
 	    t = Team.where(slug: slug).last
 	    if t.nil?
 	    	invitable.errors.add(:team, I18n.t(:"user_invitation.team_found"))
