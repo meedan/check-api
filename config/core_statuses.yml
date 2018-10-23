@@ -122,3 +122,31 @@ MEDIA_CORE_TRANSLATION_STATUSES:
     :style:
         :backgroundColor: "#9e9e9e"
         :color: "#9e9e9e"
+TASK_CORE_TASK_STATUSES:
+  -
+    :description: "<%= I18n.t(:'statuses.task.unresolved.description') %>"
+    :id: unresolved
+    :role: editor
+    :completed: false
+    :label: "<%= I18n.t(:'statuses.task.unresolved.label') %>"
+    :style:
+        :backgroundColor: "#FFA20F"
+        :color: "#FFA20F"
+  -
+    :description: "<%= I18n.t(:'statuses.task.resolved.description') %>"
+    :id: resolved
+    :role: editor
+    :completed: true
+    :label: "<%= I18n.t(:'statuses.task.resolved.label') %>"
+    :style:
+        :backgroundColor: "#1A8D00"
+        :color: "#1A8D00"
+  -
+    :description: "<%= I18n.t(:'statuses.task.cant_be_resolved.description') %>"
+    :id: cant_be_resolved
+    :role: editor
+    :completed: true
+    :label: "<%= I18n.t(:'statuses.task.cant_be_resolved.label') %>"
+    :style:
+        :backgroundColor: "#949494"
+        :color: "#949494"

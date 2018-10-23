@@ -197,7 +197,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def is_finished?
-    statuses = Workflow::Workflow.options(self, self.default_media_status_type)[:statuses]
+    statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
     current_status = statuses.select { |st| st['id'] == self.last_status }
     current_status[0]['completed'].to_i == 1
   end

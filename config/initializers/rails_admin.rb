@@ -334,7 +334,7 @@ RailsAdmin.config do |config|
     end
 
     show do
-      id = CONFIG['default_workflow']
+      id = CONFIG['default_project_media_workflow']
       configure "get_media_#{id.pluralize}", :json do
         label "Media #{id.pluralize.gsub('_', ' ')}"
       end
@@ -399,7 +399,7 @@ RailsAdmin.config do |config|
         visible_only_for_admin
       end
 
-      id = CONFIG['default_workflow']
+      id = CONFIG['default_project_media_workflow']
       field "media_#{id.pluralize}", :yaml do
         partial "json_editor"
         help "A list of custom #{id.pluralize.gsub('_', ' ')} for reports that match your team's guidelines."
