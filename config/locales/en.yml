@@ -422,6 +422,7 @@ en:
     user_not_authorized: 'Sorry, you are not allowed to import spreadsheet to this team'
     invalid_project: 'Invalid project: `%{project}`'
     invalid_user: 'Invalid user: `%{user}`'
+    invalid_status: 'Invalid status: `%{status}`'
     blank_user: 'User is blank'
     blank_annotator: 'Annotator is blank'
     blank_project: 'Project is blank'
