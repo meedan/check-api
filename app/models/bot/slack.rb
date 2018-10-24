@@ -43,7 +43,7 @@ class Bot::Slack < ActiveRecord::Base
       attachment = {
         pretext: attachment
       } if attachment.is_a? String
-      unless attachment.dig(:pretext).blank?
+      unless attachment&.dig(:pretext).blank?
         prefix = team.name
         prefix += ": #{project.title}" unless project.nil?
         attachment[:pretext] = "[#{prefix}] #{attachment[:pretext]}"
