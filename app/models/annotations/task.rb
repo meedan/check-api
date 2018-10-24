@@ -42,7 +42,7 @@ class Task < ActiveRecord::Base
   end
 
   def project
-    self.annotated.project
+    self&.annotated&.project
   end
 
   def to_s
