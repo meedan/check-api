@@ -9,7 +9,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Slack Message', { 'Id' => ['Id', false], 'Attachments' => ['JSON', false], 'Channel' => ['Text', false] })
   end
 
-  test "should notify super admin if settings and notifications are enabled" do
+  test "should notify admin if settings and notifications are enabled" do
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft = create_field_type field_type: 'task_reference', label: 'Task Reference'
     fi = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft
@@ -23,10 +23,13 @@ class Bot::SlackTest < ActiveSupport::TestCase
       pm = create_project_media project: p
       @bot.notify_super_admin(pm, t, p)
       assert pm.sent_to_slack
+      s = create_source
+      @bot.notify_super_admin(s, t, p)
+      assert_not s.sent_to_slack
     end
   end
 
-  test "should notify super admin even if team is limited" do
+  test "should notify admin even if team is limited" do
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft = create_field_type field_type: 'task_reference', label: 'Task Reference'
     fi = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft
@@ -44,7 +47,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not notify super admin if there are no settings" do
+  test "should not notify admin if there are no settings" do
     @bot.set_slack_notifications_enabled = 0; @bot.save!
     t = create_team slug: 'test'
     u = create_user
