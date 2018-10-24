@@ -1,6 +1,16 @@
 ---
 en:
   statuses:
+    task:
+      unresolved:
+        label: Unresolved
+        description: Default, not resolved yet
+      resolved:
+        label: Resolved
+        description: Task was resolved
+      cant_be_resolved:
+        label: Cannot be resolved
+        description: It was not possible to resolve the task
     ids:
       verification_status: verification
       translation_status: translation
