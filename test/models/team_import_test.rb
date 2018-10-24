@@ -265,7 +265,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data1 = { item: 'A claim', user: user_url, projects: @p.url, status: invalid_status }
     row_with_invalid_status = add_data_on_spreadsheet(data1)
 
-    valid_status = Workflow::Workflow.options(ProjectMedia.new, ProjectMedia.new.default_media_status_type)['statuses'].find { |s| s['completed'] == '1'}['id']
+    valid_status = Workflow::Workflow.options(ProjectMedia.new, ProjectMedia.new.default_media_status_type)['statuses'].find { |s| s['completed'].to_i == 1}['id']
     data2 = data1.merge({ item: 'Other claim', status: valid_status })
     row_with_valid_status = add_data_on_spreadsheet(data2)
 
