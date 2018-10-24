@@ -137,7 +137,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
     stub_config('slack_token', '123456') do
       Sidekiq::Testing.inline! do
-        s = pm.annotations.where(annotation_type: pm.default_media_status_type).last.load
+        s = pm.annotations.where(annotation_type: pm.default_project_media_status_type).last.load
         s.status = 'in_progress'
         s.disable_es_callbacks = true
         s.save!

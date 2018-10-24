@@ -176,7 +176,7 @@ class Bot::Slack < ActiveRecord::Base
     def update_slack_message_attachments(attachments)
       label = ''
       I18n.with_locale(:en) do
-        statuses = Workflow::Workflow.options(self, self.default_media_status_type)
+        statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)
         statuses = statuses.with_indifferent_access['statuses']
         statuses.each { |status| label = status['label'] if status['id'] == self.last_status }
       end

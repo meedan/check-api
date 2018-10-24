@@ -158,6 +158,15 @@ module SampleData
     create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft1, optional: false
   end
 
+  def create_task_status_stuff(delete_existing = true)
+    if delete_existing
+      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+    end
+    ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
+    at = create_annotation_type annotation_type: 'task_status', label: 'Task Status'
+    create_field_instance annotation_type_object: at, name: 'task_status_status', label: 'Task Status', default_value: 'unresolved', field_type_object: ft1, optional: true
+  end
+
   # Verification status
   def create_status(options = {})
     create_verification_status_stuff if User.current.nil?
