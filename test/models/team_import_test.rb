@@ -20,7 +20,9 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   def teardown
-    [0, 1].each { |i| @worksheet.list[i].clear }
+    for row in 0..@worksheet.num_rows
+      @worksheet.list[row].clear
+    end
     @worksheet.save
   end
 
@@ -101,7 +103,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should return blank user from spreadsheet" do
-    data = ['https://www.facebook.com/APNews/photos/pb.249655421622.-2207520000.1534711057./10155603019006623/?type=3&theater', '', 'https://checkmedia.org/meedanteam/project/1000']
+    data = { item: 'https://www.facebook.com/APNews/photos/pb.249655421622.-2207520000.1534711057./10155603019006623/?type=3&theater', projects: 'https://checkmedia.org/meedanteam/project/1000' }
     row = add_data_on_spreadsheet(data)
 
     with_current_user_and_team(@user, @team) {
@@ -111,9 +113,9 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should return invalid user and project errors from spreadsheet" do
-    data1 = ['This is an example of a claim', 'https://qa.checkmedia.org/check/user/16', 'https://checkmedia.org/meedanteam/project/1000,https://checkmedia.org/meedanteam/project/1001']
+    data1 = { item: 'A claim', user: 'https://qa.checkmedia.org/check/user/16', projects: 'https://checkmedia.org/meedanteam/project/1000,https://checkmedia.org/meedanteam/project/1001' }
     row1 = add_data_on_spreadsheet(data1)
-    data2 = ['This is an example of a claim', 'http://yahoo.com', 'https://checkmedia.org/meedanteam/project/1000']
+    data2 = data1.merge({user: 'http://yahoo.com', projects: 'https://checkmedia.org/meedanteam/project/1000' })
     row2 = add_data_on_spreadsheet(data2)
 
     with_current_user_and_team(@user, @team) {
@@ -125,7 +127,7 @@ class TeamImportTest < ActiveSupport::TestCase
 
   test "should return blank project error from spreadsheet" do
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
-    data = ['A claim', user_url, '']
+    data = { item: 'A claim', user: user_url }
     row = add_data_on_spreadsheet(data)
 
     with_current_user_and_team(@user, @team) {
@@ -143,7 +145,8 @@ class TeamImportTest < ActiveSupport::TestCase
     m = create_media url: url
     pm = create_project_media media: m, project: @p
     create_bot name: 'Check Bot'
-    data = [url, "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}", @p.url]
+    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    data = { item: url, user: user_url, projects: @p.url }
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row = add_data_on_spreadsheet(data)
 
@@ -153,36 +156,72 @@ class TeamImportTest < ActiveSupport::TestCase
     }
   end
 
+  test "should add as note column 'Item note'" do
+    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    data = { item: 'A claim', user: user_url, projects: @p.url, annotator: user_url, note1: 'A note', note2: 'Other note' }
+    spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
+    row = add_data_on_spreadsheet(data)
+
+    with_current_user_and_team(@user, @team) {
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+      pm = Media.find_by_quote(data[:item]).project_medias.first
+      assert_equal ['A note', 'Other note'], pm.comments.map(&:text).sort
+      assert_equal pm.full_url, result[row].join(', ')
+    }
+  end
+
   test "should not add note if annotator is not valid" do
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
-    data1 = ['A claim', user_url, @p.url, 'A note', 'invalid annotator']
+    data1 = { item: 'A claim', user: user_url, projects: @p.url, annotator: 'invalid annotator', note1: 'A note' }
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row_with_invalid_annotator = add_data_on_spreadsheet(data1)
-    data2 = ['Other claim', user_url, @p.url, 'A note', user_url]
+
+    user2 = create_user is_admin: true
+    user2_url = "#{CONFIG['checkdesk_client']}/check/user/#{user2.id}"
+    data2 = data1.merge({ item: 'Other claim', annotator: user2_url})
     row_with_valid_annotator = add_data_on_spreadsheet(data2)
 
     with_current_user_and_team(@user, @team) {
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+      pm1 = Media.find_by_quote(data1[:item]).project_medias.first
+      assert pm1.comments.empty?
       assert_match('Invalid annotator', result[row_with_invalid_annotator].join(', '))
+
+      pm2 = Media.find_by_quote(data2[:item]).project_medias.first
+      assert_equal ['A note'], pm2.comments.map(&:text)
       assert_no_match('Invalid annotator', result[row_with_valid_annotator].join(', '))
+    }
+  end
+
+  test "should add user as annotator if annotator is blank" do
+    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    data = { item: 'A claim', user: user_url, projects: @p.url, note1: 'A note' }
+    spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
+    row = add_data_on_spreadsheet(data)
+
+    with_current_user_and_team(@user, @team) {
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+      pm = Media.find_by_quote(data[:item]).project_medias.first
+      assert_equal [@user.id], pm.comments.map(&:annotator_id)
+      assert_no_match('Invalid annotator', result[row].join(', '))
     }
   end
 
   test "should not assign if user on assigned to is not valid" do
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
-    data1 = ['A claim', user_url, @p.url, '', '', 'invalid assigned']
+    data1 = { item: 'A claim', user: user_url, projects: @p.url, assigned_to: 'invalid assignee' }
     row_with_invalid_assignee = add_data_on_spreadsheet(data1)
-    data2 = ['Other claim', user_url, @p.url, '', '', user_url]
+    data2 = data1.merge({item: 'Other claim', assigned_to: user_url})
     row_with_valid_assignee = add_data_on_spreadsheet(data2)
 
     with_current_user_and_team(@user, @team) {
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
-      pm1 = Media.find_by_quote(data1[0]).project_medias.first
+      pm1 = Media.find_by_quote(data1[:item]).project_medias.first
       assert_equal 0, pm1.last_status_obj.assignments.size
       assert_match pm1.full_url, result[row_with_invalid_assignee].join(', ')
       assert_match /Invalid assignee/, result[row_with_invalid_assignee].join(', ')
 
-      pm2 = Media.find_by_quote(data2[0]).project_medias.first
+      pm2 = Media.find_by_quote(data2[:item]).project_medias.first
       assert_equal pm2.full_url, result[row_with_valid_assignee].join(', ')
       assert_equal [@user], pm2.last_status_obj.assigned_users
     }
@@ -190,13 +229,13 @@ class TeamImportTest < ActiveSupport::TestCase
 
   test "should not try to add duplicated tags" do
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
-    data = ['A claim', user_url, @p.url, '', '', '', 'tag1, tag2']
+    data = { item: 'A claim', user: user_url, projects: @p.url, tags: 'tag1, tag2' }
     row = add_data_on_spreadsheet(data)
 
     with_current_user_and_team(@user, @team) {
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
 
-      pm = Media.find_by_quote(data[0]).project_medias.first
+      pm = Media.find_by_quote(data[:item]).project_medias.first
       assert_equal pm.full_url, result[row].join(', ')
       assert_equal ['tag1', 'tag2'], pm.annotations('tag').map(&:tag_text).sort
 
@@ -210,7 +249,7 @@ class TeamImportTest < ActiveSupport::TestCase
     ProjectMedia.stubs(:create!).raises(RuntimeError.new('error'))
 
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
-    data = ['A claim', user_url, @p.url]
+    data = { item: 'A claim', user: user_url, projects: @p.url }
     row = add_data_on_spreadsheet(data)
 
     with_current_user_and_team(@user, @team) {
@@ -220,12 +259,57 @@ class TeamImportTest < ActiveSupport::TestCase
     ProjectMedia.unstub(:create!)
   end
 
+  test "should show status error if not valid" do
+    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    invalid_status = 'invalid_status'
+    data1 = { item: 'A claim', user: user_url, projects: @p.url, status: invalid_status }
+    row_with_invalid_status = add_data_on_spreadsheet(data1)
+
+    valid_status = Workflow::Workflow.options(ProjectMedia.new, ProjectMedia.new.default_media_status_type)['statuses'].find { |s| s['completed'].to_i == 1}['id']
+    data2 = data1.merge({ item: 'Other claim', status: valid_status })
+    row_with_valid_status = add_data_on_spreadsheet(data2)
+
+    with_current_user_and_team(@user, @team) {
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+
+      pm1 = Media.find_by_quote(data1[:item]).project_medias.first
+      assert_match("#{pm1.full_url}, Invalid status", result[row_with_invalid_status].join(', '))
+      assert_not_equal invalid_status, pm1.last_status
+
+      pm2 = Media.find_by_quote(data2[:item]).project_medias.first
+      assert_equal pm2.full_url, result[row_with_valid_status].join(', ')
+      assert_equal valid_status, pm2.last_status
+    }
+  end
+
+  test "should add tasks" do
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
+    create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
+    create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft2
+
+    create_team_task team_id: @team.id, label: 'What?'
+    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    data = { item: 'A claim', user: user_url, projects: @p.url, task1: 'A text' }
+    row = add_data_on_spreadsheet(data)
+
+    with_current_user_and_team(@user, @team) {
+      result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+
+      pm = Media.find_by_quote(data[:item]).project_medias.first
+      assert_equal pm.full_url, result[row].join(', ')
+      assert_equal ['A text'], pm.annotations('task').map(&:first_response).sort
+    }
+  end
+
   protected
 
   def add_data_on_spreadsheet(data)
+    template = { item: 2, user: 3, projects: 4, assigned_to: 5, tags: 6, status: 7, annotator: 8, note1: 9, note2: 10, task1: 11, task2: 12 }
     row = @worksheet.num_rows + 1
-    (2..8).each do |column|
-      @worksheet[row, column] = data[column - 2] || ''
+    data.each_pair do |column, value|
+      @worksheet[row, template[column]] = value
     end
     @worksheet.save
     row

@@ -30,7 +30,7 @@ module TeamImport
   end
 
   included do
-    TASKS_BEGIN = 9
+    FLEXIBLE_COLS = 9
 
     notifies_pusher on: :touch,
                     event: proc { |t| t.import_status },
@@ -46,8 +46,9 @@ module TeamImport
       self.spreadsheet = get_spreadsheet(spreadsheet_id)
       worksheet = self.spreadsheet.worksheets[0]
       Rails.logger.info "[Team Import] Importing spreadsheet #{spreadsheet_id} to team #{self.slug} (requested by user #{user.login})"
+      RequestStore.store[:skip_notifications] = true
       self.update_import_status('start')
-      get_tasks_slugs(worksheet)
+      get_flexible_columns(worksheet)
       for row in 2..worksheet.num_rows
         @result[row] = []
         import_row(worksheet, row)
@@ -56,6 +57,7 @@ module TeamImport
       end
       self.update_import_status('complete')
       Rails.logger.info "[Team Import] Finished import of spreadsheet #{spreadsheet_id} to team #{self.slug}"
+      RequestStore.store[:skip_notifications] = false
       @result
     end
 
@@ -77,10 +79,9 @@ module TeamImport
         item: worksheet[row, 2],
         user: worksheet[row, 3],
         projects: worksheet[row, 4],
-        note: worksheet[row, 5],
-        annotator: worksheet[row, 6],
-        assigned_to: worksheet[row, 7],
-        tags: worksheet[row, 8],
+        assigned_to: worksheet[row, 5],
+        tags: worksheet[row, 6],
+        status: worksheet[row, 7]
       }
 
       user_id = get_user(data[:user], row)
@@ -90,10 +91,11 @@ module TeamImport
         begin
           pm = create_item(project, data[:item], user_id)
           @result[row] << pm.full_url
-          add_note(pm, data[:note], data[:annotator], row)
           assign_to_user(pm, data[:assigned_to], row)
           add_tags(pm, data[:tags])
+          add_notes(pm, worksheet, row)
           add_tasks_answers(pm, worksheet, row)
+          add_status(pm, data[:status], row)
         rescue StandardError => e
           @result[row] << e.message
         end
@@ -150,14 +152,6 @@ module TeamImport
       {params: params, project_media: pm}
     end
 
-    def add_note(pm, note, annotator, row)
-      return if note.blank? && annotator.blank?
-      annotator_id = get_user(annotator, row, 'annotator')
-      if annotator_id
-        Comment.create!(annotator_id: annotator_id, text: note, annotated: pm)
-      end
-    end
-
     def assign_to_user(pm, assigned_to, row)
       return if assigned_to.blank?
       user_id = get_user(assigned_to, row, 'assignee')
@@ -178,27 +172,51 @@ module TeamImport
       end
     end
 
-    def get_tasks_slugs(worksheet)
+    def get_flexible_columns(worksheet)
+       @notes = []
        @tasks = {}
-       for col in TASKS_BEGIN..worksheet.num_cols
-         task_question = worksheet[1, col]
-         unless task_question.blank?
-           @tasks[col] = Task.slug(task_question)
+       for col in FLEXIBLE_COLS..worksheet.num_cols
+         col_title = worksheet[1, col]
+         if col_title == 'Item note'
+           @notes << col
+         else
+           @tasks[col] = Task.slug(col_title)
          end
+      end
+    end
+
+    def add_notes(pm, worksheet, row)
+      annotator = worksheet[row, 8]
+      @notes.each do |col|
+        note = worksheet[row, col]
+        next if note.blank?
+        annotator_id = annotator.blank? ? pm.user.id : get_user(annotator, row, 'annotator')
+        Comment.create!(annotator_id: annotator_id, text: note, annotated: pm) if annotator_id
       end
     end
 
     def add_tasks_answers(pm, worksheet, row)
       tasks_responses = {}
-      for col in TASKS_BEGIN..worksheet.num_cols
+      @tasks.each_pair do |col, slug|
         answer = worksheet[row, col]
-        tasks_responses[@tasks[col]] = answer unless answer.blank?
+        tasks_responses[slug] = answer unless answer.blank?
       end
       pm.set_tasks_responses = tasks_responses.with_indifferent_access
 
       User.current = pm.user
       pm.send(:respond_to_auto_tasks, pm.annotations('task'))
       User.current = nil
+    end
+
+    def add_status(pm, status, row)
+      return if status.blank?
+      begin
+        s = pm.last_status_obj
+        s.status = status
+        s.save!
+      rescue
+        @result[row] << I18n.t('team_import.invalid_status', status: status) if @result
+      end
     end
 
     def update_import_status(status)
