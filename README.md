@@ -24,7 +24,7 @@ You can optionally use Puma, which allows you to restart the Rails server by doi
 
 * You can also start the application on Docker by running `rake lapis:docker:run` (it will run on port 3000 and your local hostname) - you first need to create an API key after entering the container (`lapis:docker:shell`) before using the web interface
 
-### Theming 
+### Theming
 
 #### Themeing the sign in page
 
@@ -32,13 +32,13 @@ The log in page is a separate static page. Edit `app/assets/sass/home.scss` and 
 
 #### Themeing inside the app
 
-All pages except the sign in page use a customized Rails Admin Material UI theme. You can customize it by editing the Sass files in `app/stylesheets/rails_admin/custom/`. The Rails asset pipeline should parse them automatically. 
+All pages except the sign in page use a customized Rails Admin Material UI theme. You can customize it by editing the Sass files in `app/stylesheets/rails_admin/custom/`. The Rails asset pipeline should parse them automatically.
 
 You can force recompilation with: `rake assets:clean && rake assets:precompile`.
 
 #### Restarting while theming
 
-Changing configuration files requires a restart of the API. 
+Changing configuration files requires a restart of the API.
 
 From inside the container: `touch tmp/restart.txt`.
 
@@ -51,7 +51,7 @@ From inside the container: `touch tmp/restart.txt`.
 ### Running the tests in parallel
 
 * `bundle install --without nothing`
-* `./scripts/setup-parallel-env.sh`
+* `./test/setup-parallel-env.sh`
 * `RAILS_ENV=test bundle exec rake "parallel:test[3]"` (replace `3` by the number of threads you want)
 
 ### Integration
@@ -137,7 +137,7 @@ Clients should send the `Accept-Language` header in order to get localized conte
 
 #### Update CLDR data
 
-CLDR data lives in `data/` (symlinked as `cldr-data` too) and contains data from CLDR download by `ruby-cldr`. In order to update its contents (as explained [here](https://github.com/svenfuchs/ruby-cldr/issues/24#issuecomment-65855492)), run this in Rails console:
+CLDR data lives in `data/` and contains data from CLDR download by `ruby-cldr`. In order to update its contents (as explained [here](https://github.com/svenfuchs/ruby-cldr/issues/24#issuecomment-65855492)), run this in Rails console:
 
 ```ruby
 require 'cldr/thor'

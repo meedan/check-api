@@ -119,7 +119,7 @@ class StatusTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'editor'
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
-      st = create_status annotated: pm, annotator: nil, current_user: u, status: 'false', skip_check_ability: true 
+      st = create_status annotated: pm, annotator: nil, current_user: u, status: 'false', skip_check_ability: true
       assert_equal u, st.annotator
     end
   end
@@ -286,19 +286,19 @@ class StatusTest < ActiveSupport::TestCase
   test "should define Slack message" do
     create_translation_status_stuff
     create_verification_status_stuff(false)
-    
+
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u
-    
+
     s = create_status status: 'false', annotated: pm, annotator: u
     s = Dynamic.find(s.id)
     s.status = 'verified'
     s.save!
-    assert_match /verification.status/, s.slack_notification_message
+    assert_match /verification status/, s.slack_notification_message[:pretext]
 
     u1 = create_user
     create_team_user user: u1, team: t
@@ -308,10 +308,10 @@ class StatusTest < ActiveSupport::TestCase
     s = Dynamic.find(s.id)
     s.assign_user(u2.id)
     a = s.assignments.last
-    assert_match /[^n]assign/, a.slack_notification_message
+    assert_match /assigned/, a.slack_notification_message[:pretext]
 
     a.destroy!
-    assert_match /unassign/, a.slack_notification_message
+    assert_match /unassigned/, a.slack_notification_message[:pretext]
 
     User.current = nil
   end
@@ -327,7 +327,7 @@ class StatusTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u
-    
+
     u1 = create_user
     create_team_user user: u1, team: t
     u2 = create_user

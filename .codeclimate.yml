@@ -65,7 +65,6 @@ exclude_patterns:
 - "app/models/admin_ability.rb"
 - "config/initializers/rails_admin.rb"
 - ".codeclimate.yml"
-- "cldr-data"
 - "data"
 - "**.js"
 - "public/viber/bigtext.js"

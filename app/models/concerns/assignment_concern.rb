@@ -27,7 +27,7 @@ module AssignmentConcern
     end
   end
 
-  def users
+  def assigned_users
     User.joins(:assignments).where('assignments.annotation_id' => self.id)
   end
 

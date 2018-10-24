@@ -184,7 +184,7 @@ class TeamImportTest < ActiveSupport::TestCase
 
       pm2 = Media.find_by_quote(data2[0]).project_medias.first
       assert_equal pm2.full_url, result[row_with_valid_assignee].join(', ')
-      assert_equal [@user], pm2.last_status_obj.users
+      assert_equal [@user], pm2.last_status_obj.assigned_users
     }
   end
 

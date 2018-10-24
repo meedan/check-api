@@ -21,27 +21,66 @@ class Dynamic < ActiveRecord::Base
   def slack_notification_message
     annotation_type = self.annotation_type =~ /^task_response/ ? 'task_response' : self.annotation_type
     method = "slack_notification_message_#{annotation_type}"
-    if !self.set_fields.blank? && self.respond_to?(method)
+    if self.respond_to?(method)
       self.send(method)
     end
   end
 
-  def slack_notification_message_task_response
-    self.slack_answer_task_message
+  def slack_params_task_response
+    response, task_id = self.values(['response', 'task'], '').values_at('response', 'task')
+    task = Task.find(task_id)
+    self.slack_params.merge({
+      title: Bot::Slack.to_slack(task.label),
+      response: Bot::Slack.to_slack(response, false),
+      attribution: User.where('id IN (:ids)', { :ids => self.attribution.to_s.split(',') })&.collect { |u| u.name }&.to_sentence
+    })
   end
 
-  def slack_answer_task_message
-    response, note, task = self.values(['response', 'note', 'task'], '').values_at('response', 'note', 'task')
-    task = Task.find(task).label
-
-    note = I18n.t(:slack_answer_task_note, {note: Bot::Slack.to_slack_quote(note)}) unless note.blank?
-    I18n.t(:slack_answer_task,
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.annotated_client_url, task),
-      project: Bot::Slack.to_slack(self.annotated.project.title),
-      response: Bot::Slack.to_slack_quote(response),
-      answer_note: note
-    )
+  def slack_notification_message_task_response
+    params = self.slack_params_task_response
+    event = self.versions.count > 1 ? 'answer_edit' : 'answer_create'
+    {
+      pretext: I18n.t("slack.messages.task_#{event}", params),
+      title: params[:title],
+      title_link: params[:url],
+      author_name: params[:user],
+      author_icon: params[:user_image],
+      text: params[:response],
+      fields: [
+        {
+          title: I18n.t("slack.fields.assigned"),
+          value: params[:assigned],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.required"),
+          value: params[:required],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.project"),
+          value: params[:project],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.attribution"),
+          value: params[:attribution],
+          short: true
+        },
+        {
+          title: params[:parent_type],
+          value: params[:item],
+          short: false
+        }
+      ],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def data

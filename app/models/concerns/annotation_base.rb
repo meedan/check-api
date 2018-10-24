@@ -243,10 +243,6 @@ module AnnotationBase
     klass
   end
 
-  def annotated_client_url
-    "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}"
-  end
-
   def image_data
     self.file.nil? ? {} : { embed: self.load.embed_path, thumbnail: self.load.thumbnail_path, original: self.load.image_path }
   end
@@ -264,16 +260,31 @@ module AnnotationBase
     self.annotated.title
   end
 
-  def slack_default_params
-    {
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.annotated_client_url, self.to_s),
-      project: Bot::Slack.to_slack(self.annotated.project.title)
-    }
-  end
-
   def annotated_is_archived?
     self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
+  end
+
+  def slack_params
+    object = self.project_media || self.project_source
+    item = self.annotated_type == 'ProjectSource' ? object.source.name : object.title
+    item_type = self.annotated_type == 'ProjectSource' ? 'source' : object.media.class.name.underscore
+    annotation_type = self.class.name == 'Dynamic' ? item_type : self.class.name.underscore
+    user = self.annotator
+    {
+      user: Bot::Slack.to_slack(user.name),
+      user_image: user.profile_image,
+      project: Bot::Slack.to_slack(object.project.title),
+      role: I18n.t("role_" + user.role(object.project.team).to_s),
+      team: Bot::Slack.to_slack(object.project.team.name),
+      assigned: self.assigned_users()&.collect{ |u| u.name }&.to_sentence,
+      item: Bot::Slack.to_slack_url(object.full_url, item),
+      type: I18n.t("activerecord.models.#{annotation_type}"),
+      parent_type: I18n.t("activerecord.models.#{item_type}"),
+      url: object.full_url,
+      button: I18n.t("slack.fields.view_button", {
+        type: I18n.t("activerecord.models.#{annotation_type}"), app: CONFIG['app_name']
+      })
+    }
   end
 
   protected

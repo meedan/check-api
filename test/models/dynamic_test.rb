@@ -187,19 +187,19 @@ class DynamicTest < ActiveSupport::TestCase
   end
 
   test "should have Slack message for translation status" do
+    u = create_user
+    t = create_team
     DynamicAnnotation::AnnotationType.delete_all
     create_verification_status_stuff
     at = create_annotation_type annotation_type: 'translation_status'
     create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', optional: false
-    d = create_dynamic_annotation annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    d = create_dynamic_annotation annotator: u, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
     d = Dynamic.find(d.id)
     d.set_fields = { translation_status_status: 'ready' }.to_json
     d.disable_es_callbacks = true
     d.save!
-    u = create_user
-    t = create_team
     with_current_user_and_team(u, t) do
-      assert_kind_of String, d.slack_notification_message
+      assert_match /translation status/, d.slack_notification_message[:pretext]
     end
   end
 

@@ -68,6 +68,27 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should notify Slack when project source is created or edited" do
+    t = create_team slug: 'test'
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    with_current_user_and_team(u, t) do
+      s = create_source
+      assert_not s.sent_to_slack
+      s.name = 'change name'
+      s.save!
+      assert_not s.sent_to_slack
+      ps = create_project_source project: p, source: s
+      assert ps.sent_to_slack
+      s.reload
+      s.name = 'change name again'
+      s.save!
+      assert s.sent_to_slack
+    end
+  end
+
   test "should have a project and source" do
     assert_no_difference 'ProjectSource.count' do
       assert_raise ActiveRecord::RecordInvalid do

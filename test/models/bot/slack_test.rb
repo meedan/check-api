@@ -169,8 +169,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should truncate text" do
-    assert_equal 140, Bot::Slack.to_slack(random_string(200)).size
-    assert Bot::Slack.to_slack_quote(random_string(200)).size > 140
+    assert_equal 280, Bot::Slack.to_slack(random_string(300)).size
   end
 
   test "should send message to Slack thread if there is a new translation" do
