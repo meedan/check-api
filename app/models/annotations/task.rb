@@ -5,7 +5,7 @@ class Task < ActiveRecord::Base
 
   before_validation :set_slug, on: :create
   after_create :send_slack_notification
-  after_update :send_slack_notification_in_background
+  after_update :send_slack_notification
   after_destroy :destroy_responses
 
   field :label
@@ -23,9 +23,7 @@ class Task < ActiveRecord::Base
   validate :task_options_is_array
 
   field :slug
-
   field :required, :boolean
-
   field :log_count, Integer
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
@@ -51,41 +49,66 @@ class Task < ActiveRecord::Base
     self.label
   end
 
+  SLACK_FIELDS_IGNORE = [ :log_count, :slug, :status ]
+
+  def slack_params
+    super.merge({
+      title: Bot::Slack.to_slack(self.label),
+      description: Bot::Slack.to_slack(self.description, false),
+      required: self.required ? I18n.t("slack.fields.required_yes") : nil,
+      status: Bot::Slack.to_slack(self.status)
+    })
+  end
+
   def slack_notification_message
-    if self.versions.count > 1
-      self.slack_message_on_update
+    if self.data_changed? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
+      event = self.versions.count > 1 ? 'edit' : 'create'
     else
-      self.slack_message_on_create
+      return nil
     end
-  end
-
-  def slack_message_on_create
-    note = self.description.blank? ? '' : I18n.t(:slack_create_task_note, { note: Bot::Slack.to_slack_quote(self.description) })
-    params = self.slack_default_params.merge({ create_note: note })
-    I18n.t(:slack_create_task_message, params)
-  end
-
-  def slack_message_on_update
-    messages = []
-
-    if self.data_changed?
-      data = self.data
-      data_was = self.data_was
-
-      ['label', 'description'].each do |key|
-        if data_was[key].to_s != data[key].to_s
-          params = self.slack_default_params.merge({
-            from: Bot::Slack.to_slack_quote(data_was[key]),
-            to: Bot::Slack.to_slack_quote(data[key])
-          })
-          messages << I18n.t("slack_update_task_#{key}".to_sym, params)
-        end
-      end
-    end
-
-    message = messages.join("\n")
-
-    message.blank? ? nil : message
+    params = self.slack_params
+    {
+      pretext: I18n.t("slack.messages.task_#{event}", params),
+      title: params[:title],
+      title_link: params[:url],
+      author_name: params[:user],
+      author_icon: params[:user_image],
+      text: params[:description],
+      fields: [
+        {
+          title: I18n.t("slack.fields.status"),
+          value: params[:status],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.assigned"),
+          value: params[:assigned],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.required"),
+          value: params[:required],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.project"),
+          value: params[:project],
+          short: true
+        },
+        {
+          title: params[:parent_type],
+          value: params[:item],
+          short: false
+        }
+      ],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def content
@@ -162,7 +185,7 @@ class Task < ActiveRecord::Base
     response = response.load
     suggestion = response.get_fields.select{ |f| f.field_name =~ /^suggestion/ }.first
     return if suggestion.nil?
-    
+
     # Save review information and copy suggestion to answer if accepted
     review = { user: User.current, timestamp: Time.now, accepted: accept }.to_json
     fields = { "review_#{self.type}" => review }
@@ -180,20 +203,6 @@ class Task < ActiveRecord::Base
 
     # Update number of suggestions
     self.pending_suggestions_count -= 1 if self.pending_suggestions_count.to_i > 0
-  end
-
-  def self.send_slack_notification(tid, rid, uid, changes)
-    User.current = User.find(uid) if uid > 0
-    object = Task.where(id: tid).last
-    return if object.nil?
-    changes = JSON.parse(changes)
-    changes.each do |attribute, change|
-      object.send :set_attribute_was, attribute, change[0]
-    end
-    response = rid > 0 ? Dynamic.find(rid) : nil
-    object.instance_variable_set(:@response, response)
-    object.send_slack_notification
-    User.current = nil
   end
 
   def self.slug(label)
@@ -215,12 +224,6 @@ class Task < ActiveRecord::Base
 
   def set_slug
     self.slug = Task.slug(self.label)
-  end
-
-  def send_slack_notification_in_background
-    uid = User.current ? User.current.id : 0
-    rid = self.response.nil? ? 0 : self.response.id
-    Task.delay_for(1.second).send_slack_notification(self.id, rid, uid, self.changes.to_json)
   end
 end
 

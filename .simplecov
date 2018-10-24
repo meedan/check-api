@@ -1,3 +1,10 @@
+require 'simplecov-console'
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
+  SimpleCov::Formatter::HTMLFormatter,
+  SimpleCov::Formatter::Console,
+])
+
 SimpleCov.start 'rails' do
   nocov_token 'nocov'
   merge_timeout 3600

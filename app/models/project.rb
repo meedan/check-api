@@ -105,11 +105,37 @@ class Project < ActiveRecord::Base
     client.update_by_query options
   end
 
+  def slack_params
+    user = self.user
+    {
+      user: Bot::Slack.to_slack(user.name),
+      user_image: user.profile_image,
+      project: Bot::Slack.to_slack(self.title),
+      role: I18n.t("role_" + user.role(self.team).to_s),
+      team: Bot::Slack.to_slack(self.team.name),
+      url: self.url,
+      button: I18n.t("slack.fields.view_button", {
+        type: I18n.t("activerecord.models.project"), app: CONFIG['app_name']
+      })
+    }
+  end
+
   def slack_notification_message
-    I18n.t(:slack_create_project,
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.url, self.title)
-    )
+    params = self.slack_params
+    {
+      pretext: I18n.t("slack.messages.project_create", params),
+      title: params[:project],
+      title_link: params[:url],
+      author_name: params[:user],
+      author_icon: params[:user_image],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def url

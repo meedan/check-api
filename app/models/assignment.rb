@@ -5,9 +5,9 @@ class Assignment < ActiveRecord::Base
   before_update { raise ActiveRecord::ReadOnlyRecord }
   after_create :send_email_notification_on_create, :send_slack_notification
   after_destroy :send_email_notification_on_destroy, :send_slack_notification
-  
+
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
-    
+
   has_paper_trail on: [:create, :destroy], if: proc { |_a| User.current.present? }
 
   def version_metadata(_changes)
@@ -21,12 +21,58 @@ class Assignment < ActiveRecord::Base
 
   def slack_notification_message
     user = self.user
-    action = Assignment.where(id: self.id).last.nil? ? 'unassign' : 'assign'
-    annotation = self.annotation.load || self.annotation
-    params = annotation.slack_default_params.merge({
-      assignee: Bot::Slack.to_slack(user.name)
+    event = Assignment.where(id: self.id).last.nil? ? 'unassign' : 'assign'
+    params = self.annotation.load.slack_params.merge({
+      unassigned: event == 'unassign' ? Bot::Slack.to_slack(user.name) : nil
     })
-    I18n.t("slack_#{action}_#{annotation.annotation_type}".to_sym, params)
+    {
+      pretext: I18n.t("slack.messages.annotation_#{event}", params),
+      title: params[:title],
+      title_link: params[:url],
+      author_name: params[:user],
+      author_icon: params[:user_image],
+      text: params[:description],
+      fields: [
+        {
+          title: I18n.t("slack.fields.status"),
+          value: params[:status],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.assigned"),
+          value: params[:assigned],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.unassigned"),
+          value: params[:unassigned],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.required"),
+          value: params[:required],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.project"),
+          value: params[:project],
+          short: true
+        },
+        {
+          title: params[:parent_type],
+          value: params[:item],
+          short: false
+        }
+      ],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
+
   end
 
   def get_team
@@ -62,7 +108,7 @@ class Assignment < ActiveRecord::Base
   def send_email_notification_on_create
     self.send_email_notification(:assign)
   end
-  
+
   def send_email_notification_on_destroy
     self.send_email_notification(:unassign)
   end

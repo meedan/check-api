@@ -123,6 +123,11 @@ class TaskTest < ActiveSupport::TestCase
       tk.description = 'changed'
       tk.save!
       assert tk.sent_to_slack
+
+      tk = Task.find(tk.id)
+      c = create_comment annotated: tk
+      assert_not tk.sent_to_slack
+      assert c.sent_to_slack
     end
   end
 
@@ -193,7 +198,6 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should send Slack notification in background" do
-    Bot::Slack.any_instance.stubs(:bot_send_slack_notification).returns(nil)
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -206,7 +210,6 @@ class TaskTest < ActiveSupport::TestCase
       tk.data = { label: 'Foo', type: 'free_text' }.with_indifferent_access
       tk.save!
     end
-    Bot::Slack.any_instance.unstub(:bot_send_slack_notification)
   end
 
   test "should load task" do
