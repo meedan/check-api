@@ -14,16 +14,6 @@ module Workflow
             self.last_status
           end
 
-          def last_status
-            default = self.send("default_#{target_id}_status_type")
-            self.send("last_#{default}")
-          end
-
-          def last_status_obj
-            default = self.send("default_#{target_id}_status_type")
-            self.send("last_#{default}_obj")
-          end
-
           define_method "default_#{target_id}_status_type" do
             CONFIG["default_#{target_id}_workflow"]
           end
@@ -35,6 +25,16 @@ module Workflow
           define_method "last_#{workflow_id}" do
             last = self.send("last_#{workflow_id}_obj")
             last.nil? ? ::Workflow::Workflow.options(self, workflow_id)[:default] : last.get_field("#{workflow_id}_status").value
+          end
+
+          define_method :last_status do
+            default = self.send("default_#{target_id}_status_type")
+            self.send("last_#{default}")
+          end
+
+          define_method :last_status_obj do
+            default = self.send("default_#{target_id}_status_type")
+            self.send("last_#{default}_obj")
           end
 
           private
