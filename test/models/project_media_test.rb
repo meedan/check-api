@@ -500,6 +500,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get log" do
     create_verification_status_stuff
+    create_task_status_stuff(false)
     m = create_valid_media
     u = create_user
     t = create_team
@@ -530,14 +531,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_task"].sort, pm.get_versions_log.map(&:event_type).sort
-      assert_equal 15, pm.get_versions_log_count
+      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal 14, pm.get_versions_log_count
       c.destroy
-      assert_equal 15, pm.get_versions_log_count
+      assert_equal 14, pm.get_versions_log_count
       tg.destroy
-      assert_equal 15, pm.get_versions_log_count
+      assert_equal 14, pm.get_versions_log_count
       f.destroy
-      assert_equal 15, pm.get_versions_log_count
+      assert_equal 14, pm.get_versions_log_count
     end
   end
 
@@ -839,6 +840,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get resolved tasks for oEmbed" do
+    create_task_status_stuff
     at = create_annotation_type annotation_type: 'response'
     create_field_instance annotation_type_object: at, name: 'response'
     pm = create_project_media
@@ -879,6 +881,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get published time for oEmbed" do
     create_translation_status_stuff
+    create_task_status_stuff(false)
     url = 'http://twitter.com/test/123456'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
@@ -908,6 +911,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should render oEmbed HTML" do
     create_translation_status_stuff
     create_verification_status_stuff(false)
+    create_task_status_stuff(false)
     Bot::Alegre.delete_all
     u = create_user login: 'test', name: 'Test', profile_image: 'http://profile.picture'
     c = create_claim_media quote: 'Test'
@@ -1443,6 +1447,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should reject a status of verified if all required tasks are not resolved" do
     create_verification_status_stuff
+    create_task_status_stuff(false)
     at = create_annotation_type annotation_type: 'response'
     create_field_instance annotation_type_object: at, name: 'response'
     pm = create_project_media
