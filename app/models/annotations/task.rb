@@ -42,17 +42,22 @@ class Task < ActiveRecord::Base
       title: Bot::Slack.to_slack(self.label),
       description: Bot::Slack.to_slack(self.description, false),
       required: self.required ? I18n.t("slack.fields.required_yes") : nil,
-      status: Bot::Slack.to_slack(self.status)
+      status: Bot::Slack.to_slack(self.status),
+      attribution: nil
     })
   end
 
-  def slack_notification_message
-    if self.data_changed? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
-      event = self.versions.count > 1 ? 'edit' : 'create'
+  def slack_notification_message(event = nil, params = nil)
+    if event.nil? and params.nil?
+      if self.data_changed? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
+        event = self.versions.count > 1 ? 'edit' : 'create'
+      else
+        return nil
+      end
+      params = self.slack_params
     else
-      return nil
+      # event and params are passed from the caller
     end
-    params = self.slack_params
     {
       pretext: I18n.t("slack.messages.task_#{event}", params),
       title: params[:title],
@@ -79,6 +84,11 @@ class Task < ActiveRecord::Base
         {
           title: I18n.t("slack.fields.project"),
           value: params[:project],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.attribution"),
+          value: params[:attribution],
           short: true
         },
         {
