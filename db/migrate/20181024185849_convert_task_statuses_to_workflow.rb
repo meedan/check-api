@@ -10,7 +10,7 @@ class ConvertTaskStatusesToWorkflow < ActiveRecord::Migration
         t.skip_clear_cache = true
         t.save!
       rescue
-        puts "Skipping task with id #{task.id}"
+        puts "Skipping task with id #{t.id}"
       end
     end
     
