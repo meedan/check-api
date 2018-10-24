@@ -19,7 +19,8 @@ module Workflow
           end
 
           define_method "last_#{workflow_id}_obj" do
-            self.get_annotations(workflow_id).first&.load
+            a = Annotation.where(annotation_type: workflow_id, annotated_type: self.class.name, annotated_id: self.id).last
+            a.nil? ? nil : (a.load || a)
           end
 
           define_method "last_#{workflow_id}" do
