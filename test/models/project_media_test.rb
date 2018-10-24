@@ -179,14 +179,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       m = create_valid_media
       pm = create_project_media project: p, media: m
       assert pm.sent_to_slack
-      msg = pm.slack_notification_message
-      # verify base URL
-      assert_match "#{CONFIG['checkdesk_client']}/#{t.slug}", msg
-      # verify notification URL
-      match = msg.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
-      assert_equal p.id, match[1].to_i
-      assert_equal pm.id, match[2].to_i
-      # claim media
+      assert_match I18n.t("slack.messages.project_media_create", pm.slack_params), pm.slack_notification_message[:pretext]
       m = create_claim_media
       pm = create_project_media project: p, media: m
       assert pm.sent_to_slack
@@ -203,42 +196,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
       m = create_valid_media
       pm = create_project_media project: p, media: m, user: nil
       assert pm.sent_to_slack
-      msg = pm.slack_notification_message
-      # verify base URL
-      assert_match "#{CONFIG['checkdesk_client']}/#{t.slug}", msg
-      # verify notification URL
-      match = msg.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
-      assert_equal p.id, match[1].to_i
-      assert_equal pm.id, match[2].to_i
-      # claim media
+      assert_match I18n.t("slack.messages.project_media_create_no_user", pm.slack_params), pm.slack_notification_message[:pretext]
       m = create_claim_media
       pm = create_project_media project: p, media: m, user: nil
       assert pm.sent_to_slack
-      msg = pm.slack_notification_message
-      assert_match "A new Claim has been added", msg
-    end
-  end
-
-  test "should verify attribution of Slack notifications" do
-    t = create_team slug: 'test'
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    uu = create_user
-    m = create_valid_media user: uu
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p, media: m, origin: 'http://localhost:3333'
-      assert pm.sent_to_slack
-      msg = pm.slack_notification_message
-      assert_match "*#{u.name}* added a new", msg
+      assert_match I18n.t("slack.messages.project_media_create_no_user", pm.slack_params), pm.slack_notification_message[:pretext]
     end
   end
 
   test "should notify Pusher when project media is created" do
     pm = create_project_media
     assert pm.sent_to_pusher
-    # claim media
     t = create_team
     p = create_project team: t
     m = create_claim_media project_id: p.id
@@ -1278,10 +1246,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal '#FFBB5D', pm.last_status_color.upcase
   end
 
-  test "should get description" do
+  test "should get claim description only if it has been set" do
     c = create_claim_media quote: 'Test'
     pm = create_project_media media: c
-    assert_equal 'Test', pm.reload.description
+    assert_nil pm.reload.description
     info = { description: 'Test 2' }.to_json
     pm.embed = info
     pm.save!
@@ -1776,10 +1744,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     ps = pm.send :get_project_source, p.id
     assert_not_nil ps
-    assert_queries 2, '>' do 
+    assert_queries 2, '>' do
       assert_equal ps, pm.reload.project_source
     end
-    assert_queries 2, '=' do 
+    assert_queries 2, '=' do
       assert_equal ps, pm.reload.project_source
     end
     ps.delete
