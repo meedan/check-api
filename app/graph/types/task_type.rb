@@ -54,7 +54,7 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
 
     resolve -> (task, _args, _ctx) {
       obj = task.load || task
-      obj.nil? ? "" : obj.status
+      obj&.status&.to_s
     }
   end
 
