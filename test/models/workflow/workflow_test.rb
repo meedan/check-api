@@ -19,13 +19,13 @@ class Workflow::WorkflowTest < ActiveSupport::TestCase
     stub_config('default_workflow', 'verification_status') do
       assert_equal 'undetermined', pm.last_status
       assert_equal vs, pm.last_status_obj
-      assert_equal 'verification_status', pm.default_media_status_type
+      assert_equal 'verification_status', pm.default_project_media_status_type
       assert_equal t.get_media_verification_statuses, t.get_media_statuses
     end
     stub_config('default_workflow', 'translation_status') do
       assert_equal 'pending', pm.last_status
       assert_equal ts, pm.last_status_obj
-      assert_equal 'translation_status', pm.default_media_status_type
+      assert_equal 'translation_status', pm.default_project_media_status_type
       assert_equal t.get_media_translation_statuses, t.get_media_statuses
     end
   end

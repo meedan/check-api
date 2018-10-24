@@ -929,7 +929,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
     ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
 
-    expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url'])
+    expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url'])
     actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
 
     assert_equal expected, actual
@@ -1249,7 +1249,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       ]
     }
     pm = create_project_media
-    t.send "set_media_#{pm.default_media_status_type.pluralize}", value
+    t.send "set_media_#{pm.default_project_media_status_type.pluralize}", value
     t.save!
     p = create_project team: t
     pm = create_project_media project: p
@@ -1432,7 +1432,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
       Time.stubs(:now).returns(time + 8.minutes)
       s = pm.last_status_obj
-      s.status = ::Workflow::Workflow.core_options(pm, pm.default_media_status_type)[:default]
+      s.status = ::Workflow::Workflow.core_options(pm, pm.default_project_media_status_type)[:default]
       s.save!
 
       assert_equal 5.minutes.to_i, pm.time_to_status(:first)

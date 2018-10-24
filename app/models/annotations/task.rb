@@ -40,7 +40,7 @@ class Task < ActiveRecord::Base
   end
 
   def status
-    self.get_task_status
+    self.last_task_status_label
   end
 
   def project
@@ -145,7 +145,7 @@ class Task < ActiveRecord::Base
   end
 
   def log
-    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).order('id ASC')
+    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).where.not("object_after LIKE '%task_status%'").order('id ASC')
   end
 
   def reject_suggestion=(version_id)

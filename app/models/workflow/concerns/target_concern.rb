@@ -28,6 +28,16 @@ module Workflow
             last.nil? ? ::Workflow::Workflow.options(self, workflow_id)[:default] : last.get_field("#{workflow_id}_status").value
           end
 
+          define_method "last_#{workflow_id}_label" do
+            last = self.send("last_#{workflow_id}_obj")
+            return '' if last.nil?
+            label = ''
+            ::Workflow::Workflow.options(self, workflow_id).with_indifferent_access['statuses'].each do |status|
+              label = status['label'] if status['id'] == self.send("last_#{workflow_id}")
+            end
+            label
+          end
+
           define_method :last_status do
             default = self.send("default_#{target_id}_status_type")
             self.send("last_#{default}")
