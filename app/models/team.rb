@@ -6,6 +6,7 @@ class Team < ActiveRecord::Base
   include TeamAssociations
   include TeamPrivate
   include TeamDuplication
+  include TeamImport
 
   attr_accessor :affected_ids, :is_being_copied
 
