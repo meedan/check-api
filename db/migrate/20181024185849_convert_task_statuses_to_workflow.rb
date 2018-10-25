@@ -1,5 +1,7 @@
 class ConvertTaskStatusesToWorkflow < ActiveRecord::Migration
   def change
+    Annotation.reset_column_information
+
     RequestStore.store[:skip_notifications] = true
 
     annotations = []
