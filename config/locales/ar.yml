@@ -1,9 +1,4 @@
 ar:
-  link: رابط
-  claim: إدعاء
-  uploadedimage: صورة
-  uploadefile: ملف
-  blank: "(مساحة فارغة)"
   statuses:
     media:
       undetermined:
@@ -13,11 +8,11 @@ ar:
         label: غير محسوم
         description: لا يمكن استنتاج حالة التقرير باستخدام الدلائل المتاحة
       not_true:
-        label: 'مزيف'
-        description: 'النتيجة: التقرير مزيف'
+        label: "مزيف"
+        description: "النتيجة: التقرير مزيف"
       verified:
         label: صحيح
-        description: 'النتيجة: تم التأكد من صحة التقرير'
+        description: "النتيجة: تم التأكد من صحة التقرير"
       pending:
         label: مُعَلَّق
         description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
@@ -39,16 +34,16 @@ ar:
         description: حالة المصدر الأولية، أُضيف تواً إلى Check، لم يتم البدء في التحقق منه
       credible:
         label: موثوق به
-        description: 'النتيجة: هذا المصدر موثوق به'
+        description: "النتيجة: هذا المصدر موثوق به"
       not_credible:
         label: غير موثوق به
-        description: 'النتيجة: هذا المصدر غير موثوق به'
+        description: "النتيجة: هذا المصدر غير موثوق به"
       slightly_credible:
         label: قليل المصداقية
-        description: 'النتيجة: هذا المصدر قليل المصداقية'
+        description: "النتيجة: هذا المصدر قليل المصداقية"
       sockpuppet:
         label: هوية مزيفة
-        description: 'النتيجة: هذا مصدر ذو هوية مزيفة على الانترنت'
+        description: "النتيجة: هذا مصدر ذو هوية مزيفة على الانترنت"
     translation:
       pending:
         label: مُعَلَّق
@@ -67,8 +62,8 @@ ar:
         description: تمت المراجعة وهناك أخطاء يجب تصحيحها
   errors:
     messages:
-      extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات المسموحة هي: %{allowed_types}'
-      invalid_size: لا بد أن تكون الصورة بين %{min_width}x%{min_height} و %{max_width}x%{max_height} بكسل
+      extension_white_list_error: "لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات المسموحة هي: %{allowed_types}"
+      invalid_size: "لا بد أن تكون الصورة بين %{min_width}x%{min_height} و %{max_width}x%{max_height} بكسل"
   activerecord:
     models:
       link: رابط
@@ -88,8 +83,6 @@ ar:
         name: الاسم
       contact:
         phone: رقم الهاتف
-      comment:
-        text: التعليق
       user:
         reset_password_token: رمز إعادة تعيين كلمة المرور
         email: البريد الإلكتروني
@@ -104,7 +97,7 @@ ar:
             slug:
               slug_format: 'يقبل الأحرف والأرقام و''-'' فقط '
       messages:
-        record_invalid: 'خطأ في صحة الإدخال : %{errors}'
+        record_invalid: "خطأ في صحة الإدخال : %{errors}"
         improbable_phone: غير صحيح
         too_short:
           zero: قصير جداً (الحد الأدنى %{count} حروف)
@@ -115,7 +108,6 @@ ar:
           other: قصير جداً (الحد الأدنى %{count} حروف)
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
   invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
@@ -133,34 +125,12 @@ ar:
   rejected: لم يتم الموافقة
   mail_request_to_join_processed: '%{status} على طلب انضمامك إلى فريق %{team} على %{app_name}'
   mail_new_account: حساب جديد لك على %{app_name}
-  slack_update_verification_status: "غير(ت) *%{user}* حالة التحقق على %{url} في *%{project}* من _%{from}_ إلى *%{to}*"
-  slack_save_embed: "غير(ت) *%{user}* عنوان التقرير في  *%{project}* من _%{from}_ إلى %{to}"
-  slack_save_comment: "أضاف *%{user}* تعليقاً على %{url} في %{project}*: %{comment}"
-  slack_create_project: "أضاف %{user}*  مشروع: %{url}"
-  slack_create_team_user: "إنضم *%{user}* لفريق %{url}"
-  slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
-  slack_create_related_media: "أضاف *%{user}* %{type} متعلق ب\"%{parent}\" إلى مشروع *%{project}*: %{url}"
-  slack_create_project_media_no_user: "أضيف %{type} جديد إلى مشروع *%{project}*: %{url}"
-  slack_create_related_media_no_user: "تم إضافة %{type} متعلق ب\"%{parent}\" إلى مشروع *%{project}*: %{url}"
-  slack_create_task_message: "أضاف(ت) *%{user}* المهمة %{url} في مشروع *%{project}*%{assignment}%{create_note}"
-  slack_create_task_assignment: " مُكَلَّف إلى %{assignee}"
-  slack_create_task_note: " مع التعليق: %{note}"
-  slack_answer_task: |-
-      أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
-      %{answer_note}
-  slack_answer_task_note: "*التعليق:* %{note}"
-  slack_update_task_label: |-
-      حرر *%{user}* المهمة %{url} في مشروع *%{project}* من %{from}
-      *إلى:* %{to}
-  slack_update_task_description: |-
-      حرر *%{user}* التعليق الإضافي للمهمة %{url} في مشروع *%{project}* من %{from}
-      *إلى:* %{to}
   mail_view_welcome: مرحباً بك في %{app_name}
-  mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
+  mail_view_register: "أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:"
   mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
   mail_view_rejected_to_join: عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
   mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
-  mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
+  mail_view_process_request: "لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: "
   pender_could_not_parse: عذراً ، لم نتمكن من تحليل الميديا
   mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
   mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
@@ -189,11 +159,7 @@ ar:
           html: "بمجرد أن تصبح جاهزة ، سوف تكون نسخة الفريق متاحة في <strong>%{copy_url}</strong>"
   reset_password_instructions: "تعليمات إعادة ضبط كلمة المرور لدى %{app_name}"
   email_not_found: هذا البريد الإلكتروني غير موجود
-  slack_channel_format_wrong: 'صيغة قناة Slack غير صحيحة - الصيغة المطلوبة هي `#general`'
-  translation_status_not_valid: الحالة غير صحيحة
-  translation_status_permission_error: ليس لديك الإذن ﻹحداث هذا التغيير
-  translation_request_id_exists: هناك طلب آخر لترجمة هذه الرسالة
-  slack_update_translation_status: "غير(ت) *%{user}* حالة الترجمة على *%{report}* من *%{from}* إلى *%{to}*"
+  translation_request_id_exists: "هناك طلب آخر لترجمة هذه الرسالة"
   auto_publisher_added_to_project: من الآن سوف يتم نشر كل ترجمة في %{project} إلى الحساب الذي أخترته على %{provider}. إن غيرت رأيك من فضلك تواصل مع فريق الدعم أو أحذف تطبيق Bridge من الحساب على %{provider}.
   invalid_token: رمز الأمان غير صحيح
   viber_screenshot_footer: "ترجمة إلى %{target_language} من %{source_language}: “%{source_text}”"
@@ -227,18 +193,10 @@ ar:
     few: "%{count} مهام مكتملة"
     many: "%{count} مهمة مكتملة"
     other: "%{count} مهام مكتملة"
-  oembed_verification_tasks: مهام التحقق من المعلومات
   oembed_tasks: المهام
   oembed_translations: الترجمات
   oembed_expand_all: توسيع الكل
   oembed_collapse_all: طيّ الكل
-  oembed_resolved_tasks_count:
-    zero: "لا توجد مهام تحقق مكتملة"
-    one: "مهمة تحقق واحدة مكتملة"
-    two: "مهمتان تحقق مكتملتان"
-    few: "%{count} مهام تحقق مكتملة"
-    many: "%{count} مهمة تحقق مكتملة"
-    other: "%{count}  مهام تحقق مكتملة"
   oembed_notes: ملحوظات
   pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع ثوانٍ.
   duplicate_source: المصدر موجود بالفعل
@@ -259,18 +217,11 @@ ar:
   account_exists: هذا الحساب موجود بالفعل
   media_exists: هذا الميديا موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
-  banned_user: 'عذراً ، لقد تم حظرك من %{app_name}. يمكنك اﻹتصال على %{support_email} إن كنت تعتقد أن هناك خطأ ما.'
   devise:
     mailer:
       reset_password_instructions:
         instruction: "طلب أحدهم رابطًا لتغيير كلمة السر الخاصة بك، ويُمكن عمل ذلك من خلال الرابط التالي. <strong>يرجى الملاحظة أن مدة صلاحية الرابط %{expire} ساعات.</strong>"
   error_user_is_not_a_team_member: "عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق"
-  slack_assign_verification_status: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
-  slack_unassign_verification_status: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
-  slack_assign_translation_status: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
-  slack_unassign_translation_status: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
-  slack_assign_task: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
-  slack_unassign_task: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
   mail_see_it: "تستطيع أن تراه هنا : "
   mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
@@ -291,8 +242,6 @@ ar:
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
   project_export_email_title_csv: "تقرير مشروعك جاهز للتحميل"
-  workflow_status_not_valid: " عذراً ، هذه الحالة غير صحيحة"
-  workflow_status_permission_error: "عذراً ، ليس مسموح لك تغيير هذه الحالة"
   blank_default_status_for_custom_translation_status: "من فضلك أضف قيمة إفتراضية لحالات الترجمة الخاصة"
   blank_active_status_for_custom_translation_status: "من فضلك أضف قيمة نشطة لحالات الترجمة الخاصة"
   blank_default_status_for_custom_verification_status: "من فضلك أضف قيمة إفتراضية لحالات التحقق الخاصة"
