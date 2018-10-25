@@ -162,7 +162,7 @@ class Project < ActiveRecord::Base
 
   def auto_tasks
     tasks = []
-    self.team.team_tasks.each do |task|
+    self.team.team_tasks.order('id ASC').each do |task|
       tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
     end
     tasks
