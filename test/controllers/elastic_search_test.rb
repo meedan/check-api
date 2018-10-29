@@ -314,6 +314,30 @@ class ElasticSearchTest < ActionController::TestCase
     end
   end
 
+  test "should search tags case-insensitive" do
+    stub_config('app_name', 'Check') do
+      t = create_team
+      p = create_project team: t
+      m = create_valid_media
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      create_tag tag: 'two Words', annotated: pm, disable_es_callbacks: false
+      sleep 5
+      Team.stubs(:current).returns(t)
+      # search by tags
+      result = CheckSearch.new({tags: ['two Words']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({tags: ['two words']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({tags: ['TWO WORDS']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # search tags as keywords
+      result = CheckSearch.new({keyword: 'two Words'}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: 'TWO WORDS'}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+    end
+  end
+
   test "should have unique id per params" do
     t = create_team
     Team.stubs(:current).returns(t)
