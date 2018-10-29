@@ -31,7 +31,7 @@ class MediaSearch
     type: 'nested',
     properties: {
       id: { type: 'integer'},
-      tag: { type: 'text', fields: { raw: { type: "keyword" } } }
+      tag: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text' } } }
     }
   }
 
