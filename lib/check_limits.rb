@@ -69,7 +69,7 @@ module CheckLimits
   end
 
   # Team Task
-  
+
   TeamTask.class_eval do
     validate :can_use_team_tasks
 
@@ -92,7 +92,7 @@ module CheckLimits
       t = self.get_team(model, p)
       unless t.nil?
         if t.get_limits_slack_integration == false
-          self.notify_super_admin(model, t, p)
+          self.notify_admin(model, t, p)
         else
           self.notify_slack_original(model)
         end
