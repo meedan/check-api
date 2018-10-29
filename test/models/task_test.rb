@@ -5,6 +5,7 @@ class TaskTest < ActiveSupport::TestCase
     super
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    create_task_status_stuff
   end
 
   test "should create task" do
@@ -48,14 +49,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_no_difference 'Task.length' do
       assert_raises ActiveRecord::RecordInvalid do
         create_task options: {}
-      end
-    end
-  end
-
-  test "should not create task if status is invalid" do
-    assert_no_difference 'Task.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_task status: 'Invalid'
       end
     end
   end

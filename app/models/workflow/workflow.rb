@@ -1,7 +1,7 @@
 module Workflow
   class Workflow
     def self.workflows
-      [::Workflow::TranslationStatus, ::Workflow::VerificationStatus]
+      [::Workflow::TranslationStatus, ::Workflow::VerificationStatus, ::Workflow::TaskStatus]
     end
 
     def self.workflow_ids
@@ -46,7 +46,7 @@ module Workflow
     include ::Workflow::Concerns::DynamicConcern
     include ::Workflow::Concerns::GraphqlCrudOperationsConcern
     include ::Workflow::Concerns::MediaSearchConcern
-    include ::Workflow::Concerns::ProjectMediaConcern
+    include ::Workflow::Concerns::TargetConcern
     include ::Workflow::Concerns::TeamConcern
   end
 end

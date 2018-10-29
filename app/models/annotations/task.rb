@@ -3,7 +3,7 @@ class Task < ActiveRecord::Base
 
   has_annotations
 
-  before_validation :set_initial_status, :set_slug, on: :create
+  before_validation :set_slug, on: :create
   after_create :send_slack_notification
   after_update :send_slack_notification
   after_destroy :destroy_responses
@@ -22,18 +22,32 @@ class Task < ActiveRecord::Base
   field :options
   validate :task_options_is_array
 
-  field :status
-  def self.task_statuses
-    ["Unresolved", "Resolved", "Can't be resolved"]
-  end
-  validates :status, included: { values: self.task_statuses }, allow_blank: true
-
   field :slug
   field :required, :boolean
   field :log_count, Integer
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
   field :team_task_id, Integer
+
+  def status=(value)
+    a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: self.id).last
+    a = a.nil? ? nil : (a.load || a)
+    return nil if a.nil?
+    a.status = value
+    a.save!
+  end
+
+  def status
+    self.last_task_status_label
+  end
+
+  def project
+    self&.annotated&.project
+  end
+
+  def to_s
+    self.label
+  end
 
   SLACK_FIELDS_IGNORE = [ :log_count, :slug, :status ]
 
@@ -151,7 +165,7 @@ class Task < ActiveRecord::Base
     response.save!
     @response = response
     self.record_timestamps = false
-    self.status = 'Resolved' if self.must_resolve_task(params)
+    self.status = 'resolved' if self.must_resolve_task(params) 
   end
 
   def first_response
@@ -164,7 +178,7 @@ class Task < ActiveRecord::Base
   end
 
   def log
-    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).order('id ASC')
+    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).where.not("object_after LIKE '%task_status%'").order('id ASC')
   end
 
   def reject_suggestion=(version_id)
@@ -187,7 +201,7 @@ class Task < ActiveRecord::Base
     fields = { "review_#{self.type}" => review }
     if accept
       fields["response_#{self.type}"] = suggestion.to_s
-      self.status = 'Resolved'
+      self.status = 'resolved'
     end
     response.set_fields = fields.to_json
     response.updated_at = Time.now
@@ -209,10 +223,6 @@ class Task < ActiveRecord::Base
 
   def task_options_is_array
     errors.add(:options, 'must be an array') if !self.options.nil? && !self.options.is_a?(Array)
-  end
-
-  def set_initial_status
-    self.status ||= 'Unresolved'
   end
 
   def destroy_responses

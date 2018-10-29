@@ -108,7 +108,7 @@ class TeamImportTest < ActiveSupport::TestCase
 
     with_current_user_and_team(@user, @team) {
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
-      assert_match(/User is blank/, result[row].join(', '))
+      assert_match(I18n.t("team_import.blank_user"), result[row].join(', '))
     }
   end
 
@@ -120,8 +120,15 @@ class TeamImportTest < ActiveSupport::TestCase
 
     with_current_user_and_team(@user, @team) {
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
-      assert_match(/Invalid user: .*Invalid project: .*Invalid project: /, result[row1].join(', '))
-      assert_match(/Invalid user: .*Invalid project: /, result[row2].join(', '))
+      assert_match("#{I18n.t("team_import.invalid_user", { user: data1[:user] })}, "\
+                   "#{I18n.t("team_import.invalid_project", { project: data1[:projects].split(',')[0] })}, "\
+                   "#{I18n.t("team_import.invalid_project", { project: data1[:projects].split(',')[1] })}",
+        result[row1].join(', ')
+      )
+      assert_match("#{I18n.t("team_import.invalid_user", { user: data2[:user] })}, "\
+                   "#{I18n.t("team_import.invalid_project", { project: data2[:projects] })}",
+        result[row2].join(', ')
+      )
     }
   end
 
@@ -132,7 +139,7 @@ class TeamImportTest < ActiveSupport::TestCase
 
     with_current_user_and_team(@user, @team) {
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
-      assert_match(/Project is blank/, result[row].join(', '))
+      assert_match(I18n.t("team_import.blank_project"), result[row].join(', '))
     }
   end
 
@@ -172,7 +179,8 @@ class TeamImportTest < ActiveSupport::TestCase
 
   test "should not add note if annotator is not valid" do
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
-    data1 = { item: 'A claim', user: user_url, projects: @p.url, annotator: 'invalid annotator', note1: 'A note' }
+    invalid_annotator = 'some annotator that is invalid'
+    data1 = { item: 'A claim', user: user_url, projects: @p.url, annotator: invalid_annotator, note1: 'A note' }
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row_with_invalid_annotator = add_data_on_spreadsheet(data1)
 
@@ -185,11 +193,11 @@ class TeamImportTest < ActiveSupport::TestCase
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
       pm1 = Media.find_by_quote(data1[:item]).project_medias.first
       assert pm1.comments.empty?
-      assert_match('Invalid annotator', result[row_with_invalid_annotator].join(', '))
+      assert_match(I18n.t("team_import.invalid_annotator", { user: invalid_annotator }), result[row_with_invalid_annotator].join(', '))
 
       pm2 = Media.find_by_quote(data2[:item]).project_medias.first
       assert_equal ['A note'], pm2.comments.map(&:text)
-      assert_no_match('Invalid annotator', result[row_with_valid_annotator].join(', '))
+      assert_no_match(I18n.t("team_import.invalid_annotator", { user: invalid_annotator }), result[row_with_valid_annotator].join(', '))
     }
   end
 
@@ -203,13 +211,14 @@ class TeamImportTest < ActiveSupport::TestCase
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
       pm = Media.find_by_quote(data[:item]).project_medias.first
       assert_equal [@user.id], pm.comments.map(&:annotator_id)
-      assert_no_match('Invalid annotator', result[row].join(', '))
+      assert_no_match(I18n.t("team_import.invalid_annotator"), result[row].join(', '))
     }
   end
 
   test "should not assign if user on assigned to is not valid" do
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
-    data1 = { item: 'A claim', user: user_url, projects: @p.url, assigned_to: 'invalid assignee' }
+    invalid_assignee = 'Some assignee that is invalid'
+    data1 = { item: 'A claim', user: user_url, projects: @p.url, assigned_to: invalid_assignee }
     row_with_invalid_assignee = add_data_on_spreadsheet(data1)
     data2 = data1.merge({item: 'Other claim', assigned_to: user_url})
     row_with_valid_assignee = add_data_on_spreadsheet(data2)
@@ -219,7 +228,7 @@ class TeamImportTest < ActiveSupport::TestCase
       pm1 = Media.find_by_quote(data1[:item]).project_medias.first
       assert_equal 0, pm1.last_status_obj.assignments.size
       assert_match pm1.full_url, result[row_with_invalid_assignee].join(', ')
-      assert_match /Invalid assignee/, result[row_with_invalid_assignee].join(', ')
+      assert_match I18n.t("team_import.invalid_assignee", { user: invalid_assignee }), result[row_with_invalid_assignee].join(', ')
 
       pm2 = Media.find_by_quote(data2[:item]).project_medias.first
       assert_equal pm2.full_url, result[row_with_valid_assignee].join(', ')
@@ -261,11 +270,11 @@ class TeamImportTest < ActiveSupport::TestCase
 
   test "should show status error if not valid" do
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
-    invalid_status = 'invalid_status'
+    invalid_status = 'Some status that is invalid'
     data1 = { item: 'A claim', user: user_url, projects: @p.url, status: invalid_status }
     row_with_invalid_status = add_data_on_spreadsheet(data1)
 
-    valid_status = Workflow::Workflow.options(ProjectMedia.new, ProjectMedia.new.default_media_status_type)['statuses'].find { |s| s['completed'].to_i == 1}['id']
+    valid_status = Workflow::Workflow.options(ProjectMedia.new, ProjectMedia.new.default_project_media_status_type)['statuses'].find { |s| s['completed'].to_i == 1}['id']
     data2 = data1.merge({ item: 'Other claim', status: valid_status })
     row_with_valid_status = add_data_on_spreadsheet(data2)
 
@@ -273,7 +282,7 @@ class TeamImportTest < ActiveSupport::TestCase
       result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
 
       pm1 = Media.find_by_quote(data1[:item]).project_medias.first
-      assert_match("#{pm1.full_url}, Invalid status", result[row_with_invalid_status].join(', '))
+      assert_match("#{pm1.full_url}, #{I18n.t("team_import.invalid_status", { status: invalid_status })}", result[row_with_invalid_status].join(', '))
       assert_not_equal invalid_status, pm1.last_status
 
       pm2 = Media.find_by_quote(data2[:item]).project_medias.first

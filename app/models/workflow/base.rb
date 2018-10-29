@@ -23,8 +23,12 @@ module Workflow
       end
     end
 
-    def self.check_workflow_default
-      CONFIG['default_workflow'] = self.id
+    def self.check_default_project_media_workflow
+      CONFIG['default_project_media_workflow'] = self.id
+    end
+
+    def self.check_default_task_workflow
+      CONFIG['default_task_workflow'] = self.id
     end
 
     def self.workflow_permissions
@@ -80,6 +84,10 @@ module Workflow
           !(obj.get_team & @teams).empty? && obj.annotation_type == id
         end
       end
+    end
+
+    def self.target
+      ProjectMedia
     end
   end
 end
