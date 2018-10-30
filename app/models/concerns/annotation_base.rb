@@ -229,8 +229,8 @@ module AnnotationBase
     ProjectMedia.where(id: self.entities).to_a
   end
 
-  def method_missing(method, *args, &block)
-    (args.empty? && !block_given?) ? self.data[method] : super
+  def method_missing(key, *args, &block)
+    (args.empty? && !block_given?) ? self.data[key] : super
   end
 
   def annotation_type_class
@@ -276,7 +276,6 @@ module AnnotationBase
       project: Bot::Slack.to_slack(object.project.title),
       role: I18n.t("role_" + user.role(object.project.team).to_s),
       team: Bot::Slack.to_slack(object.project.team.name),
-      assigned: self.assigned_users()&.collect{ |u| u.name }&.to_sentence,
       item: Bot::Slack.to_slack_url(object.full_url, item),
       type: I18n.t("activerecord.models.#{annotation_type}"),
       parent_type: I18n.t("activerecord.models.#{item_type}"),
@@ -284,7 +283,7 @@ module AnnotationBase
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.#{annotation_type}"), app: CONFIG['app_name']
       })
-    }
+    }.merge(self.slack_params_assignment)
   end
 
   protected

@@ -22,15 +22,21 @@ module Workflow
           define_method "slack_notification_message_#{id}" do
             from_status = self.send("previous_#{id}")
             to_status = self.send(id)
-            return nil if from_status == to_status || from_status.blank?
-
             params = self.slack_params.merge({
               from_status: Bot::Slack.to_slack(from_status),
               to_status: Bot::Slack.to_slack(to_status),
               workflow: I18n.t("statuses.ids.#{id}")
             })
+            if from_status != to_status && !from_status.blank?
+              event = 'status'
+            elsif !params[:assignment_event].blank?
+              params.delete(:from_status)
+              event = params[:assignment_event]
+            else
+              return nil
+            end
             {
-              pretext: I18n.t("slack.messages.project_media_status", params),
+              pretext: I18n.t("slack.messages.project_media_#{event}", params),
               title: params[:title],
               title_link: params[:url],
               author_name: params[:user],
@@ -50,7 +56,12 @@ module Workflow
                 {
                   title: I18n.t(:'slack.fields.assigned'),
                   value: params[:assigned],
-                  short: false
+                  short: true
+                },
+                {
+                  title: I18n.t(:'slack.fields.unassigned'),
+                  value: params[:unassigned],
+                  short: true
                 },
                 {
                   title: params[:parent_type],
