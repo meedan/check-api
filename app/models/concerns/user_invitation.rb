@@ -78,7 +78,10 @@ module UserInvitation
 	    token = tu.raw_invitation_token
 	    self.invited_by = User.current
 	    opts = {due_at: tu.invitation_due_at, invitation_text: self.invitation_text, invitation_team: Team.current}
-	    DeviseMailer.delay.invitation_instructions(self, token, opts)
+	    # update invitations date if user still inivted (not a check user).
+	    self.update_columns(invitation_created_at: tu.created_at, invitation_sent_at: tu.created_at) if self.invited_to_sign_up?
+	    # DeviseMailer.delay.invitation_instructions(self, token, opts)
+	    DeviseMailer.invitation_instructions(self, token, opts)
 	  end
 
 	  def self.cancel_user_invitation(user)
@@ -112,7 +115,7 @@ module UserInvitation
 	    tu.invited_by_id ||= User.current.id unless User.current.nil?
 	    tu.invitation_token = self.invitation_token || options[:enc]
 	    tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
-	    tu.save!
+	    self.send_invitation_mail(tu) if tu.save!
   	end
 
   	def self.accept_team_user_invitation(tu, token, options)

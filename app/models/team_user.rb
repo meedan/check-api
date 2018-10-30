@@ -13,7 +13,6 @@ class TeamUser < ActiveRecord::Base
   after_create :send_email_to_team_owners, :send_slack_notification
   after_save :send_email_to_requestor, :update_user_cached_teams_after_save
   after_destroy :update_user_cached_teams_after_destroy
-  after_commit :send_user_invitation_mail, on: :create
 
   def self.status_types
     %w(member requested invited banned)
@@ -130,13 +129,5 @@ class TeamUser < ActiveRecord::Base
 
   def update_user_cached_teams_after_destroy
     self.update_user_cached_teams(:remove)
-  end
-
-  def send_user_invitation_mail
-    user = self.user
-    if user.is_invited?(self.team)
-      user.send_invitation_mail(self)
-      user.update_columns(invitation_created_at: self.created_at, invitation_sent_at: self.created_at) if user.invited_to_sign_up?
-    end
   end
 end
