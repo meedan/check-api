@@ -25,7 +25,7 @@ module AssignmentConcern
         Assignment.create!(annotation_id: self.id, user_id: id)
       end
       # Save the assignment details to send them as Slack notifications
-      self.instance_variable_set("@assignment", { to_create: to_create, to_delete: to_delete })
+      self.instance_variable_set("@assignment", { to_create: to_create, to_delete: to_delete }) unless to_delete.blank? and to_create.blank?
     end
   end
 

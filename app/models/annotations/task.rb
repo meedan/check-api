@@ -4,6 +4,8 @@ class Task < ActiveRecord::Base
   has_annotations
 
   before_validation :set_slug, on: :create
+  after_create :send_slack_notification
+  after_update :send_slack_notification
   after_commit :send_slack_notification, on: [:create, :update]
   after_destroy :destroy_responses
 

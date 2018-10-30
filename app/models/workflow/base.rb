@@ -7,7 +7,7 @@ module Workflow
     def self.check_workflow(settings)
       field_name = self.id + '_status'
       condition = settings[:if] || proc { true }
-      
+
       DynamicAnnotation::Field.class_eval do
         @@workflow_callbacks ||= []
 
@@ -88,6 +88,10 @@ module Workflow
 
     def self.target
       ProjectMedia
+    end
+
+    def self.notify_slack?
+      true
     end
   end
 end

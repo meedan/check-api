@@ -1,6 +1,10 @@
 ---
 en:
   statuses:
+    ids:
+      verification_status: verification
+      translation_status: translation
+      task_status: task
     task:
       unresolved:
         label: Unresolved
@@ -11,9 +15,6 @@ en:
       cant_be_resolved:
         label: Cannot be resolved
         description: It was not possible to resolve the task
-    ids:
-      verification_status: verification
-      translation_status: translation
     media:
       undetermined:
         label: Unstarted
