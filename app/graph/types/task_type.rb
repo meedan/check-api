@@ -1,10 +1,10 @@
-TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', type: 'str', description: 'str', status: 'str' }) do
+TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', type: 'str', description: 'str' }) do
   field :first_response do
     type AnnotationType
 
     resolve -> (task, _args, _ctx) {
       obj = task.load || task
-      obj.nil? ? nil : obj.responses.first
+      obj.nil? ? nil : obj.first_response_obj
     }
   end
 
@@ -49,10 +49,21 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
   field :suggestions_count, types.Int
   field :pending_suggestions_count, types.Int
 
+  field :status do
+    type types.String
+
+    resolve -> (task, _args, _ctx) {
+      obj = task.load || task
+      obj&.status&.to_s
+    }
+  end
+
   connection :log, -> { VersionType.connection_type } do
     resolve ->(task, _args, _ctx) {
       obj = task.load || task
       obj.log unless obj.nil?
     }
   end
+  
+  connection :responses, -> { AnnotationType.connection_type }
 end

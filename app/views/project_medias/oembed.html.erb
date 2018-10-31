@@ -33,7 +33,7 @@
           notes: "<%= I18n.t(:oembed_notes, locale: locale) %>",
           translations: "<%= I18n.t(:oembed_translations, locale: locale) %>",
 
-          <% Workflow::Workflow.core_options(@project_media, @project_media.default_media_status_type)[:statuses].each do |status| %>
+          <% Workflow::Workflow.core_options(@project_media, @project_media.default_project_media_status_type)[:statuses].each do |status| %>
             status_<%= status[:id] %>: "<%= I18n.t('statuses.media.' + status[:id].gsub(/^false$/, 'not_true') + '.label', locale: locale) %>",
           <% end %>
         },

@@ -40,7 +40,10 @@ class User < ActiveRecord::Base
 
   ROLES = %w[contributor journalist editor owner]
   def role?(base_role)
-    ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.nil?
+    role = self.role
+    return true if role.to_s == base_role.to_s
+    return false if !ROLES.include?(base_role.to_s) || !ROLES.include?(role.to_s)
+    ROLES.index(base_role.to_s) <= ROLES.index(role) unless role.nil?
   end
 
   def role(team = nil)

@@ -50,7 +50,7 @@ module Workflow
       
         def get_media_statuses
           pm = ProjectMedia.new
-          self.send("get_media_#{pm.default_media_status_type.pluralize}")
+          self.send("get_media_#{pm.default_project_media_status_type.pluralize}")
         end
 
         protected

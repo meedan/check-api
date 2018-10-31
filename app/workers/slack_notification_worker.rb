@@ -6,7 +6,7 @@ class SlackNotificationWorker
     author = YAML::load(author)
     User.current = author
     bot = Bot::Slack.default
-    bot.request(webhook, data) unless bot.nil?
+    bot.request_slack(nil, webhook, data) unless bot.nil?
     User.current = nil
   end
 

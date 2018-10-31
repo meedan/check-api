@@ -3,11 +3,11 @@ class Assignment < ActiveRecord::Base
   belongs_to :user
 
   before_update { raise ActiveRecord::ReadOnlyRecord }
-  after_create :send_email_notification_on_create, :send_slack_notification
-  after_destroy :send_email_notification_on_destroy, :send_slack_notification
-  
+  after_create :send_email_notification_on_create
+  after_destroy :send_email_notification_on_destroy
+
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
-    
+
   has_paper_trail on: [:create, :destroy], if: proc { |_a| User.current.present? }
 
   def version_metadata(_changes)
@@ -17,16 +17,6 @@ class Assignment < ActiveRecord::Base
     meta[:type] = 'media' if meta[:type] =~ /status/
     meta[:title] = annotation.to_s
     meta.to_json
-  end
-
-  def slack_notification_message
-    user = self.user
-    action = Assignment.where(id: self.id).last.nil? ? 'unassign' : 'assign'
-    annotation = self.annotation.load || self.annotation
-    params = annotation.slack_default_params.merge({
-      assignee: Bot::Slack.to_slack(user.name)
-    })
-    I18n.t("slack_#{action}_#{annotation.annotation_type}".to_sym, params)
   end
 
   def get_team
@@ -62,7 +52,7 @@ class Assignment < ActiveRecord::Base
   def send_email_notification_on_create
     self.send_email_notification(:assign)
   end
-  
+
   def send_email_notification_on_destroy
     self.send_email_notification(:unassign)
   end
