@@ -165,6 +165,7 @@ class TeamImportTest < ActiveSupport::TestCase
     pm = Media.find_by_quote(data[:item]).project_medias.first
     assert_equal ['A note', 'Other note'], pm.comments.map(&:text).sort
     assert_equal pm.full_url, result[row].join(', ')
+    assert_equal 2, pm.get_versions_log.where(item_type: 'Comment').count
   end
 
   test "should not add note if annotator is not valid" do
