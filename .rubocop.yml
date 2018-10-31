@@ -222,7 +222,7 @@ Metrics/BlockNesting:
 
 Metrics/ClassLength:
   Description: 'Avoid classes longer than 250 lines of code.'
-  Enabled: true
+  Enabled: false
   Max: 250
 
 Metrics/CyclomaticComplexity:
@@ -239,12 +239,12 @@ Metrics/LineLength:
 Metrics/MethodLength:
   Description: 'Avoid methods longer than 30 lines of code.'
   StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#short-methods'
-  Enabled: true
+  Enabled: false
   Max: 30
 
 Metrics/ModuleLength:
   Description: 'Avoid modules longer than 250 lines of code.'
-  Enabled: true
+  Enabled: false
   Max: 250
 
 Metrics/ParameterLists:
