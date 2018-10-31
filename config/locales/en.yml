@@ -1,6 +1,10 @@
 ---
 en:
   statuses:
+    ids:
+      verification_status: verification
+      translation_status: translation
+      task_status: task
     task:
       unresolved:
         label: Unresolved
@@ -11,9 +15,6 @@ en:
       cant_be_resolved:
         label: Cannot be resolved
         description: It was not possible to resolve the task
-    ids:
-      verification_status: verification
-      translation_status: translation
     media:
       undetermined:
         label: Unstarted
@@ -171,8 +172,8 @@ en:
     messages:
       task_create: "%{user} (%{role} at %{team}) added a Task"
       task_edit: "%{user} (%{role} at %{team}) edited a Task"
-      annotation_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
-      annotation_unassign: "%{user} (%{role} at %{team}) unassigned a %{type}"
+      task_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
+      task_unassign: "%{user} (%{role} at %{team}) unassigned a %{type}"
       task_answer_create: "%{user} (%{role} at %{team}) answered a Task"
       task_answer_edit: "%{user} (%{role} at %{team}) edited a Task answer"
       task_comment: "%{user} (%{role} at %{team}) added a note to a Task"
@@ -182,6 +183,8 @@ en:
       project_media_update: "%{user} (%{role} at %{team}) edited a %{type}"
       project_media_update_no_user: "A %{type} has been edited"
       project_media_status: "%{user} (%{role} at %{team}) changed the %{workflow} status of a %{type}"
+      project_media_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
+      project_media_unassign: "%{user} (%{role} at %{team}) unassigned a %{type}"
       project_source_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
       project_source_create: "%{user} (%{role} at %{team}) added a %{type}"
       project_source_update: "%{user} (%{role} at %{team}) edited a %{type}"

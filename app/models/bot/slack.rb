@@ -6,16 +6,8 @@ class Bot::Slack < ActiveRecord::Base
     Bot::Slack.where(name: 'Slack Bot').last
   end
 
-  def should_notify?(team, model)
-    RequestStore.store[:skip_notifications].blank? && team.present? && !model.skip_notifications && team.setting(:slack_notifications_enabled).to_i === 1
-  end
-
-  def should_notify_super_admin?(model)
-    should_notify_annotation?(model) && !model.skip_notifications && self.setting(:slack_notifications_enabled).to_i === 1
-  end
-
-  def should_notify_annotation?(model)
-    (model.is_annotation? && model.annotated_type != 'ProjectMedia') ? false : true
+  def should_notify?(target, model)
+    RequestStore.store[:skip_notifications].blank? && !model.skip_notifications && target.present? && target.setting(:slack_notifications_enabled).to_i === 1
   end
 
   def notify_slack(model)
@@ -32,11 +24,11 @@ class Bot::Slack < ActiveRecord::Base
       } if attachment.is_a? String
       self.send_notification(model, webhook, channel, attachment)
     end
-    self.notify_super_admin(model, t, p)
+    self.notify_admin(model, t, p)
   end
 
-  def notify_super_admin(model, team, project)
-    if self.should_notify_super_admin?(model)
+  def notify_admin(model, team, project)
+    if self.should_notify?(self, model)
       webhook = self.setting(:slack_webhook)
       channel = self.setting(:slack_channel)
       attachment = model.slack_notification_message if model.respond_to?(:slack_notification_message)

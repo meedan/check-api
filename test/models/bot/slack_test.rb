@@ -21,10 +21,10 @@ class Bot::SlackTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       p = create_project team: t
       pm = create_project_media project: p
-      @bot.notify_super_admin(pm, t, p)
+      @bot.notify_admin(pm, t, p)
       assert pm.sent_to_slack
       s = create_source
-      @bot.notify_super_admin(s, t, p)
+      @bot.notify_admin(s, t, p)
       assert_not s.sent_to_slack
     end
   end
@@ -54,7 +54,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     with_current_user_and_team(u, t) do
       p = create_project team: t
-      @bot.notify_super_admin(p, t, p)
+      @bot.notify_admin(p, t, p)
       assert_nil p.sent_to_slack
     end
   end
