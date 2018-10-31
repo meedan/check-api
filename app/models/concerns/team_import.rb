@@ -124,9 +124,15 @@ module TeamImport
       if (match = pattern.match(user))
         id = match[1].to_i
       else
-        @result[row] << I18n.t("team_import.invalid_#{column}", user: user)
+        id = get_user_by_email(user)
       end
+      @result[row] << I18n.t("team_import.invalid_#{column}", user: user) if id.nil?
       id
+    end
+
+    def get_user_by_email(user)
+      u = User.find_by_email(user) || self.owners('owner').first
+      return u.id if u
     end
 
     def get_projects(projects, row = nil)
