@@ -84,12 +84,12 @@ module TeamImport
         status: worksheet[row, 7]
       }
 
-      user_id = get_user(data[:user], row)
+      user = get_user(data[:user], row)
       projects = get_projects(data[:projects], row)
-      return if user_id.nil?
+      return if user.nil?
       projects.each do |project|
         begin
-          pm = create_item(project, data[:item], user_id)
+          pm = create_item(project, data[:item], user.id)
           @result[row] << pm.full_url
           assign_to_user(pm, data[:assigned_to], row)
           add_tags(pm, data[:tags])
@@ -122,11 +122,12 @@ module TeamImport
       @result[row] << I18n.t("team_import.blank_#{column}") and return if user.blank?
       pattern = Regexp.new(CONFIG['checkdesk_client'] + "/check\/user\/([0-9]+)")
       if (match = pattern.match(user))
-        id = match[1].to_i
+        u = User.find_by_id(match[1].to_i)
       else
-        @result[row] << I18n.t("team_import.invalid_#{column}", user: user)
+        u = User.find_by_email(user) || self.owners('owner').first
       end
-      id
+      @result[row] << I18n.t("team_import.invalid_#{column}", user: user) if u.nil?
+      u
     end
 
     def get_projects(projects, row = nil)
@@ -154,10 +155,10 @@ module TeamImport
 
     def assign_to_user(pm, assigned_to, row)
       return if assigned_to.blank?
-      user_id = get_user(assigned_to, row, 'assignee')
-      if user_id
+      user = get_user(assigned_to, row, 'assignee')
+      if user
         status = pm.last_status_obj
-        status.assigned_to_id = user_id
+        status.assigned_to_id = user.id
         status.save!
       end
     end
@@ -190,8 +191,12 @@ module TeamImport
       @notes.each do |col|
         note = worksheet[row, col]
         next if note.blank?
-        annotator_id = annotator.blank? ? pm.user.id : get_user(annotator, row, 'annotator')
-        Comment.create!(annotator_id: annotator_id, text: note, annotated: pm) if annotator_id
+        user = annotator.blank? ? pm.user : get_user(annotator, row, 'annotator')
+        if user
+          User.current = pm.user
+          Comment.create!(annotator: user, text: note, annotated: pm)
+          User.current = nil
+        end
       end
     end
 
