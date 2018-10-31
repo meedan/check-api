@@ -356,4 +356,13 @@ class TestControllerTest < ActionController::TestCase
     Rails.unstub(:env)
   end
 
+  test "should create team with limits" do
+    u = create_user
+    assert_difference 'Team.count' do
+      get :new_team, email: u.email, limits: { max_projects: 10 }.to_json
+    end
+    id = JSON.parse(@response.body)['data']['dbid'].to_i
+    assert_equal 10, Team.find(id).get_limits_max_projects
+    assert_response :success
+  end
 end

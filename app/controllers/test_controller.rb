@@ -47,8 +47,9 @@ class TestController < ApplicationController
     user = User.where(email: params[:email]).last
     User.current = user
     t = create_team params
+    t.update_columns(limits: JSON.parse(params[:limits])) if params[:limits]
     User.current = nil
-    render_success 'team', t
+    render_success 'team', t.reload
   end
 
   def update_suggested_tags
