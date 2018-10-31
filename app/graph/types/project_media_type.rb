@@ -113,8 +113,11 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :user do
     type -> { UserType }
 
-    resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(User).load(project_media.user_id)
+    resolve -> (project_media, _args, ctx) {
+      RecordLoader.for(User).load(project_media.user_id).then do |user|
+        ability = ctx[:ability] || Ability.new
+        user if ability.can?(:read, user)
+      end
     }
   end
 
@@ -138,7 +141,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :tasks, -> { TaskType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
-      project_media.get_annotations('task')
+      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id)
     }
   end
 

@@ -38,7 +38,7 @@ module Workflow
           instance_exec(&klass.workflow_permissions_for_owner)
         elsif @user.role?(:journalist)
           instance_exec(&klass.workflow_permissions_for_journalist)
-        elsif @user.role?(:contributor)
+        elsif @user.role?(:contributor) || @user.role?(:annotator)
           instance_exec(&klass.workflow_permissions_for_contributor)
         end
       end

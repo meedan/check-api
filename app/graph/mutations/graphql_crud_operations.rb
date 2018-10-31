@@ -212,7 +212,7 @@ class GraphqlCrudOperations
     proc do |_classname|
       connection :log, -> { VersionType.connection_type } do
         resolve ->(obj, _args, _ctx) {
-          obj.get_versions_log.reverse
+          obj.get_versions_log
         }
       end
     end
