@@ -21,7 +21,7 @@ class TeamUser < ActiveRecord::Base
   validates :status, included: { values: self.status_types }
 
   def self.role_types
-    %w(owner editor journalist contributor)
+    %w(owner editor journalist contributor annotator)
   end
   validates :role, included: { values: self.role_types }
 

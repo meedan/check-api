@@ -337,4 +337,79 @@ class TaskTest < ActiveSupport::TestCase
       assert_equal t.id, f.versions.last.associated_id
     end
   end
+
+  test "should resolve task if response is submitted and task is not assigned to anyone" do
+    at = create_annotation_type annotation_type: 'response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media annotated: pm
+    tk = create_task annotated: pm
+    tk.response = { annotation_type: 'response', set_fields: { response_test: 'test' }.to_json }.to_json
+    tk.save!
+    assert_equal 'Resolved', tk.reload.status
+  end
+
+  test "should resolve task if response is submitted by all assigned users" do
+    at = create_annotation_type annotation_type: 'response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    ft = create_field_type field_type: 'task_reference'
+    create_field_instance annotation_type_object: at, name: 'task_reference', field_type_object: ft
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: t, user: u1, role: 'annotator'
+    create_team_user team: t, user: u2, role: 'annotator'
+    tk.assign_user(u1.id)
+    tk.assign_user(u2.id)
+    with_current_user_and_team(u1, nil) do
+      tk = Task.find(tk.id)
+      tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+      tk.save!
+    end
+    assert_equal 'Unresolved', tk.reload.status
+    with_current_user_and_team(u2, nil) do
+      tk = Task.find(tk.id)
+      tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+      tk.save!
+    end
+    assert_equal 'Resolved', tk.reload.status
+  end
+
+  test "should not resolve task if response is not submitted" do
+    t = create_task
+    assert !t.must_resolve_task({ 'set_fields' => {} })
+  end
+
+  test "should get first response bli" do
+    at = create_annotation_type annotation_type: 'response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    ft = create_field_type field_type: 'task_reference'
+    create_field_instance annotation_type_object: at, name: 'task_reference', field_type_object: ft
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: t, user: u1, role: 'annotator'
+    create_team_user team: t, user: u2
+    with_current_user_and_team(u1, nil) do
+      tk = Task.find(tk.id)
+      tk.response = { annotation_type: 'response', set_fields: { response_test: 'foo', task_reference: tk.id.to_s }.to_json }.to_json
+      tk.save!
+    end
+    tk = Task.find(tk.id)
+    tk.response = { annotation_type: 'response', set_fields: { response_test: 'bar', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.save!
+    with_current_user_and_team(u1, nil) do
+      assert_equal 'foo', tk.reload.first_response
+    end
+    with_current_user_and_team(u2, nil) do
+      assert_equal 'bar', tk.reload.first_response
+    end
+  end
 end

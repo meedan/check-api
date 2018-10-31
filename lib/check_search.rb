@@ -58,12 +58,10 @@ class CheckSearch
     if should_hit_elasticsearch?
       query = medias_build_search_query
       ids = get_ids_from_result(medias_get_search_result(query))
-      items = ProjectMedia.where(filters.merge({ id: ids })).eager_load(:media)
-      @medias = sort_es_items(items, ids)
-    else
-      results = ProjectMedia.where(filters).eager_load(:media).joins(:project)
-      @medias = sort_pg_results(results)
+      filters = filters.merge({ id: ids })
     end
+    results = ProjectMedia.where(filters).eager_load(:media).joins(:project)
+    @medias = sort_pg_results(results)
     @medias
   end
 
@@ -75,15 +73,14 @@ class CheckSearch
     return [] unless @options['show'].include?('sources') && index_exists?
     return @sources if @sources
     @sources = []
+    filters = {}
     if should_hit_elasticsearch?
       query = medias_build_search_query('ProjectSource')
       ids = medias_get_search_result(query).map(&:annotated_id)
-      items = ProjectSource.where(id: ids).eager_load(:source)
-      @sources = sort_es_items(items, ids)
-    else
-      results = ProjectSource.eager_load(:source).joins(:project)
-      @sources = sort_pg_results(results)
+      filters = { id: ids }
     end
+    results = ProjectSource.where(filters).eager_load(:source).joins(:project)
+    @sources = sort_pg_results(results)
     @sources
   end
 
@@ -192,11 +189,6 @@ class CheckSearch
     sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
     sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
     results.order(sort_field => sort_type)
-  end
-
-  def sort_es_items(items, ids)
-    ids_sort = items.sort_by{|x| ids.index x.id}
-    ids_sort.to_a
   end
 
   # def prepare_show_filter(show)

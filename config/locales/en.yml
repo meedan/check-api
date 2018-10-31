@@ -269,6 +269,7 @@ en:
   role_owner: owner
   role_contributor: contributor
   role_journalist: journalist
+  role_annotator: annotator
   role_none: member
   oembed_credit: Added by %{user} (%{role}) %{date}
   oembed_notes_count:
@@ -394,6 +395,8 @@ en:
         description: "Journalists fact check information."
       contributor:
         description: "Contributors can add new information to fact check. They are often members of the public."
+      annotator:
+        description: "Annotators can only view and manage their own content."
     permissions:
       sections:
         project_management:

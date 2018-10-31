@@ -1390,7 +1390,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, tk)
       tk = tk.reload
       tk.response = { annotation_type: 'response', set_fields: {} }.to_json
-      assert ability.cannot?(:update, tk)
+      assert ability.can?(:update, tk)
     end
   end
 
@@ -1409,7 +1409,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, tk1)
       assert ability.can?(:update, tk1)
       assert ability.cannot?(:destroy, tk2)
-      assert ability.cannot?(:update, tk2)
+      assert ability.can?(:update, tk2)
     end
   end
 
@@ -1449,7 +1449,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Dynamic)
-      assert ability.can?(:update, da)
+      assert ability.cannot?(:update, da)
       assert ability.cannot?(:destroy, da)
       assert ability.can?(:update, own_da)
       assert ability.can?(:destroy, own_da)
@@ -1467,7 +1467,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Dynamic)
-      assert ability.can?(:update, da)
+      assert ability.cannot?(:update, da)
       assert ability.cannot?(:destroy, da)
       assert ability.can?(:update, own_da)
       assert ability.can?(:destroy, own_da)
@@ -2165,6 +2165,46 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.cannot?(:import_spreadsheet, t1)
       assert ability.cannot?(:import_spreadsheet, t2)
+    end
+  end
+
+  test "annotator permissions for annotation field" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'annotator'
+    a = create_dynamic_annotation annotator: u
+    f1 = create_field annotation_id: a.id
+    f2 = create_field
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:read, f1)
+      assert ability.can?(:manage, f1)
+      assert ability.can?(:update, f1)
+      assert ability.can?(:destroy, f1)
+      assert ability.cannot?(:read, f2)
+      assert ability.cannot?(:manage, f2)
+      assert ability.cannot?(:update, f2)
+      assert ability.cannot?(:destroy, f2)
+    end
+  end
+
+  test "annotator permissions for project and medias" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'annotator'
+    p1 = create_project team: t
+    pm1 = create_project_media project: p1
+    p2 = create_project team: t
+    pm2 = create_project_media project: p2
+    create_task annotated: pm2
+    tk = create_task annotated: pm1
+    tk.assign_user(u.id)
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:read, p1)
+      assert ability.can?(:read, pm1)
+      assert ability.cannot?(:read, p2)
+      assert ability.cannot?(:read, pm2)
     end
   end
 end

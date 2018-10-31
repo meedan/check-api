@@ -33,8 +33,10 @@ class Task < ActiveRecord::Base
     a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: self.id).last
     a = a.nil? ? nil : (a.load || a)
     return nil if a.nil?
-    a.status = value
-    a.save!
+    f = a.get_field('task_status_status')
+    f.value = value
+    f.skip_check_ability = true
+    f.save!
   end
 
   def status
@@ -126,7 +128,8 @@ class Task < ActiveRecord::Base
   end
 
   def responses
-    DynamicAnnotation::Field.where(field_type: 'task_reference', value: self.id.to_s).to_a.map(&:annotation)
+    ids = DynamicAnnotation::Field.where(field_type: 'task_reference', value: self.id.to_s).map(&:annotation_id)
+    Annotation.where(id: ids)
   end
 
   def response
@@ -134,13 +137,18 @@ class Task < ActiveRecord::Base
   end
 
   def new_or_existing_response
-    response = self.responses.first
+    response = self.first_response_obj
     response.nil? ? Dynamic.new : response.load
   end
 
   def must_resolve_task(params)
     set_fields = begin JSON.parse(params['set_fields']) rescue params['set_fields'] end
-    set_fields.keys.select{ |k| k =~ /^response/ }.any?
+    if set_fields.keys.select{ |k| k =~ /^response/ }.any?
+      uids = self.assigned_users.map(&:id).sort
+      uids.empty? || uids == self.responses.map(&:annotator_id).uniq.sort
+    else
+      false
+    end
   end
 
   def response=(json)
@@ -158,8 +166,19 @@ class Task < ActiveRecord::Base
     self.status = 'resolved' if self.must_resolve_task(params) 
   end
 
+  def first_response_obj
+    user = User.current
+    responses = self.responses
+    if !user.nil? && user.role?(:annotator)
+      responses = responses.select{ |r| r.annotator_id.to_i == user.id.to_i }
+    else
+      responses = responses.reject{ |r| r.annotator&.role?(:annotator) }
+    end
+    responses.first
+  end
+
   def first_response
-    response = self.responses.first
+    response = self.first_response_obj
     response.get_fields.select{ |f| f.field_name =~ /^response/ }.first.to_s unless response.nil?
   end
 
