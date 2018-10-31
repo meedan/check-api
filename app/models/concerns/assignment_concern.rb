@@ -24,10 +24,20 @@ module AssignmentConcern
       to_create.each do |id|
         Assignment.create!(annotation_id: self.id, user_id: id)
       end
+      # Save the assignment details to send them as Slack notifications
+      self.instance_variable_set("@assignment", { to_create: to_create, to_delete: to_delete }) unless to_delete.blank? and to_create.blank?
     end
   end
 
-  def users
+  def slack_params_assignment
+    {
+      assigned: self.assigned_users()&.collect{ |u| u.name }&.to_sentence,
+      assignment_event: self.instance_variable_get("@assignment").blank? ? nil : self.instance_variable_get("@assignment")[:to_create].blank? ? 'unassign' : 'assign',
+      unassigned: self.instance_variable_get("@assignment").blank? ? nil : self.instance_variable_get("@assignment")[:to_delete].collect{ |uid| User.find(uid).name }&.to_sentence
+    }
+  end
+
+  def assigned_users
     User.joins(:assignments).where('assignments.annotation_id' => self.id)
   end
 

@@ -6,20 +6,11 @@ class Bot::Slack < ActiveRecord::Base
     Bot::Slack.where(name: 'Slack Bot').last
   end
 
-  def should_notify?(team, model)
-    RequestStore.store[:skip_notifications].blank? && team.present? && !model.skip_notifications && team.setting(:slack_notifications_enabled).to_i === 1
-  end
-
-  def should_notify_super_admin?(model)
-    should_notify_annotation?(model) && !model.skip_notifications && self.setting(:slack_notifications_enabled).to_i === 1
-  end
-
-  def should_notify_annotation?(model)
-    (model.is_annotation? && model.annotated_type != 'ProjectMedia') ? false : true
+  def should_notify?(target, model)
+    RequestStore.store[:skip_notifications].blank? && !model.skip_notifications && target.present? && target.setting(:slack_notifications_enabled).to_i === 1
   end
 
   def notify_slack(model)
-    # Get team & project
     p = self.get_project(model)
     t = self.get_team(model, p)
 
@@ -27,74 +18,76 @@ class Bot::Slack < ActiveRecord::Base
       webhook = t.setting(:slack_webhook)
       channel = p.setting(:slack_channel) unless p.nil?
       channel ||= t.setting(:slack_channel)
-      message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
-      self.bot_send_slack_notification(model, webhook, channel, message)
+      attachment = model.slack_notification_message if model.respond_to?(:slack_notification_message)
+      attachment = {
+        pretext: attachment
+      } if attachment.is_a? String
+      self.send_notification(model, webhook, channel, attachment)
     end
-    self.notify_super_admin(model, t, p)
+    self.notify_admin(model, t, p)
   end
 
-  def notify_super_admin(model, team, project)
-    if self.should_notify_super_admin?(model)
+  def notify_admin(model, team, project)
+    if self.should_notify?(self, model)
       webhook = self.setting(:slack_webhook)
       channel = self.setting(:slack_channel)
-      message = model.slack_notification_message if model.respond_to?(:slack_notification_message)
-      unless message.blank?
+      attachment = model.slack_notification_message if model.respond_to?(:slack_notification_message)
+      attachment = {
+        pretext: attachment
+      } if attachment.is_a? String
+      unless attachment&.dig(:pretext).blank?
         prefix = team.name
         prefix += ": #{project.title}" unless project.nil?
-        message  = "[#{prefix}] - #{message}"
+        attachment[:pretext] = "[#{prefix}] #{attachment[:pretext]}"
       end
-      self.bot_send_slack_notification(model, webhook, channel, message)
+      self.send_notification(model, webhook, channel, attachment)
     end
   end
 
-  def bot_send_slack_notification(model, webhook, channel, message)
-    return if webhook.blank? || channel.blank? || message.blank?
+  def send_notification(model, webhook, channel, attachment)
+    return if webhook.blank? || channel.blank? || attachment.blank?
 
     data = {
       payload: {
         channel: channel,
-        text: message.gsub('\\n', "\n")
+        attachments: [self.prepare_attachment(attachment)]
       }.to_json
     }
 
     Rails.env === 'test' ? self.request_slack(model, webhook, data) : SlackNotificationWorker.perform_async(webhook, YAML::dump(data), YAML::dump(User.current))
   end
 
-  def request_slack(model, webhook, data)
-    self.request(webhook, data)
-    model.sent_to_slack = true
+  def prepare_attachment(attachment)
+    attachment.dig(:fields)&.delete_if { |f| f[:value].blank? }
+    # fallback is the text used in the browser notification message
+    attachment[:fallback] ||= attachment[:pretext]
+    attachment
   end
 
-  def request(webhook, data)
+  def request_slack(model, webhook, data)
     url = URI.parse(webhook)
     http = Net::HTTP.new(url.host, url.port)
     http.use_ssl = true
     request = Net::HTTP::Post.new(url.request_uri)
     request.set_form_data(data)
     http.request(request)
+    model.sent_to_slack = true unless model.nil?
   end
+
   class << self
     def to_slack(text, truncate = true)
-      return "" if text.blank?
+      return nil if text.blank?
       # https://api.slack.com/docs/message-formatting#how_to_escape_characters
       { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.each { |k,v|
         text = text.gsub(k,v)
       }
-      truncate ? text.truncate(140) : text
+      truncate ? text.truncate(280) : text
     end
 
-    def to_slack_url(url, text)
+    def to_slack_url(url, text, truncate = true)
       url.insert(0, "#{CONFIG['checkdesk_client']}/") unless url.start_with? "#{CONFIG['checkdesk_client']}/"
-      text = self.to_slack(text)
-      text = text.tr("\n", ' ')
+      text = self.to_slack(text, truncate).to_s.tr("\n", ' ')
       "<#{url}|#{text}>"
-    end
-
-    def to_slack_quote(text)
-      text = I18n.t(:blank) if text.blank?
-      text = self.to_slack(text, false)
-      text.insert(0, "\n") unless text.start_with? "\n"
-      text.gsub("\n", "\n>")
     end
   end
 
@@ -104,13 +97,13 @@ class Bot::Slack < ActiveRecord::Base
     p = model if model.class.to_s == 'Project'
     p = model.project if model.respond_to?(:project)
     model = model.annotation if model.is_a?(Assignment)
-    p = self.get_project_for_annotation(model) if model.is_annotation? 
+    p = self.get_project_for_annotation(model) if model.is_annotation?
     p
   end
 
   def get_project_for_annotation(model)
     p = nil
-    p = model&.annotated&.project if model.annotated_type == 'ProjectMedia'
+    p = model&.annotated&.project if ['ProjectMedia', 'ProjectSource'].include?(model.annotated_type)
     p = model&.annotated&.annotated&.project if model.annotated_type == 'Task'
     p
   end
@@ -161,7 +154,7 @@ class Bot::Slack < ActiveRecord::Base
     end
 
     def call_slack_api(endpoint)
-      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.nil? 
+      self.class.delay_for(1.second, retry: 0).call_slack_api(self.id, self.client_mutation_id, endpoint) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.nil?
     end
 
     # The default behavior is to update an existing Slack message
@@ -175,7 +168,7 @@ class Bot::Slack < ActiveRecord::Base
     def update_slack_message_attachments(attachments)
       label = ''
       I18n.with_locale(:en) do
-        statuses = Workflow::Workflow.options(self, self.default_media_status_type)
+        statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)
         statuses = statuses.with_indifferent_access['statuses']
         statuses.each { |status| label = status['label'] if status['id'] == self.last_status }
       end
@@ -209,7 +202,7 @@ class Bot::Slack < ActiveRecord::Base
 
   Dynamic.class_eval do
     include ::Bot::Slack::SlackMessage
-    
+
     create_or_update_slack_message on: :create, endpoint: :post_message, if: proc { |a| a.annotation_type == 'translation' }
 
     def slack_message_parameters(id, _channel, attachments)
@@ -223,7 +216,7 @@ class Bot::Slack < ActiveRecord::Base
 
   DynamicAnnotation::Field.class_eval do
     include ::Bot::Slack::SlackMessage
-    
+
     create_or_update_slack_message on: :update, endpoint: :update, if: proc { |f| f.annotation.annotation_type.match(/_status$/) }
   end
 

@@ -116,6 +116,7 @@ class ActiveSupport::TestCase
     Rails.unstub(:env)
     RequestStore.unstub(:[])
     User.current = nil
+    RequestStore.clear!
   end
 
   def assert_queries(num = 1, operator = '=', &block)

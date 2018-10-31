@@ -1188,7 +1188,7 @@ class TeamTest < ActiveSupport::TestCase
     team = create_team
     project = create_project team: team, title: 'Project'
     pm = create_project_media project: project
-    task = create_task annotated: pm, required: true
+    task = create_task annotated: pm
     create_annotation_type annotation_type: 'response'
     task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
     s = pm.get_annotations('verification_status').last.load; s.status = 'verified'; s.save!

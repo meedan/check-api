@@ -11,6 +11,7 @@ class TeamUser < ActiveRecord::Base
 
   before_validation :set_role_default_value, on: :create
   after_create :send_email_to_team_owners, :send_slack_notification
+  after_update :send_slack_notification
   after_save :send_email_to_requestor, :update_user_cached_teams_after_save
   after_destroy :update_user_cached_teams_after_destroy
 
@@ -20,7 +21,7 @@ class TeamUser < ActiveRecord::Base
   validates :status, included: { values: self.status_types }
 
   def self.role_types
-    %w(owner editor journalist contributor)
+    %w(owner editor journalist contributor annotator)
   end
   validates :role, included: { values: self.role_types }
 
@@ -41,11 +42,37 @@ class TeamUser < ActiveRecord::Base
     }
   end
 
+  def slack_params
+    user = self.user
+    {
+      user: Bot::Slack.to_slack(user.name),
+      user_image: user.profile_image,
+      team: Bot::Slack.to_slack(self.team.name),
+      url: "#{CONFIG['checkdesk_client']}/check/user/#{user.id}",
+      description: Bot::Slack.to_slack(user.source&.description, false),
+      button: I18n.t("slack.fields.view_button", {
+        type: I18n.t("activerecord.models.user"), app: CONFIG['app_name']
+      })
+    }
+  end
+
   def slack_notification_message
-    I18n.t(:slack_create_team_user,
-      user: Bot::Slack.to_slack(self.user.name),
-      url: Bot::Slack.to_slack_url(self.team.slug, self.team.name)
-    )
+    params = self.slack_params
+    {
+      pretext: I18n.t("slack.messages.user_#{self.status}", params),
+      title: params[:project],
+      title_link: params[:url],
+      author_name: params[:user],
+      author_icon: params[:user_image],
+      text: params[:description],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def is_being_copied

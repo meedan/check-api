@@ -21,43 +21,7 @@ class Embed < ActiveRecord::Base
   end
 
   def slack_notification_message
-    return if self.annotated_type != 'ProjectMedia' || !self.title_is_overridden?
-    data = self.overridden_data
-    I18n.t(:slack_save_embed,
-      user: Bot::Slack.to_slack(User.current.name),
-      from: Bot::Slack.to_slack(data[0]['title']),
-      to: Bot::Slack.to_slack_url(self.annotated_client_url, data[1]['title']),
-      project: Bot::Slack.to_slack(self.annotated.project.title)
-    )
-  end
-
-  def title_is_overridden?
-    overriden = false
-    v = self.versions.last
-    unless v.nil?
-      data = self.get_overridden_data(v)
-      overriden = (!data[0].blank? && !data[0]['title'].nil? && data[0]['title'] != data[1]['title'])
-    end
-    self.overridden_data = data if overriden
-    overriden
-  end
-
-  def get_overridden_data(version)
-    data = version.changeset['data'] || []
-    # Get title from pender if Link has only one version
-    if self.annotated.media.type == 'Link' and self.versions.size == 1
-      pender = self.annotated.media.get_annotations('embed').last
-      data[0]['title'] = pender['data']['title'] unless pender.nil?
-    end
-    data
-  end
-
-  def overridden_data
-    @overridden_data
-  end
-
-  def overridden_data=(data)
-    @overridden_data = data
+    self.annotated.slack_notification_message(true) if self.annotated.respond_to?(:slack_notification_message)
   end
 
   def update_elasticsearch_embed

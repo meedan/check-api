@@ -1,6 +1,6 @@
 class Workflow::VerificationStatus < Workflow::Base
   
-  check_workflow_default if CONFIG['app_name'] == 'Check'
+  check_default_project_media_workflow if CONFIG['app_name'] == 'Check'
   
   check_workflow from: :any, to: :terminal, actions: :send_terminal_notification_if_can_complete_media
   check_workflow on: :commit, actions: :index_on_es, events: [:create, :update]

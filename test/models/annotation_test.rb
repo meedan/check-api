@@ -274,7 +274,7 @@ class AnnotationTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     c = create_comment annotated: pm
     u.assign_annotation(c)
-    assert_equal [u], c.reload.users
+    assert_equal [u], c.reload.assigned_users
   end
 
   test "should not assign annotation to user if user is not a member of the same team as the annotation" do
@@ -300,7 +300,7 @@ class AnnotationTest < ActiveSupport::TestCase
     c3 = create_comment annotated: pm
     c1.assign_user(u.id)
     c2.assign_user(u.id)
-    assert_equal [c1, c2].sort, Annotation.assigned_to_user(u).sort 
+    assert_equal [c1, c2].sort, Annotation.assigned_to_user(u).sort
     assert_equal [c1, c2].sort, Annotation.assigned_to_user(u.id).sort
   end
 
@@ -375,22 +375,22 @@ class AnnotationTest < ActiveSupport::TestCase
       c.assigned_to_ids = [u1.id, u2.id].join(',')
       c.save!
     end
-    assert_equal [u1, u2].sort, c.users.sort
+    assert_equal [u1, u2].sort, c.assigned_users.sort
     assert_no_difference 'Assignment.count' do
       c.assigned_to_ids = [u3.id, u4.id].join(',')
       c.save!
     end
-    assert_equal [u3, u4].sort, c.users.sort
+    assert_equal [u3, u4].sort, c.assigned_users.sort
     assert_difference 'Assignment.count', -1 do
       c.assigned_to_ids = [u3.id].join(',')
       c.save!
     end
-    assert_equal [u3], c.users
+    assert_equal [u3], c.assigned_users
     assert_difference 'Assignment.count', 3 do
       c.assigned_to_ids = [u1.id, u2.id, u3.id, u4.id].join(',')
       c.save!
     end
-    assert_equal [u1, u2, u3, u4].sort, c.users.sort
+    assert_equal [u1, u2, u3, u4].sort, c.assigned_users.sort
     assert_difference 'Assignment.count', -1 do
       u1.destroy
     end

@@ -52,12 +52,12 @@ class Relationship < ActiveRecord::Base
     project_media.source_relationships.includes(:target).each do |relationship|
       key = relationship.relationship_type.to_json
       targets[key] ||= []
-      targets[key] << relationship.target if ids.nil? || ids.include?(relationship.target_id)
+      targets[key] << relationship.target_id if ids.nil? || ids.include?(relationship.target_id)
     end
     list = []
     targets.each do |key, value|
       id = [project_media.id, key].join('/')
-      list << { type: key, targets: value.reverse, id: id }.with_indifferent_access
+      list << { type: key, targets: ProjectMedia.where(id: value).order('id DESC'), id: id }.with_indifferent_access
     end
     list
   end

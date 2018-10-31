@@ -29,7 +29,10 @@ module Workflow
 
         def self.define_default_type(&block)
           GraphqlCrudOperations.define_default_type_original do
-            ::Workflow::Workflow.workflow_ids.each do |id|
+            ::Workflow::Workflow.workflows.each do |workflow|
+              next if workflow.target != ProjectMedia
+              id = workflow.id
+
               ['media', 'source'].each do |type|
                 instance_exec id, type, &GraphqlCrudOperations.define_field_for_object_statuses
               end
