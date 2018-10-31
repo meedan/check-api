@@ -57,6 +57,9 @@ class TeamUser < ActiveRecord::Base
   end
 
   def slack_notification_message
+    # Ignore updates that don't involve the status. The presence of "id" indicates creation.
+    return nil if (self.changed & ['id', 'status']).blank?
+
     params = self.slack_params
     {
       pretext: I18n.t("slack.messages.user_#{self.status}", params),

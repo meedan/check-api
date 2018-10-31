@@ -702,7 +702,7 @@ module SampleData
     File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
       tb.file = f
     end
-    
+
     tb.save!
     tb
   end

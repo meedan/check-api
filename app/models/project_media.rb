@@ -69,9 +69,10 @@ class ProjectMedia < ActiveRecord::Base
   def slack_notification_message(update = false)
     params = self.slack_params
     event = update ? "update" : "create"
-    no_user = params[:user] ? "" : "_no_user"
+    no_user = params[:user].blank? ? "_no_user" : ""
+    related = params[:related_to].blank? ? "" : "_related"
     {
-      pretext: I18n.t("slack.messages.project_media_#{event}#{no_user}", params),
+      pretext: I18n.t("slack.messages.project_media_#{event}#{related}#{no_user}", params),
       title: params[:title],
       title_link: params[:url],
       author_name: params[:user],

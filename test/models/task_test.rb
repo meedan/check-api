@@ -110,6 +110,30 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 0, DynamicAnnotation::Field.count
   end
 
+  test "should notify on Slack when task is assigned" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tk = create_task annotator: u, annotated: pm
+      u1 = create_user
+      create_team_user user: u1, team: t
+      u2 = create_user
+      create_team_user user: u2, team: t
+
+      tk.assigned_to_ids = u2.id
+      tk.save!
+      assert_match /assigned/, tk.slack_notification_message[:pretext]
+
+      tk.assigned_to_ids = ""
+      tk.save!
+      assert_match /unassigned/, tk.slack_notification_message[:pretext]
+    end
+  end
+
   test "should notify on Slack when task is updated" do
     t = create_team slug: 'test'
     u = create_user
