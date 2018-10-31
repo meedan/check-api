@@ -197,7 +197,11 @@ module TeamImport
         note = worksheet[row, col]
         next if note.blank?
         annotator_id = annotator.blank? ? pm.user.id : get_user(annotator, row, 'annotator')
-        Comment.create!(annotator_id: annotator_id, text: note, annotated: pm) if annotator_id
+        if annotator_id
+          User.current = pm.user
+          Comment.create!(annotator_id: annotator_id, text: note, annotated: pm)
+          User.current = nil
+        end
       end
     end
 
