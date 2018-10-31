@@ -305,13 +305,14 @@ class StatusTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user user: u2, team: t
     s = create_status annotated: pm, annotator: u, status: 'false'
-    s = Dynamic.find(s.id)
-    s.assign_user(u2.id)
-    a = s.assignments.last
-    assert_match /assigned/, a.slack_notification_message[:pretext]
 
-    a.destroy!
-    assert_match /unassigned/, a.slack_notification_message[:pretext]
+    s.assigned_to_ids = u2.id
+    s.save!
+    assert_match /assigned/, s.slack_notification_message[:pretext]
+
+    s.assigned_to_ids = ""
+    s.save!
+    assert_match /unassigned/, s.slack_notification_message[:pretext]
 
     User.current = nil
   end

@@ -6,6 +6,7 @@ class Task < ActiveRecord::Base
   before_validation :set_slug, on: :create
   after_create :send_slack_notification
   after_update :send_slack_notification
+  after_commit :send_slack_notification, on: [:create, :update]
   after_destroy :destroy_responses
 
   field :label
@@ -58,17 +59,24 @@ class Task < ActiveRecord::Base
       title: Bot::Slack.to_slack(self.label),
       description: Bot::Slack.to_slack(self.description, false),
       required: self.required ? I18n.t("slack.fields.required_yes") : nil,
-      status: Bot::Slack.to_slack(self.status)
+      status: Bot::Slack.to_slack(self.status),
+      attribution: nil
     })
   end
 
-  def slack_notification_message
-    if self.data_changed? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
-      event = self.versions.count > 1 ? 'edit' : 'create'
+  def slack_notification_message(params = nil)
+    if params.nil?
+      params = self.slack_params
+      if self.data_changed? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
+        event = self.versions.count > 1 ? 'edit' : 'create'
+      elsif !params[:assignment_event].blank?
+        event = params[:assignment_event]
+      else
+        return nil
+      end
     else
-      return nil
+      event = params[:event]
     end
-    params = self.slack_params
     {
       pretext: I18n.t("slack.messages.task_#{event}", params),
       title: params[:title],
@@ -88,6 +96,11 @@ class Task < ActiveRecord::Base
           short: true
         },
         {
+          title: I18n.t("slack.fields.unassigned"),
+          value: params[:unassigned],
+          short: true
+        },
+        {
           title: I18n.t("slack.fields.required"),
           value: params[:required],
           short: true
@@ -95,6 +108,11 @@ class Task < ActiveRecord::Base
         {
           title: I18n.t("slack.fields.project"),
           value: params[:project],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.attribution"),
+          value: params[:attribution],
           short: true
         },
         {
@@ -163,7 +181,7 @@ class Task < ActiveRecord::Base
     response.save!
     @response = response
     self.record_timestamps = false
-    self.status = 'resolved' if self.must_resolve_task(params) 
+    self.status = 'resolved' if self.must_resolve_task(params)
   end
 
   def first_response_obj
