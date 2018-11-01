@@ -157,7 +157,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def set_annotator
-    self.annotator = User.current if !User.current.nil? && (self.annotator.nil? || self.annotation_type_object.singleton)
+    self.annotator = User.current if !User.current.nil? && (self.annotator.nil? || ((!self.annotator.is_a?(User) || !self.annotator.role?(:annotator)) && self.annotation_type_object.singleton))
   end
 
   def update_timestamp
