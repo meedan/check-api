@@ -1,5 +1,19 @@
 pt:
   statuses:
+    ids:
+      verification_status: verificação
+      translation_status: tradução
+      task_status: tarefa
+    task:
+      unresolved:
+        label: Não resolvido
+        description: Padrão, não resolvido ainda
+      resolved:
+        label: Resolvido
+        description: A tarefa foi resolvida
+      cant_be_resolved:
+        label: Não pode ser resolvida
+        description: Não foi possível resolver a tarefa
     media:
       undetermined:
         label: Pendente
@@ -70,6 +84,15 @@ pt:
       claim: Afirmação
       uploaded_image: Imagem
       uploaded_file: Arquivo
+      task: Tarefa
+      comment: Nota
+      project_media: Item
+      media: Item
+      project: Projeto
+      team: Equipe
+      user: Usuário
+      source: Fonte
+      project_source: Fonte
     attributes:
       tag:
         data: Tag
@@ -83,6 +106,8 @@ pt:
         name: Nome
       contact:
         phone: Telefone
+      comment:
+        text: Nota
       user:
         reset_password_token: Redefinir o token da senha
         email: E-mail
@@ -104,6 +129,7 @@ pt:
           other: É muito curto (mínimo de %{count} caracteres)
   slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
+  invalid_format_for_languages: "A configuração de idiomas está inválido. Ele deve ter o formato [{'id': 'en','title': 'English'}]"
   invalid_media_item: Desculpe, este não é um item de mídia válido
   invalid_default_status_for_custom_verification_status: Identificador de status padrão é inválido
   invalid_active_status_for_custom_verification_status: Identificador de status ativo é inválido
@@ -121,6 +147,47 @@ pt:
   rejected: Não aprovado
   mail_request_to_join_processed: Seu pedido para participar da equipe %{team} no %{app_name} foi %{status}
   mail_new_account: Nova conta para você no %{app_name}
+  slack:
+    fields:
+      assigned: "Atribuída a"
+      unassigned: "Atribuição removida de"
+      required: "Requerido?"
+      required_yes: "Sim"
+      project: "Projeto"
+      source: "Fonte"
+      status: "Status"
+      status_previous: "Status anterior"
+      related_to: "Relacionada a"
+      view_button: "Ver %{type} em %{app}"
+      project_source: "Fonte"
+      project_media: "Item"
+      attribution: "Respondida por"
+    messages:
+      task_create: "%{user} (%{role} em %{team}) adicionou uma Tarefa"
+      task_edit: "%{user} (%{role} em %{team}) editou uma Tarefa"
+      task_assign: "%{user} (%{role} em %{team}) atribuiu um(a) %{type}"
+      task_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de %{type}"
+      task_answer_create: "%{user} (%{role} em %{team}) respondeu uma Tarefa"
+      task_answer_edit: "%{user} (%{role} em %{team}) editou uma resposta da Tarefa"
+      task_comment: "%{user} (%{role} em %{team}) adicionou uma nota em uma Tarefa"
+      project_media_comment: "%{user} (%{role} em %{team}) adicionou uma nota em %{parent_type}"
+      project_media_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
+      project_media_create_related: "%{user} (%{role} em %{team}) adicionou um(a) %{type} relacionado(a)"
+      project_media_create_no_user: "Um(a) %{type} foi adicionado(a)"
+      project_media_create_related_no_user: "Um(a) %{type} relacionado(a) foi adicionado(a)"
+      project_media_update: "%{user} (%{role} em %{team}) editou um(a) %{type}"
+      project_media_update_no_user: "Um(a) %{type} foi editado"
+      project_media_status: "%{user} (%{role} em %{team}) alterou o status de %{workflow} de um(a) %{type}"
+      project_media_assign: "%{user} (%{role} em %{team}) atribuiu um(a) %{type}"
+      project_media_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de %{type}"
+      project_source_comment: "%{user} (%{role} em %{team}) adicionou uma nota em um(a) %{parent_type}"
+      project_source_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
+      project_source_update: "%{user} (%{role} em %{team}) editou um(a) %{type}"
+      project_create: "%{user} (%{role} em %{team}) criou um projeto"
+      user_member: "%{user} juntou-se à equipe %{team}"
+      user_requested: "%{user} pediu para participar da equipe %{team}"
+      user_invited: "%{user} foi convidado a participar da equipe %{team}"
+      user_banned: "%{user} foi banido da equipe %{team}"
   mail_view_welcome: Bem-vindo ao %{app_name}
   mail_view_register: "Você está apenas a um passo de usar o %{app_name}! Por favor confirme o seu endereço de e-mail clicando no seguinte link:"
   mail_view_joined: Sua solicitação para participar de %{team} foi aprovada! Agora você pode ir para %{url} e começar a contribuir!
@@ -155,6 +222,9 @@ pt:
           html: "Quando estiver pronto, a cópia da equipe estará disponível em <strong>%{copy_url}</strong>"
   reset_password_instructions: "Instruções para redefinir a senha do %{app_name}"
   email_not_found: E-mail não encontrado
+  slack_channel_format_wrong: "O canal do Slack é inválido"
+  translation_status_not_valid: "O status é inválido"
+  translation_status_permission_error: "Desculpe, você não tem permissão para fazer essa alteração de status"
   translation_request_id_exists: "Já existe um pedido de tradução para esta mensagem"
   auto_publisher_added_to_project: Obrigado! Agora todas as novas traduções no projeto %{project} serão automaticamente publicadas nesta conta no %{provider}. Se você mudar de ideia, por favor contacte o administrador ou simplesmente remova a autorização do Bridge no %{provider}.
   invalid_token: Token inválido
@@ -173,6 +243,7 @@ pt:
   role_owner: dono
   role_contributor: colaborador
   role_journalist: jornalista
+  role_annotator: anotador(a)
   role_none: membro
   oembed_credit: Adicionado por %{user} (%{role}) %{date}
   oembed_notes_count:
@@ -181,10 +252,14 @@ pt:
   oembed_completed_tasks_count:
     one: "Uma tarefa concluída"
     other: "%{count} tarefas concluídas"
+  oembed_verification_tasks: Tarefas
   oembed_tasks: Tarefas
   oembed_translations: Traduções
   oembed_expand_all: Expandir tudo
   oembed_collapse_all: Recolher tudo
+  oembed_resolved_tasks_count:
+    one: "Uma tarefa resolvida"
+    other: "%{count} tarefas resolvidas"
   oembed_notes: Notas
   pender_conflict: Este link já está sendo processado, por favor tente novamente em alguns segundos.
   duplicate_source: Fonte existe
@@ -200,11 +275,13 @@ pt:
   max_number_of_projects_reached: "Desculpe, o número máximo de projetos para esta equipe foi alcançado"
   cant_set_custom_statuses: "Desculpe, o recurso de status personalizados não está disponível para esta equipe"
   cant_change_custom_statuses: "Não foi possível modificar as definições de estados porque alguns estados fariam falta. Estes identificadores de estado: %{statuses} estão em uso nos seguintes itens:\n %{urls} %{others_amount}"
+  cant_create_team_task: "Desculpe, essa equipe não tem acesso a essa funcionalidade"
   cant_create_media_under_this_team_using_extension: "Desculpe, o recurso de extensão do navegador não está disponível para esta equipe"
   error_invalid_attribution: "Atribuição inválida"
   account_exists: Conta já existe
   media_exists: Mídia já existe
   source_exists: Fonte já existe
+  banned_user: "Desculpe, sua conta foi banida de %{app_name}. Por favor, entre em contato com se achar que isso é um erro."
   devise:
     mailer:
       reset_password_instructions:
@@ -230,6 +307,8 @@ pt:
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
   project_export_email_title_csv: "Seu relatório de projeto está pronto para baixar"
+  workflow_status_not_valid: "O status é inválido"
+  workflow_status_permission_error: "Desculpe, você não tem permissão para mudar este status."
   blank_default_status_for_custom_translation_status: "Por favor, forneça um valor padrão para os status de tradução personalizada"
   blank_active_status_for_custom_translation_status: "Por favor, forneça um valor ativo para os status de tradução personalizada"
   blank_default_status_for_custom_verification_status: "Por favor, forneça um valor padrão para os status de verificação personalizada"
@@ -259,6 +338,8 @@ pt:
         description: "Jornalistas verificam informações."
       contributor:
         description: "Colaboradores podem adicionar novas informações a serem checadas. Geralmente são membros do público."
+      annotator:
+        description: "Anotadore(a)s só podem ver e responder tarefas que são atribuídas a ele(a)s."
     permissions:
       sections:
         project_management:
@@ -299,3 +380,18 @@ pt:
             third_party: "Adicionar integrações externas"
             invite_owner: "Convidar, aprovar e excluir donos da equipe"
             invite_members: "Convidar, aprovar e excluir membros da equipe"
+  team_import:
+    invalid_google_spreadsheet_url: "A URL da planilha é inválida %{spreadsheet_url}"
+    not_found_google_spreadsheet_url: "A planilha não foi encontrada em %{spreadsheet_url}"
+    cannot_authenticate_with_the_credentials: "Não é possível autenticar no Google Drive com as credenciais atuais. Por favor, entre em contato com a equipe de suporte para notificá-los sobre esse incidente."
+    team_not_present: "Equipe atual não encontrada durante a importação de dados. Por favor, notifique a equipe de suporte sobre este incidente."
+    user_not_present: "Usuário atual não encontrado durante a importação de dados. Por favor, notifique a equipe de suporte sobre este incidente."
+    user_not_authorized: "Desculpe, você não tem permissão para importar dados nessa equipe"
+    invalid_project: "O projeto %{project}é inválido"
+    invalid_user: "O usuário %{user}é inválido"
+    invalid_status: "Status é inválido %{status}"
+    blank_user: "Autor não pode ficar em branco"
+    blank_annotator: "Anotador não pode ficar em branco"
+    blank_project: "Projeto não pode ficar em branco"
+    invalid_annotator: "O anotador é inválido %{user}"
+    invalid_assignee: "Atribuição inválida %{user}"

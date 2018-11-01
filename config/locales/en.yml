@@ -401,7 +401,7 @@ en:
       contributor:
         description: "Contributors can add new information to fact check. They are often members of the public."
       annotator:
-        description: "Annotators can only view and manage their own content."
+        description: "Annotators can only view and answer tasks that are assigned to them."
     permissions:
       sections:
         project_management:
