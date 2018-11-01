@@ -80,8 +80,7 @@ module UserInvitation
 	    opts = {due_at: tu.invitation_due_at, invitation_text: self.invitation_text, invitation_team: Team.current}
 	    # update invitations date if user still inivted (not a check user).
 	    self.update_columns(invitation_created_at: tu.created_at, invitation_sent_at: tu.created_at) if self.invited_to_sign_up?
-	    # DeviseMailer.delay.invitation_instructions(self, token, opts)
-	    DeviseMailer.invitation_instructions(self, token, opts)
+	    DeviseMailer.delay.invitation_instructions(self, token, opts)
 	  end
 
 	  def self.cancel_user_invitation(user)

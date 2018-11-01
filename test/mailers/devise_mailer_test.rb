@@ -28,4 +28,22 @@ class DeviseMailerTest < ActionMailer::TestCase
     assert_match "reset_password_token=12345", email.body.to_s
   end
 
+  test "should send invitation email" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    u1 = create_user email: 'test1@local.com'
+    with_current_user_and_team(u, t) do
+      members = {'contributor' => u1.email}
+      User.send_user_invitation(members)
+    end
+    tu = u1.reload.team_users.last
+    token = tu.raw_invitation_token
+    opts = {due_at: tu.invitation_due_at, invitation_text: '', invitation_team: t}
+    email = DeviseMailer.invitation_instructions(u1, token, opts)
+    assert_emails 1 do
+      email.deliver_now
+    end
+  end
+
 end

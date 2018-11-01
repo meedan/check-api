@@ -975,17 +975,17 @@ class UserTest < ActiveSupport::TestCase
     assert_not_empty result.errors
   end
 
-  # test "should not send welcome email for invited user" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user team: t, user: u, role: 'owner'
-  #   stub_config 'send_welcome_email_on_registration', true do
-  #     with_current_user_and_team(u, t) do
-  #       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
-  #         members = {'contributor' => 'test1@local.com'}
-  #         User.send_user_invitation(members)
-  #       end
-  #     end
-  #   end
-  # end
+  test "should not send welcome email for invited user" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    stub_config 'send_welcome_email_on_registration', true do
+      with_current_user_and_team(u, t) do
+        assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+          members = {'contributor' => 'test1@local.com'}
+          User.send_user_invitation(members)
+        end
+      end
+    end
+  end
 end
