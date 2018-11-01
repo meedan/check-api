@@ -82,6 +82,19 @@ class TeamUser < ActiveRecord::Base
     self.team && self.team.is_being_copied
   end
 
+  # Copy invitation_period_valid? & invitation_due_at from devise_invitable
+
+  def invitation_period_valid?
+    time = self.created_at
+    self.user.class.invite_for.to_i.zero? || (time && time.utc >= self.user.class.invite_for.ago)
+  end
+
+  def invitation_due_at
+    return nil if (self.user.class.invite_for == 0 || self.user.class.invite_for.nil?)
+    time = self.created_at
+    time + self.user.class.invite_for
+  end
+
   protected
 
   def update_user_cached_teams(action) # action: :add or :remove

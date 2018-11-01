@@ -1523,6 +1523,19 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
   end
 
+  test "should get invited mails" do
+    t = create_team
+    u = create_user
+    Team.stubs(:current).returns(t)
+    members = {'contributor' => 'test1@local.com', 'journalist' => 'test2@local.com'}
+    User.send_user_invitation(members)
+    assert_equal ['test1@local.com', 'test2@local.com'], t.invited_mails
+    u = User.where(email: 'test1@local.com').last
+    User.accept_team_invitation(u.read_attribute(:raw_invitation_token), t.slug)
+    assert_equal ['test2@local.com'], t.invited_mails
+    Team.unstub(:current)
+  end
+
   test "should get suggested tags" do
     t = create_team
     create_tag_text text: 'foo', team_id: t.id, teamwide: true
