@@ -402,7 +402,7 @@ RailsAdmin.config do |config|
       id = CONFIG['default_project_media_workflow']
       field "media_#{id.pluralize}", :yaml do
         partial "json_editor"
-        help "A list of custom #{id.pluralize.gsub('_', ' ')} for reports that match your team's guidelines."
+        help "A list of custom #{id.pluralize.gsub('_', ' ')} for items that match your team's guidelines."
         visible_only_for_allowed_teams 'custom_statuses'
       end
 

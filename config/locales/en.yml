@@ -27,10 +27,10 @@ en:
         description: Work has begun, but no conclusion made yet
       not_true:
         label: "False"
-        description: "Conclusion: the report is false"
+        description: "Conclusion: the item's content is false"
       verified:
         label: Verified
-        description: "Conclusion: the report is verified"
+        description: "Conclusion: the item's content is verified"
       pending:
         label: Pending
         description: Default, just added to Bridge, no work has started

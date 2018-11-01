@@ -181,7 +181,7 @@ edit do
   field :media_verification_statuses, :yaml do
     label 'Media verification statuses'
     render_settings('text')
-    help "A list of custom verification statuses for reports that match your team's journalistic guidelines."
+    help "A list of custom verification statuses for items that match your team's journalistic guidelines."
   end
 end
 ```
@@ -193,7 +193,7 @@ edit do
   field :suggested_tags do
     label 'Suggested tags'
     formatted_value { bindings[:object].get_suggested_tags }
-    help "A list of common tags to be used with reports and sources in your team."
+    help "A list of common tags to be used with items and sources in your team."
     render_settings('field')
   end
 end

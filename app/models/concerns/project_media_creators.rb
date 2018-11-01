@@ -224,7 +224,7 @@ module ProjectMediaCreators
         r.target_id = self.id
         r.save!
       else
-        raise 'Could not create related report'
+        raise 'Could not create related item'
       end
     end
   end
