@@ -23,10 +23,10 @@ pt:
         description: Não é possível obter conclusões a partir das evidências disponíveis.
       not_true:
         label: "Falso"
-        description: "Conclusão: o relato é falso"
+        description: "Conclusão: o conteúdo do ítem é falso"
       verified:
         label: Verificado
-        description: "Conclusão: o relato foi verificado"
+        description: "Conclusão: o conteúdo do ítem é verificado"
       pending:
         label: Pendente
         description: Padrão, recém adicionado ao Bridge, o trabalho ainda não foi iniciado

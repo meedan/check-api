@@ -23,10 +23,10 @@ fr:
         description: Aucune conclusion définitive ne peut être tirée avec les données actuelles
       not_true:
         label: "Faux"
-        description: "Conclusion : le rapport est faux"
+        description: "Conclusion : le contenu de l'élément est faux"
       verified:
         label: Confirmé
-        description: "Conclusion : le rapport est confirmé"
+        description: "Conclusion : le contenu de l'élément est confirmé"
       pending:
         label: En attente
         description: 'Par défault : récemment ajouté, le travail n''a pas commencé'
@@ -172,9 +172,9 @@ fr:
       task_comment: "%{user} (%{role} at %{team}) a rajouté une note à une tâche"
       project_media_comment: "%{user} (%{role} at %{team}) a rajouté une note à un.e %{parent_type}"
       project_media_create: "%{user} (%{role} à %{team}) a rajouté un.e %{type}"
-      project_media_create_related: "%{user} (%{role} à %{team}) a rajouté un.e %{type} connexe"
+      project_media_create_related: "%{user} (%{role} à %{team}) a rajouté un.e %{type} associé.e"
       project_media_create_no_user: "Un.e %{type} a été rajouté.e"
-      project_media_create_related_no_user: "Un.e %{type} connexe a été rajouté.e"
+      project_media_create_related_no_user: "Un.e %{type} associé.e a été rajouté.e"
       project_media_update: "%{user} (%{role} à %{team}) a modifié un.e %{type}"
       project_media_update_no_user: "Un.e %{type} a été modifié.e"
       project_media_status: "%{user} (%{role} à %{team}) a modifié le statut de %{workflow} d'un.e %{type}"
@@ -216,7 +216,7 @@ fr:
         menu: Dupliquer l'équipe
         done: copiée
         are_you_sure_you_want_to_copy_team:
-          html: "Voulez-vous vraiment dupliquer l'équipe <strong>%{team}</strong> ? Toutes les données connexes seront également copiées."
+          html: "Voulez-vous vraiment dupliquer l'équipe <strong>%{team}</strong> ? Toutes les données associées seront également copiées."
         the_team_is_being_copied: L'équipe est en cours de copie
         url_when_ready:
           html: "Une fois prête, la copie de l'équipe sera disponible à <strong>%{copy_url}</strong>"

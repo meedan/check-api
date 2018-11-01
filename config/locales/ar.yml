@@ -17,16 +17,16 @@ ar:
     media:
       undetermined:
         label: لم يبدأ بعد
-        description: حالة التقرير الأولية، أُضيف تواً  إلى Check، لم يتم البدء في التحقق منه
+        description: الحالة الأولية، أُضيف تواً، لم يتم البدء في التحقق منه
       not_applicable:
         label: غير محسوم
-        description: لا يمكن استنتاج حالة التقرير باستخدام الدلائل المتاحة
+        description: لا يمكن استنتاج الحالة باستخدام الدلائل المتاحة
       not_true:
         label: "مزيف"
-        description: "النتيجة: التقرير مزيف"
+        description: "النتيجة :  محتوى العنصر غير صحيح"
       verified:
         label: صحيح
-        description: "النتيجة: تم التأكد من صحة التقرير"
+        description: "النتيجة : محتوى العنصر صحيح"
       pending:
         label: مُعَلَّق
         description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
@@ -282,7 +282,7 @@ ar:
   geolocation_invalid_value: صيغة الموقع لابد أن تطابق (/GeoJSON (http://geojson.org
   datetime_invalid_date: من فضلك أدخل تاريخاً صحيحاً.
   error_team_archived: "لا يمكن إضافة مشروع لفريق في سلة المهملات"
-  error_project_archived: "لا يمكن إضافة تقرير لمشروع في سلة المهملات"
+  error_project_archived: "لا يمكن إضافة العنصر لمشروع في سلة المهملات"
   error_team_archived_for_source: "لا يمكن إضافة مصدر لمشروع في سلة المهملات"
   permission_error: "عذراً ، ليس مسموح لك تنفيذ هذه العملية"
   error_annotated_archived: "لا يمكن إضافة تعليق لعنصر في سلة المهملات"

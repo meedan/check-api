@@ -23,10 +23,10 @@ es:
         description: No se puede llegar a ninguna conclusión con la evidencia disponible
       not_true:
         label: "Falso"
-        description: "Conclusión: el informe es falso"
+        description: "Conclusión: el contenido del ítem es falso"
       verified:
         label: Verificado
-        description: "Conclusión: el informe es verificado"
+        description: "Conclusión: el contenido del ítem es verificado"
       pending:
         label: Pendiente
         description: 'Predeterminado por Bridge, no se ha iniciado ningún trabajo. '
