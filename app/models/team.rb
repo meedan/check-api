@@ -227,6 +227,11 @@ class Team < ActiveRecord::Base
     self.teamwide_tags.map(&:text).sort.join(',')
   end
 
+  def invited_mails(team=nil)
+    team ||= Team.current
+    TeamUser.select('users.email').where(team_id: team.id, status: 'invited').where.not(invitation_token: nil).joins(:user).map(&:email) unless team.nil?
+  end
+
   protected
 
   def get_values_from_entry(entry)

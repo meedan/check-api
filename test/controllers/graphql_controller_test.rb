@@ -879,6 +879,26 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
+  test "should handle user invitations" do
+    u = create_user
+    authenticate_with_user(u)
+    # send invitation
+    members = '{\"contributor\":\"test1@local.com, test2@local.com\",\"journalist\":\"test3@local.com\"}'
+    query = 'mutation userInvitation { userInvitation(input: { clientMutationId: "1", members: "'+ members +'" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    # resend/cancel invitation
+    query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "notexist@local.com", action: "resend" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response 404
+    query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "resend" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "cancel" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response :success
+  end
+
   test "should avoid n+1 queries problem" do
     n = 5 * (rand(10) + 1) # Number of media items to be created
     m = rand(10) + 1       # Number of annotations per media

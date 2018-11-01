@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
 
   include ValidationsHelper
   include UserPrivate
+  include UserInvitation
 
   belongs_to :source
   has_many :team_users, dependent: :destroy

@@ -44,4 +44,6 @@ Rails.application.configure do
   config.allow_concurrency = true
 
   config.cache_store = :file_store, "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
+
+  config.action_mailer.default_url_options = {:host => 'http://localhost:13000'}
 end

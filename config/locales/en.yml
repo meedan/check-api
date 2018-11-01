@@ -318,6 +318,23 @@ en:
       reset_password_instructions:
         instruction: "Someone has requested a link to change your password, and you can do this
           through the link below. <strong>Please note that this link expires in %{expire} hours.</strong>"
+      invitation_instructions:
+        subject: "%{user} invited you to join %{team} team"
+        hello: "Hello %{name}"
+        someone_invited_you_default:
+          html: "%{name} has invited you to %{team}."
+        someone_invited_you_custom:
+          html: "%{name} has invited you to %{team}, saying:"
+        accept: 'You can accept this invitation through this link: %{url}'
+        accept_until: "This invitation will expire on %{due_date}."
+        ignore: "If you don't want to accept the invitation, please ignore this email."
+        app_team: "%{app} Team"
+  user_invitation:
+    invited: 'This user was already invited to this team.'
+    member: 'This user is already a team member.'
+    team_found: 'Team not found.'
+    invalid: 'Invitation token is invalid.'
+    no_invitation: 'No invitation exists for team %{name}'
   error_user_is_not_a_team_member: "Sorry, you can only assign tasks to members of this team"
   mail_see_it: "You can see it at: "
   mail_subject_assign_verification_status: "[%{team} - %{project}] A media item was assigned to you"
