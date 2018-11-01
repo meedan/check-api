@@ -1,5 +1,9 @@
 fr:
   statuses:
+    ids:
+      verification_status: vérification
+      translation_status: traduction
+      task_status: tâche
     task:
       unresolved:
         label: Non résolu.e
@@ -10,9 +14,6 @@ fr:
       cant_be_resolved:
         label: Ne peut être résolu.e
         description: Il n'est pas possible de résoudre cette tâche
-    ids:
-      verification_status: vérification
-      translation_status: traduction
     media:
       undetermined:
         label: Pas commencé
@@ -164,17 +165,21 @@ fr:
     messages:
       task_create: "%{user} (%{role} à %{team}) a rajouté une tâche"
       task_edit: "%{user} (%{role} à %{team}) a modifié une tâche"
-      annotation_assign: "%{user} (%{role} à %{team}) a assigné un.e %{type}"
-      annotation_unassign: "%{user} (%{role} à %{team}) a desassigné un.e %{type}"
+      task_assign: "%{user} (%{role} à %{team}) a assigné un.e %{type}"
+      task_unassign: "%{user} (%{role} à %{team}) a desassigné un.e %{type}"
       task_answer_create: "%{user} (%{role} à %{team}) a répondu à une tâche"
       task_answer_edit: "%{user} (%{role} à %{team}) a modifié une réponse de tâche"
       task_comment: "%{user} (%{role} at %{team}) a rajouté une note à une tâche"
       project_media_comment: "%{user} (%{role} at %{team}) a rajouté une note à un.e %{parent_type}"
       project_media_create: "%{user} (%{role} à %{team}) a rajouté un.e %{type}"
+      project_media_create_related: "%{user} (%{role} à %{team}) a rajouté un.e %{type} connexe"
       project_media_create_no_user: "Un.e %{type} a été rajouté.e"
+      project_media_create_related_no_user: "Un.e %{type} connexe a été rajouté.e"
       project_media_update: "%{user} (%{role} à %{team}) a modifié un.e %{type}"
       project_media_update_no_user: "Un.e %{type} a été modifié.e"
       project_media_status: "%{user} (%{role} à %{team}) a modifié le statut de %{workflow} d'un.e %{type}"
+      project_media_assign: "%{user} (%{role} à %{team}) a assigné un.e %{type}"
+      project_media_unassign: "%{user} (%{role} à %{team}) a desassigné un.e %{type}"
       project_source_comment: "%{user} (%{role} at %{team}) a rajouté une note à un.e %{parent_type}"
       project_source_create: "%{user} (%{role} à %{team}) a rajouté un.e %{type}"
       project_source_update: "%{user} (%{role} à %{team}) a modifié un.e %{type}"
@@ -238,6 +243,7 @@ fr:
   role_owner: propriétaire
   role_contributor: contributeur
   role_journalist: journaliste
+  role_annotator: annotateur
   role_none: membre
   oembed_credit: Ajouté par %{user} (%{role}) %{date}
   oembed_notes_count:
@@ -332,6 +338,8 @@ fr:
         description: "Les journalistes vérifient l'information."
       contributor:
         description: "Les contributeurs peuvent rajouter de nouvelles informations à vérifier. Ce sont souvent des membres du public. "
+      annotator:
+        description: "Les annotateurs peuvent seulement visionner et répondre aux tâches qui leur sont assignées."
     permissions:
       sections:
         project_management:
