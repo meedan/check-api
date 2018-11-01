@@ -19,6 +19,7 @@ class InvitationsControllerTest < ActionController::TestCase
     tu =  u1.team_users.last
     token = tu.raw_invitation_token
     get :edit, invitation_token: token, slug: t.slug
+    assert_redirected_to "#{CONFIG['checkdesk_client']}/#{t.slug}"
     assert_nil tu.reload.invitation_token
   end
 
@@ -34,9 +35,11 @@ class InvitationsControllerTest < ActionController::TestCase
     tu =  u1.team_users.last
     token = tu.raw_invitation_token
     get :edit, invitation_token: 'invalid-token', slug: t.slug
+    assert_redirected_to "#{CONFIG['checkdesk_client']}/check/user/invalid-invitation"
     assert_not_nil tu.reload.invitation_token
     get :edit, invitation_token: token, slug: 'invalid-slug'
     assert_not_nil tu.reload.invitation_token
+    assert_redirected_to "#{CONFIG['checkdesk_client']}/check/user/invalid-invitation"
   end
 
 end
