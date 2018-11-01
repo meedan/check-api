@@ -129,7 +129,7 @@ GEM
     connection_pool (2.2.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
-    crass (1.0.3)
+    crass (1.0.4)
     daemons (1.2.4)
     debug_inspector (0.0.2)
     declarative (0.0.10)
@@ -269,7 +269,7 @@ GEM
     logstash-event (1.2.02)
     logstash-logger (0.23.0)
       logstash-event (~> 1.2)
-    loofah (2.2.2)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.0)
@@ -615,7 +615,7 @@ DEPENDENCIES
   json-schema
   jsonpath (~> 0.8.8)
   logstash-logger
-  loofah (= 2.2.2)
+  loofah (= 2.2.3)
   mini_magick
   minitest-retry
   mocha
