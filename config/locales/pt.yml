@@ -286,6 +286,23 @@ pt:
     mailer:
       reset_password_instructions:
         instruction: "Alguém fez o pedido para redefinir sua senha, e você pode fazer isso clicando no link abaixo. <strong>Observe que este link expira em %{expire} horas.</strong>"
+      invitation_instructions:
+        subject: "%{user} convidou você para %{team}"
+        hello: "Ola %{name}"
+        someone_invited_you_default:
+          html: "%{name} convidou você para %{team}."
+        someone_invited_you_custom:
+          html: "%{name} convidou você para %{team}, dizendo:"
+        accept: 'Você pode aceitar este convite neste link: %{url}'
+        accept_until: "Este convite expirará em %{due_date}."
+        ignore: "Se você não quiser aceitar o convite, ignore este e-mail."
+        app_team: "Time %{app}"
+  user_invitation:
+    invited: 'Este usuário já foi convidado para esta equipe.'
+    member: 'Este usuário já é um membro da equipe.'
+    team_found: 'Equipe não encontrada.'
+    invalid: 'Código de convite é inválido.'
+    no_invitation: 'Não tem convite para a equipe %{name}'
   error_user_is_not_a_team_member: "Desculpe, você pode somente atribuir tarefas a membros desta equipe"
   mail_see_it: "Você pode o ver aqui: "
   mail_subject_assign_verification_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"

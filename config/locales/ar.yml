@@ -302,6 +302,23 @@ ar:
     mailer:
       reset_password_instructions:
         instruction: "طلب أحدهم رابطًا لتغيير كلمة السر الخاصة بك، ويُمكن عمل ذلك من خلال الرابط التالي. <strong>يرجى الملاحظة أن مدة صلاحية الرابط %{expire} ساعات.</strong>"
+      invitation_instructions:
+        subject: "لقد دعاك %{user} للانضمام إلى فريق %{team}"
+        hello: "مرحباً %{name}"
+        someone_invited_you_default:
+          html: "لقد دعاك %{name} للانضمام إلى فريق %{team}."
+        someone_invited_you_custom:
+          html: "لقد دعاك %{name} للانضمام إلى فريق %{team} قائلاً :"
+        accept: 'يمكنك قبول الدعوة من خلال هذا الرابط : %{url}'
+        accept_until: "هذه الدعوة سوف تنتهي في %{due_date}."
+        ignore: "إذا كنت لا تريد قبول الدعوة ، فيمكنك تجاهل هذه الرسالة."
+        app_team: "فريق %{app}"
+  user_invitation:
+    invited: 'تمت دعوة هذا المستخدم بالفعل لهذا الفريق.'
+    member: 'هذا المستخدم عضو في الفريق بالفعل.'
+    team_found: 'هذا الفريق غير موجود'
+    invalid: 'رمز الدعوة غير صحيح.'
+    no_invitation: 'لا توجد دعوة للفريق %{name}'
   error_user_is_not_a_team_member: "عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق"
   mail_see_it: "تستطيع أن تراه هنا : "
   mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"

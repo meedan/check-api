@@ -286,6 +286,23 @@ fr:
     mailer:
       reset_password_instructions:
         instruction: "Quelqu'un a demandé un lien pour changer votre mot de passe : veuillez le trouver ci-dessous. <strong>Notez que ce lien expire dans %{expire} heures.</strong>"
+      invitation_instructions:
+        subject: "%{user} vous a invité à rejoindre l'équipe %{team}"
+        hello: "Bonjour %{name} "
+        someone_invited_you_default:
+          html: "%{name} vous a invité à rejoindre l'équipe %{team}."
+        someone_invited_you_custom:
+          html: "%{name} vous a invité à rejoindre l'équipe %{team} avec ce mot :"
+        accept: 'Vous pouvez accepter l''invitation via ce lien : %{url}'
+        accept_until: "Cette invitation va expirer le %{due_date}."
+        ignore: "Si vous ne voulez pas accepter l'invitation, veuillez ignorer ce message."
+        app_team: "Équipe %{app}"
+  user_invitation:
+    invited: 'Cet utilisateur a déjà été invité à cette équipe.'
+    member: 'Cet utilisateur est déjà membre de cette équipe.'
+    team_found: 'Équipe introuvable'
+    invalid: 'Code d''invitation non valide.'
+    no_invitation: 'Vous n''avez pas été invité à rejoindre l''équipe %{name}'
   error_user_is_not_a_team_member: "Désolé, vous ne pouvez assigner des tâches qu'à des membres de cette équipe"
   mail_see_it: "Vous pouvez le/la visionner à :"
   mail_subject_assign_verification_status: "[%{team} - %{project}] Un élément vous a été assigné"
