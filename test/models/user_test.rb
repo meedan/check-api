@@ -900,10 +900,26 @@ class UserTest < ActiveSupport::TestCase
       end
     end
     # invite existing user
+    members = {'journalist' => u1.email}
+    # A) for same team
+    with_current_user_and_team(u, t) do
+      assert_no_difference ['User.count', 'TeamUser.count'] do
+        User.send_user_invitation(members)
+      end
+      tu1.status = 'member'; tu1.save!
+      assert_no_difference ['User.count', 'TeamUser.count'] do
+        User.send_user_invitation(members)
+      end
+    end
+    # B)for new team
     t2 = create_team
     create_team_user team: t2, user: u, role: 'owner'
     with_current_user_and_team(u, t2) do
-      members = {'journalist' => 'test1@local.com'}
+      User.any_instance.stubs(:invite_existing_user).raises(RuntimeError)
+      assert_no_difference ['User.count', 'TeamUser.count'] do
+        User.send_user_invitation(members)
+      end
+      User.any_instance.unstub(:invite_existing_user)
       assert_no_difference 'User.count'do
         assert_difference 'TeamUser.count' do
           User.send_user_invitation(members)
