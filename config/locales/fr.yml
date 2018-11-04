@@ -297,6 +297,8 @@ fr:
         accept_until: "Cette invitation va expirer le %{due_date}."
         ignore: "Si vous ne voulez pas accepter l'invitation, veuillez ignorer ce message."
         app_team: "Équipe %{app}"
+    failure:
+      unconfirmed: "Veuillez consulter votre courrier pour vérifier votre compte."
   user_invitation:
     invited: 'Cet utilisateur a déjà été invité à cette équipe.'
     member: 'Cet utilisateur est déjà membre de cette équipe.'

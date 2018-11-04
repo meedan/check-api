@@ -286,6 +286,12 @@ es:
     mailer:
       reset_password_instructions:
         instruction: "Alguien ha solicitado un enlace para cambiar tu contraseña, y tu puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"
+      invitation_instructions:
+        app_team: "Equipo %{app} "
+    failure:
+      unconfirmed: "Por favor consulta tu correo electrónico para comprobar tu cuenta."
+  user_invitation:
+    team_found: 'Equipo no encontrado.'
   error_user_is_not_a_team_member: "Lo sentimos, solo puedes asignar tareas a los miembros de este equipo"
   mail_see_it: "Puedes verlo en:"
   mail_subject_assign_verification_status: "[%{team} - %{project}] Se te ha asignado un ítem"
