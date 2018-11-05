@@ -46,7 +46,7 @@ class ProjectMedia < ActiveRecord::Base
   def slack_params
     statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
     current_status = statuses.select { |st| st['id'] == self.last_status }
-    user = self.user
+    user = User.current or self.user
     {
       user: user.nil? ? nil : Bot::Slack.to_slack(user.name),
       user_image: user.nil? ? nil : user.profile_image,
