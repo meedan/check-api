@@ -815,7 +815,7 @@ class UserTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     # case A (non existing user to one team)
     with_current_user_and_team(u, t) do
-      members = {'contributor' => 'test1@local.com'}
+      members = [{role: 'contributor', email: 'test1@local.com'}]
       User.send_user_invitation(members)
       iu = User.where(email: 'test1@local.com').last
       assert iu.is_invited?
@@ -826,7 +826,7 @@ class UserTest < ActiveSupport::TestCase
     create_team_user team: t2, user: u, role: 'owner'
     u1 = User.where(email: 'test1@local.com').last
     with_current_user_and_team(u, t2) do
-      members = {'contributor' => 'test1@local.com'}
+      members = [{role: 'contributor', email: 'test1@local.com'}]
       User.send_user_invitation(members)
       u1.reload
       assert u1.reload.is_invited?
@@ -837,7 +837,7 @@ class UserTest < ActiveSupport::TestCase
     u3 = create_user email: 'test3@local.com'
     with_current_user_and_team(u, t) do
       assert_not u3.is_invited?
-      members = {'contributor' => 'test3@local.com'}
+      members = [{role: 'contributor', email: 'test3@local.com'}]
       User.send_user_invitation(members)
       u3.reload
       assert_nil u3.read_attribute(:raw_invitation_token)
@@ -846,7 +846,7 @@ class UserTest < ActiveSupport::TestCase
     end
     with_current_user_and_team(u, t2) do
       assert_not u3.is_invited?
-       members = {'contributor' => 'test3@local.com'}
+       members = [{role: 'contributor', email: 'test3@local.com'}]
        User.send_user_invitation(members)
        u3.reload
        assert_nil u3.read_attribute(:raw_invitation_token)
@@ -875,7 +875,7 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     with_current_user_and_team(u, t) do
-      members = {'contributor' => 'test1@local.com', 'journalist' => 'test2@local.com'}
+      members = [{role: 'contributor', email: 'test1@local.com'}, {role: 'journalist', email: 'test2@local.com'}]
       assert_difference ['User.count', 'TeamUser.count'], 2 do
         User.send_user_invitation(members)
       end
@@ -894,13 +894,13 @@ class UserTest < ActiveSupport::TestCase
     assert_equal tu2.invited_by_id, u.id
     # test invited multiple emails
     with_current_user_and_team(u, t) do
-      members = {'journalist' => 'test3@local.com,test4@local.com'}
+      members = [{role: 'journalist', email: 'test3@local.com,test4@local.com'}]
       assert_difference ['User.count', 'TeamUser.count'], 2 do
         User.send_user_invitation(members)
       end
     end
     # invite existing user
-    members = {'journalist' => u1.email}
+    members = [{role: 'journalist', email: u1.email}]
     # A) for same team
     with_current_user_and_team(u, t) do
       assert_no_difference ['User.count', 'TeamUser.count'] do
@@ -935,13 +935,13 @@ class UserTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     u2 = create_user email: 'test2@local.com'
     with_current_user_and_team(u, t) do
-      members = {'contributor' => 'test1@local.com, test2@local.com'}
+      members = [{role: 'contributor', email: 'test1@local.com, test2@local.com'}]
       User.send_user_invitation(members)
     end
     t2 = create_team
     create_team_user team: t2, user: u, role: 'owner'
     with_current_user_and_team(u, t2) do
-      members = {'contributor' => 'test1@local.com, test2@local.com'}
+      members = [{role: 'contributor', email: 'test1@local.com, test2@local.com'}]
       User.send_user_invitation(members)
     end
     user = User.where(email: 'test1@local.com').last
@@ -971,7 +971,7 @@ class UserTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     u2 = create_user email: 'test1@local.com'
     with_current_user_and_team(u, t) do
-      members = {'contributor' => 'test1@local.com'}
+      members = [{role: 'contributor', email: 'test1@local.com'}]
       User.send_user_invitation(members)
     end
     user = User.where(email: 'test1@local.com').last
@@ -998,7 +998,7 @@ class UserTest < ActiveSupport::TestCase
     stub_config 'send_welcome_email_on_registration', true do
       with_current_user_and_team(u, t) do
         assert_difference 'ActionMailer::Base.deliveries.size', 1 do
-          members = {'contributor' => 'test1@local.com'}
+          members = [{role: 'contributor', email: 'test1@local.com'}]
           User.send_user_invitation(members)
         end
       end

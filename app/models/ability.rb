@@ -155,6 +155,7 @@ class Ability
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
     can :import_spreadsheet, Team, :id => @context_team.id
+    can :invite_members, Team, :id => @context_team.id
   end
 
   def journalist_perms
