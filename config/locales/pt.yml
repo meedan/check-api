@@ -297,6 +297,8 @@ pt:
         accept_until: "Este convite expirará em %{due_date}."
         ignore: "Se você não quiser aceitar o convite, ignore este e-mail."
         app_team: "Time %{app}"
+    failure:
+      unconfirmed: "Por favor verifique seu email para confirmar sua conta."
   user_invitation:
     invited: 'Este usuário já foi convidado para esta equipe.'
     member: 'Este usuário já é um membro da equipe.'

@@ -42,7 +42,7 @@ class Source < ActiveRecord::Base
   end
 
   def slack_params
-    user = self.user
+    user = User.current or self.user
     project_source = self.project_sources[0]
     {
       user: Bot::Slack.to_slack(user.name),
