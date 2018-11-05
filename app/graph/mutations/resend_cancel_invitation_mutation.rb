@@ -7,6 +7,8 @@ ResendCancelInvitationMutation = GraphQL::Relay::Mutation.define do
 
   return_field :success, types.Boolean
 
+  return_field :team, TeamType
+
   resolve -> (_root, inputs, _ctx) {
     user = User.where(email: inputs[:email]).last
     if user.nil?
@@ -20,7 +22,7 @@ ResendCancelInvitationMutation = GraphQL::Relay::Mutation.define do
         tu.update_columns(created_at: Time.now)
         user.send_invitation_mail(tu.reload)
       end
-      { success: true }
+      { success: true, team: Team.current }
     end
   }
 end
