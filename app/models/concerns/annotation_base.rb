@@ -269,7 +269,7 @@ module AnnotationBase
     item = self.annotated_type == 'ProjectSource' ? object.source.name : object.title
     item_type = self.annotated_type == 'ProjectSource' ? 'source' : object.media.class.name.underscore
     annotation_type = self.class.name == 'Dynamic' ? item_type : self.class.name.underscore
-    user = self.annotator
+    user = User.current or self.annotator
     {
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,

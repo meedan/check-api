@@ -35,7 +35,7 @@ class ProjectSource < ActiveRecord::Base
   end
 
   def slack_params
-    user = self.user
+    user = User.current or self.user
     {
       user: user.nil? ? nil : Bot::Slack.to_slack(user.name),
       user_image: user.nil? ? nil : user.profile_image,
