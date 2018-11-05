@@ -16,4 +16,20 @@ class Workflow::TaskStatus < Workflow::Base
   def self.notify_slack?
     false
   end
+
+  Assignment.class_eval do
+    after_create :reopen_task
+
+    private
+
+    def reopen_task
+      if self.annotation.annotation_type == 'task'
+        task = self.annotation.load
+        task.status = 'unresolved'
+        task.skip_notifications = true
+        task.skip_check_ability = true
+        task.save!
+      end
+    end
+  end
 end
