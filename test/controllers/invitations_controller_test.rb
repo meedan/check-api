@@ -13,7 +13,7 @@ class InvitationsControllerTest < ActionController::TestCase
     create_team_user team: t, user: u, role: 'owner'
     u1 = create_user email: 'test1@local.com'
     with_current_user_and_team(u, t) do
-      members = {'contributor' => u1.email}
+      members = [{role: 'contributor', email: u1.email}]
       User.send_user_invitation(members)
     end
     tu =  u1.team_users.last
@@ -29,7 +29,7 @@ class InvitationsControllerTest < ActionController::TestCase
     create_team_user team: t, user: u, role: 'owner'
     u1 = create_user email: 'test1@local.com'
     with_current_user_and_team(u, t) do
-      members = {'contributor' => u1.email}
+      members = [{role: 'contributor', email: u1.email}]
       User.send_user_invitation(members)
     end
     tu =  u1.team_users.last
