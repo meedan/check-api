@@ -29,7 +29,7 @@ class Team < ActiveRecord::Base
   end
 
   def members_count
-    self.users.count
+    self.team_users.where.not(status: 'invited').count
   end
 
   def projects_count
@@ -204,6 +204,7 @@ class Team < ActiveRecord::Base
     perms = {}
     ability ||= Ability.new
     perms["empty Trash"] = ability.can?(:destroy, :trash)
+    perms["invite Members"] = ability.can?(:invite_members, self)
     perms
   end
 

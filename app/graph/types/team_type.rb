@@ -31,7 +31,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {
-      team.team_users
+      team.team_users.where.not({ status: 'invited' })
     }
   end
 
