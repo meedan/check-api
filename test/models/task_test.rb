@@ -436,4 +436,18 @@ class TaskTest < ActiveSupport::TestCase
       assert_equal 'bar', tk.reload.first_response
     end
   end
+
+  test "should reopen task" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.status = 'resolved'
+    tk.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'annotator'
+    assert_equal 'Resolved', tk.reload.status
+    tk.assign_user(u.id)
+    assert_equal 'Unresolved', tk.reload.status
+  end
 end

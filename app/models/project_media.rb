@@ -46,12 +46,20 @@ class ProjectMedia < ActiveRecord::Base
   def slack_params
     statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
     current_status = statuses.select { |st| st['id'] == self.last_status }
-    user = User.current or self.user
+    user = User.current || self.user
+    user_params = user.nil? ?
+      { 
+        user: nil,
+        user_image: nil,
+        role: nil
+      } :
+      {
+        user: Bot::Slack.to_slack(user.name),
+        user_image: user.profile_image,
+        role: I18n.t('role_' + user.role(self.project.team).to_s)
+      }
     {
-      user: user.nil? ? nil : Bot::Slack.to_slack(user.name),
-      user_image: user.nil? ? nil : user.profile_image,
       project: Bot::Slack.to_slack(self.project.title),
-      role: user.nil? ? nil : I18n.t("role_" + user.role(self.project.team).to_s),
       team: Bot::Slack.to_slack(self.project.team.name),
       type: I18n.t("activerecord.models.#{self.media.class.name.underscore}"),
       title: Bot::Slack.to_slack(self.title),
@@ -63,7 +71,7 @@ class ProjectMedia < ActiveRecord::Base
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CONFIG['app_name']
       })
-    }
+    }.merge(user_params)
   end
 
   def slack_notification_message(update = false)
