@@ -2,6 +2,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 require 'sidekiq/testing'
 
 class TeamImportTest < ActiveSupport::TestCase
+=begin
   def setup
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
@@ -359,4 +360,5 @@ class TeamImportTest < ActiveSupport::TestCase
     @worksheet.save
     row
   end
+=end
 end
