@@ -10,8 +10,10 @@ module UserInvitation
 
 	  def self.send_user_invitation(members, text=nil)
 	    msg = {}
-	    members.each do |role, emails|
-	      emails.split(',').each do |email|
+	    members.each do |member|
+	    	member.symbolize_keys!
+	    	role = member[:role]
+	      member[:email].split(',').each do |email|
 	        email.strip!
 	        u = User.where(email: email).last
 	        begin
