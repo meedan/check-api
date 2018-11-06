@@ -294,7 +294,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     team = create_team
-    perm_keys = ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact"].sort
+    perm_keys = ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "invite Members"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
@@ -1527,7 +1527,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     Team.stubs(:current).returns(t)
-    members = {'contributor' => 'test1@local.com', 'journalist' => 'test2@local.com'}
+    members = [{role: 'contributor', email: 'test1@local.com'}, {role: 'journalist', email: 'test2@local.com'}]
     User.send_user_invitation(members)
     assert_equal ['test1@local.com', 'test2@local.com'], t.invited_mails
     u = User.where(email: 'test1@local.com').last
