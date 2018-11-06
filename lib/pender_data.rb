@@ -1,17 +1,21 @@
 module PenderData
-  def validate_pender_result(force = false)
+  def validate_pender_result(force = false, retry_on_error = false)
     if !self.url.blank? && !self.skip_pender
       params = { url: self.url }
       params[:refresh] = '1' if force
       result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
-      if (result['type'] == 'error')
-        errors.add :base, self.handle_pender_error(result['data']['code'])
+      if result['type'] == 'error'
+        self.retry_pender_or_fail(force, retry_on_error, result)
       else
         self.pender_data = result['data']
         # set url with normalized pender URL
         self.url = result['data']['url']
       end
     end
+  end
+
+  def retry_pender_or_fail(force, retry_on_error, result)
+    (!force && retry_on_error) ? validate_pender_result(true) : errors.add(:base, self.handle_pender_error(result['data']['code']))
   end
 
   def handle_pender_error(code)

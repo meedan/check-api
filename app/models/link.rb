@@ -2,7 +2,7 @@ class Link < Media
   include PenderData
 
   validates :url, presence: true, on: :create
-  validate :validate_pender_result, on: :create
+  validate :validate_pender_result_and_retry, on: :create
   validate :pender_result_is_a_media, on: :create
   validate :url_is_unique, on: :create
 
@@ -63,5 +63,9 @@ class Link < Media
       existing = Media.where(url: self.url).first
       errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
     end
+  end
+
+  def validate_pender_result_and_retry
+    self.validate_pender_result(false, true)
   end
 end
