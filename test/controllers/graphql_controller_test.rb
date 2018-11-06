@@ -883,7 +883,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     # send invitation
-    members = '{\"contributor\":\"test1@local.com, test2@local.com\",\"journalist\":\"test3@local.com\"}'
+    members = '[{\"role\":\"contributor\",\"email\":\"test1@local.com, test2@local.com\"},{\"role\":\"journalist\",\"email\":\"test3@local.com\"}]'
     query = 'mutation userInvitation { userInvitation(input: { clientMutationId: "1", members: "'+ members +'" }) { success } }'
     post :create, query: query, team: @team.slug
     assert_response :success
