@@ -1046,6 +1046,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"error","data":{"message":"Conflict","code":9}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response, status: 409)
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response, status: 409)
     p = create_project
     pm = ProjectMedia.new
     pm.project = p
