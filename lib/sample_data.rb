@@ -69,7 +69,7 @@ module SampleData
 
   def create_user(options = {})
     u = User.new
-    u.name = options[:name] || random_string
+    u.name = options.has_key?(:name) ? options[:name] : random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
     u.uuid = options.has_key?(:uuid) ? options[:uuid] : random_string
     u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
