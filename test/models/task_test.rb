@@ -450,4 +450,9 @@ class TaskTest < ActiveSupport::TestCase
     tk.assign_user(u.id)
     assert_equal 'unresolved', tk.reload.status
   end
+
+  test "should get status label" do
+    t = create_task
+    assert_equal 'Unresolved', t.last_task_status_label
+  end
 end
