@@ -41,7 +41,7 @@ class Task < ActiveRecord::Base
   end
 
   def status
-    self.last_task_status_label
+    self.last_task_status
   end
 
   def project

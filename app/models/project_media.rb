@@ -237,7 +237,7 @@ class ProjectMedia < ActiveRecord::Base
 
   def is_completed?
     required_tasks = self.required_tasks
-    unresolved = required_tasks.select{ |t| t.status != 'Resolved' }
+    unresolved = required_tasks.select{ |t| t.status != 'resolved' }
     unresolved.blank?
   end
 
