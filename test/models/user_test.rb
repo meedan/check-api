@@ -13,6 +13,14 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should have user name" do
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user name: nil
+      end
+    end
+  end
+
   test "should update and destroy user" do
     u = create_user
     t = create_team
