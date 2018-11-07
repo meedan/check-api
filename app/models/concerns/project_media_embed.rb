@@ -49,11 +49,11 @@ module ProjectMediaEmbed
   end
   
   def completed_tasks
-    self.all_tasks.select{ |t| t.status == 'Resolved' }
+    self.all_tasks.select{ |t| t.status == 'resolved' }
   end
 
   def open_tasks
-    self.all_tasks.select{ |t| t.status != 'Resolved' }
+    self.all_tasks.select{ |t| t.status != 'resolved' }
   end
 
   def all_tasks

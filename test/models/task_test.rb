@@ -61,17 +61,17 @@ class TaskTest < ActiveSupport::TestCase
 
   test "should set initial status" do
     t = create_task status: nil
-    assert_equal 'Unresolved', t.reload.status
+    assert_equal 'unresolved', t.reload.status
   end
 
   test "should add response to task" do
     t = create_task
-    assert_equal 'Unresolved', t.reload.status
+    assert_equal 'unresolved', t.reload.status
     at = create_annotation_type annotation_type: 'response'
     create_field_instance annotation_type_object: at, name: 'response_test'
     t.response = { annotation_type: 'response', set_fields: { response_test: 'test' }.to_json }.to_json
     t.save!
-    assert_equal 'Resolved', t.reload.status
+    assert_equal 'resolved', t.reload.status
   end
 
   test "should get task responses" do
@@ -371,7 +371,7 @@ class TaskTest < ActiveSupport::TestCase
     tk = create_task annotated: pm
     tk.response = { annotation_type: 'response', set_fields: { response_test: 'test' }.to_json }.to_json
     tk.save!
-    assert_equal 'Resolved', tk.reload.status
+    assert_equal 'resolved', tk.reload.status
   end
 
   test "should resolve task if response is submitted by all assigned users" do
@@ -394,13 +394,13 @@ class TaskTest < ActiveSupport::TestCase
       tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
       tk.save!
     end
-    assert_equal 'Unresolved', tk.reload.status
+    assert_equal 'unresolved', tk.reload.status
     with_current_user_and_team(u2, nil) do
       tk = Task.find(tk.id)
       tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
       tk.save!
     end
-    assert_equal 'Resolved', tk.reload.status
+    assert_equal 'resolved', tk.reload.status
   end
 
   test "should not resolve task if response is not submitted" do
@@ -446,8 +446,8 @@ class TaskTest < ActiveSupport::TestCase
     tk.save!
     u = create_user
     create_team_user team: t, user: u, role: 'annotator'
-    assert_equal 'Resolved', tk.reload.status
+    assert_equal 'resolved', tk.reload.status
     tk.assign_user(u.id)
-    assert_equal 'Unresolved', tk.reload.status
+    assert_equal 'unresolved', tk.reload.status
   end
 end

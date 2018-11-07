@@ -628,7 +628,7 @@ module SampleData
       type: 'single_choice',
       description: 'Please solve this math puzzle',
       options: ['10', '20', '30'],
-      status: 'Unresolved',
+      status: 'unresolved',
       annotator: options[:user] || create_user,
       disable_es_callbacks: true,
       disable_update_status: true
