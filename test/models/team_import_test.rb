@@ -2,7 +2,9 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 require 'sidekiq/testing'
 
 class TeamImportTest < ActiveSupport::TestCase
-=begin
+
+  @@count = 0
+
   def setup
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
@@ -14,17 +16,16 @@ class TeamImportTest < ActiveSupport::TestCase
     @user = create_user is_admin: true
     @tu = create_team_user team: @team, user: @user, role: 'contributor'
     @p = create_project team: @team
-    @spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-    @spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
-    session = GoogleDrive::Session.from_service_account_key(CONFIG['google_credentials_path'])
-    @worksheet = session.spreadsheet_by_key(@spreadsheet_id).worksheets[0]
+    create_test_worksheet if @@count.zero?
   end
 
   def teardown
-    for row in 0..@worksheet.num_rows
-      @worksheet.list[row].clear
+    for row in 0..@@worksheet.num_rows
+      @@worksheet.list[row].clear
     end
-    @worksheet.save
+    @@worksheet.save
+    @@count += 1
+    destroy_test_worksheet if @@count == self.class.runnable_methods.size
   end
 
   test "should get id from spreadsheet url" do
@@ -78,7 +79,7 @@ class TeamImportTest < ActiveSupport::TestCase
     GoogleDrive::Session.stubs(:from_service_account_key).with(CONFIG['google_credentials_path']).returns(RuntimeError)
     with_current_user_and_team(@user, @team) {
       assert_raise RuntimeError do
-        Team.import_spreadsheet_in_background(@spreadsheet_url, @team.id, @user.id)
+        Team.import_spreadsheet_in_background(@@spreadsheet_url, @team.id, @user.id)
       end
     }
     GoogleDrive::Session.unstub(:from_service_account_key)
@@ -98,7 +99,7 @@ class TeamImportTest < ActiveSupport::TestCase
   test "should import from spreadsheet in background" do
     with_current_user_and_team(@user, @team) {
       assert_nothing_raised do
-        Team.import_spreadsheet_in_background(@spreadsheet_url, @team.id, @user.id)
+        Team.import_spreadsheet_in_background(@@spreadsheet_url, @team.id, @user.id)
       end
     }
   end
@@ -107,7 +108,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data = { item: 'https://www.facebook.com/APNews/photos/pb.249655421622.-2207520000.1534711057./10155603019006623/?type=3&theater', projects: 'https://checkmedia.org/meedanteam/project/1000' }
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     assert_match(I18n.t("team_import.blank_user"), result[row].join(', '))
   end
 
@@ -117,7 +118,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data2 = data1.merge({user: 'http://yahoo.com', projects: 'https://checkmedia.org/meedanteam/project/1000' })
     row2 = add_data_on_spreadsheet(data2)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     assert_match("#{I18n.t("team_import.invalid_user", { user: data1[:user] })}, "\
                  "#{I18n.t("team_import.invalid_project", { project: data1[:projects].split(',')[0] })}, "\
                  "#{I18n.t("team_import.invalid_project", { project: data1[:projects].split(',')[1] })}",
@@ -134,7 +135,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data = { item: random_string, user: user_url }
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     assert_match(I18n.t("team_import.blank_project"), result[row].join(', '))
   end
 
@@ -152,7 +153,7 @@ class TeamImportTest < ActiveSupport::TestCase
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     assert_equal pm.full_url, result[row].join(', ')
   end
 
@@ -162,7 +163,7 @@ class TeamImportTest < ActiveSupport::TestCase
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     pm = Media.find_by_quote(data[:item]).project_medias.first
     assert_equal ['A note', 'Other note'], pm.comments.map(&:text).sort
     assert_equal pm.full_url, result[row].join(', ')
@@ -181,7 +182,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data2 = data1.merge({ item: random_string, annotator: user2_url})
     row_with_valid_annotator = add_data_on_spreadsheet(data2)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     pm1 = Media.find_by_quote(data1[:item]).project_medias.first
     assert pm1.comments.empty?
     assert_match(I18n.t("team_import.invalid_annotator", { user: invalid_annotator }), result[row_with_invalid_annotator].join(', '))
@@ -197,7 +198,7 @@ class TeamImportTest < ActiveSupport::TestCase
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     pm = Media.find_by_quote(data[:item]).project_medias.first
     assert_equal [@user.id], pm.comments.map(&:annotator_id)
     assert_no_match(I18n.t("team_import.invalid_annotator"), result[row].join(', '))
@@ -216,7 +217,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data2 = data1.merge({ item: random_string, annotator: 'user@invalid.com', note1: 'Other note'})
     row_with_invalid_email_annotator = add_data_on_spreadsheet(data2)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
 
     pm1 = Media.find_by_quote(data1[:item]).project_medias.first
     assert_equal ['A note'], pm1.comments.map(&:text)
@@ -233,7 +234,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data = { item: random_string, user: user_url, projects: @p.url, assigned_to: invalid_assignee }
     row_with_invalid_assignee = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     pm = Media.find_by_quote(data[:item]).project_medias.first
     assert_equal 0, pm.last_status_obj.assignments.size
     assert_match pm.full_url, result[row_with_invalid_assignee].join(', ')
@@ -250,7 +251,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data2 = data1.merge({item: random_string, assigned_to: user2.email})
     row_with_valid_email_assignee = add_data_on_spreadsheet(data2)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     pm1 = Media.find_by_quote(data1[:item]).project_medias.first
     assert_equal pm1.full_url, result[row_with_valid_assignee].join(', ')
     assert_equal [@user], pm1.last_status_obj.assigned_users
@@ -265,13 +266,13 @@ class TeamImportTest < ActiveSupport::TestCase
     data = { item: random_string, user: user_url, projects: @p.url, tags: 'tag1, tag2' }
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
 
     pm = Media.find_by_quote(data[:item]).project_medias.first
     assert_equal pm.full_url, result[row].join(', ')
     assert_equal ['tag1', 'tag2'], pm.annotations('tag').map(&:tag_text).sort
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     assert_equal pm.full_url, result[row].join(', ')
   end
 
@@ -282,7 +283,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data = { item: random_string, user: user_url, projects: @p.url }
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     assert_equal 'error', result[row].join(', ')
     ProjectMedia.unstub(:create!)
   end
@@ -297,7 +298,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data2 = data1.merge({ item: random_string, status: valid_status })
     row_with_valid_status = add_data_on_spreadsheet(data2)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
 
     pm1 = Media.find_by_quote(data1[:item]).project_medias.first
     assert_match("#{pm1.full_url}, #{I18n.t("team_import.invalid_status", { status: invalid_status })}", result[row_with_invalid_status].join(', '))
@@ -320,7 +321,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data = { item: random_string, user: user_url, projects: @p.url, task1: 'A text' }
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
 
     pm = Media.find_by_quote(data[:item]).project_medias.first
     assert_equal pm.full_url, result[row].join(', ')
@@ -332,7 +333,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data = { item: random_string, user: user2.email, projects: @p.url }
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     pm = Media.find_by_quote(data[:item]).project_medias.first
     assert_equal pm.full_url, result[row].join(', ')
     assert_equal user2, pm.user
@@ -343,7 +344,7 @@ class TeamImportTest < ActiveSupport::TestCase
     data = { item: random_string, user: 'invalid@user.com', projects: @p.url }
     row = add_data_on_spreadsheet(data)
 
-    result = @team.import_spreadsheet(@spreadsheet_id, @user.id)
+    result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     pm = Media.find_by_quote(data[:item]).project_medias.first
     assert_equal pm.full_url, result[row].join(', ')
     assert_equal @team.owners('owner').first, pm.user
@@ -352,13 +353,27 @@ class TeamImportTest < ActiveSupport::TestCase
   protected
 
   def add_data_on_spreadsheet(data)
-    template = { item: 2, user: 3, projects: 4, assigned_to: 5, tags: 6, status: 7, annotator: 8, note1: 9, note2: 10, task1: 11, task2: 12 }
-    row = @worksheet.num_rows + 1
+    template = { import_status: 1, item: 2, user: 3, projects: 4, assigned_to: 5, tags: 6, status: 7, annotator: 8, note1: 9, note2: 10, task1: 11, task2: 12 }
+    row = @@worksheet.num_rows + 1
     data.each_pair do |column, value|
-      @worksheet[row, template[column]] = value
+      @@worksheet[row, template[column]] = value
     end
-    @worksheet.save
+    @@worksheet.save
     row
   end
-=end
+
+  def create_test_worksheet
+    @@spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
+    @@spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
+    session = GoogleDrive::Session.from_service_account_key(CONFIG['google_credentials_path'])
+    spreadsheet = session.spreadsheet_by_key(@@spreadsheet_id)
+    @@worksheet = spreadsheet.add_worksheet(Time.now)
+    data = { import_status: 'Import Status', item: 'Item to Add',	user: 'Added By', projects: 'Project URL', assigned_to: 'Assigned To', tags: 'Tags', status: 'Item Status', annotator: 'Annotator', note1: 'Item note', note2: 'Item note', task1: 'What?', task2: 'When?' }
+    add_data_on_spreadsheet(data)
+    @@worksheet
+  end
+
+  def destroy_test_worksheet
+    @@worksheet.delete
+  end
 end
