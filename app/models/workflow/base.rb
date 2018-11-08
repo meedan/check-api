@@ -7,7 +7,7 @@ module Workflow
     def self.check_workflow(settings)
       field_name = self.id + '_status'
       condition = settings[:if] || proc { true }
-      
+
       DynamicAnnotation::Field.class_eval do
         @@workflow_callbacks ||= []
 
@@ -23,8 +23,12 @@ module Workflow
       end
     end
 
-    def self.check_workflow_default
-      CONFIG['default_workflow'] = self.id
+    def self.check_default_project_media_workflow
+      CONFIG['default_project_media_workflow'] = self.id
+    end
+
+    def self.check_default_task_workflow
+      CONFIG['default_task_workflow'] = self.id
     end
 
     def self.workflow_permissions
@@ -34,7 +38,7 @@ module Workflow
           instance_exec(&klass.workflow_permissions_for_owner)
         elsif @user.role?(:journalist)
           instance_exec(&klass.workflow_permissions_for_journalist)
-        elsif @user.role?(:contributor)
+        elsif @user.role?(:contributor) || @user.role?(:annotator)
           instance_exec(&klass.workflow_permissions_for_contributor)
         end
       end
@@ -80,6 +84,14 @@ module Workflow
           !(obj.get_team & @teams).empty? && obj.annotation_type == id
         end
       end
+    end
+
+    def self.target
+      ProjectMedia
+    end
+
+    def self.notify_slack?
+      true
     end
   end
 end

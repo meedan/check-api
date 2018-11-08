@@ -13,6 +13,14 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should have user name" do
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user name: nil
+      end
+    end
+  end
+
   test "should update and destroy user" do
     u = create_user
     t = create_team
@@ -807,5 +815,201 @@ class UserTest < ActiveSupport::TestCase
     assert !u.reload.accepted_terms
     u.accept_terms = true
     assert u.reload.accepted_terms
+  end
+
+  test "should invite and accept users with three cases" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    # case A (non existing user to one team)
+    with_current_user_and_team(u, t) do
+      members = [{role: 'contributor', email: 'test1@local.com'}]
+      User.send_user_invitation(members)
+      iu = User.where(email: 'test1@local.com').last
+      assert iu.is_invited?
+      assert_equal [iu.read_attribute(:raw_invitation_token)], iu.team_users.map(&:raw_invitation_token)
+    end
+    # case B (non existing user to multiple teams)
+    t2 = create_team
+    create_team_user team: t2, user: u, role: 'owner'
+    u1 = User.where(email: 'test1@local.com').last
+    with_current_user_and_team(u, t2) do
+      members = [{role: 'contributor', email: 'test1@local.com'}]
+      User.send_user_invitation(members)
+      u1.reload
+      assert u1.reload.is_invited?
+      token = u1.read_attribute(:raw_invitation_token)
+      assert_equal [token, token], u1.team_users.map(&:raw_invitation_token)
+    end
+    # case C (existing user to one or multiple team)
+    u3 = create_user email: 'test3@local.com'
+    with_current_user_and_team(u, t) do
+      assert_not u3.is_invited?
+      members = [{role: 'contributor', email: 'test3@local.com'}]
+      User.send_user_invitation(members)
+      u3.reload
+      assert_nil u3.read_attribute(:raw_invitation_token)
+      assert_not_nil u3.team_users.map(&:raw_invitation_token)
+      assert u3.is_invited?
+    end
+    with_current_user_and_team(u, t2) do
+      assert_not u3.is_invited?
+       members = [{role: 'contributor', email: 'test3@local.com'}]
+       User.send_user_invitation(members)
+       u3.reload
+       assert_nil u3.read_attribute(:raw_invitation_token)
+       assert_equal 2, u3.team_users.map(&:raw_invitation_token).uniq.size
+       assert u3.is_invited?
+    end
+    # Accept invitation for case A & Case B
+    u1_token = u1.reload.read_attribute(:raw_invitation_token)
+    User.accept_team_invitation(u1_token, t.slug)
+    assert_not u1.reload.is_invited?(t)
+    assert u1.is_invited?(t2)
+    User.accept_team_invitation(u1_token, t2.slug)
+    assert_not u1.is_invited?(t2)
+    # Accept invitation for case C
+    u3_token = u3.team_users.where(team_id: t.id).last.raw_invitation_token
+    User.accept_team_invitation(u3_token, t.slug)
+    assert_not u3.is_invited?(t)
+    assert u3.is_invited?(t2)
+    u3_token = u3.team_users.where(team_id: t2.id).last.raw_invitation_token
+    User.accept_team_invitation(u3_token, t2.slug)
+    assert_not u3.is_invited?(t2)
+  end
+
+  test "should invite users" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      members = [{role: 'contributor', email: 'test1@local.com'}, {role: 'journalist', email: 'test2@local.com'}]
+      assert_difference ['User.count', 'TeamUser.count'], 2 do
+        User.send_user_invitation(members)
+      end
+    end
+    u1 = User.where(email: 'test1@local.com').last
+    assert_equal u1.name, 'test1'
+    tu1 = TeamUser.where(team_id: t.id, user_id: u1.id).last
+    assert_equal tu1.role, 'contributor'
+    assert_equal tu1.status, 'invited'
+    assert_equal tu1.invited_by_id, u.id
+    u2 = User.where(email: 'test2@local.com').last
+    assert_equal u2.name, 'test2'
+    tu2 = TeamUser.where(team_id: t.id, user_id: u2.id).last
+    assert_equal tu2.role, 'journalist'
+    assert_equal tu2.status, 'invited'
+    assert_equal tu2.invited_by_id, u.id
+    # test invited multiple emails
+    with_current_user_and_team(u, t) do
+      members = [{role: 'journalist', email: 'test3@local.com,test4@local.com'}]
+      assert_difference ['User.count', 'TeamUser.count'], 2 do
+        User.send_user_invitation(members)
+      end
+    end
+    # invite existing user
+    members = [{role: 'journalist', email: u1.email}]
+    # A) for same team
+    with_current_user_and_team(u, t) do
+      assert_no_difference ['User.count', 'TeamUser.count'] do
+        User.send_user_invitation(members)
+      end
+      tu1.status = 'member'; tu1.save!
+      assert_no_difference ['User.count', 'TeamUser.count'] do
+        User.send_user_invitation(members)
+      end
+    end
+    # B)for new team
+    t2 = create_team
+    create_team_user team: t2, user: u, role: 'owner'
+    with_current_user_and_team(u, t2) do
+      User.any_instance.stubs(:invite_existing_user).raises(RuntimeError)
+      assert_no_difference ['User.count', 'TeamUser.count'] do
+        User.send_user_invitation(members)
+      end
+      User.any_instance.unstub(:invite_existing_user)
+      assert_no_difference 'User.count'do
+        assert_difference 'TeamUser.count' do
+          User.send_user_invitation(members)
+        end
+      end
+    end
+    assert_equal ['contributor', 'journalist'], u1.team_users.map(&:role).sort
+  end
+
+  test "should cancel user invitation" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    u2 = create_user email: 'test2@local.com'
+    with_current_user_and_team(u, t) do
+      members = [{role: 'contributor', email: 'test1@local.com, test2@local.com'}]
+      User.send_user_invitation(members)
+    end
+    t2 = create_team
+    create_team_user team: t2, user: u, role: 'owner'
+    with_current_user_and_team(u, t2) do
+      members = [{role: 'contributor', email: 'test1@local.com, test2@local.com'}]
+      User.send_user_invitation(members)
+    end
+    user = User.where(email: 'test1@local.com').last
+    with_current_user_and_team(u, t) do
+      assert_difference 'TeamUser.count', -1 do
+        User.cancel_user_invitation(user)
+      end
+      assert_difference 'TeamUser.count', -1 do
+        User.cancel_user_invitation(u2)
+      end
+    end
+    with_current_user_and_team(u, t2) do
+      assert_difference ['TeamUser.count', 'User.count'], -1 do
+        User.cancel_user_invitation(user)
+      end
+      assert_difference 'TeamUser.count', -1 do
+        assert_no_difference 'User.count' do
+          User.cancel_user_invitation(u2)
+        end
+      end
+    end
+  end
+
+  test "should not accept invalid invitation" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    u2 = create_user email: 'test1@local.com'
+    with_current_user_and_team(u, t) do
+      members = [{role: 'contributor', email: 'test1@local.com'}]
+      User.send_user_invitation(members)
+    end
+    user = User.where(email: 'test1@local.com').last
+    tu = user.team_users.last
+    token = tu.raw_invitation_token
+    invitation_date = tu.created_at
+    # Accept with invalid slug
+    result = User.accept_team_invitation(token, 'invalidslug')
+    assert_not_empty result.errors
+    # Accept with invalid tokem
+    result = User.accept_team_invitation('invalidtoken', t.slug)
+    assert_not_empty result.errors
+    # Accept with expired token
+    old_date = invitation_date - 2.day
+    tu.update_column(:created_at, old_date)
+    result = User.accept_team_invitation(token, t.slug)
+    assert_not_empty result.errors
+  end
+
+  test "should not send welcome email for invited user" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    stub_config 'send_welcome_email_on_registration', true do
+      with_current_user_and_team(u, t) do
+        assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+          members = [{role: 'contributor', email: 'test1@local.com'}]
+          User.send_user_invitation(members)
+        end
+      end
+    end
   end
 end

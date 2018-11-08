@@ -354,7 +354,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should export data for Check" do
     create_verification_status_stuff
-    stub_config('default_workflow', 'verification_status') do
+    stub_config('default_project_media_workflow', 'verification_status') do
       p = create_project
       pm = create_project_media project: p, media: create_valid_media
       c = create_comment annotated: pm, text: 'Note 1'
@@ -372,7 +372,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should export data for Bridge" do
     create_translation_status_stuff
-    stub_config('default_workflow', 'translation_status') do
+    stub_config('default_project_media_workflow', 'translation_status') do
       at = create_annotation_type annotation_type: 'translation'
       create_field_instance name: 'translation_text', annotation_type_object: at
       create_field_instance name: 'translation_language', annotation_type_object: at
@@ -684,5 +684,14 @@ class ProjectTest < ActiveSupport::TestCase
     assert_not_nil u.reload.current_project_id
     p.destroy
     assert_nil u.reload.current_project_id
+  end
+
+  test "should return team tasks" do
+    t = create_team
+    p = create_project team: t
+    create_team_task team_id: t.id, project_ids: [p.id + 1]
+    assert p.reload.auto_tasks.empty?
+    tt = create_team_task team_id: t.id, project_ids: [p.id]
+    assert_equal [tt], p.reload.auto_tasks
   end
 end

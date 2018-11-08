@@ -43,42 +43,87 @@ class ProjectMedia < ActiveRecord::Base
     mapping_ids[value]
   end
 
-  def slack_notification_message
-    type = self.media.class.name.demodulize.downcase.to_sym
-    parent = self.related_to
-    common = { type: I18n.t(type), url: Bot::Slack.to_slack_url(self.full_url, self.title) }
-    User.current.present? ?
-      (parent.nil? ?
-        I18n.t(:slack_create_project_media, common.merge({
-          user: Bot::Slack.to_slack(User.current.name),
-          project: Bot::Slack.to_slack(self.project.title)
-        })) :
-        I18n.t(:slack_create_related_media, common.merge({
-          user: Bot::Slack.to_slack(User.current.name),
-          project: Bot::Slack.to_slack(self.project.title),
-          parent: Bot::Slack.to_slack(parent.title)
-        }))
-      ) : (parent.nil? ?
-        I18n.t(:slack_create_project_media_no_user, common.merge({
-          project: Bot::Slack.to_slack(self.project.title)
-        })) :
-        I18n.t(:slack_create_related_media_no_user, common.merge({
-          project: Bot::Slack.to_slack(self.project.title),
-          parent: Bot::Slack.to_slack(parent.title)
-        }))
-      )
+  def slack_params
+    statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
+    current_status = statuses.select { |st| st['id'] == self.last_status }
+    user = User.current || self.user
+    user_params = user.nil? ?
+      { 
+        user: nil,
+        user_image: nil,
+        role: nil
+      } :
+      {
+        user: Bot::Slack.to_slack(user.name),
+        user_image: user.profile_image,
+        role: I18n.t('role_' + user.role(self.project.team).to_s)
+      }
+    {
+      project: Bot::Slack.to_slack(self.project.title),
+      team: Bot::Slack.to_slack(self.project.team.name),
+      type: I18n.t("activerecord.models.#{self.media.class.name.underscore}"),
+      title: Bot::Slack.to_slack(self.title),
+      related_to: self.related_to ? Bot::Slack.to_slack_url(self.related_to.full_url, self.related_to.title) : nil,
+      source: self.project_source&.source ? Bot::Slack.to_slack_url(self.project_source.full_url, self.project_source.source.name) : nil,
+      description: Bot::Slack.to_slack(self.description, false),
+      url: self.full_url,
+      status: Bot::Slack.to_slack(current_status[0]['label']),
+      button: I18n.t("slack.fields.view_button", {
+        type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CONFIG['app_name']
+      })
+    }.merge(user_params)
+  end
+
+  def slack_notification_message(update = false)
+    params = self.slack_params
+    event = update ? "update" : "create"
+    no_user = params[:user].blank? ? "_no_user" : ""
+    related = params[:related_to].blank? ? "" : "_related"
+    {
+      pretext: I18n.t("slack.messages.project_media_#{event}#{related}#{no_user}", params),
+      title: params[:title],
+      title_link: params[:url],
+      author_name: params[:user],
+      author_icon: params[:user_image],
+      text: params[:description],
+      fields: [
+        {
+          title: I18n.t(:'slack.fields.status'),
+          value: params[:status],
+          short: true
+        },
+        {
+          title: I18n.t(:'slack.fields.project'),
+          value: params[:project],
+          short: true
+        },
+        {
+          title: I18n.t(:'slack.fields.source'),
+          value: params[:source],
+          short: true
+        },
+        {
+          title: I18n.t(:'slack.fields.related_to'),
+          value: params[:related_to],
+          short: false
+        }
+      ],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def title
-    title = self.media.quote unless self.media.quote.blank?
-    title = self.embed['title'] unless self.embed.blank? || self.embed['title'].blank?
-    title
+    self.embed.dig('title') || self.media.quote
   end
 
   def description
-    description = self.text
-    description = self.embed['description'] unless self.embed.blank? || self.embed['description'].blank?
-    description
+    self.embed.dig('description') || (self.media.type == 'Claim' ? nil : self.text)
   end
 
   def get_annotations(type = nil)
@@ -192,12 +237,12 @@ class ProjectMedia < ActiveRecord::Base
 
   def is_completed?
     required_tasks = self.required_tasks
-    unresolved = required_tasks.select{ |t| t.status != 'Resolved' }
+    unresolved = required_tasks.select{ |t| t.status != 'resolved' }
     unresolved.blank?
   end
 
   def is_finished?
-    statuses = Workflow::Workflow.options(self, self.default_media_status_type)[:statuses]
+    statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
     current_status = statuses.select { |st| st['id'] == self.last_status }
     current_status[0]['completed'].to_i == 1
   end

@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
 
   include ValidationsHelper
   include UserPrivate
+  include UserInvitation
 
   belongs_to :source
   has_many :team_users, dependent: :destroy
@@ -11,6 +12,7 @@ class User < ActiveRecord::Base
   has_many :projects
   has_many :accounts
   belongs_to :account
+  has_many :assignments, dependent: :destroy
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
@@ -28,6 +30,7 @@ class User < ActiveRecord::Base
   validate :validate_duplicate_email
   validate :languages_format, unless: proc { |u| u.settings.nil? }
   validates :api_key_id, absence: true, if: proc { |u| u.type.nil? }
+  validates_presence_of :name
 
   serialize :omniauth_info
   serialize :cached_teams, Array
@@ -38,7 +41,10 @@ class User < ActiveRecord::Base
 
   ROLES = %w[contributor journalist editor owner]
   def role?(base_role)
-    ROLES.index(base_role.to_s) <= ROLES.index(self.role) unless self.role.nil?
+    role = self.role
+    return true if role.to_s == base_role.to_s
+    return false if !ROLES.include?(base_role.to_s) || !ROLES.include?(role.to_s)
+    ROLES.index(base_role.to_s) <= ROLES.index(role) unless role.nil?
   end
 
   def role(team = nil)
@@ -58,6 +64,10 @@ class User < ActiveRecord::Base
 
   def teams_owned
     self.teams.joins(:team_users).where({'team_users.role': 'owner', 'team_users.status': 'member'})
+  end
+
+  def assign_annotation(annotation)
+    Assignment.create! user_id: self.id, annotation_id: annotation.id
   end
 
   def self.from_omniauth(auth)

@@ -32,11 +32,12 @@ module ProjectMediaCreators
     created = []
     tasks.each do |task|
       t = Task.new
-      t.label = task['label']
-      t.type = task['type']
-      t.required = (task['required'] == "1")
-      t.description = task['description']
-      t.options = task['options'] unless task['options'].blank?
+      t.label = task.label
+      t.type = task.task_type
+      t.required = task.required
+      t.description = task.description
+      t.team_task_id = task.id
+      t.options = task.options unless task.options.blank?
       t.annotator = User.current
       t.annotated = self
       t.skip_check_ability = true
@@ -45,7 +46,7 @@ module ProjectMediaCreators
       t.save!
       created << t
       # set auto-response
-      self.set_jsonld_response(task) if task.has_key?('mapping')
+      self.set_jsonld_response(task) unless task.mapping.blank?
     end
     self.respond_to_auto_tasks(created)
   end
@@ -223,7 +224,7 @@ module ProjectMediaCreators
         r.target_id = self.id
         r.save!
       else
-        raise 'Could not create related report'
+        raise 'Could not create related item'
       end
     end
   end

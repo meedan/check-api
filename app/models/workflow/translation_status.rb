@@ -1,6 +1,6 @@
 class Workflow::TranslationStatus < Workflow::Base
 
-  check_workflow_default if CONFIG['app_name'] == 'Bridge'
+  check_default_project_media_workflow if CONFIG['app_name'] == 'Bridge'
 
   # When translation status changes, send a message to user on Viber and publish to Twitter / Facebook
   # If this status is "ready", store the user who set that status

@@ -10,6 +10,7 @@ class GraphqlControllerTest < ActionController::TestCase
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
+    Team.current = nil
     create_translation_status_stuff
     create_verification_status_stuff(false)
   end
@@ -147,9 +148,12 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     pm = create_project_media project: p
     u = create_user name: 'The Annotator'
-    create_comment annotated: pm, annotator: u
-    create_tag annotated: pm
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, annotator { user { name } } } } } } }"
+    create_team_user user: u, team: @team
+    c = create_comment annotated: pm, annotator: u
+    c.assign_user(u.id)
+    tg = create_tag annotated: pm
+    tg.assign_user(u.id)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -161,6 +165,8 @@ class GraphqlControllerTest < ActionController::TestCase
     assert data.has_key?('language_code')
     assert_equal 2, data['annotations']['edges'].size
     users = data['annotations']['edges'].collect{ |e| e['node']['annotator']['user']['name'] }
+    assert users.include?('The Annotator')
+    users = data['annotations']['edges'].collect{ |e| e['node']['assignments']['edges'][0]['node']['name'] }
     assert users.include?('The Annotator')
   end
 
@@ -873,6 +879,26 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
+  test "should handle user invitations" do
+    u = create_user
+    authenticate_with_user(u)
+    # send invitation
+    members = '[{\"role\":\"contributor\",\"email\":\"test1@local.com, test2@local.com\"},{\"role\":\"journalist\",\"email\":\"test3@local.com\"}]'
+    query = 'mutation userInvitation { userInvitation(input: { clientMutationId: "1", members: "'+ members +'" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    # resend/cancel invitation
+    query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "notexist@local.com", action: "resend" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response 404
+    query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "resend" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "cancel" }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response :success
+  end
+
   test "should avoid n+1 queries problem" do
     n = 5 * (rand(10) + 1) # Number of media items to be created
     m = rand(10) + 1       # Number of annotations per media
@@ -999,17 +1025,16 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should manage auto tasks of a team" do
     u = create_user
     t = create_team
-    t.set_checklist([{ label: 'A', type: 'free_text', description: '', projects: [], options: '[]' }])
-    t.save!
+    create_team_task label: 'A', team_id: t.id
     id = t.graphql_id
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
-    assert_equal ['A'], t.get_checklist.collect{ |t| t[:label] }
-    task = '{\"label\":\"B\",\"type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":\"[]\"}'
+    assert_equal ['A'], t.team_tasks.map(&:label)
+    task = '{\"label\":\"B\",\"task_type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":[]}'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", remove_auto_task: "A", add_auto_task: "' + task + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal ['B'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }
+    assert_equal ['B'], t.reload.team_tasks.map(&:label)
   end
 
   test "should manage admin ui settings" do
@@ -1027,14 +1052,10 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort
     # add team tasks
     tasks = '[{\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", team_tasks: "' + tasks + '" }) { team { id } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal ['A?', 'B?'], t.reload.get_checklist.collect{ |t| t[:label] || t['label'] }.sort
-    # get checklist 
-    query = "query GetById { team(id: \"#{t.id}\") { checklist } }"
-    post :create, query: query, team: 'team'
-    assert_response :success
+    assert_equal ['A?', 'B?'], t.reload.team_tasks.map(&:label).sort
   end
 
   test "should read account sources from source" do
@@ -1072,8 +1093,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
-    # 13 * 29 + 24
-    assert_queries 274, '<=' do
+    assert_queries 300, '<=' do
       post :create, query: query, team: 'team'
     end
 
@@ -1135,7 +1155,6 @@ class GraphqlControllerTest < ActionController::TestCase
     query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
-
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
@@ -1144,7 +1163,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t, p, pm = assert_task_response_attribution
     u = create_user is_admin: true
     authenticate_with_user(u)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { attribution { edges { node { name } } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { status, first_response { attribution { edges { node { name } } } } } } } } }"
     post :create, query: query, team: t.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -1225,12 +1244,12 @@ class GraphqlControllerTest < ActionController::TestCase
     s4 = create_status status: 'verified', annotated: pm4
     t1 = create_task annotated: pm1
     t2 = create_task annotated: pm3
-    s1.assigned_to_id = u.id; s1.save!
-    s2.assigned_to_id = u.id; s2.save!
-    s3.assigned_to_id = u.id; s3.save!
-    s4.assigned_to_id = u2.id; s4.save!
-    t1.assigned_to_id = u.id; t1.save!
-    t2.assigned_to_id = u.id; t2.save!
+    s1.assign_user(u.id)
+    s2.assign_user(u.id)
+    s3.assign_user(u.id)
+    s4.assign_user(u2.id)
+    t1.assign_user(u.id)
+    t2.assign_user(u.id)
     authenticate_with_user(u)
     post :create, query: "query GetById { user(id: \"#{u.id}\") { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }"
     assert_response :success
@@ -1333,7 +1352,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
 
     id = Base64.encode64("Dynamic/#{s.id}")
-    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", assigned_to_id: ' + u2.id.to_s + ' }) { project_media { id } } }'
+    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", assigned_to_ids: "' + u2.id.to_s + '" }) { project_media { id } } }'
     post :create, query: query, team: t.slug
     assert_match /No permission to update Dynamic/, @response.body
     assert_equal 'undetermined', f.reload.value
@@ -1469,10 +1488,10 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     d = create_dynamic_annotation annotated: pm, annotation_type: 'metadata'
-    
+
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation_metadata { dbid }, dynamic_annotations_metadata { edges { node { dbid } } } } }"
     post :create, query: query, team: t.slug
-    
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_equal d.id.to_s, data['dynamic_annotation_metadata']['dbid']
@@ -1525,7 +1544,7 @@ class GraphqlControllerTest < ActionController::TestCase
     tb2 = create_team_bot approved: true, name: 'My Bot'
     tb3 = create_team_bot approved: true, name: 'Other Bot'
     create_team_bot_installation team_bot_id: tb2.id, team_id: t.id
-    
+
     query = 'query read { team(slug: "test") { team_bots { edges { node { name, team_author { slug } } } } } }'
     post :create, query: query
     assert_response :success
@@ -1544,7 +1563,7 @@ class GraphqlControllerTest < ActionController::TestCase
     tb2 = create_team_bot approved: true, name: 'My Bot'
     tb3 = create_team_bot approved: true, name: 'Other Bot'
     create_team_bot_installation team_bot_id: tb2.id, team_id: t.id
-    
+
     query = 'query read { team(slug: "test") { team_bot_installations { edges { node { team { slug }, team_bot { name } } } } } }'
     post :create, query: query
     assert_response :success
@@ -1558,7 +1577,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
     tb = create_team_bot approved: true
-    
+
     authenticate_with_user(u)
 
     assert_equal [], t.team_bots
@@ -1568,7 +1587,7 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, query: query
     end
     data = JSON.parse(@response.body)['data']['createTeamBotInstallation']
-    
+
     assert_equal [tb], t.reload.team_bots
     assert_equal t.id, data['team']['dbid']
     assert_equal tb.id, data['team_bot']['dbid']
@@ -1580,7 +1599,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     tb = create_team_bot approved: true
     tbi = create_team_bot_installation team_id: t.id, team_bot_id: tb.id
-    
+
     authenticate_with_user(u)
 
     assert_equal [tb], t.reload.team_bots
@@ -1590,7 +1609,7 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, query: query
     end
     data = JSON.parse(@response.body)['data']['destroyTeamBotInstallation']
-    
+
     assert_equal [], t.reload.team_bots
     assert_equal tbi.graphql_id, data['deletedId']
   end
@@ -1607,10 +1626,10 @@ class GraphqlControllerTest < ActionController::TestCase
     with_current_user_and_team(u, t) do
       c = create_comment annotated: tk
     end
-    
-    query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, log_count, log { edges { node { annotation { dbid } } } } } }"
+
+    query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, log_count, log { edges { node { annotation { dbid } } } }, responses { edges { node { id } } } } }"
     post :create, query: query, team: t.slug
-    
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['task']
     assert_equal 1, data['log_count']
@@ -1626,10 +1645,10 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     create_tag_text text: 'foo', team_id: t.id, teamwide: true
     create_tag_text text: 'bar', team_id: t.id, teamwide: false
-    
+
     query = "query GetById { team(id: \"#{t.id}\") { custom_tags { edges { node { text } } }, teamwide_tags { edges { node { text } } } } }"
     post :create, query: query, team: t.slug
-    
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']
     assert_equal 'foo', data['teamwide_tags']['edges'][0]['node']['text']
@@ -1642,6 +1661,23 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['root']['versions']['edges'][0]['node']['tag']
+  end
+
+  test "should get team tasks" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    create_team_task team_id: t.id, label: 'Foo'
+
+    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, task_type, description, options, project_ids, required, team_id, team { slug } } } } } }"
+    post :create, query: query, team: t.slug
+
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']
+    assert_equal 'Foo', data['team_tasks']['edges'][0]['node']['label']
   end
 
   test "should not import spreadsheet if URL is not present" do
@@ -1706,4 +1742,345 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal({"success" => true}, JSON.parse(@response.body)['data']['importSpreadsheet'])
   end
 
+  test "should not read project media user if annotator" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'annotator'
+    create_team_user user: u2, team: t
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p, user: u2
+    t = create_task annotated: pm
+    t.assign_user(u.id)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { user { id } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['project_media']['user']
+  end
+
+  test "should read project media user if not annotator" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u2, team: t
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p, user: u2
+    t = create_task annotated: pm
+    t.assign_user(u.id)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { user { id } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['project_media']['user']
+  end
+
+  test "should list filtered users to annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+
+    authenticate_with_user(u1)
+    post :create, query: 'query Team { team { team_users { edges { node { user { name } } } } } }', team: t.slug
+    list = JSON.parse(@response.body)['data']['team']['team_users']['edges']
+    assert_equal 1, list.size
+    assert_equal 'Annotator', list[0]['node']['user']['name']
+  end
+
+  test "should list all users to non-annotators" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+
+    authenticate_with_user(u2)
+    post :create, query: 'query Team { team { team_users { edges { node { user { name } } } } } }', team: t.slug
+    list = JSON.parse(@response.body)['data']['team']['team_users']['edges']
+    assert_equal 2, list.size
+  end
+
+  test "should list filtered log to annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.assign_user(u1.id)
+    with_current_user_and_team(u1, t) { create_comment(annotated: pm, annotator: u1) }
+    with_current_user_and_team(u2, t) { create_comment(annotated: pm, annotator: u2) }
+
+    authenticate_with_user(u1)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { log(first: 1000) { edges { node { id } } } } }"
+    post :create, query: query, team: t.slug
+    list = JSON.parse(@response.body)['data']['project_media']['log']['edges']
+    assert_equal 1, list.size
+  end
+
+  test "should list whole log to non-annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.assign_user(u1.id)
+    with_current_user_and_team(u1, t) { create_comment(annotated: pm, annotator: u1) }
+    with_current_user_and_team(u2, t) { create_comment(annotated: pm, annotator: u2) }
+
+    authenticate_with_user(u2)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { log(first: 1000) { edges { node { id } } } } }"
+    post :create, query: query, team: t.slug
+    list = JSON.parse(@response.body)['data']['project_media']['log']['edges']
+    assert_equal 2, list.size
+  end
+
+  test "should list filtered task assignees to annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.assign_user(u1.id)
+    tk.assign_user(u2.id)
+
+    authenticate_with_user(u1)
+    query = "query GetById { task(id: \"#{tk.id}\") { assignments { edges { node { name } } } } }"
+    post :create, query: query, team: t.slug
+    list = JSON.parse(@response.body)['data']['task']['assignments']['edges']
+    assert_equal 1, list.size
+    assert_equal 'Annotator', list[0]['node']['name']
+  end
+
+  test "should list all task assignees to non-annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.assign_user(u1.id)
+    tk.assign_user(u2.id)
+
+    authenticate_with_user(u2)
+    query = "query GetById { task(id: \"#{tk.id}\") { assignments { edges { node { name } } } } }"
+    post :create, query: query, team: t.slug
+    list = JSON.parse(@response.body)['data']['task']['assignments']['edges']
+    assert_equal 2, list.size
+  end
+
+  test "should show assigned task to annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk1 = create_task annotated: pm
+    tk1.assign_user(u1.id)
+    tk2 = create_task annotated: pm
+    tk2.assign_user(u2.id)
+
+    authenticate_with_user(u1)
+    query = "query GetById { task(id: \"#{tk1.id}\") { id } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    query = "query GetById { task(id: \"#{tk2.id}\") { id } }"
+    post :create, query: query, team: t.slug
+    assert_response 403
+  end
+
+  test "should show any task to non-annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk1 = create_task annotated: pm
+    tk1.assign_user(u1.id)
+    tk2 = create_task annotated: pm
+    tk2.assign_user(u2.id)
+
+    authenticate_with_user(u2)
+    query = "query GetById { task(id: \"#{tk1.id}\") { id } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    query = "query GetById { task(id: \"#{tk2.id}\") { id } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+  end
+
+  test "should list filtered tasks to annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk1 = create_task annotated: pm
+    tk1.assign_user(u1.id)
+    tk2 = create_task annotated: pm
+    tk2.assign_user(u2.id)
+
+    authenticate_with_user(u1)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks(first: 1000) { edges { node { dbid } } } } }"
+    post :create, query: query, team: t.slug
+    list = JSON.parse(@response.body)['data']['project_media']['tasks']['edges']
+    assert_equal 1, list.size
+    assert_equal tk1.id, list[0]['node']['dbid'].to_i
+  end
+
+  test "should list all tasks to non-annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk1 = create_task annotated: pm
+    tk1.assign_user(u1.id)
+    tk2 = create_task annotated: pm
+    tk2.assign_user(u2.id)
+
+    authenticate_with_user(u2)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks(first: 1000) { edges { node { dbid } } } } }"
+    post :create, query: query, team: t.slug
+    list = JSON.parse(@response.body)['data']['project_media']['tasks']['edges']
+    assert_equal 2, list.size
+  end
+
+  test "should list filtered projects to annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p1 = create_project team: t, title: 'Annotator Project'
+    p2 = create_project team: t
+    pm = create_project_media project: p1
+    tk = create_task annotated: pm
+    tk.assign_user(u1.id)
+
+    authenticate_with_user(u1)
+    post :create, query: 'query Team { team { projects { edges { node { title } } } } }', team: t.slug
+    list = JSON.parse(@response.body)['data']['team']['projects']['edges']
+    assert_equal 1, list.size
+    assert_equal 'Annotator Project', list[0]['node']['title']
+  end
+
+  test "should list all projects to non-annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p1 = create_project team: t, title: 'Annotator Project'
+    p2 = create_project team: t
+    pm = create_project_media project: p1
+    tk = create_task annotated: pm
+    tk.assign_user(u1.id)
+
+    authenticate_with_user(u2)
+    post :create, query: 'query Team { team { projects { edges { node { title } } } } }', team: t.slug
+    list = JSON.parse(@response.body)['data']['team']['projects']['edges']
+    assert_equal 2, list.size
+  end
+
+  test "should list filtered medias to annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    tk = create_task annotated: pm1
+    tk.assign_user(u1.id)
+
+    authenticate_with_user(u1)
+    post :create, query: "query { project(ids: \"#{p.id},#{t.id}\") { project_medias { edges { node { dbid } } } } }", team: t.slug
+    list = JSON.parse(@response.body)['data']['project']['project_medias']['edges']
+    assert_equal 1, list.size
+    assert_equal pm1.id, list[0]['node']['dbid'].to_i
+  end
+
+  test "should list all medias to non-annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    tk = create_task annotated: pm1
+    tk.assign_user(u1.id)
+
+    authenticate_with_user(u2)
+    post :create, query: "query { project(ids: \"#{p.id},#{t.id}\") { project_medias { edges { node { dbid } } } } }", team: t.slug
+    list = JSON.parse(@response.body)['data']['project']['project_medias']['edges']
+    assert_equal 2, list.size
+  end
+
+  test "should list filtered annotations to annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.assign_user(u1.id)
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    d1 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u1
+    d2 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u2
+
+    authenticate_with_user(u1)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotations_metadata(first: 1000) { edges { node { dbid } } } } }"
+    post :create, query: query, team: t.slug
+    list = JSON.parse(@response.body)['data']['project_media']['dynamic_annotations_metadata']['edges']
+    assert_equal 1, list.size
+    assert_equal d1.id, list[0]['node']['dbid'].to_i
+  end
+
+  test "should list all annotations to non-annotator" do
+    u1 = create_user name: 'Annotator'
+    u2 = create_user name: 'Owner'
+    t = create_team
+    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u2, team: t, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.assign_user(u1.id)
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    d1 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u1
+    d2 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u2
+
+    authenticate_with_user(u2)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotations_metadata(first: 1000) { edges { node { dbid } } } } }"
+    post :create, query: query, team: t.slug
+    list = JSON.parse(@response.body)['data']['project_media']['dynamic_annotations_metadata']['edges']
+    assert_equal 2, list.size
+  end
 end

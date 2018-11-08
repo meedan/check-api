@@ -1,10 +1,19 @@
 fr:
-  link: lien
-  claim: Déclaration
-  uploadedimage: image
-  uploadefile: fichier
-  blank: "(vide)"
   statuses:
+    ids:
+      verification_status: vérification
+      translation_status: traduction
+      task_status: tâche
+    task:
+      unresolved:
+        label: Non résolu.e
+        description: Par défaut, pas encore résolu.e
+      resolved:
+        label: Résolu.e
+        description: La tâche a été résolue
+      cant_be_resolved:
+        label: Ne peut être résolu.e
+        description: Il n'est pas possible de résoudre cette tâche
     media:
       undetermined:
         label: Pas commencé
@@ -13,11 +22,11 @@ fr:
         label: Inconcluant
         description: Aucune conclusion définitive ne peut être tirée avec les données actuelles
       not_true:
-        label: 'Faux'
-        description: 'Conclusion : le rapport est faux'
+        label: "Faux"
+        description: "Conclusion : le contenu de l'élément est faux"
       verified:
         label: Confirmé
-        description: 'Conclusion : le rapport est confirmé'
+        description: "Conclusion : le contenu de l'élément est confirmé"
       pending:
         label: En attente
         description: 'Par défault : récemment ajouté, le travail n''a pas commencé'
@@ -39,16 +48,16 @@ fr:
         description: 'Par défault : récemment ajouté, le travail n''a pas commencé'
       credible:
         label: Crédible
-        description: 'Conclusion : la source est crédible'
+        description: "Conclusion : la source est crédible"
       not_credible:
         label: Pas crédible
-        description: 'Conclusion : la source n''est pas crédible'
+        description: "Conclusion : la source n'est pas crédible"
       slightly_credible:
         label: Peu crédible
-        description: 'Conclusion : la source est peu crédible'
+        description: "Conclusion : la source est peu crédible"
       sockpuppet:
         label: Faux-nez
-        description: 'Conclusion : la source est un faux-nez (anglais : sock puppet)'
+        description: "Conclusion : la source est un faux-nez (anglais : sock puppet)"
     translation:
       pending:
         label: En attente
@@ -67,14 +76,23 @@ fr:
         description: Traduction revue avec des erreurs signalées
   errors:
     messages:
-      extension_white_list_error: 'est d''un type %{extension} qui est interdit, seuls sont acceptés %{allowed_types}'
-      invalid_size: doit avoir des dimensions entre %{min_width}x%{min_height} et %{max_width}x%{max_height} pixels
+      extension_white_list_error: "est d'un type %{extension} qui est interdit, seuls sont acceptés %{allowed_types}"
+      invalid_size: "doit avoir des dimensions entre %{min_width}x%{min_height} et %{max_width}x%{max_height} pixels"
   activerecord:
     models:
       link: Lien
       claim: Déclaration
       uploaded_image: Image
       uploaded_file: Fichier
+      task: Tâche
+      comment: Note
+      project_media: Élément
+      media: Élément
+      project: Projet
+      team: Équipe
+      user: Utilisateur
+      source: Source
+      project_source: Source
     attributes:
       tag:
         data: Le tag
@@ -89,7 +107,7 @@ fr:
       contact:
         phone: Le téléphone
       comment:
-        text: Le commentaire
+        text: Note
       user:
         reset_password_token: Jeton de réinitialisation du mot de passe
         email: Courriel
@@ -104,15 +122,14 @@ fr:
             slug:
               slug_format: accepte uniquement les lettres, les chiffres et les tirets
       messages:
-        record_invalid: 'La validation a échoué : %{errors}'
+        record_invalid: "La validation a échoué : %{errors}"
         improbable_phone: est un numéro non valide
         too_short:
           one: trop court (au moins 1 caractère)
           other: trop court (au moins %{count} caractères)
   slack_webhook_format_wrong: 'Webhook Slack non valide : le format doit être `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`'
   slug_is_reserved: est réservé
-  invalid_format_for_checklist: 'Le champ de liste de contrôle n''est pas correct. Il devrait se conformer au format [ { ''label'': ''XXXX'', ''type'': ''free_text'',''description'': ''YYYY'', ''projects'': [], ''options'': ''[{ ''label'': ''YYYY'' }]'' } ]'
-  invalid_format_for_languages: 'Le champ des langages est non-valide. Il doit conformer au format [{''id'': ''en'',''title'': ''English''}]'
+  invalid_format_for_languages: "Paramètre des langages non valide. Il doit conformer au format [{'id': 'en', 'title': 'English'}]"
   invalid_media_item: Désolé, ce média n'est pas valide
   invalid_default_status_for_custom_verification_status: Identifiant du statut de défaut non valide
   invalid_active_status_for_custom_verification_status: Identifiant du statut actif non valide
@@ -130,34 +147,53 @@ fr:
   rejected: rejetée
   mail_request_to_join_processed: Votre requête pour vous joindre à %{team} sur %{app_name} est %{status}
   mail_new_account: Votre nouveau compte sur %{app_name}
-  slack_update_verification_status: "*%{user}* a modifié le statut de vérification pour *%{url}* dans *%{project}* de _%{from}_ à *%{to}*"
-  slack_save_embed: "*%{user}* a modifié le titre d'un rapport dans *%{project}* de _%{from}_ à %{to}"
-  slack_save_comment: "*%{user}* a rajouté un commentaire sur %{url} dans *%{project}* : %{comment}"
-  slack_create_project: "*%{user}* a créé un projet : %{url}"
-  slack_create_team_user: "*%{user}* s'est joint à l'équipe %{url}"
-  slack_create_project_media: "*%{user}* a rajouté un(e) nouveau(elle) %{type} dans *%{project}* : %{url}"
-  slack_create_related_media: "*%{user}* a rajouté un(e) %{type} lié(e) à \"%{parent}\" dans *%{project}* : %{url}"
-  slack_create_project_media_no_user: "Un(e) nouveau(elle) %{type} a été rajouté(e) dans *%{project}* : %{url}"
-  slack_create_related_media_no_user: "Un(e) %{type} lié(e) à \"%{parent}\" a été rajouté(e) dans *%{project}* : %{url}"
-  slack_create_task_message: "*%{user}* a créé la tâche %{url} dans *%{project}*%{assignment}%{create_note}"
-  slack_create_task_assignment: " assignée à %{assignee}"
-  slack_create_task_note: " avec note: %{note}"
-  slack_answer_task: |-
-      *%{user}* a résolu la tâche %{url} dans *%{project}*: %{response}
-      %{answer_note}
-  slack_answer_task_note: "*Note:* %{note}"
-  slack_update_task_label: |-
-      *%{user}* a modifié la tâche %{url} dans *%{project}* de : %{from}
-      *à :* %{to}
-  slack_update_task_description: |-
-      *%{user}* a modifié la description de la tâche %{url} dans *%{project}* de : %{from}
-      *à :* %{to}
+  slack:
+    fields:
+      assigned: "Assigné.e à"
+      unassigned: "Désassigné.e de"
+      required: "Requis ?"
+      required_yes: "Oui"
+      project: "Projet"
+      source: "Source"
+      status: "Statut"
+      status_previous: "Statut précédent"
+      related_to: "Associé.e à"
+      view_button: "Voir %{type} sur %{app}"
+      project_source: "Source"
+      project_media: "Élément"
+      attribution: "Répondu.e par"
+    messages:
+      task_create: "%{user} (%{role} à %{team}) a rajouté une tâche"
+      task_edit: "%{user} (%{role} à %{team}) a modifié une tâche"
+      task_assign: "%{user} (%{role} à %{team}) a assigné un.e %{type}"
+      task_unassign: "%{user} (%{role} à %{team}) a desassigné un.e %{type}"
+      task_answer_create: "%{user} (%{role} à %{team}) a répondu à une tâche"
+      task_answer_edit: "%{user} (%{role} à %{team}) a modifié une réponse de tâche"
+      task_comment: "%{user} (%{role} at %{team}) a rajouté une note à une tâche"
+      project_media_comment: "%{user} (%{role} at %{team}) a rajouté une note à un.e %{parent_type}"
+      project_media_create: "%{user} (%{role} à %{team}) a rajouté un.e %{type}"
+      project_media_create_related: "%{user} (%{role} à %{team}) a rajouté un.e %{type} associé.e"
+      project_media_create_no_user: "Un.e %{type} a été rajouté.e"
+      project_media_create_related_no_user: "Un.e %{type} associé.e a été rajouté.e"
+      project_media_update: "%{user} (%{role} à %{team}) a modifié un.e %{type}"
+      project_media_update_no_user: "Un.e %{type} a été modifié.e"
+      project_media_status: "%{user} (%{role} à %{team}) a modifié le statut de %{workflow} d'un.e %{type}"
+      project_media_assign: "%{user} (%{role} à %{team}) a assigné un.e %{type}"
+      project_media_unassign: "%{user} (%{role} à %{team}) a desassigné un.e %{type}"
+      project_source_comment: "%{user} (%{role} at %{team}) a rajouté une note à un.e %{parent_type}"
+      project_source_create: "%{user} (%{role} à %{team}) a rajouté un.e %{type}"
+      project_source_update: "%{user} (%{role} à %{team}) a modifié un.e %{type}"
+      project_create: "%{user} (%{role} à %{team}) a créé un projet"
+      user_member: "%{user} s'est joint à l'équipe %{team}"
+      user_requested: "%{user} a demandé à se joindre à l'équipe %{team}"
+      user_invited: "%{user} a été invité de se joindre à l'équipe %{team}"
+      user_banned: "%{user} a été banni de l'équipe %{team}"
   mail_view_welcome: Bienvenue sur %{app_name}
-  mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Prière de confirmer votre courriel en cliquant ce lien :'
+  mail_view_register: "Il ne vous manque plus qu'une étape pour démarrer sur %{app_name} ! Prière de confirmer votre courriel en cliquant ce lien :"
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
   mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} n'a pas été approuvée.
   mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur %{app_name} !"
-  mail_view_process_request: 'Pour traiter cette requête, prière de vous connecter et de visiter:'
+  mail_view_process_request: "Pour traiter cette requête, prière de vous connecter et de visiter:"
   pender_could_not_parse: Ce n'était pas possible d'analyser ce média
   mail_duplicate_email_exists: Votre connexion à %{app_name}
   mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte %{app_name} via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à %{app_name} via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
@@ -175,24 +211,23 @@ fr:
       delete_tasks:
         done: les tâches ont bien été supprimées
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: "Êtes-vous sûr de vouloir supprimer toutes les tâches de l'équipe <strong>%{team}</strong> ? Les tâches suivantes seront éliminées :"
+          html: "Voulez-vous vraiment supprimer toutes les tâches de l'équipe <strong>%{team}</strong> ? Les tâches suivantes seront éliminées :"
       duplicate_team:
         menu: Dupliquer l'équipe
         done: copiée
         are_you_sure_you_want_to_copy_team:
-          html: "Voulez-vous vraiment dupliquer l'équipe <strong>%{team}</strong> ? Toutes les données connexes seront également copiées."
+          html: "Voulez-vous vraiment dupliquer l'équipe <strong>%{team}</strong> ? Toutes les données associées seront également copiées."
         the_team_is_being_copied: L'équipe est en cours de copie
         url_when_ready:
           html: "Une fois prête, la copie de l'équipe sera disponible à <strong>%{copy_url}</strong>"
   reset_password_instructions: "Instructions pour réinitialiser le mot de passe sur %{app_name}"
   email_not_found: Courriel introuvable
-  slack_channel_format_wrong: 'Canal Slack non valide : le format doit être `#general`'
-  translation_status_not_valid: Statut invalide
-  translation_status_permission_error: Vous n'êtes pas autorisé à effectuer ce changement de statut
-  translation_request_id_exists: Il existe déjà une demande de traduction pour ce message
-  slack_update_translation_status: "*%{user}* a modifié le statut de traduction pour *%{report}* de *%{from}* à *%{to}*"
+  slack_channel_format_wrong: "Canal Slack non valide"
+  translation_status_not_valid: "Statut non valide"
+  translation_status_permission_error: "Désolé, vous n'êtes pas autorisé à effectuer ce changement de statut."
+  translation_request_id_exists: "Il existe déjà une demande de traduction pour ce message"
   auto_publisher_added_to_project: Merci ! Dorénavant toutes les traductions du projet %{project} seront automatiquement publiées via ce compte %{provider}. Si vous changez d'avis, contactez notre équipe de support ou bien révoquez l'autorisation de Bridge pour %{provider}.
-  invalid_token: Jeton de sécurité invalide
+  invalid_token: Jeton de sécurité non valide
   viber_screenshot_footer: "Traduction en %{target_language} de l'original en %{source_language}: “%{source_text}”"
   time:
     formats:
@@ -208,6 +243,7 @@ fr:
   role_owner: propriétaire
   role_contributor: contributeur
   role_journalist: journaliste
+  role_annotator: annotateur
   role_none: membre
   oembed_credit: Ajouté par %{user} (%{role}) %{date}
   oembed_notes_count:
@@ -216,14 +252,14 @@ fr:
   oembed_completed_tasks_count:
     one: "Une tâche complétée"
     other: "%{count} tâches complétées"
-  oembed_verification_tasks: Tâches de vérification
+  oembed_verification_tasks: Tâches
   oembed_tasks: Tâches
   oembed_translations: Traductions
   oembed_expand_all: Développer tout
   oembed_collapse_all: Réduire tout
   oembed_resolved_tasks_count:
-    one: "Une tâche de vérification résolue"
-    other: "%{count} tâches de vérification résolues"
+    one: "Une tâche résolue"
+    other: "%{count} tâches résolues"
   oembed_notes: Notes
   pender_conflict: Ce lien est déjà en cours de traitement, veuillez ressayer dans quelques secondes.
   duplicate_source: La source existe déjà
@@ -237,26 +273,39 @@ fr:
   only_super_admin_can_do_this: "Désolé, seuls les aministrateurs système peuvent effectuer cette opération"
   max_number_of_team_users_reached: "Désolé, le nombre maximum de membres a été atteint pour cette équipe"
   max_number_of_projects_reached: "Désolé, le nombre maximum de projets a été atteint pour cette équipe"
-  cant_set_custom_statuses: "Désolé, la fonction de statuts personnalisés n'est pas disponible à cette équipe"
+  cant_set_custom_statuses: "Désolé, la fonction de statuts personnalisés n'est pas disponible à votre équipe"
   cant_change_custom_statuses: "Il est impossible de modifier les définitions de statut car certains statuts disparaîtraient. Ces identifiants de statut : %{statuses} sont en cours d'utilisation par les articles suivants : \n%{urls} %{others_amount}"
-  cant_set_checklist: "Désolé, la fonction de tâches d'équipe n'est pas disponible à cette équipe"
-  cant_create_media_under_this_team_using_extension: "Désolé, la fonction d'extension de navigateur n'est pas disponible à cette équipe"
+  cant_create_team_task: "Désolé, cette fonction n'est pas disponible à votre équipe"
+  cant_create_media_under_this_team_using_extension: "Désolé, la fonction d'extension de navigateur n'est pas disponible à votre équipe"
   error_invalid_attribution: "Attribution non valide"
   account_exists: Ce compte existe déjà
   media_exists: Ce média existe déjà
   source_exists: Cette source existe déjà
-  banned_user: 'Désolé, votre compte a été banni de %{app_name}. Veuillez contacter %{support_email}si vous pensez qu''il s''agit d''une erreur.'
+  banned_user: "Désolé, votre compte a été banni de %{app_name}. Veuillez contacter l'équipe de support si vous pensez qu'il s'agit d'une erreur."
   devise:
     mailer:
       reset_password_instructions:
         instruction: "Quelqu'un a demandé un lien pour changer votre mot de passe : veuillez le trouver ci-dessous. <strong>Notez que ce lien expire dans %{expire} heures.</strong>"
+      invitation_instructions:
+        subject: "%{user} vous a invité à rejoindre l'équipe %{team}"
+        hello: "Bonjour %{name} "
+        someone_invited_you_default:
+          html: "%{name} vous a invité à rejoindre l'équipe %{team}."
+        someone_invited_you_custom:
+          html: "%{name} vous a invité à rejoindre l'équipe %{team} avec ce mot :"
+        accept: 'Vous pouvez accepter l''invitation via ce lien : %{url}'
+        accept_until: "Cette invitation va expirer le %{due_date}."
+        ignore: "Si vous ne voulez pas accepter l'invitation, veuillez ignorer ce message."
+        app_team: "Équipe %{app}"
+    failure:
+      unconfirmed: "Veuillez consulter votre courrier pour vérifier votre compte."
+  user_invitation:
+    invited: 'Cet utilisateur a déjà été invité à cette équipe.'
+    member: 'Cet utilisateur est déjà membre de cette équipe.'
+    team_found: 'Équipe introuvable'
+    invalid: 'Code d''invitation non valide.'
+    no_invitation: 'Vous n''avez pas été invité à rejoindre l''équipe %{name}'
   error_user_is_not_a_team_member: "Désolé, vous ne pouvez assigner des tâches qu'à des membres de cette équipe"
-  slack_assign_verification_status: "*%{user}* a assigné %{url} à *%{assignee}* dans *%{project}*"
-  slack_unassign_verification_status: "*%{user}* a désassigné %{url} de *%{assignee}* dans *%{project}*"
-  slack_assign_translation_status: "*%{user}* a assigné %{url} à *%{assignee}* dans *%{project}*"
-  slack_unassign_translation_status: "*%{user}* a désassigné %{url} de *%{assignee}* dans *%{project}*"
-  slack_assign_task: "*%{user}* a assigné la tâche %{url} dans *%{project}* à *%{assignee}*"
-  slack_unassign_task: "*%{user}* a désassigné la tâche %{url} dans *%{project}* de *%{assignee}*"
   mail_see_it: "Vous pouvez le/la visionner à :"
   mail_subject_assign_verification_status: "[%{team} - %{project}] Un élément vous a été assigné"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] Un élément a été désassigné"
@@ -277,8 +326,8 @@ fr:
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
   project_export_email_title_csv: "Votre rapport de projet est prêt à télécharger"
-  workflow_status_not_valid: "Désolé, ce statut n'est pas valide"
-  workflow_status_permission_error: "Désolé, vous n'êtes pas autorisé à modifier ce statut"
+  workflow_status_not_valid: "Statut non valide"
+  workflow_status_permission_error: "Désolé, vous n'êtes pas autorisé à modifier ce statut."
   blank_default_status_for_custom_translation_status: "Prière de fournir une valeur de défaut pour les statuts de traduction personnalisés"
   blank_active_status_for_custom_translation_status: "Prière de fournir une valeur active pour les statuts de traduction personnalisés"
   blank_default_status_for_custom_verification_status: "Prière de fournir une valeur de défaut pour les statuts de vérification personnalisés"
@@ -289,7 +338,7 @@ fr:
   bot_not_approved_for_installation: "Désolé, ce bot ne peut pas être installé car il n'a pas encore été approuvé."
   only_admins_can_approve_bots: "Désolé, seuls les administrateurs système peuvent approuver les bots."
   could_not_save_related_bot_data: "Désolé, il n'a pas été possible d'ajouter le bot à cette équipe"
-  bot_limited_team_not_pro: "Désolé, ce bot n'est pas disponible à cette équipe"
+  bot_limited_team_not_pro: "Désolé, ce bot n'est pas disponible à votre équipe"
   slack_save_task_comment: "*%{user}* a rajouté une note à la tâche *%{task}* pour %{url} dans *%{project}* : %{comment}"
   bot_cant_add_response_to_task: "Désolé, un bot n'est pas autorisé à répondre directement à une tâche. Il faut plutôt soumettre une suggestion de réponse"
   bot_cant_add_review_to_task: "Désolé, les bots ne sont pas autorisés à réviser les tâches."
@@ -308,6 +357,8 @@ fr:
         description: "Les journalistes vérifient l'information."
       contributor:
         description: "Les contributeurs peuvent rajouter de nouvelles informations à vérifier. Ce sont souvent des membres du public. "
+      annotator:
+        description: "Les annotateurs peuvent seulement visionner et répondre aux tâches qui leur sont assignées."
     permissions:
       sections:
         project_management:
@@ -348,3 +399,18 @@ fr:
             third_party: "Intégrer des services tiers"
             invite_owner: "Inviter, approuver et supprimer les propriétaires de l'équipe"
             invite_members: "Inviter, approuver et supprimer les membres de l'équipe "
+  team_import:
+    invalid_google_spreadsheet_url: "URL de tableur non valide %{spreadsheet_url}"
+    not_found_google_spreadsheet_url: "Tableur introuvable à %{spreadsheet_url}"
+    cannot_authenticate_with_the_credentials: "Erreur d’authentification à Google Drive avec les informations d'identification. Veuillez prévenir l'équipe de support de cet incident."
+    team_not_present: "Equipe introuvable durant l'importation des données. Veuillez prévenir l'équipe de support de cet incident."
+    user_not_present: "Utilisateur introuvable durant l'importation des données. Veuillez prévenir l'équipe de support de cet incident."
+    user_not_authorized: "Désolé, vous n'êtes pas autorisé à importer des données dans cette équipe."
+    invalid_project: "Projet non valide %{project}"
+    invalid_user: "Auteur non valide %{user}"
+    invalid_status: "Statut non valide %{status}"
+    blank_user: "Auteur vide non valide"
+    blank_annotator: "Annotateur video non valide"
+    blank_project: "Projet vide non valide"
+    invalid_annotator: "Annotateur non valide %{user}"
+    invalid_assignee: "Utilisateur assigné non valide %{user}"

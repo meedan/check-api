@@ -60,7 +60,8 @@ module AnnotationBase
     include CheckNotifications::Pusher
     include CheckElasticSearch
     include CustomLock
-    include Assignment
+    include AssignmentConcern
+    include AnnotationPrivate
 
     attr_accessor :disable_es_callbacks, :is_being_copied
     self.table_name = 'annotations'
@@ -228,8 +229,8 @@ module AnnotationBase
     ProjectMedia.where(id: self.entities).to_a
   end
 
-  def method_missing(method, *args, &block)
-    (args.empty? && !block_given?) ? self.data[method] : super
+  def method_missing(key, *args, &block)
+    (args.empty? && !block_given?) ? self.data[key] : super
   end
 
   def annotation_type_class
@@ -240,10 +241,6 @@ module AnnotationBase
       klass = Dynamic
     end
     klass
-  end
-
-  def annotated_client_url
-    "#{CONFIG['checkdesk_client']}/#{self.annotated.project.team.slug}/project/#{self.annotated.project_id}/media/#{self.annotated_id}"
   end
 
   def image_data
@@ -259,8 +256,34 @@ module AnnotationBase
     annotated.nil? ? nil : annotated.id
   end
 
+  def to_s
+    self.annotated.title
+  end
+
   def annotated_is_archived?
     self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
+  end
+
+  def slack_params
+    object = self.project_media || self.project_source
+    item = self.annotated_type == 'ProjectSource' ? object.source.name : object.title
+    item_type = self.annotated_type == 'ProjectSource' ? 'source' : object.media.class.name.underscore
+    annotation_type = self.class.name == 'Dynamic' ? item_type : self.class.name.underscore
+    user = User.current or self.annotator
+    {
+      user: Bot::Slack.to_slack(user.name),
+      user_image: user.profile_image,
+      project: Bot::Slack.to_slack(object.project.title),
+      role: I18n.t("role_" + user.role(object.project.team).to_s),
+      team: Bot::Slack.to_slack(object.project.team.name),
+      item: Bot::Slack.to_slack_url(object.full_url, item),
+      type: I18n.t("activerecord.models.#{annotation_type}"),
+      parent_type: I18n.t("activerecord.models.#{item_type}"),
+      url: object.full_url,
+      button: I18n.t("slack.fields.view_button", {
+        type: I18n.t("activerecord.models.#{annotation_type}"), app: CONFIG['app_name']
+      })
+    }.merge(self.slack_params_assignment)
   end
 
   protected
@@ -278,36 +301,7 @@ module AnnotationBase
     self.send("#{name}_id=", obj.id)
   end
 
-  private
-
-  def set_type_and_event
-    self.annotation_type ||= self.class_name.parameterize
-    self.paper_trail_event = 'create' if self.versions.count === 0
-  end
-
-  def set_annotator
-    self.annotator = User.current if self.annotator.nil? && !User.current.nil?
-  end
-
-  def notify_team_bots_create
-    self.send :notify_team_bots, 'create'
-  end
-
-  def notify_team_bots_update
-    self.send :notify_team_bots, 'update'
-  end
-
-  def notify_team_bots(event)
-    team = self.get_team.first
-    TeamBot.notify_bots_in_background("#{event}_annotation_#{self.annotation_type}", team, self) unless team.blank?
-    task = Task.where(id: self.id).last if self.annotation_type == 'task'
-    TeamBot.notify_bots_in_background("#{event}_annotation_task_#{self.data['type']}", team, task) if !team.blank? && !task.nil?
-  end
-
-  def notify_bot_author
-    if self.annotator.is_a?(BotUser)
-      team_bot = self.annotator.team_bot
-      team_bot.notify_about_annotation(self) unless team_bot.nil?
-    end
-  end
+  # private
+  #
+  # Please add private methods to app/models/concerns/annotation_private.rb
 end

@@ -69,7 +69,7 @@ module SampleData
 
   def create_user(options = {})
     u = User.new
-    u.name = options[:name] || random_string
+    u.name = options.has_key?(:name) ? options[:name] : random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
     u.uuid = options.has_key?(:uuid) ? options[:uuid] : random_string
     u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
@@ -156,6 +156,15 @@ module SampleData
     ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
     at = create_annotation_type annotation_type: 'verification_status', label: 'Verification Status'
     create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft1, optional: false
+  end
+
+  def create_task_status_stuff(delete_existing = true)
+    if delete_existing
+      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+    end
+    ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
+    at = create_annotation_type annotation_type: 'task_status', label: 'Task Status'
+    create_field_instance annotation_type_object: at, name: 'task_status_status', label: 'Task Status', default_value: 'unresolved', field_type_object: ft1, optional: true
   end
 
   # Verification status
@@ -619,7 +628,7 @@ module SampleData
       type: 'single_choice',
       description: 'Please solve this math puzzle',
       options: ['10', '20', '30'],
-      status: 'Unresolved',
+      status: 'unresolved',
       annotator: options[:user] || create_user,
       disable_es_callbacks: true,
       disable_update_status: true
@@ -693,7 +702,7 @@ module SampleData
     File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
       tb.file = f
     end
-    
+
     tb.save!
     tb
   end
@@ -712,6 +721,16 @@ module SampleData
   def create_tag_text(options = {})
     tt = TagText.new
     options = { text: random_string, team_id: create_team.id }.merge(options)
+    options.each do |key, value|
+      tt.send("#{key}=", value) if tt.respond_to?("#{key}=")
+    end
+    tt.save!
+    tt
+  end
+
+  def create_team_task(options = {})
+    tt = TeamTask.new
+    options = { label: random_string, team_id: create_team.id, task_type: 'free_text' }.merge(options)
     options.each do |key, value|
       tt.send("#{key}=", value) if tt.respond_to?("#{key}=")
     end

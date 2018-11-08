@@ -49,11 +49,11 @@ module ProjectMediaEmbed
   end
   
   def completed_tasks
-    self.all_tasks.select{ |t| t.status == 'Resolved' }
+    self.all_tasks.select{ |t| t.status == 'resolved' }
   end
 
   def open_tasks
-    self.all_tasks.select{ |t| t.status != 'Resolved' }
+    self.all_tasks.select{ |t| t.status != 'resolved' }
   end
 
   def all_tasks
@@ -171,7 +171,7 @@ module ProjectMediaEmbed
   end
 
   def last_status_color
-    statuses = Workflow::Workflow.options(self, self.default_media_status_type)
+    statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)
     statuses = statuses.with_indifferent_access['statuses']
     color = nil
     statuses.each do |status|

@@ -181,6 +181,7 @@ class MediaTest < ActiveSupport::TestCase
     url = 'http://test.com'
     response = '{"type":"error","data":{"message":"Error"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
     assert_raises ActiveRecord::RecordInvalid do
       create_media(account: create_valid_account, url: url)
     end
@@ -538,5 +539,17 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'uploaded file', f.media_type
     assert_equal '', m.media_type
   end
-
+  
+  test "should retry Pender automatically if it fails and not forced" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    response1 = { 'type' => 'error', 'data' => { 'code' => 12 } }.to_json
+    response2 = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'description' => 'Foo' } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response1)
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response2)
+    es = [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+    WebMock.disable_net_connect!(allow: es)
+    l = create_link url: url
+    assert_equal 'Foo', l.text
+  end
 end

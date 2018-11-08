@@ -3,6 +3,9 @@
 # Redis
 redis-server &
 
+# Elasticsearch
+until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep 1; done
+
 # Rake tasks
 if [ "$RAILS_ENV" == "test" ]
 then
