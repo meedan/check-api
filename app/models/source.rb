@@ -159,6 +159,7 @@ class Source < ActiveRecord::Base
 
   def update_from_pender_data(data)
     self.update_name_from_data(data)
+    self.avatar = data['author_picture'] if data && !data['author_picture'].blank?
   end
 
   def update_name_from_data(data)
