@@ -71,6 +71,8 @@ MutationType = GraphQL::ObjectType.define do
   field :resetPassword, field: ResetPasswordMutation.field
   field :changePassword, field: ChangePasswordMutation.field
   field :resendConfirmation, field: ResendConfirmationMutation.field
+  field :userInvitation, field: UserInvitationMutation.field
+  field :resendCancelInvitation, field: ResendCancelInvitationMutation.field
 
   field :createTeamBotInstallation, field: TeamBotInstallationMutations::Create.field
   field :updateTeamBotInstallation, field: TeamBotInstallationMutations::Update.field
@@ -79,6 +81,10 @@ MutationType = GraphQL::ObjectType.define do
   field :createTagText, field: TagTextMutations::Create.field
   field :updateTagText, field: TagTextMutations::Update.field
   field :destroyTagText, field: TagTextMutations::Destroy.field
+
+  field :createTeamTask, field: TeamTaskMutations::Create.field
+  field :updateTeamTask, field: TeamTaskMutations::Update.field
+  field :destroyTeamTask, field: TeamTaskMutations::Destroy.field
 
   DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
     klass = type.camelize

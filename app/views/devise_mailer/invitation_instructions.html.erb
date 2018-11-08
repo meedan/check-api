@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+		<p><%= I18n.t(:"devise.mailer.invitation_instructions.hello", name: @resource.name) %></p>
+
+		<p><%= raw I18n.t(:"devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}.html", name: @invited_by, team: link_to(@team.name, @url)) %></p>
+
+		<% if @invited_text %>
+			<p> <%= @invited_text %></p>
+		<% end %>
+
+		<p>
+		<%= I18n.t(:"devise.mailer.invitation_instructions.accept", url: accept_invitation_url(@resource, :invitation_token => @token, :slug => @team.slug)) %>
+
+		</p>
+
+		<% if @due_at %>
+		  <p><%= t("devise.mailer.invitation_instructions.accept_until", due_date: l(@due_at, format: :'devise.mailer.invitation_instructions.accept_until_format')) %></p>
+		<% end %>
+
+		<p><%= t("devise.mailer.invitation_instructions.ignore") %></p>
+
+		<p><%= I18n.t(:"devise.mailer.invitation_instructions.app_team", app: CONFIG['app_name']) %></p>
+  </body>
+</html>
+

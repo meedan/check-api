@@ -40,11 +40,11 @@ module TeamImport
 
     attr_accessor :spreadsheet, :import_status
 
-    def import_spreadsheet(spreadsheet_id, user_id)
+    def import_spreadsheet(spreadsheet_id, title = '', user_id)
       @result = {}
       user = User.find(user_id)
       self.spreadsheet = get_spreadsheet(spreadsheet_id)
-      worksheet = self.spreadsheet.worksheets[0]
+      worksheet = title.blank? ? self.spreadsheet.worksheets[0] : self.spreadsheet.worksheet_by_title(title)
       Rails.logger.info "[Team Import] Importing spreadsheet #{spreadsheet_id} to team #{self.slug} (requested by user #{user.login})"
       RequestStore.store[:skip_notifications] = true
       self.update_import_status('start')
@@ -158,7 +158,7 @@ module TeamImport
       user = get_user(assigned_to, row, 'assignee')
       if user
         status = pm.last_status_obj
-        status.assigned_to_id = user.id
+        status.assigned_to_ids = user.id
         status.save!
       end
     end

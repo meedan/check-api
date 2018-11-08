@@ -21,27 +21,25 @@ class Dynamic < ActiveRecord::Base
   def slack_notification_message
     annotation_type = self.annotation_type =~ /^task_response/ ? 'task_response' : self.annotation_type
     method = "slack_notification_message_#{annotation_type}"
-    if (!self.set_fields.blank? || self.assigned_to_id != self.previous_assignee) && self.respond_to?(method)
+    if self.respond_to?(method)
       self.send(method)
     end
   end
 
-  def slack_notification_message_task_response
-    self.slack_answer_task_message
+  def slack_params_task_response
+    response, task_id = self.values(['response', 'task'], '').values_at('response', 'task')
+    task = Task.find(task_id)
+    task.slack_params.merge({
+      description: Bot::Slack.to_slack(response, false),
+      attribution: User.where('id IN (:ids)', { :ids => self.attribution.to_s.split(',') })&.collect { |u| u.name }&.to_sentence,
+      task: task,
+      event: self.versions.count > 1 ? 'answer_edit' : 'answer_create'
+    })
   end
 
-  def slack_answer_task_message
-    response, note, task = self.values(['response', 'note', 'task'], '').values_at('response', 'note', 'task')
-    task = Task.find(task).label
-
-    note = I18n.t(:slack_answer_task_note, {note: Bot::Slack.to_slack_quote(note)}) unless note.blank?
-    I18n.t(:slack_answer_task,
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.annotated_client_url, task),
-      project: Bot::Slack.to_slack(self.annotated.project.title),
-      response: Bot::Slack.to_slack_quote(response),
-      answer_note: note
-    )
+  def slack_notification_message_task_response
+    params = self.slack_params_task_response
+    params[:task].slack_notification_message(params)
   end
 
   def data
@@ -159,7 +157,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def set_annotator
-    self.annotator = User.current if !User.current.nil? && (self.annotator.nil? || self.annotation_type_object.singleton)
+    self.annotator = User.current if !User.current.nil? && (self.annotator.nil? || ((!self.annotator.is_a?(User) || !self.annotator.role?(:annotator)) && self.annotation_type_object.singleton))
   end
 
   def update_timestamp

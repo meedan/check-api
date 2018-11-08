@@ -3,7 +3,7 @@ module TaskMutations
     label: '!str',
     type: '!str',
     required: 'bool',
-    assigned_to_id: 'int',
+    assigned_to_ids: 'str',
     description: 'str',
     jsonoptions: 'str',
     annotated_id: 'str',
@@ -17,7 +17,7 @@ module TaskMutations
     response: 'str',
     accept_suggestion: 'int',
     reject_suggestion: 'int',
-    assigned_to_id: 'int',
+    assigned_to_ids: 'str',
     id: '!id'
   }
 

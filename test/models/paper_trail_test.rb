@@ -133,7 +133,7 @@ class PaperTrailTest < ActiveSupport::TestCase
 
   test "should not raise error when deserialize and change is a hash" do
     pt = PaperTrail::Version.new
-    data1 = [nil, "--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\nlabel: Who is who?\ntype: free_text\nrequired: false\ndescription: ''\nstatus: Unresolved\nslug: who_is_who\n"]
+    data1 = [nil, "--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\nlabel: Who is who?\ntype: free_text\nrequired: false\ndescription: ''\nstatus: unresolved\nslug: who_is_who\n"]
     data2 = [{}, {"text"=>"In a separate news report, Davao City Vice Mayor Paolo Duterte also denied the allegations, calling the witness a \"madman\"."}]
     [data1, data2].each do |data|
       data.each do |d|

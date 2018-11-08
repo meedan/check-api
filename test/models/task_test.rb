@@ -5,6 +5,7 @@ class TaskTest < ActiveSupport::TestCase
     super
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    create_task_status_stuff
   end
 
   test "should create task" do
@@ -52,14 +53,6 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create task if status is invalid" do
-    assert_no_difference 'Task.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_task status: 'Invalid'
-      end
-    end
-  end
-
   test "should parse JSON options" do
     t = Task.new
     t.jsonoptions = ['foo', 'bar'].to_json
@@ -68,17 +61,17 @@ class TaskTest < ActiveSupport::TestCase
 
   test "should set initial status" do
     t = create_task status: nil
-    assert_equal 'Unresolved', t.reload.status
+    assert_equal 'unresolved', t.reload.status
   end
 
   test "should add response to task" do
     t = create_task
-    assert_equal 'Unresolved', t.reload.status
+    assert_equal 'unresolved', t.reload.status
     at = create_annotation_type annotation_type: 'response'
     create_field_instance annotation_type_object: at, name: 'response_test'
     t.response = { annotation_type: 'response', set_fields: { response_test: 'test' }.to_json }.to_json
     t.save!
-    assert_equal 'Resolved', t.reload.status
+    assert_equal 'resolved', t.reload.status
   end
 
   test "should get task responses" do
@@ -117,6 +110,30 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 0, DynamicAnnotation::Field.count
   end
 
+  test "should notify on Slack when task is assigned" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tk = create_task annotator: u, annotated: pm
+      u1 = create_user
+      create_team_user user: u1, team: t
+      u2 = create_user
+      create_team_user user: u2, team: t
+
+      tk.assigned_to_ids = u2.id
+      tk.save!
+      assert_match /assigned/, tk.slack_notification_message[:pretext]
+
+      tk.assigned_to_ids = ""
+      tk.save!
+      assert_match /unassigned/, tk.slack_notification_message[:pretext]
+    end
+  end
+
   test "should notify on Slack when task is updated" do
     t = create_team slug: 'test'
     u = create_user
@@ -130,6 +147,11 @@ class TaskTest < ActiveSupport::TestCase
       tk.description = 'changed'
       tk.save!
       assert tk.sent_to_slack
+
+      tk = Task.find(tk.id)
+      c = create_comment annotated: tk
+      assert_not tk.sent_to_slack
+      assert c.sent_to_slack
     end
   end
 
@@ -200,7 +222,6 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should send Slack notification in background" do
-    Bot::Slack.any_instance.stubs(:bot_send_slack_notification).returns(nil)
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -213,36 +234,6 @@ class TaskTest < ActiveSupport::TestCase
       tk.data = { label: 'Foo', type: 'free_text' }.with_indifferent_access
       tk.save!
     end
-    Bot::Slack.any_instance.unstub(:bot_send_slack_notification)
-  end
-
-  test "should define Slack message" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-    p = create_project team: t
-    pm = create_project_media project: p
-    u1 = create_user
-    create_team_user user: u1, team: t
-    u2 = create_user
-    create_team_user user: u2, team: t
-    tk = create_task assigned_to_id: u1.id, annotated: pm, annotator: u
-
-    User.current = u
-
-    tk.assigned_to_id = u2.id
-    tk.save!
-
-    User.current = u
-    assert_match /\sassigned\s/, tk.slack_message_for_assignment
-
-    tk = Task.find(tk.id)
-    tk.assigned_to_id = 0
-
-    User.current = u
-    assert_match /\sunassigned\s/, tk.slack_message_for_assignment
-
-    User.current = nil
   end
 
   test "should load task" do
@@ -369,5 +360,99 @@ class TaskTest < ActiveSupport::TestCase
       assert_equal 'Task', f.versions.last.associated_type
       assert_equal t.id, f.versions.last.associated_id
     end
+  end
+
+  test "should resolve task if response is submitted and task is not assigned to anyone" do
+    at = create_annotation_type annotation_type: 'response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media annotated: pm
+    tk = create_task annotated: pm
+    tk.response = { annotation_type: 'response', set_fields: { response_test: 'test' }.to_json }.to_json
+    tk.save!
+    assert_equal 'resolved', tk.reload.status
+  end
+
+  test "should resolve task if response is submitted by all assigned users" do
+    at = create_annotation_type annotation_type: 'response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    ft = create_field_type field_type: 'task_reference'
+    create_field_instance annotation_type_object: at, name: 'task_reference', field_type_object: ft
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: t, user: u1, role: 'annotator'
+    create_team_user team: t, user: u2, role: 'annotator'
+    tk.assign_user(u1.id)
+    tk.assign_user(u2.id)
+    with_current_user_and_team(u1, nil) do
+      tk = Task.find(tk.id)
+      tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+      tk.save!
+    end
+    assert_equal 'unresolved', tk.reload.status
+    with_current_user_and_team(u2, nil) do
+      tk = Task.find(tk.id)
+      tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+      tk.save!
+    end
+    assert_equal 'resolved', tk.reload.status
+  end
+
+  test "should not resolve task if response is not submitted" do
+    t = create_task
+    assert !t.must_resolve_task({ 'set_fields' => {} })
+  end
+
+  test "should get first response bli" do
+    at = create_annotation_type annotation_type: 'response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    ft = create_field_type field_type: 'task_reference'
+    create_field_instance annotation_type_object: at, name: 'task_reference', field_type_object: ft
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: t, user: u1, role: 'annotator'
+    create_team_user team: t, user: u2
+    with_current_user_and_team(u1, nil) do
+      tk = Task.find(tk.id)
+      tk.response = { annotation_type: 'response', set_fields: { response_test: 'foo', task_reference: tk.id.to_s }.to_json }.to_json
+      tk.save!
+    end
+    tk = Task.find(tk.id)
+    tk.response = { annotation_type: 'response', set_fields: { response_test: 'bar', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.save!
+    with_current_user_and_team(u1, nil) do
+      assert_equal 'foo', tk.reload.first_response
+    end
+    with_current_user_and_team(u2, nil) do
+      assert_equal 'bar', tk.reload.first_response
+    end
+  end
+
+  test "should reopen task" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.status = 'resolved'
+    tk.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'annotator'
+    assert_equal 'resolved', tk.reload.status
+    tk.assign_user(u.id)
+    assert_equal 'unresolved', tk.reload.status
+  end
+
+  test "should get status label" do
+    t = create_task
+    assert_equal 'Unresolved', t.last_task_status_label
   end
 end

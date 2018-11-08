@@ -17,11 +17,7 @@ module RailsAdmin
           end
 
           def parse_value(value)
-            begin
-              value.present? ? YAML.load(value) : nil
-            rescue Psych::SyntaxError
-              value
-            end
+            value.present? ? YAML.load(value) : nil
           end
 
           def parse_input(params)

@@ -12,44 +12,74 @@ module Workflow
           self&.get_field("#{self.annotation_type}_status")&.value
         end
 
-        ::Workflow::Workflow.workflow_ids.each do |id|
+        ::Workflow::Workflow.workflows.each do |workflow|
+          id = workflow.id
+
           attr_accessor "previous_#{id}".to_sym
-          
+
           define_method(id) do
             self.get_field("#{id}_status").to_s if self.annotation_type == id
           end
 
-          define_method "slack_notification_message_#{id}" do
-            from, to = Bot::Slack.to_slack(self.send("previous_#{id}")), Bot::Slack.to_slack(self.send(id))
-            url = Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title)
-            project = Bot::Slack.to_slack(self.annotated.project.title)
-            user = Bot::Slack.to_slack(User.current.name)
-
-            if !from.blank? && from != to
-              I18n.t("slack_update_#{id}",
-                url: url,
-                user: user,
-                project: project,
-                report: Bot::Slack.to_slack_url(self.annotated_client_url, self.annotated.title),
-                from: from,
-                to: to
-              )
-            elsif self.assigned_to_id != self.previous_assignee
-              assignee = nil
-              action = ''
-              if self.assigned_to_id.to_i > 0
-                assignee = Bot::Slack.to_slack(User.find(self.assigned_to_id).name)
-                action = 'assign'
+          if workflow.notify_slack?
+            define_method "slack_notification_message_#{id}" do
+              from_status = self.send("previous_#{id}")
+              to_status = self.send(id)
+              params = self.slack_params.merge({
+                from_status: Bot::Slack.to_slack(from_status),
+                to_status: Bot::Slack.to_slack(to_status),
+                workflow: I18n.t("statuses.ids.#{id}")
+              })
+              if from_status != to_status && !from_status.blank?
+                event = 'status'
+              elsif !params[:assignment_event].blank?
+                params.delete(:from_status)
+                event = params[:assignment_event]
               else
-                assignee = Bot::Slack.to_slack(User.find(self.previous_assignee).name)
-                action = 'unassign'
+                return nil
               end
-              I18n.t("slack_#{action}_#{id}".to_sym,
-                user: user,
-                url: url,
-                assignee: assignee,
-                project: project
-              )
+              {
+                pretext: I18n.t("slack.messages.project_media_#{event}", params),
+                title: params[:title],
+                title_link: params[:url],
+                author_name: params[:user],
+                author_icon: params[:user_image],
+                text: params[:description],
+                fields: [
+                  {
+                    title: I18n.t(:'slack.fields.status'),
+                    value: params[:to_status],
+                    short: true
+                  },
+                  {
+                    title: I18n.t(:'slack.fields.status_previous'),
+                    value: params[:from_status],
+                    short: true
+                  },
+                  {
+                    title: I18n.t(:'slack.fields.assigned'),
+                    value: params[:assigned],
+                    short: true
+                  },
+                  {
+                    title: I18n.t(:'slack.fields.unassigned'),
+                    value: params[:unassigned],
+                    short: true
+                  },
+                  {
+                    title: params[:parent_type],
+                    value: params[:item],
+                    short: false
+                  }
+                ],
+                actions: [
+                  {
+                    type: "button",
+                    text: params[:button],
+                    url: params[:url]
+                  }
+                ]
+              }
             end
           end
         end

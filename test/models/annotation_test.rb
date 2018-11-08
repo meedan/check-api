@@ -273,9 +273,8 @@ class AnnotationTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm
-    c.assigned_to_id = u.id
-    c.save!
-    assert_equal u, c.reload.assigned_to
+    u.assign_annotation(c)
+    assert_equal [u], c.reload.assigned_users
   end
 
   test "should not assign annotation to user if user is not a member of the same team as the annotation" do
@@ -284,11 +283,10 @@ class AnnotationTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm
-    c.assigned_to_id = u.id
     assert_raises ActiveRecord::RecordInvalid do
-      c.save!
+      c.assign_user(u.id)
     end
-    assert_nil c.reload.assigned_to
+    assert_equal [], c.reload.assignments
   end
 
   test "should get annotations assigned to user" do
@@ -300,9 +298,9 @@ class AnnotationTest < ActiveSupport::TestCase
     c1 = create_comment annotated: pm
     c2 = create_comment annotated: pm
     c3 = create_comment annotated: pm
-    c1.assigned_to_id = u.id; c1.save!
-    c2.assigned_to_id = u.id; c2.save!
-    assert_equal [c1, c2].sort, Annotation.assigned_to_user(u).sort 
+    c1.assign_user(u.id)
+    c2.assign_user(u.id)
+    assert_equal [c1, c2].sort, Annotation.assigned_to_user(u).sort
     assert_equal [c1, c2].sort, Annotation.assigned_to_user(u.id).sort
   end
 
@@ -323,28 +321,13 @@ class AnnotationTest < ActiveSupport::TestCase
     s4 = create_status status: 'verified', annotated: pm4
     c1 = create_comment annotated: pm1
     c2 = create_comment annotated: pm3
-    s1.assigned_to_id = u.id; s1.save!
-    s2.assigned_to_id = u.id; s2.save!
-    s3.assigned_to_id = u.id; s3.save!
-    s4.assigned_to_id = u2.id; s4.save!
-    c1.assigned_to_id = u.id; c1.save!
-    c2.assigned_to_id = u.id; c2.save!
+    s1.assign_user(u.id)
+    s2.assign_user(u.id)
+    s3.assign_user(u.id)
+    s4.assign_user(u2.id)
+    c1.assign_user(u.id)
+    c2.assign_user(u.id)
     assert_equal [pm1, pm2, pm3].sort, Annotation.project_media_assigned_to_user(u).sort
-  end
-
-  test "should set assignment to nil if zero" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t, status: 'member'
-    p = create_project team: t
-    pm = create_project_media project: p
-    c = create_comment annotated: pm
-    c.assigned_to_id = u.id
-    c.save!
-    assert_equal u, c.reload.assigned_to
-    c.assigned_to_id = 0
-    c.save!
-    assert_nil c.reload.assigned_to
   end
 
   test "should save metadata in annotation" do
@@ -358,17 +341,17 @@ class AnnotationTest < ActiveSupport::TestCase
     create_team_user user: u1, team: t, status: 'member'
     create_team_user user: u2, team: t, status: 'member'
     tk = create_task annotated: pm, annotator: u
-    tk.assigned_to = u1
-    tk.save!
     tk = Task.find(tk.id)
     with_current_user_and_team(u, t) do
-      tk.assigned_to = u2
-      tk.save!
+      tk.assign_user(u1.id)
+      tk.assign_user(u2.id)
     end
-    v = tk.versions.last
+    v = tk.assignments.first.versions.last
     m = JSON.parse(v.meta)
-    assert_equal m['assigned_from_name'], 'Foo'
-    assert_equal m['assigned_to_name'], 'Bar'
+    assert_equal m['user_name'], 'Foo'
+    v = tk.assignments.last.versions.last
+    m = JSON.parse(v.meta)
+    assert_equal m['user_name'], 'Bar'
   end
 
   test "should get project media for annotation" do
@@ -376,5 +359,54 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_task annotated: pm
     t2 = create_task annotated: t
     assert_equal pm, t2.project_media
+  end
+
+  test "should assign and unassign users" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm
+    u1 = create_user
+    u2 = create_user
+    u3 = create_user
+    u4 = create_user
+    [u1, u2, u3, u4].each{ |u| create_team_user(user: u, team: t) }
+    assert_difference 'Assignment.count', 2 do
+      c.assigned_to_ids = [u1.id, u2.id].join(',')
+      c.save!
+    end
+    assert_equal [u1, u2].sort, c.assigned_users.sort
+    assert_no_difference 'Assignment.count' do
+      c.assigned_to_ids = [u3.id, u4.id].join(',')
+      c.save!
+    end
+    assert_equal [u3, u4].sort, c.assigned_users.sort
+    assert_difference 'Assignment.count', -1 do
+      c.assigned_to_ids = [u3.id].join(',')
+      c.save!
+    end
+    assert_equal [u3], c.assigned_users
+    assert_difference 'Assignment.count', 3 do
+      c.assigned_to_ids = [u1.id, u2.id, u3.id, u4.id].join(',')
+      c.save!
+    end
+    assert_equal [u1, u2, u3, u4].sort, c.assigned_users.sort
+    assert_difference 'Assignment.count', -1 do
+      u1.destroy
+    end
+    assert_difference 'Assignment.count', -3 do
+      c.reload.destroy
+    end
+  end
+
+  test "should get assignment team" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm
+    c.assign_user(u.id)
+    assert_equal [t.id], c.assignments.last.get_team
   end
 end

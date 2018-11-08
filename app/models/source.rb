@@ -25,7 +25,7 @@ class Source < ActiveRecord::Base
   validate :team_is_not_archived, unless: proc { |s| s.team && s.team.is_being_copied }
 
   after_create :create_metadata, :notify_team_bots_create
-  after_update :notify_team_bots_update
+  after_update :notify_team_bots_update, :send_slack_notification
   after_commit :update_elasticsearch_source, on: :update
   after_save :cache_source_overridden
 
@@ -41,6 +41,53 @@ class Source < ActiveRecord::Base
     image_callback(value)
   end
 
+  def slack_params
+    user = User.current or self.user
+    project_source = self.project_sources[0]
+    {
+      user: Bot::Slack.to_slack(user.name),
+      user_image: user.profile_image,
+      role: I18n.t("role_" + user.role(self.team).to_s),
+      team: Bot::Slack.to_slack(self.team.name),
+      type: I18n.t("activerecord.models.source"),
+      title: Bot::Slack.to_slack(self.name),
+      project: Bot::Slack.to_slack(project_source.project.title),
+      description: Bot::Slack.to_slack(self.description, false),
+      url: project_source.full_url,
+      button: I18n.t("slack.fields.view_button", {
+        type: I18n.t("activerecord.models.source"), app: CONFIG['app_name']
+      })
+    }
+  end
+
+  def slack_notification_message(update = true)
+    return nil if self.project_sources.blank?
+    params = self.slack_params
+    event = update ? "update" : "create"
+    {
+      pretext: I18n.t("slack.messages.project_source_#{event}", params),
+      title: params[:title],
+      title_link: params[:url],
+      author_name: params[:user],
+      author_icon: params[:user_image],
+      text: params[:description],
+      fields: [
+        {
+          title: I18n.t(:'slack.fields.project'),
+          value: params[:project],
+          short: true
+        }
+      ],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
+  end
+
   def medias
     #TODO: fix me - list valid project media ids
     m_ids = Media.where(account_id: self.account_ids).map(&:id)
@@ -48,6 +95,10 @@ class Source < ActiveRecord::Base
     conditions = { media_id: m_ids }
     conditions['projects.team_id'] = Team.current.id unless Team.current.nil?
     ProjectMedia.joins(:project).where(conditions)
+  end
+
+  def collaborators
+    self.annotators
   end
 
   def medias_count
@@ -77,10 +128,6 @@ class Source < ActiveRecord::Base
 
   def set_avatar(image)
     self.update_columns(avatar: image)
-  end
-
-  def collaborators
-    self.annotators
   end
 
   def get_annotations(type = nil)
@@ -151,7 +198,7 @@ class Source < ActiveRecord::Base
 
   def overridden
     Rails.cache.fetch("source_overridden_cache_#{self.id}") do
-      get_overridden 
+      get_overridden
     end
   end
 

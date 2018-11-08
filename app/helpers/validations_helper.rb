@@ -14,21 +14,6 @@ module ValidationsHelper
     end
   end
 
-  def checklist_format
-    checklist = self.get_checklist
-    unless checklist.blank?
-      if !checklist.is_a?(Array)
-        errors.add(:base, I18n.t(:invalid_format_for_checklist))
-      else
-        checklist.each do |task|
-          if !task.is_a?(Hash) || (task.keys.map(&:to_sym) & [:description, :label, :type]).sort != [:description, :label, :type]
-            errors.add(:base, I18n.t(:invalid_format_for_checklist))
-          end
-        end
-      end
-    end
-  end
-
   def languages_format
     languages = self.get_languages
     unless languages.blank?

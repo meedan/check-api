@@ -5,12 +5,10 @@ require Rails.root.join('lib', 'rails_admin', 'yaml_field.rb')
 require Rails.root.join('lib', 'rails_admin', 'dashboard.rb')
 require Rails.root.join('lib', 'rails_admin', 'edit.rb')
 require Rails.root.join('lib', 'rails_admin', 'delete.rb')
-require Rails.root.join('lib', 'rails_admin', 'delete_tasks.rb')
 require Rails.root.join('lib', 'rails_admin', 'duplicate_team.rb')
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportProject)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportImages)
-RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::DeleteTasks)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::DuplicateTeam)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Fields::Types::Yaml)
 
@@ -60,9 +58,6 @@ RailsAdmin.config do |config|
       only ['Project']
     end
     duplicate_team do
-      only ['Team']
-    end
-    delete_tasks do
       only ['Team']
     end
 
@@ -339,7 +334,7 @@ RailsAdmin.config do |config|
     end
 
     show do
-      id = CONFIG['default_workflow']
+      id = CONFIG['default_project_media_workflow']
       configure "get_media_#{id.pluralize}", :json do
         label "Media #{id.pluralize.gsub('_', ' ')}"
       end
@@ -354,9 +349,6 @@ RailsAdmin.config do |config|
       end
       configure :get_slack_channel do
         label 'Slack default #channel'
-      end
-      configure :get_checklist, :json do
-        label 'Checklist'
       end
       configure :private do
         visible_only_for_admin
@@ -407,10 +399,10 @@ RailsAdmin.config do |config|
         visible_only_for_admin
       end
 
-      id = CONFIG['default_workflow']
+      id = CONFIG['default_project_media_workflow']
       field "media_#{id.pluralize}", :yaml do
         partial "json_editor"
-        help "A list of custom #{id.pluralize.gsub('_', ' ')} for reports that match your team's guidelines."
+        help "A list of custom #{id.pluralize.gsub('_', ' ')} for items that match your team's guidelines."
         visible_only_for_allowed_teams 'custom_statuses'
       end
 
@@ -441,18 +433,6 @@ RailsAdmin.config do |config|
         formatted_value{ bindings[:object].get_slack_channel }
         help "The Slack channel to which Check should send notifications about events that occur in your team."
         visible_only_for_allowed_teams 'slack_integration', true
-      end
-      field :checklist, :yaml do
-        partial "json_editor"
-        help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
-        visible_only_for_allowed_teams 'custom_tasks_list'
-      end
-      field :raw_checklist, :yaml do
-        label 'Raw Checklist'
-        formatted_yaml(:raw_checklist)
-        help "A list of tasks that should be automatically created every time a new report is added to a project in your team."
-        render_settings('text', true)
-        visible_only_for_allowed_teams 'custom_tasks_list'
       end
       field :limits, :yaml do
         partial "json_editor"

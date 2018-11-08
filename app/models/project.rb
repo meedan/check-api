@@ -105,11 +105,37 @@ class Project < ActiveRecord::Base
     client.update_by_query options
   end
 
+  def slack_params
+    user = User.current or self.user
+    {
+      user: Bot::Slack.to_slack(user.name),
+      user_image: user.profile_image,
+      project: Bot::Slack.to_slack(self.title),
+      role: I18n.t("role_" + user.role(self.team).to_s),
+      team: Bot::Slack.to_slack(self.team.name),
+      url: self.url,
+      button: I18n.t("slack.fields.view_button", {
+        type: I18n.t("activerecord.models.project"), app: CONFIG['app_name']
+      })
+    }
+  end
+
   def slack_notification_message
-    I18n.t(:slack_create_project,
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.url, self.title)
-    )
+    params = self.slack_params
+    {
+      pretext: I18n.t("slack.messages.project_create", params),
+      title: params[:project],
+      title_link: params[:url],
+      author_name: params[:user],
+      author_icon: params[:user_image],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def url
@@ -134,19 +160,10 @@ class Project < ActiveRecord::Base
     self.token ||= SecureRandom.uuid
   end
 
-  def has_auto_tasks?
-    self.team && !self.team.get_checklist.blank?
-  end
-
   def auto_tasks
     tasks = []
-    if self.has_auto_tasks?
-      self.team.get_checklist.each do |task|
-        if task['projects'].blank? || task['projects'].empty? || task['projects'].include?(self.id)
-          task['slug'] = Task.slug(task['label'])
-          tasks << task.with_indifferent_access
-        end
-      end
+    self.team.team_tasks.order('id ASC').each do |task|
+      tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
     end
     tasks
   end

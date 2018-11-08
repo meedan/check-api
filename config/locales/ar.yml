@@ -1,23 +1,32 @@
 ar:
-  link: رابط
-  claim: إدعاء
-  uploadedimage: صورة
-  uploadefile: ملف
-  blank: "(مساحة فارغة)"
   statuses:
+    ids:
+      verification_status: التحقق
+      translation_status: الترجمة
+      task_status: المهمة
+    task:
+      unresolved:
+        label: لم يتم انجازها
+        description: 'افتراضية : لم يتم انجازها بعد'
+      resolved:
+        label: تم إنجازها
+        description: تم إنجاز المهمة
+      cant_be_resolved:
+        label: لا يمكن انجازها
+        description: لم يكن من الممكن حل هذه المهمة
     media:
       undetermined:
         label: لم يبدأ بعد
-        description: حالة التقرير الأولية، أُضيف تواً  إلى Check، لم يتم البدء في التحقق منه
+        description: الحالة الأولية، أُضيف تواً، لم يتم البدء في التحقق منه
       not_applicable:
         label: غير محسوم
-        description: لا يمكن استنتاج حالة التقرير باستخدام الدلائل المتاحة
+        description: لا يمكن استنتاج الحالة باستخدام الدلائل المتاحة
       not_true:
-        label: 'مزيف'
-        description: 'النتيجة: التقرير مزيف'
+        label: "مزيف"
+        description: "النتيجة :  محتوى العنصر غير صحيح"
       verified:
         label: صحيح
-        description: 'النتيجة: تم التأكد من صحة التقرير'
+        description: "النتيجة : محتوى العنصر صحيح"
       pending:
         label: مُعَلَّق
         description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
@@ -39,16 +48,16 @@ ar:
         description: حالة المصدر الأولية، أُضيف تواً إلى Check، لم يتم البدء في التحقق منه
       credible:
         label: موثوق به
-        description: 'النتيجة: هذا المصدر موثوق به'
+        description: "النتيجة: هذا المصدر موثوق به"
       not_credible:
         label: غير موثوق به
-        description: 'النتيجة: هذا المصدر غير موثوق به'
+        description: "النتيجة: هذا المصدر غير موثوق به"
       slightly_credible:
         label: قليل المصداقية
-        description: 'النتيجة: هذا المصدر قليل المصداقية'
+        description: "النتيجة: هذا المصدر قليل المصداقية"
       sockpuppet:
         label: هوية مزيفة
-        description: 'النتيجة: هذا مصدر ذو هوية مزيفة على الانترنت'
+        description: "النتيجة: هذا مصدر ذو هوية مزيفة على الانترنت"
     translation:
       pending:
         label: مُعَلَّق
@@ -67,14 +76,23 @@ ar:
         description: تمت المراجعة وهناك أخطاء يجب تصحيحها
   errors:
     messages:
-      extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات المسموحة هي: %{allowed_types}'
-      invalid_size: لا بد أن تكون الصورة بين %{min_width}x%{min_height} و %{max_width}x%{max_height} بكسل
+      extension_white_list_error: "لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات المسموحة هي: %{allowed_types}"
+      invalid_size: "لا بد أن تكون الصورة بين %{min_width}x%{min_height} و %{max_width}x%{max_height} بكسل"
   activerecord:
     models:
       link: رابط
       claim: إدعاء
       uploaded_image: صورة
       uploaded_file: ملف
+      task: المهمة
+      comment: ملحوظة
+      project_media: العنصر
+      media: عنصر
+      project: مشروع
+      team: فريق
+      user: مستخدم
+      source: مصدر
+      project_source: المصدر
     attributes:
       tag:
         data: الوسم
@@ -89,7 +107,7 @@ ar:
       contact:
         phone: رقم الهاتف
       comment:
-        text: التعليق
+        text: ملحوظة
       user:
         reset_password_token: رمز إعادة تعيين كلمة المرور
         email: البريد الإلكتروني
@@ -104,7 +122,7 @@ ar:
             slug:
               slug_format: 'يقبل الأحرف والأرقام و''-'' فقط '
       messages:
-        record_invalid: 'خطأ في صحة الإدخال : %{errors}'
+        record_invalid: "خطأ في صحة الإدخال : %{errors}"
         improbable_phone: غير صحيح
         too_short:
           zero: قصير جداً (الحد الأدنى %{count} حروف)
@@ -115,8 +133,7 @@ ar:
           other: قصير جداً (الحد الأدنى %{count} حروف)
   slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_checklist: 'صيغة مهام التحقق غير صحيحة'
-  invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي `[{''id'': ''en'',''title'': ''English''}]`'
+  invalid_format_for_languages: "صيغة اللغات غير صحيحة - الصيغة المطلوبة هي [{'id': 'en','title': 'English'}]"
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
   invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
@@ -134,35 +151,54 @@ ar:
   rejected: لم يتم الموافقة
   mail_request_to_join_processed: '%{status} على طلب انضمامك إلى فريق %{team} على %{app_name}'
   mail_new_account: حساب جديد لك على %{app_name}
-  slack_update_verification_status: "غير(ت) *%{user}* حالة التحقق على %{url} في *%{project}* من _%{from}_ إلى *%{to}*"
-  slack_save_embed: "غير(ت) *%{user}* عنوان التقرير في  *%{project}* من _%{from}_ إلى %{to}"
-  slack_save_comment: "أضاف *%{user}* تعليقاً على %{url} في %{project}*: %{comment}"
-  slack_create_project: "أضاف %{user}*  مشروع: %{url}"
-  slack_create_team_user: "إنضم *%{user}* لفريق %{url}"
-  slack_create_project_media: "أضاف *%{user}* %{type} جديد إلى مشروع *%{project}*: %{url}"
-  slack_create_related_media: "أضاف *%{user}* %{type} متعلق ب\"%{parent}\" إلى مشروع *%{project}*: %{url}"
-  slack_create_project_media_no_user: "أضيف %{type} جديد إلى مشروع *%{project}*: %{url}"
-  slack_create_related_media_no_user: "تم إضافة %{type} متعلق ب\"%{parent}\" إلى مشروع *%{project}*: %{url}"
-  slack_create_task_message: "أضاف(ت) *%{user}* المهمة %{url} في مشروع *%{project}*%{assignment}%{create_note}"
-  slack_create_task_assignment: " مُكَلَّف إلى %{assignee}"
-  slack_create_task_note: " مع التعليق: %{note}"
-  slack_answer_task: |-
-      أجاب *%{user}* المهمة %{url} في مشروع *%{project}*: %{response}
-      %{answer_note}
-  slack_answer_task_note: "*التعليق:* %{note}"
-  slack_update_task_label: |-
-      حرر *%{user}* المهمة %{url} في مشروع *%{project}* من %{from}
-      *إلى:* %{to}
-  slack_update_task_description: |-
-      حرر *%{user}* التعليق الإضافي للمهمة %{url} في مشروع *%{project}* من %{from}
-      *إلى:* %{to}
+  slack:
+    fields:
+      assigned: "مُكَلَّف إلى"
+      unassigned: "تم إلغاء التكليف من"
+      required: "إجبارية ؟"
+      required_yes: "نعم"
+      project: "المشروع"
+      source: "المصدر"
+      status: "الحالة"
+      status_previous: "الحالة السابقة"
+      related_to: "ذو صلة مع"
+      view_button: "عرض %{type} في %{app}"
+      project_source: "المصدر"
+      project_media: "العنصر"
+      attribution: "أنجزها"
+    messages:
+      task_create: "قام %{user} (%{role} في %{team}) بإنشاء مهمة"
+      task_edit: "قام %{user} (%{role} في %{team}) بتحرير مهمة"
+      task_assign: "قام %{user} (%{role} في %{team}) بتكليف %{type}"
+      task_unassign: "قام %{user} (%{role} في %{team}) بالغاء تكليف %{type}"
+      task_answer_create: "قام %{user} (%{role} في %{team}) بإجابة مهمة"
+      task_answer_edit: "قام %{user} (%{role} في %{team}) بتحرير اجابة مهمة"
+      task_comment: "قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى مهمة"
+      project_media_comment: "قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}"
+      project_media_create: "قام %{user} (%{role} في %{team}) بإنشاء %{type}"
+      project_media_create_related: "قام %{user} (%{role} في %{team}) بإنشاء %{type} ذو صلة"
+      project_media_create_no_user: "تم انشاء %{type}"
+      project_media_create_related_no_user: "تم انشاء %{type} ذو صلة"
+      project_media_update: "قام %{user} (%{role} في %{team}) بتحرير %{type}"
+      project_media_update_no_user: "تم تحرير %{type}"
+      project_media_status: "قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow} %{type}"
+      project_media_assign: "قام %{user} (%{role} في %{team}) بتكليف %{type}"
+      project_media_unassign: "قام %{user} (%{role} في %{team}) بالغاء تكليف %{type}"
+      project_source_comment: "قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}"
+      project_source_create: "قام %{user} (%{role} في %{team}) بإنشاء %{type}"
+      project_source_update: "قام %{user} (%{role} في %{team}) بتحرير %{type}"
+      project_create: "قام %{user} (%{role} في %{team}) بإنشاء مشروع"
+      user_member: "إنضم %{user} الى الفريق %{team}"
+      user_requested: "طلب %{user} الانضمام الى الفريق %{team}"
+      user_invited: "تمت دعوة %{user} الى الفريق %{team}"
+      user_banned: "تم نبذ %{user} من الفريق %{team}"
   mail_view_welcome: مرحباً بك في %{app_name}
-  mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
+  mail_view_register: "أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:"
   mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
   mail_view_rejected_to_join: عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
   mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
-  mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
-  pender_could_not_parse: عذراً ، لم نتمكن من تحليل الميديا
+  mail_view_process_request: "لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: "
+  pender_could_not_parse: عذراً ، لقد واجهنا خطأ ما اثناء تحليل الميديا. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
   mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
   mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
   mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
@@ -190,11 +226,10 @@ ar:
           html: "بمجرد أن تصبح جاهزة ، سوف تكون نسخة الفريق متاحة في <strong>%{copy_url}</strong>"
   reset_password_instructions: "تعليمات إعادة ضبط كلمة المرور لدى %{app_name}"
   email_not_found: هذا البريد الإلكتروني غير موجود
-  slack_channel_format_wrong: 'صيغة قناة Slack غير صحيحة - الصيغة المطلوبة هي `#general`'
-  translation_status_not_valid: الحالة غير صحيحة
-  translation_status_permission_error: ليس لديك الإذن ﻹحداث هذا التغيير
-  translation_request_id_exists: هناك طلب آخر لترجمة هذه الرسالة
-  slack_update_translation_status: "غير(ت) *%{user}* حالة الترجمة على *%{report}* من *%{from}* إلى *%{to}*"
+  slack_channel_format_wrong: "قناة Slack غير صحيحة"
+  translation_status_not_valid: "حالة غير صحيحة"
+  translation_status_permission_error: "عذراً ، ليس مسموح لك تغيير هذه الحالة."
+  translation_request_id_exists: "هناك طلب آخر لترجمة هذه الرسالة"
   auto_publisher_added_to_project: من الآن سوف يتم نشر كل ترجمة في %{project} إلى الحساب الذي أخترته على %{provider}. إن غيرت رأيك من فضلك تواصل مع فريق الدعم أو أحذف تطبيق Bridge من الحساب على %{provider}.
   invalid_token: رمز الأمان غير صحيح
   viber_screenshot_footer: "ترجمة إلى %{target_language} من %{source_language}: “%{source_text}”"
@@ -212,6 +247,7 @@ ar:
   role_owner: مدير
   role_contributor: مشارك
   role_journalist: صحفي
+  role_annotator: مُفَسِّر
   role_none: عضو
   oembed_credit: تمت الإضافة من %{user} (%{role}) في %{date}
   oembed_notes_count:
@@ -228,25 +264,25 @@ ar:
     few: "%{count} مهام مكتملة"
     many: "%{count} مهمة مكتملة"
     other: "%{count} مهام مكتملة"
-  oembed_verification_tasks: مهام التحقق من المعلومات
+  oembed_verification_tasks: المهام
   oembed_tasks: المهام
   oembed_translations: الترجمات
   oembed_expand_all: توسيع الكل
   oembed_collapse_all: طيّ الكل
   oembed_resolved_tasks_count:
-    zero: "لا توجد مهام تحقق مكتملة"
-    one: "مهمة تحقق واحدة مكتملة"
-    two: "مهمتان تحقق مكتملتان"
-    few: "%{count} مهام تحقق مكتملة"
-    many: "%{count} مهمة تحقق مكتملة"
-    other: "%{count}  مهام تحقق مكتملة"
+    zero: "لا توجد مهام مكتملة"
+    one: "مهمة واحدة مكتملة"
+    two: "مهمتان مكتملتان"
+    few: "%{count} مهام مكتملة"
+    many: "%{count} مهمة مكتملة"
+    other: "%{count} مهمة مكتملة"
   oembed_notes: ملحوظات
   pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع ثوانٍ.
   duplicate_source: المصدر موجود بالفعل
   geolocation_invalid_value: صيغة الموقع لابد أن تطابق (/GeoJSON (http://geojson.org
   datetime_invalid_date: من فضلك أدخل تاريخاً صحيحاً.
   error_team_archived: "لا يمكن إضافة مشروع لفريق في سلة المهملات"
-  error_project_archived: "لا يمكن إضافة تقرير لمشروع في سلة المهملات"
+  error_project_archived: "لا يمكن إضافة العنصر لمشروع في سلة المهملات"
   error_team_archived_for_source: "لا يمكن إضافة مصدر لمشروع في سلة المهملات"
   permission_error: "عذراً ، ليس مسموح لك تنفيذ هذه العملية"
   error_annotated_archived: "لا يمكن إضافة تعليق لعنصر في سلة المهملات"
@@ -255,24 +291,37 @@ ar:
   max_number_of_projects_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في هذا الفريق"
   cant_set_custom_statuses: "عذراً ، خاصية حالات التحقق المتخصصة غير متاحة لهذا الفريق"
   cant_change_custom_statuses: "لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :\n %{others_amount} %{urls}"
-  cant_set_checklist: "عذراً ، خاصية مهام الفريق غير متاحة لهذا الفريق"
+  cant_create_team_task: "عذراً ، هذه الخاصية غير متاحة لهذا الفريق"
   cant_create_media_under_this_team_using_extension: "عذراً ، خاصية ملحق المتصفح غير متاحة لهذا الفريق"
   error_invalid_attribution: "إسناد غير صحيح"
   account_exists: هذا الحساب موجود بالفعل
   media_exists: هذا الميديا موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
-  banned_user: 'عذراً ، لقد تم حظرك من %{app_name}. يمكنك اﻹتصال على %{support_email} إن كنت تعتقد أن هناك خطأ ما.'
+  banned_user: "عذراً ، لقد تم حظرك من %{app_name}. يمكنك اﻹتصال بفريق الدعم إن كنت تعتقد أن هناك خطأ ما."
   devise:
     mailer:
       reset_password_instructions:
         instruction: "طلب أحدهم رابطًا لتغيير كلمة السر الخاصة بك، ويُمكن عمل ذلك من خلال الرابط التالي. <strong>يرجى الملاحظة أن مدة صلاحية الرابط %{expire} ساعات.</strong>"
+      invitation_instructions:
+        subject: "لقد دعاك %{user} للانضمام إلى فريق %{team}"
+        hello: "مرحباً %{name}"
+        someone_invited_you_default:
+          html: "لقد دعاك %{name} للانضمام إلى فريق %{team}."
+        someone_invited_you_custom:
+          html: "لقد دعاك %{name} للانضمام إلى فريق %{team} قائلاً :"
+        accept: 'يمكنك قبول الدعوة من خلال هذا الرابط : %{url}'
+        accept_until: "هذه الدعوة سوف تنتهي في %{due_date}."
+        ignore: "إذا كنت لا تريد قبول الدعوة ، فيمكنك تجاهل هذه الرسالة."
+        app_team: "فريق %{app}"
+    failure:
+      unconfirmed: "من فضلك راجع بريدك الالكتروني للتحقق من حسابك."
+  user_invitation:
+    invited: 'تمت دعوة هذا المستخدم بالفعل لهذا الفريق.'
+    member: 'هذا المستخدم عضو في الفريق بالفعل.'
+    team_found: 'هذا الفريق غير موجود'
+    invalid: 'رمز الدعوة غير صحيح.'
+    no_invitation: 'لا توجد دعوة للفريق %{name}'
   error_user_is_not_a_team_member: "عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق"
-  slack_assign_verification_status: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
-  slack_unassign_verification_status: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
-  slack_assign_translation_status: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
-  slack_unassign_translation_status: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
-  slack_assign_task: "كلَّفَ(ت) *%{user}* المهمة %{url} في مشروع *%{project}* إلى *%{assignee}*"
-  slack_unassign_task: "ألغى(ت) *%{user}* تكليف مهمة %{url} في مشروع *%{project}* من *%{assignee}*"
   mail_see_it: "تستطيع أن تراه هنا : "
   mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
@@ -293,8 +342,8 @@ ar:
   archive_archive_is: "Archive.is"
   archive_archive_org: "Archive.org"
   project_export_email_title_csv: "تقرير مشروعك جاهز للتحميل"
-  workflow_status_not_valid: " عذراً ، هذه الحالة غير صحيحة"
-  workflow_status_permission_error: "عذراً ، ليس مسموح لك تغيير هذه الحالة"
+  workflow_status_not_valid: "حالة غير صحيحة"
+  workflow_status_permission_error: "عذراً ، ليس مسموح لك تغيير هذه الحالة."
   blank_default_status_for_custom_translation_status: "من فضلك أضف قيمة إفتراضية لحالات الترجمة الخاصة"
   blank_active_status_for_custom_translation_status: "من فضلك أضف قيمة نشطة لحالات الترجمة الخاصة"
   blank_default_status_for_custom_verification_status: "من فضلك أضف قيمة إفتراضية لحالات التحقق الخاصة"
@@ -304,7 +353,7 @@ ar:
   bot_team_id_mandatory_to_create: "عذراً ، يجب اختيار فريقاً لكي تضيف البوت"
   bot_not_approved_for_installation: "عذراً ، لا يمكن تثبيت هذا البوت ﻷن لم يتم الموافقة عليه"
   only_admins_can_approve_bots: "عذراً ، هذه العملية متاحة للمسؤولين فقط"
-  could_not_save_related_bot_data: "عذراً ، لم نتمكن من إضافة البوت لهذا الفريق"
+  could_not_save_related_bot_data: "عذراً ، لقد واجهنا خطأ ما اثناء إضافة البوت. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ."
   bot_limited_team_not_pro: "عذراً ، البوت غير متاح لهذا الفريق"
   slack_save_task_comment: "أضاف *%{user}* تعليقاً للمهمة *%{task}* في %{url} في %{project}*: %{comment}"
   bot_cant_add_response_to_task: "عذراً ، البوت يمكنه فقط تقديم اقتراحاً لحل المهمة"
@@ -324,6 +373,8 @@ ar:
         description: "الصحفيون يتحققون من المعلومات."
       contributor:
         description: "المشاركون يضيفون عناصر جديدة للتحقق. هم في الغالب أعضاء من الجمهور."
+      annotator:
+        description: "المفسرون يمكنهم فقط عرض وإجابة المهام المكلفون بها."
     permissions:
       sections:
         project_management:
@@ -358,9 +409,24 @@ ar:
             delete: "حذف الفريق"
             edit: "تحرير معلومات الفريق"
             set_private: "إخفاء أو إظهار الفريق"
-            edit_status: "تحرير حالات التحقق المتخصصة"
-            edit_tasks: "تحرير مهام الفريق المتخصصة"
+            edit_status: "تحرير حالات تحقق الفريق"
+            edit_tasks: "تحرير مهام الفريق"
             roles: "إدارة أعضاء الفريق"
             third_party: "تكامل التطبيقات الخارجية"
             invite_owner: "دعوة مديري الفريق والموافقة عليهم وإزالتهم"
             invite_members: "دعوة أعضاء الفريق والموافقة عليهم وإزالتهم"
+  team_import:
+    invalid_google_spreadsheet_url: "عنوان جدول بيانات غير صحيح %{spreadsheet_url}"
+    not_found_google_spreadsheet_url: "عنوان جدول بيانات غير صحيح %{spreadsheet_url}"
+    cannot_authenticate_with_the_credentials: "عذراً ، لقد واجهنا خطأ ما. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ."
+    team_not_present: "عذراً ، لقد واجهنا خطأ ما. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ."
+    user_not_present: "عذراً ، لقد واجهنا خطأ ما. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ."
+    user_not_authorized: "عذراً ، ليس مسموح لك استيراد بيانات لهذا الفريق."
+    invalid_project: "مشروع غير صحيح %{project}"
+    invalid_user: "مؤلف غير صحيح %{user}"
+    invalid_status: "%{status}حالة غير صحيحة "
+    blank_user: "مؤلف فارغ غير صحيح"
+    blank_annotator: "مُعلِّق فارغ غير صحيح"
+    blank_project: "مشروع فارغ غير صحيح"
+    invalid_annotator: "مُعلِّق غير صحيح %{user}"
+    invalid_assignee: "مُكلّف غير صحيح %{user}"

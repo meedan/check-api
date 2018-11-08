@@ -24,7 +24,7 @@ class GraphqlCrudOperations
 
   def self.define_conditional_returns(obj)
     ret = {}
-    
+
     if obj.is_a?(Team) && User.current.present?
       team_user = obj.reload.team_user
       ret["team_userEdge".to_sym] = GraphQL::Relay::Edge.between(team_user, User.current.reload) unless team_user.nil?
@@ -212,7 +212,7 @@ class GraphqlCrudOperations
     proc do |_classname|
       connection :log, -> { VersionType.connection_type } do
         resolve ->(obj, _args, _ctx) {
-          obj.get_versions_log.reverse
+          obj.get_versions_log
         }
       end
     end
@@ -282,7 +282,11 @@ class GraphqlCrudOperations
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
 
-      field :assigned_to, UserType
+      connection :assignments, -> { UserType.connection_type } do
+        resolve ->(annotation, _args, _ctx) {
+          annotation.assigned_users
+        }
+      end
 
       field :locked, types.Boolean
 

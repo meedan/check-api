@@ -3,9 +3,10 @@ class Task < ActiveRecord::Base
 
   has_annotations
 
-  before_validation :set_initial_status, :set_slug, on: :create
+  before_validation :set_slug, on: :create
   after_create :send_slack_notification
-  after_update :send_slack_notification_in_background
+  after_update :send_slack_notification
+  after_commit :send_slack_notification, on: [:create, :update]
   after_destroy :destroy_responses
 
   field :label
@@ -22,85 +23,112 @@ class Task < ActiveRecord::Base
   field :options
   validate :task_options_is_array
 
-  field :status
-  def self.task_statuses
-    ["Unresolved", "Resolved", "Can't be resolved"]
-  end
-  validates :status, included: { values: self.task_statuses }, allow_blank: true
-
   field :slug
-
   field :required, :boolean
-
   field :log_count, Integer
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
+  field :team_task_id, Integer
 
-  def slack_notification_message
-    if self.versions.count > 1
-      self.slack_message_on_update
-    else
-      self.slack_message_on_create
-    end
+  def status=(value)
+    a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: self.id).last
+    a = a.nil? ? nil : (a.load || a)
+    return nil if a.nil?
+    f = a.get_field('task_status_status')
+    f.value = value
+    f.skip_check_ability = true
+    f.save!
   end
 
-  def slack_message_on_create
-    note = self.description.blank? ? '' : I18n.t(:slack_create_task_note, { note: Bot::Slack.to_slack_quote(self.description) })
-    assignment = self.assigned_to_id.to_i > 0 ? I18n.t(:slack_create_task_assignment, { assignee: Bot::Slack.to_slack(User.find(self.assigned_to_id).name) }) : ''
-    params = self.slack_default_params.merge({
-      create_note: note,
-      assignment: assignment
+  def status
+    self.last_task_status
+  end
+
+  def project
+    self&.annotated&.project
+  end
+
+  def to_s
+    self.label
+  end
+
+  SLACK_FIELDS_IGNORE = [ :log_count, :slug, :status ]
+
+  def slack_params
+    super.merge({
+      title: Bot::Slack.to_slack(self.label),
+      description: Bot::Slack.to_slack(self.description, false),
+      required: self.required ? I18n.t("slack.fields.required_yes") : nil,
+      status: Bot::Slack.to_slack(self.status),
+      attribution: nil
     })
-    I18n.t(:slack_create_task_message, params)
   end
 
-  def slack_default_params
-    {
-      user: Bot::Slack.to_slack(User.current.name),
-      url: Bot::Slack.to_slack_url(self.annotated_client_url, self.label),
-      project: Bot::Slack.to_slack(self.annotated.project.title)
-    }
-  end
-
-  def slack_message_on_update
-    messages = []
-
-    if self.data_changed?
-      data = self.data
-      data_was = self.data_was
-
-      ['label', 'description'].each do |key|
-        if data_was[key].to_s != data[key].to_s
-          params = self.slack_default_params.merge({
-            from: Bot::Slack.to_slack_quote(data_was[key]),
-            to: Bot::Slack.to_slack_quote(data[key])
-          })
-          messages << I18n.t("slack_update_task_#{key}".to_sym, params)
-        end
+  def slack_notification_message(params = nil)
+    if params.nil?
+      params = self.slack_params
+      if self.data_changed? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
+        event = self.versions.count > 1 ? 'edit' : 'create'
+      elsif !params[:assignment_event].blank?
+        event = params[:assignment_event]
+      else
+        return nil
       end
-    end
-
-    messages << self.slack_message_for_assignment if self.assigned_to_id_changed?
-
-    message = messages.join("\n")
-
-    message.blank? ? nil : message
-  end
-
-  def slack_message_for_assignment
-    action = ''
-    uid = nil
-    if self.assigned_to_id.to_i > 0
-      uid = self.assigned_to_id
-      action = 'assign'
     else
-      uid = self.assigned_to_id_was
-      action = 'unassign'
+      event = params[:event]
     end
-    params = self.slack_default_params.merge({
-      assignee: Bot::Slack.to_slack(User.find(uid).name)
-    })
-    I18n.t("slack_#{action}_task".to_sym, params)
+    {
+      pretext: I18n.t("slack.messages.task_#{event}", params),
+      title: params[:title],
+      title_link: params[:url],
+      author_name: params[:user],
+      author_icon: params[:user_image],
+      text: params[:description],
+      fields: [
+        {
+          title: I18n.t("slack.fields.status"),
+          value: params[:status],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.assigned"),
+          value: params[:assigned],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.unassigned"),
+          value: params[:unassigned],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.required"),
+          value: params[:required],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.project"),
+          value: params[:project],
+          short: true
+        },
+        {
+          title: I18n.t("slack.fields.attribution"),
+          value: params[:attribution],
+          short: true
+        },
+        {
+          title: params[:parent_type],
+          value: params[:item],
+          short: false
+        }
+      ],
+      actions: [
+        {
+          type: "button",
+          text: params[:button],
+          url: params[:url]
+        }
+      ]
+    }
   end
 
   def content
@@ -118,17 +146,32 @@ class Task < ActiveRecord::Base
   end
 
   def responses
-    DynamicAnnotation::Field.where(field_type: 'task_reference', value: self.id.to_s).to_a.map(&:annotation)
+    ids = DynamicAnnotation::Field.where(field_type: 'task_reference', value: self.id.to_s).map(&:annotation_id)
+    Annotation.where(id: ids)
   end
 
   def response
     @response
   end
 
+  def new_or_existing_response
+    response = self.first_response_obj
+    response.nil? ? Dynamic.new : response.load
+  end
+
+  def must_resolve_task(params)
+    set_fields = begin JSON.parse(params['set_fields']) rescue params['set_fields'] end
+    if set_fields.keys.select{ |k| k =~ /^response/ }.any?
+      uids = self.assigned_users.map(&:id).sort
+      uids.empty? || uids == self.responses.map(&:annotator_id).uniq.sort
+    else
+      false
+    end
+  end
+
   def response=(json)
     params = JSON.parse(json)
-    response = self.responses.first
-    response = response.nil? ? Dynamic.new : response.load
+    response = self.new_or_existing_response
     response.annotated = self.annotated
     response.annotation_type = params['annotation_type']
     response.disable_es_callbacks = Rails.env.to_s == 'test'
@@ -138,12 +181,22 @@ class Task < ActiveRecord::Base
     response.save!
     @response = response
     self.record_timestamps = false
-    set_fields = begin JSON.parse(params['set_fields']) rescue params['set_fields'] end
-    self.status = 'Resolved' if set_fields.keys.select{ |k| k =~ /^response/ }.any?
+    self.status = 'resolved' if self.must_resolve_task(params)
+  end
+
+  def first_response_obj
+    user = User.current
+    responses = self.responses
+    if !user.nil? && user.role?(:annotator)
+      responses = responses.select{ |r| r.annotator_id.to_i == user.id.to_i }
+    else
+      responses = responses.reject{ |r| r.annotator&.role?(:annotator) }
+    end
+    responses.first
   end
 
   def first_response
-    response = self.responses.first
+    response = self.first_response_obj
     response.get_fields.select{ |f| f.field_name =~ /^response/ }.first.to_s unless response.nil?
   end
 
@@ -152,7 +205,7 @@ class Task < ActiveRecord::Base
   end
 
   def log
-    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).order('id ASC')
+    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).where.not("object_after LIKE '%task_status%'").order('id ASC')
   end
 
   def reject_suggestion=(version_id)
@@ -169,13 +222,13 @@ class Task < ActiveRecord::Base
     response = response.load
     suggestion = response.get_fields.select{ |f| f.field_name =~ /^suggestion/ }.first
     return if suggestion.nil?
-    
+
     # Save review information and copy suggestion to answer if accepted
     review = { user: User.current, timestamp: Time.now, accepted: accept }.to_json
     fields = { "review_#{self.type}" => review }
     if accept
       fields["response_#{self.type}"] = suggestion.to_s
-      self.status = 'Resolved'
+      self.status = 'resolved'
     end
     response.set_fields = fields.to_json
     response.updated_at = Time.now
@@ -189,20 +242,6 @@ class Task < ActiveRecord::Base
     self.pending_suggestions_count -= 1 if self.pending_suggestions_count.to_i > 0
   end
 
-  def self.send_slack_notification(tid, rid, uid, changes)
-    User.current = User.find(uid) if uid > 0
-    object = Task.where(id: tid).last
-    return if object.nil?
-    changes = JSON.parse(changes)
-    changes.each do |attribute, change|
-      object.send :set_attribute_was, attribute, change[0]
-    end
-    response = rid > 0 ? Dynamic.find(rid) : nil
-    object.instance_variable_set(:@response, response)
-    object.send_slack_notification
-    User.current = nil
-  end
-
   def self.slug(label)
     label.to_s.parameterize.tr('-', '_')
   end
@@ -211,10 +250,6 @@ class Task < ActiveRecord::Base
 
   def task_options_is_array
     errors.add(:options, 'must be an array') if !self.options.nil? && !self.options.is_a?(Array)
-  end
-
-  def set_initial_status
-    self.status ||= 'Unresolved'
   end
 
   def destroy_responses
@@ -226,12 +261,6 @@ class Task < ActiveRecord::Base
 
   def set_slug
     self.slug = Task.slug(self.label)
-  end
-
-  def send_slack_notification_in_background
-    uid = User.current ? User.current.id : 0
-    rid = self.response.nil? ? 0 : self.response.id
-    Task.delay_for(1.second).send_slack_notification(self.id, rid, uid, self.changes.to_json)
   end
 end
 

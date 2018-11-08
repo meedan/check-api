@@ -1,6 +1,18 @@
 module CheckBasicAbilities
   include CanCan::Ability
 
+  def can_list(klasses, new_params)
+    klasses = [klasses].flatten
+    RequestStore.store[:graphql_connection_params] ||= {}
+    RequestStore.store[:graphql_connection_params][@user.id] ||= {}
+    all_params = RequestStore.store[:graphql_connection_params][@user.id]
+    klasses.each do |klass|
+      current_params = all_params[klass.to_s] || {}
+      params = current_params.merge(new_params)
+      RequestStore.store[:graphql_connection_params][@user.id][klass.to_s] = params.with_indifferent_access
+    end
+  end
+
   def global_admin_perms
     can :access, :rails_admin
     can :dashboard

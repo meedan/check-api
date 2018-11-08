@@ -90,7 +90,7 @@ class TeamBot < ActiveRecord::Base
   def call(data)
     begin
       uri = URI.parse(self.request_url)
-      headers = { 'Content-Type': 'text/json' }
+      headers = { 'Content-Type': 'application/json' }
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true if self.request_url =~ /^https:/
       request = Net::HTTP::Post.new(uri.request_uri, headers)

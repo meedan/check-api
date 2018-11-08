@@ -86,7 +86,7 @@
       "projects": {
         "title": "Projects",
         "default": [],
-        "description": "The list of projects that will have this task created automatically for every new report. Leave blank to apply to all projects in the current team.",
+        "description": "The list of projects that will have this task created automatically for every new item. Leave blank to apply to all projects in the current team.",
         "type": "array",
         "items": {
           "title": "Project identifier",

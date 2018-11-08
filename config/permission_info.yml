@@ -8,6 +8,8 @@
   :description: "<%= I18n.t(:'permissions_info.roles.journalist.description') %>"
 - :name: Contributor
   :description: "<%= I18n.t(:'permissions_info.roles.contributor.description') %>"
+- :name: Annotator
+  :description: "<%= I18n.t(:'permissions_info.roles.annotator.description') %>"
 :permissions:
 -
   :section: "<%= I18n.t(:'permissions_info.permissions.sections.project_management.name') %>"

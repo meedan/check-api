@@ -1,9 +1,9 @@
 class CheckCldr
   def self.load
     data = {}
-    Dir.foreach(File.join(Rails.root, 'cldr-data')) do |file|
+    Dir.foreach(File.join(Rails.root, 'data')) do |file|
       if file =~ /^[a-z]{2}$/
-        yaml = File.join(Rails.root, 'cldr-data', file, 'languages.yml')
+        yaml = File.join(Rails.root, 'data', file, 'languages.yml')
         data[file] = YAML.load(File.read(yaml))[file]['languages'] if File.exist?(yaml)
       end
     end
