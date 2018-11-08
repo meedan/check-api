@@ -94,9 +94,9 @@ class Bot::Slack < ActiveRecord::Base
   protected
 
   def get_project(model)
-    p = model if model.class.to_s == 'Project'
     p = model.project if model.respond_to?(:project)
-    model = model.annotation if model.is_a?(Assignment)
+    model = model.assigned if model.is_a?(Assignment)
+    p = model if model.class.to_s == 'Project'
     p = self.get_project_for_annotation(model) if model.is_annotation?
     p
   end

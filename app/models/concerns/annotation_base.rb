@@ -80,6 +80,8 @@ module AnnotationBase
     after_destroy :touch_annotated
 
     has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| User.current.present? && !a.is_being_copied }
+    
+    has_many :assignments, ->{ where(assigned_type: 'Annotation') }, foreign_key: :assigned_id, dependent: :destroy
 
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array

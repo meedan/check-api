@@ -353,6 +353,8 @@ en:
   mail_assign_task: "%{author} assigned a task \"%{task}\" to you. It's on the media item titled:"
   mail_unassign_task: "%{author} unassigned a task \"%{task}\" from you. It's on the media item titled:"
   mail_update_status: "%{author} marked \"%{title}\" as %{status}"
+  mail_assign_project: "%{author} assigned a project to you. It's titled:"
+  mail_unassign_project: "%{author} unassigned a project from you. It's titled:"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "Keep screenshots"
   archive_archive_is: "Archive.is"

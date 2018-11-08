@@ -2,6 +2,7 @@ class Project < ActiveRecord::Base
 
   include ValidationsHelper
   include DestroyLater
+  include AssignmentConcern
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user

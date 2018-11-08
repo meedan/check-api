@@ -148,8 +148,9 @@ class Ability
       end
     end
     can [:destroy, :create], Assignment do |obj|
-      obj = obj.annotation
-      obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+      type = obj.assigned_type
+      obj = obj.assigned
+      obj.get_team.include?(@context_team.id) && ((type == 'Annotation' && !obj.annotated_is_archived?) || (type == 'Project' && !obj.archived))
     end
     can :lock_annotation, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
@@ -225,8 +226,9 @@ class Ability
       obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived? and !obj.locked?
     end
     can [:destroy, :create], Assignment do |obj|
-      obj = obj.annotation
-      obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived? and !obj.locked?
+      type = obj.assigned_type
+      obj = obj.assigned
+      (type == 'Annotation' && obj.annotator_id.to_i == @user.id && !obj.annotated_is_archived? && !obj.locked?) || (type == 'Project' && obj.user_id == @user.id && !obj.archived)
     end
     can [:create, :update, :destroy], DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?
