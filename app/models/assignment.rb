@@ -33,7 +33,7 @@ class Assignment < ActiveRecord::Base
     author = User.where(id: author_id).last
     assigned = self.assigned
     user = self.user
-    return if author_id.nil? || author.nil? || assigned.nil? || user.nil?
+    return if [author_id, author, assigned, user].select{ |x| x.nil? }.any?
     type = assigned.is_a?(Annotation) ? assigned.annotation_type : self.assigned_type.downcase
     AssignmentMailer.delay.notify("#{action}_#{type}", author, user.email, assigned)
   end
