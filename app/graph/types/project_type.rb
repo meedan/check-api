@@ -15,13 +15,11 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :medias_count, types.Int
   field :search_id, types.String
   field :auto_tasks, JsonStringType
-
-  field :team do
-    type TeamType
-
-    resolve -> (project, _args, _ctx) {
-      team = project.team
-      team
+  field :team, TeamType
+  
+  field :assignments_count, types.Int do
+    resolve ->(project, _args, _ctx) {
+      project.reload.assignments_count
     }
   end
 
@@ -34,6 +32,12 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   connection :project_sources, -> { ProjectSourceType.connection_type } do
     resolve ->(project, _args, _ctx) {
       project.project_sources.to_a
+    }
+  end
+
+  connection :assigned_users, -> { UserType.connection_type } do
+    resolve ->(project, _args, _ctx) {
+      project.assigned_users
     }
   end
 

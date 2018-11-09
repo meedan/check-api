@@ -191,6 +191,8 @@ en:
       project_source_create: "%{user} (%{role} at %{team}) added a %{type}"
       project_source_update: "%{user} (%{role} at %{team}) edited a %{type}"
       project_create: "%{user} (%{role} at %{team}) created a project"
+      project_assign: "%{user} (%{role} at %{team}) assigned a project"
+      project_unassign: "%{user} (%{role} at %{team}) unassigned a project"
       user_member: "%{user} joined team %{team}"
       user_requested: "%{user} requested to join team %{team}"
       user_invited: "%{user} was invited to join team %{team}"

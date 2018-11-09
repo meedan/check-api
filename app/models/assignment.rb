@@ -4,8 +4,8 @@ class Assignment < ActiveRecord::Base
 
   before_validation :set_annotation_assigned_type
   before_update { raise ActiveRecord::ReadOnlyRecord }
-  after_create :send_email_notification_on_create
-  after_destroy :send_email_notification_on_destroy
+  after_create :send_email_notification_on_create, :increase_assignments_count
+  after_destroy :send_email_notification_on_destroy, :decrease_assignments_count
 
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
 
@@ -38,6 +38,11 @@ class Assignment < ActiveRecord::Base
     AssignmentMailer.delay.notify("#{action}_#{type}", author, user.email, assigned)
   end
 
+  def change_assignments_count(value)
+    assigned = self.assigned
+    assigned.update_column(:assignments_count, assigned.assignments_count + value) if assigned.respond_to?(:assignments_count)
+  end
+
   private
 
   def assigned_to_user_from_the_same_team
@@ -60,5 +65,13 @@ class Assignment < ActiveRecord::Base
 
   def set_annotation_assigned_type
     self.assigned_type = 'Annotation' if self.is_annotation?
+  end
+
+  def increase_assignments_count
+    self.change_assignments_count(1)
+  end
+
+  def decrease_assignments_count
+    self.change_assignments_count(-1)
   end
 end
