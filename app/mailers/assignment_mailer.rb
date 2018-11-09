@@ -5,7 +5,7 @@ class AssignmentMailer < ApplicationMailer
 
     @event = event
     @info = {
-      author: author.name
+      author: author ? author.name : ''
     }
     
     if assigned.is_a?(Annotation)

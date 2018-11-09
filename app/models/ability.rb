@@ -66,12 +66,12 @@ class Ability
     end
 
     pms = Annotation.project_media_assigned_to_user(@user).to_a
-    pids = (Assignment.where(assigned_type: 'Project', user_id: @user.id).map(&:assigned_id) + pms.map(&:project_id)).uniq
-    pmids = pms.map(&:id)
+    pids = pms.map(&:project_id).uniq
+    pmids = pms.map(&:id).uniq
     
     cannot :read, [User, ProjectMedia, Project, Task]
     can :read, User, id: @user.id
-    can :read, ProjectMedia, project_id: pids
+    can :read, ProjectMedia, id: pmids
     can :read, Project, id: pids
     can :read, Task do |task|
       task.assigned_users.include?(@user)
@@ -81,7 +81,7 @@ class Ability
     can_list PaperTrail::Version, whodunnit: @user.id.to_s
     can_list User, id: @user.id
     can_list Task, { 'joins' => :assignments, 'assignments.user_id' => @user.id }
-    can_list ProjectMedia, project_id: pids 
+    can_list ProjectMedia, id: pmids
     can_list Project, id: pids
     can_list [Annotation, Dynamic], { annotator_id: @user.id }
     
