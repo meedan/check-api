@@ -6,7 +6,7 @@ class AssignmentMailerTest < ActionMailer::TestCase
     create_user email: 'user1@mail.com'
     t = create_task
 
-    email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', t.id)
+    email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', t)
 
     assert_emails 1 do
       email.deliver_now
@@ -21,7 +21,7 @@ class AssignmentMailerTest < ActionMailer::TestCase
     u2.set_send_email_notifications = false; u2.save!
     t = create_task
 
-    email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', t.id)
+    email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', t)
 
     assert_emails 0 do
       email.deliver_now
@@ -29,9 +29,23 @@ class AssignmentMailerTest < ActionMailer::TestCase
     
     # test with banned user
     u3 = create_user email: 'user3@mail.com', is_active: false
-    email = AssignmentMailer.notify(:assign_status, u, 'user3@mail.com', t.id)
+    email = AssignmentMailer.notify(:assign_status, u, 'user3@mail.com', t)
     assert_emails 0 do
       email.deliver_now
     end
+  end
+
+  test "should notify about project assignment" do
+    u = create_user
+    create_user email: 'user1@mail.com'
+    p = create_project
+
+    email = AssignmentMailer.notify(:assign_project, u, 'user1@mail.com', p)
+
+    assert_emails 1 do
+      email.deliver_now
+    end
+
+    assert_equal ['user1@mail.com'], email.to
   end
 end
