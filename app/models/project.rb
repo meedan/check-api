@@ -198,6 +198,14 @@ class Project < ActiveRecord::Base
     self.team && self.team.is_being_copied
   end
 
+  def propagate_assignment_to(_user = nil)
+    targets = []
+    ProjectMedia.where(project_id: self.id).find_each do |pm|
+      targets << pm.last_status_obj
+    end
+    targets
+  end
+
   private
 
   def project_languages_format

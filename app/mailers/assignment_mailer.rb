@@ -27,4 +27,9 @@ class AssignmentMailer < ApplicationMailer
     Rails.logger.info "Sending e-mail from event #{event} to #{recipient}"
     mail(to: recipient, email_type: 'assignment', subject: I18n.t("mail_subject_#{event}".to_sym, team: @team, project: @project))
   end
+
+  def ready(email, team, project)
+    Rails.logger.info "Sending e-mail to #{email} because the assignments are ready"
+    mail(to: email, email_type: 'assignment', subject: I18n.t(:mail_subject_assignments_ready, team: team&.name, project: project&.title)) if email
+  end
 end
