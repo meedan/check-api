@@ -74,12 +74,14 @@ module AnnotationBase
 
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
-    after_create :notify_team_bots_create
+    after_create :notify_team_bots_create, :assign_to_users
     after_update :notify_team_bots_update, :notify_bot_author
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
 
     has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| User.current.present? && !a.is_being_copied }
+    
+    has_many :assignments, ->{ where(assigned_type: 'Annotation') }, foreign_key: :assigned_id, dependent: :destroy
 
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
@@ -114,6 +116,26 @@ module AnnotationBase
       if annotated && annotated.respond_to?(:archived) && annotated.archived
         errors.add(:base, I18n.t(:error_annotated_archived, default: "Sorry, this item is in the trash, you can't add a note to it"))
       end
+    end
+
+    def propagate_assignment_to(user)
+      if self.annotation_type == 'verification_status' || self.annotation_type == 'translation_status'
+        self.annotated.get_annotations('task').map(&:load).select{ |task| task.status == 'unresolved' || task.responses.select{ |r| r.annotator_id.to_i == user.id }.last.nil? }
+      else
+        []
+      end
+    end
+
+    def assign_to_users
+      users = []
+      if self.annotation_type == 'task'
+        status_id = self.annotated&.last_status_obj&.id
+        users = User.joins(:assignments).where('assignments.assigned_id' => status_id, 'assignments.assigned_type' => 'Annotation').map(&:id).uniq
+      elsif self.annotation_type == 'verification_status' || self.annotation_type == 'translation_status'
+        project_id = self.annotated&.project_id
+        users = User.joins(:assignments).where('assignments.assigned_id' => project_id, 'assignments.assigned_type' => 'Project').map(&:id).uniq
+      end
+      Assignment.delay.bulk_assign(YAML::dump(self), users) unless users.empty?
     end
   end
 

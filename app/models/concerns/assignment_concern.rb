@@ -13,16 +13,17 @@ module AssignmentConcern
   # We can't simply use assignments= from Active Record here because it doesn't call the callbacks
   def save_assignments
     csids = self.assigned_to_ids
+    klass = self.is_annotation? ? 'Annotation' : self.class.name
     unless csids.nil?
       new_ids = csids.to_s.split(',').map(&:to_i)
       current_ids = self.reload.assignments.map(&:user_id)
       to_create = new_ids - current_ids
       to_delete = current_ids - new_ids
       to_delete.each do |id|
-        Assignment.where(annotation_id: self.id, user_id: id).last.destroy!
+        Assignment.where(assigned_type: klass, assigned_id: self.id, user_id: id).last.destroy!
       end
       to_create.each do |id|
-        Assignment.create!(annotation_id: self.id, user_id: id)
+        Assignment.create!(assigned_type: klass, assigned_id: self.id, user_id: id)
       end
       # Save the assignment details to send them as Slack notifications
       self.instance_variable_set("@assignment", { to_create: to_create, to_delete: to_delete }) unless to_delete.blank? and to_create.blank?
@@ -38,12 +39,20 @@ module AssignmentConcern
   end
 
   def assigned_users
-    User.joins(:assignments).where('assignments.annotation_id' => self.id)
+    klass = self.is_annotation? ? 'Annotation' : self.class.name
+    User.joins(:assignments).where('assignments.assigned_id' => self.id, 'assignments.assigned_type' => klass)
   end
 
   def assign_user(id)
-    Assignment.create!(user_id: id, annotation_id: self.id)
+    klass = self.is_annotation? ? 'Annotation' : self.class.name
+    Assignment.create!(user_id: id, assigned_id: self.id, assigned_type: klass)
   end
+
+  # Re-implement this method on the assigned class
+  # The idea here is to return a list of objects that should be assigned to the same user
+  # def propagate_assignment_to(user = nil)
+  #   []
+  # end
 
   module ClassMethods
     def assigned_to_user(user)
@@ -53,10 +62,11 @@ module AssignmentConcern
 
     def project_media_assigned_to_user(user)
       uid = user.is_a?(User) ? user.id : user
-      ProjectMedia
-      .joins("INNER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id INNER JOIN assignments a2 ON a2.annotation_id = a.id")
-      .where('a2.user_id' => uid)
-      .distinct
+      joins = [
+        "INNER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id",
+        "INNER JOIN assignments a2 ON ((a2.assigned_id = a.id AND a2.assigned_type = 'Annotation') OR (a2.assigned_id = project_medias.project_id AND a2.assigned_type = 'Project'))"
+      ].join(' ')
+      ProjectMedia.joins(joins).where('a2.user_id' => uid).distinct
     end
   end
 
@@ -65,6 +75,6 @@ module AssignmentConcern
 
     after_save :save_assignments
 
-    has_many :assignments, foreign_key: :annotation_id, dependent: :destroy
+    has_many :assignments, as: :assigned, foreign_key: :assigned_id, dependent: :destroy
   end
 end

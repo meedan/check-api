@@ -191,6 +191,8 @@ en:
       project_source_create: "%{user} (%{role} at %{team}) added a %{type}"
       project_source_update: "%{user} (%{role} at %{team}) edited a %{type}"
       project_create: "%{user} (%{role} at %{team}) created a project"
+      project_assign: "%{user} (%{role} at %{team}) assigned a project"
+      project_unassign: "%{user} (%{role} at %{team}) unassigned a project"
       user_member: "%{user} joined team %{team}"
       user_requested: "%{user} requested to join team %{team}"
       user_invited: "%{user} was invited to join team %{team}"
@@ -353,6 +355,8 @@ en:
   mail_assign_task: "%{author} assigned a task \"%{task}\" to you. It's on the media item titled:"
   mail_unassign_task: "%{author} unassigned a task \"%{task}\" from you. It's on the media item titled:"
   mail_update_status: "%{author} marked \"%{title}\" as %{status}"
+  mail_assign_project: "%{author} assigned a project to you. It's titled:"
+  mail_unassign_project: "%{author} unassigned a project from you. It's titled:"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "Keep screenshots"
   archive_archive_is: "Archive.is"
@@ -476,6 +480,8 @@ en:
     blank_project: "Invalid blank project"
     invalid_annotator: "Invalid annotator %{user}"
     invalid_assignee: "Invalid assignee %{user}"
+  mail_subject_assignments_ready: "[%{team} - %{project}] Assignments update is ready"
+  mail_body_assignments_ready: "The assignments update process was completed successfully."
   team_import_completed_subject: "Your data import has completed"
   team_import_completed_mail: "<p>Hello,</p>
     <p>Your data import job into %{app_name} has completed. You can check %{worksheet_url} to review the status of each item to be imported.</p>

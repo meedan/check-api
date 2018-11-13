@@ -67,7 +67,7 @@ class User < ActiveRecord::Base
   end
 
   def assign_annotation(annotation)
-    Assignment.create! user_id: self.id, annotation_id: annotation.id
+    Assignment.create! user_id: self.id, assigned_id: annotation.id, assigned_type: 'Annotation'
   end
 
   def self.from_omniauth(auth)

@@ -409,4 +409,54 @@ class AnnotationTest < ActiveSupport::TestCase
     c.assign_user(u.id)
     assert_equal [t.id], c.assignments.last.get_team
   end
+
+  test "should assign users when status is created" do
+    create_verification_status_stuff(false)
+    stub_config('default_project_media_workflow', 'verification_status') do
+      t = create_team
+      p = create_project team: t
+      3.times do
+        u = create_user
+        create_team_user user: u, team: t
+        p.assign_user(u.id)
+      end
+      assert_difference 'Assignment.count', 3 do
+        Sidekiq::Testing.inline! do
+          create_project_media project: p
+        end
+      end
+    end
+  end
+
+  test "should assign users when task is created" do
+    create_verification_status_stuff(false)
+    stub_config('default_project_media_workflow', 'verification_status') do
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p
+      s = pm.last_status_obj
+      3.times do
+        u = create_user
+        create_team_user user: u, team: t
+        s.assign_user(u.id)
+      end     
+      assert_difference 'Assignment.count', 3 do
+        Sidekiq::Testing.inline! do
+          create_task annotated: pm
+        end
+      end
+    end
+  end
+
+  test "should not propagate assignments when generic annotations are assigned" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pm = create_project_media project: p
+    a = create_annotation annotated: pm
+    assert_difference 'Assignment.count', 1 do
+      a.assign_user(u.id)
+    end
+  end
 end
