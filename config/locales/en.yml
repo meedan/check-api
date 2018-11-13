@@ -476,3 +476,10 @@ en:
     blank_project: "Invalid blank project"
     invalid_annotator: "Invalid annotator %{user}"
     invalid_assignee: "Invalid assignee %{user}"
+  team_import_completed_subject: "Your data import has completed"
+  team_import_completed_mail: "Hello,
+
+    Your data import job into %{app_name} has completed. You can check %{worksheet_url} to review the status of each item to be imported.
+    Note that you can restart the import after you fix any errors that are reported there - the previously-imported items will not be duplicated.
+
+    — The %{app_name} team"

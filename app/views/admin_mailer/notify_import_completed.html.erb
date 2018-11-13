@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <%= simple_format(I18n.t(:team_import_completed_mail, worksheet_url: @worksheet_url, app_name: @app_name)) %>
+  </body>
+</html>
