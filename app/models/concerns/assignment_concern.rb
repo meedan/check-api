@@ -48,11 +48,11 @@ module AssignmentConcern
     Assignment.create!(user_id: id, assigned_id: self.id, assigned_type: klass)
   end
 
-  def propagate_assignment_to(user = nil)
-    # Re-implement this method on the assigned class
-    # The idea here is to return a list of objects that should be assigned to the same user
-    []
-  end
+  # Re-implement this method on the assigned class
+  # The idea here is to return a list of objects that should be assigned to the same user
+  # def propagate_assignment_to(user = nil)
+  #   []
+  # end
 
   module ClassMethods
     def assigned_to_user(user)
