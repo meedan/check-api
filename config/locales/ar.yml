@@ -188,6 +188,8 @@ ar:
       project_source_create: "قام %{user} (%{role} في %{team}) بإنشاء %{type}"
       project_source_update: "قام %{user} (%{role} في %{team}) بتحرير %{type}"
       project_create: "قام %{user} (%{role} في %{team}) بإنشاء مشروع"
+      project_assign: "قام %{user} (%{role} في %{team}) بتكليف مشروع"
+      project_unassign: "قام %{user} (%{role} في %{team}) بالغاء تكليف مشروع"
       user_member: "إنضم %{user} الى الفريق %{team}"
       user_requested: "طلب %{user} الانضمام الى الفريق %{team}"
       user_invited: "تمت دعوة %{user} الى الفريق %{team}"
@@ -200,8 +202,8 @@ ar:
   mail_view_process_request: "لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: "
   pender_could_not_parse: عذراً ، لقد واجهنا خطأ ما اثناء تحليل الميديا. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
   mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
-  mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
+  mail_duplicate_email_exists_body: "<p>مرحباً — نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً — نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
   mail_duplicate_email_exists_email: البريد الإلكتروني
   slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى فريق %{team_name} حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
@@ -287,7 +289,7 @@ ar:
   permission_error: "عذراً ، ليس مسموح لك تنفيذ هذه العملية"
   error_annotated_archived: "لا يمكن إضافة تعليق لعنصر في سلة المهملات"
   only_super_admin_can_do_this: "عذراً ، هذه العملية متاحة لمسؤولي النظام فقط"
-  max_number_of_team_users_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمستخدمين في هذا الفريق"
+  max_number_of_team_users_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للأعضاء في هذا الفريق"
   max_number_of_projects_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في هذا الفريق"
   cant_set_custom_statuses: "عذراً ، خاصية حالات التحقق المتخصصة غير متاحة لهذا الفريق"
   cant_change_custom_statuses: "لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :\n %{others_amount} %{urls}"
@@ -337,6 +339,8 @@ ar:
   mail_assign_task: "كلَّفَ(ت) %{author} إليك مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_unassign_task: "ألغى(ت) %{author} تكليف مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_update_status: "قام %{author} بتغيير حالة \"%{title}\" إلى %{status}."
+  mail_assign_project: "كلَّفَ(ت) %{author} إليك مشروع : "
+  mail_unassign_project: "ألغى(ت) %{author} تكليف مشروع : "
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "لقطات الشاشة من Keep"
   archive_archive_is: "Archive.is"
@@ -430,3 +434,7 @@ ar:
     blank_project: "مشروع فارغ غير صحيح"
     invalid_annotator: "مُعلِّق غير صحيح %{user}"
     invalid_assignee: "مُكلّف غير صحيح %{user}"
+  mail_subject_assignments_ready: "[%{team} - %{project}] تمت عملية تحديث التكليفات"
+  mail_body_assignments_ready: "تمت عملية تحديث التكليفات بنجاح."
+  team_import_completed_subject: "تمت عملية استيراد البيانات"
+  team_import_completed_mail: "<p>مرحباً —</p><p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url} لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p><p>— فريق عمل %{app_name}"
