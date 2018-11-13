@@ -61,7 +61,7 @@ class Assignment < ActiveRecord::Base
   def self.propagate_assignments(assignment, email, event)
     assignment = YAML::load(assignment)
     assignment.assigned.propagate_assignment_to(assignment.user).each do |obj|
-      klass = obj.is_annotation? ? 'Annotation' : obj.class.name
+      klass = obj.parent_class_name
       existing = Assignment.where(user_id: assignment.user_id, assigned_type: klass, assigned_id: obj.id).last
       if existing.nil? && event == :assign
         a = Assignment.new
