@@ -2,6 +2,7 @@ class Project < ActiveRecord::Base
 
   include ValidationsHelper
   include DestroyLater
+  include AssignmentConcern
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
   belongs_to :user
@@ -16,7 +17,7 @@ class Project < ActiveRecord::Base
   before_validation :set_description_and_team_and_user, on: :create
   before_validation :generate_token, on: :create
 
-  after_commit :send_slack_notification, on: :create
+  after_commit :send_slack_notification, on: [:create, :update]
   after_commit :update_elasticsearch_data, on: :update
   after_update :archive_or_restore_project_medias_if_needed
   after_destroy :reset_current_project
@@ -45,6 +46,10 @@ class Project < ActiveRecord::Base
 
   def lead_image_callback(value, _mapping_ids = nil)
     image_callback(value)
+  end
+
+  def get_team
+    [self.team.id]
   end
 
   def avatar
@@ -117,12 +122,12 @@ class Project < ActiveRecord::Base
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.project"), app: CONFIG['app_name']
       })
-    }
+    }.merge(self.slack_params_assignment)
   end
 
   def slack_notification_message
     params = self.slack_params
-    {
+    message = {
       pretext: I18n.t("slack.messages.project_create", params),
       title: params[:project],
       title_link: params[:url],
@@ -136,6 +141,23 @@ class Project < ActiveRecord::Base
         }
       ]
     }
+    if params[:assignment_event]
+      event = params[:assignment_event]
+      message[:pretext] = I18n.t("slack.messages.project_#{event}", params)
+      message[:fields] = [
+        {
+          title: I18n.t(:'slack.fields.assigned'),
+          value: params[:assigned],
+          short: true
+        },
+        {
+          title: I18n.t(:'slack.fields.unassigned'),
+          value: params[:unassigned],
+          short: true
+        }
+      ]
+    end
+    message
   end
 
   def url
@@ -174,6 +196,14 @@ class Project < ActiveRecord::Base
 
   def is_being_copied
     self.team && self.team.is_being_copied
+  end
+
+  def propagate_assignment_to(_user = nil)
+    targets = []
+    ProjectMedia.where(project_id: self.id).find_each do |pm|
+      targets << pm.last_status_obj
+    end
+    targets.reject{ |target| target.nil? }
   end
 
   private

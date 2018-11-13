@@ -17,7 +17,7 @@ class Workflow::VerificationStatus < Workflow::Base
     annotation_class.class_eval do
       attr_accessor :disable_update_status
       
-      after_create :update_annotated_status, if: proc { |obj| obj.annotated_type == 'ProjectMedia' && !obj.is_being_copied }
+      after_create :update_annotated_status, if: proc { |obj| obj.annotated_type == 'ProjectMedia' && !obj.is_being_copied && (obj.annotator.nil? || !obj.annotator.is_a?(User) || !obj.annotator.role?(:annotator)) }
 
       private
 

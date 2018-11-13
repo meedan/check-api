@@ -694,4 +694,49 @@ class ProjectTest < ActiveSupport::TestCase
     tt = create_team_task team_id: t.id, project_ids: [p.id]
     assert_equal [tt], p.reload.auto_tasks
   end
+
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    assert_equal t.id, p.get_team.first
+  end
+
+  test "should notify Slack when project is assigned" do
+    t = create_team slug: 'test'
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = Project.find(p.id)
+    with_current_user_and_team(u, t) do
+      assert !p.sent_to_slack
+      p.assigned_to_ids = u.id.to_s
+      p.save!
+      assert p.sent_to_slack
+    end
+  end
+
+  test "should propagate assignments" do
+    Sidekiq::Testing.inline! do
+      create_verification_status_stuff
+      stub_config('default_project_media_workflow', 'verification_status') do
+        t = create_team
+        p = create_project team: t
+        u = create_user
+        create_team_user user: u, team: t
+        pm1 = create_project_media project: p
+        pm2 = create_project_media project: p
+        3.times { create_task(annotated: pm1) }
+        3.times { create_task(annotated: pm2) }
+        a = nil
+        assert_difference 'Assignment.count', 9 do
+          a = p.assign_user(u.id)
+        end
+        assert_not_nil a
+        assert_difference 'Assignment.count', -9 do
+          a.destroy!
+        end
+      end
+    end
+  end
 end

@@ -12,6 +12,7 @@ module ProjectMutations
     title: 'str',
     set_slack_channel: 'str',
     information: 'str',
+    assigned_to_ids: 'str',
     id: '!id'
   }
 

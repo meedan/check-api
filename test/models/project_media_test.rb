@@ -1462,13 +1462,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_verification_status_stuff(false)
     stub_config('app_name', 'Check') do
       create_annotation_type annotation_type: 'response'
-      p = create_project
+      t = create_team
+      p = create_project team: t
+      u = create_user
+      create_team_user team: t, user: u, role: 'annotator'
       pm = create_project_media project: p
       default = 'undetermined'
       active = 'in_progress'
       s = pm.annotations.where(annotation_type: 'verification_status').last.load
       t = create_task annotated: pm
       assert_not_equal pm.last_status, active
+      # add comment by annotator
+      create_comment annotated: pm, disable_update_status: false, annotator: u
+      assert_not_equal pm.last_verification_status, active
       # add comment
       create_comment annotated: pm, disable_update_status: false
       assert_equal pm.last_verification_status, active
