@@ -287,11 +287,24 @@ es:
       reset_password_instructions:
         instruction: "Alguien ha solicitado un enlace para cambiar tu contraseña, y tu puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"
       invitation_instructions:
+        subject: "%{user} convocado a unirse al equipo %{team}"
+        hello: "¡Hola %{name}!"
+        someone_invited_you_default:
+          html: "%{name} convocado a unirse al equipo %{team}."
+        someone_invited_you_custom:
+          html: "%{name} le ha invitado al equipo %{team}, diciendo:"
+        accept: 'Use este enlace para aceptar la invitación: %{url}'
+        accept_until: "Esta invitación expirará a las %{due_date}."
+        ignore: "Si no desea aceptar la invitación, ignore este correo electrónico."
         app_team: "Equipo %{app} "
     failure:
       unconfirmed: "Por favor consulta tu correo electrónico para comprobar tu cuenta."
   user_invitation:
+    invited: 'Este usuario ya ha sido invitado a este equipo.'
+    member: 'Este usuario ya está en el equipo.'
     team_found: 'Equipo no encontrado.'
+    invalid: 'Símbolo (token) de invitación es inválido.'
+    no_invitation: 'No hay invitación para el equipo %{name}'
   error_user_is_not_a_team_member: "Lo sentimos, solo puedes asignar tareas a los miembros de este equipo"
   mail_see_it: "Puedes verlo en:"
   mail_subject_assign_verification_status: "[%{team} - %{project}] Se te ha asignado un ítem"
@@ -396,8 +409,8 @@ es:
     invalid_project: "Proyecto inválido %{project}"
     invalid_user: "Autor inválido %{user}"
     invalid_status: "Estado inválido %{status}"
-    blank_user: "Autor en blanco Inválido"
-    blank_annotator: "Anotación en blanco Inválida"
+    blank_user: "Autor en blanco inválido"
+    blank_annotator: "Anotación en blanco inválida"
     blank_project: "Proyecto en blanco inválido"
     invalid_annotator: "Anotación inválida %{user}"
     invalid_assignee: "Usuario asignado inválido %{user}"

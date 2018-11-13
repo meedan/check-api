@@ -149,8 +149,8 @@ fr:
   mail_new_account: Votre nouveau compte sur %{app_name}
   slack:
     fields:
-      assigned: "Assigné.e à"
-      unassigned: "Désassigné.e de"
+      assigned: "Affecté à"
+      unassigned: "Affectation annulée pour"
       required: "Requis ?"
       required_yes: "Oui"
       project: "Projet"
@@ -165,8 +165,8 @@ fr:
     messages:
       task_create: "%{user} (%{role} à %{team}) a rajouté une tâche"
       task_edit: "%{user} (%{role} à %{team}) a modifié une tâche"
-      task_assign: "%{user} (%{role} à %{team}) a assigné un.e %{type}"
-      task_unassign: "%{user} (%{role} à %{team}) a desassigné un.e %{type}"
+      task_assign: "%{user} (%{role} à %{team}) a affecté un.e %{type}"
+      task_unassign: "%{user} (%{role} à %{team}) a annulé l'affectation d'un.e %{type}"
       task_answer_create: "%{user} (%{role} à %{team}) a répondu à une tâche"
       task_answer_edit: "%{user} (%{role} à %{team}) a modifié une réponse de tâche"
       task_comment: "%{user} (%{role} at %{team}) a rajouté une note à une tâche"
@@ -178,12 +178,14 @@ fr:
       project_media_update: "%{user} (%{role} à %{team}) a modifié un.e %{type}"
       project_media_update_no_user: "Un.e %{type} a été modifié.e"
       project_media_status: "%{user} (%{role} à %{team}) a modifié le statut de %{workflow} d'un.e %{type}"
-      project_media_assign: "%{user} (%{role} à %{team}) a assigné un.e %{type}"
-      project_media_unassign: "%{user} (%{role} à %{team}) a desassigné un.e %{type}"
+      project_media_assign: "%{user} (%{role} à %{team}) a affecté un.e %{type}"
+      project_media_unassign: "%{user} (%{role} à %{team}) a annulé l'affectation d'un.e %{type}"
       project_source_comment: "%{user} (%{role} at %{team}) a rajouté une note à un.e %{parent_type}"
       project_source_create: "%{user} (%{role} à %{team}) a rajouté un.e %{type}"
       project_source_update: "%{user} (%{role} à %{team}) a modifié un.e %{type}"
       project_create: "%{user} (%{role} à %{team}) a créé un projet"
+      project_assign: "%{user} (%{role} à %{team}) a affecté un projet"
+      project_unassign: "%{user} (%{role} à %{team}) a annulé l'affectation d'un projet"
       user_member: "%{user} s'est joint à l'équipe %{team}"
       user_requested: "%{user} a demandé à se joindre à l'équipe %{team}"
       user_invited: "%{user} a été invité de se joindre à l'équipe %{team}"
@@ -300,27 +302,29 @@ fr:
     failure:
       unconfirmed: "Veuillez consulter votre courrier pour vérifier votre compte."
   user_invitation:
-    invited: 'Cet utilisateur a déjà été invité à cette équipe.'
-    member: 'Cet utilisateur est déjà membre de cette équipe.'
+    invited: 'Cette personne a déjà été invitée à cette équipe.'
+    member: 'Cette personne est déjà membre de cette équipe.'
     team_found: 'Équipe introuvable'
     invalid: 'Code d''invitation non valide.'
     no_invitation: 'Vous n''avez pas été invité à rejoindre l''équipe %{name}'
-  error_user_is_not_a_team_member: "Désolé, vous ne pouvez assigner des tâches qu'à des membres de cette équipe"
+  error_user_is_not_a_team_member: "Désolé, vous ne pouvez affecter des tâches qu'à des membres de cette équipe"
   mail_see_it: "Vous pouvez le/la visionner à :"
-  mail_subject_assign_verification_status: "[%{team} - %{project}] Un élément vous a été assigné"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] Un élément a été désassigné"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] Un élément vous a été assigné"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] Un élément a été désassigné"
-  mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été assignée"
-  mail_subject_unassign_task: "[%{team} - %{project}] Une tâche a été désassignée"
+  mail_subject_assign_verification_status: "[%{team} - %{project}] Un élément vous a été affecté"
+  mail_subject_unassign_verification_status: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
+  mail_subject_assign_translation_status: "[%{team} - %{project}] Un élément vous a été affecté"
+  mail_subject_unassign_translation_status: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
+  mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été affectée"
+  mail_subject_unassign_task: "[%{team} - %{project}] Votre affectation à une tâche a été annulée"
   mail_subject_update_status: "[%{team} - %{project}] Un média a été marqué comme %{status}"
-  mail_assign_verification_status: "%{author} vous a assigné un élément intitulé "
-  mail_unassign_verification_status: "%{author} a désassigné l'élément intitulé "
-  mail_assign_translation_status: "%{author} vous a assigné un élément intitulé "
-  mail_unassign_translation_status: "%{author} a désassigné l'élément intitulé "
-  mail_assign_task: "%{author} vous a assigné la tâche \"%{task}\" dans l'élément intitulé "
-  mail_unassign_task: "%{author} a désassigné la tâche \"%{task}\" dans l'élément intitulé "
+  mail_assign_verification_status: "%{author} vous a affecté un élément intitulé "
+  mail_unassign_verification_status: "%{author} a annulé votre affectation à l'élément intitulé "
+  mail_assign_translation_status: "%{author} vous a affecté un élément intitulé "
+  mail_unassign_translation_status: "%{author} a annulé votre affectation à l'élément intitulé "
+  mail_assign_task: "%{author} vous a affecté la tâche \"%{task}\" dans l'élément intitulé "
+  mail_unassign_task: "%{author} a annulé votre affectation à la tâche \"%{task}\" pour l'élément intitulé "
   mail_update_status: "%{author} a fixé le statut de \"%{title}\" à %{status}."
+  mail_assign_project: "%{author} vous a affecté le projet intitulé "
+  mail_unassign_project: "%{author} a annulé votre affectation au projet intitulé "
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "copies d'écran de Keep"
   archive_archive_is: "Archive.is"
@@ -358,7 +362,7 @@ fr:
       contributor:
         description: "Les contributeurs peuvent rajouter de nouvelles informations à vérifier. Ce sont souvent des membres du public. "
       annotator:
-        description: "Les annotateurs peuvent seulement visionner et répondre aux tâches qui leur sont assignées."
+        description: "Les annotateurs peuvent seulement afficher et répondre aux tâches qui leur sont affectées."
     permissions:
       sections:
         project_management:
@@ -386,7 +390,7 @@ fr:
             delete: "Supprimer une tâche"
             add_response: "Répondre à une tâche"
             delete_repsonse: "Supprimer une réponse"
-            assign_task: "Assigner une tâche ou un élément"
+            assign_task: "Affecter une tâche ou un élément"
         team_management:
           name: "Gestion d'équipes"
           permissions:
@@ -413,4 +417,8 @@ fr:
     blank_annotator: "Annotateur video non valide"
     blank_project: "Projet vide non valide"
     invalid_annotator: "Annotateur non valide %{user}"
-    invalid_assignee: "Utilisateur assigné non valide %{user}"
+    invalid_assignee: "Membre affecté non valide %{user}"
+  mail_subject_assignments_ready: "[%{team} - %{project}] La mise à jour des affectations est terminée"
+  mail_body_assignments_ready: "Le processus de mise à jour des affectations a terminé avec succès."
+  team_import_completed_subject: "Le processus d'importation de données a terminé"
+  team_import_completed_mail: "<p>Bonjour,</p><p>Le processus d'importation de données que vous avez lancé sur %{app_name} a terminé. Ouvrez %{worksheet_url} pour revoir l'état de chaque élément à importer.</p><p>Notez que vous pourrez relancer l'importation une fois que les erreurs seront résolues. Les éléments déjà importés ne seront pas dupliqués.</p><p>— L'équipe %{app_name}</p>"
