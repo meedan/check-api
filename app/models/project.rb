@@ -203,7 +203,7 @@ class Project < ActiveRecord::Base
     ProjectMedia.where(project_id: self.id).find_each do |pm|
       targets << pm.last_status_obj
     end
-    targets
+    targets.reject{ |target| target.nil? }
   end
 
   private

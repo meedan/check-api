@@ -715,4 +715,28 @@ class ProjectTest < ActiveSupport::TestCase
       assert p.sent_to_slack
     end
   end
+
+  test "should propagate assignments" do
+    Sidekiq::Testing.inline! do
+      create_verification_status_stuff
+      stub_config('default_project_media_workflow', 'verification_status') do
+        t = create_team
+        p = create_project team: t
+        u = create_user
+        create_team_user user: u, team: t
+        pm1 = create_project_media project: p
+        pm2 = create_project_media project: p
+        3.times { create_task(annotated: pm1) }
+        3.times { create_task(annotated: pm2) }
+        a = nil
+        assert_difference 'Assignment.count', 9 do
+          a = p.assign_user(u.id)
+        end
+        assert_not_nil a
+        assert_difference 'Assignment.count', -9 do
+          a.destroy!
+        end
+      end
+    end
+  end
 end

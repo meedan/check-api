@@ -48,4 +48,18 @@ class AssignmentMailerTest < ActionMailer::TestCase
 
     assert_equal ['user1@mail.com'], email.to
   end
+
+  test "should send e-mail when assignments are ready" do
+    create_user email: 'user1@mail.com'
+    t = create_team
+    p = create_project team: t
+
+    email = AssignmentMailer.ready('user1@mail.com', t, p)
+
+    assert_emails 1 do
+      email.deliver_now
+    end
+
+    assert_equal ['user1@mail.com'], email.to
+  end
 end

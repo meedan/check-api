@@ -1248,8 +1248,6 @@ class GraphqlControllerTest < ActionController::TestCase
     s2.assign_user(u.id)
     s3.assign_user(u.id)
     s4.assign_user(u2.id)
-    t1.assign_user(u.id)
-    t2.assign_user(u.id)
     authenticate_with_user(u)
     post :create, query: "query GetById { user(id: \"#{u.id}\") { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }"
     assert_response :success
