@@ -1685,7 +1685,41 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
 
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\" }) { success } }"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
+    post :create, query: query, team: t.slug
+    sleep 1
+    assert_response :success
+    response = JSON.parse(@response.body)
+    assert response.has_key?('errors')
+    assert_match /invalid value/, response['errors'].first['message']
+  end
+
+  test "should not import spreadsheet if team_id is not present" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+
+    authenticate_with_user(u)
+
+    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", user_id: #{u.id} }) { success } }"
+    post :create, query: query, team: t.slug
+    sleep 1
+    assert_response :success
+    response = JSON.parse(@response.body)
+    assert response.has_key?('errors')
+    assert_match /invalid value/, response['errors'].first['message']
+  end
+
+  test "should not import spreadsheet if user_id is not present" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+
+    authenticate_with_user(u)
+
+    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id} }) { success } }"
     post :create, query: query, team: t.slug
     sleep 1
     assert_response :success
@@ -1702,7 +1736,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
 
     [' ', 'https://example.com'].each do |url|
-      query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{url}\" }) { success } }"
+      query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
       post :create, query: query, team: t.slug
       sleep 1
       assert_response 400
@@ -1719,7 +1753,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/invalid_spreadsheet/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
+
     post :create, query: query, team: t.slug
     assert_response 400
     response = JSON.parse(@response.body)
@@ -1727,14 +1762,14 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_match /File not found/, response['error_info']['error_message']
   end
 
-  test "should import spreadsheet if spreadsheet is valid" do
+  test "should import spreadsheet if inputs are valid" do
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
 
     authenticate_with_user(u)
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal({"success" => true}, JSON.parse(@response.body)['data']['importSpreadsheet'])

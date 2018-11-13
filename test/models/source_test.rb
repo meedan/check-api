@@ -403,17 +403,17 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should refresh source with account data" do
-    data = { author_name: 'Source author', picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
+    s = create_source name: 'Untitled-123', slogan: '', avatar: 'old.png'
+    a = create_valid_account(source: s)
+    assert_equal 'old.png', s.avatar
+
+    data = { author_name: 'Source author', author_picture: 'picture.png', description: 'Source slogan' }.with_indifferent_access
     Account.any_instance.stubs(:data).returns(data)
     Account.any_instance.stubs(:refresh_pender_data)
-
-    s = create_source name: 'Untitled-123', slogan: ''
-    a = create_valid_account(source: s)
 
     s.refresh_accounts = 1
     s.reload
     assert_equal 'Source author', s.name
-    assert_nil s.avatar
     assert_empty s.slogan
     assert_equal 'picture.png', s.image
     assert_equal 'Source slogan', s.description
