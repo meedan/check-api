@@ -57,6 +57,7 @@ module TeamImport
       end
       self.update_import_status('complete')
       Rails.logger.info "[Team Import] Finished import of spreadsheet #{spreadsheet_id} to team #{self.slug}"
+      AdminMailer.delay.notify_import_completed(user.email, worksheet.human_url) unless user.email.blank?
       RequestStore.store[:skip_notifications] = false
       @result
     end
