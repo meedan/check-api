@@ -180,10 +180,7 @@ en:
       project_media_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
       project_media_create: "%{user} (%{role} at %{team}) added a %{type}"
       project_media_create_related: "%{user} (%{role} at %{team}) added a related %{type}"
-      project_media_create_no_user: "A %{type} has been added"
-      project_media_create_related_no_user: "A related %{type} has been added"
       project_media_update: "%{user} (%{role} at %{team}) edited a %{type}"
-      project_media_update_no_user: "A %{type} has been edited"
       project_media_status: "%{user} (%{role} at %{team}) changed the %{workflow} status of a %{type}"
       project_media_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
       project_media_unassign: "%{user} (%{role} at %{team}) unassigned a %{type}"
@@ -278,6 +275,7 @@ en:
   role_journalist: journalist
   role_annotator: annotator
   role_none: member
+  role_: sysadmin
   oembed_credit: Added by %{user} (%{role}) %{date}
   oembed_notes_count:
     one: "One note"
