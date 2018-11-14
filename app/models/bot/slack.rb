@@ -10,7 +10,7 @@ class Bot::Slack < ActiveRecord::Base
     RequestStore.store[:skip_notifications].blank? &&
     !model.skip_notifications && target.present? &&
     target.setting(:slack_notifications_enabled).to_i === 1 &&
-    User.current
+    User.current.present?
   end
 
   def notify_slack(model)

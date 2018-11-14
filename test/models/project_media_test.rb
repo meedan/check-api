@@ -186,24 +186,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify Slack when project media is created with empty user" do
-    t = create_team slug: 'test'
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
-    with_current_user_and_team(nil, t) do
-      m = create_valid_media
-      pm = create_project_media project: p, media: m, user: nil
-      assert pm.sent_to_slack
-      assert_match I18n.t("slack.messages.project_media_create_no_user", pm.slack_params), pm.slack_notification_message[:pretext]
-      m = create_claim_media
-      pm = create_project_media project: p, media: m, user: nil
-      assert pm.sent_to_slack
-      assert_match I18n.t("slack.messages.project_media_create_no_user", pm.slack_params), pm.slack_notification_message[:pretext]
-    end
-  end
-
   test "should notify Pusher when project media is created" do
     pm = create_project_media
     assert pm.sent_to_pusher

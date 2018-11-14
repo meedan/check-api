@@ -221,19 +221,4 @@ class Bot::SlackTest < ActiveSupport::TestCase
       assert pmc.sent_to_slack
     end
   end
-
-  test "should not notify when there is no user" do
-    t = create_team slug: 'test'
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
-    p = nil
-    pmp = nil
-    with_current_user_and_team(u, t) do
-      p = create_project team: t
-      pmp = create_project_media project: p
-    end
-    pmc = create_project_media project: p, related_to_id: pmp.id
-    assert !pmc.sent_to_slack
-  end
 end
