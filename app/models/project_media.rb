@@ -47,18 +47,10 @@ class ProjectMedia < ActiveRecord::Base
     statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
     current_status = statuses.select { |st| st['id'] == self.last_status }
     user = User.current || self.user
-    user_params = user.nil? ?
-      { 
-        user: nil,
-        user_image: nil,
-        role: nil
-      } :
-      {
-        user: Bot::Slack.to_slack(user.name),
-        user_image: user.profile_image,
-        role: I18n.t('role_' + user.role(self.project.team).to_s)
-      }
     {
+      user: Bot::Slack.to_slack(user.name),
+      user_image: user.profile_image,
+      role: I18n.t('role_' + user.role(self.project.team).to_s),
       project: Bot::Slack.to_slack(self.project.title),
       team: Bot::Slack.to_slack(self.project.team.name),
       type: I18n.t("activerecord.models.#{self.media.class.name.underscore}"),
@@ -71,16 +63,15 @@ class ProjectMedia < ActiveRecord::Base
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CONFIG['app_name']
       })
-    }.merge(user_params)
+    }
   end
 
   def slack_notification_message(update = false)
     params = self.slack_params
     event = update ? "update" : "create"
-    no_user = params[:user].blank? ? "_no_user" : ""
     related = params[:related_to].blank? ? "" : "_related"
     {
-      pretext: I18n.t("slack.messages.project_media_#{event}#{related}#{no_user}", params),
+      pretext: I18n.t("slack.messages.project_media_#{event}#{related}", params),
       title: params[:title],
       title_link: params[:url],
       author_name: params[:user],

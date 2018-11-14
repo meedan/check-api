@@ -222,7 +222,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify about related claims when there is no user" do
+  test "should not notify when there is no user" do
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -234,6 +234,6 @@ class Bot::SlackTest < ActiveSupport::TestCase
       pmp = create_project_media project: p
     end
     pmc = create_project_media project: p, related_to_id: pmp.id
-    assert pmc.sent_to_slack
+    assert !pmc.sent_to_slack
   end
 end
