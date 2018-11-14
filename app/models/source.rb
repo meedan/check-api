@@ -66,23 +66,23 @@ class Source < ActiveRecord::Base
     event = update ? "update" : "create"
     {
       pretext: I18n.t("slack.messages.project_source_#{event}", params),
-      title: params[:title],
-      title_link: params[:url],
-      author_name: params[:user],
       author_icon: params[:user_image],
+      author_name: params[:user],
       text: params[:description],
-      fields: [
-        {
-          title: I18n.t(:'slack.fields.project'),
-          value: params[:project],
-          short: true
-        }
-      ],
+      title_link: params[:url],
+      title: params[:title],
       actions: [
         {
           type: "button",
           text: params[:button],
           url: params[:url]
+        }
+      ],
+      fields: [
+        {
+          title: I18n.t(:'slack.fields.project'),
+          value: params[:project],
+          short: true
         }
       ]
     }
