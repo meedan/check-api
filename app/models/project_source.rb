@@ -55,9 +55,8 @@ class ProjectSource < ActiveRecord::Base
   def slack_notification_message(update = false)
     params = self.slack_params
     event = update ? "update" : "create"
-    no_user = params[:user] ? "" : "_no_user"
     {
-      pretext: I18n.t("slack.messages.project_source_#{event}#{no_user}", params),
+      pretext: I18n.t("slack.messages.project_source_#{event}", params),
       title: params[:title],
       title_link: params[:url],
       author_name: params[:user],
