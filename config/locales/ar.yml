@@ -154,7 +154,7 @@ ar:
   slack:
     fields:
       assigned: "مُكَلَّف إلى"
-      unassigned: "تم إلغاء التكليف من"
+      unassigned: "تم إلغاء التكليف عن"
       required: "إجبارية ؟"
       required_yes: "نعم"
       project: "المشروع"
@@ -177,10 +177,7 @@ ar:
       project_media_comment: "قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}"
       project_media_create: "قام %{user} (%{role} في %{team}) بإنشاء %{type}"
       project_media_create_related: "قام %{user} (%{role} في %{team}) بإنشاء %{type} ذو صلة"
-      project_media_create_no_user: "تم انشاء %{type}"
-      project_media_create_related_no_user: "تم انشاء %{type} ذو صلة"
       project_media_update: "قام %{user} (%{role} في %{team}) بتحرير %{type}"
-      project_media_update_no_user: "تم تحرير %{type}"
       project_media_status: "قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow} %{type}"
       project_media_assign: "قام %{user} (%{role} في %{team}) بتكليف %{type}"
       project_media_unassign: "قام %{user} (%{role} في %{team}) بالغاء تكليف %{type}"
@@ -251,6 +248,7 @@ ar:
   role_journalist: صحفي
   role_annotator: مُفَسِّر
   role_none: عضو
+  role_: مسؤول النظام
   oembed_credit: تمت الإضافة من %{user} (%{role}) في %{date}
   oembed_notes_count:
     zero: "لا توجد ملحوظات"
@@ -326,11 +324,11 @@ ar:
   error_user_is_not_a_team_member: "عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق"
   mail_see_it: "تستطيع أن تراه هنا : "
   mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
+  mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا عنك"
   mail_subject_assign_translation_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
+  mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا عنك"
   mail_subject_assign_task: "[%{team} - %{project}] تم تكليف مهمة إليك"
-  mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء تكليف مهمة"
+  mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
   mail_subject_update_status: "[%{team} - %{project}] تم تغيير حالة ميديا إلى %{status}"
   mail_assign_verification_status: "كلَّفَ(ت) %{author} إليك ميديا : "
   mail_unassign_verification_status: "ألغى(ت) %{author} تكليف ميديا : "
@@ -341,6 +339,8 @@ ar:
   mail_update_status: "قام %{author} بتغيير حالة \"%{title}\" إلى %{status}."
   mail_assign_project: "كلَّفَ(ت) %{author} إليك مشروع : "
   mail_unassign_project: "ألغى(ت) %{author} تكليف مشروع : "
+  mail_subject_assign_project: "[%{team} - %{project}] تم تكليف مشروع إليك"
+  mail_subject_unassign_project: "[%{team} - %{project}] تم إلغاء تكليف مشروع عنك"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "لقطات الشاشة من Keep"
   archive_archive_is: "Archive.is"
@@ -435,6 +435,7 @@ ar:
     invalid_annotator: "مُعلِّق غير صحيح %{user}"
     invalid_assignee: "مُكلّف غير صحيح %{user}"
   mail_subject_assignments_ready: "[%{team} - %{project}] تمت عملية تحديث التكليفات"
-  mail_body_assignments_ready: "تمت عملية تحديث التكليفات بنجاح."
+  mail_body_assignments_ready_assign: "مرحباً %{username}\nتمت عملية تحديث التكليفات بنجاح.\nتم تكليف مشروع %{project_title} (%{project_url}) مع عناصره ومهامه إلى %{assignee}.\n— فريق عمل %{app_name} "
+  mail_body_assignments_ready_unassign: "مرحباً %{username}\nتمت عملية تحديث التكليفات بنجاح.\nتم إلغاء تكليف مشروع %{project_title} (%{project_url}) مع عناصره ومهامه عن %{assignee}.\n— فريق عمل %{app_name} "
   team_import_completed_subject: "تمت عملية استيراد البيانات"
   team_import_completed_mail: "<p>مرحباً —</p><p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url} لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p><p>— فريق عمل %{app_name}"
