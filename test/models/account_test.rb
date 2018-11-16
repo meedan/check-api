@@ -364,4 +364,12 @@ class AccountTest < ActiveSupport::TestCase
     assert_empty account.data
   end
 
+  test "should delete account_source when delete account" do
+    account = create_account
+    source = account.sources.first
+    assert_difference 'AccountSource.count', -1 do
+      account.destroy
+    end
+  end
+
 end
