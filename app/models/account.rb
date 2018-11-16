@@ -8,7 +8,7 @@ class Account < ActiveRecord::Base
   belongs_to :user
   belongs_to :team
   has_many :medias
-  has_many :account_sources
+  has_many :account_sources, dependent: :destroy
   has_many :sources, through: :account_sources
 
   has_annotations
