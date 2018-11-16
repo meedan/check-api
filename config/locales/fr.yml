@@ -173,10 +173,7 @@ fr:
       project_media_comment: "%{user} (%{role} at %{team}) a rajouté une note à un.e %{parent_type}"
       project_media_create: "%{user} (%{role} à %{team}) a rajouté un.e %{type}"
       project_media_create_related: "%{user} (%{role} à %{team}) a rajouté un.e %{type} associé.e"
-      project_media_create_no_user: "Un.e %{type} a été rajouté.e"
-      project_media_create_related_no_user: "Un.e %{type} associé.e a été rajouté.e"
       project_media_update: "%{user} (%{role} à %{team}) a modifié un.e %{type}"
-      project_media_update_no_user: "Un.e %{type} a été modifié.e"
       project_media_status: "%{user} (%{role} à %{team}) a modifié le statut de %{workflow} d'un.e %{type}"
       project_media_assign: "%{user} (%{role} à %{team}) a affecté un.e %{type}"
       project_media_unassign: "%{user} (%{role} à %{team}) a annulé l'affectation d'un.e %{type}"
@@ -247,6 +244,7 @@ fr:
   role_journalist: journaliste
   role_annotator: annotateur
   role_none: membre
+  role_: administrateur
   oembed_credit: Ajouté par %{user} (%{role}) %{date}
   oembed_notes_count:
     one: "Une note"
@@ -325,6 +323,8 @@ fr:
   mail_update_status: "%{author} a fixé le statut de \"%{title}\" à %{status}."
   mail_assign_project: "%{author} vous a affecté le projet intitulé "
   mail_unassign_project: "%{author} a annulé votre affectation au projet intitulé "
+  mail_subject_assign_project: "[%{team} - %{project}] Un projet vous a été affecté"
+  mail_subject_unassign_project: "[%{team} - %{project}] Votre affectation à un projet a été annulée"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "copies d'écran de Keep"
   archive_archive_is: "Archive.is"
@@ -419,6 +419,7 @@ fr:
     invalid_annotator: "Annotateur non valide %{user}"
     invalid_assignee: "Membre affecté non valide %{user}"
   mail_subject_assignments_ready: "[%{team} - %{project}] La mise à jour des affectations est terminée"
-  mail_body_assignments_ready: "Le processus de mise à jour des affectations a terminé avec succès."
+  mail_body_assignments_ready_assign: "Bonjour %{username},\nLe processus de mise à jour des affectations a terminé avec succès.\nLe projet %{project_title} (%{project_url}) ainsi que ses éléments et tâches ont été affectés à %{assignee}.\n— L'équipe %{app_name}"
+  mail_body_assignments_ready_unassign: "Bonjour %{username} ,\nLe processus de mise à jour des affectations a terminé avec succès.\nL'affectation du projet %{project_title} (%{project_url}) ainsi que ses éléments et tâches à %{assignee} a été annulée.\n— L'équipe %{app_name}"
   team_import_completed_subject: "Le processus d'importation de données a terminé"
   team_import_completed_mail: "<p>Bonjour,</p><p>Le processus d'importation de données que vous avez lancé sur %{app_name} a terminé. Ouvrez %{worksheet_url} pour revoir l'état de chaque élément à importer.</p><p>Notez que vous pourrez relancer l'importation une fois que les erreurs seront résolues. Les éléments déjà importés ne seront pas dupliqués.</p><p>— L'équipe %{app_name}</p>"
