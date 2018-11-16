@@ -28,8 +28,16 @@ class AssignmentMailer < ApplicationMailer
     mail(to: recipient, email_type: 'assignment', subject: I18n.t("mail_subject_#{event}".to_sym, team: @team, project: @project))
   end
 
-  def ready(email, team, project)
-    Rails.logger.info "Sending e-mail to #{email} because the assignments are ready"
-    mail(to: email, email_type: 'assignment', subject: I18n.t(:mail_subject_assignments_ready, team: team&.name, project: project&.title)) if email
+  def ready(requestor_id, team, project, event, assignee)
+    requestor = User.where(id: requestor_id).last
+    return if requestor.nil? || assignee.nil?
+    @event = event
+    @username = requestor.name
+    @project_title = project.title
+    @project_url = project.url
+    @assignee = assignee.name
+    @app_name = CONFIG['app_name']
+    Rails.logger.info "Sending e-mail to #{requestor.email} because the assignments are ready"
+    mail(to: requestor.email, email_type: 'assignment', subject: I18n.t(:mail_subject_assignments_ready, team: team&.name, project: project&.title))
   end
 end

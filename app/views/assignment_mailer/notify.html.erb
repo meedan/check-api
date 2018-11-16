@@ -6,6 +6,8 @@
   <body>
     <p><%= I18n.t("mail_#{@event}".to_sym, @info) %></p>
     <p><%= @title %></p>
-    <p><%= I18n.t(:mail_see_it) %> <%= @url %></p>
+    <% unless @event =~/unassign/ %>
+      <p><%= I18n.t(:mail_see_it) %> <%= @url %></p>
+    <% end %>
   </body>
 </html>
