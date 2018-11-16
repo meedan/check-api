@@ -55,10 +55,10 @@ class Assignment < ActiveRecord::Base
 
   def propagate_assignments_or_unassignments(event)
     assignment = YAML::dump(self)
-    self.propagate_in_foreground ? Assignment.propagate_assignments(assignment, nil, event) : Assignment.delay.propagate_assignments(assignment, User.current&.email, event)
+    self.propagate_in_foreground ? Assignment.propagate_assignments(assignment, nil, event) : Assignment.delay.propagate_assignments(assignment, User.current&.id, event)
   end
 
-  def self.propagate_assignments(assignment, email, event)
+  def self.propagate_assignments(assignment, requestor_id, event)
     assignment = YAML::load(assignment)
     assignment.assigned.propagate_assignment_to(assignment.user).each do |obj|
       klass = obj.parent_class_name
@@ -75,9 +75,9 @@ class Assignment < ActiveRecord::Base
         existing.destroy!
       end
     end
-    if email
+    if requestor_id
       data = assignment.get_team_and_project
-      AssignmentMailer.delay.ready(email, data.team, data.project)
+      AssignmentMailer.delay.ready(requestor_id, data.team, data.project, event, assignment.user)
     end
   end
 

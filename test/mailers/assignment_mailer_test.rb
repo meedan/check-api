@@ -50,11 +50,12 @@ class AssignmentMailerTest < ActionMailer::TestCase
   end
 
   test "should send e-mail when assignments are ready" do
-    create_user email: 'user1@mail.com'
+    u = create_user email: 'user1@mail.com'
+    u2 = create_user
     t = create_team
     p = create_project team: t
 
-    email = AssignmentMailer.ready('user1@mail.com', t, p)
+    email = AssignmentMailer.ready(u, t, p, :assign, u2)
 
     assert_emails 1 do
       email.deliver_now
