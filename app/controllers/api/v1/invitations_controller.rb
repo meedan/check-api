@@ -9,7 +9,7 @@ class Api::V1::InvitationsController < Devise::InvitationsController
              "/#{slug}"
            else
              error_key = resource.errors.messages.keys[0].to_s
-             "?invitation_error=#{error_key}"
+             "/?invitation_error=#{error_key}"
            end
     redirect_to CONFIG['checkdesk_client'] + path
   end
