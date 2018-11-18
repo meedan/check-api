@@ -9,7 +9,7 @@ module UserInvitation
   	after_invitation_created :create_team_user_invitation
 
 	  def self.send_user_invitation(members, text=nil)
-	    msg = {}
+	    msg = []
 	    members.each do |member|
 	    	member.symbolize_keys!
 	    	role = member[:role]
@@ -22,14 +22,13 @@ module UserInvitation
 	              iu.skip_invitation = true
 	            end
 	            user.update_column(:raw_invitation_token, user.raw_invitation_token)
-	            msg[email] = 'success'
 	          else
 	            u.invitation_role = role
 	            u.invitation_text = text
-	            msg.merge!(u.invite_existing_user)
+	            msg.concat(u.invite_existing_user)
 	          end
 	        rescue StandardError => e
-	          msg[email] = e.message
+            msg << {email: email, error: e.message}
 	        end
 	      end
 	    end
@@ -37,7 +36,7 @@ module UserInvitation
 	  end
 
 	  def invite_existing_user
-	    msg = {}
+	    msg = []
 	    unless Team.current.nil?
 	      tu = TeamUser.where(team_id: Team.current.id, user_id: self.id).last
 	      if tu.nil?
@@ -47,11 +46,10 @@ module UserInvitation
 	          options = {:enc => enc, :raw => raw}
 	        end
 	        create_team_user_invitation(options)
-	        msg[self.email] = 'success'
 	      elsif tu.status == 'invited'
-	        msg[self.email] = I18n.t(:"user_invitation.invited")
+          msg << {email: self.email, error: I18n.t(:"user_invitation.invited")}
 	      else
-	        msg[self.email] = I18n.t(:"user_invitation.member")
+          msg << {email: self.email, error: I18n.t(:"user_invitation.member")}
 	      end
 	    end
 	    msg
