@@ -173,10 +173,7 @@ pt:
       project_media_comment: "%{user} (%{role} em %{team}) adicionou uma nota em %{parent_type}"
       project_media_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
       project_media_create_related: "%{user} (%{role} em %{team}) adicionou um(a) %{type} relacionado(a)"
-      project_media_create_no_user: "Um(a) %{type} foi adicionado(a)"
-      project_media_create_related_no_user: "Um(a) %{type} relacionado(a) foi adicionado(a)"
       project_media_update: "%{user} (%{role} em %{team}) editou um(a) %{type}"
-      project_media_update_no_user: "Um(a) %{type} foi editado"
       project_media_status: "%{user} (%{role} em %{team}) alterou o status de %{workflow} de um(a) %{type}"
       project_media_assign: "%{user} (%{role} em %{team}) atribuiu um(a) %{type}"
       project_media_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de %{type}"
@@ -184,6 +181,8 @@ pt:
       project_source_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
       project_source_update: "%{user} (%{role} em %{team}) editou um(a) %{type}"
       project_create: "%{user} (%{role} em %{team}) criou um projeto"
+      project_assign: "%{user} (%{role} em %{team}) atribuiu um projeto"
+      project_unassign: "%{user} (%{role} em %{team}) desatribuiu um projeto"
       user_member: "%{user} juntou-se à equipe %{team}"
       user_requested: "%{user} pediu para participar da equipe %{team}"
       user_invited: "%{user} foi convidado a participar da equipe %{team}"
@@ -245,6 +244,7 @@ pt:
   role_journalist: jornalista
   role_annotator: anotador(a)
   role_none: membro
+  role_: administrador de sistemas
   oembed_credit: Adicionado por %{user} (%{role}) %{date}
   oembed_notes_count:
     one: "Uma nota"
@@ -321,6 +321,10 @@ pt:
   mail_assign_task: "%{author} atribuiu para você a tarefa \"%{task}\" que fica na mídia intitulada "
   mail_unassign_task: "%{author} removeu a atribuição da tarefa \"%{task}\" que fica na mídia intitulada "
   mail_update_status: "%{author}modificou o status de \"%{title}\" para %{status}"
+  mail_assign_project: "%{author} atribuiu um projeto para você. O título é:"
+  mail_unassign_project: "%{author} desatribuiu um projeto de você. O título é:"
+  mail_subject_assign_project: "[%{team} - %{project}] Um projeto foi atribuído para você"
+  mail_subject_unassign_project: "[%{team} - %{project}] Um projeto foi desatribuído de você"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de tela com Keep"
   archive_archive_is: "Archive.is"
@@ -414,3 +418,8 @@ pt:
     blank_project: "Projeto não pode ficar em branco"
     invalid_annotator: "O anotador é inválido %{user}"
     invalid_assignee: "Atribuição inválida %{user}"
+  mail_subject_assignments_ready: "A atualização de atribuições está pronta"
+  mail_body_assignments_ready_assign: "Olá %{username},\n\nO processo de atualização das atribuições foi concluído com sucesso.\nO projeto '%{project_title}' (%{project_url}) e seus itens e tarefas foram agora atribuídos para %{assigned}.\n\nObrigado,\n\n— A equipe %{app_name}"
+  mail_body_assignments_ready_unassign: "Olá %{username},\n\nO processo de atualização das atribuições foi concluído com sucesso.\nO projeto '%{project_title}' (%{project_url}) e seus itens e tarefas foram agora desatribuídos de %{assigned}.\n\nObrigado,\n\n— A equipe %{app_name}"
+  team_import_completed_subject: "Sua importação de dados terminou"
+  team_import_completed_mail: "Olá,\n\nSua importação de dados em %{app_name} terminou. Você pode conferir em %{worksheet_url} para revisar o status de cada item importado.\n\nNote que você pode reiniciar a importação depois de corrigir os erros reportados - os itens previamente importados não serão duplicados.\n\n— A equipe %{app_name}"
