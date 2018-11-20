@@ -84,14 +84,14 @@ module UserInvitation
 	  end
 
 	  def self.cancel_user_invitation(user)
-	    tu = user.team_users.where(team_id: Team.current.id).last
-	    unless tu.nil?
-	      tu.skip_check_ability = true
-	      tu.destroy if tu.status == 'invited' && !tu.invitation_token.nil?
-	    end
-	    # Check if user invited to another team(s)
-      self.destroy_invited_user(user) if user.is_invited? && user.team_users.count == 0
-    end
+	  	tu = user.team_users.where(team_id: Team.current.id).last
+	  	unless tu.nil?
+	  		tu.skip_check_ability = true
+	  		tu.destroy if tu.status == 'invited' && !tu.invitation_token.nil?
+	  	end
+	  	# Check if user invited to another team(s)
+	  	self.destroy_invited_user(user) if user.is_invited? && user.team_users.count == 0
+	  end
 
 	  def is_invited?(team = nil)
 	  	return false unless ActiveRecord::Base.connection.column_exists?(:users, :invitation_token)
