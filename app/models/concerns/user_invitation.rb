@@ -90,8 +90,11 @@ module UserInvitation
 	      tu.destroy if tu.status == 'invited' && !tu.invitation_token.nil?
 	    end
 	    # Check if user invited to another team(s)
-	    user.skip_check_ability = true
-	    user.destroy if user.is_invited? && user.team_users.count == 0
+	    if user.is_invited? && user.team_users.count == 0
+        user.skip_check_ability = true
+        user.destroy
+        user.source.destroy
+      end
 	  end
 
 	  def is_invited?(team = nil)
@@ -129,8 +132,7 @@ module UserInvitation
       unless user.nil?
       	invitable = User.accept_invitation!(:invitation_token => token, :password => password)
       	# Send welcome mail with generated password
-      	invitable.password = password
-      	RegistrationMailer.delay.welcome_email(invitable) unless invitable.nil?
+      	RegistrationMailer.delay.welcome_email(invitable, password) unless invitable.nil?
       end
 	  end
   end
