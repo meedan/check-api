@@ -68,7 +68,7 @@ class Ability
     pms = Annotation.project_media_assigned_to_user(@user).to_a
     pids = pms.map(&:project_id).uniq
     pmids = pms.map(&:id).uniq
-    
+
     cannot :read, [User, ProjectMedia, Project, Task]
     can :read, User, id: @user.id
     can :read, ProjectMedia, id: pmids
@@ -76,7 +76,7 @@ class Ability
     can :read, Task do |task|
       task.assigned_users.include?(@user)
     end
-    
+
     can_list [TeamUser, Assignment], user_id: @user.id
     can_list PaperTrail::Version, whodunnit: @user.id.to_s
     can_list User, id: @user.id
@@ -84,7 +84,7 @@ class Ability
     can_list ProjectMedia, id: pmids
     can_list Project, id: pids
     can_list [Annotation, Dynamic], { annotator_id: @user.id }
-    
+
     contributor_and_annotator_perms
   end
 
@@ -136,7 +136,7 @@ class Ability
 
   def editor_perms
     can :update, Team, :id => @context_team.id
-    can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
+    can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'annotator']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor'], role_was: ['editor', 'journalist', 'contributor']
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
