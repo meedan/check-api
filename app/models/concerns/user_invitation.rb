@@ -84,14 +84,13 @@ module UserInvitation
 	  end
 
 	  def self.cancel_user_invitation(user)
-	    tu = user.team_users.where(team_id: Team.current.id).last
-	    unless tu.nil?
-	      tu.skip_check_ability = true
-	      tu.destroy if tu.status == 'invited' && !tu.invitation_token.nil?
-	    end
-	    # Check if user invited to another team(s)
-	    user.skip_check_ability = true
-	    user.destroy if user.is_invited? && user.team_users.count == 0
+	  	tu = user.team_users.where(team_id: Team.current.id).last
+	  	unless tu.nil?
+	  		tu.skip_check_ability = true
+	  		tu.destroy if tu.status == 'invited' && !tu.invitation_token.nil?
+	  	end
+	  	# Check if user invited to another team(s)
+	  	self.destroy_invited_user(user) if user.is_invited? && user.team_users.count == 0
 	  end
 
 	  def is_invited?(team = nil)
@@ -129,9 +128,16 @@ module UserInvitation
       unless user.nil?
       	invitable = User.accept_invitation!(:invitation_token => token, :password => password)
       	# Send welcome mail with generated password
-      	invitable.password = password
-      	RegistrationMailer.delay.welcome_email(invitable) unless invitable.nil?
+      	RegistrationMailer.delay.welcome_email(invitable, password) unless invitable.nil?
       end
 	  end
+
+    def self.destroy_invited_user(user)
+      user.skip_check_ability = true
+      user.destroy
+      s = user.source
+      s.skip_check_ability = true
+      s.destroy unless s.nil?
+    end
   end
 end
