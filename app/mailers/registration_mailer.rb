@@ -1,8 +1,9 @@
 class RegistrationMailer < ApplicationMailer
   layout nil
 
-  def welcome_email(user)
+  def welcome_email(user, password=nil)
     @user = user
+    @user.password ||= password
     @url = CONFIG['checkdesk_client']
     mail(to: @user.email, subject: I18n.t(:mail_new_account, app_name: CONFIG['app_name']))
   end
