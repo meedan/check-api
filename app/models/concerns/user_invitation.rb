@@ -90,12 +90,8 @@ module UserInvitation
 	      tu.destroy if tu.status == 'invited' && !tu.invitation_token.nil?
 	    end
 	    # Check if user invited to another team(s)
-	    if user.is_invited? && user.team_users.count == 0
-        user.skip_check_ability = true
-        user.destroy
-        user.source.destroy
-      end
-	  end
+      self.destroy_invited_user(user) if user.is_invited? && user.team_users.count == 0
+    end
 
 	  def is_invited?(team = nil)
 	  	return false unless ActiveRecord::Base.connection.column_exists?(:users, :invitation_token)
@@ -135,5 +131,13 @@ module UserInvitation
       	RegistrationMailer.delay.welcome_email(invitable, password) unless invitable.nil?
       end
 	  end
+
+    def self.destroy_invited_user(user)
+      user.skip_check_ability = true
+      user.destroy
+      s = user.source
+      s.skip_check_ability = true
+      s.destroy unless s.nil?
+    end
   end
 end
