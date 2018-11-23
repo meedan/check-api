@@ -292,6 +292,22 @@ class User < ActiveRecord::Base
     end
   end
 
+  def self.set_assignments_progress(user_id, project_media_id)
+    required_tasks_count = 0
+    answered_tasks_count = 0
+    Task.where(annotated_type: 'ProjectMedia', annotated_id: project_media_id).each do |task|
+      task = task.reload
+      if task.required_for_user(user_id)
+        required_tasks_count += 1
+        answered_tasks_count += 1 if task.responses.select{ |r| r.annotator_id.to_i == user_id }.any?
+      end
+    end
+    Rails.cache.write("cache-assignments-progress-#{user_id}-project-media-#{project_media_id}", {
+      answered: answered_tasks_count,
+      total: required_tasks_count,
+    })   
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/user_private.rb

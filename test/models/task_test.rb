@@ -455,4 +455,48 @@ class TaskTest < ActiveSupport::TestCase
     t = create_task
     assert_equal 'Unresolved', t.last_task_status_label
   end
+
+  test "should return if task is required for a user" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p
+    t1 = create_task annotated: pm
+    t2 = create_task required: true, annotated: pm
+    t3 = create_task required: true, annotated: pm
+    t3.assign_user(u.id)
+    assert !t1.reload.required_for_user(u.id)
+    assert !t2.reload.required_for_user(u.id)
+    assert t3.reload.required_for_user(u.id)
+  end
+
+  test "should update user assignments when task requirement changes" do
+    at = create_annotation_type annotation_type: 'response'
+    ft1 = create_field_type field_type: 'task_reference'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm, required: true
+    tk.assign_user(u.id)
+    tk = create_task annotated: pm, required: true
+    tk.assign_user(u.id)
+    assert_equal 0, pm.assignments_progress[:answered]
+    assert_equal 0, pm.assignments_progress[:total]
+    with_current_user_and_team(u ,t) do
+      tk.response = { annotation_type: 'response', set_fields: { response: 'Test', task: tk.id.to_s }.to_json }.to_json
+      tk.save!
+      assert_equal 1, pm.assignments_progress[:answered]
+      assert_equal 2, pm.assignments_progress[:total]
+      tk.required = false
+      tk.save!
+      assert_equal 0, pm.assignments_progress[:answered]
+      assert_equal 1, pm.assignments_progress[:total]
+    end
+  end
 end

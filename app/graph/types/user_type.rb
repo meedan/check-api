@@ -70,8 +70,12 @@ UserType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :assignments, -> { ProjectMediaType.connection_type } do
-    resolve ->(user, _args, _ctx) {
+    argument :team_id, types.Int
+
+    resolve ->(user, args, _ctx) {
       pms = Annotation.project_media_assigned_to_user(user).order('id DESC')
+      team_id = args['team_id'].to_i
+      pms = pms.joins(:project).where('projects.team_id' => team_id) if team_id > 0
       pms.reject { |pm| pm.is_finished? }
     }
   end
