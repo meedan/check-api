@@ -62,7 +62,6 @@ class Assignment < ActiveRecord::Base
 
   def self.propagate_assignments(assignment, requestor_id, event)
     assignment = YAML::load(assignment)
-    return if assignment.assigned.nil?
     assignment.assigned.propagate_assignment_to(assignment.user).each do |obj|
       klass = obj.parent_class_name
       existing = Assignment.where(user_id: assignment.user_id, assigned_type: klass, assigned_id: obj.id).last
