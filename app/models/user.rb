@@ -292,6 +292,16 @@ class User < ActiveRecord::Base
     end
   end
 
+  def self.delete_check_user(user)
+    columns = {name: "Anonymous-#{user.id}", login: '', uuid: '', provider: '', token: '', email: nil, omniauth_info: nil}
+    user.update_columns(columns)
+    # delete source profile and accounts
+    s = user.source
+    s.accounts.each{|a| a.destroy}
+    s.destroy unless s.nil?
+    user.update_columns(source_id: nil, account_id: nil)
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/user_private.rb
