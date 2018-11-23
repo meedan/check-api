@@ -257,5 +257,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     end
   end
 
+  field :assignments_progress, JsonStringType
+
   # End of fields
 end
