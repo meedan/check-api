@@ -47,9 +47,16 @@ Rails.application.configure do
 
   # http://guides.rubyonrails.org/caching_with_rails.html#configuration
   # config.cache_store = :memory_store, { size: 64.megabytes }
+  file = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")
+  file = File.join(Rails.root, 'config', "sidekiq.yml") unless File.exist?(file)
+  if File.exist?(file)
+    require 'sidekiq/middleware/i18n'
+    redis_config = YAML.load_file(file)
+    redis_url = { host: redis_config[:redis_host], port: redis_config[:redis_port], db: redis_config[:redis_database], namespace: "cache_checkapi_#{Rails.env}" }
+    config.cache_store = :redis_store, redis_url
+  end
 
   config.allow_concurrency = true
 
-  config.action_mailer.default_url_options = {:host => 'http://localhost:3000'}
-
+  config.action_mailer.default_url_options = { host: 'http://localhost:3000' }
 end
