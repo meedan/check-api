@@ -57,6 +57,14 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   # config.cache_store = :memory_store, { size: 64.megabytes }
+  file = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")
+  file = File.join(Rails.root, 'config', "sidekiq.yml") unless File.exist?(file)
+  if File.exist?(file)
+    require 'sidekiq/middleware/i18n'
+    redis_config = YAML.load_file(file)
+    redis_url = { host: redis_config[:redis_host], port: redis_config[:redis_port], db: redis_config[:redis_database], namespace: "cache_checkapi_#{Rails.env}" }
+    config.cache_store = :redis_store, redis_url
+  end
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = 'http://assets.example.com'
