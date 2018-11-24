@@ -22,7 +22,6 @@ class Account < ActiveRecord::Base
 
   after_create :set_embed_annotation, :create_source
   after_commit :update_elasticsearch_account, on: :update
-  after_commit :destroy_elasticsearch_account, on: :destroy
 
   def provider
     self.data['provider']
@@ -166,13 +165,6 @@ class Account < ActiveRecord::Base
     parents.each do |parent|
       self.add_update_nested_obj({op: 'update', nested_key: 'accounts', keys: %w(title description username), obj: parent})
     end unless parents.blank?
-  end
-
-  def destroy_elasticsearch_account
-    parents = self.get_parents
-    parents.each do |parent|
-      destroy_es_items('accounts', 'destroy_doc_nested', parent)
-    end
   end
 
   def set_embed_annotation

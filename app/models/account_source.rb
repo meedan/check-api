@@ -1,4 +1,5 @@
 class AccountSource < ActiveRecord::Base
+  include CheckElasticSearch
   attr_accessor :url
 
   belongs_to :source
@@ -14,6 +15,8 @@ class AccountSource < ActiveRecord::Base
 
   after_create :update_source_overridden_cache
   
+  after_commit :destroy_elasticsearch_account, on: :destroy, if: proc { |as| as.account.destroyed? }
+
   notifies_pusher targets: proc { |as| [as.source] }, data: proc { |as| { id: as.id }.to_json }, on: :save, event: 'source_updated'
 
   private
@@ -51,11 +54,23 @@ class AccountSource < ActiveRecord::Base
     self.source.cache_source_overridden if !a.nil? && a.id == self.account_id
   end
 
+  def destroy_elasticsearch_account
+    parents = self.get_parents
+    parents.each do |parent|
+      self.account.destroy_es_items('accounts', 'destroy_doc_nested', parent)
+    end
+  end
+
   protected
 
   def check_duplicate_accounts
     sources = AccountSource.where(source: Team.current.sources, account_id: self.account_id).map(&:source_id) unless Team.current.nil?
     ProjectSource.where(source_id: sources).last unless sources.blank?
+  end
+
+  def get_parents
+    return [] if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    ProjectSource.where(source_id: self.source)
   end
 
 end
