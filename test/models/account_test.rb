@@ -365,10 +365,12 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "should delete account_source when delete account" do
-    account = create_account
-    source = account.sources.first
+    t = create_team
+    s = create_source team: t
+    a = create_account source: s, team: t, disable_es_callbacks: false
+
     assert_difference 'AccountSource.count', -1 do
-      account.destroy
+      Account.find(a.id).destroy
     end
   end
 
