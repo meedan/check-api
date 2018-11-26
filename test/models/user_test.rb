@@ -165,7 +165,7 @@ class UserTest < ActiveSupport::TestCase
     u = create_user login: '', name: 'Foo Bar', email: 'foobar@test.com'
     assert_equal 'foobar', u.reload.login
   end
-editor3
+
   test "should set uuid" do
     assert_difference 'User.count', 2 do
       create_user login: '', name: 'Foo Bar', email: 'foobar1@test.com', provider: '', uuid: ''
@@ -174,7 +174,7 @@ editor3
   end
 
   test "should send welcome email when user is created" do
-    stub_config 'send_welcome_email_on_registration', true doeditor3
+    stub_config 'send_welcome_email_on_registration', true do
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
         create_user provider: '', skip_confirmation: true
       end
