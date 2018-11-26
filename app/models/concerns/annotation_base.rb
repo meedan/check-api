@@ -74,7 +74,8 @@ module AnnotationBase
 
     before_validation :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
-    after_create :notify_team_bots_create, :assign_to_users
+    after_create :notify_team_bots_create
+    after_commit :assign_to_users, on: :create
     after_update :notify_team_bots_update, :notify_bot_author
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated

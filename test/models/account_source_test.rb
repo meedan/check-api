@@ -76,4 +76,43 @@ class AccountSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not destroy accounts on elasticsearch when destroy account source" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      p = create_project team: t
+      s = create_source
+      a = create_account source: s, team: t, disable_es_callbacks: false
+      ps = create_project_source project: p, source: s, disable_es_callbacks: false
+      sleep 1
+
+      result = MediaSearch.find(get_es_id(ps))
+      assert_equal [a.id], result['accounts'].collect{|i| i["id"]}.sort
+
+      as = a.account_sources.first
+      as.destroy
+      sleep 1
+      result = MediaSearch.find(get_es_id(ps))
+      assert_equal [a.id], result['accounts'].collect{|i| i["id"]}.sort
+    end
+  end
+
+  test "should also destroy accounts on elasticsearch if account was destroyed" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      p = create_project team: t
+      s = create_source
+      a = create_account source: s, team: t, disable_es_callbacks: false
+      ps = create_project_source project: p, source: s, disable_es_callbacks: false
+      sleep 1
+
+      result = MediaSearch.find(get_es_id(ps))
+      assert_equal [a.id], result['accounts'].collect{|i| i["id"]}.sort
+
+      a.destroy
+      sleep 1
+      result = MediaSearch.find(get_es_id(ps))
+      assert_equal [], result['accounts'].collect{|i| i["id"]}.sort
+    end
+  end
+
 end

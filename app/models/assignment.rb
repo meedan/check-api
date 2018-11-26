@@ -8,6 +8,7 @@ class Assignment < ActiveRecord::Base
   before_update { raise ActiveRecord::ReadOnlyRecord }
   after_create :send_email_notification_on_create, :increase_assignments_count, :propagate_assignments
   after_destroy :send_email_notification_on_destroy, :decrease_assignments_count, :propagate_unassignments
+  after_commit :update_user_assignments_progress
 
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
 
@@ -23,9 +24,10 @@ class Assignment < ActiveRecord::Base
   end
 
   def get_team
-    assigned = self.assigned
+    assigned = self.assigned_type.constantize.where(id: self.assigned_id).last
+    return [] if assigned.nil?
     return [assigned.team&.id] if assigned.is_a?(Project)
-    assigned.get_team if assigned.is_a?(Annotation)
+    assigned.get_team if assigned.is_annotation?
   end
 
   def get_team_and_project
@@ -45,7 +47,7 @@ class Assignment < ActiveRecord::Base
     user = self.user
     return if [author, assigned, user].select{ |x| x.nil? }.any?
     type = assigned.is_a?(Annotation) ? assigned.annotation_type : self.assigned_type.downcase
-    AssignmentMailer.delay.notify("#{action}_#{type}", author, user.email, assigned)
+    AssignmentMailer.delay_for(1.second).notify("#{action}_#{type}", author, user.email, assigned)
   end
 
   def change_assignments_count(value)
@@ -55,7 +57,7 @@ class Assignment < ActiveRecord::Base
 
   def propagate_assignments_or_unassignments(event)
     assignment = YAML::dump(self)
-    self.propagate_in_foreground ? Assignment.propagate_assignments(assignment, nil, event) : Assignment.delay.propagate_assignments(assignment, User.current&.id, event)
+    self.propagate_in_foreground ? Assignment.propagate_assignments(assignment, nil, event) : Assignment.delay_for(1.second).propagate_assignments(assignment, User.current&.id, event)
   end
 
   def self.propagate_assignments(assignment, requestor_id, event)
@@ -77,7 +79,7 @@ class Assignment < ActiveRecord::Base
     end
     if requestor_id
       data = assignment.get_team_and_project
-      AssignmentMailer.delay.ready(requestor_id, data.team, data.project, event, assignment.user)
+      AssignmentMailer.delay_for(1.second).ready(requestor_id, data.team, data.project, event, assignment.user)
     end
   end
 
@@ -134,5 +136,15 @@ class Assignment < ActiveRecord::Base
 
   def propagate_unassignments
     self.propagate_assignments_or_unassignments(:unassign)
+  end
+
+  def update_user_assignments_progress
+    user_id = self.user_id
+    team_id = self.get_team.first
+    TeamUser.delay_for(1.second).set_assignments_progress(user_id, team_id)
+    assigned = self.assigned_type.constantize.where(id: self.assigned_id).last
+    if assigned.is_a?(Annotation) && assigned.annotation_type == 'task'
+      User.delay_for(1.second).set_assignments_progress(user_id, assigned.annotated_id.to_i)
+    end
   end
 end

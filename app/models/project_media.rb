@@ -267,6 +267,12 @@ class ProjectMedia < ActiveRecord::Base
     coder['active_record_yaml_version'] = 0
   end
 
+  def assignments_progress
+    data = { answered: 0, total: 0 }
+    data = Rails.cache.read("cache-assignments-progress-#{User.current.id}-project-media-#{self.id}") unless User.current.nil?
+    data
+  end
+
   def self.archive_or_restore_related_medias(archived, project_media_id)
     ids = Relationship.where(source_id: project_media_id).map(&:target_id)
     ProjectMedia.where(id: ids).update_all(archived: archived)

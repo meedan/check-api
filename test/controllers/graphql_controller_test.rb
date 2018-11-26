@@ -153,7 +153,7 @@ class GraphqlControllerTest < ActionController::TestCase
     c.assign_user(u.id)
     tg = create_tag annotated: pm
     tg.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { assignments_progress, tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -2130,5 +2130,39 @@ class GraphqlControllerTest < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['project']
     assert_equal 1, data['assignments_count']
     assert_equal 'Assigned to Project', data['assigned_users']['edges'][0]['node']['name']
+  end
+
+  test "should filter user assignments by team" do
+    u = create_user
+    t1 = create_team
+    create_team_user team: t1, user: u
+    p1 = create_project team: t1
+    pm1 = create_project_media project: p1
+    tk1 = create_task annotated: pm1
+    tk1.assign_user(u.id)
+    t2 = create_team
+    create_team_user team: t2, user: u
+    p2 = create_project team: t2
+    pm2 = create_project_media project: p2
+    tk2 = create_task annotated: pm2
+    tk2.assign_user(u.id)
+    authenticate_with_user(u)
+
+    post :create, query: "query { me { assignments(first: 10000) { edges { node { dbid } } } } }", team: t1.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['me']['assignments']['edges']
+    assert_equal 2, data.size
+
+    post :create, query: "query { me { assignments(team_id: #{t1.id}, first: 10000) { edges { node { dbid } } } } }", team: t1.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['me']['assignments']['edges']
+    assert_equal 1, data.size
+    assert_equal pm1.id, data[0]['node']['dbid']
+
+    post :create, query: "query { me { assignments(team_id: #{t2.id}, first: 10000) { edges { node { dbid } } } } }", team: t2.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['me']['assignments']['edges']
+    assert_equal 1, data.size
+    assert_equal pm2.id, data[0]['node']['dbid']
   end
 end
