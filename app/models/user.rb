@@ -293,13 +293,23 @@ class User < ActiveRecord::Base
   end
 
   def self.delete_check_user(user)
-    columns = {name: "Anonymous-#{user.id}", login: '', uuid: '', provider: '', token: '', email: nil, omniauth_info: nil}
+    s = user.source
+    a = user.account
+    columns = {
+      name: "Anonymous-#{user.id}", uuid: "#{user.uuid}-old", provider: '', token: "#{user.token}-old", 
+      email: nil, omniauth_info: nil, source_id: nil, account_id: nil, is_active: false
+    }
     user.update_columns(columns)
     # delete source profile and accounts
-    s = user.source
-    s.accounts.each{|a| a.destroy}
+    s.accounts.each do |a|
+      as_count = AccountSource.where(account_id: a.id).where.not(source_id: s.id).count
+      a.destroy if as_count == 0
+    end
+    AccountSource.where(source_id: s.id).map(&:destroy)
     s.destroy unless s.nil?
-    user.update_columns(source_id: nil, account_id: nil)
+    # notify team(s) owner & privacy
+    DeleteUserMailer.delay.notify_owners(user)
+    DeleteUserMailer.delay.notify_privacy(user)
   end
 
   # private

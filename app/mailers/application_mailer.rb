@@ -21,7 +21,10 @@ class ApplicationMailer < ActionMailer::Base
   protected
 
   def send_email_to_recipients(recipients, subject, type=nil)
+    puts "Hello I am here"
     recipients = Bounce.remove_bounces(recipients)
+    puts "Print recipients"
+    pp recipients
     unless recipients.empty?
       Rails.logger.info "Sending e-mail to #{recipients}"
       mail(to: recipients, email_type: type, subject: subject)
@@ -29,7 +32,7 @@ class ApplicationMailer < ActionMailer::Base
   end
 
   def opted_out_types
-    %w(assignment terminal_status)
+    %w(assignment terminal_status delete_user)
   end
-  
+
 end

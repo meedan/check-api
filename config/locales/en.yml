@@ -357,6 +357,8 @@ en:
   mail_unassign_project: "%{author} unassigned a project from you. It's titled:"
   mail_subject_assign_project: "[%{team} - %{project}] A project was assigned to you"
   mail_subject_unassign_project: "[%{team} - %{project}] A project was unassigned from you"
+  mail_subject_delete_user: "[%{team}] A user was deleted"
+  mail_body_delete_user: "An account was deleted and their content was assigned to an anonymous ID %{id}"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "Keep screenshots"
   archive_archive_is: "Archive.is"
@@ -482,22 +484,22 @@ en:
     invalid_assignee: "Invalid assignee %{user}"
   mail_subject_assignments_ready: "[%{team} - %{project}] Assignments update is ready"
   mail_body_assignments_ready_assign: "Hello %{username},
-  
+
   The assignments update process was completed successfully.
-  
+
   Project '%{project_title}' (%{project_url}) and its items and tasks are now assigned to %{assignee}.
-  
+
   Thanks,
-  
+
   — The %{app_name} team"
   mail_body_assignments_ready_unassign: "Hello %{username},
-  
+
   The assignments update process was completed successfully.
-  
+
   Project '%{project_title}' (%{project_url}) and its items and tasks are now unassigned from %{assignee}.
-  
+
   Thanks,
-  
+
   — The %{app_name} team"
   team_import_completed_subject: "Your data import has completed"
   team_import_completed_mail: "<p>Hello,</p>

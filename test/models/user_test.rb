@@ -165,7 +165,7 @@ class UserTest < ActiveSupport::TestCase
     u = create_user login: '', name: 'Foo Bar', email: 'foobar@test.com'
     assert_equal 'foobar', u.reload.login
   end
-
+editor3
   test "should set uuid" do
     assert_difference 'User.count', 2 do
       create_user login: '', name: 'Foo Bar', email: 'foobar1@test.com', provider: '', uuid: ''
@@ -174,7 +174,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should send welcome email when user is created" do
-    stub_config 'send_welcome_email_on_registration', true do
+    stub_config 'send_welcome_email_on_registration', true doeditor3
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
         create_user provider: '', skip_confirmation: true
       end
@@ -1011,5 +1011,17 @@ class UserTest < ActiveSupport::TestCase
         end
       end
     end
+  end
+
+  test "should allow user to delete own account" do
+    user = create_user
+    pm = create_project_media user: user
+    User.delete_check_user(user)
+    user = user.reload
+    assert_equal user.name, "Anonymous-#{user.id}"
+    assert_nil user.source
+    assert_nil user.account
+    # TODO test other fields
+    assert_equal pm.reload.user_id, user.id
   end
 end
