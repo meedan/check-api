@@ -66,3 +66,4 @@ exclude_patterns:
 - "data"
 - "**.js"
 - "public/viber/bigtext.js"
+- "config/environments/*"
