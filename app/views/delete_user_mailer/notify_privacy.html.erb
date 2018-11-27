@@ -4,6 +4,6 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-    <p><%= I18n.t(:mail_body_delete_user, id: @user.id) %></p>
+    <p><%= I18n.t(:mail_body_delete_user, url: link_to(@name, @url)) %></p>
   </body>
 </html>

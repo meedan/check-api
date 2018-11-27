@@ -17,11 +17,13 @@ class DeleteUserMailerTest < ActionMailer::TestCase
     end
     assert_equal ['owner1@mail.com', 'owner2@mail.com'].sort, email.to.sort
 
-    email = DeleteUserMailer.notify_privacy(u)
-    assert_emails 1 do
-      email.deliver_now
+    stub_config 'privacy_email', 'privacy_email@local.com' do
+      email = DeleteUserMailer.notify_privacy(u)
+      assert_emails 1 do
+        email.deliver_now
+      end
+      assert_equal ['privacy_email@local.com'], email.to
     end
-    assert_equal [CONFIG['privacy_email']], email.to
   end
 
   test "should not notify owner if bounced or notification disabled" do
