@@ -294,9 +294,8 @@ class User < ActiveRecord::Base
 
   def self.delete_check_user(user)
     s = user.source
-    a = user.account
     columns = {
-      name: "Anonymous-#{user.id}", uuid: "#{user.uuid}-old", provider: '', token: "#{user.token}-old",
+      name: "Anonymous", login: "Anonymous", uuid: "#{user.uuid}-old", provider: '', token: "#{user.token}-old",
       email: nil, omniauth_info: nil, source_id: nil, account_id: nil, is_active: false
     }
     user.update_columns(columns)
