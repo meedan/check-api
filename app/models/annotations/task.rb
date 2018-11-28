@@ -5,7 +5,7 @@ class Task < ActiveRecord::Base
 
   before_validation :set_slug, on: :create
   after_create :send_slack_notification
-  after_update :send_slack_notification
+  after_update :send_slack_notification, :update_users_assignments_progress
   after_commit :send_slack_notification, on: [:create, :update]
   after_destroy :destroy_responses
 
@@ -50,6 +50,10 @@ class Task < ActiveRecord::Base
 
   def to_s
     self.label
+  end
+
+  def required_for_user(user_id)
+    self.required && self.assigned_users.where('users.id' => user_id).count > 0
   end
 
   SLACK_FIELDS_IGNORE = [ :log_count, :slug, :status ]
@@ -182,6 +186,14 @@ class Task < ActiveRecord::Base
     @response = response
     self.record_timestamps = false
     self.status = 'resolved' if self.must_resolve_task(params)
+    self.update_user_assignments_progress(response)
+  end
+
+  def update_user_assignments_progress(response)
+    user_id = response.annotator_id.to_i
+    team_id = self.annotated&.project&.team_id
+    TeamUser.delay_for(1.second).set_assignments_progress(user_id, team_id)
+    User.delay_for(1.second).set_assignments_progress(user_id, self.annotated_id.to_i)
   end
 
   def first_response_obj
@@ -261,6 +273,18 @@ class Task < ActiveRecord::Base
 
   def set_slug
     self.slug = Task.slug(self.label)
+  end
+
+  def update_users_assignments_progress
+    if self.data_was['required'] != self.data['required']
+      team_id = self.annotated&.project&.team_id
+      unless team_id.nil?
+        self.assigned_users.each do |user|
+          User.delay_for(1.second).set_assignments_progress(user.id, self.annotated_id.to_i)
+          TeamUser.delay_for(1.second).set_assignments_progress(user.id, team_id)
+        end
+      end
+    end
   end
 end
 

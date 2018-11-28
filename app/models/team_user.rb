@@ -95,6 +95,49 @@ class TeamUser < ActiveRecord::Base
     time + self.user.class.invite_for
   end
 
+  def self.set_assignments_progress(user_id, team_id)
+    tu = TeamUser.where(user_id: user_id, team_id: team_id).last
+    tu.set_assignments_progress unless tu.nil?
+  end
+
+  def set_assignments_progress
+    pms = Annotation.project_media_assigned_to_user(self.user_id).joins(:project).where('projects.team_id' => self.team_id)
+    completed = 0
+    in_progress = 0
+    unstarted = 0
+    pms.find_each do |pm|
+      required_tasks_count = 0
+      answered_tasks_count = 0
+      Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).each do |task|
+        if task.required_for_user(self.user_id) 
+          required_tasks_count += 1
+          answered_tasks_count += 1 if task.responses.select{ |r| r.annotator_id.to_i == self.user_id }.any?
+        end
+      end
+      if required_tasks_count == answered_tasks_count
+        completed += 1
+      elsif answered_tasks_count > 0
+        in_progress += 1
+      else
+        unstarted += 1
+      end
+    end
+    Rails.cache.write("cache-assignments-progress-#{self.user_id}-team-#{self.team_id}", {
+      completed: completed,
+      in_progress: in_progress,
+      unstarted: unstarted
+    })
+  end
+
+  def assignments_progress
+    data = Rails.cache.read("cache-assignments-progress-#{self.user_id}-team-#{self.team_id}") || {
+      completed: 0,
+      in_progress: 0,
+      unstarted: 0
+    }
+    data.with_indifferent_access
+  end
+
   protected
 
   def update_user_cached_teams(action) # action: :add or :remove

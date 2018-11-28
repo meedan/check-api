@@ -6,10 +6,10 @@ GIT
 
 GIT
   remote: https://github.com/meedan/alegre-client.git
-  revision: d97ec6a675bf9edde72e36207a370148eecd5575
-  ref: d97ec6a
+  revision: a78f32125ceae16498cc42216c442fe6a3c1c854
+  ref: a78f321
   specs:
-    alegre_client (0.0.10)
+    alegre_client (0.0.11)
 
 GIT
   remote: https://github.com/meedan/graphiql-rails.git
@@ -425,8 +425,24 @@ GEM
       ffi (>= 0.5.0, < 2)
     rdoc (4.3.0)
     redis (3.3.3)
+    redis-actionpack (5.0.2)
+      actionpack (>= 4.0, < 6)
+      redis-rack (>= 1, < 3)
+      redis-store (>= 1.1.0, < 2)
+    redis-activesupport (5.0.7)
+      activesupport (>= 3, < 6)
+      redis-store (>= 1.3, < 2)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
+    redis-rack (2.0.5)
+      rack (>= 1.5, < 3)
+      redis-store (>= 1.2, < 2)
+    redis-rails (5.0.2)
+      redis-actionpack (>= 5.0, < 6)
+      redis-activesupport (>= 5.0, < 6)
+      redis-store (>= 1.2, < 2)
+    redis-store (1.6.0)
+      redis (>= 2.2, < 5)
     remotipart (1.3.1)
     representable (3.0.4)
       declarative (< 0.1.0)
@@ -648,6 +664,7 @@ DEPENDENCIES
   rails_admin (~> 1.3.0)
   rails_admin_material
   redis-namespace
+  redis-rails
   request_store
   responders
   rest-client

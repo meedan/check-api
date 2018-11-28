@@ -9,7 +9,7 @@ module UserInvitation
   	after_invitation_created :create_team_user_invitation
 
 	  def self.send_user_invitation(members, text=nil)
-	    msg = {}
+	    msg = []
 	    members.each do |member|
 	    	member.symbolize_keys!
 	    	role = member[:role]
@@ -22,14 +22,13 @@ module UserInvitation
 	              iu.skip_invitation = true
 	            end
 	            user.update_column(:raw_invitation_token, user.raw_invitation_token)
-	            msg[email] = 'success'
 	          else
 	            u.invitation_role = role
 	            u.invitation_text = text
-	            msg.merge!(u.invite_existing_user)
+	            msg.concat(u.invite_existing_user)
 	          end
 	        rescue StandardError => e
-	          msg[email] = e.message
+            msg << {email: email, error: e.message}
 	        end
 	      end
 	    end
@@ -37,7 +36,7 @@ module UserInvitation
 	  end
 
 	  def invite_existing_user
-	    msg = {}
+	    msg = []
 	    unless Team.current.nil?
 	      tu = TeamUser.where(team_id: Team.current.id, user_id: self.id).last
 	      if tu.nil?
@@ -47,11 +46,10 @@ module UserInvitation
 	          options = {:enc => enc, :raw => raw}
 	        end
 	        create_team_user_invitation(options)
-	        msg[self.email] = 'success'
 	      elsif tu.status == 'invited'
-	        msg[self.email] = I18n.t(:"user_invitation.invited")
+          msg << {email: self.email, error: I18n.t(:"user_invitation.invited")}
 	      else
-	        msg[self.email] = I18n.t(:"user_invitation.member")
+          msg << {email: self.email, error: I18n.t(:"user_invitation.member")}
 	      end
 	    end
 	    msg
@@ -61,16 +59,16 @@ module UserInvitation
 	  	invitable = new
 	    t = Team.where(slug: slug).last
 	    if t.nil?
-	    	invitable.errors.add(:team, I18n.t(:"user_invitation.team_found"))
+	    	invitable.errors.add(:invalid_team, I18n.t(:"user_invitation.team_found"))
 	    else
 	      invitation_token = Devise.token_generator.digest(self, :invitation_token, token)
 	      tu = TeamUser.where(team_id: t.id, status: 'invited', invitation_token: invitation_token).last
 	      if tu.nil?
-	      	invitable.errors.add(:invitation_token, I18n.t(:"user_invitation.no_invitation", { name: t.name }))
+	      	invitable.errors.add(:no_invitation, I18n.t(:"user_invitation.no_invitation", { name: t.name }))
 	      elsif tu.invitation_period_valid?
 	      	self.accept_team_user_invitation(tu, token, options)
 	      else
-	      	invitable.errors.add(:invitation_token, I18n.t(:"user_invitation.invalid"))
+	      	invitable.errors.add(:invalid_invitation, I18n.t(:"user_invitation.invalid"))
 	      end
 	    end
 	    invitable
@@ -86,14 +84,13 @@ module UserInvitation
 	  end
 
 	  def self.cancel_user_invitation(user)
-	    tu = user.team_users.where(team_id: Team.current.id).last
-	    unless tu.nil?
-	      tu.skip_check_ability = true
-	      tu.destroy if tu.status == 'invited' && !tu.invitation_token.nil?
-	    end
-	    # Check if user invited to another team(s)
-	    user.skip_check_ability = true
-	    user.destroy if user.is_invited? && user.team_users.count == 0
+	  	tu = user.team_users.where(team_id: Team.current.id).last
+	  	unless tu.nil?
+	  		tu.skip_check_ability = true
+	  		tu.destroy if tu.status == 'invited' && !tu.invitation_token.nil?
+	  	end
+	  	# Check if user invited to another team(s)
+	  	self.destroy_invited_user(user) if user.is_invited? && user.team_users.count == 0
 	  end
 
 	  def is_invited?(team = nil)
@@ -131,9 +128,16 @@ module UserInvitation
       unless user.nil?
       	invitable = User.accept_invitation!(:invitation_token => token, :password => password)
       	# Send welcome mail with generated password
-      	invitable.password = password
-      	RegistrationMailer.delay.welcome_email(invitable) unless invitable.nil?
+      	RegistrationMailer.delay.welcome_email(invitable, password) unless invitable.nil?
       end
 	  end
+
+    def self.destroy_invited_user(user)
+      user.skip_check_ability = true
+      user.destroy
+      s = user.source
+      s.skip_check_ability = true
+      s.destroy unless s.nil?
+    end
   end
 end

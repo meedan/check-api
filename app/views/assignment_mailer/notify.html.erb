@@ -5,7 +5,9 @@
   </head>
   <body>
     <p><%= I18n.t("mail_#{@event}".to_sym, @info) %></p>
-    <p><%= @media_title %></p>
-    <p><%= I18n.t(:mail_see_it) %> <%= @project_media.full_url %></p>
+    <p><%= @title %></p>
+    <% unless @event =~/unassign/ %>
+      <p><%= I18n.t(:mail_see_it) %> <%= @url %></p>
+    <% end %>
   </body>
 </html>

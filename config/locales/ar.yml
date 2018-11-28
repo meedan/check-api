@@ -154,7 +154,7 @@ ar:
   slack:
     fields:
       assigned: "مُكَلَّف إلى"
-      unassigned: "تم إلغاء التكليف من"
+      unassigned: "تم إلغاء التكليف عن"
       required: "إجبارية ؟"
       required_yes: "نعم"
       project: "المشروع"
@@ -177,10 +177,7 @@ ar:
       project_media_comment: "قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}"
       project_media_create: "قام %{user} (%{role} في %{team}) بإنشاء %{type}"
       project_media_create_related: "قام %{user} (%{role} في %{team}) بإنشاء %{type} ذو صلة"
-      project_media_create_no_user: "تم انشاء %{type}"
-      project_media_create_related_no_user: "تم انشاء %{type} ذو صلة"
       project_media_update: "قام %{user} (%{role} في %{team}) بتحرير %{type}"
-      project_media_update_no_user: "تم تحرير %{type}"
       project_media_status: "قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow} %{type}"
       project_media_assign: "قام %{user} (%{role} في %{team}) بتكليف %{type}"
       project_media_unassign: "قام %{user} (%{role} في %{team}) بالغاء تكليف %{type}"
@@ -188,6 +185,8 @@ ar:
       project_source_create: "قام %{user} (%{role} في %{team}) بإنشاء %{type}"
       project_source_update: "قام %{user} (%{role} في %{team}) بتحرير %{type}"
       project_create: "قام %{user} (%{role} في %{team}) بإنشاء مشروع"
+      project_assign: "قام %{user} (%{role} في %{team}) بتكليف مشروع"
+      project_unassign: "قام %{user} (%{role} في %{team}) بالغاء تكليف مشروع"
       user_member: "إنضم %{user} الى الفريق %{team}"
       user_requested: "طلب %{user} الانضمام الى الفريق %{team}"
       user_invited: "تمت دعوة %{user} الى الفريق %{team}"
@@ -200,8 +199,8 @@ ar:
   mail_view_process_request: "لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: "
   pender_could_not_parse: عذراً ، لقد واجهنا خطأ ما اثناء تحليل الميديا. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
   mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
-  mail_duplicate_email_exists_body: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً! نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
+  mail_duplicate_email_exists_body: "<p>مرحباً — نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
+  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً — نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
   mail_duplicate_email_exists_email: البريد الإلكتروني
   slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى فريق %{team_name} حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
@@ -249,6 +248,7 @@ ar:
   role_journalist: صحفي
   role_annotator: مُفَسِّر
   role_none: عضو
+  role_: مسؤول النظام
   oembed_credit: تمت الإضافة من %{user} (%{role}) في %{date}
   oembed_notes_count:
     zero: "لا توجد ملحوظات"
@@ -287,7 +287,7 @@ ar:
   permission_error: "عذراً ، ليس مسموح لك تنفيذ هذه العملية"
   error_annotated_archived: "لا يمكن إضافة تعليق لعنصر في سلة المهملات"
   only_super_admin_can_do_this: "عذراً ، هذه العملية متاحة لمسؤولي النظام فقط"
-  max_number_of_team_users_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمستخدمين في هذا الفريق"
+  max_number_of_team_users_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للأعضاء في هذا الفريق"
   max_number_of_projects_reached: "عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في هذا الفريق"
   cant_set_custom_statuses: "عذراً ، خاصية حالات التحقق المتخصصة غير متاحة لهذا الفريق"
   cant_change_custom_statuses: "لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :\n %{others_amount} %{urls}"
@@ -324,11 +324,11 @@ ar:
   error_user_is_not_a_team_member: "عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق"
   mail_see_it: "تستطيع أن تراه هنا : "
   mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
+  mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا عنك"
   mail_subject_assign_translation_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا"
+  mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا عنك"
   mail_subject_assign_task: "[%{team} - %{project}] تم تكليف مهمة إليك"
-  mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء تكليف مهمة"
+  mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
   mail_subject_update_status: "[%{team} - %{project}] تم تغيير حالة ميديا إلى %{status}"
   mail_assign_verification_status: "كلَّفَ(ت) %{author} إليك ميديا : "
   mail_unassign_verification_status: "ألغى(ت) %{author} تكليف ميديا : "
@@ -337,6 +337,10 @@ ar:
   mail_assign_task: "كلَّفَ(ت) %{author} إليك مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_unassign_task: "ألغى(ت) %{author} تكليف مهمة \"%{task}\" التي تنتمي إلى ميديا : "
   mail_update_status: "قام %{author} بتغيير حالة \"%{title}\" إلى %{status}."
+  mail_assign_project: "كلَّفَ(ت) %{author} إليك مشروع : "
+  mail_unassign_project: "ألغى(ت) %{author} تكليف مشروع : "
+  mail_subject_assign_project: "[%{team} - %{project}] تم تكليف مشروع إليك"
+  mail_subject_unassign_project: "[%{team} - %{project}] تم إلغاء تكليف مشروع عنك"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "لقطات الشاشة من Keep"
   archive_archive_is: "Archive.is"
@@ -430,3 +434,8 @@ ar:
     blank_project: "مشروع فارغ غير صحيح"
     invalid_annotator: "مُعلِّق غير صحيح %{user}"
     invalid_assignee: "مُكلّف غير صحيح %{user}"
+  mail_subject_assignments_ready: "[%{team} - %{project}] تمت عملية تحديث التكليفات"
+  mail_body_assignments_ready_assign: "مرحباً %{username}\nتمت عملية تحديث التكليفات بنجاح.\nتم تكليف مشروع %{project_title} (%{project_url}) مع عناصره ومهامه إلى %{assignee}.\n— فريق عمل %{app_name} "
+  mail_body_assignments_ready_unassign: "مرحباً %{username}\nتمت عملية تحديث التكليفات بنجاح.\nتم إلغاء تكليف مشروع %{project_title} (%{project_url}) مع عناصره ومهامه عن %{assignee}.\n— فريق عمل %{app_name} "
+  team_import_completed_subject: "تمت عملية استيراد البيانات"
+  team_import_completed_mail: "<p>مرحباً —</p><p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url} لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p><p>— فريق عمل %{app_name}"
