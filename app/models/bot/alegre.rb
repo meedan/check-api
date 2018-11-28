@@ -39,7 +39,7 @@ class Bot::Alegre < ActiveRecord::Base
     languages.each do |lang|
       begin
         response = AlegreClient::Request.get_mt(CONFIG['alegre_host'], { text: text, from: src_lang, to: lang }, CONFIG['alegre_token'])
-        if response['type'] == 'mt'
+        if response['type'] == 'mt' && !response['data'].blank?
           mt_text = response['data']
         else
           Rails.logger.error response['data']['message']
@@ -50,6 +50,7 @@ class Bot::Alegre < ActiveRecord::Base
       translations << { lang: lang, text: mt_text } unless mt_text.nil?
     end
     self.update_machine_translation(target, translations, author) unless translations.blank?
+    translations
   end
 
   def language_object(target, attr = nil)
