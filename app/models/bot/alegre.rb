@@ -41,8 +41,6 @@ class Bot::Alegre < ActiveRecord::Base
         response = AlegreClient::Request.get_mt(CONFIG['alegre_host'], { text: text, from: src_lang, to: lang }, CONFIG['alegre_token'])
         if response['type'] == 'mt' && !response['data'].blank?
           mt_text = response['data']
-        else
-          Rails.logger.error response['data']['message']
         end
       rescue
         mt_text = nil
