@@ -153,7 +153,7 @@ class GraphqlControllerTest < ActionController::TestCase
     c.assign_user(u.id)
     tg = create_tag annotated: pm
     tg.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { assignments_progress, tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -1248,8 +1248,6 @@ class GraphqlControllerTest < ActionController::TestCase
     s2.assign_user(u.id)
     s3.assign_user(u.id)
     s4.assign_user(u2.id)
-    t1.assign_user(u.id)
-    t2.assign_user(u.id)
     authenticate_with_user(u)
     post :create, query: "query GetById { user(id: \"#{u.id}\") { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }"
     assert_response :success
@@ -1687,7 +1685,41 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
 
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\" }) { success } }"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
+    post :create, query: query, team: t.slug
+    sleep 1
+    assert_response :success
+    response = JSON.parse(@response.body)
+    assert response.has_key?('errors')
+    assert_match /invalid value/, response['errors'].first['message']
+  end
+
+  test "should not import spreadsheet if team_id is not present" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+
+    authenticate_with_user(u)
+
+    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", user_id: #{u.id} }) { success } }"
+    post :create, query: query, team: t.slug
+    sleep 1
+    assert_response :success
+    response = JSON.parse(@response.body)
+    assert response.has_key?('errors')
+    assert_match /invalid value/, response['errors'].first['message']
+  end
+
+  test "should not import spreadsheet if user_id is not present" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+
+    authenticate_with_user(u)
+
+    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id} }) { success } }"
     post :create, query: query, team: t.slug
     sleep 1
     assert_response :success
@@ -1704,7 +1736,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
 
     [' ', 'https://example.com'].each do |url|
-      query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{url}\" }) { success } }"
+      query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
       post :create, query: query, team: t.slug
       sleep 1
       assert_response 400
@@ -1721,7 +1753,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/invalid_spreadsheet/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
+
     post :create, query: query, team: t.slug
     assert_response 400
     response = JSON.parse(@response.body)
@@ -1729,14 +1762,14 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_match /File not found/, response['error_info']['error_message']
   end
 
-  test "should import spreadsheet if spreadsheet is valid" do
+  test "should import spreadsheet if inputs are valid" do
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
 
     authenticate_with_user(u)
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\" }) { success } }"
+    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal({"success" => true}, JSON.parse(@response.body)['data']['importSpreadsheet'])
@@ -2082,5 +2115,54 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: t.slug
     list = JSON.parse(@response.body)['data']['project_media']['dynamic_annotations_metadata']['edges']
     assert_equal 2, list.size
+  end
+
+  test "should get project assignments" do
+    u = create_user is_admin: true
+    u2 = create_user name: 'Assigned to Project'
+    t = create_team
+    create_team_user user: u2, team: t
+    p = create_project team: t
+    p.assign_user(u2.id)
+    authenticate_with_user(u)
+
+    post :create, query: "query { project(ids: \"#{p.id},#{t.id}\") { assignments_count, assigned_users(first: 10000) { edges { node { name } } } } }", team: t.slug
+    data = JSON.parse(@response.body)['data']['project']
+    assert_equal 1, data['assignments_count']
+    assert_equal 'Assigned to Project', data['assigned_users']['edges'][0]['node']['name']
+  end
+
+  test "should filter user assignments by team" do
+    u = create_user
+    t1 = create_team
+    create_team_user team: t1, user: u
+    p1 = create_project team: t1
+    pm1 = create_project_media project: p1
+    tk1 = create_task annotated: pm1
+    tk1.assign_user(u.id)
+    t2 = create_team
+    create_team_user team: t2, user: u
+    p2 = create_project team: t2
+    pm2 = create_project_media project: p2
+    tk2 = create_task annotated: pm2
+    tk2.assign_user(u.id)
+    authenticate_with_user(u)
+
+    post :create, query: "query { me { assignments(first: 10000) { edges { node { dbid } } } } }", team: t1.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['me']['assignments']['edges']
+    assert_equal 2, data.size
+
+    post :create, query: "query { me { assignments(team_id: #{t1.id}, first: 10000) { edges { node { dbid } } } } }", team: t1.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['me']['assignments']['edges']
+    assert_equal 1, data.size
+    assert_equal pm1.id, data[0]['node']['dbid']
+
+    post :create, query: "query { me { assignments(team_id: #{t2.id}, first: 10000) { edges { node { dbid } } } } }", team: t2.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['me']['assignments']['edges']
+    assert_equal 1, data.size
+    assert_equal pm2.id, data[0]['node']['dbid']
   end
 end

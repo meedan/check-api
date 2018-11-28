@@ -82,6 +82,9 @@ module ActiveRecordExtensions
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), type)
   end
 
+  def parent_class_name
+    self.is_annotation? ? 'Annotation' : self.class.name
+  end
 end
 
 ActiveRecord::Base.send(:include, ActiveRecordExtensions)

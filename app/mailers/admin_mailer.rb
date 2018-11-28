@@ -14,4 +14,12 @@ class AdminMailer < ApplicationMailer
       mail(to: email, subject: I18n.t("project_export_email_title_#{type}".to_sym))
     end
   end
+
+  def notify_import_completed(email, worksheet_url)
+    Rails.logger.info "[Team Import] Sending e-mail to #{email} to inform that the data import of #{worksheet_url} has completed"
+    @worksheet_url = worksheet_url
+    @app_name = CONFIG['app_name']
+    mail(to: email, subject: I18n.t(:team_import_completed_subject))
+  end
+
 end

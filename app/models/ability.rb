@@ -65,12 +65,14 @@ class Ability
       obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?
     end
 
-    pmids = Annotation.project_media_assigned_to_user(@user).map(&:id)
+    pms = Annotation.project_media_assigned_to_user(@user).to_a
+    pids = pms.map(&:project_id).uniq
+    pmids = pms.map(&:id).uniq
 
     cannot :read, [User, ProjectMedia, Project, Task]
     can :read, User, id: @user.id
     can :read, ProjectMedia, id: pmids
-    can :read, Project, project_medias: { id: pmids }
+    can :read, Project, id: pids
     can :read, Task do |task|
       task.assigned_users.include?(@user)
     end
@@ -80,7 +82,7 @@ class Ability
     can_list User, id: @user.id
     can_list Task, { 'joins' => :assignments, 'assignments.user_id' => @user.id }
     can_list ProjectMedia, id: pmids
-    can_list Project, { 'joins' => :project_medias, 'project_medias.id' => pmids }
+    can_list Project, id: pids
     can_list [Annotation, Dynamic], { annotator_id: @user.id }
 
     contributor_and_annotator_perms
@@ -134,7 +136,7 @@ class Ability
 
   def editor_perms
     can :update, Team, :id => @context_team.id
-    can :create, TeamUser, :team_id => @context_team.id, role: ['editor']
+    can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'annotator']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor'], role_was: ['editor', 'journalist', 'contributor']
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
@@ -148,8 +150,9 @@ class Ability
       end
     end
     can [:destroy, :create], Assignment do |obj|
-      obj = obj.annotation
-      obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
+      type = obj.assigned_type
+      obj = obj.assigned
+      obj.get_team.include?(@context_team.id) && ((type == 'Annotation' && !obj.annotated_is_archived?) || (type == 'Project' && !obj.archived))
     end
     can :lock_annotation, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
@@ -225,8 +228,9 @@ class Ability
       obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived? and !obj.locked?
     end
     can [:destroy, :create], Assignment do |obj|
-      obj = obj.annotation
-      obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived? and !obj.locked?
+      type = obj.assigned_type
+      obj = obj.assigned
+      (type == 'Annotation' && obj.annotator_id.to_i == @user.id && !obj.annotated_is_archived? && !obj.locked?) || (type == 'Project' && obj.user_id == @user.id && !obj.archived)
     end
     can [:create, :update, :destroy], DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?

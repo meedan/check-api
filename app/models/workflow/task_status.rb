@@ -23,8 +23,8 @@ class Workflow::TaskStatus < Workflow::Base
     private
 
     def reopen_task
-      if self.annotation.annotation_type == 'task'
-        task = self.annotation.load
+      if self.assigned_type == 'Annotation' && self.assigned.annotation_type == 'task'
+        task = self.assigned.load
         task.status = 'unresolved'
         task.skip_notifications = true
         task.skip_check_ability = true

@@ -173,10 +173,7 @@ es:
       project_media_comment: "%{user} (%{role} at %{team}) añadió una nota a una  %{parent_type}"
       project_media_create: "%{user} (%{role} at %{team}) añadió un %{type}"
       project_media_create_related: "%{user} (%{role} at %{team}) añadió un %{type} relacionado"
-      project_media_create_no_user: "Un %{type} ha sido añadido"
-      project_media_create_related_no_user: "Un %{type} relacionado ha sido añadido"
       project_media_update: "%{user} (%{role} at %{team}) editado un %{type}"
-      project_media_update_no_user: "Un %{type} ha sido editado"
       project_media_status: "%{user} (%{role} at %{team}) cambiar el %{workflow} del estado a %{type}"
       project_media_assign: "%{user} (%{role} at %{team}) asignado un %{type}"
       project_media_unassign: "%{user} (%{role} at %{team}) desasigno un %{type}"
@@ -184,6 +181,8 @@ es:
       project_source_create: "%{user} (%{role} at %{team}) añadido un %{type}"
       project_source_update: "%{user} (%{role} at %{team}) editado un %{type}"
       project_create: "%{user} (%{role} at %{team}) creó un proyecto "
+      project_assign: "%{user} (%{role} at %{team}) asignó un proyecto"
+      project_unassign: "%{user} (%{role} at %{team}) desasignó un proyecto"
       user_member: "%{user} unido al equipo %{team}"
       user_requested: "%{user} solicitó unirse al equipo %{team}"
       user_invited: "%{user} fue invitado a unirse al equipo %{team}"
@@ -245,6 +244,7 @@ es:
   role_journalist: periodista
   role_annotator: anotador(a)
   role_none: miembro
+  role_: sysadmin
   oembed_credit: Añadido por %{user} (%{role}) %{date}
   oembed_notes_count:
     one: "Una nota"
@@ -287,11 +287,24 @@ es:
       reset_password_instructions:
         instruction: "Alguien ha solicitado un enlace para cambiar tu contraseña, y tu puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>"
       invitation_instructions:
+        subject: "%{user} convocado a unirse al equipo %{team}"
+        hello: "¡Hola %{name}!"
+        someone_invited_you_default:
+          html: "%{name} convocado a unirse al equipo %{team}."
+        someone_invited_you_custom:
+          html: "%{name} le ha invitado al equipo %{team}, diciendo:"
+        accept: 'Use este enlace para aceptar la invitación: %{url}'
+        accept_until: "Esta invitación expirará a las %{due_date}."
+        ignore: "Si no desea aceptar la invitación, ignore este correo electrónico."
         app_team: "Equipo %{app} "
     failure:
       unconfirmed: "Por favor consulta tu correo electrónico para comprobar tu cuenta."
   user_invitation:
+    invited: 'Este usuario ya ha sido invitado a este equipo.'
+    member: 'Este usuario ya está en el equipo.'
     team_found: 'Equipo no encontrado.'
+    invalid: 'Símbolo (token) de invitación es inválido.'
+    no_invitation: 'No hay invitación para el equipo %{name}'
   error_user_is_not_a_team_member: "Lo sentimos, solo puedes asignar tareas a los miembros de este equipo"
   mail_see_it: "Puedes verlo en:"
   mail_subject_assign_verification_status: "[%{team} - %{project}] Se te ha asignado un ítem"
@@ -308,6 +321,10 @@ es:
   mail_assign_task: "%{author} te asignó la tarea  \"%{task}\" del medio: "
   mail_unassign_task: "%{author} te desasignó la tarea \"%{task}\" del medio: "
   mail_update_status: "%{author}estableció el estado de \"%{title}\" a %{status}"
+  mail_assign_project: "%{author} te asignó el proyecto:"
+  mail_unassign_project: "%{author} te desasignó el proyecto:"
+  mail_subject_assign_project: "[%{team} - %{project}] Se te ha asignado un proyecto"
+  mail_subject_unassign_project: "[%{team} - %{project}] Se te ha desasignado un proyecto"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de pantalla con Keep"
   archive_archive_is: "Archive.is"
@@ -396,8 +413,13 @@ es:
     invalid_project: "Proyecto inválido %{project}"
     invalid_user: "Autor inválido %{user}"
     invalid_status: "Estado inválido %{status}"
-    blank_user: "Autor en blanco Inválido"
-    blank_annotator: "Anotación en blanco Inválida"
+    blank_user: "Autor en blanco inválido"
+    blank_annotator: "Anotación en blanco inválida"
     blank_project: "Proyecto en blanco inválido"
     invalid_annotator: "Anotación inválida %{user}"
     invalid_assignee: "Usuario asignado inválido %{user}"
+  mail_subject_assignments_ready: "[%{team} - %{project}] La actualización de las asinaciones está lista."
+  mail_body_assignments_ready_assign: "Hola%{username}\nEl proceso de asignaciones ha sido completado con éxito.\nEl proyecto '%{project_title}' (%{project_url}) junto con sus ítems y tareas han sido asignados a %{assignee}. \nGracias,\n— Equipo %{app_name}"
+  mail_body_assignments_ready_unassign: "Hola%{username}\nEl proceso de asignaciones ha sido completado con éxito.\nEl proyecto '%{project_title}' (%{project_url}) junto con sus ítems y tareas han sido desasignados de %{assignee}\nGracias,\n— Equipo %{app_name}"
+  team_import_completed_subject: "Tu importación de datos se ha completado"
+  team_import_completed_mail: "<p>Hola,</p><p>Se ha completado la importación de datos en %{app_name}.  Puedes mirar %{worksheet_url}para revisar el estado de cada ítem a importar.</p><p>nota que puedes reiniciar la importación después de corregir cualquier error que se informe allí - los ítems previamente- importados no se duplicarán. <p>—El equipo %{app_name}</p>"

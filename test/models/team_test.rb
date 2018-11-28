@@ -1569,4 +1569,12 @@ class TeamTest < ActiveSupport::TestCase
     end
     assert_equal 2, TeamTask.where(team_id: team.id).count
   end
+
+  test "should have teams with the same slug" do
+    create_team slug: 'testduplicatedslug'
+    t = create_team
+    assert_raises ActiveRecord::RecordNotUnique do
+      t.update_column :slug, 'testduplicatedslug'
+    end
+  end
 end

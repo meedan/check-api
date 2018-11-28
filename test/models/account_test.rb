@@ -364,4 +364,14 @@ class AccountTest < ActiveSupport::TestCase
     assert_empty account.data
   end
 
+  test "should delete account_source when delete account" do
+    t = create_team
+    s = create_source team: t
+    a = create_account source: s, team: t, disable_es_callbacks: false
+
+    assert_difference 'AccountSource.count', -1 do
+      Account.find(a.id).destroy
+    end
+  end
+
 end
