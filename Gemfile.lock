@@ -6,10 +6,10 @@ GIT
 
 GIT
   remote: https://github.com/meedan/alegre-client.git
-  revision: d97ec6a675bf9edde72e36207a370148eecd5575
-  ref: d97ec6a
+  revision: a78f32125ceae16498cc42216c442fe6a3c1c854
+  ref: a78f321
   specs:
-    alegre_client (0.0.10)
+    alegre_client (0.0.11)
 
 GIT
   remote: https://github.com/meedan/graphiql-rails.git
