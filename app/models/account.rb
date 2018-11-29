@@ -161,6 +161,7 @@ class Account < ActiveRecord::Base
   end
 
   def update_elasticsearch_account
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     parents = self.get_parents
     parents.each do |parent|
       self.add_update_nested_obj({op: 'update', nested_key: 'accounts', keys: %w(title description username), obj: parent})
@@ -174,7 +175,6 @@ class Account < ActiveRecord::Base
   protected
 
   def get_parents
-    return [] if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     ProjectSource.where(source_id: self.sources)
   end
 end
