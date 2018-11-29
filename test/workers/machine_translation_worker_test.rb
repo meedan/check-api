@@ -23,9 +23,9 @@ class MachineTranslationWorkerTest < ActiveSupport::TestCase
     p.settings = {:languages => ['ar']}; p.save!
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       text = 'Testing'
-      url = CONFIG['alegre_host'] + "/api/languages/identification?text=" + text
-      response = '{"type":"language","data": [["EN", 1]]}'
-      WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> CONFIG['alegre_token']}).to_return(body: response)
+      url = CONFIG['alegre_host'] + '/langid/'
+      response = { language: 'en', confidence: 1 }.to_json
+      WebMock.stub_request(:post, url).to_return(body: response)
       pm = create_project_media project: p, quote: text
       pm.update_mt = 1
       assert_equal 1, MachineTranslationWorker.jobs.size

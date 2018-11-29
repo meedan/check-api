@@ -29,27 +29,28 @@ class Bot::Alegre < ActiveRecord::Base
     lang
   end
 
+  def get_source_language_for_alegre(text, target)
+    field = self.get_dynamic_field_value(target, 'language', 'language')
+    field.nil? ? Bot::Alegre.default.get_language_from_alegre(text, target) : field.value
+  end
+
   def get_mt_from_alegre(target, author)
     text = target.text
     translations = []
-    field = self.get_dynamic_field_value(target, 'language', 'language')
-    src_lang = field.nil? ? Bot::Alegre.default.get_language_from_alegre(text, target) : field.value
+    src_lang = self.get_source_language_for_alegre(text, target)
     languages = target.project.languages
     languages = languages - [src_lang]
     languages.each do |lang|
       begin
         response = AlegreClient::Request.get_mt(CONFIG['alegre_host'], { text: text, from: src_lang, to: lang }, CONFIG['alegre_token'])
-        if response['type'] == 'mt'
-          mt_text = response['data']
-        else
-          Rails.logger.error response['data']['message']
-        end
+        mt_text = response['data'] if response['type'] == 'mt' && !response['data'].blank?
       rescue
         mt_text = nil
       end
       translations << { lang: lang, text: mt_text } unless mt_text.nil?
     end
     self.update_machine_translation(target, translations, author) unless translations.blank?
+    translations
   end
 
   def language_object(target, attr = nil)
@@ -58,11 +59,11 @@ class Bot::Alegre < ActiveRecord::Base
     attr.nil? ? field : field.send(attr)
   end
 
-  protected
-
   def get_dynamic_field_value(target, annotation_type, field_type)
     DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => annotation_type, 'annotations.annotated_type' => target.class.name, 'annotations.annotated_id' => target.id.to_s, field_type: field_type).first
   end
+  
+  protected
 
   def save_language(target, lang)
     annotation = Dynamic.new

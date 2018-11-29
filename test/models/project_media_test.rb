@@ -595,9 +595,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     text = 'Test'
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      url = CONFIG['alegre_host'] + "/api/languages/identification?text=" + text
-      response = '{"type":"language","data": [["EN", 1]]}'
-      WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> CONFIG['alegre_token']}).to_return(body: response)
+      url = CONFIG['alegre_host'] + '/langid/'
+      response = { language: 'en', confidence: 1 }.to_json
+      WebMock.stub_request(:post, url).with(body: { text: text }).to_return(body: response)
       pm = create_project_media project: p, quote: text
       mt = pm.annotations.where(annotation_type: 'mt').last
       assert_nil mt
@@ -628,28 +628,28 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p.settings = {:languages => ['ar', 'en']}; p.save!
     text = 'Testing'
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      url = CONFIG['alegre_host'] + "/api/languages/identification?text=" + text
-      response = '{"type":"language","data": [["EN", 1]]}'
-      WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> CONFIG['alegre_token']}).to_return(body: response)
+      url = CONFIG['alegre_host'] + '/langid/'
+      response = { language: 'en', confidence: 1 }.to_json
+      WebMock.stub_request(:post, url).with(body: { text: text }).to_return(body: response)
       pm = create_project_media project: p, quote: text
       pm2 = create_project_media project: p, quote: text
       Sidekiq::Testing.inline! do
-        url = CONFIG['alegre_host'] + "/api/mt?from=en&to=ar&text=" + text
+        url = CONFIG['alegre_host'] + '/mt/'
         # Test with machine translation
-        response = '{"type":"mt","data": "testing -ar"}'
         # Test handle raising an error
-        WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> 'in_valid_token'}).to_return(body: response)
+        WebMock.stub_request(:post, url).to_return(body: 'error')
         pm.update_mt=1
         mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
         assert_equal 0, JSON.parse(mt_field.value).size
         # Test with valid response
-        WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> CONFIG['alegre_token']}).to_return(body: response)
+        response = { text: 'testing' }.to_json
+        WebMock.stub_request(:post, url).to_return(body: response)
         pm.update_mt=1
         mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
         assert_equal 1, JSON.parse(mt_field.value).size
         # Test with type => error
-        response = '{"type":"error","data": {"message": "Language not supported"}}'
-        WebMock.stub_request(:get, url).with(:headers => {'X-Alegre-Token'=> CONFIG['alegre_token']}).to_return(body: response)
+        response = { error: 'not supported' }.to_json
+        WebMock.stub_request(:post, url).to_return(body: response)
         pm2.update_mt=1
         mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm2.class.name, 'annotations.annotated_id' => pm2.id.to_s, field_type: 'json').first
         assert_equal 0, JSON.parse(mt_field.value).size
