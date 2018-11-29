@@ -18,6 +18,7 @@ module ProjectMediaMutations
     update_mt: 'int',
     archived: 'int',
     embed: 'str',
+    related_to_id: 'int',
     id: '!id'
   }
 
