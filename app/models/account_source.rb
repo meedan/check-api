@@ -14,8 +14,8 @@ class AccountSource < ActiveRecord::Base
   validate :is_unique_per_team, on: :create
 
   after_create :update_source_overridden_cache
-  
-  after_commit :destroy_elasticsearch_account, on: :destroy, if: proc { |as| as.account.destroyed? }
+
+  after_commit :destroy_elasticsearch_account, on: :destroy, if: proc { |as| !as.account.nil? && as.account.destroyed? }
 
   notifies_pusher targets: proc { |as| [as.source] }, data: proc { |as| { id: as.id }.to_json }, on: :save, event: 'source_updated'
 
@@ -55,6 +55,7 @@ class AccountSource < ActiveRecord::Base
   end
 
   def destroy_elasticsearch_account
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     parents = self.get_parents
     parents.each do |parent|
       self.account.destroy_es_items('accounts', 'destroy_doc_nested', parent)
@@ -69,7 +70,6 @@ class AccountSource < ActiveRecord::Base
   end
 
   def get_parents
-    return [] if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     ProjectSource.where(source_id: self.source)
   end
 
