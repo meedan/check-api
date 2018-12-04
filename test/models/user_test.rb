@@ -937,6 +937,20 @@ class UserTest < ActiveSupport::TestCase
     assert_equal ['contributor', 'journalist'], u1.team_users.map(&:role).sort
   end
 
+  test "should invite banned users" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    u1 = create_user email: 'test1@local.com'
+    create_team_user team: t, user: u1, status: 'banned'
+    with_current_user_and_team(u, t) do
+      members = [{role: 'contributor', email: u1.email}]
+      User.send_user_invitation(members)
+    end
+    tu1 = TeamUser.where(team_id: t.id, user_id: u1.id).last
+    assert_equal tu1.status, 'invited'
+  end
+
   test "should cancel user invitation" do
     t = create_team
     u = create_user

@@ -29,7 +29,7 @@ class Team < ActiveRecord::Base
   end
 
   def members_count
-    self.team_users.where.not(status: 'invited').count
+    self.team_users.where(status: 'member').count
   end
 
   def projects_count
@@ -221,7 +221,7 @@ class Team < ActiveRecord::Base
   end
 
   def used_tags
-    self.custom_tags.map(&:text)   
+    self.custom_tags.map(&:text)
   end
 
   def get_suggested_tags
