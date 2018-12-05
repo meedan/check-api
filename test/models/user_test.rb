@@ -1029,6 +1029,8 @@ class UserTest < ActiveSupport::TestCase
 
   test "should allow user to delete own account" do
     user = create_user
+    s = user.source
+    create_account source: s
     uuid = user.uuid
     token = user.token
     pm = create_project_media user: user
