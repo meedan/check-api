@@ -292,6 +292,28 @@ class User < ActiveRecord::Base
     end
   end
 
+  def self.delete_check_user(user)
+    s = user.source
+    columns = {
+      name: "Anonymous", login: "Anonymous", uuid: "#{user.uuid}-old", provider: '', token: "#{user.token}-old",
+      email: nil, omniauth_info: nil, source_id: nil, account_id: nil, is_active: false
+    }
+    user.update_columns(columns)
+    # delete source profile and accounts
+    s.accounts.each do |a|
+      as_count = AccountSource.where(account_id: a.id).where.not(source_id: s.id).count
+      a.destroy if as_count == 0
+    end
+    AccountSource.where(source_id: s.id).map(&:destroy)
+    unless s.nil?
+      s.skip_check_ability = true
+      s.destroy
+    end
+    # notify team(s) owner & privacy
+    DeleteUserMailer.delay.notify_owners(user)
+    DeleteUserMailer.delay.notify_privacy(user) unless CONFIG['privacy_email'].blank?
+  end
+
   def self.set_assignments_progress(user_id, project_media_id)
     required_tasks_count = 0
     answered_tasks_count = 0
@@ -305,7 +327,7 @@ class User < ActiveRecord::Base
     Rails.cache.write("cache-assignments-progress-#{user_id}-project-media-#{project_media_id}", {
       answered: answered_tasks_count,
       total: required_tasks_count,
-    })   
+    })
   end
 
   # private

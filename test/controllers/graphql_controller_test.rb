@@ -899,6 +899,17 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should handle delete user" do
+    u = create_user
+    authenticate_with_user(u)
+    query = 'mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: "1", id: 111 }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response 404
+    query = "mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+  end
+
   test "should avoid n+1 queries problem" do
     n = 5 * (rand(10) + 1) # Number of media items to be created
     m = rand(10) + 1       # Number of annotations per media
@@ -1486,10 +1497,10 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     d = create_dynamic_annotation annotated: pm, annotation_type: 'metadata'
-    
+
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation_metadata { dbid }, dynamic_annotations_metadata { edges { node { dbid } } } } }"
     post :create, query: query, team: t.slug
-    
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_equal d.id.to_s, data['dynamic_annotation_metadata']['dbid']
@@ -1542,7 +1553,7 @@ class GraphqlControllerTest < ActionController::TestCase
     tb2 = create_team_bot approved: true, name: 'My Bot'
     tb3 = create_team_bot approved: true, name: 'Other Bot'
     create_team_bot_installation team_bot_id: tb2.id, team_id: t.id
-    
+
     query = 'query read { team(slug: "test") { team_bots { edges { node { name, team_author { slug } } } } } }'
     post :create, query: query
     assert_response :success
@@ -1561,7 +1572,7 @@ class GraphqlControllerTest < ActionController::TestCase
     tb2 = create_team_bot approved: true, name: 'My Bot'
     tb3 = create_team_bot approved: true, name: 'Other Bot'
     create_team_bot_installation team_bot_id: tb2.id, team_id: t.id
-    
+
     query = 'query read { team(slug: "test") { team_bot_installations { edges { node { team { slug }, team_bot { name } } } } } }'
     post :create, query: query
     assert_response :success
@@ -1575,7 +1586,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
     tb = create_team_bot approved: true
-    
+
     authenticate_with_user(u)
 
     assert_equal [], t.team_bots
@@ -1585,7 +1596,7 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, query: query
     end
     data = JSON.parse(@response.body)['data']['createTeamBotInstallation']
-    
+
     assert_equal [tb], t.reload.team_bots
     assert_equal t.id, data['team']['dbid']
     assert_equal tb.id, data['team_bot']['dbid']
@@ -1597,7 +1608,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     tb = create_team_bot approved: true
     tbi = create_team_bot_installation team_id: t.id, team_bot_id: tb.id
-    
+
     authenticate_with_user(u)
 
     assert_equal [tb], t.reload.team_bots
@@ -1607,7 +1618,7 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, query: query
     end
     data = JSON.parse(@response.body)['data']['destroyTeamBotInstallation']
-    
+
     assert_equal [], t.reload.team_bots
     assert_equal tbi.graphql_id, data['deletedId']
   end
@@ -1624,10 +1635,10 @@ class GraphqlControllerTest < ActionController::TestCase
     with_current_user_and_team(u, t) do
       c = create_comment annotated: tk
     end
-    
+
     query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, log_count, log { edges { node { annotation { dbid } } } }, responses { edges { node { id } } } } }"
     post :create, query: query, team: t.slug
-    
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['task']
     assert_equal 1, data['log_count']
@@ -1643,10 +1654,10 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     create_tag_text text: 'foo', team_id: t.id, teamwide: true
     create_tag_text text: 'bar', team_id: t.id, teamwide: false
-    
+
     query = "query GetById { team(id: \"#{t.id}\") { custom_tags { edges { node { text } } }, teamwide_tags { edges { node { text } } } } }"
     post :create, query: query, team: t.slug
-    
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']
     assert_equal 'foo', data['teamwide_tags']['edges'][0]['node']['text']
@@ -1669,10 +1680,10 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
     create_team_task team_id: t.id, label: 'Foo'
-    
+
     query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, task_type, description, options, project_ids, required, team_id, team { slug } } } } } }"
     post :create, query: query, team: t.slug
-    
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']
     assert_equal 'Foo', data['team_tasks']['edges'][0]['node']['label']
@@ -1884,10 +1895,10 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u2, team: t, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
-    tk = create_task annotated: pm   
+    tk = create_task annotated: pm
     tk.assign_user(u1.id)
     tk.assign_user(u2.id)
-    
+
     authenticate_with_user(u1)
     query = "query GetById { task(id: \"#{tk.id}\") { assignments { edges { node { name } } } } }"
     post :create, query: query, team: t.slug
@@ -1904,10 +1915,10 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u2, team: t, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
-    tk = create_task annotated: pm   
+    tk = create_task annotated: pm
     tk.assign_user(u1.id)
     tk.assign_user(u2.id)
-    
+
     authenticate_with_user(u2)
     query = "query GetById { task(id: \"#{tk.id}\") { assignments { edges { node { name } } } } }"
     post :create, query: query, team: t.slug
@@ -1923,11 +1934,11 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u2, team: t, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
-    tk1 = create_task annotated: pm   
+    tk1 = create_task annotated: pm
     tk1.assign_user(u1.id)
-    tk2 = create_task annotated: pm   
+    tk2 = create_task annotated: pm
     tk2.assign_user(u2.id)
-    
+
     authenticate_with_user(u1)
     query = "query GetById { task(id: \"#{tk1.id}\") { id } }"
     post :create, query: query, team: t.slug
@@ -1945,11 +1956,11 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u2, team: t, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p
-    tk1 = create_task annotated: pm   
+    tk1 = create_task annotated: pm
     tk1.assign_user(u1.id)
-    tk2 = create_task annotated: pm   
+    tk2 = create_task annotated: pm
     tk2.assign_user(u2.id)
-    
+
     authenticate_with_user(u2)
     query = "query GetById { task(id: \"#{tk1.id}\") { id } }"
     post :create, query: query, team: t.slug
@@ -2006,7 +2017,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
     create_team_user user: u2, team: t, role: 'owner'
-    p1 = create_project team: t, title: 'Annotator Project' 
+    p1 = create_project team: t, title: 'Annotator Project'
     p2 = create_project team: t
     pm = create_project_media project: p1
     tk = create_task annotated: pm
@@ -2025,7 +2036,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
     create_team_user user: u2, team: t, role: 'owner'
-    p1 = create_project team: t, title: 'Annotator Project' 
+    p1 = create_project team: t, title: 'Annotator Project'
     p2 = create_project team: t
     pm = create_project_media project: p1
     tk = create_task annotated: pm
