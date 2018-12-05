@@ -17,4 +17,3 @@ DeleteCheckUserMutation = GraphQL::Relay::Mutation.define do
     end
   }
 end
-

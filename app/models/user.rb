@@ -305,10 +305,13 @@ class User < ActiveRecord::Base
       a.destroy if as_count == 0
     end
     AccountSource.where(source_id: s.id).map(&:destroy)
-    s.destroy unless s.nil?
+    unless s.nil?
+      s.skip_check_ability = true
+      s.destroy
+    end
     # notify team(s) owner & privacy
     DeleteUserMailer.delay.notify_owners(user)
-    DeleteUserMailer.delay.notify_privacy(user)
+    DeleteUserMailer.delay.notify_privacy(user) unless CONFIG['privacy_email'].blank?
   end
 
   def self.set_assignments_progress(user_id, project_media_id)
