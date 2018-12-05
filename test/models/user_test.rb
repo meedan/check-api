@@ -1026,4 +1026,23 @@ class UserTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should allow user to delete own account" do
+    user = create_user
+    uuid = user.uuid
+    token = user.token
+    pm = create_project_media user: user
+    ps = create_project_source user: user
+    User.delete_check_user(user)
+    user = user.reload
+    assert_equal "Anonymous", user.name, user.login
+    assert_nil user.source, user.account
+    assert_nil user.omniauth_info, user.email
+    assert_equal "#{uuid}-old", user.uuid
+    assert_equal "#{token}-old", user.token
+    assert_not user.is_active?
+    assert_empty user.provider
+    assert_equal pm.reload.user_id, user.id
+    assert_equal ps.reload.user_id, user.id
+  end
 end

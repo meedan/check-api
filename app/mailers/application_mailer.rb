@@ -29,7 +29,7 @@ class ApplicationMailer < ActionMailer::Base
   end
 
   def opted_out_types
-    %w(assignment terminal_status)
+    %w(assignment terminal_status delete_user)
   end
-  
+
 end
