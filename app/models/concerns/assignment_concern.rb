@@ -72,7 +72,7 @@ module AssignmentConcern
           pids << a.assigned_id
         end
       end
-      pms = ProjectMedia.where('id IN (?) OR project_id IN (?)', pmids.uniq, pids)
+      pms = ProjectMedia.where('project_medias.id IN (?) OR project_medias.project_id IN (?)', pmids.uniq, pids)
       pms = pms.select(select) unless select.nil?
       pms
     end
