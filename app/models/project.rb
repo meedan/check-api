@@ -198,12 +198,16 @@ class Project < ActiveRecord::Base
     self.team && self.team.is_being_copied
   end
 
-  def propagate_assignment_to(_user = nil)
+  def propagate_assignment_to(user = nil)
     targets = []
     ProjectMedia.where(project_id: self.id).find_each do |pm|
-      targets << pm.last_status_obj
+      status = pm.last_status_obj
+      unless status.nil?
+        targets << status
+        targets << status.propagate_assignment_to(user)
+      end
     end
-    targets.reject{ |target| target.nil? }
+    targets.flatten
   end
 
   private
