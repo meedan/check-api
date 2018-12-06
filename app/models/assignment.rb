@@ -62,6 +62,8 @@ class Assignment < ActiveRecord::Base
 
   def self.propagate_assignments(assignment, requestor_id, event)
     assignment = YAML::load(assignment)
+    to_create = []
+    to_delete = []
     assignment.assigned.propagate_assignment_to(assignment.user).each do |obj|
       klass = obj.parent_class_name
       existing = Assignment.where(user_id: assignment.user_id, assigned_type: klass, assigned_id: obj.id).last
@@ -71,12 +73,14 @@ class Assignment < ActiveRecord::Base
         a.assigned_id = obj.id
         a.assigned_type = klass
         a.propagate_in_foreground = true
-        a.save!
+        to_create << a
       elsif existing.present? && event == :unassign
-        existing.propagate_in_foreground = true
-        existing.destroy!
+        to_delete << existing.id
       end
     end
+    Assignment.import(to_create)
+    Assignment.delete(to_delete)
+    assignment.send(:update_user_assignments_progress)
     if requestor_id
       data = assignment.get_team_and_project
       AssignmentMailer.delay_for(1.second).ready(requestor_id, data.team, data.project, event, assignment.user)
@@ -143,8 +147,7 @@ class Assignment < ActiveRecord::Base
     team_id = self.get_team.first
     TeamUser.delay_for(1.second).set_assignments_progress(user_id, team_id)
     assigned = self.assigned_type.constantize.where(id: self.assigned_id).last
-    if assigned.is_a?(Annotation) && assigned.annotation_type == 'task'
-      User.delay_for(1.second).set_assignments_progress(user_id, assigned.annotated_id.to_i)
-    end
+    User.delay_for(1.second).set_assignments_progress(user_id, assigned.annotated_id.to_i) if assigned.is_a?(Annotation)
+    ProjectMedia.where(project_id: self.assigned_id).each{ |pm| User.delay_for(1.second).set_assignments_progress(user_id, pm.id) } if assigned.is_a?(Project)
   end
 end

@@ -311,10 +311,13 @@ class AnnotationTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, status: 'member'
     create_team_user user: u2, team: t, status: 'member'
     p = create_project team: t
+    p2 = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     pm4 = create_project_media project: p
+    pm5 = create_project_media project: p2
+    pm6 = create_project_media project: p2
     s1 = create_status status: 'verified', annotated: pm1
     s2 = create_status status: 'verified', annotated: pm2
     s3 = create_status status: 'verified', annotated: pm1
@@ -327,7 +330,8 @@ class AnnotationTest < ActiveSupport::TestCase
     s4.assign_user(u2.id)
     c1.assign_user(u.id)
     c2.assign_user(u.id)
-    assert_equal [pm1, pm2, pm3].sort, Annotation.project_media_assigned_to_user(u).sort
+    Assignment.create! assigned: p2, user: u
+    assert_equal [pm1, pm2, pm3, pm5, pm6].sort, Annotation.project_media_assigned_to_user(u, 'id, project_id').sort
   end
 
   test "should save metadata in annotation" do
