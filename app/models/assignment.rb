@@ -147,8 +147,7 @@ class Assignment < ActiveRecord::Base
     team_id = self.get_team.first
     TeamUser.delay_for(1.second).set_assignments_progress(user_id, team_id)
     assigned = self.assigned_type.constantize.where(id: self.assigned_id).last
-    if assigned.is_a?(Annotation) && assigned.annotation_type == 'task'
-      User.delay_for(1.second).set_assignments_progress(user_id, assigned.annotated_id.to_i)
-    end
+    User.delay_for(1.second).set_assignments_progress(user_id, assigned.annotated_id.to_i) if assigned.is_a?(Annotation)
+    ProjectMedia.where(project_id: self.assigned_id).each{ |pm| User.delay_for(1.second).set_assignments_progress(user_id, pm.id) } if assigned.is_a?(Project)
   end
 end
