@@ -65,7 +65,7 @@ class Ability
       obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?
     end
 
-    pms = Annotation.project_media_assigned_to_user(@user).to_a
+    pms = Annotation.project_media_assigned_to_user(@user, 'id, project_id').to_a
     pids = pms.map(&:project_id).uniq
     pmids = pms.map(&:id).uniq
 
