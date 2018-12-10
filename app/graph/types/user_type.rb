@@ -19,6 +19,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :get_send_email_notifications, types.Boolean
   field :bot_events, types.String
   field :is_bot, types.Boolean
+  field :is_active, types.Boolean
 
   field :confirmed do
     type types.Boolean
