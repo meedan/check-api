@@ -293,21 +293,32 @@ class User < ActiveRecord::Base
   end
 
   def self.delete_check_user(user)
-    s = user.source
-    columns = {
-      name: "Anonymous", login: "Anonymous", uuid: "#{user.uuid}-old", provider: '', token: "#{user.token}-old",
-      email: nil, omniauth_info: nil, source_id: nil, account_id: nil, is_active: false
-    }
-    user.update_columns(columns)
-    # delete source profile and accounts
-    s.accounts.each do |a|
-      as_count = AccountSource.where(account_id: a.id).where.not(source_id: s.id).count
-      a.destroy if as_count == 0
-    end
-    AccountSource.where(source_id: s.id).map(&:destroy)
-    unless s.nil?
-      s.skip_check_ability = true
-      s.destroy
+    begin
+      rand_id = Time.now.to_i
+      s = user.source
+      s.name='updatename'
+      s.save!
+      columns = {
+        name: "Anonymous", login: "Anonymous", uuid: "#{user.uuid}-#{rand_id}", provider: '', token: "#{user.token}-#{rand_id}",
+        email: nil, omniauth_info: nil, source_id: nil, account_id: nil, is_active: false
+      }
+      user.update_columns(columns)
+      # delete source profile and accounts
+      unless s.nil?
+        current_user = User.current
+        User.current = nil
+        AccountSource.where(source_id: s.id).each{|as| as.skip_check_ability = true; as.destroy;}
+        s.accounts.each do |a|
+          as_count = AccountSource.where(account_id: a.id).count
+          a.destroy if as_count == 0
+        end
+        s.annotations.map(&:destroy)
+        s.skip_check_ability = true
+        s.destroy
+        User.current = current_user
+      end
+    rescue StandardError => e
+      raise e.message
     end
     # notify team(s) owner & privacy
     DeleteUserMailer.delay.notify_owners(user)
