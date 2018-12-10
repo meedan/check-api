@@ -1046,6 +1046,7 @@ class UserTest < ActiveSupport::TestCase
     assert_empty user.provider
     assert_equal pm.reload.user_id, user.id
     assert_equal ps.reload.user_id, user.id
+    user = create_user
     with_current_user_and_team(user, t) do
       Source.any_instance.stubs(:destroy).raises(RuntimeError)
       assert_raise RuntimeError do

@@ -296,8 +296,6 @@ class User < ActiveRecord::Base
     begin
       rand_id = Time.now.to_i
       s = user.source
-      s.name='updatename'
-      s.save!
       columns = {
         name: "Anonymous", login: "Anonymous", uuid: "#{user.uuid}-#{rand_id}", provider: '', token: "#{user.token}-#{rand_id}",
         email: nil, omniauth_info: nil, source_id: nil, account_id: nil, is_active: false
@@ -307,10 +305,15 @@ class User < ActiveRecord::Base
       unless s.nil?
         current_user = User.current
         User.current = nil
+        accounts_id = s.accounts.map(&:id)
         AccountSource.where(source_id: s.id).each{|as| as.skip_check_ability = true; as.destroy;}
-        s.accounts.each do |a|
-          as_count = AccountSource.where(account_id: a.id).count
-          a.destroy if as_count == 0
+        accounts_id.each do |id|
+          as_count = AccountSource.where(account_id: id).count
+          if as_count == 0
+            a = Account.where(id: id).last
+            a.skip_check_ability = true
+            a.destroy unless a.nil?
+          end
         end
         s.annotations.map(&:destroy)
         s.skip_check_ability = true
