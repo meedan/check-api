@@ -267,9 +267,10 @@ class ProjectMedia < ActiveRecord::Base
     coder['active_record_yaml_version'] = 0
   end
 
-  def assignments_progress
+  def assignments_progress(uid = 0)
+    user = uid.to_i > 0 ? User.where(id: uid).last : User.current
     data = { answered: 0, total: 0 }
-    data = Rails.cache.read("cache-assignments-progress-#{User.current.id}-project-media-#{self.id}") unless User.current.nil?
+    data = Rails.cache.read("cache-assignments-progress-#{user.id}-project-media-#{self.id}") unless user.nil?
     data
   end
 
