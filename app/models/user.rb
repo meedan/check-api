@@ -302,29 +302,16 @@ class User < ActiveRecord::Base
       }
       user.update_columns(columns)
       # delete source profile and accounts
-      unless s.nil?
-        current_user = User.current
-        User.current = nil
-        accounts_id = s.accounts.map(&:id)
-        AccountSource.where(source_id: s.id).each{|as| as.skip_check_ability = true; as.destroy;}
-        accounts_id.each do |id|
-          as_count = AccountSource.where(account_id: id).count
-          if as_count == 0
-            a = Account.where(id: id).last
-            a.skip_check_ability = true
-            a.destroy unless a.nil?
-          end
-        end
-        s.annotations.map(&:destroy)
-        s.skip_check_ability = true
-        s.destroy
-        User.current = current_user
-      end
+      self.delete_user_profile(s) unless s.nil?
+      # update team user status
+      TeamUser.where(user_id: user.id).update_all(status: 'banned')
     rescue StandardError => e
       raise e.message
     end
     # notify team(s) owner & privacy
-    DeleteUserMailer.delay.notify_owners(user)
+    user.teams.each do |team|
+      DeleteUserMailer.delay.notify_owners(user, team)
+    end
     DeleteUserMailer.delay.notify_privacy(user) unless CONFIG['privacy_email'].blank?
   end
 
@@ -342,6 +329,25 @@ class User < ActiveRecord::Base
       answered: answered_tasks_count,
       total: required_tasks_count,
     })
+  end
+
+  def self.delete_user_profile(s)
+    current_user = User.current
+    User.current = nil
+    accounts_id = s.accounts.map(&:id)
+    AccountSource.where(source_id: s.id).each{|as| as.skip_check_ability = true; as.destroy;}
+    accounts_id.each do |id|
+      as_count = AccountSource.where(account_id: id).count
+      if as_count == 0
+        a = Account.where(id: id).last
+        a.skip_check_ability = true
+        a.destroy unless a.nil?
+      end
+    end
+    s.annotations.map(&:destroy)
+    s.skip_check_ability = true
+    s.destroy
+    User.current = current_user
   end
 
   # private
