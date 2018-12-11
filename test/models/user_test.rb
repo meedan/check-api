@@ -1030,7 +1030,7 @@ class UserTest < ActiveSupport::TestCase
   test "should allow user to delete own account" do
     t = create_team
     user = create_user
-    create_team_user team: t, user: user, role: 'contributor'
+    tu = create_team_user team: t, user: user, role: 'contributor'
     s = user.source
     create_account source: s
     pm = create_project_media user: user
@@ -1046,6 +1046,7 @@ class UserTest < ActiveSupport::TestCase
     assert_empty user.provider
     assert_equal pm.reload.user_id, user.id
     assert_equal ps.reload.user_id, user.id
+    assert_equal 'banned', tu.reload.status
     user = create_user
     with_current_user_and_team(user, t) do
       Source.any_instance.stubs(:destroy).raises(RuntimeError)
