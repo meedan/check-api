@@ -127,6 +127,7 @@ module UserInvitation
       password = options[:password] || Devise.friendly_token.first(8)
       unless user.nil?
       	invitable = User.accept_invitation!(:invitation_token => token, :password => password)
+      	user.update_column(:raw_invitation_token, nil)
       	# Send welcome mail with generated password
       	RegistrationMailer.delay.welcome_email(invitable, password) unless invitable.nil?
       end
