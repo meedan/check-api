@@ -899,6 +899,17 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should handle delete user" do
+    u = create_user
+    authenticate_with_user(u)
+    query = 'mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: "1", id: 111 }) { success } }'
+    post :create, query: query, team: @team.slug
+    assert_response 404
+    query = "mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+  end
+
   test "should avoid n+1 queries problem" do
     n = 5 * (rand(10) + 1) # Number of media items to be created
     m = rand(10) + 1       # Number of annotations per media
