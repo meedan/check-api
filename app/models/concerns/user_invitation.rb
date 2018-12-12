@@ -38,7 +38,7 @@ module UserInvitation
 	  def invite_existing_user
 	    msg = []
 	    unless Team.current.nil?
-	      tu = TeamUser.where(team_id: Team.current.id, user_id: self.id).last
+        tu = get_team_user
 	      if tu.nil?
 	        options = {}
 	        unless self.is_invited?
@@ -104,7 +104,7 @@ module UserInvitation
   	private
 
   	def create_team_user_invitation(options = {})
-  		tu = TeamUser.new
+      tu = TeamUser.new
 	    tu.user_id = self.id
 	    tu.team_id = Team.current.id
 	    tu.role = self.invitation_role
@@ -127,10 +127,21 @@ module UserInvitation
       password = options[:password] || Devise.friendly_token.first(8)
       unless user.nil?
       	invitable = User.accept_invitation!(:invitation_token => token, :password => password)
+      	user.update_column(:raw_invitation_token, nil)
       	# Send welcome mail with generated password
       	RegistrationMailer.delay.welcome_email(invitable, password) unless invitable.nil?
       end
 	  end
+
+    def get_team_user
+      tu = TeamUser.where(team_id: Team.current.id, user_id: self.id).last
+      if !tu.nil? && tu.status == 'banned'
+        tu.skip_check_ability = true
+        tu.destroy
+        tu = nil
+      end
+      tu
+    end
 
     def self.destroy_invited_user(user)
       user.skip_check_ability = true

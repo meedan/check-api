@@ -192,7 +192,7 @@ class Ability
   end
 
   def contributor_perms
-    can :update, User, :id => @user.id
+    can [:update, :destroy], User, :id => @user.id
     can :create, [Media, Embed, Link, Claim]
     can :update, [Media, Link, Claim], { user_id: @user.id }
     can :update, [Media, Link, Claim] do |obj|

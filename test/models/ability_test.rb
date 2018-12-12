@@ -467,7 +467,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, u)
-      assert ability.cannot?(:destroy, u)
+      assert ability.can?(:destroy, u)
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
       assert ability.cannot?(:update, u_test2)
@@ -495,7 +495,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, u)
-      assert ability.cannot?(:destroy, u)
+      assert ability.can?(:destroy, u)
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
       assert ability.cannot?(:update, u_test2)
@@ -523,7 +523,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, u)
-      assert ability.cannot?(:destroy, u)
+      assert ability.can?(:destroy, u)
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
       assert ability.cannot?(:update, u_test2)
@@ -547,7 +547,7 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, u)
-      assert ability.cannot?(:destroy, u)
+      assert ability.can?(:destroy, u)
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
 
