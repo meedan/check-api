@@ -11,7 +11,7 @@ class DeleteUserMailerTest < ActionMailer::TestCase
     create_team_user team: t, user: o2, role: 'owner'
     create_team_user team: t, user: u, role: 'contributor'
 
-    email = DeleteUserMailer.notify_owners(u)
+    email = DeleteUserMailer.notify_owners(u, t)
     assert_emails 1 do
       email.deliver_now
     end
@@ -41,7 +41,7 @@ class DeleteUserMailerTest < ActionMailer::TestCase
 
     o2.set_send_email_notifications = false; o2.save!
 
-    email = DeleteUserMailer.notify_owners(u)
+    email = DeleteUserMailer.notify_owners(u, t)
 
     assert_emails 1 do
       email.deliver_now
