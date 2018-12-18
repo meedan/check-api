@@ -299,16 +299,31 @@ class TaskTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
 
     e = assert_raises ActiveRecord::RecordInvalid do
-      User.current = create_bot_user(is_admin: true)
+      u = create_bot_user is_admin: true
+      create_team_bot bot_user_id: u.id
+      u.update_column(:is_admin, true)
       t = create_task
+      User.current = User.find(u.id)
       t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
       t.save!
     end
     assert_equal "Validation failed: #{I18n.t('bot_cant_add_response_to_task')}", e.message
 
     assert_nothing_raised do
-      User.current = create_user(is_admin: true)
+      User.current = nil
       t = create_task
+      User.current = create_user(is_admin: true)
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
+      t.save!
+    end
+
+    assert_nothing_raised do
+      User.current = nil
+      u = create_bot_user is_admin: true
+      u.update_column(:is_admin, true)
+      u = User.find(u.id)
+      t = create_task
+      User.current = User.find(u.id)
       t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
       t.save!
     end
