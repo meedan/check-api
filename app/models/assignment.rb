@@ -81,7 +81,7 @@ class Assignment < ActiveRecord::Base
     Assignment.import(to_create)
     Assignment.delete(to_delete)
     assignment.send(:update_user_assignments_progress)
-    if requestor_id
+    if requestor_id && assignment.assigned_type == 'Project'
       data = assignment.get_team_and_project
       AssignmentMailer.delay_for(1.second).ready(requestor_id, data.team, data.project, event, assignment.user)
     end
