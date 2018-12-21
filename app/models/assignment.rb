@@ -81,10 +81,14 @@ class Assignment < ActiveRecord::Base
     Assignment.import(to_create)
     Assignment.delete(to_delete)
     assignment.send(:update_user_assignments_progress)
-    if requestor_id && assignment.assigned_type == 'Project'
+    if Assignment.should_send_assignment_email(requestor_id, assignment)
       data = assignment.get_team_and_project
       AssignmentMailer.delay_for(1.second).ready(requestor_id, data.team, data.project, event, assignment.user)
     end
+  end
+
+  def self.should_send_assignment_email(requestor_id, assignment)
+    requestor_id && assignment.assigned_type == 'Project'
   end
 
   def self.bulk_assign(obj, user_ids)
