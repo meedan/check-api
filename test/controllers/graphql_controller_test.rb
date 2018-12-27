@@ -1636,12 +1636,13 @@ class GraphqlControllerTest < ActionController::TestCase
       c = create_comment annotated: tk
     end
 
-    query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, log_count, log { edges { node { annotation { dbid } } } }, responses { edges { node { id } } } } }"
+    query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, log_count, options, log { edges { node { annotation { dbid } } } }, responses { edges { node { id } } } } }"
     post :create, query: query, team: t.slug
 
     assert_response :success
     data = JSON.parse(@response.body)['data']['task']
     assert_equal 1, data['log_count']
+    assert_kind_of Array, data['options']
     assert_equal c.id.to_s, data['log']['edges'][0]['node']['annotation']['dbid']
   end
 
