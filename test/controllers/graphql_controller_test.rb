@@ -1636,12 +1636,13 @@ class GraphqlControllerTest < ActionController::TestCase
       c = create_comment annotated: tk
     end
 
-    query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, log_count, log { edges { node { annotation { dbid } } } }, responses { edges { node { id } } } } }"
+    query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, log_count, options, log { edges { node { annotation { dbid } } } }, responses { edges { node { id } } } } }"
     post :create, query: query, team: t.slug
 
     assert_response :success
     data = JSON.parse(@response.body)['data']['task']
     assert_equal 1, data['log_count']
+    assert_kind_of Array, data['options']
     assert_equal c.id.to_s, data['log']['edges'][0]['node']['annotation']['dbid']
   end
 
@@ -1681,7 +1682,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     create_team_task team_id: t.id, label: 'Foo'
 
-    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, task_type, description, options, project_ids, required, team_id, team { slug } } } } } }"
+    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, type, description, options, project_ids, required, team_id, team { slug } } } } } }"
     post :create, query: query, team: t.slug
 
     assert_response :success
