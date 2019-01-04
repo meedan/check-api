@@ -29,11 +29,11 @@ class Team < ActiveRecord::Base
   end
 
   def members_count
-    self.team_users.where(status: 'member').count
+    self.team_users.where(status: 'member').permissioned.count
   end
 
   def projects_count
-    self.projects.count
+    self.projects.permissioned.count
   end
 
   def as_json(_options = {})
