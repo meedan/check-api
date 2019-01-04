@@ -12,6 +12,23 @@ module ActiveRecordExtensions
     before_destroy :check_destroy_ability, :destroy_annotations_and_versions
     # after_find :check_read_ability
   end
+  
+  module ClassMethods
+    def permissioned
+      klass = self.to_s.gsub(/::ActiveRecord.*$/, '')
+      all_params = RequestStore.store[:graphql_connection_params] || {}
+      user = User.current || User.new
+      params = all_params[user.id] ||= {}
+      query = all
+      if params[klass]
+        params = params[klass].clone
+        joins = params.delete(:joins)
+        query = query.joins(joins) if joins
+        query = query.where(params) unless params.empty?
+      end
+      query
+    end
+  end
 
   # Used to migrate data from CD2 to this
   def image_callback(value)
