@@ -5,7 +5,7 @@ class Ability
     alias_action :create, :update, :destroy, :to => :cud
     @user = User.current ||= user || User.new
     @api_key = ApiKey.current
-    @context_team = Team.current ||= @user.current_team
+    @context_team = Team.current ||= @user.current_team || Team.new
     # Define User abilities
     if @user.is_admin?
       global_admin_perms

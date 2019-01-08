@@ -14,6 +14,12 @@ class Team < ActiveRecord::Base
 
   before_validation :normalize_slug, on: :create
 
+  after_find do |team|
+    if User.current
+      Team.current = team
+      Ability.new
+    end
+  end
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed, :clear_embeds_caches_if_needed
   after_destroy :reset_current_team
