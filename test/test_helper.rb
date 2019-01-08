@@ -21,7 +21,7 @@ require 'sample_data'
 require 'parallel_tests/test/runtime_logger'
 require 'sidekiq/testing'
 require 'minitest/retry'
-# Minitest::Retry.use!
+Minitest::Retry.use!
 
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
@@ -71,15 +71,15 @@ class ActiveSupport::TestCase
   end
 
   def with_current_user_and_team(user = nil, team = nil)
-    Team.current = team
-    User.current = user.nil? ? nil : user.reload
+    Team.stubs(:current).returns(team)
+    User.stubs(:current).returns(user.nil? ? nil : user.reload)
     begin
       yield if block_given?
     rescue Exception => e
       raise e
     ensure
-      Team.current = nil
-      User.current = nil
+      User.unstub(:current)
+      Team.unstub(:current)
     end
   end
 

@@ -149,7 +149,9 @@ class TeamTest < ActiveSupport::TestCase
   test "should add user to team on team creation" do
     u = create_user
     assert_difference 'TeamUser.count' do
-      with_current_user_and_team(u, nil) { create_team }
+      User.current = u
+      Team.current = nil
+      create_team
     end
   end
 
