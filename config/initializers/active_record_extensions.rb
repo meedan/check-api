@@ -18,7 +18,8 @@ module ActiveRecordExtensions
       klass = self.to_s.gsub(/::ActiveRecord.*$/, '')
       all_params = RequestStore.store[:graphql_connection_params] || {}
       user = User.current || User.new
-      params = all_params[user.id] ||= {}
+      team = Team.current || Team.new
+      params = all_params["#{user.id}:#{team.id}"] ||= {}
       query = all
       if params[klass]
         params = params[klass].clone
