@@ -4,12 +4,13 @@ module CheckBasicAbilities
   def can_list(klasses, new_params)
     klasses = [klasses].flatten
     RequestStore.store[:graphql_connection_params] ||= {}
-    RequestStore.store[:graphql_connection_params][@user.id] ||= {}
-    all_params = RequestStore.store[:graphql_connection_params][@user.id]
+    key = "#{@user.id}:#{@context_team.id}"
+    RequestStore.store[:graphql_connection_params][key] ||= {}
+    all_params = RequestStore.store[:graphql_connection_params][key]
     klasses.each do |klass|
       current_params = all_params[klass.to_s] || {}
       params = current_params.merge(new_params)
-      RequestStore.store[:graphql_connection_params][@user.id][klass.to_s] = params.with_indifferent_access
+      RequestStore.store[:graphql_connection_params][key][klass.to_s] = params.with_indifferent_access
     end
   end
 

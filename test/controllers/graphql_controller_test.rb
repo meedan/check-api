@@ -572,11 +572,9 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should not get team by context" do
     authenticate_with_user
-    Team.stubs(:current).returns(nil)
-    t = create_team slug: 'context', name: 'Context Team'
+    Team.delete_all
     post :create, query: 'query Team { team { name } }', team: 'test'
     assert_response 404
-    Team.unstub(:current)
   end
 
   test "should update current team based on context team" do
@@ -690,11 +688,10 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should return null if public team does not exist" do
     authenticate_with_user
-    Team.stubs(:current).returns(nil)
+    Team.delete_all
     post :create, query: 'query PublicTeam { public_team { name } }', team: 'foo'
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['public_team']
-    Team.unstub(:current)
   end
 
   test "should run few queries to get project data" do
