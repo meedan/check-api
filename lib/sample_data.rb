@@ -71,15 +71,12 @@ module SampleData
     u = User.new
     u.name = options.has_key?(:name) ? options[:name] : random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
-    u.uuid = options.has_key?(:uuid) ? options[:uuid] : random_string
-    u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.token = options.has_key?(:token) ? options[:token] : random_string(50)
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
     u.password = options[:password] || random_string
     u.password_confirmation = options[:password_confirmation] || u.password
     u.url = options[:url] if options.has_key?(:url)
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
-    u.omniauth_info = options[:omniauth_info]
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
     u.is_active = options[:is_active] if options.has_key?(:is_active)
     u.type = options[:type] if options.has_key?(:type)
