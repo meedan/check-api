@@ -4,7 +4,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   def setup
-    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/)
+    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     @team = create_team
     Team.stubs(:current).returns(@team)
     @user = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', provider: ''
@@ -59,7 +59,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
 
   %w(contributor journalist editor).each do |role|
     test "should not access admin UI if team #{role}" do
-      Team.stubs(:current).returns(nil)
+      Team.current = nil
       create_team_user user: @user, role: role
       sign_in @user
       get '/admin'
@@ -70,13 +70,12 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should access admin UI if team owner" do
-    Team.stubs(:current).returns(nil)
+    Team.current = nil
     create_team_user user: @user, role: 'owner'
     sign_in @user
 
     get '/admin'
     assert_response :success
-    Team.unstub(:current)
   end
 
   test "should access new team page only if admin" do
@@ -171,7 +170,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
 
   test "should not see limits fields on team page if not admin" do
     sign_in @user
-    Team.stubs(:current).returns(nil)
+    Team.current = nil
     tu = create_team_user user: @user, role: 'owner'
 
     get "/admin/team/#{tu.team.id}/edit"
