@@ -226,7 +226,8 @@ class TeamTest < ActiveSupport::TestCase
     u = create_user
     assert_no_difference 'ActionMailer::Base.deliveries.size' do
       assert_difference 'TeamUser.count' do
-        with_current_user_and_team(u, nil) { create_team }
+        User.current = u
+        create_team
       end
     end
   end

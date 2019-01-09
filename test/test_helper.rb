@@ -71,15 +71,24 @@ class ActiveSupport::TestCase
   end
 
   def with_current_user_and_team(user = nil, team = nil)
-    Team.stubs(:current).returns(team)
-    User.stubs(:current).returns(user.nil? ? nil : user.reload)
+    user = user.nil? ? nil : user.reload
+    if team.nil?
+      User.current = user
+    else
+      Team.stubs(:current).returns(team)
+      User.stubs(:current).returns(user)
+    end
     begin
       yield if block_given?
     rescue Exception => e
       raise e
     ensure
-      User.unstub(:current)
-      Team.unstub(:current)
+      if team.nil?
+        User.current = nil
+      else
+        User.unstub(:current)
+        Team.unstub(:current)
+      end
     end
   end
 
