@@ -94,7 +94,8 @@ module Api
         key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
         if key.nil?
           ApiKey.current = nil
-          user = User.where(token: token, type: nil).last
+          a = Account.where(token: token).last
+          user = a.nil? ? User.where(token: token, type: nil).last : a.user
           User.current = user
           (token && user) ? sign_in(user, store: false) : (authenticate_api_user! if mandatory)
         else

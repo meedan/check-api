@@ -23,6 +23,8 @@ class Account < ActiveRecord::Base
   after_create :set_embed_annotation, :create_source
   after_commit :update_elasticsearch_account, on: :update
 
+  serialize :omniauth_info
+
   def provider
     self.data['provider']
   end
@@ -128,7 +130,7 @@ class Account < ActiveRecord::Base
       em = Embed.new
       em.annotated = self
     end
-    em.embed_for_registration_account(self.user.omniauth_info)
+    em.embed_for_registration_account(self.omniauth_info)
   end
 
   def refresh_embed_data
