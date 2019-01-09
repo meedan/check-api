@@ -74,6 +74,7 @@ class ActiveSupport::TestCase
     user = user.nil? ? nil : user.reload
     if team.nil?
       User.current = user
+      Team.current = nil
     else
       Team.stubs(:current).returns(team)
       User.stubs(:current).returns(user)
@@ -85,6 +86,7 @@ class ActiveSupport::TestCase
     ensure
       if team.nil?
         User.current = nil
+        Team.current = nil
       else
         User.unstub(:current)
         Team.unstub(:current)
