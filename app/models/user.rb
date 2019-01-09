@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   self.inheritance_column = :type
-  attr_accessor :url, :skip_confirmation_mail
+  attr_accessor :url, :skip_confirmation_mail, :from_omniauth_login
 
   include ValidationsHelper
   include UserPrivate
@@ -20,7 +20,7 @@ class User < ActiveRecord::Base
 
   before_create :skip_confirmation_for_non_email_provider
   after_create :create_source_and_account, :set_source_image, :send_welcome_email
-  before_save :set_token, :set_login, :set_uuid
+  before_save :set_token, :set_login
   after_update :set_blank_email_for_unconfirmed_user
   before_destroy :can_destroy_user, prepend: true
 
@@ -32,7 +32,6 @@ class User < ActiveRecord::Base
   validates :api_key_id, absence: true, if: proc { |u| u.type.nil? }
   validates_presence_of :name
 
-  serialize :omniauth_info
   serialize :cached_teams, Array
 
   check_settings
@@ -73,21 +72,40 @@ class User < ActiveRecord::Base
   def self.from_omniauth(auth)
     # Update uuid for facebook account if match email and provider
     self.update_facebook_uuid(auth) if auth.provider == 'facebook'
-    token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
-    user = User.where(provider: auth.provider, uuid: auth.uid).first || User.new
+    account = Account.where(provider: auth.provider, uid: auth.uid).first
+    user = account.nil? ? User.new : account.user
     user.email = user.email.presence || auth.info.email
     user.password ||= Devise.friendly_token[0,20]
-    user.name = auth.info.name
-    user.uuid = auth.uid
-    user.provider = auth.provider
-    user.token = token
+    user.name = user.name.presence || auth.info.name
     user.url = auth.url
     user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
-    user.omniauth_info = auth.as_json
+    user.from_omniauth_login = true
     User.current = user
     user.save!
     user.set_source_image
+    # Create account from omniauth
+    User.create_omniauth_account(auth, user)
     user.reload
+  end
+
+  def self.create_omniauth_account(auth, user)
+    token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
+    a = Account.where(token: token).last
+    if a.nil?
+      begin
+        account = Account.new(created_on_registration: true)
+        account.user = user
+        account.source = user.source
+        account.url = auth.url
+        account.uid = auth.uid
+        account.provider = auth.provider
+        account.omniauth_info = auth.as_json
+        account.token =  token
+        account.save!
+      rescue Errno::ECONNREFUSED => e
+        Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
+      end
+    end
   end
 
   def self.token(provider, id, token, secret)
@@ -105,14 +123,20 @@ class User < ActiveRecord::Base
 
   def self.update_facebook_uuid(auth)
     unless auth.info.email.blank?
-      fb_user = User.where(provider: auth.provider, email: auth.info.email).first
-      if !fb_user.nil? && fb_user.uuid != auth.uid
-        fb_user.uuid = auth.uid
-        fb_user.skip_check_ability = true
-        fb_user.save!
-        fb_user.update_account(auth.url)
+      fb_account = Account.where(provider: auth.provider, email: auth.info.email).first
+      if !fb_account.nil? && fb_account.uid != auth.uid
+        fb_account.uid = auth.uid
+        fb_account.skip_check_ability = true
+        fb_account.url = auth.url
+        fb_account.save!
       end
     end
+  end
+
+  def get_social_accounts_for_login
+    return nil unless self.token.nil?
+    a = self.accounts.where('provider IS NOT NULL')
+    a.blank? ? nil : a.first
   end
 
   def set_source_image
@@ -121,7 +145,8 @@ class User < ActiveRecord::Base
       self.source.file = self.image
       self.source.save
     end
-    image = self.omniauth_info.dig('info', 'image') if self.omniauth_info
+    a = self.get_social_accounts_for_login
+    image = a.omniauth_info.dig('info', 'image') if !a.nil? && a.omniauth_info
     avatar = image ? image.gsub(/^http:/, 'https:') : CONFIG['checkdesk_base_url'] + self.image.url
     self.source.set_avatar(avatar)
   end
@@ -141,18 +166,18 @@ class User < ActiveRecord::Base
       teams: self.user_teams,
       source_id: self.source.id
     }
-    [:name, :email, :login, :uuid, :provider, :token, :current_team, :current_project, :team_ids, :permissions, :profile_image, :settings, :is_admin, :accepted_terms, :last_accepted_terms_at].each do |field|
+    [:name, :email, :login, :token, :current_team, :current_project, :team_ids, :permissions, :profile_image, :settings, :is_admin, :accepted_terms, :last_accepted_terms_at].each do |field|
       user[field] = self.send(field)
     end
     user
   end
 
   def email_required?
-    self.provider.blank? && self.new_record?
+    !self.from_omniauth_login && self.new_record?
   end
 
   def password_required?
-    super && self.provider.blank?
+    super && !self.from_omniauth_login
   end
 
   def inactive_message
@@ -297,8 +322,8 @@ class User < ActiveRecord::Base
       rand_id = Time.now.to_i
       s = user.source
       columns = {
-        name: "Anonymous", login: "Anonymous", uuid: "#{user.uuid}-#{rand_id}", provider: '', token: "#{user.token}-#{rand_id}",
-        email: nil, omniauth_info: nil, source_id: nil, account_id: nil, is_active: false
+        name: "Anonymous", login: "Anonymous", token: "#{user.token}-#{rand_id}",
+        email: nil, source_id: nil, account_id: nil, is_active: false
       }
       user.update_columns(columns)
       # delete source profile and accounts

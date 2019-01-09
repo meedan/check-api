@@ -177,8 +177,9 @@ class TeamUser < ActiveRecord::Base
   # The `slack_teams` should be a hash of the form:
   # { 'Slack team 1 id' => 'Slack team 1 name', 'Slack team 2 id' => 'Slack team 2 name', ... }
   def user_is_member_in_slack_team
-    if !self.user.nil? && self.user.provider == 'slack' && self.team.setting(:slack_teams)&.is_a?(Hash)
-      if self.team.setting(:slack_teams)&.keys&.include? self.user.omniauth_info&.dig('info', 'team_id')
+    a = self.user.get_social_accounts_for_login
+    if !self.user.nil? && !a.nil? && a.provider == 'slack' && self.team.setting(:slack_teams)&.is_a?(Hash)
+      if self.team.setting(:slack_teams)&.keys&.include? a.omniauth_info&.dig('info', 'team_id')
         # Auto-approve slack user
         self.status = 'member'
       else

@@ -12,25 +12,10 @@ module UserPrivate
     source.slogan = self.name
     source.save!
     self.update_columns(source_id: source.id)
-
-    if !self.provider.blank? && !self.url.blank?
-      begin
-        account = Account.new(created_on_registration: true)
-        account.user = self
-        account.source = source
-        account.url = self.url
-        if account.save
-          account.update_columns(url: self.url)
-          self.update_columns(account_id: account.id)
-        end
-      rescue Errno::ECONNREFUSED => e
-        Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
-      end
-    end
   end
 
   def set_token
-    self.token = User.token('checkdesk', self.id, Devise.friendly_token[0, 8], Devise.friendly_token[0, 8]) if self.token.blank?
+    self.token = User.token('checkdesk', self.id, Devise.friendly_token[0, 8], Devise.friendly_token[0, 8]) unless self.from_omniauth_login
   end
 
   def set_login
@@ -43,12 +28,8 @@ module UserPrivate
     end
   end
 
-  def set_uuid
-    self.uuid = ('checkdesk_' + Digest::MD5.hexdigest(self.email)) if self.uuid.blank?
-  end
-
   def send_welcome_email
-    RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration'] && !self.is_invited?
+    RegistrationMailer.delay.welcome_email(self) if !self.token.blank? && CONFIG['send_welcome_email_on_registration'] && !self.is_invited?
   end
 
   def user_is_member_in_current_team
@@ -75,7 +56,7 @@ module UserPrivate
   end
 
   def skip_confirmation_for_non_email_provider
-    self.skip_confirmation! if !self.provider.blank? && self.skip_confirmation_mail.nil?
+    self.skip_confirmation! if self.from_omniauth_login && self.skip_confirmation_mail.nil?
   end
 
   def set_blank_email_for_unconfirmed_user
