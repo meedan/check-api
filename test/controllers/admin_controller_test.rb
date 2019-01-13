@@ -34,10 +34,11 @@ class AdminControllerTest < ActionController::TestCase
 
   test "should find Slack user by UID" do
     u = create_user provider: 'slack', uuid: 'U123'
+    slack_account = u.accounts.where(provider: 'slack').first
     a = create_api_key
     authenticate_with_token(a)
     get :slack_user, uid: 'U123'
-    assert_equal u.token, JSON.parse(@response.body)['data']['token']
+    assert_equal slack_account.token, JSON.parse(@response.body)['data']['token']
   end
 
   test "should not find Slack user by UID if UID doesn't exist" do

@@ -70,16 +70,18 @@ class User < ActiveRecord::Base
   end
 
   def self.from_omniauth(auth)
+    token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
     # Update uuid for facebook account if match email and provider
     self.update_facebook_uuid(auth) if auth.provider == 'facebook'
-    account = Account.where(provider: auth.provider, uid: auth.uid).first
-    user = account.nil? ? User.new : account.user
+    u = User.find_with_omniauth(auth.uid, auth.provider)
+    user = u.nil? ? User.new : u
     user.email = user.email.presence || auth.info.email
     user.password ||= Devise.friendly_token[0,20]
     user.name = user.name.presence || auth.info.name
     user.url = auth.url
     user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
     user.from_omniauth_login = true
+    user.token = token
     User.current = user
     user.save!
     user.set_source_image
@@ -91,20 +93,18 @@ class User < ActiveRecord::Base
   def self.create_omniauth_account(auth, user)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
     a = Account.where(token: token).last
-    if a.nil?
-      begin
-        account = Account.new(created_on_registration: true)
-        account.user = user
-        account.source = user.source
-        account.url = auth.url
-        account.uid = auth.uid
-        account.provider = auth.provider
-        account.omniauth_info = auth.as_json
-        account.token =  token
-        account.save!
-      rescue Errno::ECONNREFUSED => e
-        Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
-      end
+    account = a.nil? ? Account.new(created_on_registration: true) : a
+    begin
+      account.user = user
+      account.source = user.source
+      account.url = auth.url
+      account.uid = auth.uid
+      account.provider = auth.provider
+      account.omniauth_info = auth.as_json
+      account.token = token
+      account.save!
+    rescue Errno::ECONNREFUSED => e
+      Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
     end
   end
 
@@ -123,7 +123,8 @@ class User < ActiveRecord::Base
 
   def self.update_facebook_uuid(auth)
     unless auth.info.email.blank?
-      fb_account = Account.where(provider: auth.provider, email: auth.info.email).first
+      fb_user = User.where(email: auth.info.email).first
+      fb_account = fb_user.accounts.where(provider: auth.provider).first unless fb_user.nil?
       if !fb_account.nil? && fb_account.uid != auth.uid
         fb_account.uid = auth.uid
         fb_account.skip_check_ability = true
@@ -131,6 +132,16 @@ class User < ActiveRecord::Base
         fb_account.save!
       end
     end
+  end
+
+  def self.find_with_omniauth(uid, provider)
+    a = Account.where(uid: uid, provider: provider).first
+    a.nil? ? nil : a.user
+  end
+
+  def self.find_with_token(token)
+    account = Account.where(token: token).last
+    account.nil? ?  User.where(token: token).last : account.user
   end
 
   def get_social_accounts_for_login

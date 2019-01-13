@@ -33,7 +33,7 @@ module Api
         end
 
         if token
-          render_user User.where(token: token).last, 'token'
+          render_user User.find_with_token(token), 'token'
         else
           render_user current_api_user, 'session'
         end
@@ -94,8 +94,7 @@ module Api
         key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
         if key.nil?
           ApiKey.current = nil
-          a = Account.where(token: token).last
-          user = a.nil? ? User.where(token: token, type: nil).last : a.user
+          user = User.find_with_token(token)
           User.current = user
           (token && user) ? sign_in(user, store: false) : (authenticate_api_user! if mandatory)
         else
