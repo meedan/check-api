@@ -147,6 +147,7 @@ class User < ActiveRecord::Base
   end
 
   def get_social_accounts_for_login(provider = nil)
+    return nil unless ActiveRecord::Base.connection.column_exists?(:accounts, :provider)
     if provider.nil?
       a = self.accounts.where('token IS NOT NULL').first
     else
