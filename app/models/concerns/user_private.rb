@@ -15,7 +15,7 @@ module UserPrivate
   end
 
   def set_token
-    self.token = User.token('checkdesk', self.id, Devise.friendly_token[0, 8], Devise.friendly_token[0, 8]) unless self.from_omniauth_login
+    self.token = User.token('checkdesk', self.id, Devise.friendly_token[0, 8], Devise.friendly_token[0, 8]) if self.token.blank?
   end
 
   def set_login

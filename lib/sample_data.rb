@@ -40,7 +40,6 @@ module SampleData
     u = BotUser.new
     u.name = options[:name] || random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
-    u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
     u.password = options[:password] || random_string
     u.password_confirmation = options[:password_confirmation] || u.password
@@ -99,6 +98,15 @@ module SampleData
 
     if options[:team]
       create_team_user team: options[:team], user: u
+    end
+
+    if options.has_key?(:provider)
+      account_options = {}
+      account_options[:provider] = options[:provider]
+      account_options[:uid] = options.has_key?(:uuid) ? options[:uuid] : random_string
+      account_options[:omniauth_info] = options[:omniauth_info]
+      account_options[:user] = u
+      create_account(account_options)
     end
 
     u.reload
@@ -236,6 +244,9 @@ module SampleData
     account.disable_es_callbacks = options[:disable_es_callbacks]
     account.skip_pender = options[:skip_pender] if options.has_key?(:skip_pender)
     account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team])
+    account.provider = options[:provider]
+    account.uid = options[:uid]
+    account.omniauth_info = options[:omniauth_info]
     account.save!
     account.reload
   end
