@@ -10,11 +10,6 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 'BotUser', create_bot_user.type
   end
 
-  test "should not have provider null" do
-    b = create_bot_user provider: 'twitter'
-    assert_equal '', b.provider
-  end
-
   test "should not have email null" do
     b = create_bot_user email: 'bot@meedan.com'
     assert_nil b.email

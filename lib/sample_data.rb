@@ -105,6 +105,7 @@ module SampleData
       account_options[:provider] = options[:provider]
       account_options[:uid] = options.has_key?(:uuid) ? options[:uuid] : random_string
       account_options[:omniauth_info] = options[:omniauth_info]
+      account_options[:url] = options[:omniauth_info]['url'] if options.has_key?(:omniauth_info) && !options[:omniauth_info]['url'].nil?
       account_options[:user] = u
       create_account(account_options)
     end
