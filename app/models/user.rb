@@ -102,7 +102,9 @@ class User < ActiveRecord::Base
       account.provider = auth.provider
       account.omniauth_info = auth.as_json
       account.token = token
-      account.save!
+      if account.save
+        account.update_columns(url: auth.url)
+      end
     rescue Errno::ECONNREFUSED => e
       Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
     end
@@ -144,10 +146,13 @@ class User < ActiveRecord::Base
     account.nil? ?  User.where(token: token).last : account.user
   end
 
-  def get_social_accounts_for_login
-    return nil unless self.token.nil?
-    a = self.accounts.where('provider IS NOT NULL')
-    a.blank? ? nil : a.first
+  def get_social_accounts_for_login(provider = nil)
+    if provider.nil?
+      a = self.accounts.where('token IS NOT NULL').first
+    else
+      a = self.accounts.where(provider: provider).first
+    end
+    a
   end
 
   def set_source_image
@@ -224,16 +229,20 @@ class User < ActiveRecord::Base
   end
 
   def handle
-    if self.provider.blank?
+    if !self.email.blank?
       self.email
     else
-      provider = self.provider.capitalize
-      if !self.omniauth_info.nil?
-        if self.provider == 'slack'
-          provider = self.omniauth_info.dig('extra', 'raw_info', 'url')
-        else
-          provider = self.omniauth_info.dig('url')
-          return provider if !provider.nil?
+      provider = ''
+      account = self.get_social_accounts_for_login
+      unless account.nil?
+        provider = account.provider.capitalize
+        if !account.omniauth_info.nil?
+          if account.provider == 'slack'
+            provider = account.omniauth_info.dig('extra', 'raw_info', 'url')
+          else
+            provider = account.omniauth_info.dig('url')
+            return provider if !provider.nil?
+          end
         end
       end
       "#{self.login} at #{provider}"

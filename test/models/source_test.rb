@@ -370,8 +370,8 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should refresh source and user account with user omniauth_info" do
     omniauth_info = {"info"=> {"name"=>"Daniela Feitosa" }, "url"=>"https://meedan.slack.com/team/daniela"}
-    u = create_user name: 'Daniela Feitosa', omniauth_info: omniauth_info, url: omniauth_info['url']
-    a = u.account
+    u = create_user provider: 'twitter', name: 'Daniela Feitosa', omniauth_info: omniauth_info, url: omniauth_info['url']
+    a = u.get_social_accounts_for_login('twitter')
     assert_equal 'https://meedan.slack.com/team/daniela', a.url
     assert_equal 'Daniela Feitosa', a.data['author_name']
 
