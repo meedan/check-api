@@ -69,30 +69,27 @@ class User < ActiveRecord::Base
     Assignment.create! user_id: self.id, assigned_id: annotation.id, assigned_type: 'Annotation'
   end
 
-  def self.from_omniauth(auth)
-    token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
+  def self.from_omniauth(auth, current_user)
     # Update uuid for facebook account if match email and provider
     self.update_facebook_uuid(auth) if auth.provider == 'facebook'
-    u = User.find_with_omniauth(auth.uid, auth.provider)
+    u = User.find_with_omniauth(auth.uid, auth.provider) || current_user
     user = u.nil? ? User.new : u
     user.email = user.email.presence || auth.info.email
-    user.password ||= Devise.friendly_token[0,20]
     user.name = user.name.presence || auth.info.name
     user.url = auth.url
     user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
     user.from_omniauth_login = true
-    user.token = token
     User.current = user
     user.save!
-    user.set_source_image
     # Create account from omniauth
     User.create_omniauth_account(auth, user)
+    user.set_source_image
     user.reload
   end
 
   def self.create_omniauth_account(auth, user)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
-    a = Account.where(token: token).last
+    a = Account.where(provider: auth.provider, uid: auth.uid).last
     account = a.nil? ? Account.new(created_on_registration: true) : a
     begin
       account.user = user
@@ -149,7 +146,7 @@ class User < ActiveRecord::Base
   def get_social_accounts_for_login(provider = nil)
     return nil unless ActiveRecord::Base.connection.column_exists?(:accounts, :provider)
     if provider.nil?
-      a = self.accounts.where('token IS NOT NULL').first
+      a = self.accounts.where('provider IS NOT NULL')
     else
       a = self.accounts.where(provider: provider).first
     end
@@ -162,7 +159,7 @@ class User < ActiveRecord::Base
       self.source.file = self.image
       self.source.save
     end
-    a = self.get_social_accounts_for_login
+    a = self.get_social_accounts_for_login.first
     image = a.omniauth_info.dig('info', 'image') if !a.nil? && a.omniauth_info
     avatar = image ? image.gsub(/^http:/, 'https:') : CONFIG['checkdesk_base_url'] + self.image.url
     self.source.set_avatar(avatar)
@@ -234,7 +231,7 @@ class User < ActiveRecord::Base
       self.email
     else
       provider = ''
-      account = self.get_social_accounts_for_login
+      account = self.get_social_accounts_for_login.first
       unless account.nil?
         provider = account.provider.capitalize
         if !account.omniauth_info.nil?
@@ -394,6 +391,16 @@ class User < ActiveRecord::Base
     s.skip_check_ability = true
     s.destroy
     User.current = current_user
+  end
+
+  def providers
+    self.get_social_accounts_for_login.map(&:provider)
+  end
+
+  def disconnect_login_account(provider)
+    a = self.get_social_accounts_for_login(provider)
+    a.skip_check_ability = true
+    a.destroy
   end
 
   # private
