@@ -39,6 +39,8 @@ class User < ActiveRecord::Base
   include DeviseAsync
 
   ROLES = %w[contributor journalist editor owner]
+  LOGINPROVIDERS = %w[slack twitter facebook]
+
   def role?(base_role)
     role = self.role
     return true if role.to_s == base_role.to_s
@@ -159,7 +161,8 @@ class User < ActiveRecord::Base
       self.source.file = self.image
       self.source.save
     end
-    a = self.get_social_accounts_for_login.first
+    a = self.get_social_accounts_for_login
+    a = a.first unless a.nil?
     image = a.omniauth_info.dig('info', 'image') if !a.nil? && a.omniauth_info
     avatar = image ? image.gsub(/^http:/, 'https:') : CONFIG['checkdesk_base_url'] + self.image.url
     self.source.set_avatar(avatar)
@@ -231,7 +234,8 @@ class User < ActiveRecord::Base
       self.email
     else
       provider = ''
-      account = self.get_social_accounts_for_login.first
+      account = self.get_social_accounts_for_login
+      account = account.first unless account.nil?
       unless account.nil?
         provider = account.provider.capitalize
         if !account.omniauth_info.nil?
@@ -394,7 +398,22 @@ class User < ActiveRecord::Base
   end
 
   def providers
-    self.get_social_accounts_for_login.map(&:provider)
+    providers = []
+    accounts = self.get_social_accounts_for_login
+    LOGINPROVIDERS.each do |p|
+      a = accounts.select{|a| a.provider == p}.first
+      if a.nil?
+        providers << {key: p, connected: false}
+      else
+        info = a.omniauth_info.dig('info')
+        if a.provider == 'slack'
+          providers << {key: p, connected: true, info: info['team']}
+        else
+          providers << {key: p, connected: true, info: info['name']}
+        end
+      end
+    end
+    providers
   end
 
   def disconnect_login_account(provider)
