@@ -25,7 +25,7 @@ module ActiveRecordExtensions
         params = params[klass].clone
         joins = params.delete(:joins)
         query = query.joins(joins) if joins
-        query = query.where(params) unless params.empty?
+        query = query.where(params)
       end
       query
     end
