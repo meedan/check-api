@@ -74,7 +74,12 @@ class User < ActiveRecord::Base
   def self.from_omniauth(auth, current_user)
     # Update uuid for facebook account if match email and provider
     self.update_facebook_uuid(auth) if auth.provider == 'facebook'
-    u = User.find_with_omniauth(auth.uid, auth.provider) || current_user
+    u = User.find_with_omniauth(auth.uid, auth.provider)
+    unless current_user.nil?
+      # TODO: raise error and show a message to user
+      return nil if !u.nil? && u.id != current_user.id
+    end
+    u ||= current_user
     user = u.nil? ? User.new : u
     user.email = user.email.presence || auth.info.email
     user.name = user.name.presence || auth.info.name
@@ -83,7 +88,7 @@ class User < ActiveRecord::Base
     user.from_omniauth_login = true
     User.current = user
     user.save!
-    # Create account from omniauth
+    # Create account from omniauthcurrent_api_user
     User.create_omniauth_account(auth, user)
     user.set_source_image
     user.reload
@@ -92,6 +97,8 @@ class User < ActiveRecord::Base
   def self.create_omniauth_account(auth, user)
     token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
     a = Account.where(provider: auth.provider, uid: auth.uid).last
+    # check if there is an account with URL
+    a = Account.where(url: auth.url).last if a.nil?
     account = a.nil? ? Account.new(created_on_registration: true) : a
     begin
       account.user = user
@@ -103,6 +110,12 @@ class User < ActiveRecord::Base
       account.token = token
       if account.save
         account.update_columns(url: auth.url)
+        # create account source if not exist
+        as = account.account_sources.where(source_id: user.source).last
+        if as.nil?
+          account.sources << user.source
+          account.save!
+        end
       end
     rescue Errno::ECONNREFUSED => e
       Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
@@ -147,10 +160,11 @@ class User < ActiveRecord::Base
 
   def get_social_accounts_for_login(provider = nil)
     return nil unless ActiveRecord::Base.connection.column_exists?(:accounts, :provider)
+    s = self.source
     if provider.nil?
-      a = self.accounts.where('provider IS NOT NULL')
+      a = s.accounts.where('provider IS NOT NULL')
     else
-      a = self.accounts.where(provider: provider).first
+      a = s.accounts.where(provider: provider).first
     end
     a
   end
@@ -418,8 +432,19 @@ class User < ActiveRecord::Base
 
   def disconnect_login_account(provider)
     a = self.get_social_accounts_for_login(provider)
-    a.skip_check_ability = true
-    a.destroy
+    unless a.nil?
+      if a.sources.count == 1
+        a.skip_check_ability = true
+        a.destroy
+      else
+        # clean account from omniauth info
+        a.update_columns(provider: nil, token: nil, omniauth_info: nil, uid: nil)
+        # delete account source
+        as = a.account_sources.where(source_id: self.source_id).last
+        as.skip_check_ability = true
+        as.destroy unless as.nil?
+      end
+    end
   end
 
   # private
