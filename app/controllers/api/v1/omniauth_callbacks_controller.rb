@@ -32,7 +32,7 @@ module Api
         unless user.nil?
           session['checkdesk.current_user_id'] = user.id
           User.current = user
-          sign_in(user)
+          sign_in(user) if current_api_user.nil?
         end
 
         destination = params[:destination] || '/api'
