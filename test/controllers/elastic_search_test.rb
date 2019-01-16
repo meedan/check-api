@@ -8,7 +8,7 @@ class ElasticSearchTest < ActionController::TestCase
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
     User.unstub(:current)
-    Team.unstub(:current)
+    Team.current = nil
     User.current = nil
     MediaSearch.delete_index
     MediaSearch.create_index
@@ -195,7 +195,7 @@ class ElasticSearchTest < ActionController::TestCase
     m = create_media url: url, account_id: nil, user_id: nil, account: nil, user: nil
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: "non_exist_title"}.to_json)
     assert_empty result.medias
     result = CheckSearch.new({keyword: "search_title"}.to_json)
@@ -253,7 +253,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     keyword = {projects: [rand(40000...50000)]}.to_json
     sleep 1
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new(keyword)
     assert_empty result.medias
     result = CheckSearch.new({projects: [p.id]}.to_json)
@@ -286,7 +286,7 @@ class ElasticSearchTest < ActionController::TestCase
       create_tag tag: 'newtag', annotated: pm2, disable_es_callbacks: false
       create_tag tag: 'news', annotated: pm, disable_es_callbacks: false
       sleep 5
-      Team.stubs(:current).returns(t)
+      Team.current = t
       # search by status
       result = CheckSearch.new({verification_status: ['false']}.to_json)
       assert_empty result.medias
@@ -322,7 +322,7 @@ class ElasticSearchTest < ActionController::TestCase
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       create_tag tag: 'two Words', annotated: pm, disable_es_callbacks: false
       sleep 5
-      Team.stubs(:current).returns(t)
+      Team.current = t
       # search by tags
       result = CheckSearch.new({tags: ['two Words']}.to_json)
       assert_equal [pm.id], result.medias.map(&:id)
@@ -340,7 +340,7 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should have unique id per params" do
     t = create_team
-    Team.stubs(:current).returns(t)
+    Team.current = t
     s1 = CheckSearch.new({ keyword: 'foo' }.to_json)
     s2 = CheckSearch.new({ keyword: 'foo' }.to_json)
     s3 = CheckSearch.new({ keyword: 'bar' }.to_json)
@@ -364,7 +364,7 @@ class ElasticSearchTest < ActionController::TestCase
       create_status status: 'verified', annotated: pm, disable_es_callbacks: false
       sleep 1
       # keyword & tags
-      Team.stubs(:current).returns(t)
+      Team.current = t
       result = CheckSearch.new({keyword: 'report_title', tags: ['sports']}.to_json)
       assert_equal [pm2.id, pm.id], result.medias.map(&:id)
       # keyword & context
@@ -404,7 +404,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     create_comment text: 'add_comment', annotated: pm, disable_es_callbacks: false
     sleep 10
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
   end
@@ -426,7 +426,7 @@ class ElasticSearchTest < ActionController::TestCase
       create_comment text: 'search_sort', annotated: pm1, disable_es_callbacks: false
       sleep 10
       # sort with keywords
-      Team.stubs(:current).returns(t)
+      Team.current = t
       result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
       assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
       result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json)
@@ -479,7 +479,7 @@ class ElasticSearchTest < ActionController::TestCase
     create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
     sleep 6
 
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json)
     assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort_type: 'asc'}.to_json)
@@ -504,7 +504,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
     pm3 = create_project_media project: p3, media: m, disable_es_callbacks: false
     sleep 1
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: 'search_title'}.to_json)
     assert_equal [pm3.id, pm2.id, pm.id], result.medias.map(&:id)
   end
@@ -522,7 +522,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
     pm3.embed= {title: 'keyworda and keywordb'}.to_json
     sleep 1
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: 'keyworda'}.to_json)
     assert_equal 2, result.medias.count
     result = CheckSearch.new({keyword: 'keyworda and keywordb'}.to_json)
@@ -539,7 +539,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     create_tag tag: 'iron', annotated: pm2, disable_es_callbacks: false
     sleep 10
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({tags: ['iron maiden']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     result = CheckSearch.new({tags: ['iron']}.to_json)
@@ -560,7 +560,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm2.embed= info2
     create_tag tag: 'monkey', annotated: pm2, disable_es_callbacks: false
     sleep 10
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({tags: ['monkey']}.to_json)
     assert_equal [pm2.id, pm.id].sort, result.medias.map(&:id).sort
     result = CheckSearch.new({tags: ['#monkey']}.to_json)
@@ -590,7 +590,7 @@ class ElasticSearchTest < ActionController::TestCase
       sleep 1
       create_status annotated: pm1, status: 'in_progress', disable_es_callbacks: false
       sleep 1
-      Team.stubs(:current).returns(t)
+      Team.current = t
       result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
       assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
       create_tag annotated: pm2, tag: 'in_progress', disable_es_callbacks: false
@@ -616,7 +616,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm2  = create_project_media project: p, media: m2, disable_es_callbacks: false
     create_comment annotated: pm1, text: 'add comment', disable_es_callbacks: false
     sleep 1
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: 'search_title', projects: [p.id], sort: "recent_activity"}.to_json)
     assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'search_title', projects: [p.id], sort: "recent_activity", sort_type: 'asc'}.to_json)
@@ -635,7 +635,7 @@ class ElasticSearchTest < ActionController::TestCase
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       create_status status: 'in_progress', annotated: pm, disable_es_callbacks: false
       sleep 1
-      Team.stubs(:current).returns(t)
+      Team.current = t
       result = CheckSearch.new({projects: [p.id], verification_status: ['in_progress'], sort: "recent_activity"}.to_json)
       assert_equal 1, result.project_medias.count
     end
@@ -665,7 +665,7 @@ class ElasticSearchTest < ActionController::TestCase
     sleep 1
     pm2b = create_project_media project: p2b
 
-    Team.stubs(:current).returns(t1)
+    Team.current = t1
     assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
     assert_equal [], CheckSearch.new('{}').sources
     assert_equal p1a.project_sources.sort, CheckSearch.new({ projects: [p1a.id], show: ['medias', 'sources']}.to_json).sources.sort
@@ -674,16 +674,16 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).project_medias.count
     assert_equal [pm1a, pm1b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
     assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).project_medias.count
-    Team.unstub(:current)
+    Team.current = nil
 
-    Team.stubs(:current).returns(t2)
+    Team.current = t2
     assert_equal [pm2b, pm2a], CheckSearch.new('{}').medias
     assert_equal 2, CheckSearch.new('{}').project_medias.count
     assert_equal [pm2a], CheckSearch.new({ projects: [p2a.id] }.to_json).medias
     assert_equal 1, CheckSearch.new({ projects: [p2a.id] }.to_json).project_medias.count
     assert_equal [pm2a, pm2b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
     assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).project_medias.count
-    Team.unstub(:current)
+    Team.current = nil
   end
 
   test "should ensure project_medias to be an alias of medias" do
@@ -718,7 +718,7 @@ class ElasticSearchTest < ActionController::TestCase
     m = create_media(account: create_valid_account, url: url)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: "coração"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     # search in description
@@ -738,7 +738,7 @@ class ElasticSearchTest < ActionController::TestCase
     m = create_media(account: create_valid_account, url: url)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: "cañon"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: "canon"}.to_json)
@@ -760,7 +760,7 @@ class ElasticSearchTest < ActionController::TestCase
     m = create_media(account: create_valid_account, url: url)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: "ﻻ"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: "لا"}.to_json)
@@ -782,7 +782,7 @@ class ElasticSearchTest < ActionController::TestCase
      m = create_media(account: create_valid_account, url: url)
      pm = create_project_media project: p, media: m, disable_es_callbacks: false
      sleep 1
-     Team.stubs(:current).returns(t)
+     Team.current = t
      result = CheckSearch.new({keyword: "بسم"}.to_json)
      assert_equal [pm.id], result.medias.map(&:id)
      result = CheckSearch.new({keyword: "بسم الله"}.to_json)
@@ -800,7 +800,7 @@ class ElasticSearchTest < ActionController::TestCase
     create_tag tag: 'news', annotated: ps, disable_es_callbacks: false
     create_comment text: 'add_comment', annotated: ps, disable_es_callbacks: false
     sleep 10
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({ show: ['sources'] }.to_json)
     assert_equal [ps.id, ps2.id], result.project_sources.map(&:id).sort
     # search with keyword
@@ -834,7 +834,7 @@ class ElasticSearchTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"username": "account_username", "url":"' + url + '","type":"profile"}}')
     ps = create_project_source project: p, name: 'New source', url: url, disable_es_callbacks: false
     sleep 10
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: 'account_username', projects: [p.id], show: ['sources'] }.to_json)
     assert_equal [ps.id], result.sources.map(&:id)
   end
@@ -849,7 +849,7 @@ class ElasticSearchTest < ActionController::TestCase
     create_comment text: 'search_sort', annotated: ps1, disable_es_callbacks: false
     sleep 10
     # sort with keywords
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], show: ['sources'] }.to_json)
     assert_equal [ps3.id, ps2.id, ps1.id], result.sources.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
@@ -885,7 +885,7 @@ class ElasticSearchTest < ActionController::TestCase
     i = create_uploaded_image
     create_project_media project: p, media: i, disable_es_callbacks: false
     sleep 10
-    Team.stubs(:current).returns(t)
+    Team.current = t
     result = CheckSearch.new({}.to_json)
     assert_equal 0, result.sources.count
     assert_equal 3, result.medias.count
@@ -898,7 +898,7 @@ class ElasticSearchTest < ActionController::TestCase
     result = CheckSearch.new({ show: ['sources', 'medias'] }.to_json)
     assert_equal p.sources.count, result.sources.count
     assert_equal 3, result.medias.count
-    Team.unstub(:current)
+    Team.current = nil
   end
 
   test "should filter by archived" do

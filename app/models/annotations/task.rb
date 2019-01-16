@@ -150,7 +150,7 @@ class Task < ActiveRecord::Base
   end
 
   def responses
-    ids = DynamicAnnotation::Field.where(field_type: 'task_reference', value: self.id.to_s).map(&:annotation_id)
+    ids = DynamicAnnotation::Field.select('annotation_id').where(field_type: 'task_reference', value: self.id.to_s).map(&:annotation_id)
     Annotation.where(id: ids)
   end
 

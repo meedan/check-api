@@ -14,6 +14,12 @@ class Team < ActiveRecord::Base
 
   before_validation :normalize_slug, on: :create
 
+  after_find do |team|
+    if User.current
+      Team.current = team
+      Ability.new
+    end
+  end
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed, :clear_embeds_caches_if_needed
   after_destroy :reset_current_team
@@ -29,11 +35,11 @@ class Team < ActiveRecord::Base
   end
 
   def members_count
-    self.team_users.where(status: 'member').count
+    self.team_users.where(status: 'member').permissioned.count
   end
 
   def projects_count
-    self.projects.count
+    self.projects.permissioned.count
   end
 
   def as_json(_options = {})

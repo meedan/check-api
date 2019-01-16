@@ -299,16 +299,31 @@ class TaskTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
 
     e = assert_raises ActiveRecord::RecordInvalid do
-      User.current = create_bot_user(is_admin: true)
+      u = create_bot_user is_admin: true
+      create_team_bot bot_user_id: u.id
+      u.update_column(:is_admin, true)
       t = create_task
+      User.current = User.find(u.id)
       t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
       t.save!
     end
     assert_equal "Validation failed: #{I18n.t('bot_cant_add_response_to_task')}", e.message
 
     assert_nothing_raised do
-      User.current = create_user(is_admin: true)
+      User.current = nil
       t = create_task
+      User.current = create_user(is_admin: true)
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
+      t.save!
+    end
+
+    assert_nothing_raised do
+      User.current = nil
+      u = create_bot_user is_admin: true
+      u.update_column(:is_admin, true)
+      u = User.find(u.id)
+      t = create_task
+      User.current = User.find(u.id)
       t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
       t.save!
     end
@@ -389,17 +404,15 @@ class TaskTest < ActiveSupport::TestCase
     create_team_user team: t, user: u2, role: 'annotator'
     tk.assign_user(u1.id)
     tk.assign_user(u2.id)
-    with_current_user_and_team(u1, nil) do
-      tk = Task.find(tk.id)
-      tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
-      tk.save!
-    end
+    User.current = u1
+    tk = Task.find(tk.id)
+    tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.save!
     assert_equal 'unresolved', tk.reload.status
-    with_current_user_and_team(u2, nil) do
-      tk = Task.find(tk.id)
-      tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
-      tk.save!
-    end
+    User.current = u2
+    tk = Task.find(tk.id)
+    tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.save!
     assert_equal 'resolved', tk.reload.status
   end
 
@@ -408,7 +421,7 @@ class TaskTest < ActiveSupport::TestCase
     assert !t.must_resolve_task({ 'set_fields' => {} })
   end
 
-  test "should get first response bli" do
+  test "should get first response" do
     at = create_annotation_type annotation_type: 'response'
     create_field_instance annotation_type_object: at, name: 'response_test'
     ft = create_field_type field_type: 'task_reference'
@@ -421,20 +434,18 @@ class TaskTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user team: t, user: u1, role: 'annotator'
     create_team_user team: t, user: u2
-    with_current_user_and_team(u1, nil) do
-      tk = Task.find(tk.id)
-      tk.response = { annotation_type: 'response', set_fields: { response_test: 'foo', task_reference: tk.id.to_s }.to_json }.to_json
-      tk.save!
-    end
+    User.current = u1
+    tk = Task.find(tk.id)
+    tk.response = { annotation_type: 'response', set_fields: { response_test: 'foo', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.save!
+    User.current = nil
     tk = Task.find(tk.id)
     tk.response = { annotation_type: 'response', set_fields: { response_test: 'bar', task_reference: tk.id.to_s }.to_json }.to_json
     tk.save!
-    with_current_user_and_team(u1, nil) do
-      assert_equal 'foo', tk.reload.first_response
-    end
-    with_current_user_and_team(u2, nil) do
-      assert_equal 'bar', tk.reload.first_response
-    end
+    User.current = u1
+    assert_equal 'foo', tk.reload.first_response
+    User.current = u2
+    assert_equal 'bar', tk.reload.first_response
   end
 
   test "should reopen task" do

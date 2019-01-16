@@ -44,7 +44,7 @@ DynamicAnnotation::Field.class_eval do
 
     ['response', 'review'].each do |action|
       define_method "field_validator_name_#{action}_#{type}" do
-        errors.add(:base, I18n.t("bot_cant_add_#{action}_to_task")) if !self.value.blank? && User.current.present? && User.current.type == 'BotUser'
+        errors.add(:base, I18n.t("bot_cant_add_#{action}_to_task")) if !self.value.blank? && User.current.present? && User.current.type == 'BotUser' && !User.current.team_bot.nil?
       end
     end
   end
