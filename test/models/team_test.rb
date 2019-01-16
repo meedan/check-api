@@ -149,7 +149,9 @@ class TeamTest < ActiveSupport::TestCase
   test "should add user to team on team creation" do
     u = create_user
     assert_difference 'TeamUser.count' do
-      with_current_user_and_team(u, nil) { create_team }
+      User.current = u
+      Team.current = nil
+      create_team
     end
   end
 
@@ -224,7 +226,8 @@ class TeamTest < ActiveSupport::TestCase
     u = create_user
     assert_no_difference 'ActionMailer::Base.deliveries.size' do
       assert_difference 'TeamUser.count' do
-        with_current_user_and_team(u, nil) { create_team }
+        User.current = u
+        create_team
       end
     end
   end
@@ -1576,5 +1579,33 @@ class TeamTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordNotUnique do
       t.update_column :slug, 'testduplicatedslug'
     end
+  end
+
+  test "should refresh permissions when loading a team" do
+    u1 = create_user
+    t1 = create_team
+    u2 = create_user
+    t2 = create_team
+    create_team_user user: u1, team: t1, status: 'member', role: 'owner'
+    create_team_user user: u2, team: t1, status: 'member', role: 'annotator'
+    sleep 1
+    create_team_user user: u1, team: t2, status: 'member', role: 'annotator'
+    create_team_user user: u2, team: t2, status: 'member', role: 'owner'
+
+    assert_equal 2, t1.members_count
+    assert_equal 2, t2.members_count
+    
+    User.current = u1
+    Team.current = t2
+    assert_equal [2, 1], u1.team_users.order('id ASC').collect{ |x| x.team.members_count }
+    Team.current = t1
+    assert_equal [2, 1], u1.team_users.order('id ASC').collect{ |x| x.team.members_count }
+    
+    User.current = u2
+    Team.current = t1
+    assert_equal [1, 2], u2.team_users.order('id ASC').collect{ |x| x.team.members_count }
+    Team.current = t2
+    assert_equal [1, 2], u2.team_users.order('id ASC').collect{ |x| x.team.members_count }
+    Team.current = nil
   end
 end

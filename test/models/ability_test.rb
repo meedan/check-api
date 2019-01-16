@@ -300,12 +300,11 @@ class AbilityTest < ActiveSupport::TestCase
   test "authenticated permissions for teamUser" do
     u = create_user
     tu = create_team_user user: u
-    with_current_user_and_team(u, nil) do
-      ability = Ability.new
-      assert ability.can?(:create, TeamUser)
-      assert ability.cannot?(:update, tu)
-      assert ability.can?(:destroy, tu)
-    end
+    User.current = u
+    ability = Ability.new
+    assert ability.can?(:create, TeamUser)
+    assert ability.cannot?(:update, tu)
+    assert ability.can?(:destroy, tu)
   end
 
   test "contributor permissions for teamUser" do
@@ -1189,12 +1188,11 @@ class AbilityTest < ActiveSupport::TestCase
   test "should update own source with or without team" do
     u = create_user
     s = u.source
-    with_current_user_and_team(u) do
-      ability = Ability.new
-      assert ability.can?(:update, s)
-      s.team = create_team;s.save;s.reload
-      assert ability.can?(:update, s)
-    end
+    User.current = u
+    ability = Ability.new
+    assert ability.can?(:update, s)
+    s.team = create_team;s.save;s.reload
+    assert ability.can?(:update, s)
   end
 
   test "should owner destroy annotation from any project from his team" do

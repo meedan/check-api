@@ -89,7 +89,9 @@ class CheckSearch
   end
 
   def number_of_results
-    medias.count + sources.count
+    medias_count = medias.is_a?(Array) ? medias.size : medias.permissioned.count
+    sources_count = sources.is_a?(Array) ? sources.size : sources.permissioned.count
+    medias_count + sources_count
   end
 
   def medias_build_search_query(associated_type = 'ProjectMedia')
