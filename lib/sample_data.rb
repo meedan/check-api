@@ -93,6 +93,9 @@ module SampleData
 
     u.skip_confirmation! if options.has_key?(:skip_confirmation) && options[:skip_confirmation] == true
 
+    provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
+    u.from_omniauth_login = true unless provider.blank?
+
     u.save!
     u.source.set_avatar(options[:profile_image]) if options.has_key?(:profile_image) && u.source
 
@@ -100,7 +103,7 @@ module SampleData
       create_team_user team: options[:team], user: u
     end
 
-    if options.has_key?(:provider)
+    unless provider.blank?
       account_options = {}
       account_options[:provider] = options[:provider]
       account_options[:uid] = options.has_key?(:uuid) ? options[:uuid] : random_string
@@ -108,9 +111,6 @@ module SampleData
       account_options[:url] = options[:omniauth_info]['url'] if options.has_key?(:omniauth_info) && !options[:omniauth_info]['url'].nil?
       account_options[:user] = u
       create_account(account_options)
-    else
-      u.skip_check_ability = true
-      u.confirm
     end
 
     u.reload
