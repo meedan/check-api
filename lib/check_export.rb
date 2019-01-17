@@ -40,13 +40,20 @@ module CheckExport
       "note_content_#{i+1}": c.data['text']
     ]}.reduce({}){ |h,o| h.merge(o) }
     .merge(
-      pm.get_annotations('task').map(&:load).to_enum.reverse_each.with_index.collect{ |t,i| r = t.responses.map(&:load).first; Hash[
-        "task_question_#{i+1}": t.label,
-        "task_user_#{i+1}": r&.annotator&.name,
-        "task_date_#{i+1}": r&.created_at,
-        "task_answer_#{i+1}": r&.values(['response'], '')&.dig('response'),
-        "task_note_#{i+1}": r&.values(['note'], '')&.dig('note'),
-      ]}.reduce({}){ |h,o| h.merge(o) }
+      pm.get_annotations('task').map(&:load).to_enum.reverse_each.with_index.collect do |t, i|
+        task_hash = {
+          "task_#{i+1}_question": t.label
+        }
+        t.responses.map(&:load).each_with_index do |r, j|
+          task_hash.merge!({
+            "task_#{i+1}_answer_#{j+1}_user": r&.annotator&.name,
+            "task_#{i+1}_answer_#{j+1}_date": r&.created_at,
+            "task_#{i+1}_answer_#{j+1}_content": r&.values(['response'], '')&.dig('response'),
+            "task_#{i+1}_answer_#{j+1}_note": r&.values(['note'], '')&.dig('note')
+          })
+        end
+        task_hash
+      end.reduce({}){ |h,o| h.merge(o) }
     ).merge(
       pm.get_annotations('translation').map(&:load).to_enum.reverse_each.with_index.collect{ |t,i| Hash[
         "translation_text_#{i+1}": t.get_field('translation_text')&.value,
