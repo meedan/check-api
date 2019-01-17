@@ -27,7 +27,6 @@ namespace :check do
     User.find_each do |u|
       unless u.email =~ /@meedan\./ || exceptions.include?(u.email)
         u.update_columns(email: '', encrypted_password: '')
-        u.update_columns(uuid: "#{u.uuid}_uuid") if u.provider.blank?
       end
     end
     Project.find_each do |p|

@@ -11,7 +11,6 @@ class User < ActiveRecord::Base
   has_many :teams, through: :team_users
   has_many :projects
   has_many :accounts
-  belongs_to :account
   has_many :assignments, dependent: :destroy
 
   devise :database_authenticatable, :registerable,
@@ -414,6 +413,7 @@ class User < ActiveRecord::Base
   def providers
     providers = []
     accounts = self.get_social_accounts_for_login
+    allow_disconnect =  (accounts.count == 1 && !self.encrypted_password?) ? false : true
     LOGINPROVIDERS.each do |p|
       a = accounts.select{|a| a.provider == p}.first
       if a.nil?
@@ -421,9 +421,9 @@ class User < ActiveRecord::Base
       else
         info = a.omniauth_info.dig('info')
         if a.provider == 'slack'
-          providers << {key: p, connected: true, info: info['team']}
+          providers << {key: p, connected: true, allow_disconnect: allow_disconnect, info: info['team']}
         else
-          providers << {key: p, connected: true, info: info['name']}
+          providers << {key: p, connected: true, allow_disconnect: allow_disconnect, info: info['name']}
         end
       end
     end
