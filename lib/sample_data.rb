@@ -108,6 +108,9 @@ module SampleData
       account_options[:url] = options[:omniauth_info]['url'] if options.has_key?(:omniauth_info) && !options[:omniauth_info]['url'].nil?
       account_options[:user] = u
       create_account(account_options)
+    else
+      u.skip_check_ability = true
+      u.confirm
     end
 
     u.reload
