@@ -16,7 +16,13 @@ module CheckPermissions
   module ClassMethods
     def find_if_can(id, ability = nil)
       id = id.id if id.is_a?(ActiveRecord::Base)
-      model = self.name == 'Project' ? self.eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0] : self.find(id)
+      model = if self.name == 'Project'
+                self.eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0]
+              elsif self.name == 'Team'
+                self.where(id: id, inactive: false).last
+              else
+                self.find(id)
+              end
       raise ActiveRecord::RecordNotFound if model.nil?
       ability ||= Ability.new
       if ability.can?(:read, model)
