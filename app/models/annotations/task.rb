@@ -150,8 +150,7 @@ class Task < ActiveRecord::Base
   end
 
   def responses
-    ids = DynamicAnnotation::Field.select('annotation_id').where(field_type: 'task_reference', value: self.id.to_s).map(&:annotation_id)
-    Annotation.where(id: ids)
+    Annotation.where(annotated_type: 'Task', annotated_id: self.id).where("annotation_type LIKE '%task_response%'")
   end
 
   def response
@@ -176,7 +175,7 @@ class Task < ActiveRecord::Base
   def response=(json)
     params = JSON.parse(json)
     response = self.new_or_existing_response
-    response.annotated = self.annotated
+    response.annotated = self
     response.annotation_type = params['annotation_type']
     response.disable_es_callbacks = Rails.env.to_s == 'test'
     response.disable_update_status = (Rails.env.to_s == 'test' && response.respond_to?(:disable_update_status))
