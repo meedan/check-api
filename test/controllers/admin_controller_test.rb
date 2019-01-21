@@ -34,7 +34,7 @@ class AdminControllerTest < ActionController::TestCase
 
   test "should find Slack user by UID" do
     u = create_user provider: 'slack', uuid: 'U123'
-    slack_account =u.get_social_accounts_for_login('slack')
+    slack_account = u.get_social_accounts_for_login('slack')
     a = create_api_key
     authenticate_with_token(a)
     get :slack_user, uid: 'U123'

@@ -122,7 +122,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should not create account if user has no url" do
     assert_no_difference 'Account.count' do
-      create_user url: nil, provider: 'facebook'
+      create_user url: nil, provider: 'facebook', omniauth_info: {'url' => ''}
     end
   end
 
@@ -178,11 +178,10 @@ class UserTest < ActiveSupport::TestCase
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
         create_user provider: '', skip_confirmation: true
       end
-      # TODO sawy: fix test
-      # assert_no_difference 'ActionMailer::Base.deliveries.size' do
-      #   create_user provider: 'twitter'
-      #   create_user provider: 'facebook'
-      # end
+      assert_no_difference 'ActionMailer::Base.deliveries.size' do
+        create_user provider: 'twitter', password: nil
+        create_user provider: 'facebook', password: nil
+      end
     end
 
     stub_config 'send_welcome_email_on_registration', false do
@@ -557,29 +556,29 @@ class UserTest < ActiveSupport::TestCase
     assert_kind_of String, create_user.jsonsettings
   end
 
-  # TODO sawy: fix test
-  # test "should update Facebook id" do
-  #   u = create_user provider: 'facebook', uuid: '123456', email: 'user@fb.com'
-  #   assert_equal '123456', u.reload.uuid
-  #   User.current = create_user
-  #   User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '654321', info: OpenStruct.new({ email: 'user@fb.com' })}))
-  #   User.current = nil
-  #   assert_equal '654321', u.reload.uuid
-  # end
+  test "should update Facebook id" do
+    u = create_user provider: 'facebook', uuid: '123456', email: 'user@fb.com'
+    a = u.get_social_accounts_for_login('facebook')
+    assert_equal '123456', a.uid
+    User.current = create_user
+    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', url: a.url, uid: '654321', info: OpenStruct.new({ email: 'user@fb.com' })}))
+    User.current = nil
+    assert_equal '654321', a.reload.uid
+  end
 
-  # test "should not update Facebook id if email not set" do
-  #   u1 = create_user provider: 'facebook', uuid: '123456', email: ''
-  #   # u2 = create_user provider: 'facebook', uuid: '456789', email: ''
-  #   a1 = u1.get_social_accounts_for_login('facebook')
-  #   a2 = u1.get_social_accounts_for_login('facebook')
-  #   assert_equal '123456', a1.reload.uid
-  #   assert_equal '456789', a2.reload.uid
-  #   User.current = create_user
-  #   User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '456789', info: OpenStruct.new({ email: '' })}))
-  #   User.current = nil
-  #   assert_equal '123456', a1.reload.uid
-  #   assert_equal '456789', a2.reload.uid
-  # end
+  test "should not update Facebook id if email not set" do
+    u1 = create_user provider: 'facebook', uuid: '123456', email: ''
+    u2 = create_user provider: 'facebook', uuid: '456789', email: ''
+    a1 = u1.get_social_accounts_for_login('facebook')
+    a2 = u2.get_social_accounts_for_login('facebook')
+    assert_equal '123456', a1.uid
+    assert_equal '456789', a2.uid
+    User.current = create_user
+    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook',url: a1.url, uid: '456789', info: OpenStruct.new({ email: '' })}))
+    User.current = nil
+    assert_equal '123456', a1.reload.uid
+    assert_equal '456789', a2.reload.uid
+  end
 
   test "should save valid languages" do
     u = create_user
@@ -628,25 +627,25 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 2, u.reload.number_of_teams
   end
 
-  # TODO: sawy: fix test 
-  # test "should update account url when update Facebook id" do
-  #   WebMock.disable_net_connect!
-  #   url1 = 'https://www.facebook.com/1062518227129764'
-  #   pender_url = CONFIG['pender_url_private'] + '/api/medias'
-  #   WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: '{"type":"media","data":{"url":"' + url1 + '","type":"profile"}}')
+  test "should update account url when update Facebook id" do
+    WebMock.disable_net_connect!
+    url1 = 'https://www.facebook.com/1062518227129764'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: '{"type":"media","data":{"url":"' + url1 + '","type":"profile"}}')
 
-  #   u = create_user provider: 'facebook', uuid: '1062518227129764', email: 'user@fb.com', url: url1
-  #   assert_equal '1062518227129764', u.reload.uuid
-  #   account = u.accounts.first
-  #   assert_equal url1, account.url
+    u = create_user provider: 'facebook', uuid: '1062518227129764', email: 'user@fb.com', omniauth_info: {'url' => url1}
+    account = u.get_social_accounts_for_login('facebook')
+    assert_equal '1062518227129764', account.uid
+    
+    assert_equal url1, account.url
 
-  #   url2 = 'https://www.facebook.com/100001147915899'
-  #   WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: '{"type":"media","data":{"url":"' + url2 + '/","type":"profile"}}')
-  #   User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '100001147915899', info: OpenStruct.new({ email: 'user@fb.com' }), url: url2}))
-  #   assert_equal '100001147915899', u.reload.uuid
-  #   assert_equal url2, account.reload.url
-  #   WebMock.allow_net_connect!
-  # end
+    url2 = 'https://www.facebook.com/100001147915899'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: '{"type":"media","data":{"url":"' + url2 + '/","type":"profile"}}')
+    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '100001147915899', info: OpenStruct.new({ email: 'user@fb.com' }), url: url2}))
+    assert_equal '100001147915899', account.reload.uid
+    assert_equal url2, account.reload.url
+    WebMock.allow_net_connect!
+  end
 
   test "should create user when account cannot be saved" do
     url = 'https://www.facebook.com/1062518227129764'
@@ -682,25 +681,24 @@ class UserTest < ActiveSupport::TestCase
 
   test "should create account with omniauth data" do
     omniauth_info = {"provider"=>"slack", "info"=> {"nickname"=>"daniela", "team"=>"meedan", "user"=>"daniela", "name"=>"daniela feitosa", "description"=>"", "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"}, "url"=>"https://meedan.slack.com/team/daniela"}
-    u = create_user provider: 'slack', omniauth_info: omniauth_info, url: omniauth_info['url']
+    u = create_user provider: 'slack', omniauth_info: omniauth_info
     account = u.get_social_accounts_for_login('slack')
-    # TODO: sawy: fix test
-    # assert account.created_on_registration?
-    # assert_equal omniauth_info['url'], account.url
-    # assert_equal omniauth_info['info']['nickname'], account.data['username']
-    # assert_equal omniauth_info['info']['name'], account.data['author_name']
-    # assert_equal omniauth_info['info']['description'], account.data['description']
-    # assert_equal omniauth_info['info']['image'], account.data['picture']
-    # assert_equal omniauth_info['url'], account.data['url']
+    assert account.created_on_registration?
+    assert_equal omniauth_info['url'], account.url
+    assert_equal omniauth_info['info']['nickname'], account.data['username']
+    assert_equal omniauth_info['info']['name'], account.data['author_name']
+    assert_equal omniauth_info['info']['description'], account.data['description']
+    assert_equal omniauth_info['info']['image'], account.data['picture']
+    assert_equal omniauth_info['url'], account.data['url']
   end
 
   test "should create source with image on omniauth data" do
     omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
 
     u = create_user provider: 'slack', omniauth_info: omniauth_info
+    account = u.get_social_accounts_for_login('slack')
     source = u.source
-    # TODO sawy: fix test
-    # assert_equal omniauth_info['info']['image'], source.avatar
+    assert_equal omniauth_info['info']['image'], source.avatar
   end
 
   test "should create source with default image" do
@@ -712,17 +710,15 @@ class UserTest < ActiveSupport::TestCase
   test "should set source image when call user from omniauth" do
     u = create_user provider: 'twitter', uuid: '12345'
     assert_match /images\/user.png/, u.source.avatar
-
     credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
     info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
-    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info})
+    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info, url: random_url})
     omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
-    User.any_instance.stubs(:omniauth_info).returns(omniauth_info)
+    Account.any_instance.stubs(:omniauth_info).returns(omniauth_info)
     User.from_omniauth(auth)
-    # TODO sawy: fix test
-    # assert_equal omniauth_info['info']['image'], User.find(u.id).source.avatar
-    # assert_equal omniauth_info['info']['image'], User.find(u.id).source.image
-    User.any_instance.unstub(:omniauth_info)
+    assert_equal omniauth_info['info']['image'], User.find(u.id).source.avatar
+    assert_equal omniauth_info['info']['image'], User.find(u.id).source.image
+    Account.any_instance.unstub(:omniauth_info)
   end
 
   test "should set user image as source image and return the uploaded image instead of omniauth" do
@@ -736,15 +732,15 @@ class UserTest < ActiveSupport::TestCase
     auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info})
     omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
     stub_config 'checkdesk_base_url', 'http://check.url' do
-      User.any_instance.stubs(:omniauth_info).returns(omniauth_info)
+      Account.any_instance.stubs(:omniauth_info).returns(omniauth_info)
       User.from_omniauth(auth)
 
       assert_match /rails.png/, u.source.file.url
-      # TODO sawy: fix test
+      # TODO: sawy fix the test
       # assert_equal omniauth_info['info']['image'], Source.find(u.source_id).avatar
       assert_match /rails.png/, u.source.image
 
-      User.any_instance.unstub(:omniauth_info)
+      Account.any_instance.unstub(:omniauth_info)
     end
   end
 

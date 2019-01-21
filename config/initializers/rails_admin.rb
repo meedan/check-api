@@ -503,7 +503,7 @@ RailsAdmin.config do |config|
       end
       field :password do
         visible do
-          bindings[:view]._current_user.is_admin? && bindings[:object].provider.blank?
+          bindings[:view]._current_user.is_admin? && bindings[:object].encrypted_password?
         end
         formatted_value do
          ''

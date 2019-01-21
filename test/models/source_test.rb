@@ -124,7 +124,7 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should get image" do
     url = 'http://checkdesk.org/users/1/photo.png'
-    u = create_user profile_image: url
+    u = create_user profile_image: url, provider: ''
     assert_equal url, u.source.image
   end
 
@@ -375,9 +375,9 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal 'https://meedan.slack.com/team/daniela', a.url
     assert_equal 'Daniela Feitosa', a.data['author_name']
 
-    u.omniauth_info['info']['name'] = 'Daniela'
-    u.omniauth_info['url'] = 'http://example.com'
-    u.save
+    a.omniauth_info['info']['name'] = 'Daniela'
+    a.omniauth_info['url'] = 'http://example.com'
+    a.save
 
     s = u.source
     s.name = ''; s.save

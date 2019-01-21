@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   self.inheritance_column = :type
-  attr_accessor :url, :skip_confirmation_mail, :from_omniauth_login
+  attr_accessor :skip_confirmation_mail, :from_omniauth_login
 
   include ValidationsHelper
   include UserPrivate
@@ -84,14 +84,20 @@ class User < ActiveRecord::Base
   end
 
   def set_source_image
-    return if self.source.nil?
-    if !self.image.nil? && self.image.url != '/images/user.png'
-      self.source.file = self.image
-      self.source.save
+    source = self.source
+    unless source.nil?
+      if !self.image.nil? && self.image.url != '/images/user.png'
+        source.file = self.image
+        source.save
+      end
+      set_source_avatar
     end
+  end
+
+  def set_source_avatar
     a = self.get_social_accounts_for_login
     a = a.first unless a.nil?
-    image = a.omniauth_info.dig('info', 'image') if !a.nil? && a.omniauth_info
+    image = a.omniauth_info.dig('info', 'image') if !a.nil? && !a.omniauth_info.nil?
     avatar = image ? image.gsub(/^http:/, 'https:') : CONFIG['checkdesk_base_url'] + self.image.url
     self.source.set_avatar(avatar)
   end
@@ -158,25 +164,23 @@ class User < ActiveRecord::Base
   end
 
   def handle
-    if !self.email.blank?
-      self.email
-    else
-      provider = ''
-      account = self.get_social_accounts_for_login
-      account = account.first unless account.nil?
-      unless account.nil?
-        provider = account.provider.capitalize
-        if !account.omniauth_info.nil?
-          if account.provider == 'slack'
-            provider = account.omniauth_info.dig('extra', 'raw_info', 'url')
-          else
-            provider = account.omniauth_info.dig('url')
-            return provider if !provider.nil?
-          end
-        end
+    self.email.blank? ? get_provider_from_user_account : self.email
+  end
+
+  def get_provider_from_user_account
+    account = self.get_social_accounts_for_login
+    account = account.first unless account.nil?
+    return nil if account.nil?
+    provider = account.provider.capitalize
+    if !account.omniauth_info.nil?
+      if account.provider == 'slack'
+        provider = account.omniauth_info.dig('extra', 'raw_info', 'url')
+      else
+        provider = account.omniauth_info.dig('url')
+        return provider if !provider.nil?
       end
-      "#{self.login} at #{provider}"
     end
+    "#{self.login} at #{provider}"
   end
 
   # Whether two users are members of any same team

@@ -8,25 +8,30 @@ module UserMultiAuthLogin
 
 	  def self.from_omniauth(auth, current_user=nil)
 	    # Update uuid for facebook account if match email and provider
-	    self.update_facebook_uuid(auth) if auth.provider == 'facebook'
+	    self.update_facebook_uuid(auth)
 	    u = User.find_with_omniauth(auth.uid, auth.provider)
-	    unless current_user.nil?
-	      # TODO: raise error and show a message to user
-	      return nil if !u.nil? && u.id != current_user.id
-	    end
+	    # TODO: raise error and show a message to user
+	    return nil if User.check_user_exists(u, current_user)
 	    u ||= current_user
 	    user = u.nil? ? User.new : u
 	    user.email = user.email.presence || auth.info.email
 	    user.name = user.name.presence || auth.info.name
-	    user.url = auth.url
+	    # user.url = auth.url
 	    user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
 	    user.from_omniauth_login = true
 	    User.current = user
 	    user.save!
 	    # Create account from omniauthcurrent_api_user
-	    User.create_omniauth_account(auth, user)
-	    user.set_source_image
+	    User.create_omniauth_account(auth, user) unless auth.url.blank? || auth.provider.blank?
 	    user.reload
+	  end
+
+	  def self.check_user_exists(user, current_user)
+	  	exists = false
+	  	unless current_user.nil?
+	  		exists = true if !user.nil? && user.id != current_user.id
+	  	end
+	  	exists
 	  end
 
 	  def self.create_omniauth_account(auth, user)
@@ -43,8 +48,10 @@ module UserMultiAuthLogin
 	      account.provider = auth.provider
 	      account.omniauth_info = auth.as_json
 	      account.token = token
+	      account.save!
 	      if account.save
 	        account.update_columns(url: auth.url)
+	        user.set_source_image
 	        # create account source if not exist
 	        as = account.account_sources.where(source_id: user.source).last
 	        if as.nil?
@@ -53,26 +60,26 @@ module UserMultiAuthLogin
 	        end
 	      end
 	    rescue Errno::ECONNREFUSED => e
-	      Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
+	      Rails.logger.info "Could not create account for user ##{user.id}: #{e.message}"
 	    end
 	  end
 
-		def self.update_facebook_uuid(auth)
-	    unless auth.info.email.blank?
-	      fb_user = User.where(email: auth.info.email).first
-	      fb_account = fb_user.accounts.where(provider: auth.provider).first unless fb_user.nil?
+	  def self.update_facebook_uuid(auth)
+	  	if !auth.info.email.blank? && auth.provider == 'facebook'
+	  		fb_user = User.where(email: auth.info.email).first
+	  		fb_account = fb_user.get_social_accounts_for_login(auth.provider) unless fb_user.nil?
 	      if !fb_account.nil? && fb_account.uid != auth.uid
 	        fb_account.uid = auth.uid
 	        fb_account.skip_check_ability = true
 	        fb_account.url = auth.url
 	        fb_account.save!
 	      end
-	    end
+	  	end
 	  end
 
-		def self.find_with_omniauth(uid, provider)
-	    a = Account.where(uid: uid, provider: provider).first
-	    a.nil? ? nil : a.user
+	  def self.find_with_omniauth(uid, provider)
+	  	a = Account.where(uid: uid, provider: provider).first
+	  	a.nil? ? nil : a.user
 	  end
 
 	  def self.find_with_token(token)
@@ -96,7 +103,7 @@ module UserMultiAuthLogin
 	    accounts = self.get_social_accounts_for_login
 	    allow_disconnect =  (accounts.count == 1 && !self.encrypted_password?) ? false : true
 	    LOGINPROVIDERS.each do |p|
-	      a = accounts.select{|a| a.provider == p}.first
+	      a = accounts.select{|i| i.provider == p}.first
 	      if a.nil?
 	        providers << {key: p, connected: false}
 	      else
