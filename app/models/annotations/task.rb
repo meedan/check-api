@@ -150,7 +150,7 @@ class Task < ActiveRecord::Base
   end
 
   def responses
-    Annotation.where(annotated_type: 'Task', annotated_id: self.id).where("annotation_type LIKE '%task_response%'")
+    Annotation.where(annotated_type: 'Task', annotated_id: self.id).where("annotation_type LIKE '%response%'")
   end
 
   def response
