@@ -26,7 +26,7 @@ class Account < ActiveRecord::Base
   serialize :omniauth_info
 
   def provider
-    self.data['provider']
+    self.data['provider'] unless self.data.nil?
   end
 
   def user_id_callback(value, _mapping_ids = nil)

@@ -68,13 +68,14 @@ module SampleData
 
   def create_user(options = {})
     u = User.new
+    provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.name = options.has_key?(:name) ? options[:name] : random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
     u.token = options.has_key?(:token) ? options[:token] : random_string(50)
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
-    u.password = options[:password] || random_string
+    u.password = options.has_key?(:password) ? options[:password] : random_string
     u.password_confirmation = options[:password_confirmation] || u.password
-    u.url = options[:url] if options.has_key?(:url)
+    # u.url = options[:url] if options.has_key?(:url)
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
     u.is_active = options[:is_active] if options.has_key?(:is_active)
@@ -93,7 +94,6 @@ module SampleData
 
     u.skip_confirmation! if options.has_key?(:skip_confirmation) && options[:skip_confirmation] == true
 
-    provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.from_omniauth_login = true unless provider.blank?
 
     u.save!
@@ -104,15 +104,14 @@ module SampleData
     end
 
     unless provider.blank?
-      account_options = {}
-      account_options[:provider] = provider
-      account_options[:uid] = options.has_key?(:uuid) ? options[:uuid] : random_string
-      account_options[:omniauth_info] = options[:omniauth_info]
-      account_options[:url] = options[:omniauth_info]['url'] if options.has_key?(:omniauth_info) && !options[:omniauth_info]['url'].nil?
-      account_options[:url] ||= options[:url] if options.has_key?(:url)
-      account_options[:user] = u
-      account_options[:source] = u.source
-      create_account(account_options) unless account_options[:url].nil?
+      auth = options.has_key?(:omniauth_info) ? options[:omniauth_info] : {}
+      auth[:provider] = provider
+      auth[:uid] = options.has_key?(:uuid) ? options[:uuid] : random_string
+      auth[:url] = auth.has_key?('url') ? auth['url'] : random_url
+      auth[:credentials] = {}
+      omniauth = OmniAuth.config.add_mock(provider, auth)
+      User.create_omniauth_account(omniauth, u)
+      OmniAuth.config.mock_auth[provider] = nil
     end
 
     u.reload
