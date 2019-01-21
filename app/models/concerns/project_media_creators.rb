@@ -70,13 +70,13 @@ module ProjectMediaCreators
   def create_annotation
     unless self.set_annotation.blank?
       params = JSON.parse(self.set_annotation)
-      response = Dynamic.new
-      response.annotated = self
-      response.annotation_type = params['annotation_type']
-      response.set_fields = params['set_fields']
-      response.disable_es_callbacks = Rails.env.to_s == 'test'
-      response.skip_notifications = true
-      response.save!
+      annotation = Dynamic.new
+      annotation.annotated = self
+      annotation.annotation_type = params['annotation_type']
+      annotation.set_fields = params['set_fields']
+      annotation.disable_es_callbacks = Rails.env.to_s == 'test'
+      annotation.skip_notifications = true
+      annotation.save!
     end
   end
 
