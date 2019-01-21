@@ -6,7 +6,7 @@ module UserMultiAuthLogin
   included do
   	LOGINPROVIDERS = %w[slack twitter facebook]
 
-	  def self.from_omniauth(auth, current_user)
+	  def self.from_omniauth(auth, current_user=nil)
 	    # Update uuid for facebook account if match email and provider
 	    self.update_facebook_uuid(auth) if auth.provider == 'facebook'
 	    u = User.find_with_omniauth(auth.uid, auth.provider)

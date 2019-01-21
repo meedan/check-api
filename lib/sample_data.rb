@@ -105,12 +105,14 @@ module SampleData
 
     unless provider.blank?
       account_options = {}
-      account_options[:provider] = options[:provider]
+      account_options[:provider] = provider
       account_options[:uid] = options.has_key?(:uuid) ? options[:uuid] : random_string
       account_options[:omniauth_info] = options[:omniauth_info]
       account_options[:url] = options[:omniauth_info]['url'] if options.has_key?(:omniauth_info) && !options[:omniauth_info]['url'].nil?
+      account_options[:url] ||= options[:url] if options.has_key?(:url)
       account_options[:user] = u
-      create_account(account_options)
+      account_options[:source] = u.source
+      create_account(account_options) unless account_options[:url].nil?
     end
 
     u.reload

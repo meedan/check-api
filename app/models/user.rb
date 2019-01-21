@@ -273,7 +273,7 @@ class User < ActiveRecord::Base
       s = user.source
       columns = {
         name: "Anonymous", login: "Anonymous", token: "#{user.token}-#{rand_id}",
-        email: nil, source_id: nil, account_id: nil, is_active: false
+        email: nil, source_id: nil, is_active: false
       }
       user.update_columns(columns)
       # delete source profile and accounts
