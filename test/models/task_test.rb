@@ -101,11 +101,13 @@ class TaskTest < ActiveSupport::TestCase
     t.disable_es_callbacks = true
     t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
-
+    r = t.responses.first
+    assert_not_nil Annotation.where(id: r.id).last
     assert_equal 3, DynamicAnnotation::Field.count
     assert_equal 5, Dynamic.count
     t.disable_es_callbacks = true
     t.destroy
+    assert_nil Annotation.where(id: r.id).last
     assert_equal 2, Dynamic.count
     assert_equal 0, DynamicAnnotation::Field.count
   end
