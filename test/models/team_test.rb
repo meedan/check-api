@@ -1076,7 +1076,10 @@ class TeamTest < ActiveSupport::TestCase
     copy_p = copy.projects.find_by_title('Project')
     copy_pm = copy_p.project_medias.first
 
-    assert_equal ["comment", "flag", "response", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
+    assert_equal ["comment", "flag", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
+    assert_equal 1, copy_pm.annotations.where(annotation_type: 'task').count
+    copy_task = copy_pm.annotations.where(annotation_type: 'task').last
+    assert_equal 1, Annotation.where(annotated_id: copy_task, annotation_type: 'response').count
     assert_equal original_annotations_count, copy_pm.annotations.size
 
     assert_difference 'Team.count', -1 do

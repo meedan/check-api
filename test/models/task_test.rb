@@ -90,7 +90,6 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should delete responses when task is deleted" do
-    t = create_task
     at = create_annotation_type annotation_type: 'response'
     ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
@@ -98,15 +97,16 @@ class TaskTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     Dynamic.delete_all
     DynamicAnnotation::Field.delete_all
+    t = create_task
     t.disable_es_callbacks = true
     t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
 
-    assert_equal 2, DynamicAnnotation::Field.count
-    assert_equal 1, Dynamic.count
+    assert_equal 3, DynamicAnnotation::Field.count
+    assert_equal 5, Dynamic.count
     t.disable_es_callbacks = true
     t.destroy
-    assert_equal 0, Dynamic.count
+    assert_equal 2, Dynamic.count
     assert_equal 0, DynamicAnnotation::Field.count
   end
 

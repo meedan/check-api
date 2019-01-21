@@ -120,7 +120,7 @@ module PaperTrail
       task = nil
       if self.item && self.item_type == 'DynamicAnnotation::Field'
         annotation = self.item.annotation
-        if annotation && annotation.annotation_type =~ /^task_response_/
+        if annotation && annotation.annotation_type =~ /response/ && annotation.annotated_type == 'Task'
           task = Task.where(id: annotation.annotated_id).last
         end
       end
@@ -173,7 +173,7 @@ module PaperTrail
     def get_associated_from_core_annotation(annotation)
       associated = [nil, nil]
       if annotation && ['ProjectMedia', 'ProjectSource', 'Task'].include?(annotation.annotated_type)
-        associated = annotation.annotation_type =~ /task_response/ ? ['ProjectMedia', annotation.annotated.annotated_id.to_i] : [annotation.annotated_type, annotation.annotated_id.to_i]
+        associated = annotation.annotation_type =~ /response/ && annotation.annotated_type == 'Task' ? ['ProjectMedia', annotation.annotated.annotated_id.to_i] : [annotation.annotated_type, annotation.annotated_id.to_i]
       end
       associated
     end
