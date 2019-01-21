@@ -331,6 +331,7 @@ RailsAdmin.config do |config|
       field :archived do
         visible_only_for_admin
       end
+      field :inactive
     end
 
     show do
