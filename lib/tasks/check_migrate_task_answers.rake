@@ -4,7 +4,7 @@ namespace :check do
   desc "Migrate task answers so they related to the task itself"
   task migrate_task_answers: :environment do
     RequestStore.store[:skip_notifications] = true
-    field_names = ['task_free_text', 'task_yes_no', 'task_single_choice', 'task_multiple_choice', 'task_datetime']
+    field_names = ['task_free_text', 'task_yes_no', 'task_single_choice', 'task_multiple_choice', 'task_datetime', 'task_geolocation']
     total = DynamicAnnotation::Field.where(field_name: field_names).count
     i = 0
     DynamicAnnotation::Field.where(field_name: field_names).find_each do |task_ref|
