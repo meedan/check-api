@@ -38,10 +38,6 @@ class BotUser < User
 
   private
 
-  # def set_uuid
-  #   self.uuid = ('check_bot_user_' + SecureRandom.hex(10))
-  # end
-
   def set_fields
     self.email = self.password = self.password_confirmation = nil
     self.is_admin = false

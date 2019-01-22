@@ -108,11 +108,8 @@ module UserMultiAuthLogin
 	        providers << {key: p, connected: false}
 	      else
 	        info = a.omniauth_info.dig('info')
-	        if a.provider == 'slack'
-	          providers << {key: p, connected: true, allow_disconnect: allow_disconnect, info: info['team']}
-	        else
-	          providers << {key: p, connected: true, allow_disconnect: allow_disconnect, info: info['name']}
-	        end
+	        name = a.provider === 'slack' ? info['team'] : info['name']
+	        providers << {key: p, connected: true, allow_disconnect: allow_disconnect, info: name}
 	      end
 	    end
 	    providers

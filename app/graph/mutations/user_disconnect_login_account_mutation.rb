@@ -1,8 +1,6 @@
 UserDisconnectLoginAccountMutation = GraphQL::Relay::Mutation.define do
   name 'UserDisconnectLoginAccount'
 
-  input_field :id, !types.Int
-
   input_field :provider, !types.String
 
   return_field :success, types.Boolean
@@ -10,7 +8,7 @@ UserDisconnectLoginAccountMutation = GraphQL::Relay::Mutation.define do
   return_field :user, UserType
 
   resolve -> (_root, inputs, _ctx) {
-    user = User.where(id: inputs[:id]).last
+    user = User.current
     if user.nil?
       raise ActiveRecord::RecordNotFound
     else

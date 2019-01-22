@@ -13,5 +13,6 @@ class AddOmniauthinfoToAccounts < ActiveRecord::Migration
   		end
   	end
   	remove_columns :users, :provider, :uuid, :omniauth_info, :account_id
+    add_index :accounts, [:uid, :provider, :token]
   end
 end
