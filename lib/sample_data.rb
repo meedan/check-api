@@ -105,13 +105,11 @@ module SampleData
 
     unless provider.blank?
       auth = options.has_key?(:omniauth_info) ? options[:omniauth_info] : {}
-      auth[:provider] = provider
       auth[:uid] = options.has_key?(:uuid) ? options[:uuid] : random_string
       auth[:url] = auth.has_key?('url') ? auth['url'] : random_url
       auth[:credentials] = {}
-      omniauth = OmniAuth.config.add_mock(provider, auth)
+      omniauth = OpenStruct.new({ provider: provider, url: auth[:url], uid: auth[:uid], credentials: OpenStruct.new({})})
       User.create_omniauth_account(omniauth, u)
-      OmniAuth.config.mock_auth[provider] = nil
     end
 
     u.reload
