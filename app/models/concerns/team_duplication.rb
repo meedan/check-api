@@ -66,7 +66,7 @@ module TeamDuplication
     end
 
     def self.copy_annotations
-      [:ProjectMedia, :ProjectSource, :Source].each do |type|
+      [:ProjectMedia, :ProjectSource, :Source, :Task].each do |type|
         next if @mapping[type].blank?
         @mapping[type].each_pair do |original, copy|
           type.to_s.constantize.find(original).annotations.find_each do |a|
@@ -78,17 +78,16 @@ module TeamDuplication
             Team.copy_image(a, annotation)
             annotation.save(validate: false)
             self.set_mapping(a, annotation)
-            self.copy_annotation_fields(a, annotation, @mapping[:Task])
+            self.copy_annotation_fields(a, annotation)
           end
         end
       end
     end
 
-    def self.copy_annotation_fields(original, copy, task_mapping)
+    def self.copy_annotation_fields(original, copy)
       original.get_fields.each do |f|
         field = f.dup
         field.annotation_id = copy.id
-        field.value = task_mapping[f.value.to_i].id.to_s if field.field_type == "task_reference"
         field.save(validate: false)
         self.set_mapping(f, field)
       end
