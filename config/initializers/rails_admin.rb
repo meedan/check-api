@@ -325,13 +325,13 @@ RailsAdmin.config do |config|
       field :name
       field :description
       field :slug
+      field :inactive
       field :private do
         visible_only_for_admin
       end
       field :archived do
         visible_only_for_admin
       end
-      field :inactive
     end
 
     show do

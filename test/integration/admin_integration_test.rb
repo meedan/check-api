@@ -226,6 +226,32 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     Project.any_instance.unstub(:destroy)
   end
 
+  test "should set a Team as inactive and create a job to destroy later on delete" do
+    Sidekiq::Testing.fake!
+    sign_in @admin_user
+    team = create_team
+    assert_difference 'Sidekiq::Queues["default"].size', 1 do
+      delete "/admin/team/#{team.id}/delete"
+    end
+    assert team.reload.inactive
+    assert_nothing_raised do
+      Team.find(team.id)
+    end
+  end
+
+  test "should destroy later a Team when call delete" do
+    sign_in @admin_user
+    team = create_team
+    RequestStore.store[:disable_es_callbacks] = true
+    Sidekiq::Testing.inline! do
+      delete "/admin/team/#{team.id}/delete"
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      Team.find(team.id)
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
   test "should show link to export project images" do
     @user.is_admin = true
     @user.save!
