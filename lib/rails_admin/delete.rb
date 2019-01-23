@@ -32,7 +32,7 @@ module RailsAdmin
               @auditing_adapter && @auditing_adapter.delete_object(@object, @abstract_model, _current_user)
               if @object.is_a?(Team)
                 @object.update_column(:inactive, true)
-                @object.delay_for(1.second).destroy
+                TeamDeletionWorker.perform_async(@object.id, current_api_user.id)
                 flash[:info] = t('admin.flash.delete_team_scheduled', team: @object.name)
                 redirect_path = index_path
               else
