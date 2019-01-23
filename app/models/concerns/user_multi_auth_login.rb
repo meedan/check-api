@@ -48,7 +48,6 @@ module UserMultiAuthLogin
 	      account.provider = auth.provider
 	      account.omniauth_info = auth.as_json
 	      account.token = token
-	      account.save!
 	      if account.save
 	        account.update_columns(url: auth.url)
 	        user.set_source_image
@@ -103,13 +102,23 @@ module UserMultiAuthLogin
 	    accounts = self.get_social_accounts_for_login
 	    allow_disconnect =  (accounts.count == 1 && !self.encrypted_password?) ? false : true
 	    LOGINPROVIDERS.each do |p|
-	      a = accounts.select{|i| i.provider == p}.first
-	      if a.nil?
-	        providers << {key: p, connected: false}
+	      provider_accounts = accounts.select{|i| i.provider == p}
+	      if provider_accounts.blank?
+	        providers << { key: p, add_another: false, values: [{ connected: false, info: p.capitalize }] }
 	      else
-	        info = a.omniauth_info.dig('info')
-	        name = a.provider === 'slack' ? info['team'] : info['name']
-	        providers << {key: p, connected: true, allow_disconnect: allow_disconnect, info: name}
+	      	values = []
+	      	provider_accounts.each do |a|
+	      		info = a.omniauth_info.dig('info')
+	      		name = if a.provider == 'slack'
+	      			"#{info['nickname']} at #{info['team']}"
+	      		elsif a.provider == 'twitter'
+	      			"@#{info['nickname']}"
+	      		else
+	      			info['name']
+	      		end
+	      		values << { connected: true, allow_disconnect: allow_disconnect, info: "#{p.capitalize}: #{name}" }
+	      	end
+	        providers << { key: p, add_another: true, values: values }
 	      end
 	    end
 	    providers
