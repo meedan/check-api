@@ -230,11 +230,11 @@ class TeamUserTest < ActiveSupport::TestCase
     t2.save!
     t2.reload
     u1 = create_user
-    u2 = create_user provider: 'twitter'
-    u3 = create_user provider: 'slack'
-    u4 = create_user provider: 'slack', omniauth_info: { 'info' => { 'team_id' => 'SlackTeamID' } }
-    u5 = create_user provider: 'slack', omniauth_info: { 'info' => { 'team_id' => 'OtherSlackTeamID' } }
-
+    u2 = create_omniauth_user provider: 'twitter'
+    u3 = create_omniauth_user provider: 'slack'
+    u4 = create_omniauth_user provider: 'slack', info: { 'team_id' => 'SlackTeamID' }
+    u5 = create_omniauth_user provider: 'slack', info: { 'team_id' => 'OtherSlackTeamID' }
+    User.current = nil
     assert_nothing_raised do
       create_team_user team: t1, user: u1
     end
@@ -271,7 +271,7 @@ class TeamUserTest < ActiveSupport::TestCase
     t = create_team slug: 'slack'
     t.set_slack_teams = { 'SlackTeamID' => 'SlackTeamName' }
     t.save
-    u = create_user provider: 'slack', omniauth_info: { 'info' => { 'team_id' => 'SlackTeamID' } }
+    u = create_omniauth_user provider: 'slack', 'info': { 'team_id' => 'SlackTeamID' }
     tu = create_team_user team: t, user: u
     assert_equal 'member', tu.status
     assert_equal 'contributor', tu.role

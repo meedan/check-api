@@ -16,7 +16,6 @@ module UserMultiAuthLogin
 	    user = u.nil? ? User.new : u
 	    user.email = user.email.presence || auth.info.email
 	    user.name = user.name.presence || auth.info.name
-	    # user.url = auth.url
 	    user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
 	    user.from_omniauth_login = true
 	    User.current = user
@@ -66,7 +65,8 @@ module UserMultiAuthLogin
 	  def self.update_facebook_uuid(auth)
 	  	if !auth.info.email.blank? && auth.provider == 'facebook'
 	  		fb_user = User.where(email: auth.info.email).first
-	  		fb_account = fb_user.get_social_accounts_for_login(auth.provider) unless fb_user.nil?
+	  		fb_accounts = fb_user.get_social_accounts_for_login({provider: auth.provider}) unless fb_user.nil?
+	  		fb_account = fb_accounts.select{|a| a.omniauth_info.dig('info', 'email') == auth.info.email}.first unless fb_accounts.nil?
 	      if !fb_account.nil? && fb_account.uid != auth.uid
 	        fb_account.uid = auth.uid
 	        fb_account.skip_check_ability = true
@@ -86,13 +86,13 @@ module UserMultiAuthLogin
 	    account.nil? ?  User.where(token: token).last : account.user
 	  end
 
-	  def get_social_accounts_for_login(provider = nil)
+	  def get_social_accounts_for_login(conditions = {})
 	    s = self.source
-	    return nil if s.nil? || !ActiveRecord::Base.connection.column_exists?(:accounts, :provider)
-	    if provider.nil?
-	      a = s.accounts.where('provider IS NOT NULL')
+	    return nil if s.nil? || !ActiveRecord::Base.connection.column_exists?(:accounts, :uid)
+	    if conditions.blank?
+	      a = s.accounts.where('uid IS NOT NULL')
 	    else
-	      a = s.accounts.where(provider: provider).first
+	      a = s.accounts.where(conditions)
 	    end
 	    a
 	  end
@@ -124,9 +124,10 @@ module UserMultiAuthLogin
 	    providers
 	  end
 
-	  def disconnect_login_account(provider)
-	    a = self.get_social_accounts_for_login(provider)
+	  def disconnect_login_account(provider, uid)
+	    a = self.get_social_accounts_for_login({provider: provider, uid: uid})
 	    unless a.nil?
+	    	a = a.first
 	      if a.sources.count == 1
 	        a.skip_check_ability = true
 	        a.destroy

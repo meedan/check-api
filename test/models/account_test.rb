@@ -329,22 +329,22 @@ class AccountTest < ActiveSupport::TestCase
     assert t2 > t1
   end
 
-  # test "should refresh user account with user omniauth_info" do
-  #   omniauth_info = {"info"=> {"name"=>"Daniela Feitosa" }, "url"=>"https://meedan.slack.com/team/daniela"}
-  #   u = create_user provider: 'slack', omniauth_info: omniauth_info, url: omniauth_info['url']
-  #   a = u.accounts.first
-  #   assert_equal 'https://meedan.slack.com/team/daniela', a.url
-  #   assert_equal 'Daniela Feitosa', a.data['author_name']
+  test "should refresh user account with user omniauth_info" do
+    omniauth_info = {"info"=> {"name"=>"Daniela Feitosa" }, "url"=>"https://meedan.slack.com/team/daniela"}
+    u = create_omniauth_user provider: 'slack', uid: '123456', info: omniauth_info['info'], url: omniauth_info['url']
+    a = u.get_social_accounts_for_login({provider: 'slack', uid: '123456'}).first
+    assert_equal 'https://meedan.slack.com/team/daniela', a.url
+    assert_equal 'Daniela Feitosa', a.data['author_name']
 
-  #   a.omniauth_info['info']['name'] = 'Daniela'
-  #   a.omniauth_info['url'] = 'http://example.com'
-  #   a.save
+    a.omniauth_info['info']['name'] = 'Daniela'
+    a.omniauth_info['url'] = 'http://example.com'
+    a.save
 
-  #   a.refresh_account = 1
-  #   a.save!
-  #   assert_equal 'http://example.com', a.url
-  #   assert_equal 'Daniela', a.data['author_name']
-  # end
+    a.refresh_account = 1
+    a.save!
+    assert_equal 'http://example.com', a.url
+    assert_equal 'Daniela', a.data['author_name']
+  end
 
   test "should create source when account embed is nil" do
     Account.any_instance.stubs(:embed).returns(nil)
