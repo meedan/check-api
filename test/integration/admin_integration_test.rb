@@ -226,6 +226,54 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     Project.any_instance.unstub(:destroy)
   end
 
+  test "should set a Team as inactive and create a job to destroy later on delete" do
+    Sidekiq::Testing.fake!
+    sign_in @admin_user
+    team = create_team
+    assert_difference 'Sidekiq::Queues["default"].size', 1 do
+      delete "/admin/team/#{team.id}/delete"
+    end
+    assert team.reload.inactive
+    assert_nothing_raised do
+      Team.find(team.id)
+    end
+  end
+
+  test "should destroy later a Team when call delete" do
+    sign_in @admin_user
+    team = create_team
+    RequestStore.store[:disable_es_callbacks] = true
+    Sidekiq::Testing.inline! do
+      delete "/admin/team/#{team.id}/delete"
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      Team.find(team.id)
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
+  test "should handle error on deletion of a team" do
+    sign_in @admin_user
+    team = create_team
+    Team.any_instance.stubs(:destroy!).raises(ActiveRecord::RecordInvalid)
+    Airbrake.configuration.stubs(:api_key).returns('token')
+    Airbrake.stubs(:notify).once
+    RequestStore.store[:disable_es_callbacks] = true
+
+    assert_nothing_raised do
+      Sidekiq::Testing.inline! do
+        delete "/admin/team/#{team.id}/delete"
+      end
+    end
+    assert_nothing_raised do
+      Team.find(team.id)
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+    Team.any_instance.unstub(:destroy!)
+    Airbrake.configuration.unstub(:api_key)
+    Airbrake.unstub(:notify)
+  end
+
   test "should show link to export project images" do
     @user.is_admin = true
     @user.save!

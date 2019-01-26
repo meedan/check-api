@@ -241,6 +241,8 @@ en:
         the_team_is_being_copied: The team is being copied
         url_when_ready:
           html: "When ready, the team copy will be available at <strong>%{copy_url}</strong>"
+    flash:
+      delete_team_scheduled: The team %{team} is being deleted
   reset_password_instructions: "%{app_name} reset password instructions"
   email_not_found: E-mail not found
   slack_channel_format_wrong: "Invalid Slack channel"

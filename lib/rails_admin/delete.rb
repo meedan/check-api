@@ -30,12 +30,19 @@ module RailsAdmin
 
               redirect_path = nil
               @auditing_adapter && @auditing_adapter.delete_object(@object, @abstract_model, _current_user)
-              if @object.destroy
-                flash[:success] = t('admin.flash.successful', name: @model_config.label, action: t('admin.actions.delete.done'))
+              if @object.is_a?(Team)
+                @object.update_column(:inactive, true)
+                TeamDeletionWorker.perform_async(@object.id, current_api_user.id)
+                flash[:info] = t('admin.flash.delete_team_scheduled', team: @object.name)
                 redirect_path = index_path
               else
-                flash[:error] = t('admin.flash.error', name: @model_config.label, action: t('admin.actions.delete.done'))
-                redirect_path = back_or_index
+                if @object.destroy
+                  flash[:success] = t('admin.flash.successful', name: @model_config.label, action: t('admin.actions.delete.done'))
+                  redirect_path = index_path
+                else
+                  flash[:error] = t('admin.flash.error', name: @model_config.label, action: t('admin.actions.delete.done'))
+                  redirect_path = back_or_index
+                end
               end
 
               redirect_to redirect_path

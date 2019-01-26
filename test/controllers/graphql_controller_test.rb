@@ -577,6 +577,19 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
+  test "should not get teams marked as deleted" do
+    u = create_user
+    t = create_team slug: 'team-to-be-deleted'
+    create_team_user user: u, team: t, role: 'editor'
+
+    authenticate_with_user(u)
+    post :create, query: 'query Team { team { name } }', team: 'team-to-be-deleted'
+    assert_response :success
+    t.inactive = true; t.save
+    post :create, query: 'query Team { team { name } }', team: 'team-to-be-deleted'
+    assert_response 404
+  end
+
   test "should update current team based on context team" do
     u = create_user
 
