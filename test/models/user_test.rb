@@ -1056,9 +1056,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should get user through omniauth info" do
-    uuid = '123456'
-    u = create_user uuid: uuid, provider: 'twitter'
-    # assert_equal u, User.find_with_omniauth(uuid, 'twitter')
+    u = create_omniauth_user uid: '123456', provider: 'twitter'
+    assert_equal u, User.find_with_omniauth('123456', 'twitter')
   end
 
   test "should get user through token" do
@@ -1076,6 +1075,36 @@ class UserTest < ActiveSupport::TestCase
     assert_equal a, fb_account.first
   end
 
-  test "should list user provders" do
+  test "should get user accounts and provders" do
+    u = create_omniauth_user provider: 'twitter'
+    s = u.source
+    omniauth_info = {"info"=> { "name" => "test" } }
+    create_account source: s, user: u, provider: 'slack', uid: '123456', omniauth_info: omniauth_info
+    create_account source: s, user: u, provider: 'slack', uid: '987654', omniauth_info: omniauth_info
+    assert_equal 3, u.get_social_accounts_for_login.count
+    assert_equal 2, u.get_social_accounts_for_login({provider: 'slack'}).count
+    assert_equal 1, u.get_social_accounts_for_login({provider: 'slack', uid: '123456'}).count
+    providers = u.providers
+    assert_equal 3, providers.count
+    assert_equal ['facebook', 'twitter', 'slack'].sort, providers.collect{|p| p[:key]}.sort
+  end
+
+  test "should disconnect social account" do
+    u = create_omniauth_user provider: 'twitter', uid: '123456'
+    u.disconnect_login_account('twitter', '123456')
+    assert_equal 0, u.get_social_accounts_for_login.count
+    u2 = create_omniauth_user provider: 'slack', uid: '456789'
+    a = u2.get_social_accounts_for_login({provider: 'slack', uid: '456789'}).first
+    create_account_source account: a
+    assert_equal 2, a.sources.count
+    assert_not_nil a.uid, a.provider
+    assert_not_nil a.token, a.omniauth_info
+    u2.disconnect_login_account('slack', '456789')
+    assert_equal 0, u2.get_social_accounts_for_login.count
+    a = Account.find(a.id)
+    assert_not_nil a
+    assert_equal 1, a.sources.count
+    assert_nil a.uid, a.provider
+    assert_nil a.token, a.omniauth_info
   end
 end
