@@ -13,13 +13,7 @@ module UserMultiAuthLogin
 	    # TODO: raise error and show a message to user
 	    return nil if User.check_user_exists(u, current_user)
 	    u ||= current_user
-	    user = u.nil? ? User.new : u
-	    user.email = user.email.presence || auth.info.email
-	    user.name = user.name.presence || auth.info.name
-	    user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
-	    user.from_omniauth_login = true
-	    User.current = user
-	    user.save!
+	    user = self.create_omniauth_user(u, auth)
 	    # Create account from omniauthcurrent_api_user
 	    User.create_omniauth_account(auth, user) unless auth.url.blank? || auth.provider.blank?
 	    user.reload
@@ -31,6 +25,17 @@ module UserMultiAuthLogin
 	  		exists = true if !user.nil? && user.id != current_user.id
 	  	end
 	  	exists
+	  end
+
+	  def self.create_omniauth_user(u, auth)
+	  	user = u.nil? ? User.new : u
+	    user.email = user.email.presence || auth.info.email
+	    user.name = user.name.presence || auth.info.name
+	    user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
+	    user.from_omniauth_login = true
+	    User.current = user
+	    user.save!
+	    user.reload
 	  end
 
 	  def self.create_omniauth_account(auth, user)
@@ -66,7 +71,8 @@ module UserMultiAuthLogin
 	  	if !auth.info.email.blank? && auth.provider == 'facebook'
 	  		fb_user = User.where(email: auth.info.email).first
 	  		fb_accounts = fb_user.get_social_accounts_for_login({provider: auth.provider}) unless fb_user.nil?
-	  		fb_account = fb_accounts.select{|a| a.omniauth_info.dig('info', 'email') == auth.info.email}.first unless fb_accounts.nil?
+	  		fb_accounts ||= []
+	  		fb_account = fb_accounts.select{|a| a.omniauth_info.dig('info', 'email') == auth.info.email}.first
 	      if !fb_account.nil? && fb_account.uid != auth.uid
 	        fb_account.uid = auth.uid
 	        fb_account.skip_check_ability = true
@@ -109,12 +115,12 @@ module UserMultiAuthLogin
 	      	values = []
 	      	provider_accounts.each do |a|
 	      		info = a.omniauth_info.dig('info')
-	      		name = if a.provider == 'slack'
-	      			"#{info['nickname']} at #{info['team']}"
+	      		if a.provider == 'slack'
+	      			name = "#{info['nickname']} at #{info['team']}"
 	      		elsif a.provider == 'twitter'
-	      			"@#{info['nickname']}"
+	      			name = "@#{info['nickname']}"
 	      		else
-	      			info['name']
+	      			name = info['name']
 	      		end
 	      		values << { connected: true, allow_disconnect: allow_disconnect, info: "#{p.capitalize}: #{name}" }
 	      	end
