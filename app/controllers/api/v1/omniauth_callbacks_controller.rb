@@ -35,12 +35,17 @@ module Api
           sign_in(user) if current_api_user.nil?
         end
 
+        destination = get_check_destination
+
+        redirect_to destination
+      end
+
+      def get_check_destination
         destination = params[:destination] || '/api'
         if request.env.has_key?('omniauth.params')
           destination = request.env['omniauth.params']['destination'] unless request.env['omniauth.params']['destination'].blank?
         end
-
-        redirect_to destination
+        destination
       end
     end
   end
