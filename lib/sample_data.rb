@@ -108,7 +108,7 @@ module SampleData
     u.reload
   end
 
-  def create_omniauth_user(options)
+  def create_omniauth_user(options = {})
     u_current = User.current
     url = if options.has_key?(:url)
       options[:url]
