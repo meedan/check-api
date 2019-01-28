@@ -127,8 +127,9 @@ module SampleData
     auth[:info] = options.has_key?(:info) ? options[:info] : {name: random_string, email: email}
     auth[:credentials] = options.has_key?(:credentials) ? options[:credentials] : {token: random_string, secret: random_string}
     auth[:extra] = options.has_key?(:extra) ? options[:extra] : {}
+    current_user = options.has_key?(:current_user) ? options[:current_user] : nil
     omniauth = OmniAuth.config.add_mock(provider, auth)
-    u = User.from_omniauth(omniauth)
+    u = User.from_omniauth(omniauth, current_user)
     OmniAuth.config.mock_auth[provider] = nil
     u.reload
   end
