@@ -15,6 +15,7 @@ class AddOmniauthinfoToAccounts < ActiveRecord::Migration
   		unless a.nil?
   			updates = {uid: u.uuid, omniauth_info: u.omniauth_info, provider: u.provider, token: u.token}
   			a.update_columns(updates)
+        u.update_columns(encrypted_password: nil)
   		end
   	end
   	remove_columns :users, :provider, :uuid, :omniauth_info, :account_id
