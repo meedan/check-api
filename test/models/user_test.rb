@@ -369,7 +369,7 @@ class UserTest < ActiveSupport::TestCase
   test "should not crash when creating user account" do
     Account.any_instance.stubs(:save).raises(Errno::ECONNREFUSED)
     assert_nothing_raised do
-      create_user url: 'http://twitter.com/meedan', provider: 'twitter'
+      create_omniauth_user url: 'http://twitter.com/meedan', provider: 'twitter'
     end
     Account.any_instance.unstub(:save)
   end
@@ -1066,6 +1066,14 @@ class UserTest < ActiveSupport::TestCase
     assert_equal u, User.find_with_token('test')
   end
 
+  test "should check user exists for multi login" do
+    u = create_user
+    u2 = create_user
+    assert_not User.check_user_exists(u, nil)
+    assert_not User.check_user_exists(u, u)
+    assert User.check_user_exists(u, u2)
+  end
+
   test "should get social accounts for login" do
     u = create_omniauth_user provider: 'twitter'
     a = create_account source: u.source, user: u, provider: 'facebook'
@@ -1083,8 +1091,16 @@ class UserTest < ActiveSupport::TestCase
     create_account source: s, user: u, provider: 'slack', uid: '123456', omniauth_info: omniauth_info
     create_account source: s, user: u, provider: 'slack', uid: '987654', omniauth_info: omniauth_info
     assert_equal 3, u.get_social_accounts_for_login.count
+    assert_equal 0, u.get_social_accounts_for_login({provider: 'facebook'}).count
+    assert_equal 1, u.get_social_accounts_for_login({provider: 'twitter'}).count
     assert_equal 2, u.get_social_accounts_for_login({provider: 'slack'}).count
     assert_equal 1, u.get_social_accounts_for_login({provider: 'slack', uid: '123456'}).count
+    providers = u.providers
+    assert_equal 3, providers.count
+    assert_equal ['facebook', 'twitter', 'slack'].sort, providers.collect{|p| p[:key]}.sort
+    # connect using FB
+    create_account source: s, user: u, provider: 'facebook', uid: '987654', omniauth_info: omniauth_info
+    assert_equal 1, u.get_social_accounts_for_login({provider: 'facebook'}).count
     providers = u.providers
     assert_equal 3, providers.count
     assert_equal ['facebook', 'twitter', 'slack'].sort, providers.collect{|p| p[:key]}.sort
