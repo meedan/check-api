@@ -63,6 +63,7 @@ class Embed < ActiveRecord::Base
       embed['parsed_at'] = Time.now
       embed['pender'] = false
       self.embed = embed.to_json
+      self.skip_check_ability = true
       self.save!
     end
   end

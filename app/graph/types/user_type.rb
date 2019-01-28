@@ -7,7 +7,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int
   field :email, types.String
   field :unconfirmed_email, types.String
-  field :provider, types.String
+  field :providers, JsonStringType
   field :uuid, types.String
   field :profile_image, types.String
   field :login, types.String

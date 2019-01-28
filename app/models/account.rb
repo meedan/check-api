@@ -20,12 +20,10 @@ class Account < ActiveRecord::Base
   validate :pender_result_is_a_profile, on: :create, unless: :created_on_registration?
   validates :url, uniqueness: true
 
-  after_create :set_embed_annotation, :create_source
+  after_create :set_embed_annotation, :create_source, :set_provider
   after_commit :update_elasticsearch_account, on: :update
 
-  def provider
-    self.data['provider']
-  end
+  serialize :omniauth_info
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
@@ -128,7 +126,7 @@ class Account < ActiveRecord::Base
       em = Embed.new
       em.annotated = self
     end
-    em.embed_for_registration_account(self.user.omniauth_info)
+    em.embed_for_registration_account(self.omniauth_info)
   end
 
   def refresh_embed_data
@@ -170,6 +168,14 @@ class Account < ActiveRecord::Base
 
   def set_embed_annotation
     self.created_on_registration ? set_omniauth_info_as_annotation : set_pender_result_as_annotation
+  end
+
+  def set_provider
+    if self.provider.blank?
+      data = self.data
+      provider = data['provider'] unless self.data.nil?
+      self.update_columns(provider: provider) unless provider.blank?
+    end
   end
 
   protected

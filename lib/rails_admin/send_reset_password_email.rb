@@ -7,7 +7,7 @@ module RailsAdmin
       class SendResetPasswordEmail < RailsAdmin::Config::Actions::Base
         RailsAdmin::Config::Actions.register(self)
         register_instance_option :visible? do
-          authorized? && bindings[:object].class == User && bindings[:object].provider == ''
+          authorized? && bindings[:object].class == User && bindings[:object].encrypted_password?
         end
         register_instance_option :link_icon do
           'icon-envelope'

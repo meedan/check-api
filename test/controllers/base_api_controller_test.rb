@@ -105,7 +105,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should get current user from session" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user name: 'Test User'
+    u = create_omniauth_user info: {name: 'Test User'}
     authenticate_with_user(u)
     get :me
     assert_response :success
@@ -116,7 +116,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should get current user from token" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user name: 'Test User'
+    u = create_omniauth_user info: {name: 'Test User'}
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
     get :me
@@ -128,7 +128,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should not get current user" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user
+    u = create_omniauth_user info: {name: 'Test User'}
     get :me
     assert_response :success
     response = JSON.parse(@response.body)
@@ -143,7 +143,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should return error from session" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user name: 'Test User'
+    u = create_omniauth_user info: {name: 'Test User'}
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.error'] = 'Error message'
@@ -155,7 +155,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should not return error from session" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user name: 'Test User'
+    u = create_omniauth_user info: {name: 'Test User'}
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.error'] = nil

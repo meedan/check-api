@@ -74,6 +74,7 @@ MutationType = GraphQL::ObjectType.define do
   field :userInvitation, field: UserInvitationMutation.field
   field :resendCancelInvitation, field: ResendCancelInvitationMutation.field
   field :deleteCheckUser, field: DeleteCheckUserMutation.field
+  field :userDisconnectLoginAccount, field: UserDisconnectLoginAccountMutation.field
 
   field :createTeamBotInstallation, field: TeamBotInstallationMutations::Create.field
   field :updateTeamBotInstallation, field: TeamBotInstallationMutations::Update.field
