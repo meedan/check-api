@@ -122,7 +122,7 @@ module UserMultiAuthLogin
 	      		else
 	      			name = info['name']
 	      		end
-	      		values << { connected: true, allow_disconnect: allow_disconnect, info: "#{p.capitalize}: #{name}" }
+	      		values << { connected: true, uid: "#{a.uid}", allow_disconnect: allow_disconnect, info: "#{p.capitalize}: #{name}" }
 	      	end
 	        providers << { key: p, add_another: true, values: values }
 	      end

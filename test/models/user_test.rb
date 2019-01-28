@@ -715,26 +715,17 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should set user image as source image and return the uploaded image instead of omniauth" do
-    u = create_user image: 'rails.png', provider: 'twitter', uid: '12345'
-    a = create_account provider: 'twitter', uid: '12345', user: u, source: u.source
+    u = create_user image: 'rails.png'
     assert_match /rails.png/, u.image.url
     assert_match /rails.png/, u.source.avatar
     assert_match /rails.png/, u.source.image
 
-    credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
-    info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
-    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info})
-    omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
     stub_config 'checkdesk_base_url', 'http://check.url' do
-      Account.any_instance.stubs(:omniauth_info).returns(omniauth_info)
-      User.from_omniauth(auth)
-
+      info = {"image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"}
+      create_omniauth_user provider: 'slack', current_user: u, info: info
       assert_match /rails.png/, u.source.file.url
-      # TODO: fix this one by sawy
-      # assert_equal omniauth_info['info']['image'], Source.find(u.source_id).avatar
+      assert_equal info['image'], Source.find(u.source_id).avatar
       assert_match /rails.png/, u.source.image
-
-      Account.any_instance.unstub(:omniauth_info)
     end
   end
 
@@ -1053,6 +1044,15 @@ class UserTest < ActiveSupport::TestCase
         User.delete_check_user(user)
       end
       Source.any_instance.unstub(:destroy)
+    end
+  end
+
+  test "should allow user for multi login account" do
+    u = create_user
+    assert_no_difference 'User.count' do
+      assert_difference 'Account.count', 1 do
+        create_omniauth_user provider: 'twitter', current_user: u
+      end
     end
   end
 
