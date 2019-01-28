@@ -109,6 +109,7 @@ module SampleData
   end
 
   def create_omniauth_user(options)
+    u_current = User.current
     url = if options.has_key?(:url)
       options[:url]
     else
@@ -130,6 +131,8 @@ module SampleData
     current_user = options.has_key?(:current_user) ? options[:current_user] : nil
     omniauth = OmniAuth.config.add_mock(provider, auth)
     u = User.from_omniauth(omniauth, current_user)
+    # reset User.current as `User.from_omniauth`  set User.current with recent created user
+    User.current = u_current
     OmniAuth.config.mock_auth[provider] = nil
     u.reload
   end
