@@ -165,7 +165,7 @@ class ActiveSupport::TestCase
   def authenticate_with_user_token(token = nil)
     unless @request.nil?
       header = CONFIG['authorization_header'] || 'X-Token'
-      token ||= create_user.token
+      token ||= create_omniauth_user.token
       @request.headers.merge!({ header => token })
     end
   end

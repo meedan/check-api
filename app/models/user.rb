@@ -1,17 +1,17 @@
 class User < ActiveRecord::Base
   self.inheritance_column = :type
-  attr_accessor :url, :skip_confirmation_mail
+  attr_accessor :skip_confirmation_mail, :from_omniauth_login
 
   include ValidationsHelper
   include UserPrivate
   include UserInvitation
+  include UserMultiAuthLogin
 
   belongs_to :source
   has_many :team_users, dependent: :destroy
   has_many :teams, through: :team_users
   has_many :projects
   has_many :accounts
-  belongs_to :account
   has_many :assignments, dependent: :destroy
 
   devise :database_authenticatable, :registerable,
@@ -20,7 +20,7 @@ class User < ActiveRecord::Base
 
   before_create :skip_confirmation_for_non_email_provider
   after_create :create_source_and_account, :set_source_image, :send_welcome_email
-  before_save :set_token, :set_login, :set_uuid
+  before_save :set_token, :set_login
   after_update :set_blank_email_for_unconfirmed_user
   before_destroy :can_destroy_user, prepend: true
 
@@ -32,7 +32,6 @@ class User < ActiveRecord::Base
   validates :api_key_id, absence: true, if: proc { |u| u.type.nil? }
   validates_presence_of :name
 
-  serialize :omniauth_info
   serialize :cached_teams, Array
 
   check_settings
@@ -40,6 +39,7 @@ class User < ActiveRecord::Base
   include DeviseAsync
 
   ROLES = %w[contributor journalist editor owner]
+
   def role?(base_role)
     role = self.role
     return true if role.to_s == base_role.to_s
@@ -70,26 +70,6 @@ class User < ActiveRecord::Base
     Assignment.create! user_id: self.id, assigned_id: annotation.id, assigned_type: 'Annotation'
   end
 
-  def self.from_omniauth(auth)
-    # Update uuid for facebook account if match email and provider
-    self.update_facebook_uuid(auth) if auth.provider == 'facebook'
-    token = User.token(auth.provider, auth.uid, auth.credentials.token, auth.credentials.secret)
-    user = User.where(provider: auth.provider, uuid: auth.uid).first || User.new
-    user.email = user.email.presence || auth.info.email
-    user.password ||= Devise.friendly_token[0,20]
-    user.name = auth.info.name
-    user.uuid = auth.uid
-    user.provider = auth.provider
-    user.token = token
-    user.url = auth.url
-    user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
-    user.omniauth_info = auth.as_json
-    User.current = user
-    user.save!
-    user.set_source_image
-    user.reload
-  end
-
   def self.token(provider, id, token, secret)
     Base64.encode64({
       provider: provider.to_s,
@@ -103,25 +83,21 @@ class User < ActiveRecord::Base
     JSON.parse(Base64.decode64(token.gsub('++n', "\n")))
   end
 
-  def self.update_facebook_uuid(auth)
-    unless auth.info.email.blank?
-      fb_user = User.where(provider: auth.provider, email: auth.info.email).first
-      if !fb_user.nil? && fb_user.uuid != auth.uid
-        fb_user.uuid = auth.uid
-        fb_user.skip_check_ability = true
-        fb_user.save!
-        fb_user.update_account(auth.url)
+  def set_source_image
+    source = self.source
+    unless source.nil?
+      if !self.image.nil? && self.image.url != '/images/user.png'
+        source.file = self.image
+        source.save
       end
+      set_source_avatar
     end
   end
 
-  def set_source_image
-    return if self.source.nil?
-    if !self.image.nil? && self.image.url != '/images/user.png'
-      self.source.file = self.image
-      self.source.save
-    end
-    image = self.omniauth_info.dig('info', 'image') if self.omniauth_info
+  def set_source_avatar
+    a = self.get_social_accounts_for_login
+    a = a.first unless a.nil?
+    image = a.omniauth_info.dig('info', 'image') if !a.nil? && !a.omniauth_info.nil?
     avatar = image ? image.gsub(/^http:/, 'https:') : CONFIG['checkdesk_base_url'] + self.image.url
     self.source.set_avatar(avatar)
   end
@@ -141,18 +117,18 @@ class User < ActiveRecord::Base
       teams: self.user_teams,
       source_id: self.source.id
     }
-    [:name, :email, :login, :uuid, :provider, :token, :current_team, :current_project, :team_ids, :permissions, :profile_image, :settings, :is_admin, :accepted_terms, :last_accepted_terms_at].each do |field|
+    [:name, :email, :login, :token, :current_team, :current_project, :team_ids, :permissions, :profile_image, :settings, :is_admin, :accepted_terms, :last_accepted_terms_at].each do |field|
       user[field] = self.send(field)
     end
     user
   end
 
   def email_required?
-    self.provider.blank? && self.new_record?
+    !self.from_omniauth_login && self.new_record?
   end
 
   def password_required?
-    super && self.provider.blank?
+    super && !self.from_omniauth_login
   end
 
   def inactive_message
@@ -188,20 +164,23 @@ class User < ActiveRecord::Base
   end
 
   def handle
-    if self.provider.blank?
-      self.email
-    else
-      provider = self.provider.capitalize
-      if !self.omniauth_info.nil?
-        if self.provider == 'slack'
-          provider = self.omniauth_info.dig('extra', 'raw_info', 'url')
-        else
-          provider = self.omniauth_info.dig('url')
-          return provider if !provider.nil?
-        end
+    self.email.blank? ? get_provider_from_user_account : self.email
+  end
+
+  def get_provider_from_user_account
+    account = self.get_social_accounts_for_login
+    account = account.first unless account.nil?
+    return nil if account.nil?
+    provider = account.provider.capitalize
+    if !account.omniauth_info.nil?
+      if account.provider == 'slack'
+        provider = account.omniauth_info.dig('extra', 'raw_info', 'url')
+      else
+        provider = account.omniauth_info.dig('url')
+        return provider if !provider.nil?
       end
-      "#{self.login} at #{provider}"
     end
+    "#{self.login} at #{provider}"
   end
 
   # Whether two users are members of any same team
@@ -297,8 +276,8 @@ class User < ActiveRecord::Base
       rand_id = Time.now.to_i
       s = user.source
       columns = {
-        name: "Anonymous", login: "Anonymous", uuid: "#{user.uuid}-#{rand_id}", provider: '', token: "#{user.token}-#{rand_id}",
-        email: nil, omniauth_info: nil, source_id: nil, account_id: nil, is_active: false
+        name: "Anonymous", login: "Anonymous", token: "#{user.token}-#{rand_id}",
+        email: nil, source_id: nil, is_active: false
       }
       user.update_columns(columns)
       # delete source profile and accounts
