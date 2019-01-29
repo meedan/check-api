@@ -13,7 +13,8 @@ class AddOmniauthinfoToAccounts < ActiveRecord::Migration
   	User.where.not(provider: "").find_each do |u|
       a = Account.where(id: u.account_id).last
   		unless a.nil?
-  			updates = {uid: u.uuid, omniauth_info: u.omniauth_info, provider: u.provider, token: u.token}
+        info = u.omniauth_info.nil? ? nil : YAML.load(u.omniauth_info)
+  			updates = {uid: u.uuid, omniauth_info: info, provider: u.provider, token: u.token}
   			a.update_columns(updates)
         u.update_columns(encrypted_password: nil)
   		end

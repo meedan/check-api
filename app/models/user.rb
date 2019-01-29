@@ -32,7 +32,6 @@ class User < ActiveRecord::Base
   validates :api_key_id, absence: true, if: proc { |u| u.type.nil? }
   validates_presence_of :name
 
-  serialize :omniauth_info
   serialize :cached_teams, Array
 
   check_settings
