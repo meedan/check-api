@@ -10,10 +10,11 @@ class AddOmniauthinfoToAccounts < ActiveRecord::Migration
       a.update_columns(provider: provider) unless provider.blank?
     end
   	# Migrate existin social media login into account
-  	User.where('provider IS NOT NULL').find_each do |u|
+  	User.where.not(provider: "").find_each do |u|
       a = Account.where(id: u.account_id).last
   		unless a.nil?
-  			updates = {uid: u.uuid, omniauth_info: u.omniauth_info, provider: u.provider, token: u.token}
+        info = u.omniauth_info.nil? ? nil : YAML.load(u.omniauth_info)
+  			updates = {uid: u.uuid, omniauth_info: info, provider: u.provider, token: u.token}
   			a.update_columns(updates)
         u.update_columns(encrypted_password: nil)
   		end
