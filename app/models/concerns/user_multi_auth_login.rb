@@ -10,8 +10,7 @@ module UserMultiAuthLogin
 	    # Update uuid for facebook account if match email and provider
 	    self.update_facebook_uuid(auth)
 	    u = User.find_with_omniauth(auth.uid, auth.provider)
-	    # TODO: raise error and show a message to user
-	    return nil if User.check_user_exists(u, current_user)
+	    raise RuntimeError, I18n.t(:error_login_with_exists_account) if User.check_user_exists(u, current_user)
 	    u ||= current_user
 	    user = self.create_omniauth_user(u, auth)
 	    # Create account from omniauthcurrent_api_user

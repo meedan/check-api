@@ -32,6 +32,12 @@ module Api
           render_error(message, 'UNKNOWN') and return
         end
 
+        if session['check.warning']
+          message = session['check.warning']
+          session.delete('check.warning')
+          render_error(message, 'UNKNOWN') and return
+        end
+
         if token
           render_user User.find_with_token(token), 'token'
         else
