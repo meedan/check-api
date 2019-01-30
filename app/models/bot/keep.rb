@@ -10,6 +10,10 @@ class Bot::Keep
     end
   end
 
+  def self.valid_request?(request)
+    request.base_url == CONFIG['checkdesk_base_url_private']
+  end
+
   def self.archiver_annotation_types
     [
       'keep_backup',    # VideoVault

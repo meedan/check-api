@@ -1195,7 +1195,6 @@ class ElasticSearchTest < ActionController::TestCase
     MediaSearch.stubs(:migrate_es_data).raises(StandardError)
     CheckElasticSearchModel.reindex_es_data
     MediaSearch.unstub(:migrate_es_data)
-    Rails.logger.stubs(:debug).raises(StandardError)
 
     source_index = CheckElasticSearchModel.get_index_name
     target_index = "#{source_index}_reindex"

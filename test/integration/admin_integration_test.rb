@@ -310,4 +310,23 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_template 'duplicate_team'
   end
+
+  test "should access Sidekiq UI only if super admin" do
+    user = create_user
+    user.is_admin = true
+    user.save!
+    sign_in user
+    get '/sidekiq'
+    assert_response :success
+  end
+
+  test "should not access Sidekiq UI if not super admin" do
+    user = create_user
+    user.is_admin = false
+    user.save!
+    sign_in user
+    assert_raises ActionController::RoutingError do
+      get '/sidekiq'
+    end
+  end
 end
