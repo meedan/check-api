@@ -1,8 +1,5 @@
-namespace :check do
-	# bundle exec rake check:migrate_task_answers
-	# relate task answers to the task itself
-  desc "Migrate task answers so they related to the task itself"
-  task migrate_task_answers: :environment do
+class MigrateTaskAnswers < ActiveRecord::Migration
+  def change
     RequestStore.store[:skip_notifications] = true
     field_names = ['task_free_text', 'task_yes_no', 'task_single_choice', 'task_multiple_choice', 'task_datetime', 'task_geolocation']
     total = DynamicAnnotation::Field.where(field_name: field_names).count
