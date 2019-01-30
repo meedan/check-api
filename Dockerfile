@@ -5,7 +5,7 @@ MAINTAINER Meedan <sysops@meedan.com>
 ENV RAILS_ENV development
 
 # install dependencies
-RUN apt-get update -qq && apt-get install -y libpq-dev imagemagick redis-server inkscape graphviz --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -y libpq-dev imagemagick redis-server inkscape graphviz siege apache2-utils --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # install our app
 WORKDIR /app

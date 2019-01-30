@@ -4,7 +4,10 @@ require 'sidekiq/web'
 Rails.application.routes.draw do
   mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
   mount GraphiQL::Rails::Engine, at: '/graphiql', graphql_path: '/api/graphql'
-  mount Sidekiq::Web => '/sidekiq'
+
+  authenticate :api_user, -> (user) { user.is_admin } do
+    mount Sidekiq::Web => '/sidekiq'
+  end
 
   if CONFIG['pg_hero_enabled']
     authenticate :api_user, -> (user) { user.is_admin } do

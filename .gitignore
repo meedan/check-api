@@ -41,3 +41,4 @@ config/apollo-engine-proxy.json.qa
 public/project_export
 public/events.json
 config/credentials.json
+*.rdb
