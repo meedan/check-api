@@ -32,8 +32,8 @@ namespace :test do
       Sidekiq::Queue.new.clear
       project = Project.find(project_id)
       ProjectMedia.where(project_id: project_id).delete_all
-      concurrency = args[:concurrency] || 2
-      repeats = args[:repeats] || 2
+      concurrency = args[:concurrency] || 10
+      repeats = args[:repeats] || 50
       times = concurrency * repeats
       puts "[#{Time.now}] Running for #{concurrency} concurrent users, #{repeats} times (total: #{times} requests)"
 
