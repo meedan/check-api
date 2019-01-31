@@ -153,6 +153,18 @@ class BaseApiControllerTest < ActionController::TestCase
     assert_equal 'Error message', response['data']['message']
   end
 
+  test "should return warning from session" do
+    @controller = Api::V1::BaseApiController.new
+    u = create_omniauth_user info: {name: 'Test User'}
+    header = CONFIG['authorization_header'] || 'X-Token'
+    @request.headers.merge!({ header => u.token })
+    @request.session['check.warning'] = 'Warning message'
+    get :me
+    assert_response 400
+    response = JSON.parse(@response.body)
+    assert_equal 'Warning message', response['data']['message']
+  end
+
   test "should not return error from session" do
     @controller = Api::V1::BaseApiController.new
     u = create_omniauth_user info: {name: 'Test User'}
