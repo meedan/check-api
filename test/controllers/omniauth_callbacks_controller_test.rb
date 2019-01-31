@@ -149,6 +149,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     get :facebook
     assert_nil session['check.error']
+    assert_nil session['check.warning']
   end
 
   test "should store error if there is error from provider" do
@@ -156,6 +157,14 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     User.stubs(:from_omniauth).raises(ActiveRecord::RecordInvalid)
     get :facebook
     assert_not_nil session['check.error']
+    User.unstub(:from_omniauth)
+  end
+
+  test "should store warning if there is warning from provider" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
+    User.stubs(:from_omniauth).raises(RuntimeError)
+    get :facebook
+    assert_not_nil session['check.warning']
     User.unstub(:from_omniauth)
   end
 
