@@ -340,6 +340,7 @@ en:
     invalid: 'Invitation token is invalid.'
     no_invitation: 'No invitation exists for team %{name}'
   error_user_is_not_a_team_member: "Sorry, you can only assign tasks to members of this team"
+  error_login_with_exists_account: "Sorry, there is another user login with this account"
   mail_see_it: "You can see it at: "
   mail_subject_assign_verification_status: "[%{team} - %{project}] A media item was assigned to you"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] A media item was unassigned from you"

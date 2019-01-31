@@ -27,6 +27,8 @@ module Api
           user = User.from_omniauth(auth, current_api_user)
         rescue ActiveRecord::RecordInvalid => e
           session['check.error'] = e.message
+        rescue RuntimeError => e
+          session['check.warning'] = e.message
         end
 
         unless user.nil?
