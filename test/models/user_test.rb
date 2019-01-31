@@ -1051,8 +1051,12 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     assert_no_difference 'User.count' do
       assert_difference 'Account.count', 1 do
-        create_omniauth_user provider: 'twitter', current_user: u
+        create_omniauth_user provider: 'twitter', uid: '123456', current_user: u
       end
+    end
+    u2 = create_user
+    assert_raise RuntimeError do
+      create_omniauth_user provider: 'twitter', uid: '123456', current_user: u2
     end
   end
 

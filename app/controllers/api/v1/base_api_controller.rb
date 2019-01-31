@@ -26,15 +26,8 @@ module Api
         header = CONFIG['authorization_header'] || 'X-Token'
         token = request.headers[header]
 
-        if session['check.error']
-          message = session['check.error']
-          reset_session
-          render_error(message, 'UNKNOWN') and return
-        end
-
-        if session['check.warning']
-          message = session['check.warning']
-          session.delete('check.warning')
+        message = render_error_message
+        unless message.blank?
           render_error(message, 'UNKNOWN') and return
         end
 
@@ -68,6 +61,18 @@ module Api
       end
 
       private
+
+      def render_error_message
+        message = ''
+        if session['check.error']
+          message = session['check.error']
+          reset_session
+        elsif session['check.warning']
+          message = session['check.warning']
+          session.delete('check.warning')
+        end
+        message
+      end
 
       def render_user(user = nil, source = nil)
         unless user.nil?
