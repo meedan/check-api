@@ -7,13 +7,12 @@ module UserMultiAuthLogin
   	LOGINPROVIDERS = %w[slack twitter facebook]
 
 	  def self.from_omniauth(auth, current_user=nil)
-	    # Update uuid for facebook account if match email and provider
 	    self.update_facebook_uuid(auth)
 	    u = User.find_with_omniauth(auth.uid, auth.provider)
+	    # raise error if user try to connect with existing account related to another user.
 	    raise RuntimeError, I18n.t(:error_login_with_exists_account) if User.check_user_exists(u, current_user)
 	    u ||= current_user
 	    user = self.create_omniauth_user(u, auth)
-	    # Create account from omniauthcurrent_api_user
 	    User.create_omniauth_account(auth, user) unless auth.url.blank? || auth.provider.blank?
 	    user.reload
 	  end
@@ -54,12 +53,6 @@ module UserMultiAuthLogin
 	      if account.save
 	        account.update_columns(url: auth.url)
 	        user.set_source_image
-	        # create account source if not exist
-	        as = account.account_sources.where(source_id: user.source).last
-	        if as.nil?
-	          account.sources << user.source
-	          account.save!
-	        end
 	      end
 	    rescue Errno::ECONNREFUSED => e
 	      Rails.logger.info "Could not create account for user ##{user.id}: #{e.message}"
@@ -67,6 +60,7 @@ module UserMultiAuthLogin
 	  end
 
 	  def self.update_facebook_uuid(auth)
+	  	# Update uid for facebook account if match email and provider
 	  	if !auth.info.email.blank? && auth.provider == 'facebook'
 	  		fb_user = User.where(email: auth.info.email).first
 	  		fb_accounts = fb_user.get_social_accounts_for_login({provider: auth.provider}) unless fb_user.nil?
