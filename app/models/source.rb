@@ -127,7 +127,7 @@ class Source < ActiveRecord::Base
   end
 
   def set_avatar(image)
-    self.update_columns(avatar: image)
+    new_record? ? (self.avatar = image) : self.update_columns(avatar: image)
   end
 
   def get_annotations(type = nil)
