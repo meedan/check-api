@@ -164,7 +164,7 @@ class Bot::Smooch
 
   def self.refresh_window(uid, app_id)
     return if self.config['smooch_window_duration'].to_i == 0
-    key = 'smooch:' + uid + ':' + app_id + ':reminder_job_id'
+    key = 'smooch:' + uid + ':reminder_job_id'
     job_id = Rails.cache.read(key)
     Sidekiq::Status.cancel(job_id) unless job_id.nil?
     job_id = SmoochPingWorker.perform_in(self.config['smooch_window_duration'].to_i.hours, uid, app_id)
@@ -319,6 +319,13 @@ class Bot::Smooch
   end
 
   def self.send_verification_results_to_user(uid, pm)
+    key = 'smooch:' + uid + ':reminder_job_id'
+    job_id = Rails.cache.read(key)
+    unless job_id.nil?
+      Sidekiq::Status.cancel(job_id)
+      Rails.cache.delete(key)
+    end
+
     extra = {
       metadata: {
         id: pm.id

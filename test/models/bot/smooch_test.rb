@@ -208,7 +208,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should schedule job when the window is over" do
     uid = random_string
     id = random_string
-    key = 'smooch:' + uid + ':' + @app_id + ':reminder_job_id'
+    key = 'smooch:' + uid + ':reminder_job_id'
 
     # No job scheduled if user didn't send any message
     job = Rails.cache.read(key)
@@ -336,5 +336,67 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert_equal 2, Bot::Smooch.config['test']
     end
     threads.map(&:join)
+  end
+
+  test "should not send reminder if results were already sent" do
+    Sidekiq::Testing.fake! do
+      SmoochPingWorker.drain
+      SmoochWorker.drain
+      ProjectMedia.delete_all 
+      
+      uid = random_string
+      key = 'smooch:' + uid + ':reminder_job_id'
+      text = random_string
+
+      assert_nil Rails.cache.read(key)
+      assert_equal 0, SmoochPingWorker.jobs.size
+      assert_equal 0, SmoochWorker.jobs.size
+
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: text
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+      
+      Bot::Smooch.run(payload)
+      
+      assert_not_nil Rails.cache.read(key)
+      assert_equal 1, SmoochPingWorker.jobs.size
+      assert_equal 1, SmoochWorker.jobs.size
+      assert_equal 0, ProjectMedia.count
+
+      SmoochWorker.drain
+
+      assert_not_nil Rails.cache.read(key)
+      assert_equal 1, SmoochPingWorker.jobs.size
+      assert_equal 0, SmoochWorker.jobs.size
+      assert_equal 1, ProjectMedia.count
+
+      pm = ProjectMedia.last
+      s = pm.annotations.where(annotation_type: 'verification_status').last.load
+      s.status = 'verified'
+      s.save!
+      
+      Sidekiq::Worker.drain_all
+      
+      assert_nil Rails.cache.read(key)
+      assert_equal 0, SmoochPingWorker.jobs.size
+      assert_equal 0, SmoochWorker.jobs.size
+    end
   end
 end
