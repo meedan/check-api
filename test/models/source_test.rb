@@ -403,6 +403,23 @@ class SourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should create source with pender data and add avatar on save" do
+    s = Source.new name: '@CBSNews'
+    assert_nothing_raised do
+      s.set_avatar('picture.png')
+      s.save!
+      assert_equal 'picture.png', Source.find(s.id).avatar
+    end
+  end
+
+  test "should update source directly on db for existing source" do
+    s = create_source name: '@CBSNews'
+    assert_nothing_raised do
+      s.set_avatar('picture.png')
+      assert_equal 'picture.png', Source.find(s.id).avatar
+    end
+  end
+
   test "should refresh source with account data" do
     s = create_source name: 'Untitled-123', slogan: '', avatar: 'old.png'
     a = create_valid_account(source: s)
