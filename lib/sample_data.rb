@@ -139,7 +139,7 @@ module SampleData
 
     if options.has_key?(:is_admin) && options[:is_admin]
       u.is_admin = options[:is_admin]
-      u.skip_check_ability
+      u.skip_check_ability = true
       u.save!
     end
     if options.has_key?(:token)
