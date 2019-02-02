@@ -67,6 +67,7 @@ module SampleData
   end
 
   def create_user(options = {})
+    return create_omniauth_user(options) if options.has_key?(:provider) && !options[:provider].blank?
     u = User.new
     u.name = options.has_key?(:name) ? options[:name] : random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
@@ -134,6 +135,15 @@ module SampleData
     # reset User.current as `User.from_omniauth`  set User.current with recent created user
     User.current = u_current
     OmniAuth.config.mock_auth[provider] = nil
+
+    if options.has_key?(:is_admin) && options[:is_admin]
+      u.is_admin = options[:is_admin]
+      u.skip_check_ability
+      u.save!
+    end
+    if options[:team]
+      create_team_user team: options[:team], user: u
+    end
     u.reload
   end
 
