@@ -121,6 +121,7 @@ module SampleData
       WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
       url
     end
+    options[:uid] = options[:uuid] if options.has_key?(:uuid)
     auth = {}
     provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     email = options.has_key?(:email) ? options[:email] : "#{random_string}@#{random_string}.com"
@@ -140,6 +141,10 @@ module SampleData
       u.is_admin = options[:is_admin]
       u.skip_check_ability
       u.save!
+    end
+    if options.has_key?(:token)
+      a = u.get_social_accounts_for_login({provider: auth[:provider], uid: auth[:uid]}).last
+      a.update_columns(token: options[:token]) unless a.nil?
     end
     if options[:team]
       create_team_user team: options[:team], user: u
