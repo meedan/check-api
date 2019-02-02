@@ -143,7 +143,7 @@ module SampleData
       u.save!
     end
     if options.has_key?(:token)
-      a = u.get_social_accounts_for_login({provider: auth[:provider], uid: auth[:uid]}).last
+      a = u.get_social_accounts_for_login({provider: provider, uid: auth[:uid]}).last
       a.update_columns(token: options[:token]) unless a.nil?
     end
     if options[:team]
