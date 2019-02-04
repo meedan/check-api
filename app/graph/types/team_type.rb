@@ -19,6 +19,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_slack_channel, types.String
   field :get_suggested_tags, types.String
   field :get_embed_whitelist, types.String
+  field :get_memebuster_template, types.String
   field :pusher_channel, types.String
   field :search_id, types.String
   field :trash_size, JsonStringType
