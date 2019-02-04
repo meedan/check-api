@@ -17,9 +17,12 @@ module CheckPermissions
     def find_if_can(id, ability = nil)
       id = id.id if id.is_a?(ActiveRecord::Base)
       model = if self.name == 'Project'
-                self.eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0]
+                self.eager_load(:team).where("teams.inactive" => false).eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0]
               elsif self.name == 'Team'
                 self.where(id: id, inactive: false).last
+              elsif self.name == 'ProjectMedia'
+                pm = self.find(id)
+                pm.project.inactive ? nil : pm
               else
                 self.find(id)
               end

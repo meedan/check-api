@@ -210,6 +210,10 @@ class Project < ActiveRecord::Base
     targets.flatten
   end
 
+  def inactive
+    team.inactive
+  end
+
   private
 
   def project_languages_format
