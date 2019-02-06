@@ -54,15 +54,19 @@ module UserPrivate
         end
       end
       unless u.nil?
-        if u.is_active?
-          provider = u.get_user_provider(self.email)
-          RegistrationMailer.delay.duplicate_email_detection(self, provider) if self.new_record?
-        else
-          self.errors.messages.clear
-          errors.add(:base, I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email']))
-        end
+        self.handle_duplicate_email(u)
         return false
       end
+    end
+  end
+
+  def handle_duplicate_email(u)
+    if u.is_active?
+      provider = u.get_user_provider(self.email)
+      RegistrationMailer.delay.duplicate_email_detection(self, provider) if self.new_record?
+    else
+      self.errors.messages.clear
+      errors.add(:base, I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email']))
     end
   end
 
