@@ -314,6 +314,7 @@ en:
   account_exists: This account already exists
   media_exists: This media already exists
   source_exists: This source already exists
+  email_exists: has already been taken
   banned_user: "Sorry, your account has been banned from %{app_name}. Please contact the support team if you think this is an error."
   devise:
     mailer:

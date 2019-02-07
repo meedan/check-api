@@ -590,6 +590,43 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
+  test "should not get projects from teams marked as deleted" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    p = create_project team: t
+
+    authenticate_with_user(u)
+    query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal p.title, JSON.parse(@response.body)['data']['project']['title']
+
+    t.inactive = true; t.save
+    query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
+    post :create, query: query
+    assert_response 404
+  end
+
+  test "should not get project medias from teams marked as deleted" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+
+    authenticate_with_user(u)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+
+    t.inactive = true; t.save
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query
+    assert_response 404
+  end
+
   test "should update current team based on context team" do
     u = create_user
 
@@ -954,7 +991,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (14) do
+    assert_queries (15) do
       post :create, query: query, team: 'team'
     end
 

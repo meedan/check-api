@@ -198,9 +198,13 @@ class UserTest < ActiveSupport::TestCase
 
   test "should not add duplicate mail" do
     u = create_user
+    create_account user: u, source: u.source, provider: 'slack', email: 'test@local.com'
     assert_no_difference 'User.count' do
       assert_raises ActiveRecord::RecordInvalid do
         create_user email: u.email
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: 'test@local.com'
       end
     end
   end
