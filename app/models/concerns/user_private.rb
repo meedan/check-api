@@ -54,7 +54,7 @@ module UserPrivate
         end
       end
       unless u.nil?
-        self.handle_duplicate_email(u)
+        handle_duplicate_email(u)
         return false
       end
     end
