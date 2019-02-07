@@ -991,7 +991,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (14) do
+    assert_queries (15) do
       post :create, query: query, team: 'team'
     end
 
