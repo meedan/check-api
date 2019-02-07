@@ -26,8 +26,8 @@ addons:
   postgresql: '9.4'
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
-- cd test && ./setup-parallel-env.sh && cd -
-script: bundle exec rake "parallel:test[3]"
+- RAILS_ENV=test bundle exec rake db:create db:migrate
+script: bundle exec rake test
 after_script:
 - bundle exec codeclimate-test-reporter
 rvm:
