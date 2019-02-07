@@ -10,5 +10,6 @@ class CreateMemebusterAnnotation < ActiveRecord::Migration
     create_field_instance annotation_type_object: at, name: 'memebuster_body', label: 'Body', field_type_object: text, optional: false
     create_field_instance annotation_type_object: at, name: 'memebuster_status', label: 'Status', field_type_object: text, optional: false
     create_field_instance annotation_type_object: at, name: 'memebuster_overlay', label: 'Overlay Color', field_type_object: text, optional: false
+    create_field_instance annotation_type_object: at, name: 'memebuster_operation', label: 'Operation', field_type_object: text, optional: false
   end
 end
