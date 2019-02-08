@@ -271,6 +271,7 @@ module SampleData
     account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team])
     account.provider = options[:provider]
     account.uid = options[:uid]
+    account.email = options[:email]
     account.omniauth_info = options[:omniauth_info]
     account.save!
     account.reload
