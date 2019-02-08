@@ -27,6 +27,7 @@ class MachineTranslationWorkerTest < ActiveSupport::TestCase
       response = { language: 'en', confidence: 1 }.to_json
       WebMock.stub_request(:post, url).to_return(body: response)
       pm = create_project_media project: p, quote: text
+      Bot::Alegre.run({ data: { dbid: pm.id } }.to_json)
       pm.update_mt = 1
       assert_equal 1, MachineTranslationWorker.jobs.size
     end

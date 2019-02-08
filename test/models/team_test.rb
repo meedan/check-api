@@ -850,17 +850,12 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      2.times { create_comment annotated: pm1 }
-      3.times { create_comment annotated: pm2 }
-    end
     pm1.archived = true
     pm1.save!
     pm2.archived = true
     pm2.save!
     size = t.reload.trash_size
     assert_equal 2, size[:project_media]
-    assert_equal 5, size[:annotation]
   end
 
   test "should get search id" do
@@ -1610,5 +1605,20 @@ class TeamTest < ActiveSupport::TestCase
     Team.current = t2
     assert_equal [1, 2], u2.team_users.order('id ASC').collect{ |x| x.team.members_count }
     Team.current = nil
+  end
+
+  test "should get dynamic fields schema" do
+    t = create_team slug: 'team'
+    p = create_project team: t
+    att = 'language'
+    at = create_annotation_type annotation_type: att, label: 'Language'
+    language = create_field_type field_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
+    pm1 = create_project_media disable_es_callbacks: false, project: p
+    create_dynamic_annotation annotation_type: att, annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
+    pm2 = create_project_media disable_es_callbacks: false, project: p
+    create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
+    schema = t.dynamic_search_fields_json_schema
+    assert_equal ['en', 'pt'], schema[:properties]['language'][:items][:enum].sort 
   end
 end
