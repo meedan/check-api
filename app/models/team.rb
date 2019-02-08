@@ -239,6 +239,19 @@ class Team < ActiveRecord::Base
     TeamUser.select('users.email').where(team_id: team.id, status: 'invited').where.not(invitation_token: nil).joins(:user).map(&:email) unless team.nil?
   end
 
+  def dynamic_search_fields_json_schema
+    annotation_types = Annotation
+                       .group('annotations.annotation_type')
+                       .joins("INNER JOIN project_medias pm ON annotations.annotated_type = 'ProjectMedia' AND pm.id = annotations.annotated_id INNER JOIN projects p ON pm.project_id = p.id")
+                       .where('p.team_id' => self.id).count.keys
+    properties = {}
+    annotation_types.each do |type|
+      method = "field_search_json_schema_type_#{type}"
+      properties[type] = Dynamic.send(method, self) if Dynamic.respond_to?(method)
+    end
+    { type: 'object', properties: properties }
+  end
+
   protected
 
   def get_values_from_entry(entry)
