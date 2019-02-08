@@ -50,6 +50,7 @@ module UserMultiAuthLogin
 	      account.provider = auth.provider
 	      account.omniauth_info = auth.as_json
 	      account.token = token
+	      account.email = auth.info.email
 	      if account.save
 	        account.update_columns(url: auth.url)
 	        user.set_source_image
@@ -140,6 +141,12 @@ module UserMultiAuthLogin
 	      end
 	    end
 	  end
+
+	  def get_user_provider(email)
+	    account = self.get_social_accounts_for_login({email: email})
+	    account = account.first unless account.nil?
+	    account.nil? ? '' : account.provider
+  	end
 
   end
 end
