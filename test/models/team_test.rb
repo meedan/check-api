@@ -172,7 +172,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Team.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      assert_raises MiniMagick::Invalid do
         create_team logo: 'not-an-image.txt'
       end
     end

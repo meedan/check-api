@@ -272,7 +272,7 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should not upload a file that is not an image" do
     assert_no_difference 'Source.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      assert_raises MiniMagick::Invalid do
         create_source file: 'not-an-image.txt'
       end
     end
