@@ -5,7 +5,8 @@ module Api
 
       BOT_NAME_TO_CLASS = {
         keep: Bot::Keep,
-        smooch: Bot::Smooch
+        smooch: Bot::Smooch,
+        alegre: Bot::Alegre
       }
 
       def index

@@ -29,9 +29,16 @@ class BotsControllerTest < ActionController::TestCase
     end
   end
 
-  test "should not call endpoint if call is not from inside" do
+  test "should not call endpoint for Keep if call is not from inside" do
     stub_config('checkdesk_base_url_private', 'http://something.com') do
       get :index, name: :keep
+      assert_response 400
+    end
+  end
+
+  test "should not call endpoint for Alegre if call is not from inside" do
+    stub_config('checkdesk_base_url_private', 'http://something.com') do
+      get :index, name: :alegre
       assert_response 400
     end
   end

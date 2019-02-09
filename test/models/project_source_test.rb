@@ -153,8 +153,9 @@ class ProjectSourceTest < ActiveSupport::TestCase
       c = create_comment annotated: ps
       tg = create_tag annotated: ps
       f = create_flag annotated: ps
-      s.name = 'update name'; s.skip_check_ability = true;s.save!;
+      s.name = 'update name'; s.skip_check_ability = true; s.save!
       ps.project_id = p2.id; ps.save!
+      ps = ProjectSource.find(ps.id)
       assert_equal ["create_comment", "create_tag", "create_flag", "update_projectsource", "update_source"].sort, ps.get_versions_log.map(&:event_type).sort
       assert_equal 5, ps.get_versions_log_count
       c.destroy

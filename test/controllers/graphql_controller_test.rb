@@ -2240,4 +2240,37 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 1, data.size
     assert_equal pm2.id, data[0]['node']['dbid']
   end
+
+  test "should search for dynamic annotations" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+
+    att = 'language'
+    at = create_annotation_type annotation_type: att, label: 'Language'
+    language = create_field_type field_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
+    pm1 = create_project_media disable_es_callbacks: false, project: p
+    create_dynamic_annotation annotation_type: att, annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
+    pm2 = create_project_media disable_es_callbacks: false, project: p
+    create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
+
+    sleep 5
+
+    query = 'query CheckSearch { search(query: "{\"dynamic\":{\"language\":[\"en\"]}}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, query: query, team: 'team'
+    assert_response :success
+    pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+    assert_equal 1, pmids.size
+    assert_equal pm1.id, pmids[0]
+
+    query = 'query CheckSearch { search(query: "{\"dynamic\":{\"language\":[\"pt\"]}}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, query: query, team: 'team'
+    assert_response :success
+    pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+    assert_equal 1, pmids.size
+    assert_equal pm2.id, pmids[0]
+  end
 end
