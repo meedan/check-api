@@ -3,7 +3,7 @@ require_relative '../test_helper'
 class DeviseMailerTest < ActionMailer::TestCase
 
   test "should send confirmation e-mail" do
-    u = create_user name: 'Test User', provider: '', email: 'test@mail.com'
+    u = create_user name: 'Test User', email: 'test@mail.com'
 
     email = DeviseMailer.confirmation_instructions(u, '123456')
 
@@ -17,7 +17,7 @@ class DeviseMailerTest < ActionMailer::TestCase
   end
 
   test "should send reset password instructions" do
-    u = create_user name: 'Test User', provider: '', email: 'test@mail.com'
+    u = create_user name: 'Test User', email: 'test@mail.com'
     email = DeviseMailer.reset_password_instructions(u, '12345')
 
     assert_emails 1 do
