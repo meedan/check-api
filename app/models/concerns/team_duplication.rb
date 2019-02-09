@@ -33,6 +33,7 @@ module TeamDuplication
           team
         end
       rescue StandardError => e
+        raise e
         self.log_error(e, t)
         nil
       end
@@ -52,8 +53,10 @@ module TeamDuplication
     def self.copy_image(original, copy)
       [:logo, :lead_image, :file].each do |image|
         next unless original.respond_to?(image) && original.respond_to?("#{image}=") && original.send(image)
-        img_path = original.send(image).path
-        File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path && File.exist?(img_path)
+        [original.send(image)].flatten.each do |img|
+          img_path = img.path
+          File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path && File.exist?(img_path)
+        end
       end
     end
 
