@@ -317,7 +317,7 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should not upload a file that is not an image" do
     assert_no_difference 'Comment.length' do
-      assert_raises MiniMagick::Invalid do
+      assert_raises ActiveRecord::RecordInvalid do
         create_comment file: 'not-an-image.txt'
       end
     end
