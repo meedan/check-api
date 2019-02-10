@@ -124,7 +124,7 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should get image" do
     url = 'http://checkdesk.org/users/1/photo.png'
-    u = create_user profile_image: url, provider: ''
+    u = create_user profile_image: url
     assert_equal url, u.source.image
   end
 
