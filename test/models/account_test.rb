@@ -374,12 +374,4 @@ class AccountTest < ActiveSupport::TestCase
     end
   end
   
-  test "should update user account URL" do
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}')
-    u = @account.user
-    u.update_account(url)
-    assert_equal url, @account.reload.url
-  end
 end

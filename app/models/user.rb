@@ -102,14 +102,6 @@ class User < ActiveRecord::Base
     self.source.set_avatar(avatar)
   end
 
-  def update_account(url)
-    account = self.accounts.first
-    if account && account.url != url
-      account.url = url
-      account.save
-    end
-  end
-
   def as_json(_options = {})
     user = {
       id: Base64.encode64("User/#{self.id}"),
