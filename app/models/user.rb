@@ -13,6 +13,10 @@ class User < ActiveRecord::Base
   has_many :projects
   has_many :accounts
   has_many :assignments, dependent: :destroy
+  has_many :medias
+  has_many :project_sources
+  has_many :project_medias
+  has_many :sources
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
@@ -319,6 +323,33 @@ class User < ActiveRecord::Base
     s.skip_check_ability = true
     s.destroy
     User.current = current_user
+  end
+
+  def merge_with(user)
+    all_associations = User.reflect_on_all_associations(:has_many).select{|a| a.foreign_key == 'user_id'}
+    all_associations.each do |assoc|
+      assoc.class_name.constantize.where(assoc.foreign_key => user.id).update_all(assoc.foreign_key => self.id)
+    end
+    AccountSource.where(source_id: user.source_id).update_all(source_id: self.source_id)
+    # TODO: handle PaperTrails
+    # user.destroy
+    # TODO: remove this line and back user.destory
+    user.update_columns(email: "new_email_#{user.email}")
+  end
+
+  def self.get_duplicate_user(email, id=0)
+    ret = { user: nil, type: nil }
+    unless email.blank?
+      u = User.where(email: email).where.not(id: id).last
+      if u.nil?
+        # check email in social accounts
+        a = Account.where(email: email).where.not(user_id: id).last
+        ret = { user: a.user, type: a.class_name } unless a.nil?
+      else
+        ret = { user: u, type: u.class_name }
+      end
+    end
+    ret
   end
 
   # private
