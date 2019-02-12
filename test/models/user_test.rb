@@ -1127,24 +1127,25 @@ class UserTest < ActiveSupport::TestCase
       create_omniauth_user email: u.email
     end
     u.confirm
-    u.is_active = false; u.save!
-    assert_raise RuntimeError do
-      create_omniauth_user email: u.email
-    end
-    u.is_active = true; u.save!
     assert_no_difference 'User.count' do
       assert_difference 'Account.count' do
         create_omniauth_user email: u.email
       end
     end
-    
     u = create_omniauth_user provider: 'twitter', email: '', uid: '123456'
     u2 = create_omniauth_user provider: 'facebook', email: 'test@local.com'
+    s2_id = u2.source.id
+    u2_id = u2.id
     u3 = create_omniauth_user provider: 'twitter', uid: '123456', email: 'test@local.com'
     assert_equal u.id, u3.id
     accounts = u.source.accounts
     assert_equal 2, accounts.count
     assert_equal ['facebook', 'twitter'], accounts.map(&:provider)
-    assert_empty u2.source.accounts
+    assert_raises ActiveRecord::RecordNotFound do
+      User.find(u2_id)
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      Source.find(s2_id)
+    end
   end
 end
