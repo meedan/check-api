@@ -442,4 +442,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert_equal 0, SmoochWorker.jobs.size
     end
   end
+
+  test "should not get invalid URL" do
+    assert_nil Bot::Smooch.get_url_from_text('foo http://\foo.bar bar')
+  end
 end
