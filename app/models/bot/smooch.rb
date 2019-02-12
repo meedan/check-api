@@ -175,8 +175,9 @@ class Bot::Smooch
     hash = nil
     case message['type']
     when 'text'
-      text = message['text'][/https?:\/\/[^\s]+/, 0] || message['text']
-      hash = Digest::MD5.hexdigest(text)
+      text = message['text'][/[^\s]+\.[^\s]+/, 0].to_s.gsub(/^https?:\/\//, '')
+      text = message['text'] if text.blank?
+      hash = Digest::MD5.hexdigest(text.downcase)
     when 'image'
       open(message['mediaUrl']) do |f|
         hash = Digest::MD5.hexdigest(f.read)
@@ -267,7 +268,10 @@ class Bot::Smooch
 
   def self.get_url_from_text(text)
     begin
-      URI.parse(text[/https?:\/\/[^\s]+/, 0])
+      url = text[/[^\s]+\.[^\s]+/, 0].to_s
+      return nil if url.blank?
+      url = 'https://' + url unless url =~ /^https?:\/\//
+      URI.parse(url)
     rescue URI::InvalidURIError
       nil
     end
@@ -278,7 +282,7 @@ class Bot::Smooch
     url = self.get_url_from_text(text)
 
     if url.nil?
-      pm = ProjectMedia.joins(:media).where('medias.quote' => text, 'project_medias.project_id' => json['project_id']).last ||
+      pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => json['project_id']).last ||
            ProjectMedia.create!(project_id: json['project_id'], quote: text)
     else
       m = Media.new url: url

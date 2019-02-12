@@ -49,6 +49,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     @link_url = random_url 
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
+    @link_url_2 = 'https://' + random_string + '.com' 
+    WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url_2 } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url_2 + '","type":"item"}}' })
   end
 
   def teardown
@@ -86,6 +88,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should save messages of different types by different users but not allow identical messages from the same user and notify them when verified" do
     id = random_string
     id2 = random_string
+    id3 = random_string
     messages = [
       {
         '_id': random_string,
@@ -146,6 +149,22 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       },
       {
         '_id': random_string,
+        authorId: id3,
+        type: 'file',
+        text: random_string,
+        mediaUrl: @media_url,
+        mediaType: 'image/jpeg'
+      },
+      {
+        '_id': random_string,
+        authorId: id3,
+        type: 'file',
+        text: random_string,
+        mediaUrl: @media_url,
+        mediaType: 'application/pdf'
+      },
+      {
+        '_id': random_string,
         authorId: id2,
         type: 'text',
         text: "#{random_string} #{@link_url} #{random_string}"
@@ -176,6 +195,30 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         type: 'text',
         text: "#{random_string} #{@link_url} #{random_string}"
       },
+      {
+        '_id': random_string,
+        authorId: id2,
+        type: 'text',
+        text: "#{random_string} #{@link_url_2} #{random_string}"
+      },
+      {
+        '_id': random_string,
+        authorId: id3,
+        type: 'text',
+        text: "#{random_string} #{@link_url_2.gsub(/^https?:\/\//, '')} #{random_string}"
+      },
+      {
+        '_id': random_string,
+        authorId: id2,
+        type: 'text',
+        text: 'This is another claim'
+      },
+      {
+        '_id': random_string,
+        authorId: id3,
+        type: 'text',
+        text: 'This is another CLAIM'
+      }
     ]
 
     payload = {
@@ -191,9 +234,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
 
-    assert_difference 'ProjectMedia.count', 3 do
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 6 do
-        assert_difference 'Comment.length', 2 do
+    assert_difference 'ProjectMedia.count', 5 do
+      assert_difference 'Annotation.where(annotation_type: "smooch").count', 11 do
+        assert_difference 'Comment.length', 4 do
           Bot::Smooch.run(payload)
         end
       end
