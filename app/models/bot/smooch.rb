@@ -171,13 +171,18 @@ class Bot::Smooch
     Rails.cache.write(key, job_id)
   end
 
+  def self.get_text_from_message(message)
+    text = message['text'][/[^\s]+\.[^\s]+/, 0].to_s.gsub(/^https?:\/\//, '')
+    text = message['text'] if text.blank?
+    text.downcase
+  end
+
   def self.user_already_sent_message(message)
     hash = nil
     case message['type']
     when 'text'
-      text = message['text'][/[^\s]+\.[^\s]+/, 0].to_s.gsub(/^https?:\/\//, '')
-      text = message['text'] if text.blank?
-      hash = Digest::MD5.hexdigest(text.downcase)
+      text = self.get_text_from_message(message)
+      hash = Digest::MD5.hexdigest(text)
     when 'image'
       open(message['mediaUrl']) do |f|
         hash = Digest::MD5.hexdigest(f.read)
