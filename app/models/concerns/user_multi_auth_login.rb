@@ -10,29 +10,25 @@ module UserMultiAuthLogin
 	    self.update_facebook_uuid(auth)
 	    u = User.find_with_omniauth(auth.uid, auth.provider)
 	    id = []
-	    id << u.nil? ? 0 : u.id
+	    id << u.id unless u.nil?
 	    id << current_user.id unless current_user.nil?
 	    duplicate_user = User.get_duplicate_user(auth.info.email, id)[:user]
-	    if duplicate_user
-	    	u.merge_with(duplicate_user) unless u.nil?
-	    	unless current_user.nil?
-	    		current_user.merge_with(u)
+	    unless duplicate_user.nil?
+	    	# raise error if user try to connect with an account related to another user (is_active = false or not confirmed).
+	    	raise RuntimeError, I18n.t(:error_login_with_exists_account) unless duplicate_user.is_active? && duplicate_user.is_confirmed?
+	    	if current_user.nil?
+	    		u.merge_with(duplicate_user) unless u.nil?
+	    	else
+	    		current_user.merge_with(duplicate_user)
+	    		current_user.merge_with(u) unless u.nil?
 	    		u = current_user
 	    	end
+	    	u ||= duplicate_user
 	    end
-	    # raise error if user try to connect with existing account related to another user.
-	    # raise RuntimeError, I18n.t(:error_login_with_exists_account) if User.check_user_exists(u, current_user)
+	    u ||= current_user
 	    user = self.create_omniauth_user(u, auth)
 	    User.create_omniauth_account(auth, user) unless auth.url.blank? || auth.provider.blank?
 	    user.reload
-	  end
-
-	  def self.check_user_exists(user, current_user)
-	  	exists = false
-	  	unless current_user.nil?
-	  		exists = true if !user.nil? && user.id != current_user.id
-	  	end
-	  	exists
 	  end
 
 	  def self.create_omniauth_user(u, auth)

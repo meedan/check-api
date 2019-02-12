@@ -326,15 +326,29 @@ class User < ActiveRecord::Base
   end
 
   def merge_with(user)
+    merge_shared_teams(user)
     all_associations = User.reflect_on_all_associations(:has_many).select{|a| a.foreign_key == 'user_id'}
     all_associations.each do |assoc|
       assoc.class_name.constantize.where(assoc.foreign_key => user.id).update_all(assoc.foreign_key => self.id)
     end
-    AccountSource.where(source_id: user.source_id).update_all(source_id: self.source_id)
-    # TODO: handle PaperTrails
-    # user.destroy
-    # TODO: remove this line and back user.destory
-    user.update_columns(email: "new_email_#{user.email}")
+    source = user.source
+    AccountSource.where(source_id: user.source.id).update_all(source_id: self.source_id)
+    Annotation.where(annotator_id: user.id, annotator_type: 'User').update_all(annotator_id: self.id)
+    PaperTrail::Version.where(whodunnit: user.id).update_all(whodunnit: self.id)
+    user.skip_check_ability = true
+    user.destroy
+    source.skip_check_ability = true
+    source.destroy
+  end
+
+  def merge_shared_teams(u)
+    teams = TeamUser.select("team_id").where(user_id: [self.id, u.id]).group("team_id").having("count(team_id) = ?", 2).map(&:team_id)
+    teams.each do |t|
+      tu = TeamUser.where(user_id: [self.id, u.id], team_id: t)
+      low_role = tu.sort_by{|x| ROLES.find_index(x.role)}.first
+      low_role.skip_check_ability = true
+      low_role.destroy
+    end
   end
 
   def self.get_duplicate_user(email, id=0)
