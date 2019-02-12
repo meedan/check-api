@@ -181,6 +181,15 @@ class Bot::Smooch
       open(message['mediaUrl']) do |f|
         hash = Digest::MD5.hexdigest(f.read)
       end
+    when 'file'
+      if message['mediaType'].to_s =~ /^image\//
+        open(message['mediaUrl']) do |f|
+          hash = Digest::MD5.hexdigest(f.read)
+        end
+      else
+        self.send_message_to_user(message['authorId'], "Sorry, we don't support this kind of message yet")
+        return true
+      end
     else
       self.send_message_to_user(message['authorId'], "Sorry, we don't support this kind of message yet")
       return true
@@ -232,6 +241,8 @@ class Bot::Smooch
            self.save_text_message(json)
          when 'image'
            self.save_image_message(json)
+         when 'file'
+           json['mediaType'].to_s =~ /^image\// ? self.save_image_message(json) : return
          else
            return
          end
