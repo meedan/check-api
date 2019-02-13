@@ -1058,10 +1058,6 @@ class UserTest < ActiveSupport::TestCase
         create_omniauth_user provider: 'twitter', uid: '123456', current_user: u
       end
     end
-    u2 = create_user
-    assert_raise RuntimeError do
-      create_omniauth_user provider: 'twitter', uid: '123456', current_user: u2
-    end
   end
 
   test "should get user through omniauth info" do
@@ -1072,14 +1068,6 @@ class UserTest < ActiveSupport::TestCase
   test "should get user through token" do
     u = create_user token: 'test'
     assert_equal u, User.find_with_token('test')
-  end
-
-  test "should check user exists for multi login" do
-    u = create_user
-    u2 = create_user
-    assert_not User.check_user_exists(u, nil)
-    assert_not User.check_user_exists(u, u)
-    assert User.check_user_exists(u, u2)
   end
 
   test "should get social accounts for login" do
@@ -1131,5 +1119,39 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 1, a.sources.count
     assert_nil a.uid, a.provider
     assert_nil a.token, a.omniauth_info
+  end
+
+  test "should merge confirmed accounts" do
+    u = create_user confirm: false
+    assert_raise RuntimeError do
+      create_omniauth_user email: u.email
+    end
+    u.confirm
+    assert_no_difference 'User.count' do
+      assert_difference 'Account.count' do
+        create_omniauth_user email: u.email
+      end
+    end
+    u = create_omniauth_user provider: 'twitter', email: '', uid: '123456'
+    u2 = create_omniauth_user provider: 'facebook', email: 'test@local.com'
+    tu = create_team_user user: u2
+    pm = create_project_media user: u2
+    ps = create_project_source user: u2
+    s2_id = u2.source.id
+    u2_id = u2.id
+    u3 = create_omniauth_user provider: 'twitter', uid: '123456', email: 'test@local.com'
+    assert_equal u.id, u3.id
+    accounts = u.source.accounts
+    assert_equal 2, accounts.count
+    assert_equal ['facebook', 'twitter'], accounts.map(&:provider)
+    assert_equal u.id, pm.reload.user_id
+    assert_equal u.id, ps.reload.user_id
+    assert_equal u.id, tu.reload.user_id
+    assert_raises ActiveRecord::RecordNotFound do
+      User.find(u2_id)
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      Source.find(s2_id)
+    end
   end
 end

@@ -13,6 +13,10 @@ class User < ActiveRecord::Base
   has_many :projects
   has_many :accounts
   has_many :assignments, dependent: :destroy
+  has_many :medias
+  has_many :project_sources
+  has_many :project_medias
+  has_many :sources
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
@@ -319,6 +323,57 @@ class User < ActiveRecord::Base
     s.skip_check_ability = true
     s.destroy
     User.current = current_user
+  end
+
+  def merge_with(user)
+    merge_shared_teams(user)
+    # remove shared accounts on both sources
+    s = self.source
+    s2 = user.source
+    as = AccountSource.where(source_id: s2.id, account_id: s.accounts)
+    as.each{|i| i.skip_check_ability = true; i.destroy;}
+    all_associations = User.reflect_on_all_associations(:has_many).select{|a| a.foreign_key == 'user_id'}
+    all_associations.each do |assoc|
+      assoc.class_name.constantize.where(assoc.foreign_key => user.id).update_all(assoc.foreign_key => self.id)
+    end
+    AccountSource.where(source_id: s2.id).update_all(source_id: s.id)
+    Annotation.where(annotator_id: user.id, annotator_type: 'User').update_all(annotator_id: self.id)
+    PaperTrail::Version.where(whodunnit: user.id).update_all(whodunnit: self.id)
+    user.skip_check_ability = true
+    user.destroy
+    s2.skip_check_ability = true
+    s2.destroy
+    # update cached teams for merged user
+    columns = {}
+    columns = {encrypted_password: user.encrypted_password, email: user.email} if user.encrypted_password?
+    columns[:cached_teams] = TeamUser.where(user_id: self.id, status: 'member').map(&:team_id)
+    self.update_columns(columns)
+  end
+
+  def merge_shared_teams(u)
+    # handle case that both users exists on same team by kepping a higher role
+    teams = TeamUser.select("team_id").where(user_id: [self.id, u.id]).group("team_id").having("count(team_id) = ?", 2).map(&:team_id)
+    teams.each do |t|
+      tu = TeamUser.where(user_id: [self.id, u.id], team_id: t)
+      low_role = tu.sort_by{|x| ROLES.find_index(x.role)}.first
+      low_role.skip_check_ability = true
+      low_role.destroy
+    end
+  end
+
+  def self.get_duplicate_user(email, id=0)
+    ret = { user: nil, type: nil }
+    unless email.blank?
+      u = User.where(email: email).where.not(id: id).last
+      if u.nil?
+        # check email in social accounts
+        a = Account.where(email: email).where.not(user_id: id).last
+        ret = { user: a.user, type: a.class_name } unless a.nil?
+      else
+        ret = { user: u, type: u.class_name }
+      end
+    end
+    ret
   end
 
   # private
