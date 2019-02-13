@@ -40,7 +40,7 @@ module UserMultiAuthLogin
 	    user.name = user.name.presence || auth.info.name
 	    user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
 	    user.from_omniauth_login = true
-	    user.skip_confirmation! unless user.id.nil?
+	    user.skip_confirmation!
 	    User.current = user
 	    user.save!
 	    user.confirm unless user.is_confirmed?
