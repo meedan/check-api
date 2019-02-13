@@ -1134,6 +1134,9 @@ class UserTest < ActiveSupport::TestCase
     end
     u = create_omniauth_user provider: 'twitter', email: '', uid: '123456'
     u2 = create_omniauth_user provider: 'facebook', email: 'test@local.com'
+    tu = create_team_user user: u2
+    pm = create_project_media user: u2
+    ps = create_project_source user: u2
     s2_id = u2.source.id
     u2_id = u2.id
     u3 = create_omniauth_user provider: 'twitter', uid: '123456', email: 'test@local.com'
@@ -1141,6 +1144,9 @@ class UserTest < ActiveSupport::TestCase
     accounts = u.source.accounts
     assert_equal 2, accounts.count
     assert_equal ['facebook', 'twitter'], accounts.map(&:provider)
+    assert_equal u.id, pm.reload.user_id
+    assert_equal u.id, ps.reload.user_id
+    assert_equal u.id, tu.reload.user_id
     assert_raises ActiveRecord::RecordNotFound do
       User.find(u2_id)
     end
