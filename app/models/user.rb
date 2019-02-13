@@ -327,21 +327,31 @@ class User < ActiveRecord::Base
 
   def merge_with(user)
     merge_shared_teams(user)
+    # remove shared accounts on both sources
+    s = self.source
+    s2 = user.source
+    as = AccountSource.where(source_id: s2.id, account_id: s.accounts)
+    as.each{|i| i.skip_check_ability = true; i.destroy;}
     all_associations = User.reflect_on_all_associations(:has_many).select{|a| a.foreign_key == 'user_id'}
     all_associations.each do |assoc|
       assoc.class_name.constantize.where(assoc.foreign_key => user.id).update_all(assoc.foreign_key => self.id)
     end
-    source = user.source
-    AccountSource.where(source_id: user.source.id).update_all(source_id: self.source_id)
+    AccountSource.where(source_id: s2.id).update_all(source_id: s.id)
     Annotation.where(annotator_id: user.id, annotator_type: 'User').update_all(annotator_id: self.id)
     PaperTrail::Version.where(whodunnit: user.id).update_all(whodunnit: self.id)
     user.skip_check_ability = true
     user.destroy
-    source.skip_check_ability = true
-    source.destroy
+    s2.skip_check_ability = true
+    s2.destroy
+    # update cached teams for merged user
+    columns = {}
+    columns = {encrypted_password: user.encrypted_password, email: user.email} if user.encrypted_password?
+    columns[:cached_teams] = TeamUser.where(user_id: self.id, status: 'member').map(&:team_id)
+    self.update_columns(columns)
   end
 
   def merge_shared_teams(u)
+    # handle case that both users exists on same team by kepping a higher role
     teams = TeamUser.select("team_id").where(user_id: [self.id, u.id]).group("team_id").having("count(team_id) = ?", 2).map(&:team_id)
     teams.each do |t|
       tu = TeamUser.where(user_id: [self.id, u.id], team_id: t)
