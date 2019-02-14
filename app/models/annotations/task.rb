@@ -198,7 +198,7 @@ class Task < ActiveRecord::Base
     user = User.current
     responses = self.responses
     if !user.nil? && user.role?(:annotator)
-      responses = responses.select{ |r| r.annotator_id.to_i == user.id.to_i }
+      responses = responses.where(annotator_id: user.id)
     else
       responses = responses.reject{ |r| r.annotator&.role?(:annotator) }
     end
