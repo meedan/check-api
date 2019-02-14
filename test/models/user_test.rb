@@ -1154,4 +1154,16 @@ class UserTest < ActiveSupport::TestCase
       Source.find(s2_id)
     end
   end
+
+  test "should keep higher role when merge accounts in same team" do
+    t = create_team
+    u = create_omniauth_user provider: 'twitter', email: 'test@local.com'
+    u2 = create_omniauth_user provider: 'facebook', email: 'test2@local.com'
+    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: u2, role: 'journalist'
+    assert_equal 2, t.team_users.count
+    create_omniauth_user provider: 'slack', email: 'test@local.com', current_user: u2
+    assert_equal 1, t.team_users.count
+    assert_equal ['journalist'], t.team_users.map(&:role)
+  end
 end
