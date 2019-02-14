@@ -65,6 +65,9 @@ module UserMultiAuthLogin
 	      if account.save
 	        account.update_columns(url: auth.url)
 	        user.set_source_image
+	        # Remove account from other sources
+	        as = AccountSource.where(account_id: account.id).where.not(source_id: user.source.id)
+	        as.each{|i| i.skip_check_ability = true; i.destroy}
 	      end
 	    rescue Errno::ECONNREFUSED => e
 	      Rails.logger.info "Could not create account for user ##{user.id}: #{e.message}"
