@@ -1143,7 +1143,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal u.id, u3.id
     accounts = u.source.accounts
     assert_equal 2, accounts.count
-    assert_equal ['facebook', 'twitter'], accounts.map(&:provider)
+    assert_equal ['facebook', 'twitter'].sort, accounts.map(&:provider).sort
     assert_equal u.id, pm.reload.user_id
     assert_equal u.id, ps.reload.user_id
     assert_equal u.id, tu.reload.user_id
