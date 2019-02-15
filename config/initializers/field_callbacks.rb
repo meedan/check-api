@@ -1,5 +1,5 @@
 Dynamic.class_eval do
-  after_commit :copy_memebuster_image_paths, on: [:create, :update], if: proc { |a| a.annotation_type == 'memebuster' }
+  after_save :copy_memebuster_image_paths, if: proc { |a| a.annotation_type == 'memebuster' }
 
   private
 
