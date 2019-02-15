@@ -32,7 +32,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {
-      team.team_users.where({ status: 'member' })
+      team.team_users.where({ status: 'member' }).order('id ASC')
     }
   end
 
