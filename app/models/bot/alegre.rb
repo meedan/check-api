@@ -85,9 +85,9 @@ class Bot::Alegre < ActiveRecord::Base
     annotation.annotation_type = 'language'
     annotation.disable_es_callbacks = Rails.env.to_s == 'test'
     annotation.set_fields = { language: lang }.to_json
-    annotation.skip_notifications = true
     annotation.save!
     annotation.update_columns(annotator_id: self.id, annotator_type: 'Bot::Alegre')
+    annotation
   end
 
   def update_machine_translation(target, translations, author)

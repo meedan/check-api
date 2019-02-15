@@ -3,6 +3,8 @@ require 'sidekiq/testing'
 
 class Bot::KeepTest < ActiveSupport::TestCase
   def setup
+    super
+    DeviseMailer.any_instance.stubs(:confirmation_instructions)
     DynamicAnnotation::AnnotationType.delete_all
     DynamicAnnotation::FieldInstance.delete_all
     DynamicAnnotation::FieldType.delete_all
@@ -12,6 +14,11 @@ class Bot::KeepTest < ActiveSupport::TestCase
     WebMock.stub_request(:post, 'https://www.bravenewtech.org/api/').to_return(body: { package: '123456' }.to_json)
     WebMock.stub_request(:post, 'https://www.bravenewtech.org/api/status.php').to_return(body: { location: 'http://keep.org' }.to_json)
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
+  end
+
+  def teardown
+    super
+    DeviseMailer.any_instance.unstub(:confirmation_instructions)
   end
 
   test "should exist" do

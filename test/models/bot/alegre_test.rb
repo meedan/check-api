@@ -71,4 +71,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       assert_equal [], translations
     end
   end
+
+  test "should notify Pusher when language is saved" do
+    lang = @bot.send(:save_language, @pm, 'en')
+    assert lang.sent_to_pusher
+  end
 end

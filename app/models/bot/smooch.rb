@@ -171,15 +171,30 @@ class Bot::Smooch
     Rails.cache.write(key, job_id)
   end
 
+  def self.get_text_from_message(message)
+    text = message['text'][/[^\s]+\.[^\s]+/, 0].to_s.gsub(/^https?:\/\//, '')
+    text = message['text'] if text.blank?
+    text.downcase
+  end
+
   def self.user_already_sent_message(message)
     hash = nil
     case message['type']
     when 'text'
-      text = message['text'][/https?:\/\/[^\s]+/, 0] || message['text']
+      text = self.get_text_from_message(message)
       hash = Digest::MD5.hexdigest(text)
     when 'image'
       open(message['mediaUrl']) do |f|
         hash = Digest::MD5.hexdigest(f.read)
+      end
+    when 'file'
+      if message['mediaType'].to_s =~ /^image\//
+        open(message['mediaUrl']) do |f|
+          hash = Digest::MD5.hexdigest(f.read)
+        end
+      else
+        self.send_message_to_user(message['authorId'], "Sorry, we don't support this kind of message yet")
+        return true
       end
     else
       self.send_message_to_user(message['authorId'], "Sorry, we don't support this kind of message yet")
@@ -232,6 +247,8 @@ class Bot::Smooch
            self.save_text_message(json)
          when 'image'
            self.save_image_message(json)
+         when 'file'
+           json['mediaType'].to_s =~ /^image\// ? self.save_image_message(json) : return
          else
            return
          end
@@ -256,7 +273,10 @@ class Bot::Smooch
 
   def self.get_url_from_text(text)
     begin
-      URI.parse(text[/https?:\/\/[^\s]+/, 0])
+      url = text[/[^\s]+\.[^\s]+/, 0].to_s
+      return nil if url.blank?
+      url = 'https://' + url unless url =~ /^https?:\/\//
+      URI.parse(url)
     rescue URI::InvalidURIError
       nil
     end
@@ -267,7 +287,7 @@ class Bot::Smooch
     url = self.get_url_from_text(text)
 
     if url.nil?
-      pm = ProjectMedia.joins(:media).where('medias.quote' => text, 'project_medias.project_id' => json['project_id']).last ||
+      pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => json['project_id']).last ||
            ProjectMedia.create!(project_id: json['project_id'], quote: text)
     else
       m = Media.new url: url
