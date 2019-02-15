@@ -667,6 +667,15 @@ module SampleData
     a.set_fields = options[:set_fields]
     a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     a.disable_update_status =  options.has_key?(:disable_update_status) ? options[:disable_update_status] : true
+    file = nil
+    if options.has_key?(:file)
+      file = options[:file]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        a.file = [f]
+      end
+    end
     a.save!
     a
   end
