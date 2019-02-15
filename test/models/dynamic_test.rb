@@ -349,5 +349,9 @@ class DynamicTest < ActiveSupport::TestCase
     d = create_dynamic_annotation annotation_type: 'memebuster', file: 'rails.png', set_fields: { memebuster_image: '' }.to_json
     assert_not_nil d.file
     assert_match /rails.png/, d.reload.get_field_value('memebuster_image')
+    d.set_fields = { memebuster_image: 'http://imgur.com/memebuster.png' }.to_json
+    d.save!
+    d = Dynamic.find(d.id)
+    assert_equal 'http://imgur.com/memebuster.png', d.get_field_value('memebuster_image')
   end
 end
