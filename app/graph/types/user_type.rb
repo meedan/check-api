@@ -31,7 +31,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :source do
     type SourceType
     resolve -> (user, _args, _ctx) do
-      RecordLoader.for(Source).load(user.source_id)
+      Source.find(user.source_id)
     end
   end
 
