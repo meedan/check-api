@@ -104,4 +104,7 @@ class UploadedImageTest < ActiveSupport::TestCase
     assert_equal t.public_path, t.media_url
   end
 
+  test "should return a list of white-listed extensions" do
+    assert_kind_of Array, ImageUploader.new.extension_white_list
+  end
 end

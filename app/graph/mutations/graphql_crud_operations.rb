@@ -55,8 +55,8 @@ class GraphqlCrudOperations
 
   def self.update(_type, inputs, ctx, parents = [])
     obj = CheckGraphql.object_from_id(inputs[:id], ctx)
-    obj.file = ctx[:file] if !ctx[:file].blank?
     obj = obj.load if obj.is_a?(Annotation)
+    obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == 'id'
