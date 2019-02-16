@@ -21,5 +21,5 @@ module TaskMutations
     id: '!id'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('task', create_fields, update_fields, ['project_media', 'source', 'project'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('task', create_fields, update_fields, ['project_media', 'source', 'project', 'first_response_version'])
 end

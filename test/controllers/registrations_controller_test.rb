@@ -6,6 +6,13 @@ class RegistrationsControllerTest < ActionController::TestCase
     @controller = Api::V1::RegistrationsController.new
     @request.env["devise.mapping"] = Devise.mappings[:api_user]
     User.current = nil
+    Team.current = nil
+  end
+
+  def teardown
+    super
+    User.current = nil
+    Team.current = nil
   end
 
   test "should create user" do
