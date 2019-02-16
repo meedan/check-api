@@ -1,6 +1,9 @@
 class Dynamic < ActiveRecord::Base
   include AnnotationBase
 
+  mount_uploaders :file, ImageUploader
+  serialize :file, JSON
+
   attr_accessor :set_fields, :set_attribution
 
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
