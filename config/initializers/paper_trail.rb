@@ -32,6 +32,10 @@ module PaperTrail
       self.item.project_media if self.item.respond_to?(:project_media)
     end
 
+    def associated_graphql_id
+      Base64.encode64("#{self.associated_type}/#{self.associated_id}")
+    end
+
     def source
       self.item.source if self.item.respond_to?(:source)
     end

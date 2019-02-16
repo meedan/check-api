@@ -323,7 +323,7 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should update assignments progress cache" do
     create_translation_status_stuff
     create_verification_status_stuff(false)
-    at = create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'task_response'
     ft = create_field_type field_type: 'task_reference'
     create_field_instance annotation_type_object: at, name: 'response_test'
     create_field_instance annotation_type_object: at, field_type_object: ft, name: 'task'
@@ -357,19 +357,19 @@ class TeamUserTest < ActiveSupport::TestCase
         assert_equal 0, tu.reload.assignments_progress[:in_progress]
         assert_equal 2, tu.reload.assignments_progress[:unstarted]
 
-        tk1a1.response = { annotation_type: 'response', set_fields: { response_test: 'test', task: tk1a1.id.to_s }.to_json }.to_json
+        tk1a1.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task: tk1a1.id.to_s }.to_json }.to_json
 
         assert_equal 0, tu.reload.assignments_progress[:completed]
         assert_equal 1, tu.reload.assignments_progress[:in_progress]
         assert_equal 1, tu.reload.assignments_progress[:unstarted]
 
-        tk1a2.response = { annotation_type: 'response', set_fields: { response_test: 'test', task: tk1a2.id.to_s }.to_json }.to_json
+        tk1a2.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task: tk1a2.id.to_s }.to_json }.to_json
 
         assert_equal 1, tu.reload.assignments_progress[:completed]
         assert_equal 0, tu.reload.assignments_progress[:in_progress]
         assert_equal 1, tu.reload.assignments_progress[:unstarted]
 
-        tk1b1.response = { annotation_type: 'response', set_fields: { response_test: 'test', task: tk1b1.id.to_s }.to_json }.to_json
+        tk1b1.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task: tk1b1.id.to_s }.to_json }.to_json
 
         assert_equal 2, tu.reload.assignments_progress[:completed]
         assert_equal 0, tu.reload.assignments_progress[:in_progress]
@@ -381,13 +381,13 @@ class TeamUserTest < ActiveSupport::TestCase
         assert_equal 0, tu.reload.assignments_progress[:in_progress]
         assert_equal 1, tu.reload.assignments_progress[:unstarted]
 
-        tk2a.response = { annotation_type: 'response', set_fields: { response_test: 'test', task: tk2a.id.to_s }.to_json }.to_json
+        tk2a.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task: tk2a.id.to_s }.to_json }.to_json
 
         assert_equal 2, tu.reload.assignments_progress[:completed]
         assert_equal 1, tu.reload.assignments_progress[:in_progress]
         assert_equal 0, tu.reload.assignments_progress[:unstarted]
 
-        tk2b.response = { annotation_type: 'response', set_fields: { response_test: 'test', task: tk2b.id.to_s }.to_json }.to_json
+        tk2b.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task: tk2b.id.to_s }.to_json }.to_json
 
         assert_equal 3, tu.reload.assignments_progress[:completed]
         assert_equal 0, tu.reload.assignments_progress[:in_progress]

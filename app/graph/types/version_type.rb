@@ -12,6 +12,7 @@ VersionType = GraphqlCrudOperations.define_default_type do
   field :object_after, types.String
   field :meta, types.String
   field :object_changes_json, types.String
+  field :associated_graphql_id, types.String
 
   field :user do
     type -> { UserType }
