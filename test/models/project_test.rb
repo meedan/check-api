@@ -174,7 +174,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Project.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      assert_raises MiniMagick::Invalid do
         create_project lead_image: 'not-an-image.txt'
       end
     end
