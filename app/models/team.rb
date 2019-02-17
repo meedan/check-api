@@ -34,6 +34,10 @@ class Team < ActiveRecord::Base
     CONFIG['checkdesk_base_url'] + self.logo.url
   end
 
+  def url
+    CONFIG['checkdesk_base_url'] + '/' + self.slug
+  end
+
   def members_count
     self.team_users.where(status: 'member').permissioned.count
   end
@@ -250,6 +254,10 @@ class Team < ActiveRecord::Base
       properties[type] = Dynamic.send(method, self) if Dynamic.respond_to?(method)
     end
     { type: 'object', properties: properties }
+  end
+
+  def get_memebuster_template
+    self.settings[:memebuster_template] || self.settings['memebuster_template'] || File.read(File.join(Rails.root, 'public', 'memebuster', 'default-template.svg'))
   end
 
   protected

@@ -114,6 +114,13 @@ GEM
     builder (3.2.3)
     byebug (9.0.6)
     cancancan (1.16.0)
+    capybara (2.18.0)
+      addressable
+      mini_mime (>= 0.1.3)
+      nokogiri (>= 1.3.3)
+      rack (>= 1.0.0)
+      rack-test (>= 0.5.4)
+      xpath (>= 2.0, < 4.0)
     carrierwave (1.3.1)
       activemodel (>= 4.0.0)
       activesupport (>= 4.0.0)
@@ -122,6 +129,7 @@ GEM
     chronic_duration (0.10.6)
       numerizer (~> 0.1.1)
     clamav-client (3.1.0)
+    cliver (0.3.2)
     codeclimate-test-reporter (1.0.8)
       simplecov (<= 0.13)
     coercible (1.0.0)
@@ -188,6 +196,9 @@ GEM
     execjs (2.7.0)
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
+    faye-websocket (0.7.5)
+      eventmachine (>= 0.12.0)
+      websocket-driver (>= 0.3.5)
     ffi (1.9.24)
     file_validators (2.1.0)
       activemodel (>= 3.0)
@@ -304,7 +315,7 @@ GEM
     mime-types (3.2.2)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2018.0812)
-    mini_magick (4.7.0)
+    mini_magick (4.3.3)
     mini_mime (1.0.1)
     mini_portile2 (2.3.0)
     minitest (5.11.3)
@@ -369,6 +380,10 @@ GEM
     phony_rails (0.14.5)
       activesupport (>= 3.0)
       phony (~> 2.15)
+    poltergeist (1.12.0)
+      capybara (~> 2.1)
+      cliver (~> 0.3.1)
+      websocket-driver (>= 0.2.0)
     powerpack (0.1.1)
     promise.rb (0.7.4)
     public_suffix (3.0.3)
@@ -607,6 +622,16 @@ GEM
       crack (>= 0.3.2)
       hashdiff
     webrobots (0.1.2)
+    webshot (0.1.0)
+      activesupport
+      faye-websocket (~> 0.7.3)
+      mini_magick (~> 4.3.3)
+      poltergeist (~> 1.12.0)
+    websocket-driver (0.7.0)
+      websocket-extensions (>= 0.1.0)
+    websocket-extensions (0.1.3)
+    xpath (3.2.0)
+      nokogiri (~> 1.8)
     ya2yaml (0.31)
 
 PLATFORMS
@@ -657,7 +682,7 @@ DEPENDENCIES
   jwt
   logstash-logger
   loofah (= 2.2.3)
-  mini_magick
+  mini_magick (= 4.3.3)
   minitest-retry
   mocha
   multi_json (= 1.12.2)
@@ -715,6 +740,7 @@ DEPENDENCIES
   uglifier (>= 1.3.0)
   web-console (~> 2.0)
   webmock
+  webshot (= 0.1.0)
 
 BUNDLED WITH
    1.16.3
