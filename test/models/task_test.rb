@@ -77,20 +77,20 @@ class TaskTest < ActiveSupport::TestCase
   test "should get task responses" do
     t = create_task
     assert_equal [], t.responses
-    at = create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'task_response'
     ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
     assert_equal [], t.reload.responses
     create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     t.disable_es_callbacks = true
-    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
     assert_match /Test/, t.reload.responses.first.content.inspect
   end
 
   test "should delete responses when task is deleted" do
-    at = create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'task_response'
     ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
     create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
@@ -99,7 +99,7 @@ class TaskTest < ActiveSupport::TestCase
     DynamicAnnotation::Field.delete_all
     t = create_task
     t.disable_es_callbacks = true
-    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
     r = t.responses.first
     assert_not_nil Annotation.where(id: r.id).last
@@ -392,7 +392,7 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should resolve task if response is submitted by all assigned users" do
-    at = create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
     ft = create_field_type field_type: 'task_reference'
     create_field_instance annotation_type_object: at, name: 'task_reference', field_type_object: ft
@@ -408,12 +408,12 @@ class TaskTest < ActiveSupport::TestCase
     tk.assign_user(u2.id)
     User.current = u1
     tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
     tk.save!
     assert_equal 'unresolved', tk.reload.status
     User.current = u2
     tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
     tk.save!
     assert_equal 'resolved', tk.reload.status
   end
@@ -424,7 +424,7 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should get first response" do
-    at = create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
     ft = create_field_type field_type: 'task_reference'
     create_field_instance annotation_type_object: at, name: 'task_reference', field_type_object: ft
@@ -438,16 +438,18 @@ class TaskTest < ActiveSupport::TestCase
     create_team_user team: t, user: u2
     User.current = u1
     tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'response', set_fields: { response_test: 'foo', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'foo', task_reference: tk.id.to_s }.to_json }.to_json
     tk.save!
     User.current = nil
     tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'response', set_fields: { response_test: 'bar', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'bar', task_reference: tk.id.to_s }.to_json }.to_json
     tk.save!
     User.current = u1
-    assert_equal 'foo', tk.reload.first_response
+    tk = Task.find(tk.id)
+    assert_equal 'foo', tk.first_response
     User.current = u2
-    assert_equal 'bar', tk.reload.first_response
+    tk = Task.find(tk.id)
+    assert_equal 'bar', tk.first_response
   end
 
   test "should reopen task" do
@@ -485,7 +487,7 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should update user assignments when task requirement changes" do
-    at = create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'task_response'
     ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
     create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
@@ -502,7 +504,7 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 0, pm.assignments_progress[:answered]
     assert_equal 0, pm.assignments_progress[:total]
     with_current_user_and_team(u ,t) do
-      tk.response = { annotation_type: 'response', set_fields: { response: 'Test', task: tk.id.to_s }.to_json }.to_json
+      tk.response = { annotation_type: 'task_response', set_fields: { response: 'Test', task: tk.id.to_s }.to_json }.to_json
       tk.save!
       assert_equal 1, pm.assignments_progress[:answered]
       assert_equal 2, pm.assignments_progress[:total]
@@ -510,6 +512,8 @@ class TaskTest < ActiveSupport::TestCase
       tk.save!
       assert_equal 0, pm.assignments_progress[:answered]
       assert_equal 1, pm.assignments_progress[:total]
+      assert_not_nil tk.first_response_version
+      assert_kind_of PaperTrail::Version, tk.first_response_version
     end
   end
 end

@@ -174,7 +174,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Project.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      assert_raises MiniMagick::Invalid do
         create_project lead_image: 'not-an-image.txt'
       end
     end
@@ -406,12 +406,12 @@ class ProjectTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: create_valid_media
     c = create_comment annotated: pm, text: 'Note 1'
     tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
-    at = create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'task_response'
     ft1 = create_field_type field_type: 'task_reference'
     create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, name: 'response'
     task = create_task annotator: create_user, annotated: pm
-    task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json
+    task.response = { annotation_type: 'task_response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json
     task.save!
     tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
     exported_data = p.export_csv.values.first
