@@ -11,7 +11,7 @@ ENV DEPLOYUSER=checkdeploy \
     TERM=xterm \
     MIN_INSTANCES=4 \
     MAX_POOL_SIZE=12 \
-    PERSIST_DIRS="uploads project_export"
+    PERSIST_DIRS="uploads project_export memebuster"
     # MIN_INSTANCES and MAX_POOL_SIZE control the pool size of passenger
 
 #
@@ -22,6 +22,14 @@ RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 #
 # SYSTEM CONFIG
 #
+
+# dependencies
+RUN apt-get update -qq && apt-get install -y fontconfig libfontconfig ttf-devanagari-fonts ttf-bengali-fonts ttf-gujarati-fonts ttf-telugu-fonts ttf-tamil-fonts ttf-malayalam-fonts
+
+# phantomjs
+RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 && \
+    tar -vxjf phantomjs-2.1.1-linux-x86_64.tar.bz2 && \
+    mv phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin/
 
 # nginx for check-api
 COPY --chown=checkdeploy:www-data production/config/nginx/app.conf /etc/nginx/sites-available/${APP}

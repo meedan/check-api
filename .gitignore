@@ -42,3 +42,5 @@ public/project_export
 public/events.json
 config/credentials.json
 *.rdb
+public/memebuster/*
+!public/memebuster/default-template.svg

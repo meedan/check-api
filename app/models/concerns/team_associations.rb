@@ -17,7 +17,7 @@ module TeamAssociations
     has_many :team_bots_created, class_name: 'TeamBot', foreign_key: :team_author_id, dependent: :destroy
     has_many :tag_texts, dependent: :destroy
     has_many :team_tasks, dependent: :destroy
-  
+
     has_annotations
   end
 end
