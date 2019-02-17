@@ -446,4 +446,82 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should not get invalid URL" do
     assert_nil Bot::Smooch.get_url_from_text('foo http://\foo.bar bar')
   end
+
+  test "should send meme to user" do
+    field_names = ['image', 'overlay', 'published_at', 'headline', 'body', 'status', 'operation']
+    fields = {}
+    field_names.each{ |fn| fields[fn] = ['text', false] }
+    create_annotation_type_and_fields('memebuster', fields)
+    text = random_string
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'text',
+        text: text
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json    
+    Bot::Smooch.run(payload)
+    pm = ProjectMedia.last
+    s = pm.last_status_obj
+    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
+    s.save!
+
+    fields = {}
+    field_names.each{ |fn| fields["memebuster_#{fn}".to_sym] = random_string }
+    a = create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: fields.to_json
+    pa1 = a.get_field_value('memebuster_published_at')
+    filepath = File.join(Rails.root, 'public', 'memebuster', "#{a.id}.png")
+    assert !File.exist?(filepath)
+    a = Dynamic.find(a.id)
+    a.set_fields = { memebuster_operation: 'save' }.to_json
+    a.save!
+    assert !File.exist?(filepath)
+    a = Dynamic.find(a.id)
+    a.set_fields = { memebuster_operation: 'publish' }.to_json
+    a.save!
+    assert File.exist?(filepath)
+    pa2 = a.get_field_value('memebuster_published_at')
+    assert_not_equal pa1.to_s, pa2.to_s
+
+    FileUtils.rm_f(filepath)
+    assert !File.exist?(filepath)
+    messages = [
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'text',
+        text: text
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json    
+    Bot::Smooch.run(payload)
+    pm2 = ProjectMedia.last
+    assert_equal pm, pm2
+    assert File.exist?(filepath)
+  end
 end

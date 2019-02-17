@@ -6,10 +6,20 @@ class Bot::Smooch
   end
 
   ::DynamicAnnotation::Field.class_eval do
+    after_update :send_meme_to_smooch_users, if: proc { |f| f.field_name == 'memebuster_operation' } 
+
     protected
 
     def reply_to_smooch_users
       ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).reply_to_smooch_users(self.annotation.annotated_id)
+    end
+
+    private
+
+    def send_meme_to_smooch_users
+      if self.value_was == 'save' && self.value == 'publish'
+        ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).send_meme_to_smooch_users(self.annotation_id)
+      end
     end
   end
 
@@ -262,7 +272,10 @@ class Bot::Smooch
     a.set_fields = {  smooch_data: json.merge({ app_id: app_id }).to_json }.to_json
     a.save!
     
-    self.send_verification_results_to_user(json['authorId'], pm) if pm.is_finished?
+    if pm.is_finished?
+      self.send_verification_results_to_user(json['authorId'], pm)
+      self.send_meme_to_user(json['authorId'], pm)
+    end
   end
 
   def self.get_project_id(_json)
@@ -355,5 +368,26 @@ class Bot::Smooch
     id = response&.message&.id
     Rails.cache.write('smooch:smooch_message_id:project_media_id:' + id, pm.id) unless id.blank?
     response
+  end
+
+  def self.send_meme_to_user(uid, pm)
+    annotation = pm.get_annotations('memebuster').last.load
+    return if annotation.nil? || annotation.get_field_value('memebuster_published_at').blank?
+    meme = annotation.memebuster_png_path(false)
+    Bot::Smooch.send_message_to_user(uid, 'Meme', { type: 'image', mediaUrl: meme })
+  end
+
+  def self.send_meme_to_smooch_users(annotation_id)
+    annotation = Dynamic.where(id: annotation_id).last
+    pm = annotation&.annotated
+    return if pm.nil?
+    meme = annotation.memebuster_png_path(true)
+    pm.get_annotations('smooch').find_each do |a|
+      data = JSON.parse(a.load.get_field_value('smooch_data'))
+      self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
+      ::Bot::Smooch.send_message_to_user(data['authorId'], 'Meme', { type: 'image', mediaUrl: meme })
+    end
+    annotation.set_fields = { memebuster_published_at: Time.now }.to_json
+    annotation.save!
   end
 end
