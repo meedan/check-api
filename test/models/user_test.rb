@@ -1119,6 +1119,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 1, a.sources.count
     assert_nil a.uid, a.provider
     assert_nil a.token, a.omniauth_info
+    assert_nil a.email
   end
 
   test "should merge confirmed accounts" do

@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
   has_many :team_users, dependent: :destroy
   has_many :teams, through: :team_users
   has_many :projects
-  has_many :accounts
+  has_many :accounts, inverse_of: :user
   has_many :assignments, dependent: :destroy
   has_many :medias
   has_many :project_sources

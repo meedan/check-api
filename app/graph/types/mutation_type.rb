@@ -22,9 +22,9 @@ MutationType = GraphQL::ObjectType.define do
   field :updateTeam, field: TeamMutations::Update.field
   field :destroyTeam, field: TeamMutations::Destroy.field
 
-  field :createAccount, field: AccountMutations::Create.field
+  # field :createAccount, field: AccountMutations::Create.field
   field :updateAccount, field: AccountMutations::Update.field
-  field :destroyAccount, field: AccountMutations::Destroy.field
+  # field :destroyAccount, field: AccountMutations::Destroy.field
 
   field :createAccountSource, field: AccountSourceMutations::Create.field
   field :updateAccountSource, field: AccountSourceMutations::Update.field
