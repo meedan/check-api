@@ -147,7 +147,7 @@ module UserMultiAuthLogin
 	        a.destroy
 	      else
 	        # clean account from omniauth info
-	        a.update_columns(provider: nil, token: nil, omniauth_info: nil, uid: nil)
+	        a.update_columns(provider: nil, token: nil, omniauth_info: nil, uid: nil, email: nil)
 	        # delete account source
 	        as = a.account_sources.where(source_id: self.source_id).last
 	        as.skip_check_ability = true
