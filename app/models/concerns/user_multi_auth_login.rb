@@ -10,8 +10,8 @@ module UserMultiAuthLogin
 	    self.update_facebook_uuid(auth)
 	    u = User.find_with_omniauth(auth.uid, auth.provider)
 	    id = []
-	    id << u.id unless u.nil?
 	    id << current_user.id unless current_user.nil?
+	    id << u.id if !u.nil? && id.blank?
 	    duplicate_user = User.get_duplicate_user(auth.info.email, id)[:user]
 	    u = self.check_merge_users(u, current_user, duplicate_user) unless duplicate_user.nil?
 	    u ||= current_user
