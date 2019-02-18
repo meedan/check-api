@@ -1167,4 +1167,14 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 1, t.team_users.count
     assert_equal ['journalist'], t.team_users.map(&:role)
   end
+
+  test "should merge two existing accounts" do
+    u = create_omniauth_user provider: 'twitter', email: 'test@local.com', uid: '123456'
+    u2 = create_omniauth_user provider: 'facebook', email: 'test2@local.com', uid: '345678'
+    create_omniauth_user provider: 'twitter', email: 'test@local.com', uid: '123456', current_user: u2
+    assert_equal 2, u2.source.accounts.count
+    assert_raises ActiveRecord::RecordNotFound do
+      User.find(u.id)
+    end
+  end
 end

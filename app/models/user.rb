@@ -330,19 +330,23 @@ class User < ActiveRecord::Base
     # remove shared accounts on both sources
     s = self.source
     s2 = user.source
-    as = AccountSource.where(source_id: s2.id, account_id: s.accounts)
-    as.each{|i| i.skip_check_ability = true; i.destroy;}
+    unless s2.nil?
+      as = AccountSource.where(source_id: s2.id, account_id: s.accounts)
+      as.each{|i| i.skip_check_ability = true; i.destroy;}
+    end
     all_associations = User.reflect_on_all_associations(:has_many).select{|a| a.foreign_key == 'user_id'}
     all_associations.each do |assoc|
       assoc.class_name.constantize.where(assoc.foreign_key => user.id).update_all(assoc.foreign_key => self.id)
     end
-    AccountSource.where(source_id: s2.id).update_all(source_id: s.id)
     Annotation.where(annotator_id: user.id, annotator_type: 'User').update_all(annotator_id: self.id)
     PaperTrail::Version.where(whodunnit: user.id).update_all(whodunnit: self.id)
     user.skip_check_ability = true
     user.destroy
-    s2.skip_check_ability = true
-    s2.destroy
+    unless s2.nil?
+      AccountSource.where(source_id: s2.id).update_all(source_id: s.id)
+      s2.skip_check_ability = true
+      s2.destroy
+    end
     # update cached teams for merged user
     columns = {}
     columns = {encrypted_password: user.encrypted_password, email: user.email} if user.encrypted_password?
