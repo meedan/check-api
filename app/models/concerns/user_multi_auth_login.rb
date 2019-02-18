@@ -76,10 +76,7 @@ module UserMultiAuthLogin
 	  def self.update_facebook_uuid(auth)
 	  	# Update uid for facebook account if match email and provider
 	  	if !auth.info.email.blank? && auth.provider == 'facebook'
-	  		fb_user = User.where(email: auth.info.email).first
-	  		fb_accounts = fb_user.get_social_accounts_for_login({provider: auth.provider}) unless fb_user.nil?
-	  		fb_accounts ||= []
-	  		fb_account = fb_accounts.select{|a| a.omniauth_info.dig('info', 'email') == auth.info.email}.first
+	  		fb_account = Account.where(email: auth.info.email, provider: 'facebook').first
 	      if !fb_account.nil? && fb_account.uid != auth.uid
 	        fb_account.uid = auth.uid
 	        fb_account.skip_check_ability = true
