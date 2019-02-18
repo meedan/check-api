@@ -83,6 +83,7 @@ class Account < ActiveRecord::Base
     self.refresh_embed_data
     self.sources.each do |s|
       s.updated_at = Time.now
+      s.skip_check_ability = true
       s.save!
     end
     self.updated_at = Time.now

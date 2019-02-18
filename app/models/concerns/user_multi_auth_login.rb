@@ -56,6 +56,7 @@ module UserMultiAuthLogin
 	    begin
 	    	source = user.source
 	      account.user = user
+	      account.source = source
 	      account.url = auth.url
 	      account.uid = auth.uid
 	      account.provider = auth.provider
