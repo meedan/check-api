@@ -54,8 +54,9 @@ module UserMultiAuthLogin
 	    a = Account.where(url: auth.url).last if a.nil?
 	    account = a.nil? ? Account.new(created_on_registration: true) : a
 	    begin
+	    	source = user.source
 	      account.user = user
-	      account.source = user.source
+	      account.source = source
 	      account.url = auth.url
 	      account.uid = auth.uid
 	      account.provider = auth.provider
@@ -64,6 +65,7 @@ module UserMultiAuthLogin
 	      account.email = auth.info.email
 	      if account.save
 	        account.update_columns(url: auth.url)
+	        account.sources << source if account.account_sources.where(source_id: source.id).blank?
 	        user.set_source_image
 	      end
 	    rescue Errno::ECONNREFUSED => e
@@ -101,8 +103,9 @@ module UserMultiAuthLogin
 	    s = self.source
 	    return nil if s.nil? || !ActiveRecord::Base.connection.column_exists?(:accounts, :uid)
 	    if conditions.blank?
-	      a = s.accounts.where('uid IS NOT NULL')
+	      a = s.accounts.where("uid IS NOT NULL AND user_id = ?", self.id)
 	    else
+	    	conditions[:user_id] = self.id
 	      a = s.accounts.where(conditions)
 	    end
 	    a
@@ -144,7 +147,7 @@ module UserMultiAuthLogin
 	        a.destroy
 	      else
 	        # clean account from omniauth info
-	        a.update_columns(provider: nil, token: nil, omniauth_info: nil, uid: nil)
+	        a.update_columns(provider: nil, token: nil, omniauth_info: nil, uid: nil, email: nil)
 	        # delete account source
 	        as = a.account_sources.where(source_id: self.source_id).last
 	        as.skip_check_ability = true

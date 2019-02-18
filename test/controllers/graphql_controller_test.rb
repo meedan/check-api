@@ -85,13 +85,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   # Test CRUD operations for each model
 
-  test "should create account" do
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
-      assert_graphql_create('account', { url: @url })
-    end
-  end
-
   test "should read accounts" do
     assert_graphql_read('account', 'url')
     assert_graphql_read('account', 'embed')
@@ -496,23 +489,22 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_get_by_id('team', 'name', 'Test')
   end
 
-  test "should return validation error" do
-    authenticate_with_user
-    url = 'https://www.youtube.com/user/MeedanTube'
-
+  test "should refresh account" do
+    u = create_user
+    authenticate_with_user(u)
+    url = "http://twitter.com/example#{Time.now.to_i}"
+    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
+    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
+    WebMock.stub_request(:get, pender_url).to_return(ret)
+    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
+    a = create_account user: u, url: url
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
-      query = 'mutation create { createAccount(input: { clientMutationId: "1", url: "' + url + '" }) { account { id } } }'
-
-      assert_difference 'Account.count' do
-        post :create, query: query
-      end
+      WebMock.disable_net_connect!
+      id = a.graphql_id
+      query = 'mutation update { updateAccount(input: { clientMutationId: "1", id: "' + id.to_s + '", refresh_account: 1 }) { account { id } } }'
+      post :create, query: query
       assert_response :success
-
-      assert_no_difference 'Account.count' do
-        post :create, query: query
-      end
-      assert_response 400
     end
   end
 
