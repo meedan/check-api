@@ -491,12 +491,21 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should refresh account" do
     u = create_user
-    a = create_account user: u
     authenticate_with_user(u)
-    id = a.graphql_id
-    query = 'mutation update { updateAccount(input: { clientMutationId: "1", id: "' + id.to_s + '", refresh_account: 1 }) { account { id } } }'
-    post :create, query: query
-    assert_response :success
+    url = "http://twitter.com/example#{Time.now.to_i}"
+    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
+    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
+    WebMock.stub_request(:get, pender_url).to_return(ret)
+    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
+    a = create_account user: u, url: url
+    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
+      WebMock.disable_net_connect!
+      id = a.graphql_id
+      query = 'mutation update { updateAccount(input: { clientMutationId: "1", id: "' + id.to_s + '", refresh_account: 1 }) { account { id } } }'
+      post :create, query: query
+      assert_response :success
+    end
   end
 
   test "should create contact" do
