@@ -11,7 +11,9 @@ module UserMultiAuthLogin
 	    u = User.find_with_omniauth(auth.uid, auth.provider)
 	    ids = User.excluded_uids(u, current_user)
 	    duplicate_user = User.get_duplicate_user(auth.info.email, ids)[:user]
-	    u = self.check_merge_users(u, current_user, duplicate_user) unless duplicate_user.nil?
+	    # raise error if user try to connect with an account related to another user (is_active = false or not confirmed).
+	    raise RuntimeError, I18n.t(:error_login_with_exists_account) unless duplicate_user.nil? || duplicate_user.is_confirmed?
+	    u = self.check_merge_users(u, current_user, duplicate_user)
 	    u ||= current_user
 	    user = self.create_omniauth_user(u, auth)
 	    User.create_omniauth_account(auth, user) unless auth.url.blank? || auth.provider.blank?
@@ -26,14 +28,12 @@ module UserMultiAuthLogin
 	  end
 
 	  def self.check_merge_users(u, current_user, duplicate_user)
-	  	# raise error if user try to connect with an account related to another user (is_active = false or not confirmed).
-    	raise RuntimeError, I18n.t(:error_login_with_exists_account) unless duplicate_user.is_confirmed?
-    	if current_user.nil?
-    		u.merge_with(duplicate_user) unless u.nil?
-    	else
-    		current_user.merge_with(duplicate_user)
+    	unless current_user.nil?
+    		current_user.merge_with(duplicate_user) unless duplicate_user.nil?
     		current_user.merge_with(u) unless u.nil?
     		u = current_user
+    	else
+    		u.merge_with(duplicate_user) unless duplicate_user.nil? || u.nil?
     	end
     	u ||= duplicate_user
     	u
