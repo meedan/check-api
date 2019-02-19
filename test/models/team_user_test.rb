@@ -357,6 +357,15 @@ class TeamUserTest < ActiveSupport::TestCase
         assert_equal 0, tu.reload.assignments_progress[:in_progress]
         assert_equal 2, tu.reload.assignments_progress[:unstarted]
 
+        # test recreate the cache key if not exists
+        cache_key = "cache-assignments-progress-#{tu.user_id}-team-#{tu.team_id}"
+        assert Rails.cache.exist?(cache_key)
+        assert Rails.cache.delete(cache_key)
+        assert_equal 0, tu.reload.assignments_progress[:completed]
+        assert_equal 0, tu.reload.assignments_progress[:in_progress]
+        assert_equal 2, tu.reload.assignments_progress[:unstarted]
+        # end test for not existing cache key
+
         tk1a1.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task: tk1a1.id.to_s }.to_json }.to_json
 
         assert_equal 0, tu.reload.assignments_progress[:completed]

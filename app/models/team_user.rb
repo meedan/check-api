@@ -130,7 +130,9 @@ class TeamUser < ActiveRecord::Base
   end
 
   def assignments_progress
-    data = Rails.cache.read("cache-assignments-progress-#{self.user_id}-team-#{self.team_id}") || {
+    cache_key = "cache-assignments-progress-#{self.user_id}-team-#{self.team_id}"
+    self.set_assignments_progress unless Rails.cache.exist?(cache_key)
+    data = Rails.cache.read(cache_key) || {
       completed: 0,
       in_progress: 0,
       unstarted: 0
