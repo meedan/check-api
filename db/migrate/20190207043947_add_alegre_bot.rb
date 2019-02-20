@@ -28,7 +28,7 @@ class AddAlegreBot < ActiveRecord::Migration
     tb.events = [ { event: 'create_project_media', graphql: 'dbid' } ]
     tb.settings = []
     tb.approved = true
-    tb.limited = false
+    tb.limited = true
     tb.save!
     
     CONFIG['clamav_service_path'] = config
