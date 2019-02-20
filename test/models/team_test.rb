@@ -1530,7 +1530,7 @@ class TeamTest < ActiveSupport::TestCase
     Team.stubs(:current).returns(t)
     members = [{role: 'contributor', email: 'test1@local.com'}, {role: 'journalist', email: 'test2@local.com'}]
     User.send_user_invitation(members)
-    assert_equal ['test1@local.com', 'test2@local.com'], t.invited_mails
+    assert_equal ['test1@local.com', 'test2@local.com'].sort, t.invited_mails.sort
     u = User.where(email: 'test1@local.com').last
     User.accept_team_invitation(u.read_attribute(:raw_invitation_token), t.slug)
     assert_equal ['test2@local.com'], t.invited_mails
