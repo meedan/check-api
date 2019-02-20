@@ -10,10 +10,6 @@ class Bot::Keep
     end
   end
 
-  def self.valid_request?(request)
-    request.base_url == CONFIG['checkdesk_base_url_private']
-  end
-
   def self.archiver_annotation_types
     [
       'keep_backup',    # VideoVault
@@ -35,6 +31,57 @@ class Bot::Keep
       'pender_archive' => 'screenshot',
       'keep_backup' => 'video_vault'
     }[type] || type
+  end
+
+  def self.should_skip_project_media?(pm)
+    pm&.project&.team&.get_limits_keep == false
+  end
+
+  def self.valid_request?(request)
+    begin
+      payload = request.raw_post
+      signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'].to_s, payload)
+      if Rack::Utils.secure_compare(signature, request.headers['X-Signature'].to_s)
+        JSON.parse(request.raw_post)
+        return true
+      else
+        return false
+      end
+    rescue
+      return false
+    end
+  end
+
+  def self.webhook(request)
+    payload = JSON.parse(request.raw_post)
+    if payload['url']
+      link = Link.where(url: payload['url']).last
+      type = Bot::Keep.archiver_to_annotation_type(payload['type'])
+      unless link.nil?
+        response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
+        em = link.pender_embed
+        data = JSON.parse(em.data['embed'])
+        data['archives'] ||= {}
+        data['archives'][payload['type']] = response
+        response.each { |key, value| data[key] = value }
+        em.embed = data.to_json
+        em.save!
+
+        ProjectMedia.where(media_id: link.id).each do |pm|
+          next if Bot::Keep.should_skip_project_media?(pm)
+          
+          annotation = pm.annotations.where(annotation_type: type).last
+          
+          unless annotation.nil?
+            annotation = annotation.load
+            annotation.skip_check_ability = true
+            annotation.disable_es_callbacks = Rails.env.to_s == 'test'
+            annotation.set_fields = { "#{type}_response" => response.to_json }.to_json
+            annotation.save!
+          end
+        end
+      end
+    end
   end
 
   def self.set_response_based_on_pender_data(type, data)

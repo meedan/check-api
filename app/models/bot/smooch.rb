@@ -122,6 +122,10 @@ class Bot::Smooch
     RequestStore.store[:smooch_bot_settings]
   end
 
+  def self.webhook(request)
+    Bot::Smooch.run(request.body.read)
+  end
+
   def self.run(body)
     begin
       json = JSON.parse(body)

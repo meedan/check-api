@@ -114,24 +114,6 @@ module Api
         end
       end
 
-      def verify_payload!
-        begin
-          payload = request.raw_post
-          if verify_signature(payload)
-            @payload = JSON.parse(payload)
-          else
-            render_unauthorized and return
-          end
-        rescue
-          render_error('Could not verify payload', 'UNKNOWN') and return
-        end
-      end
-
-      def verify_signature(payload)
-        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'].to_s, payload)
-        Rack::Utils.secure_compare(signature, request.headers['X-Signature'].to_s)
-      end
-
       def get_params
         params.reject{ |k, _v| ['id', 'action', 'controller', 'format'].include?(k) }
       end

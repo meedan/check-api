@@ -12,10 +12,6 @@ class Bot::Alegre < ActiveRecord::Base
     end
   end
 
-  def self.valid_request?(request)
-    request.base_url == CONFIG['checkdesk_base_url_private']
-  end
-
   def self.default
     Bot::Alegre.where(name: 'Alegre Bot').last || Bot::Alegre.new
   end

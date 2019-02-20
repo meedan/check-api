@@ -66,36 +66,6 @@ class BaseApiControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should parse webhook payload" do
-    payload = { foo: 'bar' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
-    @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :notify
-    @request.env.delete('RAW_POST_DATA')
-    assert_response :success
-  end
-
-  test "should return authentication error when parsing webhook" do
-    payload = { foo: 'bar' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'invalid_token', payload)
-    @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :notify
-    @request.env.delete('RAW_POST_DATA')
-    assert_response 401
-  end
-
-  test "should return unknown error when parsing webhook" do
-    payload = nil
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'invalid_token', payload.to_s)
-    @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :notify
-    @request.env.delete('RAW_POST_DATA')
-    assert_response 400
-  end
-
   test "should get version" do
     authenticate_with_token
     @controller = Api::V1::BaseApiController.new

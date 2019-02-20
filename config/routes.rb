@@ -38,8 +38,7 @@ Rails.application.routes.draw do
       match '/admin/project/:id/add_publisher/:provider' => 'admin#add_publisher_to_project', via: [:get]
       match '/admin/user/slack' => 'admin#slack_user', via: [:get]
       match '/project_medias/:id/oembed' => 'project_medias#oembed', via: [:get], defaults: { format: :json }
-      match '/project_medias/webhook' => 'project_medias#webhook', via: [:post], defaults: { format: :json }
-      match '/bots/:name' => 'bots#index', via: [:post], defaults: { format: :json }
+      match '/webhooks/:name' => 'webhooks#index', via: [:post], defaults: { format: :json }
       devise_for :users, controllers: { invitations: 'api/v1/invitations', sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', omniauth_callbacks: 'api/v1/omniauth_callbacks', confirmations: 'api/v1/confirmations' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'
