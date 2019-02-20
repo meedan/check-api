@@ -326,7 +326,8 @@ class User < ActiveRecord::Base
   end
 
   def merge_with(user)
-    merge_shared_teams(user)
+    tu_old = self.team_users.map(&:id)
+    merged_tu = merge_shared_teams(user)
     # remove shared accounts on both sources
     s = self.source
     s2 = user.source
@@ -354,17 +355,25 @@ class User < ActiveRecord::Base
       s2.destroy
     end
     self.update_columns(columns)
+    # update assignments cache
+    merged_tu.concat(self.team_users.where.not(id: tu_old))
+    merged_tu.each do |tu|
+      tu.set_assignments_progress
+    end
   end
 
   def merge_shared_teams(u)
+    merged_tu = []
     # handle case that both users exists on same team by kepping a higher role
     teams = TeamUser.select("team_id").where(user_id: [self.id, u.id]).group("team_id").having("count(team_id) = ?", 2).map(&:team_id)
     teams.each do |t|
       tu = TeamUser.where(user_id: [self.id, u.id], team_id: t)
       low_role = tu.sort_by{|x| ROLES.find_index(x.role)}.first
+      merged_tu.concat(tu.to_a - [low_role])
       low_role.skip_check_ability = true
       low_role.destroy
     end
+    merged_tu
   end
 
   def self.get_duplicate_user(email, id=0)
