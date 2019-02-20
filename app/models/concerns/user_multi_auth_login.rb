@@ -23,7 +23,7 @@ module UserMultiAuthLogin
 	  def self.excluded_uids(u, current_user)
 	  	ids = []
 	    ids << current_user.id unless current_user.nil?
-	    ids << u.id if !u.nil? && ids.blank?
+	    ids << u.id unless u.nil?
 	    ids
 	  end
 
