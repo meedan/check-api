@@ -340,6 +340,12 @@ class User < ActiveRecord::Base
     end
     Annotation.where(annotator_id: user.id, annotator_type: 'User').update_all(annotator_id: self.id)
     PaperTrail::Version.where(whodunnit: user.id).update_all(whodunnit: self.id)
+    # update cached teams and encrypted_password for merged user
+    columns = {}
+    if !self.encrypted_password? && user.encrypted_password?
+      columns = {encrypted_password: user.encrypted_password, email: user.email, token: user.token}
+    end
+    columns[:cached_teams] = TeamUser.where(user_id: self.id, status: 'member').map(&:team_id)
     user.skip_check_ability = true
     user.destroy
     unless s2.nil?
@@ -347,10 +353,6 @@ class User < ActiveRecord::Base
       s2.skip_check_ability = true
       s2.destroy
     end
-    # update cached teams for merged user
-    columns = {}
-    columns = {encrypted_password: user.encrypted_password, email: user.email} if user.encrypted_password?
-    columns[:cached_teams] = TeamUser.where(user_id: self.id, status: 'member').map(&:team_id)
     self.update_columns(columns)
   end
 

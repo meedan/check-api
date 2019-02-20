@@ -34,12 +34,23 @@ module Api
         unless user.nil?
           session['checkdesk.current_user_id'] = user.id
           User.current = user
-          sign_in(user) if current_api_user.nil?
+          login_options = sign_in_options(user)
+          sign_in(user, :bypass => login_options[:bypass]) if login_options[:login]
         end
 
         destination = get_check_destination
 
         redirect_to destination
+      end
+
+      def sign_in_options(user)
+        login = { login: false, bypass: false }
+        if current_api_user.nil?
+          login[:login] = true
+        else
+          login = { login: true, bypass: true } if user.encrypted_password?
+        end
+        login
       end
 
       def get_check_destination

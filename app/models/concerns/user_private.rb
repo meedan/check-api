@@ -71,7 +71,7 @@ module UserPrivate
   end
 
   def skip_confirmation_for_non_email_provider
-    self.skip_confirmation! if self.from_omniauth_login && self.skip_confirmation_mail.nil?
+    self.skip_confirmation! if self.from_omniauth_login || self.skip_confirmation_mail.nil?
   end
 
   def set_blank_email_for_unconfirmed_user
