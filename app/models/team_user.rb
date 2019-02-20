@@ -114,6 +114,7 @@ class TeamUser < ActiveRecord::Base
           answered_tasks_count += 1 if task.responses.select{ |r| r.annotator_id.to_i == self.user_id }.any?
         end
       end
+      next if required_tasks_count == 0 && answered_tasks_count == 0
       if required_tasks_count == answered_tasks_count
         completed += 1
       elsif answered_tasks_count > 0
