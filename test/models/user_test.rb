@@ -1179,5 +1179,7 @@ class UserTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordNotFound do
       User.find(u2.id)
     end
+    # test connect with same provider
+    create_omniauth_user provider: 'twitter', email: 'test_a@local.com', uid: '123456', current_user: u
   end
 end
