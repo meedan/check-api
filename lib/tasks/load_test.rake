@@ -103,7 +103,7 @@ namespace :test do
             conversationStarted: true
           }
         }.to_json
-        file.puts "#{CONFIG['checkdesk_base_url']}/api/bots/smooch POST #{params}"
+        file.puts "#{CONFIG['checkdesk_base_url']}/api/webhooks/smooch POST #{params}"
       end
       puts "[#{Time.now}] Generated file with random requests"
       file.close

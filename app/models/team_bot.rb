@@ -88,16 +88,21 @@ class TeamBot < ActiveRecord::Base
   end
 
   def call(data)
-    begin
-      uri = URI.parse(self.request_url)
-      headers = { 'Content-Type': 'application/json' }
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true if self.request_url =~ /^https:/
-      request = Net::HTTP::Post.new(uri.request_uri, headers)
-      request.body = data.to_json
-      http.request(request)
-    rescue SocketError
-      Rails.logger.info("Couldn't call bot #{self.id}")
+    host = self.request_url.to_s.match(/^https?:\/\/[^\/]+/)
+    if !host.nil? && host[0] == CONFIG['checkdesk_base_url_private']
+      TeamBot.call_core_bot(self.identifier, data)
+    else
+      begin
+        uri = URI.parse(self.request_url)
+        headers = { 'Content-Type': 'application/json' }
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true if self.request_url =~ /^https:/
+        request = Net::HTTP::Post.new(uri.request_uri, headers)
+        request.body = data.to_json
+        http.request(request)
+      rescue SocketError
+        Rails.logger.info("Couldn't call bot #{self.id}")
+      end
     end
     
     self.last_called_at = Time.now
@@ -181,6 +186,17 @@ class TeamBot < ActiveRecord::Base
       team_bot = team_bot_installation.team_bot
       team_bot.notify_about_event(event, object, team, team_bot_installation) if team_bot.subscribed_to?(event)
     end
+  end
+
+  def self.call_core_bot(id, data = {})
+    bot_name_to_class = {
+      keep: Bot::Keep,
+      smooch: Bot::Smooch,
+      alegre: Bot::Alegre
+    }
+
+    bot = bot_name_to_class[id.to_sym]
+    bot.run(data.to_json) unless bot.blank?
   end
 
   private
