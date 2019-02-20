@@ -64,7 +64,6 @@ class Assignment < ActiveRecord::Base
     assignment = YAML::load(assignment)
     to_create = []
     to_delete = []
-    task_ids = []
     objs = assignment.assigned.propagate_assignment_to(assignment.user)
     task_ids = objs.select{ |t| t.is_a?(Task) }.map(&:id)
     objs.each do |obj|
