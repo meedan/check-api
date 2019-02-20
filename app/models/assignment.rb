@@ -64,6 +64,7 @@ class Assignment < ActiveRecord::Base
     assignment = YAML::load(assignment)
     to_create = []
     to_delete = []
+    task_ids = []
     assignment.assigned.propagate_assignment_to(assignment.user).each do |obj|
       klass = obj.parent_class_name
       existing = Assignment.where(user_id: assignment.user_id, assigned_type: klass, assigned_id: obj.id).last
@@ -74,11 +75,13 @@ class Assignment < ActiveRecord::Base
         a.assigned_type = klass
         a.propagate_in_foreground = true
         to_create << a
+        task_ids << obj.id if obj.is_a?(Task)
       elsif existing.present? && event == :unassign
         to_delete << existing.id
       end
     end
     Assignment.import(to_create)
+    DynamicAnnotation::Field.joins(:annotation).where(field_name: 'task_status_status').where('annotations.annotated_id' => task_ids).update_all(value: 'unresolved')
     Assignment.delete(to_delete)
     assignment.send(:update_user_assignments_progress)
     if Assignment.should_send_assignment_email(requestor_id, assignment)
