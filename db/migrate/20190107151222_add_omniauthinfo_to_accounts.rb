@@ -16,7 +16,7 @@ class AddOmniauthinfoToAccounts < ActiveRecord::Migration
   		unless a.nil?
         auth = u.omniauth_info.nil? ? nil : YAML.load(u.omniauth_info)
         email = auth.dig('info', 'email') unless auth.nil?
-  			updates = {uid: u.uuid, omniauth_info: auth, provider: u.provider, token: u.token, email: email}
+  			updates = {uid: u.uuid, omniauth_info: auth, provider: u.provider, token: u.token, email: email, user_id: u.id}
   			a.update_columns(updates)
         u.update_columns(encrypted_password: nil)
   		end
