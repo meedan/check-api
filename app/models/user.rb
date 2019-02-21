@@ -347,6 +347,7 @@ class User < ActiveRecord::Base
     if !self.encrypted_password? && user.encrypted_password?
       columns = {encrypted_password: user.encrypted_password, email: user.email, token: user.token}
     end
+    columns[:is_admin] = true if user.is_admin?
     columns[:cached_teams] = TeamUser.where(user_id: self.id, status: 'member').map(&:team_id)
     user.skip_check_ability = true
     user.destroy
