@@ -34,6 +34,10 @@ class Team < ActiveRecord::Base
     CONFIG['checkdesk_base_url'] + self.logo.url
   end
 
+  def url
+    CONFIG['checkdesk_base_url'] + '/' + self.slug
+  end
+
   def members_count
     self.team_users.where(status: 'member').permissioned.count
   end
@@ -237,6 +241,23 @@ class Team < ActiveRecord::Base
   def invited_mails(team=nil)
     team ||= Team.current
     TeamUser.select('users.email').where(team_id: team.id, status: 'invited').where.not(invitation_token: nil).joins(:user).map(&:email) unless team.nil?
+  end
+
+  def dynamic_search_fields_json_schema
+    annotation_types = Annotation
+                       .group('annotations.annotation_type')
+                       .joins("INNER JOIN project_medias pm ON annotations.annotated_type = 'ProjectMedia' AND pm.id = annotations.annotated_id INNER JOIN projects p ON pm.project_id = p.id")
+                       .where('p.team_id' => self.id).count.keys
+    properties = {}
+    annotation_types.each do |type|
+      method = "field_search_json_schema_type_#{type}"
+      properties[type] = Dynamic.send(method, self) if Dynamic.respond_to?(method)
+    end
+    { type: 'object', properties: properties }
+  end
+
+  def get_memebuster_template
+    self.settings[:memebuster_template] || self.settings['memebuster_template'] || File.read(File.join(Rails.root, 'public', 'memebuster', 'default-template.svg'))
   end
 
   protected

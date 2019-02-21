@@ -45,6 +45,8 @@ module CheckBasicAbilities
     can :create, PaperTrail::Version
     can :read, Team, :private => false
     can :read, Team, :private => true,  id: @user.cached_teams
+    can_list Team, { inactive: false }
+    can_list Project, { 'joins' => :team, 'teams.inactive' => false }
     cannot :manage, BotUser
 
     # A @user can read a user if:

@@ -28,6 +28,7 @@ development: &default
   pusher_app_id:
   pusher_key:
   pusher_secret:
+  pusher_cluster:
   uploaded_file_max_size:
   image_min_width:
   image_max_width:

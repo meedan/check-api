@@ -16,7 +16,7 @@ module CheckPermissions
   module ClassMethods
     def find_if_can(id, ability = nil)
       id = id.id if id.is_a?(ActiveRecord::Base)
-      model = self.name == 'Project' ? self.eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0] : self.find(id)
+      model = self.get_object(id)
       raise ActiveRecord::RecordNotFound if model.nil?
       ability ||= Ability.new
       if ability.can?(:read, model)
@@ -25,6 +25,20 @@ module CheckPermissions
         raise AccessDenied, "Sorry, you can't read this #{model.class.name.downcase}"
       end
     end
+
+    def get_object(id)
+      if self.name == 'Project'
+        self.eager_load(:team).where("teams.inactive" => false).eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0]
+      elsif self.name == 'Team'
+        self.where(id: id, inactive: false).last
+      elsif self.name == 'ProjectMedia'
+        pm = self.find(id)
+        pm.project.inactive ? nil : pm
+      else
+        self.find(id)
+      end
+    end
+
   end
 
   def permissions(ability = nil, klass = self.class)

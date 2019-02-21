@@ -650,4 +650,9 @@ class TeamBotTest < ActiveSupport::TestCase
       JSON.parse(tb.settings_as_json_schema)
     end
   end
+
+  test "should not make a real HTTP request to a core bot" do
+    b = create_team_bot name: 'Keep', request_url: CONFIG['checkdesk_base_url_private'] + '/foo/bar'
+    b.call({})
+  end
 end

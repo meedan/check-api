@@ -3,8 +3,17 @@ class Bot::Alegre < ActiveRecord::Base
   mount_uploader :avatar, ImageUploader
   validates_presence_of :name
 
+  def self.run(body)
+    json = JSON.parse(body)
+    pm = ProjectMedia.where(id: json['data']['dbid']).last
+    unless pm.nil?
+      Bot::Alegre.default.get_language_from_alegre(pm.text, pm)
+      pm.create_mt_annotation
+    end
+  end
+
   def self.default
-    Bot::Alegre.where(name: 'Alegre Bot').last
+    Bot::Alegre.where(name: 'Alegre Bot').last || Bot::Alegre.new
   end
 
   def profile_image
@@ -72,9 +81,9 @@ class Bot::Alegre < ActiveRecord::Base
     annotation.annotation_type = 'language'
     annotation.disable_es_callbacks = Rails.env.to_s == 'test'
     annotation.set_fields = { language: lang }.to_json
-    annotation.skip_notifications = true
     annotation.save!
     annotation.update_columns(annotator_id: self.id, annotator_type: 'Bot::Alegre')
+    annotation
   end
 
   def update_machine_translation(target, translations, author)

@@ -114,6 +114,8 @@ class TeamUser < ActiveRecord::Base
           answered_tasks_count += 1 if task.responses.select{ |r| r.annotator_id.to_i == self.user_id }.any?
         end
       end
+      tasks_count = required_tasks_count + answered_tasks_count
+      next if tasks_count == 0
       if required_tasks_count == answered_tasks_count
         completed += 1
       elsif answered_tasks_count > 0
@@ -177,8 +179,10 @@ class TeamUser < ActiveRecord::Base
   # The `slack_teams` should be a hash of the form:
   # { 'Slack team 1 id' => 'Slack team 1 name', 'Slack team 2 id' => 'Slack team 2 name', ... }
   def user_is_member_in_slack_team
-    if !self.user.nil? && self.user.provider == 'slack' && self.team.setting(:slack_teams)&.is_a?(Hash)
-      if self.team.setting(:slack_teams)&.keys&.include? self.user.omniauth_info&.dig('info', 'team_id')
+    accounts = self.user.get_social_accounts_for_login({provider: 'slack'})
+    if !self.user.nil? && !accounts.blank? && self.team.setting(:slack_teams)&.is_a?(Hash)
+      accounts_team = accounts.collect{|a| a.omniauth_info&.dig('info', 'team_id')}
+      unless (self.team.setting(:slack_teams)&.keys & accounts_team).empty?
         # Auto-approve slack user
         self.status = 'member'
       else

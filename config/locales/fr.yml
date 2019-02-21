@@ -192,7 +192,7 @@ fr:
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
   mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} n'a pas été approuvée.
   mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur %{app_name} !"
-  mail_view_process_request: "Pour traiter cette requête, prière de vous connecter et de visiter:"
+  mail_view_process_request: "Pour traiter cette requête, veuillez vous connecter et visiter :"
   pender_could_not_parse: Ce n'était pas possible d'analyser ce média
   mail_duplicate_email_exists: Votre connexion à %{app_name}
   mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte %{app_name} via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à %{app_name} via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
@@ -219,6 +219,8 @@ fr:
         the_team_is_being_copied: L'équipe est en cours de copie
         url_when_ready:
           html: "Une fois prête, la copie de l'équipe sera disponible à <strong>%{copy_url}</strong>"
+    flash:
+      delete_team_scheduled: L'équipe %{team} est en cours de suppression
   reset_password_instructions: "Instructions pour réinitialiser le mot de passe sur %{app_name}"
   email_not_found: Courriel introuvable
   slack_channel_format_wrong: "Canal Slack non valide"
@@ -281,6 +283,7 @@ fr:
   account_exists: Ce compte existe déjà
   media_exists: Ce média existe déjà
   source_exists: Cette source existe déjà
+  email_exists: a déjà été pris
   banned_user: "Désolé, votre compte a été banni de %{app_name}. Veuillez contacter l'équipe de support si vous pensez qu'il s'agit d'une erreur."
   devise:
     mailer:
@@ -306,6 +309,7 @@ fr:
     invalid: 'Code d''invitation non valide.'
     no_invitation: 'Vous n''avez pas été invité à rejoindre l''équipe %{name}'
   error_user_is_not_a_team_member: "Désolé, vous ne pouvez affecter des tâches qu'à des membres de cette équipe"
+  error_login_with_exists_account: "Désolé, il existe un autre usager qui utilise déjà ce compte"
   mail_see_it: "Vous pouvez le/la visionner à :"
   mail_subject_assign_verification_status: "[%{team} - %{project}] Un élément vous a été affecté"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
@@ -325,6 +329,8 @@ fr:
   mail_unassign_project: "%{author} a annulé votre affectation au projet intitulé "
   mail_subject_assign_project: "[%{team} - %{project}] Un projet vous a été affecté"
   mail_subject_unassign_project: "[%{team} - %{project}] Votre affectation à un projet a été annulée"
+  mail_subject_delete_user: "[%{team}] Un compte a été supprimé"
+  mail_body_delete_user: "Un compte d'utilisateur a été supprimé; les éléments associés ont été rattachés à l'usager anonyme %{id}"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "copies d'écran de Keep"
   archive_archive_is: "Archive.is"
@@ -348,6 +354,7 @@ fr:
   bot_cant_add_review_to_task: "Désolé, les bots ne sont pas autorisés à réviser les tâches."
   task_suggestion_invalid_value: "La suggestion de réponse n'est pas correctement formulée."
   tag_text_id_not_found: "Désolé, il n'existe pas de tag avec l'identifiant fourni"
+  annotation_type_language_label: "Langage"
   project_export_download_mail_csv: "Bonjour !\n\nVous avez demandé un rapport du projet %{project} - voici le lien pour le télécharger : %{link}\n\nLe rapport sera téléchargé sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"
   project_export_email_title_images: "Les images de votre projet sont prêtes à télécharger"
   project_export_download_mail_images: "Bonjour !\n\nVous avez demandé à télécharger les images du projet %{project} - voici le lien : %{link}\n\nLes images seront téléchargées sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.\n\nVeuillez noter que le lien ci-dessus expirera dans %{days} jours.\n\nAmicalement,\n\nL'équipe %{app}"
@@ -368,33 +375,33 @@ fr:
         project_management:
           name: "Gestion de projets"
           permissions:
-            create: "Créer un projet"
-            edit: "Modifier un projet"
-            delete: "Supprimer un projet"
-            add_item: "Soumettre de nouveaux éléments à un projet "
+            create: "Créer des projets"
+            edit: "Modifier les projets"
+            delete: "Supprimer les projets"
+            add_item: "Rajouter de nouveaux éléments à un projet "
         item_page_management:
           name: "Gestion d'éléments"
           permissions:
-            edit: "Éditer un élément"
-            move: "Transférer un élément"
-            change_status: "Modifier le statut d'un élément"
-            lock_unlock_status: "Verouiller/déverouiller le statut"
-            add_remove_tag: "Rajouter/supprimer des tags"
-            send_to_trash: "Mettre des élements à la corbeille"
+            edit: "Modifier les éléments"
+            move: "Transférer les éléments"
+            change_status: "Modifier le statut des éléments"
+            lock_unlock_status: "Verouiller/déverouiller les statuts"
+            add_remove_tag: "Rajouter/supprimer les tags"
+            send_to_trash: "Mettre les élements à la corbeille"
             empty_trash: "Vider la corbeille"
         task_management:
           name: "Gestion de tâches"
           permissions:
-            create: "Créer une tâche"
-            edit: "Modifier une tâche"
-            delete: "Supprimer une tâche"
-            add_response: "Répondre à une tâche"
-            delete_repsonse: "Supprimer une réponse"
-            assign_task: "Affecter une tâche ou un élément"
+            create: "Créer des tâches"
+            edit: "Modifier les tâches"
+            delete: "Supprimer les tâches"
+            add_response: "Répondre aux tâches"
+            delete_repsonse: "Supprimer les réponses"
+            assign_task: "Affecter les tâches ou les éléments"
         team_management:
           name: "Gestion d'équipes"
           permissions:
-            delete: "Supprimer une équipe"
+            delete: "Supprimer l'équipe"
             edit: "Modifier les informations de l'équipe"
             set_private: "Mettre l'équipe en privé"
             edit_status: "Modifier les statuts de l'équipe"

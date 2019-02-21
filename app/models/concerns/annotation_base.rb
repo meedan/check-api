@@ -63,7 +63,7 @@ module AnnotationBase
     include AssignmentConcern
     include AnnotationPrivate
 
-    attr_accessor :disable_es_callbacks, :is_being_copied
+    attr_accessor :disable_es_callbacks, :is_being_copied, :force_version
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
@@ -80,7 +80,7 @@ module AnnotationBase
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
 
-    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| User.current.present? && !a.is_being_copied }
+    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && !a.is_being_copied) || a.force_version }
     
     has_many :assignments, ->{ where(assigned_type: 'Annotation') }, foreign_key: :assigned_id, dependent: :destroy
 

@@ -50,16 +50,16 @@ class ActiveSupport::TestCase
 
   include SampleData
 
-  def stub_config(key, value)
+  def stub_config(key, value, must_unstub = true)
     CONFIG.each do |k, v|
       CONFIG.stubs(:[]).with(k).returns(v) if k != key
     end
     CONFIG.stubs(:[]).with(key).returns(value)
     yield if block_given?
-    CONFIG.unstub(:[])
+    CONFIG.unstub(:[]) if must_unstub
   end
 
-  def stub_configs(configs)
+  def stub_configs(configs, must_unstub = true)
     CONFIG.each do |k, v|
       CONFIG.stubs(:[]).with(k).returns(v) unless configs.keys.include?(k)
     end
@@ -67,7 +67,7 @@ class ActiveSupport::TestCase
       CONFIG.stubs(:[]).with(k).returns(v)
     end
     yield if block_given?
-    CONFIG.unstub(:[])
+    CONFIG.unstub(:[]) if must_unstub
   end
 
   def with_current_user_and_team(user = nil, team = nil)
@@ -165,7 +165,7 @@ class ActiveSupport::TestCase
   def authenticate_with_user_token(token = nil)
     unless @request.nil?
       header = CONFIG['authorization_header'] || 'X-Token'
-      token ||= create_user.token
+      token ||= create_omniauth_user.token
       @request.headers.merge!({ header => token })
     end
   end

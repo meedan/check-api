@@ -15,7 +15,7 @@ class ProjectMedia < ActiveRecord::Base
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :project_id }
 
-  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :get_language, :create_mt_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create
+  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create
   after_commit :create_relationship, on: [:update, :create]
   after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_destroy :destroy_related_medias
@@ -183,10 +183,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def text
     self.media.text
-  end
-
-  def get_language
-    Bot::Alegre.default.get_language_from_alegre(self.text, self) unless Bot::Alegre.default.nil?
   end
 
   def full_url

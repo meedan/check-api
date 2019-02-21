@@ -66,36 +66,6 @@ class BaseApiControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should parse webhook payload" do
-    payload = { foo: 'bar' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
-    @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :notify
-    @request.env.delete('RAW_POST_DATA')
-    assert_response :success
-  end
-
-  test "should return authentication error when parsing webhook" do
-    payload = { foo: 'bar' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'invalid_token', payload)
-    @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :notify
-    @request.env.delete('RAW_POST_DATA')
-    assert_response 401
-  end
-
-  test "should return unknown error when parsing webhook" do
-    payload = nil
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'invalid_token', payload.to_s)
-    @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :notify
-    @request.env.delete('RAW_POST_DATA')
-    assert_response 400
-  end
-
   test "should get version" do
     authenticate_with_token
     @controller = Api::V1::BaseApiController.new
@@ -105,7 +75,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should get current user from session" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user name: 'Test User'
+    u = create_omniauth_user info: {name: 'Test User'}
     authenticate_with_user(u)
     get :me
     assert_response :success
@@ -116,7 +86,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should get current user from token" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user name: 'Test User'
+    u = create_omniauth_user info: {name: 'Test User'}
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
     get :me
@@ -128,7 +98,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should not get current user" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user
+    u = create_omniauth_user info: {name: 'Test User'}
     get :me
     assert_response :success
     response = JSON.parse(@response.body)
@@ -143,7 +113,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should return error from session" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user name: 'Test User'
+    u = create_omniauth_user info: {name: 'Test User'}
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.error'] = 'Error message'
@@ -153,9 +123,21 @@ class BaseApiControllerTest < ActionController::TestCase
     assert_equal 'Error message', response['data']['message']
   end
 
+  test "should return warning from session" do
+    @controller = Api::V1::BaseApiController.new
+    u = create_omniauth_user info: {name: 'Test User'}
+    header = CONFIG['authorization_header'] || 'X-Token'
+    @request.headers.merge!({ header => u.token })
+    @request.session['check.warning'] = 'Warning message'
+    get :me
+    assert_response 400
+    response = JSON.parse(@response.body)
+    assert_equal 'Warning message', response['data']['message']
+  end
+
   test "should not return error from session" do
     @controller = Api::V1::BaseApiController.new
-    u = create_user name: 'Test User'
+    u = create_omniauth_user info: {name: 'Test User'}
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.error'] = nil

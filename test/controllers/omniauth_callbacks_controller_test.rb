@@ -149,6 +149,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     get :facebook
     assert_nil session['check.error']
+    assert_nil session['check.warning']
   end
 
   test "should store error if there is error from provider" do
@@ -159,12 +160,30 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     User.unstub(:from_omniauth)
   end
 
+  test "should store warning if there is warning from provider" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
+    User.stubs(:from_omniauth).raises(RuntimeError)
+    get :facebook
+    assert_not_nil session['check.warning']
+    User.unstub(:from_omniauth)
+  end
+
   test "should get URL for Slack" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://meedan.slack.com/team/melsawy' } }).to_return(body: '{"type":"media","data":{"url":"https://meedan.slack.com/?redir=/team/melsawy","type":"profile"}}')
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
     get :slack
     assert_equal 'https://meedan.slack.com/team/melsawy', Account.last.url
+  end
+
+  test "should connect when current user set" do
+    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    u.confirm
+    authenticate_with_user(u)
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
+    get :twitter
+    u = User.find(u.id)
+    assert_equal 1, u.source.accounts.count
   end
 
   def teardown

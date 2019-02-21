@@ -14,7 +14,7 @@ class GraphqlCrudOperations
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team'].include?(parent_name)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version'].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -31,9 +31,20 @@ class GraphqlCrudOperations
       ret[:user] = User.current
     end
 
+    if obj.is_a?(Task)
+      version = obj.first_response_version
+      ret["first_response_versionEdge".to_sym] = GraphQL::Relay::Edge.between(version, obj.annotated) unless version.nil?
+    end
+
+    ret = ret.merge(GraphqlCrudOperations.get_affected_ids(obj))
+
+    ret
+  end
+
+  def self.get_affected_ids(obj)
+    ret = {}
     ret[:affectedIds] = obj.affected_ids if obj.respond_to?(:affected_ids)
     ret[:affectedId] = obj.graphql_id if obj.is_a?(ProjectMedia)
-
     ret
   end
 
@@ -55,8 +66,8 @@ class GraphqlCrudOperations
 
   def self.update(_type, inputs, ctx, parents = [])
     obj = CheckGraphql.object_from_id(inputs[:id], ctx)
-    obj.file = ctx[:file] if !ctx[:file].blank?
     obj = obj.load if obj.is_a?(Annotation)
+    obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key == 'id'
@@ -112,6 +123,8 @@ class GraphqlCrudOperations
         return_field :dynamicEdge, DynamicType.edge_type
       end
 
+      return_field(:first_response_versionEdge, VersionType.edge_type) if type.to_s == 'task'
+
       return_field type.to_sym, klass
       return_field "#{type}Edge".to_sym, klass.edge_type
       GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
@@ -139,6 +152,7 @@ class GraphqlCrudOperations
     parents.each do |parent|
       parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
       parentclass = 'ProjectMedia' if parent == 'related_to'
+      parentclass = 'Version' if parent == 'first_response_version'
       fields[parent.to_sym] = "#{parentclass}Type".constantize
     end
     fields

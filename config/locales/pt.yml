@@ -219,6 +219,8 @@ pt:
         the_team_is_being_copied: A equipe está sendo copiada
         url_when_ready:
           html: "Quando estiver pronto, a cópia da equipe estará disponível em <strong>%{copy_url}</strong>"
+    flash:
+      delete_team_scheduled: A equipe %{team} está sendo excluída
   reset_password_instructions: "Instruções para redefinir a senha do %{app_name}"
   email_not_found: E-mail não encontrado
   slack_channel_format_wrong: "O canal do Slack é inválido"
@@ -277,10 +279,11 @@ pt:
   cant_change_custom_statuses: "Não foi possível modificar as definições de estados porque alguns estados fariam falta. Estes identificadores de estado: %{statuses} estão em uso nos seguintes itens:\n %{urls} %{others_amount}"
   cant_create_team_task: "Desculpe, essa equipe não tem acesso a essa funcionalidade"
   cant_create_media_under_this_team_using_extension: "Desculpe, o recurso de extensão do navegador não está disponível para esta equipe"
-  error_invalid_attribution: "Atribuição inválida"
+  error_invalid_attribution: "Autoria inválida"
   account_exists: Conta já existe
   media_exists: Mídia já existe
   source_exists: Fonte já existe
+  email_exists: já está em uso
   banned_user: "Desculpe, sua conta foi banida de %{app_name}. Por favor, entre em contato com se achar que isso é um erro."
   devise:
     mailer:
@@ -306,6 +309,7 @@ pt:
     invalid: 'Código de convite é inválido.'
     no_invitation: 'Não tem convite para a equipe %{name}'
   error_user_is_not_a_team_member: "Desculpe, você pode somente atribuir tarefas a membros desta equipe"
+  error_login_with_exists_account: "Desculpe, existe outro usuário que já está usando esta conta"
   mail_see_it: "Você pode o ver aqui: "
   mail_subject_assign_verification_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
@@ -325,6 +329,8 @@ pt:
   mail_unassign_project: "%{author} desatribuiu um projeto de você. O título é:"
   mail_subject_assign_project: "[%{team} - %{project}] Um projeto foi atribuído para você"
   mail_subject_unassign_project: "[%{team} - %{project}] Um projeto foi desatribuído de você"
+  mail_subject_delete_user: "[%{team}] Um usuário foi removido"
+  mail_body_delete_user: "Uma conta de usuário foi removida e seu conteúdo foi reatribuído para usuário anônimo %{id}"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de tela com Keep"
   archive_archive_is: "Archive.is"
@@ -348,6 +354,7 @@ pt:
   bot_cant_add_review_to_task: "Desculpe, um bot não pode avaliar uma sugestão de resposta"
   task_suggestion_invalid_value: "Desculpe, o valor da sugestão não é válido"
   tag_text_id_not_found: "Desculpe, não há tag com o identificador fornecido"
+  annotation_type_language_label: "Idioma"
   project_export_download_mail_csv: "Olá!\n\nVocê solicitou um relatório para o projeto %{project} - aqui está um link para baixar-lo: %{link}\n\nO relatório será baixado como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"
   project_export_email_title_images: "Imagens do seu projeto estão prontas para baixar"
   project_export_download_mail_images: "Olá!\n\nVocê solicitou um download de imagens do projeto %{project} - aqui está um link para baixar-las: %{link}\n\nAs imagens serão baixadas como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"

@@ -241,6 +241,8 @@ en:
         the_team_is_being_copied: The team is being copied
         url_when_ready:
           html: "When ready, the team copy will be available at <strong>%{copy_url}</strong>"
+    flash:
+      delete_team_scheduled: The team %{team} is being deleted
   reset_password_instructions: "%{app_name} reset password instructions"
   email_not_found: E-mail not found
   slack_channel_format_wrong: "Invalid Slack channel"
@@ -312,6 +314,7 @@ en:
   account_exists: This account already exists
   media_exists: This media already exists
   source_exists: This source already exists
+  email_exists: has already been taken
   banned_user: "Sorry, your account has been banned from %{app_name}. Please contact the support team if you think this is an error."
   devise:
     mailer:
@@ -338,6 +341,7 @@ en:
     invalid: 'Invitation token is invalid.'
     no_invitation: 'No invitation exists for team %{name}'
   error_user_is_not_a_team_member: "Sorry, you can only assign tasks to members of this team"
+  error_login_with_exists_account: "Sorry, there is another user who is already using this account"
   mail_see_it: "You can see it at: "
   mail_subject_assign_verification_status: "[%{team} - %{project}] A media item was assigned to you"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] A media item was unassigned from you"
@@ -382,6 +386,7 @@ en:
   bot_cant_add_review_to_task: "Sorry, a bot can't review a task"
   task_suggestion_invalid_value: "A suggestion must be a JSON hash with a 'suggestion' (the actual value that is copied to the task answer when accepted) and a 'comment' (displayed to users)"
   tag_text_id_not_found: "Sorry, there is no tag with the provided identifier"
+  annotation_type_language_label: "Language"
   project_export_download_mail_csv: "Hello!
 
 

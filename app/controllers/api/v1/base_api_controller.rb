@@ -26,14 +26,13 @@ module Api
         header = CONFIG['authorization_header'] || 'X-Token'
         token = request.headers[header]
 
-        if session['check.error']
-          message = session['check.error']
-          reset_session
+        message = render_error_message
+        unless message.blank?
           render_error(message, 'UNKNOWN') and return
         end
 
         if token
-          render_user User.where(token: token).last, 'token'
+          render_user User.find_with_token(token), 'token'
         else
           render_user current_api_user, 'session'
         end
@@ -62,6 +61,18 @@ module Api
       end
 
       private
+
+      def render_error_message
+        message = ''
+        if session['check.error']
+          message = session['check.error']
+          reset_session
+        elsif session['check.warning']
+          message = session['check.warning']
+          session.delete('check.warning')
+        end
+        message
+      end
 
       def render_user(user = nil, source = nil)
         unless user.nil?
@@ -94,31 +105,13 @@ module Api
         key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
         if key.nil?
           ApiKey.current = nil
-          user = User.where(token: token, type: nil).last
+          user = User.find_with_token(token)
           User.current = user
           (token && user) ? sign_in(user, store: false) : (authenticate_api_user! if mandatory)
         else
           User.current = key.bot_user
           ApiKey.current = key
         end
-      end
-
-      def verify_payload!
-        begin
-          payload = request.raw_post
-          if verify_signature(payload)
-            @payload = JSON.parse(payload)
-          else
-            render_unauthorized and return
-          end
-        rescue
-          render_error('Could not verify payload', 'UNKNOWN') and return
-        end
-      end
-
-      def verify_signature(payload)
-        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'].to_s, payload)
-        Rack::Utils.secure_compare(signature, request.headers['X-Signature'].to_s)
       end
 
       def get_params
