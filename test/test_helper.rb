@@ -101,7 +101,7 @@ class ActiveSupport::TestCase
     Pusher::Client.any_instance.stubs(:trigger)
     Pusher::Client.any_instance.stubs(:post)
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
-    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance, Relationship].each{ |klass| klass.delete_all }
+    [Account, Media, ProjectSource, ProjectMedia, User, Source, Annotation, Team, TeamUser, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance, Relationship].each{ |klass| klass.delete_all }
     FileUtils.rm_rf(File.join(Rails.root, 'tmp', "cache<%= ENV['TEST_ENV_NUMBER'] %>", '*'))
     Rails.application.reload_routes!
     # URL mocked by pender-client

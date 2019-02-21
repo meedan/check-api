@@ -18,24 +18,6 @@ module ProjectMediaCreators
     ms.accounts = self.set_es_account_data unless self.media.account.nil?
   end
 
-  def create_mt_annotation
-    bot = Bot::Alegre.default
-    unless bot.nil?
-      src_lang = bot.language_object(self, :value)
-      if !src_lang.blank? && bot.should_classify?(self.text)
-        languages = self.project.get_languages
-        unless languages.nil?
-          annotation = Dynamic.new
-          annotation.annotated = self
-          annotation.annotator = bot
-          annotation.annotation_type = 'mt'
-          annotation.set_fields = {'mt_translations': [].to_json}.to_json
-          annotation.save!
-        end
-      end
-    end
-  end
-
   private
 
   def set_project_source
