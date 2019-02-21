@@ -176,6 +176,16 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     assert_equal 'https://meedan.slack.com/team/melsawy', Account.last.url
   end
 
+  test "should connect when current user set" do
+    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    u.confirm
+    authenticate_with_user(u)
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
+    get :twitter
+    u = User.find(u.id)
+    assert_equal 1, u.source.accounts.count
+  end
+
   def teardown
     OmniAuth.config.test_mode = false
   end

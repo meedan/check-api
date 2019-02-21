@@ -1182,4 +1182,14 @@ class UserTest < ActiveSupport::TestCase
     # test connect with same provider
     create_omniauth_user provider: 'twitter', email: 'test_a@local.com', uid: '123456', current_user: u
   end
+
+  test "should keep email based login when merge users" do
+    u = create_user email: 'test@local.com', token: '123456'
+    u2 = create_omniauth_user
+    assert_not u2.encrypted_password?
+    u2.merge_with(u)
+    assert_equal 'test@local.com', u2.reload.email
+    assert_equal '123456', u2.reload.token
+    assert u2.encrypted_password?
+  end
 end
