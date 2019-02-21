@@ -46,6 +46,11 @@ Rails.application.configure do
   # https://guides.rubyonrails.org/caching_with_rails.html#cache-stores
   config.cache_store = :file_store, "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
 
+  # https://guides.rubyonrails.org/asset_pipeline.html#assets-cache-store
+  config.assets.configure do |env|
+    env.cache = ActiveSupport::Cache.lookup_store(:null_store)
+  end
+
   # https://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
   config.action_mailer.default_url_options = {:host => 'http://localhost:13000'}
 end

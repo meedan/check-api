@@ -72,17 +72,17 @@ class UserTest < ActiveSupport::TestCase
 
   test "should not require password if there is a provider" do
     assert_nothing_raised do
-      create_user password: '', provider: 'twitter'
+      create_omniauth_user password: '', provider: 'twitter'
     end
     assert_raises ActiveRecord::RecordInvalid do
-      create_user password: '', provider: ''
+      create_user password: ''
     end
   end
 
-  test "should not require email" do
+  test "should not require email for omniauth user" do
     u = nil
     assert_nothing_raised do
-      u = create_user email: ''
+      u = create_omniauth_user email: ''
     end
     assert_equal '', u.reload.email
   end
@@ -122,13 +122,13 @@ class UserTest < ActiveSupport::TestCase
 
   test "should not create account if user has no url" do
     assert_no_difference 'Account.count' do
-      create_user url: nil, provider: 'facebook'
+      create_omniauth_user url: nil, provider: 'facebook', omniauth_info: {'url' => ''}
     end
   end
 
   test "should not create account if user has no provider" do
     assert_no_difference 'Account.count' do
-      create_user provider: '', url: 'http://meedan.com'
+      create_omniauth_user provider: '', url: 'http://meedan.com'
     end
   end
 
@@ -136,7 +136,7 @@ class UserTest < ActiveSupport::TestCase
     assert_difference 'Account.count' do
       PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
-        create_user provider: 'youtube', url: 'https://www.youtube.com/user/MeedanTube'
+        create_omniauth_user provider: 'youtube', url: 'https://www.youtube.com/user/MeedanTube'
       end
     end
   end
@@ -157,7 +157,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should set login from name" do
-    u = create_user login: '', name: 'Foo Bar', email: ''
+    info = {login: '', nickname: '', name: 'Foo Bar'}
+    u = create_omniauth_user provider: 'facebook', info: info, email: ''
     assert_equal 'foo-bar', u.reload.login
   end
 
@@ -166,35 +167,28 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 'foobar', u.reload.login
   end
 
-  test "should set uuid" do
-    assert_difference 'User.count', 2 do
-      create_user login: '', name: 'Foo Bar', email: 'foobar1@test.com', provider: '', uuid: ''
-      create_user login: '', name: 'Foo Bar', email: 'foobar2@test.com', provider: '', uuid: ''
-    end
-  end
-
   test "should send welcome email when user is created" do
     stub_config 'send_welcome_email_on_registration', true do
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
-        create_user provider: '', skip_confirmation: true
+        create_user skip_confirmation: true
       end
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
-        create_user provider: 'twitter'
-        create_user provider: 'facebook'
+        create_omniauth_user provider: 'twitter', password: nil
+        create_omniauth_user provider: 'facebook', password: nil
       end
     end
 
     stub_config 'send_welcome_email_on_registration', false do
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
-        create_user provider: '', skip_confirmation: true
-        create_user provider: 'twitter'
-        create_user provider: 'facebook'
+        create_user skip_confirmation: true
+        create_omniauth_user provider: 'twitter'
+        create_omniauth_user provider: 'facebook'
       end
     end
   end
 
   test "should send email when user email is duplicate" do
-    u = create_user provider: 'facebook'
+    u = create_omniauth_user provider: 'facebook'
     assert_difference 'ActionMailer::Base.deliveries.size', 1 do
       assert_raises ActiveRecord::RecordInvalid do
         create_user email: u.email
@@ -204,9 +198,13 @@ class UserTest < ActiveSupport::TestCase
 
   test "should not add duplicate mail" do
     u = create_user
+    create_account user: u, source: u.source, provider: 'slack', email: 'test@local.com'
     assert_no_difference 'User.count' do
       assert_raises ActiveRecord::RecordInvalid do
         create_user email: u.email
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: 'test@local.com'
       end
     end
   end
@@ -253,7 +251,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should not upload an image that is not an image" do
     assert_no_difference 'User.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      assert_raises MiniMagick::Invalid do
         create_user image: 'not-an-image.txt', profile_image: nil
       end
     end
@@ -375,7 +373,7 @@ class UserTest < ActiveSupport::TestCase
   test "should not crash when creating user account" do
     Account.any_instance.stubs(:save).raises(Errno::ECONNREFUSED)
     assert_nothing_raised do
-      create_user url: 'http://twitter.com/meedan', provider: 'twitter'
+      create_omniauth_user url: 'http://twitter.com/meedan', provider: 'twitter'
     end
     Account.any_instance.unstub(:save)
   end
@@ -452,14 +450,14 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should get handle" do
-    u = create_user provider: '', email: 'user@email.com'
+    u = create_user email: 'user@email.com'
     assert_equal 'user@email.com', u.handle
-    u = create_user provider: 'facebook', login: 'user', omniauth_info: { 'url' => 'https://facebook.com/10157109339765023' }
+    u = create_omniauth_user provider: 'facebook', email: '', url: 'https://facebook.com/10157109339765023'
     assert_equal 'https://facebook.com/10157109339765023', u.handle
   end
 
   test "should get handle for Slack" do
-    u = create_user provider: 'slack', omniauth_info: { 'extra' => { 'raw_info' => { 'url' => 'https://meedan.slack.com' } } }, login: 'caiosba'
+    u = create_omniauth_user provider: 'slack', email: '', info: { name: 'caiosba' }, extra: { 'raw_info' => { 'url' => 'https://meedan.slack.com' } }
     assert_equal 'caiosba at https://meedan.slack.com', u.handle
   end
 
@@ -480,17 +478,18 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should require confirmation for e-mail accounts only" do
-    u = create_user provider: 'twitter'
+    u = create_omniauth_user provider: 'twitter'
     assert !u.send(:confirmation_required?)
-    u = create_user provider: ''
+    u = create_user confirm: false
     assert u.send(:confirmation_required?)
   end
 
   test "should require confirmation after update email" do
-    u = create_user provider: 'twitter'
+    u = create_omniauth_user provider: 'twitter'
     assert u.is_confirmed?
-    u = create_user email: 'foo@bar.com', provider: ''
+    u = create_user email: 'foo@bar.com', confirm: false
     assert_not u.is_confirmed?
+    u.skip_check_ability = true
     u.confirm
     assert u.is_confirmed?
     u.email = 'foo+test@bar.com';u.save!
@@ -555,24 +554,23 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should update Facebook id" do
-    u = create_user provider: 'facebook', uuid: '123456', email: 'user@fb.com'
-    assert_equal '123456', u.reload.uuid
-    User.current = create_user
-    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '654321', info: OpenStruct.new({ email: 'user@fb.com' })}))
-    User.current = nil
-    assert_equal '654321', u.reload.uuid
+    u = create_omniauth_user provider: 'facebook', uid: '123456', email: 'user@fb.com'
+    a = u.get_social_accounts_for_login({provider: 'facebook', uid: '123456'}).first
+    assert_equal '123456', a.uid
+    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', url: a.url, uid: '654321', info: OpenStruct.new({ email: 'user@fb.com' })}))
+    assert_equal '654321', a.reload.uid
   end
 
   test "should not update Facebook id if email not set" do
-    u1 = create_user provider: 'facebook', uuid: '123456', email: ''
-    u2 = create_user provider: 'facebook', uuid: '456789', email: ''
-    assert_equal '123456', u1.reload.uuid
-    assert_equal '456789', u2.reload.uuid
-    User.current = create_user
-    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '456789', info: OpenStruct.new({ email: '' })}))
-    User.current = nil
-    assert_equal '123456', u1.reload.uuid
-    assert_equal '456789', u2.reload.uuid
+    u1 = create_omniauth_user provider: 'facebook', uid: '123456', email: ''
+    u2 = create_omniauth_user provider: 'facebook', uid: '456789', email: ''
+    a1 = u1.get_social_accounts_for_login({provider: 'facebook', uid: '123456'}).first
+    a2 = u2.get_social_accounts_for_login({provider: 'facebook', uid: '456789'}).first
+    assert_equal '123456', a1.uid
+    assert_equal '456789', a2.uid
+    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook',url: a1.url, uid: '456789', info: OpenStruct.new({ email: '' })}))
+    assert_equal '123456', a1.reload.uid
+    assert_equal '456789', a2.reload.uid
   end
 
   test "should save valid languages" do
@@ -628,15 +626,16 @@ class UserTest < ActiveSupport::TestCase
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: '{"type":"media","data":{"url":"' + url1 + '","type":"profile"}}')
 
-    u = create_user provider: 'facebook', uuid: '1062518227129764', email: 'user@fb.com', url: url1
-    assert_equal '1062518227129764', u.reload.uuid
-    account = u.accounts.first
+    u = create_omniauth_user provider: 'facebook', uid: '1062518227129764', email: 'user@fb.com', url: url1
+    account = u.get_social_accounts_for_login({provider: 'facebook', uid: '1062518227129764'}).first
+    assert_equal '1062518227129764', account.uid
+    
     assert_equal url1, account.url
 
     url2 = 'https://www.facebook.com/100001147915899'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: '{"type":"media","data":{"url":"' + url2 + '/","type":"profile"}}')
     User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook', uid: '100001147915899', info: OpenStruct.new({ email: 'user@fb.com' }), url: url2}))
-    assert_equal '100001147915899', u.reload.uuid
+    assert_equal '100001147915899', account.reload.uid
     assert_equal url2, account.reload.url
     WebMock.allow_net_connect!
   end
@@ -673,25 +672,30 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 0, TeamUser.where(user_id: id).count
   end
 
-  test "should create account with omniauth data" do
-    omniauth_info = {"provider"=>"slack", "info"=> {"nickname"=>"daniela", "team"=>"meedan", "user"=>"daniela", "name"=>"daniela feitosa", "description"=>"", "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"}, "url"=>"https://meedan.slack.com/team/daniela"}
-    u = create_user provider: 'slack', omniauth_info: omniauth_info, url: omniauth_info['url']
-    account = u.account
+  test "should create account with omniauth data" do 
+    info = {
+      "nickname"=>"daniela", "team"=>"meedan", "user"=>"daniela", "name"=>"daniela feitosa", "description"=>"", 
+      "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"
+    }
+    url = "https://meedan.slack.com/team/daniela"
+    u = create_omniauth_user provider: 'slack', info: info, url: url
+    account = u.get_social_accounts_for_login({provider: 'slack'}).first
     assert account.created_on_registration?
-    assert_equal omniauth_info['url'], account.url
-    assert_equal omniauth_info['info']['nickname'], account.data['username']
-    assert_equal omniauth_info['info']['name'], account.data['author_name']
-    assert_equal omniauth_info['info']['description'], account.data['description']
-    assert_equal omniauth_info['info']['image'], account.data['picture']
-    assert_equal omniauth_info['url'], account.data['url']
+    assert_equal url, account.url
+    assert_equal info['nickname'], account.data['username']
+    assert_equal info['name'], account.data['author_name']
+    assert_equal info['description'], account.data['description']
+    assert_equal info['image'], account.data['picture']
+    assert_equal url, account.data['url']
   end
 
   test "should create source with image on omniauth data" do
-    omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
+    info = { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"}
 
-    u = create_user provider: 'slack', omniauth_info: omniauth_info
+    u = create_omniauth_user provider: 'slack', info: info
+    account = u.get_social_accounts_for_login({provider: 'slack'}).first
     source = u.source
-    assert_equal omniauth_info['info']['image'], source.avatar
+    assert_equal info['image'], source.avatar
   end
 
   test "should create source with default image" do
@@ -701,39 +705,31 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should set source image when call user from omniauth" do
-    u = create_user provider: 'twitter', uuid: '12345'
+    u = create_omniauth_user provider: 'twitter', uid: '12345'
     assert_match /images\/user.png/, u.source.avatar
-
     credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
     info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
-    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info})
+    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info, url: random_url})
     omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
-    User.any_instance.stubs(:omniauth_info).returns(omniauth_info)
+    Account.any_instance.stubs(:omniauth_info).returns(omniauth_info)
     User.from_omniauth(auth)
     assert_equal omniauth_info['info']['image'], User.find(u.id).source.avatar
     assert_equal omniauth_info['info']['image'], User.find(u.id).source.image
-    User.any_instance.unstub(:omniauth_info)
+    Account.any_instance.unstub(:omniauth_info)
   end
 
   test "should set user image as source image and return the uploaded image instead of omniauth" do
-    u = create_user image: 'rails.png', provider: 'twitter', uuid: '12345'
+    u = create_user image: 'rails.png'
     assert_match /rails.png/, u.image.url
     assert_match /rails.png/, u.source.avatar
     assert_match /rails.png/, u.source.image
 
-    credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
-    info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
-    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info})
-    omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
     stub_config 'checkdesk_base_url', 'http://check.url' do
-      User.any_instance.stubs(:omniauth_info).returns(omniauth_info)
-      User.from_omniauth(auth)
-
+      info = {"image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"}
+      create_omniauth_user provider: 'slack', current_user: u, info: info
       assert_match /rails.png/, u.source.file.url
-      assert_equal omniauth_info['info']['image'], Source.find(u.source_id).avatar
+      assert_equal info['image'], Source.find(u.source_id).avatar
       assert_match /rails.png/, u.source.image
-
-      User.any_instance.unstub(:omniauth_info)
     end
   end
 
@@ -750,7 +746,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should get profile image if user has no source" do
-    u = User.create! name: 'Dwight Knell', login: 'dwight', provider: '', password: '12345678', password_confirmation: '12345678', email: 'dwight@hackshackers.com', is_active: true
+    u = create_user 
     assert_not_nil u.source
     u.update_columns(source_id: nil)
     assert_nothing_raised do
@@ -1040,10 +1036,8 @@ class UserTest < ActiveSupport::TestCase
     end
     user = user.reload
     assert_equal "Anonymous", user.name, user.login
-    assert_nil user.source, user.account
-    assert_nil user.omniauth_info, user.email
+    assert_nil user.source, user.email
     assert_not user.is_active?
-    assert_empty user.provider
     assert_equal pm.reload.user_id, user.id
     assert_equal ps.reload.user_id, user.id
     assert_equal 'banned', tu.reload.status
@@ -1055,5 +1049,149 @@ class UserTest < ActiveSupport::TestCase
       end
       Source.any_instance.unstub(:destroy)
     end
+  end
+
+  test "should allow user for multi login account" do
+    u = create_user
+    assert_no_difference 'User.count' do
+      assert_difference 'Account.count', 1 do
+        create_omniauth_user provider: 'twitter', uid: '123456', current_user: u
+      end
+    end
+  end
+
+  test "should get user through omniauth info" do
+    u = create_omniauth_user uid: '123456', provider: 'twitter'
+    assert_equal u, User.find_with_omniauth('123456', 'twitter')
+  end
+
+  test "should get user through token" do
+    u = create_user token: 'test'
+    assert_equal u, User.find_with_token('test')
+  end
+
+  test "should get social accounts for login" do
+    u = create_omniauth_user provider: 'twitter'
+    a = create_account source: u.source, user: u, provider: 'facebook'
+    a2 = create_account source: u.source, user: u, uid: ''
+    assert_equal 2, u.get_social_accounts_for_login.count
+    fb_account = u.get_social_accounts_for_login({provider: 'facebook'})
+    assert_equal 1, fb_account.count
+    assert_equal a, fb_account.first
+  end
+
+  test "should get user accounts and provders" do
+    u = create_omniauth_user provider: 'twitter'
+    s = u.source
+    omniauth_info = {"info"=> { "name" => "test" } }
+    create_account source: s, user: u, provider: 'slack', uid: '123456', omniauth_info: omniauth_info
+    create_account source: s, user: u, provider: 'slack', uid: '987654', omniauth_info: omniauth_info
+    assert_equal 3, u.get_social_accounts_for_login.count
+    assert_equal 0, u.get_social_accounts_for_login({provider: 'facebook'}).count
+    assert_equal 1, u.get_social_accounts_for_login({provider: 'twitter'}).count
+    assert_equal 2, u.get_social_accounts_for_login({provider: 'slack'}).count
+    assert_equal 1, u.get_social_accounts_for_login({provider: 'slack', uid: '123456'}).count
+    providers = u.providers
+    assert_equal 3, providers.count
+    assert_equal ['facebook', 'twitter', 'slack'].sort, providers.collect{|p| p[:key]}.sort
+    # connect using FB
+    create_account source: s, user: u, provider: 'facebook', uid: '987654', omniauth_info: omniauth_info
+    assert_equal 1, u.get_social_accounts_for_login({provider: 'facebook'}).count
+    providers = u.providers
+    assert_equal 3, providers.count
+    assert_equal ['facebook', 'twitter', 'slack'].sort, providers.collect{|p| p[:key]}.sort
+  end
+
+  test "should disconnect social account" do
+    u = create_omniauth_user provider: 'twitter', uid: '123456'
+    u.disconnect_login_account('twitter', '123456')
+    assert_equal 0, u.get_social_accounts_for_login.count
+    u2 = create_omniauth_user provider: 'slack', uid: '456789'
+    a = u2.get_social_accounts_for_login({provider: 'slack', uid: '456789'}).first
+    create_account_source account: a
+    assert_equal 2, a.sources.count
+    assert_not_nil a.uid, a.provider
+    assert_not_nil a.token, a.omniauth_info
+    u2.disconnect_login_account('slack', '456789')
+    assert_equal 0, u2.get_social_accounts_for_login.count
+    a = Account.find(a.id)
+    assert_not_nil a
+    assert_equal 1, a.sources.count
+    assert_nil a.uid, a.provider
+    assert_nil a.token, a.omniauth_info
+    assert_nil a.email
+  end
+
+  test "should merge confirmed accounts" do
+    u = create_user confirm: false
+    assert_raise RuntimeError do
+      create_omniauth_user email: u.email
+    end
+    u.confirm
+    assert_no_difference 'User.count' do
+      assert_difference 'Account.count' do
+        create_omniauth_user email: u.email
+      end
+    end
+    u = create_omniauth_user provider: 'twitter', email: '', uid: '123456'
+    u2 = create_omniauth_user provider: 'facebook', email: 'test@local.com'
+    tu = create_team_user user: u2
+    pm = create_project_media user: u2
+    ps = create_project_source user: u2
+    s2_id = u2.source.id
+    u2_id = u2.id
+    u3 = create_omniauth_user provider: 'twitter', uid: '123456', email: 'test@local.com'
+    assert_equal u.id, u3.id
+    accounts = u.source.accounts
+    assert_equal 2, accounts.count
+    assert_equal ['facebook', 'twitter'].sort, accounts.map(&:provider).sort
+    assert_equal u.id, pm.reload.user_id
+    assert_equal u.id, ps.reload.user_id
+    assert_equal u.id, tu.reload.user_id
+    assert_raises ActiveRecord::RecordNotFound do
+      User.find(u2_id)
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      Source.find(s2_id)
+    end
+  end
+
+  test "should keep higher role when merge accounts in same team" do
+    t = create_team
+    u = create_omniauth_user provider: 'twitter', email: 'test@local.com'
+    u2 = create_omniauth_user provider: 'facebook', email: 'test2@local.com'
+    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: u2, role: 'journalist'
+    assert_equal 2, t.team_users.count
+    create_omniauth_user provider: 'slack', email: 'test@local.com', current_user: u2
+    assert_equal 1, t.team_users.count
+    assert_equal ['journalist'], t.team_users.map(&:role)
+  end
+
+  test "should merge two existing accounts" do
+    u = create_omniauth_user provider: 'twitter', email: '', uid: '123456'
+    u2 = create_omniauth_user provider: 'twitter', email: '', uid: '345678'
+    assert_no_difference 'User.count' do
+      create_omniauth_user provider: 'twitter', email: 'test_a@local.com', uid: '123456'
+    end
+    create_omniauth_user provider: 'twitter', email: 'test_b@local.com', uid: '345678', current_user: u
+    assert_equal 2, u.source.accounts.count
+    assert_raises ActiveRecord::RecordNotFound do
+      User.find(u2.id)
+    end
+    # test connect with same provider
+    create_omniauth_user provider: 'twitter', email: 'test_a@local.com', uid: '123456', current_user: u
+  end
+
+  test "should keep email based login when merge users" do
+    u = create_user email: 'test@local.com', token: '123456', is_admin: true
+    u2 = create_omniauth_user
+    assert_not u2.is_admin?
+    assert_not u2.encrypted_password?
+    u2.merge_with(u)
+    assert_equal 'test@local.com', u2.reload.email
+    assert_equal '123456', u2.reload.token
+    assert u2.encrypted_password?
+    assert u2.is_admin?
   end
 end

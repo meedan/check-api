@@ -6,7 +6,7 @@ class TerminalStatusMailer < ApplicationMailer
 		recipients = team.recipients(author, ['editor', 'owner'])
 		@project_media = annotated
 		@info = {
-      author: author.name,
+      author: author.present? ? author.name : '',
       title: annotated.title,
       status: status
     }

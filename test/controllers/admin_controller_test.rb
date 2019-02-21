@@ -33,33 +33,34 @@ class AdminControllerTest < ActionController::TestCase
   end
 
   test "should find Slack user by UID" do
-    u = create_user provider: 'slack', uuid: 'U123'
     a = create_api_key
+    u = create_omniauth_user provider: 'slack', uid: 'U123'
+    slack_account = u.get_social_accounts_for_login({provider: 'slack', uid: 'U123'}).first
     authenticate_with_token(a)
     get :slack_user, uid: 'U123'
-    assert_equal u.token, JSON.parse(@response.body)['data']['token']
+    assert_equal slack_account.token, JSON.parse(@response.body)['data']['token']
   end
 
   test "should not find Slack user by UID if UID doesn't exist" do
-    u = create_user provider: 'slack', uuid: 'U123'
     a = create_api_key
+    u = create_omniauth_user provider: 'slack', uid: 'U123'
     authenticate_with_token(a)
     get :slack_user, uid: 'U124'
     assert_nil JSON.parse(@response.body)['data']
   end
 
   test "should not find Slack user by UID if API key is not global" do
-    u = create_user provider: 'slack', uuid: 'U123'
     a = create_api_key
     create_bot_user api_key_id: a.id
+    u = create_omniauth_user provider: 'slack', uid: 'U123'
     authenticate_with_token(a)
     get :slack_user, uid: 'U123'
     assert_nil JSON.parse(@response.body)['data']
   end
 
   test "should not find Slack user by UID if API key is not provided" do
-    u = create_user provider: 'slack', uuid: 'U123'
     a = create_api_key
+    u = create_omniauth_user provider: 'slack', uid: 'U123'
     get :slack_user, uid: 'U123'
     assert_response 401
   end

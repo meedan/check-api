@@ -41,7 +41,8 @@ class MediaSearch
       id: { type: 'integer'},
       datetime: { type: 'integer' },
       location: { type: 'geo_point' },
-      indexable: { type: 'text', analyzer: 'check'}
+      indexable: { type: 'text', analyzer: 'check'},
+      language: { type: 'text', analyzer: 'keyword' }
     }
   }
 

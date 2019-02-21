@@ -19,6 +19,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_slack_channel, types.String
   field :get_suggested_tags, types.String
   field :get_embed_whitelist, types.String
+  field :get_memebuster_template, types.String
   field :pusher_channel, types.String
   field :search_id, types.String
   field :trash_size, JsonStringType
@@ -28,10 +29,11 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :used_tags, types.String.to_list_type
   field :permissions_info, JsonStringType
   field :invited_mails, JsonStringType
+  field :dynamic_search_fields_json_schema, JsonStringType
 
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {
-      team.team_users.where({ status: 'member' })
+      team.team_users.where({ status: 'member' }).order('id ASC')
     }
   end
 

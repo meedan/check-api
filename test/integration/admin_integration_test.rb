@@ -7,9 +7,9 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     @team = create_team
     Team.stubs(:current).returns(@team)
-    @user = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', provider: ''
+    @user = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', confirm: false
     @user.confirm
-    @admin_user = create_user login: 'admin_user', password: '12345678', password_confirmation: '12345678', email: 'admin@test.com', provider: ''
+    @admin_user = create_user login: 'admin_user', password: '12345678', password_confirmation: '12345678', email: 'admin@test.com', confirm: false
     @admin_user.confirm
     @admin_user.is_admin = true
     @admin_user.save!
@@ -226,6 +226,54 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     Project.any_instance.unstub(:destroy)
   end
 
+  test "should set a Team as inactive and create a job to destroy later on delete" do
+    Sidekiq::Testing.fake!
+    sign_in @admin_user
+    team = create_team
+    assert_difference 'Sidekiq::Queues["default"].size', 1 do
+      delete "/admin/team/#{team.id}/delete"
+    end
+    assert team.reload.inactive
+    assert_nothing_raised do
+      Team.find(team.id)
+    end
+  end
+
+  test "should destroy later a Team when call delete" do
+    sign_in @admin_user
+    team = create_team
+    RequestStore.store[:disable_es_callbacks] = true
+    Sidekiq::Testing.inline! do
+      delete "/admin/team/#{team.id}/delete"
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      Team.find(team.id)
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
+  test "should handle error on deletion of a team" do
+    sign_in @admin_user
+    team = create_team
+    Team.any_instance.stubs(:destroy!).raises(ActiveRecord::RecordInvalid)
+    Airbrake.configuration.stubs(:api_key).returns('token')
+    Airbrake.stubs(:notify).once
+    RequestStore.store[:disable_es_callbacks] = true
+
+    assert_nothing_raised do
+      Sidekiq::Testing.inline! do
+        delete "/admin/team/#{team.id}/delete"
+      end
+    end
+    assert_nothing_raised do
+      Team.find(team.id)
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+    Team.any_instance.unstub(:destroy!)
+    Airbrake.configuration.unstub(:api_key)
+    Airbrake.unstub(:notify)
+  end
+
   test "should show link to export project images" do
     @user.is_admin = true
     @user.save!
@@ -261,5 +309,24 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     post "/admin/team/#{team.id}/duplicate_team"
     assert_response :success
     assert_template 'duplicate_team'
+  end
+
+  test "should access Sidekiq UI only if super admin" do
+    user = create_user
+    user.is_admin = true
+    user.save!
+    sign_in user
+    get '/sidekiq'
+    assert_response :success
+  end
+
+  test "should not access Sidekiq UI if not super admin" do
+    user = create_user
+    user.is_admin = false
+    user.save!
+    sign_in user
+    assert_raises ActionController::RoutingError do
+      get '/sidekiq'
+    end
   end
 end

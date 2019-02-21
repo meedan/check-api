@@ -12,21 +12,6 @@ module UserPrivate
     source.slogan = self.name
     source.save!
     self.update_columns(source_id: source.id)
-
-    if !self.provider.blank? && !self.url.blank?
-      begin
-        account = Account.new(created_on_registration: true)
-        account.user = self
-        account.source = source
-        account.url = self.url
-        if account.save
-          account.update_columns(url: self.url)
-          self.update_columns(account_id: account.id)
-        end
-      rescue Errno::ECONNREFUSED => e
-        Rails.logger.info "Could not create account for user ##{self.id}: #{e.message}"
-      end
-    end
   end
 
   def set_token
@@ -43,12 +28,8 @@ module UserPrivate
     end
   end
 
-  def set_uuid
-    self.uuid = ('checkdesk_' + Digest::MD5.hexdigest(self.email)) if self.uuid.blank?
-  end
-
   def send_welcome_email
-    RegistrationMailer.delay.welcome_email(self) if self.provider.blank? && CONFIG['send_welcome_email_on_registration'] && !self.is_invited?
+    RegistrationMailer.delay.welcome_email(self) if self.encrypted_password? && CONFIG['send_welcome_email_on_registration'] && !self.is_invited?
   end
 
   def user_is_member_in_current_team
@@ -62,20 +43,35 @@ module UserPrivate
   end
 
   def validate_duplicate_email
-    u = User.where(email: self.email).where.not(id: self.id).last unless self.email.blank?
-    unless u.nil?
-      if u.is_active?
-        RegistrationMailer.delay.duplicate_email_detection(self, u) if self.new_record?
-      else
-        self.errors.messages.clear
-        errors.add(:base, I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email']))
+    unless self.email.blank?
+      u = User.where(email: self.email).where.not(id: self.id).last
+      if u.nil?
+        # check email in social accounts
+        a = Account.where(email: self.email).where.not(user_id: self.id).last
+        unless a.nil?
+          u = a.user
+          errors.add(:email, I18n.t(:email_exists))
+        end
       end
-      return false
+      unless u.nil?
+        handle_duplicate_email(u)
+        return false
+      end
+    end
+  end
+
+  def handle_duplicate_email(u)
+    if u.is_active?
+      provider = u.get_user_provider(self.email)
+      RegistrationMailer.delay.duplicate_email_detection(self, provider) if self.new_record?
+    else
+      self.errors.messages.clear
+      errors.add(:base, I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email']))
     end
   end
 
   def skip_confirmation_for_non_email_provider
-    self.skip_confirmation! if !self.provider.blank? && self.skip_confirmation_mail.nil?
+    self.skip_confirmation! if self.from_omniauth_login && self.skip_confirmation_mail.nil?
   end
 
   def set_blank_email_for_unconfirmed_user

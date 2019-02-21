@@ -40,7 +40,6 @@ module SampleData
     u = BotUser.new
     u.name = options[:name] || random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
-    u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
     u.password = options[:password] || random_string
     u.password_confirmation = options[:password_confirmation] || u.password
@@ -68,18 +67,15 @@ module SampleData
   end
 
   def create_user(options = {})
+    return create_omniauth_user(options) if options.has_key?(:provider) && !options[:provider].blank?
     u = User.new
     u.name = options.has_key?(:name) ? options[:name] : random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
-    u.uuid = options.has_key?(:uuid) ? options[:uuid] : random_string
-    u.provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
     u.token = options.has_key?(:token) ? options[:token] : random_string(50)
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
-    u.password = options[:password] || random_string
+    u.password = options.has_key?(:password) ? options[:password] : random_string
     u.password_confirmation = options[:password_confirmation] || u.password
-    u.url = options[:url] if options.has_key?(:url)
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
-    u.omniauth_info = options[:omniauth_info]
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
     u.is_active = options[:is_active] if options.has_key?(:is_active)
     u.type = options[:type] if options.has_key?(:type)
@@ -104,6 +100,55 @@ module SampleData
       create_team_user team: options[:team], user: u
     end
 
+    confirm = options.has_key?(:confirm) ? options[:confirm] : true
+    if confirm
+      u.skip_check_ability = true
+      u.confirm 
+    end
+
+    u.reload
+  end
+
+  def create_omniauth_user(options = {})
+    u_current = User.current
+    url = if options.has_key?(:url)
+      options[:url]
+    else
+      pender_url = CONFIG['pender_url_private'] + '/api/medias'
+      url = random_url
+      options[:data] ||= {}
+      data = { url: url, provider: 'twitter', author_picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile', author_name: 'Foo Bar' }.merge(options[:data])
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
+      url
+    end
+    options[:uid] = options[:uuid] if options.has_key?(:uuid)
+    auth = {}
+    provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
+    email = options.has_key?(:email) ? options[:email] : "#{random_string}@#{random_string}.com"
+    auth[:uid] = options.has_key?(:uid) ? options[:uid] : random_string
+    auth[:url] = url
+    auth[:info] = options.has_key?(:info) ? options[:info] : {name: random_string, email: email}
+    auth[:credentials] = options.has_key?(:credentials) ? options[:credentials] : {token: random_string, secret: random_string}
+    auth[:extra] = options.has_key?(:extra) ? options[:extra] : {}
+    current_user = options.has_key?(:current_user) ? options[:current_user] : nil
+    omniauth = OmniAuth.config.add_mock(provider, auth)
+    u = User.from_omniauth(omniauth, current_user)
+    # reset User.current as `User.from_omniauth`  set User.current with recent created user
+    User.current = u_current
+    OmniAuth.config.mock_auth[provider] = nil
+
+    if options.has_key?(:is_admin) && options[:is_admin]
+      u.is_admin = options[:is_admin]
+      u.skip_check_ability = true
+      u.save!
+    end
+    if options.has_key?(:token)
+      a = u.get_social_accounts_for_login({provider: provider, uid: auth[:uid]}).last
+      a.update_columns(token: options[:token]) unless a.nil?
+    end
+    if options[:team]
+      create_team_user team: options[:team], user: u
+    end
     u.reload
   end
 
@@ -239,6 +284,10 @@ module SampleData
     account.disable_es_callbacks = options[:disable_es_callbacks]
     account.skip_pender = options[:skip_pender] if options.has_key?(:skip_pender)
     account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team])
+    account.provider = options[:provider]
+    account.uid = options[:uid]
+    account.email = options[:email]
+    account.omniauth_info = options[:omniauth_info]
     account.save!
     account.reload
   end
@@ -618,6 +667,15 @@ module SampleData
     a.set_fields = options[:set_fields]
     a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     a.disable_update_status =  options.has_key?(:disable_update_status) ? options[:disable_update_status] : true
+    file = nil
+    if options.has_key?(:file)
+      file = options[:file]
+    end
+    unless file.nil?
+      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
+        a.file = [f]
+      end
+    end
     a.save!
     a
   end

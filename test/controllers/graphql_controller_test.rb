@@ -21,7 +21,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should not access GraphQL mutation if not authenticated" do
-    post :create, query: 'mutation Test { }'
+    post :create, query: 'mutation Test'
     assert_response 401
   end
 
@@ -84,13 +84,6 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   # Test CRUD operations for each model
-
-  test "should create account" do
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
-      assert_graphql_create('account', { url: @url })
-    end
-  end
 
   test "should read accounts" do
     assert_graphql_read('account', 'url')
@@ -496,23 +489,22 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_get_by_id('team', 'name', 'Test')
   end
 
-  test "should return validation error" do
-    authenticate_with_user
-    url = 'https://www.youtube.com/user/MeedanTube'
-
+  test "should refresh account" do
+    u = create_user
+    authenticate_with_user(u)
+    url = "http://twitter.com/example#{Time.now.to_i}"
+    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
+    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
+    WebMock.stub_request(:get, pender_url).to_return(ret)
+    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
+    a = create_account user: u, url: url
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
-      query = 'mutation create { createAccount(input: { clientMutationId: "1", url: "' + url + '" }) { account { id } } }'
-
-      assert_difference 'Account.count' do
-        post :create, query: query
-      end
+      WebMock.disable_net_connect!
+      id = a.graphql_id
+      query = 'mutation update { updateAccount(input: { clientMutationId: "1", id: "' + id.to_s + '", refresh_account: 1 }) { account { id } } }'
+      post :create, query: query
       assert_response :success
-
-      assert_no_difference 'Account.count' do
-        post :create, query: query
-      end
-      assert_response 400
     end
   end
 
@@ -574,6 +566,56 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     Team.delete_all
     post :create, query: 'query Team { team { name } }', team: 'test'
+    assert_response 404
+  end
+
+  test "should not get teams marked as deleted" do
+    u = create_user
+    t = create_team slug: 'team-to-be-deleted'
+    create_team_user user: u, team: t, role: 'editor'
+
+    authenticate_with_user(u)
+    post :create, query: 'query Team { team { name } }', team: 'team-to-be-deleted'
+    assert_response :success
+    t.inactive = true; t.save
+    post :create, query: 'query Team { team { name } }', team: 'team-to-be-deleted'
+    assert_response 404
+  end
+
+  test "should not get projects from teams marked as deleted" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    p = create_project team: t
+
+    authenticate_with_user(u)
+    query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal p.title, JSON.parse(@response.body)['data']['project']['title']
+
+    t.inactive = true; t.save
+    query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
+    post :create, query: query
+    assert_response 404
+  end
+
+  test "should not get project medias from teams marked as deleted" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+
+    authenticate_with_user(u)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query
+    assert_response :success
+    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+
+    t.inactive = true; t.save
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query
     assert_response 404
   end
 
@@ -864,7 +906,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should resend confirmation" do
-    u = create_user provider: ''
+    u = create_user
     # Query with valid id
     query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
     post :create, query: query, team: @team.slug
@@ -907,6 +949,22 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should disconnect user login account" do
+    u = create_user
+    s = u.source
+    omniauth_info = {"info"=> { "name" => "test" } }
+    a = create_account source: s, user: u, provider: 'slack', uid: '123456', omniauth_info: omniauth_info
+    authenticate_with_user(u)
+    query = "mutation userDisconnectLoginAccount { userDisconnectLoginAccount(input: { clientMutationId: \"1\", provider: \"#{a.provider}\", uid: \"#{a.uid}\" }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    User.stubs(:current).returns(nil)
+    query = "mutation userDisconnectLoginAccount { userDisconnectLoginAccount(input: { clientMutationId: \"1\", provider: \"#{a.provider}\", uid: \"#{a.uid}\" }) { success } }"
+    post :create, query: query, team: @team.slug
+    assert_response 404
+    User.unstub(:current)
+  end
+
   test "should avoid n+1 queries problem" do
     n = 5 * (rand(10) + 1) # Number of media items to be created
     m = rand(10) + 1       # Number of annotations per media
@@ -925,7 +983,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (13) do
+    assert_queries (15) do
       post :create, query: query, team: 'team'
     end
 
@@ -933,7 +991,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should change password if token is found and passwords are present and match" do
-    u = create_user provider: ''
+    u = create_user
     t = u.send_reset_password_instructions
     query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
     post :create, query: query
@@ -943,7 +1001,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should not change password if token is not found and passwords are present and match" do
-    u = create_user provider: ''
+    u = create_user
     t = u.send_reset_password_instructions
     query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}x\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
     post :create, query: query
@@ -952,7 +1010,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should not change password if token is found but passwords are not present" do
-    u = create_user provider: ''
+    u = create_user
     t = u.send_reset_password_instructions
     query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\" }) { success } }"
     post :create, query: query
@@ -962,7 +1020,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should not change password if token is found but passwords do not match" do
-    u = create_user provider: ''
+    u = create_user
     t = u.send_reset_password_instructions
     query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"12345678\" }) { success } }"
     post :create, query: query
@@ -2173,5 +2231,38 @@ class GraphqlControllerTest < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['me']['assignments']['edges']
     assert_equal 1, data.size
     assert_equal pm2.id, data[0]['node']['dbid']
+  end
+
+  test "should search for dynamic annotations" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+
+    att = 'language'
+    at = create_annotation_type annotation_type: att, label: 'Language'
+    language = create_field_type field_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
+    pm1 = create_project_media disable_es_callbacks: false, project: p
+    create_dynamic_annotation annotation_type: att, annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
+    pm2 = create_project_media disable_es_callbacks: false, project: p
+    create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
+
+    sleep 5
+
+    query = 'query CheckSearch { search(query: "{\"dynamic\":{\"language\":[\"en\"]}}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, query: query, team: 'team'
+    assert_response :success
+    pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+    assert_equal 1, pmids.size
+    assert_equal pm1.id, pmids[0]
+
+    query = 'query CheckSearch { search(query: "{\"dynamic\":{\"language\":[\"pt\"]}}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, query: query, team: 'team'
+    assert_response :success
+    pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+    assert_equal 1, pmids.size
+    assert_equal pm2.id, pmids[0]
   end
 end

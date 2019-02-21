@@ -325,6 +325,7 @@ RailsAdmin.config do |config|
       field :name
       field :description
       field :slug
+      field :inactive
       field :private do
         visible_only_for_admin
       end
@@ -474,7 +475,6 @@ RailsAdmin.config do |config|
     list do
       field :name
       field :login
-      field :provider
       field :email
       field :is_admin do
         visible do
@@ -496,14 +496,9 @@ RailsAdmin.config do |config|
     edit do
       field :name
       field :login
-      field :provider do
-        visible do
-          bindings[:view]._current_user.is_admin? && bindings[:object].email.blank?
-        end
-      end
       field :password do
         visible do
-          bindings[:view]._current_user.is_admin? && bindings[:object].provider.blank?
+          bindings[:view]._current_user.is_admin? && bindings[:object].encrypted_password?
         end
         formatted_value do
          ''

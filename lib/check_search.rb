@@ -101,6 +101,8 @@ class CheckSearch
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
     conditions.concat build_search_doc_conditions
+    dynamic_conditions = build_search_dynamic_annotation_conditions
+    conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
     { bool: { must: conditions } }
   end
 
@@ -121,7 +123,7 @@ class CheckSearch
     status_search_fields.each do |field|
       status_blank = false unless @options[field].blank?
     end
-    !(status_blank && @options['tags'].blank? && @options['keyword'].blank?)
+    !(status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank?)
   end
 
   # def show_filter?(type)
@@ -145,6 +147,32 @@ class CheckSearch
     keyword_c << { nested: { path: "accounts", query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}}}
 
     [{ bool: { should: keyword_c } }]
+  end
+
+  def build_search_dynamic_annotation_conditions
+    conditions = []
+    return conditions unless @options.has_key?('dynamic')
+    @options['dynamic'].each do |name, values|
+      next if values.blank?
+      method = "field_search_query_type_#{name}"
+      queries = []
+      values.each do |value|
+        query = Dynamic.respond_to?(method) ? Dynamic.send(method, value) : { term: { "dynamics.#{name}": value } }
+        queries << query
+      end
+      condition = {
+        nested: {
+          path: 'dynamics',
+          query: {
+            bool: {
+              should: queries
+            }
+          }
+        }
+      }
+      conditions << condition
+    end
+    conditions
   end
 
   def build_search_tags_conditions

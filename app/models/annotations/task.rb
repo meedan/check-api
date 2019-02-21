@@ -149,7 +149,7 @@ class Task < ActiveRecord::Base
   end
 
   def responses
-    Annotation.where(annotated_type: 'Task', annotated_id: self.id).where("annotation_type LIKE '%response%'")
+    Annotation.where(annotated_type: 'Task', annotated_id: self.id).where("annotation_type LIKE 'task_response%'")
   end
 
   def response
@@ -183,8 +183,8 @@ class Task < ActiveRecord::Base
     response.save!
     @response = response
     self.record_timestamps = false
-    self.status = 'resolved' if self.must_resolve_task(params)
     self.update_user_assignments_progress(response)
+    User.current&.role?(:annotator) ? Task.delay_for(1.second).resolve_task_if_needed(self.id, json) : Task.resolve_task_if_needed(self.id, json)
   end
 
   def update_user_assignments_progress(response)
@@ -195,19 +195,32 @@ class Task < ActiveRecord::Base
   end
 
   def first_response_obj
+    return @response if @response
     user = User.current
     responses = self.responses
     if !user.nil? && user.role?(:annotator)
-      responses = responses.select{ |r| r.annotator_id.to_i == user.id.to_i }
+      responses = responses.where(annotator_id: user.id)
     else
       responses = responses.reject{ |r| r.annotator&.role?(:annotator) }
     end
-    responses.first
+    @response = responses.first
+    @response
+  end
+
+  def first_response_version
+    uid = User.current&.id
+    @response ||= self.first_response_obj
+    return nil if @response.nil?
+    @field ||= @response.get_fields.select{ |f| f.field_name =~ /^response/ }.first
+    return nil if @field.nil?
+    PaperTrail::Version.where(whodunnit: uid, item_type: 'DynamicAnnotation::Field', item_id: @field.id.to_s).last
   end
 
   def first_response
-    response = self.first_response_obj
-    response.get_fields.select{ |f| f.field_name =~ /^response/ }.first.to_s unless response.nil?
+    @response ||= self.first_response_obj
+    return nil if @response.nil?
+    @field ||= @response.get_fields.select{ |f| f.field_name =~ /^response/ }.first
+    @field.to_s
   end
 
   def task
@@ -254,6 +267,16 @@ class Task < ActiveRecord::Base
 
   def self.slug(label)
     label.to_s.parameterize.tr('-', '_')
+  end
+
+  def self.resolve_task_if_needed(id, params)
+    params = JSON.parse(params)
+    task = Task.where(id: id).last
+    return if task.nil?
+    if task.must_resolve_task(params)
+      task.status = 'resolved'
+      task.save!
+    end
   end
 
   private

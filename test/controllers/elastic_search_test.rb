@@ -142,12 +142,12 @@ class ElasticSearchTest < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     authenticate_with_user(u)
     t = create_task annotated: pm
-    at = create_annotation_type annotation_type: 'response'
+    at = create_annotation_type annotation_type: 'task_response'
     ft1 = create_field_type field_type: 'task_reference'
     ft2 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text')
     create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
-    t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
     t.save!
     query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response_value, first_response { content } } } } } }"
     post :create, query: query, team: @team.slug
@@ -1179,6 +1179,43 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal 1, MediaSearch.search(search).results.size
   end
 
+  test "should index and search by language" do
+    att = 'language'
+    at = create_annotation_type annotation_type: att, label: 'Language'
+    language = create_field_type field_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
+
+    languages = ['pt', 'en', 'ar', 'es', 'pt-BR', 'pt-PT']
+    ids = {}
+
+    languages.each do |code|
+      pm = create_project_media disable_es_callbacks: false
+      d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: code }.to_json, disable_es_callbacks: false
+      ids[code] = pm.id
+    end
+    
+    sleep languages.size * 2
+    
+    languages.each do |code|
+      search = {
+        query: {
+          nested: {
+            path: 'dynamics',
+            query: {
+              term: {
+                "dynamics.language": code
+              }
+            }
+          }
+        }
+      }
+
+      results = MediaSearch.search(search).results
+      assert_equal 1, results.size
+      assert_equal ids[code], results.first.annotated_id
+    end
+  end
+
   test "should create media search" do
     assert_difference 'MediaSearch.length' do
       create_media_search
@@ -1195,7 +1232,6 @@ class ElasticSearchTest < ActionController::TestCase
     MediaSearch.stubs(:migrate_es_data).raises(StandardError)
     CheckElasticSearchModel.reindex_es_data
     MediaSearch.unstub(:migrate_es_data)
-    Rails.logger.stubs(:debug).raises(StandardError)
 
     source_index = CheckElasticSearchModel.get_index_name
     target_index = "#{source_index}_reindex"

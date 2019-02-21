@@ -8,6 +8,7 @@ AccountType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int
   field :url, !types.String
   field :provider, types.String
+  field :uid, types.String
   field :user_id, types.Int
   field :permissions, types.String
   field :image, types.String

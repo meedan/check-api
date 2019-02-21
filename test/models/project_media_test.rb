@@ -581,7 +581,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have empty mt annotation" do
-    create_alegre_bot
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
@@ -590,7 +589,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'mt', label: 'Machine translation'
     create_field_instance annotation_type_object: at, name: 'mt_translations', label: 'Machine translations', field_type_object: ft, optional: false
 
-    create_bot name: 'Alegre Bot'
     t = create_team
     p = create_project team: t
     text = 'Test'
@@ -600,16 +598,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
       WebMock.stub_request(:post, url).with(body: { text: text }).to_return(body: response)
       pm = create_project_media project: p, quote: text
       mt = pm.annotations.where(annotation_type: 'mt').last
+      Bot::Alegre.run({ data: { dbid: pm.id } }.to_json)
       assert_nil mt
       p.settings = {:languages => ['ar']}; p.save!
       pm = create_project_media project: p, quote: text
+      Bot::Alegre.run({ data: { dbid: pm.id } }.to_json)
       mt = pm.annotations.where(annotation_type: 'mt').last
       assert_not_nil mt
     end
   end
 
   test "should update mt annotation" do
-    create_alegre_bot
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
@@ -622,41 +621,41 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     u = User.find(u.id)
-    User.stubs(:current).returns(u)
-    Team.stubs(:current).returns(t)
-    p = create_project team: t
-    p.settings = {:languages => ['ar', 'en']}; p.save!
-    text = 'Testing'
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      url = CONFIG['alegre_host'] + '/langid/'
-      response = { language: 'en', confidence: 1 }.to_json
-      WebMock.stub_request(:post, url).with(body: { text: text }).to_return(body: response)
-      pm = create_project_media project: p, quote: text
-      pm2 = create_project_media project: p, quote: text
-      Sidekiq::Testing.inline! do
-        url = CONFIG['alegre_host'] + '/mt/'
-        # Test with machine translation
-        # Test handle raising an error
-        WebMock.stub_request(:post, url).to_return(body: 'error')
-        pm.update_mt=1
-        mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
-        assert_equal 0, JSON.parse(mt_field.value).size
-        # Test with valid response
-        response = { text: 'testing' }.to_json
-        WebMock.stub_request(:post, url).to_return(body: response)
-        pm.update_mt=1
-        mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
-        assert_equal 1, JSON.parse(mt_field.value).size
-        # Test with type => error
-        response = { error: 'not supported' }.to_json
-        WebMock.stub_request(:post, url).to_return(body: response)
-        pm2.update_mt=1
-        mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm2.class.name, 'annotations.annotated_id' => pm2.id.to_s, field_type: 'json').first
-        assert_equal 0, JSON.parse(mt_field.value).size
+    with_current_user_and_team(u, t) do
+      p = create_project team: t
+      p.settings = {:languages => ['ar', 'en']}; p.save!
+      text = 'Testing'
+      stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+        url = CONFIG['alegre_host'] + '/langid/'
+        response = { language: 'en', confidence: 1 }.to_json
+        WebMock.stub_request(:post, url).with(body: { text: text }).to_return(body: response)
+        pm = create_project_media project: p, quote: text
+        Bot::Alegre.run({ data: { dbid: pm.id } }.to_json)
+        pm2 = create_project_media project: p, quote: text
+        Bot::Alegre.run({ data: { dbid: pm2.id } }.to_json)
+        Sidekiq::Testing.inline! do
+          url = CONFIG['alegre_host'] + '/mt/'
+          # Test with machine translation
+          # Test handle raising an error
+          WebMock.stub_request(:post, url).to_return(body: 'error')
+          pm.update_mt=1
+          mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
+          assert_equal 0, JSON.parse(mt_field.value).size
+          # Test with valid response
+          response = { text: 'testing' }.to_json
+          WebMock.stub_request(:post, url).to_return(body: response)
+          pm.update_mt=1
+          mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
+          assert_equal 1, JSON.parse(mt_field.value).size
+          # Test with type => error
+          response = { error: 'not supported' }.to_json
+          WebMock.stub_request(:post, url).to_return(body: response)
+          pm2.update_mt=1
+          mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm2.class.name, 'annotations.annotated_id' => pm2.id.to_s, field_type: 'json').first
+          assert_equal 0, JSON.parse(mt_field.value).size
+        end
       end
     end
-    User.unstub(:current)
-    Team.unstub(:current)
   end
 
   test "should get dynamic annotation by type" do
@@ -740,7 +739,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"profile"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    u = create_user url: url, provider: 'twitter'
+    u = create_omniauth_user url: url, provider: 'twitter'
     pm = create_project_media user: u
     assert_equal url, pm.author_url
     pm.user = create_user
@@ -790,19 +789,21 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get resolved tasks for oEmbed" do
-    create_task_status_stuff
-    at = create_annotation_type annotation_type: 'response'
-    create_field_instance annotation_type_object: at, name: 'response'
-    pm = create_project_media
-    assert_equal [], pm.completed_tasks
-    assert_equal 0, pm.completed_tasks_count
-    t1 = create_task annotated: pm
-    t1.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
-    t1.save!
-    t2 = create_task annotated: pm
-    assert_equal [t1], pm.completed_tasks
-    assert_equal [t2], pm.open_tasks
-    assert_equal 1, pm.completed_tasks_count
+    Sidekiq::Testing.inline! do
+      create_task_status_stuff
+      at = create_annotation_type annotation_type: 'response'
+      create_field_instance annotation_type_object: at, name: 'response'
+      pm = create_project_media
+      assert_equal [], pm.completed_tasks
+      assert_equal 0, pm.completed_tasks_count
+      t1 = create_task annotated: pm
+      t1.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
+      t1.save!
+      t2 = create_task annotated: pm
+      assert_equal [t1], pm.completed_tasks
+      assert_equal [t2], pm.open_tasks
+      assert_equal 1, pm.completed_tasks_count
+    end
   end
 
   test "should get comments for oEmbed" do
@@ -859,37 +860,39 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should render oEmbed HTML" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
-    create_task_status_stuff(false)
-    Bot::Alegre.delete_all
-    u = create_user login: 'test', name: 'Test', profile_image: 'http://profile.picture'
-    c = create_claim_media quote: 'Test'
-    t = create_team name: 'Test Team', slug: 'test-team'
-    p = create_project title: 'Test Project', team: t
-    pm = create_project_media media: c, user: u, project: p
-    create_comment text: 'A comment', annotated: pm
-    create_comment text: 'A second comment', annotated: pm
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
-    fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
-    t = create_task annotated: pm
-    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Task response', task_reference: t.id.to_s }.to_json }.to_json
-    t.save!
+    Sidekiq::Testing.inline! do
+      create_translation_status_stuff
+      create_verification_status_stuff(false)
+      create_task_status_stuff(false)
+      Bot::Alegre.delete_all
+      u = create_user login: 'test', name: 'Test', profile_image: 'http://profile.picture'
+      c = create_claim_media quote: 'Test'
+      t = create_team name: 'Test Team', slug: 'test-team'
+      p = create_project title: 'Test Project', team: t
+      pm = create_project_media media: c, user: u, project: p
+      create_comment text: 'A comment', annotated: pm
+      create_comment text: 'A second comment', annotated: pm
+      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+      ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+      ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
+      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+      fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
+      fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
+      t = create_task annotated: pm
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Task response', task_reference: t.id.to_s }.to_json }.to_json
+      t.save!
 
-    ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
-    ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
+      ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
+      ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
 
-    expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url'])
-    actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
+      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url'])
+      actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body')
 
-    assert_equal expected, actual
+      assert_equal expected, actual
 
-    ProjectMedia.any_instance.unstub(:created_at)
-    ProjectMedia.any_instance.unstub(:updated_at)
+      ProjectMedia.any_instance.unstub(:created_at)
+      ProjectMedia.any_instance.unstub(:updated_at)
+    end
   end
 
   test "should have metadata for oEmbed" do
@@ -1397,26 +1400,28 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should reject a status of verified if all required tasks are not resolved" do
-    create_verification_status_stuff
-    create_task_status_stuff(false)
-    at = create_annotation_type annotation_type: 'response'
-    create_field_instance annotation_type_object: at, name: 'response'
-    pm = create_project_media
-    t1 = create_task annotated: pm
-    t2 = create_task annotated: pm, required: true
-    t1.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
-    t1.save!
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    assert_raise ActiveRecord::RecordInvalid do
+    Sidekiq::Testing.inline! do
+      create_verification_status_stuff
+      create_task_status_stuff(false)
+      at = create_annotation_type annotation_type: 'response'
+      create_field_instance annotation_type_object: at, name: 'response'
+      pm = create_project_media
+      t1 = create_task annotated: pm
+      t2 = create_task annotated: pm, required: true
+      t1.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
+      t1.save!
+      s = pm.annotations.where(annotation_type: 'verification_status').last.load
+      assert_raise ActiveRecord::RecordInvalid do
+        s.status = 'verified'; s.save!
+      end
+      assert_raise ActiveRecord::RecordInvalid do
+        s.status = 'false'; s.save!
+      end
+      t2.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
+      t2.save!
       s.status = 'verified'; s.save!
+      assert_equal s.reload.status, 'verified'
     end
-    assert_raise ActiveRecord::RecordInvalid do
-      s.status = 'false'; s.save!
-    end
-    t2.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
-    t2.save!
-    s.status = 'verified'; s.save!
-    assert_equal s.reload.status, 'verified'
   end
 
   test "should back status to active if required task added to resolved item" do
