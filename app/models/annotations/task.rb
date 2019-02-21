@@ -184,7 +184,7 @@ class Task < ActiveRecord::Base
     @response = response
     self.record_timestamps = false
     self.update_user_assignments_progress(response)
-    Task.delay_for(1.second).resolve_task_if_needed(self.id, json)
+    User.current&.role?(:annotator) ? Task.delay_for(1.second).resolve_task_if_needed(self.id, json) : Task.resolve_task_if_needed(self.id, json)
   end
 
   def update_user_assignments_progress(response)

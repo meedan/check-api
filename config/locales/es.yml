@@ -219,6 +219,8 @@ es:
         the_team_is_being_copied: El equipo está siendo duplicado
         url_when_ready:
           html: "Cuando esté lista, la copia del equipo estará disponible en <strong>%{copy_url}</strong>"
+    flash:
+      delete_team_scheduled: El equipo %{team} está siendo eliminado
   reset_password_instructions: "%{app_name} instrucciones para restablecer la contraseña"
   email_not_found: 'Correo electrónico no encontrado '
   slack_channel_format_wrong: "Canal de Slack inválido"
@@ -281,6 +283,7 @@ es:
   account_exists: Esta cuenta ya existe
   media_exists: Este archivo multimedia ya existe
   source_exists: Esta fuente ya existe
+  email_exists: ya está en uso
   banned_user: "Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor comunícate con el soporte técnico del equipo si crees que ha sido un error."
   devise:
     mailer:
@@ -306,6 +309,7 @@ es:
     invalid: 'Símbolo (token) de invitación es inválido.'
     no_invitation: 'No hay invitación para el equipo %{name}'
   error_user_is_not_a_team_member: "Lo sentimos, solo puedes asignar tareas a los miembros de este equipo"
+  error_login_with_exists_account: "Lo sentimos, hay otro usuario que ya está usando esta cuenta"
   mail_see_it: "Puedes verlo en:"
   mail_subject_assign_verification_status: "[%{team} - %{project}] Se te ha asignado un ítem"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] Se te ha desasignado un ítem"
@@ -325,6 +329,8 @@ es:
   mail_unassign_project: "%{author} te desasignó el proyecto:"
   mail_subject_assign_project: "[%{team} - %{project}] Se te ha asignado un proyecto"
   mail_subject_unassign_project: "[%{team} - %{project}] Se te ha desasignado un proyecto"
+  mail_subject_delete_user: "[%{team}] Un usuario fue eliminado"
+  mail_body_delete_user: "Una cuenta de usuario se eliminó y su contenido se reasignó a un usuario anónimo%{id}"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "capturas de pantalla con Keep"
   archive_archive_is: "Archive.is"
@@ -348,6 +354,7 @@ es:
   bot_cant_add_review_to_task: "Lo sentimos, un bot no puede evaluar una sugerencia de respuesta"
   task_suggestion_invalid_value: "Lo sentimos, el valor de la sugerencia no es válido"
   tag_text_id_not_found: "Lo sentimos, no hay ninguna etiqueta con el identificador proporcionado"
+  annotation_type_language_label: "Idioma"
   project_export_download_mail_csv: "¡Hola!\n\nSolicitó un informe para el proyecto %{project} - aquí hay un enlace para descargarlo: %{link}\n\nEl informe se descargará como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}\n\nTenga en cuenta que este enlace expirará en %{days} días.\n\nSaludos,\n\nEquipo %{app}"
   project_export_email_title_images: "Las imágenes de tu proyecto están listas para descargar"
   project_export_download_mail_images: "¡Hola!\n\n\nSolicitó una descarga de las imágenes del proyecto %{project} - aquí hay un enlace para descargarlas: %{link}\n\nLas imágenes se descargarán como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}\n\nTenga en cuenta que este enlace expirará en %{days} días.\n\nSaludos,\n\nEquipo %{app}"
