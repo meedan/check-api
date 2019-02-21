@@ -35,7 +35,9 @@ module Api
           session['checkdesk.current_user_id'] = user.id
           User.current = user
           login_options = sign_in_options(user)
-          sign_in(user, :bypass => login_options[:bypass]) if login_options[:login]
+          if login_options[:login]
+            login_options[:bypass] ? bypass_sign_in(user) : sign_in(user)
+          end
         end
 
         destination = get_check_destination
