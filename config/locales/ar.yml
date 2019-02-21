@@ -31,7 +31,7 @@ ar:
         label: مُعَلَّق
         description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
       in_progress:
-        label: جار التحقق من صحته
+        label: قيد التقدم
         description: بدأ العمل على العنصر ولم تتم الترجمة بعد
       translated:
         label: مُتَرجَم
@@ -63,7 +63,7 @@ ar:
         label: مُعَلَّق
         description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
       in_progress:
-        label: جارٍ
+        label: قيد التقدم
         description: بدأ العمل على العنصر ولم تتم الترجمة بعد
       translated:
         label: مُتَرجَم
@@ -165,7 +165,7 @@ ar:
       view_button: "عرض %{type} في %{app}"
       project_source: "المصدر"
       project_media: "العنصر"
-      attribution: "أنجزها"
+      attribution: "أجابها"
     messages:
       task_create: "قام %{user} (%{role} في %{team}) بإنشاء مهمة"
       task_edit: "قام %{user} (%{role} في %{team}) بتحرير مهمة"
@@ -223,6 +223,8 @@ ar:
         the_team_is_being_copied: يتم نسخ الفريق
         url_when_ready:
           html: "بمجرد أن تصبح جاهزة ، سوف تكون نسخة الفريق متاحة في <strong>%{copy_url}</strong>"
+    flash:
+      delete_team_scheduled: يتم حذف الفريق %{team}
   reset_password_instructions: "تعليمات إعادة ضبط كلمة المرور لدى %{app_name}"
   email_not_found: هذا البريد الإلكتروني غير موجود
   slack_channel_format_wrong: "قناة Slack غير صحيحة"
@@ -297,6 +299,7 @@ ar:
   account_exists: هذا الحساب موجود بالفعل
   media_exists: هذا الميديا موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
+  email_exists: ' مستخدم بالفعل'
   banned_user: "عذراً ، لقد تم حظرك من %{app_name}. يمكنك اﻹتصال بفريق الدعم إن كنت تعتقد أن هناك خطأ ما."
   devise:
     mailer:
@@ -322,6 +325,7 @@ ar:
     invalid: 'رمز الدعوة غير صحيح.'
     no_invitation: 'لا توجد دعوة للفريق %{name}'
   error_user_is_not_a_team_member: "عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق"
+  error_login_with_exists_account: "عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل"
   mail_see_it: "تستطيع أن تراه هنا : "
   mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا عنك"
@@ -341,6 +345,8 @@ ar:
   mail_unassign_project: "ألغى(ت) %{author} تكليف مشروع : "
   mail_subject_assign_project: "[%{team} - %{project}] تم تكليف مشروع إليك"
   mail_subject_unassign_project: "[%{team} - %{project}] تم إلغاء تكليف مشروع عنك"
+  mail_subject_delete_user: "[%{team}] تم حذف مستخدم"
+  mail_body_delete_user: "تم حذف حساب مستخدم ونقل المحتوى الخاص به لمستخدم مجهول معرّفه %{id}"
   archive_keep_backup: "Video Vault"
   archive_pender_archive: "لقطات الشاشة من Keep"
   archive_archive_is: "Archive.is"
@@ -360,10 +366,11 @@ ar:
   could_not_save_related_bot_data: "عذراً ، لقد واجهنا خطأ ما اثناء إضافة البوت. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ."
   bot_limited_team_not_pro: "عذراً ، البوت غير متاح لهذا الفريق"
   slack_save_task_comment: "أضاف *%{user}* تعليقاً للمهمة *%{task}* في %{url} في %{project}*: %{comment}"
-  bot_cant_add_response_to_task: "عذراً ، البوت يمكنه فقط تقديم اقتراحاً لحل المهمة"
+  bot_cant_add_response_to_task: "عذراً ، البوت يمكنه فقط تقديم اقتراحاً ﻹجابة المهمة"
   bot_cant_add_review_to_task: "عذراً ، البوت لا يمكنه مراجعة المهام"
   task_suggestion_invalid_value: "عذراً ، صيغة الاقتراح غير صحيحة"
   tag_text_id_not_found: "عذراً ، لا يوجد وسم بهذا المُعَرِّف"
+  annotation_type_language_label: "اللغة"
   project_export_download_mail_csv: "مرحباً !\n\nلقد طلبت تقريراً عن المشروع %{project} - إليك الرابط لتحميله : %{link}\n\nسوف يتم تحميل التقرير على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
   project_export_email_title_images: "صور مشروعك جاهزة للتحميل"
   project_export_download_mail_images: "مرحباً !\n\nلقد طلبت تحميل صور المشروع %{project} - إليك الرابط لتحميلها : %{link}\n\nسوف يتم تحميل الصور على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}\n\nرجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.\n\nتحياتنا\n\nفريق %{app}"
