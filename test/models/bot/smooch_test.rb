@@ -51,11 +51,15 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
     @link_url_2 = 'https://' + random_string + '.com' 
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url_2 } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url_2 + '","type":"item"}}' })
+    Bot::Smooch.stubs(:get_language).returns('en')
+    create_alegre_bot
+    AlegreClient.host = 'http://alegre'
   end
 
   def teardown
     super
     CONFIG.unstub(:[])
+    Bot::Smooch.unstub(:get_language)
   end
 
   test "should be valid only if the API key is valid" do
@@ -523,5 +527,15 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     pm2 = ProjectMedia.last
     assert_equal pm, pm2
     assert File.exist?(filepath)
+  end
+
+  test "should get language" do
+    Bot::Smooch.unstub(:get_language)
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      AlegreClient::Mock.mock_languages_identification_returns_text_language do
+        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+        assert_equal 'en', Bot::Smooch.get_language({ 'text' => 'This is just a test' }) 
+      end
+    end
   end
 end
