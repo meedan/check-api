@@ -1183,6 +1183,17 @@ class UserTest < ActiveSupport::TestCase
     create_omniauth_user provider: 'twitter', email: 'test_a@local.com', uid: '123456', current_user: u
   end
 
+  test "should merge two users with same source" do
+    u = create_user
+    s = u.source
+    u2 = create_user
+    u2.update_columns(source_id: s.id)
+    assert_nothing_raised do
+      u.merge_with(u2)
+    end
+    assert Source.exists?(s.id)
+  end
+
   test "should keep email based login when merge users" do
     u = create_user email: 'test@local.com', token: '123456', is_admin: true
     u2 = create_omniauth_user
