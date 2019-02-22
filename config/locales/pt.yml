@@ -21,18 +21,18 @@ pt:
       not_applicable:
         label: Inconclusivo
         description: Não é possível obter conclusões a partir das evidências disponíveis.
-      not_true:
-        label: "Falso"
-        description: "Conclusão: o conteúdo do ítem é falso"
-      verified:
-        label: Verificado
-        description: "Conclusão: o conteúdo do ítem é verificado"
-      pending:
-        label: Pendente
-        description: Padrão, recém adicionado ao Bridge, o trabalho ainda não foi iniciado
       in_progress:
         label: Em andamento
         description: O trabalho começou, mas nenhuma tradução foi feita ainda
+      not_true:
+        label: 'Falso'
+        description: 'Conclusão: o conteúdo do ítem é falso'
+      verified:
+        label: Verificado
+        description: 'Conclusão: o conteúdo do ítem é verificado'
+      pending:
+        label: Pendente
+        description: Padrão, recém adicionado ao Bridge, o trabalho ainda não foi iniciado
       translated:
         label: Traduzido
         description: A tradução está feita, esperando por revisão
@@ -48,16 +48,16 @@ pt:
         description: Padrão, recentemente inserido no Check, nenhum trabalho iniciado
       credible:
         label: Verossímil
-        description: "Conclusão: a fonte é verossímil"
+        description: 'Conclusão: a fonte é verossímil'
       not_credible:
         label: Inverossímil
-        description: "Conclusão: esta fonte não é verossímil"
+        description: 'Conclusão: esta fonte não é verossímil'
       slightly_credible:
         label: Ligeiramente verossímil
-        description: "Conclusão: esta fonte é ligeiramente verossímil"
+        description: 'Conclusão: esta fonte é ligeiramente verossímil'
       sockpuppet:
         label: Fake
-        description: "Conclusão: a fonte da informação é um fake"
+        description: 'Conclusão: a fonte da informação é um fake'
     translation:
       pending:
         label: Pendente
@@ -76,8 +76,8 @@ pt:
         description: A tradução foi revisada e erros foram encontrados
   errors:
     messages:
-      extension_white_list_error: "Não pode ter o tipo %{extension}, tipos permitidos: %{allowed_types}"
-      invalid_size: "Deve ter entre %{min_width} x %{min_height} e %{max_width} x %{max_height} pixels"
+      extension_white_list_error: 'Não pode ter o tipo %{extension}, tipos permitidos: %{allowed_types}'
+      invalid_size: Deve ter entre %{min_width} x %{min_height} e %{max_width} x %{max_height} pixels
   activerecord:
     models:
       link: Link
@@ -122,25 +122,25 @@ pt:
             slug:
               slug_format: aceita apenas letras, números e hífens
       messages:
-        record_invalid: "A validação falhou: %{errors}"
+        record_invalid: 'A validação falhou: %{errors}'
         improbable_phone: é um número inválido
         too_short:
           one: é muito curto (mínimo de 1 caractere)
           other: É muito curto (mínimo de %{count} caracteres)
   slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
-  invalid_format_for_languages: "A configuração de idiomas está inválido. Ele deve ter o formato [{'id': 'en','title': 'English'}]"
+  invalid_format_for_languages: 'A configuração de idiomas está inválido. Ele deve ter o formato [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Desculpe, este não é um item de mídia válido
   invalid_default_status_for_custom_verification_status: Identificador de status padrão é inválido
   invalid_active_status_for_custom_verification_status: Identificador de status ativo é inválido
   invalid_label_for_custom_verification_status: Título de status é obrigatório
   invalid_id_for_custom_verification_status: Identificador de status é obrigatório e aceita apenas letras, números, hífens e underscores
-  invalid_statuses_format_for_custom_verification_status: "Os status de verificação personalizados devem ter válidos título, identificador, descrição, estilo e sinalizador de estado final."
+  invalid_statuses_format_for_custom_verification_status: 'Os status de verificação personalizados devem ter válidos título, identificador, descrição, estilo e sinalizador de estado final.'
   invalid_default_status_for_custom_translation_status: Identificador de status padrão é inválido
   invalid_active_status_for_custom_translation_status: Identificador de status ativo é inválido
   invalid_label_for_custom_translation_status: Título de status é obrigatório
   invalid_id_for_custom_translation_status: Identificador de status é obrigatório e aceita apenas letras, números, hífens e underscores
-  invalid_statuses_format_for_custom_translation_status: "Os status de tradução personalizados devem ter válidos título, identificador, descrição, estilo e sinalizador de estado final."
+  invalid_statuses_format_for_custom_translation_status: 'Os status de tradução personalizados devem ter válidos título, identificador, descrição, estilo e sinalizador de estado final.'
   mail_account_confirmation: "Confirmação da conta do %{app_name} "
   mail_request_to_join: "%{user} quer participar da equipe %{team} no %{app_name}!"
   approved: Aprovado!
@@ -149,19 +149,19 @@ pt:
   mail_new_account: Nova conta para você no %{app_name}
   slack:
     fields:
-      assigned: "Atribuída a"
-      unassigned: "Atribuição removida de"
-      required: "Requerido?"
-      required_yes: "Sim"
-      project: "Projeto"
-      source: "Fonte"
-      status: "Status"
-      status_previous: "Status anterior"
-      related_to: "Relacionada a"
-      view_button: "Ver %{type} em %{app}"
-      project_source: "Fonte"
-      project_media: "Item"
-      attribution: "Respondida por"
+      assigned: Atribuída a
+      unassigned: Atribuição removida de
+      required: Requerido?
+      required_yes: 'Sim'
+      project: Projeto
+      source: Fonte
+      status: Status
+      status_previous: Status anterior
+      related_to: Relacionada a
+      view_button: Ver %{type} em %{app}
+      project_source: Fonte
+      project_media: Item
+      attribution: Respondida por
     messages:
       task_create: "%{user} (%{role} em %{team}) adicionou uma Tarefa"
       task_edit: "%{user} (%{role} em %{team}) editou uma Tarefa"
@@ -188,11 +188,11 @@ pt:
       user_invited: "%{user} foi convidado a participar da equipe %{team}"
       user_banned: "%{user} foi banido da equipe %{team}"
   mail_view_welcome: Bem-vindo ao %{app_name}
-  mail_view_register: "Você está apenas a um passo de usar o %{app_name}! Por favor confirme o seu endereço de e-mail clicando no seguinte link:"
+  mail_view_register: 'Você está apenas a um passo de usar o %{app_name}! Por favor confirme o seu endereço de e-mail clicando no seguinte link:'
   mail_view_joined: Sua solicitação para participar de %{team} foi aprovada! Agora você pode ir para %{url} e começar a contribuir!
   mail_view_rejected_to_join: Desculpe, mas sua solicitação para participar de %{team} não foi aprovada.
   mail_view_request_to_join: "%{user} (%{handle}) quer participar da equipe %{team} no %{app_name}!"
-  mail_view_process_request: "Para processar esta solicitação, por favor faça o login e visite:"
+  mail_view_process_request: 'Para processar esta solicitação, por favor faça o login e visite:'
   pender_could_not_parse: Não foi possível analisar esta mídia
   mail_duplicate_email_exists: Seu método de login no %{app_name}
   mail_duplicate_email_exists_body: "<p>Olá, este é apenas um lembrete para ajudar a garantir que você faça login no %{app_name}.</p> <p>O que aconteceu: você tentou se registrar no %{app_name} com uma conta de %{user_provider} associada ao e-mail %{user_email}. Esse endereço de e-mail já está associado a uma conta de %{duplicate_provider} no %{app_name}.</p> <p>O que fazer agora: Faça login com sua conta %{duplicate_provider}.</p> <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para %{support_email}.</p> <p> - Equipe %{app_name}</p>"
@@ -210,23 +210,23 @@ pt:
       delete_tasks:
         done: tarefas removidas
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: "Tem certeza que deseja apagar todas as tarefas na equipe <strong>%{team}</strong>? As seguintes tarefas serão removidas:"
+          html: 'Tem certeza que deseja apagar todas as tarefas na equipe <strong>%{team}</strong>? As seguintes tarefas serão removidas:'
       duplicate_team:
         menu: Duplicar equipe
         done: copiada
         are_you_sure_you_want_to_copy_team:
-          html: "Tem certeza que deseja duplicar a equipe <strong>%{team}</strong>? Todos os dados relacionados também serão copiados."
+          html: Tem certeza que deseja duplicar a equipe <strong>%{team}</strong>? Todos os dados relacionados também serão copiados.
         the_team_is_being_copied: A equipe está sendo copiada
         url_when_ready:
-          html: "Quando estiver pronto, a cópia da equipe estará disponível em <strong>%{copy_url}</strong>"
+          html: Quando estiver pronto, a cópia da equipe estará disponível em <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: A equipe %{team} está sendo excluída
   reset_password_instructions: "Instruções para redefinir a senha do %{app_name}"
   email_not_found: E-mail não encontrado
-  slack_channel_format_wrong: "O canal do Slack é inválido"
-  translation_status_not_valid: "O status é inválido"
-  translation_status_permission_error: "Desculpe, você não tem permissão para fazer essa alteração de status"
-  translation_request_id_exists: "Já existe um pedido de tradução para esta mensagem"
+  slack_channel_format_wrong: O canal do Slack é inválido
+  translation_status_not_valid: O status é inválido
+  translation_status_permission_error: Desculpe, você não tem permissão para fazer essa alteração de status
+  translation_request_id_exists: Já existe um pedido de tradução para esta mensagem
   auto_publisher_added_to_project: Obrigado! Agora todas as novas traduções no projeto %{project} serão automaticamente publicadas nesta conta no %{provider}. Se você mudar de ideia, por favor contacte o administrador ou simplesmente remova a autorização do Bridge no %{provider}.
   invalid_token: Token inválido
   viber_screenshot_footer: "Tradução de %{source_language} para %{target_language}: “%{source_text}”"
@@ -267,50 +267,47 @@ pt:
   duplicate_source: Fonte existe
   geolocation_invalid_value: Localização deve conter um GeoJSON válido (http://geojson.org/)
   datetime_invalid_date: Por favor forneça uma data válida
-  error_team_archived: "Não é possível criar um projeto em uma equipe na lixeira"
-  error_project_archived: "Não é possível criar mídia em um projeto na lixeira"
-  error_team_archived_for_source: "Não é possível criar fonte em uma equipe na lixeira"
-  permission_error: "Desculpe, você não tem permissão para fazer esta operação"
-  error_annotated_archived: "Não é possível adicionar uma nota a um item na lixeira"
-  only_super_admin_can_do_this: "Desculpe, apenas os administradores do sistema podem efetuar esta alteração"
-  max_number_of_team_users_reached: "Desculpe, o número máximo de usuários para esta equipe foi alcançado"
-  max_number_of_projects_reached: "Desculpe, o número máximo de projetos para esta equipe foi alcançado"
-  cant_set_custom_statuses: "Desculpe, o recurso de status personalizados não está disponível para esta equipe"
-  cant_change_custom_statuses: "Não foi possível modificar as definições de estados porque alguns estados fariam falta. Estes identificadores de estado: %{statuses} estão em uso nos seguintes itens:\n %{urls} %{others_amount}"
-  cant_create_team_task: "Desculpe, essa equipe não tem acesso a essa funcionalidade"
-  cant_create_media_under_this_team_using_extension: "Desculpe, o recurso de extensão do navegador não está disponível para esta equipe"
-  error_invalid_attribution: "Autoria inválida"
+  permission_error: Desculpe, você não tem permissão para fazer esta operação
+  only_super_admin_can_do_this: Desculpe, apenas os administradores do sistema podem efetuar esta alteração
+  max_number_of_team_users_reached: Desculpe, o número máximo de usuários para esta equipe foi alcançado
+  max_number_of_projects_reached: Desculpe, o número máximo de projetos para esta equipe foi alcançado
+  cant_set_custom_statuses: Desculpe, o recurso de status personalizados não está disponível para esta equipe
+  cant_change_custom_statuses: |-
+      Não foi possível modificar as definições de estados porque alguns estados fariam falta. Estes identificadores de estado: %{statuses} estão em uso nos seguintes itens:
+      %{urls} %{others_amount}
+  cant_create_team_task: Desculpe, essa equipe não tem acesso a essa funcionalidade
+  cant_create_media_under_this_team_using_extension: Desculpe, o recurso de extensão do navegador não está disponível para esta equipe
+  error_invalid_attribution: Autoria inválida
   account_exists: Conta já existe
   media_exists: Mídia já existe
   source_exists: Fonte já existe
   email_exists: já está em uso
-  banned_user: "Desculpe, sua conta foi banida de %{app_name}. Por favor, entre em contato com se achar que isso é um erro."
+  banned_user: Desculpe, sua conta foi banida de %{app_name}. Por favor, entre em contato com se achar que isso é um erro.
   devise:
     mailer:
       reset_password_instructions:
-        instruction: "Alguém fez o pedido para redefinir sua senha, e você pode fazer isso clicando no link abaixo. <strong>Observe que este link expira em %{expire} horas.</strong>"
+        instruction: Alguém fez o pedido para redefinir sua senha, e você pode fazer isso clicando no link abaixo. <strong>Observe que este link expira em %{expire} horas.</strong>
       invitation_instructions:
         subject: "%{user} convidou você para %{team}"
-        hello: "Ola %{name}"
+        hello: Ola %{name}
         someone_invited_you_default:
           html: "%{name} convidou você para %{team}."
         someone_invited_you_custom:
           html: "%{name} convidou você para %{team}, dizendo:"
         accept: 'Você pode aceitar este convite neste link: %{url}'
-        accept_until: "Este convite expirará em %{due_date}."
-        ignore: "Se você não quiser aceitar o convite, ignore este e-mail."
+        accept_until: Este convite expirará em %{due_date}.
+        ignore: Se você não quiser aceitar o convite, ignore este e-mail.
         app_team: "Time %{app}"
     failure:
-      unconfirmed: "Por favor verifique seu email para confirmar sua conta."
+      unconfirmed: Por favor verifique seu email para confirmar sua conta.
   user_invitation:
-    invited: 'Este usuário já foi convidado para esta equipe.'
-    member: 'Este usuário já é um membro da equipe.'
-    team_found: 'Equipe não encontrada.'
-    invalid: 'Código de convite é inválido.'
-    no_invitation: 'Não tem convite para a equipe %{name}'
-  error_user_is_not_a_team_member: "Desculpe, você pode somente atribuir tarefas a membros desta equipe"
-  error_login_with_exists_account: "Desculpe, existe outro usuário que já está usando esta conta"
-  mail_see_it: "Você pode o ver aqui: "
+    invited: Este usuário já foi convidado para esta equipe.
+    member: Este usuário já é um membro da equipe.
+    team_found: Equipe não encontrada.
+    invalid: Código de convite é inválido.
+    no_invitation: Não tem convite para a equipe %{name}
+  error_login_with_exists_account: Desculpe, existe outro usuário que já está usando esta conta
+  mail_see_it: 'Você pode o ver aqui: '
   mail_subject_assign_verification_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
   mail_subject_unassign_verification_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
   mail_subject_assign_translation_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
@@ -322,111 +319,155 @@ pt:
   mail_unassign_verification_status: "%{author} removeu a atribuição da mídia intitulada "
   mail_assign_translation_status: "%{author} atribuiu para você a mídia intitulada "
   mail_unassign_translation_status: "%{author} removeu a atribuição da mídia intitulada "
-  mail_assign_task: "%{author} atribuiu para você a tarefa \"%{task}\" que fica na mídia intitulada "
-  mail_unassign_task: "%{author} removeu a atribuição da tarefa \"%{task}\" que fica na mídia intitulada "
-  mail_update_status: "%{author}modificou o status de \"%{title}\" para %{status}"
+  mail_assign_task: '%{author} atribuiu para você a tarefa "%{task}" que fica na mídia intitulada '
+  mail_unassign_task: '%{author} removeu a atribuição da tarefa "%{task}" que fica na mídia intitulada '
+  mail_update_status: '%{author}modificou o status de "%{title}" para %{status}'
   mail_assign_project: "%{author} atribuiu um projeto para você. O título é:"
   mail_unassign_project: "%{author} desatribuiu um projeto de você. O título é:"
   mail_subject_assign_project: "[%{team} - %{project}] Um projeto foi atribuído para você"
   mail_subject_unassign_project: "[%{team} - %{project}] Um projeto foi desatribuído de você"
   mail_subject_delete_user: "[%{team}] Um usuário foi removido"
-  mail_body_delete_user: "Uma conta de usuário foi removida e seu conteúdo foi reatribuído para usuário anônimo %{id}"
-  archive_keep_backup: "Video Vault"
-  archive_pender_archive: "capturas de tela com Keep"
-  archive_archive_is: "Archive.is"
-  archive_archive_org: "Archive.org"
-  project_export_email_title_csv: "Seu relatório de projeto está pronto para baixar"
-  workflow_status_not_valid: "O status é inválido"
-  workflow_status_permission_error: "Desculpe, você não tem permissão para mudar este status."
-  blank_default_status_for_custom_translation_status: "Por favor, forneça um valor padrão para os status de tradução personalizada"
-  blank_active_status_for_custom_translation_status: "Por favor, forneça um valor ativo para os status de tradução personalizada"
-  blank_default_status_for_custom_verification_status: "Por favor, forneça um valor padrão para os status de verificação personalizada"
-  blank_active_status_for_custom_verification_status: "Por favor, forneça um valor ativo para os status de verificação personalizada"
-  bot_name_exists_for_this_team: "Já existe um bot com o nome fornecido nesta equipe"
-  bot_team_id_doesnt_exist: "Desculpe, não há equipe com o identificador fornecido"
-  bot_team_id_mandatory_to_create: "Lo sentimos, debes escoger un equipo para crear un bot"
-  bot_not_approved_for_installation: "Desculpe, este bot não foi aprovado e por isso não pode ser instalado"
-  only_admins_can_approve_bots: "Desculpe, apenas super admins podem aprovar bots"
-  could_not_save_related_bot_data: "Desculpe, não foi possível adicionar o bot a esta equipe"
-  bot_limited_team_not_pro: "Desculpe, este bot não está disponível para esta equipe"
+  mail_body_delete_user: Uma conta de usuário foi removida e seu conteúdo foi reatribuído para usuário anônimo %{id}
+  archive_keep_backup: Video Vault
+  archive_pender_archive: capturas de tela com Keep
+  archive_archive_is: Archive.is
+  archive_archive_org: Archive.org
+  project_export_email_title_csv: Seu relatório de projeto está pronto para baixar
+  workflow_status_not_valid: O status é inválido
+  workflow_status_permission_error: Desculpe, você não tem permissão para mudar este status.
+  blank_default_status_for_custom_translation_status: Por favor, forneça um valor padrão para os status de tradução personalizada
+  blank_active_status_for_custom_translation_status: Por favor, forneça um valor ativo para os status de tradução personalizada
+  blank_default_status_for_custom_verification_status: Por favor, forneça um valor padrão para os status de verificação personalizada
+  blank_active_status_for_custom_verification_status: Por favor, forneça um valor ativo para os status de verificação personalizada
+  bot_name_exists_for_this_team: Já existe um bot com o nome fornecido nesta equipe
+  bot_team_id_doesnt_exist: Desculpe, não há equipe com o identificador fornecido
+  bot_team_id_mandatory_to_create: Lo sentimos, debes escoger un equipo para crear un bot
+  bot_not_approved_for_installation: Desculpe, este bot não foi aprovado e por isso não pode ser instalado
+  only_admins_can_approve_bots: Desculpe, apenas super admins podem aprovar bots
+  could_not_save_related_bot_data: Desculpe, não foi possível adicionar o bot a esta equipe
+  bot_limited_team_not_pro: Desculpe, este bot não está disponível para esta equipe
   slack_save_task_comment: "*%{user}* adicionou uma nota à tarefa *%{task}* em %{url} em *%{project}*: %{comment}"
-  bot_cant_add_response_to_task: "Desculpe, um bot não pode responder uma tarefa diretamente - por favor adicione uma sugestão de resposta"
-  bot_cant_add_review_to_task: "Desculpe, um bot não pode avaliar uma sugestão de resposta"
-  task_suggestion_invalid_value: "Desculpe, o valor da sugestão não é válido"
-  tag_text_id_not_found: "Desculpe, não há tag com o identificador fornecido"
-  annotation_type_language_label: "Idioma"
-  project_export_download_mail_csv: "Olá!\n\nVocê solicitou um relatório para o projeto %{project} - aqui está um link para baixar-lo: %{link}\n\nO relatório será baixado como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"
-  project_export_email_title_images: "Imagens do seu projeto estão prontas para baixar"
-  project_export_download_mail_images: "Olá!\n\nVocê solicitou um download de imagens do projeto %{project} - aqui está um link para baixar-las: %{link}\n\nAs imagens serão baixadas como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}\n\nObserve que este link expirará em %{days} dias.\n\nCordialmente,\n\nEquipe %{app}"
+  bot_cant_add_response_to_task: Desculpe, um bot não pode responder uma tarefa diretamente - por favor adicione uma sugestão de resposta
+  bot_cant_add_review_to_task: Desculpe, um bot não pode avaliar uma sugestão de resposta
+  task_suggestion_invalid_value: Desculpe, o valor da sugestão não é válido
+  tag_text_id_not_found: Desculpe, não há tag com o identificador fornecido
+  annotation_type_language_label: Idioma
+  smooch_bot_message_received: Sua mensagem foi recebida, obrigado!
+  smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este tipo de mensagem.
+  smooch_bot_message_sent: Você já enviou esta mensagem.
+  smooch_bot_meme: Veja este meme
+  smooch_bot_result: Checamos o que você enviou como *%{status}*! Veja mais em %{url}.
+  project_export_download_mail_csv: |-
+      Olá!
+
+      Você solicitou um relatório para o projeto %{project} - aqui está um link para baixar-lo: %{link}
+
+      O relatório será baixado como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}
+
+      Observe que este link expirará em %{days} dias.
+
+      Cordialmente,
+
+      Equipe %{app}
+  project_export_email_title_images: Imagens do seu projeto estão prontas para baixar
+  project_export_download_mail_images: |-
+      Olá!
+
+      Você solicitou um download de imagens do projeto %{project} - aqui está um link para baixar-las: %{link}
+
+      As imagens serão baixadas como um arquivo compactado e criptografado. Para descompactá-lo, use a senha: %{password}
+
+      Observe que este link expirará em %{days} dias.
+
+      Cordialmente,
+
+      Equipe %{app}
   permissions_info:
     roles:
       owner:
-        description: "Donos controlam o ambiente."
+        description: Donos controlam o ambiente.
       editor:
-        description: "Editores gerenciam a equipe e os projetos."
+        description: Editores gerenciam a equipe e os projetos.
       journalist:
-        description: "Jornalistas verificam informações."
+        description: Jornalistas verificam informações.
       contributor:
-        description: "Colaboradores podem adicionar novas informações a serem checadas. Geralmente são membros do público."
+        description: Colaboradores podem adicionar novas informações a serem checadas. Geralmente são membros do público.
       annotator:
-        description: "Anotadore(a)s só podem ver e responder tarefas que são atribuídas a ele(a)s."
+        description: Anotadore(a)s só podem ver e responder tarefas que são atribuídas a ele(a)s.
     permissions:
       sections:
         project_management:
-          name: "Gerenciamento de projeto"
+          name: Gerenciamento de projeto
           permissions:
-            create: "Criar projeto"
-            edit: "Editar projeto"
-            delete: "Excluir projeto"
-            add_item: "Adicionar mídia a projeto"
+            create: Criar projeto
+            edit: Editar projeto
+            delete: Excluir projeto
+            add_item: Adicionar mídia a projeto
         item_page_management:
-          name: "Gerenciamento de item"
+          name: Gerenciamento de item
           permissions:
-            edit: "Editar item"
-            move: "Mover item"
-            change_status: "Mudar status do item"
-            lock_unlock_status: "Bloquear/desbloquear status"
-            add_remove_tag: "Adicionar/excluir tags"
-            send_to_trash: "Enviar item ou fonte para a lixeira"
-            empty_trash: "Esvaziar lixeira"
+            edit: Editar item
+            move: Mover item
+            change_status: Mudar status do item
+            lock_unlock_status: Bloquear/desbloquear status
+            add_remove_tag: Adicionar/excluir tags
+            send_to_trash: Enviar item ou fonte para a lixeira
+            empty_trash: Esvaziar lixeira
         task_management:
-          name: "Gerenciamento de tarefa"
+          name: Gerenciamento de tarefa
           permissions:
-            create: "Criar tarefa"
-            edit: "Editar tarefa"
-            delete: "Excluir tarefa"
-            add_response: "Adicionar resposta"
-            delete_repsonse: "Excluir resposta"
-            assign_task: "Atribuir tarefa ou mídia"
+            create: Criar tarefa
+            edit: Editar tarefa
+            delete: Excluir tarefa
+            add_response: Adicionar resposta
+            delete_repsonse: Excluir resposta
+            assign_task: Atribuir tarefa ou mídia
         team_management:
-          name: "Gerenciamento de equipe"
+          name: Gerenciamento de equipe
           permissions:
-            delete: "Excluir equipe"
-            edit: "Editar informações da equipe"
-            set_private: "Tornar equipe privada"
-            edit_status: "Editar os status da equipe"
-            edit_tasks: "Criar ou editar tarefas da equipe"
-            roles: "Editar papéis da equipe"
-            third_party: "Adicionar integrações externas"
-            invite_owner: "Convidar, aprovar e excluir donos da equipe"
-            invite_members: "Convidar, aprovar e excluir membros da equipe"
+            delete: Excluir equipe
+            edit: Editar informações da equipe
+            set_private: Tornar equipe privada
+            edit_status: Editar os status da equipe
+            edit_tasks: Criar ou editar tarefas da equipe
+            roles: Editar papéis da equipe
+            third_party: Adicionar integrações externas
+            invite_owner: Convidar, aprovar e excluir donos da equipe
+            invite_members: Convidar, aprovar e excluir membros da equipe
   team_import:
-    invalid_google_spreadsheet_url: "A URL da planilha é inválida %{spreadsheet_url}"
-    not_found_google_spreadsheet_url: "A planilha não foi encontrada em %{spreadsheet_url}"
-    cannot_authenticate_with_the_credentials: "Não é possível autenticar no Google Drive com as credenciais atuais. Por favor, entre em contato com a equipe de suporte para notificá-los sobre esse incidente."
-    team_not_present: "Equipe atual não encontrada durante a importação de dados. Por favor, notifique a equipe de suporte sobre este incidente."
-    user_not_present: "Usuário atual não encontrado durante a importação de dados. Por favor, notifique a equipe de suporte sobre este incidente."
-    user_not_authorized: "Desculpe, você não tem permissão para importar dados nessa equipe"
-    invalid_project: "O projeto %{project}é inválido"
-    invalid_user: "O usuário %{user}é inválido"
-    invalid_status: "Status é inválido %{status}"
-    blank_user: "Autor não pode ficar em branco"
-    blank_annotator: "Anotador não pode ficar em branco"
-    blank_project: "Projeto não pode ficar em branco"
-    invalid_annotator: "O anotador é inválido %{user}"
-    invalid_assignee: "Atribuição inválida %{user}"
+    invalid_google_spreadsheet_url: A URL da planilha é inválida %{spreadsheet_url}
+    not_found_google_spreadsheet_url: A planilha não foi encontrada em %{spreadsheet_url}
+    cannot_authenticate_with_the_credentials: Não é possível autenticar no Google Drive com as credenciais atuais. Por favor, entre em contato com a equipe de suporte para notificá-los sobre esse incidente.
+    team_not_present: Equipe atual não encontrada durante a importação de dados. Por favor, notifique a equipe de suporte sobre este incidente.
+    user_not_present: Usuário atual não encontrado durante a importação de dados. Por favor, notifique a equipe de suporte sobre este incidente.
+    user_not_authorized: Desculpe, você não tem permissão para importar dados nessa equipe
+    invalid_project: O projeto %{project}é inválido
+    invalid_user: O usuário %{user}é inválido
+    invalid_status: Status é inválido %{status}
+    blank_user: Autor não pode ficar em branco
+    blank_annotator: Anotador não pode ficar em branco
+    blank_project: Projeto não pode ficar em branco
+    invalid_annotator: O anotador é inválido %{user}
+    invalid_assignee: Atribuição inválida %{user}
   mail_subject_assignments_ready: "A atualização de atribuições está pronta"
-  mail_body_assignments_ready_assign: "Olá %{username},\n\nO processo de atualização das atribuições foi concluído com sucesso.\nO projeto '%{project_title}' (%{project_url}) e seus itens e tarefas foram agora atribuídos para %{assigned}.\n\nObrigado,\n\n— A equipe %{app_name}"
-  mail_body_assignments_ready_unassign: "Olá %{username},\n\nO processo de atualização das atribuições foi concluído com sucesso.\nO projeto '%{project_title}' (%{project_url}) e seus itens e tarefas foram agora desatribuídos de %{assigned}.\n\nObrigado,\n\n— A equipe %{app_name}"
-  team_import_completed_subject: "Sua importação de dados terminou"
+  mail_body_assignments_ready_assign: |-
+      Olá %{username},
+
+      O processo de atualização das atribuições foi concluído com sucesso.
+      O projeto '%{project_title}' (%{project_url}) e seus itens e tarefas foram agora atribuídos para %{assigned}.
+
+      Obrigado,
+
+      — A equipe %{app_name}
+  mail_body_assignments_ready_unassign: |-
+      Olá %{username},
+
+      O processo de atualização das atribuições foi concluído com sucesso.
+      O projeto '%{project_title}' (%{project_url}) e seus itens e tarefas foram agora desatribuídos de %{assigned}.
+
+      Obrigado,
+
+      — A equipe %{app_name}
+  team_import_completed_subject: Sua importação de dados terminou
   team_import_completed_mail: "Olá,\n\nSua importação de dados em %{app_name} terminou. Você pode conferir em %{worksheet_url} para revisar o status de cada item importado.\n\nNote que você pode reiniciar a importação depois de corrigir os erros reportados - os itens previamente importados não serão duplicados.\n\n— A equipe %{app_name}"
+  pender_url_invalid: Este link é inválido.

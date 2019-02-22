@@ -22,13 +22,18 @@ class Bot::Alegre < ActiveRecord::Base
   end
 
   def get_language_from_alegre(target)
+    lang = self.get_language_from_alegre_for_text(target.text)
+    self.save_language(target, lang) unless lang.nil?
+    lang
+  end
+
+  def get_language_from_alegre_for_text(text)
     lang = nil
     begin
-      response = AlegreClient::Request.get_languages_identification(CONFIG['alegre_host'], { text: target.text }, CONFIG['alegre_token'])
+      response = AlegreClient::Request.get_languages_identification(CONFIG['alegre_host'], { text: text }, CONFIG['alegre_token'])
       lang = response['data'][0][0].split(',').first.downcase if response['type'] == 'language'
     rescue
     end
-    self.save_language(target, lang) unless lang.nil?
     lang
   end
 
