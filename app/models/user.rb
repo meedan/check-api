@@ -354,7 +354,8 @@ class User < ActiveRecord::Base
     unless s2.nil?
       AccountSource.where(source_id: s2.id).update_all(source_id: s.id)
       s2.skip_check_ability = true
-      s2.destroy
+      s2_count = User.where(source_id: s2.id).count
+      s2.destroy if s2_count == 0
     end
     self.update_columns(columns)
     # update assignments cache
