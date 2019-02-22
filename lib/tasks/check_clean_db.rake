@@ -8,12 +8,14 @@ namespace :check do
       exceptions = cleandb_config["email_exceptions"] if cleandb_config.has_key?("email_exceptions")
       slack_settings = cleandb_config["slack_settings"] if cleandb_config.has_key?("slack_settings")
       bot_urls = cleandb_config["bot_urls"] if cleandb_config.has_key?("bot_urls")
+      bot_settings = cleandb_config["bot_settings"] if cleandb_config.has_key?("bot_settings")
     rescue Exception => e
       puts e.message
     end
     exceptions ||= []
     slack_settings ||= {}
     bot_urls ||= {}
+    bot_settings ||= {}
 
     Team.find_each do |t|
       if !t.settings.blank? && t.get_slack_notifications_enabled == "1"
@@ -44,6 +46,9 @@ namespace :check do
 
     bot_urls.each do |id, url|
       TeamBot.where(identifier: id).update_all(request_url: url)
+    end
+    bot_settings.each do |id, settings|
+      TeamBotInstallation.where(id: id).update_all(settings: JSON.parse(settings))
     end
 
     if ApiKey.where(access_token: 'devkey').last.nil?
