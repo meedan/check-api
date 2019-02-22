@@ -17,8 +17,8 @@ before_install:
 - redis-server &
 - git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
-- rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 && mkdir -p tmp/cache tmp/cache1
-  tmp/cache2 tmp/cache3
+- rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 && mkdir -p tmp/cache tmp/cache1
+  tmp/cache2 tmp/cache3 tmp/cache4
 - wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 &&
   tar -vxjf phantomjs-2.1.1-linux-x86_64.tar.bz2 &&
   sudo mv phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin/
@@ -34,7 +34,7 @@ before_script:
 - cd test && ./setup-parallel-env.sh && cd -
 - bundle exec thin -p 3000 -e test -t 60 --threadpool-size=60 --threaded start >/dev/null &
 - sleep 10
-script: bundle exec rake "parallel:test[3]"
+script: bundle exec rake "parallel:test[4]"
 after_script:
 - bundle exec codeclimate-test-reporter
 rvm:
