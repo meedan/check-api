@@ -3,22 +3,7 @@ require_relative '../test_helper'
 class BaseApiControllerTest < ActionController::TestCase
   def setup
     super
-    Rails.application.routes.draw do
-      namespace :api, defaults: { format: 'json' } do
-        scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-          match '/test' => 'test#test', via: [:get, :post]
-          match '/notify' => 'test#notify', via: [:post]
-          get 'version', to: 'base_api#version'
-          get 'ping', to: 'base_api#ping'
-          post 'log', to: 'base_api#log'
-          scope '/me' do
-            match '/' => 'base_api#me', via: [:get]
-            match '/' => 'base_api#options', via: [:options]
-          end
-        end
-      end
-    end
-    @controller = Api::V1::TestController.new
+    @controller = Api::V1::BaseApiController.new
   end
 
   test "should respond to json" do
@@ -26,7 +11,7 @@ class BaseApiControllerTest < ActionController::TestCase
   end
 
   test "should remove empty parameters" do
-    get :test, empty: '', notempty: 'Something'
+    get :ping, empty: '', notempty: 'Something'
     assert !@controller.params.keys.include?('empty')
     assert @controller.params.keys.include?('notempty')
   end
@@ -34,36 +19,19 @@ class BaseApiControllerTest < ActionController::TestCase
   test "should remove empty headers" do
     @request.headers['X-Empty'] = ''
     @request.headers['X-Not-Empty'] = 'Something'
-    get :test
+    get :ping
     assert @request.headers['X-Empty'].nil?
     assert !@request.headers['X-Not-Empty'].nil?
   end
 
   test "should return build as a custom header" do
-    get :test
+    get :ping
     assert_not_nil @response.headers['X-Build']
   end
 
   test "should return default api version as a custom header" do
-    get :test
+    get :ping
     assert_match /v1$/, @response.headers['Accept']
-  end
-
-  test "should filter parameters" do
-    authenticate_with_token
-    get :test, foo: 'bar'
-    assert_equal ['foo'], assigns(:p).keys
-  end
-
-  test "should not access without token" do
-    get :test
-    assert_response 401
-  end
-
-  test "should access with token" do
-    authenticate_with_token
-    get :test
-    assert_response :success
   end
 
   test "should get version" do
@@ -107,7 +75,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should get options" do
     @controller = Api::V1::BaseApiController.new
-    process :options, 'OPTIONS'
+    process :me, 'OPTIONS'
     assert_response :success
   end
 
