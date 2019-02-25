@@ -231,7 +231,7 @@ class Source < ActiveRecord::Base
   end
 
   def team_is_not_archived
-    parent_is_not_archived(self.team, I18n.t(:error_team_archived_for_source)
+    parent_is_not_archived(self.team, I18n.t(:error_team_archived_for_source))
   end
 
   def create_metadata
