@@ -398,6 +398,15 @@ class User < ActiveRecord::Base
     ret
   end
 
+  def self.find_user_by_email(email)
+    u = User.where(email: email).last
+    if u.nil?
+      a = Account.where(email: email).last if u.nil?
+      u = a.user unless a.nil?
+    end
+    u
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/user_private.rb
