@@ -15,11 +15,7 @@ module UserInvitation
 	    	role = member[:role]
 	      member[:email].split(',').each do |email|
 	        email.strip!
-	        u = User.where(email: email).last
-	        if u.nil?
-	        	a = Account.where(email: email).last
-	        	u = a.user unless a.nil?
-	        end
+	        u = User.find_user_by_email(email)
 	        begin
 	          if u.nil?
 	            user = User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role, :invitation_text => text}, User.current) do |iu|
