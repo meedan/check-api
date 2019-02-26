@@ -248,7 +248,7 @@ class Project < ActiveRecord::Base
   end
 
   def team_is_not_archived
-    parent_is_not_archived(self.team, I18n.t(:error_team_archived, default: "Can't create project under trashed team"))
+    parent_is_not_archived(self.team, I18n.t(:error_team_archived))
   end
 
   def reset_current_project
