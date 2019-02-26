@@ -9,6 +9,7 @@ if File.exist?(file)
 
   Sidekiq.configure_server do |config|
     config.redis = redis_config
+    config.error_handlers << Proc.new { |e, context| Airbrake.notify(e, parameters: context) if Airbrake.configuration.api_key }
   end
 
   Sidekiq.configure_client do |config|

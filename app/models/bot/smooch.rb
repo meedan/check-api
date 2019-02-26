@@ -11,7 +11,7 @@ class Bot::Smooch
     protected
 
     def reply_to_smooch_users
-      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).reply_to_smooch_users(self.annotation.annotated_id)
+      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).reply_to_smooch_users(self.annotation.annotated_id, self.value)
     end
 
     private
@@ -163,9 +163,9 @@ class Bot::Smooch
     pm = ProjectMedia.where(id: pmid).last
     unless pm.nil?
       lang = Bot::Alegre.default.language_object(pm, :value)
-      status = I18n.t('statuses.media.' + pm.reload.last_status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
+      status = I18n.t('statuses.media.' + pm.last_status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
       fallback = I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.full_url)
-      ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{pm.reload.last_status}, #{pm.embed_url})")
+      ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{pm.last_status}, #{pm.embed_url})")
     end
   end
 
@@ -287,7 +287,7 @@ class Bot::Smooch
     a.save!
     
     if pm.is_finished?
-      self.send_verification_results_to_user(json['authorId'], pm, json['language'])
+      self.send_verification_results_to_user(json['authorId'], pm, pm.last_status, json['language'])
       self.send_meme_to_user(json['authorId'], pm, json['language'])
     end
   end
@@ -354,18 +354,18 @@ class Bot::Smooch
     end
   end
 
-  def self.reply_to_smooch_users(pmid)
+  def self.reply_to_smooch_users(pmid, status)
     pm = ProjectMedia.where(id: pmid).last
     unless pm.nil?
       pm.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        self.send_verification_results_to_user(data['authorId'], pm, data['language'])
+        self.send_verification_results_to_user(data['authorId'], pm, status, data['language'])
       end
     end
   end
 
-  def self.send_verification_results_to_user(uid, pm, lang)
+  def self.send_verification_results_to_user(uid, pm, status, lang)
     key = 'smooch:' + uid + ':reminder_job_id'
     job_id = Rails.cache.read(key)
     unless job_id.nil?
@@ -378,7 +378,7 @@ class Bot::Smooch
         id: pm.id
       }
     }
-    status = I18n.t('statuses.media.' + pm.reload.last_status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
+    status = I18n.t('statuses.media.' + status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
     response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.full_url), extra)
     id = response&.message&.id
     Rails.cache.write('smooch:smooch_message_id:project_media_id:' + id, pm.id) unless id.blank?
@@ -386,7 +386,7 @@ class Bot::Smooch
   end
 
   def self.send_meme_to_user(uid, pm, lang)
-    annotation = pm.get_annotations('memebuster').last.load
+    annotation = pm.get_annotations('memebuster').last&.load
     return if annotation.nil? || annotation.get_field_value('memebuster_published_at').blank?
     meme = annotation.memebuster_png_path(false)
     Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_meme, locale: lang), { type: 'image', mediaUrl: meme })

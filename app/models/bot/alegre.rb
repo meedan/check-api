@@ -33,6 +33,7 @@ class Bot::Alegre < ActiveRecord::Base
       response = AlegreClient::Request.get_languages_identification(CONFIG['alegre_host'], { text: text }, CONFIG['alegre_token'])
       lang = response['data'][0][0].split(',').first.downcase if response['type'] == 'language'
     rescue
+      lang = nil
     end
     lang
   end
@@ -87,7 +88,7 @@ class Bot::Alegre < ActiveRecord::Base
       r.target_id = target.id
       r.save!
     end
-    response = Bot::Alegre.request_api('POST', '/similarity/', {
+    Bot::Alegre.request_api('POST', '/similarity/', {
       text: target.text,
       language: src_lang,
       context: {
@@ -136,7 +137,7 @@ class Bot::Alegre < ActiveRecord::Base
     begin
       response = http.request(request)
       JSON.parse(response.body)
-    rescue Exception => e
+    rescue StandardError => e
       { 'type' => 'error', 'data' => { 'message' => e.message } }
     end
   end
