@@ -311,11 +311,11 @@ en:
   duplicate_source: Source exists
   geolocation_invalid_value: Location must contain a valid GeoJSON (http://geojson.org/)
   datetime_invalid_date: Please provide a valid date
-  error_team_archived: Can
-  error_project_archived: Can
-  error_team_archived_for_source: Can
+  error_team_archived: Can't create project under trashed team
+  error_project_archived: Can't create media under trashed project
+  error_team_archived_for_source: Can't create source under trashed team
   permission_error: Sorry, you are not allowed to perform this operation
-  error_annotated_archived: Sorry, this item is in the trash, you can
+  error_annotated_archived: Sorry, this item is in the trash, you can't add a note to it
   only_super_admin_can_do_this: Sorry, only system administrators can make this change
   max_number_of_team_users_reached: Sorry, the maximum number of users for this team
     has been reached
