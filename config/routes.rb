@@ -29,6 +29,7 @@ Rails.application.routes.draw do
       scope ':pattern', constraints: { pattern: /me|graphql|users\/sign_out|users\/sign_in|users/ } do
         match '/' => 'base_api#options', via: [:options]
       end
+      match '/options' => 'base_api#options', via: [:options]
       get 'version', to: 'base_api#version'
       get 'ping', to: 'base_api#ping'
       post 'log', to: 'base_api#log'

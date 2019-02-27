@@ -3,16 +3,20 @@ require 'yaml'
 namespace :check do
   desc "clean private data from the database"
   task cleandb: :environment do
-    # config/cleandb.yml is an array of settings.
     begin
       cleandb_config = YAML.load(File.open(File.join(File.dirname(__FILE__), '..', '..', 'config', 'cleandb.yml')))
       exceptions = cleandb_config["email_exceptions"] if cleandb_config.has_key?("email_exceptions")
       slack_settings = cleandb_config["slack_settings"] if cleandb_config.has_key?("slack_settings")
+      bot_urls = cleandb_config["bot_urls"] if cleandb_config.has_key?("bot_urls")
+      bot_settings = cleandb_config["bot_settings"] if cleandb_config.has_key?("bot_settings")
     rescue Exception => e
       puts e.message
     end
     exceptions ||= []
     slack_settings ||= {}
+    bot_urls ||= {}
+    bot_settings ||= {}
+
     Team.find_each do |t|
       if !t.settings.blank? && t.get_slack_notifications_enabled == "1"
         slack_settings.each do |k, v|
@@ -29,6 +33,7 @@ namespace :check do
         u.update_columns(email: '', encrypted_password: '')
       end
     end
+
     Project.find_each do |p|
       if !p.settings.blank? && p.get_slack_notifications_enabled == "1"
         slack_settings.each do |k, v|
@@ -38,6 +43,14 @@ namespace :check do
         p.save(:validate => false)
       end
     end
+
+    bot_urls.each do |id, url|
+      TeamBot.where(identifier: id).update_all(request_url: url)
+    end
+    bot_settings.each do |id, settings|
+      TeamBotInstallation.where(id: id).update_all(settings: JSON.parse(settings))
+    end
+
     if ApiKey.where(access_token: 'devkey').last.nil?
       a = ApiKey.create!
       a.expire_at = a.expire_at.since(100.years)

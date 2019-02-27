@@ -351,16 +351,21 @@ class User < ActiveRecord::Base
     columns[:cached_teams] = TeamUser.where(user_id: self.id, status: 'member').map(&:team_id)
     user.skip_check_ability = true
     user.destroy
-    unless s2.nil?
-      AccountSource.where(source_id: s2.id).update_all(source_id: s.id)
-      s2.skip_check_ability = true
-      s2.destroy
-    end
+    self.merge_source(s, s2)
     self.update_columns(columns)
     # update assignments cache
     merged_tu.concat(self.team_users.where.not(id: tu_old))
     merged_tu.each do |tu|
       tu.set_assignments_progress
+    end
+  end
+
+  def merge_source(s, s2)
+    unless s2.nil?
+      AccountSource.where(source_id: s2.id).update_all(source_id: s.id)
+      s2.skip_check_ability = true
+      s2_count = User.where(source_id: s2.id).count
+      s2.destroy if s2_count == 0
     end
   end
 
@@ -391,6 +396,15 @@ class User < ActiveRecord::Base
       end
     end
     ret
+  end
+
+  def self.find_user_by_email(email)
+    u = User.where(email: email).last
+    if u.nil?
+      a = Account.where(email: email).last if u.nil?
+      u = a.user unless a.nil?
+    end
+    u
   end
 
   # private
