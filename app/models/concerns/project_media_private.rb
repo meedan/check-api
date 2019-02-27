@@ -30,7 +30,7 @@ module ProjectMediaPrivate
   end
 
   def project_is_not_archived
-    parent_is_not_archived(self.project, I18n.t(:error_project_archived, default: "Can't create media under trashed project"))
+    parent_is_not_archived(self.project, I18n.t(:error_project_archived))
   end
 
   def update_media_account

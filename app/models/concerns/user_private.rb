@@ -43,20 +43,11 @@ module UserPrivate
   end
 
   def validate_duplicate_email
-    unless self.email.blank?
-      u = User.where(email: self.email).where.not(id: self.id).last
-      if u.nil?
-        # check email in social accounts
-        a = Account.where(email: self.email).where.not(user_id: self.id).last
-        unless a.nil?
-          u = a.user
-          errors.add(:email, I18n.t(:email_exists))
-        end
-      end
-      unless u.nil?
-        handle_duplicate_email(u)
-        return false
-      end
+    duplicate = User.get_duplicate_user(self.email, self.id)
+    unless duplicate[:user].nil?
+      errors.add(:email, I18n.t(:email_exists)) if duplicate[:type] == 'Account'
+      handle_duplicate_email(duplicate[:user])
+      return false
     end
   end
 

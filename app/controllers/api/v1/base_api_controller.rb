@@ -114,10 +114,6 @@ module Api
         end
       end
 
-      def get_params
-        params.reject{ |k, _v| ['id', 'action', 'controller', 'format'].include?(k) }
-      end
-
       def remove_empty_params_and_headers
         params.reject!{ |_k, v| v.blank? }
         request.headers.each{ |k, v| request.headers[k] = nil if (k =~ /HTTP_/).present? && v.blank? }

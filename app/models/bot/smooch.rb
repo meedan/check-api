@@ -11,7 +11,7 @@ class Bot::Smooch
     protected
 
     def reply_to_smooch_users
-      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).reply_to_smooch_users(self.annotation.annotated_id)
+      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).reply_to_smooch_users(self.annotation.annotated_id, self.value)
     end
 
     private
@@ -162,17 +162,27 @@ class Bot::Smooch
     pmid = Rails.cache.read('smooch:smooch_message_id:project_media_id:' + message['message']['_id']).to_i
     pm = ProjectMedia.where(id: pmid).last
     unless pm.nil?
-      fallback = "We checked what you sent to us as *#{pm.last_status}*! View more at #{pm.embed_url}."
+      lang = Bot::Alegre.default.language_object(pm, :value)
+      status = I18n.t('statuses.media.' + pm.last_status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
+      fallback = I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.full_url)
       ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{pm.last_status}, #{pm.embed_url})")
     end
+  end
+
+  def self.get_language(message)
+    text = message['text'].to_s
+    lang = text.blank? ? nil : Bot::Alegre.default.get_language_from_alegre_for_text(text)
+    lang = 'en' if lang.blank? || !I18n.available_locales.include?(lang.to_sym)
+    lang
   end
 
   def self.process_message(message, app_id)
     return if message['authorId'] == self.config['smooch_bot_id']
     self.refresh_window(message['authorId'], app_id)
+    lang = message['language'] = self.get_language(message)
     unless self.user_already_sent_message(message)
       self.save_message_later(message, app_id)
-      self.send_message_to_user(message['authorId'], 'We received your message, thanks!')
+      self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_received, locale: lang))
     end
   end
 
@@ -207,17 +217,17 @@ class Bot::Smooch
           hash = Digest::MD5.hexdigest(f.read)
         end
       else
-        self.send_message_to_user(message['authorId'], "Sorry, we don't support this kind of message yet")
+        self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_type_unsupported, locale: message['language']))
         return true
       end
     else
-      self.send_message_to_user(message['authorId'], "Sorry, we don't support this kind of message yet")
+      self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_type_unsupported, locale: message['language']))
       return true
     end
 
     key = 'smooch:' + message['authorId'] + ':' + hash
     if Rails.cache.read(key)
-      self.send_message_to_user(message['authorId'], 'You already sent this message.')
+      self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_sent, locale: message['language']))
       true
     else
       Rails.cache.write(key, Time.now.to_i)
@@ -277,8 +287,8 @@ class Bot::Smooch
     a.save!
     
     if pm.is_finished?
-      self.send_verification_results_to_user(json['authorId'], pm)
-      self.send_meme_to_user(json['authorId'], pm)
+      self.send_verification_results_to_user(json['authorId'], pm, pm.last_status, json['language'])
+      self.send_meme_to_user(json['authorId'], pm, json['language'])
     end
   end
 
@@ -344,18 +354,18 @@ class Bot::Smooch
     end
   end
 
-  def self.reply_to_smooch_users(pmid)
+  def self.reply_to_smooch_users(pmid, status)
     pm = ProjectMedia.where(id: pmid).last
     unless pm.nil?
       pm.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        self.send_verification_results_to_user(data['authorId'], pm)
+        self.send_verification_results_to_user(data['authorId'], pm, status, data['language'])
       end
     end
   end
 
-  def self.send_verification_results_to_user(uid, pm)
+  def self.send_verification_results_to_user(uid, pm, status, lang)
     key = 'smooch:' + uid + ':reminder_job_id'
     job_id = Rails.cache.read(key)
     unless job_id.nil?
@@ -368,17 +378,18 @@ class Bot::Smooch
         id: pm.id
       }
     }
-    response = ::Bot::Smooch.send_message_to_user(uid, "We checked what you sent to us as *#{pm.last_status}*! View more at #{pm.embed_url}.", extra)
+    status = I18n.t('statuses.media.' + status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
+    response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.full_url), extra)
     id = response&.message&.id
     Rails.cache.write('smooch:smooch_message_id:project_media_id:' + id, pm.id) unless id.blank?
     response
   end
 
-  def self.send_meme_to_user(uid, pm)
-    annotation = pm.get_annotations('memebuster').last.load
+  def self.send_meme_to_user(uid, pm, lang)
+    annotation = pm.get_annotations('memebuster').last&.load
     return if annotation.nil? || annotation.get_field_value('memebuster_published_at').blank?
     meme = annotation.memebuster_png_path(false)
-    Bot::Smooch.send_message_to_user(uid, 'Meme', { type: 'image', mediaUrl: meme })
+    Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_meme, locale: lang), { type: 'image', mediaUrl: meme })
   end
 
   def self.send_meme_to_smooch_users(annotation_id)
@@ -389,7 +400,7 @@ class Bot::Smooch
     pm.get_annotations('smooch').find_each do |a|
       data = JSON.parse(a.load.get_field_value('smooch_data'))
       self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-      ::Bot::Smooch.send_message_to_user(data['authorId'], 'Meme', { type: 'image', mediaUrl: meme })
+      ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_meme, locale: data['language']), { type: 'image', mediaUrl: meme })
     end
     annotation.set_fields = { memebuster_published_at: Time.now }.to_json
     annotation.save!
