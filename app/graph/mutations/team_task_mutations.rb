@@ -12,9 +12,7 @@ module TeamTaskMutations
     team_id: '!int'
   })
 
-  update_fields = fields.merge({
-    id: '!id'
-  })
+  update_fields = fields
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team_task', create_fields, update_fields, ['team'])
 end

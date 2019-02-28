@@ -8,17 +8,26 @@ class GraphqlCrudOperations
     obj.save!
 
     name = obj.class_name.underscore
-    ret = { name.to_sym => obj }
-
+    { name.to_sym => obj }.merge(GraphqlCrudOperations.define_returns(obj, {}, parents))
+  end
+  
+  def self.define_returns(obj, inputs, parents)
+    ret = {}
+    name = obj.class_name.underscore
     parents.each do |parent_name|
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
+        if inputs[:ids] && parent_name =~ /^check_search/
+          n = parent.number_of_results
+          parent.define_singleton_method(:number_of_results) do
+            n - inputs[:ids].size
+          end
+        end
         ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version'].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
     end
-
     ret.merge(GraphqlCrudOperations.define_conditional_returns(obj))
   end
 
@@ -64,9 +73,35 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.update(_type, inputs, ctx, parents = [])
-    obj = CheckGraphql.object_from_id(inputs[:id], ctx)
+  def self.operation_from_multiple_ids(operation, ids, inputs, uid, tid)
+    User.current = User.find(uid)
+    Team.current = Team.find(tid)
+    ids.split(',').each do |id|
+      self.send("#{operation}_from_single_id", id, JSON.parse(inputs), {}, [])
+    end
+    User.current = Team.current = nil
+  end
+
+  def self.crud_operation(operation, obj, inputs, ctx, parents, returns = {})
+    if inputs[:ids]
+      params = {}
+      inputs.keys.each{ |k| params[k] = inputs[k] }
+      ret = { affectedIds: inputs[:ids] }.merge(returns)
+      self.delay_for(1.second, retry: false).operation_from_multiple_ids(operation, inputs[:ids].join(','), params.to_json, User.current.id, Team.current.id)
+      ret
+    elsif inputs[:id]
+      self.send("#{operation}_from_single_id", inputs[:id], inputs, ctx, parents)
+    end
+  end
+
+  def self.object_from_id_and_context(id, ctx)
+    obj = CheckGraphql.object_from_id(id, ctx)
     obj = obj.load if obj.is_a?(Annotation)
+    obj
+  end
+
+  def self.update_from_single_id(id, inputs, ctx, parents)
+    obj = self.object_from_id_and_context(id, ctx)
     obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
@@ -77,18 +112,47 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.destroy(inputs, ctx, parents = [])
-    type, id = CheckGraphql.decode_id(inputs[:id])
-    obj = type.constantize.find(id)
-    obj = obj.load if obj.respond_to?(:load)
+  def self.update(_type, inputs, ctx, parents = [])
+    obj = inputs[:id] ? self.object_from_id_and_context(inputs[:id], ctx) : nil
+    returns = obj.nil? ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
+    self.crud_operation('update', obj, inputs, ctx, parents, returns)
+  end
+
+  def self.destroy_from_single_id(graphql_id, _inputs, ctx, parents)
+    obj = self.object_from_id(graphql_id)
     obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : obj.destroy
 
-    ret = { deletedId: inputs[:id] }
+    ret = { deletedId: graphql_id }
 
     parents.each { |parent| ret[parent.to_sym] = obj.send(parent) }
 
     ret
+  end
+
+  def self.object_from_id(graphql_id)
+    type, id = CheckGraphql.decode_id(graphql_id)
+    obj = type.constantize.find(id)
+    obj = obj.load if obj.respond_to?(:load)
+    obj
+  end
+
+  def self.destroy(inputs, ctx, parents = [])
+    returns = {}
+    if inputs[:id]
+      obj = self.object_from_id(inputs[:id])
+      parents.each do |parent|
+        parent_obj = obj.send(parent)
+        if inputs[:ids] && parent =~ /^check_search/
+          n = parent_obj.number_of_results
+          parent_obj.define_singleton_method(:number_of_results) do
+            n - inputs[:ids].size
+          end
+        end
+        returns[parent.to_sym] = parent_obj
+      end
+    end
+    self.crud_operation('destroy', obj, inputs, ctx, parents, returns)
   end
 
   def self.define_create(type, create_fields, parents = [])
@@ -105,12 +169,14 @@ class GraphqlCrudOperations
 
       name "#{action.camelize}#{type.camelize}"
 
+      input_field :id, types.ID
+      input_field :ids, types[types.ID]
       fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
 
-      return_field(:affectedIds, types[types.ID]) if type.to_s == 'team'
+      return_field(:affectedIds, types[types.ID])
       return_field(:affectedId, types.ID) if type.to_s == 'project_media'
 
       if type.to_s == 'team'
@@ -137,9 +203,11 @@ class GraphqlCrudOperations
     GraphQL::Relay::Mutation.define do
       name "Destroy#{type.camelize}"
 
-      input_field :id, !types.ID
+      input_field :id, types.ID
+      input_field :ids, types[types.ID]
 
       return_field :deletedId, types.ID
+      return_field :affectedIds, types[types.ID]
 
       GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
 

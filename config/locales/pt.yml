@@ -267,7 +267,11 @@ pt:
   duplicate_source: Fonte existe
   geolocation_invalid_value: Localização deve conter um GeoJSON válido (http://geojson.org/)
   datetime_invalid_date: Por favor forneça uma data válida
+  error_team_archived: Não é possível criar um projeto em um time que esteja na lixeira
+  error_project_archived: Não é possível criar mídia em um projeto que esteja na lixeira
+  error_team_archived_for_source: Não é possível criar fonte em um time que esteja na lixeira
   permission_error: Desculpe, você não tem permissão para fazer esta operação
+  error_annotated_archived: Desculpe, este item está na lixeira, você não pode adicionar nota a ele
   only_super_admin_can_do_this: Desculpe, apenas os administradores do sistema podem efetuar esta alteração
   max_number_of_team_users_reached: Desculpe, o número máximo de usuários para esta equipe foi alcançado
   max_number_of_projects_reached: Desculpe, o número máximo de projetos para esta equipe foi alcançado
@@ -306,6 +310,7 @@ pt:
     team_found: Equipe não encontrada.
     invalid: Código de convite é inválido.
     no_invitation: Não tem convite para a equipe %{name}
+  error_user_is_not_a_team_member: Desculpe, você pode somente atribuir tarefas a membros desta equipe
   error_login_with_exists_account: Desculpe, existe outro usuário que já está usando esta conta
   mail_see_it: 'Você pode o ver aqui: '
   mail_subject_assign_verification_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
@@ -355,8 +360,8 @@ pt:
   smooch_bot_message_received: Sua mensagem foi recebida, obrigado!
   smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este tipo de mensagem.
   smooch_bot_message_sent: Você já enviou esta mensagem.
-  smooch_bot_meme: Veja este meme
-  smooch_bot_result: Checamos o que você enviou como *%{status}*! Veja mais em %{url}.
+  smooch_bot_meme: Aqui está um meme criado com base na sua questão
+  smooch_bot_result: Nós revisamos o que você enviou, e determinamos que o item é *%{status}*! Veja mais em %{url}.
   project_export_download_mail_csv: |-
       Olá!
 
