@@ -17,8 +17,7 @@ module TaskMutations
     response: 'str',
     accept_suggestion: 'int',
     reject_suggestion: 'int',
-    assigned_to_ids: 'str',
-    id: '!id'
+    assigned_to_ids: 'str'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('task', create_fields, update_fields, ['project_media', 'source', 'project', 'first_response_version'])

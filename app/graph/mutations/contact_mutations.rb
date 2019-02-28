@@ -10,8 +10,7 @@ module ContactMutations
     location: 'str',
     phone: 'str',
     web: 'str',
-    team_id: 'int',
-    id: '!id'
+    team_id: 'int'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('contact', create_fields, update_fields)

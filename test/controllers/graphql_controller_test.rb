@@ -2265,4 +2265,68 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 1, pmids.size
     assert_equal pm2.id, pmids[0]
   end
+
+  test "should bulk-update things" do
+    Sidekiq::Testing.fake! do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'owner'
+      p1 = create_project team: t
+      p2 = create_project team: t
+      pm1 = create_project_media project: p1
+      pm2 = create_project_media project: p1
+      Sidekiq::Worker.drain_all
+
+      assert_equal p1, pm1.reload.project
+      assert_equal p1, pm2.reload.project
+      assert_equal 0, Sidekiq::Worker.jobs.size
+      
+      authenticate_with_user(u)
+      query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"], project_id: #{p2.id} }) { affectedIds, check_search_project { number_of_results } } }"
+      post :create, query: query, team: t.slug
+      assert_response :success
+      assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
+      sleep 1
+      
+      assert_equal 1, Sidekiq::Worker.jobs.size
+      assert_equal p1, pm1.reload.project
+      assert_equal p1, pm2.reload.project
+      Sidekiq::Worker.drain_all
+      assert_equal 0, Sidekiq::Worker.jobs.size
+      assert_equal p2, ProjectMedia.find(pm1.id).project
+      assert_equal p2, ProjectMedia.find(pm2.id).project
+    end
+  end
+
+  test "should bulk-destroy things" do
+    Sidekiq::Testing.fake! do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'owner'
+      p1 = create_project team: t
+      p2 = create_project team: t
+      pm1 = create_project_media project: p1
+      pm2 = create_project_media project: p1
+      Sidekiq::Worker.drain_all
+
+      assert_not_nil ProjectMedia.where(id: pm1.id).last
+      assert_not_nil ProjectMedia.where(id: pm2.id).last
+      assert_equal 0, Sidekiq::Worker.jobs.size
+      
+      authenticate_with_user(u)
+      query = "mutation { destroyProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"] }) { affectedIds, check_search_team { number_of_results } } }"
+      post :create, query: query, team: t.slug
+      assert_response :success
+      assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['destroyProjectMedia']['affectedIds'].sort
+      sleep 1
+      
+      assert_equal 1, Sidekiq::Worker.jobs.size
+      assert_not_nil ProjectMedia.where(id: pm1.id).last
+      assert_not_nil ProjectMedia.where(id: pm2.id).last
+      Sidekiq::Worker.drain_all
+      assert_equal 0, Sidekiq::Worker.jobs.size
+      assert_nil ProjectMedia.where(id: pm1.id).last
+      assert_nil ProjectMedia.where(id: pm2.id).last
+    end
+  end
 end

@@ -315,7 +315,8 @@ en:
   error_project_archived: Can't create media under trashed project
   error_team_archived_for_source: Can't create source under trashed team
   permission_error: Sorry, you are not allowed to perform this operation
-  error_annotated_archived: Sorry, this item is in the trash, you can't add a note to it
+  error_annotated_archived: Sorry, this item is in the trash, you can't add a note
+    to it
   only_super_admin_can_do_this: Sorry, only system administrators can make this change
   max_number_of_team_users_reached: Sorry, the maximum number of users for this team
     has been reached
@@ -435,8 +436,9 @@ en:
   smooch_bot_message_type_unsupported: Sorry, we don't support this kind of message
     yet
   smooch_bot_message_sent: You already sent this message.
-  smooch_bot_meme: Check out this meme
-  smooch_bot_result: We checked what you sent to us as *%{status}*! View more at %{url}.
+  smooch_bot_meme: Here's a meme we created based on your question
+  smooch_bot_result: We have reviewed what you sent us, and have determined that the
+    item is *%{status}*. View more at %{url}.
   project_export_download_mail_csv: |-
     Hello!
 
