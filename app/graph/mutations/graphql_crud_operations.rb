@@ -18,12 +18,7 @@ class GraphqlCrudOperations
       child, parent = obj, obj.send(parent_name)
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        if inputs[:ids] && parent_name =~ /^check_search/
-          n = parent.number_of_results
-          parent.define_singleton_method(:number_of_results) do
-            n - inputs[:ids].size
-          end
-        end
+        parent = self.define_optimistic_fields(parent, inputs, parent_name)
         ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version'].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
@@ -82,7 +77,7 @@ class GraphqlCrudOperations
     User.current = Team.current = nil
   end
 
-  def self.crud_operation(operation, obj, inputs, ctx, parents, returns = {})
+  def self.crud_operation(operation, inputs, ctx, parents, returns = {})
     if inputs[:ids]
       params = {}
       inputs.keys.each{ |k| params[k] = inputs[k] }
@@ -115,7 +110,7 @@ class GraphqlCrudOperations
   def self.update(_type, inputs, ctx, parents = [])
     obj = inputs[:id] ? self.object_from_id_and_context(inputs[:id], ctx) : nil
     returns = obj.nil? ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
-    self.crud_operation('update', obj, inputs, ctx, parents, returns)
+    self.crud_operation('update', inputs, ctx, parents, returns)
   end
 
   def self.destroy_from_single_id(graphql_id, _inputs, ctx, parents)
@@ -137,22 +132,27 @@ class GraphqlCrudOperations
     obj
   end
 
+  def self.define_optimistic_fields(obj, inputs, name)
+    if inputs[:ids] && name =~ /^check_search/
+      n = obj.number_of_results
+      obj.define_singleton_method(:number_of_results) do
+        n - inputs[:ids].size
+      end
+    end
+    obj
+  end
+
   def self.destroy(inputs, ctx, parents = [])
     returns = {}
     if inputs[:id]
       obj = self.object_from_id(inputs[:id])
       parents.each do |parent|
         parent_obj = obj.send(parent)
-        if inputs[:ids] && parent =~ /^check_search/
-          n = parent_obj.number_of_results
-          parent_obj.define_singleton_method(:number_of_results) do
-            n - inputs[:ids].size
-          end
-        end
+        parent_obj = self.define_optimistic_fields(parent_obj, inputs, parent)
         returns[parent.to_sym] = parent_obj
       end
     end
-    self.crud_operation('destroy', obj, inputs, ctx, parents, returns)
+    self.crud_operation('destroy', inputs, ctx, parents, returns)
   end
 
   def self.define_create(type, create_fields, parents = [])
