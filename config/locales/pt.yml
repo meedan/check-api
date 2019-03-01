@@ -267,17 +267,17 @@ pt:
   duplicate_source: Fonte existe
   geolocation_invalid_value: Localização deve conter um GeoJSON válido (http://geojson.org/)
   datetime_invalid_date: Por favor forneça uma data válida
-  error_team_archived: Não é possível criar um projeto em um time que esteja na lixeira
-  error_project_archived: Não é possível criar mídia em um projeto que esteja na lixeira
-  error_team_archived_for_source: Não é possível criar fonte em um time que esteja na lixeira
+  error_team_archived: 'Desculpe, não é possível criar um projeto em uma equipe que esteja na lixeira '
+  error_project_archived: 'Desculpe, não é possível criar mídia em um projeto que esteja na lixeira '
+  error_team_archived_for_source: 'Desculpe, não é possível criar uma fonte em uma equipe que esteja na lixeira '
   permission_error: Desculpe, você não tem permissão para fazer esta operação
-  error_annotated_archived: Desculpe, este item está na lixeira, você não pode adicionar nota a ele
+  error_annotated_archived: Desculpe, não é possível adicionar uma nota a um item na lixeira
   only_super_admin_can_do_this: Desculpe, apenas os administradores do sistema podem efetuar esta alteração
   max_number_of_team_users_reached: Desculpe, o número máximo de usuários para esta equipe foi alcançado
   max_number_of_projects_reached: Desculpe, o número máximo de projetos para esta equipe foi alcançado
   cant_set_custom_statuses: Desculpe, o recurso de status personalizados não está disponível para esta equipe
   cant_change_custom_statuses: |-
-      Não foi possível modificar as definições de estados porque alguns estados fariam falta. Estes identificadores de estado: %{statuses} estão em uso nos seguintes itens:
+      Desculpe, não é possível modificar as definições de status porque alguns status desapareceriam. Esses identificadores de status: %{statuses} estão em uso nos seguintes itens:
       %{urls} %{others_amount}
   cant_create_team_task: Desculpe, essa equipe não tem acesso a essa funcionalidade
   cant_create_media_under_this_team_using_extension: Desculpe, o recurso de extensão do navegador não está disponível para esta equipe

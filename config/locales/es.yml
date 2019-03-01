@@ -272,9 +272,6 @@ es:
   max_number_of_team_users_reached: Lo sentimos, se ha alcanzado el número máximo de usuarios para este equipo
   max_number_of_projects_reached: Lo sentimos, se alcanzó el número máximo de proyectos para este equipo
   cant_set_custom_statuses: Lo sentimos, la función de estados personalizados no está disponible para este equipo
-  cant_change_custom_statuses: |-
-      No se pueden modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:
-      %{urls} %{others_amount}
   cant_create_team_task: Lo sentimos, tu equipo no tiene acceso a estas funciones
   cant_create_media_under_this_team_using_extension: Lo sentimos, la función de extensión del navegador no está disponible para este equipo
   error_invalid_attribution: Atribución inválida
