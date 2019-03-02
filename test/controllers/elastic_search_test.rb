@@ -1651,7 +1651,6 @@ class ElasticSearchTest < ActionController::TestCase
     
     pms = []
     MediaSearch.search(search).results.each do |r|
-      puts r.dynamics.inspect if r.annotated_type == 'ProjectMedia'
       pms << r.annotated_id if r.annotated_type == 'ProjectMedia'
     end
     assert_equal [pm2.id, pm1.id, pm3.id], pms
