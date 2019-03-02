@@ -368,4 +368,25 @@ class StatusTest < ActiveSupport::TestCase
       assert_equal n, Sidekiq::Extensions::DelayedMailer.jobs.size
     end
   end
+
+  test "should set deadline when verification status is created if team has setting" do
+    create_verification_status_stuff
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
+    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
+    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    p = create_project team: t
+    
+    pm = create_project_media project: p
+    s = pm.get_annotations('verification_status').last.load
+    assert_equal 0, s.get_field_value('deadline').to_i
+
+    t.set_status_target_turnaround = 3
+    t.save!
+    pm = create_project_media project: p
+    s = pm.get_annotations('verification_status').last.load
+    assert_equal (s.created_at + 3.hours).to_i, s.get_field_value('deadline').to_i
+  end
 end

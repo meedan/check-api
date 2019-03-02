@@ -557,3 +557,6 @@ en:
     errors that are reported there - the previously-imported items will not be duplicated.</p>
     <p>— The %{app_name} team</p>"
   pender_url_invalid: This link is invalid.
+  verification_status_deadline: Deadline
+  verification_status_deadline_asc: Due soonest
+  verification_status_deadline_desc: Due latest
