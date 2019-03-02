@@ -123,7 +123,7 @@ ar:
               slug_format: 'يقبل الأحرف والأرقام و''-'' فقط '
       messages:
         record_invalid: 'خطأ في صحة الإدخال : %{errors}'
-        improbable_phone: غير صحيح
+        improbable_phone: رقم غير صالح
         too_short:
           zero: قصير جداً (الحد الأدنى %{count} حروف)
           one: قصير جداً (الحد الأدنى حرف واحد)
@@ -131,17 +131,17 @@ ar:
           few: قصير جداً (الحد الأدنى %{count} حروف)
           many: قصير جداً (الحد الأدنى %{count} حروف)
           other: قصير جداً (الحد الأدنى %{count} حروف)
-  slack_webhook_format_wrong: صيغة Slack webhook غير صحيحة - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: صيغة Slack webhook غير صالحة  - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_languages: 'صيغة اللغات غير صحيحة - الصيغة المطلوبة هي [{''id'': ''en'',''title'': ''English''}]'
+  invalid_format_for_languages: 'صيغة اللغات غير صالحة - الصيغة المطلوبة هي [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: ' عذراً ، هذا العنصر غير صحيح'
-  invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
-  invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
+  invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية غير صالح
+  invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة غير صالح
   invalid_label_for_custom_verification_status: عنوان حالة التحقق مطلوب
   invalid_id_for_custom_verification_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف والأرقام و'-' و '_' فقط
   invalid_statuses_format_for_custom_verification_status: 'حالات التحقق الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية.'
-  invalid_default_status_for_custom_translation_status: المُعَرِّف لحالة التحقق الإفتراضية غير صحيح
-  invalid_active_status_for_custom_translation_status: المُعَرِّف لحالة التحقق النشطة غير صحيح
+  invalid_default_status_for_custom_translation_status: المُعَرِّف لحالة التحقق الإفتراضية غير صالح
+  invalid_active_status_for_custom_translation_status: المُعَرِّف لحالة التحقق النشطة غير صالح
   invalid_label_for_custom_translation_status: عنوان حالة التحقق مطلوب
   invalid_id_for_custom_translation_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف والأرقام و'-' و '_' فقط
   invalid_statuses_format_for_custom_translation_status: 'حالات الترجمة الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية.'
@@ -227,12 +227,12 @@ ar:
       delete_team_scheduled: يتم حذف الفريق %{team}
   reset_password_instructions: "تعليمات إعادة ضبط كلمة المرور لدى %{app_name}"
   email_not_found: هذا البريد الإلكتروني غير موجود
-  slack_channel_format_wrong: قناة Slack غير صحيحة
-  translation_status_not_valid: حالة غير صحيحة
+  slack_channel_format_wrong: قناة Slack غير صالحة
+  translation_status_not_valid: حالة غير صالحة
   translation_status_permission_error: عذراً ، ليس مسموح لك تغيير هذه الحالة.
   translation_request_id_exists: هناك طلب آخر لترجمة هذه الرسالة
   auto_publisher_added_to_project: من الآن سوف يتم نشر كل ترجمة في %{project} إلى الحساب الذي أخترته على %{provider}. إن غيرت رأيك من فضلك تواصل مع فريق الدعم أو أحذف تطبيق Bridge من الحساب على %{provider}.
-  invalid_token: رمز الأمان غير صحيح
+  invalid_token: رمز الأمان غير صالح
   viber_screenshot_footer: "ترجمة إلى %{target_language} من %{source_language}: “%{source_text}”"
   time:
     formats:
@@ -283,17 +283,21 @@ ar:
   duplicate_source: المصدر موجود بالفعل
   geolocation_invalid_value: صيغة الموقع لابد أن تطابق (/GeoJSON (http://geojson.org
   datetime_invalid_date: من فضلك أدخل تاريخاً صحيحاً.
+  error_team_archived: عذراً ، لا يمكن إضافة مشروع لفريق  في سلة المهملات
+  error_project_archived: عذراً ، لا يمكن إضافة عنصر لمشروع  في سلة المهملات
+  error_team_archived_for_source: عذراً ، لا يمكن إضافة مصدر لفريق في سلة المهملات
   permission_error: عذراً ، ليس مسموح لك تنفيذ هذه العملية
+  error_annotated_archived: عذراً ، لا يمكن إضافة تعليق لعنصر في سلة المهملات
   only_super_admin_can_do_this: عذراً ، هذه العملية متاحة لمسؤولي النظام فقط
   max_number_of_team_users_reached: عذراً ، لقد تم الوصول إلى الحد الأقصى للأعضاء في هذا الفريق
   max_number_of_projects_reached: عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في هذا الفريق
   cant_set_custom_statuses: عذراً ، خاصية حالات التحقق المتخصصة غير متاحة لهذا الفريق
   cant_change_custom_statuses: |-
-      لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :
+      عذرًا ، لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :
       %{others_amount} %{urls}
   cant_create_team_task: عذراً ، هذه الخاصية غير متاحة لهذا الفريق
   cant_create_media_under_this_team_using_extension: عذراً ، خاصية ملحق المتصفح غير متاحة لهذا الفريق
-  error_invalid_attribution: إسناد غير صحيح
+  error_invalid_attribution: إسناد غير صالح
   account_exists: هذا الحساب موجود بالفعل
   media_exists: هذا الميديا موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
@@ -320,8 +324,9 @@ ar:
     invited: تمت دعوة هذا المستخدم بالفعل لهذا الفريق.
     member: هذا المستخدم عضو في الفريق بالفعل.
     team_found: هذا الفريق غير موجود
-    invalid: رمز الدعوة غير صحيح.
+    invalid: رمز الدعوة غير صالح
     no_invitation: لا توجد دعوة للفريق %{name}
+  error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق
   error_login_with_exists_account: عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل
   mail_see_it: 'تستطيع أن تراه هنا : '
   mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
@@ -349,7 +354,7 @@ ar:
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   project_export_email_title_csv: تقرير مشروعك جاهز للتحميل
-  workflow_status_not_valid: حالة غير صحيحة
+  workflow_status_not_valid: حالة غير صالحة
   workflow_status_permission_error: عذراً ، ليس مسموح لك تغيير هذه الحالة.
   blank_default_status_for_custom_translation_status: من فضلك أضف قيمة إفتراضية لحالات الترجمة الخاصة
   blank_active_status_for_custom_translation_status: من فضلك أضف قيمة نشطة لحالات الترجمة الخاصة
@@ -368,6 +373,11 @@ ar:
   task_suggestion_invalid_value: عذراً ، صيغة الاقتراح غير صحيحة
   tag_text_id_not_found: عذراً ، لا يوجد وسم بهذا المُعَرِّف
   annotation_type_language_label: اللغة
+  smooch_bot_message_received: لقد تلقينا رسالتك ، شكراً
+  smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل حتى الآن
+  smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة
+  smooch_bot_meme: هنا ميم أنشأناه بناء على سؤالك
+  smooch_bot_result: لقد راجعنا ما أرسلته إلينا ، واستنتجنا أن هذا العنصر *%{status}*. عرض المزيد %{url}.
   project_export_download_mail_csv: |-
       مرحباً !
 
@@ -446,20 +456,20 @@ ar:
             invite_owner: دعوة مديري الفريق والموافقة عليهم وإزالتهم
             invite_members: دعوة أعضاء الفريق والموافقة عليهم وإزالتهم
   team_import:
-    invalid_google_spreadsheet_url: عنوان جدول بيانات غير صحيح %{spreadsheet_url}
+    invalid_google_spreadsheet_url: عنوان جدول بيانات غير صالح %{spreadsheet_url}
     not_found_google_spreadsheet_url: عنوان جدول بيانات غير صحيح %{spreadsheet_url}
     cannot_authenticate_with_the_credentials: عذراً ، لقد واجهنا خطأ ما. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
     team_not_present: عذراً ، لقد واجهنا خطأ ما. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
     user_not_present: عذراً ، لقد واجهنا خطأ ما. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
     user_not_authorized: عذراً ، ليس مسموح لك استيراد بيانات لهذا الفريق.
-    invalid_project: مشروع غير صحيح %{project}
-    invalid_user: مؤلف غير صحيح %{user}
-    invalid_status: '%{status}حالة غير صحيحة '
-    blank_user: مؤلف فارغ غير صحيح
-    blank_annotator: مُعلِّق فارغ غير صحيح
-    blank_project: مشروع فارغ غير صحيح
-    invalid_annotator: مُعلِّق غير صحيح %{user}
-    invalid_assignee: مُكلّف غير صحيح %{user}
+    invalid_project: مشروع غير صالح %{project}
+    invalid_user: مؤلف غير صالح %{user}
+    invalid_status: حالة غير صالحة %{status}
+    blank_user: مؤلف فارغ غير صالح
+    blank_annotator: مُعلِّق فارغ غير صالح
+    blank_project: مشروع فارغ غير صالح
+    invalid_annotator: مُعلِّق غير صالح %{user}
+    invalid_assignee: مُكلّف غير صالح %{user}
   mail_subject_assignments_ready: "[%{team} - %{project}] تمت عملية تحديث التكليفات"
   mail_body_assignments_ready_assign: |-
       مرحباً %{username}
@@ -473,3 +483,4 @@ ar:
       — فريق عمل %{app_name}
   team_import_completed_subject: تمت عملية استيراد البيانات
   team_import_completed_mail: "<p>مرحباً —</p><p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url} لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p><p>— فريق عمل %{app_name}"
+  pender_url_invalid: هذا الرابط غير صالح
