@@ -4,6 +4,7 @@ class Workflow::VerificationStatus < Workflow::Base
   
   check_workflow from: :any, to: :terminal, actions: :send_terminal_notification_if_can_complete_media
   check_workflow on: :commit, actions: :index_on_es, events: [:create, :update]
+  check_workflow on: :commit, actions: :save_deadline, events: [:create]
   
   def self.core_default_value
     'undetermined'
@@ -89,6 +90,15 @@ class Workflow::VerificationStatus < Workflow::Base
           errors.add(:base, I18n.t(:must_resolve_required_tasks_first))
           raise ActiveRecord::RecordInvalid.new(self)
         end
+      end
+    end
+    
+    def save_deadline
+      status = self.annotation&.load
+      turnaround = Team.where(id: status.get_team.last.to_i).last&.get_status_target_turnaround.to_i
+      if turnaround > 0 && status
+        status.set_fields = { deadline: (status.created_at + turnaround.hours).to_i }.to_json
+        status.save!
       end
     end
   end

@@ -110,7 +110,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def add_update_elasticsearch_dynamic(op)
-    skip_types = ['verification_status', 'translation_status']
+    skip_types = ['translation_status']
     return if self.disable_es_callbacks || skip_types.include?(self.annotation_type)
     options = get_elasticsearch_options_dynamic
     options.merge!({op: op, nested_key: 'dynamics'})

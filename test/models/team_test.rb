@@ -1608,7 +1608,13 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should get dynamic fields schema" do
+    create_verification_status_stuff
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
+    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
+    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
     t = create_team slug: 'team'
+    t.set_status_target_turnaround = 3
+    t.save!
     p = create_project team: t
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
@@ -1620,5 +1626,6 @@ class TeamTest < ActiveSupport::TestCase
     create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
     assert_equal ['en', 'pt'], schema[:properties]['language'][:items][:enum].sort 
+    assert_not_nil schema[:properties][:sort][:properties][:deadline]
   end
 end

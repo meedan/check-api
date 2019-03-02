@@ -248,10 +248,17 @@ class Team < ActiveRecord::Base
                        .group('annotations.annotation_type')
                        .joins("INNER JOIN project_medias pm ON annotations.annotated_type = 'ProjectMedia' AND pm.id = annotations.annotated_id INNER JOIN projects p ON pm.project_id = p.id")
                        .where('p.team_id' => self.id).count.keys
-    properties = {}
+    properties = {
+      sort: { type: 'object', properties: {} }
+    }
     annotation_types.each do |type|
       method = "field_search_json_schema_type_#{type}"
       properties[type] = Dynamic.send(method, self) if Dynamic.respond_to?(method)
+      method = "field_sort_json_schema_type_#{type}"
+      if Dynamic.respond_to?(method)
+        sort = Dynamic.send(method, self)
+        properties[:sort][:properties][sort[:id]] = { type: 'array', title: sort[:label], items: { type: 'string', enum: [sort[:asc_label], sort[:desc_label]] } } if sort
+      end
     end
     { type: 'object', properties: properties }
   end

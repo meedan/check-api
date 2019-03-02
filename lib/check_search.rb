@@ -59,9 +59,10 @@ class CheckSearch
       query = medias_build_search_query
       ids = get_ids_from_result(medias_get_search_result(query))
       filters = filters.merge({ id: ids })
+      @ids = ids
     end
     results = ProjectMedia.where(filters).eager_load(:media).joins(:project)
-    @medias = sort_pg_results(results)
+    @medias = sort_pg_results(results, 'media')
     @medias
   end
 
@@ -80,7 +81,7 @@ class CheckSearch
       filters = { id: ids }
     end
     results = ProjectSource.where(filters).eager_load(:source).joins(:project)
-    @sources = sort_pg_results(results)
+    @sources = sort_pg_results(results, 'source')
     @sources
   end
 
@@ -107,8 +108,8 @@ class CheckSearch
   end
 
   def medias_get_search_result(query)
-    field = @options['sort'] == 'recent_activity' ? 'updated_at' : 'created_at'
-    MediaSearch.search(query: query, sort: [{ field => { order: @options["sort_type"].downcase }}, '_score'], size: 10000).results
+    sort = build_search_dynamic_annotation_sort
+    MediaSearch.search(query: query, sort: sort, size: 10000).results
   end
 
   private
@@ -123,7 +124,7 @@ class CheckSearch
     status_search_fields.each do |field|
       status_blank = false unless @options[field].blank?
     end
-    !(status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank?)
+    !(status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank? && ['recent_activity', 'recent_added'].include?(@options['sort']))
   end
 
   # def show_filter?(type)
@@ -175,6 +176,20 @@ class CheckSearch
     conditions
   end
 
+  def build_search_dynamic_annotation_sort
+    return [] if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
+    [
+      {
+        "dynamics.#{@options['sort']}": {
+          order: @options['sort_type'],
+          nested: {
+            path: 'dynamics',
+          }
+        }
+      }
+    ]
+  end
+
   def build_search_tags_conditions
     return [] if @options["tags"].blank?
     tags_c = search_tags_query(@options["tags"])
@@ -213,12 +228,29 @@ class CheckSearch
     doc_c
   end
 
-  def sort_pg_results(results)
+  def filter_by_team_and_project(results)
     results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
     results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
-    sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
-    sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
-    results.order(sort_field => sort_type)
+    results
+  end
+
+  def sort_pg_results(results, type)
+    results = filter_by_team_and_project(results)
+
+    if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
+      sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
+      sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
+      results = results.order(sort_field => sort_type)
+    elsif @ids && type == 'media'
+      values = []
+      @ids.each_with_index do |id, i|
+        values << "(#{id}, #{i})"
+      end
+      joins = ActiveRecord::Base.send(:sanitize_sql_array, ["JOIN (VALUES %s) AS x(value, order_number) ON project_medias.id = x.value", values.join(', ')])
+      results = results.joins(joins).order('x.order_number')
+    end
+
+    results
   end
 
   # def prepare_show_filter(show)
