@@ -184,7 +184,7 @@ module PaperTrail
 
     def get_associated_from_dynamic_annotation
       if self.item.is_a?(DynamicAnnotation::Field) && self.item.field_name =~ /^(suggestion|review)_/
-        task = begin Task.find(self.item.annotation.get_fields.select{ |f| f.field_name =~ /^task_/ }.last.value) rescue nil end
+        task = begin Task.find(self.item.annotation.annotated_id) rescue nil end
         return ['Task', task.id] unless task.nil?
       end
       annotation = self.item.annotation if self.item

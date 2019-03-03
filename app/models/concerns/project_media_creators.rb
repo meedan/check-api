@@ -166,9 +166,7 @@ module ProjectMediaCreators
         task = Task.find(task.id)
         type = "task_response_#{task.type}"
         fields = {
-          "response_#{task.type}" => responses[task.slug],
-          "note_#{task.type}" => '',
-          "task_#{task.type}" => task.id.to_s
+          "response_#{task.type}" => responses[task.slug]
         }
         task.response = { annotation_type: type, set_fields: fields.to_json }.to_json
         task.save!

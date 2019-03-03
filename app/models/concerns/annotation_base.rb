@@ -81,7 +81,7 @@ module AnnotationBase
     after_destroy :touch_annotated
 
     has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && !a.is_being_copied) || a.force_version }
-    
+
     has_many :assignments, ->{ where(assigned_type: 'Annotation') }, foreign_key: :assigned_id, dependent: :destroy
 
     serialize :data, HashWithIndifferentAccess
@@ -89,12 +89,11 @@ module AnnotationBase
 
     custom_optimistic_locking if: proc { |a| a.annotation_type == 'metadata' }
 
-    def self.annotated_types
-      ['ProjectSource', 'ProjectMedia', 'Source', 'Task']
-    end
-    validates :annotated_type, included: { values: self.annotated_types }, allow_blank: true, :unless => Proc.new { |annotation| annotation.annotation_type == 'embed' }
-
     validate :annotated_is_not_archived, unless: proc { |a| a.is_being_copied }
+
+    def annotations
+      Annotation.where(annotated_type: ['Task', 'Annotation', 'Dynamic', 'Flag', 'Tag', 'Comment', 'Embed'], annotated_id: self.id)
+    end
 
     def start_serialized_fields
       self.data ||= {}

@@ -190,13 +190,11 @@ class ActiveSupport::TestCase
 
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
     fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
-    fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
     tk = create_task annotated: pm
     tk.disable_es_callbacks = true
-    tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Test', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Test' }.to_json }.to_json
     tk.save!
 
     a = Dynamic.where(annotation_type: 'task_response_free_text').last
@@ -205,14 +203,14 @@ class ActiveSupport::TestCase
 
     with_current_user_and_team(u1, t) do
       a = Dynamic.find(a.id)
-      a.set_fields = { response_task: 'Test 1', task_reference: tk.id.to_s }.to_json
+      a.set_fields = { response_task: 'Test 1' }.to_json
       a.save!
       assert_equal [u1.id].join(','), a.reload.attribution
     end
 
     with_current_user_and_team(u2, t) do
       a = Dynamic.find(a.id)
-      a.set_fields = { response_task: 'Test 2', task_reference: tk.id.to_s }.to_json
+      a.set_fields = { response_task: 'Test 2' }.to_json
       a.save!
       assert_equal [u1.id, u2.id].join(','), a.reload.attribution
     end
@@ -220,14 +218,14 @@ class ActiveSupport::TestCase
     with_current_user_and_team(u2, t) do
       a = Dynamic.find(a.id)
       a.set_attribution = u1.id.to_s
-      a.set_fields = { response_task: 'Test 3', task_reference: tk.id.to_s }.to_json
+      a.set_fields = { response_task: 'Test 3' }.to_json
       a.save!
       assert_equal [u1.id].join(','), a.reload.attribution
     end
 
     with_current_user_and_team(u3, t) do
       a = Dynamic.find(a.id)
-      a.set_fields = { response_task: 'Test 4', task_reference: tk.id.to_s }.to_json
+      a.set_fields = { response_task: 'Test 4' }.to_json
       a.save!
       assert_equal [u1.id, u3.id].join(','), a.reload.attribution
     end

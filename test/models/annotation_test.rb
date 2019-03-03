@@ -73,6 +73,12 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal 3, s.annotations_count
   end
 
+  test "should get child annotations" do
+    c1 = create_comment annotated: nil
+    c2 = create_comment annotated: c1
+    assert_equal [c2], c1.annotations
+  end
+
   test "should get permissions" do
     u = create_user
     t = create_team
@@ -443,7 +449,7 @@ class AnnotationTest < ActiveSupport::TestCase
         u = create_user
         create_team_user user: u, team: t
         s.assign_user(u.id)
-      end     
+      end
       assert_difference 'Assignment.count', 3 do
         Sidekiq::Testing.inline! do
           create_task annotated: pm

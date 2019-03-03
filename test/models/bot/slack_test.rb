@@ -11,8 +11,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
 
   test "should notify admin if settings and notifications are enabled" do
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft = create_field_type field_type: 'task_reference', label: 'Task Reference'
-    fi = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft
+    fi = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task'
     t = create_team slug: 'test'
     create_team_task team_id: t.id, label: 'When?'
     u = create_user
@@ -31,8 +30,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
 
   test "should notify admin even if team is limited" do
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft = create_field_type field_type: 'task_reference', label: 'Task Reference'
-    fi = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft
+    fi = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task'
     t = create_team slug: 'test'
     create_team_task label: 'When?', team_id: t.id
     t.set_limits_slack_integration = false

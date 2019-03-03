@@ -78,32 +78,28 @@ class TaskTest < ActiveSupport::TestCase
     t = create_task
     assert_equal [], t.responses
     at = create_annotation_type annotation_type: 'task_response'
-    ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
     assert_equal [], t.reload.responses
-    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     t.disable_es_callbacks = true
-    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
     t.save!
     assert_match /Test/, t.reload.responses.first.content.inspect
   end
 
   test "should delete responses when task is deleted" do
     at = create_annotation_type annotation_type: 'task_response'
-    ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
-    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     Dynamic.delete_all
     DynamicAnnotation::Field.delete_all
     t = create_task
     t.disable_es_callbacks = true
-    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
     t.save!
     r = t.responses.first
     assert_not_nil Annotation.where(id: r.id).last
-    assert_equal 3, DynamicAnnotation::Field.count
+    assert_equal 2, DynamicAnnotation::Field.count
     assert_equal 5, Dynamic.count
     t.disable_es_callbacks = true
     t.destroy
@@ -165,21 +161,18 @@ class TaskTest < ActiveSupport::TestCase
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
-    fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
     pm = create_project_media project: p
 
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       tk.disable_es_callbacks = true
-      tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo', note_task: 'Bar', task_reference: tk.id.to_s }.to_json }.to_json
+      tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
       tk.save!
       assert tk.response.sent_to_slack
 
       d = Dynamic.find(tk.response.id)
-      d.set_fields = { response_task: 'Bar', note_task: 'Foo' }.to_json
+      d.set_fields = { response_task: 'Bar' }.to_json
       d.disable_es_callbacks = true
       d.save!
       assert d.sent_to_slack
@@ -202,16 +195,13 @@ class TaskTest < ActiveSupport::TestCase
   test "should get first response from task" do
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
-    fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
 
     t = create_task
     assert_nil t.first_response
 
     t.disable_es_callbacks = true
-    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Test', task_reference: t.id.to_s }.to_json }.to_json
+    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Test' }.to_json }.to_json
     t.save!
 
     t = Task.find(t.id)
@@ -295,74 +285,34 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not answer task if is a bot" do
-    text = create_field_type field_type: 'text', label: 'Text'
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
-    create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
-
-    e = assert_raises ActiveRecord::RecordInvalid do
-      u = create_bot_user is_admin: true
-      create_team_bot bot_user_id: u.id
-      u.update_column(:is_admin, true)
-      t = create_task
-      User.current = User.find(u.id)
-      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
-      t.save!
-    end
-    assert_equal "Validation failed: #{I18n.t('bot_cant_add_response_to_task')}", e.message
-
-    assert_nothing_raised do
-      User.current = nil
-      t = create_task
-      User.current = create_user(is_admin: true)
-      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
-      t.save!
-    end
-
-    assert_nothing_raised do
-      User.current = nil
-      u = create_bot_user is_admin: true
-      u.update_column(:is_admin, true)
-      u = User.find(u.id)
-      t = create_task
-      User.current = User.find(u.id)
-      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Test' }.to_json }.to_json
-      t.save!
-    end
-
-    User.current = nil
-  end
-
   test "should accept suggestion from bot" do
     text = create_field_type field_type: 'text', label: 'Text'
     json = create_field_type field_type: 'json', label: 'JSON'
-    task = create_field_type field_type: 'task_reference', label: 'Task Reference'
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
     create_field_instance annotation_type_object: at, name: 'review_free_text', label: 'Review', field_type_object: json, optional: true
     create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
     create_field_instance annotation_type_object: at, name: 'suggestion_free_text', label: 'Suggestion', field_type_object: json, optional: true
-    create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: task, optional: false
 
     tb = create_team_bot
     t = create_task type: 'free_text'
     assert_raises ActiveRecord::RecordInvalid do
-      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: 'invalid' }.to_json }.to_json
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', suggestion_free_text: 'invalid' }.to_json }.to_json
     end
-    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
+    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
     t.save!
     assert_equal '', t.reload.first_response
 
-    t = Task.where(id: t.id).last
+    t = Task.find t.id
     t.accept_suggestion = 0
     t.save!
     assert_equal 'Test', t.reload.first_response
 
     t = create_task type: 'free_text'
-    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
+    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
     t.save!
     assert_equal '', t.reload.first_response
 
-    t = Task.where(id: t.id).last
+    t = Task.find t.id
     t.reject_suggestion = 0
     t.save!
     assert_equal '', t.reload.first_response
@@ -371,7 +321,7 @@ class TaskTest < ActiveSupport::TestCase
     with_current_user_and_team(u, create_team) do
       t = create_task type: 'free_text'
       assert_nil t.reload.suggestions_count
-      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', task_free_text: t.id.to_s, suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
       assert_equal 1, Task.find(t.id).suggestions_count
       f = t.responses.first.get_fields.select{ |f| f.field_name =~ /suggestion/ }.last
       assert_equal 'Task', f.versions.last.associated_type
@@ -394,8 +344,6 @@ class TaskTest < ActiveSupport::TestCase
   test "should resolve task if response is submitted by all assigned users" do
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
-    ft = create_field_type field_type: 'task_reference'
-    create_field_instance annotation_type_object: at, name: 'task_reference', field_type_object: ft
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
@@ -408,12 +356,12 @@ class TaskTest < ActiveSupport::TestCase
     tk.assign_user(u2.id)
     User.current = u1
     tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
     tk.save!
     assert_equal 'unresolved', tk.reload.status
     User.current = u2
     tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
     tk.save!
     assert_equal 'resolved', tk.reload.status
   end
@@ -426,8 +374,6 @@ class TaskTest < ActiveSupport::TestCase
   test "should get first response" do
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
-    ft = create_field_type field_type: 'task_reference'
-    create_field_instance annotation_type_object: at, name: 'task_reference', field_type_object: ft
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
@@ -438,11 +384,11 @@ class TaskTest < ActiveSupport::TestCase
     create_team_user team: t, user: u2
     User.current = u1
     tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'foo', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'foo' }.to_json }.to_json
     tk.save!
     User.current = nil
     tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'bar', task_reference: tk.id.to_s }.to_json }.to_json
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'bar' }.to_json }.to_json
     tk.save!
     User.current = u1
     tk = Task.find(tk.id)
@@ -488,9 +434,7 @@ class TaskTest < ActiveSupport::TestCase
 
   test "should update user assignments when task requirement changes" do
     at = create_annotation_type annotation_type: 'task_response'
-    ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
-    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     u = create_user is_admin: true
     t = create_team
@@ -504,7 +448,7 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 0, pm.assignments_progress[:answered]
     assert_equal 0, pm.assignments_progress[:total]
     with_current_user_and_team(u ,t) do
-      tk.response = { annotation_type: 'task_response', set_fields: { response: 'Test', task: tk.id.to_s }.to_json }.to_json
+      tk.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
       tk.save!
       assert_equal 1, pm.assignments_progress[:answered]
       assert_equal 2, pm.assignments_progress[:total]

@@ -312,9 +312,7 @@ class TeamImportTest < ActiveSupport::TestCase
   test "should add tasks" do
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
     create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
-    create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft2
 
     create_team_task team_id: @team.id, label: 'What?'
     user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"

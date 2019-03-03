@@ -107,11 +107,7 @@ RailsAdmin.config do |config|
         read_only true
         help ''
       end
-      field :annotated_type, :enum do
-        enum do
-          type.classify.constantize.annotated_types
-        end
-      end
+      field :annotated_type
       field :annotated_id
       field :annotator_type
       field :annotator_id
