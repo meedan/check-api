@@ -2,29 +2,37 @@ language: ruby
 services:
 - postgresql
 before_install:
+- export RECORD_RUNTIME=true
 - export PATH=/tmp/bundler/ruby/2.3.0/bin:$PATH
 - export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
 - sudo rm /etc/apt/sources.list.d/mongodb*
 - sudo apt-get -qq update
 - sudo apt-get install wget openjdk-7-jre redis-server imagemagick fontconfig libfontconfig
-- wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb
-- wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb.sha512
-  && shasum -a 512 -c elasticsearch-6.3.1.deb.sha512 && sudo dpkg -i --force-confnew elasticsearch-6.3.1.deb
+- mkdir -p /tmp/downloads &&
+  cd /tmp/downloads &&
+  (ls elasticsearch-6.3.1.deb || wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb) &&
+  (ls elasticsearch-6.3.1.deb.sha512 || wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb.sha512) &&
+  shasum -a 512 -c elasticsearch-6.3.1.deb.sha512 &&
+  sudo dpkg -i --force-confnew elasticsearch-6.3.1.deb &&
+  cd -
 - sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
 - sudo service elasticsearch restart
-- wget -q --waitretry=1 --retry-connrefused -t 0 -T 10 -O - http://127.0.0.1:9200
+- wget -q --waitretry=5 --retry-connrefused -t 20 -T 10 -O - http://127.0.0.1:9200
 - sudo service elasticsearch status
 - redis-server &
 - git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 && mkdir -p tmp/cache tmp/cache1
   tmp/cache2 tmp/cache3 tmp/cache4
-- wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 &&
+- cd /tmp/downloads &&
+  (ls phantomjs-2.1.1-linux-x86_64.tar.bz2 || wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2) &&
   tar -vxjf phantomjs-2.1.1-linux-x86_64.tar.bz2 &&
-  sudo mv phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin/
+  sudo mv phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin/ &&
+  cd -
 cache:
   directories:
   - "/tmp/bundler"
+  - "/tmp/downloads"
 addons:
   postgresql: '9.4'
   hosts:
@@ -32,11 +40,13 @@ addons:
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
 - cd test && ./setup-parallel-env.sh && cd -
+- bundle exec rake assets:precompile
 - bundle exec thin -p 3000 -e test -t 60 --threadpool-size=60 --threaded start >/dev/null &
 - sleep 10
 script: bundle exec rake "parallel:test[4]"
 after_script:
 - bundle exec codeclimate-test-reporter
+- echo 'Parallel tests runtime log' && cat tmp/parallel_runtime_test.log
 rvm:
 - 2.3.4
 notifications:

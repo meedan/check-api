@@ -14,6 +14,8 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     @admin_user.is_admin = true
     @admin_user.save!
     @project = create_project user: @user, team: @team
+    Object.any_instance.stubs(:notify_pusher)
+    Sidekiq::Testing.fake!
   end
 
   def teardown
