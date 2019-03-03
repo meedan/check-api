@@ -1,7 +1,6 @@
 /.bundle
 /db/*.sqlite3
 /db/*.sqlite3-journal
-db/schema.rb
 /log/*.log
 /tmp/cache*
 /tmp/pids
@@ -14,6 +13,7 @@ config/sidekiq-test.yml
 config/initializers/errbit.rb
 config/initializers/secret_token.rb
 config/cleandb.yml
+db/schema.rb
 *.sw*
 *~
 public/assets
@@ -22,14 +22,12 @@ tmp/restart.txt
 /.project
 db/data
 .DS_Store
-tmp/restart.txt
 tmp/puma-*
 dump.rdb
 /vendor/
 /public/viber/*.html
 /public/viber/*.png
 /public/viber/*.jpg
-tmp/parallel_runtime_test.log
 public/coverage/*
 !public/coverage/.gitkeep
 coverage/*

@@ -72,7 +72,11 @@ class GraphqlCrudOperations
     User.current = User.find(uid)
     Team.current = Team.find(tid)
     ids.split(',').each do |id|
-      self.send("#{operation}_from_single_id", id, JSON.parse(inputs), {}, [])
+      begin
+        self.send("#{operation}_from_single_id", id, JSON.parse(inputs), {}, [])
+      rescue
+        object_from_id(id)&.notify_pusher(:save)
+      end
     end
     User.current = Team.current = nil
   end
@@ -127,7 +131,7 @@ class GraphqlCrudOperations
 
   def self.object_from_id(graphql_id)
     type, id = CheckGraphql.decode_id(graphql_id)
-    obj = type.constantize.find(id)
+    obj = type.constantize.where(id: id).last
     obj = obj.load if obj.respond_to?(:load)
     obj
   end
