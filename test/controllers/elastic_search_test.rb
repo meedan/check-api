@@ -143,11 +143,9 @@ class ElasticSearchTest < ActionController::TestCase
     authenticate_with_user(u)
     t = create_task annotated: pm
     at = create_annotation_type annotation_type: 'task_response'
-    ft1 = create_field_type field_type: 'task_reference'
     ft2 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text')
-    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
-    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test', task: t.id.to_s }.to_json }.to_json
+    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
     t.save!
     query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response_value, first_response { content } } } } } }"
     post :create, query: query, team: @team.slug
@@ -901,5 +899,5 @@ class ElasticSearchTest < ActionController::TestCase
     Team.current = nil
   end
 
-  # Please add new tests to test/controllers/elastic_search_2_test.rb 
+  # Please add new tests to test/controllers/elastic_search_2_test.rb
 end

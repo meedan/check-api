@@ -1056,13 +1056,11 @@ class TeamTest < ActiveSupport::TestCase
     create_flag annotated: pm
 
     at = create_annotation_type annotation_type: 'response'
-    ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
-    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
 
     task = create_task annotated: pm, annotator: u
-    task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
+    task.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json; task.save!
     original_annotations_count = pm.annotations.size
 
     RequestStore.store[:disable_es_callbacks] = true
@@ -1191,7 +1189,7 @@ class TeamTest < ActiveSupport::TestCase
     pm = create_project_media project: project
     task = create_task annotated: pm
     create_annotation_type annotation_type: 'response'
-    task.response = { annotation_type: 'response', set_fields: { response: 'Test', task: task.id.to_s }.to_json }.to_json; task.save!
+    task.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json; task.save!
     s = pm.get_annotations('verification_status').last.load; s.status = 'verified'; s.save!
 
     ProjectMedia.any_instance.stubs(:set_active_status).never
@@ -1592,13 +1590,13 @@ class TeamTest < ActiveSupport::TestCase
 
     assert_equal 2, t1.members_count
     assert_equal 2, t2.members_count
-    
+
     User.current = u1
     Team.current = t2
     assert_equal [2, 1], u1.team_users.order('id ASC').collect{ |x| x.team.members_count }
     Team.current = t1
     assert_equal [2, 1], u1.team_users.order('id ASC').collect{ |x| x.team.members_count }
-    
+
     User.current = u2
     Team.current = t1
     assert_equal [1, 2], u2.team_users.order('id ASC').collect{ |x| x.team.members_count }
@@ -1625,7 +1623,7 @@ class TeamTest < ActiveSupport::TestCase
     pm2 = create_project_media disable_es_callbacks: false, project: p
     create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
-    assert_equal ['en', 'pt'], schema[:properties]['language'][:items][:enum].sort 
+    assert_equal ['en', 'pt'], schema[:properties]['language'][:items][:enum].sort
     assert_not_nil schema[:properties][:sort][:properties][:deadline]
   end
 end
