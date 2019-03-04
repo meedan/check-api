@@ -182,8 +182,9 @@ class CheckSearch
       {
         "dynamics.#{@options['sort']}": {
           order: @options['sort_type'],
+          unmapped_type: 'long',
           nested: {
-            path: 'dynamics',
+            path: 'dynamics'
           }
         }
       }

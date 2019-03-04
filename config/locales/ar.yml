@@ -373,7 +373,6 @@ ar:
   task_suggestion_invalid_value: عذراً ، صيغة الاقتراح غير صحيحة
   tag_text_id_not_found: عذراً ، لا يوجد وسم بهذا المُعَرِّف
   annotation_type_language_label: اللغة
-  smooch_bot_message_received: لقد تلقينا رسالتك ، شكراً
   smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل حتى الآن
   smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة
   smooch_bot_meme: هنا ميم أنشأناه بناء على سؤالك

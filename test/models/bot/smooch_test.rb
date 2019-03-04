@@ -89,7 +89,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     end
   end
 
-  test "should save messages of different types by different users but not allow identical messages from the same user and notify them when verified" do
+  test "should process messages" do
     id = random_string
     id2 = random_string
     id3 = random_string
@@ -225,23 +225,50 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     ]
 
-    payload = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: messages,
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.to_json
-
     assert_difference 'ProjectMedia.count', 5 do
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 11 do
         assert_difference 'Comment.length', 4 do
-          Bot::Smooch.run(payload)
+          messages.each do |message|
+            uid = message[:authorId]
+            
+            message = {
+              trigger: 'message:appUser',
+              app: {
+                '_id': @app_id
+              },
+              version: 'v1.1',
+              messages: [message],
+              appUser: {
+                '_id': uid,
+                'conversationStarted': true
+              }
+            }.to_json
+
+            ignore = {
+              trigger: 'message:appUser',
+              app: {
+                '_id': @app_id
+              },
+              version: 'v1.1',
+              messages: [
+                {
+                  '_id': random_string,
+                  authorId: uid,
+                  type: 'text',
+                  text: '2'
+                }
+              ],
+              appUser: {
+                '_id': uid,
+                'conversationStarted': true
+              }
+            }.to_json
+            
+            Bot::Smooch.run(message)
+            Bot::Smooch.run(ignore)
+            Bot::Smooch.run(message)
+            send_confirmation(uid)
+          end
         end
       end
     end
@@ -336,6 +363,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     
     assert Bot::Smooch.run(payload)
+    send_confirmation(uid)
 
     pm = ProjectMedia.last
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -415,22 +443,28 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         version: 'v1.1',
         messages: messages,
         appUser: {
-          '_id': random_string,
+          '_id': uid,
           'conversationStarted': true
         }
       }.to_json
       
       Bot::Smooch.run(payload)
-      
       assert_not_nil Rails.cache.read(key)
       assert_equal 1, SmoochPingWorker.jobs.size
+      assert_equal 0, SmoochWorker.jobs.size
+      assert_equal 0, ProjectMedia.count
+      sleep 1
+
+      send_confirmation(uid)
+      assert_not_nil Rails.cache.read(key)
+      assert_equal 2, SmoochPingWorker.jobs.size
       assert_equal 1, SmoochWorker.jobs.size
       assert_equal 0, ProjectMedia.count
 
       SmoochWorker.drain
 
       assert_not_nil Rails.cache.read(key)
-      assert_equal 1, SmoochPingWorker.jobs.size
+      assert_equal 2, SmoochPingWorker.jobs.size
       assert_equal 0, SmoochWorker.jobs.size
       assert_equal 1, ProjectMedia.count
 
@@ -457,11 +491,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     field_names.each{ |fn| fields[fn] = ['text', false] }
     create_annotation_type_and_fields('memebuster', fields)
     text = random_string
+    uid = random_string
 
     messages = [
       {
         '_id': random_string,
-        authorId: random_string,
+        authorId: uid,
         type: 'text',
         text: text
       }
@@ -479,6 +514,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json    
     Bot::Smooch.run(payload)
+    send_confirmation(uid)
     pm = ProjectMedia.last
     s = pm.last_status_obj
     s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
@@ -501,12 +537,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     pa2 = a.get_field_value('memebuster_published_at')
     assert_not_equal pa1.to_s, pa2.to_s
 
+    uid = random_string
     FileUtils.rm_f(filepath)
     assert !File.exist?(filepath)
     messages = [
       {
         '_id': random_string,
-        authorId: random_string,
+        authorId: uid,
         type: 'text',
         text: text
       }
@@ -524,6 +561,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json    
     Bot::Smooch.run(payload)
+    send_confirmation(uid)
     pm2 = ProjectMedia.last
     assert_equal pm, pm2
     assert File.exist?(filepath)
@@ -565,6 +603,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     
     assert Bot::Smooch.run(payload)
+    send_confirmation(uid)
     
     Sidekiq::Testing.fake! do
       pm = ProjectMedia.last
@@ -621,5 +660,30 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         Sidekiq::Worker.drain_all
       end
     end
+  end
+
+  protected
+
+  def send_confirmation(uid)
+    confirmation = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: '1'
+        }
+      ],
+      appUser: {
+        '_id': uid,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(confirmation)
   end
 end

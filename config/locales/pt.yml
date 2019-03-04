@@ -357,11 +357,13 @@ pt:
   task_suggestion_invalid_value: Desculpe, o valor da sugestão não é válido
   tag_text_id_not_found: Desculpe, não há tag com o identificador fornecido
   annotation_type_language_label: Idioma
-  smooch_bot_message_received: Sua mensagem foi recebida, obrigado!
+  smooch_bot_message_confirmed: Obrigado, recebemos sua requisição e você deve receber uma resposta em breve.
+  smooch_bot_message_unconfirmed: Obrigado, não vamos mais processar esta mensagem.
   smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este tipo de mensagem.
   smooch_bot_message_sent: Você já enviou esta mensagem.
   smooch_bot_meme: Aqui está um meme criado com base na sua questão
   smooch_bot_result: Nós revisamos o que você enviou, e determinamos que o item é *%{status}*! Veja mais em %{url}.
+  smooch_bot_ask_for_confirmation: Obrigado por entrar em contato! Por favor confirme que você deseja verificar esta informação. Envie '1' para 'sim', '2' para 'não'.
   project_export_download_mail_csv: |-
       Olá!
 
@@ -476,3 +478,6 @@ pt:
   team_import_completed_subject: Sua importação de dados terminou
   team_import_completed_mail: "Olá,\n\nSua importação de dados em %{app_name} terminou. Você pode conferir em %{worksheet_url} para revisar o status de cada item importado.\n\nNote que você pode reiniciar a importação depois de corrigir os erros reportados - os itens previamente importados não serão duplicados.\n\n— A equipe %{app_name}"
   pender_url_invalid: Este link é inválido.
+  verification_status_deadline: Prazo
+  verification_status_deadline_asc: Prazo mais curto
+  verification_status_deadline_desc: Prazo mais longo
