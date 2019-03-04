@@ -1,3 +1,5 @@
+Redis::Objects.redis = ConnectionPool.new(size: 5, timeout: 5) { Redis.new(host: SIDEKIQ_CONFIG[:redis_host], port: SIDEKIQ_CONFIG[:redis_port], db: SIDEKIQ_CONFIG[:redis_database]) }
+
 class CheckStateMachine
   include Redis::Objects
   include AASM
