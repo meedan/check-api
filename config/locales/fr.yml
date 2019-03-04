@@ -357,7 +357,6 @@ fr:
   task_suggestion_invalid_value: La suggestion de réponse n'est pas correctement formulée.
   tag_text_id_not_found: Désolé, il n'existe pas de tag avec l'identifiant fourni
   annotation_type_language_label: Langage
-  smooch_bot_message_received: Nous avons bien reçu votre message !
   smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore en charge ce type de message
   smooch_bot_message_sent: Vous avez déjà envoyé ce message.
   smooch_bot_meme: Voici un mème que nous avons créé pour répondre à votre question

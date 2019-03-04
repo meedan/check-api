@@ -82,7 +82,7 @@ class TeamBot < ActiveRecord::Base
       User.current = current_user
       Team.current = current_team
       JSON.parse(result.to_json)['data']['node']
-    rescue Exception => e
+    rescue StandardError => e
       Rails.logger.error("Could not get result for GraphQL query: #{e.message}")
       { error: "Could not get result for GraphQL query" }.with_indifferent_access
     end
