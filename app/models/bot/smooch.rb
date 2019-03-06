@@ -180,9 +180,25 @@ class Bot::Smooch
     return if message['authorId'] == self.config['smooch_bot_id']
     self.refresh_window(message['authorId'], app_id)
     lang = message['language'] = self.get_language(message)
-    unless self.user_already_sent_message(message)
-      self.save_message_later(message, app_id)
-      self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_received, locale: lang))
+    sm = CheckStateMachine.new(message['authorId'])
+
+    if sm.state.value == 'waiting_for_message'
+      sm.message = message.to_json
+      self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_ask_for_confirmation, locale: lang))
+      sm.send_message
+
+    elsif sm.state.value == 'waiting_for_confirmation'
+      saved_message = JSON.parse(sm.message.value)
+      lang = saved_message['language']
+      if message['text'].to_i == 1
+        unless self.user_already_sent_message(saved_message)
+          self.save_message_later(saved_message, app_id)
+          self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_confirmed, locale: lang))
+        end
+      else
+        self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_unconfirmed, locale: lang))
+      end
+      sm.confirm
     end
   end
 

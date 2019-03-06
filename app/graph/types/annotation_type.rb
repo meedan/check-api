@@ -13,8 +13,10 @@ AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { co
       User.where(id: ids)
     }
   end
-  
+
   field :lock_version, types.Int
 
   field :locked, types.Boolean
+
+  connection :annotations, -> { AnnotationType.connection_type }
 end

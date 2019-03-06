@@ -267,13 +267,17 @@ fr:
   duplicate_source: La source existe déjà
   geolocation_invalid_value: L'emplacement doit être représenté par une entrée GeoJSON valide (http://geojson.org/).
   datetime_invalid_date: Veuillez saisir une date valide.
+  error_team_archived: Désolé, il est impossible de rajouter un projet à une équipe à la corbeille
+  error_project_archived: Désolé, il est impossible de rajouter un élément à un projet à la corbeille
+  error_team_archived_for_source: Désolé, il est impossible de rajouter une source à un projet à la corbeille
   permission_error: Désolé, vous n'êtes pas autorisé à effectuer cette opération
+  error_annotated_archived: Désolé, il est impossible de rajouter un commentaire à un élément à la corbeille
   only_super_admin_can_do_this: Désolé, seuls les aministrateurs système peuvent effectuer cette opération
   max_number_of_team_users_reached: Désolé, le nombre maximum de membres a été atteint pour cette équipe
   max_number_of_projects_reached: Désolé, le nombre maximum de projets a été atteint pour cette équipe
   cant_set_custom_statuses: Désolé, la fonction de statuts personnalisés n'est pas disponible à votre équipe
   cant_change_custom_statuses: |-
-      Il est impossible de modifier les définitions de statut car certains statuts disparaîtraient. Ces identifiants de statut : %{statuses} sont en cours d'utilisation par les articles suivants :
+      Désolé, il est impossible de modifier les définitions de statut car certains statuts disparaîtraient. Ces identifiants de statut : %{statuses} sont en cours d'utilisation par les articles suivants :
       %{urls} %{others_amount}
   cant_create_team_task: Désolé, cette fonction n'est pas disponible à votre équipe
   cant_create_media_under_this_team_using_extension: Désolé, la fonction d'extension de navigateur n'est pas disponible à votre équipe
@@ -306,6 +310,7 @@ fr:
     team_found: Équipe introuvable
     invalid: Code d'invitation non valide.
     no_invitation: Vous n'avez pas été invité à rejoindre l'équipe %{name}
+  error_user_is_not_a_team_member: Désolé, vous ne pouvez assigner des tâches qu'à des membres de cette équipe
   error_login_with_exists_account: Désolé, il existe un autre usager qui utilise déjà ce compte
   mail_see_it: 'Vous pouvez le/la visionner à :'
   mail_subject_assign_verification_status: "[%{team} - %{project}] Un élément vous a été affecté"
@@ -352,6 +357,10 @@ fr:
   task_suggestion_invalid_value: La suggestion de réponse n'est pas correctement formulée.
   tag_text_id_not_found: Désolé, il n'existe pas de tag avec l'identifiant fourni
   annotation_type_language_label: Langage
+  smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore en charge ce type de message
+  smooch_bot_message_sent: Vous avez déjà envoyé ce message.
+  smooch_bot_meme: Voici un mème que nous avons créé pour répondre à votre question
+  smooch_bot_result: Nous avons examiné l'élément que vous nous avez envoyé, et notre conclusion est qu'il est *%{status}*. Pour plus d'informations, suivez %{url}.
   project_export_download_mail_csv: |-
       Bonjour !
 
@@ -457,3 +466,4 @@ fr:
       — L'équipe %{app_name}
   team_import_completed_subject: Le processus d'importation de données a terminé
   team_import_completed_mail: "<p>Bonjour,</p><p>Le processus d'importation de données que vous avez lancé sur %{app_name} a terminé. Ouvrez %{worksheet_url} pour revoir l'état de chaque élément à importer.</p><p>Notez que vous pourrez relancer l'importation une fois que les erreurs seront résolues. Les éléments déjà importés ne seront pas dupliqués.</p><p>— L'équipe %{app_name}</p>"
+  pender_url_invalid: Lien non valide.

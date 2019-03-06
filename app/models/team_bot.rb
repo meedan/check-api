@@ -82,8 +82,9 @@ class TeamBot < ActiveRecord::Base
       User.current = current_user
       Team.current = current_team
       JSON.parse(result.to_json)['data']['node']
-    rescue
-      { error: 'Could not get result for GraphQL query' }.with_indifferent_access
+    rescue StandardError => e
+      Rails.logger.error("Could not get result for GraphQL query: #{e.message}")
+      { error: "Could not get result for GraphQL query" }.with_indifferent_access
     end
   end
 
@@ -100,11 +101,11 @@ class TeamBot < ActiveRecord::Base
         request = Net::HTTP::Post.new(uri.request_uri, headers)
         request.body = data.to_json
         http.request(request)
-      rescue SocketError
-        Rails.logger.info("Couldn't call bot #{self.id}")
+      rescue SocketError => e
+        Rails.logger.info("Couldn't call bot #{self.id}: #{e.message}")
       end
     end
-    
+
     self.last_called_at = Time.now
     self.skip_check_ability = true
     self.save!
@@ -118,7 +119,7 @@ class TeamBot < ActiveRecord::Base
       end
     end
     graphql_data = graphql_query.blank? ? nil : self.graphql_result(graphql_query, object, team)
-    
+
     data = {
       event: event,
       team: team,
@@ -128,7 +129,7 @@ class TeamBot < ActiveRecord::Base
       user_id: self.bot_user.id,
       settings: installation.json_settings
     }
-   
+
     self.call(data)
   end
 
@@ -139,7 +140,7 @@ class TeamBot < ActiveRecord::Base
       time: annotation.updated_at,
       data: { dbid: annotation.id }
     }
-   
+
     self.call(data)
   end
 
@@ -224,7 +225,7 @@ class TeamBot < ActiveRecord::Base
         api_key.save!
         api_key.expire_at = api_key.expire_at.since(100.years)
         api_key.save!
-        
+
         # User
         bot_user = BotUser.new
         bot_user.name = self.name

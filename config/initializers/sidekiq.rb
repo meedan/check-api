@@ -2,6 +2,7 @@ file = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")
 file = File.join(Rails.root, 'config', "sidekiq.yml") unless File.exist?(file)
 if File.exist?(file)
   require 'sidekiq/middleware/i18n'
+  require 'connection_pool'
 
   SIDEKIQ_CONFIG = YAML.load_file(file)
 

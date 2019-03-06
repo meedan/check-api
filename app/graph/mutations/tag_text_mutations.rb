@@ -6,7 +6,6 @@ module TagTextMutations
   }
 
   update_fields = {
-    id: '!id',
     teamwide: 'bool',
     text: 'str'
   }

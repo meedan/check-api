@@ -12,8 +12,7 @@ module SourceMutations
     name: 'str',
     refresh_accounts: 'int',
     user_id: 'int',
-    lock_version: 'int',
-    id: '!id'
+    lock_version: 'int'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('source', create_fields, update_fields)

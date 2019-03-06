@@ -5,7 +5,6 @@ module TeamBotInstallationMutations
   }
 
   update_fields = {
-    id: '!id',
     json_settings: 'str'
   }
 
