@@ -66,7 +66,8 @@ module UserInvitation
 	      if tu.nil?
 	      	invitable.errors.add(:no_invitation, I18n.t(:"user_invitation.no_invitation", { name: t.name }))
 	      elsif tu.invitation_period_valid?
-	      	self.accept_team_user_invitation(tu, token, options)
+	      	inv_user = self.accept_team_user_invitation(tu, token, options)
+	      	invitable.id = inv_user.id unless inv_user.nil?
 	      else
 	      	invitable.errors.add(:invalid_invitation, I18n.t(:"user_invitation.invalid"))
 	      end
@@ -121,6 +122,7 @@ module UserInvitation
 	    tu.invitation_token = nil
 	    tu.raw_invitation_token = nil
       tu.status = 'member'
+      tu.skip_check_ability = true
       tu.save!
       # options should have password & username keys
       user = User.find_by_invitation_token(token, true)
@@ -129,8 +131,9 @@ module UserInvitation
       	invitable = User.accept_invitation!(:invitation_token => token, :password => password)
       	user.update_column(:raw_invitation_token, nil)
       	# Send welcome mail with generated password
-      	RegistrationMailer.delay.welcome_email(invitable, password) unless invitable.nil?
+      	RegistrationMailer.delay.welcome_email(invitable, password) unless invitable.nil? || options[:skip_notification]
       end
+      invitable
 	  end
 
     def get_team_user

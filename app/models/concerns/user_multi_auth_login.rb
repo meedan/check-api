@@ -11,8 +11,8 @@ module UserMultiAuthLogin
 	    u = User.find_with_omniauth(auth.uid, auth.provider)
 	    ids = User.excluded_uids(u, current_user)
 	    duplicate_user = User.get_duplicate_user(auth.info.email, ids)[:user]
-	    # raise error if user try to connect with an account related to another user (is_active = false or not confirmed).
-	    raise RuntimeError, I18n.t(:error_login_with_exists_account) unless duplicate_user.nil? || duplicate_user.is_confirmed?
+	    # check if user is invited to check
+	    duplicate_user.accept_invitation_or_confirm unless duplicate_user.nil?
 	    u = self.check_merge_users(u, current_user, duplicate_user)
 	    u ||= current_user
 	    user = self.create_omniauth_user(u, auth)
@@ -99,6 +99,17 @@ module UserMultiAuthLogin
 	  def self.find_with_token(token)
 	    account = Account.where(token: token).last
 	    account.nil? ?  User.where(token: token).last : account.user
+	  end
+
+	  def accept_invitation_or_confirm
+	  	if self.invited_to_sign_up?
+	  		token = self.read_attribute(:raw_invitation_token)
+      	self.team_users.where(status: 'invited').each do |tu|
+      		User.accept_team_user_invitation(tu, token, {password: "", skip_notification: true}) if tu.invitation_period_valid?
+      	end
+      	self.update_columns(encrypted_password: nil)
+	  	end
+	  	self.confirm unless self.reload.is_confirmed?
 	  end
 
 	  def get_social_accounts_for_login(conditions = {})
