@@ -103,11 +103,11 @@ module UserMultiAuthLogin
 
 	  def accept_invitation_or_confirm
 	  	if self.invited_to_sign_up?
+	  		self.accept_invitation!
 	  		token = self.read_attribute(:raw_invitation_token)
       	self.team_users.where(status: 'invited').each do |tu|
       		User.accept_team_user_invitation(tu, token, {password: "", skip_notification: true}) if tu.invitation_period_valid?
       	end
-      	self.update_columns(encrypted_password: nil)
 	  	end
 	  	self.confirm unless self.reload.is_confirmed?
 	  end
