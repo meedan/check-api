@@ -22,6 +22,21 @@ class RegistrationsControllerTest < ActionController::TestCase
     end
   end
 
+  test "should create user if invited" do
+    t = create_team
+    u = create_user
+    email = 'test@local.com'
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      members = [{role: 'contributor', email: email}]
+      User.send_user_invitation(members)
+    end
+    assert_no_difference 'User.count' do
+      post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: email, login: 'test', name: 'Test' }
+      assert_response :success
+    end
+  end
+
   test "should create user if confirmed" do
     User.any_instance.stubs(:confirmation_required?).returns(false)
     assert_difference 'User.count' do
