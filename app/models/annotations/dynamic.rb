@@ -30,8 +30,8 @@ class Dynamic < ActiveRecord::Base
   end
 
   def slack_params_task_response
-    response, task_id = self.values(['response', 'task'], '').values_at('response', 'task')
-    task = Task.find(task_id)
+    response = self.values(['response'], '')['response']
+    task = Task.find(self.annotated_id)
     task.slack_params.merge({
       description: Bot::Slack.to_slack(response, false),
       attribution: User.where('id IN (:ids)', { :ids => self.attribution.to_s.split(',') })&.collect { |u| u.name }&.to_sentence,
@@ -110,7 +110,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def add_update_elasticsearch_dynamic(op)
-    skip_types = ['verification_status', 'translation_status']
+    skip_types = ['translation_status']
     return if self.disable_es_callbacks || skip_types.include?(self.annotation_type)
     options = get_elasticsearch_options_dynamic
     options.merge!({op: op, nested_key: 'dynamics'})

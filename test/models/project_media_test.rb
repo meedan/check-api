@@ -458,9 +458,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     create_team_user user: u, team: t, role: 'owner'
     at = create_annotation_type annotation_type: 'response'
-    ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
-    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
 
@@ -476,12 +474,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
       info = { title: 'Bar' }.to_json; pm.embed = info; pm.save!
       pm.project_id = p2.id; pm.save!
       t = create_task annotated: pm, annotator: u
-      t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s, note: 'Test' }.to_json }.to_json; t.save!
+      t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
       t = Task.find(t.id); t.label = 'Test?'; t.save!
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 14, pm.get_versions_log_count
       c.destroy
       assert_equal 14, pm.get_versions_log_count
@@ -874,12 +872,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_comment text: 'A second comment', annotated: pm
       at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
       ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-      ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
       fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
       fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
-      fi3 = create_field_instance annotation_type_object: at, name: 'task_reference', label: 'Task', field_type_object: ft2
       t = create_task annotated: pm
-      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Task response', task_reference: t.id.to_s }.to_json }.to_json
+      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Task response' }.to_json }.to_json
       t.save!
 
       ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
@@ -921,10 +917,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should respond to auto-tasks on creation" do
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
     fi2 = create_field_instance annotation_type_object: at, name: 'note_free_text', label: 'Note', field_type_object: ft1
-    fi3 = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft2
 
     t = create_team
     p = create_project team: t
@@ -946,10 +940,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    ft2 = create_field_type field_type: 'task_reference', label: 'Task Reference'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
-    fi2 = create_field_instance annotation_type_object: at, name: 'note_free_text', label: 'Note', field_type_object: ft1
-    fi3 = create_field_instance annotation_type_object: at, name: 'task_free_text', label: 'Task', field_type_object: ft2
+    fi2 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Note', field_type_object: ft1
 
     t = create_team
     p = create_project team: t
@@ -1562,7 +1553,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     stub_config('app_name', 'Check') do
       pm = create_project_media
       assert_equal 'undetermined', pm.last_verification_status
-      create_task annotated: pm, disable_update_status: false
+      create_comment annotated: pm, disable_update_status: false
       assert_equal 'in_progress', pm.reload.last_verification_status
     end
   end

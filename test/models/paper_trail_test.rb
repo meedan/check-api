@@ -83,13 +83,11 @@ class PaperTrailTest < ActiveSupport::TestCase
     v = create_version
     assert_nil v.task
     at = create_annotation_type annotation_type: 'response'
-    ft1 = create_field_type field_type: 'task_reference'
     ft2 = create_field_type field_type: 'text'
-    create_field_instance annotation_type_object: at, field_type_object: ft1, name: 'task'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
     t = create_task
-    t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', task: t.id.to_s, note: 'Test' }.to_json }.to_json; t.save!
+    t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
     PaperTrail::Version.where(item_type: 'DynamicAnnotation::Field').each do |version|
       assert_equal(t, version.task) if version.item.annotation.annotation_type =~ /^task_response/
     end

@@ -267,13 +267,17 @@ es:
   duplicate_source: Fuente existente
   geolocation_invalid_value: 'La localización debe tener un GeoJSON válido (http://geojson.org/) '
   datetime_invalid_date: 'Por favor proporciona una fecha válida '
+  error_team_archived: Lo sentimos, no puedes añadir un proyecto a un equipo eliminado
+  error_project_archived: Lo sentimos, no puedes añadir un ítem a un proyecto eliminado
+  error_team_archived_for_source: Lo sentimos, no puedes añadir una fuente a un equipo eliminado
   permission_error: Lo sentimos, no tienes autorización para realizar esta operación
+  error_annotated_archived: Lo sentimos, no puedes añadir una nota a un ítem eliminado
   only_super_admin_can_do_this: Lo sentimos, solo los administradores del sistema pueden hacer este cambio
   max_number_of_team_users_reached: Lo sentimos, se ha alcanzado el número máximo de usuarios para este equipo
   max_number_of_projects_reached: Lo sentimos, se alcanzó el número máximo de proyectos para este equipo
   cant_set_custom_statuses: Lo sentimos, la función de estados personalizados no está disponible para este equipo
   cant_change_custom_statuses: |-
-      No se pueden modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:
+      Lo sentimos, no puedes modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:
       %{urls} %{others_amount}
   cant_create_team_task: Lo sentimos, tu equipo no tiene acceso a estas funciones
   cant_create_media_under_this_team_using_extension: Lo sentimos, la función de extensión del navegador no está disponible para este equipo
@@ -306,6 +310,7 @@ es:
     team_found: Equipo no encontrado.
     invalid: Símbolo (token) de invitación es inválido.
     no_invitation: No hay invitación para el equipo %{name}
+  error_user_is_not_a_team_member: Lo sentimos, solo puedes asignar a los miembros de este equipo
   error_login_with_exists_account: Lo sentimos, hay otro usuario que ya está usando esta cuenta
   mail_see_it: 'Puedes verlo en:'
   mail_subject_assign_verification_status: "[%{team} - %{project}] Se te ha asignado un ítem"
@@ -352,6 +357,10 @@ es:
   task_suggestion_invalid_value: Lo sentimos, el valor de la sugerencia no es válido
   tag_text_id_not_found: Lo sentimos, no hay ninguna etiqueta con el identificador proporcionado
   annotation_type_language_label: Idioma
+  smooch_bot_message_type_unsupported: 'Lo sentimos, aún no procesamos este tipo de formato. '
+  smooch_bot_message_sent: Ya has enviado este mensaje anteriormente.
+  smooch_bot_meme: Este es el meme que creamos basado en tu pregunta
+  smooch_bot_result: Hemos chequeado la información que nos enviaste y determinamos que es * %{status}*. Mira más en %{url}.
   project_export_download_mail_csv: |-
       ¡Hola!
 
@@ -460,3 +469,4 @@ es:
       — Equipo %{app_name}
   team_import_completed_subject: Tu importación de datos se ha completado
   team_import_completed_mail: "<p>Hola,</p><p>Se ha completado la importación de datos en %{app_name}.  Puedes mirar %{worksheet_url}para revisar el estado de cada ítem a importar.</p><p>nota que puedes reiniciar la importación después de corregir cualquier error que se informe allí - los ítems previamente- importados no se duplicarán. <p>—El equipo %{app_name}</p>"
+  pender_url_invalid: Este link es inválido

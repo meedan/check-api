@@ -19,7 +19,7 @@ class InvitationsControllerTest < ActionController::TestCase
     tu =  u1.team_users.last
     token = tu.raw_invitation_token
     get :edit, invitation_token: token, slug: t.slug
-    assert_redirected_to "#{CONFIG['checkdesk_client']}/?invitation_response=success"
+    assert_redirected_to "#{CONFIG['checkdesk_client']}/?invitation_response=success&msg=no"
     assert_nil tu.reload.invitation_token
   end
 

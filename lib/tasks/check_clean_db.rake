@@ -57,5 +57,7 @@ namespace :check do
       a.access_token = 'devkey'
       a.save!
     end
+
+    TeamBot.update_all(approved: true)
   end
 end

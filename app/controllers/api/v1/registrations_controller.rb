@@ -12,11 +12,22 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
     build_resource(sign_up_params)
 
     begin
-      User.current = resource
-      resource.last_accepted_terms_at = Time.now
-      resource.save!
-      sign_up(resource_name, resource)
-      render_success 'user', resource
+      duplicate_user = User.get_duplicate_user(resource.email, [])[:user]
+      user = resource
+      if duplicate_user.nil?
+        resource.last_accepted_terms_at = Time.now
+        resource.save!
+      else
+        duplicate_user.accept_invitation_or_confirm
+        duplicate_user.password = resource.password
+        duplicate_user.encrypted_password = resource.encrypted_password
+        duplicate_user.last_accepted_terms_at = Time.now
+        duplicate_user.save!
+        user = duplicate_user
+      end
+      User.current = user
+      sign_up(resource_name, user)
+      render_success 'user', user
     rescue ActiveRecord::RecordInvalid => e
       clean_up_passwords resource
       set_minimum_password_length

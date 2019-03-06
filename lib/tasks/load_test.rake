@@ -43,10 +43,12 @@ namespace :test do
       filepath = File.join(Rails.root, 'tmp', "urls-#{random_string}.txt")
       file = File.open(filepath, 'w+')
       integration_id = random_string(24)
-      user_id = random_string(24)
       urls = []
       images = []
+      user_ids = []
       times.times do |i|
+        user_id = random_string(23) + i.to_s
+        user_ids << user_id
         print '.'
         message = case i % 3
                   when 0
@@ -90,7 +92,7 @@ namespace :test do
               role: 'appUser',
               received: Time.now.to_f,
               name: random_string,
-              authorId: random_string(24),
+              authorId: user_id,
               '_id': app_id,
               source: {
                 type: 'whatsapp',
@@ -131,10 +133,48 @@ namespace :test do
         duration = finished_at - started_at
         puts "[#{Time.now}] Sidekiq processed all jobs in #{duration} seconds"
       end
+
+      diff = 0
       
       pool << Thread.new do
         FileUtils.rm_f '/tmp/siege.txt'
         sh "siege --concurrent=#{concurrency} --reps=#{repeats} --content-type='application/json' --header='X-API-Key: #{secret}' --file=#{filepath} --log=/tmp/siege.log 2>&1 | tee -a /tmp/siege.txt"
+
+        sleep 10
+
+        # Confirm the requests
+        before = Time.now.to_i
+        user_ids.each do |uid|
+          payload = {
+            trigger: 'message:appUser',
+            app: {
+              '_id': app_id
+            },
+            version: 'v1.1',
+            messages: [
+              {
+                role: 'appUser',
+                received: Time.now.to_f,
+                name: random_string,
+                authorId: uid,
+                '_id': app_id,
+                type: 'text',
+                text: '1',
+                source: {
+                  type: 'whatsapp',
+                  integrationId: integration_id
+                }
+              }
+            ],
+            appUser: {
+              '_id': uid,
+              conversationStarted: true
+            }
+          }.to_json
+          system "curl -XPOST -H 'X-API-Key: #{secret}' -H 'Content-Type: application/json' -d '#{payload}' #{CONFIG['checkdesk_base_url']}/api/webhooks/smooch"
+        end
+        after = Time.now.to_i
+        diff = after - before + 1
       end
       
       pool.each(&:join)
@@ -154,7 +194,7 @@ namespace :test do
       raise("ERROR: Availability was expected to be 100% but was #{availability}") if availability != '100.00 %'
       raise("ERROR: Expected to create #{times} items, but #{items_count} were created") if items_count != times
       raise("ERROR: Expected to take #{max_background_duration} seconds to process all background requests, but it took #{duration} seconds") if duration > max_background_duration
-      raise("ERROR: Expected to take #{max_foreground_duration} seconds to process all foreground requests, but it took #{foreground_duration} seconds") if foreground_duration > max_foreground_duration
+      raise("ERROR: Expected to take #{max_foreground_duration} seconds to process all foreground requests, but it took #{foreground_duration} seconds") if foreground_duration > (max_foreground_duration + diff)
       raise("ERROR: Expected to have 0 failed requests, but had #{failed_transactions}") if failed_transactions > 0
       raise("ERROR: Expected to have #{times} successful requests, but had #{successful_transactions}") if successful_transactions < times
 

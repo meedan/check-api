@@ -131,22 +131,10 @@ class FlagTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create flag with invalid annotated" do
-    assert_no_difference 'Flag.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_flag annotated: create_project
-      end
-    end
-  end
-
  test "should get flag" do
     f = create_flag
     assert_equal 'Graphic content', f.flag_callback('graphic_journalist')
     assert_equal 'Invalid', f.flag_callback('Invalid')
-  end
-
-  test "should accept only ProjectMedia as annotated_type" do
-    assert_equal ['ProjectMedia'], Flag.annotated_types
   end
 
   test "should protect attributes from mass assignment" do
