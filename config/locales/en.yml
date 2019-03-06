@@ -431,18 +431,14 @@ en:
     (displayed to users)
   tag_text_id_not_found: Sorry, there is no tag with the provided identifier
   annotation_type_language_label: Language
-  smooch_bot_message_confirmed: Thank you, we've received your request and you should
-    hear from us shortly.
+  smooch_bot_message_confirmed: Thank you, we've received your request and you should hear from us again shortly.
   smooch_bot_message_unconfirmed: Thank you, we will not process your message any
     further.
-  smooch_bot_message_type_unsupported: Sorry, we don't support this kind of message
-    yet
-  smooch_bot_message_sent: You already sent this message.
-  smooch_bot_meme: Here's a meme we created based on your question
-  smooch_bot_result: We have reviewed what you sent us, and have determined that the
-    item is *%{status}*. View more at %{url}.
-  smooch_bot_ask_for_confirmation: Thanks for getting in touch! Please confirm that
-    you want to verify this item. Send 1 for 'yes', 2 for 'no'.
+  smooch_bot_message_type_unsupported: Sorry, we don't support this type of file format for verification yet.
+  smooch_bot_message_sent: You have already sent us this message.
+  smooch_bot_meme: Here's a meme we created based on the item you have requested that we fact-check. 
+  smooch_bot_result: We have fact-checked what you sent us, and have determined that the item is *%{status}*. Learn more at %{url}.
+  smooch_bot_ask_for_confirmation: Thanks for getting in touch! Please confirm that you want to fact-check this item. Send 1 for 'yes', 2 for 'no'.
   project_export_download_mail_csv: |-
     Hello!
 

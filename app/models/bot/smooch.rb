@@ -188,10 +188,11 @@ class Bot::Smooch
       sm.send_message
 
     elsif sm.state.value == 'waiting_for_confirmation'
+      saved_message = JSON.parse(sm.message.value)
+      lang = saved_message['language']
       if message['text'].to_i == 1
-        message = JSON.parse(sm.message.value)
-        unless self.user_already_sent_message(message)
-          self.save_message_later(message, app_id)
+        unless self.user_already_sent_message(saved_message)
+          self.save_message_later(saved_message, app_id)
           self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_confirmed, locale: lang))
         end
       else
