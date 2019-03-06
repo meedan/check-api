@@ -1553,7 +1553,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     stub_config('app_name', 'Check') do
       pm = create_project_media
       assert_equal 'undetermined', pm.last_verification_status
-      create_task annotated: pm, disable_update_status: false
+      create_comment annotated: pm, disable_update_status: false
       assert_equal 'in_progress', pm.reload.last_verification_status
     end
   end
