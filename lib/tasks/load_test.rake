@@ -47,7 +47,7 @@ namespace :test do
       images = []
       user_ids = []
       times.times do |i|
-        user_id = random_string(24)
+        user_id = random_string(23) + i.to_s
         user_ids << user_id
         print '.'
         message = case i % 3
@@ -140,6 +140,8 @@ namespace :test do
         FileUtils.rm_f '/tmp/siege.txt'
         sh "siege --concurrent=#{concurrency} --reps=#{repeats} --content-type='application/json' --header='X-API-Key: #{secret}' --file=#{filepath} --log=/tmp/siege.log 2>&1 | tee -a /tmp/siege.txt"
 
+        sleep 10
+
         # Confirm the requests
         before = Time.now.to_i
         user_ids.each do |uid|
@@ -170,9 +172,9 @@ namespace :test do
             }
           }.to_json
           system "curl -XPOST -H 'X-API-Key: #{secret}' -H 'Content-Type: application/json' -d '#{payload}' #{CONFIG['checkdesk_base_url']}/api/webhooks/smooch"
-          after = Time.now.to_i
-          diff = after - before + 1
         end
+        after = Time.now.to_i
+        diff = after - before + 1
       end
       
       pool.each(&:join)
