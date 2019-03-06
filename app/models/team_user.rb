@@ -9,7 +9,7 @@ class TeamUser < ActiveRecord::Base
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
   validate :user_is_member_in_slack_team
 
-  before_validation :set_role_default_value, on: :create
+  before_validation :check_existing_invitation, :set_role_default_value, on: :create
   after_create :send_email_to_team_owners, :send_slack_notification
   after_update :send_slack_notification
   after_save :send_email_to_requestor, :update_user_cached_teams_after_save
@@ -168,6 +168,17 @@ class TeamUser < ActiveRecord::Base
     if self.status_was === 'requested' && ['member', 'banned'].include?(self.status)
       accepted = self.status === 'member'
       TeamUserMailer.delay.request_to_join_processed(self.team, self.user, accepted, CONFIG['checkdesk_client'])
+    end
+  end
+
+  def check_existing_invitation
+    tu = TeamUser.where(team_id: self.team_id, user_id: self.user_id, status: 'invited').last
+    unless tu.nil?
+      self.role = tu.role
+      self.status = 'member' if tu.invitation_period_valid?
+      # self.skip_check_ability = true
+      tu.skip_check_ability = true
+      tu.destroy
     end
   end
 

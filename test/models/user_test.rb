@@ -1124,10 +1124,6 @@ class UserTest < ActiveSupport::TestCase
 
   test "should merge confirmed accounts" do
     u = create_user confirm: false
-    assert_raise RuntimeError do
-      create_omniauth_user email: u.email
-    end
-    u.confirm
     assert_no_difference 'User.count' do
       assert_difference 'Account.count' do
         create_omniauth_user email: u.email
@@ -1204,5 +1200,58 @@ class UserTest < ActiveSupport::TestCase
     assert_equal '123456', u2.reload.token
     assert u2.encrypted_password?
     assert u2.is_admin?
+  end
+
+  test "should login or register with invited email" do
+    t = create_team
+    u = create_user
+    email = 'test@local.com'
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      members = [{role: 'contributor', email: email}]
+      User.send_user_invitation(members)
+    end
+    u1 = User.where(email: email).last
+    assert u1.invited_to_sign_up?
+    assert_equal ["invited"], u1.team_users.map(&:status)
+    assert_no_difference 'User.count' do
+      create_omniauth_user email: email
+    end
+    assert_equal ["member"], u1.reload.team_users.map(&:status)
+  end
+
+  test "should request to join invited team" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    u2 = create_user
+    # request to join team with invitation period
+    with_current_user_and_team(u, t) do
+      members = [{role: 'owner', email: u2.email}]
+      User.send_user_invitation(members)
+    end
+    with_current_user_and_team(u2, t) do
+      create_team_user team: t, user: u2, status: 'requested'
+    end
+    tu = u2.team_users.where(team_id: t.id).last
+    assert_equal 'owner', tu.role
+    assert_equal 'member', tu.status
+    # request to join team with expired invitaion
+    t2 = create_team
+    create_team_user team: t2, user: u, role: 'owner'
+    with_current_user_and_team(u, t2) do
+      members = [{role: 'owner', email: u2.email}]
+      User.send_user_invitation(members)
+    end
+    tu = u2.team_users.where(team_id: t2.id).last
+    # # expire invitation
+    old_date = tu.created_at - 2.day
+    tu.update_column(:created_at, old_date)
+    with_current_user_and_team(u2, t2) do
+      create_team_user team: t2, user: u2, status: 'requested'
+    end
+    tu = u2.team_users.where(team_id: t2.id).last
+    assert_equal 'owner', tu.role
+    assert_equal 'requested', tu.status
   end
 end
