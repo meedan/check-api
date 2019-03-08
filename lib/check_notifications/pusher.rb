@@ -67,10 +67,10 @@ module CheckNotifications
         return if event.blank? || targets.blank? || data.blank?
 
         channels = targets.reject{ |t| t.blank? }.map(&:pusher_channel)
-
-        return if channels.blank?
+        data = '{}' if data == 'null'
 
         Rails.env == 'test' ? self.request_pusher(channels, event, data, self.actor_session_id) : CheckNotifications::Pusher::Worker.perform_in(1.second, channels, event, data, self.actor_session_id)
+        CheckNotifications::Pusher::Worker.perform_in(1.second, ['check-api-global-channel'], 'update', JSON.parse(data).merge({ pusherChannels: channels, pusherEvent: event }).to_json, self.actor_session_id)
       end
 
       def request_pusher(channels, event, data, actor_session_id)
