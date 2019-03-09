@@ -35,7 +35,8 @@ class Team < ActiveRecord::Base
   end
 
   def url
-    CONFIG['checkdesk_base_url'] + '/' + self.slug
+    url = self.contacts.map(&:web).select{ |w| !w.blank? }.first
+    url || CONFIG['checkdesk_client'] + '/' + self.slug
   end
 
   def members_count

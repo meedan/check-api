@@ -164,7 +164,7 @@ class Bot::Smooch
     unless pm.nil?
       lang = Bot::Alegre.default.language_object(pm, :value)
       status = I18n.t('statuses.media.' + pm.last_status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
-      fallback = I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.full_url)
+      fallback = I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.embed_url)
       ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{pm.last_status}, #{pm.embed_url})")
     end
   end
@@ -395,7 +395,7 @@ class Bot::Smooch
       }
     }
     status = I18n.t('statuses.media.' + status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
-    response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.full_url), extra)
+    response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.embed_url), extra)
     id = response&.message&.id
     Rails.cache.write('smooch:smooch_message_id:project_media_id:' + id, pm.id) unless id.blank?
     response
