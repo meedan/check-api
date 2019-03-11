@@ -405,3 +405,72 @@ _Response_
   }
 }
 ```
+
+## Add a tag to a media
+
+You need to have the id of the media that you want to add a tag to. This is the last number in a Check item URL. For example, for https://checkmedia.org/test/project/73/media/104, the id is 104. That id goes into `annotated_id` in the query below.
+
+_Query_
+```
+mutation {
+  createTag(input:{
+    clientMutationId: "1",
+    tag: "foo",
+    annotated_id: "104",
+    annotated_type: "ProjectMedia"
+  }) {
+    tagEdge {
+      node {
+        dbid
+      }
+    }
+  }
+}
+```
+
+_Response_
+```
+{
+  "data": {
+    "createTag": {
+      "tagEdge": {
+        "node": {
+          "dbid": "792871"
+        }
+      }
+    }
+  }
+}
+```
+
+## Add related item
+
+In order to add a related item, you must have the Base 64 id of the child item and the incremental id of the parent item. In the example below, 36064 is the incremental id of the parent item and the Base 64 id of the child item is `UHJvamVjdE1lZGlhLzM2MDY3\n`.
+
+_Query_
+```
+mutation {
+  updateProjectMedia(input:{
+    clientMutationId: "1",
+    id:"UHJvamVjdE1lZGlhLzM2MDY3\n",
+    related_to_id: 36064
+  }) {
+    related_to {
+      dbid
+    }
+  }
+}
+```
+
+_Response_
+```
+{
+  "data": {
+    "updateProjectMedia": {
+      "related_to": {
+        "dbid": 36064
+      }
+    }
+  }
+}
+```
