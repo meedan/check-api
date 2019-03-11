@@ -4,6 +4,9 @@ MAINTAINER Meedan <sysops@meedan.com>
 # the Rails stage can be overridden from the caller
 ENV RAILS_ENV development
 
+# https://www.mikeperham.com/2018/04/25/taming-rails-memory-bloat/
+ENV MALLOC_ARENA_MAX 2
+
 # install dependencies
 RUN apt-get update -qq && apt-get install -y libpq-dev imagemagick redis-server inkscape graphviz siege apache2-utils fontconfig libfontconfig ttf-devanagari-fonts ttf-bengali-fonts ttf-gujarati-fonts ttf-telugu-fonts ttf-tamil-fonts ttf-malayalam-fonts --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
