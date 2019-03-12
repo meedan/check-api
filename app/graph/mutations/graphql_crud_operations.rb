@@ -111,8 +111,16 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
+  def self.prepopulate_object(obj, inputs)
+    inputs.each do |key, value|
+      obj.send("#{key}=", value) if obj.respond_to?("#{key}=")
+    end
+    obj
+  end
+
   def self.update(_type, inputs, ctx, parents = [])
     obj = inputs[:id] ? self.object_from_id_and_context(inputs[:id], ctx) : nil
+    obj = self.prepopulate_object(obj, inputs) if inputs[:ids]
     returns = obj.nil? ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
     self.crud_operation('update', inputs, ctx, parents, returns)
   end
@@ -139,8 +147,11 @@ class GraphqlCrudOperations
   def self.define_optimistic_fields(obj, inputs, name)
     if inputs[:ids] && name =~ /^check_search/
       n = obj.number_of_results
-      obj.define_singleton_method(:number_of_results) do
-        n - inputs[:ids].size
+      obj.define_singleton_method(:number_of_results) { n - inputs[:ids].size } if name == 'check_search_project_was'
+      if name == 'check_search_project'
+        medias = ProjectMedia.where(id: inputs[:ids].collect{ |id| Base64.decode64(id).split('/').last.to_i }).to_a.reverse + obj.medias.first(20).to_a
+        obj.define_singleton_method(:number_of_results) { n + inputs[:ids].size }
+        obj.define_singleton_method(:medias) { medias }
       end
     end
     obj
