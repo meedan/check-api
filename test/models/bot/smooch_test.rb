@@ -54,6 +54,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.stubs(:get_language).returns('en')
     create_alegre_bot
     AlegreClient.host = 'http://alegre'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
+    WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
   end
 
   def teardown
@@ -659,6 +661,36 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert_nothing_raised do
         Sidekiq::Worker.drain_all
       end
+    end
+  end
+
+  test "should not crash with canonical URLs" do
+    uid = random_string
+
+    ['https://www.instagram.com/p/Bu3enV8Fjcy', 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link'].each do |url|
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: url
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+        
+      assert Bot::Smooch.run(payload)
+      send_confirmation(uid)
     end
   end
 
