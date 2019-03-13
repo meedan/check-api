@@ -322,7 +322,7 @@ es:
   mail_subject_update_status: "[%{team} - %{project}] El estado del item fue marcado como %{status}"
   mail_assign_verification_status: "%{author} te asignó el medio: "
   mail_unassign_verification_status: "%{author} te desasignó el ítem: "
-  mail_assign_translation_status: "%{author} te asignó el medio: "
+  mail_assign_translation_status: "%{author} te asignó el ítem: "
   mail_unassign_translation_status: "%{author} te desasignó el ítem: "
   mail_assign_task: '%{author} te asignó la tarea  "%{task}" del medio: '
   mail_unassign_task: '%{author} te desasignó la tarea "%{task}" del medio: '
@@ -357,10 +357,13 @@ es:
   task_suggestion_invalid_value: Lo sentimos, el valor de la sugerencia no es válido
   tag_text_id_not_found: Lo sentimos, no hay ninguna etiqueta con el identificador proporcionado
   annotation_type_language_label: Idioma
+  smooch_bot_message_confirmed: 'Gracias. hemos recibido tu solicitud y escucharás de nosotros pronto. '
+  smooch_bot_message_unconfirmed: Gracias, no seguiremos procesando tu mensaje.
   smooch_bot_message_type_unsupported: 'Lo sentimos, aún no procesamos este tipo de formato. '
   smooch_bot_message_sent: Ya has enviado este mensaje anteriormente.
   smooch_bot_meme: Este es el meme que creamos basado en tu pregunta
   smooch_bot_result: Hemos chequeado la información que nos enviaste y determinamos que es * %{status}*. Mira más en %{url}.
+  smooch_bot_ask_for_confirmation: ¡Gracias por ponerte en contacto! Por favor confirma si quieres verificar este ítem. Envía 1 para  'sí ', 2 para  'no '.
   project_export_download_mail_csv: |-
       ¡Hola!
 
@@ -470,3 +473,6 @@ es:
   team_import_completed_subject: Tu importación de datos se ha completado
   team_import_completed_mail: "<p>Hola,</p><p>Se ha completado la importación de datos en %{app_name}.  Puedes mirar %{worksheet_url}para revisar el estado de cada ítem a importar.</p><p>nota que puedes reiniciar la importación después de corregir cualquier error que se informe allí - los ítems previamente- importados no se duplicarán. <p>—El equipo %{app_name}</p>"
   pender_url_invalid: Este link es inválido
+  verification_status_deadline: 'Fecha límite '
+  verification_status_deadline_asc: Menor tiempo posible
+  verification_status_deadline_desc: Mayor tiempo posible
