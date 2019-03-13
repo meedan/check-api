@@ -357,10 +357,13 @@ fr:
   task_suggestion_invalid_value: La suggestion de réponse n'est pas correctement formulée.
   tag_text_id_not_found: Désolé, il n'existe pas de tag avec l'identifiant fourni
   annotation_type_language_label: Langage
+  smooch_bot_message_confirmed: Merci, nous avons reçu votre demande et vous devriez recevoir de nos nouvelles sous peu.
+  smooch_bot_message_unconfirmed: Merci, nous ne traiterons plus votre message.
   smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore en charge ce type de message
   smooch_bot_message_sent: Vous avez déjà envoyé ce message.
   smooch_bot_meme: Voici un mème que nous avons créé pour répondre à votre question
   smooch_bot_result: Nous avons examiné l'élément que vous nous avez envoyé, et notre conclusion est qu'il est *%{status}*. Pour plus d'informations, suivez %{url}.
+  smooch_bot_ask_for_confirmation: Merci de nous avoir contactés! Veuillez confirmer que vous souhaitez vérifier cet élément. Envoyez 1 pour 'oui', 2 pour 'non'.
   project_export_download_mail_csv: |-
       Bonjour !
 
@@ -415,7 +418,7 @@ fr:
             change_status: Modifier le statut des éléments
             lock_unlock_status: Verouiller/déverouiller les statuts
             add_remove_tag: Rajouter/supprimer les tags
-            send_to_trash: Mettre les élements à la corbeille
+            send_to_trash: Envoyer l'élément à la corbeille
             empty_trash: Vider la corbeille
         task_management:
           name: Gestion de tâches
@@ -467,3 +470,6 @@ fr:
   team_import_completed_subject: Le processus d'importation de données a terminé
   team_import_completed_mail: "<p>Bonjour,</p><p>Le processus d'importation de données que vous avez lancé sur %{app_name} a terminé. Ouvrez %{worksheet_url} pour revoir l'état de chaque élément à importer.</p><p>Notez que vous pourrez relancer l'importation une fois que les erreurs seront résolues. Les éléments déjà importés ne seront pas dupliqués.</p><p>— L'équipe %{app_name}</p>"
   pender_url_invalid: Lien non valide.
+  verification_status_deadline: Échéance
+  verification_status_deadline_asc: Dû au plus tard
+  verification_status_deadline_desc: Dû au plus tôt
