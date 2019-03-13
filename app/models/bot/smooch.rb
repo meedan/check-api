@@ -333,8 +333,8 @@ class Bot::Smooch
       pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => json['project_id']).last ||
            ProjectMedia.create!(project_id: json['project_id'], quote: text)
     else
-      m = Media.new url: url
-      m.valid?
+      m = Link.new url: url
+      m.validate_pender_result
       url = m.url
       pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => json['project_id']).last
       if pm.nil?
