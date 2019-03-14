@@ -81,6 +81,6 @@ module ProjectMediaPrivate
   end
 
   def notify_team_bots(event)
-    TeamBot.notify_bots_in_background("#{event}_project_media", self.project.team_id, self)
+    TeamBot.enqueue_event("#{event}_project_media", self.project.team_id, self)
   end
 end

@@ -24,9 +24,9 @@ module AnnotationPrivate
 
   def notify_team_bots(event)
     team = self.get_team.first
-    TeamBot.notify_bots_in_background("#{event}_annotation_#{self.annotation_type}", team, self) unless team.blank?
+    TeamBot.enqueue_event("#{event}_annotation_#{self.annotation_type}", team, self) unless team.blank?
     task = Task.where(id: self.id).last if self.annotation_type == 'task'
-    TeamBot.notify_bots_in_background("#{event}_annotation_task_#{self.data['type']}", team, task) if !team.blank? && !task.nil?
+    TeamBot.enqueue_event("#{event}_annotation_task_#{self.data['type']}", team, task) unless team.blank? || task.nil?
   end
 
   def notify_bot_author
@@ -35,4 +35,4 @@ module AnnotationPrivate
       team_bot.notify_about_annotation(self) unless team_bot.nil?
     end
   end
-end 
+end

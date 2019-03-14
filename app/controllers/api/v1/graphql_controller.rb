@@ -7,7 +7,9 @@ module Api
 
       before_action :start_apollo_if_needed, only: [:create]
       before_action :authenticate_graphql_user, only: [:create]
-      before_action :set_current_user, :load_context_team, :set_current_team, :load_ability
+      before_action :set_current_user, :load_context_team, :set_current_team, :load_ability, :init_bot_events
+
+      after_action :trigger_bot_events
 
       def create
         query_string = params[:query]
@@ -103,6 +105,14 @@ module Api
             @started_apollo = true
           end
         end
+      end
+
+      def init_bot_events
+        TeamBot.init_event_queue
+      end
+
+      def trigger_bot_events
+        TeamBot.trigger_events
       end
     end
   end

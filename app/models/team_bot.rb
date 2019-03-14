@@ -175,6 +175,22 @@ class TeamBot < ActiveRecord::Base
     { type: 'object', properties: properties }.to_json
   end
 
+  # In order to avoid sending the same event to the same bot multiple times per request,
+  # we create a queue of events and "uniq" it at the end of the request before notifying the bots.
+  def self.init_event_queue
+    RequestStore.store[:bot_events] = []
+  end
+
+  def self.enqueue_event(event, team_id, object)
+    RequestStore.store[:bot_events] << { event: event, team_id: team_id, object: object }
+  end
+
+  def self.trigger_events
+    RequestStore.store[:bot_events].uniq{|e| [e[:event], e[:team_id], e[:object].id]}.each do |e|
+      TeamBot.notify_bots_in_background(e[:event], e[:team_id], e[:object])
+    end
+  end
+
   def self.notify_bots_in_background(event, team_id, object)
     TeamBot.delay_for(1.second).notify_bots(event, team_id, object.class.to_s, object.id) unless object.skip_notifications
   end
