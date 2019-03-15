@@ -167,7 +167,7 @@ class GraphqlCrudOperations
     obj
   end
 
-  def self.define_optimistic_fields_for_project_media(obj, inputs, name)
+  def self.define_optimistic_fields_for_project_media(obj, inputs, _name)
     status = begin JSON.parse(inputs[:set_fields])['verification_status_status'] rescue nil end
     unless status.nil?
       targets = []
