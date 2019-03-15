@@ -1,5 +1,5 @@
 class GraphqlCrudOperations
-  def self.safe_save(obj, attrs, parents = [])
+  def self.safe_save(obj, attrs, parents = [], inputs = {})
     attrs.each do |key, value|
       method = key == 'clientMutationId' ? 'client_mutation_id=' : "#{key}="
       obj.send(method, value) if obj.respond_to?(method)
@@ -8,7 +8,7 @@ class GraphqlCrudOperations
     obj.save!
 
     name = obj.class_name.underscore
-    { name.to_sym => obj }.merge(GraphqlCrudOperations.define_returns(obj, {}, parents))
+    { name.to_sym => obj }.merge(GraphqlCrudOperations.define_returns(obj, inputs, parents))
   end
   
   def self.define_returns(obj, inputs, parents)
@@ -108,7 +108,7 @@ class GraphqlCrudOperations
       memo
     end
 
-    self.safe_save(obj, attrs, parents)
+    self.safe_save(obj, attrs, parents, inputs)
   end
 
   def self.prepopulate_object(obj, inputs)
@@ -121,7 +121,7 @@ class GraphqlCrudOperations
   def self.update(_type, inputs, ctx, parents = [])
     obj = inputs[:id] ? self.object_from_id_and_context(inputs[:id], ctx) : nil
     obj = self.prepopulate_object(obj, inputs) if inputs[:ids]
-    returns = obj.nil? ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
+    returns = (obj.nil? || !inputs[:ids]) ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
     self.crud_operation('update', inputs, ctx, parents, returns)
   end
 
@@ -146,13 +146,36 @@ class GraphqlCrudOperations
 
   def self.define_optimistic_fields(obj, inputs, name)
     if inputs[:ids] && name =~ /^check_search/
-      n = obj.number_of_results
-      obj.define_singleton_method(:number_of_results) { n - inputs[:ids].size } if name == 'check_search_project_was'
-      if name == 'check_search_project'
-        medias = ProjectMedia.where(id: inputs[:ids].collect{ |id| Base64.decode64(id).split('/').last.to_i }).to_a.reverse + obj.medias.first(20).to_a
-        obj.define_singleton_method(:number_of_results) { n + inputs[:ids].size }
-        obj.define_singleton_method(:medias) { medias }
+      obj = self.define_optimistic_fields_for_check_search(obj, inputs, name)
+    end
+
+    if name == 'project_media'
+      obj = self.define_optimistic_fields_for_project_media(obj, inputs, name)
+    end
+
+    obj
+  end
+
+  def self.define_optimistic_fields_for_check_search(obj, inputs, name)
+    n = obj.number_of_results
+    obj.define_singleton_method(:number_of_results) { n - inputs[:ids].size } if name == 'check_search_project_was'
+    if name == 'check_search_project'
+      medias = ProjectMedia.where(id: inputs[:ids].collect{ |id| Base64.decode64(id).split('/').last.to_i }).to_a.reverse + obj.medias.first(20).to_a
+      obj.define_singleton_method(:number_of_results) { n + inputs[:ids].size }
+      obj.define_singleton_method(:medias) { medias }
+    end
+    obj
+  end
+
+  def self.define_optimistic_fields_for_project_media(obj, inputs, name)
+    status = begin JSON.parse(inputs[:set_fields])['verification_status_status'] rescue nil end
+    unless status.nil?
+      targets = []
+      obj.targets.each do |target|
+        target.define_singleton_method(:last_status) { status }
+        targets << target
       end
+      obj.define_singleton_method(:targets) { targets }
     end
     obj
   end
