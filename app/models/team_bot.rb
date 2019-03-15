@@ -83,8 +83,8 @@ class TeamBot < ActiveRecord::Base
       Team.current = current_team
       JSON.parse(result.to_json)['data']['node']
     rescue StandardError => e
-      Rails.logger.error("Could not get result for GraphQL query: #{e.message}")
-      { error: "Could not get result for GraphQL query" }.with_indifferent_access
+      Rails.logger.error("Error performing GraphQL query: #{e.message}")
+      { error: "Error performing GraphQL query" }.with_indifferent_access
     end
   end
 
@@ -102,7 +102,7 @@ class TeamBot < ActiveRecord::Base
         request.body = data.to_json
         http.request(request)
       rescue SocketError => e
-        Rails.logger.info("Couldn't call bot #{self.id}: #{e.message}")
+        Rails.logger.error("Error calling bot #{self.id}: #{e.message}")
       end
     end
 
@@ -128,17 +128,6 @@ class TeamBot < ActiveRecord::Base
       data: graphql_data,
       user_id: self.bot_user.id,
       settings: installation.json_settings
-    }
-
-    self.call(data)
-  end
-
-  def notify_about_annotation(annotation)
-    data = {
-      event: 'own_annotation_updated',
-      object: annotation,
-      time: annotation.updated_at,
-      data: { dbid: annotation.id }
     }
 
     self.call(data)
@@ -176,32 +165,35 @@ class TeamBot < ActiveRecord::Base
   end
 
   # In order to avoid sending the same event to the same bot multiple times per request,
-  # we create a queue of events and "uniq" it at the end of the request before notifying the bots.
+  # we create a queue of events and dedupe them at the end of the request before notifying the bots.
   def self.init_event_queue
     RequestStore.store[:bot_events] = []
   end
 
-  def self.enqueue_event(event, team_id, object)
-    RequestStore.store[:bot_events] << { event: event, team_id: team_id, object: object }
+  # If we are in the context of a request, we enqueue the event to dedupe it later.
+  # If not, we may be in a background job, where the concept of a "request" is not well-defined,
+  # so we notify the bots immediately.
+  def self.enqueue_event(event, team_id, object, bot = nil)
+    if !RequestStore.store[:bot_events].nil?
+      RequestStore.store[:bot_events] << { event: event, team_id: team_id, object: object, bot: bot }
+    else
+      TeamBot.notify_bots(event, team_id, object.class.to_s, object.id, bot) unless object.skip_notifications
+    end
   end
 
   def self.trigger_events
     RequestStore.store[:bot_events].uniq{|e| [e[:event], e[:team_id], e[:object].id]}.each do |e|
-      TeamBot.notify_bots_in_background(e[:event], e[:team_id], e[:object])
+      TeamBot.delay_for(1.second).notify_bots(e[:event], e[:team_id], e[:object].class.to_s, e[:object].id, e[:bot]) unless e[:object].skip_notifications
     end
   end
 
-  def self.notify_bots_in_background(event, team_id, object)
-    TeamBot.delay_for(1.second).notify_bots(event, team_id, object.class.to_s, object.id) unless object.skip_notifications
-  end
-
-  def self.notify_bots(event, team_id, object_class, object_id)
+  def self.notify_bots(event, team_id, object_class, object_id, target_bot)
     object = object_class.constantize.where(id: object_id).first
     team = Team.where(id: team_id).last
     return if object.nil? || team.nil?
     team.team_bot_installations.each do |team_bot_installation|
       team_bot = team_bot_installation.team_bot
-      team_bot.notify_about_event(event, object, team, team_bot_installation) if team_bot.subscribed_to?(event)
+      team_bot.notify_about_event(event, object, team, team_bot_installation) if team_bot.subscribed_to?(event) || team_bot.id == target_bot&.id
     end
   end
 
