@@ -1188,4 +1188,30 @@ class GraphqlController2Test < ActionController::TestCase
     ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm3.id, pm1.id, pm2.id, pm4.id], ids
   end
+
+  test "should set statuses of related items" do
+    Sidekiq::Testing.fake! do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'owner'
+      p = create_project team: t
+      pm1 = create_project_media project: p
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      create_relationship source_id: pm1.id, target_id: pm2.id
+      create_relationship source_id: pm1.id, target_id: pm3.id
+      authenticate_with_user(u)
+
+      assert_equal 'undetermined', pm1.reload.last_verification_status
+      assert_equal 'undetermined', pm2.reload.last_verification_status
+      assert_equal 'undetermined', pm3.reload.last_verification_status
+
+      d = pm1.last_verification_status_obj
+      
+      query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { targets(first: 10) { edges { node { last_status } } } } } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+      assert_equal ['verified', 'verified'].sort, JSON.parse(@response.body)['data']['updateDynamic']['project_media']['targets']['edges'].collect{ |x| x['node']['last_status'] }
+    end
+  end
 end
