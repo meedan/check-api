@@ -116,6 +116,9 @@ class ActiveSupport::TestCase
     Sidekiq::Worker.clear_all
     Rails.cache.clear
     RequestStore.unstub(:[])
+    Team.current = User.current = nil
+    Team.unstub(:current)
+    User.unstub(:current)
   end
 
   # This will run after any test
