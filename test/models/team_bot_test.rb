@@ -401,8 +401,8 @@ class TeamBotTest < ActiveSupport::TestCase
     tb = create_team_bot team_author_id: t.id, events: [{ event: 'create_project_media', graphql: 'project { title }' }, { event: 'update_project_media', graphql: 'project { title }' }], request_url: 'http://bot'
     data_create = { event: 'create_project_media', data: { project: { title: 'Test Project' } } }
     data_update = { event: 'update_project_media', data: { project: { title: 'Test Project' } } }
-    WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_create)).to_return(body: 'ok')
-    WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_update)).to_return(body: 'ok')
+    create_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_create)).to_return(body: 'ok')
+    update_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_update)).to_return(body: 'ok')
     WebMock.disable_net_connect!
 
     with_current_user_and_team(nil, nil) do
@@ -419,6 +419,8 @@ class TeamBotTest < ActiveSupport::TestCase
       assert_nothing_raised do
         TeamBot.trigger_events
       end
+
+      assert_equal 1, WebMock::RequestRegistry.instance.times_executed(update_stub.request_pattern)
     end
 
     WebMock.allow_net_connect!
