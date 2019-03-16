@@ -185,6 +185,7 @@ class TeamBot < ActiveRecord::Base
     RequestStore.store[:bot_events].uniq{|e| [e[:event], e[:team_id], e[:object].id]}.each do |e|
       TeamBot.delay_for(1.second).notify_bots(e[:event], e[:team_id], e[:object].class.to_s, e[:object].id, e[:bot]) unless e[:object].skip_notifications
     end
+    RequestStore.store[:bot_events].clear
   end
 
   def self.notify_bots(event, team_id, object_class, object_id, target_bot)
