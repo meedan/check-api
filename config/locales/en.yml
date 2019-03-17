@@ -560,3 +560,4 @@ en:
   verification_status_deadline: Deadline
   verification_status_deadline_asc: Due soonest
   verification_status_deadline_desc: Due latest
+  cant_mutate_inactive_object: "Sorry, there is an operation pending for this item, so you can't change it right now. Please try again later."

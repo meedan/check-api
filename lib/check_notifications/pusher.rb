@@ -57,8 +57,19 @@ module CheckNotifications
         [event, targets, data]
       end
 
+      def bulk_channels(action)
+        action = :save if action == :update
+        options = self.class.pusher_options[action]
+        options[:bulk_targets] ? options[:bulk_targets].call(self).reject{ |t| t.blank? }.map(&:pusher_channel) : []
+      end
+
       def actor_session_id
         RequestStore[:request].blank? ? '' : RequestStore[:request].headers['X-Check-Client'].to_s
+      end
+
+      def parse_data(data)
+        whitelist = [:annotation_type, :annotated_id, :id, :source_id, :lock_version, :class_name, :user_id, :annotator_id]
+        JSON.parse(data).reject{ |k, _v| !whitelist.include?(k.to_sym) }
       end
 
       def notify_pusher(action)
@@ -70,7 +81,7 @@ module CheckNotifications
         data = '{}' if data == 'null'
 
         Rails.env == 'test' ? self.request_pusher(channels, event, data, self.actor_session_id) : CheckNotifications::Pusher::Worker.perform_in(1.second, channels, event, data, self.actor_session_id)
-        CheckNotifications::Pusher::Worker.perform_in(1.second, ['check-api-global-channel'], 'update', JSON.parse(data).merge({ pusherChannels: channels, pusherEvent: event }).to_json, self.actor_session_id)
+        CheckNotifications::Pusher::Worker.perform_in(1.second, ['check-api-global-channel'], 'update', self.parse_data(data).merge({ pusherChannels: channels, pusherEvent: event }).to_json, self.actor_session_id)
       end
 
       def request_pusher(channels, event, data, actor_session_id)
