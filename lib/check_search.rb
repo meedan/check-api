@@ -52,7 +52,7 @@ class CheckSearch
     return [] unless @options['show'].include?('medias') && index_exists?
     return @medias if @medias
     @medias = []
-    filters = {}
+    filters = { inactive: false }
     filters[:archived] = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
     filters[:sources_count] = 0
     if should_hit_elasticsearch?
