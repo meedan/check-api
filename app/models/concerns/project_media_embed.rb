@@ -24,7 +24,7 @@ module ProjectMediaEmbed
       begin
         bitly = Bitly.client.shorten(url)
         bitly.short_url
-      rescue Exception => e
+      rescue StandardError => e
         Rails.logger.error "[ProjectMedia] Exception when generating Bitly link for #{url}: #{e.message}"
         url
       end
