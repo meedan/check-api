@@ -696,6 +696,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
   end
 
+  test "should have Pender embeddable URL" do
+    RequestStore[:request] = nil
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    stub_config('pender_url', 'https://pender.fake') do
+      assert_equal CONFIG['pender_url'] + '/api/medias.html?url=' + pm.full_url.to_s, pm.embed_url(false)
+    end
+    stub_config('pender_url', 'https://pender.fake') do
+      assert_match /bit\.ly/, pm.embed_url
+    end
+  end
+
   test "should have oEmbed endpoint" do
     create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
