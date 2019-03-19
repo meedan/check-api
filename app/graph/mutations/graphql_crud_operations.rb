@@ -204,6 +204,7 @@ class GraphqlCrudOperations
       targets = []
       obj.targets.each do |target|
         target.define_singleton_method(:last_status) { status }
+        target.define_singleton_method(:dbid) { 0 }
         targets << target
       end
       obj.define_singleton_method(:targets) { targets }
