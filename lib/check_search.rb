@@ -247,6 +247,7 @@ class CheckSearch
       @ids.each_with_index do |id, i|
         values << "(#{id}, #{i})"
       end
+      return results if values.empty?
       joins = ActiveRecord::Base.send(:sanitize_sql_array, ["JOIN (VALUES %s) AS x(value, order_number) ON project_medias.id = x.value", values.join(', ')])
       results = results.joins(joins).order('x.order_number')
     end
