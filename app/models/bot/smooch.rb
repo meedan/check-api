@@ -191,11 +191,12 @@ class Bot::Smooch
     sm = CheckStateMachine.new(message['authorId'])
 
     if sm.state.value == 'waiting_for_message'
+      sm.send_message
       sm.message = message.to_json
       self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_ask_for_confirmation, locale: lang))
-      sm.send_message
 
     elsif sm.state.value == 'waiting_for_confirmation'
+      sm.confirm
       saved_message = JSON.parse(sm.message.value)
       lang = saved_message['language']
       if message['text'].to_i == 1
@@ -206,7 +207,6 @@ class Bot::Smooch
       else
         self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_unconfirmed, locale: lang))
       end
-      sm.confirm
     end
   end
 
