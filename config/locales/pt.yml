@@ -357,13 +357,14 @@ pt:
   task_suggestion_invalid_value: Desculpe, o valor da sugestão não é válido
   tag_text_id_not_found: Desculpe, não há tag com o identificador fornecido
   annotation_type_language_label: Idioma
-  smooch_bot_message_confirmed: Obrigado, recebemos sua requisição e você deve receber uma resposta em breve.
+  smooch_bot_message_confirmed: Obrigado, recebemos sua requisição e você deve receber novamente uma resposta em breve.
   smooch_bot_message_unconfirmed: Obrigado, não vamos mais processar esta mensagem.
-  smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este tipo de mensagem.
-  smooch_bot_message_sent: Você já enviou esta mensagem.
-  smooch_bot_meme: Aqui está um meme criado com base na sua questão
-  smooch_bot_result: Nós revisamos o que você enviou, e determinamos que o item é *%{status}*! Veja mais em %{url}.
-  smooch_bot_ask_for_confirmation: Obrigado por entrar em contato! Por favor confirme que você deseja verificar esta informação. Envie '1' para 'sim', '2' para 'não'.
+  smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este formato de arquivo para verificação.
+  smooch_bot_message_sent: Você já nos enviou esta mensagem.
+  smooch_bot_meme: Aqui está um meme criado com base no item que você solicitou que checássemos.
+  smooch_bot_result: Nós checamos o que você enviou, e determinamos que o item é *%{status}*. Saiba mais em %{url}.
+  smooch_bot_ask_for_confirmation: Obrigado por entrar em contato! Por favor confirme que você deseja checar esta informação. Envie '1' para 'sim', '2' para 'não'.
+  smooch_bot_window_closing: Se você ainda deseja receber nossas mensagens, por favor entre em contato! Caso contrário, nada a fazer.
   project_export_download_mail_csv: |-
       Olá!
 
@@ -481,3 +482,4 @@ pt:
   verification_status_deadline: Prazo
   verification_status_deadline_asc: Prazo mais curto
   verification_status_deadline_desc: Prazo mais longo
+  cant_mutate_inactive_object: Desculpe, há uma operação pendente para este item, então você não pode alterá-lo agora. Por favor, tente novamente mais tarde.
