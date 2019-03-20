@@ -706,46 +706,48 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should handle race condition on state machine" do
-    threads = []
-    uid = random_string
-    CheckStateMachine.new(random_string)
-    Bot::Smooch.stubs(:config).returns(@settings)
-    threads << Thread.start do
-      messages = [
-        {
-          '_id': random_string,
-          authorId: uid,
-          type: 'text',
-          text: random_string
-        }
-      ]
-      payload = {
-        trigger: 'message:appUser',
-        app: {
-          '_id': @app_id
-        },
-        version: 'v1.1',
-        messages: messages,
-        appUser: {
-          '_id': random_string,
-          'conversationStarted': true
-        }
-      }.to_json
-      Bot::Smooch.singleton_class.send(:alias_method, :send_message_to_user_mock_backup, :send_message_to_user)
-      Bot::Smooch.define_singleton_method(:send_message_to_user) do |*args|
-        sleep(15)
-        Bot::Smooch.send_message_to_user_mock_backup(*args)
+    Timeout.timeout(180) do
+      threads = []
+      uid = random_string
+      CheckStateMachine.new(random_string)
+      Bot::Smooch.stubs(:config).returns(@settings)
+      threads << Thread.start do
+        messages = [
+          {
+            '_id': random_string,
+            authorId: uid,
+            type: 'text',
+            text: random_string
+          }
+        ]
+        payload = {
+          trigger: 'message:appUser',
+          app: {
+            '_id': @app_id
+          },
+          version: 'v1.1',
+          messages: messages,
+          appUser: {
+            '_id': random_string,
+            'conversationStarted': true
+          }
+        }.to_json
+        Bot::Smooch.singleton_class.send(:alias_method, :send_message_to_user_mock_backup, :send_message_to_user)
+        Bot::Smooch.define_singleton_method(:send_message_to_user) do |*args|
+          sleep(15)
+          Bot::Smooch.send_message_to_user_mock_backup(*args)
+        end
+        assert Bot::Smooch.run(payload)
+        Bot::Smooch.singleton_class.send(:alias_method, :send_message_to_user, :send_message_to_user_mock_backup)
       end
-      assert Bot::Smooch.run(payload)
-      Bot::Smooch.singleton_class.send(:alias_method, :send_message_to_user, :send_message_to_user_mock_backup)
+      threads << Thread.start do
+        send_confirmation(uid)
+      end
+      assert_nothing_raised do
+        threads.map(&:join)
+      end
+      Bot::Smooch.unstub(:config)
     end
-    threads << Thread.start do
-      send_confirmation(uid)
-    end
-    assert_nothing_raised do
-      threads.map(&:join)
-    end
-    Bot::Smooch.unstub(:config)
   end
 
   protected
