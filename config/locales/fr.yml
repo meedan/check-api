@@ -188,7 +188,7 @@ fr:
       user_invited: "%{user} a été invité de se joindre à l'équipe %{team}"
       user_banned: "%{user} a été banni de l'équipe %{team}"
   mail_view_welcome: Bienvenue sur %{app_name}
-  mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Prière de confirmer votre courriel en cliquant ce lien :'
+  mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Veuillez confirmer votre courriel en cliquant ce lien :'
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
   mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} n'a pas été approuvée.
   mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur %{app_name} !"
@@ -227,7 +227,7 @@ fr:
   translation_status_not_valid: Statut non valide
   translation_status_permission_error: Désolé, vous n'êtes pas autorisé à effectuer ce changement de statut.
   translation_request_id_exists: Il existe déjà une demande de traduction pour ce message
-  auto_publisher_added_to_project: Merci ! Dorénavant toutes les traductions du projet %{project} seront automatiquement publiées via ce compte %{provider}. Si vous changez d'avis, contactez notre équipe de support ou bien révoquez l'autorisation de Bridge pour %{provider}.
+  auto_publisher_added_to_project: Merci ! Dorénavant toutes les traductions du projet %{project} seront automatiquement publiées via ce compte %{provider}. Si vous changez d'avis, veuillez contactez notre équipe de support ou bien révoquez l'autorisation de Bridge pour %{provider}.
   invalid_token: Jeton de sécurité non valide
   viber_screenshot_footer: "Traduction en %{target_language} de l'original en %{source_language}: “%{source_text}”"
   time:
@@ -263,7 +263,7 @@ fr:
     one: "Une tâche résolue"
     other: "%{count} tâches résolues"
   oembed_notes: Notes
-  pender_conflict: Ce lien est déjà en cours de traitement, veuillez ressayer dans quelques secondes.
+  pender_conflict: Ce lien est déjà en cours de traitement. Veuillez réessayer dans quelques secondes.
   duplicate_source: La source existe déjà
   geolocation_invalid_value: L'emplacement doit être représenté par une entrée GeoJSON valide (http://geojson.org/).
   datetime_invalid_date: Veuillez saisir une date valide.
@@ -340,10 +340,10 @@ fr:
   project_export_email_title_csv: Votre rapport de projet est prêt à télécharger
   workflow_status_not_valid: Statut non valide
   workflow_status_permission_error: Désolé, vous n'êtes pas autorisé à modifier ce statut.
-  blank_default_status_for_custom_translation_status: Prière de fournir une valeur de défaut pour les statuts de traduction personnalisés
-  blank_active_status_for_custom_translation_status: Prière de fournir une valeur active pour les statuts de traduction personnalisés
-  blank_default_status_for_custom_verification_status: Prière de fournir une valeur de défaut pour les statuts de vérification personnalisés
-  blank_active_status_for_custom_verification_status: Prière de fournir une valeur active pour les statuts de vérification personnalisés
+  blank_default_status_for_custom_translation_status: Veuillez fournir une valeur de défaut pour les statuts de traduction personnalisés
+  blank_active_status_for_custom_translation_status: Veuillez fournir une valeur active pour les statuts de traduction personnalisés
+  blank_default_status_for_custom_verification_status: Veuillez fournir une valeur de défaut pour les statuts de vérification personnalisés
+  blank_active_status_for_custom_verification_status: Veuillez fournir une valeur active pour les statuts de vérification personnalisés
   bot_name_exists_for_this_team: Il existe déjà un bot ayant le nom choisi dans cette équipe
   bot_team_id_doesnt_exist: Désolé, il n'existe pas d'équipe avec l'identifiant fourni
   bot_team_id_mandatory_to_create: Désolé, vous devez choisir une équipe afain de créer un bot.
@@ -359,11 +359,12 @@ fr:
   annotation_type_language_label: Langage
   smooch_bot_message_confirmed: Merci, nous avons reçu votre demande et vous devriez recevoir de nos nouvelles sous peu.
   smooch_bot_message_unconfirmed: Merci, nous ne traiterons plus votre message.
-  smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore en charge ce type de message
-  smooch_bot_message_sent: Vous avez déjà envoyé ce message.
-  smooch_bot_meme: Voici un mème que nous avons créé pour répondre à votre question
-  smooch_bot_result: Nous avons examiné l'élément que vous nous avez envoyé, et notre conclusion est qu'il est *%{status}*. Pour plus d'informations, suivez %{url}.
-  smooch_bot_ask_for_confirmation: Merci de nous avoir contactés! Veuillez confirmer que vous souhaitez vérifier cet élément. Envoyez 1 pour 'oui', 2 pour 'non'.
+  smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore ce type de message en charge pour la vérification.
+  smooch_bot_message_sent: Vous nous avez déjà envoyé ce message.
+  smooch_bot_meme: Voici un mème que nous avons créé pour l'article que vous nous avez demandé de vérifier.
+  smooch_bot_result: Nous avons vérifié l'élément que vous nous avez envoyé, et notre conclusion est qu'il est *%{status}*. Pour plus d'informations, suivez %{url}.
+  smooch_bot_ask_for_confirmation: Merci de nous avoir contactés! Veuillez confirmer que vous souhaitez vérifier cet élément. Tapez 1 pour 'oui', 2 pour 'non'.
+  smooch_bot_window_closing: Si vous tenez toujours à recevoir une réponse de notre part, veuillez nous contacter. Sinon, rien à faire de plus.
   project_export_download_mail_csv: |-
       Bonjour !
 
@@ -473,3 +474,4 @@ fr:
   verification_status_deadline: Échéance
   verification_status_deadline_asc: Dû au plus tard
   verification_status_deadline_desc: Dû au plus tôt
+  cant_mutate_inactive_object: Désolé, cet élément est en cours de traitement, il ne peut pas être modifié actuellement. Veuillez réessayer plus tard.

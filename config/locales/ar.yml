@@ -196,7 +196,7 @@ ar:
   mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
   mail_view_rejected_to_join: عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
   mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
-  mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
+  mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسجيل الدخول وزيارة '
   pender_could_not_parse: عذراً ، لقد واجهنا خطأ ما اثناء تحليل الميديا. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
   mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
   mail_duplicate_email_exists_body: "<p>مرحباً — نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
@@ -375,11 +375,12 @@ ar:
   annotation_type_language_label: اللغة
   smooch_bot_message_confirmed: شكرًا ، لقد تلقينا طلبك وسوف تسمع منا قريبًا.
   smooch_bot_message_unconfirmed: شكراً  ، لن نقوم بمعالجة رسالتك أكثر من ذلك.
-  smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل حتى الآن
-  smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة
-  smooch_bot_meme: هنا ميم أنشأناه بناء على سؤالك
-  smooch_bot_result: لقد راجعنا ما أرسلته إلينا ، واستنتجنا أن هذا العنصر *%{status}*. عرض المزيد %{url}.
-  smooch_bot_ask_for_confirmation: شكرا على رسالتك ! يرجى تأكيد أنك تريد التحقق من هذا العنصر. أرسل 1 لـ "نعم" ، 2 لـ "لا".
+  smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل بعد للتحقق من صحتها.
+  smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة من قبل.
+  smooch_bot_meme: إليك ميم أنشأناه بناء على العنصر الذي أرسلته للتحقق من صحته.
+  smooch_bot_result: لقد تحققنا مما أرسلته لنا ، واستنتجنا أن هذا العنصر *%{status}*. لعرض المزيد %{url}.
+  smooch_bot_ask_for_confirmation: شكرا على رسالتك ! يرجى تأكيد أنك تريد التحقق من هذا العنصر. أرسل 1 لـ(نعم) ، 2 لـ(لا).
+  smooch_bot_window_closing: إذا كنت لا تزال ترغب في تلقي رسائل منا ، يرجى الاتصال! خلاف ذلك ، لا تفعل شيئا.
   project_export_download_mail_csv: |-
       مرحباً !
 
@@ -489,3 +490,4 @@ ar:
   verification_status_deadline: الموعد
   verification_status_deadline_asc: مستحق قريباً
   verification_status_deadline_desc: مستحق لاحقاً
+  cant_mutate_inactive_object: عذرًا ، هناك عملية جارية لهذا العنصر ، لذا لا يمكنك تغييره الآن. الرجاء إعادة المحاولة في وقت لاحق.
