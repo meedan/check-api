@@ -32,7 +32,7 @@ module AnnotationPrivate
   def notify_bot_author
     if self.annotator.is_a?(BotUser)
       team_bot = self.annotator.team_bot
-      team_bot.notify_about_annotation(self) unless team_bot.nil?
+      team_bot.notify_about_annotation(self) if !team_bot.nil? && !team_bot.core?
     end
   end
 end 

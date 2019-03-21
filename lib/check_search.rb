@@ -235,13 +235,17 @@ class CheckSearch
     results
   end
 
+  def get_order
+    sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
+    sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
+    { sort_field => sort_type }
+  end
+
   def sort_pg_results(results, type)
     results = filter_by_team_and_project(results)
 
     if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
-      sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
-      sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
-      results = results.order(sort_field => sort_type)
+      results = results.order(get_order)
     elsif @ids && type == 'media'
       values = []
       @ids.each_with_index do |id, i|

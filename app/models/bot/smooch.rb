@@ -15,7 +15,7 @@ class Bot::Smooch
       pm = self.annotation.annotated
       bot = TeamBot.where(identifier: 'smooch').last
       return if TeamBotInstallation.where(team_id: pm.project.team_id, team_bot_id: bot.id).last.nil?
-      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).replicate_status_to_children(self.annotation.annotated_id, self.value)
+      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).replicate_status_to_children(self.annotation.annotated_id, self.value, User.current&.id, Team.current&.id)
     end
 
     def reply_to_smooch_users
@@ -389,15 +389,19 @@ class Bot::Smooch
     end
   end
 
-  def self.replicate_status_to_children(pmid, status)
+  def self.replicate_status_to_children(pmid, status, uid, tid)
     pm = ProjectMedia.where(id: pmid).last
     return if pm.nil?
+    User.current = User.where(id: uid).last
+    Team.current = Team.where(id: tid).last
     pm.targets.each do |target|
       s = target.annotations.where(annotation_type: 'verification_status').last.load
       next if s.nil? || s.status == status
       s.status = status
       s.save!
     end
+    User.current = nil
+    Team.current = nil
   end
 
   def self.send_verification_results_to_user(uid, pm, status, lang)
