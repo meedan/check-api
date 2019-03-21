@@ -23,6 +23,10 @@ class CheckSearch
     end
   end
 
+  def team
+    Team.find(@options['team_id']) unless @options['team_id'].blank?
+  end
+
   def teams
     []
   end
