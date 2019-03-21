@@ -31,7 +31,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
       { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 }
     ]
-    @bot = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: settings, events: []
+    @bot = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: settings, events: [], request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
     @settings = {
       'smooch_project_id' => @project.id,
       'smooch_bot_id' => @bid,
