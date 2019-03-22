@@ -10,6 +10,7 @@ TeamBotType = GraphqlCrudOperations.define_default_type do
   field :version, types.String
   field :source_code_url, types.String
   field :role, types.String
+  field :identifier, types.String
   field :dbid, types.Int
   field :limited, types.Boolean
   field :installed, types.Boolean

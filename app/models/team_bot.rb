@@ -88,9 +88,13 @@ class TeamBot < ActiveRecord::Base
     end
   end
 
-  def call(data)
+  def core?
     host = self.request_url.to_s.match(/^https?:\/\/[^\/]+/)
-    if !host.nil? && host[0] == CONFIG['checkdesk_base_url_private']
+    !host.nil? && host[0] == CONFIG['checkdesk_base_url_private']
+  end
+
+  def call(data)
+    if self.core?
       TeamBot.call_core_bot(self.identifier, data)
     else
       begin

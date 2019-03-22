@@ -196,7 +196,7 @@ ar:
   mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
   mail_view_rejected_to_join: عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
   mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
-  mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسحيل الدخول وزيارة: '
+  mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسجيل الدخول وزيارة '
   pender_could_not_parse: عذراً ، لقد واجهنا خطأ ما اثناء تحليل الميديا. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
   mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
   mail_duplicate_email_exists_body: "<p>مرحباً — نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
@@ -238,11 +238,11 @@ ar:
     formats:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y في %H:%M [TZ] (%z GMT)"
-  oembed_disclaimer_undetermined: لم يقم فريق %{team} بالتحقق من دقة هذا الميديا بعد
-  oembed_disclaimer_in_progress: بدأ فريق %{team} بالتحقق من دقة هذا الميديا في %{date}
-  oembed_disclaimer_verified: تحقق فريق %{team} من دقة هذا الميديا في %{date}
-  oembed_disclaimer_false: نفى فريق %{team} دقة هذا الميديا في %{date}
-  oembed_disclaimer_not_applicable: لم يتمكن فريق %{team} من التحقق من هذا الميديا منذ %{date}
+  oembed_disclaimer_undetermined: لم يقم فريق %{team} بالتحقق من دقة هذا العنصر بعد
+  oembed_disclaimer_in_progress: بدأ فريق %{team} بالتحقق من دقة هذا العنصر في %{date}
+  oembed_disclaimer_verified: تحقق فريق %{team} من دقة هذا العنصر في %{date}
+  oembed_disclaimer_false: نفى فريق %{team} دقة هذا العنصر في %{date}
+  oembed_disclaimer_not_applicable: لم يتمكن فريق %{team} من التحقق من هذا العنصر منذ %{date}
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر
   role_owner: مدير
@@ -299,7 +299,7 @@ ar:
   cant_create_media_under_this_team_using_extension: عذراً ، خاصية ملحق المتصفح غير متاحة لهذا الفريق
   error_invalid_attribution: إسناد غير صالح
   account_exists: هذا الحساب موجود بالفعل
-  media_exists: هذا الميديا موجود بالفعل
+  media_exists: هذا العنصر موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
   email_exists: ' مستخدم بالفعل'
   banned_user: عذراً ، لقد تم حظرك من %{app_name}. يمكنك اﻹتصال بفريق الدعم إن كنت تعتقد أن هناك خطأ ما.
@@ -329,19 +329,19 @@ ar:
   error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق
   error_login_with_exists_account: عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل
   mail_see_it: 'تستطيع أن تراه هنا : '
-  mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا عنك"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] تم تكليف ميديا إليك"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف ميديا عنك"
+  mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف العنصر إليك"
+  mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف العنصر عنك"
+  mail_subject_assign_translation_status: "[%{team} - %{project}] تم تكليف العنصر إليك"
+  mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف العنصر عنك"
   mail_subject_assign_task: "[%{team} - %{project}] تم تكليف مهمة إليك"
   mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
-  mail_subject_update_status: "[%{team} - %{project}] تم تغيير حالة ميديا إلى %{status}"
-  mail_assign_verification_status: "كلَّفَ(ت) %{author} إليك ميديا : "
-  mail_unassign_verification_status: "ألغى(ت) %{author} تكليف ميديا : "
-  mail_assign_translation_status: "كلَّفَ(ت) %{author} إليك ميديا : "
-  mail_unassign_translation_status: "ألغى(ت) %{author} تكليف ميديا : "
-  mail_assign_task: 'كلَّفَ(ت) %{author} إليك مهمة "%{task}" التي تنتمي إلى ميديا : '
-  mail_unassign_task: 'ألغى(ت) %{author} تكليف مهمة "%{task}" التي تنتمي إلى ميديا : '
+  mail_subject_update_status: "[%{team} - %{project}] تم تغيير حالة العنصر إلى %{status}"
+  mail_assign_verification_status: "كلَّفَ(ت) %{author} إليك العنصر : "
+  mail_unassign_verification_status: "ألغى(ت) %{author} تكليف العنصر : "
+  mail_assign_translation_status: "كلَّفَ(ت) %{author} إليك العنصر : "
+  mail_unassign_translation_status: "ألغى(ت) %{author} تكليف العنصر : "
+  mail_assign_task: 'كلَّفَ(ت) %{author} إليك مهمة "%{task}" التي تنتمي إلى العنصر : '
+  mail_unassign_task: 'ألغى(ت) %{author} تكليف مهمة "%{task}" التي تنتمي إلى العنصر : '
   mail_update_status: 'قام %{author} بتغيير حالة "%{title}" إلى %{status}.'
   mail_assign_project: "كلَّفَ(ت) %{author} إليك مشروع : "
   mail_unassign_project: "ألغى(ت) %{author} تكليف مشروع : "
@@ -373,10 +373,14 @@ ar:
   task_suggestion_invalid_value: عذراً ، صيغة الاقتراح غير صحيحة
   tag_text_id_not_found: عذراً ، لا يوجد وسم بهذا المُعَرِّف
   annotation_type_language_label: اللغة
-  smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل حتى الآن
-  smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة
-  smooch_bot_meme: هنا ميم أنشأناه بناء على سؤالك
-  smooch_bot_result: لقد راجعنا ما أرسلته إلينا ، واستنتجنا أن هذا العنصر *%{status}*. عرض المزيد %{url}.
+  smooch_bot_message_confirmed: شكرًا ، لقد تلقينا طلبك وسوف تسمع منا قريبًا.
+  smooch_bot_message_unconfirmed: شكراً  ، لن نقوم بمعالجة رسالتك أكثر من ذلك.
+  smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل بعد للتحقق من صحتها.
+  smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة من قبل.
+  smooch_bot_meme: إليك ميم أنشأناه بناء على العنصر الذي أرسلته للتحقق من صحته.
+  smooch_bot_result: لقد تحققنا مما أرسلته لنا ، واستنتجنا أن هذا العنصر *%{status}*. لعرض المزيد %{url}.
+  smooch_bot_ask_for_confirmation: شكرا على رسالتك ! يرجى تأكيد أنك تريد التحقق من هذا العنصر. أرسل 1 لـ(نعم) ، 2 لـ(لا).
+  smooch_bot_window_closing: إذا كنت لا تزال ترغب في تلقي رسائل منا ، يرجى الاتصال! خلاف ذلك ، لا تفعل شيئا.
   project_export_download_mail_csv: |-
       مرحباً !
 
@@ -483,3 +487,7 @@ ar:
   team_import_completed_subject: تمت عملية استيراد البيانات
   team_import_completed_mail: "<p>مرحباً —</p><p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url} لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p><p>— فريق عمل %{app_name}"
   pender_url_invalid: هذا الرابط غير صالح
+  verification_status_deadline: الموعد
+  verification_status_deadline_asc: مستحق قريباً
+  verification_status_deadline_desc: مستحق لاحقاً
+  cant_mutate_inactive_object: عذرًا ، هناك عملية جارية لهذا العنصر ، لذا لا يمكنك تغييره الآن. الرجاء إعادة المحاولة في وقت لاحق.

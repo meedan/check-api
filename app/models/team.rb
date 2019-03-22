@@ -35,7 +35,8 @@ class Team < ActiveRecord::Base
   end
 
   def url
-    CONFIG['checkdesk_base_url'] + '/' + self.slug
+    url = self.contacts.map(&:web).select{ |w| !w.blank? }.first
+    url || CONFIG['checkdesk_client'] + '/' + self.slug
   end
 
   def members_count
@@ -69,7 +70,13 @@ class Team < ActiveRecord::Base
   # which automatically adds a member attribute `file`
   # which is used by GraphqlCrudOperations
   def file=(file)
-    self.logo = file
+    self.logo = file if file.respond_to?(:content_type)
+  end
+
+  # FIXME should be using concern HasImage
+  # which already include this method
+  def should_generate_thumbnail?
+    true
   end
 
   def contact=(info)

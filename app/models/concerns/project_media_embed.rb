@@ -1,4 +1,5 @@
 require 'active_support/concern'
+require 'bitly'
 
 module ProjectMediaEmbed
   extend ActiveSupport::Concern
@@ -15,8 +16,19 @@ module ProjectMediaEmbed
     url
   end
 
-  def embed_url
-    CONFIG['pender_url'] + '/api/medias.html?url=' + self.full_url.to_s
+  def embed_url(shorten = true)
+    url = CONFIG['pender_url'] + '/api/medias.html?url=' + self.full_url.to_s
+    return url unless shorten && CONFIG['bitly_key']
+    Rails.cache.fetch("shorten-url-#{self.id}") do
+      # Shorten using Bit.ly and return the shortened URL
+      begin
+        bitly = Bitly.client.shorten(url)
+        bitly.short_url
+      rescue StandardError => e
+        Rails.logger.error "[ProjectMedia] Exception when generating Bitly link for #{url}: #{e.message}"
+        url
+      end
+    end
   end
 
   def author_name
@@ -47,7 +59,7 @@ module ProjectMediaEmbed
   def required_tasks
     self.all_tasks.select{ |t| t.required == true }
   end
-  
+
   def completed_tasks
     self.all_tasks.select{ |t| t.status == 'resolved' }
   end
@@ -179,7 +191,7 @@ module ProjectMediaEmbed
     end
     color
   end
-  
+
   module ClassMethods
     def clear_caches(pmid)
       pm = ProjectMedia.where(id: pmid).last

@@ -1188,4 +1188,56 @@ class GraphqlController2Test < ActionController::TestCase
     ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm3.id, pm1.id, pm2.id, pm4.id], ids
   end
+
+  test "should set statuses of related items" do
+    Sidekiq::Testing.fake! do
+      TeamBot.delete_all
+      b = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: [], events: []
+      u = create_user
+      t = create_team
+      create_team_bot_installation team_bot_id: b.id, team_id: t.id
+      create_team_user team: t, user: u, role: 'owner'
+      p = create_project team: t
+      pm1 = create_project_media project: p
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      create_relationship source_id: pm1.id, target_id: pm2.id
+      create_relationship source_id: pm1.id, target_id: pm3.id
+      authenticate_with_user(u)
+
+      assert_equal 'undetermined', pm1.reload.last_verification_status
+      assert_equal 'undetermined', pm2.reload.last_verification_status
+      assert_equal 'undetermined', pm3.reload.last_verification_status
+
+      d = pm1.last_verification_status_obj
+      
+      query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { targets(first: 10) { edges { node { last_status } } } } } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+      assert_equal ['verified', 'verified'].sort, JSON.parse(@response.body)['data']['updateDynamic']['project_media']['targets']['edges'].collect{ |x| x['node']['last_status'] }
+    end
+  end
+
+  test "should not remove logo when update team" do
+    u = create_user
+    team = create_team
+    create_team_user team: team, user: u, role: 'owner'
+    id = team.graphql_id
+
+    authenticate_with_user(u)
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '" }) { team { id } } }'
+
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    post :create, query: query, team: team.slug, file: file
+    team.reload
+    assert File.exist?(team.logo.path)
+    assert_match /rails\.png$/, team.logo.url
+
+    post :create, query: query, team: team.slug, file: 'undefined'
+    team.reload
+    assert File.exist?(team.logo.path)
+    assert_match /rails\.png$/, team.logo.url
+  end
+
 end

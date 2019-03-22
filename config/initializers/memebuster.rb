@@ -65,7 +65,8 @@ Dynamic.class_eval do
     self.file.each do |image|
       urls << CONFIG['checkdesk_base_url'] + image.url
     end
+    value = urls.join(',')
     field = self.get_field('memebuster_image')
-    field.update_column(:value, urls.join(',')) unless field.nil?
+    field.update_column(:value, value) if !value.blank? && !field.nil?
   end
 end

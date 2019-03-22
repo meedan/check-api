@@ -39,8 +39,13 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should get teams" do
-    s = CheckSearch.new({}.to_json)
-    assert_equal [], s.teams
+    u = create_user
+    t = create_team
+    with_current_user_and_team(u, t) do
+      s = CheckSearch.new({}.to_json)
+      assert_equal [], s.teams
+      assert_equal t.id, s.team.id
+    end
   end
 
   test "should update elasticsearch after move project to other team" do
@@ -282,7 +287,7 @@ class ElasticSearch2Test < ActionController::TestCase
         nested: {
           path: 'dynamics',
           query: {
-            bool: { 
+            bool: {
               filter: {
                 range: {
                   "dynamics.datetime": {
@@ -316,9 +321,9 @@ class ElasticSearch2Test < ActionController::TestCase
       d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: code }.to_json, disable_es_callbacks: false
       ids[code] = pm.id
     end
-    
+
     sleep languages.size * 2
-    
+
     languages.each do |code|
       search = {
         query: {
@@ -433,7 +438,7 @@ class ElasticSearch2Test < ActionController::TestCase
       end
     end
   end
-  
+
   test "should destroy related items 2" do
     t = create_team
     p = create_project team: t
@@ -685,13 +690,13 @@ class ElasticSearch2Test < ActionController::TestCase
     p = create_project team: t
     m = create_claim_media quote: 'test'
     s = create_project_media project: p, disable_es_callbacks: false
-    
+
     t1 = create_project_media project: p, media: m, disable_es_callbacks: false
     create_relationship source_id: s.id, target_id: t1.id
-    
+
     t2 = create_project_media project: p, disable_es_callbacks: false
     create_relationship source_id: s.id, target_id: t2.id
-    
+
     t3 = create_project_media project: p, disable_es_callbacks: false
     create_relationship source_id: s.id, target_id: t3.id
     vs = t3.last_verification_status_obj
@@ -705,7 +710,7 @@ class ElasticSearch2Test < ActionController::TestCase
     ts.save!
 
     sleep 2
-    
+
     assert_equal [t1, t2, t3, t4].sort, Relationship.targets_grouped_by_type(s).first['targets'].sort
     assert_equal [t1].sort, Relationship.targets_grouped_by_type(s, { keyword: 'test' }).first['targets'].sort
     assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { verification_status: ['verified'] }).first['targets'].sort
@@ -743,11 +748,11 @@ class ElasticSearch2Test < ActionController::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
     p = create_project team: t
-    
+
     t.set_status_target_turnaround = 10.hours ; t.save!
     pm1 = create_project_media project: p, disable_es_callbacks: false
     sleep 5
-    
+
     t.set_status_target_turnaround = 5.hours ; t.save!
     pm2 = create_project_media project: p, disable_es_callbacks: false
     sleep 5
@@ -771,11 +776,44 @@ class ElasticSearch2Test < ActionController::TestCase
         match_all: {}
       }
     }
-    
+
     pms = []
     MediaSearch.search(search).results.each do |r|
       pms << r.annotated_id if r.annotated_type == 'ProjectMedia'
     end
     assert_equal [pm2.id, pm1.id, pm3.id], pms
+  end
+
+  # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5c920b8bf023ba001b5fffbb
+  test "should filter by custom sort and other parameters" do
+    create_verification_status_stuff
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
+    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
+    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
+    query = { sort: 'deadline', sort_type: 'asc' }
+
+    result = CheckSearch.new(query.to_json)
+    assert_equal 0, result.medias.count
+
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    p = create_project team: t
+
+    t.set_status_target_turnaround = 10.hours ; t.save!
+    pm1 = create_project_media project: p, disable_es_callbacks: false
+    sleep 5
+
+    t.set_status_target_turnaround = 5.hours ; t.save!
+    pm2 = create_project_media project: p, disable_es_callbacks: false
+    sleep 5
+
+    t.set_status_target_turnaround = 15.hours ; t.save!
+    pm3 = create_project_media project: p, disable_es_callbacks: false
+    sleep 5
+
+    result = CheckSearch.new(query.to_json)
+    assert_equal 3, result.medias.count
+    assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
   end
 end
