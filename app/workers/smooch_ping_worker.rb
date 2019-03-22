@@ -6,6 +6,6 @@ class SmoochPingWorker
 
   def perform(uid, app_id)
     Bot::Smooch.get_installation('smooch_app_id', app_id)
-    Bot::Smooch.send_message_to_user(uid, "Sorry, it's taking a while for us to verify this item... if you are still interested, please send a message, otherwise, do nothing")
+    Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_window_closing))
   end
 end

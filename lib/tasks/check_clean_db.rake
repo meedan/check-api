@@ -58,6 +58,6 @@ namespace :check do
       a.save!
     end
 
-    TeamBot.update_all(approved: true)
+    TeamBot.update_all(approved: true, limited: false)
   end
 end

@@ -56,6 +56,9 @@ development: &default
   pg_hero_enabled: true
   tos_url: 'https://meedan.com/en/check/check_tos.html'
   privacy_policy_url: 'https://meedan.com/en/check/check_privacy.html'
+  privacy_email: ''
+  google_credentials_path: '/path/to/credentials.json'
+  bitly_key: 'bitly-key'
 
 test:
   <<: *default

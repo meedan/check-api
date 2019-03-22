@@ -20,6 +20,12 @@ class Workflow::VerificationStatus < Workflow::Base
 
       after_create :update_annotated_status, if: :should_update_annotated_status?
 
+      protected
+
+      def author_is_not_annotator
+        self.annotator.nil? || !self.annotator.is_a?(User) || !self.annotator.role?(:annotator)
+      end
+
       private
 
       def should_update_annotated_status?
@@ -27,7 +33,7 @@ class Workflow::VerificationStatus < Workflow::Base
         !self.is_being_copied &&
         ['ProjectMedia', 'Task'].include?(self.annotated_type) &&
         (self.class.name != 'Dynamic' || self.annotation_type =~ /^task_response/) &&
-        (self.annotator.nil? || !self.annotator.is_a?(User) || !self.annotator.role?(:annotator))
+        self.author_is_not_annotator
       end
 
       def update_annotated_status

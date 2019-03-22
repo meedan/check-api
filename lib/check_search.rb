@@ -23,6 +23,10 @@ class CheckSearch
     end
   end
 
+  def team
+    Team.find(@options['team_id']) unless @options['team_id'].blank?
+  end
+
   def teams
     []
   end
@@ -52,7 +56,7 @@ class CheckSearch
     return [] unless @options['show'].include?('medias') && index_exists?
     return @medias if @medias
     @medias = []
-    filters = {}
+    filters = { inactive: false }
     filters[:archived] = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
     filters[:sources_count] = 0
     if should_hit_elasticsearch?
@@ -235,18 +239,23 @@ class CheckSearch
     results
   end
 
+  def get_order
+    sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
+    sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
+    { sort_field => sort_type }
+  end
+
   def sort_pg_results(results, type)
     results = filter_by_team_and_project(results)
 
     if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
-      sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
-      sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
-      results = results.order(sort_field => sort_type)
+      results = results.order(get_order)
     elsif @ids && type == 'media'
       values = []
       @ids.each_with_index do |id, i|
         values << "(#{id}, #{i})"
       end
+      return results if values.empty?
       joins = ActiveRecord::Base.send(:sanitize_sql_array, ["JOIN (VALUES %s) AS x(value, order_number) ON project_medias.id = x.value", values.join(', ')])
       results = results.joins(joins).order('x.order_number')
     end
