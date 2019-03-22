@@ -164,15 +164,15 @@ class TeamTest < ActiveSupport::TestCase
   test "should be equivalent to set file or logo" do
     t = create_team logo: nil
     assert_match /team\.png$/, t.logo.url
-    File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
-      t.file = f
-    end
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    f = Rack::Test::UploadedFile.new(path, 'image/png')
+    t.file = f
     assert_match /rails\.png$/, t.logo.url
   end
 
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Team.count' do
-      assert_raises MiniMagick::Invalid do
+      assert_raises ActiveRecord::RecordInvalid do
         create_team logo: 'not-an-image.txt'
       end
     end
