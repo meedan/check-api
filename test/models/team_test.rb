@@ -199,6 +199,14 @@ class TeamTest < ActiveSupport::TestCase
     assert_match /team\.png$/, t.logo.url
   end
 
+  test "should generate thumbnails for logo" do
+    t = create_team logo: 'rails.png'
+    assert File.exist? t.logo.path
+    assert_match /rails\.png$/, t.logo.path
+    assert File.exist? t.logo.thumbnail.path
+    assert_match /thumbnail_rails\.png$/, t.logo.thumbnail.path
+  end
+
   test "should have avatar" do
     t = create_team logo: nil
     assert_match /^http/, t.avatar

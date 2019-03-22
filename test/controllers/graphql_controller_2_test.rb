@@ -1217,4 +1217,27 @@ class GraphqlController2Test < ActionController::TestCase
       assert_equal ['verified', 'verified'].sort, JSON.parse(@response.body)['data']['updateDynamic']['project_media']['targets']['edges'].collect{ |x| x['node']['last_status'] }
     end
   end
+
+  test "should not remove logo when update team" do
+    u = create_user
+    team = create_team
+    create_team_user team: team, user: u, role: 'owner'
+    id = team.graphql_id
+
+    authenticate_with_user(u)
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '" }) { team { id } } }'
+
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    post :create, query: query, team: team.slug, file: file
+    team.reload
+    assert File.exist?(team.logo.path)
+    assert_match /rails\.png$/, team.logo.url
+
+    post :create, query: query, team: team.slug, file: 'undefined'
+    team.reload
+    assert File.exist?(team.logo.path)
+    assert_match /rails\.png$/, team.logo.url
+  end
+
 end
