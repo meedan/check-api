@@ -42,7 +42,22 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: Translation has been reviewed and an error was found
+        description: 
+      false:
+        label: false
+        description: 'Conclusion: the item''s content is false'
+      inconclusive:
+        label: Inconclusive
+        description: 
+      misleading:
+        label: Misleading
+        description: 
+      disputed:
+        label: Disputed
+        description: 
+      unstarted:
+        label: Unstarted
+        description: Default, just added to Check, no work has started
     source:
       undetermined:
         label: Unstarted
