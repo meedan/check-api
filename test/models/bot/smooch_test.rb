@@ -31,8 +31,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
       { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 }
     ]
-    @bot = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: settings, events: []
-    settings = {
+    @bot = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: settings, events: [], request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    @settings = {
       'smooch_project_id' => @project.id,
       'smooch_bot_id' => @bid,
       'smooch_webhook_secret' => 'test',
@@ -42,7 +42,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       'smooch_template_namespace' => random_string,
       'smooch_window_duration' => 10
     }
-    @installation = create_team_bot_installation team_bot_id: @bot.id, settings: settings, team_id: @team.id
+    @installation = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: @team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
@@ -703,6 +703,51 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     s.save!
     s = child.annotations.where(annotation_type: 'verification_status').last.load
     assert_equal 'verified', s.status
+  end
+
+  test "should handle race condition on state machine" do
+    Timeout.timeout(180) do
+      threads = []
+      uid = random_string
+      CheckStateMachine.new(random_string)
+      Bot::Smooch.stubs(:config).returns(@settings)
+      threads << Thread.start do
+        messages = [
+          {
+            '_id': random_string,
+            authorId: uid,
+            type: 'text',
+            text: random_string
+          }
+        ]
+        payload = {
+          trigger: 'message:appUser',
+          app: {
+            '_id': @app_id
+          },
+          version: 'v1.1',
+          messages: messages,
+          appUser: {
+            '_id': random_string,
+            'conversationStarted': true
+          }
+        }.to_json
+        Bot::Smooch.singleton_class.send(:alias_method, :send_message_to_user_mock_backup, :send_message_to_user)
+        Bot::Smooch.define_singleton_method(:send_message_to_user) do |*args|
+          sleep(15)
+          Bot::Smooch.send_message_to_user_mock_backup(*args)
+        end
+        assert Bot::Smooch.run(payload)
+        Bot::Smooch.singleton_class.send(:alias_method, :send_message_to_user, :send_message_to_user_mock_backup)
+      end
+      threads << Thread.start do
+        send_confirmation(uid)
+      end
+      assert_nothing_raised do
+        threads.map(&:join)
+      end
+      Bot::Smooch.unstub(:config)
+    end
   end
 
   protected

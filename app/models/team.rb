@@ -70,7 +70,13 @@ class Team < ActiveRecord::Base
   # which automatically adds a member attribute `file`
   # which is used by GraphqlCrudOperations
   def file=(file)
-    self.logo = file
+    self.logo = file if file.respond_to?(:content_type)
+  end
+
+  # FIXME should be using concern HasImage
+  # which already include this method
+  def should_generate_thumbnail?
+    true
   end
 
   def contact=(info)
@@ -265,7 +271,7 @@ class Team < ActiveRecord::Base
   end
 
   def get_memebuster_template
-    self.settings[:memebuster_template] || self.settings['memebuster_template'] || File.read(File.join(Rails.root, 'public', 'memebuster', 'default-template.svg'))
+    self.settings[:memebuster_template] || self.settings['memebuster_template'] || File.read(File.join(Rails.root, 'public', 'memebuster-default-template.svg'))
   end
 
   protected

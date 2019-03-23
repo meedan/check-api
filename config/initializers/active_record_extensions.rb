@@ -10,6 +10,7 @@ module ActiveRecordExtensions
 
     before_save :check_ability
     before_destroy :check_destroy_ability, :destroy_annotations_and_versions
+    validate :cant_mutate_if_inactive
     # after_find :check_read_ability
   end
   
@@ -102,6 +103,12 @@ module ActiveRecordExtensions
 
   def parent_class_name
     self.is_annotation? ? 'Annotation' : self.class.name
+  end
+
+  def cant_mutate_if_inactive
+    if self.respond_to?(:inactive) && self.client_mutation_id && self.inactive
+      raise I18n.t(:cant_mutate_inactive_object)
+    end
   end
 end
 

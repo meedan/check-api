@@ -2,7 +2,7 @@ class CheckCldr
   def self.load
     data = {}
     Dir.foreach(File.join(Rails.root, 'data')) do |file|
-      if file =~ /^[a-z]{2}$/
+      if /^[a-z]{2,3}$/ === file
         yaml = File.join(Rails.root, 'data', file, 'languages.yml')
         data[file] = YAML.load(File.read(yaml))[file]['languages'] if File.exist?(yaml)
       end

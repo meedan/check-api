@@ -12,6 +12,7 @@ Dynamic.class_eval do
       if !File.exist?(filepath) || force
         team = self.annotated&.project&.team
         return if team.nil?
+        FileUtils.mkdir_p(File.join(Rails.root, 'public', 'memebuster'))
         params = {}
         DynamicAnnotation::Field.where(annotation_id: self.id).each do |f|
           params[f.field_name.gsub(/^memebuster_/, '').to_sym] = f.to_s.gsub(/<\/?[^>]+>/, '')
@@ -46,6 +47,7 @@ Dynamic.class_eval do
         screenshot.capture "#{CONFIG['checkdesk_base_url_private']}/memebuster/#{temp_name}.svg", "#{temp}.png", width: 500, height: 500
       
         File.atomic_write(filepath) { |file| file.write(File.read("#{temp}.png")) }
+        FileUtils.chmod(0744, filepath)
         FileUtils.rm_f "#{temp}.svg"
         FileUtils.rm_f "#{temp}.png"
       end

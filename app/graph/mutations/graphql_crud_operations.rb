@@ -68,25 +68,55 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.operation_from_multiple_ids(operation, ids, inputs, uid, tid)
+  def self.target_pusher_channels(obj, operation)
+    obj.bulk_channels(operation.to_sym)
+  end
+
+  def self.send_bulk_pusher_notification(event, channels = [])
+    return if CONFIG['pusher_key'].blank?
+    ::Pusher.trigger([User.current.pusher_channel], event, { message: { pusherChannels: [], pusherEvent: 'bulk' }.to_json }) if User.current
+    ::Pusher.trigger(['check-api-global-channel'], 'update', { message: { pusherChannels: channels, pusherEvent: event }.to_json }) unless channels.empty?
+  end
+
+  def self.operation_from_multiple_ids(operation, ids, inputs, channels, uid, tid)
     User.current = User.find(uid)
     Team.current = Team.find(tid)
-    ids.split(',').each do |id|
+    ids_list = ids.split(',')
+    attrs = JSON.parse(inputs)
+    attrs[:skip_notifications] = true
+    attrs['clientMutationId'] = nil
+    ids_list.each do |id|
       begin
-        self.send("#{operation}_from_single_id", id, JSON.parse(inputs), {}, [])
+        self.send_bulk_pusher_notification("bulk_#{operation}_update", channels)
+        self.send("#{operation}_from_single_id", id, attrs, {}, [])
       rescue
-        object_from_id(id)&.notify_pusher(:save)
+        Rails.logger.info "Bulk-action #{operation} failed for id #{id}" 
       end
     end
+    self.freeze_or_unfreeze_objects(ids_list, false)
+    self.send_bulk_pusher_notification("bulk_#{operation}_end", channels)
     User.current = Team.current = nil
   end
 
-  def self.crud_operation(operation, inputs, ctx, parents, returns = {})
+  def self.freeze_or_unfreeze_objects(graphql_ids, inactive)
+    objs = {}
+    graphql_ids.each do |graphql_id|
+      klass, id = CheckGraphql.decode_id(graphql_id)
+      objs[klass.constantize] ||= []
+      objs[klass.constantize] << id
+    end
+    objs.each { |klass, ids| klass.where(id: ids).update_all(inactive: inactive) if klass.column_names.include?('inactive') }
+  end
+
+  def self.crud_operation(operation, obj, inputs, ctx, parents, returns = {})
     if inputs[:ids]
       params = {}
       inputs.keys.each{ |k| params[k] = inputs[k] }
       ret = { affectedIds: inputs[:ids] }.merge(returns)
-      self.delay_for(1.second, retry: false).operation_from_multiple_ids(operation, inputs[:ids].join(','), params.to_json, User.current.id, Team.current.id)
+      self.freeze_or_unfreeze_objects(inputs[:ids], true)
+      channels = self.target_pusher_channels(obj, operation)
+      self.send_bulk_pusher_notification("bulk_#{operation}_start", channels)
+      self.delay_for(1.second, retry: false).operation_from_multiple_ids(operation, inputs[:ids].join(','), params.to_json, channels, User.current.id, Team.current.id)
       ret
     elsif inputs[:id]
       self.send("#{operation}_from_single_id", inputs[:id], inputs, ctx, parents)
@@ -122,7 +152,7 @@ class GraphqlCrudOperations
     obj = inputs[:id] ? self.object_from_id_and_context(inputs[:id], ctx) : nil
     obj = self.prepopulate_object(obj, inputs) if inputs[:ids]
     returns = (obj.nil? || !inputs[:ids]) ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
-    self.crud_operation('update', inputs, ctx, parents, returns)
+    self.crud_operation('update', obj, inputs, ctx, parents, returns)
   end
 
   def self.destroy_from_single_id(graphql_id, _inputs, ctx, parents)
@@ -148,7 +178,7 @@ class GraphqlCrudOperations
     if inputs[:ids] && name =~ /^check_search/
       obj = self.define_optimistic_fields_for_check_search(obj, inputs, name)
     end
-
+    
     if name == 'project_media'
       obj = self.define_optimistic_fields_for_project_media(obj, inputs, name)
     end
@@ -174,6 +204,7 @@ class GraphqlCrudOperations
       targets = []
       obj.targets.each do |target|
         target.define_singleton_method(:last_status) { status }
+        target.define_singleton_method(:dbid) { 0 }
         targets << target
       end
       obj.define_singleton_method(:targets) { targets }
@@ -191,7 +222,7 @@ class GraphqlCrudOperations
         returns[parent.to_sym] = parent_obj
       end
     end
-    self.crud_operation('destroy', inputs, ctx, parents, returns)
+    self.crud_operation('destroy', obj, inputs, ctx, parents, returns)
   end
 
   def self.define_create(type, create_fields, parents = [])
