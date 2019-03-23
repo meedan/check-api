@@ -47,6 +47,7 @@ Dynamic.class_eval do
         screenshot.capture "#{CONFIG['checkdesk_base_url_private']}/memebuster/#{temp_name}.svg", "#{temp}.png", width: 500, height: 500
       
         File.atomic_write(filepath) { |file| file.write(File.read("#{temp}.png")) }
+        FileUtils.chmod(0744, filepath)
         FileUtils.rm_f "#{temp}.svg"
         FileUtils.rm_f "#{temp}.png"
       end
