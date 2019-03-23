@@ -271,7 +271,7 @@ class Team < ActiveRecord::Base
   end
 
   def get_memebuster_template
-    self.settings[:memebuster_template] || self.settings['memebuster_template'] || File.read(File.join(Rails.root, 'public', 'memebuster', 'default-template.svg'))
+    self.settings[:memebuster_template] || self.settings['memebuster_template'] || File.read(File.join(Rails.root, 'public', 'memebuster-default-template.svg'))
   end
 
   protected

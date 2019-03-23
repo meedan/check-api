@@ -12,6 +12,7 @@ Dynamic.class_eval do
       if !File.exist?(filepath) || force
         team = self.annotated&.project&.team
         return if team.nil?
+        FileUtils.mkdir_p(File.join(Rails.root, 'public', 'memebuster'))
         params = {}
         DynamicAnnotation::Field.where(annotation_id: self.id).each do |f|
           params[f.field_name.gsub(/^memebuster_/, '').to_sym] = f.to_s.gsub(/<\/?[^>]+>/, '')
