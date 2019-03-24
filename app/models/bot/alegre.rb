@@ -80,6 +80,7 @@ class Bot::Alegre < ActiveRecord::Base
       pm_ids = response['result'].collect{|r| r.dig('_source', 'context', 'project_media_id')}
       source_ids = Relationship.where("source_id IN (:pm_ids)", { :pm_ids => pm_ids }).select(:source_id).distinct
       parent_id = source_ids.length > 0 ? source_ids[0].source_id : pm_ids[0]
+      return if parent_id == target.id
 
       r = Relationship.new
       r.skip_check_ability = true
