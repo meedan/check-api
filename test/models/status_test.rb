@@ -379,6 +379,8 @@ class StatusTest < ActiveSupport::TestCase
     t.save!
     pm = create_project_media project: p
     s = pm.get_annotations('verification_status').last.load
-    assert_equal (s.created_at + 3.hours).to_i, s.get_field_value('deadline').to_i
+    deadline = (s.created_at + 3.hours).to_i
+    deadline -= deadline % 300
+    assert_equal deadline, s.get_field_value('deadline').to_i
   end
 end
