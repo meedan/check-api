@@ -1,7 +1,7 @@
 class TeamBot < ActiveRecord::Base
   include HasImage
 
-  EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source']
+  EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own']
   annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'embed', 'flag', 'tag', 'task', 'geolocation']
   annotation_types.each do |type|
     EVENTS << "create_annotation_#{type}"
@@ -198,7 +198,7 @@ class TeamBot < ActiveRecord::Base
     return if object.nil? || team.nil?
     team.team_bot_installations.each do |team_bot_installation|
       team_bot = team_bot_installation.team_bot
-      team_bot.notify_about_event(event, object, team, team_bot_installation) if team_bot.subscribed_to?(event) || team_bot.id == target_bot&.id
+      team_bot.notify_about_event(event, object, team, team_bot_installation) if team_bot.subscribed_to?(event) && (target_bot.blank? || team_bot.id == target_bot.id)
     end
   end
 

@@ -33,7 +33,7 @@ module AnnotationPrivate
     if self.annotator.is_a?(BotUser)
       team_bot = self.annotator.team_bot
       team = self.get_team.first
-      TeamBot.enqueue_event("own_annotation_updated", team, self, team_bot) unless team.blank? || team_bot.blank?
+      TeamBot.enqueue_event("update_annotation_own", team, self, team_bot) unless team.blank? || team_bot.blank?
     end
   end
 end

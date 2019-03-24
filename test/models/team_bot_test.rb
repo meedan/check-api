@@ -374,25 +374,21 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should call bot over own annotation updates" do
     t = create_team
     p = create_project team: t
-    tb = create_team_bot team_author_id: t.id, request_url: 'http://bot'
+    tb1 = create_team_bot team_author_id: t.id, events: [{ event: 'update_annotation_own', graphql: nil }]
+    tb2 = create_team_bot team_author_id: t.id, events: [{ event: 'update_annotation_own', graphql: nil }]
     pm = create_project_media project: p
     a1 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json
-    a2 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json, annotator: tb.bot_user
-    WebMock.disable_net_connect!
+    a2 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json, annotator: tb1.bot_user
 
-    with_current_user_and_team(nil, nil) do
-      assert_nothing_raised do
-        a1.updated_at = Time.now
-        a1.save!
-      end
+    a1.updated_at = Time.now
+    a1.save!
+    assert_nil tb1.reload.last_called_at
+    assert_nil tb2.reload.last_called_at
 
-      assert_raises WebMock::NetConnectNotAllowedError do
-        a2.updated_at = Time.now
-        a2.save!
-      end
-    end
-
-    WebMock.allow_net_connect!
+    a2.updated_at = Time.now
+    a2.save!
+    assert_not_nil tb1.reload.last_called_at
+    assert_nil tb2.reload.last_called_at
   end
 
   test "should enqueue bot notifications" do
