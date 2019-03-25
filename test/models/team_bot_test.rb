@@ -114,7 +114,7 @@ class TeamBotTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
-    
+
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         create_team_bot team_author_id: t.id, bot_user_id: nil
@@ -127,7 +127,7 @@ class TeamBotTest < ActiveSupport::TestCase
     t = create_team
     t2 = create_team
     create_team_user user: u, team: t, role: 'contributor'
-    
+
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
         create_team_bot team_author_id: t.id, bot_user_id: nil
@@ -140,7 +140,7 @@ class TeamBotTest < ActiveSupport::TestCase
     t = create_team
     t2 = create_team
     create_team_user user: u, team: t, role: 'editor'
-    
+
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
         create_team_bot team_author_id: t.id, bot_user_id: nil
@@ -153,7 +153,7 @@ class TeamBotTest < ActiveSupport::TestCase
     t = create_team
     t2 = create_team
     create_team_user user: u, team: t, role: 'journalist'
-    
+
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
         create_team_bot team_author_id: t.id, bot_user_id: nil
@@ -166,7 +166,7 @@ class TeamBotTest < ActiveSupport::TestCase
     t = create_team
     t2 = create_team
     create_team_user user: u, team: t, role: 'owner'
-    
+
     with_current_user_and_team(u, t2) do
       assert_raises RuntimeError do
         create_team_bot team_author_id: t2.id, bot_user_id: nil
@@ -179,19 +179,19 @@ class TeamBotTest < ActiveSupport::TestCase
     p1 = create_project team: t1
     tb1a = create_team_bot team_author_id: t1.id, events: [{ event: 'create_project_media', graphql: nil }]
     tb1b = create_team_bot team_author_id: t1.id, events: [{ event: 'update_project_media', graphql: nil }]
-    
+
     t2 = create_team
     p2 = create_project team: t2
     tb2a = create_team_bot team_author_id: t2.id, events: [{ event: 'create_project_media', graphql: nil }]
     tb2b = create_team_bot team_author_id: t2.id, events: [{ event: 'update_project_media', graphql: nil }]
-    
+
     assert_nil tb1a.reload.last_called_at
     assert_nil tb1b.reload.last_called_at
     assert_nil tb2a.reload.last_called_at
     assert_nil tb2b.reload.last_called_at
-    
+
     pm1 = create_project_media project: p1
-    
+
     tb1at = tb1a.reload.last_called_at
     assert_not_nil tb1at
     assert_nil tb1b.reload.last_called_at
@@ -199,7 +199,7 @@ class TeamBotTest < ActiveSupport::TestCase
     assert_nil tb2b.reload.last_called_at
 
     pm2 = create_project_media project: p2
-    
+
     tb2at = tb2a.reload.last_called_at
     assert_equal tb1at, tb1a.reload.last_called_at
     assert_nil tb1b.reload.last_called_at
@@ -238,18 +238,18 @@ class TeamBotTest < ActiveSupport::TestCase
     t1 = create_team
     tb1a = create_team_bot team_author_id: t1.id, events: [{ event: 'create_source', graphql: nil }]
     tb1b = create_team_bot team_author_id: t1.id, events: [{ event: 'update_source', graphql: nil }]
-    
+
     t2 = create_team
     tb2a = create_team_bot team_author_id: t2.id, events: [{ event: 'create_source', graphql: nil }]
     tb2b = create_team_bot team_author_id: t2.id, events: [{ event: 'update_source', graphql: nil }]
-    
+
     assert_nil tb1a.reload.last_called_at
     assert_nil tb1b.reload.last_called_at
     assert_nil tb2a.reload.last_called_at
     assert_nil tb2b.reload.last_called_at
-    
+
     s1 = create_source team: t1
-    
+
     tb1at = tb1a.reload.last_called_at
     assert_not_nil tb1at
     assert_nil tb1b.reload.last_called_at
@@ -257,7 +257,7 @@ class TeamBotTest < ActiveSupport::TestCase
     assert_nil tb2b.reload.last_called_at
 
     s2 = create_source team: t2
-    
+
     tb2at = tb2a.reload.last_called_at
     assert_equal tb1at, tb1a.reload.last_called_at
     assert_nil tb1b.reload.last_called_at
@@ -289,20 +289,20 @@ class TeamBotTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p1
     tb1a = create_team_bot team_author_id: t1.id, events: [{ event: 'create_annotation_comment', graphql: nil }]
     tb1b = create_team_bot team_author_id: t1.id, events: [{ event: 'update_annotation_comment', graphql: nil }]
-    
+
     t2 = create_team
     p2 = create_project team: t2
     pm2 = create_project_media project: p2
     tb2a = create_team_bot team_author_id: t2.id, events: [{ event: 'create_annotation_comment', graphql: nil }]
     tb2b = create_team_bot team_author_id: t2.id, events: [{ event: 'update_annotation_comment', graphql: nil }]
-    
+
     assert_nil tb1a.reload.last_called_at
     assert_nil tb1b.reload.last_called_at
     assert_nil tb2a.reload.last_called_at
     assert_nil tb2b.reload.last_called_at
-    
+
     c1 = create_comment annotated: pm1
-    
+
     tb1at = tb1a.reload.last_called_at
     assert_not_nil tb1at
     assert_nil tb1b.reload.last_called_at
@@ -310,7 +310,7 @@ class TeamBotTest < ActiveSupport::TestCase
     assert_nil tb2b.reload.last_called_at
 
     c2 = create_comment annotated: pm2
-    
+
     tb2at = tb2a.reload.last_called_at
     assert_equal tb1at, tb1a.reload.last_called_at
     assert_nil tb1b.reload.last_called_at
@@ -349,7 +349,7 @@ class TeamBotTest < ActiveSupport::TestCase
     assert tb.graphql_result('invalid fragment', c, t).has_key?('error')
   end
 
-  test "should call bot" do
+  test "should call bot over event subscription" do
     t = create_team
     p1 = create_project team: t, title: 'Test Project'
     p2 = create_project team: t, title: 'Another Test Project'
@@ -367,31 +367,58 @@ class TeamBotTest < ActiveSupport::TestCase
         create_project_media project: p2
       end
     end
-    
+
     WebMock.allow_net_connect!
   end
 
-  test "should notify bot about updates over annotations created by it" do
-    tb = create_team_bot request_url: 'http://bot'
-    a1 = create_dynamic_annotation annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json, annotator: tb.bot_user
-    a2 = create_dynamic_annotation annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json, annotator: tb.bot_user
+  test "should call bot over own annotation updates" do
+    t = create_team
+    p = create_project team: t
+    tb1 = create_team_bot team_author_id: t.id, events: [{ event: 'update_annotation_own', graphql: nil }]
+    tb2 = create_team_bot team_author_id: t.id, events: [{ event: 'update_annotation_own', graphql: nil }]
+    pm = create_project_media project: p
+    a1 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json
+    a2 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json, annotator: tb1.bot_user
 
-    data = { event: 'own_annotation_updated', data: { dbid: a1.id } }
+    a1.updated_at = Time.now
+    a1.save!
+    assert_nil tb1.reload.last_called_at
+    assert_nil tb2.reload.last_called_at
+
+    a2.updated_at = Time.now
+    a2.save!
+    assert_not_nil tb1.reload.last_called_at
+    assert_nil tb2.reload.last_called_at
+  end
+
+  test "should enqueue bot notifications" do
+    t = create_team
+    p = create_project team: t, title: 'Test Project'
+    tb = create_team_bot team_author_id: t.id, events: [{ event: 'create_project_media', graphql: 'project { title }' }, { event: 'update_project_media', graphql: 'project { title }' }], request_url: 'http://bot'
+    data_create = { event: 'create_project_media', data: { project: { title: 'Test Project' } } }
+    data_update = { event: 'update_project_media', data: { project: { title: 'Test Project' } } }
+    create_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_create)).to_return(body: 'ok')
+    update_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_update)).to_return(body: 'ok')
     WebMock.disable_net_connect!
-    WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data)).to_return(body: 'ok')
 
     with_current_user_and_team(nil, nil) do
+      TeamBot.init_event_queue
+
       assert_nothing_raised do
-        a1.updated_at = Time.now
-        a1.save!
+        pm = create_project_media project: p
+        pm.user_id = create_user
+        pm.save!
+        pm.user_id = create_user
+        pm.save!
       end
 
-      assert_raises WebMock::NetConnectNotAllowedError do
-        a2.updated_at = Time.now
-        a2.save!
+      assert_nothing_raised do
+        TeamBot.trigger_events
       end
+
+      assert_equal 1, WebMock::RequestRegistry.instance.times_executed(update_stub.request_pattern)
     end
-    
+
     WebMock.allow_net_connect!
   end
 
@@ -593,7 +620,7 @@ class TeamBotTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     tb1 = create_team_bot team_author_id: t.id, events: [{ event: 'create_annotation_task_free_text', graphql: nil }]
     tb2 = create_team_bot team_author_id: t.id, events: [{ event: 'create_annotation_task_datetime', graphql: nil }]
-    
+
     assert_nil tb1.reload.last_called_at
     assert_nil tb2.reload.last_called_at
 

@@ -24,15 +24,16 @@ module AnnotationPrivate
 
   def notify_team_bots(event)
     team = self.get_team.first
-    TeamBot.notify_bots_in_background("#{event}_annotation_#{self.annotation_type}", team, self) unless team.blank?
+    TeamBot.enqueue_event("#{event}_annotation_#{self.annotation_type}", team, self) unless team.blank?
     task = Task.where(id: self.id).last if self.annotation_type == 'task'
-    TeamBot.notify_bots_in_background("#{event}_annotation_task_#{self.data['type']}", team, task) if !team.blank? && !task.nil?
+    TeamBot.enqueue_event("#{event}_annotation_task_#{self.data['type']}", team, task) unless team.blank? || task.blank?
   end
 
   def notify_bot_author
     if self.annotator.is_a?(BotUser)
       team_bot = self.annotator.team_bot
-      team_bot.notify_about_annotation(self) if !team_bot.nil? && !team_bot.core?
+      team = self.get_team.first
+      TeamBot.enqueue_event("update_annotation_own", team, self, team_bot) unless team.blank? || team_bot.blank?
     end
   end
-end 
+end
