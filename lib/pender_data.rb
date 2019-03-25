@@ -1,10 +1,13 @@
 module PenderData
+  attr_accessor :pender_error
+
   def validate_pender_result(force = false, retry_on_error = false)
     if !self.url.blank? && !self.skip_pender
       params = { url: self.url }
       params[:refresh] = '1' if force
       result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
       if result['type'] == 'error'
+        self.pender_error = true
         self.retry_pender_or_fail(force, retry_on_error, result)
       else
         self.pender_data = result['data']
