@@ -15,18 +15,18 @@ class Bot::Smooch
       pm = self.annotation.annotated
       bot = TeamBot.where(identifier: 'smooch').last
       return if TeamBotInstallation.where(team_id: pm.project.team_id, team_bot_id: bot.id).last.nil?
-      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).replicate_status_to_children(self.annotation.annotated_id, self.value, User.current&.id, Team.current&.id)
+      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).replicate_status_to_children(self.annotation.annotated_id, self.value, User.current&.id, Team.current&.id)
     end
 
     def reply_to_smooch_users
-      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).reply_to_smooch_users(self.annotation.annotated_id, self.value)
+      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).reply_to_smooch_users(self.annotation.annotated_id, self.value)
     end
 
     private
 
     def send_meme_to_smooch_users
       if self.value_was == 'save' && self.value == 'publish'
-        ::Bot::Smooch.delay_for(1.second, { queue: 'smooch' }).send_meme_to_smooch_users(self.annotation_id)
+        ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).send_meme_to_smooch_users(self.annotation_id)
       end
     end
   end
@@ -160,7 +160,7 @@ class Bot::Smooch
   def self.resend_message(message)
     code = begin message['error']['underlyingError']['errors'][0]['code'] rescue 0 end
     if code == 470
-      self.delay_for(1.second, { queue: 'smooch' }).resend_message_after_window(message.to_json)
+      self.delay_for(1.second, { queue: 'smooch', retry: 0 }).resend_message_after_window(message.to_json)
     end
   end
 
@@ -328,6 +328,9 @@ class Bot::Smooch
       return nil if url.blank?
       url = 'https://' + url unless url =~ /^https?:\/\//
       URI.parse(url)
+      m = Link.new url: url
+      m.validate_pender_result(false, true)
+      m.pender_error ? nil : m.url
     rescue URI::InvalidURIError
       nil
     end
@@ -341,9 +344,6 @@ class Bot::Smooch
       pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => json['project_id']).last ||
            ProjectMedia.create!(project_id: json['project_id'], quote: text)
     else
-      m = Link.new url: url
-      m.validate_pender_result
-      url = m.url
       pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => json['project_id']).last
       if pm.nil?
         pm = ProjectMedia.create!(project_id: json['project_id'], url: url)
