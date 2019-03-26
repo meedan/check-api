@@ -1,4 +1,3 @@
-<% @show_names = @project_media.project.team.get_hide_names_in_embeds.to_i == 0 %>
 <!doctype html>
 <html>
   <head>
@@ -7,9 +6,10 @@
     <meta http-equiv="Content-Language" id="oembed__meta-content-language" content="">
     <title><%= @project_media.title %></title>
     <link href="<%= CONFIG['checkdesk_base_url'] %>/css/oembed.css" rel="stylesheet" type="text/css">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="<%= CONFIG['checkdesk_base_url'] %>/javascripts/timeago/jquery.timeago.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify-jquery.min.js"></script>
 
     <script>
       var host = '<%= CONFIG['checkdesk_base_url'] %>';
@@ -17,21 +17,10 @@
       var translations = {
         <% I18n.available_locales.map(&:to_s).each do |locale| %>
         <%= locale %>: {
-          disclaimer_undetermined: "<%= I18n.t(:oembed_disclaimer_undetermined, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
-          disclaimer_in_progress: "<%= I18n.t(:oembed_disclaimer_in_progress, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
-          disclaimer_verified: "<%= I18n.t(:oembed_disclaimer_verified, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
-          disclaimer_false: "<%= I18n.t(:oembed_disclaimer_false, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
-          disclaimer_not_applicable: "<%= I18n.t(:oembed_disclaimer_not_applicable, locale: locale, team: @project_media.project.team.name, date: I18n.l(@project_media.updated_at, locale: locale, format: :oembed)) %>",
-          source_date: "<%= I18n.t(:oembed_source_date, locale: locale, provider: @project_media.provider, date: '<time class=\"timeago\" datetime=\"' + @project_media.published_at.iso8601(5) + '\">' + @project_media.published_at.to_s + '</time>').html_safe %>",
-          credit: "<%= I18n.t(:oembed_credit, locale: locale, user: @project_media.author_username, role: I18n.t('role_' + @project_media.author_role, locale: locale), date: '<time class=\"timeago\" datetime=\"' + @project_media.created_at.iso8601(5) + '\">' + @project_media.created_at.to_s + '</time>').html_safe %>",
-          notes_count: "<%= I18n.t(:oembed_notes_count, locale: locale, count: @project_media.comments_count) %>",
-          completed_tasks_count: "<%= I18n.t(:oembed_completed_tasks_count, locale: locale, count: @project_media.completed_tasks_count) %>",
-          resolved_tasks_count: "<%= I18n.t(:oembed_resolved_tasks_count, locale: locale, count: @project_media.completed_tasks_count) %>",
-          expand_all: "<%= I18n.t(:oembed_expand_all, locale: locale) %>",
-          collapse_all: "<%= I18n.t(:oembed_collapse_all, locale: locale) %>",
-          tasks: "<%= I18n.t(:oembed_tasks, locale: locale) %>",
-          notes: "<%= I18n.t(:oembed_notes, locale: locale) %>",
-          translations: "<%= I18n.t(:oembed_translations, locale: locale) %>",
+          expand_all: "<%= I18n.t(:embed_expand_all, locale: locale) %>",
+          collapse_all: "<%= I18n.t(:embed_collapse_all, locale: locale) %>",
+          tasks: "<%= I18n.t(:embed_tasks, locale: locale) %>",
+          description: "<%= I18n.t(:embed_description, locale: locale) %>",
 
           <% Workflow::Workflow.core_options(@project_media, @project_media.default_project_media_status_type)[:statuses].each do |status| %>
             status_<%= status[:id] %>: "<%= I18n.t('statuses.media.' + status[:id].gsub(/^false$/, 'not_true') + '.label', locale: locale) %>",
@@ -42,146 +31,76 @@
     </script>
   </head>
   <body>
-    <div id="oembed__container" class="oembed__status-<%= @project_media.last_status.to_s.gsub('_', '-') %>" style="background-color: <%= @project_media.last_status_color %>;">
-      <div id="oembed__top">
-        <h1 id="oembed__title"><%= @project_media.title %></h1>
-        <%= @project_media.last_status_html %> 
-      </div>
-      <p id="oembed__disclaimer"><span class="l">disclaimer_<%= @project_media.last_status %></span></p>
-
-      <div id="oembed__picture">
-        <% unless @project_media.media.picture.blank? %>
-          <img src="<%= @project_media.media.picture %>" />
+    <div id="oembed__container" class="oembed__status-<%= @project_media.last_status.to_s.gsub('_', '-') %>" style="background-color: <%= @project_media.last_status_color %>;"></div>
+    <div id="oembed__content-container">
+      <div id="oembed__top" class="oembed__card">
+        <p id="oembed__last-status" class="oembed__status-<%= @project_media.last_status.to_s.gsub('_', '-') %>"><%= @project_media.last_status_html %></p> 
+        <% if @project_media.title != @project_media.text %>
+          <p id="oembed__title"><%= @project_media.title %></p>
         <% end %>
-      </div>
-      
-      <div id="oembed__card">
-
-        <% if @show_names %>
-          <div id="oembed__author-picture">
-            <% unless @source_author[:author_picture].blank? %>
-              <img src="<%= @source_author[:author_picture] %>" />
-            <% end %>
-          </div>
-        <% end %>
-
         <div id="oembed__content">
-          <% if @show_names %>
-            <div id="oembed__author-name"><%= @source_author[:author_name] %></div>
-
-            <% unless @source_author[:author_username].blank? %>
-              <div id="oembed__author-username">@<%= @source_author[:author_username] %></div>
+        <%
+          meme = @project_media.get_dynamic_annotation('memebuster')&.memebuster_url
+          picture = @project_media.media.picture
+        %>
+        <% if meme %>
+          <img src="<%= meme %>" alt="" />
+        <% elsif @project_media.embed&.send(:[], 'provider') == 'youtube' %>
+          <%= @project_media.embed['html'].html_safe %>
+        <% else %>
+          <div id="oembed__content-content">
+            <% unless picture.blank? %>
+              <div id="oembed__content-col-1">
+                <img src="<%= picture %>" alt="" />
+              </div>
             <% end %>
-          <% end %>
-
-          <div id="oembed__text"><%= @project_media.text %></div>
-
-          <div id="oembed__date">
-            <i class="fa fa-<%= @project_media.provider.downcase if @project_media.provider != CONFIG['app_name'] %> fa-lg"></i>
-            <a href="<%= @project_media.source_url %>" target="_blank"><span class="l">source_date</span></a>
+            <% unless @project_media.text.blank? %>
+              <div id="oembed__content-col-2" class="oembed__linkify">
+                <p><%= @project_media.text %></p>
+              </div>
+            <% end %>
           </div>
+        <% end %>
+        </div>
+        <% unless @project_media.media.url.blank? %>
+          <div id="oembed__link"><a href="<%= @project_media.media.url %>" target="_blank"><%= @project_media.media.url %></a></div>
+        <% end %>
+      </div>
 
-          <div id="oembed__footer">
-            <% if @show_names %>
-              <span class="l" id="oembed__footer-credit">credit</span>
-            <% else %>
-              <span id="oembed__footer-credit"><time class="timeago" datetime="<%= @project_media.created_at.iso8601(5) %>"><%= @project_media.created_at.to_s %></time></span>
-            <% end %>
-
-            <span id="oembed__footer-stats">
-              <% if @project_media.comments.any? %>
-              <span class="l">notes_count</span> • 
-              <% end %>
-
-              <% if @project_media.completed_tasks.any? %>
-              <span class="l">completed_tasks_count</span> • 
-              <% end %>
-
-              <% unless @project_media.project.team.private %>
-              <span><a href="<%= @project_media.full_url %>" target="_blank"><%= @project_media.full_url %></a></span>
-              <% end %>
-            </span>
-            <br />
-          </div>
-        </div> <!-- / #oembed__content -->
-        <br />
-      </div> <!-- / #oembed__card -->
-
-      <% if @project_media.get_annotations('translation').any? %>
-        <div id="oembed__notes">
-          <h2><span class="l">translations</span></h2>
-
-          <ul id="oembed__notes-list">
-            <% 
-              @project_media.get_annotations('translation').each do |note|
-            %>
-              <li class="oembed__note">
-                <span class="oembed__collapsed-text oembed__collapsable-text">
-                  <b><%= note.load.get_field('translation_language').to_s %></b>: <%= note.load.get_field_value('translation_text') %>
-                </span> 
-              </li>
-            <% end %>
-          </ul>
+      <% if !@project_media.description.blank? && @project_media.description != @project_media.text %>
+        <h2 class="oembed__subtitle"><span class="l">description</span></h2>
+        <div id="oembed__description" class="oembed__card oembed__linkify">
+          <%= @project_media.description %>
         </div>
       <% end %>
 
-      <% if (@hide_tasks.to_i != 1 && @project_media.completed_tasks.any?) || (@hide_open_tasks.to_i != 1 && @project_media.open_tasks.any?) %>
-        <div id="oembed__verification-tasks">
-          <h2><span class="l">tasks</span></h2>
-
-          <% if @hide_tasks.to_i != 1 && @project_media.completed_tasks.any? %>
+      <% 
+        tasks = @project_media.completed_tasks_to_show.to_a
+        if tasks.size > 0
+      %>
+        <h2 class="oembed__subtitle" id="oembed__subtitle-tasks">
+          <span class="l">tasks</span>
           <div id="oembed__tasks-info">
-            <span class="l">resolved_tasks_count</span> • 
             <span class="l" id="oembed__tasks-expand-all">expand_all</span>
             <span class="l" id="oembed__tasks-collapse-all" style="display: none;">collapse_all</span>
           </div>
-          <% end %>
+        </h2>
 
-          <ul id="oembed__verification-tasks-list">
-            <% if @hide_tasks.to_i != 1 && @project_media.completed_tasks.any? %>
-            <% @project_media.completed_tasks.each do |task| %>
-              <li class="oembed__verification-task">
-                <span class="oembed__verification-task-question"><%= task.label %></span>
-                <span class="oembed__verification-task-answer oembed__collapsed-text oembed__collapsable-text"><%= task.first_response %></span>
-              </li>
-            <% end %>
-            <% end %>
-
-            <% if @hide_open_tasks.to_i != 1 && @project_media.open_tasks.any? %>
-            <% @project_media.open_tasks.each do |task| %>
-              <li class="oembed__verification-task">
-                <span class="oembed__verification-task-question"><%= task.label %></span>
-              </li>
-            <% end %>
-            <% end %>
-          </ul>
-        </div> <!-- / #oembed__verification-tasks -->
-      <% end %>
-
-      <% if @hide_notes.to_i != 1 && @project_media.comments.any? %>
-        <div id="oembed__notes">
-          <h2><span class="l">notes</span></h2>
-
-          <div id="oembed__notes-info">
-            <span class="l">notes_count</span> • 
-            <span class="l" id="oembed__notes-expand-all">expand_all</span>
-            <span class="l" id="oembed__notes-collapse-all" style="display: none;">collapse_all</span>
+        <% tasks.each do |task| %>
+          <div class="oembed__task oembed__card">
+            <p class="oembed__task-question"><%= task.label %></p>
+            <p class="oembed__task-answer oembed__collapsed-text oembed__collapsable-text oembed__linkify"><%= task.first_response %></p>
           </div>
-
-          <ul id="oembed__notes-list">
-            <% 
-              @project_media.comments.each do |note|
-            %>
-              <li class="oembed__note">
-                <span class="oembed__collapsed-text oembed__collapsable-text">
-                  <i class="fa fa-quote-left"></i> <%= note.text %> <i class="fa fa-quote-right"></i>
-                </span> 
-              </li>
-            <% end %>
-          </ul>
-        </div> <!-- / #oembed__notes -->
+        <% end %>
       <% end %>
-    </div>
+
+      <div id="oembed__footer">
+        <% team = @project_media.project.team %>
+        <p><img src="<%= team.avatar %>" alt="" /> <span id="oembed__team-name"><%= team.name %></span></p>
+        <p class="oembed__linkify" id="oembed__team-disclaimer"><%= team.get_disclaimer %></p>
+        <p class="oembed__linkify" id="oembed__team-link"><%= team.url %></p>
+      </div>
+    </div> <!-- / #oembed__content-container -->
 
     <script src="<%= CONFIG['checkdesk_base_url'] %>/javascripts/oembed.js"></script>
 

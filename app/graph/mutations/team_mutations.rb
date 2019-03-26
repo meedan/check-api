@@ -18,8 +18,9 @@ module TeamMutations
     slack_channel: 'str',
     add_auto_task: 'json',
     add_media_verification_statuses: 'json',
-    hide_names_in_embeds: 'str',
     set_team_tasks: 'json',
+    disclaimer: 'str',
+    embed_tasks: 'str',
     remove_auto_task: 'str', # label
     contact: 'str',
     empty_trash: 'int'

@@ -584,3 +584,7 @@ en:
   verification_status_deadline_desc: Due latest
   cant_mutate_inactive_object: Sorry, there is an operation pending for this item,
     so you can't change it right now. Please try again later.
+  embed_expand_all: Expand all
+  embed_collapse_all: Collapse all
+  embed_tasks: Tasks
+  embed_description: Description

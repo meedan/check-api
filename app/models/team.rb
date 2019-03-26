@@ -21,7 +21,7 @@ class Team < ActiveRecord::Base
     end
   end
   after_create :add_user_to_team
-  after_update :archive_or_restore_projects_if_needed, :clear_embeds_caches_if_needed
+  after_update :archive_or_restore_projects_if_needed
   after_destroy :reset_current_team
 
   check_settings
@@ -116,6 +116,14 @@ class Team < ActiveRecord::Base
     self.send(:set_media_verification_statuses, value)
   end
 
+  def embed_tasks=(team_task_ids)
+    self.send(:set_embed_tasks, team_task_ids)
+  end
+
+  def disclaimer=(text)
+    self.send(:set_disclaimer, text)
+  end
+
   def team_user
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
@@ -136,10 +144,6 @@ class Team < ActiveRecord::Base
 
   def search_id
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
-  end
-
-  def hide_names_in_embeds=(hide)
-    self.send(:set_hide_names_in_embeds, hide)
   end
 
   def self.archive_or_restore_projects_if_needed(archived, team_id)
@@ -190,13 +194,6 @@ class Team < ActiveRecord::Base
 
   def public_team_id
     Base64.encode64("PublicTeam/#{self.id}")
-  end
-
-  def self.clear_embeds_caches_if_needed(id)
-    pids = Team.find(id).project_ids
-    ProjectMedia.where(project_id: pids).find_each do |pm|
-      ProjectMedia.clear_caches(pm.id)
-    end
   end
 
   def self.slug_from_name(name)
