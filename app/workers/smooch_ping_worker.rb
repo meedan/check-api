@@ -2,7 +2,7 @@ class SmoochPingWorker
   include Sidekiq::Worker
   include Sidekiq::Status::Worker
   
-  sidekiq_options queue: 'smooch_ping'
+  sidekiq_options queue: 'smooch_ping', retry: 0
 
   def perform(uid, app_id)
     Bot::Smooch.get_installation('smooch_app_id', app_id)
