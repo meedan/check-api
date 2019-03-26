@@ -1,90 +1,129 @@
-<body>
-    <div id="oembed__container" class="oembed__status-pending" style="background-color: #518fff;">
-      <div id="oembed__top">
-        <h1 id="oembed__title">Test</h1>
-        <span id="oembed__status" class="l">status_pending</span> 
-      </div>
-      <p id="oembed__disclaimer"><span class="l">disclaimer_pending</span></p>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Language" id="oembed__meta-content-language" content="">
+    <title>Test</title>
+    <link href="http://localhost:3000/css/oembed.css" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="http://api.test:13000/javascripts/timeago/jquery.timeago.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify-jquery.min.js"></script>
 
-      <div id="oembed__picture">
-      </div>
-      
-      <div id="oembed__card">
+    <script>
+      var host = 'http://localhost:3000';
+      var locales = ["ar","fr","pt","ro_RO","ru","es","en"];
+      var translations = {
+        ar: {
+          expand_all: "Expand all",
+          collapse_all: "Collapse all",
+          tasks: "Tasks",
+          description: "Description",
 
-          <div id="oembed__author-picture">
-              <img src="http://profile.picture" />
-          </div>
+            status_pending: "مُعَلَّق",
+            status_in_progress: "قيد التقدم",
+            status_translated: "مُتَرجَم",
+            status_ready: "جاهز",
+            status_error: "خطأ",
+        },
+        fr: {
+          expand_all: "Expand all",
+          collapse_all: "Collapse all",
+          tasks: "Tasks",
+          description: "Description",
 
+            status_pending: "En attente",
+            status_in_progress: "En cours",
+            status_translated: "Traduit",
+            status_ready: "Approuvé",
+            status_error: "Erreur",
+        },
+        pt: {
+          expand_all: "Expand all",
+          collapse_all: "Collapse all",
+          tasks: "Tasks",
+          description: "Description",
+
+            status_pending: "Pendente",
+            status_in_progress: "Em andamento",
+            status_translated: "Traduzido",
+            status_ready: "Pronto",
+            status_error: "Erro",
+        },
+        ro_RO: {
+          expand_all: "Expand all",
+          collapse_all: "Collapse all",
+          tasks: "Tasks",
+          description: "Description",
+
+            status_pending: "Pending",
+            status_in_progress: "In Progress",
+            status_translated: "Translated",
+            status_ready: "Ready",
+            status_error: "Error",
+        },
+        ru: {
+          expand_all: "Expand all",
+          collapse_all: "Collapse all",
+          tasks: "Tasks",
+          description: "Description",
+
+            status_pending: "Pending",
+            status_in_progress: "In Progress",
+            status_translated: "Translated",
+            status_ready: "Ready",
+            status_error: "Error",
+        },
+        es: {
+          expand_all: "Expand all",
+          collapse_all: "Collapse all",
+          tasks: "Tasks",
+          description: "Description",
+
+            status_pending: "Pendiente",
+            status_in_progress: "En progreso",
+            status_translated: "Traducido",
+            status_ready: "Listo",
+            status_error: "Incorrecto",
+        },
+        en: {
+          expand_all: "Expand all",
+          collapse_all: "Collapse all",
+          tasks: "Tasks",
+          description: "Description",
+
+            status_pending: "Pending",
+            status_in_progress: "In Progress",
+            status_translated: "Translated",
+            status_ready: "Ready",
+            status_error: "Error",
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <div id="oembed__container" class="oembed__status-pending" style="background-color: #518fff;"></div>
+    <div id="oembed__content-container">
+      <div id="oembed__top" class="oembed__card">
+        <p id="oembed__last-status" class="oembed__status-pending"><span id="oembed__status" class="l">status_pending</span></p> 
         <div id="oembed__content">
-            <div id="oembed__author-name">Test</div>
-
-              <div id="oembed__author-username">@test</div>
-
-          <div id="oembed__text">Test</div>
-
-          <div id="oembed__date">
-            <i class="fa fa- fa-lg"></i>
-            <a href="http://localhost:3333/test-team/url" target="_blank"><span class="l">source_date</span></a>
+          <div id="oembed__content-content">
+              <div id="oembed__content-col-2" class="oembed__linkify">
+                <p>Test</p>
+              </div>
           </div>
-
-          <div id="oembed__footer">
-              <span class="l" id="oembed__footer-credit">credit</span>
-
-            <span id="oembed__footer-stats">
-              <span class="l">notes_count</span> • 
-
-              <span class="l">completed_tasks_count</span> • 
-
-              <span><a href="http://localhost:3333/test-team/url" target="_blank">http://localhost:3333/test-team/url</a></span>
-            </span>
-            <br />
-          </div>
-        </div> <!-- / #oembed__content -->
-        <br />
-      </div> <!-- / #oembed__card -->
+        </div>
+      </div>
 
 
-        <div id="oembed__verification-tasks">
-          <h2><span class="l">tasks</span></h2>
 
-          <div id="oembed__tasks-info">
-            <span class="l">resolved_tasks_count</span> • 
-            <span class="l" id="oembed__tasks-expand-all">expand_all</span>
-            <span class="l" id="oembed__tasks-collapse-all" style="display: none;">collapse_all</span>
-          </div>
-
-          <ul id="oembed__verification-tasks-list">
-              <li class="oembed__verification-task">
-                <span class="oembed__verification-task-question">5 + 5 = ?</span>
-                <span class="oembed__verification-task-answer oembed__collapsed-text oembed__collapsable-text">Task response</span>
-              </li>
-
-          </ul>
-        </div> <!-- / #oembed__verification-tasks -->
-
-        <div id="oembed__notes">
-          <h2><span class="l">notes</span></h2>
-
-          <div id="oembed__notes-info">
-            <span class="l">notes_count</span> • 
-            <span class="l" id="oembed__notes-expand-all">expand_all</span>
-            <span class="l" id="oembed__notes-collapse-all" style="display: none;">collapse_all</span>
-          </div>
-
-          <ul id="oembed__notes-list">
-              <li class="oembed__note">
-                <span class="oembed__collapsed-text oembed__collapsable-text">
-                  <i class="fa fa-quote-left"></i> A second comment <i class="fa fa-quote-right"></i>
-                </span> 
-              </li>
-              <li class="oembed__note">
-                <span class="oembed__collapsed-text oembed__collapsable-text">
-                  <i class="fa fa-quote-left"></i> A comment <i class="fa fa-quote-right"></i>
-                </span> 
-              </li>
-          </ul>
-        </div> <!-- / #oembed__notes -->
-    </div>
+      <div id="oembed__footer">
+        <p><img src="http://localhost:3000/uploads/team/15/rails.png" alt="" /> <span id="oembed__team-name">Test Team</span></p>
+        <p class="oembed__linkify" id="oembed__team-disclaimer"></p>
+        <p class="oembed__linkify" id="oembed__team-link">http://localhost:3333/test-team</p>
+      </div>
+    </div> <!-- / #oembed__content-container -->
 
     <script src="http://localhost:3000/javascripts/oembed.js"></script>
 

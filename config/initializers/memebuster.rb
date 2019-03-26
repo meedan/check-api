@@ -3,6 +3,15 @@ require 'webshot'
 Dynamic.class_eval do
   after_save :copy_memebuster_image_paths, if: proc { |a| a.annotation_type == 'memebuster' }
 
+  def memebuster_url
+    url = nil
+    if self.annotation_type == 'memebuster'
+      filename = "#{self.id}.png"
+      url = CONFIG['checkdesk_base_url'] + '/memebuster/' + filename
+    end
+    url
+  end
+
   def memebuster_png_path(force = false)
     if self.annotation_type == 'memebuster'
       filename = "#{self.id}.png"

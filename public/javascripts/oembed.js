@@ -25,49 +25,47 @@ jQuery.getScript(host + '/javascripts/timeago/locales/jquery.timeago.' + locale 
 });
 
 // Use hand cursor only on texts that are really expandable
+// and hide "Expand/collapse" if there is nothing truncated
+
 jQuery(document).ready(function() {
-  jQuery('.oembed__verification-task-answer, .oembed__note span').each(function() {
+  var hasCollapsableText = false;
+  jQuery('.oembed__task-answer').each(function() {
     var element = jQuery(this);
     if (element[0].offsetWidth < element[0].scrollWidth) {
       element.addClass('oembed__clickable');
+      hasCollapsableText = true;
     }
   });
+  if (hasCollapsableText) {
+    jQuery('#oembed__tasks-info').show();
+  }
+  else {
+    jQuery('#oembed__tasks-info').hide();
+  }
 });
 
 // Expand tasks
 
 jQuery(document).ready(function() {
   jQuery('#oembed__tasks-expand-all').click(function() {
-    jQuery('#oembed__verification-tasks .oembed__collapsable-text').removeClass('oembed__collapsed-text');
+    jQuery('.oembed__collapsable-text').removeClass('oembed__collapsed-text');
     jQuery('#oembed__tasks-expand-all').hide();
     jQuery('#oembed__tasks-collapse-all').show();
   });
   jQuery('#oembed__tasks-collapse-all').click(function() {
-    jQuery('#oembed__verification-tasks .oembed__collapsable-text').addClass('oembed__collapsed-text');
+    jQuery('.oembed__collapsable-text').addClass('oembed__collapsed-text');
     jQuery('#oembed__tasks-collapse-all').hide();
     jQuery('#oembed__tasks-expand-all').show();
   });
-  jQuery('.oembed__verification-task-answer').click(function() {
+  jQuery('.oembed__task-answer').click(function() {
     jQuery(this).toggleClass('oembed__collapsed-text');
   });
 });
 
-// Expand notes
+// Linkify
 
 jQuery(document).ready(function() {
-  jQuery('#oembed__notes-expand-all').click(function() {
-    jQuery('#oembed__notes .oembed__collapsable-text').removeClass('oembed__collapsed-text');
-    jQuery('#oembed__notes-expand-all').hide();
-    jQuery('#oembed__notes-collapse-all').show();
-  });
-  jQuery('#oembed__notes-collapse-all').click(function() {
-    jQuery('#oembed__notes .oembed__collapsable-text').addClass('oembed__collapsed-text');
-    jQuery('#oembed__notes-collapse-all').hide();
-    jQuery('#oembed__notes-expand-all').show();
-  });
-  jQuery('.oembed__note span').click(function() {
-    jQuery(this).toggleClass('oembed__collapsed-text');
-  });
+  jQuery('.oembed__linkify').linkify({ target: '_blank' });
 });
 
 // Define if language is RTL
@@ -95,7 +93,7 @@ var rtlLanguages = [
 
 var htmlHeight = 0;
 var checkHTMLHeight = function() {
-  var height = document.getElementsByTagName('BODY')[0].offsetHeight;
+  var height = document.getElementsByTagName('HTML')[0].scrollHeight;
   if (height !== htmlHeight) {
     htmlHeight = height;
     // Let the parent document know about the height
@@ -105,6 +103,7 @@ var checkHTMLHeight = function() {
       context: 'iframe.resize', 
       height: height
     }), '*');
+    document.getElementsByTagName('BODY')[0].style.height = height + 'px';
   }
   setTimeout(checkHTMLHeight, 500);
 };
@@ -112,7 +111,6 @@ var checkHTMLHeight = function() {
 jQuery(document).ready(function() {
   if (rtlLanguages.indexOf(locale) > -1) {
     jQuery('body, html').addClass('rtl');
-    jQuery('.fa-quote-right, .fa-quote-left').toggleClass('fa-quote-right fa-quote-left');
   }
   jQuery('html').attr('lang', locale);
   jQuery('#oembed__meta-content-language').attr('content', locale);
