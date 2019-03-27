@@ -6,9 +6,17 @@ class Bot::Smooch
     check_workflow from: :any, to: :terminal, actions: :reply_to_smooch_users
   end
 
-  ::DynamicAnnotation::Field.class_eval do
-    after_update :send_meme_to_smooch_users, if: proc { |f| f.field_name == 'memebuster_operation' } 
+  ::Dynamic.class_eval do
+    after_update :send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }
 
+    private
+
+    def send_meme_to_smooch_users
+      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).send_meme_to_smooch_users(self.id) if self.action == 'publish'
+    end
+  end
+
+  ::DynamicAnnotation::Field.class_eval do
     protected
 
     def replicate_status_to_children
@@ -20,14 +28,6 @@ class Bot::Smooch
 
     def reply_to_smooch_users
       ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).reply_to_smooch_users(self.annotation.annotated_id, self.value)
-    end
-
-    private
-
-    def send_meme_to_smooch_users
-      if self.value_was == 'save' && self.value == 'publish'
-        ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).send_meme_to_smooch_users(self.annotation_id)
-      end
     end
   end
 

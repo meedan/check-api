@@ -15,6 +15,7 @@ DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_typ
         set_fields: 'str',
         lock_version: 'int',
         assigned_to_ids: 'str',
+        action: 'str',
         locked: 'bool'
       })
 
