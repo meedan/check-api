@@ -9,13 +9,12 @@ DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_typ
         fields[name] = 'str'
       end
       
-      create_fields = fields.merge({ set_fields: '!str' })
+      create_fields = fields.merge({ set_fields: '!str', action: 'str' })
       
       update_fields = fields.merge({
         set_fields: 'str',
         lock_version: 'int',
         assigned_to_ids: 'str',
-        action: 'str',
         locked: 'bool'
       })
 
