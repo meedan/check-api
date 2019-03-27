@@ -7,7 +7,7 @@ class Bot::Smooch
   end
 
   ::Dynamic.class_eval do
-    after_update :send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }
+    after_save :send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }
 
     private
 
