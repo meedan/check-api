@@ -74,6 +74,7 @@ module CheckBasicAbilities
 
     can :read, [Account, ProjectSource], source: { user_id: [@user.id, nil] }
     can :read, Account, source: { projects: { team_id: @user.cached_teams }}
+    can :read, Relationship, { source: { project: { team_id: @user.cached_teams } }, target: { project: { team_id: @user.cached_teams } }}
     can :read, ProjectSource, project: { team: { private: false } }
     can :read, ProjectSource, project: { team_id: @user.cached_teams }
     can :read, ProjectMedia do |obj|

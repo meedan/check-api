@@ -144,6 +144,7 @@ class Ability
     cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
+    can [:update, :destroy], Relationship, { source: { project: { team_id: @context_team.id } }, target: { project: { team_id: @context_team.id } }}
     can :destroy, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
     end
