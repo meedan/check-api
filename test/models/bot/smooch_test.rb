@@ -529,10 +529,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     filepath = File.join(Rails.root, 'public', 'memebuster', "#{a.id}.png")
     assert !File.exist?(filepath)
     a = Dynamic.find(a.id)
+    a.action = 'save'
     a.set_fields = { memebuster_operation: 'save' }.to_json
     a.save!
     assert !File.exist?(filepath)
     a = Dynamic.find(a.id)
+    a.action = 'publish'
     a.set_fields = { memebuster_operation: 'publish' }.to_json
     a.save!
     assert File.exist?(filepath)
