@@ -1,0 +1,113 @@
+ro:
+  statuses:
+    ids:
+      verification_status: verificare
+      translation_status: traducere
+      task_status: sarcină
+    task:
+      unresolved:
+        label: Nerezolvat
+        description: Implicit, încă nerezolvat
+      resolved:
+        label: Rezolvat
+        description: Sarcina a fost rezolvată
+      cant_be_resolved:
+        label: Rezolvarea nu este posibilă
+        description: Rezolvarea acestei sarcini nu a fost posibilă
+    media:
+      undetermined:
+        label: Nedemarat
+        description: Implicit, doar adăugat la Verificare, lucrul nu a demarat
+      not_applicable:
+        label: Neconcludent
+        description: Nu este posibil de formulat concluzii în baza dovezilor disponibile
+      in_progress:
+        label: În lucru
+        description: Lucrul a început, însă traduceri încă nu s-au făcut
+      not_true:
+        label: 'Fals'
+        description: 'Concluzia: conținutul elementului este fals'
+      verified:
+        label: Verificat
+        description: 'Concluzia: conținutul elementului a fost verificat'
+      pending:
+        label: În așteptare
+        description: Implicit, doar adăugat în Punte, lucrul nu a demarat
+      translated:
+        label: Tradus
+        description: Traducerea este gata, așteaptă revizuire
+      ready:
+        label: Pregătit
+        description: Traducerea a fost revizuită și aprobată pentru publicare
+      error:
+        label: Eroare
+      'false':
+        description: 'Concluzia: conținutul elementului este fals'
+      inconclusive:
+        label: Neconcludent
+      misleading:
+        label: Înșelător
+      disputed:
+        label: Contestat
+      unstarted:
+        label: Nedemarat
+        description: Implicit, doar adăugat la Verificare, lucrul nu a demarat
+    source:
+      undetermined:
+        label: Nedemarat
+        description: Implicit, doar adăugat la Verificare, lucrul nu a demarat
+      credible:
+        label: Credibil
+        description: 'Concluzia: sursa este credibilă'
+      not_credible:
+        label: Nu este credibil
+        description: 'Concluzia: sursa nu este credibilă'
+      slightly_credible:
+        label: Credibil într-o mică măsură
+        description: 'Concluzia: sursa este credibilă într-o mică măsură'
+      sockpuppet:
+        label: Clonă
+        description: 'Concluzia: sursa este o clonă'
+    translation:
+      pending:
+        label: În așteptare
+        description: Implicit, doar adăugat în Punte, lucrul nu a demarat
+      in_progress:
+        label: În lucru
+        description: Lucrul a început, însă traduceri încă nu s-au făcut
+      translated:
+        label: Tradus
+        description: Traducerea este gata, așteaptă revizuire
+      ready:
+        label: Pregătit
+        description: Traducerea a fost revizuită și aprobată pentru publicare
+      error:
+        label: Eroare
+        description: Traducerea a fost revizuită și a fost identificată o eroare
+  errors:
+    messages:
+      extension_white_list_error: 'nu poate fi de tip %{extension}, tipuri permise: %{allowed_types}'
+      invalid_size: trebuie să fie între %{min_width}x%{min_height} și %{max_width}x%{max_height} pixeli
+  activerecord:
+    models:
+      link: Link
+    errors:
+      messages:
+        too_short:
+          one: este prea scurt (minimul este de 1 caracter)
+          few: este prea scurt (minimul este de %{count} caractere)
+          other: este prea scurt (minimul este de %{count} de caractere)
+  slug_is_reserved: este rezervat
+  approved: aprobat!
+  oembed_notes_count:
+    one: "O notă"
+    few: "%{count} note"
+    other: "%{count} de note"
+  oembed_completed_tasks_count:
+    one: "O sarcină completă"
+    few: "%{count} sarcini completate"
+    other: "%{count} de sarcini completate"
+  oembed_resolved_tasks_count:
+    one: "O sarcină rezolvată"
+    few: "%{count} sarcini rezolvate"
+    other: "%{count} de sarcini rezolvate"
