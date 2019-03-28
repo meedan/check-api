@@ -38,7 +38,7 @@
         <% if @project_media.title != @project_media.text %>
           <p id="oembed__title"><%= @project_media.title %></p>
         <% end %>
-        <div id="oembed__content">
+        <div id="oembed__content" dir="auto">
         <%
           meme = @project_media.get_dynamic_annotation('memebuster')&.memebuster_url
           picture = @project_media.media.picture
@@ -69,7 +69,7 @@
 
       <% if !@project_media.description.blank? && @project_media.description != @project_media.text %>
         <h2 class="oembed__subtitle"><span class="l">description</span></h2>
-        <div id="oembed__description" class="oembed__card oembed__linkify">
+        <div id="oembed__description" class="oembed__card oembed__linkify" dir="auto">
           <%= @project_media.description %>
         </div>
       <% end %>
@@ -88,8 +88,8 @@
 
         <% tasks.each do |task| %>
           <div class="oembed__task oembed__card">
-            <p class="oembed__task-question"><%= task.label %></p>
-            <p class="oembed__task-answer oembed__collapsed-text oembed__collapsable-text oembed__linkify"><%= task.first_response %></p>
+            <p class="oembed__task-question" dir="auto"><%= task.label %></p>
+            <p class="oembed__task-answer oembed__collapsed-text oembed__collapsable-text oembed__linkify" dir="auto"><%= task.first_response %></p>
           </div>
         <% end %>
       <% end %>
