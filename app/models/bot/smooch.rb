@@ -289,7 +289,7 @@ class Bot::Smooch
     json = JSON.parse(message)
     self.get_installation('smooch_app_id', app_id)
     json['project_id'] = self.get_project_id(json)
-    
+
     pm = case json['type']
          when 'text'
            self.save_text_message(json)
@@ -309,7 +309,7 @@ class Bot::Smooch
     a.annotated = pm
     a.set_fields = {  smooch_data: json.merge({ app_id: app_id }).to_json }.to_json
     a.save!
-    
+
     if pm.is_finished?
       self.send_verification_results_to_user(json['authorId'], pm, pm.last_status, json['language'])
       self.send_meme_to_user(json['authorId'], pm, json['language'])
@@ -428,7 +428,7 @@ class Bot::Smooch
     annotation = pm.get_annotations('memebuster').last&.load
     return if annotation.nil? || annotation.get_field_value('memebuster_published_at').blank?
     meme = annotation.memebuster_png_path(false)
-    Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_meme, locale: lang), { type: 'image', mediaUrl: meme })
+    Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_meme, locale: lang, url: pm.embed_url), { type: 'image', mediaUrl: meme })
   end
 
   def self.send_meme_to_smooch_users(annotation_id)
@@ -441,7 +441,7 @@ class Bot::Smooch
       pm2.get_annotations('smooch').find_each do |a|
         data = JSON.parse(a.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_meme, locale: data['language']), { type: 'image', mediaUrl: meme })
+        ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_meme, locale: data['language'], url: pm.embed_url), { type: 'image', mediaUrl: meme })
       end
     end
     annotation.set_fields = { memebuster_published_at: Time.now }.to_json
