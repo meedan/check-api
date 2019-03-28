@@ -41,7 +41,17 @@ es:
         description: La traducción fue revisada y aprobada para su publicación
       error:
         label: Incorrecto
-        description: La traducción fue revisada y se encontraron errores
+      'false':
+        description: 'Conclusión: el contenido del ítem es falso'
+      inconclusive:
+        label: Inconcluso
+      misleading:
+        label: Engañoso
+      disputed:
+        label: Con conflicto
+      unstarted:
+        label: Sin iniciar
+        description: 'Predeterminado por Check, no se ha iniciado ningún trabajo. '
     source:
       undetermined:
         label: Sin iniciar
@@ -361,7 +371,7 @@ es:
   smooch_bot_message_unconfirmed: Gracias, no seguiremos procesando tu mensaje.
   smooch_bot_message_type_unsupported: Lo sentimos, este tipo de formatos todavía no los procesamos. Pero puedes enviarnos textos, imágenes y enlaces para verificarlos. ¡Gracias!
   smooch_bot_message_sent: 'Ya nos has enviado este mensaje antes. '
-  smooch_bot_meme: Hicimos este meme gracias a la pregunta que nos enviaste para que verificáramos, ¡compártelo!
+  smooch_bot_meme: Hicimos este meme gracias a la pregunta que nos enviaste para que verificáramos, ¡compártelo! Mira más en %{url}.
   smooch_bot_result: Hemos verificado la información que nos enviaste y determinamos que es * %{status}*. Mira más en %{url}.
   smooch_bot_ask_for_confirmation: ¡Gracias por ponerte en contacto! Por favor confirma si quieres verificar este ítem. Envía 1 para  'sí ', 2 para  'no '.
   smooch_bot_window_closing: 'Si aún desea recibir nuestros mensajes, ¡pónte en contacto con nosotros! De lo contrario, deja todo como está. '
@@ -398,9 +408,9 @@ es:
       editor:
         description: Los editores administran el equipo y los proyectos.
       journalist:
-        description: Periodistas Chequearon la información.
+        description: Periodistas verificaron la información.
       contributor:
-        description: Los Contribuidores pueden añadir nueva información al chequeo. Usualmente son miembros del público.
+        description: Contribuidores pueden añadir nueva información al verificado. Usualmente son miembros del público.
       annotator:
         description: Anotadore(a)s solo pueden ver y responder a las tareas asignadas a ello(a)s.
     permissions:
@@ -478,3 +488,7 @@ es:
   verification_status_deadline_asc: Menor tiempo posible
   verification_status_deadline_desc: Mayor tiempo posible
   cant_mutate_inactive_object: Lo sentimos, hay una operación pendiente para este ítem, por lo que no puedes cambiarlo por ahora. Por favor, inténtalo de nuevo más tarde.
+  embed_expand_all: Expandir todo
+  embed_collapse_all: Contraer todo
+  embed_tasks: Tareas
+  embed_description: 'Descripción '
