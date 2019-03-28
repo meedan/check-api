@@ -1,11 +1,16 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
 body {
-  text-align: left;
-}
-
-body.rtl {
-  text-align: right;
+  text-align: inherit;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -ms-word-break: break-all;
+  word-break: break-all;
+  word-break: break-word;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }
 
 html, body {
@@ -76,12 +81,13 @@ a:visited {
 #oembed__top #oembed__content-col-1 img {
   width: 100%;
   max-width: 100%;
-  min-width: 200px;
+  min-width: 150px;
 }
 
 #oembed__top #oembed__content-col-2 {
   flex: 2;
   max-height: 400px;
+  min-width: 150px;
   overflow: auto;
 }
 
@@ -104,15 +110,6 @@ a:visited {
 
 #oembed__link {
   margin: 10px 0;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  -ms-word-break: break-all;
-  word-break: break-all;
-  word-break: break-word;
-  -ms-hyphens: auto;
-  -moz-hyphens: auto;
-  -webkit-hyphens: auto;
-  hyphens: auto;
 }
 
 #oembed__link a,
@@ -145,12 +142,10 @@ a:visited {
   font-family: Roboto;
   font-weight: bold;
   margin: 10px 0;
-  text-align: left;
 }
 
 .rtl #oembed__top p {
   direction: rtl;
-  text-align: right;
   font-weight: bold;
 }
 
@@ -250,7 +245,6 @@ a:visited {
 
 #oembed__team-link {
   display: block !important;
-  text-align: right;
   font-family: Roboto;
   font-weight: 300;
   color: #000;
@@ -261,6 +255,13 @@ a:visited {
   direction: rtl;
 }
 
-.rtl #oembed__team-link {
-  text-align: left;
+@media only screen and (max-width: 355px) {
+  #oembed__top #oembed__content-col-1,
+  #oembed__top #oembed__content-col-2 {
+    min-width: 100%;
+  }
+
+  #oembed__top #oembed__content-col-1 img {
+    min-width: 0;
+  }
 }
