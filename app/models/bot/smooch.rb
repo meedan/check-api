@@ -12,7 +12,7 @@ class Bot::Smooch
     private
 
     def send_meme_to_smooch_users
-      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).send_meme_to_smooch_users(self.id) if self.action == 'publish'
+      SmoochMemeWorker.perform_in(1.second, self.id) if self.action == 'publish'
     end
   end
 
@@ -273,7 +273,9 @@ class Bot::Smooch
     params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text }.merge(extra)
     message_post_body = SmoochApi::MessagePost.new(params)
     begin
-      api_instance.post_message(app_id, uid, message_post_body)
+      smooch_response = api_instance.post_message(app_id, uid, message_post_body)
+      Rails.logger.info "Response from Smooch when sending message '#{text}' to user #{uid}: #{smooch_response}"
+      smooch_response
     rescue SmoochApi::ApiError => e
       Rails.logger.info "Exception when sending message to Smooch: #{e.response_body}"
       Airbrake.notify(e) if Airbrake.configuration.api_key
@@ -394,7 +396,7 @@ class Bot::Smooch
     return if pm.nil?
     User.current = User.where(id: uid).last
     Team.current = Team.where(id: tid).last
-    pm.targets.each do |target|
+    pm.targets.find_each do |target|
       s = target.annotations.where(annotation_type: 'verification_status').last.load
       next if s.nil? || s.status == status
       s.status = status
@@ -419,6 +421,7 @@ class Bot::Smooch
     }
     status = I18n.t('statuses.media.' + status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
     response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.embed_url), extra)
+    self.save_smooch_response(response, pm)
     id = response&.message&.id
     Rails.cache.write('smooch:smooch_message_id:project_media_id:' + id, pm.id) unless id.blank?
     response
@@ -431,6 +434,18 @@ class Bot::Smooch
     Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_meme, locale: lang, url: pm.embed_url), { type: 'image', mediaUrl: meme })
   end
 
+  def self.save_smooch_response(response, pm)
+    a = Dynamic.new
+    a.annotated = pm
+    a.annotation_type = 'smooch_response'
+    a.disable_es_callbacks = true
+    a.disable_update_status = true
+    a.skip_notifications = true
+    a.skip_check_ability = true
+    a.set_fields = { smooch_response_data: response.to_json }.to_json
+    a.save!
+  end
+
   def self.send_meme_to_smooch_users(annotation_id)
     annotation = Dynamic.where(id: annotation_id).last
     pm = annotation&.annotated
@@ -441,7 +456,8 @@ class Bot::Smooch
       pm2.get_annotations('smooch').find_each do |a|
         data = JSON.parse(a.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_meme, locale: data['language'], url: pm.embed_url), { type: 'image', mediaUrl: meme })
+        smooch_response = ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_meme, locale: data['language'], url: pm.embed_url), { type: 'image', mediaUrl: meme })
+        self.save_smooch_response(smooch_response, pm)
       end
     end
     annotation.set_fields = { memebuster_published_at: Time.now }.to_json
