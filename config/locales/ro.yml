@@ -91,14 +91,101 @@ ro:
   activerecord:
     models:
       link: Link
+      claim: Declarația
+      uploaded_image: Imagine
+      uploaded_file: Fișier
+      task: Sarcină
+      comment: Notă
+      project_media: Element
+      media: Element
+      project: Proiect
+      team: Echipa
+      user: Utilizator
+      source: Sursa
+      project_source: Sursa
+    attributes:
+      tag:
+        data: Tag
+      uploaded_file:
+        file: Fișier
+      uploaded_image:
+        file: Imagine
+      team:
+        slug: Slug
+      source:
+        name: Nume
+      contact:
+        phone: Telefon
+      comment:
+        text: Notă
+      user:
+        email: E-mail
     errors:
+      models:
+        tag:
+          attributes:
+            data:
+              already_exists: deja există
+        team:
+          attributes:
+            slug:
+              slug_format: acceptă doar litere, numere și cratime
       messages:
+        record_invalid: 'Validarea a eșuat: %{errors}'
+        improbable_phone: este un număr nevalid
         too_short:
           one: este prea scurt (minimul este de 1 caracter)
           few: este prea scurt (minimul este de %{count} caractere)
           other: este prea scurt (minimul este de %{count} de caractere)
+  slack_webhook_format_wrong: Webhook Slack nu este valid, formatul trebuie să fie `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: este rezervat
-  approved: aprobat!
+  invalid_format_for_languages: 'Setările de limbă nu sunt valide. Formatul trebuie să fie [{''id'': ''en'', ''title'': ''English''}]'
+  invalid_media_item: Ne pare rău, nu este un element media valid
+  invalid_default_status_for_custom_verification_status: Identificatorul de stare implicit nu este valid
+  invalid_active_status_for_custom_verification_status: Identificatorul de stare activ nu este valid
+  invalid_label_for_custom_verification_status: Eticheta privind starea este obligatorie
+  invalid_id_for_custom_verification_status: Identificatorul de stare este obligatoriu și trebuie să conțină doar litere mici, cifre, cratime și caractere de subliniere
+  invalid_statuses_format_for_custom_verification_status: 'Stările de verificare personalizate trebuie să fie intrări valide pentru: etichetă, identificator, descriere, stil și semn al stării finale'
+  invalid_default_status_for_custom_translation_status: Identificatorul de stare implicit nu este valid
+  invalid_active_status_for_custom_translation_status: Identificatorul de stare activ nu este valid
+  invalid_label_for_custom_translation_status: Eticheta privind starea este obligatorie
+  invalid_id_for_custom_translation_status: Identificatorul de stare este obligatoriu și trebuie să conțină doar litere mici, cratime și caractere de subliniere
+  invalid_statuses_format_for_custom_translation_status: 'Stările personalizate ale traducerii trebuie să fie intrări valide pentru: etichetă, identificator, descriere, stil și semn al stării finale'
+  mail_account_confirmation: "Confirmarea contului %{app_name}"
+  mail_request_to_join: "%{user} vrea să se alăture echipei %{team} pe %{app_name}!"
+  approved: aprobată!
+  rejected: dezaprobată
+  mail_request_to_join_processed: Solicitarea dvs. de a vă alătura echipei %{team}pe %{app_name} a fost %{status}
+  mail_new_account: Noul cont pentru Dvs pe %{app_name}
+  slack:
+    fields:
+      assigned: Atribuit lui
+      unassigned: Transferat de la
+      required: Obligatoriu?
+      required_yes: 'Da'
+      project: Proiect
+      source: Sursa
+      status: Starea
+      status_previous: Starea precedentă
+      related_to: Are legătură cu
+      view_button: Vizualizează %{type} pe %{app}
+      project_source: Sursa
+      project_media: Element
+      attribution: Răspuns dat de
+    messages:
+      task_create: "%{user} (%{role} în %{team}) a adăugat o Sarcină"
+      task_edit: "%{user} (%{role} în %{team}) a redactat o Sarcină"
+      task_assign: "%{user} (%{role} în %{team}) a desemnat %{type}"
+      task_unassign: "%{user} (%{role} în %{team}) a transferat %{type}"
+      task_answer_create: "%{user} (%{role} în %{team}) a dat răspuns la o Sarcină"
+      task_answer_edit: "%{user} (%{role} în %{team}) a redactat un răspuns la o Sarcină"
+      task_comment: "%{user} (%{role} în %{team}) a adăugat o notă la o Sarcină"
+      project_media_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
+      project_media_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
+      project_media_create_related: "%{user} (%{role} în %{team}) a adăugat %{type} asociat"
+      project_media_update: "%{user} (%{role} în %{team}) a redactat %{type}"
+      project_media_status: "%{user} (%{role} în %{team}) a modificat starea %{workflow} pentru %{type}"
+  mail_duplicate_email_exists: Metoda dvs. de conectare pentru %{app_name}
   oembed_notes_count:
     one: "O notă"
     few: "%{count} note"
