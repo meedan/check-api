@@ -42,19 +42,19 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added to Check, no work has started
@@ -454,11 +454,11 @@ en:
     for verification yet.
   smooch_bot_message_sent: You have already sent us this message.
   smooch_bot_meme: Here's a meme we created based on the item you have requested that
-    we fact-check.
-  smooch_bot_result: We have fact-checked what you sent us, and have determined that
+    we verify. Learn more at %{url}.
+  smooch_bot_result: We have verified what you sent us, and have determined that
     the item is *%{status}*. Learn more at %{url}.
   smooch_bot_ask_for_confirmation: Thanks for getting in touch! Please confirm that
-    you want to fact-check this item. Send 1 for 'yes', 2 for 'no'.
+    you want to verify this item. Send 1 for 'yes', 2 for 'no'.
   smooch_bot_window_closing: If you still want to receive messages from us, please
     get in touch! Otherwise, do nothing.
   project_export_download_mail_csv: |-
@@ -493,9 +493,9 @@ en:
       editor:
         description: Editors manage the team and projects.
       journalist:
-        description: Journalists fact check information.
+        description: Journalists verify information.
       contributor:
-        description: Contributors can add new information to fact check. They are
+        description: Contributors can add new information to verify. They are
           often members of the public.
       annotator:
         description: Annotators can only view and answer tasks that are assigned to
@@ -584,3 +584,7 @@ en:
   verification_status_deadline_desc: Due latest
   cant_mutate_inactive_object: Sorry, there is an operation pending for this item,
     so you can't change it right now. Please try again later.
+  embed_expand_all: Expand all
+  embed_collapse_all: Collapse all
+  embed_tasks: Tasks
+  embed_description: Description

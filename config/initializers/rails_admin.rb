@@ -335,9 +335,6 @@ RailsAdmin.config do |config|
       configure "get_media_#{id.pluralize}", :json do
         label "Media #{id.pluralize.gsub('_', ' ')}"
       end
-      configure :get_hide_names_in_embeds do
-        label 'Hide names in embeds'
-      end
       configure :get_slack_notifications_enabled do
         label 'Enable Slack notifications'
       end
@@ -403,14 +400,6 @@ RailsAdmin.config do |config|
         visible_only_for_allowed_teams 'custom_statuses'
       end
 
-      field :hide_names_in_embeds, :boolean do
-        label 'Hide names in embeds'
-        formatted_value{ bindings[:object].get_hide_names_in_embeds }
-        help ''
-        hide do
-          bindings[:object].new_record?
-        end
-      end
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }

@@ -29,16 +29,6 @@ module TeamPrivate
     Team.delay.archive_or_restore_projects_if_needed(self.archived, self.id) if self.archived_changed?
   end
 
-  def clear_embeds_caches_if_needed
-    changed = false
-    if self.changes['settings']
-      prevval = self.changes['settings'][0] || {}
-      newval = self.changes['settings'][1] || {}
-      changed = true if prevval['hide_names_in_embeds'] != newval['hide_names_in_embeds']
-    end
-    Team.delay.clear_embeds_caches_if_needed(self.id) if changed 
-  end
-
   def reset_current_team
     User.where(current_team_id: self.id).each{ |user| user.update_columns(current_team_id: nil) }
   end

@@ -164,9 +164,8 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     team_2 = create_team
     create_team_user team: team_2, user: @user, role: 'owner'
     create_team_user team: @team, user: @user, role: 'owner'
-    put "/admin/team/#{team_2.id}/edit", team: { hide_names_in_embeds: "1" }
+    put "/admin/team/#{team_2.id}/edit"
     assert_redirected_to '/admin/team'
-    assert_equal "1", team_2.reload.get_hide_names_in_embeds
   end
 
   test "should not see limits fields on team page if not admin" do

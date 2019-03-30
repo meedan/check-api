@@ -78,8 +78,10 @@ class Bot::Alegre < ActiveRecord::Base
 
     if response['result'] and response['result'].length > 0 then
       pm_ids = response['result'].collect{|r| r.dig('_source', 'context', 'project_media_id')}
+
       source_ids = Relationship.where("source_id IN (:pm_ids)", { :pm_ids => pm_ids }).select(:source_id).distinct
       parent_id = source_ids.length > 0 ? source_ids[0].source_id : pm_ids[0]
+      return if parent_id == target.id
 
       r = Relationship.new
       r.skip_check_ability = true
@@ -88,6 +90,7 @@ class Bot::Alegre < ActiveRecord::Base
       r.target_id = target.id
       r.save!
     end
+
     Bot::Alegre.request_api('POST', '/similarity/', {
       text: target.text,
       language: src_lang,

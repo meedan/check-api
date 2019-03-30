@@ -28,7 +28,7 @@ module CheckBasicAbilities
     can :create, Source, :user_id => @user.id
     can :update, Source, :id => @user.source_id
     can :destroy, AccountSource, source: { team_id: nil, id: @user.source_id}
-    can :update, User, :id => @user.id
+    can [:update, :destroy], User, :id => @user.id
     can [:create, :update], Account, :user_id => @user.id
     can :create, Embed, :annotated_id => @user.account_ids
 
@@ -74,6 +74,7 @@ module CheckBasicAbilities
 
     can :read, [Account, ProjectSource], source: { user_id: [@user.id, nil] }
     can :read, Account, source: { projects: { team_id: @user.cached_teams }}
+    can :read, Relationship, { source: { project: { team_id: @user.cached_teams } }, target: { project: { team_id: @user.cached_teams } }}
     can :read, ProjectSource, project: { team: { private: false } }
     can :read, ProjectSource, project: { team_id: @user.cached_teams }
     can :read, ProjectMedia do |obj|

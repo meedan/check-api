@@ -118,11 +118,14 @@ namespace :test do
       duration = 0
 
       pool << Thread.new do
-        started_at = Time.now.to_i
         finished_at = nil
+        started_at = nil
         n = Sidekiq::Queue.new('smooch').size
         m = project.project_medias.count
         while m < times
+          if m > 0 and started_at.nil?
+            started_at = Time.now.to_i
+          end
           puts "[#{Time.now}] Number of jobs in Sidekiq queue: #{n}"
           puts "[#{Time.now}] Number of created items: #{m}"
           sleep 5
@@ -140,10 +143,9 @@ namespace :test do
         FileUtils.rm_f '/tmp/siege.txt'
         sh "siege --concurrent=#{concurrency} --reps=#{repeats} --content-type='application/json' --header='X-API-Key: #{secret}' --file=#{filepath} --log=/tmp/siege.log 2>&1 | tee -a /tmp/siege.txt"
 
-        sleep 10
-
         # Confirm the requests
         before = Time.now.to_i
+        sleep 30
         user_ids.each do |uid|
           payload = {
             trigger: 'message:appUser',
@@ -171,7 +173,11 @@ namespace :test do
               conversationStarted: true
             }
           }.to_json
-          system "curl -XPOST -H 'X-API-Key: #{secret}' -H 'Content-Type: application/json' -d '#{payload}' #{CONFIG['checkdesk_base_url']}/api/webhooks/smooch"
+          confirm = %x(curl -XPOST -H 'X-API-Key: #{secret}' -H 'Content-Type: application/json' -d '#{payload}' #{CONFIG['checkdesk_base_url']}/api/webhooks/smooch 2>/dev/null ; echo)
+          while confirm.chomp != '{"type":"success"}'
+            puts "Unexpected confirmation response: #{confirm}"
+            confirm = %x(curl -XPOST -H 'X-API-Key: #{secret}' -H 'Content-Type: application/json' -d '#{payload}' #{CONFIG['checkdesk_base_url']}/api/webhooks/smooch 2>/dev/null ; echo)
+          end
         end
         after = Time.now.to_i
         diff = after - before + 1

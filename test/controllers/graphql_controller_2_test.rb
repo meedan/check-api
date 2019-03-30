@@ -1240,4 +1240,41 @@ class GraphqlController2Test < ActionController::TestCase
     assert_match /rails\.png$/, team.logo.url
   end
 
+  test "should update relationship" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    r = create_relationship source_id: pm1.id, target_id: pm2.id
+    assert_equal pm1, r.reload.source
+    assert_equal pm2, r.reload.target
+    authenticate_with_user(u)
+    query = 'mutation { updateRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '", source_id: ' + pm2.id.to_s + ', target_id: ' + pm1.id.to_s + ' }) { relationship { id, target { dbid }, source { dbid } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateRelationship']['relationship']
+    assert_equal pm1.dbid, data['target']['dbid']
+    assert_equal pm2.dbid, data['source']['dbid']
+    assert_equal pm1, r.reload.target
+    assert_equal pm2, r.reload.source
+  end
+
+  test "should destroy relationship" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    r = create_relationship source_id: pm1.id, target_id: pm2.id
+    assert_not_nil Relationship.where(id: r.id).last
+    authenticate_with_user(u)
+    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal r.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['deletedId']
+    assert_nil Relationship.where(id: r.id).last
+  end
 end

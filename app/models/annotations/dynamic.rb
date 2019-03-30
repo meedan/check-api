@@ -4,7 +4,7 @@ class Dynamic < ActiveRecord::Base
   mount_uploaders :file, ImageUploader
   serialize :file, JSON
 
-  attr_accessor :set_fields, :set_attribution
+  attr_accessor :set_fields, :set_attribution, :action
 
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
