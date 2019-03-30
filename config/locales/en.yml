@@ -55,6 +55,12 @@ en:
       disputed:
         label: Disputed
         description:
+      out_of_scope:
+        label: Out Of Scope
+        description:
+      junk:
+        label: Junk
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added to Check, no work has started
