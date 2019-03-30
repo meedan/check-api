@@ -2,9 +2,9 @@ class Workflow::VerificationStatus < Workflow::Base
 
   check_default_project_media_workflow if CONFIG['app_name'] == 'Check'
 
-  check_workflow from: :any, to: :terminal, actions: :send_terminal_notification_if_can_complete_media
+  check_workflow from: :any, to: :terminal, actions: [:send_terminal_notification_if_can_complete_media, :reset_deadline]
   check_workflow on: :commit, actions: :index_on_es, events: [:create, :update]
-  check_workflow on: :commit, actions: :save_deadline, events: [:create]
+  check_workflow on: :commit, actions: :save_deadline, events: [:create, :update]
 
   def self.core_default_value
     'undetermined'
@@ -105,11 +105,22 @@ class Workflow::VerificationStatus < Workflow::Base
 
     def save_deadline
       status = self.annotation&.load
+      field = status.get_field('verification_status_status')
       turnaround = Team.where(id: status.get_team.last.to_i).last&.get_status_target_turnaround.to_i
-      if turnaround > 0 && status
-        status.set_fields = { deadline: (status.created_at + turnaround.hours).to_i }.to_json
+      if turnaround > 0 && !field.workflow_completed_options.include?(field.value)
+        # Round down deadline to nearest 5 minutes (300 sec)
+        deadline = (status.created_at + turnaround.hours).to_i
+        deadline -= deadline % 300
+        status.set_fields = { deadline: deadline }.to_json
         status.save!
       end
+    end
+
+    def reset_deadline
+      status = self.annotation&.load.becomes(Dynamic)
+      deadline = status.get_field('deadline')
+      deadline.delete unless deadline.blank?
+      status.save!
     end
   end
 end

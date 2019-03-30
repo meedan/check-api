@@ -41,7 +41,17 @@ ar:
         description: تمت المراجعة والعنصر جاهز للنشر
       error:
         label: خطأ
-        description: تمت المراجعة وهناك أخطاء يجب تصحيحها
+      'false':
+        description: 'النتيجة :  محتوى العنصر غير صحيح'
+      inconclusive:
+        label: غير محسوم
+      misleading:
+        label: مُضَلِّل
+      disputed:
+        label: متنازع عليه
+      unstarted:
+        label: لم يبدأ بعد
+        description: الحالة الافتراضية لعنصر أُضيف تواً، لم تبدأ معالجته
     source:
       undetermined:
         label: لم يبدأ بعد
@@ -377,7 +387,7 @@ ar:
   smooch_bot_message_unconfirmed: شكراً  ، لن نقوم بمعالجة رسالتك أكثر من ذلك.
   smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل بعد للتحقق من صحتها.
   smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة من قبل.
-  smooch_bot_meme: إليك ميم أنشأناه بناء على العنصر الذي أرسلته للتحقق من صحته.
+  smooch_bot_meme: إليك ميم أنشأناه بناء على العنصر الذي أرسلته للتحقق منه. لعرض المزيد %{url}.
   smooch_bot_result: لقد تحققنا مما أرسلته لنا ، واستنتجنا أن هذا العنصر *%{status}*. لعرض المزيد %{url}.
   smooch_bot_ask_for_confirmation: شكرا على رسالتك ! يرجى تأكيد أنك تريد التحقق من هذا العنصر. أرسل 1 لـ(نعم) ، 2 لـ(لا).
   smooch_bot_window_closing: إذا كنت لا تزال ترغب في تلقي رسائل منا ، يرجى الاتصال! خلاف ذلك ، لا تفعل شيئا.
@@ -491,3 +501,7 @@ ar:
   verification_status_deadline_asc: مستحق قريباً
   verification_status_deadline_desc: مستحق لاحقاً
   cant_mutate_inactive_object: عذرًا ، هناك عملية جارية لهذا العنصر ، لذا لا يمكنك تغييره الآن. الرجاء إعادة المحاولة في وقت لاحق.
+  embed_expand_all: توسيع الكل
+  embed_collapse_all: طيّ الكل
+  embed_tasks: المهام
+  embed_description: الوصف

@@ -4,7 +4,7 @@ DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_typ
     DynamicAnnotation#{klass} = Dynamic unless defined?(DynamicAnnotation#{klass})
     
     module DynamicAnnotation#{klass}Mutations
-      fields = {}
+      fields = { action: 'str' }
       ['annotated_id', 'annotated_type', 'set_attribution'].each do |name|
         fields[name] = 'str'
       end

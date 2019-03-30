@@ -64,6 +64,11 @@ module ProjectMediaEmbed
     self.all_tasks.select{ |t| t.status == 'resolved' }
   end
 
+  def completed_tasks_to_show
+    tasks_to_show = self.project.team.get_embed_tasks.to_s.split(',').map(&:to_i)
+    self.all_tasks.select{ |t| t.status == 'resolved' && tasks_to_show.include?(t.team_task_id.to_i) }.reverse
+  end
+
   def open_tasks
     self.all_tasks.select{ |t| t.status != 'resolved' }
   end
@@ -198,12 +203,10 @@ module ProjectMediaEmbed
 
       return if pm.nil? || pm.get_annotations('embed_code').empty?
 
-      ['', '?hide_tasks=1', '?hide_notes=1', '?hide_tasks=1&hide_notes=1', '?hide_open_tasks=1', '?hide_open_tasks=1&hide_tasks=1', '?hide_open_tasks=1&hide_notes=1', '?hide_open_tasks=1&hide_tasks=1&hide_notes=1'].each do |part|
-        url = pm.full_url.to_s + part
-        PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
-        CcDeville.clear_cache_for_url(url)
-        CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
-      end
+      url = pm.full_url.to_s
+      PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
+      CcDeville.clear_cache_for_url(url)
+      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
 
       # Twitter embed
       url = pm.full_url.to_s

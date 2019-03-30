@@ -41,7 +41,17 @@ fr:
         description: Traduction revue et approuvée pour la publication
       error:
         label: Erreur
-        description: Traduction revue avec des erreurs signalées
+      'false':
+        description: 'Conclusion : le contenu de l''élément est faux'
+      inconclusive:
+        label: Inconcluant
+      misleading:
+        label: Trompeur
+      disputed:
+        label: Contesté
+      unstarted:
+        label: Non démarré
+        description: 'Par défault : récemment ajouté, le travail n''a pas commencé'
     source:
       undetermined:
         label: Pas commencé
@@ -361,9 +371,9 @@ fr:
   smooch_bot_message_unconfirmed: Merci, nous ne traiterons plus votre message.
   smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore ce type de message en charge pour la vérification.
   smooch_bot_message_sent: Vous nous avez déjà envoyé ce message.
-  smooch_bot_meme: Voici un mème que nous avons créé pour l'article que vous nous avez demandé de vérifier.
-  smooch_bot_result: Nous avons vérifié l'élément que vous nous avez envoyé, et notre conclusion est qu'il est *%{status}*. Pour plus d'informations, suivez %{url}.
-  smooch_bot_ask_for_confirmation: Merci de nous avoir contactés! Veuillez confirmer que vous souhaitez vérifier cet élément. Tapez 1 pour 'oui', 2 pour 'non'.
+  smooch_bot_meme: 'Voici un mème que nous avons créé pour l''article que vous nous avez demandé de vérifier. Pour en savoir plus : %{url}.'
+  smooch_bot_result: 'Nous avons vérifié l''élément que vous nous avez envoyé, et notre conclusion est qu''il est *%{status}*. Pour en savoir plus : %{url}.'
+  smooch_bot_ask_for_confirmation: Merci de nous avoir contactés ! Veuillez confirmer que vous souhaitez vérifier cet élément. Envoyez 1 pour 'oui', 2 pour 'non'.
   smooch_bot_window_closing: Si vous tenez toujours à recevoir une réponse de notre part, veuillez nous contacter. Sinon, rien à faire de plus.
   project_export_download_mail_csv: |-
       Bonjour !
@@ -475,3 +485,7 @@ fr:
   verification_status_deadline_asc: Dû au plus tard
   verification_status_deadline_desc: Dû au plus tôt
   cant_mutate_inactive_object: Désolé, cet élément est en cours de traitement, il ne peut pas être modifié actuellement. Veuillez réessayer plus tard.
+  embed_expand_all: Développer tout
+  embed_collapse_all: Réduire tout
+  embed_tasks: Tâches
+  embed_description: Description

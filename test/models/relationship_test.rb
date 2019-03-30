@@ -182,14 +182,6 @@ class RelationshipTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not update relationship" do
-    r = create_relationship
-    r.relationship_type = { source: 'foo', target: 'bar' }
-    assert_raises ActiveRecord::ReadOnlyRecord do
-      r.save!
-    end
-  end
-
   test "should archive or restore medias when source is archived or restored" do
     s = create_project_media
     t1 = create_project_media
