@@ -4,6 +4,7 @@ RelationshipType = GraphQL::ObjectType.define do
   interfaces [NodeIdentification.interface]
   global_id_field :id
 
+  field :dbid, types.Int
   field :target_id, types.Int
   field :source_id, types.Int
 

@@ -1,0 +1,52 @@
+te:
+  statuses:
+    media:
+      undetermined:
+        label: మొదలవలేదు
+        description: డెఫాల్ట్, ఇప్పుడే Checkకు ఆడ్ చేసాం, పని మొదలవలేదు
+      not_applicable:
+        label: నిర్ధారింపలేనిది
+        description: ఉన్న ఆధారాలతొ నిర్ధారణకు రాలేము
+      in_progress:
+        label: ప్రక్రియలొ ఉన్నది
+        description: పని మొదలయినది కాని ఇంకా అనువాదం అవ్వలేదు
+      not_true:
+        label: 'తప్పు'
+        description: 'నిర్ధారణ - ఐటెం కంటెంట్ తప్పు'
+      verified:
+        label: వెరిఫై చేయబడినది
+        description: 'నిర్ధారణ - ఐటెం కంటెంట్ వెరిఫై చేయబడినది '
+      pending:
+        label: 'పెండింగ్ లొ ఉన్నది '
+        description: డెఫాల్ట్, ఇప్పుడే Bridgeకు ఆడ్ చేసాం, పని మొదలవలేదు
+      translated:
+        label: 'అనువదింపబడినది '
+        description: అనువదింపబడినది, రివ్యు కొరకు వేచిఉన్నాం
+      ready:
+        label: తయారయినది
+        description: అనువాదం రివ్యు చేయబడి, పబ్లిషింగ్ కొరకు అప్రూవ్ అయినది
+      error:
+        label: ఎర్రర్
+      'false':
+        description: 'నిర్ధారణ - ఐటెం కంటెంట్ తప్పు'
+      inconclusive:
+        label: నిర్ధారింపలేనిది
+      misleading:
+        label: తప్పుదొవ పట్టించడం
+      disputed:
+        label: వివాదస్పదం
+      out_of_scope:
+        label: మా పరిధిలొ లేదు
+      junk:
+        label: అప్రయోజనం
+      unstarted:
+        label: మొదలవలేదు
+        description: డెఫాల్ట్, ఇప్పుడే Checkకు ఆడ్ చేసాం, పని మొదలవలేదు
+  smooch_bot_message_confirmed: 'ధన్యవాదములు, మాకు మీ అభ్యర్ధన అందినది. మీరు త్వరలొనే మా నుంచి వినగలరు. '
+  smooch_bot_message_unconfirmed: ధన్యవాదములు, మేము మీ అభ్యర్ధనను మరింతగ విష్లేషించలేము.
+  smooch_bot_message_type_unsupported: 'మన్నించ్చండి, మేము ఈ విధమైన ఫైల్ ఫొర్మట్ ని ఇప్పుదు సహకరించట్లేదు '
+  smooch_bot_message_sent: 'మీరు ఇంతకు ముందు ఈ మెస్సేజ్ ని పంపిఉన్నారు '
+  smooch_bot_meme: "మీరు నిజ నిర్ధారణ కోసం పంపిన అయిటం ఆధారంగ మేము ఈ మేఎం తయారు చేసాము \nవద్ద మరింత తెలుసుకోండి %{url}"
+  smooch_bot_result: మీరు పంపిన విషయము మేము విష్లేషించిన పిదప తెలిసినదేమనగ, ఈ ఐటం - %{status} మరింత సమాచరం కొరకు %{url}
+  smooch_bot_ask_for_confirmation: మమ్మల్ని సంప్రదించినందుకు ధన్యవాదములు. ఈ ఐటం నిజనిర్ధారణ చేయదలిచినచో 1 ని పంపండి, లేదా 2 పంపండి
+  smooch_bot_window_closing: మీరు మా నుంచి సందేశాలు పొందదలిచినచొ, మమ్మల్ని సంప్రదించంది. లేనిచొ ఏమి చేయకండి!

@@ -49,6 +49,10 @@ es:
         label: Engañoso
       disputed:
         label: Con conflicto
+      out_of_scope:
+        label: Fuera de ámbito
+      junk:
+        label: Basura
       unstarted:
         label: Sin iniciar
         description: 'Predeterminado por Check, no se ha iniciado ningún trabajo. '
