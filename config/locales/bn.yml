@@ -1,0 +1,52 @@
+bn:
+  statuses:
+    media:
+      undetermined:
+        label: এখনো শুরু হয়নি
+        description: ডিফল্ট, শুধু চেক করা হয়েছে, কাজ শুরু হয়নি
+      not_applicable:
+        label: মীমাংসাহীন
+        description: উপলব্ধ প্রমাণ সঙ্গে কোন উপসংহার করা যাবে না
+      in_progress:
+        label: চলমান
+        description: কাজ শুরু হয়েছে, কিন্তু এখনো কোন অনুবাদ তৈরি করা হয়নি
+      not_true:
+        label: 'মিথ্যা'
+        description: 'উপসংহার: আইটেমের কন্টেন্ট মিথ্যা'
+      verified:
+        label: যাচাই করা হয়েছে
+        description: 'উপসংহার: এই আইটেম এর কন্টেন্ট যাচাই করা হয়েছে'
+      pending:
+        label: মুলতুবী
+        description: ডিফল্ট, শুধু ব্রিজ যোগ করা হয়েছে, কোন কাজ শুরু হয়েছে
+      translated:
+        label: অনূদিত
+        description: অনুবাদ করা হয়েছে, পর্যালোচনার জন্য অপেক্ষা করছে
+      ready:
+        label: প্রস্তুত
+        description: অনুবাদ পর্যালোচনা এবং প্রকাশনার জন্য অনুমোদিত হয়েছে
+      error:
+        label: এরর
+      'false':
+        description: 'উপসংহার: আইটেমের কন্টেন্ট মিথ্যা'
+      inconclusive:
+        label: মীমাংসাহীন
+      misleading:
+        label: বিভ্রান্তিকর
+      disputed:
+        label: বিতর্কিত
+      out_of_scope:
+        label: কোন সুযোগ নেই
+      junk:
+        label: প্রত্যাখ্যাত
+      unstarted:
+        label: শুরু করা হয় নি
+        description: ডিফল্ট, শুধু চেক করা হয়েছে, কাজ শুরু হয়নি
+  smooch_bot_message_confirmed: ধন্যবাদ, আমরা আপনার অনুরোধ পেয়েছি এবং আপনি আমাদের কাছ থেকে শীঘ্রই শুনতে হবে।
+  smooch_bot_message_unconfirmed: আপনাকে ধন্যবাদ, আপনার বার্তা আর প্রক্রিয়াকরণ করা হবে না।
+  smooch_bot_message_type_unsupported: আপনার প্রশ্ন যাচাই করা যাবে না কারণ এটি যাচাইয়ের জন্য একটি বৈধ প্রশ্ন নয়।
+  smooch_bot_message_sent: এই বার্তা ইতিমধ্যে আমাদের পাঠানো হয়েছে
+  smooch_bot_meme: এখানে আমরা আপনার অনুরোধকৃত আইটেমের ভিত্তিতে তৈরি একটি মেমে যাচাই করেছি। আরো জানুন%{url}
+  smooch_bot_result: আপনি আমাদের যা প্রেরণ করেছেন তা আমরা যাচাই করেছি এবং আইটেমটি %{status}তা নির্ধারণ করেছি। %{url} এ আরও জানুন।
+  smooch_bot_ask_for_confirmation: যোগাযোগ করার জন্য ধন্যবাদ! আপনি এই আইটেমটি যাচাই করতে চান দয়া করে নিশ্চিত করুন। 'হ্যাঁ' এর জন্য 1 পাঠান, 'না' এর জন্য 2 পাঠান।
+  smooch_bot_window_closing: যদি আপনি এখনও আমাদের কাছ থেকে বার্তা পেতে চান, যোগাযোগ করুন! অন্যথা, কিছু না।
