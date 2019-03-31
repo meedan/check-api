@@ -266,4 +266,25 @@ class RelationshipTest < ActiveSupport::TestCase
       r.destroy_elasticsearch_doc({})
     end
   end
+
+  test "should propagate change if source and target are swapped" do
+    u = create_user is_admin: true
+    t = create_team
+    with_current_user_and_team(u, t) do
+      s = create_project_media
+      t1 = create_project_media
+      t2 = create_project_media
+      t3 = create_project_media
+      r1 = create_relationship source_id: s.id, target_id: t1.id
+      r2 = create_relationship source_id: s.id, target_id: t2.id
+      r3 = create_relationship source_id: s.id, target_id: t3.id
+      r1.source_id = t1.id
+      r1.target_id = s.id
+      r1.save!
+      assert_equal t1, r2.reload.source
+      assert_equal t2, r2.reload.target
+      assert_equal t1, r3.reload.source
+      assert_equal t3, r3.reload.target
+    end
+  end
 end
