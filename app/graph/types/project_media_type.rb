@@ -15,6 +15,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :author_role, types.String
   field :report_type, types.String
   field :target_languages, types.String
+  field :title, types.String
 
   field :permissions, types.String do
     resolve -> (project_media, _args, ctx) {
@@ -204,6 +205,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
       project_media.get_dynamic_annotation(args['annotation_type'])
     }
   end
+
+  field :relationship, RelationshipType
 
   instance_exec :project_media, &GraphqlCrudOperations.field_annotations
 
