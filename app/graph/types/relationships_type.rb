@@ -13,13 +13,11 @@ RelationshipsType = GraphQL::ObjectType.define do
     resolve ->(obj, _args, _ctx) {
       project_media = ProjectMedia.find(obj.project_media_id)
       project_media.target_relationships.includes(:source).collect do |relationship|
-        type = relationship.relationship_type.to_json
-        source = relationship.source
-        source.relationship = relationship
+        type = relationship.relationship_type.to_json;
         OpenStruct.new({
           id: [relationship.source_id, type].join('/'),
           relationship_id: relationship.id,
-          source: source,
+          source: relationship.source,
           type: type,
           siblings: relationship.siblings(true)
         })

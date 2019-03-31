@@ -134,7 +134,7 @@ class RelationshipTest < ActiveSupport::TestCase
     create_relationship source_id: s.id, relationship_type: { source: 'depends_on', target: 'blocks' }, target_id: t6.id
     targets = nil
     # Avoid N + 1 problem
-    assert_queries 5 do
+    assert_queries 2 do
       targets = Relationship.targets_grouped_by_type(s).sort_by{ |x| x['type'] }
     end
     assert_equal 3, targets.size
