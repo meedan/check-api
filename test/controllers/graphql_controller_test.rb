@@ -825,7 +825,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     @request.headers['Accept-Language'] = 'mk-MK'
     post :create, query: 'query Query { me { name } }'
-    assert_equal :, I18n.locale
+    assert_equal :en, I18n.locale
   end
 
   test "should get closest language" do
