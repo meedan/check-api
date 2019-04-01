@@ -4,12 +4,19 @@ class Bot::Alegre < ActiveRecord::Base
   validates_presence_of :name
 
   def self.run(body)
-    json = JSON.parse(body)
-    pm = ProjectMedia.where(id: json['data']['dbid']).last
-    unless pm.nil? or pm.text.blank? or CONFIG['alegre_host'].blank? or CONFIG['alegre_token'].blank?
-      Bot::Alegre.default.get_language_from_alegre(pm)
-      Bot::Alegre.default.create_empty_mt_annotation(pm)
-      Bot::Alegre.default.create_similarities_from_alegre(pm)
+    begin
+      data = JSON.parse(body)
+      pm = ProjectMedia.where(id: data['data']['dbid']).last
+      unless data['event'] != 'create_project_media' or pm.nil? or pm.text.blank? or CONFIG['alegre_host'].blank? or CONFIG['alegre_token'].blank?
+        Bot::Alegre.default.get_language_from_alegre(pm)
+        Bot::Alegre.default.create_empty_mt_annotation(pm)
+        Bot::Alegre.default.create_similarities_from_alegre(pm)
+      end
+      true
+    rescue StandardError => e
+      Rails.logger.error("[Alegre Bot] Error for event #{data['event']}: #{e.message}")
+      Airbrake.notify(e) if Airbrake.configuration.api_key
+      false
     end
   end
 
@@ -78,9 +85,25 @@ class Bot::Alegre < ActiveRecord::Base
 
     if response['result'] and response['result'].length > 0 then
       pm_ids = response['result'].collect{|r| r.dig('_source', 'context', 'project_media_id')}
+      return if pm_ids.include?(target.id)
 
-      source_ids = Relationship.where("source_id IN (:pm_ids)", { :pm_ids => pm_ids }).select(:source_id).distinct
-      parent_id = source_ids.length > 0 ? source_ids[0].source_id : pm_ids[0]
+      # Take first match as being the best potential parent.
+      # Conditions to check for a valid parent in 2-level hierarchy:
+      # - If it's a child, get its parent.
+      # - If it's a parent, use it.
+      # - If it has no existing relationship, use it.
+      parent_id = pm_ids[0]
+      source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
+      if source_ids.length > 0 then
+        # Sanity check: if there are multiple parents, something is wrong in the dataset.
+        if source_ids.length > 1 then
+          Rails.logger.error("[Alegre Bot] Found multiple relationship parents for ProjectMedia #{parent_id}")
+        end
+        # Take the first source as the parent.
+        parent_id = source_ids[0].source_id
+      end
+
+      # Better be safe than sorry.
       return if parent_id == target.id
 
       r = Relationship.new
