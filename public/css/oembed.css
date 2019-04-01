@@ -251,6 +251,10 @@ a:visited {
   font-size: 13px;
 }
 
+.oembed__meme {
+  max-width: 100%;
+}
+
 .rtl, .rtl * {
   direction: rtl;
 }
