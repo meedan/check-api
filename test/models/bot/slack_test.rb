@@ -219,4 +219,13 @@ class Bot::SlackTest < ActiveSupport::TestCase
       assert pmc.sent_to_slack
     end
   end
+
+  test "should not notify if object does not exist" do
+    e = create_embed
+    id = e.id
+    e.delete
+    assert_nothing_raised do
+      Embed.call_slack_api(id, nil, 'message')
+    end
+  end
 end

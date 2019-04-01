@@ -538,6 +538,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     a.action = 'publish'
     a.set_fields = { memebuster_operation: 'publish' }.to_json
     a.save!
+    assert_not_equal '', a.reload.get_field_value('memebuster_status')
     assert File.exist?(filepath)
     pa2 = a.get_field_value('memebuster_published_at')
     assert_not_equal pa1.to_s, pa2.to_s
@@ -570,6 +571,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     pm2 = ProjectMedia.last
     assert_equal pm, pm2
     assert File.exist?(filepath)
+
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'in_progress'
+    s.save!
+    
+    assert !File.exist?(filepath)
+    assert_equal '', a.reload.get_field_value('memebuster_status')
   end
 
   test "should get language" do
@@ -621,6 +629,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       I18n.expects(:t).with do |first_arg, second_arg|
         [:smooch_bot_result, :mail_subject_update_status, :error_project_archived].include?(first_arg)
       end.at_least_once
+      I18n.stubs(:t)
       I18n.expects(:t).with('statuses.media.verified.label', { locale: 'en' }).once
       I18n.expects(:t).with('statuses.media.in_progress.label', { locale: 'en' }).never
       Sidekiq::Worker.drain_all

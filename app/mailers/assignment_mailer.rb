@@ -2,6 +2,7 @@ class AssignmentMailer < ApplicationMailer
   layout nil
     
   def notify(event, author, recipient, assigned)
+    return if recipient.blank?
 
     @event = event
     @info = {
@@ -30,7 +31,7 @@ class AssignmentMailer < ApplicationMailer
 
   def ready(requestor_id, team, project, event, assignee)
     requestor = User.where(id: requestor_id).last
-    return if requestor.nil? || assignee.nil?
+    return if requestor.nil? || assignee.nil? || requestor.email.blank?
     @event = event
     @username = requestor.name
     @project_title = project.title
