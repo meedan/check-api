@@ -21,11 +21,11 @@ class Relationship < ActiveRecord::Base
                   if: proc { |r| !r.skip_notifications },
                   data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id }.to_json : r.to_json }
 
-  def siblings(inclusive = false)
-    query = ProjectMedia
-    .joins(:target_relationships)
-    .where('relationships.source_id': self.source_id)
-    .where('relationships.relationship_type = ?', self.relationship_type.to_yaml)
+  def siblings(inclusive = false, limit = 50)
+    query = Relationship
+    .includes(:target)
+    .where(source_id: self.source_id)
+    .where('relationship_type = ?', self.relationship_type.to_yaml)
     .order('id DESC')
     .limit(limit)
     query = inclusive ? query : query.where.not(target_id: self.target_id)
@@ -51,7 +51,7 @@ class Relationship < ActiveRecord::Base
     }.to_json
   end
 
-  def self.targets_grouped_by_type(project_media, filters = nil)
+  def self.targets_grouped_by_type(project_media, filters = nil, limit = 50)
     targets = {}
     ids = nil
     unless filters.blank?
@@ -60,10 +60,14 @@ class Relationship < ActiveRecord::Base
       query = search.medias_build_search_query
       ids = search.medias_get_search_result(query).map(&:annotated_id).map(&:to_i)
     end
-    project_media.source_relationships.includes(:target).each do |relationship|
+    relationships_mapping = {}
+    project_media.source_relationships.includes(:target).limit(limit).each do |relationship|
       key = relationship.relationship_type.to_json
       targets[key] ||= []
-      targets[key] << relationship.target_id if ids.nil? || ids.include?(relationship.target_id)
+      if ids.nil? || ids.include?(relationship.target_id)
+        relationships_mapping[relationship.target_id] = relationship    
+        targets[key] << relationship.target_id    
+      end
     end
     list = []
     targets.each do |key, value|
