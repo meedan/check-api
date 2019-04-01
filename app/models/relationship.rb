@@ -65,8 +65,8 @@ class Relationship < ActiveRecord::Base
       key = relationship.relationship_type.to_json
       targets[key] ||= []
       if ids.nil? || ids.include?(relationship.target_id)
-        relationships_mapping[relationship.target_id] = relationship    
-        targets[key] << relationship.target_id    
+        relationships_mapping[relationship.target_id] = relationship
+        targets[key] << relationship.target_id
       end
     end
     list = []
