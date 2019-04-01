@@ -44,14 +44,14 @@
           picture = @project_media.media.picture
         %>
         <% if meme %>
-          <img src="<%= meme %>" alt="" />
+          <img src="<%= meme %>" class="oembed__meme" alt="" />
         <% elsif @project_media.embed&.send(:[], 'provider') == 'youtube' %>
           <%= @project_media.embed['html'].html_safe %>
         <% else %>
           <div id="oembed__content-content">
             <% unless picture.blank? %>
               <div id="oembed__content-col-1">
-                <img src="<%= picture %>" class="oembed__meme" alt="" />
+                <img src="<%= picture %>" alt="" />
               </div>
             <% end %>
             <% unless @project_media.text.blank? %>
