@@ -469,4 +469,16 @@ class AnnotationTest < ActiveSupport::TestCase
       a.assign_user(u.id)
     end
   end
+
+  test "should not notify Pusher depending on annotation type" do
+    create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
+    assert_nothing_raised do
+      Pusher::Client.any_instance.unstub(:trigger)
+      Pusher::Client.any_instance.unstub(:post)
+      a = create_dynamic_annotation annotation_type: 'slack_message', set_fields: { slack_message_data: { value: random_string(10001) }.to_json }.to_json
+      Pusher::Client.any_instance.stubs(:trigger)
+      Pusher::Client.any_instance.stubs(:post)
+      assert !a.sent_to_pusher
+    end
+  end
 end

@@ -7,7 +7,8 @@ Dynamic.class_eval do
     url = nil
     if self.annotation_type == 'memebuster'
       filename = "#{self.id}.png"
-      url = CONFIG['checkdesk_base_url'] + '/memebuster/' + filename
+      filepath = File.join(Rails.root, 'public', 'memebuster', filename)
+      url = "#{CONFIG['checkdesk_base_url']}/memebuster/#{filename}" if File.exist?(filepath)
     end
     url
   end
