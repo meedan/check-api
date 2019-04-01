@@ -63,4 +63,19 @@ class AssignmentMailerTest < ActionMailer::TestCase
 
     assert_equal ['user1@mail.com'], email.to
   end
+
+  test "should not send e-mail if there is no e-mail" do
+    u = create_user email: '', provider: 'twitter'
+    u2 = create_user email: '', provider: 'twitter'
+    t = create_team
+    p = create_project team: t
+
+    email = AssignmentMailer.ready(u, t, p, :assign, u2)
+
+    assert_nothing_raised do
+      assert_emails 0 do
+        email.deliver_now
+      end
+    end
+  end
 end

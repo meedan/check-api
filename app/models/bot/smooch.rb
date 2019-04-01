@@ -4,6 +4,7 @@ class Bot::Smooch
   ::Workflow::VerificationStatus.class_eval do
     check_workflow from: :any, to: :any, actions: :replicate_status_to_children
     check_workflow from: :any, to: :terminal, actions: :reply_to_smooch_users
+    check_workflow from: :any, to: :any, actions: :reset_meme
   end
 
   ::Dynamic.class_eval do
@@ -28,6 +29,17 @@ class Bot::Smooch
 
     def reply_to_smooch_users
       ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).reply_to_smooch_users(self.annotation.annotated_id, self.value)
+    end
+
+    def reset_meme
+      meme = Dynamic.where(annotation_type: 'memebuster', annotated_type: self.annotation&.annotated_type, annotated_id: self.annotation&.annotated_id).last
+      unless meme.nil?
+        filename = "#{meme.id.to_i}.png"
+        FileUtils.rm_f(File.join(Rails.root, 'public', 'memebuster', filename))
+        meme.set_fields = { memebuster_status: '' }.to_json
+        meme.skip_check_ability = true
+        meme.save!
+      end
     end
   end
 
@@ -164,6 +176,12 @@ class Bot::Smooch
     end
   end
 
+  def self.get_status_label(pm, status, lang)
+    label = I18n.t('statuses.media.' + status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
+    ::Workflow::Workflow.options(pm, 'verification_status').with_indifferent_access['statuses'].each { |s| label = s['label'] if s['id'] == status } if lang.to_s == 'en'
+    label
+  end
+
   def self.resend_message_after_window(message)
     message = JSON.parse(message)
     self.get_installation('smooch_app_id', message['app']['_id'])
@@ -171,7 +189,7 @@ class Bot::Smooch
     pm = ProjectMedia.where(id: pmid).last
     unless pm.nil?
       lang = Bot::Alegre.default.language_object(pm, :value)
-      status = I18n.t('statuses.media.' + pm.last_status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
+      status = self.get_status_label(pm, pm.last_status, lang)
       fallback = I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.embed_url)
       ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{pm.embed_url})")
     end
@@ -419,7 +437,7 @@ class Bot::Smooch
         id: pm.id
       }
     }
-    status = I18n.t('statuses.media.' + status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
+    status = self.get_status_label(pm, status, lang)
     response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.embed_url), extra)
     self.save_smooch_response(response, pm)
     id = response&.message&.id

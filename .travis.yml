@@ -61,6 +61,7 @@ matrix:
   - env: APP=bridge
   # Load testing
   - env: APP=check
+    if: commit_message =~ /\[load test\]/
     language: node_js
     sudo: required
     dist: trusty
