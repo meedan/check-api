@@ -13,7 +13,7 @@ module CheckExport
       media_content: pm.media_content,
       media_url: pm.media.media_url,
       report_status: self.get_project_media_status(pm),
-      report_author: pm.user.name,
+      report_author: pm.user&.name,
       time_delta_to_first_status: pm.time_to_status(:first),
       time_delta_to_last_status: pm.time_to_status(:last),
       time_original_media_publishing: pm.media.original_published_time,
