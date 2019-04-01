@@ -49,6 +49,10 @@ pt:
         label: Enganoso
       disputed:
         label: Contestado
+      out_of_scope:
+        label: Fora do escopo
+      junk:
+        label: Lixo
       unstarted:
         label: Não iniciado
         description: Padrão, recém adicionado ao Check, o trabalho não foi iniciado

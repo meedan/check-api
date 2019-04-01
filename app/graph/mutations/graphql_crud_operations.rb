@@ -79,8 +79,8 @@ class GraphqlCrudOperations
   end
 
   def self.operation_from_multiple_ids(operation, ids, inputs, channels, uid, tid)
-    User.current = User.find(uid)
-    Team.current = Team.find(tid)
+    User.current = User.where(id: uid).last
+    Team.current = Team.where(id: tid).last
     ids_list = ids.split(',')
     attrs = JSON.parse(inputs)
     attrs[:skip_notifications] = true
@@ -116,7 +116,7 @@ class GraphqlCrudOperations
       self.freeze_or_unfreeze_objects(inputs[:ids], true)
       channels = self.target_pusher_channels(obj, operation)
       self.send_bulk_pusher_notification("bulk_#{operation}_start", channels)
-      self.delay_for(1.second, retry: false).operation_from_multiple_ids(operation, inputs[:ids].join(','), params.to_json, channels, User.current.id, Team.current.id)
+      self.delay_for(1.second, retry: false).operation_from_multiple_ids(operation, inputs[:ids].join(','), params.to_json, channels, User.current&.id, Team.current&.id)
       ret
     elsif inputs[:id]
       self.send("#{operation}_from_single_id", inputs[:id], inputs, ctx, parents)
