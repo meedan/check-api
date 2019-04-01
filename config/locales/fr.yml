@@ -49,6 +49,10 @@ fr:
         label: Trompeur
       disputed:
         label: Contesté
+      out_of_scope:
+        label: Hors Contexte
+      junk:
+        label: Indésirable
       unstarted:
         label: Non démarré
         description: 'Par défault : récemment ajouté, le travail n''a pas commencé'

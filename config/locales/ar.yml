@@ -49,6 +49,10 @@ ar:
         label: مُضَلِّل
       disputed:
         label: متنازع عليه
+      out_of_scope:
+        label: خارج النطاق
+      junk:
+        label: سخام
       unstarted:
         label: لم يبدأ بعد
         description: الحالة الافتراضية لعنصر أُضيف تواً، لم تبدأ معالجته
