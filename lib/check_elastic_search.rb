@@ -13,7 +13,6 @@ module CheckElasticSearch
     ms.set_es_annotated(self)
     self.add_extra_elasticsearch_data(ms)
     ms.accounts = self.add_es_accounts if self.class.name == 'ProjectSource'
-    ms.set_es_nested_obj(self)
     ms.save!
   end
 
@@ -119,7 +118,7 @@ module CheckElasticSearch
 
   def create_doc_if_not_exists(options)
     doc_id = options[:doc_id]
-    ElasticSearchWorker.new.perform(YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
   end
 
   def get_elasticsearch_data(data)
