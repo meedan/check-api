@@ -596,11 +596,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       WebMock.stub_request(:post, url).with(body: { text: text }).to_return(body: response)
       pm = create_project_media project: p, quote: text
       mt = pm.annotations.where(annotation_type: 'mt').last
-      Bot::Alegre.run({ data: { dbid: pm.id } }.to_json)
+      Bot::Alegre.run({ event: 'create_project_media', data: { dbid: pm.id } }.to_json)
       assert_nil mt
       p.settings = {:languages => ['ar']}; p.save!
       pm = create_project_media project: p, quote: text
-      Bot::Alegre.run({ data: { dbid: pm.id } }.to_json)
+      Bot::Alegre.run({ event: 'create_project_media', data: { dbid: pm.id } }.to_json)
       mt = pm.annotations.where(annotation_type: 'mt').last
       assert_not_nil mt
     end
@@ -628,9 +628,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
         response = { language: 'en', confidence: 1 }.to_json
         WebMock.stub_request(:post, url).with(body: { text: text }).to_return(body: response)
         pm = create_project_media project: p, quote: text
-        Bot::Alegre.run({ data: { dbid: pm.id } }.to_json)
+        Bot::Alegre.run({ event: 'create_project_media', data: { dbid: pm.id } }.to_json)
         pm2 = create_project_media project: p, quote: text
-        Bot::Alegre.run({ data: { dbid: pm2.id } }.to_json)
+        Bot::Alegre.run({ event: 'create_project_media', data: { dbid: pm2.id } }.to_json)
         Sidekiq::Testing.inline! do
           url = CONFIG['alegre_host'] + '/mt/'
           # Test with machine translation
