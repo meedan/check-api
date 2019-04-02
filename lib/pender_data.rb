@@ -12,7 +12,7 @@ module PenderData
       else
         self.pender_data = result['data']
         # set url with normalized pender URL
-        self.url = result['data']['url']
+        self.url = begin result['data']['url'] rescue self.url end
       end
     end
   end

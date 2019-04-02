@@ -137,12 +137,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       },
       {
         '_id': random_string,
-        authorId: @bid,
-        type: 'text',
-        text: 'This should be ignored'
-      },
-      {
-        '_id': random_string,
         authorId: id2,
         type: 'text',
         text: 'This is a test claim'
