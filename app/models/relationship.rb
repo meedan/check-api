@@ -40,6 +40,14 @@ class Relationship < ActiveRecord::Base
     pms
   end
 
+  def source_project_media
+    self.source
+  end
+
+  def target_project_media
+    self.target
+  end
+
   def version_metadata(_object_changes = nil)
     target = self.target
     target.nil? ? nil : {

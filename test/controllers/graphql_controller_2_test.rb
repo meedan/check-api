@@ -1251,7 +1251,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal pm1, r.reload.source
     assert_equal pm2, r.reload.target
     authenticate_with_user(u)
-    query = 'mutation { updateRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '", source_id: ' + pm2.id.to_s + ', target_id: ' + pm1.id.to_s + ' }) { relationship { id, target { dbid }, source { dbid } } } }'
+    query = 'mutation { updateRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '", source_id: ' + pm2.id.to_s + ', target_id: ' + pm1.id.to_s + ' }) { relationship { id, target { dbid }, source { dbid } }, source_project_media { id }, target_project_media { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['updateRelationship']['relationship']
@@ -1259,6 +1259,8 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal pm2.dbid, data['source']['dbid']
     assert_equal pm1, r.reload.target
     assert_equal pm2, r.reload.source
+    assert_equal pm2.graphql_id, JSON.parse(@response.body)['data']['updateRelationship']['source_project_media']['id']
+    assert_equal pm1.graphql_id, JSON.parse(@response.body)['data']['updateRelationship']['target_project_media']['id']
   end
 
   test "should destroy relationship" do
@@ -1271,10 +1273,12 @@ class GraphqlController2Test < ActionController::TestCase
     r = create_relationship source_id: pm1.id, target_id: pm2.id
     assert_not_nil Relationship.where(id: r.id).last
     authenticate_with_user(u)
-    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId } }'
+    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId, source_project_media { id }, target_project_media { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal r.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['deletedId']
+    assert_equal pm1.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['source_project_media']['id']
+    assert_equal pm2.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['target_project_media']['id']
     assert_nil Relationship.where(id: r.id).last
   end
 end
