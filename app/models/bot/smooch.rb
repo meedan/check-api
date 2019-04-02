@@ -203,12 +203,11 @@ class Bot::Smooch
   end
 
   def self.process_message(message, app_id)
-    return if message['authorId'] == self.config['smooch_bot_id']
     self.refresh_window(message['authorId'], app_id)
     lang = message['language'] = self.get_language(message)
     sm = CheckStateMachine.new(message['authorId'])
 
-    if sm.state.value == 'waiting_for_message'
+    if sm.state.value == 'waiting_for_message' && message['text'].to_i != 1
       sm.send_message
       sm.message = message.to_json
       self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_ask_for_confirmation, locale: lang))
