@@ -3,10 +3,18 @@ require 'webshot'
 Dynamic.class_eval do
   after_save :copy_memebuster_image_paths, if: proc { |a| a.annotation_type == 'memebuster' }
 
+  def memebuster_filename
+    "#{self.id}.png" if self.annotation_type == 'memebuster'
+  end
+
+  def memebuster_filepath
+    File.join(Rails.root, 'public', 'memebuster', self.memebuster_filename) if self.annotation_type == 'memebuster'
+  end
+
   def memebuster_url
     url = nil
     if self.annotation_type == 'memebuster'
-      filename = "#{self.id}.png"
+      filename = self.memebuster_filename
       filepath = File.join(Rails.root, 'public', 'memebuster', filename)
       url = "#{CONFIG['checkdesk_base_url']}/memebuster/#{filename}" if File.exist?(filepath)
     end
@@ -15,7 +23,7 @@ Dynamic.class_eval do
 
   def memebuster_png_path(force = false)
     if self.annotation_type == 'memebuster'
-      filename = "#{self.id}.png"
+      filename = self.memebuster_filename
       filepath = File.join(Rails.root, 'public', 'memebuster', filename)
       url = CONFIG['checkdesk_base_url'] + '/memebuster/' + filename
       

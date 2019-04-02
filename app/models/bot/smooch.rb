@@ -34,8 +34,7 @@ class Bot::Smooch
     def reset_meme
       meme = Dynamic.where(annotation_type: 'memebuster', annotated_type: self.annotation&.annotated_type, annotated_id: self.annotation&.annotated_id).last
       unless meme.nil?
-        filename = "#{meme.id.to_i}.png"
-        FileUtils.rm_f(File.join(Rails.root, 'public', 'memebuster', filename))
+        FileUtils.rm_f(meme.memebuster_filepath)
         meme.set_fields = { memebuster_status: '' }.to_json
         meme.skip_check_ability = true
         meme.save!
@@ -133,6 +132,7 @@ class Bot::Smooch
   end
 
   def self.valid_request?(request)
+    RequestStore.store[:smooch_bot_queue] = request.headers['X-Check-Smooch-Queue'].to_s
     key = request.headers['X-API-Key'].to_s
     installation = self.get_installation('smooch_webhook_secret', key)
     !key.blank? && !installation.nil?
@@ -300,9 +300,15 @@ class Bot::Smooch
     end
   end
 
+  def self.get_queue
+    mapping = { 'siege' => 'siege' }
+    queue = RequestStore.store[:smooch_bot_queue].to_s
+    queue.blank? ? 'smooch' : (mapping[queue] || 'smooch')
+  end
+
   def self.save_message_later(message, app_id)
     type = (message['type'] == 'text' && !message['text'][/https?:\/\/[^\s]+/, 0].blank?) ? 'link' : message['type']
-    SmoochWorker.perform_in(1.second, message.to_json, type, app_id)
+    SmoochWorker.set(queue: self.get_queue).perform_in(1.second, message.to_json, type, app_id)
   end
 
   def self.save_message(message, app_id)

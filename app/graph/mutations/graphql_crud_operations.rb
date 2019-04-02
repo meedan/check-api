@@ -19,7 +19,7 @@ class GraphqlCrudOperations
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
         parent = self.define_optimistic_fields(parent, inputs, parent_name)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version'].include?(parent_name)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version', 'source_project_media', 'target_project_media'].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -289,7 +289,7 @@ class GraphqlCrudOperations
     fields = {}
     parents.each do |parent|
       parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
-      parentclass = 'ProjectMedia' if parent == 'related_to'
+      parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media'].include?(parent)
       parentclass = 'Version' if parent == 'first_response_version'
       fields[parent.to_sym] = "#{parentclass}Type".constantize
     end

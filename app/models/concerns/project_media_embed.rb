@@ -66,7 +66,7 @@ module ProjectMediaEmbed
 
   def completed_tasks_to_show
     tasks_to_show = self.project.team.get_embed_tasks.to_s.split(',').map(&:to_i)
-    self.all_tasks.select{ |t| t.status == 'resolved' && tasks_to_show.include?(t.team_task_id.to_i) }.reverse
+    self.all_tasks.select{ |t| t.status == 'resolved' && (t.team_task_id.blank? || tasks_to_show.include?(t.team_task_id.to_i)) }.reverse
   end
 
   def open_tasks

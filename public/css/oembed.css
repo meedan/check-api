@@ -219,6 +219,10 @@ a:visited {
   align-items: center;
 }
 
+#oembed__footer p#oembed__team-disclaimer {
+  display: block;
+}
+
 #oembed__footer img {
   width: 24px;
   height: 24px;

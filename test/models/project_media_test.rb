@@ -883,13 +883,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media media: c, user: u, project: p
       create_comment text: 'A comment', annotated: pm
       create_comment text: 'A second comment', annotated: pm
-      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-      ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-      fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1
-      t = create_task annotated: pm
-      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Task response' }.to_json }.to_json
-      t.save!
 
       ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
       ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
