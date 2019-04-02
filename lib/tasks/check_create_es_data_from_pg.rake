@@ -10,7 +10,7 @@ namespace :check do
       index_pg_data
     rescue Exception => e
       puts "You must delete the existing index or alias [#{CheckElasticSearchModel.get_index_alias}] before running the task."
-    end  	
+    end
   end
 
   def index_pg_data
@@ -48,7 +48,7 @@ namespace :check do
             doc.translation_status = ts.load.status unless ts.nil?
             # tags
             tags = obj.get_annotations('tag').map(&:load)
-            doc.tags = tags.collect{|t| {id: t.id, tag: t.tag}}
+            doc.tags = tags.collect{|t| {id: t.id, tag: t.tag_text}}
             max_updated_at = tags.max_by(&:updated_at)
             updated_at << max_updated_at.updated_at unless max_updated_at.nil?
             # Dynamics
