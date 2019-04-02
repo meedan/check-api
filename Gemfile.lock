@@ -562,8 +562,6 @@ GEM
     sidekiq-benchmark (0.5.2)
       chartkick (>= 1.1.1)
       sidekiq (~> 4)
-    sidekiq-limit_fetch (3.4.0)
-      sidekiq (>= 4)
     sidekiq-status (1.1.1)
       chronic_duration
       sidekiq (>= 3.0)
@@ -754,7 +752,6 @@ DEPENDENCIES
   sdoc (~> 0.4.0)
   sidekiq
   sidekiq-benchmark
-  sidekiq-limit_fetch
   sidekiq-status
   simplecov (= 0.13.0)
   simplecov-console
