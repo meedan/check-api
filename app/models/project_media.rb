@@ -191,8 +191,8 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def update_mt=(_update)
-    mt = self.annotations.where(annotation_type: 'mt').last
-    MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(User.current)) unless mt.nil?
+    #mt = self.annotations.where(annotation_type: 'mt').last
+    #MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(User.current)) unless mt.nil?
   end
 
   def get_dynamic_annotation(type)
