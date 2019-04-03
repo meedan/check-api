@@ -109,10 +109,6 @@ class TeamBot < ActiveRecord::Base
         Rails.logger.error("[Bots] Error calling bot #{self.id}: #{e.message}")
       end
     end
-
-    self.last_called_at = Time.now
-    self.skip_check_ability = true
-    self.save!
   end
 
   def notify_about_event(event, object, team, installation)
