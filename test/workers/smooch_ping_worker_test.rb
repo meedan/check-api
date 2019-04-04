@@ -32,4 +32,12 @@ class SmoochPingWorkerTest < ActiveSupport::TestCase
       SmoochPingWorker.perform_async(random_string, @app_id)
     end
   end
+
+  test "should not send message if cannot find bot installation" do
+    Sidekiq::Testing.inline!
+    assert_nothing_raised do
+      SmoochPingWorker.perform_async(random_string, 'Unexistent')
+    end
+  end
+
 end
