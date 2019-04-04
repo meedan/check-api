@@ -3,8 +3,8 @@ module CheckExport
     base.extend(ClassMethods)
   end
 
-  def export
-    self.project_medias.collect{ |pm| Hash[
+  def export(last_id = 0)
+    self.project_medias.order(:id).find_each(start: last_id + 1).collect{ |pm| Hash[
       project_id: pm.project_id,
       report_id: pm.id,
       report_title: pm.title,
@@ -63,8 +63,8 @@ module CheckExport
     )
   end
 
-  def export_csv
-    hashes = self.export
+  def export_csv(last_id = 0)
+    hashes = self.export(last_id)
     headers = hashes.inject([]) {|res, h| res | h.keys}
     content = CSV.generate do |csv|
       csv << headers
@@ -76,15 +76,15 @@ module CheckExport
     { key => content }
   end
 
-  def export_images
+  def export_images(last_id = 0)
     require 'open-uri'
     output = {}
-    ProjectMedia.joins(:media).where('medias.type' => 'UploadedImage', 'project_id' => self.id).find_each do |pm|
+    ProjectMedia.order(:id).joins(:media).where('medias.type' => 'UploadedImage', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
       path = pm.media.file.path
       key = [self.team.slug, self.title.parameterize, pm.id].join('_') + File.extname(path)
       output[key] = File.read(path)
     end
-    ProjectMedia.joins(:media).where('medias.type' => 'Link', 'project_id' => self.id).find_each do |pm|
+    ProjectMedia.order(:id).joins(:media).where('medias.type' => 'Link', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
       key = [self.team.slug, self.title.parameterize, pm.id, 'screenshot'].join('_') + '.png'
       begin
         screenshot_url = JSON.parse(pm.get_annotations('pender_archive').last.get_fields.select{ |f| f.field_name == 'pender_archive_response' }.last.value)['screenshot_url'].gsub(CONFIG['pender_url'], CONFIG['pender_url_private'])
@@ -96,9 +96,9 @@ module CheckExport
     output
   end
 
-  def export_zip(type)
+  def export_zip(type, last_id = 0)
     require 'zip'
-    contents = self.send("export_#{type}")
+    contents = self.send("export_#{type}", last_id)
     self.export_password = SecureRandom.hex
     buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new(self.export_password)) do |out|
       contents.each do |filename, content|
@@ -131,23 +131,23 @@ module CheckExport
     File.join(dir, self.export_filename(type) + '.zip')
   end
 
-  def export_to_csv_in_background(user = nil)
-    self.export_project_in_background(:csv, user)
+  def export_to_csv_in_background(user = nil, last_id = 0)
+    self.export_project_in_background(:csv, user, last_id)
   end
 
-  def export_images_in_background(user = nil)
-    self.export_project_in_background(:images, user)
+  def export_images_in_background(user = nil, last_id = 0)
+    self.export_project_in_background(:images, user, last_id)
   end
 
-  def export_project_in_background(type, user = nil)
+  def export_project_in_background(type, user = nil, last_id = 0)
     email = user.nil? ? nil : user.email
-    self.class.delay_for(1.second).export_project(type, self.class.name, self.id, email)
+    self.class.delay_for(1.second).export_project(type, self.class.name, self.id, email, last_id)
   end
 
   module ClassMethods
-    def export_project(type, klass, id, email)
+    def export_project(type, klass, id, email, last_id = 0)
       obj = klass.constantize.find(id)
-      obj.export_zip(type)
+      obj.export_zip(type, last_id)
       AdminMailer.delay.send_download_link(type, obj, email, obj.export_password) unless email.blank?
       days = CONFIG['export_download_expiration_days'] || 7
       klass.constantize.delay_for(days.to_i.days).remove_export_file(obj.export_filepath(type))
