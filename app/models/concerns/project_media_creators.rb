@@ -2,24 +2,7 @@ require 'active_support/concern'
 
 module ProjectMediaCreators
   extend ActiveSupport::Concern
-
-  def add_extra_elasticsearch_data(ms)
-    m = self.media
-    unless m.nil?
-      ms.associated_type = m.type
-      ms.accounts = self.set_es_account_data unless m.account.nil?
-    end
-    data = self.embed
-    unless data.nil?
-      ms.title = data['title']
-      ms.description = data['description']
-      ms.quote = m.quote
-    end
-    ms.verification_status = self.last_status
-    ts = self.annotations.where(annotation_type: "translation_status").last
-    ms.translation_status = ts.load.status unless ts.nil?
-  end
-
+  
   private
 
   def set_project_source
