@@ -15,6 +15,7 @@ module TaskMutations
     required: 'bool',
     description: 'str',
     response: 'str',
+    status: 'str',
     accept_suggestion: 'int',
     reject_suggestion: 'int',
     assigned_to_ids: 'str'
