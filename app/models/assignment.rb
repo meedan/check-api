@@ -62,6 +62,7 @@ class Assignment < ActiveRecord::Base
 
   def self.propagate_assignments(assignment, requestor_id, event)
     assignment = YAML::load(assignment)
+    return if assignment.assigned.nil?
     to_create = []
     to_delete = []
     objs = assignment.assigned.propagate_assignment_to(assignment.user)
@@ -84,6 +85,10 @@ class Assignment < ActiveRecord::Base
     DynamicAnnotation::Field.joins(:annotation).where(field_name: 'task_status_status').where('annotations.annotated_id' => task_ids).update_all(value: 'unresolved')
     Assignment.delete(to_delete)
     assignment.send(:update_user_assignments_progress)
+    Assignment.notify_propagate_assignments(requestor_id, assignment, event)
+  end
+
+  def self.notify_propagate_assignments(requestor_id, assignment, event)
     if Assignment.should_send_assignment_email(requestor_id, assignment)
       data = assignment.get_team_and_project
       AssignmentMailer.delay_for(1.second).ready(requestor_id, data.team, data.project, event, assignment.user)
