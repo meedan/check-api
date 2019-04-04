@@ -79,12 +79,12 @@ module CheckExport
   def export_images(last_id = 0)
     require 'open-uri'
     output = {}
-    ProjectMedia.order(:id).find_each(start: last_id + 1).joins(:media).where('medias.type' => 'UploadedImage', 'project_id' => self.id).find_each do |pm|
+    ProjectMedia.order(:id).joins(:media).where('medias.type' => 'UploadedImage', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
       path = pm.media.file.path
       key = [self.team.slug, self.title.parameterize, pm.id].join('_') + File.extname(path)
       output[key] = File.read(path)
     end
-    ProjectMedia.order(:id).find_each(start: last_id + 1).joins(:media).where('medias.type' => 'Link', 'project_id' => self.id).find_each do |pm|
+    ProjectMedia.order(:id).joins(:media).where('medias.type' => 'Link', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
       key = [self.team.slug, self.title.parameterize, pm.id, 'screenshot'].join('_') + '.png'
       begin
         screenshot_url = JSON.parse(pm.get_annotations('pender_archive').last.get_fields.select{ |f| f.field_name == 'pender_archive_response' }.last.value)['screenshot_url'].gsub(CONFIG['pender_url'], CONFIG['pender_url_private'])
