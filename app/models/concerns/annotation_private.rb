@@ -7,7 +7,7 @@ module AnnotationPrivate
 
   def set_type_and_event
     self.annotation_type ||= self.class_name.parameterize
-    self.paper_trail_event = 'create' if self.versions.count === 0
+    self.paper_trail_event = 'create' if self.id.blank?
   end
 
   def set_annotator
