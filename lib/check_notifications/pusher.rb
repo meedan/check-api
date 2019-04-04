@@ -80,7 +80,7 @@ module CheckNotifications
         channels = targets.reject{ |t| t.blank? }.map(&:pusher_channel)
         data = '{}' if data == 'null'
 
-        Rails.env == 'test' ? self.request_pusher(channels, event, self.parse_data(data).to_json, self.actor_session_id) : CheckNotifications::Pusher::Worker.perform_in(1.second, channels, event, self.parse_data(data).to_json, self.actor_session_id)
+        self.request_pusher(channels, event, self.parse_data(data).to_json, self.actor_session_id) if Rails.env == 'test'
         CheckNotifications::Pusher::Worker.perform_in(1.second, ['check-api-global-channel'], 'update', self.parse_data(data).merge({ pusherChannels: channels, pusherEvent: event }).to_json, self.actor_session_id)
       end
 
@@ -93,6 +93,8 @@ module CheckNotifications
     class Worker
       include ::Sidekiq::Worker
       include CheckNotifications::Pusher::ClassMethods
+
+      sidekiq_options queue: 'pusher', retry: 0
 
       def perform(channels, event, data, actor_session_id)
         send_to_pusher(channels, event, data, actor_session_id)

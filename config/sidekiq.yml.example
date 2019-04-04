@@ -3,7 +3,8 @@
 :redis_port: 6379
 :redis_database: 1
 :queues:
-  - ["default", 1]
-  - ["esqueue", 1]
-  - ["smooch", 1]
-  - ["smooch_ping", 1]
+  - ["esqueue", 4]
+  - ["default", 2]
+  - ["smooch", 2]
+  - ["smooch_ping", 2]
+  - ["pusher", 1]
