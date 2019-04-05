@@ -370,6 +370,27 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should export data for Check starting from specific id" do
+    create_verification_status_stuff
+    stub_config('default_project_media_workflow', 'verification_status') do
+      p = create_project
+      pm = create_project_media project: p, media: create_valid_media
+      pm2 = create_project_media project: p, media: create_valid_media
+      c = create_comment annotated: pm, text: 'Note 1'
+      c2 = create_comment annotated: pm2, text: 'Note 2'
+      tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
+      tag2 = create_tag tag: 'music', annotated: pm2, annotator: create_user
+      task = create_task annotator: create_user, annotated: pm
+      exported_data = p.export(pm.id)
+      assert_equal 1, exported_data.size
+      assert_equal p.id, exported_data.first[:project_id]
+      assert_equal pm2.id, exported_data.first[:report_id]
+      assert_equal 'music', exported_data.first[:tags]
+      assert_equal 'Note 2', exported_data.first[:note_content_1]
+      assert_nil exported_data.first[:task_1_question]
+    end
+  end
+
   test "should export data for Bridge" do
     create_translation_status_stuff
     stub_config('default_project_media_workflow', 'translation_status') do

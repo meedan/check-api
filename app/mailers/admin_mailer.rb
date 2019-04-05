@@ -12,7 +12,9 @@ class AdminMailer < ApplicationMailer
       @app = CONFIG['app_name']
       @password = password
       @type = type
-      mail(to: email, subject: I18n.t("project_export_email_title_#{type}".to_sym))
+      recipients = obj.team.owners('owner').map(&:email).reject{ |m| m.blank? || m == email }
+      recipients = Bounce.remove_bounces(recipients)
+      mail(to: email, cc: recipients, subject: I18n.t("project_export_email_title_#{type}".to_sym))
     end
   end
 

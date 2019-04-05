@@ -2,7 +2,7 @@ class AssignmentMailer < ApplicationMailer
   layout nil
     
   def notify(event, author, recipient, assigned)
-    return if recipient.blank?
+    return unless should_notify?(recipient, assigned)
 
     @event = event
     @info = {
@@ -27,6 +27,10 @@ class AssignmentMailer < ApplicationMailer
 
     Rails.logger.info "Sending e-mail from event #{event} to #{recipient}"
     mail(to: recipient, email_type: 'assignment', subject: I18n.t("mail_subject_#{event}".to_sym, team: @team, project: @project))
+  end
+
+  def should_notify?(recipient, assigned)
+    !recipient.blank? && assigned.class.exists?(assigned.id)
   end
 
   def ready(requestor_id, team, project, event, assignee)
