@@ -47,10 +47,10 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
-    @link_url = random_url 
+    @link_url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
-    @link_url_2 = 'https://' + random_string + '.com' 
+    @link_url_2 = 'https://' + random_string + '.com'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url_2 } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url_2 + '","type":"item"}}' })
     Bot::Smooch.stubs(:get_language).returns('en')
     create_alegre_bot
@@ -227,7 +227,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         assert_difference 'Comment.length', 4 do
           messages.each do |message|
             uid = message[:authorId]
-            
+
             message = {
               trigger: 'message:appUser',
               app: {
@@ -260,7 +260,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
                 'conversationStarted': true
               }
             }.to_json
-            
+
             Bot::Smooch.run(message)
             Bot::Smooch.run(ignore)
             Bot::Smooch.run(message)
@@ -306,7 +306,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         'conversationStarted': true
       }
     }.to_json
-    
+
     Bot::Smooch.run(payload)
 
     # Job scheduled
@@ -358,7 +358,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         'conversationStarted': true
       }
     }.to_json
-    
+
     assert Bot::Smooch.run(payload)
     assert send_confirmation(uid)
 
@@ -366,7 +366,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'verified'
     s.save!
-    
+
     payload = {
       trigger: 'message:delivery:failure',
       app: {
@@ -382,7 +382,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         underlyingError: {
           errors: [
             {
-              code: 470, 
+              code: 470,
               title: 'Failed to send message because you are outside the support window for freeform messages to this user. Please use a valid HSM notification or reconsider.'
             }
           ]
@@ -393,7 +393,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       },
       timestamp: Time.now.to_f
     }.to_json
- 
+
     assert Bot::Smooch.run(payload)
   end
 
@@ -414,8 +414,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Sidekiq::Testing.fake! do
       SmoochPingWorker.drain
       SmoochWorker.drain
-      ProjectMedia.delete_all 
-      
+      ProjectMedia.delete_all
+
       uid = random_string
       key = 'smooch:' + uid + ':reminder_job_id'
       text = random_string
@@ -444,7 +444,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
           'conversationStarted': true
         }
       }.to_json
-      
+
       Bot::Smooch.run(payload)
       assert_not_nil Rails.cache.read(key)
       assert_equal 1, SmoochPingWorker.jobs.size
@@ -469,9 +469,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       s = pm.annotations.where(annotation_type: 'verification_status').last.load
       s.status = 'verified'
       s.save!
-      
+
       Sidekiq::Worker.drain_all
-      
+
       assert_nil Rails.cache.read(key)
       assert_equal 0, SmoochPingWorker.jobs.size
       assert_equal 0, SmoochWorker.jobs.size
@@ -509,7 +509,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         'conversationStarted': true
       }
-    }.to_json    
+    }.to_json
     Bot::Smooch.run(payload)
     assert send_confirmation(uid)
     pm = ProjectMedia.last
@@ -559,7 +559,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         'conversationStarted': true
       }
-    }.to_json    
+    }.to_json
     Bot::Smooch.run(payload)
     assert send_confirmation(uid)
     pm2 = ProjectMedia.last
@@ -569,9 +569,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'in_progress'
     s.save!
-    
+
     assert !File.exist?(filepath)
-    assert_equal '', a.reload.get_field_value('memebuster_status')
+    assert_equal 'In Progress', a.reload.get_field_value('memebuster_status')
   end
 
   test "should get language" do
@@ -579,7 +579,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        assert_equal 'en', Bot::Smooch.get_language({ 'text' => 'This is just a test' }) 
+        assert_equal 'en', Bot::Smooch.get_language({ 'text' => 'This is just a test' })
       end
     end
   end
@@ -608,10 +608,10 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         'conversationStarted': true
       }
     }.to_json
-    
+
     assert Bot::Smooch.run(payload)
     assert send_confirmation(uid)
-    
+
     Sidekiq::Testing.fake! do
       pm = ProjectMedia.last
       s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -661,7 +661,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         'conversationStarted': true
       }
     }.to_json
-      
+
     Sidekiq::Testing.fake! do
       assert Bot::Smooch.run(payload)
       assert_nothing_raised do
@@ -694,7 +694,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
           'conversationStarted': true
         }
       }.to_json
-        
+
       assert Bot::Smooch.run(payload)
       assert send_confirmation(uid)
     end
