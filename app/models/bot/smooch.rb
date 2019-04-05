@@ -35,7 +35,11 @@ class Bot::Smooch
       meme = Dynamic.where(annotation_type: 'memebuster', annotated_type: self.annotation&.annotated_type, annotated_id: self.annotation&.annotated_id).last
       unless meme.nil?
         FileUtils.rm_f(meme.memebuster_filepath)
-        meme.set_fields = { memebuster_status: '' }.to_json
+        status = ::Workflow::Workflow.get_status(self.annotation.annotated, 'verification_status', self.value)
+        meme.set_fields = {
+          memebuster_status: ::Bot::Smooch.get_status_label(self.annotation.annotated, self.value, I18n.locale),
+          memebuster_overlay: status&.dig('style', 'backgroundColor')
+        }.to_json
         meme.skip_check_ability = true
         meme.save!
       end
@@ -442,8 +446,8 @@ class Bot::Smooch
         id: pm.id
       }
     }
-    status = self.get_status_label(pm, status, lang)
-    response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.embed_url), extra)
+    status_label = self.get_status_label(pm, status, lang)
+    response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status_label, url: pm.embed_url), extra)
     self.save_smooch_response(response, pm)
     id = response&.message&.id
     Rails.cache.write('smooch:smooch_message_id:project_media_id:' + id, pm.id) unless id.blank?
