@@ -372,7 +372,122 @@ ro:
   task_suggestion_invalid_value: Sugestia trebuie să fie un hash JSON cu 'suggestion' (sugestie - valoarea, care se copie în răspuns dat la sarcină în caz de accept) și 'comment' (comentariu - afișat pentru utilizatori)
   tag_text_id_not_found: Ne pare rău, nu există tag-uri cu identificator introdus
   annotation_type_language_label: Limba
-  smooch_bot_message_confirmed: Vă mulțumim, am recepționat solicitarea Dvs. Ar trebui să primiți vești de la noi în scurt timp.
-  smooch_bot_message_unconfirmed: Vă mulțumim, nu vom procesa mesajul Dvs în continuare.
   smooch_bot_message_type_unsupported: Ne pare rău, deocamdată nu acceptăm acest tip de format de fișiere pentru verificare.
   smooch_bot_message_sent: Dvs ne-ați transmis acest mesaj deja.
+  smooch_bot_meme: Iată un meme, pe care l-am creat în baza elementului, pentru care ați solicitat verificarea. Aflați mai multe pe %{url}.
+  project_export_download_mail_csv: |-
+      Salut!
+
+      Ați solicitat un raport pentru%{project} - acesta este link-ul pentru descărcarea acestuia: %{link}
+
+      Raportul va fi descărcat sub forma unui fișier comprimat, criptat. Pentru a-l decomprima folosiți parola %{password}.
+
+      Atenție! Acest link va expira peste %{days} zile.
+
+      Cu gânduri bune,
+
+      Echipa %{app}
+  project_export_email_title_images: Imaginile din proiectul Dvs sunt gata pentru a fi descărcate
+  project_export_download_mail_images: |-
+      Salut!
+
+      Ați solicitat descărcarea imaginilor din %{project} - aici este link-ul pentru descărcare: %{link}
+
+      Imaginile vor fi descărcate sub forma unui fișier comprimat, criptat. Pentru a-l decomprima folosiți parola %{password}.
+
+      Atenție! Acest link va expira peste %{days} zile.
+
+      Cu gânduri bune,
+
+      Echipa %{app}
+  permissions_info:
+    roles:
+      owner:
+        description: Proprietarii controlează spațiul de lucru.
+      editor:
+        description: Redactorii gestionează echipa și proiectele.
+      journalist:
+        description: Jurnaliștii verifică informația.
+      contributor:
+        description: Contribuitorii pot adăuga noi informații pentru verificare. Deseori sunt membrii publicului,
+      annotator:
+        description: Adnotatorii văd doar sarcinile ce le-au fost desemnate și pot răspunde doar la ele.
+    permissions:
+      sections:
+        project_management:
+          name: Gestionare proiecte
+          permissions:
+            create: Creează un proiect
+            edit: Editare proiect
+            delete: Ștergere proiect
+            add_item: Adaugă element media la proiect
+        item_page_management:
+          name: Gestionare elemente
+          permissions:
+            edit: Redactare element
+            move: Mutare element
+            change_status: Schimbă starea elementului
+            lock_unlock_status: Blochează/deblochează starea
+            add_remove_tag: Adaugă/elimină tag
+            send_to_trash: Trimite elementul sau sursa în coș
+            empty_trash: Golire coș
+        task_management:
+          name: Gestionare sarcini
+          permissions:
+            create: Creeare sarcină
+            edit: Redactare sarcină
+            delete: Ștergere sarcină
+            add_response: Adaugă un răspuns
+            delete_repsonse: Șterge răspunsul
+            assign_task: Desemnare sarcină sau element media
+        team_management:
+          name: Gestionare echipe
+          permissions:
+            delete: Ștergere echipă
+            edit: Redactarea informației despre echipă
+            set_private: Setează echipa să fie privată
+            edit_status: Redactare stări aplicabile în echipă
+            edit_tasks: Creează și redactează sarcini la nivel de echipă
+            roles: Redactare roluri în echipă
+            third_party: Adaugă integrare a terților
+            invite_owner: Invită, aprobă și elimină proprietarii echipei
+            invite_members: Invită, aprobă și elimină membrii echipei
+  team_import:
+    invalid_google_spreadsheet_url: URL %{spreadsheet_url} pentru tabel electronic nu este valid
+    not_found_google_spreadsheet_url: Tabelul electronic nu a fost găsit pe %{spreadsheet_url}
+    cannot_authenticate_with_the_credentials: Nu puteți accesa Google Drive cu acest nume de utilizator și parolă. Vă rygăm să contactați echipa de suport pentru a-i informa despre acest incident.
+    team_not_present: În timpul importului de date echipa actuală nu a fost găsită. Vă rugăm să informați echipa de suport despre acest incident.
+    user_not_present: În timpul importului de date utilizatorul actual nu a fost găsit. Vă rugăm să informați echipa de suport despre acest incident.
+    user_not_authorized: Ne pare rău, nu aveți permisiunea de a importa date în această echipă.
+    invalid_project: Proiectul %{project} nu este valid
+    invalid_user: Autorul %{user} nu este valid
+    invalid_status: Starea %{status} nu este validă
+    blank_user: Autorul necompletat nu este valid
+    blank_annotator: 'Adnotatorul necompletat nu este valid '
+    blank_project: Proiectul necompletat nu este valid
+    invalid_annotator: Adnotator nevalid %{user}
+    invalid_assignee: Destinatar al desemnării nevalid %{user}
+  mail_subject_assignments_ready: "[%{team} - %{project}] Actualizarea desemnărilor este gata"
+  mail_body_assignments_ready_assign: |-
+      Salut %{username},
+      Procesul de actualizare a desemnărilor a fost finalizat cu succes.
+      Proiectul '%{project_title}' (%{project_url}) și elementele și sarcinile acestuia acum sunt desemnați lui %{assignee}.
+      Mulțumim,
+      — Echipa %{app_name}
+  mail_body_assignments_ready_unassign: |-
+      Salut %{username},
+      Procesul de actualizare a desemnărilor a fost finalizat cu succes.
+      Proiectul '%{project_title}' (%{project_url}) și elementele și sarcinile acestuia au fost transferați de la %{assignee}.
+      Mulțumim,
+      — Echipa %{app_name}
+  team_import_completed_subject: Importul de date s-a finalizat
+  team_import_completed_mail: "<p>Salut,</p> <p>Activitatea dvs de import de date în %{app_name} s-a finalizat. Puteți accesa %{worksheet_url} pentru a vedea starea fiecărui element ce urma să fie importat.</p> <p>Atenție! Puteți porni importul repetat după ce corectați erorile raportate acolo - elementele importate anterior nu vor fi dublate.</p> <p>— Echipa %{app_name} </p>"
+  pender_url_invalid: Acest link nu este valid.
+  verification_status_deadline: Termen limită
+  verification_status_deadline_asc: Scadent cel devreme
+  verification_status_deadline_desc: Scadent cel târziu
+  cant_mutate_inactive_object: Ne pare rău, pentru acest element există o operațiune în așteptare, deci nu îl puteți modifica acum. Încercați din nou mai târziu.
+  embed_expand_all: Extindeți totul
+  embed_collapse_all: Restrângeți totul
+  embed_tasks: Sarcini
+  embed_description: Descriere

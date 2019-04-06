@@ -387,14 +387,9 @@ ar:
   task_suggestion_invalid_value: عذراً ، صيغة الاقتراح غير صحيحة
   tag_text_id_not_found: عذراً ، لا يوجد وسم بهذا المُعَرِّف
   annotation_type_language_label: اللغة
-  smooch_bot_message_confirmed: شكرًا ، لقد تلقينا طلبك وسوف تسمع منا قريبًا.
-  smooch_bot_message_unconfirmed: شكراً  ، لن نقوم بمعالجة رسالتك أكثر من ذلك.
   smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل بعد للتحقق من صحتها.
   smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة من قبل.
   smooch_bot_meme: إليك ميم أنشأناه بناء على العنصر الذي أرسلته للتحقق منه. لعرض المزيد %{url}.
-  smooch_bot_result: لقد تحققنا مما أرسلته لنا ، واستنتجنا أن هذا العنصر *%{status}*. لعرض المزيد %{url}.
-  smooch_bot_ask_for_confirmation: شكرا على رسالتك ! يرجى تأكيد أنك تريد التحقق من هذا العنصر. أرسل 1 لـ(نعم) ، 2 لـ(لا).
-  smooch_bot_window_closing: إذا كنت لا تزال ترغب في تلقي رسائل منا ، يرجى الاتصال! خلاف ذلك ، لا تفعل شيئا.
   project_export_download_mail_csv: |-
       مرحباً !
 
