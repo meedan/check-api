@@ -452,21 +452,27 @@ en:
     (displayed to users)
   tag_text_id_not_found: Sorry, there is no tag with the provided identifier
   annotation_type_language_label: Language
-  smooch_bot_message_confirmed: Thank you, we've received your request and you should
-    hear from us again shortly.
-  smooch_bot_message_unconfirmed: Thank you, we will not process your message any
-    further.
+  smooch_bot_message_confirmed: |-
+    Thank you. Your submission will help us research the spread of misinformation on WhatsApp during these elections.
+
+    This item has also been added to our verification queue. We will try to get you a report within 24 hours, but please note that we are not able to respond to every request.
+  smooch_bot_message_unconfirmed: Since you didn’t reply with 1, we will not process your message further. Thank you.
   smooch_bot_message_type_unsupported: Sorry, we don't support this type of file format
     for verification yet.
   smooch_bot_message_sent: You have already sent us this message.
   smooch_bot_meme: Here's a meme we created based on the item you have requested that
     we verify. Learn more at %{url}.
-  smooch_bot_result: We have verified what you sent us, and have determined that
-    the item is *%{status}*. Learn more at %{url}.
-  smooch_bot_ask_for_confirmation: Thanks for getting in touch! Please confirm that
-    you want to verify this item. Send 1 for 'yes', 2 for 'no'.
-  smooch_bot_window_closing: If you still want to receive messages from us, please
-    get in touch! Otherwise, do nothing.
+  smooch_bot_result: |-
+    [Verification Report] The message you shared with us is marked *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
+  smooch_bot_ask_for_confirmation: |-
+    Thank you for sending this message.
+
+    Do you suspect it to be misinformation related to the Indian General Elections 2019?
+
+    To say yes, *please reply with 1*. Any other response will end our conversation.
+  smooch_bot_window_closing: The volume of requests in the tipline is very high, and we haven't been able to resolve your request yet. Thank you for submitting. If you have another message to submit, please do.
   project_export_download_mail_csv: |-
     Hello!
 
