@@ -371,14 +371,9 @@ fr:
   task_suggestion_invalid_value: La suggestion de réponse n'est pas correctement formulée.
   tag_text_id_not_found: Désolé, il n'existe pas de tag avec l'identifiant fourni
   annotation_type_language_label: Langage
-  smooch_bot_message_confirmed: Merci, nous avons reçu votre demande et vous devriez recevoir de nos nouvelles sous peu.
-  smooch_bot_message_unconfirmed: Merci, nous ne traiterons plus votre message.
   smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore ce type de message en charge pour la vérification.
   smooch_bot_message_sent: Vous nous avez déjà envoyé ce message.
   smooch_bot_meme: 'Voici un mème que nous avons créé pour l''article que vous nous avez demandé de vérifier. Pour en savoir plus : %{url}.'
-  smooch_bot_result: 'Nous avons vérifié l''élément que vous nous avez envoyé, et notre conclusion est qu''il est *%{status}*. Pour en savoir plus : %{url}.'
-  smooch_bot_ask_for_confirmation: Merci de nous avoir contactés ! Veuillez confirmer que vous souhaitez vérifier cet élément. Envoyez 1 pour 'oui', 2 pour 'non'.
-  smooch_bot_window_closing: Si vous tenez toujours à recevoir une réponse de notre part, veuillez nous contacter. Sinon, rien à faire de plus.
   project_export_download_mail_csv: |-
       Bonjour !
 

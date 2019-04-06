@@ -35,6 +35,11 @@ module Workflow
       custom_statuses || statuses
     end
 
+    def self.get_status(annotated, annotation_type, id)
+      statuses = ::Workflow::Workflow.options(annotated, annotation_type)[:statuses]
+      return statuses.select{ |st| st['id'] == id }&.first
+    end
+
     def self.validate_custom_statuses(team_id, statuses, id)
       keys = statuses[:statuses].collect{|s| s[:id]}
       project_medias = ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id })
