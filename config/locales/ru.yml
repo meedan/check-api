@@ -1,1 +1,303 @@
-ru: {}
+ru:
+  statuses:
+    ids:
+      translation_status: перевод
+      task_status: задача
+    media:
+      undetermined:
+        description: Статус по умолчанию; работа ещё не начата
+      in_progress:
+        label: В процессе
+        description: Работа начата, но перевод пока отсутствует
+      verified:
+        label: Подтверждено
+      pending:
+        description: Статус по умолчанию; работа ещё не начата
+      translated:
+        label: Переведено
+        description: Перевод завершен и ожидает проверки
+      ready:
+        label: Готово
+        description: Перевод был проверен и одобрен к публикации
+      error:
+        label: Ошибка
+      unstarted:
+        description: Статус по умолчанию; работа ещё не начата
+    source:
+      undetermined:
+        description: Статус по умолчанию; работа ещё не начата
+      credible:
+        label: Надёжный
+        description: 'Заключение: источник заслуживает доверия'
+      not_credible:
+        label: Ненадёжный
+        description: 'Заключение: источник не заслуживает доверия'
+      slightly_credible:
+        label: Относительно надёжный
+        description: 'Заключение: скорее всего, заслуживает доверия'
+    translation:
+      pending:
+        description: Статус по умолчанию; работа ещё не начата
+      in_progress:
+        label: В процессе
+        description: Работа начата, но перевод пока отсутствует
+      translated:
+        label: Переведено
+        description: Перевод завершен и ожидает проверки
+      ready:
+        label: Готово
+        description: Перевод был проверен и одобрен к публикации
+      error:
+        label: Ошибка
+        description: Перевод был проверен и отмечен как ошибочный
+  activerecord:
+    models:
+      link: Ссылка
+      uploaded_image: Изображение
+      uploaded_file: Файл
+      task: Задача
+      comment: Заметка
+      project: Проект
+      team: Группа
+      user: Пользователь
+      source: Источник
+      project_source: Источник
+    attributes:
+      tag:
+        data: Тэг
+      uploaded_file:
+        file: Файл
+      uploaded_image:
+        file: Изображение
+      team:
+        slug: Краткое имя
+      source:
+        name: Имя
+      contact:
+        phone: Телефон
+      comment:
+        text: Заметка
+      user:
+        reset_password_token: Токен для восстановления пароля
+        email: E-mail
+    errors:
+      models:
+        tag:
+          attributes:
+            data:
+              already_exists: уже существует
+        team:
+          attributes:
+            slug:
+              slug_format: только буквы, цифры и дефисы
+      messages:
+        record_invalid: 'Ошибки валидации: %{errors}'
+        improbable_phone: — неправильный номер
+        too_short:
+          one: 'не подходит по длине (минимум: 1 символ)'
+          few: 'не подходит по длине (минимум: %{count} символов)'
+          many: 'не подходит по длине (минимум: %{count} символов)'
+          other: 'не подходит по длине (минимум: %{count} символов)'
+  slack_webhook_format_wrong: 'Неверный адрес webhook: он должен иметь формат `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`.'
+  slug_is_reserved: зарезервирован
+  invalid_format_for_languages: 'Неправильно указан язык. Корректный формат: [{''id'': ''en'', ''title'': ''English''}]'
+  mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
+  mail_request_to_join: "%{user} хочет вступить в группу %{team} в %{app_name}!"
+  approved: одобрен!
+  rejected: отклонён.
+  mail_request_to_join_processed: Ваш запрос на вступление в группу %{team} в %{app_name} был %{status}
+  mail_new_account: Новый аккаунт на %{app_name}
+  slack:
+    fields:
+      required: Обязательно?
+      required_yes: 'Да'
+      project: Проект
+      source: Источник
+      status: Статус
+      status_previous: Предыдущий статус
+      project_source: Источник
+    messages:
+      project_create: "%{user} (%{role} группы %{team}) создал(а) проект"
+      project_assign: "%{user} (%{role} группы %{team}) назначил(а) проект"
+      project_unassign: "%{user} (%{role} группы %{team}) снял(а) с проекта"
+      user_member: "Новый участник группы %{team}: %{user}"
+      user_requested: "Новый запрос на вступление в группу %{team}: %{user}"
+      user_invited: "Новое приглашение в группу %{team}: %{user}"
+      user_banned: "Новый бан в группе %{team}: %{user}"
+  mail_view_welcome: Добро пожаловать в %{app_name}
+  mail_view_register: 'Вы уже совсем близко к тому, чтобы начать пользоваться %{app_name}! Пожалуйста, перейдите по ссылке, чтобы подтвердить свой e-mail адрес:'
+  mail_view_joined: Ваш запрос на вступление в %{team} был одобрен! Теперь вы можете перейти по ссылке — %{url} — и начать работу!
+  mail_view_rejected_to_join: Извините, но ваш запрос на вступление в %{team} не был одобрен.
+  mail_view_request_to_join: "От пользователя %{user} (%{handle}) поступила заявка на вступление в группу %{team} (%{app_name})!"
+  mail_view_process_request: 'Чтобы обработать запрос, авторизуйтесь и перейдите по ссылке:'
+  mail_duplicate_email_exists: Ваш способ входа в %{app_name}
+  mail_duplicate_email_exists_email: e-mail
+  slack_restricted_join_to_members: Группа %{team_name} доступна только членам %{teams} в Slack.
+  admin:
+    actions:
+      send_reset_password_email:
+        menu: Отправить инструкции по восстановлению пароля
+      export_project:
+        menu: Экспортировать данные проекта
+      export_images:
+        menu: Экспортировать изображения проекта
+      delete_tasks:
+        done: задачи удалены
+        are_you_sure_you_want_to_delete_the_tasks_from_team:
+          html: 'Вы уверены, что хотите удалить все задачи в группе <strong>%{team}</strong>? Следующие задачи будут удалены:'
+      duplicate_team:
+        menu: Дублировать группу
+        done: скопировано
+        are_you_sure_you_want_to_copy_team:
+          html: Вы уверены, что хотите скопировать группу <strong>%{team}</strong>? Вместе с группой будут скопированы все связанные данные.
+        the_team_is_being_copied: Группа копируется
+        url_when_ready:
+          html: 'Когда копия будет готова, она станет доступна по ссылке: <strong>%{copy_url}</strong>'
+    flash:
+      delete_team_scheduled: Группа %{team} удаляется
+  reset_password_instructions: "%{app_name}: инструкции по восстановлению пароля"
+  email_not_found: E-mail не найден
+  slack_channel_format_wrong: Неверный канал Slack
+  translation_status_not_valid: Неверный статус
+  translation_status_permission_error: Вы не можете изменить этот статус.
+  invalid_token: Неверный токен
+  viber_screenshot_footer: "Перевод, %{target_language}-%{source_language}: \"%{source_text}\""
+  time:
+    formats:
+      oembed: "%B %d, %Y"
+      task: "%B %d, %Y в %H:%M [TZ] (%z GMT)"
+  oembed_source_date: "%{date} в %{provider}"
+  role_editor: редактор
+  role_owner: администратор
+  role_contributor: участник
+  role_journalist: журналист
+  role_annotator: аннотатор
+  role_: суперадминистратор
+  oembed_credit: 'Добавлено: %{user} (%{role}), %{date}'
+  oembed_notes_count:
+    one: "Одна заметка"
+    few: "Заметок: %{count}"
+    many: "Заметок: %{count}"
+    other: "Заметок: %{count}"
+  oembed_verification_tasks: Задачи
+  oembed_tasks: Задачи
+  oembed_translations: Переводы
+  oembed_expand_all: Раскрыть всё
+  oembed_collapse_all: Свернуть всё
+  oembed_notes: Заметки
+  pender_conflict: Эта ссылка уже находится в обработке. Попробуйте еще раз через пару секунд.
+  duplicate_source: Источник уже существует
+  datetime_invalid_date: Укажите верную дату
+  error_team_archived: Нельзя добавить проект в группу, которая находится в корзине
+  error_team_archived_for_source: Нельзя добавить источник в группу, которая находится в корзине
+  permission_error: Вам не разрешена данная операция
+  only_super_admin_can_do_this: Только суперадминистраторы могут менять эти настройки
+  max_number_of_team_users_reached: В этой группе достигнут лимит участников
+  max_number_of_projects_reached: В этой группе достигнут лимит проектов
+  cant_create_team_task: У вашей группы нет доступа к данной функциональности
+  account_exists: Такой аккаунт уже существует
+  source_exists: Такой источник уже существует
+  email_exists: уже используется
+  banned_user: Вам был закрыт доступ к %{app_name}. Свяжитесь с технической поддержкой, если вы считаете, что произошла ошибка.
+  devise:
+    mailer:
+      reset_password_instructions:
+        instruction: 'Мы получили запрос на смену пароля к вашему аккаунту. Это можно сделать по ссылке ниже. <strong>Важно: ссылка действует %{expire} часов.</strong>'
+      invitation_instructions:
+        subject: "%{user} пригласил(а) вас вступить в группу %{team}"
+        hello: Здравствуйте %{name}
+        someone_invited_you_default:
+          html: "%{name} пригласил(а) вас вступить в группу %{team}."
+        someone_invited_you_custom:
+          html: "%{name} пригласил(а) вас вступить в группу %{team} и оставил(а) сообщение:"
+        accept: 'Вы можете принять приглашение по ссылке: %{url}'
+        accept_until: Приглашение истекает %{due_date}.
+        ignore: Если вы не хотите принять приглашение, просто проигнорируйте это письмо.
+        app_team: "%{app} Группа"
+    failure:
+      unconfirmed: Пожалуйста, проверьте e-mail, чтобы подтвердить аккаунт.
+  user_invitation:
+    invited: Пользователь уже был приглашен в эту группу.
+    member: Пользователь уже является участником этой группы.
+    team_found: Группа не найдена.
+    invalid: Некорректный токен приглашения.
+    no_invitation: Вы не приглашены в группу %{name}
+  error_user_is_not_a_team_member: Вы можете назначать задачи только участникам этой группы
+  error_login_with_exists_account: Этот аккаунт уже подключен другим пользователем
+  mail_see_it: 'Задачу можно посмотреть по ссылке:'
+  mail_subject_assign_task: "[%{team} - %{project}] Вам была назначена задача"
+  mail_subject_unassign_task: "[%{team} - %{project}] С вас была снята задача"
+  mail_update_status: '%{author} изменил(а) статус "%{title}" на "%{status}"'
+  mail_assign_project: "%{author} назначил(а) вам проект:"
+  mail_unassign_project: "%{author} снял(а) вас с проекта:"
+  mail_subject_assign_project: "[%{team} - %{project}] Вам был назначен проект"
+  mail_subject_unassign_project: "[%{team} - %{project}] Вы были сняты с проекта"
+  mail_subject_delete_user: "[%{team}] Пользователь был удалён"
+  mail_body_delete_user: Аккаунт пользователя был удален. Автор созданного контента теперь будет указан как анонимный пользователь %{id}.
+  archive_keep_backup: Сохранённые видео
+  archive_pender_archive: Скриншоты Keep
+  archive_archive_is: Archive.is
+  archive_archive_org: Archive.org
+  project_export_email_title_csv: Отчёт по проекту готов для скачивания
+  workflow_status_not_valid: Неверный статус
+  workflow_status_permission_error: Вы не можете изменить этот статус.
+  bot_name_exists_for_this_team: В этой группе уже есть бот с таким именем
+  bot_team_id_doesnt_exist: Группы с таким идентификатором не существует
+  bot_team_id_mandatory_to_create: Чтобы добавить бота, нужно выбрать группу
+  bot_not_approved_for_installation: Этот бот не был одобрен, поэтому не может быть добавлен
+  only_admins_can_approve_bots: Только суперадминистраторы могут одобрять ботов
+  could_not_save_related_bot_data: Не удалось добавить бота в эту группу
+  bot_limited_team_not_pro: Этот бот не может быть добавлен в данную группу
+  slack_save_task_comment: "*%{user}* добавил(а) заметку к задаче *%{task}* в проекте *%{project}* (%{url}): %{comment}"
+  annotation_type_language_label: Язык
+  smooch_bot_message_type_unsupported: Извините, но мы пока не принимаем файлы этого формата для верификации.
+  project_export_download_mail_csv: |-
+      Здравствуйте!
+
+      Отчёт по проекту %{project}, который вы запросили, готов к выгрузке: %{link}
+
+      Отчёт будет скачан в виде зашифрованного архива. Чтобы разархивировать его, введите пароль: %{password}.
+
+      Внимание: ссылка на архив истекает через %{days} дней.
+
+      Всегда ваша,
+      Команда %{app}
+  project_export_email_title_images: Изображения проекта готовы для скачивания
+  project_export_download_mail_images: |-
+      Здравствуйте!
+
+      Изображения из проекта %{project}, которые вы запросили, готовы к выгрузке: %{link}
+
+      Изображения будут скачаны в виде зашифрованного архива. Чтобы разархивировать их, введите пароль: %{password}.
+
+      Внимание: ссылка истекает через %{days} дней.
+
+      Всегда ваша,
+      Команда %{app}
+  permissions_info:
+    roles:
+      owner:
+        description: Администраторы контролируют всю работу.
+      editor:
+        description: Редакторы управляют группой и проектами.
+      journalist:
+        description: Журналисты проверяют информацию.
+  team_import:
+    invalid_google_spreadsheet_url: 'Неверный URL таблицы: %{spreadsheet_url}'
+    not_found_google_spreadsheet_url: 'Таблица не найдена: %{spreadsheet_url}'
+    cannot_authenticate_with_the_credentials: Не удалось авторизоваться в Google Drive с указанными данными. Пожалуйста, свяжитесь со службой поддержки.
+    team_not_present: 'Выбранная группа не найдена при импорте данных. Пожалуйста, свяжитесь со службой поддержки. '
+    user_not_authorized: Вы не можете импортировать данные в эту группу.
+    invalid_project: Неверный проект %{project}
+    invalid_user: Неверный пользователь %{user}
+    invalid_status: Неверный статус %{status}
+    invalid_annotator: Неверный аннотатор %{user}
+  team_import_completed_subject: Импорт данных завершён
+  pender_url_invalid: Некорректная ссылка.
+  verification_status_deadline: Дедлайн
+  verification_status_deadline_asc: Сначала ранние
+  verification_status_deadline_desc: Сначала поздние
+  embed_expand_all: Раскрыть всё
+  embed_collapse_all: Свернуть всё
+  embed_tasks: Задачи
+  embed_description: Описание
