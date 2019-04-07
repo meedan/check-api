@@ -169,6 +169,7 @@ class Bot::Smooch
     rescue StandardError => e
       Rails.logger.info "Exception when calling Smooch Bot for this message: #{e.message}"
       Airbrake.notify(e) if Airbrake.configuration.api_key
+      raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
       false
     end
   end

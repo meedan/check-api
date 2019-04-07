@@ -723,6 +723,20 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert passed
   end
 
+  test "should return state machine error" do
+    class AasmTest
+      def aasm(_arg)
+        OpenStruct.new(current_state: 'test')
+      end
+    end
+    e = AASM::InvalidTransition.new(AasmTest.new, 'test', 'test')
+    JSON.stubs(:parse).raises(e)
+    assert_raises AASM::InvalidTransition do
+      Bot::Smooch.run(nil)
+    end
+    JSON.unstub(:parse)
+  end
+
   protected
 
   def run_concurrent_requests

@@ -160,22 +160,28 @@ class CheckSearch
     @options['dynamic'].each do |name, values|
       next if values.blank?
       method = "field_search_query_type_#{name}"
-      queries = []
-      values.each do |value|
-        query = Dynamic.respond_to?(method) ? Dynamic.send(method, value) : { term: { "dynamics.#{name}": value } }
-        queries << query
+      condition = nil 
+      if Dynamic.respond_to?(method)
+        condition = Dynamic.send(method, values)
+      # To be enabled for other dynamic filters
+      # else
+      #   queries = []
+      #   values.each do |value|
+      #     query = { term: { "dynamics.#{name}": value } }
+      #     queries << query
+      #   end
+      #   condition = {
+      #     nested: {
+      #       path: 'dynamics',
+      #       query: {
+      #         bool: {
+      #           should: queries
+      #         }
+      #       }
+      #     }
+      #   }
       end
-      condition = {
-        nested: {
-          path: 'dynamics',
-          query: {
-            bool: {
-              should: queries
-            }
-          }
-        }
-      }
-      conditions << condition
+      conditions << condition unless condition.nil?
     end
     conditions
   end

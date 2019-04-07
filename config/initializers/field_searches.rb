@@ -3,15 +3,30 @@ Dynamic.class_eval do
   # How a field should be RENDERED ON A SEARCH FORM of a given team
   
   def self.field_search_json_schema_type_language(team = nil)
-    joins = "INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON a.annotated_type = 'ProjectMedia' AND pm.id = a.annotated_id INNER JOIN projects p ON pm.project_id = p.id"
-    values = DynamicAnnotation::Field.group('dynamic_annotation_fields.value').where(annotation_type: 'language').joins(joins).where('p.team_id' => team.id).count.keys
-    keys = []
-    labels = []
-    values.each do |yaml_code|
-      code = YAML.load(yaml_code)
-      keys << code
-      labels << CheckCldr.language_code_to_name(code)
+    languages = []
+    team.projects.find_each { |project| languages << project.get_languages unless project.get_languages.blank? }
+    keys = languages.flatten.uniq
+    include_other = true
+    
+    if keys.empty?
+      include_other = false
+      joins = "INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON a.annotated_type = 'ProjectMedia' AND pm.id = a.annotated_id INNER JOIN projects p ON pm.project_id = p.id"
+      values = DynamicAnnotation::Field.group('dynamic_annotation_fields.value').where(annotation_type: 'language').joins(joins).where('p.team_id' => team.id).count.keys
+      values.each do |yaml_code|
+        code = YAML.load(yaml_code)
+        keys << code
+      end
     end
+    
+    keys = keys.sort
+    labels = []
+    keys.each{ |code| labels << CheckCldr.language_code_to_name(code) }
+    
+    if include_other
+      keys << "not:#{keys.join(',')}"
+      labels << I18n.t(:other_language)
+    end
+    
     { type: 'array', title: I18n.t(:annotation_type_language_label), items: { type: 'string', enum: keys, enumNames: labels } }
   end
 
@@ -61,5 +76,56 @@ Dynamic.class_eval do
     datetime = DateTime.parse(self.get_field_value(:response_datetime))
     data = { datetime: datetime.to_i, indexable: datetime.to_s }
     { keys: [:datetime, :indexable], data: data }
+  end
+
+  # How a field should be SEARCHED
+
+  def self.field_search_query_type_language(values)
+    bool = []
+
+    other = values.select{ |v| v =~ /^not:/ }.last
+    values -= [other]
+    if other
+      langs = other.gsub('not:', '').split(',')
+      queries = []
+      langs.each do |value|
+        queries << { term: { "dynamics.language": value } }
+      end
+      unless queries.empty?
+        bool << {
+          bool: {
+            must_not: {
+              nested: {
+                path: 'dynamics',
+                query: {
+                  bool: {
+                    should: queries
+                  }
+                }
+              }
+            }
+          }
+        }
+      end
+    end
+    
+    queries = []
+    values.each do |value|
+      queries << { term: { "dynamics.language": value } }
+    end
+    unless queries.empty?
+      bool << {
+        nested: {
+          path: 'dynamics',
+          query: {
+            bool: {
+              should: queries
+            }
+          }
+        }
+      }
+    end
+
+    { bool: { should: bool } }
   end
 end

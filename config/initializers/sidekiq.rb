@@ -1,5 +1,6 @@
 file = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")
-file = File.join(Rails.root, 'config', "sidekiq.yml") unless File.exist?(file)
+file = File.join(Rails.root, 'config', 'sidekiq.yml') unless File.exist?(file)
+require File.join(Rails.root, 'lib', 'middleware_sidekiq_server_retry')
 if File.exist?(file)
   require 'sidekiq/middleware/i18n'
   require 'connection_pool'
@@ -11,6 +12,9 @@ if File.exist?(file)
   Sidekiq.configure_server do |config|
     config.redis = redis_config
     config.error_handlers << Proc.new { |e, context| Airbrake.notify(e, parameters: context) if Airbrake.configuration.api_key }
+    config.server_middleware do |chain|
+      chain.add ::Middleware::Sidekiq::Server::Retry
+    end
   end
 
   Sidekiq.configure_client do |config|
