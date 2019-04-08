@@ -107,7 +107,7 @@ module AnnotationBase
         annotated.skip_clear_cache = self.skip_clear_cache
         annotated.updated_at = Time.now
         annotated.disable_es_callbacks = (Rails.env.to_s == 'test')
-        annotated.save!
+        annotated.save!(:validate => false)
       end
     end
 
