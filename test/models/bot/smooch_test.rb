@@ -480,6 +480,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
   test "should not get invalid URL" do
     assert_nil Bot::Smooch.get_url_from_text('foo http://\foo.bar bar')
+    assert_nil Bot::Smooch.get_url_from_text('foo https://news...')
+    assert_nil Bot::Smooch.get_url_from_text('foo https://ha..?')
+    assert_nil Bot::Smooch.get_url_from_text('foo https://30th-JUNE-2019.*')
+    assert_nil Bot::Smooch.get_url_from_text('foo https://...')
+    assert_nil Bot::Smooch.get_url_from_text('foo https://*1.*')
   end
 
   test "should send meme to user" do

@@ -44,7 +44,7 @@ class Workflow::TaskStatus < Workflow::Base
         task.status = 'unresolved'
         task.skip_notifications = true
         task.skip_check_ability = true
-        task.save!
+        task.save!(:validate => false)
       end
     end
   end
