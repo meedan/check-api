@@ -3,7 +3,7 @@ module CheckExport
     base.extend(ClassMethods)
   end
 
-  def export(last_id = 0)
+  def export(last_id = 0, annotation_types = ['comment', 'task', 'translation'])
     self.project_medias.order(:id).find_each(start: last_id + 1).collect{ |pm| Hash[
       project_id: pm.project_id,
       report_id: pm.id,
@@ -19,12 +19,10 @@ module CheckExport
       time_original_media_publishing: pm.media.original_published_time,
       type: pm.media.media_type,
       contributing_users: pm.contributing_users_count,
-      tags: pm.tags_list,
-      notes_count: pm.annotations.count,
-      notes_ugc_count: pm.get_annotations('comment').count,
-      tasks_count: pm.get_annotations('task').count,
-      tasks_resolved_count: pm.tasks_resolved_count
+      tags: pm.tags_list
     ].merge(
+      self.export_annotations_count(pm, annotation_types)
+    ).merge(
       self.export_project_media_annotations(pm)
     )}
   end
@@ -34,13 +32,13 @@ module CheckExport
   end
 
   def export_project_media_annotations(pm)
-    pm.get_annotations('comment').to_enum.reverse_each.with_index.collect{ |c,i| Hash[
+    @annotations.where(annotation_type: 'comment').to_enum.reverse_each.with_index.collect{ |c,i| Hash[
       "note_date_#{i+1}": c.created_at,
       "note_user_#{i+1}": c.annotator.name,
       "note_content_#{i+1}": c.data['text']
     ]}.reduce({}){ |h,o| h.merge(o) }
     .merge(
-      pm.get_annotations('task').map(&:load).to_enum.reverse_each.with_index.collect do |t, i|
+      @annotations.where(annotation_type: 'task').map(&:load).to_enum.reverse_each.with_index.collect do |t, i|
         task_hash = {
           "task_#{i+1}_question": t.label
         }
@@ -55,12 +53,40 @@ module CheckExport
         task_hash
       end.reduce({}){ |h,o| h.merge(o) }
     ).merge(
-      pm.get_annotations('translation').map(&:load).to_enum.reverse_each.with_index.collect{ |t,i| Hash[
+      @annotations.where(annotation_type: 'translation').map(&:load).to_enum.reverse_each.with_index.collect{ |t,i| Hash[
         "translation_text_#{i+1}": t.get_field('translation_text')&.value,
         "translation_language_#{i+1}": t.get_field('translation_language')&.value,
         "translation_note_#{i+1}": t.get_field('translation_note')&.value,
       ]}.reduce({}){ |h,o| h.merge(o) }
     )
+  end
+
+  def export_annotations_count(pm, annotation_types)
+    @annotations = pm.get_annotations(annotation_types)
+    annotations_count = {}
+    return annotations_count unless annotation_types.is_a?(Array)
+    annotation_types.each do |type|
+      annotations_count.merge!(self.send("export_#{type}_count", pm)) if self.respond_to?("export_#{type}_count")
+    end
+    annotations_count
+  end
+
+  def export_comment_count(pm)
+    {
+      notes_count: pm.annotations.count,
+      notes_ugc_count: @annotations.where(annotation_type: 'comment').count
+    }
+  end
+
+  def export_task_count(pm)
+    {
+      tasks_count: @annotations.where(annotation_type: 'task').count,
+      tasks_resolved_count: pm.tasks_resolved_count
+    }
+  end
+
+  def export_smooch_count(pm)
+    { number_of_requests: @annotations.where(annotation_type: 'smooch').count }
   end
 
   def export_csv(last_id = 0)
@@ -120,7 +146,7 @@ module CheckExport
   end
 
   def export_filename(type)
-    basename = [self.team.slug, self.title.parameterize, self.created_at.to_i.to_s, type].join('_')
+    basename = [self.team.slug, self.title.parameterize, Time.now.to_i.to_s, type].join('_')
     basename = basename + '_' + Digest::MD5.hexdigest(basename).reverse
     @basename ||= basename
   end

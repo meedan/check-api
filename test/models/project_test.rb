@@ -352,6 +352,16 @@ class ProjectTest < ActiveSupport::TestCase
     assert_match(/team-t_project-p_.*/, p.export_filename(:csv))
   end
 
+  test "should have the time on filename" do
+    t = create_team name: 'Team t'
+    p = create_project team: t, title: 'Project p'
+    p.update_attribute(:created_at, Time.now - 2.days)
+    time = Time.now
+    Time.stubs(:now).returns(time)
+    assert_match(/team-t_project-p_#{Time.now.to_i.to_s}.*/, p.export_filename(:csv))
+    Time.unstub(:now)
+  end
+
   test "should export data for Check" do
     create_verification_status_stuff
     stub_config('default_project_media_workflow', 'verification_status') do
@@ -390,6 +400,41 @@ class ProjectTest < ActiveSupport::TestCase
       assert_nil exported_data.first[:task_1_question]
     end
   end
+
+  test "should include number of smooch requests on export if send it as parameter" do
+    create_verification_status_stuff
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
+    stub_config('default_project_media_workflow', 'verification_status') do
+      p = create_project
+      pm = create_project_media project: p, media: create_valid_media
+      c = create_comment annotated: pm, text: 'Note 1'
+      n = 2
+      n.times { create_annotation annotation_type: 'smooch', annotated: pm }
+      pm2 = create_project_media project: p, media: create_valid_media
+      exported_data = p.export(0, ['comment', 'task', 'smooch'])
+      assert_equal 2, exported_data.size
+      assert_equal 2, exported_data.find { |e| e[:report_id] == pm.id}.dig(:number_of_requests)
+      assert_equal 0, exported_data.find { |e| e[:report_id] == pm2.id}.dig(:number_of_requests)
+      assert_equal 'Note 1', exported_data.find { |e| e[:report_id] == pm.id}.dig(:note_content_1)
+    end
+  end
+
+  test "should not include number of smooch requests on export by default" do
+    create_verification_status_stuff
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
+    stub_config('default_project_media_workflow', 'verification_status') do
+      p = create_project
+      pm = create_project_media project: p, media: create_valid_media
+      pm2 = create_project_media project: p, media: create_valid_media
+      n = 1
+      n.times { create_annotation annotation_type: 'smooch', annotated: pm2 }
+      exported_data = p.export
+      assert_equal 2, exported_data.size
+      assert_nil exported_data.find { |e| e[:report_id] == pm.id}.dig(:number_of_requests)
+      assert_nil exported_data.find { |e| e[:report_id] == pm2.id}.dig(:number_of_requests)
+    end
+  end
+
 
   test "should export data for Bridge" do
     create_translation_status_stuff
