@@ -65,7 +65,7 @@ class CheckSearch
       filters = filters.merge({ id: ids })
       @ids = ids
     end
-    results = ProjectMedia.where(filters).eager_load(:media).joins(:project)
+    results = ProjectMedia.where(filters).joins(:project)
     @medias = sort_pg_results(results, 'media')
     @medias
   end
@@ -160,7 +160,7 @@ class CheckSearch
     @options['dynamic'].each do |name, values|
       next if values.blank?
       method = "field_search_query_type_#{name}"
-      condition = nil 
+      condition = nil
       if Dynamic.respond_to?(method)
         condition = Dynamic.send(method, values)
       # To be enabled for other dynamic filters
