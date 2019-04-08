@@ -41,10 +41,10 @@ for d in ${PERSIST_DIRS}; do
         mkdir -p ${d}
     fi
 
-    echo "setting permissions for ${d}"
-    chown -R ${DEPLOYUSER}:www-data ${d}
-    find ${d} -type d -exec chmod 2777 {} \; # set the sticky bit on directories to preserve permissions
-    find ${d} -type f -exec chmod 0664 {} \; # files are 664
+#    echo "setting permissions for ${d}"
+#    chown -R ${DEPLOYUSER}:www-data ${d}
+#    find ${d} -type d -exec chmod 2777 {} \; # set the sticky bit on directories to preserve permissions
+#    find ${d} -type f -exec chmod 0664 {} \; # files are 664
 done
 
 
