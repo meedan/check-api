@@ -354,8 +354,9 @@ class Bot::Smooch
 
   def self.get_url_from_text(text)
     begin
-      url = text[/[^\s]+\.[^\s]+/, 0].to_s
+      url = Twitter::Extractor.extract_urls(text)
       return nil if url.blank?
+      url = url.first
       url = 'https://' + url unless url =~ /^https?:\/\//
       URI.parse(url)
       m = Link.new url: url
