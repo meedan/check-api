@@ -65,7 +65,7 @@ class CheckSearch
       filters = filters.merge({ id: ids })
       @ids = ids
     end
-    results = ProjectMedia.where(filters).joins(:project)
+    results = ProjectMedia.where(filters).preload(:media).joins(:project)
     @medias = sort_pg_results(results, 'media')
     @medias
   end
@@ -84,7 +84,7 @@ class CheckSearch
       ids = medias_get_search_result(query).map(&:annotated_id)
       filters = { id: ids }
     end
-    results = ProjectSource.where(filters).eager_load(:source).joins(:project)
+    results = ProjectSource.where(filters).preload(:source).joins(:project)
     @sources = sort_pg_results(results, 'source')
     @sources
   end
