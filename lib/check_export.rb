@@ -23,7 +23,7 @@ module CheckExport
     ].merge(
       self.export_annotations_count(pm, annotation_types)
     ).merge(
-      self.export_project_media_annotations(pm)
+      self.export_project_media_annotations
     )}
   end
 
@@ -31,7 +31,7 @@ module CheckExport
     pm.get_project_media_status
   end
 
-  def export_project_media_annotations(pm)
+  def export_project_media_annotations
     @annotations.where(annotation_type: 'comment').to_enum.reverse_each.with_index.collect{ |c,i| Hash[
       "note_date_#{i+1}": c.created_at,
       "note_user_#{i+1}": c.annotator.name,
@@ -85,7 +85,7 @@ module CheckExport
     }
   end
 
-  def export_smooch_count(pm)
+  def export_smooch_count(_pm)
     { number_of_requests: @annotations.where(annotation_type: 'smooch').count }
   end
 
