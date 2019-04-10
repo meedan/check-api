@@ -483,6 +483,22 @@ class ProjectTest < ActiveSupport::TestCase
     assert_match(header, exported_data)
   end
 
+  test "should export project" do
+    create_verification_status_stuff(false)
+    p = create_project
+    pm = create_project_media project: p, media: create_valid_media
+    c = create_comment annotated: pm, text: 'Note 1'
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response'
+    task = create_task annotator: create_user, annotated: pm
+    task.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
+    task.save!
+    tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
+    assert_nothing_raised do
+      p.class.export_project(:csv, p.class.name, p.id, 'me@email.com', 0, ['comment'])
+    end
+  end
+
   test "should have search id" do
     p = create_project
     assert_not_nil p.search_id
