@@ -1273,7 +1273,7 @@ class GraphqlController2Test < ActionController::TestCase
     r = create_relationship source_id: pm1.id, target_id: pm2.id
     assert_not_nil Relationship.where(id: r.id).last
     authenticate_with_user(u)
-    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId, source_project_media { id }, target_project_media { id } } }'
+    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId, source_project_media { id }, target_project_media { id }, current_project_media { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal r.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['deletedId']

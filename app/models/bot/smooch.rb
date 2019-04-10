@@ -475,20 +475,22 @@ class Bot::Smooch
     a.save!
   end
 
+  def self.send_meme(pm, pm2, meme)
+    pm2.get_annotations('smooch').find_each do |a|
+      data = JSON.parse(a.load.get_field_value('smooch_data'))
+      self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
+      smooch_response = ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_meme, locale: data['language'], url: pm.embed_url), { type: 'image', mediaUrl: meme })
+      self.save_smooch_response(smooch_response, pm2)
+    end
+  end
+
   def self.send_meme_to_smooch_users(annotation_id)
     annotation = Dynamic.where(id: annotation_id).last
     pm = annotation&.annotated
     return if pm.nil?
     meme = annotation.memebuster_png_path(true)
-    pms = [pm] + pm.targets.to_a
-    pms.each do |pm2|
-      pm2.get_annotations('smooch').find_each do |a|
-        data = JSON.parse(a.load.get_field_value('smooch_data'))
-        self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        smooch_response = ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_meme, locale: data['language'], url: pm.embed_url), { type: 'image', mediaUrl: meme })
-        self.save_smooch_response(smooch_response, pm)
-      end
-    end
+    self.send_meme(pm, pm, meme)
+    pm.targets.find_each { |pm2| self.send_meme(pm, pm2, meme) }
     annotation.set_fields = { memebuster_published_at: Time.now }.to_json
     annotation.save!
   end

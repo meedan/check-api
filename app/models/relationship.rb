@@ -1,6 +1,8 @@
 class Relationship < ActiveRecord::Base
   include CheckElasticSearch
 
+  attr_accessor :current_id
+
   belongs_to :source, class_name: 'ProjectMedia'
   belongs_to :target, class_name: 'ProjectMedia'
 
@@ -38,6 +40,10 @@ class Relationship < ActiveRecord::Base
       pms << pm
     end
     pms
+  end
+
+  def current_project_media
+    ProjectMedia.where(id: self.current_id.to_i).last
   end
 
   def source_project_media

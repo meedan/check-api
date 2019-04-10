@@ -45,7 +45,7 @@
         %>
         <% if meme %>
           <img src="<%= meme %>" class="oembed__meme" alt="" />
-        <% elsif @project_media.embed&.send(:[], 'provider') == 'youtube' %>
+        <% elsif @project_media.embed&.send(:[], 'provider') == 'youtube' && !@project_media.embed['html'].blank? %>
           <%= @project_media.embed['html'].html_safe %>
         <% else %>
           <div id="oembed__content-content">
