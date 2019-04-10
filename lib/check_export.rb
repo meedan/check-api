@@ -89,8 +89,8 @@ module CheckExport
     { number_of_requests: @annotations.where(annotation_type: 'smooch').count }
   end
 
-  def export_csv(last_id = 0)
-    hashes = self.export(last_id)
+  def export_csv(last_id = 0, annotation_types = ['comment', 'task', 'translation'])
+    hashes = self.export(last_id, annotation_types)
     headers = hashes.inject([]) {|res, h| res | h.keys}
     content = CSV.generate do |csv|
       csv << headers
@@ -102,7 +102,7 @@ module CheckExport
     { key => content }
   end
 
-  def export_images(last_id = 0)
+  def export_images(last_id = 0, _annotation_types = [])
     require 'open-uri'
     output = {}
     ProjectMedia.order(:id).joins(:media).where('medias.type' => 'UploadedImage', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
@@ -122,9 +122,9 @@ module CheckExport
     output
   end
 
-  def export_zip(type, last_id = 0)
+  def export_zip(type, last_id = 0, annotation_types = ['comment', 'task', 'translation'])
     require 'zip'
-    contents = self.send("export_#{type}", last_id)
+    contents = self.send("export_#{type}", last_id, annotation_types)
     self.export_password = SecureRandom.hex
     buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new(self.export_password)) do |out|
       contents.each do |filename, content|
@@ -171,9 +171,9 @@ module CheckExport
   end
 
   module ClassMethods
-    def export_project(type, klass, id, email, last_id = 0)
+    def export_project(type, klass, id, email, last_id = 0, annotation_types = ['comment', 'task', 'translation'])
       obj = klass.constantize.find(id)
-      obj.export_zip(type, last_id)
+      obj.export_zip(type, last_id, annotation_types)
       AdminMailer.delay.send_download_link(type, obj, email, obj.export_password) unless email.blank?
       days = CONFIG['export_download_expiration_days'] || 7
       klass.constantize.delay_for(days.to_i.days).remove_export_file(obj.export_filepath(type))
