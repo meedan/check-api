@@ -2205,4 +2205,28 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:read, pm2)
     end
   end
+
+  test "should not duplicate query conditions" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'annotator'
+    p = create_project team: t
+    3.times{ create_project_media(project: p) }
+    pmids = []
+    3.times do
+      pm = create_project_media project: p
+      pmids << pm.id
+      create_task annotated: pm
+      tk = create_task annotated: pm
+      tk.assign_user(u.id)
+    end
+    with_current_user_and_team(u, t) do
+      4.times { Ability.new }
+      queries = assert_queries do
+        ProjectMedia.where(project_id: p.id).permissioned.permissioned.count
+      end
+      query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"project_id\" = $1 AND \"project_medias\".\"inactive\" = $2 AND \"project_medias\".\"id\" IN (#{pmids[0]}, #{pmids[1]}, #{pmids[2]})"
+      assert_equal query, queries.first
+    end
+  end
 end
