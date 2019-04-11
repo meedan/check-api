@@ -19,6 +19,7 @@ module TeamDuplication
             self.copy_image(original, copy)
             self.versions_log_mapping(original, copy)
             self.update_project_source(copy) if original.is_a? ProjectSource
+            self.flag_relationships(original, copy)
           end
           team.slug = team.generate_copy_slug
           team.is_being_copied = true
@@ -41,6 +42,11 @@ module TeamDuplication
     def self.log_error(e, t)
       Airbrake.notify(e) if Airbrake.configuration.api_key
       Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
+    end
+
+    def self.flag_relationships(original, copy)
+      original.is_being_copied = true if original.is_a?(Relationship)
+      copy.is_being_copied = true if copy.is_a?(Relationship)
     end
 
     def self.set_mapping(object, copy)
