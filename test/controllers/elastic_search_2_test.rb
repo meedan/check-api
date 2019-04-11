@@ -816,4 +816,54 @@ class ElasticSearch2Test < ActionController::TestCase
     assert_equal 3, result.medias.count
     assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
   end
+
+  test "should index and sort by most requested" do
+#    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
+
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    p = create_project team: t
+
+    pm1 = create_project_media project: p, disable_es_callbacks: false
+    3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
+    sleep 5
+
+    pm2 = create_project_media project: p, disable_es_callbacks: false
+    5.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
+    sleep 5
+
+    pm3 = create_project_media project: p, disable_es_callbacks: false
+    2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
+    sleep 5
+
+    pm4 = create_project_media project: p, disable_es_callbacks: false
+    4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
+    sleep 5
+
+    orders = {asc: [pm3, pm1, pm4, pm2], desc: [pm2, pm4, pm1, pm3]}
+    orders.keys.each do |order|
+      search = {
+        from: 0,
+        query: {
+          match_all: {}
+        },
+        aggregations: {
+          annotated: {
+            terms: {
+              field: 'dynamics.smooch.annotated_id',
+              order: { "_count": "asc" }
+            },
+          }
+        }
+      }
+
+      pms = []
+      MediaSearch.search(search).results.each do |r|
+        pms << r.annotated_id if r.annotated_type == 'ProjectMedia'
+      end
+      assert_equal orders[order.to_sym].map(&:id), pms
+    end
+  end
+
 end

@@ -43,7 +43,8 @@ class MediaSearch
       location: { type: 'geo_point' },
       indexable: { type: 'text', analyzer: 'check'},
       language: { type: 'text', analyzer: 'keyword' },
-      deadline: { type: 'integer' }
+      deadline: { type: 'integer' },
+      smooch: { type: 'integer', fields: { annotated_id: { type: 'integer' } } }
     }
   }
 
