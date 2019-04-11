@@ -1,7 +1,7 @@
 class Relationship < ActiveRecord::Base
   include CheckElasticSearch
 
-  attr_accessor :current_id
+  attr_accessor :current_id, :is_being_copied
 
   belongs_to :source, class_name: 'ProjectMedia'
   belongs_to :target, class_name: 'ProjectMedia'
@@ -9,12 +9,13 @@ class Relationship < ActiveRecord::Base
   serialize :relationship_type
 
   validate :relationship_type_is_valid
+  validate :child_or_parent_does_not_have_another_parent, on: :create, if: proc { |x| !x.is_being_copied? }
 
   after_create :increment_counters, :index_source
   after_update :propagate_inversion, :reset_counters
   after_destroy :decrement_counters, :unindex_source
 
-  has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied }
+  has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }
 
   notifies_pusher on: [:save, :destroy],
                   event: 'relationship_change',
@@ -42,6 +43,10 @@ class Relationship < ActiveRecord::Base
     pms
   end
 
+  def graphql_deleted_id
+    self.target&.graphql_id.to_s
+  end
+
   def current_project_media
     ProjectMedia.where(id: self.current_id.to_i).last
   end
@@ -52,6 +57,14 @@ class Relationship < ActiveRecord::Base
 
   def target_project_media
     self.target
+  end
+
+  def relationships_target
+    OpenStruct.new({ id: Relationship.target_id(self.source), targets: [] })
+  end
+
+  def relationships_source
+    OpenStruct.new({ id: Relationship.source_id(self.target), siblings: [] })
   end
 
   def version_metadata(_object_changes = nil)
@@ -86,7 +99,7 @@ class Relationship < ActiveRecord::Base
     list = []
     targets.each do |key, value|
       id = [project_media.id, key].join('/')
-      medias = ProjectMedia.where(id: value, inactive: false).order('id DESC').limit(limit).collect{ |t| t.relationship = relationships_mapping[t.id] ; t }
+      medias = ProjectMedia.where(id: value, inactive: false).order('id DESC').limit(limit).collect{ |t| t.relationship = relationships_mapping[t.id] ; t }.sort_by{ |t| t.relationship.id }.reverse
       list << { type: key, targets: medias, id: id }.with_indifferent_access
     end
     list
@@ -104,8 +117,8 @@ class Relationship < ActiveRecord::Base
     Base64.encode64("RelationshipsSource/#{project_media.id}/#{type.to_json}")
   end
 
-  def is_being_copied
-    self.source && self.source.is_being_copied
+  def is_being_copied?
+    (self.source && self.source.is_being_copied) || self.is_being_copied
   end
 
   protected
@@ -174,5 +187,9 @@ class Relationship < ActiveRecord::Base
       ids = Relationship.where(source_id: self.target_id).map(&:graphql_id)
       GraphqlCrudOperations.crud_operation('update', self, { source_id: self.source_id, ids: ids }, nil, [], {})
     end
+  end
+
+  def child_or_parent_does_not_have_another_parent
+    errors.add(:base, I18n.t(:relationship_item_has_parent)) if (self.source && self.source.sources.count > 0) || (self.target && self.target.sources.count > 0)
   end
 end
