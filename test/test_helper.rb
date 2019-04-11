@@ -141,6 +141,7 @@ class ActiveSupport::TestCase
       queries << payload[:sql] if payload[:sql] =~ /^SELECT|UPDATE|INSERT/ and payload[:name] != 'CACHE'
     }
     ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &block)
+    queries
   ensure
     ActiveRecord::Base.connection.disable_query_cache! unless old
     msg = "#{queries.size} expected to be #{operator} #{num}.#{queries.size == 0 ? '' : "\nQueries:\n#{queries.join("\n")}"}"
