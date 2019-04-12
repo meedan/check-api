@@ -19,8 +19,7 @@ class Relationship < ActiveRecord::Base
 
   notifies_pusher on: [:save, :destroy],
                   event: 'relationship_change',
-                  targets: proc { |r| r.source.nil? ? [] : [r.source.media] },
-                  bulk_targets: proc { |r| [r.source.media] },
+                  targets: proc { |r| r.source.nil? ? [] : [r.source.media] }, bulk_targets: proc { |r| [r.source.media] },
                   if: proc { |r| !r.skip_notifications },
                   data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id }.to_json : r.to_json }
 
@@ -117,6 +116,13 @@ class Relationship < ActiveRecord::Base
     Base64.encode64("RelationshipsSource/#{project_media.id}/#{type.to_json}")
   end
 
+  def self.propagate_inversion(ids, source_id)
+    Relationship.where(id: ids.split(',')).each do |r|
+      r.source_id = source_id
+      r.send(:reset_counters)
+    end
+  end
+
   def is_being_copied?
     (self.source && self.source.is_being_copied) || self.is_being_copied
   end
@@ -184,8 +190,9 @@ class Relationship < ActiveRecord::Base
 
   def propagate_inversion
     if self.source_id_was == self.target_id && self.target_id_was == self.source_id
-      ids = Relationship.where(source_id: self.target_id).map(&:graphql_id)
-      GraphqlCrudOperations.crud_operation('update', self, { source_id: self.source_id, ids: ids }, nil, [], {})
+      ids = Relationship.where(source_id: self.target_id).map(&:id).join(',')
+      Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
+      Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)
     end
   end
 
