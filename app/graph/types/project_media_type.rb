@@ -206,7 +206,13 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :relationship, RelationshipType
+  field :relationship do
+    type RelationshipType
+
+    resolve ->(project_media, _args, _ctx) {
+      Relationship.where(target_id: project_media.id).first || Relationship.where(source_id: project_media.id).first
+    }
+  end
 
   instance_exec :project_media, &GraphqlCrudOperations.field_annotations
 

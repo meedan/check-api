@@ -41,7 +41,7 @@ class GraphqlController2Test < ActionController::TestCase
     t, p, pm = assert_task_response_attribution
     u = create_user is_admin: true
     authenticate_with_user(u)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { status, first_response { attribution { edges { node { name } } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { relationship { id }, tasks { edges { node { status, first_response { attribution { edges { node { name } } } } } } } } }"
     post :create, query: query, team: t.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
