@@ -11,6 +11,7 @@ class CheckSearch
     @options['sort_type'] ||= 'desc'
     # set show options
     @options['show'] ||= ['medias']
+    @options['eslimit'] ||= 10000
   end
 
   def pusher_channel
@@ -113,7 +114,7 @@ class CheckSearch
 
   def medias_get_search_result(query)
     sort = build_search_dynamic_annotation_sort
-    MediaSearch.search(query: query, sort: sort, size: 10000).results
+    MediaSearch.search(query: query, sort: sort, size: @options['eslimit']).results
   end
 
   private
