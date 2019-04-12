@@ -818,51 +818,88 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should index and sort by most requested" do
-#    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
-
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
+    p = create_project
 
     pm1 = create_project_media project: p, disable_es_callbacks: false
-    3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
+    2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
     sleep 5
 
     pm2 = create_project_media project: p, disable_es_callbacks: false
-    5.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
+    4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
     sleep 5
 
     pm3 = create_project_media project: p, disable_es_callbacks: false
-    2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
+    1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
     sleep 5
 
     pm4 = create_project_media project: p, disable_es_callbacks: false
-    4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
+    3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
     sleep 5
 
     orders = {asc: [pm3, pm1, pm4, pm2], desc: [pm2, pm4, pm1, pm3]}
     orders.keys.each do |order|
       search = {
-        from: 0,
         query: {
           match_all: {}
         },
         aggregations: {
-          annotated: {
-            terms: {
-              field: 'dynamics.smooch.annotated_id',
-              order: { "_count": "asc" }
+          top_hits: {
+            nested: {
+              path: "dynamics"
             },
+            aggs: {
+              top_sort_hits: {
+                terms: {
+                  field: "dynamics.smooch",
+                  order: { _count: order }
+                }
+              }
+            }
           }
         }
       }
 
       pms = []
-      MediaSearch.search(search).results.each do |r|
-        pms << r.annotated_id if r.annotated_type == 'ProjectMedia'
+      MediaSearch.search(search).response.aggregations.top_hits.top_sort_hits.buckets.each do |r|
+        pms << r['key']
       end
       assert_equal orders[order.to_sym].map(&:id), pms
+    end
+  end
+
+
+  [:asc, :desc].each do |order|
+    test "should filter and sort by most requested #{order}" do
+      p = create_project
+
+      query = { sort: 'smooch', sort_type: order.to_s }
+
+      result = CheckSearch.new(query.to_json)
+      assert_equal 0, result.medias.count
+
+      pm1 = create_project_media project: p, disable_es_callbacks: false
+      2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
+      sleep 5
+
+      pm2 = create_project_media project: p, disable_es_callbacks: false
+      4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
+      sleep 5
+
+      pm3 = create_project_media project: p, disable_es_callbacks: false
+      1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
+      sleep 5
+
+      pm4 = create_project_media project: p, disable_es_callbacks: false
+      3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
+      sleep 5
+
+      pm5 = create_project_media project: p, disable_es_callbacks: false
+      sleep 5
+
+      orders = {asc: [pm3, pm1, pm4, pm2], desc: [pm2, pm4, pm1, pm3]}
+      result = CheckSearch.new(query.to_json)
+      assert_equal 4, result.medias.count
+      assert_equal orders[order.to_sym].map(&:id), result.medias.map(&:id)
     end
   end
 

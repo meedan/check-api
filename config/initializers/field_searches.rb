@@ -83,7 +83,7 @@ Dynamic.class_eval do
   end
 
   def get_elasticsearch_options_dynamic_annotation_smooch
-    data = { annotated_id: annotated_id, indexable: annotated_id }
+    data = { smooch: annotated_id, indexable: annotated_id }
     { keys: [:smooch, :indexable], data: data }
   end
 

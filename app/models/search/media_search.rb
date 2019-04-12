@@ -44,7 +44,7 @@ class MediaSearch
       indexable: { type: 'text', analyzer: 'check'},
       language: { type: 'text', analyzer: 'keyword' },
       deadline: { type: 'integer' },
-      smooch: { type: 'integer', fields: { annotated_id: { type: 'integer' } } }
+      smooch: { type: 'integer' }
     }
   }
 
