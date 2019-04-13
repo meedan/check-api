@@ -28,7 +28,7 @@ module CheckPermissions
 
     def get_object(id)
       if self.name == 'Project'
-        self.eager_load(:team).where("teams.inactive" => false).eager_load(:project_medias).order('project_medias.id DESC').where(id: id)[0]
+        self.joins(:team).where('teams.inactive' => false).where(id: id)[0]
       elsif self.name == 'Team'
         self.where(id: id, inactive: false).last
       elsif self.name == 'ProjectMedia'
