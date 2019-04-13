@@ -204,12 +204,12 @@ class GraphqlCrudOperations
     unless status.nil?
       return obj if TeamBotInstallation.where(team_id: obj.project.team_id, team_bot_id: TeamBot.where(identifier: 'smooch').last&.id.to_i).last.nil?
       targets = []
-      obj.targets.each do |target|
+      obj.targets_by_users.find_each do |target|
         target.define_singleton_method(:last_status) { status }
         target.define_singleton_method(:dbid) { 0 }
         targets << target
       end
-      obj.define_singleton_method(:targets) { targets }
+      obj.define_singleton_method(:targets_by_users) { targets }
     end
     obj
   end

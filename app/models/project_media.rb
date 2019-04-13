@@ -298,6 +298,11 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
+  def targets_by_users
+    ids = self.source_relationships.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").map(&:target_id)
+    ProjectMedia.where(id: ids)
+  end
+
   protected
 
   def initiate_embed_annotation(info)
