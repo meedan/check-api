@@ -46,6 +46,7 @@ class CheckSearch
 
   def get_ids_from_result(results)
     relationship_type = @options['relationship_type']
+    return get_ids_from_response(results) if results.is_a?(Hashie::Mash)
     results.collect do |result|
       sources = result.relationship_sources || []
       source = relationship_type.blank? ? sources.first : sources.select{ |x| x.split('_').first == Digest::MD5.hexdigest(relationship_type) }.first
@@ -114,7 +115,12 @@ class CheckSearch
 
   def medias_get_search_result(query)
     sort = build_search_dynamic_annotation_sort
-    MediaSearch.search(query: query, sort: sort, size: @options['eslimit']).results
+    aggregations = build_search_dynamic_annotation_aggregation
+    if aggregations.empty?
+      MediaSearch.search(query: query, sort: sort, size: @options['eslimit']).results
+    else
+      MediaSearch.search(query: query, sort: sort, aggregations: aggregations, size: 0).response
+    end
   end
 
   private
@@ -238,6 +244,29 @@ class CheckSearch
       doc_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
     end
     doc_c
+  end
+
+  def build_search_dynamic_annotation_aggregation
+    return {} unless (@options['sort'].to_s == 'smooch')
+    {
+      top_hits: {
+        nested: {
+          path: "dynamics"
+        },
+        aggs: {
+          top_sort_hits: {
+            terms: {
+              field: "dynamics.#{@options['sort']}",
+              order: { _count: @options['sort_type'] }
+            }
+          }
+        }
+      }
+    }
+  end
+
+  def get_ids_from_response(response)
+    response.aggregations.top_hits.top_sort_hits.buckets.map { |r| r['key']}
   end
 
   def filter_by_team_and_project(results)
