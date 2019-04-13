@@ -34,7 +34,7 @@ Dynamic.class_eval do
     { id: :deadline, label: I18n.t(:verification_status_deadline), asc_label: I18n.t(:verification_status_deadline_asc), desc_label: I18n.t(:verification_status_deadline_desc) } unless team.get_status_target_turnaround.blank?
   end
 
-  def self.field_sort_json_schema_type_smooch(team = nil)
+  def self.field_sort_json_schema_type_smooch(_team = nil)
     { id: :smooch, label: I18n.t(:smooch_requests), asc_label: I18n.t(:smooch_requests_asc), desc_label: I18n.t(:smooch_requests_desc) }
   end
 
