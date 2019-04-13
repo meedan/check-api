@@ -7,6 +7,38 @@ class Bot::Smooch
     check_workflow from: :any, to: :any, actions: :reset_meme
   end
 
+  ::Relationship.class_eval do
+    after_create :inherit_status_from_parent
+    after_destroy :reset_child_status
+
+    private
+
+    def inherit_status_from_parent
+      return if self.user.nil? || self.user.type == 'BotUser'
+      target = self.target
+      parent = self.source
+      if Bot::Smooch.team_has_smooch_bot_installed(target)
+        s = target.annotations.where(annotation_type: 'verification_status').last&.load
+        status = parent.last_verification_status
+        if !s.nil? && s.status != status
+          s.status = status
+          s.save!
+        end
+        Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).send_meme_from_parent(parent.id, target.id)
+      end
+    end
+
+    def reset_child_status
+      target = self.target
+      s = target.annotations.where(annotation_type: 'verification_status').last&.load
+      status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
+      if !s.nil? && s.status != status
+        s.status = status
+        s.save!
+      end
+    end
+  end
+
   ::Dynamic.class_eval do
     after_save :send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }
 
@@ -22,8 +54,7 @@ class Bot::Smooch
 
     def replicate_status_to_children
       pm = self.annotation.annotated
-      bot = TeamBot.where(identifier: 'smooch').last
-      return if TeamBotInstallation.where(team_id: pm.project.team_id, team_bot_id: bot.id).last.nil?
+      return unless Bot::Smooch.team_has_smooch_bot_installed(pm)
       ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).replicate_status_to_children(self.annotation.annotated_id, self.value, User.current&.id, Team.current&.id)
     end
 
@@ -123,6 +154,11 @@ class Bot::Smooch
     }
   }
 
+  def self.team_has_smooch_bot_installed(pm)
+    bot = TeamBot.where(identifier: 'smooch').last
+    !TeamBotInstallation.where(team_id: pm.project.team_id, team_bot_id: bot.id).last.nil?
+  end
+
   def self.get_installation(key, value)
     bot = TeamBot.where(identifier: 'smooch').last
     return nil if bot.nil?
@@ -194,9 +230,9 @@ class Bot::Smooch
     pm = ProjectMedia.where(id: pmid).last
     unless pm.nil?
       lang = Bot::Alegre.default.language_object(pm, :value)
-      status = self.get_status_label(pm, pm.last_status, lang)
-      fallback = I18n.t(:smooch_bot_result, locale: lang, status: status, url: pm.embed_url)
-      ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{pm.embed_url})")
+      status = self.get_status_label(pm, pm.last_verification_status, lang)
+      fallback = I18n.t(:smooch_bot_result, locale: lang, status: status, url: Bot::Smooch.embed_url(pm))
+      ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{Bot::Smooch.embed_url(pm)})")
     end
   end
 
@@ -341,7 +377,7 @@ class Bot::Smooch
     a.save!
 
     if pm.is_finished?
-      self.send_verification_results_to_user(json['authorId'], pm, pm.last_status, json['language'])
+      self.send_verification_results_to_user(json['authorId'], pm, pm.last_verification_status, json['language'])
       self.send_meme_to_user(json['authorId'], pm, json['language'])
     end
   end
@@ -425,8 +461,9 @@ class Bot::Smooch
     return if pm.nil?
     User.current = User.where(id: uid).last
     Team.current = Team.where(id: tid).last
-    pm.targets.find_each do |target|
-      s = target.annotations.where(annotation_type: 'verification_status').last.load
+    pm.source_relationships.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").find_each do |relationship|
+      target = relationship.target
+      s = target.annotations.where(annotation_type: 'verification_status').last&.load
       next if s.nil? || s.status == status
       s.status = status
       s.save!
@@ -449,18 +486,32 @@ class Bot::Smooch
       }
     }
     status_label = self.get_status_label(pm, status, lang)
-    response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status_label, url: pm.embed_url), extra)
+    response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm)), extra)
     self.save_smooch_response(response, pm)
     id = response&.message&.id
     Rails.cache.write('smooch:smooch_message_id:project_media_id:' + id, pm.id) unless id.blank?
     response
   end
 
+  def self.get_parent(pm)
+    Relationship.joins(:user).where(target_id: pm.id).where("users.type != 'BotUser' OR users.type IS NULL").last&.source
+  end
+
+  def self.get_meme(pm)
+    pm = Bot::Smooch.get_parent(pm) || pm
+    pm.get_annotations('memebuster').last&.load
+  end
+
+  def self.embed_url(pm)
+    pm = Bot::Smooch.get_parent(pm) || pm
+    pm.embed_url
+  end
+
   def self.send_meme_to_user(uid, pm, lang)
-    annotation = pm.get_annotations('memebuster').last&.load
+    annotation = Bot::Smooch.get_meme(pm) 
     return if annotation.nil? || annotation.get_field_value('memebuster_published_at').blank?
     meme = annotation.memebuster_png_path(false)
-    Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_meme, locale: lang, url: pm.embed_url), { type: 'image', mediaUrl: meme })
+    Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_meme, locale: lang, url: Bot::Smooch.embed_url(pm)), { type: 'image', mediaUrl: meme })
   end
 
   def self.save_smooch_response(response, pm)
@@ -475,11 +526,23 @@ class Bot::Smooch
     a.save!
   end
 
+  def self.send_meme_from_parent(parent_id, child_id)
+    parent = ProjectMedia.where(id: parent_id).last
+    child = ProjectMedia.where(id: child_id).last
+    if parent && child
+      annotation = parent.get_annotations('memebuster').last&.load
+      unless annotation.nil?
+        meme = annotation.memebuster_png_path(true)
+        Bot::Smooch.send_meme(parent, child, meme)
+      end
+    end
+  end
+
   def self.send_meme(pm, pm2, meme)
     pm2.get_annotations('smooch').find_each do |a|
       data = JSON.parse(a.load.get_field_value('smooch_data'))
       self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-      smooch_response = ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_meme, locale: data['language'], url: pm.embed_url), { type: 'image', mediaUrl: meme })
+      smooch_response = ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_meme, locale: data['language'], url: Bot::Smooch.embed_url(pm)), { type: 'image', mediaUrl: meme })
       self.save_smooch_response(smooch_response, pm2)
     end
   end
@@ -490,7 +553,10 @@ class Bot::Smooch
     return if pm.nil?
     meme = annotation.memebuster_png_path(true)
     self.send_meme(pm, pm, meme)
-    pm.targets.find_each { |pm2| self.send_meme(pm, pm2, meme) }
+    pm.source_relationships.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").find_each do |relationship|
+      pm2 = relationship.target
+      self.send_meme(pm, pm2, meme)
+    end
     annotation.set_fields = { memebuster_published_at: Time.now }.to_json
     annotation.save!
   end
