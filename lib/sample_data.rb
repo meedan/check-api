@@ -729,9 +729,11 @@ module SampleData
   end
 
   def create_relationship(options = {})
+    source_id = options[:source_id] || create_project_media.id
+    target_id = options[:target_id] || create_project_media.id
     options = {
-      source_id: create_project_media.id,
-      target_id: create_project_media.id,
+      source_id: source_id,
+      target_id: target_id,
       relationship_type: { source: 'parent', target: 'child' }
     }.merge(options)
     r = Relationship.new

@@ -5,9 +5,11 @@ class Relationship < ActiveRecord::Base
 
   belongs_to :source, class_name: 'ProjectMedia'
   belongs_to :target, class_name: 'ProjectMedia'
+  belongs_to :user
 
   serialize :relationship_type
 
+  before_validation :set_user
   validate :relationship_type_is_valid
   validate :child_or_parent_does_not_have_another_parent, on: :create, if: proc { |x| !x.is_being_copied? }
 
@@ -198,5 +200,9 @@ class Relationship < ActiveRecord::Base
 
   def child_or_parent_does_not_have_another_parent
     errors.add(:base, I18n.t(:relationship_item_has_parent)) if (self.source && self.source.sources.count > 0) || (self.target && self.target.sources.count > 0)
+  end
+
+  def set_user
+    self.user ||= User.current
   end
 end
