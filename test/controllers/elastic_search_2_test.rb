@@ -879,28 +879,56 @@ class ElasticSearch2Test < ActionController::TestCase
 
       pm1 = create_project_media project: p, disable_es_callbacks: false
       2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
-      sleep 5
-
       pm2 = create_project_media project: p, disable_es_callbacks: false
       4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
-      sleep 5
-
       pm3 = create_project_media project: p, disable_es_callbacks: false
       1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
-      sleep 5
-
       pm4 = create_project_media project: p, disable_es_callbacks: false
       3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
-      sleep 5
-
       pm5 = create_project_media project: p, disable_es_callbacks: false
       sleep 5
 
-      orders = {asc: [pm3, pm1, pm4, pm2], desc: [pm2, pm4, pm1, pm3]}
+      items = [pm3, pm1, pm4, pm2]
+      orders = {asc: items, desc: items.reverse}
       result = CheckSearch.new(query.to_json)
       assert_equal 4, result.medias.count
       assert_equal orders[order.to_sym].map(&:id), result.medias.map(&:id)
     end
+  end
+
+  test "should get more than 10 items most requested" do
+    p = create_project
+
+    query = { sort: 'smooch', sort_type: 'asc' }
+
+    pm1 = create_project_media project: p, disable_es_callbacks: false
+    2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
+    pm2 = create_project_media project: p, disable_es_callbacks: false
+    4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
+    pm3 = create_project_media project: p, disable_es_callbacks: false
+    1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
+    pm4 = create_project_media project: p, disable_es_callbacks: false
+    3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
+    pm5 = create_project_media project: p, disable_es_callbacks: false
+    1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm5, disable_es_callbacks: false }
+    pm6 = create_project_media project: p, disable_es_callbacks: false
+    3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm6, disable_es_callbacks: false }
+    pm7 = create_project_media project: p, disable_es_callbacks: false
+    1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm7, disable_es_callbacks: false }
+    pm8 = create_project_media project: p, disable_es_callbacks: false
+    2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm8, disable_es_callbacks: false }
+    pm9 = create_project_media project: p, disable_es_callbacks: false
+    1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm9, disable_es_callbacks: false }
+    pm10 = create_project_media project: p, disable_es_callbacks: false
+    1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm10, disable_es_callbacks: false }
+    pm11 = create_project_media project: p, disable_es_callbacks: false
+    4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm11, disable_es_callbacks: false }
+    pm12 = create_project_media project: p, disable_es_callbacks: false
+    2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm12, disable_es_callbacks: false }
+    sleep 5
+
+    result = CheckSearch.new(query.to_json)
+    assert_equal 12, result.medias.count
   end
 
 end
