@@ -1183,8 +1183,8 @@ class GraphqlController2Test < ActionController::TestCase
       pm1 = create_project_media project: p
       pm2 = create_project_media project: p
       pm3 = create_project_media project: p
-      create_relationship source_id: pm1.id, target_id: pm2.id
-      create_relationship source_id: pm1.id, target_id: pm3.id
+      create_relationship source_id: pm1.id, target_id: pm2.id, user: create_user
+      create_relationship source_id: pm1.id, target_id: pm3.id, user: create_user
       authenticate_with_user(u)
 
       assert_equal 'undetermined', pm1.reload.last_verification_status
@@ -1193,10 +1193,10 @@ class GraphqlController2Test < ActionController::TestCase
 
       d = pm1.last_verification_status_obj
       
-      query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { targets(first: 10) { edges { node { last_status } } } } } }'
+      query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { targets_by_users(first: 10) { edges { node { last_status } } } } } }'
       post :create, query: query, team: t.slug
       assert_response :success
-      assert_equal ['verified', 'verified'].sort, JSON.parse(@response.body)['data']['updateDynamic']['project_media']['targets']['edges'].collect{ |x| x['node']['last_status'] }
+      assert_equal ['verified', 'verified'].sort, JSON.parse(@response.body)['data']['updateDynamic']['project_media']['targets_by_users']['edges'].collect{ |x| x['node']['last_status'] }
     end
   end
 
