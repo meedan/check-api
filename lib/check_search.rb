@@ -116,7 +116,7 @@ class CheckSearch
   def medias_get_search_result(query)
     sort = build_search_dynamic_annotation_sort
     aggregations = build_search_dynamic_annotation_aggregation
-    if aggregations.empty? || @options['show'].include?('sources')
+    if aggregations.empty?
       MediaSearch.search(query: query, sort: sort, size: @options['eslimit']).results
     else
       MediaSearch.search(query: query, sort: sort, aggregations: aggregations, size: 0).response
@@ -257,8 +257,7 @@ class CheckSearch
           top_sort_hits: {
             terms: {
               field: "dynamics.#{@options['sort']}",
-              order: { _count: @options['sort_type'] },
-              size: @options['eslimit']
+              order: { _count: @options['sort_type'] }
             }
           }
         }
