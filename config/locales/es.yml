@@ -390,6 +390,11 @@ es:
 
       Para decir sí, * por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
   smooch_bot_window_closing: "El volumen de solicitudes que hemos recibido es muy alto y aún no hemos podido resolver tu solicitud. \nSi tienes otro mensaje para enviar, por favor hazlo. "
+  smooch_bot_not_final: '[Verification Report - CORRECTION] El mensaje que compartiste con nosotros fue erróneamente marcado como  *%{status}*. Todavía está en nuestra cola de verificación para añadirle información adicional.'
+  smooch_bot_result_changed: |-
+      [Verification Report - CORRECTION] El mensaje que compartiste con nosotros cambió de *%{previous_status}* a*%{status}*.
+
+      Este es el proceso que seguimos para llegar a esta conclusión: %{url}
   project_export_download_mail_csv: |-
       ¡Hola!
 
@@ -508,4 +513,4 @@ es:
   embed_tasks: Tareas
   embed_description: 'Descripción '
   other_language: Otro
-  relationship_item_has_parent: Este ítem ya es hijo de otro ítem
+  relationship_item_has_parent: Este ítem ya está relacionado a otro ítmen principal

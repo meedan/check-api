@@ -390,6 +390,11 @@ pt:
 
       Para dizer sim, *responda com 1*. Qualquer outra resposta terminará nossa conversa.
   smooch_bot_window_closing: O volume de solicitações está muito alto e ainda não conseguimos resolver sua solicitação. Obrigado por enviar. Se você tiver outra mensagem para enviar, por favor faça.
+  smooch_bot_not_final: '[Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco foi incorretamente marcada como *%{status}*. Ainda está em nossa fila para verificação adicional.'
+  smooch_bot_result_changed: |-
+      [Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco mudou de *%{previous_status}* para *%{status}*.
+
+      Aqui estão os passos que fizemos para determinar isso: %{url}
   project_export_download_mail_csv: |-
       Olá!
 
