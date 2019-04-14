@@ -83,8 +83,7 @@ Dynamic.class_eval do
   end
 
   def get_elasticsearch_options_dynamic_annotation_smooch
-    count = self.annotated.get_annotations('smooch').count
-    data = { smooch: count, indexable: self.annotated_id, id: self.annotated_id }
+    data = { smooch: 1, indexable: self.annotated_id, id: self.annotated_id }
     { keys: [:smooch, :indexable, :id], data: data }
   end
 

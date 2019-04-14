@@ -83,7 +83,7 @@ module CheckElasticSearch
     client = MediaSearch.gateway.client
     key = options[:nested_key]
     if options[:op] == 'create_or_update'
-      source = "ctx._source.updated_at=params.updated_at; if(ctx._source.#{key}) { for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}}else{ctx._source.#{key}.add(params.value)}"
+      source = "ctx._source.updated_at=params.updated_at;int num = -1; for (int i = 0; i < ctx._source.#{key}.size(); i++) {if (ctx._source.#{key}[i].smooch != null) {num = i; break;};}; if (num == -1) {ctx._source.#{key}.add(params.value);}; if (num != -1) ctx._source.#{key}[num].smooch += params.value.smooch;"
     elsif options[:op] == 'create'
       source = "ctx._source.updated_at=params.updated_at;ctx._source.#{key}.add(params.value)"
     else
