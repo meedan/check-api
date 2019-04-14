@@ -390,6 +390,11 @@ fr:
 
       Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à cette requête.
   smooch_bot_window_closing: Dû à l'important volume des demandes reçues, nous n'avons pas encore été en mesure de vérifier votre demande. Merci de nous l'avoir soumise. Si vous avez une autre demande à nous soumettre, n'hésitez pas à le faire.
+  smooch_bot_not_final: '[Rapport de vérification - CORRECTION] Le message que vous nous avez envoyé a été incorrectement marqué comme  *%{status}*. Il est encore dans notre file pour davantage de vérification.'
+  smooch_bot_result_changed: |-
+      [Rapport de vérification - CORRECTION] Le message que vous nous avez envoyé a changé de *%{previous_status}* à *%{status}*.
+
+      Voici les étapes que nous avons suivies pour arriver à cette conclusion: %{url}
   project_export_download_mail_csv: |-
       Bonjour !
 
