@@ -222,9 +222,9 @@ pt:
       export_images:
         menu: Exportar imagens do projeto
       delete_tasks:
-        done: tarefas removidas
+        done: tarefas excluídas
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Tem certeza que deseja apagar todas as tarefas na equipe <strong>%{team}</strong>? As seguintes tarefas serão removidas:'
+          html: 'Tem certeza que deseja excluir todas as tarefas na equipe <strong>%{team}</strong>? As seguintes tarefas serão removidas:'
       duplicate_team:
         menu: Duplicar equipe
         done: copiada
@@ -345,8 +345,8 @@ pt:
   mail_unassign_project: "%{author} desatribuiu um projeto de você. O título é:"
   mail_subject_assign_project: "[%{team} - %{project}] Um projeto foi atribuído para você"
   mail_subject_unassign_project: "[%{team} - %{project}] Um projeto foi desatribuído de você"
-  mail_subject_delete_user: "[%{team}] Um usuário foi removido"
-  mail_body_delete_user: Uma conta de usuário foi removida e seu conteúdo foi reatribuído para usuário anônimo %{id}
+  mail_subject_delete_user: "[%{team}] Um usuário foi excluído"
+  mail_body_delete_user: Uma conta de usuário foi excluída e seu conteúdo foi reatribuído para usuário anônimo %{id}
   archive_keep_backup: Video Vault
   archive_pender_archive: capturas de tela com Keep
   archive_archive_is: Archive.is
@@ -371,9 +371,25 @@ pt:
   task_suggestion_invalid_value: Desculpe, o valor da sugestão não é válido
   tag_text_id_not_found: Desculpe, não há tag com o identificador fornecido
   annotation_type_language_label: Idioma
+  smooch_bot_message_confirmed: |-
+      Obrigado. Sua submissão nos ajudará a pesquisar a disseminação de desinformação no WhatsApp durante essas eleições.
+
+      Este item também foi adicionado à nossa fila de verificação. Tentaremos obter um relatório dentro de 24 horas, mas por favor observe que não podemos responder a todas as solicitações.
+  smooch_bot_message_unconfirmed: Como você não respondeu com 1, não processaremos mais sua mensagem. Obrigado.
   smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este formato de arquivo para verificação.
   smooch_bot_message_sent: Você já nos enviou esta mensagem.
   smooch_bot_meme: Aqui está um meme criado com base no item que você solicitou que verificássemos. Saiba mais em %{url}.
+  smooch_bot_result: |-
+      [Relatório de Verificação] A mensagem que você compartilhou conosco está marcada como *%{status}*.
+
+      Aqui estão os passos que fizemos para determinar isso: %{url}
+  smooch_bot_ask_for_confirmation: |-
+      Obrigado por enviar esta mensagem.
+
+      Você suspeita que seja uma informação errada relacionada às Eleições Gerais Indianas de 2019?
+
+      Para dizer sim, *responda com 1*. Qualquer outra resposta terminará nossa conversa.
+  smooch_bot_window_closing: O volume de solicitações está muito alto e ainda não conseguimos resolver sua solicitação. Obrigado por enviar. Se você tiver outra mensagem para enviar, por favor faça.
   project_export_download_mail_csv: |-
       Olá!
 
@@ -496,3 +512,5 @@ pt:
   embed_collapse_all: Recolher tudo
   embed_tasks: Tarefas
   embed_description: Descrição
+  other_language: Outro
+  relationship_item_has_parent: Este item já é filho de outro item
