@@ -34,6 +34,10 @@ Dynamic.class_eval do
     { id: :deadline, label: I18n.t(:verification_status_deadline), asc_label: I18n.t(:verification_status_deadline_asc), desc_label: I18n.t(:verification_status_deadline_desc) } unless team.get_status_target_turnaround.blank?
   end
 
+  def self.field_sort_json_schema_type_smooch(_team = nil)
+    { id: :smooch, label: I18n.t(:smooch_requests), asc_label: I18n.t(:smooch_requests_asc), desc_label: I18n.t(:smooch_requests_desc) }
+  end
+
   # How a field should be INDEXED BY ELASTICSEARCH
   
   def get_elasticsearch_options_dynamic_annotation_verification_status
@@ -76,6 +80,12 @@ Dynamic.class_eval do
     datetime = DateTime.parse(self.get_field_value(:response_datetime))
     data = { datetime: datetime.to_i, indexable: datetime.to_s }
     { keys: [:datetime, :indexable], data: data }
+  end
+
+  def get_elasticsearch_options_dynamic_annotation_smooch
+    count = self.annotated.get_annotations('smooch').count
+    data = { smooch: count, indexable: self.annotated_id, id: self.annotated_id }
+    { keys: [:smooch, :indexable, :id], data: data }
   end
 
   # How a field should be SEARCHED

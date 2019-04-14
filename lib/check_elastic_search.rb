@@ -82,14 +82,16 @@ module CheckElasticSearch
     create_doc_if_not_exists(options)
     client = MediaSearch.gateway.client
     key = options[:nested_key]
-    if options[:op] == 'create'
+    if options[:op] == 'create_or_update'
+      source = "ctx._source.updated_at=params.updated_at; if(ctx._source.#{key}) { for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}}else{ctx._source.#{key}.add(params.value)}"
+    elsif options[:op] == 'create'
       source = "ctx._source.updated_at=params.updated_at;ctx._source.#{key}.add(params.value)"
     else
       source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
     end
     values = store_elasticsearch_data(options[:keys], options[:data])
     client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
-             body: { script: { source: source, params: { value: values, id: self.id, updated_at: Time.now.utc } } }
+             body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
   end
 
   def store_elasticsearch_data(keys, data)
