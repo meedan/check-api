@@ -67,7 +67,7 @@ class RelationshipTest < ActiveSupport::TestCase
     t = create_project_media
     name = { source: 'duplicates', target: 'duplicate_of' }
     create_relationship source_id: s.id, target_id: t.id, relationship_type: name
-    assert_raises ActiveRecord::StatementInvalid do
+    assert_raises ActiveRecord::RecordInvalid do
       assert_no_difference 'Relationship.count' do
         create_relationship source_id: s.id, target_id: t.id, relationship_type: name
       end
@@ -86,20 +86,15 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal 0, s.sources_count
     assert_equal 0, t.targets_count
     assert_equal 0, t.sources_count
-    create_relationship source_id: s.id, target_id: t.id, relationship_type: { source: 'foo', target: 'bar' }
+    r = create_relationship source_id: s.id, target_id: t.id, relationship_type: { source: 'foo', target: 'bar' }
     assert_equal 1, s.reload.targets_count
     assert_equal 0, s.reload.sources_count
     assert_equal 1, t.reload.sources_count
-    assert_equal 0, t.reload.targets_count
-    r = create_relationship source_id: s.id, target_id: t.id
-    assert_equal 2, s.reload.targets_count
-    assert_equal 0, s.reload.sources_count
-    assert_equal 2, t.reload.sources_count
     assert_equal 0, t.reload.targets_count
     r.destroy
-    assert_equal 1, s.reload.targets_count
+    assert_equal 0, s.reload.targets_count
     assert_equal 0, s.reload.sources_count
-    assert_equal 1, t.reload.sources_count
+    assert_equal 0, t.reload.sources_count
     assert_equal 0, t.reload.targets_count
   end
 
@@ -110,7 +105,6 @@ class RelationshipTest < ActiveSupport::TestCase
     s2 = create_project_media
     s3 = create_project_media
     create_relationship source_id: p.id, relationship_type: { source: 'foo', target: 'bar' }
-    create_relationship target_id: s1.id
     create_relationship source_id: p.id, target_id: s1.id
     create_relationship source_id: p.id, target_id: s2.id
     create_relationship source_id: p.id, target_id: s3.id

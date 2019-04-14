@@ -601,3 +601,4 @@ en:
   embed_tasks: Tasks
   embed_description: Description
   other_language: Other
+  relationship_item_has_parent: This item is already a child of another item
