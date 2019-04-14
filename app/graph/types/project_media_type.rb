@@ -206,7 +206,13 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :relationship, RelationshipType
+  field :relationship do
+    type RelationshipType
+
+    resolve ->(project_media, _args, _ctx) {
+      Relationship.where(target_id: project_media.id).first || Relationship.where(source_id: project_media.id).first
+    }
+  end
 
   instance_exec :project_media, &GraphqlCrudOperations.field_annotations
 
@@ -249,7 +255,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     end
   end
   
-  connection :targets, -> { ProjectMediaType.connection_type }
+  connection :targets_by_users, -> { ProjectMediaType.connection_type }
   
   DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
     connection "dynamic_annotations_#{type}".to_sym, -> { DynamicType.connection_type } do

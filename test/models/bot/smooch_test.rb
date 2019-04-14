@@ -494,6 +494,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('memebuster', fields)
     text = random_string
     uid = random_string
+    child1 = create_project_media project: @project
+    u = create_user
 
     messages = [
       {
@@ -518,6 +520,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.run(payload)
     assert send_confirmation(uid)
     pm = ProjectMedia.last
+    create_relationship source_id: pm.id, target_id: child1.id, user: u
     s = pm.last_status_obj
     s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
     s.save!
@@ -577,6 +580,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     assert !File.exist?(filepath)
     assert_equal 'In Progress', a.reload.get_field_value('memebuster_status')
+
+    child2 = create_project_media project: @project
+    Bot::Smooch.expects(:send_meme).once
+    create_relationship source_id: pm.id, target_id: child2.id, user: u 
+    Bot::Smooch.unstub(:send_meme)
   end
 
   test "should get language" do
@@ -708,7 +716,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should replicate status to related items" do
     parent = create_project_media project: @project
     child = create_project_media project: @project
-    create_relationship source_id: parent.id, target_id: child.id
+    create_relationship source_id: parent.id, target_id: child.id, user: create_user
     s = parent.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'verified'
     s.save!
@@ -726,6 +734,26 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       end
     end
     assert passed
+  end
+
+  test "should inherit status from parent" do
+    parent = create_project_media project: @project
+    s = parent.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'verified'
+    s.save!
+
+    child = create_project_media project: @project
+    create_relationship source_id: parent.id, target_id: child.id
+    s = child.annotations.where(annotation_type: 'verification_status').last.load
+    assert_equal 'undetermined', s.status
+
+    child = create_project_media project: @project
+    r = create_relationship source_id: parent.id, target_id: child.id, user: create_user
+    s = child.annotations.where(annotation_type: 'verification_status').last.load
+    assert_equal 'verified', s.status
+    r.destroy
+    s = child.annotations.where(annotation_type: 'verification_status').last.load
+    assert_equal 'undetermined', s.status
   end
 
   test "should return state machine error" do

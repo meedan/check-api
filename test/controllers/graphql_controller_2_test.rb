@@ -41,7 +41,7 @@ class GraphqlController2Test < ActionController::TestCase
     t, p, pm = assert_task_response_attribution
     u = create_user is_admin: true
     authenticate_with_user(u)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { status, first_response { attribution { edges { node { name } } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { relationship { id }, tasks { edges { node { status, first_response { attribution { edges { node { name } } } } } } } } }"
     post :create, query: query, team: t.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -239,20 +239,20 @@ class GraphqlController2Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
+    pm2 = create_project_media project: p
     s1 = create_project_media
     r = create_relationship source_id: s1.id, target_id: pm.id, relationship_type: { source: 'parent', target: 'child' }
     create_relationship source_id: s1.id, relationship_type: { source: 'parent', target: 'child' }
-    create_relationship source_id: s1.id, target_id: pm.id, relationship_type: { source: 'related', target: 'related' }
     create_relationship source_id: s1.id, relationship_type: { source: 'related', target: 'related' }
     create_relationship source_id: s1.id, relationship_type: { source: 'related', target: 'related' }
     s2 = create_project_media
-    create_relationship source_id: s2.id, target_id: pm.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
+    create_relationship source_id: s2.id, target_id: pm2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
     create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
     create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
     create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
-    3.times { create_relationship(source_id: pm.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }) }
-    2.times { create_relationship(source_id: pm.id, relationship_type: { source: 'parent', target: 'child' }) }
-    1.times { create_relationship(source_id: pm.id, relationship_type: { source: 'related', target: 'related' }) }
+    3.times { create_relationship(relationship_type: { source: 'duplicates', target: 'duplicate_of' }) }
+    2.times { create_relationship(relationship_type: { source: 'parent', target: 'child' }) }
+    1.times { create_relationship(relationship_type: { source: 'related', target: 'related' }) }
     authenticate_with_user
 
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { relationships { id, targets_count, targets { edges { node { id, type, targets { edges { node { dbid } } } } } }, sources { edges { node { id, relationship_id, type, siblings { edges { node { dbid } } }, source { dbid } } } } } } }"
@@ -260,7 +260,7 @@ class GraphqlController2Test < ActionController::TestCase
 
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']['relationships']
-    assert_equal 6, data['targets_count']
+    assert_equal 0, data['targets_count']
     sources = data['sources']['edges'].sort_by{ |x| x['node']['relationship_id'] }.collect{ |x| x['node'] }
     targets = data['targets']['edges'].sort_by{ |x| x['node']['type'] }.collect{ |x| x['node'] }
 
@@ -268,25 +268,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal({ source: 'parent', target: 'child' }.to_json, sources[0]['type'])
     assert_equal 2, sources[0]['siblings']['edges'].size
 
-    assert_equal s1.id, sources[1]['source']['dbid']
-    assert_equal({ source: 'related', target: 'related' }.to_json, sources[1]['type'])
-    assert_equal 3, sources[1]['siblings']['edges'].size
-
-    assert_equal s2.id, sources[2]['source']['dbid']
-    assert_equal({ source: 'duplicates', target: 'duplicate_of' }.to_json, sources[2]['type'])
-    assert_equal 4, sources[2]['siblings']['edges'].size
-
-    assert_equal({ source: 'duplicates', target: 'duplicate_of' }.to_json, targets[0]['type'])
-    assert_equal 3, targets[0]['targets']['edges'].size
-
-    assert_equal({ source: 'parent', target: 'child' }.to_json, targets[1]['type'])
-    assert_equal 2, targets[1]['targets']['edges'].size
-
-    assert_equal({ source: 'related', target: 'related' }.to_json, targets[2]['type'])
-    assert_equal 1, targets[2]['targets']['edges'].size
-
     assert_equal Base64.encode64("Relationships/#{pm.id}"), data['id']
-    assert_equal Base64.encode64("RelationshipsTarget/#{pm.id}/#{{ source: 'duplicates', target: 'duplicate_of' }.to_json}"), targets[0]['id']
     assert_equal Base64.encode64("RelationshipsSource/#{r.source_id}/#{{ source: 'parent', target: 'child' }.to_json}"), sources[0]['id']
   end
 
@@ -1201,8 +1183,8 @@ class GraphqlController2Test < ActionController::TestCase
       pm1 = create_project_media project: p
       pm2 = create_project_media project: p
       pm3 = create_project_media project: p
-      create_relationship source_id: pm1.id, target_id: pm2.id
-      create_relationship source_id: pm1.id, target_id: pm3.id
+      create_relationship source_id: pm1.id, target_id: pm2.id, user: create_user
+      create_relationship source_id: pm1.id, target_id: pm3.id, user: create_user
       authenticate_with_user(u)
 
       assert_equal 'undetermined', pm1.reload.last_verification_status
@@ -1211,10 +1193,10 @@ class GraphqlController2Test < ActionController::TestCase
 
       d = pm1.last_verification_status_obj
       
-      query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { targets(first: 10) { edges { node { last_status } } } } } }'
+      query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { targets_by_users(first: 10) { edges { node { last_status } } } } } }'
       post :create, query: query, team: t.slug
       assert_response :success
-      assert_equal ['verified', 'verified'].sort, JSON.parse(@response.body)['data']['updateDynamic']['project_media']['targets']['edges'].collect{ |x| x['node']['last_status'] }
+      assert_equal ['verified', 'verified'].sort, JSON.parse(@response.body)['data']['updateDynamic']['project_media']['targets_by_users']['edges'].collect{ |x| x['node']['last_status'] }
     end
   end
 
@@ -1273,10 +1255,10 @@ class GraphqlController2Test < ActionController::TestCase
     r = create_relationship source_id: pm1.id, target_id: pm2.id
     assert_not_nil Relationship.where(id: r.id).last
     authenticate_with_user(u)
-    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId, source_project_media { id }, target_project_media { id } } }'
+    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId, source_project_media { id }, target_project_media { id }, current_project_media { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal r.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['deletedId']
+    assert_equal pm2.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['deletedId']
     assert_equal pm1.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['source_project_media']['id']
     assert_equal pm2.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['target_project_media']['id']
     assert_nil Relationship.where(id: r.id).last

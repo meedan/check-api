@@ -19,7 +19,7 @@ class GraphqlCrudOperations
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
         parent = self.define_optimistic_fields(parent, inputs, parent_name)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version', 'source_project_media', 'target_project_media'].include?(parent_name)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -155,12 +155,14 @@ class GraphqlCrudOperations
     self.crud_operation('update', obj, inputs, ctx, parents, returns)
   end
 
-  def self.destroy_from_single_id(graphql_id, _inputs, ctx, parents)
+  def self.destroy_from_single_id(graphql_id, inputs, ctx, parents)
     obj = self.object_from_id(graphql_id)
+    obj.current_id = inputs[:current_id] if obj.is_a?(Relationship)
     obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : obj.destroy
 
-    ret = { deletedId: graphql_id }
+    deleted_id = obj.respond_to?(:graphql_deleted_id) ? obj.graphql_deleted_id : graphql_id
+    ret = { deletedId: deleted_id }
 
     parents.each { |parent| ret[parent.to_sym] = obj.send(parent) }
 
@@ -202,12 +204,12 @@ class GraphqlCrudOperations
     unless status.nil?
       return obj if TeamBotInstallation.where(team_id: obj.project.team_id, team_bot_id: TeamBot.where(identifier: 'smooch').last&.id.to_i).last.nil?
       targets = []
-      obj.targets.each do |target|
+      obj.targets_by_users.find_each do |target|
         target.define_singleton_method(:last_status) { status }
         target.define_singleton_method(:dbid) { 0 }
         targets << target
       end
-      obj.define_singleton_method(:targets) { targets }
+      obj.define_singleton_method(:targets_by_users) { targets }
     end
     obj
   end
@@ -276,6 +278,8 @@ class GraphqlCrudOperations
       input_field :id, types.ID
       input_field :ids, types[types.ID]
 
+      input_field(:current_id, types.Int) if type == 'relationship'
+
       return_field :deletedId, types.ID
       return_field :affectedIds, types[types.ID]
 
@@ -289,7 +293,7 @@ class GraphqlCrudOperations
     fields = {}
     parents.each do |parent|
       parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
-      parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media'].include?(parent)
+      parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent)
       parentclass = 'Version' if parent == 'first_response_version'
       fields[parent.to_sym] = "#{parentclass}Type".constantize
     end
