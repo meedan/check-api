@@ -241,7 +241,7 @@ fr:
   translation_status_not_valid: Statut non valide
   translation_status_permission_error: Désolé, vous n'êtes pas autorisé à effectuer ce changement de statut.
   translation_request_id_exists: Il existe déjà une demande de traduction pour ce message
-  auto_publisher_added_to_project: Merci ! Dorénavant toutes les traductions du projet %{project} seront automatiquement publiées via ce compte %{provider}. Si vous changez d'avis, veuillez contactez notre équipe de support ou bien révoquez l'autorisation de Bridge pour %{provider}.
+  auto_publisher_added_to_project: Merci ! Dorénavant toutes les traductions du projet %{project} seront automatiquement publiées via ce compte %{provider}. Si vous changez d'avis, veuillez prévenir notre équipe de support ou bien révoquez l'autorisation de Bridge pour %{provider}.
   invalid_token: Jeton de sécurité non valide
   viber_screenshot_footer: "Traduction en %{target_language} de l'original en %{source_language}: “%{source_text}”"
   time:
@@ -300,7 +300,7 @@ fr:
   media_exists: Ce média existe déjà
   source_exists: Cette source existe déjà
   email_exists: a déjà été pris
-  banned_user: Désolé, votre compte a été banni de %{app_name}. Veuillez contacter l'équipe de support si vous pensez qu'il s'agit d'une erreur.
+  banned_user: Désolé, votre compte a été banni de %{app_name}. Veuillez prévenir l'équipe de support si vous pensez qu'il s'agit d'une erreur.
   devise:
     mailer:
       reset_password_instructions:
@@ -371,9 +371,25 @@ fr:
   task_suggestion_invalid_value: La suggestion de réponse n'est pas correctement formulée.
   tag_text_id_not_found: Désolé, il n'existe pas de tag avec l'identifiant fourni
   annotation_type_language_label: Langage
+  smooch_bot_message_confirmed: |-
+      Merci. Votre contribution nous aidera à rechercher la propagation de la désinformation sur WhatsApp durant ces élections.
+
+      Cet élément a aussi été ajouté à notre file de vérification. Nous tenterons de vous donner une réponse dans les 24 heures, mais notez que nous ne pouvons pas répondre à chaque demande.
+  smooch_bot_message_unconfirmed: Comme vous n'avez pas répondu par 1, nous ne traiterons plus votre message. Merci.
   smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore ce type de message en charge pour la vérification.
   smooch_bot_message_sent: Vous nous avez déjà envoyé ce message.
   smooch_bot_meme: 'Voici un mème que nous avons créé pour l''article que vous nous avez demandé de vérifier. Pour en savoir plus : %{url}.'
+  smooch_bot_result: |-
+      [Rapport de vérification] Le message que vous nous avez envoyé est marqué comme *%{status}*.
+
+      Voici les étapes que nous avons suivies pour arriver à cette conclusion: %{url}
+  smooch_bot_ask_for_confirmation: |-
+      Merci de nous envoyer ce message.
+
+      Suspectez-vous que ce soit une fausse information ayant trait aux Élections législatives indiennes de 2019 ?
+
+      Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à cette requête.
+  smooch_bot_window_closing: Dû à l'important volume des demandes reçues, nous n'avons pas encore été en mesure de vérifier votre demande. Merci de nous l'avoir soumise. Si vous avez une autre demande à nous soumettre, n'hésitez pas à le faire.
   project_export_download_mail_csv: |-
       Bonjour !
 
@@ -488,3 +504,5 @@ fr:
   embed_collapse_all: Réduire tout
   embed_tasks: Tâches
   embed_description: Description
+  other_language: Autre
+  relationship_item_has_parent: Cet élément est déjà lié à un autre parent
