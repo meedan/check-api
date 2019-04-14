@@ -380,7 +380,7 @@ es:
   smooch_bot_message_sent: 'Ya nos has enviado este mensaje antes. '
   smooch_bot_meme: Hicimos este meme gracias a la pregunta que nos enviaste para que verificáramos, ¡compártelo! Mira más en %{url}.
   smooch_bot_result: |-
-      [Verification Report] El mensaje que compartiste con nosotros ha sido marcado como  *%{status}*.
+      [Informe de Verificación] El mensaje que compartiste con nosotros ha sido marcado como  *%{status}*.
 
       Este es el proceso que seguimos para llegar a esta conclusión: %{url}
   smooch_bot_ask_for_confirmation: |-
@@ -390,9 +390,9 @@ es:
 
       Para decir sí, * por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
   smooch_bot_window_closing: "El volumen de solicitudes que hemos recibido es muy alto y aún no hemos podido resolver tu solicitud. \nSi tienes otro mensaje para enviar, por favor hazlo. "
-  smooch_bot_not_final: '[Verification Report - CORRECTION] El mensaje que compartiste con nosotros fue erróneamente marcado como  *%{status}*. Todavía está en nuestra cola de verificación para añadirle información adicional.'
+  smooch_bot_not_final: '[Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*. Todavía está en nuestra cola de verificación para añadirle información adicional.'
   smooch_bot_result_changed: |-
-      [Verification Report - CORRECTION] El mensaje que compartiste con nosotros cambió de *%{previous_status}* a*%{status}*.
+      [Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros cambió de *%{previous_status}* a*%{status}*.
 
       Este es el proceso que seguimos para llegar a esta conclusión: %{url}
   project_export_download_mail_csv: |-
