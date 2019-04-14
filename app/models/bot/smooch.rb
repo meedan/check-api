@@ -5,6 +5,7 @@ class Bot::Smooch
     check_workflow from: :any, to: :any, actions: :replicate_status_to_children
     check_workflow from: :any, to: :terminal, actions: :reply_to_smooch_users
     check_workflow from: :any, to: :any, actions: :reset_meme
+    check_workflow from: :terminal, to: :non_terminal, actions: :reply_to_smooch_users_not_final
   end
 
   ::Relationship.class_eval do
@@ -60,6 +61,10 @@ class Bot::Smooch
 
     def reply_to_smooch_users
       ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).reply_to_smooch_users(self.annotation.annotated_id, self.value)
+    end
+
+    def reply_to_smooch_users_not_final 
+      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).reply_to_smooch_users_not_final(self.annotation.annotated_id, self.value_was)
     end
 
     def reset_meme
@@ -445,13 +450,44 @@ class Bot::Smooch
     end
   end
 
+  def self.get_previous_final_status(pm)
+    previous_final_status = nil
+    begin
+      finals = ::Workflow::Workflow.options(pm, 'verification_status').with_indifferent_access['statuses'].select{ |s| s['completed'].to_i == 1 }.collect{ |s| s['id'].gsub(/^not_true$/, 'false') }
+      previous_final_statuses = []
+      pm.last_verification_status_obj.get_field('verification_status_status').versions.each do |v|
+        status = YAML.load(JSON.parse(v.object_after)['value']).to_s
+        previous_final_statuses << status if finals.include?(status)
+      end
+      previous_final_status = previous_final_statuses[-2]
+    rescue
+      previous_final_status = nil
+    end
+    previous_final_status
+  end
+
   def self.reply_to_smooch_users(pmid, status)
+    pm = ProjectMedia.where(id: pmid).last
+    unless pm.nil?
+      previous_final_status = self.get_previous_final_status(pm)
+      pm.get_annotations('smooch').find_each do |annotation|
+        data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+        self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
+        self.send_verification_results_to_user(data['authorId'], pm, status, data['language'], previous_final_status)
+      end
+    end
+  end
+
+  def self.reply_to_smooch_users_not_final(pmid, status)
     pm = ProjectMedia.where(id: pmid).last
     unless pm.nil?
       pm.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        self.send_verification_results_to_user(data['authorId'], pm, status, data['language'])
+        lang = data['language']
+        status_label = self.get_status_label(pm, status, lang)
+        response = ::Bot::Smooch.send_message_to_user(data['authorId'], I18n.t(:smooch_bot_not_final, locale: lang, status: status_label))
+        self.save_smooch_response(response, pm)
       end
     end
   end
@@ -472,7 +508,7 @@ class Bot::Smooch
     Team.current = nil
   end
 
-  def self.send_verification_results_to_user(uid, pm, status, lang)
+  def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
     key = 'smooch:' + uid + ':reminder_job_id'
     job_id = Rails.cache.read(key)
     unless job_id.nil?
@@ -486,7 +522,13 @@ class Bot::Smooch
       }
     }
     status_label = self.get_status_label(pm, status, lang)
-    response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_result, locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm)), extra)
+    params = { locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm) }
+    i18n_key = :smooch_bot_result
+    unless previous_final_status.blank?
+      i18n_key = :smooch_bot_result_changed
+      params[:previous_status] = self.get_status_label(pm, previous_final_status, lang)
+    end
+    response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(i18n_key, params), extra)
     self.save_smooch_response(response, pm)
     id = response&.message&.id
     Rails.cache.write('smooch:smooch_message_id:project_media_id:' + id, pm.id) unless id.blank?

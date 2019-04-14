@@ -54,10 +54,32 @@ module Workflow
           end
         end
 
-        def workflow_completed_options
+        def workflow_options_completed_or_not(completed)
           statuses = self.workflow_options
           statuses = statuses ? statuses[:statuses] : []
-          statuses.select{ |s| s[:completed].to_i == 1 }.collect{ |s| s[:id] }
+          statuses.select{ |s| completed ? (s[:completed].to_i == 1) : (s[:completed].to_i != 1) }.collect{ |s| s[:id] }
+        end
+
+        def workflow_completed_options
+          self.workflow_options_completed_or_not(true)
+        end
+
+        def workflow_incompleted_options
+          self.workflow_options_completed_or_not(false)
+        end
+
+        def workflow_options_from_key(key)
+          statuses = self.workflow_options[:statuses]
+          case key
+          when :any
+            statuses.collect{ |s| s[:id] }
+          when :terminal
+            self.workflow_completed_options
+          when :non_terminal
+            self.workflow_incompleted_options
+          else
+            [key].flatten.map(&:to_s)
+          end
         end
 
         protected
@@ -78,13 +100,8 @@ module Workflow
         end
 
         def workflow_transition_applies?(from, to)
-          statuses = self.workflow_options[:statuses]
-          from = statuses.collect{ |s| s[:id] } if from == :any
-          from = self.workflow_completed_options if from == :terminal
-          from = [from].flatten.map(&:to_s)
-          to = statuses.collect{ |s| s[:id] } if to == :any
-          to = self.workflow_completed_options if to == :terminal
-          to = [to].flatten.map(&:to_s)
+          from = self.workflow_options_from_key(from)
+          to = self.workflow_options_from_key(to)
           to.include?(self.value.to_s) && from.include?(self.previous_status.to_s)
         end
 

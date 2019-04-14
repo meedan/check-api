@@ -756,6 +756,60 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_equal 'undetermined', s.status
   end
 
+  test "should get previous final status" do
+    u = create_user is_admin: true
+    with_current_user_and_team(u, @team) do
+      pm = create_project_media project: @project
+      s = pm.annotations.where(annotation_type: 'verification_status').last.load
+      s.status = 'verified'
+      s.save!
+      s = Annotation.find(s.id).load
+      s.status = 'false'
+      s.save!
+      pm = ProjectMedia.find(pm.id)
+      assert_equal 'verified', Bot::Smooch.get_previous_final_status(pm)
+      s.get_fields.first.destroy
+      pm = ProjectMedia.find(pm.id)
+      assert_nil Bot::Smooch.get_previous_final_status(pm)
+    end
+  end
+
+  test "should send message to user when status changes" do
+    u = create_user is_admin: true
+    uid = random_string
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    with_current_user_and_team(u, @team) do
+      s = pm.last_verification_status_obj
+      s.status = 'false'
+      s.save!
+      s = pm.last_verification_status_obj
+      s.status = 'verified'
+      s.save!
+    end
+  end
+
   test "should return state machine error" do
     class AasmTest
       def aasm(_arg)
