@@ -175,7 +175,7 @@ ar:
       source: المصدر
       status: الحالة
       status_previous: الحالة السابقة
-      related_to: ذو صلة مع
+      related_to: مرتبط مع
       view_button: عرض %{type} في %{app}
       project_source: المصدر
       project_media: العنصر
@@ -190,7 +190,7 @@ ar:
       task_comment: "قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى مهمة"
       project_media_comment: "قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}"
       project_media_create: "قام %{user} (%{role} في %{team}) بإنشاء %{type}"
-      project_media_create_related: "قام %{user} (%{role} في %{team}) بإنشاء %{type} ذو صلة"
+      project_media_create_related: "قام %{user} (%{role} في %{team}) بإنشاء %{type} مرتبط"
       project_media_update: "قام %{user} (%{role} في %{team}) بتحرير %{type}"
       project_media_status: "قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow} %{type}"
       project_media_assign: "قام %{user} (%{role} في %{team}) بتكليف %{type}"
@@ -233,7 +233,7 @@ ar:
         menu: نسخ الفريق
         done: تم النسخ
         are_you_sure_you_want_to_copy_team:
-          html: هل أنت متأكد أنك تود نسخ الفريق <strong>%{team}</strong>؟ سوف يتم أيضًا نسخ جميع البيانات المتصلة.
+          html: هل أنت متأكد أنك تود نسخ الفريق <strong>%{team}</strong>؟ سوف يتم أيضًا نسخ جميع البيانات المرتبطة.
         the_team_is_being_copied: يتم نسخ الفريق
         url_when_ready:
           html: بمجرد أن تصبح جاهزة ، سوف تكون نسخة الفريق متاحة في <strong>%{copy_url}</strong>
@@ -316,7 +316,7 @@ ar:
   media_exists: هذا العنصر موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
   email_exists: ' مستخدم بالفعل'
-  banned_user: عذراً ، لقد تم حظرك من %{app_name}. يمكنك اﻹتصال بفريق الدعم إن كنت تعتقد أن هناك خطأ ما.
+  banned_user: عذراً ، لقد تم حظرك من %{app_name}. من فضلك تواصل مع فريق الدعم إن كنت تعتقد ان هناك خطأ ما.
   devise:
     mailer:
       reset_password_instructions:
@@ -387,9 +387,25 @@ ar:
   task_suggestion_invalid_value: عذراً ، صيغة الاقتراح غير صحيحة
   tag_text_id_not_found: عذراً ، لا يوجد وسم بهذا المُعَرِّف
   annotation_type_language_label: اللغة
+  smooch_bot_message_confirmed: |-
+      شكرا لكم. سوف تساعدنا رسالتك في بحث مدى انتشار المعلومات الخاطئة على WhatsApp خلال هذه الانتخابات.
+
+      تمت إضافة هذا العنصر أيضًا إلى قائمة انتظار التحقق. سنحاول ارسال تقرير إليك خلال 24 ساعة ، لكن يرجى ملاحظة أننا لا نستطيع الرد على كل طلب.
+  smooch_bot_message_unconfirmed: نظرًا لأنك لم ترد  بـ 1 ، فلن نقوم بمعالجة رسالتك. شكرا لكم.
   smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل بعد للتحقق من صحتها.
   smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة من قبل.
   smooch_bot_meme: إليك ميم أنشأناه بناء على العنصر الذي أرسلته للتحقق منه. لعرض المزيد %{url}.
+  smooch_bot_result: |-
+      [تقرير التحقيق] لقد تحققنا مما أرسلته لنا ، واستنتجنا أن هذا العنصر *%{status}*.
+
+      فيما يلي الخطوات التي اتخذناها لتحديد هذا : %{url}
+  smooch_bot_ask_for_confirmation: |-
+      شكرا لإرسال هذه الرسالة.
+
+      هل تشك في أنها معلومات خاطئة تتعلق بالانتخابات العامة الهندية لعام 2019 ؟
+
+      ليقول نعم ، * الرجاء الرد بـ 1 *. أي رد آخر سينهي طلبك.
+  smooch_bot_window_closing: إن حجم الطلبات مرتفع للغاية ، ولم نتمكن من معالجة طلبك بعد. شكرا لك مرة اخرى على طلبك. إذا كان لديك رسالة أخرى لتقديمها ، فالرجاء القيام بذلك.
   project_export_download_mail_csv: |-
       مرحباً !
 
@@ -504,3 +520,5 @@ ar:
   embed_collapse_all: طيّ الكل
   embed_tasks: المهام
   embed_description: الوصف
+  other_language: آخر
+  relationship_item_has_parent: هذا العنصر تابع لعنصر آخر بالفعل.
