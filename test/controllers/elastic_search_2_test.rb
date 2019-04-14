@@ -836,7 +836,8 @@ class ElasticSearch2Test < ActionController::TestCase
     3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
     sleep 5
 
-    orders = {asc: [pm3, pm1, pm4, pm2], desc: [pm2, pm4, pm1, pm3]}
+    order = [pm3, pm1, pm4, pm2]
+    orders = {asc: order, desc: order.reverse}
     orders.keys.each do |order|
       search = {
         sort: [
@@ -861,7 +862,6 @@ class ElasticSearch2Test < ActionController::TestCase
     end
   end
 
-
   [:asc, :desc].each do |order|
     test "should filter and sort by most requested #{order}" do
       p = create_project
@@ -882,11 +882,30 @@ class ElasticSearch2Test < ActionController::TestCase
       pm5 = create_project_media project: p, disable_es_callbacks: false
       sleep 5
 
-      items = [pm3, pm1, pm4, pm2]
-      orders = {asc: items, desc: items.reverse}
+      orders = {asc: [pm3, pm1, pm4, pm2, pm5], desc: [pm2, pm4, pm1, pm3, pm5]}
       result = CheckSearch.new(query.to_json)
-      assert_equal 4, result.medias.count
+      assert_equal 5, result.medias.count
       assert_equal orders[order.to_sym].map(&:id), result.medias.map(&:id)
     end
   end
+
+  test "should decrease elasticsearch smooch when annotations is removed" do
+    p = create_project
+    pm = create_project_media project: p, disable_es_callbacks: false
+    s1 = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, disable_es_callbacks: false
+    s2 = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, disable_es_callbacks: false
+    sleep 3
+
+    result = MediaSearch.find(get_es_id(pm))
+    puts result
+    assert_equal [2], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
+    s1.destroy
+    sleep 1
+
+    result = MediaSearch.find(get_es_id(pm))
+    puts result
+    assert_equal [1], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
+  end
+
+
 end
