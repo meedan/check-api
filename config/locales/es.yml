@@ -10,7 +10,7 @@ es:
         description: Predeterminado, aún no resuelto
       resolved:
         label: Resuelto
-        description: La Tarea fue resuelta
+        description: La tarea fue resuelta
       cant_be_resolved:
         label: No se puede resolver
         description: No fue posible resolver la tarea
@@ -48,7 +48,7 @@ es:
       misleading:
         label: Engañoso
       disputed:
-        label: Con conflicto
+        label: En conflicto
       out_of_scope:
         label: Fuera de ámbito
       junk:
@@ -144,7 +144,7 @@ es:
   slack_webhook_format_wrong: El Slack webhook es inválido, debería tener este formato  `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: Está reservado
   invalid_format_for_languages: 'Configuración de idiomas inválida. Debería tener el formato [{''id'': ''en'', ''title'': ''English''}]'
-  invalid_media_item: 'Lo sentimos, este no es un ítem válido '
+  invalid_media_item: 'Lo sentimos, este ítem no es válido '
   invalid_default_status_for_custom_verification_status: El identificador de estado predeterminado es inválido
   invalid_active_status_for_custom_verification_status: El identificador de estado activo es inválido
   invalid_label_for_custom_verification_status: La etiqueta de estado es obligatorio
@@ -152,7 +152,7 @@ es:
   invalid_statuses_format_for_custom_verification_status: 'Los estados de verificación personalizados deben tener entradas válidas para: etiqueta, identificador, descripción, estilo y marca de estado final.'
   invalid_default_status_for_custom_translation_status: El identificador de estado predeterminado es inválido
   invalid_active_status_for_custom_translation_status: El identificador de estado activo es inválido
-  invalid_label_for_custom_translation_status: La etiqueta de estado es obligatorio
+  invalid_label_for_custom_translation_status: La etiqueta de estado es obligatoria
   invalid_id_for_custom_translation_status: El identificador de estado es obligatorio y acepta solo letras, números, guiones y guiones bajos
   invalid_statuses_format_for_custom_translation_status: 'Los estados de traducción personalizados deben tener entradas válidas para: etiqueta, identificador, descripción, estilo y marca de estado final.'
   mail_account_confirmation: "%{app_name} confirmación de cuenta"
@@ -182,7 +182,7 @@ es:
       task_assign: "%{user} (%{role} at %{team}) asignado un %{type}"
       task_unassign: "%{user} (%{role} at %{team}) desasigno un %{type}"
       task_answer_create: "%{user} (%{role} at %{team}) respondió una Tarea"
-      task_answer_edit: "%{user} (%{role} at %{team}) editó una respuesta de Tarea"
+      task_answer_edit: "%{user} (%{role} at %{team}) editó la respuesta"
       task_comment: "%{user} (%{role} at %{team}) agregó una nota a una Tarea"
       project_media_comment: "%{user} (%{role} at %{team}) añadió una nota a una  %{parent_type}"
       project_media_create: "%{user} (%{role} at %{team}) añadió un %{type}"
@@ -224,12 +224,12 @@ es:
       delete_tasks:
         done: eliminó las tareas
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: '¿Seguro que quieres eliminar todas las tareas del equipo <strong>%{team}</strong>? Las siguientes tareas se eliminarán:'
+          html: '¿Estás segura o seguro que quieres eliminar todas las tareas del equipo <strong>%{team}</strong>? Las siguientes tareas se eliminarán:'
       duplicate_team:
         menu: Duplicar equipo
         done: 'copiado '
         are_you_sure_you_want_to_copy_team:
-          html: ¿Seguro que quieres copiar el equipo <strong>%{team}</strong>? Todos los datos relacionados también serán copiados.
+          html: ¿Estás segura o seguro que quieres copiar el equipo <strong>%{team}</strong>? Todos los datos relacionados también serán copiados.
         the_team_is_being_copied: El equipo está siendo duplicado
         url_when_ready:
           html: Cuando esté lista, la copia del equipo estará disponible en <strong>%{copy_url}</strong>
@@ -238,7 +238,7 @@ es:
   reset_password_instructions: "%{app_name} instrucciones para restablecer la contraseña"
   email_not_found: 'Correo electrónico no encontrado '
   slack_channel_format_wrong: Canal de Slack inválido
-  translation_status_not_valid: Estatus inválido
+  translation_status_not_valid: Estado inválido
   translation_status_permission_error: Lo sentimos, no tienes autorización para hacer este cambio de estado.
   translation_request_id_exists: 'Ya existe una solicitud de traducción para este mensaje '
   auto_publisher_added_to_project: ¡Gracias! ahora todas las traducciones nuevas en el proyecto %{project} se publicarán automáticamente en esta cuenta de %{provider}. Si cambias de opinión, ponte en contacto con el administrador o simplemente revoca la autorización de Bridge de %{provider}.
@@ -256,9 +256,9 @@ es:
   oembed_source_date: "%{date} en %{provider}"
   role_editor: editor
   role_owner: propietario
-  role_contributor: contribuidor
+  role_contributor: colaboradora / colaborador
   role_journalist: periodista
-  role_annotator: anotador(a)
+  role_annotator: anotadora/anotador
   role_none: miembro
   role_: sysadmin
   oembed_credit: Añadido por %{user} (%{role}) %{date}
@@ -300,7 +300,7 @@ es:
   media_exists: Este archivo multimedia ya existe
   source_exists: Esta fuente ya existe
   email_exists: ya está en uso
-  banned_user: Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor comunícate con el soporte técnico del equipo si crees que ha sido un error.
+  banned_user: Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor comunícate con soporte técnico  si crees que ha sido un error.
   devise:
     mailer:
       reset_password_instructions:
@@ -312,12 +312,12 @@ es:
           html: "%{name} convocado a unirse al equipo %{team}."
         someone_invited_you_custom:
           html: "%{name} le ha invitado al equipo %{team}, diciendo:"
-        accept: 'Use este enlace para aceptar la invitación: %{url}'
+        accept: 'Usa este enlace para aceptar la invitación: %{url}'
         accept_until: Esta invitación expirará a las %{due_date}.
         ignore: Si no desea aceptar la invitación, ignore este correo electrónico.
         app_team: "Equipo %{app} "
     failure:
-      unconfirmed: Por favor consulta tu correo electrónico para comprobar tu cuenta.
+      unconfirmed: Por favor consulta tu correo electrónico para verificar tu cuenta.
   user_invitation:
     invited: Este usuario ya ha sido invitado a este equipo.
     member: Este usuario ya está en el equipo.
@@ -348,10 +348,10 @@ es:
   mail_subject_delete_user: "[%{team}] Un usuario fue eliminado"
   mail_body_delete_user: Una cuenta de usuario se eliminó y su contenido se reasignó a un usuario anónimo%{id}
   archive_keep_backup: Video Vault
-  archive_pender_archive: capturas de pantalla con Keep
+  archive_pender_archive: capturas de pantalla de Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  project_export_email_title_csv: Su informe de proyecto está listo para descargar
+  project_export_email_title_csv: Tu informe de proyecto está listo para descargar
   workflow_status_not_valid: Estado inválido
   workflow_status_permission_error: Lo sentimos, no tienes autorización para cambiar este estado.
   blank_default_status_for_custom_translation_status: Por favor proporcione un valor predeterminado para los estados de traducción personalizados
@@ -360,28 +360,44 @@ es:
   blank_active_status_for_custom_verification_status: Por favor proporcione un valor activo para los estados de verificación personalizados
   bot_name_exists_for_this_team: Ya existe un bot con ese nombre en este equipo
   bot_team_id_doesnt_exist: Lo sentimos, no hay equipo con el identificador proporcionado
-  bot_team_id_mandatory_to_create: Lo sentimos, debes elegir un equipo para crear un bot
-  bot_not_approved_for_installation: Lo sentimos, este bot no fue aprobado y por eso no se puede instalarlo
-  only_admins_can_approve_bots: Lo sentimos, solo super admins pueden aprobar bots
+  bot_team_id_mandatory_to_create: Lo sentimos, primero debes elegir un equipo para crear un bot
+  bot_not_approved_for_installation: 'Lo sentimos, este bot no fue aprobado y por eso no se puede instalar '
+  only_admins_can_approve_bots: Lo sentimos, solo los super admintradores pueden aprobar bots
   could_not_save_related_bot_data: Lo sentimos, no se pudo agregar el bot a este equipo
   bot_limited_team_not_pro: Lo sentimos, este bot no está disponible para este equipo
   slack_save_task_comment: "*%{user}* añadió una nota a la tarea *%{task}* en %{url} en *%{project}*: %{comment}"
-  bot_cant_add_response_to_task: Lo sentimos, un bot no puede responder una tarea directamente; en su lugar, envía una sugerencia de respuesta porfavor.
-  bot_cant_add_review_to_task: Lo sentimos, un bot no puede evaluar una sugerencia de respuesta
+  bot_cant_add_response_to_task: Lo sentimos, un bot no puede responder una tarea directamente- por favor, envía una sugerencia de respuesta .
+  bot_cant_add_review_to_task: Lo sentimos, un bot no puede revisar una tarea.
   task_suggestion_invalid_value: Lo sentimos, el valor de la sugerencia no es válido
   tag_text_id_not_found: Lo sentimos, no hay ninguna etiqueta con el identificador proporcionado
   annotation_type_language_label: Idioma
+  smooch_bot_message_confirmed: |-
+      ¡Gracias! tu solicitud nos ayudará a investigar la propagación de desinformación en WhatsApp durante estas elecciones.
+
+      Esta solicitud también se ha agregado a nuestra cola de verificación. Intentaremos obtener un informe dentro de las 24 horas, pero ten en cuenta que no podemos responder a todas las solicitudes.
+  smooch_bot_message_unconfirmed: 'Como no respondiste a la pregunta tecleando el número 1,  no procesaremos más tu solicitud. ¡Gracias! '
   smooch_bot_message_type_unsupported: Lo sentimos, este tipo de formatos todavía no los procesamos. Pero puedes enviarnos textos, imágenes y enlaces para verificarlos. ¡Gracias!
   smooch_bot_message_sent: 'Ya nos has enviado este mensaje antes. '
   smooch_bot_meme: Hicimos este meme gracias a la pregunta que nos enviaste para que verificáramos, ¡compártelo! Mira más en %{url}.
+  smooch_bot_result: |-
+      [Verification Report] El mensaje que compartiste con nosotros ha sido marcado como  *%{status}*.
+
+      Este es el proceso que seguimos para llegar a esta conclusión: %{url}
+  smooch_bot_ask_for_confirmation: |-
+      Gracias por enviar este mensaje.
+
+      ¿Sospecha que se trata de información errónea relacionada con las Elecciones Generales de la India 2019?
+
+      Para decir sí, * por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
+  smooch_bot_window_closing: "El volumen de solicitudes que hemos recibido es muy alto y aún no hemos podido resolver tu solicitud. \nSi tienes otro mensaje para enviar, por favor hazlo. "
   project_export_download_mail_csv: |-
       ¡Hola!
 
-      Solicitó un informe para el proyecto %{project} - aquí hay un enlace para descargarlo: %{link}
+      Solicitaste un informe para el proyecto %{project} - aquí hay un enlace para descargarlo: %{link}
 
       El informe se descargará como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}
 
-      Tenga en cuenta que este enlace expirará en %{days} días.
+      Ten en cuenta que este enlace expirará en %{days} días.
 
       Saludos,
 
@@ -391,11 +407,11 @@ es:
       ¡Hola!
 
 
-      Solicitó una descarga de las imágenes del proyecto %{project} - aquí hay un enlace para descargarlas: %{link}
+      Solicitaste una descarga de las imágenes del proyecto %{project} - aquí hay un enlace para descargarlas: %{link}
 
       Las imágenes se descargarán como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}
 
-      Tenga en cuenta que este enlace expirará en %{days} días.
+      Ten en cuenta que este enlace expirará en %{days} días.
 
       Saludos,
 
@@ -409,9 +425,9 @@ es:
       journalist:
         description: Periodistas verificaron la información.
       contributor:
-        description: Contribuidores pueden añadir nueva información al verificado. Usualmente son miembros del público.
+        description: Colaboradora o colaborador pueden añadir nueva información para verificar. Usualmente son miembros del público.
       annotator:
-        description: Anotadore(a)s solo pueden ver y responder a las tareas asignadas a ello(a)s.
+        description: Anotadoras o anotadores solo pueden ver y responder a las tareas asignadas a ellas o ellos.
     permissions:
       sections:
         project_management:
@@ -432,7 +448,7 @@ es:
             send_to_trash: Envia ítem o fuente a la papelera
             empty_trash: 'Papelera vacía '
         task_management:
-          name: Gestión de tareas
+          name: Gestor de tareas
           permissions:
             create: Crear tarea
             edit: Editar tarea
@@ -445,7 +461,7 @@ es:
           permissions:
             delete: Eliminar equipo
             edit: Editar información del equipo
-            set_private: Establecer equipo en privado
+            set_private: Establecer este equipo como privado
             edit_status: Editar estados de todo el equipo
             edit_tasks: Crear y editar tareas de todo el equipo
             roles: Editar roles del equipos
@@ -482,7 +498,7 @@ es:
       — Equipo %{app_name}
   team_import_completed_subject: Tu importación de datos se ha completado
   team_import_completed_mail: "<p>Hola,</p><p>Se ha completado la importación de datos en %{app_name}.  Puedes mirar %{worksheet_url}para revisar el estado de cada ítem a importar.</p><p>nota que puedes reiniciar la importación después de corregir cualquier error que se informe allí - los ítems previamente- importados no se duplicarán. <p>—El equipo %{app_name}</p>"
-  pender_url_invalid: Este link es inválido
+  pender_url_invalid: Este enlace es inválido
   verification_status_deadline: 'Fecha límite '
   verification_status_deadline_asc: Menor tiempo posible
   verification_status_deadline_desc: Mayor tiempo posible
@@ -491,3 +507,5 @@ es:
   embed_collapse_all: Contraer todo
   embed_tasks: Tareas
   embed_description: 'Descripción '
+  other_language: Otro
+  relationship_item_has_parent: Este ítem ya es hijo de otro ítem

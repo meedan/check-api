@@ -109,7 +109,7 @@ ro:
       project_source: Sursa
     attributes:
       tag:
-        data: Tag
+        data: Etichetă
       uploaded_file:
         file: Fișier
       uploaded_image:
@@ -123,6 +123,7 @@ ro:
       comment:
         text: Notă
       user:
+        reset_password_token: Resetare cod temporar
         email: E-mail
     errors:
       models:
@@ -222,6 +223,7 @@ ro:
       export_images:
         menu: Exportați imaginile proiectului
       delete_tasks:
+        done: a șters sarcinile
         are_you_sure_you_want_to_delete_the_tasks_from_team:
           html: 'Sunteți sigur că doriți să ștergeți toate sarcinile în echipa <strong>%{team}</strong>? Vor fi eliminate următoarele sarcini:'
       duplicate_team:
@@ -241,6 +243,7 @@ ro:
   translation_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica această stare
   translation_request_id_exists: Solicitarea de traducere a acestui mesaj deja există
   auto_publisher_added_to_project: Mulțumim! Acum toate traducerile noi la proiectul %{project} vor fi publicate  în mod automat  în acest cont pe %{provider}. Dacă vă răzgândiți, contactați administratorul sau pur și simplu retrageți autorizarea Bridge de la %{provider}.
+  invalid_token: Cod temporar nevalid
   viber_screenshot_footer: "Traducerea în %{target_language} din %{source_language}: “%{source_text}”"
   time:
     formats:
@@ -263,11 +266,11 @@ ro:
   oembed_notes_count:
     one: "O notă"
     few: "%{count} note"
-    other: "%{count} note"
+    other: "%{count} de note"
   oembed_completed_tasks_count:
     one: "O sarcină completă"
     few: "%{count} sarcini completate"
-    other: "%{count} sarcini realizate"
+    other: "%{count} de sarcini realizate"
   oembed_verification_tasks: Sarcini
   oembed_tasks: Sarcini
   oembed_translations: Traduceri
@@ -276,7 +279,7 @@ ro:
   oembed_resolved_tasks_count:
     one: "O sarcină rezolvată"
     few: "%{count} sarcini rezolvate"
-    other: "%{count} sarcini rezolvate"
+    other: "%{count} de sarcini rezolvate"
   oembed_notes: Note
   pender_conflict: Acest link deja se analizează, reveniți în câteva clipe
   duplicate_source: Sursa există
@@ -370,11 +373,27 @@ ro:
   bot_cant_add_response_to_task: Ne pare rău, un robot nu poate răspunde la o sarcină direct - rugăm să transmiteți o sugestie de răspuns în loc
   bot_cant_add_review_to_task: Ne pare rău, un robot nu poate analiza o sarcină
   task_suggestion_invalid_value: Sugestia trebuie să fie un hash JSON cu 'suggestion' (sugestie - valoarea, care se copie în răspuns dat la sarcină în caz de accept) și 'comment' (comentariu - afișat pentru utilizatori)
-  tag_text_id_not_found: Ne pare rău, nu există tag-uri cu identificator introdus
+  tag_text_id_not_found: Ne pare rău, nu există etichete cu identificator introdus
   annotation_type_language_label: Limba
+  smooch_bot_message_confirmed: |-
+      Vă mulțumim. Ceea ce ne-ați transmis ne va ajuta să studiem răspândire informațiilor înșelătoare pe WhatsApp în timpul alegerilor actuale.
+
+      De asemenea, acest element a fost adăugat în rândul nostru pentru verificare. Vom încerca să vă oferim un raport în decurs de 24 de ore, însă, atenționăm că nu putem da răspuns la fiecare solicitare.
+  smooch_bot_message_unconfirmed: Deoarece nu ați răspuns cu 1, nu vom procesa mesajul dvs în continuare. Mulțumim.
   smooch_bot_message_type_unsupported: Ne pare rău, deocamdată nu acceptăm acest tip de format de fișiere pentru verificare.
   smooch_bot_message_sent: Dvs ne-ați transmis acest mesaj deja.
   smooch_bot_meme: Iată un meme, pe care l-am creat în baza elementului, pentru care ați solicitat verificarea. Aflați mai multe pe %{url}.
+  smooch_bot_result: |-
+      [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
+
+      Iată care sunt pașii, pe care le-am făcut pentru a determina acest lucru: %{url}
+  smooch_bot_ask_for_confirmation: |-
+      Vă mulțumim pentru că ați transmis acest mesaj.
+
+      Credeți că este vorba de o informație înșelătoare, legată de Alegerile generale din India din 2019?
+
+      Pentru a spune da, *vă rugăm să răspundeți cu 1*. Orice alt răspuns va pune sfârșit conversației noastre.
+  smooch_bot_window_closing: Numărul solicitărilor în lucru este foarte mare și deocamdată nu am reușit să soluționăm solicitarea dvs. Vă mulțumim pentru că ne-ați transmis-o. Dacă aveți alte mesaje pentru noi, vă rugăm să le trimiteți.
   project_export_download_mail_csv: |-
       Salut!
 
@@ -428,7 +447,7 @@ ro:
             move: Mutare element
             change_status: Schimbă starea elementului
             lock_unlock_status: Blochează/deblochează starea
-            add_remove_tag: Adaugă/elimină tag
+            add_remove_tag: Adaugă/elimină etichetă
             send_to_trash: Trimite elementul sau sursa în coș
             empty_trash: Golire coș
         task_management:
