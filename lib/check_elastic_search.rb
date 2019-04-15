@@ -84,7 +84,11 @@ module CheckElasticSearch
     key = options[:nested_key]
     if options[:op] == 'create_or_update'
       field_name = 'smooch'
-      source = "ctx._source.updated_at=params.updated_at;int s = 0;for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].#{field_name} != null){ctx._source.#{key}[i].#{field_name} += params.value.#{field_name};s = 1;break;}} if (s == 0) {ctx._source.#{key}.add(params.value)}"
+      source = "ctx._source.updated_at=params.updated_at;int s = 0;"+
+               "for (int i = 0; i < ctx._source.#{key}.size(); i++) {"+
+                 "if(ctx._source.#{key}[i].#{field_name} != null){"+
+                   "ctx._source.#{key}[i].#{field_name} += params.value.#{field_name};s = 1;break;}}"+
+               "if (s == 0) {ctx._source.#{key}.add(params.value)}"
     elsif options[:op] == 'create'
       source = "ctx._source.updated_at=params.updated_at;ctx._source.#{key}.add(params.value)"
     else
@@ -146,9 +150,9 @@ module CheckElasticSearch
         field_name = 'smooch'
         source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].#{field_name} != null){ctx._source.#{nested_type}[i].#{field_name} -= 1}}"
 
-     else
+      else
         source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
-     end
+      end
       client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id], retry_on_conflict: 3,
                body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
     rescue
