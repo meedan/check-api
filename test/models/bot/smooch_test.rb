@@ -824,6 +824,32 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     JSON.unstub(:parse)
   end
 
+  test "should send confirmation message in different language" do
+    uid = random_string
+    confirmation = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      appUser: {
+        '_id': uid,
+        'conversationStarted': true
+      }
+    }
+    ['1','۱', '߁', '१', '১', '୧'].each do |t|
+      confirmation[:messages] = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: t
+        }
+      ]
+      assert Bot::Smooch.run(confirmation.to_json)
+    end
+  end
+
   protected
 
   def run_concurrent_requests
