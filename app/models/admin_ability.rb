@@ -20,7 +20,7 @@ class AdminAbility
     can :dashboard
 
     can [:read, :update, :delete_tasks], Team, id: @teams
-    can [:index, :destroy, :export_project], Project, team_id: @teams
+    can [:index, :read, :update, :destroy, :export_project], Project, team_id: @teams
     can [:index, :read, :create, :update, :destroy], TeamBotInstallation, team_id: @teams
     can [:index, :read, :create, :update, :destroy], TeamBot, team_author_id: @teams
     can :destroy, BotUser, team_bot: { team_author_id: @teams }
