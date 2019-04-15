@@ -159,6 +159,13 @@ class Bot::Smooch
     !TeamBotInstallation.where(team_id: pm.project.team_id, team_bot_id: bot.id).last.nil?
   end
 
+  def self.convert_numbers(str)
+    altzeros = [0x0030, 0x0660, 0x06F0, 0x07C0, 0x0966, 0x09E6, 0x0A66, 0x0AE6, 0x0B66, 0x0BE6, 0x0C66, 0x0CE6, 0x0D66, 0x0DE6, 0x0E50, 0x0ED0, 0x0F20, 0x1040, 0x1090, 0x17E0, 0x1810, 0x1946, 0x19D0, 0x1A80, 0x1A90, 0x1B50, 0x1BB0, 0x1C40, 0x1C50, 0xA620, 0xA8D0, 0xA900, 0xA9D0, 0xA9F0, 0xAA50, 0xABF0, 0xFF10]
+    digits = altzeros.flat_map { |z| ((z.chr(Encoding::UTF_8))..((z+9).chr(Encoding::UTF_8))).to_a }.join('')
+    replacements = "0123456789" * altzeros.size
+    str.tr(digits, replacements).to_i
+  end
+
   def self.get_installation(key, value)
     bot = TeamBot.where(identifier: 'smooch').last
     return nil if bot.nil?
@@ -248,7 +255,7 @@ class Bot::Smooch
     lang = message['language'] = self.get_language(message)
     sm = CheckStateMachine.new(message['authorId'])
 
-    if sm.state.value == 'waiting_for_message' && message['text'].to_i != 1
+    if sm.state.value == 'waiting_for_message' && self.convert_numbers(message['text']) != 1
       sm.send_message
       sm.message = message.to_json
       self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_ask_for_confirmation, locale: lang))
@@ -257,7 +264,7 @@ class Bot::Smooch
       sm.confirm
       saved_message = JSON.parse(sm.message.value)
       lang = saved_message['language']
-      if message['text'].to_i == 1
+      if self.convert_numbers(message['text']) == 1
         unless self.user_already_sent_message(saved_message)
           self.save_message_later(saved_message, app_id)
           self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_confirmed, locale: lang))
