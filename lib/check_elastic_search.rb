@@ -82,14 +82,21 @@ module CheckElasticSearch
     create_doc_if_not_exists(options)
     client = MediaSearch.gateway.client
     key = options[:nested_key]
-    if options[:op] == 'create'
+    if options[:op] == 'create_or_update'
+      field_name = 'smooch'
+      source = "ctx._source.updated_at=params.updated_at;int s = 0;"+
+               "for (int i = 0; i < ctx._source.#{key}.size(); i++) {"+
+                 "if(ctx._source.#{key}[i].#{field_name} != null){"+
+                   "ctx._source.#{key}[i].#{field_name} += params.value.#{field_name};s = 1;break;}}"+
+               "if (s == 0) {ctx._source.#{key}.add(params.value)}"
+    elsif options[:op] == 'create'
       source = "ctx._source.updated_at=params.updated_at;ctx._source.#{key}.add(params.value)"
     else
       source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
     end
     values = store_elasticsearch_data(options[:keys], options[:data])
     client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
-             body: { script: { source: source, params: { value: values, id: self.id, updated_at: Time.now.utc } } }
+             body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
   end
 
   def store_elasticsearch_data(keys, data)
@@ -138,7 +145,14 @@ module CheckElasticSearch
     nested_type = data[:es_type]
     begin
       client = MediaSearch.gateway.client
-      source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
+      source = ''
+      if self.respond_to?(:annotation_type) && self.annotation_type == 'smooch'
+        field_name = 'smooch'
+        source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].#{field_name} != null){ctx._source.#{nested_type}[i].#{field_name} -= 1}}"
+
+      else
+        source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
+      end
       client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id], retry_on_conflict: 3,
                body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
     rescue
