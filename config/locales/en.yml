@@ -473,6 +473,11 @@ en:
 
     To say yes, *please reply with 1*. Any other response will end our conversation.
   smooch_bot_window_closing: The volume of requests in the tipline is very high, and we haven't been able to resolve your request yet. Thank you for submitting. If you have another message to submit, please do.
+  smooch_bot_not_final: '[Verification Report - CORRECTION] The message you shared with us was wrongly marked as *%{status}*. It is still in our queue for further verification.'
+  smooch_bot_result_changed: |-
+    [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
   project_export_download_mail_csv: |-
     Hello!
 
@@ -602,3 +607,6 @@ en:
   embed_description: Description
   other_language: Other
   relationship_item_has_parent: This item is already a child of another item
+  smooch_requests: Requests
+  smooch_requests_asc: Least requested
+  smooch_requests_desc: Most requested

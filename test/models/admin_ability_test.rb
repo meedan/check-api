@@ -18,21 +18,26 @@ class AdminAbilityTest < ActiveSupport::TestCase
   attr_reader :u, :t, :tu
 
   test "owner permissions for project" do
-    p = create_project team: t
+    team_project = create_project team: t
     own_project = create_project team: t, user: u
-    p2 = create_project
+    other_project = create_project
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:create, Project)
-      assert ability.can?(:index, p)
-      assert ability.can?(:destroy, p)
+      assert ability.can?(:index, team_project)
+      assert ability.can?(:read, team_project)
+      assert ability.can?(:update, team_project)
+      assert ability.can?(:destroy, team_project)
+
+      assert ability.can?(:index, own_project)
+      assert ability.can?(:read, own_project)
+      assert ability.can?(:update, own_project)
       assert ability.can?(:destroy, own_project)
-      assert ability.cannot?(:read, p)
-      assert ability.cannot?(:update, p)
-      assert ability.cannot?(:update, own_project)
-      assert ability.cannot?(:read, p2)
-      assert ability.cannot?(:update, p2)
-      assert ability.cannot?(:destroy, p2)
+
+      assert ability.cannot?(:index, other_project)
+      assert ability.cannot?(:read, other_project)
+      assert ability.cannot?(:update, other_project)
+      assert ability.cannot?(:destroy, other_project)
     end
   end
 
