@@ -848,6 +848,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       ]
       assert Bot::Smooch.run(confirmation.to_json)
     end
+    # test with empty text
+    assert_nil Bot::Smooch.convert_numbers(nil)
+    assert_nil Bot::Smooch.convert_numbers('')
   end
 
   protected
