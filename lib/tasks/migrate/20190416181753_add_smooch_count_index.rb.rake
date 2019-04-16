@@ -9,6 +9,7 @@ namespace :check do
       i = 0
       n = items.size
 
+      puts "[#{Time.now}] Starting Smooch annotations indexing: #{n} project medias"
       client = MediaSearch.gateway.client
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
@@ -39,8 +40,9 @@ namespace :check do
 
         i += 1
       end
-       client.bulk body: es_body
-       puts "[#{Time.now}] Indexed Smooch annotations for #{n} project medias"
+      client.bulk body: es_body
+      Rails.cache.delete('check:migrate:add_smooch_annotations_index:last_id')
+      puts "[#{Time.now}] Indexed Smooch annotations for #{n} project medias"
     end
   end
 end
