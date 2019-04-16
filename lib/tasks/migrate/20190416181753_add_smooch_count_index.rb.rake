@@ -13,6 +13,7 @@ namespace :check do
       client = MediaSearch.gateway.client
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
+      mapping = {}
       # Loop on each project media with a smooch annotation to invoke its ES indexing.
       items.each do |annotated_id, annotations|
         smooch = annotations.first
@@ -20,11 +21,7 @@ namespace :check do
         data = { smooch: count, indexable: annotated_id, id: annotated_id }
         options = { keys: [:smooch, :indexable, :id], data: data, op: 'create_or_update' }
         options[:doc_id] = smooch.get_es_doc_id
-
-        require 'sidekiq/testing'
-        Sidekiq::Testing.inline! do
-          smooch.create_doc_if_not_exists(options.merge(obj: smooch.get_es_doc_obj))
-        end
+        mapping[options[:doc_id]] = annotated_id
 
         # Add the total number of smooch annotations of a project media on ES doc
         key = 'dynamics'
@@ -40,9 +37,23 @@ namespace :check do
 
         i += 1
       end
-      client.bulk body: es_body
+      response = client.bulk body: es_body
+      if response['errors']
+        failures = []
+        response['items'].select { |i| i.dig('error') }.each do |item|
+          update = item['update']
+          failures << { annotated_id: mapping[update['_id']],
+                        doc_id: update['_id'],
+                        status: update['status'],
+                        error: update['error']['type']}
+        end
+      end
       Rails.cache.delete('check:migrate:add_smooch_annotations_index:last_id')
       puts "[#{Time.now}] Indexed Smooch annotations for #{n} project medias"
+      unless failures.empty?
+        puts "[#{Time.now}] #{failures.size} project medias couldn't be updated:"
+        puts failures.map(&:inspect)
+      end
     end
   end
 end
