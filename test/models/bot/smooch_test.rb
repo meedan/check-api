@@ -857,7 +857,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         text: ''
       }
     ]
-    assert_nil nil Bot::Smooch.run(confirmation.to_json)
+    assert_nil Bot::Smooch.run(confirmation.to_json)
   end
 
   protected
