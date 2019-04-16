@@ -848,6 +848,16 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       ]
       assert Bot::Smooch.run(confirmation.to_json)
     end
+    # test with empty text
+    confirmation[:messages] = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: ''
+      }
+    ]
+    assert_nil nil Bot::Smooch.run(confirmation.to_json)
   end
 
   protected
