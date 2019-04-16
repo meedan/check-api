@@ -1,11 +1,17 @@
 namespace :check do
   namespace :migrate do
     task add_smooch_annotations_index: :environment do
-      items = Dynamic.where(annotation_type: 'smooch').order(:annotated_id).group_by(&:annotated_id)
+      # Read the last annotation id we need to process that was set at migration time.
+      last_id = Rails.cache.read('check:migrate:add_smooch_annotations_index:last_id')
+      raise "No last_id found in cache for check:migrate:add_smooch_annotations_index! Aborting." if last_id.nil?
+
+      items = Annotation.where(annotation_type: 'smooch').where('annotated_id <= ?', last_id).order(:annotated_id).group_by(&:annotated_id)
       i = 0
       n = items.size
 
       client = MediaSearch.gateway.client
+      index_alias = CheckElasticSearchModel.get_index_alias
+      es_body = []
       # Loop on each project media with a smooch annotation to invoke its ES indexing.
       items.each do |annotated_id, annotations|
         smooch = annotations.first
@@ -28,12 +34,13 @@ namespace :check do
                      "ctx._source.#{key}[i].#{field_name} = params.value.#{field_name};s = 1;break;}}"+
                  "if (s == 0) {ctx._source.#{key}.add(params.value)}"
         values = smooch.store_elasticsearch_data(options[:keys], options[:data])
-        client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
-                 body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
+        es_body << { update: { _index: index_alias, _type: 'media_search', _id: options[:doc_id],
+                 data: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } } } }
 
         i += 1
-        puts "[#{Time.now}] (#{i}/#{n}) Indexing Smooch #{count} annotations for project media #{annotated_id}"
       end
+       client.bulk body: es_body
+       puts "[#{Time.now}] Indexed Smooch annotations for #{n} project medias"
     end
   end
 end
