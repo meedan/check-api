@@ -14,7 +14,7 @@ class Bot::Alegre < ActiveRecord::Base
       end
       true
     rescue StandardError => e
-      Rails.logger.error("[Alegre Bot] Error for event #{data['event']}: #{e.message}")
+      Rails.logger.error("[Alegre Bot] Exception for event #{data['event']}: #{e.message}")
       Airbrake.notify(e) if Airbrake.configuration.api_key
       false
     end
