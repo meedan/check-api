@@ -57,6 +57,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     AlegreClient.host = 'http://alegre'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
+    WebMock.stub_request(:get, "https://api-ssl.bitly.com/v3/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
   end
 
   def teardown
@@ -224,7 +225,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     assert_difference 'ProjectMedia.count', 5 do
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 11 do
-        assert_difference 'Comment.length', 4 do
+        assert_difference 'Comment.length', 8 do
           messages.each do |message|
             uid = message[:authorId]
 
@@ -279,7 +280,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should schedule job when the window is over" do
     uid = random_string
     id = random_string
-    key = 'smooch:' + uid + ':reminder_job_id'
+    key = 'smooch:reminder:' + uid
 
     # No job scheduled if user didn't send any message
     job = Rails.cache.read(key)
@@ -417,7 +418,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       ProjectMedia.delete_all
 
       uid = random_string
-      key = 'smooch:' + uid + ':reminder_job_id'
+      key = 'smooch:reminder:' + uid
       text = random_string
 
       assert_nil Rails.cache.read(key)
@@ -569,7 +570,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm2 = ProjectMedia.last
     assert_equal pm, pm2
     assert File.exist?(filepath)
@@ -583,7 +583,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     child2 = create_project_media project: @project
     Bot::Smooch.expects(:send_meme).once
-    create_relationship source_id: pm.id, target_id: child2.id, user: u 
+    create_relationship source_id: pm.id, target_id: child2.id, user: u
     Bot::Smooch.unstub(:send_meme)
   end
 
