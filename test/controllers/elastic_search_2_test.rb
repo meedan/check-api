@@ -344,7 +344,7 @@ class ElasticSearch2Test < ActionController::TestCase
     end
   end
 
-  test "should filter by unindentified language" do
+  test "should filter by unidentified language" do
     p = create_project
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
@@ -359,23 +359,23 @@ class ElasticSearch2Test < ActionController::TestCase
       ids[code] = pm.id
     end
 
-    ids['unindentified'] = []
+    ids['unidentified'] = []
     n = 3
     n.times do
       pm = create_project_media project: p, disable_es_callbacks: false
-      ids['unindentified'] << pm.id
+      ids['unidentified'] << pm.id
     end
     sleep languages.size * 2
 
     query = {
       dynamic: {
-        language: ["unindentified"]
+        language: ["unidentified"]
       },
       projects: [p.id]
     }
     result = CheckSearch.new(query.to_json)
     assert_equal n, result.medias.size
-    assert_equal ids['unindentified'].sort, result.medias.map(&:id).sort
+    assert_equal ids['unidentified'].sort, result.medias.map(&:id).sort
   end
 
   test "should create media search" do

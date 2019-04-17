@@ -27,8 +27,8 @@ Dynamic.class_eval do
       labels << I18n.t(:other_language)
     end
 
-    keys << "unindentified"
-    labels << I18n.t(:unindentified_language)
+    keys << "unidentified"
+    labels << I18n.t(:unidentified_language)
 
     { type: 'array', title: I18n.t(:annotation_type_language_label), items: { type: 'string', enum: keys, enumNames: labels } }
   end
@@ -95,8 +95,8 @@ Dynamic.class_eval do
   def self.field_search_query_type_language(values)
     bool = []
     other = values.select{ |v| v =~ /^not:/ }.last
-    unindentified = values.select{ |v| v == 'unindentified' }
-    values -= [other, unindentified]
+    unidentified = values.select{ |v| v == 'unidentified' }
+    values -= [other, unidentified]
     if other
       langs = other.gsub('not:', '').split(',')
       queries = []
@@ -121,7 +121,7 @@ Dynamic.class_eval do
       end
     end
 
-    if unindentified
+    if unidentified
       queries = []
       bool << {
         bool: {

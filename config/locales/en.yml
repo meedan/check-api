@@ -606,7 +606,7 @@ en:
   embed_tasks: Tasks
   embed_description: Description
   other_language: Other
-  unindentified_language: Unindentified
+  unidentified_language: Unidentified
   relationship_item_has_parent: This item is already a child of another item
   smooch_requests: Requests
   smooch_requests_asc: Least requested
