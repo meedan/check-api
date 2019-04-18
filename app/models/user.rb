@@ -218,8 +218,15 @@ class User < ActiveRecord::Base
   end
 
   def send_email_notifications=(enabled)
-    enabled = enabled == "1" ? true : false if enabled.class.name == "String"
-    self.send(:set_send_email_notifications, enabled)
+    set_user_notification_settings('send_email_notifications', enabled)
+  end
+
+  def send_successful_login_notifications=(enabled)
+    set_user_notification_settings('send_successful_login_notifications', enabled)
+  end
+
+  def send_failed_login_notifications=(enabled)
+    set_user_notification_settings('send_failed_login_notifications', enabled)
   end
 
   def profile_image
