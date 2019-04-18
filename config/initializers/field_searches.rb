@@ -106,6 +106,16 @@ Dynamic.class_eval do
       unless queries.empty?
         bool << {
           bool: {
+            must: {
+                nested: {
+                path: "dynamics",
+                query: {
+                  exists: {
+                    field: "dynamics.language"
+                  }
+                }
+              }
+            },
             must_not: {
               nested: {
                 path: 'dynamics',
@@ -121,7 +131,7 @@ Dynamic.class_eval do
       end
     end
 
-    if unidentified
+    if !unidentified.empty?
       queries = []
       bool << {
         bool: {
