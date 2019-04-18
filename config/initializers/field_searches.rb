@@ -26,7 +26,10 @@ Dynamic.class_eval do
       keys << "not:#{keys.join(',')}"
       labels << I18n.t(:other_language)
     end
-    
+
+    keys << "unidentified"
+    labels << I18n.t(:unidentified_language)
+
     { type: 'array', title: I18n.t(:annotation_type_language_label), items: { type: 'string', enum: keys, enumNames: labels } }
   end
 
@@ -91,9 +94,9 @@ Dynamic.class_eval do
 
   def self.field_search_query_type_language(values)
     bool = []
-
     other = values.select{ |v| v =~ /^not:/ }.last
-    values -= [other]
+    unidentified = values.select{ |v| v == 'unidentified' }
+    values -= [other, unidentified]
     if other
       langs = other.gsub('not:', '').split(',')
       queries = []
@@ -117,7 +120,24 @@ Dynamic.class_eval do
         }
       end
     end
-    
+
+    if unidentified
+      queries = []
+      bool << {
+        bool: {
+          must_not: [{
+            nested: {
+            path: "dynamics",
+            query: {
+              exists: {
+                field: "dynamics.language"
+              }
+            }
+          }}]
+        }
+      }
+    end
+
     queries = []
     values.each do |value|
       queries << { term: { "dynamics.language": value } }

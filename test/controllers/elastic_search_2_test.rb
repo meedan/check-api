@@ -344,6 +344,40 @@ class ElasticSearch2Test < ActionController::TestCase
     end
   end
 
+  test "should filter by unidentified language" do
+    p = create_project
+    att = 'language'
+    at = create_annotation_type annotation_type: att, label: 'Language'
+    language = create_field_type field_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
+
+    languages = ['pt', 'en']
+    ids = {}
+    languages.each do |code|
+      pm = create_project_media project: p, disable_es_callbacks: false
+      create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: code }.to_json, disable_es_callbacks: false
+      ids[code] = pm.id
+    end
+
+    ids['unidentified'] = []
+    n = 3
+    n.times do
+      pm = create_project_media project: p, disable_es_callbacks: false
+      ids['unidentified'] << pm.id
+    end
+    sleep languages.size * 2
+
+    query = {
+      dynamic: {
+        language: ["unidentified"]
+      },
+      projects: [p.id]
+    }
+    result = CheckSearch.new(query.to_json)
+    assert_equal n, result.medias.size
+    assert_equal ids['unidentified'].sort, result.medias.map(&:id).sort
+  end
+
   test "should create media search" do
     assert_difference 'MediaSearch.length' do
       create_media_search
@@ -897,13 +931,11 @@ class ElasticSearch2Test < ActionController::TestCase
     sleep 3
 
     result = MediaSearch.find(get_es_id(pm))
-    puts result
     assert_equal [2], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
     s1.destroy
     sleep 1
 
     result = MediaSearch.find(get_es_id(pm))
-    puts result
     assert_equal [1], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
   end
 
