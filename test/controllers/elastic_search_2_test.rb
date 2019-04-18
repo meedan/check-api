@@ -344,14 +344,14 @@ class ElasticSearch2Test < ActionController::TestCase
     end
   end
 
-  test "should filter by unidentified language" do
+  test "should filter by others and unidentified language" do
     p = create_project
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
     language = create_field_type field_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
 
-    languages = ['pt', 'en']
+    languages = ['pt', 'en', 'es']
     ids = {}
     languages.each do |code|
       pm = create_project_media project: p, disable_es_callbacks: false
@@ -367,15 +367,26 @@ class ElasticSearch2Test < ActionController::TestCase
     end
     sleep languages.size * 2
 
-    query = {
+    unidentified_query = {
       dynamic: {
         language: ["unidentified"]
       },
       projects: [p.id]
     }
-    result = CheckSearch.new(query.to_json)
+    result = CheckSearch.new(unidentified_query.to_json)
     assert_equal n, result.medias.size
     assert_equal ids['unidentified'].sort, result.medias.map(&:id).sort
+
+    other_query = {
+      dynamic: {
+        language: ["not:en,pt"]
+      },
+      projects: [p.id]
+    }
+    result = CheckSearch.new(other_query.to_json)
+    puts result
+    assert_equal 1, result.medias.size
+    assert_equal ids['es'], result.medias.first.id
   end
 
   test "should create media search" do
