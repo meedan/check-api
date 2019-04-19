@@ -384,7 +384,6 @@ class ElasticSearch2Test < ActionController::TestCase
       projects: [p.id]
     }
     result = CheckSearch.new(other_query.to_json)
-    puts result
     assert_equal 1, result.medias.size
     assert_equal ids['es'], result.medias.first.id
   end
