@@ -415,7 +415,7 @@ class Bot::Smooch
     project_id
   end
 
-  def self.get_url_from_text(text)
+  def self.extract_url(text)
     begin
       urls = Twitter::Extractor.extract_urls(text)
       return nil if urls.blank?
@@ -430,10 +430,25 @@ class Bot::Smooch
     end
   end
 
+  def self.add_hashtags(text, pm)
+    hashtags = Twitter::Extractor.extract_hashtags(text)
+    return nil if hashtags.blank?
+
+    # Only add team tags.
+    TagText
+      .joins('LEFT JOIN projects ON projects.team_id = tag_texts.team_id')
+      .where('projects.id=? AND teamwide=? AND text IN (?)', pm.project_id, true, hashtags)
+      .each do |tag|
+        unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
+          Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
+        end
+      end
+  end
+
   def self.save_text_message(message)
     text = message['text']
-    url = self.get_url_from_text(text)
 
+    url = self.extract_url(text)
     if url.nil?
       pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => message['project_id']).last
       if pm.nil?
@@ -448,11 +463,16 @@ class Bot::Smooch
         Comment.create! annotated: pm, text: text, force_version: true
       end
     end
+
+    self.add_hashtags(text, pm)
+
     pm
   end
 
   def self.save_image_message(message)
     open(message['mediaUrl']) do |f|
+      text = message['text']
+
       data = f.read
       hash = Digest::MD5.hexdigest(data)
       filepath = File.join(Rails.root, 'tmp', "#{hash}.jpeg")
@@ -465,11 +485,14 @@ class Bot::Smooch
         end
         m.save!
         pm = ProjectMedia.create!(project_id: message['project_id'], media: m)
-        pm.embed = { description: message['text'] }.to_json unless message['text'].blank?
-      elsif !message['text'].blank?
-        Comment.create! annotated: pm, text: message['text'], force_version: true
+        pm.embed = { description: text }.to_json unless text.blank?
+      elsif !text.blank?
+        Comment.create! annotated: pm, text: text, force_version: true
       end
       FileUtils.rm_f filepath
+
+      self.add_hashtags(text, pm)
+
       pm
     end
   end
