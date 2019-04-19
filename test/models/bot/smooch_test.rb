@@ -296,29 +296,49 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: uid,
         type: 'text',
         text: random_string
+      },
+      {
+        '_id': id,
+        authorId: uid,
+        type: 'text',
+        text: random_string
       }
     ]
-    payload = {
+    payload1 = {
       trigger: 'message:appUser',
       app: {
         '_id': @app_id
       },
       version: 'v1.1',
-      messages: messages,
+      messages: [messages[0]],
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    payload2 = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: [messages[1]],
       appUser: {
         '_id': random_string,
         'conversationStarted': true
       }
     }.to_json
 
-    Bot::Smooch.run(payload)
-
-    # Job scheduled
+    Bot::Smooch.run(payload1)
+    assert_nil Rails.cache.read(key)
+    assert send_confirmation(uid)
     job = Rails.cache.read(key)
     assert_not_nil job
-
-    # If another message is sent, refresh the window
-    Bot::Smooch.run(payload)
+    Bot::Smooch.run(payload1)
+    assert_not_nil Rails.cache.read(key)
+    Bot::Smooch.run(payload2)
+    assert_nil Rails.cache.read(key)
+    assert send_confirmation(uid)
     job2 = Rails.cache.read(key)
     assert_not_nil job2
     assert_not_equal job, job2
@@ -450,22 +470,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }.to_json
 
       Bot::Smooch.run(payload)
-      assert_not_nil Rails.cache.read(key)
-      assert_equal 1, SmoochPingWorker.jobs.size
+      assert_nil Rails.cache.read(key)
+      assert_equal 0, SmoochPingWorker.jobs.size
       assert_equal 0, SmoochWorker.jobs.size
       assert_equal 0, ProjectMedia.count
-      sleep 1
 
       assert send_confirmation(uid)
       assert_not_nil Rails.cache.read(key)
-      assert_equal 2, SmoochPingWorker.jobs.size
+      assert_equal 1, SmoochPingWorker.jobs.size
       assert_equal 1, SmoochWorker.jobs.size
       assert_equal 0, ProjectMedia.count
 
       SmoochWorker.drain
 
       assert_not_nil Rails.cache.read(key)
-      assert_equal 2, SmoochPingWorker.jobs.size
+      assert_equal 1, SmoochPingWorker.jobs.size
       assert_equal 0, SmoochWorker.jobs.size
       assert_equal 1, ProjectMedia.count
 
