@@ -201,27 +201,30 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: id2,
         type: 'text',
-        text: "#{random_string} #{@link_url_2} #{random_string}"
+        text: "#{random_string} #{@link_url_2} #montag #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id3,
         type: 'text',
-        text: "#{random_string} #{@link_url_2.gsub(/^https?:\/\//, '')} #{random_string}"
+        text: "#{random_string} #{@link_url_2.gsub(/^https?:\/\//, '')} #teamtag #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
-        text: 'This is another claim'
+        text: 'This #teamtag is another #hashtag claim'
       },
       {
         '_id': random_string,
         authorId: id3,
         type: 'text',
-        text: 'This is another CLAIM'
+        text: 'This #teamtag is another #hashtag CLAIM'
       }
     ]
+
+    create_tag_text text: 'teamtag', team_id: @team.id, teamwide: true
+    create_tag_text text: 'montag', team_id: @team.id, teamwide: true
 
     assert_difference 'ProjectMedia.count', 5 do
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 11 do
@@ -271,10 +274,10 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       end
     end
 
-    pm = ProjectMedia.last
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
-    s.save!
+    pms = ProjectMedia.order("id desc").limit(5).reverse
+    assert_equal 1, pms[4].annotations.where(annotation_type: 'tag').count
+    assert_equal 'teamtag', pms[4].annotations.where(annotation_type: 'tag').last.load.data[:tag].text
+    assert_equal 2, pms[3].annotations.where(annotation_type: 'tag').count
   end
 
   test "should schedule job when the window is over" do
@@ -480,12 +483,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should not get invalid URL" do
-    assert_nil Bot::Smooch.get_url_from_text('foo http://\foo.bar bar')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://news...')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://ha..?')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://30th-JUNE-2019.*')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://...')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://*1.*')
+    assert_nil Bot::Smooch.extract_url('foo http://\foo.bar bar')
+    assert_nil Bot::Smooch.extract_url('foo https://news...')
+    assert_nil Bot::Smooch.extract_url('foo https://ha..?')
+    assert_nil Bot::Smooch.extract_url('foo https://30th-JUNE-2019.*')
+    assert_nil Bot::Smooch.extract_url('foo https://...')
+    assert_nil Bot::Smooch.extract_url('foo https://*1.*')
   end
 
   test "should send meme to user" do
