@@ -73,155 +73,155 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not link similar claims when none exist" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Mock.mock_languages_identification_returns_text_language do
-        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        response = '{"result":[]}'
-        WebMock.stub_request(:post, 'http://alegre/similarity/query')
-        .with(body: {
-          text: 'I like apples',
-          language: 'en',
-          context: {
-            project_id: @pm.project.id
-          }
-        })
-        .to_return(body: response, status: 200)
-        WebMock.stub_request(:post, 'http://alegre/similarity/')
-        .with(body: {
-          text: 'I like apples',
-          language: 'en',
-          context: {
-            team_id: @pm.project.team.id,
-            project_id: @pm.project.id,
-            project_media_id: @pm.id
-          }
-        })
-        .to_return(status: 200)
-        @bot.create_similarities_from_alegre(@pm)
-        r = Relationship.where("target_id = :target_id", {
-          :target_id => @pm.id
-        })
-        assert_equal 0, r.length
-        WebMock.allow_net_connect!
-      end
-    end
-  end
+  # test "should not link similar claims when none exist" do
+  #   stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+  #     AlegreClient::Mock.mock_languages_identification_returns_text_language do
+  #       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+  #       response = '{"result":[]}'
+  #       WebMock.stub_request(:post, 'http://alegre/similarity/query')
+  #       .with(body: {
+  #         text: 'I like apples',
+  #         language: 'en',
+  #         context: {
+  #           project_id: @pm.project.id
+  #         }
+  #       })
+  #       .to_return(body: response, status: 200)
+  #       WebMock.stub_request(:post, 'http://alegre/similarity/')
+  #       .with(body: {
+  #         text: 'I like apples',
+  #         language: 'en',
+  #         context: {
+  #           team_id: @pm.project.team.id,
+  #           project_id: @pm.project.id,
+  #           project_media_id: @pm.id
+  #         }
+  #       })
+  #       .to_return(status: 200)
+  #       @bot.create_similarities_from_alegre(@pm)
+  #       r = Relationship.where("target_id = :target_id", {
+  #         :target_id => @pm.id
+  #       })
+  #       assert_equal 0, r.length
+  #       WebMock.allow_net_connect!
+  #     end
+  #   end
+  # end
 
-  test "should link similar claims without existing relationships" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Mock.mock_languages_identification_returns_text_language do
-        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        pm1 = create_project_media project: @pm.project
-        response = '{"result":[{"_source":{"context":{"project_media_id":'+pm1.id.to_s+'}}}]}'
-        WebMock.stub_request(:post, 'http://alegre/similarity/query')
-        .with(body: {
-          text: 'I like apples',
-          language: 'en',
-          context: {
-            project_id: @pm.project.id
-          }
-        })
-        .to_return(body: response, status: 200)
-        WebMock.stub_request(:post, 'http://alegre/similarity/')
-        .with(body: {
-          text: 'I like apples',
-          language: 'en',
-          context: {
-            team_id: @pm.project.team.id,
-            project_id: @pm.project.id,
-            project_media_id: @pm.id
-          }
-        })
-        .to_return(status: 200)
-        @bot.create_similarities_from_alegre(@pm)
-        r = Relationship.where("source_id = :source_id AND target_id = :target_id", {
-          :source_id => pm1.id,
-          :target_id => @pm.id
-        })
-        assert_equal 1, r.length
-        WebMock.allow_net_connect!
-      end
-    end
-  end
+  # test "should link similar claims without existing relationships" do
+  #   stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+  #     AlegreClient::Mock.mock_languages_identification_returns_text_language do
+  #       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+  #       pm1 = create_project_media project: @pm.project
+  #       response = '{"result":[{"_source":{"context":{"project_media_id":'+pm1.id.to_s+'}}}]}'
+  #       WebMock.stub_request(:post, 'http://alegre/similarity/query')
+  #       .with(body: {
+  #         text: 'I like apples',
+  #         language: 'en',
+  #         context: {
+  #           project_id: @pm.project.id
+  #         }
+  #       })
+  #       .to_return(body: response, status: 200)
+  #       WebMock.stub_request(:post, 'http://alegre/similarity/')
+  #       .with(body: {
+  #         text: 'I like apples',
+  #         language: 'en',
+  #         context: {
+  #           team_id: @pm.project.team.id,
+  #           project_id: @pm.project.id,
+  #           project_media_id: @pm.id
+  #         }
+  #       })
+  #       .to_return(status: 200)
+  #       @bot.create_similarities_from_alegre(@pm)
+  #       r = Relationship.where("source_id = :source_id AND target_id = :target_id", {
+  #         :source_id => pm1.id,
+  #         :target_id => @pm.id
+  #       })
+  #       assert_equal 1, r.length
+  #       WebMock.allow_net_connect!
+  #     end
+  #   end
+  # end
 
-  test "should link similar claims with existing relationships" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Mock.mock_languages_identification_returns_text_language do
-        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        pm1 = create_project_media project: @pm.project
-        pm2 = create_project_media project: @pm.project
-        create_relationship({ source_id: pm1.id, target_id: pm2.id })
-        response = '{"result":[{"_source":{"context":{"project_media_id":'+pm1.id.to_s+'}}}]}'
-        WebMock.stub_request(:post, 'http://alegre/similarity/query')
-        .with(body: {
-          text: 'I like apples',
-          language: 'en',
-          context: {
-            project_id: @pm.project.id
-          }
-        })
-        .to_return(body: response, status: 200)
-        WebMock.stub_request(:post, 'http://alegre/similarity/')
-        .with(body: {
-          text: 'I like apples',
-          language: 'en',
-          context: {
-            team_id: @pm.project.team.id,
-            project_id: @pm.project.id,
-            project_media_id: @pm.id
-          }
-        })
-        .to_return(status: 200)
-        @bot.create_similarities_from_alegre(@pm)
-        r = Relationship.where("source_id = :source_id AND target_id = :target_id", {
-          :source_id => pm1.id,
-          :target_id => @pm.id
-        })
-        assert_equal 1, r.length
-        WebMock.allow_net_connect!
-      end
-    end
-  end
+  # test "should link similar claims with existing relationships" do
+  #   stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+  #     AlegreClient::Mock.mock_languages_identification_returns_text_language do
+  #       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+  #       pm1 = create_project_media project: @pm.project
+  #       pm2 = create_project_media project: @pm.project
+  #       create_relationship({ source_id: pm1.id, target_id: pm2.id })
+  #       response = '{"result":[{"_source":{"context":{"project_media_id":'+pm1.id.to_s+'}}}]}'
+  #       WebMock.stub_request(:post, 'http://alegre/similarity/query')
+  #       .with(body: {
+  #         text: 'I like apples',
+  #         language: 'en',
+  #         context: {
+  #           project_id: @pm.project.id
+  #         }
+  #       })
+  #       .to_return(body: response, status: 200)
+  #       WebMock.stub_request(:post, 'http://alegre/similarity/')
+  #       .with(body: {
+  #         text: 'I like apples',
+  #         language: 'en',
+  #         context: {
+  #           team_id: @pm.project.team.id,
+  #           project_id: @pm.project.id,
+  #           project_media_id: @pm.id
+  #         }
+  #       })
+  #       .to_return(status: 200)
+  #       @bot.create_similarities_from_alegre(@pm)
+  #       r = Relationship.where("source_id = :source_id AND target_id = :target_id", {
+  #         :source_id => pm1.id,
+  #         :target_id => @pm.id
+  #       })
+  #       assert_equal 1, r.length
+  #       WebMock.allow_net_connect!
+  #     end
+  #   end
+  # end
 
-  test "should flatten 3-level similarity relationships" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Mock.mock_languages_identification_returns_text_language do
-        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        pm1 = create_project_media project: @pm.project
-        pm2 = create_project_media project: @pm.project
-        create_relationship({ source_id: pm1.id, target_id: pm2.id })
-        response = '{"result":[{"_source":{"context":{"project_media_id":'+pm2.id.to_s+'}}}]}'
-        WebMock.stub_request(:post, 'http://alegre/similarity/query')
-        .with(body: {
-          text: 'I like apples',
-          language: 'en',
-          context: {
-            project_id: @pm.project.id
-          }
-        })
-        .to_return(body: response, status: 200)
-        WebMock.stub_request(:post, 'http://alegre/similarity/')
-        .with(body: {
-          text: 'I like apples',
-          language: 'en',
-          context: {
-            team_id: @pm.project.team.id,
-            project_id: @pm.project.id,
-            project_media_id: @pm.id
-          }
-        })
-        .to_return(status: 200)
-        @bot.create_similarities_from_alegre(@pm)
-        r = Relationship.where("source_id = :source_id AND target_id = :target_id", {
-          :source_id => pm1.id,
-          :target_id => @pm.id
-        })
-        assert_equal 1, r.length
-        WebMock.allow_net_connect!
-      end
-    end
-  end
+  # test "should flatten 3-level similarity relationships" do
+  #   stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+  #     AlegreClient::Mock.mock_languages_identification_returns_text_language do
+  #       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+  #       pm1 = create_project_media project: @pm.project
+  #       pm2 = create_project_media project: @pm.project
+  #       create_relationship({ source_id: pm1.id, target_id: pm2.id })
+  #       response = '{"result":[{"_source":{"context":{"project_media_id":'+pm2.id.to_s+'}}}]}'
+  #       WebMock.stub_request(:post, 'http://alegre/similarity/query')
+  #       .with(body: {
+  #         text: 'I like apples',
+  #         language: 'en',
+  #         context: {
+  #           project_id: @pm.project.id
+  #         }
+  #       })
+  #       .to_return(body: response, status: 200)
+  #       WebMock.stub_request(:post, 'http://alegre/similarity/')
+  #       .with(body: {
+  #         text: 'I like apples',
+  #         language: 'en',
+  #         context: {
+  #           team_id: @pm.project.team.id,
+  #           project_id: @pm.project.id,
+  #           project_media_id: @pm.id
+  #         }
+  #       })
+  #       .to_return(status: 200)
+  #       @bot.create_similarities_from_alegre(@pm)
+  #       r = Relationship.where("source_id = :source_id AND target_id = :target_id", {
+  #         :source_id => pm1.id,
+  #         :target_id => @pm.id
+  #       })
+  #       assert_equal 1, r.length
+  #       WebMock.allow_net_connect!
+  #     end
+  #   end
+  # end
 
   test "should notify Pusher when language is saved" do
     lang = @bot.send(:save_language, @pm, 'en')
