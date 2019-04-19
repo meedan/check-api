@@ -277,10 +277,8 @@ class Bot::Smooch
   end
 
   def self.process_message(message, app_id)
-    self.refresh_window(message['authorId'], app_id)
     lang = message['language'] = self.get_language(message)
     sm = CheckStateMachine.new(message['authorId'])
-
     if sm.state.value == 'waiting_for_message' && !self.banned_message?(message)
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")
@@ -309,15 +307,21 @@ class Bot::Smooch
         self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_unconfirmed, locale: lang))
       end
     end
+
+    self.schedule_reminder_job(message['authorId'], app_id, sm)
   end
 
-  def self.refresh_window(uid, app_id)
+  def self.schedule_reminder_job(uid, app_id, sm)
     return if self.config['smooch_window_duration'].to_i == 0
-    key = 'smooch:reminder:' + uid
-    job_id = Rails.cache.read(key)
-    Sidekiq::Status.cancel(job_id) unless job_id.nil?
-    job_id = SmoochPingWorker.perform_in(self.config['smooch_window_duration'].to_i.hours, uid, app_id)
-    Rails.cache.write(key, job_id)
+
+    # Cancel previous reminder.
+    self.cancel_reminder_job(uid)
+
+    # Don't schedule a reminder if we're waiting for confirmation, because it will confuse users.
+    if sm.state.value == 'waiting_for_message'
+      job_id = SmoochPingWorker.perform_in(self.config['smooch_window_duration'].to_i.hours, uid, app_id)
+      Rails.cache.write("smooch:reminder:#{uid}", job_id)
+    end
   end
 
   def self.get_text_from_message(message)
@@ -555,13 +559,17 @@ class Bot::Smooch
     Team.current = nil
   end
 
-  def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
+  def self.cancel_reminder_job(uid)
     key = 'smooch:reminder:' + uid
     job_id = Rails.cache.read(key)
     unless job_id.nil?
       Sidekiq::Status.cancel(job_id)
       Rails.cache.delete(key)
     end
+  end
+
+  def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
+    self.cancel_reminder_job(uid)
 
     extra = {
       metadata: {
