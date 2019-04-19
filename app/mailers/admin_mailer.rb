@@ -3,7 +3,7 @@ class AdminMailer < ApplicationMailer
     
   def send_download_link(type, obj, email, password)
     if obj.is_a?(Project)
-      return unless !email.blank? && requestor = User.find_by_email(email)
+      return unless !email.blank?
       link = obj.export_filepath(type).gsub(/^.*\/public/, CONFIG['checkdesk_base_url'])
       Rails.logger.info "Sending e-mail to #{email} with download link #{link} related to project #{obj.title}"
       @project = obj.title
