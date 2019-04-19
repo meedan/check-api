@@ -3,7 +3,7 @@ class AdminMailer < ApplicationMailer
     
   def send_download_link(type, obj, email, password)
     if obj.is_a?(Project)
-      return if email.blank?
+      return unless !email.blank? && requestor = User.find_by_email(email)
       link = obj.export_filepath(type).gsub(/^.*\/public/, CONFIG['checkdesk_base_url'])
       Rails.logger.info "Sending e-mail to #{email} with download link #{link} related to project #{obj.title}"
       @project = obj.title
@@ -12,7 +12,8 @@ class AdminMailer < ApplicationMailer
       @app = CONFIG['app_name']
       @password = password
       @type = type
-      recipients = obj.team.owners('owner').map(&:email).reject{ |m| m.blank? || m == email }
+      recipients = obj.team.owners('owner', ['member']).where.not(email: [nil, '', email]).to_a
+      recipients = recipients.delete_if {|u| u.get_send_email_notifications == false }.map(&:email)
       recipients = Bounce.remove_bounces(recipients)
       mail(to: email, cc: recipients, subject: I18n.t("project_export_email_title_#{type}".to_sym))
     end
