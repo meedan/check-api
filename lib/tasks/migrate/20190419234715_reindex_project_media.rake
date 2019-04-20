@@ -34,7 +34,7 @@ namespace :check do
         keys = %w(project_id team_id recent_added recent_activity archived inactive)
         data = {
           'project_id' => model.project_id,
-          'team_id' => model.project.team_id,
+          'team_id' => model.project&.team_id&.to_i,
           'recent_added' => model.created_at.to_i,
           'recent_activity' => model.updated_at.to_i,
           'archived' => model.archived.to_i,
@@ -61,7 +61,7 @@ namespace :check do
         keys = %w(project_id team_id recent_added recent_activity)
         data = {
           'project_id' => model.project_id,
-          'team_id' => model.project.team_id,
+          'team_id' => model.project&.team_id&.to_i,
           'recent_added' => model.created_at.to_i,
           'recent_activity' => model.updated_at.to_i,
         }
