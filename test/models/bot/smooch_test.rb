@@ -265,9 +265,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
               }
             }.to_json
 
-            Bot::Smooch.run(message)
-            Bot::Smooch.run(ignore)
-            Bot::Smooch.run(message)
+            assert Bot::Smooch.run(message)
+            assert Bot::Smooch.run(ignore)
+            assert Bot::Smooch.run(message)
             assert send_confirmation(uid)
           end
         end
@@ -873,6 +873,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     # test with empty text
     assert_nil Bot::Smooch.convert_numbers(nil)
     assert_nil Bot::Smooch.convert_numbers('')
+  end
+
+  test "should support file only if image" do
+    assert Bot::Smooch.supported_message?({ 'type' => 'image' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'text' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg' })
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })
   end
 
   protected
