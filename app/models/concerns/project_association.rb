@@ -58,20 +58,28 @@ module ProjectAssociation
 
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      options = {obj: self}
+      options = { obj: self }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_doc')
     end
 
     def update_elasticsearch_data
-      # TODO: Update project_id when user move media only - now this one trigger when create annotation
       return if self.disable_es_callbacks
-      v = self.versions.last
-      unless v.nil? || v.changeset['project_id'].blank?
-        keys = %w(project_id team_id)
-        data = {'project_id' => self.project_id, 'team_id' => self.project.team_id}
-        options = {keys: keys, data: data, parent: self}
-        ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
+      keys = %w(project_id team_id recent_added recent_activity)
+      data = {
+        'project_id' => self.project_id,
+        'team_id' => self.project.team_id,
+        'recent_added' => self.created_at.to_i,
+        'recent_activity' => Time.now.to_i,
+      }
+      if self.class_name == 'ProjectMedia'
+        keys.concat(%w(archived inactive))
+        data = data.merge({
+          'archived' => self.archived.to_i,
+          'inactive' => self.inactive.to_i,
+        })
       end
+      options = { keys: keys, data: data, parent: self }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
     end
 
     def destroy_elasticsearch_media
