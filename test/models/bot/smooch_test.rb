@@ -57,6 +57,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     AlegreClient.host = 'http://alegre'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
+    WebMock.stub_request(:get, "https://api-ssl.bitly.com/v3/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
   end
 
   def teardown
@@ -200,31 +201,34 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: id2,
         type: 'text',
-        text: "#{random_string} #{@link_url_2} #{random_string}"
+        text: "#{random_string} #{@link_url_2} #montag #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id3,
         type: 'text',
-        text: "#{random_string} #{@link_url_2.gsub(/^https?:\/\//, '')} #{random_string}"
+        text: "#{random_string} #{@link_url_2.gsub(/^https?:\/\//, '')} #teamtag #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
-        text: 'This is another claim'
+        text: 'This #teamtag is another #hashtag claim'
       },
       {
         '_id': random_string,
         authorId: id3,
         type: 'text',
-        text: 'This is another CLAIM'
+        text: 'This #teamtag is another #hashtag CLAIM'
       }
     ]
 
+    create_tag_text text: 'teamtag', team_id: @team.id, teamwide: true
+    create_tag_text text: 'montag', team_id: @team.id, teamwide: true
+
     assert_difference 'ProjectMedia.count', 5 do
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 11 do
-        assert_difference 'Comment.length', 4 do
+        assert_difference 'Comment.length', 8 do
           messages.each do |message|
             uid = message[:authorId]
 
@@ -261,25 +265,25 @@ class Bot::SmoochTest < ActiveSupport::TestCase
               }
             }.to_json
 
-            Bot::Smooch.run(message)
-            Bot::Smooch.run(ignore)
-            Bot::Smooch.run(message)
+            assert Bot::Smooch.run(message)
+            assert Bot::Smooch.run(ignore)
+            assert Bot::Smooch.run(message)
             assert send_confirmation(uid)
           end
         end
       end
     end
 
-    pm = ProjectMedia.last
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
-    s.save!
+    pms = ProjectMedia.order("id desc").limit(5).reverse
+    assert_equal 1, pms[4].annotations.where(annotation_type: 'tag').count
+    assert_equal 'teamtag', pms[4].annotations.where(annotation_type: 'tag').last.load.data[:tag].text
+    assert_equal 2, pms[3].annotations.where(annotation_type: 'tag').count
   end
 
   test "should schedule job when the window is over" do
     uid = random_string
     id = random_string
-    key = 'smooch:' + uid + ':reminder_job_id'
+    key = 'smooch:reminder:' + uid
 
     # No job scheduled if user didn't send any message
     job = Rails.cache.read(key)
@@ -292,29 +296,49 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: uid,
         type: 'text',
         text: random_string
+      },
+      {
+        '_id': id,
+        authorId: uid,
+        type: 'text',
+        text: random_string
       }
     ]
-    payload = {
+    payload1 = {
       trigger: 'message:appUser',
       app: {
         '_id': @app_id
       },
       version: 'v1.1',
-      messages: messages,
+      messages: [messages[0]],
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    payload2 = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: [messages[1]],
       appUser: {
         '_id': random_string,
         'conversationStarted': true
       }
     }.to_json
 
-    Bot::Smooch.run(payload)
-
-    # Job scheduled
+    Bot::Smooch.run(payload1)
+    assert_nil Rails.cache.read(key)
+    assert send_confirmation(uid)
     job = Rails.cache.read(key)
     assert_not_nil job
-
-    # If another message is sent, refresh the window
-    Bot::Smooch.run(payload)
+    Bot::Smooch.run(payload1)
+    assert_not_nil Rails.cache.read(key)
+    Bot::Smooch.run(payload2)
+    assert_nil Rails.cache.read(key)
+    assert send_confirmation(uid)
     job2 = Rails.cache.read(key)
     assert_not_nil job2
     assert_not_equal job, job2
@@ -417,7 +441,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       ProjectMedia.delete_all
 
       uid = random_string
-      key = 'smooch:' + uid + ':reminder_job_id'
+      key = 'smooch:reminder:' + uid
       text = random_string
 
       assert_nil Rails.cache.read(key)
@@ -446,22 +470,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }.to_json
 
       Bot::Smooch.run(payload)
-      assert_not_nil Rails.cache.read(key)
-      assert_equal 1, SmoochPingWorker.jobs.size
+      assert_nil Rails.cache.read(key)
+      assert_equal 0, SmoochPingWorker.jobs.size
       assert_equal 0, SmoochWorker.jobs.size
       assert_equal 0, ProjectMedia.count
-      sleep 1
 
       assert send_confirmation(uid)
       assert_not_nil Rails.cache.read(key)
-      assert_equal 2, SmoochPingWorker.jobs.size
+      assert_equal 1, SmoochPingWorker.jobs.size
       assert_equal 1, SmoochWorker.jobs.size
       assert_equal 0, ProjectMedia.count
 
       SmoochWorker.drain
 
       assert_not_nil Rails.cache.read(key)
-      assert_equal 2, SmoochPingWorker.jobs.size
+      assert_equal 1, SmoochPingWorker.jobs.size
       assert_equal 0, SmoochWorker.jobs.size
       assert_equal 1, ProjectMedia.count
 
@@ -479,12 +502,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should not get invalid URL" do
-    assert_nil Bot::Smooch.get_url_from_text('foo http://\foo.bar bar')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://news...')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://ha..?')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://30th-JUNE-2019.*')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://...')
-    assert_nil Bot::Smooch.get_url_from_text('foo https://*1.*')
+    assert_nil Bot::Smooch.extract_url('foo http://\foo.bar bar')
+    assert_nil Bot::Smooch.extract_url('foo https://news...')
+    assert_nil Bot::Smooch.extract_url('foo https://ha..?')
+    assert_nil Bot::Smooch.extract_url('foo https://30th-JUNE-2019.*')
+    assert_nil Bot::Smooch.extract_url('foo https://...')
+    assert_nil Bot::Smooch.extract_url('foo https://*1.*')
   end
 
   test "should send meme to user" do
@@ -569,7 +592,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm2 = ProjectMedia.last
     assert_equal pm, pm2
     assert File.exist?(filepath)
@@ -583,7 +605,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     child2 = create_project_media project: @project
     Bot::Smooch.expects(:send_meme).once
-    create_relationship source_id: pm.id, target_id: child2.id, user: u 
+    create_relationship source_id: pm.id, target_id: child2.id, user: u
     Bot::Smooch.unstub(:send_meme)
   end
 
@@ -851,6 +873,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     # test with empty text
     assert_nil Bot::Smooch.convert_numbers(nil)
     assert_nil Bot::Smooch.convert_numbers('')
+  end
+
+  test "should support file only if image" do
+    assert Bot::Smooch.supported_message?({ 'type' => 'image' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'text' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg' })
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })
   end
 
   protected

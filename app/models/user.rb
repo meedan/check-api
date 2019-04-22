@@ -390,6 +390,13 @@ class User < ActiveRecord::Base
     merged_tu
   end
 
+  def cached_assignments
+    Rails.cache.fetch("annotator-allowed-ids-#{self.id}", expires_in: 45.seconds, race_condition_ttl: 45.seconds) do
+      pms = Annotation.project_media_assigned_to_user(self, 'id, project_id').to_a
+      { pids: pms.map(&:project_id).uniq, pmids: pms.map(&:id).uniq }
+    end
+  end
+
   def self.get_duplicate_user(email, id=0)
     ret = { user: nil, type: nil }
     unless email.blank?

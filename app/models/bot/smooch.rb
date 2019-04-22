@@ -63,7 +63,7 @@ class Bot::Smooch
       ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).reply_to_smooch_users(self.annotation.annotated_id, self.value)
     end
 
-    def reply_to_smooch_users_not_final 
+    def reply_to_smooch_users_not_final
       ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).reply_to_smooch_users_not_final(self.annotation.annotated_id, self.value_was)
     end
 
@@ -196,6 +196,7 @@ class Bot::Smooch
   end
 
   def self.webhook(request)
+    # TODO This should be packaged as an event "invoke_webhook" + data payload
     Bot::Smooch.run(request.body.read)
   end
 
@@ -216,7 +217,7 @@ class Bot::Smooch
         false
       end
     rescue StandardError => e
-      Rails.logger.info "Exception when calling Smooch Bot for this message: #{e.message}"
+      Rails.logger.error("[Smooch Bot] Exception for trigger #{json&.dig('trigger') || 'unknown'}: #{e.message}")
       Airbrake.notify(e) if Airbrake.configuration.api_key
       raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
       false
@@ -239,8 +240,8 @@ class Bot::Smooch
   def self.resend_message_after_window(message)
     message = JSON.parse(message)
     self.get_installation('smooch_app_id', message['app']['_id'])
-    pmid = Rails.cache.read('smooch:smooch_message_id:project_media_id:' + message['message']['_id']).to_i
-    pm = ProjectMedia.where(id: pmid).last
+    pm_id = Rails.cache.read('smooch:response:' + message['message']['_id']).to_i
+    pm = ProjectMedia.where(id: pm_id).last
     unless pm.nil?
       lang = Bot::Alegre.default.language_object(pm, :value)
       status = self.get_status_label(pm, pm.last_verification_status, lang)
@@ -256,38 +257,71 @@ class Bot::Smooch
     lang
   end
 
+  def self.banned_message?(message)
+    # For now we only reject messages that match the following:
+    # - the number 1
+    self.convert_numbers(message['text']) == 1
+  end
+
+  def self.message_hash(message)
+    hash = nil
+    case message['type']
+    when 'text'
+      hash = Digest::MD5.hexdigest(self.get_text_from_message(message))
+    when 'image', 'file'
+      open(message['mediaUrl']) do |f|
+        hash = Digest::MD5.hexdigest(f.read)
+      end
+    end
+    hash
+  end
+
   def self.process_message(message, app_id)
-    self.refresh_window(message['authorId'], app_id)
     lang = message['language'] = self.get_language(message)
     sm = CheckStateMachine.new(message['authorId'])
-
-    if sm.state.value == 'waiting_for_message' && self.convert_numbers(message['text']) != 1
-      sm.send_message
-      sm.message = message.to_json
-      self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_ask_for_confirmation, locale: lang))
+    if sm.state.value == 'waiting_for_message' && !self.banned_message?(message)
+      hash = self.message_hash(message)
+      pm_id = Rails.cache.read("smooch:message:#{hash}")
+      if pm_id.nil?
+        sm.send_message_new
+        sm.message = message.to_json
+        self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_ask_for_confirmation, locale: lang))
+      else
+        sm.send_message_existing
+        self.save_message_later(message, app_id)
+        self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_confirmed, locale: lang))
+      end
 
     elsif sm.state.value == 'waiting_for_confirmation'
-      sm.confirm
+      sm.confirm_message
       saved_message = JSON.parse(sm.message.value)
       lang = saved_message['language']
       if self.convert_numbers(message['text']) == 1
-        unless self.user_already_sent_message(saved_message)
+        if self.supported_message?(saved_message)
           self.save_message_later(saved_message, app_id)
           self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_confirmed, locale: lang))
+        else
+          self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_type_unsupported, locale: lang))
         end
       else
         self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_unconfirmed, locale: lang))
       end
     end
+
+    self.schedule_reminder_job(message['authorId'], app_id, sm)
   end
 
-  def self.refresh_window(uid, app_id)
+  def self.schedule_reminder_job(uid, app_id, sm)
     return if self.config['smooch_window_duration'].to_i == 0
-    key = 'smooch:' + uid + ':reminder_job_id'
-    job_id = Rails.cache.read(key)
-    Sidekiq::Status.cancel(job_id) unless job_id.nil?
-    job_id = SmoochPingWorker.perform_in(self.config['smooch_window_duration'].to_i.hours, uid, app_id)
-    Rails.cache.write(key, job_id)
+
+    # Cancel previous reminder.
+    self.cancel_reminder_job(uid)
+
+    # Don't schedule a reminder if we're waiting for confirmation, because it will confuse users.
+    if sm.state.value == 'waiting_for_message'
+      job_id = SmoochPingWorker.perform_in(self.config['smooch_window_duration'].to_i.hours, uid, app_id)
+      Rails.cache.write("smooch:reminder:#{uid}", job_id)
+    end
   end
 
   def self.get_text_from_message(message)
@@ -296,37 +330,14 @@ class Bot::Smooch
     text.downcase
   end
 
-  def self.user_already_sent_message(message)
-    hash = nil
+  def self.supported_message?(message)
     case message['type']
-    when 'text'
-      text = self.get_text_from_message(message)
-      hash = Digest::MD5.hexdigest(text)
-    when 'image'
-      open(message['mediaUrl']) do |f|
-        hash = Digest::MD5.hexdigest(f.read)
-      end
-    when 'file'
-      if message['mediaType'].to_s =~ /^image\//
-        open(message['mediaUrl']) do |f|
-          hash = Digest::MD5.hexdigest(f.read)
-        end
-      else
-        self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_type_unsupported, locale: message['language']))
-        return true
-      end
-    else
-      self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_type_unsupported, locale: message['language']))
+    when 'text', 'image'
       return true
-    end
-
-    key = 'smooch:' + message['authorId'] + ':' + hash
-    if Rails.cache.read(key)
-      self.send_message_to_user(message['authorId'], I18n.t(:smooch_bot_message_sent, locale: message['language']))
-      true
+    when 'file'
+      return message['mediaType'].to_s =~ /^image\//
     else
-      Rails.cache.write(key, Time.now.to_i)
-      false
+      return false
     end
   end
 
@@ -344,11 +355,9 @@ class Bot::Smooch
     params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text }.merge(extra)
     message_post_body = SmoochApi::MessagePost.new(params)
     begin
-      smooch_response = api_instance.post_message(app_id, uid, message_post_body)
-      Rails.logger.info "Response from Smooch when sending message '#{text}' to user #{uid}: #{smooch_response}"
-      smooch_response
+      api_instance.post_message(app_id, uid, message_post_body)
     rescue SmoochApi::ApiError => e
-      Rails.logger.info "Exception when sending message to Smooch: #{e.response_body}"
+      Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
       Airbrake.notify(e) if Airbrake.configuration.api_key
     end
   end
@@ -364,48 +373,57 @@ class Bot::Smooch
     SmoochWorker.set(queue: self.get_queue).perform_in(1.second, message.to_json, type, app_id)
   end
 
-  def self.save_message(message, app_id)
-    json = JSON.parse(message)
+  def self.save_message(message_json, app_id)
+    message = JSON.parse(message_json)
     self.get_installation('smooch_app_id', app_id)
-    json['project_id'] = self.get_project_id(json)
+    message['project_id'] = self.get_project_id(message)
 
-    pm = case json['type']
+    pm = case message['type']
          when 'text'
-           self.save_text_message(json)
+           self.save_text_message(message)
          when 'image'
-           self.save_image_message(json)
+           self.save_image_message(message)
          when 'file'
-           json['mediaType'].to_s =~ /^image\// ? self.save_image_message(json) : return
+           message['mediaType'].to_s =~ /^image\// ? self.save_image_message(message) : return
          else
            return
          end
 
-    a = Dynamic.new
-    a.skip_check_ability = true
-    a.skip_notifications = true
-    a.disable_es_callbacks = Rails.env.to_s == 'test'
-    a.annotation_type = 'smooch'
-    a.annotated = pm
-    a.set_fields = {  smooch_data: json.merge({ app_id: app_id }).to_json }.to_json
-    a.save!
+    # Remember that we received this message.
+    hash = self.message_hash(message)
+    Rails.cache.write("smooch:message:#{hash}", pm.id)
+
+    # Only save the annotation for the same requester once.
+    key = 'smooch:request:' + message['authorId'] + ':' + pm.id.to_s
+    if !Rails.cache.read(key)
+      a = Dynamic.new
+      a.skip_check_ability = true
+      a.skip_notifications = true
+      a.disable_es_callbacks = Rails.env.to_s == 'test'
+      a.annotation_type = 'smooch'
+      a.annotated = pm
+      a.set_fields = { smooch_data: message.merge({ app_id: app_id }).to_json }.to_json
+      a.save!
+    end
+    Rails.cache.write(key, hash)
 
     if pm.is_finished?
-      self.send_verification_results_to_user(json['authorId'], pm, pm.last_verification_status, json['language'])
-      self.send_meme_to_user(json['authorId'], pm, json['language'])
+      self.send_verification_results_to_user(message['authorId'], pm, pm.last_verification_status, message['language'])
+      self.send_meme_to_user(message['authorId'], pm, message['language'])
     end
   end
 
-  def self.get_project_id(_json)
+  def self.get_project_id(_message)
     project_id = self.config['smooch_project_id'].to_i
     raise "Project ID #{project_id} does not belong to team #{self.config['team_id']}" if Project.where(id: project_id, team_id: self.config['team_id'].to_i).last.nil?
     project_id
   end
 
-  def self.get_url_from_text(text)
+  def self.extract_url(text)
     begin
-      url = Twitter::Extractor.extract_urls(text)
-      return nil if url.blank?
-      url = url.first
+      urls = Twitter::Extractor.extract_urls(text)
+      return nil if urls.blank?
+      url = urls.first
       url = 'https://' + url unless url =~ /^https?:\/\//
       URI.parse(url)
       m = Link.new url: url
@@ -416,44 +434,69 @@ class Bot::Smooch
     end
   end
 
-  def self.save_text_message(json)
-    text = json['text']
-    url = self.get_url_from_text(text)
+  def self.add_hashtags(text, pm)
+    hashtags = Twitter::Extractor.extract_hashtags(text)
+    return nil if hashtags.blank?
 
+    # Only add team tags.
+    TagText
+      .joins('LEFT JOIN projects ON projects.team_id = tag_texts.team_id')
+      .where('projects.id=? AND teamwide=? AND text IN (?)', pm.project_id, true, hashtags)
+      .each do |tag|
+        unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
+          Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
+        end
+      end
+  end
+
+  def self.save_text_message(message)
+    text = message['text']
+
+    url = self.extract_url(text)
     if url.nil?
-      pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => json['project_id']).last ||
-           ProjectMedia.create!(project_id: json['project_id'], quote: text)
-    else
-      pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => json['project_id']).last
+      pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => message['project_id']).last
       if pm.nil?
-        pm = ProjectMedia.create!(project_id: json['project_id'], url: url)
+        pm = ProjectMedia.create!(project_id: message['project_id'], quote: text)
+      end
+    else
+      pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => message['project_id']).last
+      if pm.nil?
+        pm = ProjectMedia.create!(project_id: message['project_id'], url: url)
         pm.embed = { description: text }.to_json if text != url
       elsif text != url
         Comment.create! annotated: pm, text: text, force_version: true
       end
     end
+
+    self.add_hashtags(text, pm)
+
     pm
   end
 
-  def self.save_image_message(json)
-    open(json['mediaUrl']) do |f|
+  def self.save_image_message(message)
+    open(message['mediaUrl']) do |f|
+      text = message['text']
+
       data = f.read
       hash = Digest::MD5.hexdigest(data)
       filepath = File.join(Rails.root, 'tmp', "#{hash}.jpeg")
       File.atomic_write(filepath) { |file| file.write(data) }
-      pm = ProjectMedia.joins(:media).where('medias.type' => 'UploadedImage', 'medias.file' => "#{hash}.jpeg", 'project_medias.project_id' => json['project_id']).last
+      pm = ProjectMedia.joins(:media).where('medias.type' => 'UploadedImage', 'medias.file' => "#{hash}.jpeg", 'project_medias.project_id' => message['project_id']).last
       if pm.nil?
         m = UploadedImage.new
         File.open(filepath) do |f2|
           m.file = f2
         end
         m.save!
-        pm = ProjectMedia.create!(project_id: json['project_id'], media: m)
-        pm.embed = { description: json['text'] }.to_json unless json['text'].blank?
-      elsif !json['text'].blank?
-        Comment.create! annotated: pm, text: json['text'], force_version: true
+        pm = ProjectMedia.create!(project_id: message['project_id'], media: m)
+        pm.embed = { description: text }.to_json unless text.blank?
+      elsif !text.blank?
+        Comment.create! annotated: pm, text: text, force_version: true
       end
       FileUtils.rm_f filepath
+
+      self.add_hashtags(text, pm)
+
       pm
     end
   end
@@ -474,8 +517,8 @@ class Bot::Smooch
     previous_final_status
   end
 
-  def self.reply_to_smooch_users(pmid, status)
-    pm = ProjectMedia.where(id: pmid).last
+  def self.reply_to_smooch_users(pm_id, status)
+    pm = ProjectMedia.where(id: pm_id).last
     unless pm.nil?
       previous_final_status = self.get_previous_final_status(pm)
       pm.get_annotations('smooch').find_each do |annotation|
@@ -486,8 +529,8 @@ class Bot::Smooch
     end
   end
 
-  def self.reply_to_smooch_users_not_final(pmid, status)
-    pm = ProjectMedia.where(id: pmid).last
+  def self.reply_to_smooch_users_not_final(pm_id, status)
+    pm = ProjectMedia.where(id: pm_id).last
     unless pm.nil?
       pm.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
@@ -500,8 +543,8 @@ class Bot::Smooch
     end
   end
 
-  def self.replicate_status_to_children(pmid, status, uid, tid)
-    pm = ProjectMedia.where(id: pmid).last
+  def self.replicate_status_to_children(pm_id, status, uid, tid)
+    pm = ProjectMedia.where(id: pm_id).last
     return if pm.nil?
     User.current = User.where(id: uid).last
     Team.current = Team.where(id: tid).last
@@ -516,13 +559,17 @@ class Bot::Smooch
     Team.current = nil
   end
 
-  def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
-    key = 'smooch:' + uid + ':reminder_job_id'
+  def self.cancel_reminder_job(uid)
+    key = 'smooch:reminder:' + uid
     job_id = Rails.cache.read(key)
     unless job_id.nil?
       Sidekiq::Status.cancel(job_id)
       Rails.cache.delete(key)
     end
+  end
+
+  def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
+    self.cancel_reminder_job(uid)
 
     extra = {
       metadata: {
@@ -539,7 +586,7 @@ class Bot::Smooch
     response = ::Bot::Smooch.send_message_to_user(uid, I18n.t(i18n_key, params), extra)
     self.save_smooch_response(response, pm)
     id = response&.message&.id
-    Rails.cache.write('smooch:smooch_message_id:project_media_id:' + id, pm.id) unless id.blank?
+    Rails.cache.write('smooch:response:' + id, pm.id) unless id.blank?
     response
   end
 
@@ -558,7 +605,7 @@ class Bot::Smooch
   end
 
   def self.send_meme_to_user(uid, pm, lang)
-    annotation = Bot::Smooch.get_meme(pm) 
+    annotation = Bot::Smooch.get_meme(pm)
     return if annotation.nil? || annotation.get_field_value('memebuster_published_at').blank?
     meme = annotation.memebuster_png_path(false)
     Bot::Smooch.send_message_to_user(uid, I18n.t(:smooch_bot_meme, locale: lang, url: Bot::Smooch.embed_url(pm)), { type: 'image', mediaUrl: meme })

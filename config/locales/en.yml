@@ -485,7 +485,6 @@ en:
   smooch_bot_message_unconfirmed: Since you didn’t reply with 1, we will not process your message further. Thank you.
   smooch_bot_message_type_unsupported: Sorry, we don't support this type of file format
     for verification yet.
-  smooch_bot_message_sent: You have already sent us this message.
   smooch_bot_meme: Here's a meme we created based on the item you have requested that
     we verify. Learn more at %{url}.
   smooch_bot_result: |-
@@ -632,6 +631,7 @@ en:
   embed_tasks: Tasks
   embed_description: Description
   other_language: Other
+  unidentified_language: Unidentified
   relationship_item_has_parent: This item is already a child of another item
   smooch_requests: Requests
   smooch_requests_asc: Least requested

@@ -1,5 +1,4 @@
 class CheckSearch
-
   def initialize(options)
     # options include keywords, projects, tags, status
     options = JSON.parse(options)
@@ -11,7 +10,8 @@ class CheckSearch
     @options['sort_type'] ||= 'desc'
     # set show options
     @options['show'] ||= ['medias']
-    @options['eslimit'] ||= 10000
+    @options['eslimit'] ||= 20
+    @options['esoffset'] ||= 0
   end
 
   def pusher_channel
@@ -56,18 +56,14 @@ class CheckSearch
   def medias
     return [] unless @options['show'].include?('medias') && index_exists?
     return @medias if @medias
-    @medias = []
-    filters = { inactive: false }
-    filters[:archived] = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
-    filters[:sources_count] = 0
     if should_hit_elasticsearch?
       query = medias_build_search_query
-      ids = get_ids_from_result(medias_get_search_result(query))
-      filters = filters.merge({ id: ids })
-      @ids = ids
+      @ids = get_ids_from_result(medias_get_search_result(query)).uniq
+      results = ProjectMedia.where(id: @ids)
+      @medias = sort_pg_results(results, 'project_medias')
+    else
+      @medias = get_pg_results
     end
-    results = ProjectMedia.where(filters).joins(:project)
-    @medias = sort_pg_results(results, 'media')
     @medias
   end
 
@@ -78,15 +74,14 @@ class CheckSearch
   def sources
     return [] unless @options['show'].include?('sources') && index_exists?
     return @sources if @sources
-    @sources = []
-    filters = {}
     if should_hit_elasticsearch?
       query = medias_build_search_query('ProjectSource')
-      ids = medias_get_search_result(query).map(&:annotated_id)
-      filters = { id: ids }
+      @ids = medias_get_search_result(query).map(&:annotated_id).uniq
+      results = ProjectSource.where({ id: @ids })
+      @sources = sort_pg_results(results, 'project_sources')
+    else
+      @sources = get_pg_results('ProjectSource')
     end
-    results = ProjectSource.where(filters).preload(:source).joins(:project)
-    @sources = sort_pg_results(results, 'source')
     @sources
   end
 
@@ -95,33 +90,15 @@ class CheckSearch
   end
 
   def number_of_results
-    medias_count = medias.is_a?(Array) ? medias.size : medias.permissioned.count
-    sources_count = sources.is_a?(Array) ? sources.size : sources.permissioned.count
-    medias_count + sources_count
+    number_of_items(medias, 'ProjectMedia') + number_of_items(sources, 'ProjectSource')
   end
 
-  def medias_build_search_query(associated_type = 'ProjectMedia')
-    conditions = []
-    conditions << {term: { annotated_type: associated_type.downcase } }
-    conditions << {term: { team_id: @options["team_id"] } } unless @options["team_id"].nil?
-    conditions.concat build_search_keyword_conditions
-    conditions.concat build_search_tags_conditions
-    conditions.concat build_search_doc_conditions
-    dynamic_conditions = build_search_dynamic_annotation_conditions
-    conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
-    { bool: { must: conditions } }
-  end
-
-  def medias_get_search_result(query)
-    sort = build_search_dynamic_annotation_sort
-    MediaSearch.search(query: query, sort: sort, size: @options['eslimit']).results
-  end
-
-  private
-
-  def index_exists?
-    client = MediaSearch.gateway.client
-    client.indices.exists? index: CheckElasticSearchModel.get_index_alias
+  def number_of_items(collection, associated_type)
+    return collection.size if collection.is_a?(Array)
+    return MediaSearch.gateway.client.count(body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?
+    user = User.current
+    collection = collection.where(id: user.cached_assignments[:pmids]) if associated_type == 'ProjectMedia' && user && user.role?(:annotator)
+    collection.unscope(where: :sources_count).limit(nil).reorder(nil).offset(nil).count
   end
 
   def should_hit_elasticsearch?
@@ -132,11 +109,53 @@ class CheckSearch
     !(status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank? && ['recent_activity', 'recent_added'].include?(@options['sort']))
   end
 
-  # def show_filter?(type)
-  #   # show filter should not include all media types to hit ES
-  #   show_options = (type == 'medias') ? ['uploadedimage', 'link', 'claim'] : ['source']
-  #   (show_options - @options['show']).empty?
-  # end
+  def get_pg_results(associated_type = 'ProjectMedia')
+    sort_mapping = { 'recent_activity' => 'updated_at', 'recent_added' => 'created_at' }
+    sort = { sort_mapping[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
+    filters = {}
+    filters['projects.team_id'] = @options['team_id'] unless @options['team_id'].blank?
+    filters['project_id'] = @options['projects'] unless @options['projects'].blank?
+    if associated_type == 'ProjectMedia'
+      archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
+      filters = filters.merge({
+        archived: archived,
+        sources_count: 0,
+        inactive: false
+      })
+    end
+    associated_type.constantize.joins(:project).where(filters).order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
+  end
+
+  def medias_build_search_query(associated_type = 'ProjectMedia')
+    conditions = []
+    conditions << { term: { annotated_type: associated_type.downcase } }
+    conditions << { term: { team_id: @options['team_id'] } } unless @options['team_id'].nil?
+    if associated_type == 'ProjectMedia'
+      archived = @options.has_key?('archived') ? @options['archived'].to_i : 0
+      conditions << { term: { archived: archived } }
+      conditions << { term: { inactive: 0 } }
+      user = User.current
+      conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user && user.role?(:annotator)
+    end
+    conditions.concat build_search_keyword_conditions
+    conditions.concat build_search_tags_conditions
+    conditions.concat build_search_doc_conditions
+    dynamic_conditions = build_search_dynamic_annotation_conditions
+    conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
+    { bool: { must: conditions } }
+  end
+
+  def medias_get_search_result(query)
+    sort = build_search_sort
+    MediaSearch.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
+  end
+
+  private
+
+  def index_exists?
+    client = MediaSearch.gateway.client
+    client.indices.exists? index: CheckElasticSearchModel.get_index_alias
+  end
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank?
@@ -187,8 +206,14 @@ class CheckSearch
     conditions
   end
 
-  def build_search_dynamic_annotation_sort
-    return [] if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
+  def build_search_sort
+    if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
+      return [
+        {
+          @options['sort'] => { order: @options['sort_type'] }
+        }
+      ]
+    end
     [
       {
         "dynamics.#{@options['sort']}": {
@@ -240,48 +265,13 @@ class CheckSearch
     doc_c
   end
 
-  def filter_by_team_and_project(results)
-    results = results.where('projects.team_id' => @options['team_id']) unless @options['team_id'].blank?
-    results = results.where(project_id: @options['projects']) unless @options['projects'].blank?
-    results
-  end
-
-  def get_order
-    sort_field = @options['sort'].to_s == 'recent_activity' ? 'updated_at' : 'created_at'
-    sort_type = @options['sort_type'].blank? ? 'desc' : @options['sort_type'].downcase
-    { sort_field => sort_type }
-  end
-
-  def sort_pg_results(results, type)
-    results = filter_by_team_and_project(results)
-
-    if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
-      results = results.order(get_order)
-    elsif @ids && type == 'media'
-      values = []
-      @ids.each_with_index do |id, i|
-        values << "(#{id}, #{i})"
-      end
-      return results if values.empty?
-      joins = ActiveRecord::Base.send(:sanitize_sql_array, ["JOIN (VALUES %s) AS x(value, order_number) ON project_medias.id = x.value", values.join(', ')])
-      results = results.joins(joins).order('x.order_number')
+  def sort_pg_results(results, table)
+    values = []
+    @ids.each_with_index do |id, i|
+      values << "(#{id}, #{i})"
     end
-
-    results
+    return results if values.empty?
+    joins = ActiveRecord::Base.send(:sanitize_sql_array, ["JOIN (VALUES %s) AS x(value, order_number) ON %s.id = x.value", values.join(', '), table])
+    results.joins(joins).order('x.order_number')
   end
-
-  # def prepare_show_filter(show)
-  #   m_types = ['photos', 'links', 'quotes']
-  #   show ||= m_types
-  #   if show.include?('medias')
-  #     show.delete('medias')
-  #     show += m_types
-  #   end
-  #   show.map(&:downcase)
-  #   show_mapping = {'photos' => 'uploadedimage', 'links' => 'link', 'quotes' => 'claim', 'sources' => 'source'}
-  #   show.each_with_index do |v, i|
-  #     show[i] = show_mapping[v] unless show_mapping[v].blank?
-  #   end
-  #   show
-  # end
 end
