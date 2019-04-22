@@ -154,7 +154,7 @@ class GraphqlController3Test < ActionController::TestCase
     response = JSON.parse(@response.body)['data']['search']
     assert_equal 3, response['number_of_results']
     results = response['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1e.id], results
+    assert_equal [pm1f.id, pm1g.id, pm1h.id].sort, results.sort
 
     # Paginate, page 1
     query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + '],\"eslimit\":2,\"esoffset\":0}") {medias(first:20){edges{node{dbid}}}}}'

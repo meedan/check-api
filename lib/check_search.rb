@@ -44,21 +44,12 @@ class CheckSearch
     'CheckSearch'
   end
 
-  def get_ids_from_result(results)
-    relationship_type = @options['relationship_type']
-    results.collect do |result|
-      sources = result.relationship_sources || []
-      source = relationship_type.blank? ? sources.first : sources.select{ |x| x.split('_').first == Digest::MD5.hexdigest(relationship_type) }.first
-      (source.blank? || source == '-') ? result.annotated_id : source.split('_').last.to_i
-    end
-  end
-
   def medias
     return [] unless @options['show'].include?('medias') && index_exists?
     return @medias if @medias
     if should_hit_elasticsearch?
       query = medias_build_search_query
-      @ids = get_ids_from_result(medias_get_search_result(query)).uniq
+      @ids = medias_get_search_result(query).map(&:annotated_id).uniq
       results = ProjectMedia.where(id: @ids)
       @medias = sort_pg_results(results, 'project_medias')
     else
@@ -98,7 +89,7 @@ class CheckSearch
     return MediaSearch.gateway.client.count(body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?
     user = User.current
     collection = collection.where(id: user.cached_assignments[:pmids]) if associated_type == 'ProjectMedia' && user && user.role?(:annotator)
-    collection.unscope(where: :sources_count).limit(nil).reorder(nil).offset(nil).count
+    collection.limit(nil).reorder(nil).offset(nil).count
   end
 
   def should_hit_elasticsearch?
@@ -119,7 +110,6 @@ class CheckSearch
       archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
       filters = filters.merge({
         archived: archived,
-        sources_count: 0,
         inactive: false
       })
     end

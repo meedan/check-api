@@ -704,7 +704,7 @@ class ElasticSearch2Test < ActionController::TestCase
     end
   end
 
-  test "should search in target reports and return parent instead" do
+  test "should search in target reports and return parents and children" do
     t = create_team
     p = create_project team: t
     sm = create_claim_media quote: 'source'
@@ -722,7 +722,7 @@ class ElasticSearch2Test < ActionController::TestCase
     r2 = create_relationship source_id: s.id, target_id: t2.id
     sleep 1
     result = CheckSearch.new({ keyword: 'target' }.to_json)
-    assert_equal [s.id, o.id].sort, result.medias.map(&:id).sort
+    assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
     r1.destroy
     r2.destroy
     sleep 1
