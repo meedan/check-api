@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <%= simple_format(I18n.t("mail_body_security_#{@type}_alert".to_sym), username: @user.name, id_address: @user.current_sign_in_ip) %>
+    <%= simple_format(I18n.t(:mail_footer_security_alert, support_email: CONFIG['support_email'], privacy_policy: link_to(t(:privacy_policy), CONFIG['privacy_policy_url']))) %>
+  </body>
+</html>
