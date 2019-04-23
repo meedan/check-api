@@ -72,7 +72,7 @@ module AnnotationBase
                     targets: proc { |a| a.annotated_type == 'ProjectMedia' ? [a.annotated.project, a.annotated.media] : (a.annotated_type == 'ProjectSource' ? [a.annotated.source] : [a.annotated]) },
                     data: proc { |a| a = Annotation.where(id: a.id).last; a.nil? ? a.to_json : a.load.to_json }
 
-    before_validation :set_type_and_event, :set_annotator
+    before_validation :remove_null_bytes, :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
     after_create :notify_team_bots_create
     after_commit :assign_to_users, on: :create

@@ -36,4 +36,8 @@ module AnnotationPrivate
       TeamBot.enqueue_event("update_annotation_own", team, self, team_bot) unless team.blank? || team_bot.blank?
     end
   end
+
+  def remove_null_bytes
+    self.data.each { |k, v| self.data[k] = v.gsub("\u0000", "\\u0000") if v.is_a?(String) }
+  end
 end
