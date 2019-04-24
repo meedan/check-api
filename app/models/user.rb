@@ -17,6 +17,7 @@ class User < ActiveRecord::Base
   has_many :project_sources
   has_many :project_medias
   has_many :sources
+  has_many :login_activities, as: :user
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,

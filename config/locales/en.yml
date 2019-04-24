@@ -419,19 +419,19 @@ en:
     to anonymous user %{id}
   mail_subject_security_alert: "[Check] Security alert"
   mail_body_security_ip_alert: "Hello,
-    <p>We noticed a new login attempt to your Check account %{username}, from a new (%{id_address}).</p>
+    <p>We noticed a new login attempt to your Check account %{username}, from a new (%{ip_address}).</p>
     "
   mail_body_security_device_alert: "Hello,
     <p>We noticed a new login attempt to your Check account %{username}, from a new (%{device_name}) device.</p>
     "
   mail_body_security_failed_alert: "Hello,
-    <p>We noticed that someone tried to log into your account  account four consecutive times and failed. Here are the details of that attempt</p>
+    <p>We noticed that someone tried to log into your account four consecutive times and failed. Here are the details of that attempt</p>
     "
   mail_footer_security_alert: "
-    <p>*Login Timestamp(s)</p>
-    <p>*Browser(s)</p>
-    <p>*Operating System(s)</p>
-    <p>*Location(s)</p>
+    <p>*Login Timestamp: %{timestamp}</p>
+    <p>*Browser: %{browser}</p>
+    <p>*Operating System: %{os}</p>
+    <p>*Location: %{location}</p>
 
     <p>If this was you, you can safely disregard this email. If this wasn't you, 
     please contact us at %{support_email} to reset your password to protect your account.</p>
