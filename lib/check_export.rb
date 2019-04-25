@@ -75,7 +75,7 @@ module CheckExport
     annotations_count
   end
 
-  def export_comment_count(pm)
+  def export_comment_count(_pm)
     {
       notes_ugc_count: @annotations.where(annotation_type: 'comment').count
     }
