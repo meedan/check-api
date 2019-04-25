@@ -159,7 +159,7 @@ pt:
   mail_request_to_join: "%{user} quer participar da equipe %{team} no %{app_name}!"
   approved: Aprovado!
   rejected: Não aprovado
-  mail_request_to_join_processed: Seu pedido para participar da equipe %{team} no %{app_name} foi %{status}
+  mail_request_to_join_processed: Sua solicitação para participar da equipe %{team} no %{app_name} foi %{status}
   mail_new_account: Nova conta para você no %{app_name}
   slack:
     fields:
@@ -198,7 +198,7 @@ pt:
       project_assign: "%{user} (%{role} em %{team}) atribuiu um projeto"
       project_unassign: "%{user} (%{role} em %{team}) desatribuiu um projeto"
       user_member: "%{user} juntou-se à equipe %{team}"
-      user_requested: "%{user} pediu para participar da equipe %{team}"
+      user_requested: "%{user} solicitou para participar da equipe %{team}"
       user_invited: "%{user} foi convidado a participar da equipe %{team}"
       user_banned: "%{user} foi banido da equipe %{team}"
   mail_view_welcome: Bem-vindo ao %{app_name}
@@ -240,7 +240,7 @@ pt:
   slack_channel_format_wrong: O canal do Slack é inválido
   translation_status_not_valid: O status é inválido
   translation_status_permission_error: Desculpe, você não tem permissão para fazer essa alteração de status
-  translation_request_id_exists: Já existe um pedido de tradução para esta mensagem
+  translation_request_id_exists: Já existe uma solicitação de tradução para esta mensagem
   auto_publisher_added_to_project: Obrigado! Agora todas as novas traduções no projeto %{project} serão automaticamente publicadas nesta conta no %{provider}. Se você mudar de ideia, por favor contacte o administrador ou simplesmente remova a autorização do Bridge no %{provider}.
   invalid_token: Token inválido
   viber_screenshot_footer: "Tradução de %{source_language} para %{target_language}: “%{source_text}”"
@@ -377,7 +377,6 @@ pt:
       Este item também foi adicionado à nossa fila de verificação. Tentaremos obter um relatório dentro de 24 horas, mas por favor observe que não podemos responder a todas as solicitações.
   smooch_bot_message_unconfirmed: Como você não respondeu com 1, não processaremos mais sua mensagem. Obrigado.
   smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este formato de arquivo para verificação.
-  smooch_bot_message_sent: Você já nos enviou esta mensagem.
   smooch_bot_meme: Aqui está um meme criado com base no item que você solicitou que verificássemos. Saiba mais em %{url}.
   smooch_bot_result: |-
       [Relatório de Verificação] A mensagem que você compartilhou conosco está marcada como *%{status}*.
@@ -509,6 +508,7 @@ pt:
   team_import_completed_subject: Sua importação de dados terminou
   team_import_completed_mail: "Olá,\n\nSua importação de dados em %{app_name} terminou. Você pode conferir em %{worksheet_url} para revisar o status de cada item importado.\n\nNote que você pode reiniciar a importação depois de corrigir os erros reportados - os itens previamente importados não serão duplicados.\n\n— A equipe %{app_name}"
   pender_url_invalid: Este link é inválido.
+  pender_url_unsafe: Este link é inseguro.
   verification_status_deadline: Prazo
   verification_status_deadline_asc: Prazo mais curto
   verification_status_deadline_desc: Prazo mais longo
@@ -518,4 +518,8 @@ pt:
   embed_tasks: Tarefas
   embed_description: Descrição
   other_language: Outro
+  unidentified_language: Não identificado
   relationship_item_has_parent: Este item já é filho de outro item
+  smooch_requests: Solicitações
+  smooch_requests_asc: Menos solicitados
+  smooch_requests_desc: Mais solicitados
