@@ -260,7 +260,8 @@ class Bot::Smooch
   def self.banned_message?(message)
     # For now we only reject messages that match the following:
     # - the number 1
-    self.convert_numbers(message['text']) == 1
+    # - user is banned
+    self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
   end
 
   def self.message_hash(message)
@@ -389,6 +390,8 @@ class Bot::Smooch
            return
          end
 
+    return if pm.nil?
+
     # Remember that we received this message.
     hash = self.message_hash(message)
     Rails.cache.write("smooch:message:#{hash}", pm.id)
@@ -407,6 +410,10 @@ class Bot::Smooch
     end
     Rails.cache.write(key, hash)
 
+    self.send_results_if_item_is_finished(pm, message)
+  end
+
+  def self.send_results_if_item_is_finished(pm, message)
     if pm.is_finished?
       self.send_verification_results_to_user(message['authorId'], pm, pm.last_verification_status, message['language'])
       self.send_meme_to_user(message['authorId'], pm, message['language'])
@@ -428,7 +435,12 @@ class Bot::Smooch
       URI.parse(url)
       m = Link.new url: url
       m.validate_pender_result(false, true)
-      m.pender_error ? nil : m.url
+      if m.pender_error
+        raise SecurityError if m.pender_error_code == PenderClient::ErrorCodes::UNSAFE
+        nil
+      else
+        m.url
+      end
     rescue URI::InvalidURIError
       nil
     end
@@ -449,28 +461,39 @@ class Bot::Smooch
       end
   end
 
+  def self.ban_user(message)
+    uid = message['authorId']
+    Rails.logger.info("[Smooch Bot] Banned user #{uid}")
+    Rails.cache.write("smooch:banned:#{uid}", message.to_json)
+  end
+
   def self.save_text_message(message)
     text = message['text']
 
-    url = self.extract_url(text)
-    if url.nil?
-      pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => message['project_id']).last
-      if pm.nil?
-        pm = ProjectMedia.create!(project_id: message['project_id'], quote: text)
+    begin
+      url = self.extract_url(text)
+      if url.nil?
+        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => message['project_id']).last
+        if pm.nil?
+          pm = ProjectMedia.create!(project_id: message['project_id'], quote: text)
+        end
+      else
+        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => message['project_id']).last
+        if pm.nil?
+          pm = ProjectMedia.create!(project_id: message['project_id'], url: url)
+          pm.embed = { description: text }.to_json if text != url
+        elsif text != url
+          Comment.create! annotated: pm, text: text, force_version: true
+        end
       end
-    else
-      pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => message['project_id']).last
-      if pm.nil?
-        pm = ProjectMedia.create!(project_id: message['project_id'], url: url)
-        pm.embed = { description: text }.to_json if text != url
-      elsif text != url
-        Comment.create! annotated: pm, text: text, force_version: true
-      end
+
+      self.add_hashtags(text, pm)
+
+      pm
+    rescue SecurityError
+      self.ban_user(message)
+      nil
     end
-
-    self.add_hashtags(text, pm)
-
-    pm
   end
 
   def self.save_image_message(message)

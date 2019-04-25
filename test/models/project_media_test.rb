@@ -1762,4 +1762,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should not create project media with unsafe URL" do
+    WebMock.disable_net_connect!
+    url = 'http://unsafe.com/'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"error","data":{"code":12}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+    assert_raises ActiveRecord::RecordInvalid do
+      pm = create_project_media media: nil, url: url
+      assert_equal 12, pm.media.pender_error_code
+    end
+  end
 end
