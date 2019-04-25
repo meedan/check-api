@@ -882,6 +882,58 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })
   end
 
+  test "should ban user that sends unsafe URL" do
+    uid = random_string
+    url = 'http://unsafe.com/'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"error","data":{"code":12}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text'
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }
+
+    payload[:messages][0][:text] = random_string
+    assert_nil Rails.cache.read("smooch:banned:#{uid}")
+    assert !Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
+    assert_difference 'ProjectMedia.count' do
+      assert Bot::Smooch.run(payload.to_json)
+      assert send_confirmation(uid)
+    end
+    
+    payload[:messages][0][:text] = url
+    assert_nil Rails.cache.read("smooch:banned:#{uid}")
+    assert !Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
+    assert_no_difference 'ProjectMedia.count' do
+      assert Bot::Smooch.run(payload.to_json)
+      assert send_confirmation(uid)
+    end
+    
+    payload[:messages][0][:text] = random_string
+    assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
+    assert Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
+    assert_no_difference 'ProjectMedia.count' do
+      assert Bot::Smooch.run(payload.to_json)
+      assert send_confirmation(uid)
+    end
+  end
+
   protected
 
   def run_concurrent_requests
