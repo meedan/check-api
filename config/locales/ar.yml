@@ -393,7 +393,6 @@ ar:
       تمت إضافة هذا العنصر إلى قائمة انتظار التحقق. سنحاول ارسال تقرير إليك خلال 24 ساعة ، لكن يرجى ملاحظة أننا لا نستطيع الرد على كل طلب.
   smooch_bot_message_unconfirmed: نظرًا لأنك لم ترد  بـ 1 ، فلن نقوم بمعالجة رسالتك. شكرا لكم.
   smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل بعد للتحقق من صحتها.
-  smooch_bot_message_sent: لقد أرسلت بالفعل هذه الرسالة من قبل.
   smooch_bot_meme: إليك ميم أنشأناه بناء على العنصر الذي أرسلته للتحقق منه. لعرض المزيد %{url}.
   smooch_bot_result: |-
       [تقرير التحقيق] لقد تم  تصنيف العنصر الذي أرسلته لنا أنه *%{status}*.
@@ -517,6 +516,7 @@ ar:
   team_import_completed_subject: تمت عملية استيراد البيانات
   team_import_completed_mail: "<p>مرحباً —</p><p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url} لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p><p>— فريق عمل %{app_name}"
   pender_url_invalid: هذا الرابط غير صالح
+  pender_url_unsafe: هذا الرابط غير آمن.
   verification_status_deadline: الموعد
   verification_status_deadline_asc: مستحق قريباً
   verification_status_deadline_desc: مستحق لاحقاً
@@ -526,4 +526,8 @@ ar:
   embed_tasks: المهام
   embed_description: الوصف
   other_language: آخر
+  unidentified_language: غير معرّف
   relationship_item_has_parent: هذا العنصر تابع لعنصر آخر بالفعل.
+  smooch_requests: الطلبات
+  smooch_requests_asc: اﻷقل طلباً
+  smooch_requests_desc: اﻷكثر طلباً

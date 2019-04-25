@@ -201,7 +201,7 @@ es:
       user_requested: "%{user} solicitó unirse al equipo %{team}"
       user_invited: "%{user} fue invitado a unirse al equipo %{team}"
       user_banned: "%{user}fue suspendido del equipo %{team}"
-  mail_view_welcome: Bienvenido a %{app_name}
+  mail_view_welcome: Bienvenida / Bienvenido a %{app_name}
   mail_view_register: '¡Estás a un solo paso de usar %{app_name}! Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente enlace:'
   mail_view_joined: ¡Tu solicitud para unirte a %{team} fue aprobada! ¡Puedes ir a %{url} y empezar a contribuir!
   mail_view_rejected_to_join: Lo sentimos, pero tu solicitud para unirte a  %{team} no fue aprobada.
@@ -377,7 +377,6 @@ es:
       Esta solicitud también se ha agregado a nuestra cola de verificación. Intentaremos obtener un informe dentro de las 24 horas, pero ten en cuenta que no podemos responder a todas las solicitudes.
   smooch_bot_message_unconfirmed: 'Como no respondiste a la pregunta tecleando el número 1,  no procesaremos más tu solicitud. ¡Gracias! '
   smooch_bot_message_type_unsupported: Lo sentimos, este tipo de formatos todavía no los procesamos. Pero puedes enviarnos textos, imágenes y enlaces para verificarlos. ¡Gracias!
-  smooch_bot_message_sent: 'Ya nos has enviado este mensaje antes. '
   smooch_bot_meme: Hicimos este meme gracias a la pregunta que nos enviaste para que verificáramos, ¡compártelo! Mira más en %{url}.
   smooch_bot_result: |-
       [Informe de Verificación] El mensaje que compartiste con nosotros ha sido marcado como  *%{status}*.
@@ -504,6 +503,7 @@ es:
   team_import_completed_subject: Tu importación de datos se ha completado
   team_import_completed_mail: "<p>Hola,</p><p>Se ha completado la importación de datos en %{app_name}.  Puedes mirar %{worksheet_url}para revisar el estado de cada ítem a importar.</p><p>nota que puedes reiniciar la importación después de corregir cualquier error que se informe allí - los ítems previamente- importados no se duplicarán. <p>—El equipo %{app_name}</p>"
   pender_url_invalid: Este enlace es inválido
+  pender_url_unsafe: Este enlace es inseguro
   verification_status_deadline: 'Fecha límite '
   verification_status_deadline_asc: Menor tiempo posible
   verification_status_deadline_desc: Mayor tiempo posible
@@ -513,4 +513,8 @@ es:
   embed_tasks: Tareas
   embed_description: 'Descripción '
   other_language: Otro
+  unidentified_language: No identificado
   relationship_item_has_parent: Este ítem ya está relacionado a otro ítmen principal
+  smooch_requests: Solicitudes
+  smooch_requests_asc: Menos solicitados
+  smooch_requests_desc: Más solicitados

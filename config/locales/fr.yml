@@ -171,7 +171,7 @@ fr:
       source: Source
       status: Statut
       status_previous: Statut précédent
-      related_to: Associé.e à
+      related_to: Associé à
       view_button: Voir %{type} sur %{app}
       project_source: Source
       project_media: Élément
@@ -377,7 +377,6 @@ fr:
       Cet élément a aussi été ajouté à notre file de vérification. Nous tenterons de vous donner une réponse dans les 24 heures, mais notez que nous ne pouvons pas répondre à chaque demande.
   smooch_bot_message_unconfirmed: Comme vous n'avez pas répondu par 1, nous ne traiterons plus votre message. Merci.
   smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore ce type de message en charge pour la vérification.
-  smooch_bot_message_sent: Vous nous avez déjà envoyé ce message.
   smooch_bot_meme: 'Voici un mème que nous avons créé pour l''article que vous nous avez demandé de vérifier. Pour en savoir plus : %{url}.'
   smooch_bot_result: |-
       [Rapport de vérification] Le message que vous nous avez envoyé est marqué comme *%{status}*.
@@ -386,7 +385,7 @@ fr:
   smooch_bot_ask_for_confirmation: |-
       Merci de nous envoyer ce message.
 
-      Suspectez-vous que ce soit une fausse information ayant trait aux Élections législatives indiennes de 2019 ?
+      Suspectez-vous que ce soit une fausse information liée aux Élections législatives indiennes de 2019 ?
 
       Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à cette requête.
   smooch_bot_window_closing: Dû à l'important volume des demandes reçues, nous n'avons pas encore été en mesure de vérifier votre demande. Merci de nous l'avoir soumise. Si vous avez une autre demande à nous soumettre, n'hésitez pas à le faire.
@@ -501,6 +500,7 @@ fr:
   team_import_completed_subject: Le processus d'importation de données a terminé
   team_import_completed_mail: "<p>Bonjour,</p><p>Le processus d'importation de données que vous avez lancé sur %{app_name} a terminé. Ouvrez %{worksheet_url} pour revoir l'état de chaque élément à importer.</p><p>Notez que vous pourrez relancer l'importation une fois que les erreurs seront résolues. Les éléments déjà importés ne seront pas dupliqués.</p><p>— L'équipe %{app_name}</p>"
   pender_url_invalid: Lien non valide.
+  pender_url_unsafe: Lien non sécurisé.
   verification_status_deadline: Échéance
   verification_status_deadline_asc: Dû au plus tard
   verification_status_deadline_desc: Dû au plus tôt
@@ -510,4 +510,8 @@ fr:
   embed_tasks: Tâches
   embed_description: Description
   other_language: Autre
+  unidentified_language: Non identifié
   relationship_item_has_parent: Cet élément est déjà lié à un autre parent
+  smooch_requests: Demandes
+  smooch_requests_asc: Moins demandés
+  smooch_requests_desc: Plus demandés
