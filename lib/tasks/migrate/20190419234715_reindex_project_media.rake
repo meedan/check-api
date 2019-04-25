@@ -10,14 +10,14 @@ namespace :check do
       i = 0
       ProjectMedia.find_each do |model|
         i += 1
-        puts "[#{Time.now}] #{i}/#{n}: Looking for ES document for project media with id #{model.id}"
+        print '.'
         model.create_elasticsearch_doc_bg(nil) unless client.exists?(index: index_alias, type: 'media_search', id: model.get_es_doc_id)
       end
       n = ProjectSource.count
       i = 0
       ProjectSource.find_each do |model|
         i += 1
-        puts "[#{Time.now}] #{i}/#{n}: Looking for ES document for project source with id #{model.id}"
+        print '.'
         model.create_elasticsearch_doc_bg(nil) unless client.exists?(index: index_alias, type: 'media_search', id: model.get_es_doc_id)
       end
 
@@ -30,7 +30,7 @@ namespace :check do
 
       ProjectMedia.includes(:project).find_each do |model|
         i += 1
-        puts "[#{Time.now}] #{i}/#{n}: Getting data for project media #{model.id}"
+        print '.'
         keys = %w(project_id team_id recent_added recent_activity archived inactive)
         data = {
           'project_id' => model.project_id,
@@ -57,7 +57,7 @@ namespace :check do
       i = 0
       ProjectSource.includes(:project).find_each do |model|
         i += 1
-        puts "[#{Time.now}] #{i}/#{n}: Getting data for project source #{model.id}"
+        print '.'
         keys = %w(project_id team_id recent_added recent_activity)
         data = {
           'project_id' => model.project_id,
