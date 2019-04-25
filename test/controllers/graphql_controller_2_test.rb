@@ -27,8 +27,9 @@ class GraphqlController2Test < ActionController::TestCase
     t = create_team slug: 'team', private: false
     p = create_project team: t
     2.times do
-      pm = create_project_media project: p
+      pm = create_project_media project: p, disable_es_callbacks: false
     end
+    sleep 2
 
     query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
@@ -288,7 +289,7 @@ class GraphqlController2Test < ActionController::TestCase
     u = create_user
     create_team_user user: u, team: t, role: 'contributor'
     authenticate_with_user(u)
-    query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", clientMutationId: "1", project_id: ' + p.id.to_s + ', related_to_id: ' + pm.id.to_s + ' }) { project_media { id } } }'
+    query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", clientMutationId: "1", project_id: ' + p.id.to_s + ', related_to_id: ' + pm.id.to_s + ' }) { check_search_team { number_of_results }, project_media { id } } }'
     assert_difference 'Relationship.count' do
       post :create, query: query, team: t
     end

@@ -2,6 +2,7 @@ class Claim < Media
 
   attr_accessor :quote_attributions
 
+  before_validation :remove_null_bytes
   validates :quote, presence: true, on: :create
 
   after_create :set_claim_attributions
@@ -33,5 +34,9 @@ class Claim < Media
       cs.skip_check_ability = true
       cs.save!
     end
+  end
+
+  def remove_null_bytes
+    self.quote = self.quote.gsub("\u0000", "\\u0000") unless self.quote.nil?
   end
 end

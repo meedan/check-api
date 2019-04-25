@@ -21,10 +21,10 @@ GIT
 
 GIT
   remote: https://github.com/meedan/pender-client.git
-  revision: e8eca00fdc5706bda0510be679a921fecf4f6a4d
-  ref: e8eca00
+  revision: 89c9072b5399bda616ad3955ec140a2a8c196d1d
+  ref: 89c9072
   specs:
-    pender_client (0.0.3)
+    pender_client (0.0.4)
 
 GIT
   remote: https://github.com/meedan/transifex-interface-ruby.git

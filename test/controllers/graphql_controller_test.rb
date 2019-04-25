@@ -965,31 +965,6 @@ class GraphqlControllerTest < ActionController::TestCase
     User.unstub(:current)
   end
 
-  test "should avoid n+1 queries problem" do
-    n = 5 * (rand(10) + 1) # Number of media items to be created
-    m = rand(10) + 1       # Number of annotations per media
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    with_current_user_and_team(u, t) do
-      n.times do
-        pm = create_project_media project: p
-        m.times { create_comment annotated: pm, annotator: u }
-      end
-    end
-
-    query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
-
-    # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (15) do
-      post :create, query: query, team: 'team'
-    end
-
-    assert_response :success
-  end
-
   test "should change password if token is found and passwords are present and match" do
     u = create_user
     t = u.send_reset_password_instructions
@@ -1135,39 +1110,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should get project information fast" do
-    n = 25 # Number of media items to be created
-    m = 25 # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    n.times do
-      pm = create_project_media project: p, user: create_user
-      s = create_source
-      create_project_source project: p, source: s
-      create_account_source source: s
-      m.times { create_comment annotated: pm, annotator: create_user }
-      pm.project_source
-    end
-    create_project_media project: p, user: u
-    pm = create_project_media project: p
-    pm.archived = true
-    pm.save!
-    pm.project_source
-
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
-
-    # Make sure we only run queries for the 20 first items
-    assert_queries 320, '<=' do
-      post :create, query: query, team: 'team'
-    end
-
-    assert_response :success
-    assert_equal 20, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
-  end
-
   test "should search for archived items" do
     u = create_user
     authenticate_with_user(u)
@@ -1175,9 +1117,10 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     2.times do
-      pm = create_project_media project: p
+      pm = create_project_media project: p, disable_es_callbacks: false
       pm.archived = true
       pm.save!
+      sleep 1
     end
 
     query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
@@ -1194,7 +1137,8 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team slug: 'team'
     create_team_user user: u, team: t
     p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media project: p, disable_es_callbacks: false
+    sleep 1
 
     query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 

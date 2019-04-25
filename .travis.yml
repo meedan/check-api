@@ -43,6 +43,7 @@ before_script:
 - bundle exec rake assets:precompile
 - bundle exec thin -p 3000 -e test -t 60 --threadpool-size=60 --threaded start >/dev/null &
 - sleep 10
+- chmod +w tmp/parallel_runtime_test.log
 script: bundle exec rake "parallel:test[4]"
 after_script:
 - bundle exec codeclimate-test-reporter

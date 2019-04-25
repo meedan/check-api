@@ -1749,4 +1749,30 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ps.delete
     assert_nil pm.reload.project_source
   end
+
+  # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5ca644ecf023ba001260e71d
+  # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5ca4faa1f023ba001260dbae
+  test "should create claim with Indian characters" do
+    str1 = "_Buy Redmi Note 5 Pro Mobile at *2999 Rs* (95�\u0000off) in Flash Sale._\r\n\r\n*Grab this offer now, Deal valid only for First 1,000 Customers. Visit here to Buy-* http://sndeals.win/"
+    str2 = "*प्रधानमंत्री छात्रवृति योजना 2019*\n\n*Scholarship Form for 10th or 12th Open Now*\n\n*Scholarship Amount*\n1.50-60�\u0000- Rs. 5000/-\n2.60-80�\u0000- Rs. 10000/-\n3.Above 80�\u0000- Rs. 25000/-\n\n*सभी 10th और 12th के बच्चो व उनके अभिभावकों को ये SMS भेजे ताकि सभी बच्चे इस योजना का लाभ ले सके*\n\n*Click Here for Apply:*\nhttps://bit.ly/2l71tWl"
+    [str1, str2].each do |str|
+      assert_difference 'ProjectMedia.count' do
+        m = create_claim_media quote: str
+        create_project_media media: m
+      end
+    end
+  end
+
+  test "should not create project media with unsafe URL" do
+    WebMock.disable_net_connect!
+    url = 'http://unsafe.com/'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"error","data":{"code":12}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+    assert_raises ActiveRecord::RecordInvalid do
+      pm = create_project_media media: nil, url: url
+      assert_equal 12, pm.media.pender_error_code
+    end
+  end
 end

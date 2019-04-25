@@ -227,7 +227,9 @@ module PaperTrail
         if pa
           return unless pa.respond_to?(:cached_annotations_count)
           count = pa.cached_annotations_count + value
-          pa.update_columns(cached_annotations_count: count)
+          ActiveRecord::Base.connection_pool.with_connection do
+            pa.update_columns(cached_annotations_count: count)
+          end
         end
       end
     end

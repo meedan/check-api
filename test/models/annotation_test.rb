@@ -481,4 +481,10 @@ class AnnotationTest < ActiveSupport::TestCase
       assert !a.sent_to_pusher
     end
   end
+
+  test "should save annotation with null byte" do
+    assert_difference 'Comment.count' do
+      create_comment text: "*Dipa's Crush Loves him 97�\u0000, How Much Your Crush Loves You?* Check out now\nhttps://www.getlinks.info/love/c/tnxbmka"
+    end
+  end
 end

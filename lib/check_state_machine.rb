@@ -20,12 +20,16 @@ class CheckStateMachine
     state :waiting_for_message, :initial => true
     state :waiting_for_confirmation
 
-    event :send_message do
+    event :send_message_new do
       transitions :from => :waiting_for_message, :to => :waiting_for_confirmation
     end
 
-    event :confirm do
+    event :confirm_message do
       transitions :from => :waiting_for_confirmation, :to => :waiting_for_message
+    end
+
+    event :send_message_existing do
+      transitions :from => :waiting_for_message, :to => :waiting_for_message
     end
   end
 end
