@@ -343,6 +343,10 @@ class ProjectMedia < ActiveRecord::Base
     ms.verification_status = self.last_status
     ts = self.annotations.where(annotation_type: "translation_status").last
     ms.translation_status = ts.load.status unless ts.nil?
+    ms.archived = self.archived.to_i
+    ms.inactive = self.inactive.to_i
+    ms.recent_added = self.created_at.to_i
+    ms.recent_activity = Time.now.to_i
   end
 
   # private

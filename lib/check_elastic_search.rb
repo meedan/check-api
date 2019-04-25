@@ -41,8 +41,7 @@ module CheckElasticSearch
     fields = {'updated_at' => Time.now.utc}
     options[:keys].each{|k| fields[k] = data[k] if !data[k].blank? }
     client = MediaSearch.gateway.client
-    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
-                  body: { doc: fields }
+    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
   end
 
   # Keep this method until verify search feature.

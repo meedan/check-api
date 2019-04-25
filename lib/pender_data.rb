@@ -1,5 +1,5 @@
 module PenderData
-  attr_accessor :pender_error
+  attr_accessor :pender_error, :pender_error_code
 
   def validate_pender_result(force = false, retry_on_error = false)
     if !self.url.blank? && !self.skip_pender
@@ -8,6 +8,7 @@ module PenderData
       result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
       if result['type'] == 'error'
         self.pender_error = true
+        self.pender_error_code = result['data']['code']
         self.retry_pender_or_fail(force, retry_on_error, result)
       else
         self.pender_data = result['data']
@@ -23,12 +24,14 @@ module PenderData
 
   def handle_pender_error(code)
     case code.to_i
-    when 9
+    when PenderClient::ErrorCodes::DUPLICATED
       I18n.t(:pender_conflict, default: 'This link is already being parsed, please try again in a few seconds.')
-    when 4
+    when PenderClient::ErrorCodes::INVALID_VALUE
       I18n.t(:pender_url_invalid, default: 'This link is invalid.')
+    when PenderClient::ErrorCodes::UNSAFE
+      I18n.t(:pender_url_unsafe, default: 'This link is unsafe.')
     else
-      I18n.t(:pender_could_not_parse, default: 'Could not parse this media')
+      I18n.t(:pender_could_not_parse, default: 'Could not parse this media.')
     end
   end
 

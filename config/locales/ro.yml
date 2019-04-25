@@ -256,7 +256,7 @@ ro:
   oembed_disclaimer_not_applicable: 'Nu a fost posibil pentru echipa %{team} pe %{date} să ajungă la o concluzie privind corectitudinea acestui material '
   oembed_source_date: "%{date} pe %{provider}"
   role_editor: redactor
-  role_owner: proprietar
+  role_owner: coordonator
   role_contributor: contribuitor
   role_journalist: jurnalist
   role_annotator: adnotator
@@ -381,7 +381,6 @@ ro:
       De asemenea, acest element a fost adăugat în rândul nostru pentru verificare. Vom încerca să vă oferim un raport în decurs de 24 de ore, însă, atenționăm că nu putem da răspuns la fiecare solicitare.
   smooch_bot_message_unconfirmed: Deoarece nu ați răspuns cu 1, nu vom procesa mesajul dvs în continuare. Mulțumim.
   smooch_bot_message_type_unsupported: Ne pare rău, deocamdată nu acceptăm acest tip de format de fișiere pentru verificare.
-  smooch_bot_message_sent: Dvs ne-ați transmis acest mesaj deja.
   smooch_bot_meme: Iată un meme, pe care l-am creat în baza elementului, pentru care ați solicitat verificarea. Aflați mai multe pe %{url}.
   smooch_bot_result: |-
       [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
@@ -422,7 +421,7 @@ ro:
   permissions_info:
     roles:
       owner:
-        description: Proprietarii controlează spațiul de lucru.
+        description: Coordonatorii controlează spațiul de lucru.
       editor:
         description: Redactorii gestionează echipa și proiectele.
       journalist:
@@ -469,7 +468,7 @@ ro:
             edit_tasks: Creează și redactează sarcini la nivel de echipă
             roles: Redactare roluri în echipă
             third_party: Adaugă integrare a terților
-            invite_owner: Invită, aprobă și elimină proprietarii echipei
+            invite_owner: Invită, aprobă și elimină Coordonatorii echipei
             invite_members: Invită, aprobă și elimină membrii echipei
   team_import:
     invalid_google_spreadsheet_url: URL %{spreadsheet_url} pentru tabel electronic nu este valid

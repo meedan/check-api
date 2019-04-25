@@ -25,11 +25,12 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should filter by archived" do
-    create_project_media
-    pm = create_project_media
+    create_project_media disable_es_callbacks: false
+    pm = create_project_media disable_es_callbacks: false
     pm.archived = true
     pm.save!
-    create_project_media
+    create_project_media disable_es_callbacks: false
+    sleep 3
     result = CheckSearch.new({}.to_json)
     assert_equal 2, result.medias.count
     result = CheckSearch.new({ archived: 1 }.to_json)
@@ -184,8 +185,8 @@ class ElasticSearch2Test < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     # update title or description
     ElasticSearchWorker.clear
-    pm.embed= {title: 'title', description: 'description'}.to_json
-    assert_equal 1, ElasticSearchWorker.jobs.size
+    pm.embed = { title: 'title', description: 'description' }.to_json
+    assert_equal 2, ElasticSearchWorker.jobs.size
     # destroy media
     ElasticSearchWorker.clear
     assert_equal 0, ElasticSearchWorker.jobs.size
@@ -201,19 +202,19 @@ class ElasticSearch2Test < ActionController::TestCase
     # add comment
     ElasticSearchWorker.clear
     c = create_comment annotated: pm, disable_es_callbacks: false
-    assert_equal 1, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     # add tag
     ElasticSearchWorker.clear
     t = create_tag annotated: pm, disable_es_callbacks: false
-    assert_equal 1, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     # destroy comment
     ElasticSearchWorker.clear
     c.destroy
-    assert_equal 1, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     # destroy tag
     ElasticSearchWorker.clear
     t.destroy
-    assert_equal 1, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
   end
 
   test "should update status in background" do
@@ -342,6 +343,50 @@ class ElasticSearch2Test < ActionController::TestCase
       assert_equal 1, results.size
       assert_equal ids[code], results.first.annotated_id
     end
+  end
+
+  test "should filter by others and unidentified language" do
+    p = create_project
+    att = 'language'
+    at = create_annotation_type annotation_type: att, label: 'Language'
+    language = create_field_type field_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
+
+    languages = ['pt', 'en', 'es']
+    ids = {}
+    languages.each do |code|
+      pm = create_project_media project: p, disable_es_callbacks: false
+      create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: code }.to_json, disable_es_callbacks: false
+      ids[code] = pm.id
+    end
+
+    ids['unidentified'] = []
+    n = 3
+    n.times do
+      pm = create_project_media project: p, disable_es_callbacks: false
+      ids['unidentified'] << pm.id
+    end
+    sleep languages.size * 2
+
+    unidentified_query = {
+      dynamic: {
+        language: ["unidentified"]
+      },
+      projects: [p.id]
+    }
+    result = CheckSearch.new(unidentified_query.to_json)
+    assert_equal n, result.medias.size
+    assert_equal ids['unidentified'].sort, result.medias.map(&:id).sort
+
+    other_query = {
+      dynamic: {
+        language: ["not:en,pt"]
+      },
+      projects: [p.id]
+    }
+    result = CheckSearch.new(other_query.to_json)
+    assert_equal 1, result.medias.size
+    assert_equal ids['es'], result.medias.first.id
   end
 
   test "should create media search" do
@@ -659,7 +704,7 @@ class ElasticSearch2Test < ActionController::TestCase
     end
   end
 
-  test "should search in target reports and return parent instead" do
+  test "should search in target reports and return parents and children" do
     t = create_team
     p = create_project team: t
     sm = create_claim_media quote: 'source'
@@ -677,7 +722,7 @@ class ElasticSearch2Test < ActionController::TestCase
     r2 = create_relationship source_id: s.id, target_id: t2.id
     sleep 1
     result = CheckSearch.new({ keyword: 'target' }.to_json)
-    assert_equal [s.id, o.id].sort, result.medias.map(&:id).sort
+    assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
     r1.destroy
     r2.destroy
     sleep 1
@@ -716,196 +761,6 @@ class ElasticSearch2Test < ActionController::TestCase
     assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { verification_status: ['verified'] }).first['targets'].sort
     assert_equal [t4].sort, Relationship.targets_grouped_by_type(s, { translation_status: ['ready'] }).first['targets'].sort
   end
-
-  test "should search case-insensitive tags" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    m2 = create_valid_media
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    create_tag tag: 'test', annotated: pm, disable_es_callbacks: false
-    create_tag tag: 'Test', annotated: pm2, disable_es_callbacks: false
-    sleep 5
-    # search by tags
-    result = CheckSearch.new({tags: ['test']}.to_json)
-    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    result = CheckSearch.new({tags: ['Test']}.to_json)
-    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    # search by tags as keyword
-    result = CheckSearch.new({keyword: 'test'}.to_json)
-    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    result = CheckSearch.new({keyword: 'Test'}.to_json)
-    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-  end
-
-  test "should index and sort by deadline" do
-    create_verification_status_stuff
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
-    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
-    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
-
-    t.set_status_target_turnaround = 10.hours ; t.save!
-    pm1 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 5.hours ; t.save!
-    pm2 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 15.hours ; t.save!
-    pm3 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    search = {
-      sort: [
-        {
-          'dynamics.deadline': {
-            order: 'asc',
-            nested: {
-              path: 'dynamics',
-            }
-          }
-        }
-      ],
-      query: {
-        match_all: {}
-      }
-    }
-
-    pms = []
-    MediaSearch.search(search).results.each do |r|
-      pms << r.annotated_id if r.annotated_type == 'ProjectMedia'
-    end
-    assert_equal [pm2.id, pm1.id, pm3.id], pms
-  end
-
-  # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5c920b8bf023ba001b5fffbb
-  test "should filter by custom sort and other parameters" do
-    create_verification_status_stuff
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
-    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
-    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
-    query = { sort: 'deadline', sort_type: 'asc' }
-
-    result = CheckSearch.new(query.to_json)
-    assert_equal 0, result.medias.count
-
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
-
-    t.set_status_target_turnaround = 10.hours ; t.save!
-    pm1 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 5.hours ; t.save!
-    pm2 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 15.hours ; t.save!
-    pm3 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    result = CheckSearch.new(query.to_json)
-    assert_equal 3, result.medias.count
-    assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
-  end
-
-  test "should index and sort by most requested" do
-    p = create_project
-
-    pm1 = create_project_media project: p, disable_es_callbacks: false
-    2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
-    sleep 5
-
-    pm2 = create_project_media project: p, disable_es_callbacks: false
-    4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
-    sleep 5
-
-    pm3 = create_project_media project: p, disable_es_callbacks: false
-    1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
-    sleep 5
-
-    pm4 = create_project_media project: p, disable_es_callbacks: false
-    3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
-    sleep 5
-
-    order = [pm3, pm1, pm4, pm2]
-    orders = {asc: order, desc: order.reverse}
-    orders.keys.each do |order|
-      search = {
-        sort: [
-          {
-            'dynamics.smooch': {
-              order: order,
-              nested: {
-                path: 'dynamics',
-              }
-            }
-          }
-        ],
-        query: {
-          match_all: {}
-        }
-      }
-      pms = []
-      MediaSearch.search(search).results.each do |r|
-        pms << r.annotated_id if r.annotated_type == 'ProjectMedia'
-      end
-      assert_equal orders[order.to_sym].map(&:id), pms
-    end
-  end
-
-  [:asc, :desc].each do |order|
-    test "should filter and sort by most requested #{order}" do
-      p = create_project
-
-      query = { sort: 'smooch', sort_type: order.to_s }
-
-      result = CheckSearch.new(query.to_json)
-      assert_equal 0, result.medias.count
-
-      pm1 = create_project_media project: p, disable_es_callbacks: false
-      2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
-      pm2 = create_project_media project: p, disable_es_callbacks: false
-      4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
-      pm3 = create_project_media project: p, disable_es_callbacks: false
-      1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
-      pm4 = create_project_media project: p, disable_es_callbacks: false
-      3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
-      pm5 = create_project_media project: p, disable_es_callbacks: false
-      sleep 5
-
-      orders = {asc: [pm3, pm1, pm4, pm2, pm5], desc: [pm2, pm4, pm1, pm3, pm5]}
-      result = CheckSearch.new(query.to_json)
-      assert_equal 5, result.medias.count
-      assert_equal orders[order.to_sym].map(&:id), result.medias.map(&:id)
-    end
-  end
-
-  test "should decrease elasticsearch smooch when annotations is removed" do
-    p = create_project
-    pm = create_project_media project: p, disable_es_callbacks: false
-    s1 = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, disable_es_callbacks: false
-    s2 = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, disable_es_callbacks: false
-    sleep 3
-
-    result = MediaSearch.find(get_es_id(pm))
-    puts result
-    assert_equal [2], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
-    s1.destroy
-    sleep 1
-
-    result = MediaSearch.find(get_es_id(pm))
-    puts result
-    assert_equal [1], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
-  end
-
-
+  
+  # Please add new tests to test/controllers/elastic_search_3_test.rb
 end
