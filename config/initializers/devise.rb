@@ -29,5 +29,5 @@ Devise.setup do |config|
 end
 
 AuthTrail.exclude_method = lambda do |info|
-  info[:context] == "api/v1/graphql#create"
+  info[:context] == "api/v1/graphql#create" || info[:failure_reason] == 'unconfirmed'
 end

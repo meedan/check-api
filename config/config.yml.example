@@ -59,6 +59,8 @@ development: &default
   privacy_email: ''
   google_credentials_path: '/path/to/credentials.json'
   bitly_key: 'bitly-key'
+  failed_attempts: 4
+  failed_attempts_period: 15.minutes
 
 test:
   <<: *default
