@@ -95,7 +95,9 @@ class TeamBot < ActiveRecord::Base
 
   def call(data)
     if self.core?
+      User.current = self.bot_user
       TeamBot.call_core_bot(self.identifier, data)
+      User.current = nil
     else
       begin
         uri = URI.parse(self.request_url)
