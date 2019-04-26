@@ -1408,6 +1408,16 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [u.id, u2.id].sort, t.owners(['owner', 'editor']).map(&:id).sort
   end
 
+  test "should get uniq owners by team_users relation" do
+    t = create_team
+    other_t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: other_t, user: u, role: 'owner'
+    puts t.owners('owner').size
+    assert_equal [u.id], t.owners('owner').map(&:id)
+  end
+
   test "should get used tags" do
     team = create_team
     project = create_project team: team
