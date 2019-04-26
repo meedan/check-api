@@ -15,6 +15,15 @@ namespace :check do
       end
       n = Relationship.joins(:user).where("users.type != 'BotUser' OR users.type IS NULL").count
       puts "[#{Time.now}] Done. Now we have #{Relationship.count} relationships, where #{n} were created by humans."
+      puts "[#{Time.now}] Resetting counters and re-indexing sources..."
+      ProjectMedia.where('sources_count > 0 OR targets_count > 0').update_all({ sources_count: 0, targets_count: 0 })
+      Relationship.find_each do |r|
+        print '.'
+        r.send :increment_counters
+        r.send :index_source
+      end
+      puts
+      puts "[#{Time.now}] Done!"
     end
   end
 end
