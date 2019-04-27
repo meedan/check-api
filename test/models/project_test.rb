@@ -435,6 +435,38 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should include number of smooch responses on export if send it as parameter" do
+    create_verification_status_stuff
+    create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', false]})
+    stub_config('default_project_media_workflow', 'verification_status') do
+      p = create_project
+      pm = create_project_media project: p, media: create_valid_media
+      n = 2
+      n.times { create_annotation annotation_type: 'smooch_response', annotated: pm }
+      pm2 = create_project_media project: p, media: create_valid_media
+      exported_data = p.export(0, ['smooch_response'])
+      assert_equal 2, exported_data.size
+      assert_equal 2, exported_data.find { |e| e[:report_id] == pm.id}.dig(:responses_with_final_status_count)
+      assert_equal 0, exported_data.find { |e| e[:report_id] == pm2.id}.dig(:responses_with_final_status_count)
+    end
+  end
+
+  test "should include language on export if send it as parameter" do
+    at = create_annotation_type annotation_type: 'language'
+    create_field_instance name: 'language', annotation_type_object: at
+    p = create_project
+    pm1 = create_project_media project: p, media: create_valid_media
+    create_dynamic_annotation annotated: pm1, annotation_type: 'language', set_fields: { language: 'en' }.to_json
+    pm2 = create_project_media project: p, media: create_valid_media
+    create_dynamic_annotation annotation_type: 'language', annotated: pm2, set_fields: { language: 'pt' }.to_json
+    pm3 = create_project_media project: p, media: create_valid_media
+    exported_data = p.export(0, ['language'])
+
+    assert_equal 3, exported_data.size
+    assert_equal 'en', exported_data.find { |e| e[:report_id] == pm1.id}.dig(:language)
+    assert_equal 'pt', exported_data.find { |e| e[:report_id] == pm2.id}.dig(:language)
+    assert_nil exported_data.find { |e| e[:report_id] == pm3.id}.dig(:language)
+  end
 
   test "should export data for Bridge" do
     create_translation_status_stuff
@@ -479,7 +511,7 @@ class ProjectTest < ActiveSupport::TestCase
     task.save!
     tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
     exported_data = p.export_csv.values.first
-    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,time_delta_to_first_status,time_delta_to_last_status,time_original_media_publishing,type,contributing_users,tags,notes_count,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_1_question,task_1_answer_1_user,task_1_answer_1_date,task_1_answer_1_content,task_1_answer_1_note,translation_text_1,translation_language_1,translation_note_1"
+    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,time_delta_to_first_status,time_delta_to_last_status,time_original_media_publishing,type,contributing_users,tags,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_1_question,task_1_answer_1_user,task_1_answer_1_date,task_1_answer_1_content,task_1_answer_1_note,translation_text_1,translation_language_1,translation_note_1"
     assert_match(header, exported_data)
   end
 
