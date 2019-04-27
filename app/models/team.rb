@@ -59,7 +59,7 @@ class Team < ActiveRecord::Base
   end
 
   def owners(role, statuses = TeamUser.status_types)
-    self.users.joins(:team_users).where({'team_users.role': role, 'team_users.status': statuses})
+    self.users.where({'team_users.role': role, 'team_users.status': statuses})
   end
 
   def recent_projects
