@@ -42,7 +42,7 @@ class Bot::Alegre < ActiveRecord::Base
     rescue
       lang = nil
     end
-    lang
+    lang == 'und' ? nil : lang
   end
 
   def get_source_language(target)

@@ -45,6 +45,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should return null language if Alegre client throws exception or returns und" do
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      AlegreClient::Request.stubs(:get_languages_identification).raises(StandardError)
+      lang = @bot.get_language_from_alegre(@pm)
+      AlegreClient::Request.unstub(:get_languages_identification)
+      assert_nil lang
+      AlegreClient::Request.stubs(:get_languages_identification).returns({
+        'type' => 'language',
+        'data' => [['UND', 1.0]]
+      })
+      lang = @bot.get_language_from_alegre(@pm)
+      AlegreClient::Request.unstub(:get_languages_identification)
+      assert_nil lang
+    end
+  end
+
   test "should return null for language object if there is no annotation" do
     pm = create_project_media
     assert_nil @bot.language_object(pm)
@@ -55,23 +71,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_kind_of String, b.profile_image
   end
 
-  test "should return null language if Alegre client throws exception" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Request.stubs(:get_languages_identification).raises(StandardError)
-      lang = @bot.get_language_from_alegre(@pm)
-      AlegreClient::Request.unstub(:get_languages_identification)
-      assert_nil lang
-    end
-  end
-
-  test "should return no machine translations if Alegre client throws exception" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Request.stubs(:get_mt).raises(StandardError)
-      translations = @bot.get_mt_from_alegre(@pm, @pm.user)
-      AlegreClient::Request.unstub(:get_mt)
-      assert_equal [], translations
-    end
-  end
+  # test "should return no machine translations if Alegre client throws exception" do
+  #   stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+  #     AlegreClient::Request.stubs(:get_mt).raises(StandardError)
+  #     translations = @bot.get_mt_from_alegre(@pm, @pm.user)
+  #     AlegreClient::Request.unstub(:get_mt)
+  #     assert_equal [], translations
+  #   end
+  # end
 
   # test "should not link similar claims when none exist" do
   #   stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
