@@ -11,7 +11,14 @@ namespace :check do
       n = pms.count
       pms.find_each do |pm|
         i += 1
-        bot.get_language(pm)
+        lang = pm.text.blank? ? 'und' : bot.get_language_from_alegre(pm.text)
+        annotation = Dynamic.new
+        annotation.annotated = pm
+        annotation.annotator = bot
+        annotation.annotation_type = 'language'
+        annotation.disable_es_callbacks = Rails.env.to_s == 'test'
+        annotation.set_fields = { language: lang }.to_json
+        annotation.save(validate: false)
         print "#{i}/#{n}\r"
         $stdout.flush
       end
