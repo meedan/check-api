@@ -7,7 +7,7 @@ class BotUser < User
   has_one :team_bot
 
   devise
-  
+
   check_settings
 
   def email_required?
