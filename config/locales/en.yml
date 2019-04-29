@@ -417,32 +417,28 @@ en:
   mail_subject_delete_user: "[%{team}] A user was deleted"
   mail_body_delete_user: A user account was deleted and its content was reassigned
     to anonymous user %{id}
-  mail_subject_security_alert: "[Check] Security alert"
-  mail_body_security_ip_alert: "Hello,
-    <p>We noticed a new login attempt to your Check account %{username}, from a new (%{ip_address}).</p>
-    "
-  mail_body_security_device_alert: "Hello,
-    <p>We noticed a new login attempt to your Check account %{username}, from a new (%{device_name}) device.</p>
-    "
-  mail_body_security_failed_alert: "Hello,
-    <p>We noticed that someone tried to log into your account four consecutive times and failed. Here are the details of that attempt</p>
-    "
-  mail_footer_security_alert: "
-    <p>*Login Timestamp: %{timestamp}</p>
-    <p>*Browser: %{browser}</p>
-    <p>*Operating System: %{os}</p>
-    <p>*Location: %{location}</p>
-
-    <p>If this was you, you can safely disregard this email. If this wasn't you, 
-    please contact us at %{support_email} to reset your password to protect your account.</p>
-
-
-    <p>Thanks</p>
-    <p>— The Check team</p>
-    <p>Why are you receiving this email? You have turned on login security notifications from your profile privacy tab. To stop receiving these e-mails, please turn this setting off from the privacy tab.
-    Learn more about our %{privacy_policy}.</p>
-    "
-  privacy_policy: Privacy Policy
+  mail_security:
+    subject: "[Check] Security alert"
+    greeting: "Hi %{username},"
+    ip: "You’ve signed in from %{location}"
+    device: "You’ve signed in from %{browser} on %{platform}"
+    devise_name: "%{browser} on %{platform}"
+    failed: "Failed login attempts detected"
+    password_text: "change your password immediately"
+    device_text: "It looks like you recently signed into your Check account from a new device. 
+      If that’s not the case, you should %{change_password}"
+    ip_text: "It looks like you recently signed into your Check account from a new location. 
+      If that’s not the case, you should %{change_password}"
+    failed_text: "It looks like multiple attempts were made to login into your Check account. if this was you, you
+      can safely disregard this email. If this wasn't you, then you should %{change_password}"
+    time_h: "Time"
+    device_h: "Device"
+    location_h:  "Location"
+    ip_h: "IP Address"
+    privacy: "%{manage} your email notifications • Learn more about our %{privacy}"
+    privacy_text: 'Privacy Policy' 
+    manage_text: 'Manage'
+    copy_right: "Check by Meedan,1355 Market, Suite 488, San Francisco, CA 94103 United States"
   archive_keep_backup: Video Vault
   archive_pender_archive: Keep screenshots
   archive_archive_is: Archive.is

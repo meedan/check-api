@@ -40,10 +40,15 @@ class LoginActivity < ActiveRecord::Base
   end
 
   def send_failed_login_notification(user)
-  	period = eval(CONFIG['failed_attempts_period']).ago
-    failed_attempts = user.login_activities.where('success = ? AND created_at > ?', false, period).count
+  	conditions = { success: false }
+    last_notification = user.settings[:failed_notifications_time]
+    # TODO : add condition for last notification date
+    failed_attempts = user.login_activities.where(conditions).count
     if failed_attempts >= CONFIG['failed_attempts']
       SecurityMailer.delay.notify(user, 'failed', self)
+      user.settings[:failed_notifications_time] = self.created_at
+      user.skip_check_ability = true
+      user.save!
     end
   end
 end
