@@ -21,18 +21,21 @@ namespace :check do
       langs = {}
       threads = []
       i = 0
-      groups = texts.uniq.each_slice((uniq_texts.size / 20.0).ceil).to_a
-      groups.each do |group|
-        threads << Thread.new do
-          group.each do |text|
-            langs[text] = bot.get_language_from_alegre(text)
-            i += 1
-            print "#{i}/#{uniq_texts.size}\r"
-            $stdout.flush
+      size = (uniq_texts.size / 20.0).ceil
+      if size > 0
+        groups = texts.uniq.each_slice(size).to_a
+        groups.each do |group|
+          threads << Thread.new do
+            group.each do |text|
+              langs[text] = bot.get_language_from_alegre(text)
+              i += 1
+              print "#{i}/#{uniq_texts.size}\r"
+              $stdout.flush
+            end
           end
         end
+        threads.map(&:join)
       end
-      threads.map(&:join)
       puts "[#{Time.now}] Creating #{pms.count} media in #{teams.count} teams in memory first..."
       i = 0
       groups = []
