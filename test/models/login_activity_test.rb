@@ -84,7 +84,7 @@ class LoginActivityTest < ActiveSupport::TestCase
 
   test "should send security notification for failed attempts" do
     user = create_user
-    stub_configs({'failed_attempts' => 4, 'failed_attempts_period' => "1.hour"}) do
+    stub_configs({'failed_attempts' => 4}) do
       3.times do
         create_login_activity user: user, success: false
       end
@@ -93,7 +93,15 @@ class LoginActivityTest < ActiveSupport::TestCase
       end
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
         create_login_activity user: user, success: false
-      end 
+      end
+      assert_no_difference 'ActionMailer::Base.deliveries.size' do
+        3.times do
+          create_login_activity user: user, success: false
+        end
+      end
+      assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+        create_login_activity user: user, success: false
+      end
     end
   end
 
