@@ -48,7 +48,7 @@
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
                           <%= I18n.t("mail_security.#{@type}_text",
                             app_name: CONFIG['app_name'],
-                            change_password: link_to(t("mail_security.password_text"), "#{CONFIG['checkdesk_base_url']}/check/me/password-reset")).html_safe 
+                            change_password: link_to(t("mail_security.password_text"), "#{CONFIG['checkdesk_base_url']}/check/user/password-reset")).html_safe
                            %>
                         </div>
                       </div>

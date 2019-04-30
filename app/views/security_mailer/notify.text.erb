@@ -5,7 +5,7 @@
 
 <%= I18n.t("mail_security.#{@type}_text", app_name: CONFIG['app_name'],
   change_password: t("mail_security.password_text")) %>
-  <%= "#{CONFIG['checkdesk_base_url']}/check/me/password-reset" %>
+  <%= "#{CONFIG['checkdesk_base_url']}/check/user/password-reset" %>
 
 <%= I18n.t("mail_security.time_h") %> (<%= @timestamp %>)
 <%= I18n.t("mail_security.device_h") %> (<%= I18n.t("mail_security.devise_name", browser: @user_agent.browser, platform: @user_agent.platform) %>)
