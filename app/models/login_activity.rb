@@ -40,7 +40,6 @@ class LoginActivity < ActiveRecord::Base
   end
 
   def send_failed_login_notification(user)
-  	conditions = { success: false }
     last_notification = user.settings[:failed_notifications_time]
     if last_notification.nil?
       failed_attempts = user.login_activities.where(success: false).count
