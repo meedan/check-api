@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
-         :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
+         :omniauthable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
 
   before_create :skip_confirmation_for_non_email_provider
   after_create :create_source_and_account, :set_source_image, :send_welcome_email

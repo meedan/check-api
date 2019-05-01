@@ -32,12 +32,16 @@ module CheckExport
   end
 
   def export_project_media_annotations
-    @annotations.where(annotation_type: 'comment').to_enum.reverse_each.with_index.collect{ |c,i| Hash[
-      "note_date_#{i+1}": c.created_at,
-      "note_user_#{i+1}": c.annotator.name,
-      "note_content_#{i+1}": c.data['text']
+    @annotations.where(annotation_type: 'language').map(&:load).collect{ |l| Hash[
+      language: l.get_field_value('language')
     ]}.reduce({}){ |h,o| h.merge(o) }
     .merge(
+      @annotations.where(annotation_type: 'comment').to_enum.reverse_each.with_index.collect{ |c,i| Hash[
+        "note_date_#{i+1}": c.created_at,
+        "note_user_#{i+1}": c.annotator.name,
+        "note_content_#{i+1}": c.data['text']
+      ]}.reduce({}){ |h,o| h.merge(o) }
+    ).merge(
       @annotations.where(annotation_type: 'task').map(&:load).to_enum.reverse_each.with_index.collect do |t, i|
         task_hash = {
           "task_#{i+1}_question": t.label
@@ -71,9 +75,8 @@ module CheckExport
     annotations_count
   end
 
-  def export_comment_count(pm)
+  def export_comment_count(_pm)
     {
-      notes_count: pm.annotations.count,
       notes_ugc_count: @annotations.where(annotation_type: 'comment').count
     }
   end
@@ -87,6 +90,10 @@ module CheckExport
 
   def export_smooch_count(_pm)
     { number_of_requests: @annotations.where(annotation_type: 'smooch').count }
+  end
+
+  def export_smooch_response_count(_pm)
+    { responses_with_final_status_count: @annotations.where(annotation_type: 'smooch_response').count }
   end
 
   def export_csv(last_id = 0, annotation_types = ['comment', 'task', 'translation'])

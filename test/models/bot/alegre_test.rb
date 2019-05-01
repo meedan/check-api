@@ -20,18 +20,29 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
         assert_difference 'Annotation.count' do
-          assert_equal 'en', @bot.get_language_from_alegre(@pm)
+          assert_equal 'en', @bot.get_language(@pm)
         end
       end
     end
   end
 
-  test "should return null if there is an error" do
+  test "should return und if there is an error" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_error do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        assert_nil @bot.get_language_from_alegre(@pm)
+        assert_equal 'und', @bot.get_language(@pm)
       end
+      AlegreClient::Request.stubs(:get_languages_identification).raises(StandardError)
+      lang = @bot.get_language(@pm)
+      AlegreClient::Request.unstub(:get_languages_identification)
+      assert_equal 'und', lang
+      AlegreClient::Request.stubs(:get_languages_identification).returns({
+        'type' => 'language',
+        'data' => [['UND', 1.0]]
+      })
+      lang = @bot.get_language(@pm)
+      AlegreClient::Request.unstub(:get_languages_identification)
+      assert_equal 'und', lang
     end
   end
 
@@ -39,7 +50,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        assert_equal 'en', @bot.get_language_from_alegre(@pm)
+        assert_equal 'en', @bot.get_language(@pm)
         assert_equal 'en', @bot.language_object(@pm).value
       end
     end
@@ -55,23 +66,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_kind_of String, b.profile_image
   end
 
-  test "should return null language if Alegre client throws exception" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Request.stubs(:get_languages_identification).raises(StandardError)
-      lang = @bot.get_language_from_alegre(@pm)
-      AlegreClient::Request.unstub(:get_languages_identification)
-      assert_nil lang
-    end
-  end
-
-  test "should return no machine translations if Alegre client throws exception" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Request.stubs(:get_mt).raises(StandardError)
-      translations = @bot.get_mt_from_alegre(@pm, @pm.user)
-      AlegreClient::Request.unstub(:get_mt)
-      assert_equal [], translations
-    end
-  end
+  # test "should return no machine translations if Alegre client throws exception" do
+  #   stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+  #     AlegreClient::Request.stubs(:get_mt).raises(StandardError)
+  #     translations = @bot.get_mt_from_alegre(@pm, @pm.user)
+  #     AlegreClient::Request.unstub(:get_mt)
+  #     assert_equal [], translations
+  #   end
+  # end
 
   # test "should not link similar claims when none exist" do
   #   stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
