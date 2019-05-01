@@ -2,6 +2,9 @@ class SecurityMailer < ApplicationMailer
 	layout nil
 
   def notify(user, type, activity)
+    # Getting location
+    AuthTrail::GeocodeJob.perform_now(activity)
+    activity = activity.reload
   	@user = user
   	@type = type
   	email = user.email
