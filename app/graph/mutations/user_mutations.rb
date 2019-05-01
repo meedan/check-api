@@ -18,6 +18,8 @@ module UserMutations
     password: 'str',
     password_confirmation: 'str',
     send_email_notifications: 'bool',
+    send_successful_login_notifications: 'bool',
+    send_failed_login_notifications: 'bool',
     accept_terms: 'bool'
   }
 

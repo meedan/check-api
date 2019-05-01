@@ -28,3 +28,11 @@ Devise.setup do |config|
   config.mailer = 'DeviseMailer'
   config.invite_for = 1.day
 end
+
+# Disable geocode and calling it before send user notification
+# check devise.rb
+AuthTrail.geocode = false
+
+AuthTrail.exclude_method = lambda do |info|
+  info[:context] == "api/v1/graphql#create" || info[:failure_reason] == 'unconfirmed'
+end

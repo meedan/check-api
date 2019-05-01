@@ -88,6 +88,8 @@ module CheckBasicAbilities
     annotation_perms_for_all_users
 
     cannot :manage, ApiKey
+
+    can [:create, :update], LoginActivity
   end
 
   def annotation_perms_for_all_users
