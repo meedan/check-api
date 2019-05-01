@@ -654,11 +654,15 @@ class UserTest < ActiveSupport::TestCase
     Account.any_instance.unstub(:save)
   end
 
-  test "should set send_email_notifications" do
+  test "should set email notifications settings" do
     u = create_user
     u.send_email_notifications = true
+    u.send_successful_login_notifications = true
+    u.send_failed_login_notifications = true
     u.save!
     assert u.get_send_email_notifications
+    assert u.get_send_successful_login_notifications
+    assert u.get_send_successful_login_notifications
   end
 
   test "should destroy related items" do
