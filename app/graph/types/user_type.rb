@@ -17,6 +17,8 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :jsonsettings, types.String
   field :number_of_teams, types.Int
   field :get_send_email_notifications, types.Boolean
+  field :get_send_successful_login_notifications, types.Boolean
+  field :get_send_failed_login_notifications, types.Boolean
   field :bot_events, types.String
   field :is_bot, types.Boolean
   field :is_active, types.Boolean

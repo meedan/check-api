@@ -1,0 +1,25 @@
+<%= I18n.t("mail_security.greeting", username: @user.name) %>
+=======================================================
+<%= I18n.t("mail_security.#{@type}", browser: @user_agent.browser, platform: @user_agent.platform, location: @location) %>
+=======================================================
+
+<%= I18n.t("mail_security.#{@type}_text", app_name: CONFIG['app_name'],
+  change_password: t("mail_security.password_text")) %>
+  <%= "#{CONFIG['checkdesk_base_url']}/check/user/password-reset" %>
+
+<%= I18n.t("mail_security.time_h") %> (<%= @timestamp %>)
+<%= I18n.t("mail_security.device_h") %> (<%= I18n.t("mail_security.devise_name", browser: @user_agent.browser, platform: @user_agent.platform) %>)
+<%= I18n.t("mail_security.location_h") %> (<%= @location %>)
+<%= I18n.t("mail_security.ip_h") %> (<%= @ip %>)
+
+...
+
+<%= I18n.t("mail_security.privace_manage_plain") %>
+<%= "#{CONFIG['checkdesk_base_url']}/check/me/privacy" %>
+
+<%= I18n.t("mail_security.privacy_plain") %>
+<%= CONFIG['privacy_policy_url'] %>
+
+...
+
+<%= I18n.t("mail_security.copy_right", app_name: CONFIG['app_name']) %>
