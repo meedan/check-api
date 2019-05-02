@@ -86,21 +86,21 @@ class LoginActivityTest < ActiveSupport::TestCase
     user = create_user
     stub_configs({'failed_attempts' => 4}) do
       3.times do
-        create_login_activity user: user, success: false
+        create_login_activity user: nil, identity: user.email, success: false
       end
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
-        create_login_activity user: user, success: true
+        create_login_activity user: user, identity: user.email, success: true
       end
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
-        create_login_activity user: user, success: false
+        create_login_activity user: nil, identity: user.email, success: false
       end
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
         3.times do
-          create_login_activity user: user, success: false
+          create_login_activity user: nil, identity: user.email, success: false
         end
       end
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
-        create_login_activity user: user, success: false
+        create_login_activity user: nil, identity: user.email, success: false
       end
     end
   end
