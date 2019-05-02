@@ -1623,7 +1623,7 @@ class TeamTest < ActiveSupport::TestCase
     pm2 = create_project_media disable_es_callbacks: false, project: p
     create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
-    assert_equal ['en', 'pt', 'unidentified'], schema[:properties]['language'][:items][:enum].sort
+    assert_equal ['en', 'pt', 'und'], schema[:properties]['language'][:items][:enum].sort
     assert_not_nil schema[:properties][:sort][:properties][:deadline]
   end
 end
