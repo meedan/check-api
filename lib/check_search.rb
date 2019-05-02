@@ -86,7 +86,7 @@ class CheckSearch
 
   def number_of_items(collection, associated_type)
     return collection.size if collection.is_a?(Array)
-    return MediaSearch.gateway.client.count(body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?
+    return MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?
     user = User.current
     collection = collection.where(id: user.cached_assignments[:pmids]) if associated_type == 'ProjectMedia' && user && user.role?(:annotator)
     collection.limit(nil).reorder(nil).offset(nil).count
