@@ -35,7 +35,7 @@
                         </tr>
                       </table>
                       <div class="h1 notify-title__header" style="font-size: 40px; font-weight: bold; letter-spacing: -0.8px; line-height: 40px;">
-                        <%= I18n.t("mail_security.#{@type}", browser: @user_agent.browser, platform: @user_agent.platform,
+                        <%= I18n.t("mail_security.#{@type}", browser: @user_agent.browser, platform: @platform,
                           location: @location) 
                           %>
                         </div>
@@ -48,7 +48,7 @@
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
                           <%= I18n.t("mail_security.#{@type}_text",
                             app_name: CONFIG['app_name'],
-                            change_password: link_to(t("mail_security.password_text"), "#{CONFIG['checkdesk_base_url']}/check/user/password-reset")).html_safe
+                            change_password: link_to(t("mail_security.password_text"), "#{CONFIG['checkdesk_client']}/check/user/password-reset")).html_safe
                            %>
                         </div>
                       </div>
@@ -128,7 +128,7 @@
                                                 </table>
                                               </div>
                                               <div class="text-gray" style="color: #9a9a9a !important;"><span class="span" style="font-size: 15px; line-height: 15px;">
-                                                <%= I18n.t("mail_security.devise_name", browser: @user_agent.browser, platform: @user_agent.platform) %>
+                                                <%= I18n.t("mail_security.devise_name", browser: @user_agent.browser, platform: @platform) %>
                                                 </span>
                                               </div>
                                             </div>
