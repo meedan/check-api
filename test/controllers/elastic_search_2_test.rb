@@ -366,16 +366,20 @@ class ElasticSearch2Test < ActionController::TestCase
       pm = create_project_media project: p, disable_es_callbacks: false
       ids['unidentified'] << pm.id
     end
+    pm = create_project_media project: p, disable_es_callbacks: false
+    create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: 'und' }.to_json, disable_es_callbacks: false
+    ids['unidentified'] << pm.id
+
     sleep languages.size * 2
 
     unidentified_query = {
       dynamic: {
-        language: ["unidentified"]
+        language: ["und"]
       },
       projects: [p.id]
     }
     result = CheckSearch.new(unidentified_query.to_json)
-    assert_equal n, result.medias.size
+    assert_equal 4, result.medias.size
     assert_equal ids['unidentified'].sort, result.medias.map(&:id).sort
 
     other_query = {
