@@ -26,5 +26,5 @@ module TeamMutations
     empty_trash: 'int'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields, ['check_search_team', 'public_team'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields, ['check_search_team', 'check_search_trash', 'public_team'])
 end
