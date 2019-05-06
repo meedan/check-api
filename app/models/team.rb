@@ -161,6 +161,7 @@ class Team < ActiveRecord::Base
       ability = Ability.new
       if ability.can?(:destroy, :trash)
         self.affected_ids = self.trash.all.map(&:graphql_id)
+        self.trash.update_all(inactive: true)
         Team.delay_for(5.seconds).empty_trash(self.id)
       else
         raise I18n.t(:permission_error, "Sorry, you are not allowed to do this")
