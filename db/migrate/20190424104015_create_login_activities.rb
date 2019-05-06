@@ -11,9 +11,6 @@ class CreateLoginActivities < ActiveRecord::Migration
       t.string :ip
       t.text :user_agent
       t.text :referrer
-      t.string :city
-      t.string :region
-      t.string :country
       t.datetime :created_at
     end
 
