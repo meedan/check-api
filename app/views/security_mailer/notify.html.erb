@@ -36,7 +36,7 @@
                       </table>
                       <div class="h1 notify-title__header" style="font-size: 40px; font-weight: bold; letter-spacing: -0.8px; line-height: 40px;">
                         <%= I18n.t("mail_security.#{@type}", browser: @user_agent.browser, platform: @platform,
-                          location: @location) 
+                          location: @location)
                           %>
                         </div>
                       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
@@ -155,7 +155,8 @@
                                                   </tr>
                                                 </table>
                                               </div>
-                                              <div class="text-gray" style="color: #9a9a9a !important;"><span class="span" style="font-size: 15px; line-height: 15px;"><%= @location %></span>
+                                              <div class="text-gray" style="color: #9a9a9a !important;"><span class="span" style="font-size: 15px; line-height: 15px;"><%= @location %></span><br/>
+                                                <span class="span" style="font-size: 15px; line-height: 15px;"><%= I18n.t("mail_security.location_disclaimer") %></span>
                                                 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                                                   <tr class="rowgap" style="display: block;">
                                                     <td style="border-collapse: collapse; font-size: 5px; line-height: 1;">&nbsp;</td>
@@ -190,7 +191,7 @@
                                               </div>
                                             </div>
                                           </th>
-                                          
+
                                         </tr>
                                       </table>
                                     </div>
@@ -235,4 +236,4 @@
                     </style>
 
 <%= render partial: "footer" %>
-                 
+

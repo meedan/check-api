@@ -202,7 +202,7 @@ fr:
       user_invited: "%{user} a été invité de se joindre à l'équipe %{team}"
       user_banned: "%{user} a été banni de l'équipe %{team}"
   mail_view_welcome: Bienvenue sur %{app_name}
-  mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Veuillez confirmer votre courriel en cliquant ce lien :'
+  mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Veuillez confirmer votre e-mail en cliquant ce lien :'
   mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
   mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} n'a pas été approuvée.
   mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur %{app_name} !"
@@ -211,7 +211,7 @@ fr:
   mail_duplicate_email_exists: Votre connexion à %{app_name}
   mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte %{app_name} via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à %{app_name} via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
   mail_duplicate_email_exists_body_both_emails: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de créer un nouveau compte %{app_name}, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
-  mail_duplicate_email_exists_email: courriel
+  mail_duplicate_email_exists_email: e-mail
   slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à l'équipe %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.
   admin:
     actions:
@@ -317,7 +317,7 @@ fr:
         ignore: Si vous ne voulez pas accepter l'invitation, veuillez ignorer ce message.
         app_team: "Équipe %{app}"
     failure:
-      unconfirmed: Veuillez consulter votre courrier pour vérifier votre compte.
+      unconfirmed: Veuillez consulter votre boîte de réception pour vérifier votre compte.
   user_invitation:
     invited: Cette personne a déjà été invitée à cette équipe.
     member: Cette personne est déjà membre de cette équipe.
@@ -347,6 +347,30 @@ fr:
   mail_subject_unassign_project: "[%{team} - %{project}] Votre affectation à un projet a été annulée"
   mail_subject_delete_user: "[%{team}] Un compte a été supprimé"
   mail_body_delete_user: Un compte d'utilisateur a été supprimé; les éléments associés ont été rattachés à l'usager anonyme %{id}
+  mail_security:
+    device_subject: "Alerte de sécurité : Nouvelle connexion à %{app_name} de %{browser} sur %{platform}"
+    ip_subject: "Alerte de sécurité : Connexion à %{app_name} nouvelle ou inhabituelle"
+    failed_subject: "Alerte de sécurité : Tentatives de connexion échouées à %{app_name} "
+    greeting: "Bonjour %{username},"
+    ip: "Vous vous êtes connecté.e de %{location}"
+    device: "Vous vous êtes connecté.e à partir de %{browser} sur %{platform}"
+    devise_name: "%{browser} sur %{platform}"
+    failed: "Tentatives de connexion échouées détectées"
+    password_text: "réinitialiser votre mot de passe immédiatement."
+    device_text: "Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel appareil. Si ce n'était pas vous, alors vous devriez %{change_password}"
+    ip_text: "Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel emplacement. Si ce n'était pas vous, alors vous devriez %{change_password}"
+    failed_text: "Il semble que plusieurs tentatives de connexion à votre compte sur %{app_name} aient été effectuées. Si c'était vous, vous pouvez ignorer ce message. Si ce n'était pas vous, alors vous devriez %{change_password}"
+    time_h: "Date et heure"
+    device_h: "Appareil"
+    location_h: "Emplacement"
+    location_disclaimer: "* L'emplacement est approximatif en fonction de l'adresse IP d'origine."
+    ip_h: "Adresse IP"
+    privacy: "%{manage} vos notifications par e-mail • En savoir plus sur notre %{privacy}"
+    privacy_text: 'politique de confidentialité'
+    manage_text: 'Gérer'
+    privace_manage_plain: "Gérer vos notifications par e-mail"
+    privacy_plain: "En savoir plus sur notre politique de confidentialité "
+    copy_right: "%{app_name} par Meedan"
   archive_keep_backup: Video Vault
   archive_pender_archive: copies d'écran de Keep
   archive_archive_is: Archive.is
