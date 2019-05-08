@@ -443,7 +443,7 @@ en:
     manage_text: 'Manage'
     privace_manage_plain: "Manage your email notifications"
     privacy_plain: "Learn more about our Privacy Policy"
-    copy_right: "%{app_name} by Meedan"
+    copyright_html: "%{app_name} by <a href=\"https://meedan.com\">Meedan</a>"
   archive_keep_backup: Video Vault
   archive_pender_archive: Keep screenshots
   archive_archive_is: Archive.is

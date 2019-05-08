@@ -347,6 +347,8 @@ es:
   mail_subject_unassign_project: "[%{team} - %{project}] Se te ha desasignado un proyecto"
   mail_subject_delete_user: "[%{team}] Un usuario fue eliminado"
   mail_body_delete_user: Una cuenta de usuario se eliminó y su contenido se reasignó a un usuario anónimo%{id}
+  mail_security:
+    privacy_text: 'Política de Privacidad'
   archive_keep_backup: Video Vault
   archive_pender_archive: capturas de pantalla de Keep
   archive_archive_is: Archive.is

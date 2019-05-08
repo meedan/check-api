@@ -370,7 +370,7 @@ fr:
     manage_text: 'Gérer'
     privace_manage_plain: "Gérer vos notifications par e-mail"
     privacy_plain: "En savoir plus sur notre politique de confidentialité "
-    copy_right: "%{app_name} par Meedan"
+    copyright_html: "%{app_name} par <a href=\"https://meedan.com\">Meedan</a>"
   archive_keep_backup: Video Vault
   archive_pender_archive: copies d'écran de Keep
   archive_archive_is: Archive.is
