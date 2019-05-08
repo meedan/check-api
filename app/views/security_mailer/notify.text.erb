@@ -10,6 +10,7 @@
 <%= I18n.t("mail_security.device_h").upcase %> (<%= I18n.t("mail_security.devise_name", browser: @user_agent.browser, platform: @platform) %>)
 <%= I18n.t("mail_security.location_h").upcase %> (<%= @location %>)
 <%= I18n.t("mail_security.location_disclaimer") %>
+<%= I18n.t("mail_security.ip_h").upcase %> (<%= @ip %>)
 
 ...
 
@@ -21,4 +22,5 @@
 
 ...
 
-<%= I18n.t("mail_security.copy_right", app_name: CONFIG['app_name']) %>
+<%= raw I18n.t("mail_security.copyright_html", app_name: CONFIG['app_name']) %>
+https://meedan.com

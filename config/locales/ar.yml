@@ -386,7 +386,7 @@ ar:
     manage_text: 'إدارة'
     privace_manage_plain: "إدارة تنبيهات للبريد الإلكتروني الخاصة بك"
     privacy_plain: "معرفة المزيد عن سياسة الخصوصية"
-    copy_right: "%{app_name} من Meedan"
+    copyright_html: "%{app_name} من <a href=\"https://meedan.com\">Meedan</a>"
   archive_keep_backup: Video Vault
   archive_pender_archive: لقطات الشاشة من Keep
   archive_archive_is: Archive.is
