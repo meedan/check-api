@@ -15,8 +15,8 @@ namespace :check do
       o.parse!(args)
 
       # List the image paths.
-      i = ProjectMedia.where(:project_id => options[:project]).joins(:media).where('medias.type=?', 'UploadedImage').collect{|pm| pm.media.file.file.file}
-      i.each { |element| puts(element) }
+      pms = ProjectMedia.where(:project_id => options[:project]).joins(:media).where('medias.type=?', 'UploadedImage')
+      pms.each { |pm| puts(pm.media.file.file.file) }
     end
   end
 end
