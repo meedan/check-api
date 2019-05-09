@@ -229,4 +229,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     lang = @bot.send(:save_language, @pm, 'en')
     assert lang.sent_to_pusher
   end
+
+  test "should return true when bot is called successfully" do
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      AlegreClient::Mock.mock_languages_identification_returns_text_language do
+        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+        assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' }.to_json)
+      end
+    end
+  end
+
+  test "should return false when bot cannot be called" do
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      AlegreClient::Mock.mock_languages_identification_returns_text_language do
+        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+        assert !Bot::Alegre.run({ event: 'create_project_media' }.to_json)
+      end
+    end
+  end
 end

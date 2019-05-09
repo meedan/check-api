@@ -9,8 +9,8 @@ class Bot::Alegre < ActiveRecord::Base
       pm = ProjectMedia.where(id: data['data']['dbid']).last
       unless data['event'] != 'create_project_media' or pm.nil? or CONFIG['alegre_host'].blank? or CONFIG['alegre_token'].blank?
         Bot::Alegre.default.get_language(pm)
-        #Bot::Alegre.default.create_empty_mt_annotation(pm)
-        #Bot::Alegre.default.create_similarities_from_alegre(pm)
+        # Bot::Alegre.default.create_empty_mt_annotation(pm)
+        # Bot::Alegre.default.create_similarities_from_alegre(pm)
       end
       true
     rescue StandardError => e
