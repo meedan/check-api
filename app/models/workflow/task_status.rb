@@ -1,6 +1,8 @@
 class Workflow::TaskStatus < Workflow::Base
   check_default_task_workflow
 
+  check_workflow from: :any, to: :resolved, actions: :send_mail_notification
+
   def self.core_default_value
     'unresolved'
   end
@@ -45,6 +47,16 @@ class Workflow::TaskStatus < Workflow::Base
         task.skip_notifications = true
         task.skip_check_ability = true
         task.save!(:validate => false)
+      end
+    end
+  end
+
+  DynamicAnnotation::Field.class_eval do
+    protected
+
+    def send_mail_notification
+      if self.annotation.annotated_type == 'Task'
+        TaskMailer.delay.notify(self.to_s.downcase, self.annotation.annotated, self.annotation.annotator)
       end
     end
   end

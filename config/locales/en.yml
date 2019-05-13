@@ -444,6 +444,10 @@ en:
     privace_manage_plain: "Manage your email notifications"
     privacy_plain: "Learn more about our Privacy Policy"
     copyright_html: "%{app_name} by <a href=\"https://meedan.com\">Meedan</a>"
+  mail_task:
+    resolved_subject: "[%{team} - %{project}] Task Answered"
+    header: 'Task Answered'
+    section_title: 'Who or what is the source of the claim?'
   archive_keep_backup: Video Vault
   archive_pender_archive: Keep screenshots
   archive_archive_is: Archive.is
