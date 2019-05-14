@@ -168,6 +168,10 @@ class Project < ActiveRecord::Base
     CheckSearch.id({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] })
   end
 
+  def search
+    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
+  end
+
   def languages=(languages)
     self.send(:set_languages, languages)
   end

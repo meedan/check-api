@@ -14,6 +14,7 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :pusher_channel, types.String
   field :medias_count, types.Int
   field :search_id, types.String
+  field :search, CheckSearchType
   field :auto_tasks, JsonStringType
   field :team, TeamType
   
