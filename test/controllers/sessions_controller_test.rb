@@ -15,6 +15,9 @@ class SessionsControllerTest < ActionController::TestCase
     post :create, api_user: { email: 'test@test.com', password: '12345678' }
     assert_response :success
     assert_not_nil @controller.current_api_user
+    # test login activities creation
+    assert_not_empty u.login_activities
+    assert_equal [true], u.login_activities.map(&:success)
   end
 
   test "should not login if password is wrong" do

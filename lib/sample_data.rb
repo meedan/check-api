@@ -27,6 +27,10 @@ module SampleData
     name.downcase
   end
 
+  def random_ip
+    "%d.%d.%d.%d" % [rand(256), rand(256), rand(256), rand(256)]
+  end
+
   def create_api_key(options = {})
     a = ApiKey.new
     options.each do |key, value|
@@ -796,5 +800,17 @@ module SampleData
     end
     tt.save!
     tt
+  end
+
+  def create_login_activity(options = {})
+    la = LoginActivity.new
+    la.user = options.has_key?(:user) ? options[:user] : create_user
+    user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"
+    options = { identity: random_email, context: "api/v1/sessions#create", ip: random_ip, user_agent: user_agent }.merge(options)
+    options.each do |key, value|
+      la.send("#{key}=", value) if la.respond_to?("#{key}=")
+    end
+    la.save!
+    la.reload
   end
 end

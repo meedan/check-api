@@ -64,8 +64,21 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
         secret: 'top_secret'
       }
     })
+    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new({
+      provider: 'google_oauth2',
+      uid: '654321',
+      info: {
+        name: 'Test',
+        email: 'test@test.com',
+        image: 'http://google.com/test/image.png',
+      },
+      credentials: {
+        token: '123456',
+        secret: 'top_secret'
+      }
+    })
     request.env['devise.mapping'] = Devise.mappings[:api_user]
-    ['https://twitter.com/test', 'https://facebook.com/654321'].each do |url|
+    ['https://twitter.com/test', 'https://facebook.com/654321', 'https://www.googleapis.com/plus/v1/people/654321'].each do |url|
       WebMock.stub_request(:get, CONFIG['pender_url_private'] + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"type":"profile"}}')
     end
     User.current = nil
@@ -184,6 +197,25 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     get :twitter
     u = User.find(u.id)
     assert_equal 1, u.source.accounts.count
+  end
+
+  test "should redirect to root after Google authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
+    get :google_oauth2
+    assert_redirected_to '/api'
+  end
+
+  test "should set information in session after Google authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
+    assert_nil session['checkdesk.user']
+    get :google_oauth2
+    assert_not_nil session['checkdesk.current_user_id']
+  end
+
+  test "should redirect to destination after Google authentication" do
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
+    get :google_oauth2, destination: '/close.html'
+    assert_redirected_to '/close.html'
   end
 
   def teardown

@@ -801,12 +801,16 @@ class TeamTest < ActiveSupport::TestCase
   test "should empty trash in background" do
     Sidekiq::Testing.fake! do
       t = create_team
+      p = create_project team: t
+      3.times { create_project_media(project: p, archived: true) }
       u = create_user
       create_team_user user: u, team: t, role: 'owner'
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
+      assert_equal 0, p.reload.project_medias.where(inactive: true).count
       with_current_user_and_team(u, t) do
        t.empty_trash = 1
+       assert_equal 3, p.reload.project_medias.where(inactive: true).count
       end
       assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
     end
@@ -1623,7 +1627,7 @@ class TeamTest < ActiveSupport::TestCase
     pm2 = create_project_media disable_es_callbacks: false, project: p
     create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
-    assert_equal ['en', 'pt', 'unidentified'], schema[:properties]['language'][:items][:enum].sort
+    assert_equal ['en', 'pt', 'und'], schema[:properties]['language'][:items][:enum].sort
     assert_not_nil schema[:properties][:sort][:properties][:deadline]
   end
 end

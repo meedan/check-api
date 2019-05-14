@@ -252,7 +252,7 @@ class Bot::Smooch
 
   def self.get_language(message)
     text = message['text'].to_s
-    lang = text.blank? ? nil : Bot::Alegre.default.get_language_from_alegre_for_text(text)
+    lang = text.blank? ? nil : Bot::Alegre.default.get_language_from_alegre(text)
     lang = 'en' if lang.blank? || !I18n.available_locales.include?(lang.to_sym)
     lang
   end

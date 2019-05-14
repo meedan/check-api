@@ -17,10 +17,11 @@ class User < ActiveRecord::Base
   has_many :project_sources
   has_many :project_medias
   has_many :sources
+  has_many :login_activities
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
-         :omniauthable, omniauth_providers: [:twitter, :facebook, :slack]
+         :omniauthable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
 
   before_create :skip_confirmation_for_non_email_provider
   after_create :create_source_and_account, :set_source_image, :send_welcome_email
@@ -218,8 +219,15 @@ class User < ActiveRecord::Base
   end
 
   def send_email_notifications=(enabled)
-    enabled = enabled == "1" ? true : false if enabled.class.name == "String"
-    self.send(:set_send_email_notifications, enabled)
+    set_user_notification_settings('send_email_notifications', enabled)
+  end
+
+  def send_successful_login_notifications=(enabled)
+    set_user_notification_settings('send_successful_login_notifications', enabled)
+  end
+
+  def send_failed_login_notifications=(enabled)
+    set_user_notification_settings('send_failed_login_notifications', enabled)
   end
 
   def profile_image

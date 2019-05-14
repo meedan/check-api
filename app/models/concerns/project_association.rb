@@ -7,6 +7,10 @@ module ProjectAssociation
     self.project.team.check_search_team
   end
 
+  def check_search_trash
+    self.project.team.check_search_trash
+  end
+
   def check_search_project(project = nil)
     project ||= self.project
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => project.id }, 'projects' => [project.id] }.to_json)

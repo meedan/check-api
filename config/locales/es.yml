@@ -347,6 +347,8 @@ es:
   mail_subject_unassign_project: "[%{team} - %{project}] Se te ha desasignado un proyecto"
   mail_subject_delete_user: "[%{team}] Un usuario fue eliminado"
   mail_body_delete_user: Una cuenta de usuario se eliminó y su contenido se reasignó a un usuario anónimo%{id}
+  mail_security:
+    privacy_text: 'Política de Privacidad'
   archive_keep_backup: Video Vault
   archive_pender_archive: capturas de pantalla de Keep
   archive_archive_is: Archive.is
@@ -503,7 +505,7 @@ es:
   team_import_completed_subject: Tu importación de datos se ha completado
   team_import_completed_mail: "<p>Hola,</p><p>Se ha completado la importación de datos en %{app_name}.  Puedes mirar %{worksheet_url}para revisar el estado de cada ítem a importar.</p><p>nota que puedes reiniciar la importación después de corregir cualquier error que se informe allí - los ítems previamente- importados no se duplicarán. <p>—El equipo %{app_name}</p>"
   pender_url_invalid: Este enlace es inválido
-  pender_url_unsafe: Este enlace es inseguro
+  pender_url_unsafe: Este enlace no es seguro
   verification_status_deadline: 'Fecha límite '
   verification_status_deadline_asc: Menor tiempo posible
   verification_status_deadline_desc: Mayor tiempo posible

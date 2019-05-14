@@ -395,13 +395,11 @@ class ElasticSearch3Test < ActionController::TestCase
     sleep 3
 
     result = MediaSearch.find(get_es_id(pm))
-    puts result
     assert_equal [2], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
     s1.destroy
     sleep 1
 
     result = MediaSearch.find(get_es_id(pm))
-    puts result
     assert_equal [1], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
   end
 end

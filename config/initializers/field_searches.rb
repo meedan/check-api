@@ -27,7 +27,7 @@ Dynamic.class_eval do
       labels << I18n.t(:other_language)
     end
 
-    keys << "unidentified"
+    keys << "und"
     labels << I18n.t(:unidentified_language)
 
     { type: 'array', title: I18n.t(:annotation_type_language_label), items: { type: 'string', enum: keys, enumNames: labels } }
@@ -92,13 +92,21 @@ Dynamic.class_eval do
 
   # How a field should be SEARCHED
 
+  def self.languages_present_query(queries)
+    { nested: { path: 'dynamics', query: { bool: { should: queries }}}}
+  end
+
   def self.field_search_query_type_language(values)
     bool = []
     other = values.select{ |v| v =~ /^not:/ }.last
-    unidentified = values.select{ |v| v == 'unidentified' }
+    unidentified = values.select{ |v| v == 'und' }
     values -= [other, unidentified]
+
+    field_language_exists = { nested: { path: "dynamics", query: { exists: { field: "dynamics.language" }}}}
+
     if other
       langs = other.gsub('not:', '').split(',')
+      langs << 'und'
       queries = []
       langs.each do |value|
         queries << { term: { "dynamics.language": value } }
@@ -106,26 +114,8 @@ Dynamic.class_eval do
       unless queries.empty?
         bool << {
           bool: {
-            must: {
-                nested: {
-                path: "dynamics",
-                query: {
-                  exists: {
-                    field: "dynamics.language"
-                  }
-                }
-              }
-            },
-            must_not: {
-              nested: {
-                path: 'dynamics',
-                query: {
-                  bool: {
-                    should: queries
-                  }
-                }
-              }
-            }
+            must: field_language_exists,
+            must_not: languages_present_query(queries)
           }
         }
       end
@@ -133,17 +123,13 @@ Dynamic.class_eval do
 
     if !unidentified.empty?
       queries = []
+      queries << { term: { "dynamics.language": 'und' } }
       bool << {
         bool: {
-          must_not: [{
-            nested: {
-            path: "dynamics",
-            query: {
-              exists: {
-                field: "dynamics.language"
-              }
-            }
-          }}]
+          should: [
+            { bool: { must: languages_present_query(queries) }},
+            { bool: { must_not: field_language_exists }}
+          ]
         }
       }
     end
@@ -153,16 +139,7 @@ Dynamic.class_eval do
       queries << { term: { "dynamics.language": value } }
     end
     unless queries.empty?
-      bool << {
-        nested: {
-          path: 'dynamics',
-          query: {
-            bool: {
-              should: queries
-            }
-          }
-        }
-      }
+      bool << languages_present_query(queries)
     end
 
     { bool: { should: bool } }
