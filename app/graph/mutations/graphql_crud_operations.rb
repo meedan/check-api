@@ -184,6 +184,8 @@ class GraphqlCrudOperations
     if name == 'project_media'
       obj = self.define_optimistic_fields_for_project_media(obj, inputs, name)
     end
+     
+    obj.define_singleton_method(:number_of_results) { 0 } if inputs['empty_trash']
 
     obj
   end

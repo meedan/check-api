@@ -347,6 +347,30 @@ pt:
   mail_subject_unassign_project: "[%{team} - %{project}] Um projeto foi desatribuído de você"
   mail_subject_delete_user: "[%{team}] Um usuário foi excluído"
   mail_body_delete_user: Uma conta de usuário foi excluída e seu conteúdo foi reatribuído para usuário anônimo %{id}
+  mail_security:
+    device_subject: "Alerta de segurança: Novo login em %{app_name} pelo %{browser} em %{platform}"
+    ip_subject: "Alerta de segurança: Login novo ou incomum em %{app_name}"
+    failed_subject: "Alerta de segurança: Tentativas de login em %{app_name} falharam"
+    greeting: "Olá %{username},"
+    ip: "Você se conectou de %{location}"
+    device: "Você se conectou pelo %{browser} em %{platform}"
+    devise_name: "%{browser} em %{platform}"
+    failed: "Tentativas de login com falha foram detectadas"
+    password_text: "redefina sua senha imediatamente."
+    device_text: "Parece que você recentemente entrou em sua conta do %{app_name} a partir de um novo dispositivo. Se não é o caso, você deveria %{change_password}"
+    ip_text: "Parece que você recentemente entrou em sua conta do %{app_name} a partir de uma nova localização. Se não foi você, você deveria %{change_password}"
+    failed_text: "Parece que foram feitas múltiplas tentativas de login em sua conta do %{app_name}. Se foi você, pode desconsiderar este email. Se não foi você, você deveria %{change_password}"
+    time_h: "Horário"
+    device_h: "Dispositivo"
+    location_h: "Localização"
+    location_disclaimer: "* A localização é estimada com base no endereço IP de origem."
+    ip_h: "Endereço IP"
+    privacy: "%{manage} suas notificações de email • Saiba mais sobre nossa %{privacy}"
+    privacy_text: 'Política de Privacidade'
+    manage_text: 'Gerenciar'
+    privace_manage_plain: "Gerenciar suas notificações de email"
+    privacy_plain: "Saiba mais sobre nossa Política de Privacidade"
+    copyright_html: "%{app_name} por <a href=\"https://meedan.com\">Meedan</a>"
   archive_keep_backup: Video Vault
   archive_pender_archive: capturas de tela com Keep
   archive_archive_is: Archive.is

@@ -393,6 +393,11 @@ ro:
 
       Pentru a spune da, *vă rugăm să răspundeți cu 1*. Orice alt răspuns va pune sfârșit conversației noastre.
   smooch_bot_window_closing: Numărul solicitărilor în lucru este foarte mare și deocamdată nu am reușit să soluționăm solicitarea dvs. Vă mulțumim pentru că ne-ați transmis-o. Dacă aveți alte mesaje pentru noi, vă rugăm să le trimiteți.
+  smooch_bot_not_final: '[Raport de verificare - CORECTARE] Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în coada de așteptare pentru verificări ulterioare.'
+  smooch_bot_result_changed: |-
+      [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
+
+      Aceștea sunt pașii, pe care le-am efectuat pentru a determina acest lucru: %{url}
   project_export_download_mail_csv: |-
       Salut!
 
@@ -501,6 +506,7 @@ ro:
   team_import_completed_subject: Importul de date s-a finalizat
   team_import_completed_mail: "<p>Salut,</p> <p>Activitatea dvs de import de date în %{app_name} s-a finalizat. Puteți accesa %{worksheet_url} pentru a vedea starea fiecărui element ce urma să fie importat.</p> <p>Atenție! Puteți porni importul repetat după ce corectați erorile raportate acolo - elementele importate anterior nu vor fi dublate.</p> <p>— Echipa %{app_name} </p>"
   pender_url_invalid: Acest link nu este valid.
+  pender_url_unsafe: Acest link nu este sigur.
   verification_status_deadline: Termen limită
   verification_status_deadline_asc: Scadent cel devreme
   verification_status_deadline_desc: Scadent cel târziu
@@ -509,3 +515,9 @@ ro:
   embed_collapse_all: Restrângeți totul
   embed_tasks: Sarcini
   embed_description: Descriere
+  other_language: Altceva
+  unidentified_language: Neidentificată
+  relationship_item_has_parent: Acest elemente este deja fiul unui alt element.
+  smooch_requests: Solicitări
+  smooch_requests_asc: Cel mai puțin solicitat
+  smooch_requests_desc: Cel mai solicitat

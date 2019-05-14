@@ -74,5 +74,10 @@ module UserPrivate
     count += ProjectSource.where(user_id: self.id).count
     return false if count > 0
   end
+
+  def set_user_notification_settings(type, enabled)
+    enabled = enabled == "1" ? true : false if enabled.class.name == "String"
+    self.send(:"set_#{type}", enabled)
+  end
   
 end

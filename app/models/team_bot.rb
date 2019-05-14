@@ -83,7 +83,7 @@ class TeamBot < ActiveRecord::Base
       Team.current = current_team
       JSON.parse(result.to_json)['data']['node']
     rescue StandardError => e
-      Rails.logger.error("[Bots] Error performing GraphQL query: #{e.message}")
+      Rails.logger.error("[Bot Garden] Error performing GraphQL query: #{e.message}")
       { error: "Error performing GraphQL query" }.with_indifferent_access
     end
   end

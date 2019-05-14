@@ -172,6 +172,7 @@ class Ability
     end
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Source, :team_id => @context_team.id
+    can :destroy, Relationship, { user_id: @user.id, source: { project: { team_id: @context_team.id } }, target: { project: { team_id: @context_team.id } }}
     can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     can :create, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include?(@context_team.id) and (flag.flag.to_s == 'Mark as graphic') and !flag.annotated_is_archived?

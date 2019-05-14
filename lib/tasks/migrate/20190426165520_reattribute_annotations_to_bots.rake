@@ -35,6 +35,7 @@ namespace :check do
             versions = []
           end
         end
+        PaperTrail::Version.import(versions, recursive: false, validate: false) if versions.size > 0
         puts "[#{Time.now}] Done!"
         puts "[#{Time.now}] Attributing #{n} annotations to #{bot_identifier.capitalize} bot"
         Annotation.where(annotation_type: annotation_types).where(['annotator_id IS NULL OR annotator_id != ?', bot.id]).update_all({ annotator_type: 'BotUser', annotator_id: bot.id })

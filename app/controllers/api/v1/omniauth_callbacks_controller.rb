@@ -4,6 +4,7 @@ module Api
       include TwitterAuthentication
       include FacebookAuthentication
       include SlackAuthentication
+      include GoogleAuthentication
 
       def logout
         sign_out current_api_user

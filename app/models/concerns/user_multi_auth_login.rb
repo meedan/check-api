@@ -4,7 +4,7 @@ module UserMultiAuthLogin
   extend ActiveSupport::Concern
 
   included do
-  	LOGINPROVIDERS = %w[slack twitter facebook]
+  	LOGINPROVIDERS = %w[slack twitter facebook google_oauth2]
 
 	  def self.from_omniauth(auth, current_user=nil)
 	    self.update_facebook_uuid(auth)

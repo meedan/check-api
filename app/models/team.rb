@@ -161,7 +161,8 @@ class Team < ActiveRecord::Base
       ability = Ability.new
       if ability.can?(:destroy, :trash)
         self.affected_ids = self.trash.all.map(&:graphql_id)
-        Team.delay.empty_trash(self.id)
+        self.trash.update_all(inactive: true)
+        Team.delay_for(5.seconds).empty_trash(self.id)
       else
         raise I18n.t(:permission_error, "Sorry, you are not allowed to do this")
       end
@@ -181,6 +182,10 @@ class Team < ActiveRecord::Base
 
   def check_search_team
     CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
+  end
+
+  def check_search_trash
+    CheckSearch.new({ 'archived' => 1, 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end
 
   def public_team
