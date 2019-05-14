@@ -184,6 +184,10 @@ class Team < ActiveRecord::Base
     CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end
 
+  def search
+    self.check_search_team
+  end
+
   def check_search_trash
     CheckSearch.new({ 'archived' => 1, 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end

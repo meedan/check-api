@@ -1630,4 +1630,9 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal ['en', 'pt', 'und'], schema[:properties]['language'][:items][:enum].sort
     assert_not_nil schema[:properties][:sort][:properties][:deadline]
   end
+
+  test "should return search object" do
+    t = create_team
+    assert_kind_of CheckSearch, t.search
+  end
 end

@@ -857,4 +857,9 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should return search object" do
+    p = create_project
+    assert_kind_of CheckSearch, p.search
+  end
 end
