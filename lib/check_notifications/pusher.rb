@@ -68,7 +68,7 @@ module CheckNotifications
       end
 
       def parse_data(data)
-        whitelist = [:annotation_type, :annotated_id, :id, :source_id, :lock_version, :class_name, :user_id, :annotator_id]
+        whitelist = [:annotation_type, :annotated_id, :id, :source_id, :lock_version, :class_name, :user_id, :annotator_id, :target_id]
         JSON.parse(data).reject{ |k, _v| !whitelist.include?(k.to_sym) }
       end
 
