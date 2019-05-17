@@ -21,9 +21,9 @@ class Relationship < ActiveRecord::Base
 
   notifies_pusher on: [:save, :destroy],
                   event: 'relationship_change',
-                  targets: proc { |r| r.source.nil? ? [] : [r.source.media] }, bulk_targets: proc { |r| [r.source.media] },
+                  targets: proc { |r| r.source.nil? ? [] : [r.source.media, r.target.media] }, bulk_targets: proc { |r| [r.source.media, r.target.media] },
                   if: proc { |r| !r.skip_notifications },
-                  data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id }.to_json : r.to_json }
+                  data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id, target_id: r.target_id }.to_json : r.to_json }
 
   def siblings(inclusive = false, limit = 50)
     query = Relationship
