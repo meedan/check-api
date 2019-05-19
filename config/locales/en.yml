@@ -415,17 +415,19 @@ en:
   mail_body_delete_user: A user account was deleted and its content was reassigned
     to anonymous user %{id}
   mails_notifications:
-    greeting: "Hello %{username},"
     unsubscribe: 'Unsubscribe'
     unsubscribe_link: "%{unsubscribe} from these notifications"
+    copyright_html: "%{app_name} by <a href=\"https://meedan.com\">Meedan</a>"
     task_resolved:
       subject: "[%{team} - %{project}] Task Answered"
       header_title: 'Task Answered'
       section_title: 'Who or what is the source of the claim?'
     media_status:
+      greeting: "Hello,"
+      label: 'media'
       subject: "[%{team} - %{project}] A media item status was marked as %{status}"
       header_title: 'Media Status Updated'
-      header_text: " %{author} updated a  media item in project <strong>%{project}</strong> in %{team}."
+      header_text: " %{author} updated a media item in project %{project} in %{team}."
       section_title: "Marked as %{status}."
       added_to: "Added to %{app_name}"
       update_h: 'Last Update'
@@ -457,7 +459,6 @@ en:
     manage_text: 'Manage'
     privace_manage_plain: "Manage your email notifications"
     privacy_plain: "Learn more about our Privacy Policy"
-    copyright_html: "%{app_name} by <a href=\"https://meedan.com\">Meedan</a>"
   archive_keep_backup: Video Vault
   archive_pender_archive: Keep screenshots
   archive_archive_is: Archive.is
