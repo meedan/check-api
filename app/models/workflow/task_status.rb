@@ -56,8 +56,10 @@ class Workflow::TaskStatus < Workflow::Base
 
     def send_mail_notification
       if self.annotation.annotated_type == 'Task' && self.status == 'resolved'
-        annotator = self.annotation.annotator || User.current
-        TaskMailer.delay.notify(self.annotation.annotated, annotator)
+        task = self.annotation.annotated
+        # Notify team owner and assigner.
+        TaskMailer.delay.notify(task, task.first_response_obj, task.first_response, self.to_s)
+        TaskMailer.delay.notify(task, task.first_response_obj, task.first_response, self.to_s, 'assigner')
       end
     end
   end

@@ -1,13 +1,12 @@
 class TaskMailer < ApplicationMailer
 	layout nil
 
-	def notify(task, author)
+	def notify(task, response, answer, status, notify_type = 'owner')
+    author = response.annotator
     object = task.annotated
 		project = object.project
 		team = project.team
-		recipients = team.recipients(author, ['owner'])
-    item = object.title
-    updated_at = task.updated_at
+    created_at = response.created_at
     @info = {
       author: author.name,
       profile_image: author.profile_image,
@@ -17,16 +16,22 @@ class TaskMailer < ApplicationMailer
       team: team.name,
       title: task.label,
       description: task.description,
-      status: task.status,
-      response: task.first_response,
+      status: status,
+      response: answer,
       media_title: object.title,
       media_url: object.full_url,
-      updated_at: updated_at.strftime("%B #{updated_at.day.ordinalize} %I:%M %p"),
+      created_at: created_at.strftime("%B #{created_at.day.ordinalize} %I:%M %p"),
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.#{task.class.name.underscore}"), app: CONFIG['app_name']
       })
     }
 		subject = I18n.t("mails_notifications.task_resolved.subject", team: @info[:team], project: @info[:project])
+    if notify_type == 'owner'
+      recipients = team.recipients(author, ['owner'])
+    else
+      a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
+      recipients = User.where(id: a.assigner_id).map(&:email)
+    end
     self.send_email_to_recipients(recipients, subject, 'task_status') unless recipients.empty?
 	end
 end
