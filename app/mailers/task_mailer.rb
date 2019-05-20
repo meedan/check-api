@@ -7,12 +7,17 @@ class TaskMailer < ApplicationMailer
 		project = object.project
 		team = project.team
     created_at = response.created_at
+    unless author.nil?
+      author_name = author.name
+      role = I18n.t("role_" + author.role(object.project.team).to_s)
+      profile_image = author.profile_image
+    end
     @info = {
-      author: author.name,
-      profile_image: author.profile_image,
+      author: author_name,
+      profile_image: profile_image,
       project: object.project.title,
       project_url: object.project.url,
-      role: I18n.t("role_" + author.role(object.project.team).to_s),
+      role: role,
       team: team.name,
       title: task.label,
       description: task.description,
@@ -26,11 +31,12 @@ class TaskMailer < ApplicationMailer
       })
     }
 		subject = I18n.t("mails_notifications.task_resolved.subject", team: @info[:team], project: @info[:project])
+    recipients = []
     if notify_type == 'owner'
       recipients = team.recipients(author, ['owner'])
     else
       a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
-      recipients = User.where(id: a.assigner_id).map(&:email)
+      recipients = User.where(id: a.assigner_id).map(&:email) unless a.nil?
     end
     self.send_email_to_recipients(recipients, subject, 'task_status') unless recipients.empty?
 	end
