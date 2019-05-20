@@ -27,7 +27,7 @@ class TerminalStatusMailer < ApplicationMailer
       type: annotated.class.name.underscore,
       media_type: annotated.media.type.downcase,
       created_at: created_at.strftime("%B #{created_at.day.ordinalize} %I:%M %p"),
-      updated_at: updated_at.strftime("%B #{last_update.day.ordinalize} %I:%M %p")
+      updated_at: updated_at.strftime("%B #{updated_at.day.ordinalize} %I:%M %p")
     }
     subject = I18n.t('mails_notifications.media_status.subject', team: team.name, project: annotated.project.title, status: status)
     self.send_email_to_recipients(recipients, subject, 'terminal_status') unless recipients.empty?
