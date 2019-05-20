@@ -282,7 +282,7 @@
                                                   </tr>
                                                 </table>
                                               </div>
-                                              <div class="text-gray" style="color: #9a9a9a !important;"><span class="span" style="font-size: 15px; line-height: 15px;"><%= @info[:last_update] %></span>
+                                              <div class="text-gray" style="color: #9a9a9a !important;"><span class="span" style="font-size: 15px; line-height: 15px;"><%= @info[:updated_at] %></span>
                                                 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                                                   <tr class="rowgap" style="display: block;">
                                                     <td style="border-collapse: collapse; font-size: 5px; line-height: 1;">&nbsp;</td>
@@ -403,7 +403,7 @@
                                   <p class="h4 text-gray" style="color: #9a9a9a !important; font-size: 15px; line-height: 20px; margin: 0;">
                                       <%= link_to(I18n.t("slack.fields.view_button", {type: I18n.t("mails_notifications.media_status.label"), app: CONFIG['app_name']}), @info[:media_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>
                                        • 
-                                        <%= link_to(I18n.t("mails_notifications.media_status.project_view"), @info[:project_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>
+                                        <%= link_to(I18n.t("mails_notifications.project_view"), @info[:project_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>
                                        • 
                                       <%= I18n.t("mails_notifications.unsubscribe_link", 
                                           unsubscribe: link_to(I18n.t("mails_notifications.unsubscribe"), "#{CONFIG['checkdesk_client']}/check/me/edit", :class => "link", :style => "color: #0d6cf7 !important; text-decoration: none;")).html_safe %>

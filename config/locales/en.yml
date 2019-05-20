@@ -415,13 +415,18 @@ en:
   mail_body_delete_user: A user account was deleted and its content was reassigned
     to anonymous user %{id}
   mails_notifications:
+    greeting: "Hello %{username},"
+    project_view: "View project"
     unsubscribe: 'Unsubscribe'
     unsubscribe_link: "%{unsubscribe} from these notifications"
     copyright_html: "%{app_name} by <a href=\"https://meedan.com\">Meedan</a>"
     task_resolved:
       subject: "[%{team} - %{project}] Task Answered"
       header_title: 'Task Answered'
+      header_text: " %{author} answered a task in project %{project} in %{team}."
       section_title: 'Who or what is the source of the claim?'
+      status: 'Status'
+      media_h: 'Media'
     media_status:
       greeting: "Hello,"
       label: 'media'
@@ -432,12 +437,10 @@ en:
       added_to: "Added to %{app_name}"
       update_h: 'Last Update'
       tasks_h: 'Tasks Completed'
-      project_view: "View project"
   mail_security:
     device_subject: "Security alert: New login to %{app_name} from %{browser} on %{platform}"
     ip_subject: "Security alert: New or unusual %{app_name} login"
     failed_subject: "Security alert: Failed login attempts to %{app_name}"
-    greeting: "Hello %{username},"
     ip: "You’ve signed in from %{location}"
     device: "You’ve signed in from %{browser} on %{platform}"
     devise_name: "%{browser} on %{platform}"

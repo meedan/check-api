@@ -1,7 +1,7 @@
 class Workflow::TaskStatus < Workflow::Base
   check_default_task_workflow
 
-  check_workflow from: :any, to: :resolved, actions: :send_mail_notification
+  check_workflow on: :commit, actions: :send_mail_notification, events: [:create, :update]
 
   def self.core_default_value
     'unresolved'
@@ -55,9 +55,11 @@ class Workflow::TaskStatus < Workflow::Base
     protected
 
     def send_mail_notification
-      if self.annotation.annotated_type == 'Task'
-        TaskMailer.delay.notify(self.to_s.downcase, self.annotation.annotated, self.annotation.annotator)
+      if self.annotation.annotated_type == 'Task' && self.status == 'resolved'
+        annotator = self.annotation.annotator || User.current
+        TaskMailer.delay.notify(self.annotation.annotated, annotator)
       end
     end
   end
+
 end
