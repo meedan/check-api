@@ -36,7 +36,10 @@ class TaskMailer < ApplicationMailer
       recipients = team.recipients(author, ['owner'])
     else
       a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
-      recipients = User.where(id: a.assigner_id).map(&:email) unless a.nil?
+      assigner = a.assigner
+      unless assigner.nil?
+        recipients = [assigner.email] if assigner.role(team).to_s != 'owner'
+      end
     end
     self.send_email_to_recipients(recipients, subject, 'task_status') unless recipients.empty?
 	end

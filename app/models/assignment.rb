@@ -3,6 +3,7 @@ class Assignment < ActiveRecord::Base
 
   belongs_to :assigned, polymorphic: true
   belongs_to :user
+  belongs_to :assigner, :class_name => 'User'
 
   before_validation :set_annotation_assigned_type, :set_assigner
   before_update { raise ActiveRecord::ReadOnlyRecord }
@@ -164,6 +165,6 @@ class Assignment < ActiveRecord::Base
   end
 
   def set_assigner
-    self.assigner_id = User.current.id if self.assigner_id.nil? && !User.current.nil?
+    self.assigner = User.current if self.assigner.nil? && !User.current.nil?
   end
 end
