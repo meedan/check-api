@@ -132,6 +132,23 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set assigner when task assigned" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      tk = create_task annotator: u, annotated: pm
+      u2 = create_user
+      create_team_user user: u2, team: t
+      tk.save!
+      tk.assign_user(u2.id)
+      a = tk.assignments.last
+      assert_equal u.id, a.assigner_id
+    end
+  end
+
   test "should notify on Slack when task is updated" do
     t = create_team slug: 'test'
     u = create_user
@@ -176,6 +193,28 @@ class TaskTest < ActiveSupport::TestCase
       d.disable_es_callbacks = true
       d.save!
       assert d.sent_to_slack
+    end
+  end
+
+  test "should notify by email when task is resolved" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    pm = create_project_media project: p
+    tk = create_task annotator: u, annotated: pm
+    u2 = create_user
+    create_team_user team: t, user: u2
+    with_current_user_and_team(u2, t) do
+      tk.disable_es_callbacks = true
+      tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      tk.save!
+      assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+        tk.status='resolved'
+      end
     end
   end
 

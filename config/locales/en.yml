@@ -396,8 +396,6 @@ en:
     unassigned from you"
   mail_subject_assign_task: "[%{team} - %{project}] A task was assigned to you"
   mail_subject_unassign_task: "[%{team} - %{project}] A task was unassigned from you"
-  mail_subject_update_status: "[%{team} - %{project}] A media item status was marked
-    as %{status}"
   mail_assign_verification_status: "%{author} assigned a media item to you. It's titled:"
   mail_unassign_verification_status: "%{author} unassigned a media item from you.
     It's titled:"
@@ -408,7 +406,6 @@ en:
     item titled:'
   mail_unassign_task: '%{author} unassigned a task "%{task}" from you. It''s on the
     media item titled:'
-  mail_update_status: '%{author} marked "%{title}" as %{status}'
   mail_assign_project: "%{author} assigned a project to you. It's titled:"
   mail_unassign_project: "%{author} unassigned a project from you. It's titled:"
   mail_subject_assign_project: "[%{team} - %{project}] A project was assigned to you"
@@ -417,11 +414,33 @@ en:
   mail_subject_delete_user: "[%{team}] A user was deleted"
   mail_body_delete_user: A user account was deleted and its content was reassigned
     to anonymous user %{id}
+  mails_notifications:
+    greeting: "Hello %{username},"
+    project_view: "View project"
+    unsubscribe: 'Unsubscribe'
+    unsubscribe_link: "%{unsubscribe} from these notifications"
+    copyright_html: "%{app_name} by <a href=\"https://meedan.com\">Meedan</a>"
+    task_resolved:
+      subject: "[%{team} - %{project}] Task Answered"
+      header_title: 'Task Answered'
+      header_text: " %{author} answered a task in project %{project} in %{team}."
+      section_title: 'Who or what is the source of the claim?'
+      status: 'Status'
+      media_h: 'Media'
+    media_status:
+      greeting: "Hello,"
+      label: 'media'
+      subject: "[%{team} - %{project}] A media item status was marked as %{status}"
+      header_title: 'Media Status Updated'
+      header_text: " %{author} updated a media item in project %{project} in %{team}."
+      section_title: "Marked as %{status}."
+      added_to: "Added to %{app_name}"
+      update_h: 'Last Update'
+      tasks_h: 'Tasks Completed'
   mail_security:
     device_subject: "Security alert: New login to %{app_name} from %{browser} on %{platform}"
     ip_subject: "Security alert: New or unusual %{app_name} login"
     failed_subject: "Security alert: Failed login attempts to %{app_name}"
-    greeting: "Hello %{username},"
     ip: "You’ve signed in from %{location}"
     device: "You’ve signed in from %{browser} on %{platform}"
     devise_name: "%{browser} on %{platform}"
@@ -443,7 +462,6 @@ en:
     manage_text: 'Manage'
     privace_manage_plain: "Manage your email notifications"
     privacy_plain: "Learn more about our Privacy Policy"
-    copyright_html: "%{app_name} by <a href=\"https://meedan.com\">Meedan</a>"
   archive_keep_backup: Video Vault
   archive_pender_archive: Keep screenshots
   archive_archive_is: Archive.is

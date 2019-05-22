@@ -12,7 +12,7 @@ module ProjectMediaExport
   end
 
   def tasks_resolved_count
-    self.get_annotations('task').select{ |t| t.status === 'resolved' }.count
+    self.get_annotations('task').map(&:load).select{ |t| t.status === 'resolved' }.count
   end
 
   def contributing_users_count

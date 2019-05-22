@@ -656,7 +656,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       s.status = 'in_progress'
       s.save!
       I18n.expects(:t).with do |first_arg, second_arg|
-        [:smooch_bot_result, :mail_subject_update_status, :error_project_archived].include?(first_arg)
+        [:smooch_bot_result, 'mails_notifications.media_status.subject', :error_project_archived].include?(first_arg)
       end.at_least_once
       I18n.stubs(:t)
       I18n.expects(:t).with('statuses.media.verified.label', { locale: 'en' }).once

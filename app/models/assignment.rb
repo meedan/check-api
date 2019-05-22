@@ -3,8 +3,9 @@ class Assignment < ActiveRecord::Base
 
   belongs_to :assigned, polymorphic: true
   belongs_to :user
+  belongs_to :assigner, :class_name => 'User'
 
-  before_validation :set_annotation_assigned_type
+  before_validation :set_annotation_assigned_type, :set_assigner
   before_update { raise ActiveRecord::ReadOnlyRecord }
   after_create :send_email_notification_on_create, :increase_assignments_count, :propagate_assignments
   after_destroy :send_email_notification_on_destroy, :decrease_assignments_count, :propagate_unassignments
@@ -161,5 +162,9 @@ class Assignment < ActiveRecord::Base
     assigned = self.assigned_type.constantize.where(id: self.assigned_id).last
     User.delay_for(1.second).set_assignments_progress(user_id, assigned.annotated_id.to_i) if assigned.is_a?(Annotation)
     ProjectMedia.where(project_id: self.assigned_id).each{ |pm| User.delay_for(1.second).set_assignments_progress(user_id, pm.id) } if assigned.is_a?(Project)
+  end
+
+  def set_assigner
+    self.assigner = User.current if self.assigner.nil? && !User.current.nil?
   end
 end
