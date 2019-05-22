@@ -97,7 +97,7 @@ class CheckSearch
     status_search_fields.each do |field|
       status_blank = false unless @options[field].blank?
     end
-    !(status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank? && ['recent_activity', 'recent_added'].include?(@options['sort']))
+    !(status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank? && ['recent_activity', 'recent_added'].include?(@options['sort']) && @options['range'].blank?)
   end
 
   def get_pg_results(associated_type = 'ProjectMedia')
@@ -130,6 +130,7 @@ class CheckSearch
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
     conditions.concat build_search_doc_conditions
+    conditions.concat build_search_range_conditions
     dynamic_conditions = build_search_dynamic_annotation_conditions
     conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
     { bool: { must: conditions } }
@@ -253,6 +254,23 @@ class CheckSearch
       doc_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
     end
     doc_c
+  end
+
+  # range: {created_at: {start_time: <start_time>, end_time: <end_time>}, updated_at: {start_time: <start_time>, end_time: <end_time>}}
+  def build_search_range_conditions
+    conditions = []
+    return conditions unless @options.has_key?('range')
+    @options['range'].each do |name, values|
+      next if values.blank?
+      method = "field_search_query_type_range_#{name}"
+      condition = nil
+      timezone = @options.dig('range').dig('timezone') || @context_timezone
+      if ProjectMedia.respond_to?(method)
+       condition = ProjectMedia.send(method, values, timezone)
+      end
+      conditions << condition unless condition.nil?
+    end
+    conditions
   end
 
   def sort_pg_results(results, table)
