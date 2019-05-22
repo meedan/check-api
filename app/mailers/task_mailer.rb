@@ -35,12 +35,18 @@ class TaskMailer < ApplicationMailer
     if notify_type == 'owner'
       recipients = team.recipients(author, ['owner'])
     else
-      a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
-      assigner = a.assigner
-      unless assigner.nil?
-        recipients = [assigner.email] if assigner.role(team).to_s != 'owner'
-      end
+      recipients = get_assigner(task)
     end
     self.send_email_to_recipients(recipients, subject, 'task_status') unless recipients.empty?
 	end
+
+  def get_assigner(task)
+    assigner_email = []
+    a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
+    unless a.nil?
+      assigner = a.assigner
+      assigner_email = [assigner.email] if !assigner.nil? && assigner.role(team).to_s != 'owner'
+    end
+    assigner_email
+  end
 end
