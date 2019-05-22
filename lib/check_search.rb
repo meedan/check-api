@@ -199,10 +199,9 @@ class CheckSearch
 
   def build_search_sort
     if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
+      sort_mapping = { 'recent_activity' => 'updated_at', 'recent_added' => 'created_at' }
       return [
-        {
-          @options['sort'] => { order: @options['sort_type'] }
-        }
+        { sort_mapping[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
       ]
     end
     [
