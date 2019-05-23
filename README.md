@@ -4,6 +4,7 @@
 [![Test Coverage](https://codeclimate.com/repos/58bdc058359261025a0020fa/badges/be660888a1cd1f246167/coverage.svg)](https://codeclimate.com/repos/58bdc058359261025a0020fa/coverage)
 [![Issue Count](https://codeclimate.com/repos/58bdc058359261025a0020fa/badges/be660888a1cd1f246167/issue_count.svg)](https://codeclimate.com/repos/58bdc058359261025a0020fa/feed)
 [![Travis](https://travis-ci.org/meedan/check-api.svg?branch=develop)](https://travis-ci.org/meedan/check-api/)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmeedan%2Fcheck-api.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmeedan%2Fcheck-api?ref=badge_shield)
 
 Verify breaking news online.
 
@@ -230,3 +231,7 @@ end
 ### Credits
 
 Meedan (hello@meedan.com)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmeedan%2Fcheck-api.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmeedan%2Fcheck-api?ref=badge_large)
