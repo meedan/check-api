@@ -1,7 +1,7 @@
 ---
-:redis_host: 'api'
+:redis_host: 'redis'
 :redis_port: 6379
-:redis_database: 1
+:redis_database: 0
 :queues:
   - ["esqueue", 4]
   - ["default", 2]
