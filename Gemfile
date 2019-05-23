@@ -27,7 +27,7 @@ gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'cancancan', '~> 1.10'
-gem 'bootstrap-sass', '~> 3.3.0.0'
+gem 'bootstrap-sass', '~> 3.4.1'
 gem 'carrierwave', '~> 1.0'
 gem 'phony_rails'
 gem 'webmock'
