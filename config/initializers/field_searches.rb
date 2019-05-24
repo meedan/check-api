@@ -144,48 +144,4 @@ Dynamic.class_eval do
 
     { bool: { should: bool } }
   end
-
-end
-
-ProjectMedia.class_eval do
-
-  def self.format_time_query_type_range(time)
-    begin
-      t = Time.parse time
-      t.strftime("%Y-%m-%d %H:%M")
-    rescue
-      ''
-    end
-  end
-
-  def self.field_search_query_type_range(field, values, tzinfo)
-    timezone = ActiveSupport::TimeZone[tzinfo] if tzinfo
-    timezone = timezone ? timezone.formatted_offset : '+00:00'
-    from = format_time_query_type_range(values.dig('start_time'))
-    to = format_time_query_type_range(values.dig('end_time'))
-    return if from.blank? && to.blank?
-
-    query = {
-      range: {
-        "#{field}": {
-          format: "yyyy-MM-dd' 'HH:mm",
-          time_zone: timezone
-        }
-      }
-    }
-
-    query[:range][field][:gte] = from unless from.blank?
-    query[:range][field][:lte] = to unless to.blank?
-
-    query
-  end
-
-  def self.field_search_query_type_range_created_at(values, timezone)
-    self.field_search_query_type_range(:created_at, values, timezone)
-  end
-
-  def self.field_search_query_type_range_updated_at(values, timezone)
-    self.field_search_query_type_range(:updated_at, values, timezone)
-  end
-
 end

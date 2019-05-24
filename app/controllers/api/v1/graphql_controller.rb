@@ -94,8 +94,7 @@ module Api
       end
 
       def set_timezone
-        #@context_timezone = request.headers['X-Timezone']
-        @context_timezone = 'GMT'
+        @context_timezone = request.headers['X-Timezone']
       end
 
       def start_apollo_if_needed

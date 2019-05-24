@@ -452,8 +452,8 @@ class ElasticSearch3Test < ActionController::TestCase
     end
   end
 
-  [:updated_at].each do |field|
-    test "should handle inputs when filter by #{field} range AAA" do
+  [:created_at, :updated_at].each do |field|
+    test "should handle inputs when filter by #{field} range" do
       p = create_project
 
       Time.stubs(:now).returns(Time.new(2019, 05, 19, 13, 00))
