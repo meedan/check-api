@@ -229,4 +229,12 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal [pm2.id], results
   end
 
+  test "should get timezone from header" do
+    authenticate_with_user
+    @request.headers['X-Timezone'] = 'America/Bahia'
+    t = create_team slug: 'context'
+    post :create, query: 'query Query { me { name } }'
+    assert_equal 'America/Bahia', assigns(:context_timezone)
+  end
+
 end
