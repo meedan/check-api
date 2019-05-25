@@ -7,10 +7,15 @@ class Bot::Alegre < ActiveRecord::Base
     begin
       data = JSON.parse(body)
       pm = ProjectMedia.where(id: data['data']['dbid']).last
-      unless data['event'] != 'create_project_media' or pm.nil? or CONFIG['alegre_host'].blank? or CONFIG['alegre_token'].blank?
-        Bot::Alegre.default.get_language(pm)
-        # Bot::Alegre.default.create_empty_mt_annotation(pm)
-        # Bot::Alegre.default.create_similarities_from_alegre(pm)
+      unless data['event'] != 'create_project_media' or pm.nil?
+        unless CONFIG['alegre_host'].blank?
+          Bot::Alegre.default.get_language(pm)
+          # Bot::Alegre.default.create_empty_mt_annotation(pm)
+          # Bot::Alegre.default.create_similarities_from_alegre(pm)
+        end
+        unless CONFIG['vframe_host'].blank?
+          Bot::Alegre.default.get_image_similarities(pm)
+        end
       end
       true
     rescue StandardError => e
@@ -64,6 +69,18 @@ class Bot::Alegre < ActiveRecord::Base
 
   def get_dynamic_field_value(target, annotation_type, field_type)
     DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => annotation_type, 'annotations.annotated_type' => target.class.name, 'annotations.annotated_id' => target.id.to_s, field_type: field_type).first
+  end
+
+  def get_image_similarities(pm)
+    return if pm.report_type != 'uploadedimage'
+    url = URI.parse(CONFIG['vframe_host'] + '/api/v1/match')
+    Net::HTTP.start(url.host, url.port) do |http|
+      req = Net::HTTP::Post::Multipart.new(url, {
+        "url" => CONFIG['checkdesk_base_url_private'] + pm.media.file.url
+      })
+      http.use_ssl = (url.scheme == "https")
+      result = http.request(req).body.to_json
+    end
   end
 
   # def get_source_language(target)
