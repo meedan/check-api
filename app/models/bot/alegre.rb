@@ -8,14 +8,10 @@ class Bot::Alegre < ActiveRecord::Base
       data = JSON.parse(body)
       pm = ProjectMedia.where(id: data['data']['dbid']).last
       unless data['event'] != 'create_project_media' or pm.nil?
-        unless CONFIG['alegre_host'].blank?
-          Bot::Alegre.default.get_language(pm)
-          # Bot::Alegre.default.create_empty_mt_annotation(pm)
-          # Bot::Alegre.default.create_similarities_from_alegre(pm)
-        end
-        unless CONFIG['vframe_host'].blank?
-          Bot::Alegre.default.get_image_similarities(pm)
-        end
+        Bot::Alegre.default.get_language(pm)
+        # Bot::Alegre.default.create_empty_mt_annotation(pm)
+        # Bot::Alegre.default.create_similarities_from_alegre(pm)
+        Bot::Alegre.default.get_image_similarities(pm)
       end
       true
     rescue StandardError => e
@@ -40,14 +36,13 @@ class Bot::Alegre < ActiveRecord::Base
   end
 
   def get_language_from_alegre(text)
-    lang = 'und'
+    return 'und' if CONFIG['alegre_host'].blank?
     begin
       response = AlegreClient::Request.get_languages_identification(CONFIG['alegre_host'], { text: text }, CONFIG['alegre_token'])
-      lang = response['data'][0][0].split(',').first.downcase if response['type'] == 'language'
+      response['data'][0][0].split(',').first.downcase if response['type'] == 'language'
     rescue
-      lang = 'und'
+      'und'
     end
-    lang
   end
 
   def save_language(target, lang)
@@ -72,13 +67,21 @@ class Bot::Alegre < ActiveRecord::Base
   end
 
   def get_image_similarities(pm)
-    return if pm.report_type != 'uploadedimage'
+    return if pm.report_type != 'uploadedimage' or CONFIG['vframe_host'].blank?
+
+    require 'net/http/post/multipart'
+
     url = URI.parse(CONFIG['vframe_host'] + '/api/v1/match')
     Net::HTTP.start(url.host, url.port) do |http|
       req = Net::HTTP::Post::Multipart.new(url, {
-        "url" => CONFIG['checkdesk_base_url_private'] + pm.media.file.url
+        'url' => CONFIG['checkdesk_base_url_private'] + pm.media.file.url,
+        'context' => {
+          team_id: pm.project.team.id,
+          project_id: pm.project.id,
+          project_media_id: pm.id
+        }.to_json
       })
-      http.use_ssl = (url.scheme == "https")
+      http.use_ssl = (url.scheme == 'https')
       result = http.request(req).body.to_json
     end
   end
