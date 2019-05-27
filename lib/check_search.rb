@@ -106,7 +106,7 @@ class CheckSearch
     filters = {}
     filters['projects.team_id'] = @options['team_id'] unless @options['team_id'].blank?
     filters['project_id'] = @options['projects'] unless @options['projects'].blank?
-    build_search_range_filter(filters) if @options.has_key?('range')
+    build_search_range_filter(:pg, filters) if @options.has_key?('range')
     if associated_type == 'ProjectMedia'
       archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
       filters = filters.merge({
@@ -131,6 +131,7 @@ class CheckSearch
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
     conditions.concat build_search_doc_conditions
+    conditions.concat build_search_range_filter(:es) if @options.has_key?('range')
     dynamic_conditions = build_search_dynamic_annotation_conditions
     conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
     { bool: { must: conditions } }
@@ -255,7 +256,7 @@ class CheckSearch
     doc_c
   end
 
-  def format_time_search_range_filter(time, timezone)
+  def format_time_with_timezone(time, timezone)
     tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
     begin
       Time.use_zone(tz) { Time.zone.parse(time) }
@@ -264,19 +265,36 @@ class CheckSearch
     end
   end
 
-  # range: {created_at: {start_time: <start_time>, end_time: <end_time>}, updated_at: {start_time: <start_time>, end_time: <end_time>}, timezone: 'GMT'}
-  def build_search_range_filter(filters)
-    timezone = @options['range'].delete('timezone') || @context_timezone
-    @options['range'].each do |name, values|
-      next if values.blank?
-      from = format_time_search_range_filter(values.dig('start_time'), timezone)
-      to = format_time_search_range_filter(values.dig('end_time'), timezone)
-      next if from.blank? && to.blank?
-      from = DateTime.new if from.blank?
-      to = DateTime.now if to.blank?
+  def format_times_search_range_filter(name, values, timezone)
+    return if values.blank? || ![:created_at, :updated_at].include?(name.to_sym)
+    from = format_time_with_timezone(values.dig('start_time'), timezone)
+    to = format_time_with_timezone(values.dig('end_time'), timezone)
+    return if from.blank? && to.blank?
+    from = DateTime.new if from.blank?
+    to = DateTime.now if to.blank?
 
-      filters[name] = from..to
+    [from, to]
+  end
+
+  # range: {created_at: {start_time: <start_time>, end_time: <end_time>}, updated_at: {start_time: <start_time>, end_time: <end_time>}, timezone: 'GMT'}
+  def build_search_range_filter(type, filters = nil)
+    timezone = @options['range'].delete('timezone') || @context_timezone
+    conditions = []
+    @options['range'].each do |name, values|
+      range = format_times_search_range_filter(name, values, timezone)
+      next if range.nil?
+      if type == :pg
+        filters[name] = range[0]..range[1]
+      else
+        method = "field_search_query_type_range_#{name}"
+        condition = nil
+        if ProjectMedia.respond_to?(method)
+         condition = ProjectMedia.send(method, range, timezone)
+        end
+        conditions << condition unless condition.nil?
+      end
     end
+    conditions if type == :es
   end
 
   def sort_pg_results(results, table)

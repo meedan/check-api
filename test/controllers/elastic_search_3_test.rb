@@ -415,15 +415,15 @@ class ElasticSearch3Test < ActionController::TestCase
       assert_equal 0, result.medias.count
 
       Time.stubs(:now).returns(Time.new(2019, 05, 19, 13, 00))
-      pm1 = create_project_media project: p, disable_es_callbacks: false
+      pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
       sleep 5
 
       Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
-      pm2 = create_project_media project: p, disable_es_callbacks: false
+      pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
       sleep 5
 
       Time.stubs(:now).returns(Time.new(2019, 05, 21, 13, 00))
-      pm3 = create_project_media project: p, disable_es_callbacks: false
+      pm3 = create_project_media project: p, quote: 'Test C', disable_es_callbacks: false
       sleep 5
 
       Time.unstub(:now)
@@ -441,6 +441,18 @@ class ElasticSearch3Test < ActionController::TestCase
         }
       }
 
+      # query on PG
+      mapping.each_pair do |timezone, start_dates|
+        query[:range][:timezone] = timezone
+        start_dates.each do |from, items|
+          query[:range][field][:start_time] = from
+          result = CheckSearch.new(query.to_json)
+          assert_equal items.sort, result.medias.map(&:id).sort
+        end
+      end
+
+      # query on ES
+      query[:keyword] = 'Test'
       mapping.each_pair do |timezone, start_dates|
         query[:range][:timezone] = timezone
         start_dates.each do |from, items|

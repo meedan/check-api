@@ -206,27 +206,36 @@ class GraphqlController3Test < ActionController::TestCase
     p = create_project team: t
 
     Time.stubs(:now).returns(Time.new(2019, 05, 18, 13, 00))
-    pm1 = create_project_media project: p, disable_es_callbacks: false
+    pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
     pm1.update_attribute(:updated_at, Time.new(2019, 05, 19))
     sleep 1
 
     Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
-    pm2 = create_project_media project: p, disable_es_callbacks: false
+    pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
     pm2.update_attribute(:updated_at, Time.new(2019, 05, 21))
     sleep 1
 
     Time.stubs(:now).returns(Time.new(2019, 05, 22, 13, 00))
-    pm3 = create_project_media project: p, disable_es_callbacks: false
+    pm3 = create_project_media project: p, quote: 'Test C', disable_es_callbacks: false
     pm3.update_attribute(:updated_at, Time.new(2019, 05, 23))
     sleep 1
 
     Time.unstub(:now)
     authenticate_with_user(u)
-    query = 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-22\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t.slug
-    assert_response :success
-    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm2.id], results
+    queries = []
+
+    # query on ES
+    queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-22\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+
+    # query on PG
+    queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-22\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+
+    queries.each do |query|
+      post :create, query: query, team: t.slug
+      assert_response :success
+      results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+      assert_equal [pm2.id], results
+    end
   end
 
   test "should get timezone from header" do
