@@ -278,9 +278,9 @@ class CheckSearch
 
   # range: {created_at: {start_time: <start_time>, end_time: <end_time>}, updated_at: {start_time: <start_time>, end_time: <end_time>}, timezone: 'GMT'}
   def build_search_range_filter(type, filters = nil)
-    timezone = @options['range'].delete('timezone') || @context_timezone
     conditions = []
     return conditions unless @options.has_key?('range')
+    timezone = @options['range'].delete('timezone') || @context_timezone
     @options['range'].each do |name, values|
       range = format_times_search_range_filter(name, values, timezone)
       next if range.nil?
