@@ -106,7 +106,7 @@ class CheckSearch
     filters = {}
     filters['projects.team_id'] = @options['team_id'] unless @options['team_id'].blank?
     filters['project_id'] = @options['projects'] unless @options['projects'].blank?
-    build_search_range_filter(:pg, filters) if @options.has_key?('range')
+    build_search_range_filter(:pg, filters)
     if associated_type == 'ProjectMedia'
       archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
       filters = filters.merge({
@@ -131,7 +131,7 @@ class CheckSearch
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
     conditions.concat build_search_doc_conditions
-    conditions.concat build_search_range_filter(:es) if @options.has_key?('range')
+    conditions.concat build_search_range_filter(:es)
     dynamic_conditions = build_search_dynamic_annotation_conditions
     conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
     { bool: { must: conditions } }
@@ -260,7 +260,7 @@ class CheckSearch
     tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
     begin
       Time.use_zone(tz) { Time.zone.parse(time) }
-    rescue Exception => e
+    rescue StandardError
       ''
     end
   end
@@ -280,6 +280,7 @@ class CheckSearch
   def build_search_range_filter(type, filters = nil)
     timezone = @options['range'].delete('timezone') || @context_timezone
     conditions = []
+    return conditions unless @options.has_key?('range')
     @options['range'].each do |name, values|
       range = format_times_search_range_filter(name, values, timezone)
       next if range.nil?

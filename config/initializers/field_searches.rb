@@ -152,7 +152,7 @@ ProjectMedia.class_eval do
     timezone = ActiveSupport::TimeZone[tzinfo] if tzinfo
     timezone = timezone ? timezone.formatted_offset : '+00:00'
 
-    query = {
+    {
       range: {
         "#{field}": {
           gte: range[0].strftime("%Y-%m-%d %H:%M"),
