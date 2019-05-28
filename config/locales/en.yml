@@ -416,6 +416,7 @@ en:
     to anonymous user %{id}
   mails_notifications:
     greeting: "Hello %{username},"
+    greeting_all: "Hello,"
     project_view: "View project"
     unsubscribe: 'Unsubscribe'
     unsubscribe_link: "%{unsubscribe} from these notifications"
@@ -428,7 +429,6 @@ en:
       status: 'Status'
       media_h: 'Media'
     media_status:
-      greeting: "Hello,"
       label: 'media'
       subject: "[%{team} - %{project}] A media item status was marked as %{status}"
       header_title: 'Media Status Updated'
