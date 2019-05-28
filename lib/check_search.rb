@@ -106,13 +106,13 @@ class CheckSearch
     filters = {}
     filters['projects.team_id'] = @options['team_id'] unless @options['team_id'].blank?
     filters['project_id'] = @options['projects'] unless @options['projects'].blank?
-    build_search_range_filter(:pg, filters)
     if associated_type == 'ProjectMedia'
       archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
       filters = filters.merge({
         archived: archived,
         inactive: false
       })
+      build_search_range_filter(:pg, filters)
     end
     associated_type.constantize.joins(:project).where(filters).order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
   end
@@ -127,6 +127,7 @@ class CheckSearch
       conditions << { term: { inactive: 0 } }
       user = User.current
       conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user && user.role?(:annotator)
+      conditions.concat build_search_range_filter(:es)
     end
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
@@ -288,14 +289,10 @@ class CheckSearch
         filters[name] = range[0]..range[1]
       else
         method = "field_search_query_type_range_#{name}"
-        condition = nil
-        if ProjectMedia.respond_to?(method)
-         condition = ProjectMedia.send(method, range, timezone)
-        end
-        conditions << condition unless condition.nil?
+        conditions << ProjectMedia.send(method, range, timezone)
       end
     end
-    conditions if type == :es
+    conditions
   end
 
   def sort_pg_results(results, table)
