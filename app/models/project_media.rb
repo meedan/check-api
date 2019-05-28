@@ -345,8 +345,6 @@ class ProjectMedia < ActiveRecord::Base
     ms.translation_status = ts.load.status unless ts.nil?
     ms.archived = self.archived.to_i
     ms.inactive = self.inactive.to_i
-    ms.recent_added = self.created_at.to_i
-    ms.recent_activity = Time.now.to_i
   end
 
   # private

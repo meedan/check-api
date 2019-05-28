@@ -68,12 +68,10 @@ module ProjectAssociation
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks
-      keys = %w(project_id team_id recent_added recent_activity)
+      keys = %w(project_id team_id)
       data = {
         'project_id' => self.project_id,
-        'team_id' => self.project.team_id,
-        'recent_added' => self.created_at.to_i,
-        'recent_activity' => Time.now.to_i,
+        'team_id' => self.project.team_id
       }
       if self.class_name == 'ProjectMedia'
         keys.concat(%w(archived inactive))
