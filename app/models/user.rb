@@ -19,7 +19,10 @@ class User < ActiveRecord::Base
   has_many :sources
   has_many :login_activities
 
-  devise :database_authenticatable, :registerable,
+  devise :two_factor_authenticatable, :two_factor_backupable,
+         :otp_secret_encryption_key => ENV['TWO_FACTOR_KEY']
+
+  devise :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
 
@@ -118,6 +121,16 @@ class User < ActiveRecord::Base
       user[field] = self.send(field)
     end
     user
+  end
+
+  def two_factor
+    qrcode = RQRCode::QRCode.new(self.otp_provisioning_uri(self.email, issuer: 'Check app'))    
+    {
+      enabled: self.otp_required_for_login,
+      qrcode_img: qrcode.as_png,
+      qrcode_svg: qrcode.as_svg,
+      qrcode_html: qrcode.as_html
+    }
   end
 
   def email_required?
