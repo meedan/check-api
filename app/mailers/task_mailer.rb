@@ -13,6 +13,7 @@ class TaskMailer < ApplicationMailer
       profile_image = author.profile_image
     end
     @info = {
+      greeting: I18n.t("mails_notifications.greeting_all"),
       author: author_name,
       profile_image: profile_image,
       project: object.project.title,
@@ -35,17 +36,20 @@ class TaskMailer < ApplicationMailer
     if notify_type == 'owner'
       recipients = team.recipients(author, ['owner'])
     else
-      recipients = get_assigner(task)
+      recipients = get_assigner(task, team)
     end
     self.send_email_to_recipients(recipients, subject, 'task_status') unless recipients.empty?
 	end
 
-  def get_assigner(task)
+  def get_assigner(task, team)
     assigner_email = []
     a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
     unless a.nil?
       assigner = a.assigner
-      assigner_email = [assigner.email] if !assigner.nil? && assigner.role(team).to_s != 'owner'
+      if !assigner.nil? && assigner.role(team).to_s != 'owner'
+        assigner_email = [assigner.email]
+        @info[:greeting] = I18n.t("mails_notifications.greeting", username: assigner.name)
+      end
     end
     assigner_email
   end
