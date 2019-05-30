@@ -14,14 +14,13 @@ class TerminalStatusMailerTest < ActionMailer::TestCase
     pm = create_project_media project: p
     s = create_status annotated: pm, annotator: u, status: 'false'
 
-    email = TerminalStatusMailer.notify(pm, u, s.status)
+    email = TerminalStatusMailer.notify(e1.email, pm, u, s.status)
 
     assert_emails 1 do
       email.deliver_now
     end
 
     assert_equal [CONFIG['default_mail']], email.from
-    assert_equal ['editor1@mail.com', 'editor2@mail.com'].sort, email.to.sort
   end
 
   test "should not notify editor with terminal status if bounced or notification disabled" do
@@ -42,12 +41,11 @@ class TerminalStatusMailerTest < ActionMailer::TestCase
 
     e2.set_send_email_notifications = false; e2.save!
     
-    email = TerminalStatusMailer.notify(pm, u, s.status)
+    email = TerminalStatusMailer.send_notification(e3.email, pm, u, s.status)
 
     assert_emails 1 do
       email.deliver_now
     end
 
-    assert_equal ['editor3@mail.com'].sort, email.to.sort
   end
 end

@@ -16,7 +16,7 @@ class TaskMailerTest < ActionMailer::TestCase
       tk.response = { annotation_type: 'response', set_fields: { response_test: 'test' }.to_json }.to_json
       tk.save!
     end
-    email = TaskMailer.notify(tk, tk.first_response_obj, tk.first_response, tk.status)
+    email = TaskMailer.notify(u.email, tk, tk.first_response_obj, tk.first_response, tk.status)
     assert_emails 1 do
       email.deliver_now
     end

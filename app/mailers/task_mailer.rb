@@ -1,19 +1,32 @@
 class TaskMailer < ApplicationMailer
-	layout nil
+  layout nil
 
-	def notify(task, response, answer, status, notify_type = 'owner')
+  def self.send_notificaton(task, response, answer, status)
     author = response.annotator
     object = task.annotated
-		project = object.project
-		team = project.team
+    team = object.project.team
+    recipients = team.recipients(author, ['owner'])
+    assigner_email = get_assigner_email(task)
+    recipients << assigner_email unless assigner_email.nil?
+    recipients.uniq.each do |recipient|
+      self.delay.notify(recipient, task, response, answer, status)
+    end
+  end
+
+  def notify(recipient, task, response, answer, status)
+    author = response.annotator
+    object = task.annotated
+    project = object.project
+    team = project.team
     created_at = response.created_at
     unless author.nil?
       author_name = author.name
       role = I18n.t("role_" + author.role(object.project.team).to_s)
       profile_image = author.profile_image
     end
+    user = User.find_user_by_email(recipient)
     @info = {
-      greeting: I18n.t("mails_notifications.greeting_all"),
+      greeting: I18n.t("mails_notifications.greeting", username: user.name),
       author: author_name,
       profile_image: profile_image,
       project: object.project.title,
@@ -31,26 +44,17 @@ class TaskMailer < ApplicationMailer
         type: I18n.t("activerecord.models.#{task.class.name.underscore}"), app: CONFIG['app_name']
       })
     }
-		subject = I18n.t("mails_notifications.task_resolved.subject", team: @info[:team], project: @info[:project])
-    recipients = []
-    if notify_type == 'owner'
-      recipients = team.recipients(author, ['owner'])
-    else
-      recipients = get_assigner(task, team)
-    end
-    self.send_email_to_recipients(recipients, subject, 'task_status') unless recipients.empty?
-	end
+    subject = I18n.t("mails_notifications.task_resolved.subject", team: team.name, project: project.title)
+    mail(to: recipient, email_type: 'task_status', subject: subject)
+  end
 
-  def get_assigner(task, team)
-    assigner_email = []
+  def get_assigner_email(task)
+    email = nil
     a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
     unless a.nil?
       assigner = a.assigner
-      if !assigner.nil? && assigner.role(team).to_s != 'owner'
-        assigner_email = [assigner.email]
-        @info[:greeting] = I18n.t("mails_notifications.greeting", username: assigner.name)
-      end
+      email = assigner.email unless assigner.nil?
     end
-    assigner_email
+    email
   end
 end

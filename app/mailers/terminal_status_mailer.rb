@@ -1,14 +1,25 @@
 class TerminalStatusMailer < ApplicationMailer
 	layout nil
 
-	def notify(annotated, author, status)
+  def self.send_notification(annotated, author, status)
+    project = annotated.project
+    team = project.team
+    recipients = team.recipients(author, ['editor', 'owner'])
+    recipients.each do |recipient|
+      self.delay.notify(recipient, annotated, author, status)
+    end
+  end
+
+	def notify(recipient, annotated, author, status)
     project = annotated.project
 		team = project.team
 		recipients = team.recipients(author, ['editor', 'owner'])
     created_at = annotated.created_at
     updated_at = annotated.updated_at
     image_path = annotated.media.type == 'UploadedImage' ? annotated.media.image_path : ''
+    user = User.find_user_by_email(recipient)
 		@info = {
+      greeting: I18n.t("mails_notifications.greeting", username: user.name),
       team: team.name,
       project: project.title,
       project_url: project.url,
@@ -30,7 +41,7 @@ class TerminalStatusMailer < ApplicationMailer
       updated_at: updated_at.strftime("%B #{updated_at.day.ordinalize} %I:%M %p")
     }
     subject = I18n.t('mails_notifications.media_status.subject', team: team.name, project: annotated.project.title, status: status)
-    self.send_email_to_recipients(recipients, subject, 'terminal_status') unless recipients.empty?
+    mail(to: recipient, email_type: 'terminal_status', subject: subject)
 	end
 
 end

@@ -59,8 +59,7 @@ class Workflow::TaskStatus < Workflow::Base
         task = self.annotation.annotated
         unless task.first_response_obj.nil?
           # Notify team owner and assigner.
-          TaskMailer.delay.notify(task, task.first_response_obj, task.first_response, self.to_s)
-          TaskMailer.delay.notify(task, task.first_response_obj, task.first_response, self.to_s, 'assigner')
+          TaskMailer.send_notificaton(task, task.first_response_obj, task.first_response, self.to_s)
         end
       end
     end
