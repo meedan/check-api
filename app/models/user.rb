@@ -293,7 +293,7 @@ class User < ActiveRecord::Base
     end
     # notify team(s) owner & privacy
     user.teams.each do |team|
-      DeleteUserMailer.delay.notify_owners(user, team)
+      DeleteUserMailer.send_owner_notification(user, team)
     end
     DeleteUserMailer.delay.notify_privacy(user) unless CONFIG['privacy_email'].blank?
   end
