@@ -54,9 +54,7 @@ class TaskMailer < ApplicationMailer
   end
 
   def notify(recipient, info, subject)
-    @info = info
-    username = self.get_username(recipient)
-    @info[:greeting] = I18n.t("mails_notifications.greeting", username: username)
+    self.set_template_var(info, recipient)
     mail(to: recipient, email_type: 'task_status', subject: subject)
   end
 

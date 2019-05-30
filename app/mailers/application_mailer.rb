@@ -32,8 +32,10 @@ class ApplicationMailer < ActionMailer::Base
     %w(assignment terminal_status delete_user task_status)
   end
 
-  def get_username(email)
+  def set_template_var(info, email)
     user = User.find_user_by_email(email)
-    user.nil? ? '' : user.name
+    username = user.nil? ? '' : user.name
+    info[:greeting] = I18n.t("mails_notifications.greeting", username: username)
+    @info = info
   end
 end
