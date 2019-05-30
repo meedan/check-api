@@ -351,13 +351,13 @@ class StatusTest < ActiveSupport::TestCase
     s = s.load
     with_current_user_and_team(u, t) do
       Sidekiq::Worker.clear_all
-      n = Sidekiq::Extensions::DelayedMailer.jobs.size
+      n = MailWorker.jobs.size
       s.status = 'verified'; s.save!
-      assert Sidekiq::Extensions::DelayedMailer.jobs.size > n
-      n = Sidekiq::Extensions::DelayedMailer.jobs.size
+      assert MailWorker.jobs.size > n
+      n = MailWorker.jobs.size
       s.status = 'verified'; s.save!
       s.status = 'in_progress'; s.save!
-      assert_equal n, Sidekiq::Extensions::DelayedMailer.jobs.size
+      assert_equal n, MailWorker.jobs.size
     end
   end
 
