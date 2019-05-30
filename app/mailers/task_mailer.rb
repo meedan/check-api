@@ -38,7 +38,13 @@ class TaskMailer < ApplicationMailer
     subject = I18n.t("mails_notifications.task_resolved.subject", team: team.name, project: project.title)
 
     recipients = team.recipients(author, ['owner'])
-    assigner_email = get_assigner_email(task)
+    # get assigner email
+    assigner_email = nil
+    a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
+    unless a.nil?
+      assigner = a.assigner
+      assigner_email = assigner.email unless assigner.nil?
+    end
     recipients << assigner_email unless assigner_email.nil?
     recipients = recipients.uniq
     recipients = Bounce.remove_bounces(recipients)
@@ -54,13 +60,4 @@ class TaskMailer < ApplicationMailer
     mail(to: recipient, email_type: 'task_status', subject: subject)
   end
 
-  def get_assigner_email(task)
-    email = nil
-    a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
-    unless a.nil?
-      assigner = a.assigner
-      email = assigner.email unless assigner.nil?
-    end
-    email
-  end
 end
