@@ -31,4 +31,9 @@ class ApplicationMailer < ActionMailer::Base
   def opted_out_types
     %w(assignment terminal_status delete_user task_status)
   end
+
+  def get_username(email)
+    user = User.find_user_by_email(email)
+    user.nil? ? '' : user.name
+  end
 end

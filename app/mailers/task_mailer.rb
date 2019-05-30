@@ -1,19 +1,12 @@
 class TaskMailer < ApplicationMailer
   layout nil
 
-  def self.send_notificaton(task, response, answer, status)
-    author = response.annotator
-    object = task.annotated
-    team = object.project.team
-    recipients = team.recipients(author, ['owner'])
-    assigner_email = get_assigner_email(task)
-    recipients << assigner_email unless assigner_email.nil?
-    recipients.uniq.each do |recipient|
-      self.delay.notify(recipient, task, response, answer, status)
-    end
-  end
-
-  def notify(recipient, task, response, answer, status)
+  def self.send_notification(options)
+    options = YAML::load(options)
+    task = options[:task]
+    response = options[:response]
+    answer = options[:answer]
+    status = options[:status]
     author = response.annotator
     object = task.annotated
     project = object.project
@@ -24,9 +17,7 @@ class TaskMailer < ApplicationMailer
       role = I18n.t("role_" + author.role(object.project.team).to_s)
       profile_image = author.profile_image
     end
-    user = User.find_user_by_email(recipient)
-    @info = {
-      greeting: I18n.t("mails_notifications.greeting", username: user.name),
+    info = {
       author: author_name,
       profile_image: profile_image,
       project: object.project.title,
@@ -45,6 +36,21 @@ class TaskMailer < ApplicationMailer
       })
     }
     subject = I18n.t("mails_notifications.task_resolved.subject", team: team.name, project: project.title)
+
+    recipients = team.recipients(author, ['owner'])
+    assigner_email = get_assigner_email(task)
+    recipients << assigner_email unless assigner_email.nil?
+    recipients = recipients.uniq
+    recipients = Bounce.remove_bounces(recipients)
+    recipients.each do |recipient|
+      notify(recipient, info, subject).deliver_now
+    end
+  end
+
+  def notify(recipient, info, subject)
+    @info = info
+    username = self.get_username(recipient)
+    @info[:greeting] = I18n.t("mails_notifications.greeting", username: username)
     mail(to: recipient, email_type: 'task_status', subject: subject)
   end
 

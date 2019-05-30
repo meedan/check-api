@@ -3,6 +3,7 @@ class DeleteUserMailer < ApplicationMailer
 
   def self.send_owner_notification(user, team)
     recipients = team.recipients(user, ['owner'])
+    recipients = Bounce.remove_bounces(recipients)
     subject = I18n.t(:mail_subject_delete_user, team: team.name)
     recipients.each do |recipient|
       self.delay.notify_owners(recipient, user, subject)

@@ -4,6 +4,7 @@ class TeamUserMailer < ApplicationMailer
   def self.request_to_join_notification(team, requestor, origin)
     if team && requestor
       recipients = team.recipients(requestor)
+      recipients = Bounce.remove_bounces(recipients)
       recipients.each do |recipient|
         self.delay.request_to_join(recipient, team, requestor, origin)
       end
