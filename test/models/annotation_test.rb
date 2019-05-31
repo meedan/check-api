@@ -483,8 +483,44 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should save annotation with null byte" do
-    assert_difference 'Comment.count' do
+    assert_difference "Comment.where(annotation_type: 'comment').count" do
       create_comment text: "*Dipa's Crush Loves him 97�\u0000, How Much Your Crush Loves You?* Check out now\nhttps://www.getlinks.info/love/c/tnxbmka"
     end
+  end
+
+  test "should parse media fragments" do
+    require 'uri'
+
+    # Extend URI module by adding a "media_fragment" method to URI objects
+    uri = URI.parse('http://www.example.com/example.ogv#t=10,20')
+    assert_equal({ 't' => [10.0, 20.0] }, uri.media_fragment)
+
+    # Parse fragments in annotations
+    a = Annotation.new(fragment: 't=10,20')
+    assert_equal({ 't' => [10.0, 20.0] }, a.parsed_fragment)
+
+    # Now test the parser itself with different cases
+    assert_equal({}, URI.media_fragment('t=foo:10'))
+    assert_equal({}, URI.media_fragment('t=foo'))
+    assert_equal({}, URI.media_fragment('foo=bar'))
+    assert_equal({ 't' => [10.0] }, URI.media_fragment('t=10&bar=foo'))
+    assert_equal({ 't' => [0.0, 10.0] }, URI.media_fragment('t=,10'))
+    assert_equal({ 't' => [10.0] }, URI.media_fragment('t=10'))
+    assert_equal({ 't' => [10.0, 20.0] }, URI.media_fragment('t=10,20'))
+    assert_equal({ 't' => [0.0, 10.0] }, URI.media_fragment('t=npt:,10'))
+    assert_equal({ 't' => [10.0] }, URI.media_fragment('t=npt:10'))
+    assert_equal({ 't' => [10.0, 20.0] }, URI.media_fragment('t=npt:10,20'))
+    assert_equal({ 't' => [10.3, 20.54] }, URI.media_fragment('t=10.3,20.54'))
+    assert_equal({ 't' => [120.1, 121.5] }, URI.media_fragment('t=120.1,0:02:01.5'))
+    assert_equal({ 't' => [18610.0, 18620.0] }, URI.media_fragment('t=05:10:10,05:10:20'))
+    assert_equal({}, URI.media_fragment('xywh=foo'))
+    assert_equal({}, URI.media_fragment('xywh=pixel:1,2,3'))
+    assert_equal({}, URI.media_fragment('xywh=foo:1,2,3,4'))
+    assert_equal({}, URI.media_fragment('xywh=foo:1,2,3,4.5'))
+    assert_equal({ 'xywh' => { 'x' => 1, 'y' => 2, 'width' => 3, 'height' => 4, 'unit' => 'pixel' } }, URI.media_fragment('xywh=pixel:1,2,3,4'))
+    assert_equal({ 'xywh' => { 'x' => 1, 'y' => 2, 'width' => 3, 'height' => 4, 'unit' => 'pixel' } }, URI.media_fragment('xywh=1,2,3,4'))
+    assert_equal({ 'xywh' => { 'x' => 1, 'y' => 2, 'width' => 3, 'height' => 4, 'unit' => 'percent' } }, URI.media_fragment('xywh=percent:1,2,3,4'))
+    assert_equal({ 'xywh' => { 'x' => 160, 'y' => 120, 'width' => 320, 'height' => 240, 'unit' => 'pixel' } }, URI.media_fragment('xywh=160,120,320,240'))
+    assert_equal({ 't' => [10.0, 20.0], 'xywh' => { 'x' => 160, 'y' => 120, 'width' => 320, 'height' => 240, 'unit' => 'pixel' } }, URI.media_fragment('xywh=160,120,320,240&t=10,20'))
   end
 end

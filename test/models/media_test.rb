@@ -99,7 +99,7 @@ class MediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     media = create_valid_media project_id: p.id
-    assert_not_empty media.annotations('embed')
+    assert_not_empty media.annotations('metadata')
   end
 
   test "should create version when media is created" do
@@ -331,8 +331,8 @@ class MediaTest < ActiveSupport::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url, project_id: p.id)
-    assert_equal 1, m.annotations('embed').count
-    assert_equal [m.id], m.annotations('embed').map(&:annotated_id)
+    assert_equal 1, m.annotations('metadata').count
+    assert_equal [m.id], m.annotations('metadata').map(&:annotated_id)
   end
 
   test "should get permissions" do
@@ -403,7 +403,7 @@ class MediaTest < ActiveSupport::TestCase
     p = create_project team: create_team
     m = create_claim_media quote: 'media quote'
     pm = create_project_media project: p, media: m
-    assert_equal 'media quote', pm.embed['title']
+    assert_equal 'media quote', pm.metadata['title']
   end
 
   test "should get class from input" do
@@ -551,5 +551,14 @@ class MediaTest < ActiveSupport::TestCase
     WebMock.disable_net_connect!(allow: es)
     l = create_link url: url
     assert_equal 'Foo', l.text
+  end
+
+  test "should get metadata from media" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'description' => 'Foo' } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    assert_equal 'Foo', l.metadata['description']
   end
 end

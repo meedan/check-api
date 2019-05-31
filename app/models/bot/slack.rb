@@ -57,7 +57,7 @@ class Bot::Slack < ActiveRecord::Base
       }.to_json
     }
 
-    Rails.env === 'test' ? self.request_slack(model, webhook, data) : SlackNotificationWorker.perform_async(webhook, YAML::dump(data), YAML::dump(User.current))
+    Rails.env == 'test' ? self.request_slack(model, webhook, data) : SlackNotificationWorker.perform_async(webhook, YAML::dump(data), YAML::dump(User.current))
   end
 
   def prepare_attachment(attachment)
@@ -73,7 +73,7 @@ class Bot::Slack < ActiveRecord::Base
     http.use_ssl = true
     request = Net::HTTP::Post.new(url.request_uri)
     request.set_form_data(data)
-    http.request(request)
+    http.request(request) unless Rails.env == 'test'
     model.sent_to_slack = true unless model.nil?
   end
 
@@ -222,11 +222,6 @@ class Bot::Slack < ActiveRecord::Base
     include ::Bot::Slack::SlackMessage
 
     create_or_update_slack_message on: :update, endpoint: :update, if: proc { |f| f.annotation.annotation_type.match(/_status$/) }
-  end
-
-  Embed.class_eval do
-    include ::Bot::Slack::SlackMessage
-
-    create_or_update_slack_message on: [:update, :create], endpoint: :update
+    create_or_update_slack_message on: [:update, :create], endpoint: :update, if: proc { |f| f.annotation.annotation_type == 'metadata' }
   end
 end

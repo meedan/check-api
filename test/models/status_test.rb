@@ -8,7 +8,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should create status" do
-    assert_difference 'Dynamic.count' do
+    assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       create_status
     end
   end
@@ -20,7 +20,7 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should have status" do
     create_verification_status_stuff
-    assert_no_difference 'Dynamic.count' do
+    assert_no_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       assert_raises NoMethodError do
         create_status(status: nil)
         create_status(status: '')
@@ -137,7 +137,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should not create status with invalid value" do
-    assert_no_difference 'Dynamic.count' do
+    assert_no_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       assert_raise ActiveRecord::RecordInvalid do
         create_status status: 'invalid'
       end
@@ -182,7 +182,7 @@ class StatusTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
 
-    assert_difference  'Dynamic.count' do
+    assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       create_status annotated: pm, status: 'in_progress'
     end
     assert_raises ActiveRecord::RecordInvalid do
@@ -193,7 +193,7 @@ class StatusTest < ActiveSupport::TestCase
     t.set_media_verification_statuses(value)
     t.save!
 
-    assert_difference 'Dynamic.count' do
+    assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       create_status annotated: pm, status: '1'
     end
   end
@@ -229,11 +229,11 @@ class StatusTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m
     Team.stubs(:current).returns(t)
     # Ticket #5373
-    assert_difference 'Dynamic.count' do
+    assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     m.user = u; m.save!
-    assert_difference 'Dynamic.count' do
+    assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     Team.unstub(:current)
@@ -248,11 +248,11 @@ class StatusTest < ActiveSupport::TestCase
     pm = create_project_media project: p, media: m
     Team.stubs(:current).returns(t)
     # Ticket #5373
-    assert_difference 'Dynamic.count' do
+    assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     p.user = u; p.save!
-    assert_difference 'Dynamic.count' do
+    assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
     Team.unstub(:current)
@@ -260,7 +260,7 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should normalize status" do
     s = nil
-    assert_difference 'Dynamic.count' do
+    assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       s = create_status status: 'Not Credible', annotated: create_project_source
     end
     assert_equal 'not_credible', s.reload.status

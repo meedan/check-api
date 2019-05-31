@@ -9,7 +9,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :user_id, types.Int
   field :url, types.String
   field :quote, types.String
-  field :metadata, types.String
+  field :oembed_metadata, types.String
   field :dbid, types.Int
   field :archived, types.Boolean
   field :author_role, types.String
@@ -146,11 +146,11 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :embed do
+  field :metadata do
     type JsonStringType
 
     resolve ->(project_media, _args, _ctx) {
-      project_media.embed
+      project_media.metadata
     }
   end
 

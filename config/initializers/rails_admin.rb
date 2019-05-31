@@ -68,7 +68,7 @@ RailsAdmin.config do |config|
 
   config.main_app_name = ['Check']
 
-  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Embed', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser', 'TeamBot', 'TeamBotInstallation']
+  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser', 'TeamBot', 'TeamBotInstallation']
 
   config.navigation_static_links = {
     'Web Client' => CONFIG['checkdesk_client'],
@@ -194,11 +194,6 @@ RailsAdmin.config do |config|
 
   config.model 'Comment' do
     annotation_config('comment', [:text])
-    parent Annotation
-  end
-
-  config.model 'Embed' do
-    annotation_config('embed', [:title, :description, :embed, :username, :published_at])
     parent Annotation
   end
 

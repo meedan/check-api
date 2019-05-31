@@ -30,10 +30,6 @@ class Media < ActiveRecord::Base
     self.projects.map(&:team)
   end
 
-  def overridden_embed_attributes
-    %W(title description username quote)
-  end
-
   def embed_path
     ''
   end
@@ -50,14 +46,12 @@ class Media < ActiveRecord::Base
     ''
   end
 
-  def media_url
-    self.url
+  def metadata
+    begin JSON.parse(self.get_annotations('metadata').last.load.get_field_value('metadata_value')) rescue {} end
   end
 
-  def embed
-    em = self.get_annotations('embed').last
-    embed = JSON.parse(em.data['embed']) unless em.nil?
-    embed
+  def media_url
+    self.url
   end
 
   def get_annotations(type = nil)
