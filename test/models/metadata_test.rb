@@ -4,16 +4,18 @@ class SampleModel < ActiveRecord::Base
   has_annotations
 end
 
-class EmbedTest < ActiveSupport::TestCase
-  test "should create embed" do
-    assert_difference 'Embed.length' do
-      create_embed(embed: 'test', annotated: create_project_source)
+class MetadataTest < ActiveSupport::TestCase
+  test "should create metadata" do
+    pm = create_project_media
+    u = create_user
+    assert_difference "Annotation.where(annotation_type: 'metadata').count" do
+      create_metadata(annotated: pm, annotator: u)
     end
   end
 
   test "should set type automatically" do
-    em = create_embed
-    assert_equal 'embed', em.annotation_type
+    em = create_metadata
+    assert_equal 'metadata', em.annotation_type
   end
 
   test "should have annotations" do
@@ -22,13 +24,13 @@ class EmbedTest < ActiveSupport::TestCase
     s2 = SampleModel.create!
     assert_equal [], s2.annotations
 
-    em1a = create_embed annotated: nil
+    em1a = create_metadata annotated: nil
     assert_nil em1a.annotated
-    em1b = create_embed annotated: nil
+    em1b = create_metadata annotated: nil
     assert_nil em1b.annotated
-    em2a = create_embed annotated: nil
+    em2a = create_metadata annotated: nil
     assert_nil em2a.annotated
-    em2b = create_embed annotated: nil
+    em2b = create_metadata annotated: nil
     assert_nil em2b.annotated
 
     s1.add_annotation em1a
@@ -49,20 +51,15 @@ class EmbedTest < ActiveSupport::TestCase
   end
 
   test "should get columns as array" do
-    assert_kind_of Array, Embed.columns
+    assert_kind_of Array, Dynamic.columns
   end
 
   test "should get columns as hash" do
-    assert_kind_of Hash, Embed.columns_hash
+    assert_kind_of Hash, Dynamic.columns_hash
   end
 
   test "should not be abstract" do
-    assert_not Embed.abstract_class?
-  end
-
-  test "should have content" do
-    em = create_embed
-    assert_equal ["title", "description", "username", "published_at", "embed"].sort, JSON.parse(em.content).keys.sort
+    assert_not Dynamic.abstract_class?
   end
 
   test "should have annotators" do
@@ -71,13 +68,13 @@ class EmbedTest < ActiveSupport::TestCase
     u3 = create_user
     s1 = SampleModel.create!
     s2 = SampleModel.create!
-    em1 = create_embed annotator: u1, annotated: s1
-    em2 = create_embed annotator: u1, annotated: s1
-    em3 = create_embed annotator: u1, annotated: s1
-    em4 = create_embed annotator: u2, annotated: s1
-    em5 = create_embed annotator: u2, annotated: s1
-    em6 = create_embed annotator: u3, annotated: s2
-    em7 = create_embed annotator: u3, annotated: s2
+    em1 = create_metadata annotator: u1, annotated: s1
+    em2 = create_metadata annotator: u1, annotated: s1
+    em3 = create_metadata annotator: u1, annotated: s1
+    em4 = create_metadata annotator: u2, annotated: s1
+    em5 = create_metadata annotator: u2, annotated: s1
+    em6 = create_metadata annotator: u3, annotated: s2
+    em7 = create_metadata annotator: u3, annotated: s2
     assert_equal [u1, u2].sort, s1.annotators.sort
     assert_equal [u3].sort, s2.annotators.sort
   end
@@ -89,7 +86,7 @@ class EmbedTest < ActiveSupport::TestCase
     create_team_user team: t, user: u2, role: 'owner'
     p = create_project team: t
     with_current_user_and_team(u2, t) do
-      em = create_embed annotated: p, annotator: nil
+      em = create_metadata annotated: p, annotator: nil
       assert_equal u2, em.reload.annotator
     end
   end
@@ -103,54 +100,49 @@ class EmbedTest < ActiveSupport::TestCase
       p = create_project team: t
       m = create_valid_media
       pm = create_project_media project: p, media: m
-      em = create_embed title: 'Title A', annotator: u, annotated: pm
+      em = create_metadata title: 'Title A', annotator: u, annotated: pm
       em.reload
       em.title = 'Change title'; em.save!
       assert em.sent_to_slack
     end
   end
 
-  # test "should create elasticsearch embed" do
-  #   t = create_team
-  #   p = create_project team: t
-  #   m = create_valid_media embed_data: {title: 'media title'}.to_json
-  #   pm = create_project_media media: m, project: p
-  #   sleep 1
-  #   result = MediaSearch.find(pm.id)
-  #   assert_equal 'media title', result.title
-  # end
-
-  # test "should update elasticsearch embed" do
-  #   t = create_team
-  #   p = create_project team: t
-  #   m = create_valid_media embed_data: {title: 'media title'}.to_json
-  #   pm = create_project_media media: m, project: p
-  #   m.embed_data = {title: 'new title'}.to_json
-  #   m.save!
-  #   result = MediaSearch.find(pm.id)
-  #   assert_equal 'new title', result.title
-  # end
-
   test "should protect attributes from mass assignment" do
-    raw_params = { embed: 'test', annotated: create_project_source }
+    raw_params = { annotation_type: 'metadata', annotated: create_project_source }
     params = ActionController::Parameters.new(raw_params)
 
     assert_raise ActiveModel::ForbiddenAttributesError do
-      Embed.create(params)
+      Dynamic.create(params)
     end
   end
 
-  test "should not send Slack notification for embed that is not related to project media" do
+  test "should not send Slack notification for metadata that is not related to project media" do
     l = create_link
-    em = create_embed annotated: l
-    Embed.any_instance.stubs(:title_is_overridden?).returns(true)
-    Embed.any_instance.stubs(:overridden_data).returns([{'title' => 'Test'}])
+    em = create_metadata annotated: l
+    Dynamic.any_instance.stubs(:title_is_overridden?).returns(true)
+    Dynamic.any_instance.stubs(:overridden_data).returns([{'title' => 'Test'}])
     User.stubs(:current).returns(create_user)
     assert_nothing_raised do
       em.slack_notification_message
     end
-    Embed.any_instance.unstub(:title_is_overridden?)
-    Embed.any_instance.unstub(:overridden_data)
+    Dynamic.any_instance.unstub(:title_is_overridden?)
+    Dynamic.any_instance.unstub(:overridden_data)
     User.unstub(:current)
+  end
+
+  test "should get and set fields" do
+    m = create_metadata
+    
+    m = Dynamic.find(m.id)
+    m.title = 'Foo'
+    m.save!
+    
+    m = Dynamic.find(m.id)
+    m.description = 'Bar'
+    m.save!
+    
+    m = Dynamic.find(m.id)
+    assert_equal 'Foo', m.title
+    assert_equal 'Bar', m.description
   end
 end

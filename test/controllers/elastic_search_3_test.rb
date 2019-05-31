@@ -123,7 +123,7 @@ class ElasticSearch3Test < ActionController::TestCase
     result = CheckSearch.new({keyword: "non_exist_title", show: ['sources'] }.to_json)
     assert_empty result.sources
     result = CheckSearch.new({keyword: "search_source_title", show: ['sources'] }.to_json)
-    assert_equal [ps2.id, ps.id], result.sources.map(&:id)
+    assert_equal [ps2.id, ps.id].sort, result.sources.map(&:id).sort
     # search in description
     result = CheckSearch.new({keyword: "search_source_desc", show: ['sources'] }.to_json)
     assert_equal [ps.id], result.sources.map(&:id)

@@ -30,7 +30,12 @@ module CheckBasicAbilities
     can :destroy, AccountSource, source: { team_id: nil, id: @user.source_id}
     can [:update, :destroy], User, :id => @user.id
     can [:create, :update], Account, :user_id => @user.id
-    can :create, Embed, :annotated_id => @user.account_ids
+    can [:destroy, :create], [Dynamic, Annotation], :annotation_type => 'metadata', :annotated_type => 'Account', :annotated_id => @user.account_ids
+    can :destroy, DynamicAnnotation::Field, annotation: { annotation_type: 'metadata', annotated_type: 'Account', annotated_id: @user.account_ids }
+    can :destroy, [Dynamic, Annotation], :annotation_type => 'metadata', :annotated_type => 'Account', :annotated_id => @user.frozen_account_ids
+    can :destroy, DynamicAnnotation::Field, annotation: { annotation_type: 'metadata', annotated_type: 'Account', annotated_id: @user.frozen_account_ids }
+    can :destroy, [Dynamic, Annotation], :annotation_type => 'metadata', :annotated_type => 'Source', :annotated_id => @user.frozen_source_id
+    can :destroy, DynamicAnnotation::Field, annotation: { annotation_type: 'metadata', annotated_type: 'Source', annotated_id: @user.frozen_source_id }
 
     can :restore, ProjectMedia do |obj|
       tmp = obj.dup
@@ -93,7 +98,7 @@ module CheckBasicAbilities
   end
 
   def annotation_perms_for_all_users
-    %w(comment flag embed tag dynamic task annotation).each do |annotation_type|
+    %w(comment flag tag dynamic task annotation).each do |annotation_type|
       can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         team_ids = obj.get_team
         teams = Team.where(id: team_ids, private: false)

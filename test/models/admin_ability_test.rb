@@ -3,6 +3,7 @@ require_relative '../test_helper'
 class AdminAbilityTest < ActiveSupport::TestCase
 
   def setup
+    super
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     @t = create_team
     Team.stubs(:current).returns(@t)
@@ -299,20 +300,20 @@ class AdminAbilityTest < ActiveSupport::TestCase
   test "owner permissions for embed" do
     p = create_project team: t
     pm = create_project_media project: p
-    em = create_embed annotated: pm
+    em = create_metadata annotated: pm
 
     link = create_valid_media({ type: 'link', team: t })
-    em_link = create_embed annotated: link
+    em_link = create_metadata annotated: link
 
     account = create_valid_account team: t
-    em_account = create_embed annotated: account
+    em_account = create_metadata annotated: account
 
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:create, em)
       assert ability.cannot?(:read, em)
       assert ability.can?(:update, em)
-      assert ability.cannot?(:destroy, em)
+      assert ability.can?(:destroy, em)
       p.update_column(:team_id, nil)
       assert ability.cannot?(:destroy, em)
 
@@ -322,7 +323,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
 
       assert ability.can?(:update, em_account)
       assert ability.cannot?(:read, em_account)
-      assert ability.cannot?(:destroy, em_account)
+      assert ability.can?(:destroy, em_account)
     end
   end
 
@@ -447,9 +448,10 @@ class AdminAbilityTest < ActiveSupport::TestCase
   test "should not destroy annotation versions" do
     p = create_project team: t
     pm = create_project_media project: p
+    begin create_verification_status_stuff rescue nil end
     with_current_user_and_team(u) do
       s = create_status annotated: pm, status: 'verified'
-      em = create_embed annotated: pm
+      em = create_metadata annotated: pm
       s_v = s.versions.last
       em_v = em.versions.last
       ability = AdminAbility.new
@@ -507,14 +509,16 @@ class AdminAbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     da = create_dynamic_annotation annotated: pm
+    oda = create_dynamic_annotation
     own_da = create_dynamic_annotation annotated: pm, annotator: u
-    with_current_user_and_team(u) do
+    with_current_user_and_team(u, t) do
       ability = AdminAbility.new
-      assert ability.cannot?(:create, Dynamic)
-      assert ability.cannot?(:update, da)
-      assert ability.can?(:destroy, da)
-      assert ability.cannot?(:update, own_da)
+      assert ability.can?(:update, own_da)
       assert ability.can?(:destroy, own_da)
+      assert ability.can?(:update, da)
+      assert ability.can?(:destroy, da)
+      assert ability.cannot?(:update, oda)
+      assert ability.cannot?(:destroy, oda)
     end
   end
 

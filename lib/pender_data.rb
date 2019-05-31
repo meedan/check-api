@@ -38,26 +38,27 @@ module PenderData
   def set_pender_result_as_annotation
     unless self.pender_data.nil?
       data = self.pender_data
-      em = self.pender_embed
-      self.overridden_embed_attributes.each{ |k| em.data[k.to_s] = data[k.to_s] } if self.respond_to?('overridden_embed_attributes')
-      em.published_at = data['published_at'].to_time.to_i unless data['published_at'].nil?
-      em.refreshes_count ||= 0
-      em.refreshes_count += 1
-      data['refreshes_count'] = em.refreshes_count
-      em.embed = data.to_json
-      em.save!
+      m = self.metadata_annotation
+      current_data = begin JSON.parse(m.get_field_value('metadata_value')) rescue {} end
+      data['published_at'] = data['published_at'].to_time.to_i unless data['published_at'].nil?
+      current_data['refreshes_count'] ||= 0
+      current_data['refreshes_count'] += 1
+      data['refreshes_count'] = current_data['refreshes_count']
+      m.set_fields = { metadata_value: data.to_json }.to_json
+      m.save!
     end
   end
 
-  def pender_embed
+  def metadata_annotation
     pender = Bot::Bot.where(name: 'Pender').last
-    em = Embed.where(annotation_type: 'embed', annotated_type: self.class_name, annotated_id: self.id).first
-    if em.nil?
-      em = Embed.new
-      em.annotated = self
-      em.annotator = pender unless pender.nil?
+    m = Dynamic.where(annotation_type: 'metadata', annotated_type: self.class_name, annotated_id: self.id).first
+    if m.nil?
+      m = Dynamic.new
+      m.annotation_type = 'metadata'
+      m.annotated = self
+      m.annotator = pender unless pender.nil?
     end
-    em
+    m
   end
 
   def skip_pender

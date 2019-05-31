@@ -2,7 +2,7 @@ class TeamBot < ActiveRecord::Base
   include HasImage
 
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own']
-  annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'embed', 'flag', 'tag', 'task', 'geolocation']
+  annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'flag', 'tag', 'task', 'geolocation']
   annotation_types.each do |type|
     EVENTS << "create_annotation_#{type}"
     EVENTS << "update_annotation_#{type}"

@@ -26,11 +26,11 @@ AccountType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :embed do
+  field :metadata do
     type JsonStringType
 
     resolve ->(account, _args, _ctx) {
-      account.embed
+      account.metadata
     }
   end
 
