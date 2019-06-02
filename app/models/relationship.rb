@@ -131,11 +131,7 @@ class Relationship < ActiveRecord::Base
 
   # Overwrite
   def destroy_annotations_and_versions
-    Relationship.delay_for(1.second).destroy_versions(self.id)
-  end
-
-  def self.destroy_versions(id)
-    PaperTrail::Version.where(item_id: id.to_s, item_type: 'Relationship').where.not(event_type: 'create_relationship').destroy_all
+    # We want to keep the history of related items added or removed
   end
 
   protected
