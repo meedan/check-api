@@ -129,6 +129,15 @@ class Relationship < ActiveRecord::Base
     (self.source && self.source.is_being_copied) || self.is_being_copied
   end
 
+  # Overwrite
+  def destroy_annotations_and_versions
+    Relationship.delay_for(1.second).destroy_versions(self.id)
+  end
+
+  def self.destroy_versions(id)
+    PaperTrail::Version.where(item_id: id.to_s, item_type: 'Relationship').where.not(event_type: 'create_relationship').destroy_all
+  end
+
   protected
 
   def es_values
