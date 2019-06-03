@@ -5,28 +5,56 @@ class AssignmentMailer < ApplicationMailer
     return unless should_notify?(recipient, assigned)
 
     @event = event
-    @info = {
-      author: author ? author.name : ''
-    }
     
     if assigned.is_a?(Annotation)
       annotation = assigned
       project_media = annotation.annotated
-      @info[:task] = annotation.load.label if annotation.annotation_type == 'task'
-      @title = project_media.title
-      @url = project_media.full_url
-      @team = project_media.project.team.name
-      @project = project_media.project.title
-    
+      task = annotation.load.label if annotation.annotation_type == 'task'
+      title = project_media.title
+      url = project_media.full_url
+      project = project_media.project
+      team = project.team
     elsif assigned.is_a?(Project)
-      @title = assigned.title
-      @url = assigned.url
-      @team = assigned.team.name
-      @project = @title
+      project = assigned
+      title = project.title
+      url = project.url
+      team = project.team
+      description = project.description
     end
+    created_at = assigned.created_at
+    unless author.nil?
+      author_name = author.name
+      author_id = author.id
+      role = I18n.t("role_" + author.role(team).to_s)
+      profile_image = author.profile_image
+    end
+    # map verification_status and translation_status to one event called "item"
+    event_key = event.gsub("verification_status", "item").gsub("translation_status", "item")
+
+    info = {
+      event_key: event_key,
+      event_type: event.partition('_').first,
+      partial_template: event_key.partition('_').last,
+      author: author_name,
+      author_id: author_id,
+      team: team.name,
+      project: project.title,
+      title: title,
+      url: url,
+      profile_image: profile_image,
+      role: role,
+      created_at: created_at.strftime("%B #{created_at.day.ordinalize} %I:%M %p"),
+      button: I18n.t("slack.fields.view_button", {
+        type: I18n.t("activerecord.models.project"), app: CONFIG['app_name']
+      }),
+      project_url: project.url,
+      description: description,
+    }
 
     Rails.logger.info "Sending e-mail from event #{event} to #{recipient}"
-    mail(to: recipient, email_type: 'assignment', subject: I18n.t("mail_subject_#{event}".to_sym, team: @team, project: @project))
+    subject = I18n.t("mails_notifications.assignment.#{info[:event_key]}_subject", team: info[:team], project: info[:project])
+    self.set_template_var(info, recipient)
+    mail(to: recipient, email_type: 'assignment', subject: subject)
   end
 
   def should_notify?(recipient, assigned)
