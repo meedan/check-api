@@ -35,11 +35,11 @@ module ProjectMediaPrivate
 
   def update_media_account
     a = self.media.account
-    embed = self.media.embed
-    unless a.nil? || a.embed['author_url'] == embed['author_url']
+    metadata = self.media.metadata
+    unless a.nil? || a.metadata['author_url'] == metadata['author_url']
       s = a.sources.where(team_id: Team.current.id).last
       s = nil if !s.nil? && s.name.start_with?('Untitled')
-      new_a = self.send(:account_from_author_url, embed['author_url'], s)
+      new_a = self.send(:account_from_author_url, metadata['author_url'], s)
       set_media_account(new_a, s) unless new_a.nil?
     end
   end
@@ -55,7 +55,7 @@ module ProjectMediaPrivate
     m.skip_check_ability = true
     m.save!
     a.skip_check_ability = true
-    a.account_sources.map { |as| as.skip_check_ability = true }
+    a.account_sources.each { |as| as.skip_check_ability = true }
     a.destroy if a.medias.count == 0
     # Add a project source if new source was created
     self.create_project_source if source.nil?

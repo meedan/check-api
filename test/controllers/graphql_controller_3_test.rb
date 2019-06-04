@@ -65,7 +65,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm.project_source
     sleep 10
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     assert_queries 320, '<=' do
@@ -198,4 +198,52 @@ class GraphqlController3Test < ActionController::TestCase
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1.id], results
   end
+
+  test "should filter by date range" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    p = create_project team: t
+
+    Time.stubs(:now).returns(Time.new(2019, 05, 18, 13, 00))
+    pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
+    pm1.update_attribute(:updated_at, Time.new(2019, 05, 19))
+    sleep 1
+
+    Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
+    pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
+    pm2.update_attribute(:updated_at, Time.new(2019, 05, 21))
+    sleep 1
+
+    Time.stubs(:now).returns(Time.new(2019, 05, 22, 13, 00))
+    pm3 = create_project_media project: p, quote: 'Test C', disable_es_callbacks: false
+    pm3.update_attribute(:updated_at, Time.new(2019, 05, 23))
+    sleep 1
+
+    Time.unstub(:now)
+    authenticate_with_user(u)
+    queries = []
+
+    # query on ES
+    queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-22\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+
+    # query on PG
+    queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-22\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+
+    queries.each do |query|
+      post :create, query: query, team: t.slug
+      assert_response :success
+      results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+      assert_equal [pm2.id], results
+    end
+  end
+
+  test "should get timezone from header" do
+    authenticate_with_user
+    @request.headers['X-Timezone'] = 'America/Bahia'
+    t = create_team slug: 'context'
+    post :create, query: 'query Query { me { name } }'
+    assert_equal 'America/Bahia', assigns(:context_timezone)
+  end
+
 end

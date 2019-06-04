@@ -160,7 +160,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     stub_config('slack_token', '123456') do
       Sidekiq::Testing.inline! do
         info = { title: 'Foo', description: 'Bar' }.to_json
-        pm.embed = info
+        pm.metadata = info
         pm.save!
       end
     end
@@ -221,11 +221,19 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should not notify if object does not exist" do
-    e = create_embed
+    e = create_metadata
     id = e.id
     e.delete
     assert_nothing_raised do
-      Embed.call_slack_api(id, nil, 'message')
+      Dynamic.call_slack_api(id, nil, 'message')
     end
+  end
+
+  test "should have default behavior" do
+    class TestSlackMessage < Annotation
+      include Bot::Slack::SlackMessage 
+    end
+    x = TestSlackMessage.new(annotated: create_project_media)
+    assert_kind_of Hash, x.slack_message_parameters(random_string, random_string, [{ foo: 'bar', fields: [{}, {}, {}, {}] }].to_json)
   end
 end

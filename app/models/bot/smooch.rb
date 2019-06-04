@@ -481,7 +481,7 @@ class Bot::Smooch
         pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => message['project_id']).last
         if pm.nil?
           pm = ProjectMedia.create!(project_id: message['project_id'], url: url)
-          pm.embed = { description: text }.to_json if text != url
+          pm.metadata = { description: text }.to_json if text != url
         elsif text != url
           Comment.create! annotated: pm, text: text, force_version: true
         end
@@ -512,7 +512,7 @@ class Bot::Smooch
         end
         m.save!
         pm = ProjectMedia.create!(project_id: message['project_id'], media: m)
-        pm.embed = { description: text }.to_json unless text.blank?
+        pm.metadata = { description: text }.to_json unless text.blank?
       elsif !text.blank?
         Comment.create! annotated: pm, text: text, force_version: true
       end

@@ -7,7 +7,7 @@ module Api
 
       before_action :start_apollo_if_needed, only: [:create]
       before_action :authenticate_graphql_user, only: [:create]
-      before_action :set_current_user, :load_context_team, :set_current_team, :load_ability, :init_bot_events
+      before_action :set_current_user, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events
 
       after_action :trigger_bot_events
 
@@ -91,6 +91,10 @@ module Api
           current_api_user.current_team_id = @context_team.id
           current_api_user.save!
         end
+      end
+
+      def set_timezone
+        @context_timezone = request.headers['X-Timezone']
       end
 
       def start_apollo_if_needed

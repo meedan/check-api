@@ -23,11 +23,11 @@ MediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :embed do
+  field :metadata do
     type JsonStringType
 
     resolve ->(media, _args, _ctx) {
-      media.embed
+      media.metadata
     }
   end
 end

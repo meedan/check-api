@@ -81,14 +81,14 @@ class ElasticSearchTest < ActionController::TestCase
     end
     assert_equal [pm.id, pm2.id], m_ids.sort
     assert_equal [p.id, p2.id], p_ids.sort
-    pm2.embed= {description: 'new_description'}.to_json
+    pm2.metadata = {description: 'new_description'}.to_json
     sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, embed } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, metadata } } } } }'
     post :create, query: query
     assert_response :success
     result = {}
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      result[id["node"]["project_id"]] = id["node"]["embed"]
+      result[id["node"]["project_id"]] = id["node"]["metadata"]
     end
     assert_equal 'new_description', result[p2.id]["description"]
     assert_equal 'search_desc', result[p.id]["description"]
@@ -199,7 +199,7 @@ class ElasticSearchTest < ActionController::TestCase
     result = CheckSearch.new({keyword: "search_title"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     # overide title then search
-    pm.embed= {title: 'search_title_a'}.to_json
+    pm.metadata = {title: 'search_title_a'}.to_json
     sleep 1
     result = CheckSearch.new({keyword: "search_title_a"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -354,9 +354,9 @@ class ElasticSearchTest < ActionController::TestCase
       info = {title: 'report_title'}.to_json
       m = create_valid_media
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      pm.embed= info
+      pm.metadata = info
       pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
-      pm2.embed= info
+      pm2.metadata = info
       create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
       create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
       create_status status: 'verified', annotated: pm, disable_es_callbacks: false
@@ -414,13 +414,13 @@ class ElasticSearchTest < ActionController::TestCase
       info = {title: 'search_sort'}.to_json
       m1 = create_valid_media
       pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-      pm1.embed= info
+      pm1.metadata = info
       m2 = create_valid_media
       pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-      pm2.embed= info
+      pm2.metadata = info
       m3 = create_valid_media
       pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
-      pm3.embed= info
+      pm3.metadata = info
       create_comment text: 'search_sort', annotated: pm1, disable_es_callbacks: false
       sleep 10
       # sort with keywords
@@ -460,15 +460,15 @@ class ElasticSearchTest < ActionController::TestCase
 
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-    pm1.embed = info
+    pm1.metadata = info
 
     m2 = create_valid_media
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    pm2.embed = info
+    pm2.metadata = info
 
     m3 = create_valid_media
     pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
-    pm3.embed = info
+    pm3.metadata = info
 
     create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
     sleep 2
@@ -512,13 +512,13 @@ class ElasticSearchTest < ActionController::TestCase
     p = create_project team: t
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-    pm1.embed= {title: 'keyworda'}.to_json
+    pm1.metadata = {title: 'keyworda'}.to_json
     m2 = create_valid_media
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    pm2.embed= {title: 'keywordb'}.to_json
+    pm2.metadata = {title: 'keywordb'}.to_json
     m3 = create_valid_media
     pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
-    pm3.embed= {title: 'keyworda and keywordb'}.to_json
+    pm3.metadata = {title: 'keyworda and keywordb'}.to_json
     sleep 1
     Team.current = t
     result = CheckSearch.new({keyword: 'keyworda'}.to_json)
@@ -550,12 +550,12 @@ class ElasticSearchTest < ActionController::TestCase
     info = {title: 'report title'}.to_json
     m = create_valid_media
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm.embed= info
+    pm.metadata = info
     create_tag tag: '#monkey', annotated: pm, disable_es_callbacks: false
     info2 = {title: 'report #title'}.to_json
     m2 = create_valid_media
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    pm2.embed= info2
+    pm2.metadata = info2
     create_tag tag: 'monkey', annotated: pm2, disable_es_callbacks: false
     sleep 10
     Team.current = t
@@ -567,7 +567,7 @@ class ElasticSearchTest < ActionController::TestCase
     result = CheckSearch.new({keyword: '#title'}.to_json)
     assert_equal [pm2.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'title'}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
+    assert result.medias.map(&:id).include?(pm.id)
   end
 
   test "should include tag and status in recent activity sort" do

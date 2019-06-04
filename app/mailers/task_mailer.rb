@@ -1,18 +1,23 @@
 class TaskMailer < ApplicationMailer
-	layout nil
+  layout nil
 
-	def notify(task, response, answer, status, notify_type = 'owner')
+  def self.send_notification(options)
+    options = YAML::load(options)
+    task = options[:task]
+    response = options[:response]
+    answer = options[:answer]
+    status = options[:status]
     author = response.annotator
     object = task.annotated
-		project = object.project
-		team = project.team
+    project = object.project
+    team = project.team
     created_at = response.created_at
     unless author.nil?
       author_name = author.name
       role = I18n.t("role_" + author.role(object.project.team).to_s)
       profile_image = author.profile_image
     end
-    @info = {
+    info = {
       author: author_name,
       profile_image: profile_image,
       project: object.project.title,
@@ -30,23 +35,27 @@ class TaskMailer < ApplicationMailer
         type: I18n.t("activerecord.models.#{task.class.name.underscore}"), app: CONFIG['app_name']
       })
     }
-		subject = I18n.t("mails_notifications.task_resolved.subject", team: @info[:team], project: @info[:project])
-    recipients = []
-    if notify_type == 'owner'
-      recipients = team.recipients(author, ['owner'])
-    else
-      recipients = get_assigner(task)
-    end
-    self.send_email_to_recipients(recipients, subject, 'task_status') unless recipients.empty?
-	end
+    subject = I18n.t("mails_notifications.task_resolved.subject", team: team.name, project: project.title)
 
-  def get_assigner(task)
-    assigner_email = []
+    recipients = team.recipients(author, ['owner'])
+    # get assigner email
+    assigner_email = nil
     a = Assignment.where(assigned_type: 'Annotation', assigned_id: task.id).last
     unless a.nil?
       assigner = a.assigner
-      assigner_email = [assigner.email] if !assigner.nil? && assigner.role(team).to_s != 'owner'
+      assigner_email = assigner.email unless assigner.nil?
     end
-    assigner_email
+    recipients << assigner_email unless assigner_email.nil?
+    recipients = recipients.uniq
+    recipients = Bounce.remove_bounces(recipients)
+    recipients.each do |recipient|
+      notify(recipient, info, subject).deliver_now
+    end
   end
+
+  def notify(recipient, info, subject)
+    self.set_template_var(info, recipient)
+    mail(to: recipient, email_type: 'task_status', subject: subject)
+  end
+
 end
