@@ -417,8 +417,8 @@ en:
       unassign_task_subject: "[%{team} - %{project}] A task was unassigned from you"
       assign_project_subject: "[%{team} - %{project}] A project was assigned to you"
       unassign_project_subject: "[%{team} - %{project}] A project was unassigned from you"
-      assign_item_subject: "[%{team} - %{project}] A media item was assigned to you"
-      unassign_item_subject: "[%{team} - %{project}] A media item was unassigned from you"
+      assign_media_subject: "[%{team} - %{project}] A media item was assigned to you"
+      unassign_media_subject: "[%{team} - %{project}] A media item was unassigned from you"
       assign_project_title: 'Project Assigned'
       unassign_project_title: 'Project Unassigned'
       assign_project_text: "%{author} assigned a project %{project} in %{team}."
@@ -427,10 +427,10 @@ en:
       unassign_task_title: 'Task Unassigned'
       assign_task_text: "%{author} assigned a task in project %{project} in %{team}."
       unassign_task_text: "%{author} unassigned a task in project %{project} in %{team}."
-      assign_item_title: 'Media Item Assigned'
-      unassign_item_title: 'Media Item Unassigned'
-      assign_item_text: "%{author} assigned a media item in project %{project} in %{team}."
-      unassign_item_text: "%{author} unassigned a media item in project %{project} in %{team}."
+      assign_media_title: 'Media Item Assigned'
+      unassign_media_title: 'Media Item Unassigned'
+      assign_media_text: "%{author} assigned a media item in project %{project} in %{team}."
+      unassign_media_text: "%{author} unassigned a media item in project %{project} in %{team}."
       assign_log: "%{model} assigned to %{username} by %{author}"
       unassign_log: "%{model} unassigned from %{username} by %{author}"
       assign_by: 'Assinged by'

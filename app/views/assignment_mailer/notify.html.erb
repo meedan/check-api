@@ -118,7 +118,7 @@
                         <tr>
                           <td class="section__title" style="padding: 23px 30px;" bgcolor="#fff" align="left">
                             <%= I18n.t("mails_notifications.assignment.#{@info[:event_type]}_log",
-                              model: I18n.t("activerecord.models.project"),
+                              model: I18n.t("activerecord.models.#{@info[:model]}"),
                               username: @info[:username],
                               author: link_to(@info[:author],
                                 "#{CONFIG['checkdesk_client']}/check/user/#{@info[:author_id]}",
@@ -163,6 +163,7 @@
                       </table>
 
                     </div>
-<%= render @info[:partial_template] rescue nil %>
+
+<%= render @info[:model]  %>
 
 <%= render "shared/footer" %>
