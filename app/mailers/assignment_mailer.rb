@@ -41,11 +41,11 @@ class AssignmentMailer < ApplicationMailer
       profile_image = author.profile_image
     end
     # map verification_status and translation_status to one event called "item"
-    event_key = event.gsub("verification_status", "media").gsub("translation_status", "media")
+    event_key = event.to_s.gsub("verification_status", "media").gsub("translation_status", "media")
     model = event_key.partition('_').last
     info = {
       event_key: event_key,
-      event_type: event.partition('_').first,
+      event_type: event.to_s.partition('_').first,
       model: model,
       author: author_name,
       author_id: author_id,

@@ -163,7 +163,7 @@
                       </table>
 
                     </div>
-
-<%= render @info[:model]  %>
+<!-- render the project template (more general one) if partial template not exists -->
+<%= render @info[:model] rescue render "project" %>
 
 <%= render "shared/footer" %>
