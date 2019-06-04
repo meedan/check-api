@@ -1112,20 +1112,20 @@ class TeamTest < ActiveSupport::TestCase
       p = create_project team: t
       pm1 = create_project_media user: u, team: t, project: p
       pm2 = create_project_media user: u, team: t, project: p
-      e = create_embed annotated: pm1, title: 'Foo', annotator: u
-      e.title = 'bar';e.annotated = pm2; e.save!
+      e = create_metadata annotated: pm1, title: 'Foo', annotator: u
+      e = Dynamic.find(e.id)
+      e.title = 'bar'; e.annotated = pm2; e.save!
       RequestStore.store[:disable_es_callbacks] = true
       copy = Team.duplicate(t, u)
 
       copy_pm1 = copy.projects.first.project_medias.first
       copy_pm2 = copy.projects.first.project_medias.last
-      copy_e = copy_pm2.annotations('embed').last
+      copy_e = copy_pm2.annotations('metadata').last.load.get_field('metadata_value')
       v = copy_e.versions.last
       assert_equal copy_e.id.to_s, v.item_id
-      assert_equal [copy_e.id, copy_pm2.id], [v.get_object['id'], v.get_object['annotated_id']]
-      assert_equal [copy_pm1.id, copy_pm2.id], v.get_object_changes['annotated_id']
+      assert_equal [copy_e.id, copy_pm2.id], [v.get_object['id'], v.associated_id]
       obj_after = JSON.parse v.object_after
-      assert_equal [copy_e.id, copy_pm2.id], [obj_after['id'], obj_after['annotated_id']]
+      assert_equal [copy_e.id, copy_pm2.id], [obj_after['id'], v.associated_id]
       assert copy.destroy!
       RequestStore.store[:disable_es_callbacks] = false
     end
@@ -1418,7 +1418,6 @@ class TeamTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     create_team_user team: other_t, user: u, role: 'owner'
-    puts t.owners('owner').size
     assert_equal [u.id], t.owners('owner').map(&:id)
   end
 
@@ -1445,6 +1444,7 @@ class TeamTest < ActiveSupport::TestCase
       pm = create_project_media user: u, team: team, project: project
       pm.archived = true;pm.save
     end
+    Team.current = User.current = nil
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     copy_p = copy.projects.find_by_title(project.title)

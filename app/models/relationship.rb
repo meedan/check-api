@@ -129,6 +129,11 @@ class Relationship < ActiveRecord::Base
     (self.source && self.source.is_being_copied) || self.is_being_copied
   end
 
+  # Overwrite
+  def destroy_annotations_and_versions
+    # We want to keep the history of related items added or removed
+  end
+
   protected
 
   def es_values

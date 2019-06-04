@@ -2,6 +2,7 @@ class UpdateFieldsFromEmbeds < ActiveRecord::Migration
 
   def change
     @n = 0
+    return unless defined?(Embed)
     Embed.where(annotation_type: 'embed').find_each do |e|
       embed = JSON.parse(e.embed)
       e.skip_notifications = true

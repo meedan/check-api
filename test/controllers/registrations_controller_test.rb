@@ -31,6 +31,7 @@ class RegistrationsControllerTest < ActionController::TestCase
       members = [{role: 'contributor', email: email}]
       User.send_user_invitation(members)
     end
+    User.current = Team.current = nil
     assert_no_difference 'User.count' do
       post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: email, login: 'test', name: 'Test' }
       assert_response :success

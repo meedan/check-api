@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   self.inheritance_column = :type
-  attr_accessor :skip_confirmation_mail, :from_omniauth_login
+  attr_accessor :skip_confirmation_mail, :from_omniauth_login, :frozen_account_ids, :frozen_source_id
 
   include ValidationsHelper
   include UserPrivate
@@ -27,6 +27,7 @@ class User < ActiveRecord::Base
   after_create :create_source_and_account, :set_source_image, :send_welcome_email
   before_save :set_token, :set_login
   after_update :set_blank_email_for_unconfirmed_user
+  before_destroy :freeze_account_ids_and_source_id
   before_destroy :can_destroy_user, prepend: true
 
   mount_uploader :image, ImageUploader
@@ -277,6 +278,7 @@ class User < ActiveRecord::Base
 
   def self.delete_check_user(user)
     begin
+      user.send(:freeze_account_ids_and_source_id)
       rand_id = Time.now.to_i
       s = user.source
       columns = {
@@ -293,7 +295,7 @@ class User < ActiveRecord::Base
     end
     # notify team(s) owner & privacy
     user.teams.each do |team|
-      DeleteUserMailer.delay.notify_owners(user, team)
+      DeleteUserMailer.send_owner_notification(user, team)
     end
     DeleteUserMailer.delay.notify_privacy(user) unless CONFIG['privacy_email'].blank?
   end

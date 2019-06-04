@@ -52,7 +52,7 @@ class SourceTest < ActiveSupport::TestCase
       s = create_source
       s.slogan = 'test'
       s.save!
-      assert_equal 2, s.versions.size
+      assert_equal 3, s.versions.size
     end
   end
 
@@ -113,7 +113,7 @@ class SourceTest < ActiveSupport::TestCase
     c3 = create_comment
     s.add_annotation(c1)
     s.add_annotation(c2)
-    assert_equal [c1.id, c2.id].sort, s.reload.annotations.map(&:id).sort
+    assert_equal [c1.id, c2.id].sort, s.reload.annotations.where(annotation_type: 'comment').map(&:id).sort
   end
 
   test "should get user from callback" do
@@ -531,11 +531,7 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should create metadata annotation when source is created" do
-    assert_no_difference 'Dynamic.count' do
-      create_source
-    end
-    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
-    assert_difference 'Dynamic.count' do
+    assert_difference "Dynamic.where(annotation_type: 'metadata').count" do
       create_source
     end
   end

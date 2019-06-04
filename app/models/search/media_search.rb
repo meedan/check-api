@@ -13,8 +13,6 @@ class MediaSearch
   attribute :quote, String, mapping: { type: 'text', analyzer: 'check' }
   attribute :inactive, Integer
   attribute :archived, Integer
-  attribute :recent_added, Integer
-  attribute :recent_activity, Integer
   attribute :accounts, Array, mapping: {
     type: 'nested',
     properties: {

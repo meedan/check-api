@@ -94,16 +94,17 @@ module ProjectMediaEmbed
   end
 
   def published_at
-    self.embed['published_at'].blank? ? self.created_at : DateTime.parse(self.embed['published_at'])
+    p = self.metadata['published_at']
+    p.blank? ? self.created_at : (p.is_a?(Numeric) ? Time.at(p) : DateTime.parse(p))
   end
 
   def source_author
     data = {}
     if self.media.is_a?(Link)
-      data[:author_picture] = self.embed['author_picture']
-      data[:author_url] = self.embed['author_url']
-      data[:author_name] = self.embed['author_name']
-      data[:author_username] = self.embed['username']
+      data[:author_picture] = self.metadata['author_picture']
+      data[:author_url] = self.metadata['author_url']
+      data[:author_name] = self.metadata['author_name']
+      data[:author_username] = self.metadata['username']
     else
       data[:author_picture] = self.author_picture
       data[:author_url] = self.author_url
@@ -113,7 +114,7 @@ module ProjectMediaEmbed
     data
   end
 
-  def metadata
+  def oembed_metadata
     {
       title: self.title.to_s,
       description: self.description.to_s,

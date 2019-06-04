@@ -201,6 +201,7 @@ module SampleData
   def create_verification_status_stuff(delete_existing = true)
     if delete_existing
       [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     end
     ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
     at = create_annotation_type annotation_type: 'verification_status', label: 'Verification Status'
@@ -210,6 +211,7 @@ module SampleData
   def create_task_status_stuff(delete_existing = true)
     if delete_existing
       [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     end
     ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
     at = create_annotation_type annotation_type: 'task_status', label: 'Task Status'
@@ -251,15 +253,23 @@ module SampleData
     f
   end
 
-  def create_embed(options = {})
-    options = { embed: random_string, annotator: create_user, disable_es_callbacks: true }.merge(options)
+  def create_metadata(options = {})
+    annotator = options[:annotator] || create_user
+    options = { annotator: annotator, disable_es_callbacks: true }.merge(options)
     options[:annotated] = create_project_media unless options.has_key?(:annotated)
-    em = Embed.new
+    m = Dynamic.new
+    m.annotation_type = 'metadata'
+    data = {}
     options.each do |key, value|
-      em.send("#{key}=", value)
+      if m.respond_to?("#{key}=")
+        m.send("#{key}=", value)
+      else
+        data[key] = value
+      end
     end
-    em.save!
-    em
+    m.set_fields = { metadata_value: data.to_json }.to_json
+    m.save!
+    m
   end
 
   def create_annotation(options = {})

@@ -6,9 +6,18 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   serialize :value
 
-  before_validation :set_annotation_type, :set_field_type
+  before_validation :set_annotation_type, :set_field_type, :set_json_value
 
   validate :field_format
+
+  # pairs = { key => value, ... }
+  def self.find_in_json(pairs)
+    conditions = {}
+    pairs.each do |key, value|
+      conditions[key] = value
+    end
+    DynamicAnnotation::Field.where('value_json @> ?', conditions.to_json)
+  end
 
   def to_s
     self.method_suggestions('formatter').each do |name|
@@ -48,5 +57,9 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   def set_field_type
     self.field_type ||= self.field_instance.field_type
+  end
+
+  def set_json_value
+    self.value_json = self.value if self.field_type == 'json' && self.respond_to?(:value_json)
   end
 end

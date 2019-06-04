@@ -15,7 +15,7 @@ class ProjectMedia < ActiveRecord::Base
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :project_id }
 
-  after_create :set_quote_embed, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create
+  after_create :set_quote_metadata, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create
   after_commit :create_relationship, on: [:update, :create]
   after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_destroy :destroy_related_medias
@@ -111,59 +111,55 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def title
-    self.embed.dig('title') || self.media.quote
+    self.metadata.dig('title') || self.media.quote
   end
 
   def description
-    self.embed.dig('description') || (self.media.type == 'Claim' ? nil : self.text)
+    self.metadata.dig('description') || (self.media.type == 'Claim' ? nil : self.text)
   end
 
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
   end
 
-  def embed
-    em_pender = self.media.get_annotations('embed').last
-    em_overriden = self.get_annotations('embed').last
-    if em_overriden.nil?
-      em = em_pender
-    else
-      em = em_overriden
-      em['data']['embed'] = em_pender['data']['embed'] unless em_pender.nil?
-    end
-    embed = JSON.parse(em.data['embed']) unless em.nil?
-    self.overridden_embed_attributes.each{ |k| sk = k.to_s; embed[sk] = em.data[sk] unless em.data[sk].nil? } unless embed.nil?
-    embed
+  def metadata
+    self.original_metadata.merge(self.custom_metadata)
+  end
+
+  def original_metadata
+    begin JSON.parse(self.media.get_annotations('metadata').last.load.get_field_value('metadata_value')) rescue {} end
+  end
+
+  def custom_metadata
+    begin JSON.parse(self.get_annotations('metadata').last.load.get_field_value('metadata_value')) rescue {} end
   end
 
   def overridden
     data = {}
-    self.overridden_embed_attributes.each{|k| data[k] = false}
+    self.overridden_metadata_attributes.each{ |k| data[k] = false }
     if self.media.type == 'Link'
-      em = self.get_annotations('embed').last
-      unless em.nil?
-        em_media = self.media.get_annotations('embed').last
-        data.each do |k, _v|
-          data[k] = true if em['data'][k] != em_media['data'][k] and !em['data'][k].blank?
-        end
+      cm = self.custom_metadata
+      om = self.original_metadata
+      data.each do |k, _v|
+        data[k] = true if cm[k] != om[k] and !cm[k].blank?
       end
     end
     data
   end
 
-  def overridden_embed_attributes
+  def overridden_metadata_attributes
     %W(title description username)
   end
 
-  def embed=(info)
+  def metadata=(info)
     info = info.blank? ? {} : JSON.parse(info)
     unless info.blank?
-      em = self.get_annotations('embed').last
-      em = em.load unless em.nil?
-      em = initiate_embed_annotation(info) if em.nil?
-      em.disable_es_callbacks = Rails.env.to_s == 'test'
-      em.client_mutation_id = self.client_mutation_id
-      self.override_embed_data(em, info)
+      m = self.get_annotations('metadata').last
+      m = m.load unless m.nil?
+      m = initiate_metadata_annotation(info) if m.nil?
+      m.disable_es_callbacks = Rails.env.to_s == 'test'
+      m.client_mutation_id = self.client_mutation_id
+      self.override_metadata_data(m, info)
     end
   end
 
@@ -305,25 +301,28 @@ class ProjectMedia < ActiveRecord::Base
 
   protected
 
-  def initiate_embed_annotation(info)
-    em = Embed.new
-    em.embed = info.to_json
-    em.annotated = self
-    em.annotator = User.current unless User.current.nil?
-    em
+  def initiate_metadata_annotation(info)
+    m = Dynamic.new
+    m.annotation_type = 'metadata'
+    m.set_fields = { metadata_value: info.to_json }.to_json
+    m.annotated = self
+    m.annotator = User.current unless User.current.nil?
+    m
   end
 
-  def override_embed_data(em, info)
-    info.each{ |k, v| em.send("#{k}=", v) if em.respond_to?(k) }
-    em.skip_notifications = true if self.is_being_created
-    em.save!
+  def override_metadata_data(m, info)
+    current_info = self.custom_metadata
+    info.each{ |k, v| current_info[k] = v }
+    m.skip_notifications = true if self.is_being_created
+    m.set_fields = { metadata_value: current_info.to_json }.to_json
+    m.save!
   end
 
   def set_es_account_data
     data = {}
     a = self.media.account
-    embed = a.embed
-    self.overridden_embed_attributes.each{ |k| sk = k.to_s; data[sk] = embed[sk] unless embed[sk].nil? } unless embed.nil?
+    metadata = a.metadata
+    self.overridden_metadata_attributes.each{ |k| sk = k.to_s; data[sk] = metadata[sk] unless metadata[sk].nil? } unless metadata.nil?
     data["id"] = a.id unless data.blank?
     [data]
   end
@@ -333,7 +332,7 @@ class ProjectMedia < ActiveRecord::Base
     unless m.nil?
       ms.associated_type = m.type
       ms.accounts = self.set_es_account_data unless m.account.nil?
-      data = self.embed
+      data = self.metadata
       unless data.nil?
         ms.title = data['title']
         ms.description = data['description']
@@ -345,8 +344,6 @@ class ProjectMedia < ActiveRecord::Base
     ms.translation_status = ts.load.status unless ts.nil?
     ms.archived = self.archived.to_i
     ms.inactive = self.inactive.to_i
-    ms.recent_added = self.created_at.to_i
-    ms.recent_activity = Time.now.to_i
   end
 
   # private
