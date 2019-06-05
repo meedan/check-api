@@ -36,6 +36,7 @@ class ApplicationMailer < ActionMailer::Base
     user = User.find_user_by_email(email)
     username = user.nil? ? '' : user.name
     info[:greeting] = I18n.t("mails_notifications.greeting", username: username)
+    info[:username] = username
     @info = info
   end
 end
