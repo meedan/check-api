@@ -1,0 +1,264 @@
+<div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+  <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-left: 8px solid #5CAE73; border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
+    <tr>
+      <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="left">
+        <div class="section" style="background-color: #fff; text-align: !important;">
+          <!-- Section title-->
+          <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+            <% if !@info[:description].blank? %>
+              <tr>
+                <td class="section__title" style="padding: 23px 30px;" bgcolor="#fff" align="left">
+                  <span class="span text" style="font-size: 17px; line-height: 20px;">
+                    <%= @info[:description] %>
+                  </span></td>
+              </tr>
+            <% end %>
+            <% if !@info[:image_path].blank? %>
+              <tr>
+                <td class="media-list__image" style="border-collapse: collapse; overflow: hidden; padding-left: 30px; padding-right: 20px;" width="520px" height="auto" valign="top">
+                  <%= image_tag(@info[:image_path], width: "520", style: "-ms-interpolation-mode: bicubic; border: 0 none; height: auto; line-height: 100%; outline: none; text-decoration: none; width: 520px;") %>
+                </td>
+              </tr>
+            <% end %>
+            <% if !@info[:media_link].blank? %> 
+              <tr>
+                <td class="section__description" style="padding: 23px 30px;" bgcolor="#fff" align="left">
+                  <%= 
+                    link_to(@info[:media_link], @info[:media_link], :class => 'span text text-gray', :style => 'font-size: 14px; line-height: 18px; color: #757575 !important; text-decoration:none;') 
+                  %>
+              </tr>
+            <% end %>
+          </table>
+          <!-- Section content-->
+          <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+            <tr>
+              <td class="section__content" style="background: #fff; border-collapse: collapse;">
+                <style>
+                  @media only screen and (max-width: 481px) {
+                    body .media-info {
+                      padding-right: 20px !important;
+                      padding-left: 20px !important;
+                    }
+                  }
+                </style>
+
+                <!--~~//media-info module start \\~~-->
+                <!--————————————————————————————-->
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                  <tr>
+                    <td style="border-collapse: collapse; font-size: 33px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                  </tr>
+                </table>
+                <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+                  <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
+
+                    <tr>
+                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
+                        <div class="media-info" style="padding-left: 30px; padding-right: 30px; text-align: left;">
+                          <div>
+                            <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 25px;">
+                              <%= I18n.t("mails_notifications.assignment.#{@info[:event_type]}_by") %>
+                            </span>
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                              <tr>
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                              </tr>
+                            </table>
+                          </div>
+                          <div class="text-gray" style="color: #9a9a9a !important;">
+                            <span class="span" style="font-size: 15px; line-height: 25px;">
+                              <%= @info[:author] %>
+                            </span>
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                              <tr class="rowgap" style="display: block;">
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1;">&nbsp;</td>
+                              </tr>
+                              <tr class="rowgap-mobile" style="display: none;">
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1;">&nbsp;</td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                      </th>
+                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
+                        <div class="media-info" style="padding-left: 30px; padding-right: 30px; text-align: left;">
+                          <div>
+                            <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
+                              <%= I18n.t("mails_notifications.media_status.added_to", app_name: CONFIG['app_name']) %>
+                            </span>
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                              <tr>
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                              </tr>
+                            </table>
+                          </div>
+                          <div class="text-gray" style="color: #9a9a9a !important;">
+                            <span class="span" style="font-size: 15px; line-height: 15px;">
+                              <%= @info[:created_at] %>
+                            </span>
+                          </div>
+                        </div>
+                      </th>
+                    </tr>
+                  </table>
+                </div>
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                  <tr>
+                    <td style="border-collapse: collapse; font-size: 15px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                  </tr>
+                </table>
+                <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+                  <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
+                    <tr>
+                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
+                        <div class="media-info" style="padding-left: 30px; padding-right: 30px; text-align: left;">
+                          <div>
+                            <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
+                              <%= I18n.t("mails_notifications.media_status.update_h") %>
+                            </span>
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                              <tr>
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                              </tr>
+                            </table>
+                          </div>
+                          <div class="text-gray" style="color: #9a9a9a !important;"><span class="span" style="font-size: 15px; line-height: 15px;"><%= @info[:updated_at] %></span>
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                              <tr class="rowgap" style="display: block;">
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1;">&nbsp;</td>
+                              </tr>
+                              <tr class="rowgap-mobile" style="display: none;">
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1;">&nbsp;</td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                      </th>
+                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
+                        <div class="media-info" style="padding-left: 30px; padding-right: 30px; text-align: left;">
+                          <div>
+                            <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
+                              <%= I18n.t("activerecord.models.project") %>
+                            </span>
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                              <tr>
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                              </tr>
+                            </table>
+                          </div>
+                          <div class="text-gray" style="color: #9a9a9a !important;">
+                            <span class="span" style="font-size: 15px; line-height: 15px;">
+                              <%= @info[:project] %>
+                            </span>
+                          </div>
+                        </div>
+                      </th>
+                    </tr>
+                  </table>
+                </div>
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                  <tr>
+                    <td style="border-collapse: collapse; font-size: 15px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                  </tr>
+                </table>
+                <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+                  <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
+                    <tr>
+                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="left">
+                        <div class="media-info" style="padding-left: 30px; padding-right: 30px; text-align: left;">
+                          <div>
+                            <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
+                              <%= I18n.t("mails_notifications.media_status.tasks_h") %>
+                            </span>
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                              <tr>
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                              </tr>
+                            </table>
+                          </div>
+                          <div class="text-gray" style="color: #9a9a9a !important;">
+                            <span class="span" style="font-size: 15px; line-height: 15px;">
+                              <%= "#{@info[:resolved_tasks]}/#{@info[:total_tasks]}" %>
+                            </span>
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                              <tr class="rowgap" style="display: block;">
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1;">&nbsp;</td>
+                              </tr>
+                              <tr class="rowgap-mobile" style="display: none;">
+                                <td style="border-collapse: collapse; font-size: 5px; line-height: 1;">&nbsp;</td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                      </th>
+                    </tr>
+                  </table>
+                </div>
+
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                  <tr>
+                    <td style="border-collapse: collapse; font-size: 15px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                  </tr>
+                </table>
+                <!--————————————————————————————-->
+                <!--~~\\ media-info module end //~~-->
+
+              </td>
+            </tr>
+          </table>
+        </div>
+      </th>
+    </tr>
+  </table>
+</div>
+<!--————————————————————————————-->
+<!--~~\\ Section module end //~~-->
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+  <tr>
+    <td style="border-collapse: collapse; font-size: 23px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+  </tr>
+</table>
+<style>
+  @media only screen and (max-width: 601px) {
+    th.footer {
+      padding: 0 30px !important;
+    }
+  }
+
+
+  @media only screen and (max-width: 481px) {
+    th.footer {
+      padding: 0 !important;
+    }
+  }
+</style>
+
+<div class="container wide" width="100%" style="margin: 0 auto; text-align: left;">
+  <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
+    <tr>
+      <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="100%" valign="top" align="left">
+        <table cellpadding="0" cellspacing="0" border="0" width="auto" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+          <tr>
+            <th class="footer" style="font-weight: normal; padding: 0;" align="left">
+              <p class="h4 text-gray" style="color: #9a9a9a !important; font-size: 15px; line-height: 20px; margin: 0;">
+                <%= link_to(@info[:button], @info[:url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>
+                 •                 
+                <%= link_to(I18n.t("mails_notifications.project_view"), @info[:project_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>
+                 • 
+                <%= I18n.t("mails_notifications.unsubscribe_link", 
+                    unsubscribe: link_to(I18n.t("mails_notifications.unsubscribe"), "#{CONFIG['checkdesk_client']}/check/me/edit", :class => "link", :style => "color: #0d6cf7 !important; text-decoration: none;")).html_safe %>
+                <br>
+              </p>
+            </th>
+          </tr>
+        </table>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+          <tr>
+            <td style="border-collapse: collapse; font-size: 40px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+          </tr>
+        </table>
+      </th>
+    </tr>
+  </table>
+</div>
