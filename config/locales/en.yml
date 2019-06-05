@@ -416,7 +416,6 @@ en:
     to anonymous user %{id}
   mails_notifications:
     greeting: "Hello %{username},"
-    greeting_all: "Hello,"
     project_view: "View project"
     unsubscribe: 'Unsubscribe'
     unsubscribe_link: "%{unsubscribe} from these notifications"

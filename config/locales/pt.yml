@@ -333,25 +333,44 @@ pt:
   mail_subject_unassign_translation_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
   mail_subject_assign_task: "[%{team} - %{project}] Uma tarefa foi atribuída para você"
   mail_subject_unassign_task: "[%{team} - %{project}] A atribuição de uma tarefa foi removida de você"
-  mail_subject_update_status: "[%{team} - %{project}] Uma mídia foi marcada como %{status}"
   mail_assign_verification_status: "%{author} atribuiu para você a mídia intitulada "
   mail_unassign_verification_status: "%{author} removeu a atribuição da mídia intitulada "
   mail_assign_translation_status: "%{author} atribuiu para você a mídia intitulada "
   mail_unassign_translation_status: "%{author} removeu a atribuição da mídia intitulada "
   mail_assign_task: '%{author} atribuiu para você a tarefa "%{task}" que fica na mídia intitulada '
   mail_unassign_task: '%{author} removeu a atribuição da tarefa "%{task}" que fica na mídia intitulada '
-  mail_update_status: '%{author}modificou o status de "%{title}" para %{status}'
   mail_assign_project: "%{author} atribuiu um projeto para você. O título é:"
   mail_unassign_project: "%{author} desatribuiu um projeto de você. O título é:"
   mail_subject_assign_project: "[%{team} - %{project}] Um projeto foi atribuído para você"
   mail_subject_unassign_project: "[%{team} - %{project}] Um projeto foi desatribuído de você"
   mail_subject_delete_user: "[%{team}] Um usuário foi excluído"
   mail_body_delete_user: Uma conta de usuário foi excluída e seu conteúdo foi reatribuído para usuário anônimo %{id}
+  mails_notifications:
+    greeting: "Olá %{username},"
+    project_view: "Ver projeto"
+    unsubscribe: 'Cancelar inscrição'
+    unsubscribe_link: "%{unsubscribe} dessas notificações"
+    copyright_html: "%{app_name} por <a href=\"https://meedan.com\">Meedan</a>"
+    task_resolved:
+      subject: "[%{team} - %{project}] Tarefa Respondida"
+      header_title: 'Tarefa respondida'
+      header_text: " %{author} respondeu uma tarefa no projeto %{project} em %{team}."
+      section_title: 'Quem ou qual é a fonte dessa afirmação?'
+      status: 'Status'
+      media_h: 'Mídia'
+    media_status:
+      label: 'mídia'
+      subject: "[%{team} - %{project}] O status de uma mídia foi marcado como %{status}"
+      header_title: 'Status de Mídia Atualizado'
+      header_text: " %{author} atualizou uma mídia no projeto %{project} em %{team}."
+      section_title: "Marcado como %{status}."
+      added_to: "Adicionado ao %{app_name}"
+      update_h: 'Última Atualização'
+      tasks_h: 'Tarefas Concluídas'
   mail_security:
     device_subject: "Alerta de segurança: Novo login em %{app_name} pelo %{browser} em %{platform}"
     ip_subject: "Alerta de segurança: Login novo ou incomum em %{app_name}"
     failed_subject: "Alerta de segurança: Tentativas de login em %{app_name} falharam"
-    greeting: "Olá %{username},"
     ip: "Você se conectou de %{location}"
     device: "Você se conectou pelo %{browser} em %{platform}"
     devise_name: "%{browser} em %{platform}"
@@ -370,7 +389,6 @@ pt:
     manage_text: 'Gerenciar'
     privace_manage_plain: "Gerenciar suas notificações de email"
     privacy_plain: "Saiba mais sobre nossa Política de Privacidade"
-    copyright_html: "%{app_name} por <a href=\"https://meedan.com\">Meedan</a>"
   archive_keep_backup: Video Vault
   archive_pender_archive: capturas de tela com Keep
   archive_archive_is: Archive.is
